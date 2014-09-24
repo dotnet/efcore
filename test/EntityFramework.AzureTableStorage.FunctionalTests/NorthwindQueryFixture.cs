@@ -68,12 +68,12 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
             modelBuilder.Entity<Order>().ForeignKey<Customer>(o => o.CustomerID);
             
             var productIdFk = orderDetailType.ForeignKeys.Single();
-            orderDetailType.AddNavigation(new Navigation(productIdFk, "Product", pointsToPrincipal: true));
-            productType.AddNavigation(new Navigation(productIdFk, "OrderDetails", pointsToPrincipal: false));
+            orderDetailType.AddNavigation("Product", productIdFk, pointsToPrincipal: true);
+            productType.AddNavigation("OrderDetails", productIdFk, pointsToPrincipal: false);
 
             var customerIdFk = orderType.ForeignKeys.Single();
-            orderType.AddNavigation(new Navigation(customerIdFk, "Customer", pointsToPrincipal: true));
-            customerType.AddNavigation(new Navigation(customerIdFk, "Orders", pointsToPrincipal: false));
+            orderType.AddNavigation("Customer", customerIdFk, pointsToPrincipal: true);
+            customerType.AddNavigation("Orders", customerIdFk, pointsToPrincipal: false);
             
             return builder.Model;
         }

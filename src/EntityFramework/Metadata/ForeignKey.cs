@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.Metadata
         {
         }
 
-        public ForeignKey([NotNull] Key referencedKey, [NotNull] IReadOnlyList<Property> dependentProperties)
+        public ForeignKey([NotNull] IReadOnlyList<Property> dependentProperties, [NotNull] Key referencedKey)
             : base(dependentProperties)
         {
             Check.NotNull(referencedKey, "referencedKey");
@@ -32,23 +32,31 @@ namespace Microsoft.Data.Entity.Metadata
             if (principalProperties.Count != dependentProperties.Count)
             {
                 throw new ArgumentException(
-                    Strings.FormatForeignKeyCountMismatch(dependentProperties[0].EntityType.Name, referencedKey.EntityType.Name));
+                    Strings.FormatForeignKeyCountMismatch(
+                        Property.Format(dependentProperties),
+                        dependentProperties[0].EntityType.Name,
+                        Property.Format(principalProperties),
+                        referencedKey.EntityType.Name));
             }
 
             if (!principalProperties.Select(p => p.UnderlyingType).SequenceEqual(dependentProperties.Select(p => p.UnderlyingType)))
             {
                 throw new ArgumentException(
-                    Strings.FormatForeignKeyTypeMismatch(dependentProperties[0].EntityType.Name, referencedKey.EntityType.Name));
+                    Strings.FormatForeignKeyTypeMismatch(
+                    Property.Format(dependentProperties),
+                    dependentProperties[0].EntityType.Name, referencedKey.EntityType.Name));
             }
 
             _referencedKey = referencedKey;
         }
 
+        [NotNull]
         public virtual IReadOnlyList<Property> ReferencedProperties
         {
             get { return _referencedKey.Properties; }
         }
 
+        [NotNull]
         public virtual Key ReferencedKey
         {
             get { return _referencedKey; }

@@ -83,7 +83,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             Key principalKey;
             if (referencedProperties.Any())
             {
-                principalKey = principalType.GetOrAddKey(referencedProperties.ToArray());
+                principalKey = principalType.GetOrAddKey(referencedProperties);
             }
             else
             {
@@ -103,13 +103,15 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
                     }
                     else
                     {
-                        principalKey = principalType.GetOrAddKey(principalType.GetOrAddProperty(
-                            (navigationToPrincipal ?? principalType.SimpleName) + "IdKey", typeof(int), shadowProperty: true));
+                        var shadowId = principalType.GetOrAddProperty(
+                            (navigationToPrincipal ?? principalType.SimpleName) + "IdKey", typeof(int), shadowProperty: true);
+                        principalKey = principalType.GetOrAddKey(new[] { shadowId });
                     }
                 }
             }
 
-            if (!foreignKeyProperties.Any())
+            if (!foreignKeyProperties.Any()
+                || dependentType.TryGetForeignKey(foreignKeyProperties) != null)
             {
                 // Create foreign key properties in shadow state
                 // TODO: Convention property naming/disambiguation
@@ -125,7 +127,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
                     shadowProperty: true)).ToList();
             }
 
-            var newForeignKey = dependentType.AddForeignKey(new ForeignKey(principalKey, foreignKeyProperties.ToArray()));
+            var newForeignKey = dependentType.AddForeignKey(foreignKeyProperties, principalKey);
             newForeignKey.IsUnique = isUnqiue;
 
             return newForeignKey;

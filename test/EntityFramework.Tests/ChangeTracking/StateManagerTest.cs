@@ -437,7 +437,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var productType = model.GetEntityType(typeof(Product));
             var categoryType = model.GetEntityType(typeof(Category));
 
-            productType.GetOrAddForeignKey(new Key(new[] { categoryType.GetProperty("PrincipalId") }), productType.GetProperty("DependentId"));
+            productType.GetOrAddForeignKey(productType.GetProperty("DependentId"), new Key(new[] { categoryType.GetProperty("PrincipalId") }));
 
             var locationType = new EntityType("Location");
             var idProperty = locationType.GetOrAddProperty("Id", typeof(int), shadowProperty: true);

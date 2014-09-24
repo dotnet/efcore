@@ -393,7 +393,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var fkProperty = entityType.GetOrAddProperty("Fk", typeof(int?));
             fkProperty.IsConcurrencyToken = true;
-            entityType.GetOrAddForeignKey(new Key(new[] { idProperty }), fkProperty);
+            entityType.GetOrAddForeignKey(fkProperty, new Key(new[] { idProperty }));
 
             model.AddEntityType(entityType);
 
@@ -401,9 +401,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             model.AddEntityType(entityType2);
             var key2A = entityType2.GetOrAddProperty("Id1", typeof(int));
             var key2B = entityType2.GetOrAddProperty("Id2", typeof(string));
-            entityType2.GetOrSetPrimaryKey(key2A, key2B);
+            entityType2.GetOrSetPrimaryKey(new[] { key2A, key2B });
             var fk = entityType2.GetOrAddProperty("SomeEntityId", typeof(int));
-            entityType2.GetOrAddForeignKey(entityType.GetPrimaryKey(), new[] { fk });
+            entityType2.GetOrAddForeignKey(new[] { fk }, entityType.GetPrimaryKey());
             var justAProperty = entityType2.GetOrAddProperty("JustAProperty", typeof(int));
             justAProperty.ValueGeneration = ValueGeneration.OnAdd;
 
@@ -413,7 +413,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entityType5.GetOrSetPrimaryKey(key5);
             var fk5A = entityType5.GetOrAddProperty("Fk1", typeof(int));
             var fk5B = entityType5.GetOrAddProperty("Fk2", typeof(string));
-            entityType5.GetOrAddForeignKey(entityType2.GetPrimaryKey(), new[] { fk5A, fk5B });
+            entityType5.GetOrAddForeignKey(new[] { fk5A, fk5B }, entityType2.GetPrimaryKey());
 
             return model;
         }

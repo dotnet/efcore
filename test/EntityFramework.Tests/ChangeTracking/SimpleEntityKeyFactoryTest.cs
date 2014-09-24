@@ -118,7 +118,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var property2 = entityType.GetOrAddProperty("P2", typeof(int?));
 
             entityType.GetOrSetPrimaryKey(property1);
-            entityType.GetOrAddForeignKey(entityType.GetPrimaryKey(), property2);
+            entityType.GetOrAddForeignKey(property2, entityType.GetPrimaryKey());
 
             model.AddEntityType(entityType);
 

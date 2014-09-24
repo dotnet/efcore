@@ -299,7 +299,7 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
-        /// The specified key properties are not declared on the entity type '{entityType}'. Ensure key properties are declared on the target entity type.
+        /// The specified key properties {key} are not declared on the entity type '{entityType}'. Ensure key properties are declared on the target entity type.
         /// </summary>
         internal static string KeyPropertiesWrongEntity
         {
@@ -307,15 +307,15 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
-        /// The specified key properties are not declared on the entity type '{entityType}'. Ensure key properties are declared on the target entity type.
+        /// The specified key properties {key} are not declared on the entity type '{entityType}'. Ensure key properties are declared on the target entity type.
         /// </summary>
-        internal static string FormatKeyPropertiesWrongEntity(object entityType)
+        internal static string FormatKeyPropertiesWrongEntity(object key, object entityType)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("KeyPropertiesWrongEntity", "entityType"), entityType);
+            return string.Format(CultureInfo.CurrentCulture, GetString("KeyPropertiesWrongEntity", "key", "entityType"), key, entityType);
         }
 
         /// <summary>
-        /// The specified foreign key properties are not declared on the entity type '{entityType}'. Ensure foreign key properties are declared on the target entity type.
+        /// The specified foreign key properties {foreignKey} are not declared on the entity type '{entityType}'. Ensure foreign key properties are declared on the target entity type.
         /// </summary>
         internal static string ForeignKeyPropertiesWrongEntity
         {
@@ -323,15 +323,15 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
-        /// The specified foreign key properties are not declared on the entity type '{entityType}'. Ensure foreign key properties are declared on the target entity type.
+        /// The specified foreign key properties {foreignKey} are not declared on the entity type '{entityType}'. Ensure foreign key properties are declared on the target entity type.
         /// </summary>
-        internal static string FormatForeignKeyPropertiesWrongEntity(object entityType)
+        internal static string FormatForeignKeyPropertiesWrongEntity(object foreignKey, object entityType)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("ForeignKeyPropertiesWrongEntity", "entityType"), entityType);
+            return string.Format(CultureInfo.CurrentCulture, GetString("ForeignKeyPropertiesWrongEntity", "foreignKey", "entityType"), foreignKey, entityType);
         }
 
         /// <summary>
-        /// The specified index properties are not declared on the entity type '{entityType}'. Ensure index properties are declared on the target entity type.
+        /// The specified index properties {index} are not declared on the entity type '{entityType}'. Ensure index properties are declared on the target entity type.
         /// </summary>
         internal static string IndexPropertiesWrongEntity
         {
@@ -339,11 +339,11 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
-        /// The specified index properties are not declared on the entity type '{entityType}'. Ensure index properties are declared on the target entity type.
+        /// The specified index properties {index} are not declared on the entity type '{entityType}'. Ensure index properties are declared on the target entity type.
         /// </summary>
-        internal static string FormatIndexPropertiesWrongEntity(object entityType)
+        internal static string FormatIndexPropertiesWrongEntity(object index, object entityType)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("IndexPropertiesWrongEntity", "entityType"), entityType);
+            return string.Format(CultureInfo.CurrentCulture, GetString("IndexPropertiesWrongEntity", "index", "entityType"), index, entityType);
         }
 
         /// <summary>
@@ -683,23 +683,7 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
-        /// The property '{property}' cannot be added to the entity type '{entityType}' because it already belongs to entity type '{existingEntityType}'.
-        /// </summary>
-        internal static string PropertyAlreadyOwned
-        {
-            get { return GetString("PropertyAlreadyOwned"); }
-        }
-
-        /// <summary>
-        /// The property '{property}' cannot be added to the entity type '{entityType}' because it already belongs to entity type '{existingEntityType}'.
-        /// </summary>
-        internal static string FormatPropertyAlreadyOwned(object property, object entityType, object existingEntityType)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("PropertyAlreadyOwned", "property", "entityType", "existingEntityType"), property, entityType, existingEntityType);
-        }
-
-        /// <summary>
-        /// The property '{property}' cannot be added to the entity type '{entityType}' because an existing property with the same name already exists.
+        /// The property '{property}' cannot be added to the entity type '{entityType}' because a property with the same name already exists.
         /// </summary>
         internal static string DuplicateProperty
         {
@@ -707,7 +691,7 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
-        /// The property '{property}' cannot be added to the entity type '{entityType}' because an existing property with the same name already exists.
+        /// The property '{property}' cannot be added to the entity type '{entityType}' because a property with the same name already exists.
         /// </summary>
         internal static string FormatDuplicateProperty(object property, object entityType)
         {
@@ -779,7 +763,7 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
-        /// Cannot remove key from entity type '{entityType}' because it is referenced by a foreign key in entity type '{dependentType}'. All foreign keys must be removed or redefined before the referenced key can be removed.
+        /// Cannot remove key {key} from entity type '{entityType}' because it is referenced by a foreign key in entity type '{dependentType}'. All foreign keys must be removed or redefined before the referenced key can be removed.
         /// </summary>
         internal static string KeyInUse
         {
@@ -787,15 +771,15 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
-        /// Cannot remove key from entity type '{entityType}' because it is referenced by a foreign key in entity type '{dependentType}'. All foreign keys must be removed or redefined before the referenced key can be removed.
+        /// Cannot remove key {key} from entity type '{entityType}' because it is referenced by a foreign key in entity type '{dependentType}'. All foreign keys must be removed or redefined before the referenced key can be removed.
         /// </summary>
-        internal static string FormatKeyInUse(object entityType, object dependentType)
+        internal static string FormatKeyInUse(object key, object entityType, object dependentType)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("KeyInUse", "entityType", "dependentType"), entityType, dependentType);
+            return string.Format(CultureInfo.CurrentCulture, GetString("KeyInUse", "key", "entityType", "dependentType"), key, entityType, dependentType);
         }
 
         /// <summary>
-        /// Cannot remove foreign key from entity type '{entityType}' because it is referenced by navigation property '{navigation}' in entity type '{dependentType}'. All navigations must be removed or redefined before the referenced foreign key can be removed.
+        /// Cannot remove foreign key {foreignKey} from entity type '{entityType}' because it is referenced by navigation property '{navigation}' in entity type '{dependentType}'. All navigations must be removed or redefined before the referenced foreign key can be removed.
         /// </summary>
         internal static string ForeignKeyInUse
         {
@@ -803,11 +787,11 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
-        /// Cannot remove foreign key from entity type '{entityType}' because it is referenced by navigation property '{navigation}' in entity type '{dependentType}'. All navigations must be removed or redefined before the referenced foreign key can be removed.
+        /// Cannot remove foreign key {foreignKey} from entity type '{entityType}' because it is referenced by navigation property '{navigation}' in entity type '{dependentType}'. All navigations must be removed or redefined before the referenced foreign key can be removed.
         /// </summary>
-        internal static string FormatForeignKeyInUse(object entityType, object navigation, object dependentType)
+        internal static string FormatForeignKeyInUse(object foreignKey, object entityType, object navigation, object dependentType)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("ForeignKeyInUse", "entityType", "navigation", "dependentType"), entityType, navigation, dependentType);
+            return string.Format(CultureInfo.CurrentCulture, GetString("ForeignKeyInUse", "foreignKey", "entityType", "navigation", "dependentType"), foreignKey, entityType, navigation, dependentType);
         }
 
         /// <summary>
@@ -827,7 +811,7 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
-        /// The navigation property '{navigation}' cannot be added to the entity type '{entityType}' because an existing navigation property with the same name already exists.
+        /// The navigation property '{navigation}' cannot be added to the entity type '{entityType}' because a navigation property with the same name already exists.
         /// </summary>
         internal static string DuplicateNavigation
         {
@@ -835,7 +819,7 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
-        /// The navigation property '{navigation}' cannot be added to the entity type '{entityType}' because an existing navigation property with the same name already exists.
+        /// The navigation property '{navigation}' cannot be added to the entity type '{entityType}' because a navigation property with the same name already exists.
         /// </summary>
         internal static string FormatDuplicateNavigation(object navigation, object entityType)
         {
@@ -939,7 +923,7 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
-        /// The number of properties specified for the foreign key on entity type '{dependentType}' does not match the number of properties in the referenced key on entity type '{principalType}'.
+        /// The number of properties specified for the foreign key {foreignKey} on entity type '{dependentType}' does not match the number of properties in the referenced key {referencedKey} on entity type '{principalType}'.
         /// </summary>
         internal static string ForeignKeyCountMismatch
         {
@@ -947,15 +931,15 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
-        /// The number of properties specified for the foreign key on entity type '{dependentType}' does not match the number of properties in the referenced key on entity type '{principalType}'.
+        /// The number of properties specified for the foreign key {foreignKey} on entity type '{dependentType}' does not match the number of properties in the referenced key {referencedKey} on entity type '{principalType}'.
         /// </summary>
-        internal static string FormatForeignKeyCountMismatch(object dependentType, object principalType)
+        internal static string FormatForeignKeyCountMismatch(object foreignKey, object dependentType, object referencedKey, object principalType)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("ForeignKeyCountMismatch", "dependentType", "principalType"), dependentType, principalType);
+            return string.Format(CultureInfo.CurrentCulture, GetString("ForeignKeyCountMismatch", "foreignKey", "dependentType", "referencedKey", "principalType"), foreignKey, dependentType, referencedKey, principalType);
         }
 
         /// <summary>
-        /// The types of the properties specified for the foreign key on entity type '{dependentType}' do not match the types of the properties in the referenced key on entity type '{principalType}'.
+        /// The types of the properties specified for the foreign key {foreignKey} on entity type '{dependentType}' do not match the types of the properties in the referenced key on entity type '{principalType}'.
         /// </summary>
         internal static string ForeignKeyTypeMismatch
         {
@@ -963,11 +947,11 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
-        /// The types of the properties specified for the foreign key on entity type '{dependentType}' do not match the types of the properties in the referenced key on entity type '{principalType}'.
+        /// The types of the properties specified for the foreign key {foreignKey} on entity type '{dependentType}' do not match the types of the properties in the referenced key on entity type '{principalType}'.
         /// </summary>
-        internal static string FormatForeignKeyTypeMismatch(object dependentType, object principalType)
+        internal static string FormatForeignKeyTypeMismatch(object foreignKey, object dependentType, object principalType)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("ForeignKeyTypeMismatch", "dependentType", "principalType"), dependentType, principalType);
+            return string.Format(CultureInfo.CurrentCulture, GetString("ForeignKeyTypeMismatch", "foreignKey", "dependentType", "principalType"), foreignKey, dependentType, principalType);
         }
 
         /// <summary>
@@ -1080,6 +1064,134 @@ namespace Microsoft.Data.Entity
         internal static string FormatKeyPropertyMustBeReadOnly(object property, object entityType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("KeyPropertyMustBeReadOnly", "property", "entityType"), property, entityType);
+        }
+
+        /// <summary>
+        /// The foreign key {foreignKey} cannot be added to the entity type '{entityType}' because a foreign key on the same properties already exists.
+        /// </summary>
+        internal static string DuplicateForeignKey
+        {
+            get { return GetString("DuplicateForeignKey"); }
+        }
+
+        /// <summary>
+        /// The foreign key {foreignKey} cannot be added to the entity type '{entityType}' because a foreign key on the same properties already exists.
+        /// </summary>
+        internal static string FormatDuplicateForeignKey(object foreignKey, object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("DuplicateForeignKey", "foreignKey", "entityType"), foreignKey, entityType);
+        }
+
+        /// <summary>
+        /// The index {index} cannot be added to the entity type '{entityType}' because an index on the same properties already exists.
+        /// </summary>
+        internal static string DuplicateIndex
+        {
+            get { return GetString("DuplicateIndex"); }
+        }
+
+        /// <summary>
+        /// The index {index} cannot be added to the entity type '{entityType}' because an index on the same properties already exists.
+        /// </summary>
+        internal static string FormatDuplicateIndex(object index, object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("DuplicateIndex", "index", "entityType"), index, entityType);
+        }
+
+        /// <summary>
+        /// The key {key} cannot be added to the entity type '{entityType}' because a key on the same properties already exists.
+        /// </summary>
+        internal static string DuplicateKey
+        {
+            get { return GetString("DuplicateKey"); }
+        }
+
+        /// <summary>
+        /// The key {key} cannot be added to the entity type '{entityType}' because a key on the same properties already exists.
+        /// </summary>
+        internal static string FormatDuplicateKey(object key, object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("DuplicateKey", "key", "entityType"), key, entityType);
+        }
+
+        /// <summary>
+        /// The foreign key {foreignKey} on entity type '{entityType}' could not be found. Ensure that the foreign key been added to the entity type.
+        /// </summary>
+        internal static string ForeignKeyNotFound
+        {
+            get { return GetString("ForeignKeyNotFound"); }
+        }
+
+        /// <summary>
+        /// The foreign key {foreignKey} on entity type '{entityType}' could not be found. Ensure that the foreign key been added to the entity type.
+        /// </summary>
+        internal static string FormatForeignKeyNotFound(object foreignKey, object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ForeignKeyNotFound", "foreignKey", "entityType"), foreignKey, entityType);
+        }
+
+        /// <summary>
+        /// The index {index} on entity type '{entityType}' could not be found. Ensure that the index been added to the entity type.
+        /// </summary>
+        internal static string IndexNotFound
+        {
+            get { return GetString("IndexNotFound"); }
+        }
+
+        /// <summary>
+        /// The index {index} on entity type '{entityType}' could not be found. Ensure that the index been added to the entity type.
+        /// </summary>
+        internal static string FormatIndexNotFound(object index, object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("IndexNotFound", "index", "entityType"), index, entityType);
+        }
+
+        /// <summary>
+        /// The key {key} on entity type '{entityType}' could not be found. Ensure that the key been added to the entity type.
+        /// </summary>
+        internal static string KeyNotFound
+        {
+            get { return GetString("KeyNotFound"); }
+        }
+
+        /// <summary>
+        /// The key {key} on entity type '{entityType}' could not be found. Ensure that the key been added to the entity type.
+        /// </summary>
+        internal static string FormatKeyNotFound(object key, object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("KeyNotFound", "key", "entityType"), key, entityType);
+        }
+
+        /// <summary>
+        /// The navigation property '{navigation}' cannot be added to entity type '{entityType}' because the target entity type '{targetType}' is defined in shadow state and navigations properties cannot point to shadow state entities.
+        /// </summary>
+        internal static string NavigationToShadowEntity
+        {
+            get { return GetString("NavigationToShadowEntity"); }
+        }
+
+        /// <summary>
+        /// The navigation property '{navigation}' cannot be added to entity type '{entityType}' because the target entity type '{targetType}' is defined in shadow state and navigations properties cannot point to shadow state entities.
+        /// </summary>
+        internal static string FormatNavigationToShadowEntity(object navigation, object entityType, object targetType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("NavigationToShadowEntity", "navigation", "entityType", "targetType"), navigation, entityType, targetType);
+        }
+
+        /// <summary>
+        /// The collection argument '{argumentName}' must not contain any null references.
+        /// </summary>
+        internal static string CollectionArgumentContainsNulls
+        {
+            get { return GetString("CollectionArgumentContainsNulls"); }
+        }
+
+        /// <summary>
+        /// The collection argument '{argumentName}' must not contain any null references.
+        /// </summary>
+        internal static string FormatCollectionArgumentContainsNulls(object argumentName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("CollectionArgumentContainsNulls", "argumentName"), argumentName);
         }
 
         private static string GetString(string name, params string[] formatterNames)

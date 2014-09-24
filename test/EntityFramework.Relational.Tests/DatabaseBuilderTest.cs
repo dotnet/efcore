@@ -230,7 +230,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
             dependentEntityType.GetPrimaryKey().SetKeyName("MyPK0");
             principalEntityType.GetPrimaryKey().SetKeyName("MyPK1");
 
-            var foreignKey = dependentEntityType.GetOrAddForeignKey(principalEntityType.GetPrimaryKey(), dependentProperty);
+            var foreignKey = dependentEntityType.GetOrAddForeignKey(dependentProperty, principalEntityType.GetPrimaryKey());
             foreignKey.SetKeyName("MyFK");
             foreignKey.Annotations.Add(new Annotation(
                 MetadataExtensions.Annotations.CascadeDelete, "True"));

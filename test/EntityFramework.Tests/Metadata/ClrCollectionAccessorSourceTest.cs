@@ -127,11 +127,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             var entityType = new EntityType(typeof(MyEntity));
             var otherType = new EntityType(typeof(MyOtherEntity));
-            var foreignKey = otherType.GetOrAddForeignKey(
-                entityType.GetOrSetPrimaryKey(entityType.GetOrAddProperty("Id", typeof(int), shadowProperty: true)),
-                otherType.GetOrAddProperty("MyEntityId", typeof(int), shadowProperty: true));
+            var foreignKey = otherType.GetOrAddForeignKey(otherType.GetOrAddProperty("MyEntityId", typeof(int), shadowProperty: true), entityType.GetOrSetPrimaryKey(entityType.GetOrAddProperty("Id", typeof(int), shadowProperty: true)));
 
-            var navigation = entityType.AddNavigation(new Navigation(foreignKey, "AsICollection", pointsToPrincipal: false));
+            var navigation = entityType.AddNavigation("AsICollection", foreignKey, pointsToPrincipal: false);
 
             var source = new ClrCollectionAccessorSource();
 
@@ -213,11 +211,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             var entityType = new EntityType(typeof(MyEntity));
             var otherType = new EntityType(typeof(MyOtherEntity));
-            var foreignKey = otherType.GetOrAddForeignKey(
-                entityType.GetOrSetPrimaryKey(entityType.GetOrAddProperty("Id", typeof(int), shadowProperty: true)),
-                otherType.GetOrAddProperty("MyEntityId", typeof(int), shadowProperty: true));
+            var foreignKey = otherType.GetOrAddForeignKey(otherType.GetOrAddProperty("MyEntityId", typeof(int), shadowProperty: true), entityType.GetOrSetPrimaryKey(entityType.GetOrAddProperty("Id", typeof(int), shadowProperty: true)));
 
-            return entityType.AddNavigation(new Navigation(foreignKey, navigationName, pointsToPrincipal: false));
+            return entityType.AddNavigation(navigationName, foreignKey, pointsToPrincipal: false);
         }
 
         private class MyEntity

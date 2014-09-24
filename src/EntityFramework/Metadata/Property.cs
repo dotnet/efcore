@@ -2,7 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 
@@ -19,12 +21,14 @@ namespace Microsoft.Data.Entity.Metadata
         private int _maxLength;
         private ValueGeneration _valueGeneration;
 
-        public Property([NotNull] string name, [NotNull] Type propertyType, bool shadowProperty = false)
+        public Property([NotNull] string name, [NotNull] Type propertyType, [NotNull] EntityType entityType, bool shadowProperty = false)
             : base(name)
         {
             Check.NotNull(propertyType, "propertyType");
+            Check.NotNull(entityType, "entityType");
 
             _propertyType = propertyType;
+            EntityType = entityType;
             _shadowIndex = shadowProperty ? 0 : -1;
             IsNullable = propertyType.IsNullableType();
         }
@@ -173,6 +177,11 @@ namespace Microsoft.Data.Entity.Metadata
         private void SetFlag(bool value, PropertyFlags flag)
         {
             _flags = value ? (_flags | flag) : (_flags & ~flag);
+        }
+
+        internal static string Format(IEnumerable<Property> properties)
+        {
+            return string.Join(", ", properties.Select(p => "'" + p.Name + "'"));
         }
 
         [Flags]

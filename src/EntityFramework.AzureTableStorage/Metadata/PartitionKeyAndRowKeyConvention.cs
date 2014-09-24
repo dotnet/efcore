@@ -12,12 +12,12 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Metadata
         {
             if (entityType.TryGetPrimaryKey() == null)
             {
-                var pk = entityType.TryGetProperty("PartitionKey");
-                var rk = entityType.TryGetProperty("RowKey");
-                if (pk != null
-                    && rk != null)
+                var partitionKey = entityType.TryGetProperty("PartitionKey");
+                var rowKey = entityType.TryGetProperty("RowKey");
+                if (partitionKey != null
+                    && rowKey != null)
                 {
-                    entityType.GetOrSetPrimaryKey(pk, rk);
+                    entityType.GetOrSetPrimaryKey(new[] { partitionKey, rowKey });
                 }
             }
         }

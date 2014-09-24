@@ -66,15 +66,15 @@ namespace Microsoft.Data.Entity.FunctionalTests
             var orderDetailType = model.GetEntityType(typeof(OrderDetail));
             var productIdFk = orderDetailType.ForeignKeys.Single();
 
-            productType.AddNavigation(new Navigation(productIdFk, "OrderDetails", pointsToPrincipal: false));
-            orderDetailType.AddNavigation(new Navigation(productIdFk, "Product", pointsToPrincipal: true));
+            productType.AddNavigation("OrderDetails", productIdFk, pointsToPrincipal: false);
+            orderDetailType.AddNavigation("Product", productIdFk, pointsToPrincipal: true);
 
             var customerType = model.GetEntityType(typeof(Customer));
             var orderType = model.GetEntityType(typeof(Order));
             var customerIdFk = orderType.ForeignKeys.Single();
 
-            customerType.AddNavigation(new Navigation(customerIdFk, "Orders", pointsToPrincipal: false));
-            orderType.AddNavigation(new Navigation(customerIdFk, "Customer", pointsToPrincipal: true));
+            customerType.AddNavigation("Orders", customerIdFk, pointsToPrincipal: false);
+            orderType.AddNavigation("Customer", customerIdFk, pointsToPrincipal: true);
 
             return model;
         }

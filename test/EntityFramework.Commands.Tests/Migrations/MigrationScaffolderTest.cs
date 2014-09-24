@@ -765,7 +765,7 @@ namespace MyNamespace
             customerType.GetOrSetPrimaryKey(customerId);
             customerType.GetPrimaryKey().SetKeyName(@"My[""PK]");
             customerType.GetPrimaryKey().Annotations.Add(new Annotation(@"My""PK""Annotat!on", @"""Foo"""));
-            var customerFk = customerType.GetOrAddForeignKey(houseType.GetPrimaryKey(), customerFkProperty);
+            var customerFk = customerType.GetOrAddForeignKey(customerFkProperty, houseType.GetPrimaryKey());
             customerFk.SetKeyName(@"My_[""FK]");
             customerFk.Annotations.Add(new Annotation(@"My""FK""Annotation", @"""Bar"""));
             model.AddEntityType(customerType);
@@ -776,7 +776,7 @@ namespace MyNamespace
             orderType.SetSchema("dbo");
             orderType.GetOrSetPrimaryKey(orderId);
             orderType.SetTableName(@"Ord[""e.r]s");
-            orderType.GetOrAddForeignKey(customerType.GetPrimaryKey(), orderFK);
+            orderType.GetOrAddForeignKey(orderFK, customerType.GetPrimaryKey());
             orderType.Annotations.Add(new Annotation("Random annotation", "42"));
             model.AddEntityType(orderType);
 
@@ -794,7 +794,7 @@ namespace MyNamespace
             var foo1 = entity1.GetOrAddProperty("Foo", typeof(int), shadowProperty: true);
             foo1.Annotations.Add(new Annotation("Foo_Annotation", "Foo"));
 
-            entity1.GetOrSetPrimaryKey(id1, foo1);
+            entity1.GetOrSetPrimaryKey(new[] { id1, foo1 });
             entity1.GetPrimaryKey().SetKeyName("MyPK1");
             entity1.GetPrimaryKey().Annotations.Add(new Annotation("KeyAnnotation1", "Key1"));
             entity1.GetPrimaryKey().Annotations.Add(new Annotation("KeyAnnotation2", "Key2"));
@@ -808,7 +808,7 @@ namespace MyNamespace
             var foo2 = entity2.GetOrAddProperty("Foo", typeof(int), shadowProperty: true);
             foo2.Annotations.Add(new Annotation("Foo_Annotation", "Foo"));
 
-            entity2.GetOrSetPrimaryKey(id2, foo2);
+            entity2.GetOrSetPrimaryKey(new[] { id2, foo2 });
             entity2.GetPrimaryKey().Annotations.Add(new Annotation("KeyAnnotation1", "Key1"));
             entity2.GetPrimaryKey().Annotations.Add(new Annotation("KeyAnnotation2", "Key2"));
             model.AddEntityType(entity2);
@@ -816,14 +816,14 @@ namespace MyNamespace
             var entity3 = new EntityType("EntityWithNamedKey");
             var id3 = entity3.GetOrAddProperty("Id", typeof(int), shadowProperty: true);
             var foo3 = entity3.GetOrAddProperty("Foo", typeof(int), shadowProperty: true);
-            entity3.GetOrSetPrimaryKey(id3, foo3);
+            entity3.GetOrSetPrimaryKey(new[] { id3, foo3 });
             entity3.GetPrimaryKey().SetKeyName("MyPK2");
             model.AddEntityType(entity3);
 
             var entity4 = new EntityType("EntityWithUnnamedKey");
             var id4 = entity4.GetOrAddProperty("Id", typeof(int), shadowProperty: true);
             var foo4 = entity4.GetOrAddProperty("Foo", typeof(int), shadowProperty: true);
-            entity4.GetOrSetPrimaryKey(id4, foo4);
+            entity4.GetOrSetPrimaryKey(new[] { id4, foo4 });
             model.AddEntityType(entity4);
 
             return model;

@@ -1172,9 +1172,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             model.AddEntityType(entityType2);
             var key2a = entityType2.GetOrAddProperty("Id1", typeof(int));
             var key2b = entityType2.GetOrAddProperty("Id2", typeof(string));
-            entityType2.GetOrSetPrimaryKey(key2a, key2b);
+            entityType2.GetOrSetPrimaryKey(new[] { key2a, key2b });
             var fk = entityType2.GetOrAddProperty("SomeEntityId", typeof(int));
-            entityType2.GetOrAddForeignKey(entityType1.GetPrimaryKey(), new[] { fk });
+            entityType2.GetOrAddForeignKey(new[] { fk }, entityType1.GetPrimaryKey());
             var justAProperty = entityType2.GetOrAddProperty("JustAProperty", typeof(int));
             justAProperty.ValueGeneration = ValueGeneration.OnAdd;
 
@@ -1194,7 +1194,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entityType5.GetOrSetPrimaryKey(key5);
             var fk5a = entityType5.GetOrAddProperty("Fk1", typeof(int));
             var fk5b = entityType5.GetOrAddProperty("Fk2", typeof(string));
-            entityType5.GetOrAddForeignKey(entityType2.GetPrimaryKey(), new[] { fk5a, fk5b });
+            entityType5.GetOrAddForeignKey(new[] { fk5a, fk5b }, entityType2.GetPrimaryKey());
 
             return model;
         }

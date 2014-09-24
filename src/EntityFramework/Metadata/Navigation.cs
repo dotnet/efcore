@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 
@@ -11,7 +12,7 @@ namespace Microsoft.Data.Entity.Metadata
         private ForeignKey _foreignKey;
         private bool _pointsToPrincipal;
 
-        public Navigation([NotNull] ForeignKey foreignKey, [NotNull] string name, bool pointsToPrincipal)
+        public Navigation([NotNull] string name, [NotNull] ForeignKey foreignKey, bool pointsToPrincipal)
             : base(Check.NotEmpty(name, "name"))
         {
             Check.NotNull(foreignKey, "foreignKey");
@@ -41,6 +42,16 @@ namespace Microsoft.Data.Entity.Metadata
                 Check.NotNull(value, "value");
 
                 _pointsToPrincipal = value;
+            }
+        }
+
+        public override EntityType EntityType
+        {
+            get
+            {
+                return PointsToPrincipal
+                    ? ForeignKey.EntityType
+                    : ForeignKey.ReferencedEntityType;
             }
         }
 

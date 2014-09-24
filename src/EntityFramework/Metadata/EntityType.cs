@@ -96,6 +96,57 @@ namespace Microsoft.Data.Entity.Metadata
             }
         }
 
+        #region Primary and Candidate Keys
+
+        [CanBeNull]
+        public virtual Key SetPrimaryKey([CanBeNull] Property property)
+        {
+            return SetPrimaryKey(property == null ? null : new[] { property });
+        }
+
+        [CanBeNull]
+        public virtual Key SetPrimaryKey([CanBeNull] IReadOnlyList<Property> properties)
+        {
+            Key key = null;
+            if (properties != null
+                && properties.Count != 0)
+            {
+                key = new Key(properties);
+
+                if (key.EntityType != this)
+                {
+                    throw new ArgumentException(
+                        Strings.FormatKeyPropertiesWrongEntity(Property.Format(key.Properties), Name));
+                }
+            }
+
+            if (_primaryKey != null)
+            {
+                CheckKeyNotInUse(_primaryKey);
+            }
+
+            _primaryKey = key;
+            return _primaryKey;
+        }
+
+        [CanBeNull]
+        public virtual Key GetOrSetPrimaryKey([CanBeNull] Property property)
+        {
+            return GetOrSetPrimaryKey(property == null ? null : new[] { property });
+        }
+
+        [CanBeNull]
+        public virtual Key GetOrSetPrimaryKey([CanBeNull] IReadOnlyList<Property> properties)
+        {
+            if (properties != null
+                && TryGetPrimaryKey(properties) != null)
+            {
+                return _primaryKey;
+            }
+
+            return SetPrimaryKey(properties);
+        }
+
         public virtual Key GetPrimaryKey()
         {
             if (_primaryKey == null)
@@ -106,91 +157,121 @@ namespace Microsoft.Data.Entity.Metadata
             return _primaryKey;
         }
 
+        [CanBeNull]
         public virtual Key TryGetPrimaryKey()
         {
             return _primaryKey;
         }
 
-        public virtual Key SetPrimaryKey([CanBeNull] Key key)
+        private Key TryGetPrimaryKey([CanBeNull] IEnumerable<Property> properties)
         {
-            if (key != _primaryKey)
+            if (_primaryKey == null
+                || !Matches(_primaryKey, properties))
             {
-                if (key != null
-                    && key.EntityType != this)
-                {
-                    throw new ArgumentException(
-                        Strings.FormatKeyPropertiesWrongEntity(Name));
-                }
-
-                if (_primaryKey != null)
-                {
-                    CheckKeyNotInUse(_primaryKey);
-                }
-
-                _primaryKey = key;
+                return null;
             }
 
             return _primaryKey;
         }
 
-        public virtual Key GetOrSetPrimaryKey([CanBeNull] params Property[] properties)
+        public virtual Key AddKey([NotNull] Property property)
         {
-            if (properties != null)
-            {
-                if (_primaryKey == null
-                    || !_primaryKey.Properties.SequenceEqual(properties))
-                {
-                    SetPrimaryKey(new Key(properties));
-                }
-            }
-            else
-            {
-                SetPrimaryKey(null);
-            }
-
-            return _primaryKey;
+            return AddKey(new[] { property });
         }
 
-        public virtual Key AddKey([NotNull] Key key)
+        public virtual Key AddKey([NotNull] IReadOnlyList<Property> properties)
         {
-            Check.NotNull(key, "key");
+            Check.NotEmpty(properties, "properties");
 
-            if (!Keys.Contains(key))
+            var key = TryGetKey(properties);
+            if (key != null)
             {
-                if (key.EntityType != this)
-                {
-                    throw new ArgumentException(
-                        Strings.FormatKeyPropertiesWrongEntity(Name));
-                }
-
-                _keys.Value.Add(key);
+                throw new InvalidOperationException(Strings.FormatDuplicateKey(Property.Format(properties), Name));
             }
+
+            key = new Key(properties);
+            if (key.EntityType != this)
+            {
+                throw new ArgumentException(
+                    Strings.FormatKeyPropertiesWrongEntity(Property.Format(properties), Name));
+            }
+
+            _keys.Value.Add(key);
 
             return key;
         }
 
-        public virtual Key GetOrAddKey([NotNull] params Property[] properties)
+        public virtual Key GetOrAddKey([NotNull] Property property)
+        {
+            return GetOrAddKey(new[] { property });
+        }
+
+        public virtual Key GetOrAddKey([NotNull] IReadOnlyList<Property> properties)
+        {
+            return TryGetKey(properties)
+                   ?? AddKey(properties);
+        }
+
+        [CanBeNull]
+        public virtual Key TryGetKey([NotNull] Property property)
+        {
+            return TryGetKey(new[] { property });
+        }
+
+        [CanBeNull]
+        public virtual Key TryGetKey([NotNull] IReadOnlyList<Property> properties)
         {
             Check.NotEmpty(properties, "properties");
 
-            return Keys.FirstOrDefault(k => k.Properties.SequenceEqual(properties))
-                   ?? AddKey(new Key(properties));
+            var key = TryGetPrimaryKey(properties);
+            if (key != null)
+            {
+                return key;
+            }
+
+            return Keys.FirstOrDefault(k => Matches(k, properties));
         }
 
-        public virtual void RemoveKey([NotNull] Key key)
+        public virtual Key GetKey([NotNull] Property property)
+        {
+            return GetKey(new[] { property });
+        }
+
+        public virtual Key GetKey([NotNull] IReadOnlyList<Property> properties)
+        {
+            var key = TryGetKey(properties);
+            if (key == null)
+            {
+                throw new ModelItemNotFoundException(Strings.FormatKeyNotFound(Property.Format(properties), Name));
+            }
+            return key;
+        }
+
+        public virtual Key RemoveKey([NotNull] Key key)
         {
             Check.NotNull(key, "key");
 
-            if (key == _primaryKey)
+            var primaryKey = TryGetPrimaryKey(key.Properties);
+            if (primaryKey != null)
             {
-                SetPrimaryKey(null);
+                SetPrimaryKey((IReadOnlyList<Property>)null);
+                return primaryKey;
             }
-            else if (_keys.HasValue)
-            {
-                CheckKeyNotInUse(key);
 
-                _keys.Value.Remove(key);
+            if (_keys.HasValue)
+            {
+                var index = _keys.Value.FindIndex(k => Matches(k, key.Properties));
+                if (index >= 0)
+                {
+                    var removedKey = _keys.Value[index];
+                    CheckKeyNotInUse(removedKey);
+
+                    _keys.Value.RemoveAt(index);
+                    return removedKey;
+                }
             }
+
+            return null;
         }
 
         private void CheckKeyNotInUse(Key key)
@@ -201,9 +282,14 @@ namespace Microsoft.Data.Entity.Metadata
 
                 if (foreignKey != null)
                 {
-                    throw new InvalidOperationException(Strings.FormatKeyInUse(Name, foreignKey.EntityType.Name));
+                    throw new InvalidOperationException(Strings.FormatKeyInUse(Property.Format(key.Properties), Name, foreignKey.EntityType.Name));
                 }
             }
+        }
+
+        private static bool Matches(Key key, IEnumerable<Property> properties)
+        {
+            return key.Properties.SequenceEqual(properties);
         }
 
         public virtual IReadOnlyList<Key> Keys
@@ -221,49 +307,110 @@ namespace Microsoft.Data.Entity.Metadata
             }
         }
 
-        public virtual ForeignKey AddForeignKey([NotNull] ForeignKey foreignKey)
-        {
-            Check.NotNull(foreignKey, "foreignKey");
+        #endregion
 
+        #region Foreign Keys
+
+        public virtual ForeignKey AddForeignKey(
+            [NotNull] Property property, [NotNull] Key referencedKey)
+        {
+            return AddForeignKey(new[] { property }, referencedKey);
+        }
+
+        public virtual ForeignKey AddForeignKey(
+            [NotNull] IReadOnlyList<Property> properties, [NotNull] Key referencedKey)
+        {
+            Check.NotEmpty(properties, "properties");
+            Check.NotNull(referencedKey, "referencedKey");
+
+            var foreignKey = TryGetForeignKey(properties);
+            if (foreignKey != null)
+            {
+                throw new InvalidOperationException(Strings.FormatDuplicateForeignKey(Property.Format(foreignKey.Properties), Name));
+            }
+
+            foreignKey = new ForeignKey(properties, referencedKey);
             if (foreignKey.EntityType != this)
             {
-                throw new ArgumentException(
-                    Strings.FormatForeignKeyPropertiesWrongEntity(Name));
+                throw new ArgumentException(Strings.FormatForeignKeyPropertiesWrongEntity(Property.Format(properties), Name));
             }
 
-            if (!_foreignKeys.Value.Contains(foreignKey))
-            {
-                _foreignKeys.Value.Add(foreignKey);
+            _foreignKeys.Value.Add(foreignKey);
 
-                UpdateOriginalValueIndexes();
-            }
+            UpdateOriginalValueIndexes();
 
             return foreignKey;
         }
 
         public virtual ForeignKey GetOrAddForeignKey(
-            [NotNull] Key referencedKey, [NotNull] params Property[] properties)
+            [NotNull] Property property, [NotNull] Key referencedKey)
         {
-            Check.NotNull(referencedKey, "referencedKey");
+            return GetOrAddForeignKey(new[] { property }, referencedKey);
+        }
+
+        public virtual ForeignKey GetOrAddForeignKey(
+            [NotNull] IReadOnlyList<Property> properties, [NotNull] Key referencedKey)
+        {
+            // Note: this will return an existing foreign key even if it doesn't have the same referenced key
+            return TryGetForeignKey(properties)
+                   ?? AddForeignKey(properties, referencedKey);
+        }
+
+        [CanBeNull]
+        public virtual ForeignKey TryGetForeignKey([NotNull] Property property)
+        {
+            return TryGetForeignKey(new[] { property });
+        }
+
+        [CanBeNull]
+        public virtual ForeignKey TryGetForeignKey([NotNull] IReadOnlyList<Property> properties)
+        {
             Check.NotEmpty(properties, "properties");
 
-            var foreignKey = _foreignKeys.Value.FirstOrDefault(k => k.ReferencedKey == referencedKey
-                                                                    && k.Properties.SequenceEqual(properties))
-                             ?? AddForeignKey(new ForeignKey(referencedKey, properties));
+            return _foreignKeys.HasValue
+                ? _foreignKeys.Value.FirstOrDefault(fk => Matches(fk, properties))
+                : null;
+        }
+
+        public virtual ForeignKey GetForeignKey([NotNull] Property property)
+        {
+            return GetForeignKey(new[] { property });
+        }
+
+        public virtual ForeignKey GetForeignKey([NotNull] IReadOnlyList<Property> properties)
+        {
+            var foreignKey = TryGetForeignKey(properties);
+            if (foreignKey == null)
+            {
+                throw new ModelItemNotFoundException(Strings.FormatForeignKeyNotFound(Property.Format(properties), Name));
+            }
 
             return foreignKey;
         }
 
-        public virtual void RemoveForeignKey([NotNull] ForeignKey foreignKey)
+        public virtual ForeignKey RemoveForeignKey([NotNull] ForeignKey foreignKey)
         {
             Check.NotNull(foreignKey, "foreignKey");
 
             if (_foreignKeys.HasValue)
             {
-                CheckForeignKeyNotInUse(foreignKey);
+                var index = _foreignKeys.Value.FindIndex(fk => Matches(fk, foreignKey.Properties));
+                if (index >= 0)
+                {
+                    var removedFk = _foreignKeys.Value[index];
+                    CheckForeignKeyNotInUse(removedFk);
 
-                _foreignKeys.Value.Remove(foreignKey);
+                    _foreignKeys.Value.RemoveAt(index);
+                    return removedFk;
+                }
             }
+
+            return null;
+        }
+
+        private static bool Matches(ForeignKey foreignKey, IEnumerable<Property> properties)
+        {
+            return foreignKey.Properties.SequenceEqual(properties);
         }
 
         private void CheckForeignKeyNotInUse(ForeignKey foreignKey)
@@ -274,7 +421,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             if (navigation != null)
             {
-                throw new InvalidOperationException(Strings.FormatForeignKeyInUse(Name, navigation.Name, navigation.EntityType.Name));
+                throw new InvalidOperationException(Strings.FormatForeignKeyInUse(Property.Format(foreignKey.Properties), Name, navigation.Name, navigation.EntityType.Name));
             }
         }
 
@@ -288,18 +435,16 @@ namespace Microsoft.Data.Entity.Metadata
             }
         }
 
-        public virtual Navigation GetOrAddNavigation([NotNull] string name, [NotNull] ForeignKey foreignKey, bool pointsToPrincipal)
+        #endregion
+
+        #region Navigations
+
+        public virtual Navigation AddNavigation([NotNull] string name, [NotNull] ForeignKey foreignKey, bool pointsToPrincipal)
         {
             Check.NotEmpty(name, "name");
             Check.NotNull(foreignKey, "foreignKey");
 
-            return _navigations.Value.FirstOrDefault(n => n.Name == name)
-                   ?? AddNavigation(new Navigation(foreignKey, name, pointsToPrincipal));
-        }
-
-        public virtual Navigation AddNavigation([NotNull] Navigation navigation)
-        {
-            Check.NotNull(navigation, "navigation");
+            var navigation = new Navigation(name, foreignKey, pointsToPrincipal);
 
             if (navigation.EntityType != null
                 && navigation.EntityType != this)
@@ -307,7 +452,7 @@ namespace Microsoft.Data.Entity.Metadata
                 throw new InvalidOperationException(Strings.FormatNavigationAlreadyOwned(navigation.Name, Name, navigation.EntityType.Name));
             }
 
-            if (_navigations.Value.Any(n => n.Name == navigation.Name))
+            if (TryGetNavigation(name) != null)
             {
                 throw new InvalidOperationException(Strings.FormatDuplicateNavigation(navigation.Name, Name));
             }
@@ -318,14 +463,19 @@ namespace Microsoft.Data.Entity.Metadata
             }
 
             var clrProperty = Type.GetPropertiesInHierarchy(navigation.Name).FirstOrDefault();
-
             if (clrProperty == null)
             {
                 throw new InvalidOperationException(Strings.FormatNoClrNavigation(navigation.Name, Name));
             }
 
-            var targetClrType = navigation.GetTargetType().Type;
+            var targetType = navigation.GetTargetType();
+            if (!targetType.HasClrType)
+            {
+                throw new InvalidOperationException(Strings.FormatNavigationToShadowEntity(navigation.Name, Name, targetType.Name));
+            }
 
+            var targetClrType = targetType.Type;
+            Debug.Assert(targetClrType != null, "targetClrType != null");
             if (navigation.IsCollection())
             {
                 var elementType = clrProperty.PropertyType.TryGetElementType(typeof(IEnumerable<>));
@@ -352,39 +502,53 @@ namespace Microsoft.Data.Entity.Metadata
 
             _navigations.Value.Add(navigation);
 
-            navigation.EntityType = this;
-
             return navigation;
         }
 
-        public virtual void RemoveNavigation([NotNull] Navigation navigation)
+        public virtual Navigation GetOrAddNavigation([NotNull] string name, [NotNull] ForeignKey foreignKey, bool pointsToPrincipal)
         {
-            Check.NotNull(navigation, "navigation");
-
-            if (_navigations.HasValue
-                && _navigations.Value.Remove(navigation))
-            {
-                navigation.EntityType = null;
-            }
+            return TryGetNavigation(name) ?? AddNavigation(name, foreignKey, pointsToPrincipal);
         }
 
+        [CanBeNull]
         public virtual Navigation TryGetNavigation([NotNull] string name)
         {
             Check.NotEmpty(name, "name");
 
-            return Navigations.FirstOrDefault(n => n.Name == name);
+            return Navigations.FirstOrDefault(n => Matches(n, name));
         }
 
         public virtual Navigation GetNavigation([NotNull] string name)
         {
-            Check.NotEmpty(name, "name");
-
             var navigation = TryGetNavigation(name);
             if (navigation == null)
             {
                 throw new ModelItemNotFoundException(Strings.FormatNavigationNotFound(name, Name));
             }
             return navigation;
+        }
+
+        public virtual Navigation RemoveNavigation([NotNull] Navigation navigation)
+        {
+            Check.NotNull(navigation, "navigation");
+
+            if (_navigations.HasValue)
+            {
+                var index = _navigations.Value.FindIndex(n => Matches(n, navigation.Name));
+                if (index >= 0)
+                {
+                    var removedNavigation = _navigations.Value[index];
+                    _navigations.Value.RemoveAt(index);
+                    return removedNavigation;
+                }
+            }
+
+            return null;
+        }
+
+        private static bool Matches(Navigation navigation, string name)
+        {
+            return navigation.Name == name;
         }
 
         public virtual IReadOnlyList<Navigation> Navigations
@@ -397,23 +561,30 @@ namespace Microsoft.Data.Entity.Metadata
             }
         }
 
-        public virtual Index GetOrAddIndex([NotNull] params Property[] properties)
-        {
-            Check.NotNull(properties, "properties");
-            Check.NotEmpty(properties, "properties");
+        #endregion
 
-            return _indexes.Value.FirstOrDefault(i => i.Properties.SequenceEqual(properties))
-                   ?? AddIndex(new Index(properties));
+        #region Indexes
+
+        public virtual Index AddIndex([NotNull] Property property)
+        {
+            return AddIndex(new[] { property });
         }
 
-        public virtual Index AddIndex([NotNull] Index index)
+        public virtual Index AddIndex([NotNull] IReadOnlyList<Property> properties)
         {
-            Check.NotNull(index, "index");
+            Check.NotEmpty(properties, "properties");
 
+            var index = TryGetIndex(properties);
+            if (index != null)
+            {
+                throw new InvalidOperationException(Strings.FormatDuplicateIndex(Property.Format(index.Properties), Name));
+            }
+
+            index = new Index(properties);
             if (index.EntityType != this)
             {
                 throw new ArgumentException(
-                    Strings.FormatIndexPropertiesWrongEntity(Name));
+                    Strings.FormatIndexPropertiesWrongEntity(Property.Format(properties), Name));
             }
 
             _indexes.Value.Add(index);
@@ -421,14 +592,66 @@ namespace Microsoft.Data.Entity.Metadata
             return index;
         }
 
-        public virtual void RemoveIndex([NotNull] Index index)
+        public virtual Index GetOrAddIndex([NotNull] Property property)
+        {
+            return GetOrAddIndex(new[] { property });
+        }
+
+        public virtual Index GetOrAddIndex([NotNull] IReadOnlyList<Property> properties)
+        {
+            return TryGetIndex(properties) ?? AddIndex(properties);
+        }
+
+        [CanBeNull]
+        public virtual Index TryGetIndex([NotNull] Property property)
+        {
+            return TryGetIndex(new[] { property });
+        }
+
+        [CanBeNull]
+        public virtual Index TryGetIndex([NotNull] IReadOnlyList<Property> properties)
+        {
+            Check.NotEmpty(properties, "properties");
+
+            return Indexes.FirstOrDefault(i => Matches(i, properties));
+        }
+
+        public virtual Index GetIndex([NotNull] Property property)
+        {
+            return GetIndex(new[] { property });
+        }
+
+        public virtual Index GetIndex([NotNull] IReadOnlyList<Property> properties)
+        {
+            var index = TryGetIndex(properties);
+            if (index == null)
+            {
+                throw new ModelItemNotFoundException(Strings.FormatIndexNotFound(Property.Format(properties), Name));
+            }
+            return index;
+        }
+
+        public virtual Index RemoveIndex([NotNull] Index index)
         {
             Check.NotNull(index, "index");
 
             if (_indexes.HasValue)
             {
-                _indexes.Value.Remove(index);
+                var indexIndex = _indexes.Value.FindIndex(i => Matches(i, index.Properties));
+                if (indexIndex >= 0)
+                {
+                    var removedIndex = _indexes.Value[indexIndex];
+                    _indexes.Value.RemoveAt(indexIndex);
+                    return removedIndex;
+                }
             }
+
+            return null;
+        }
+
+        private static bool Matches(Index index, IEnumerable<Property> properties)
+        {
+            return index.Properties.SequenceEqual(properties);
         }
 
         public virtual IReadOnlyList<Index> Indexes
@@ -441,35 +664,24 @@ namespace Microsoft.Data.Entity.Metadata
             }
         }
 
-        public virtual Property GetOrAddProperty([NotNull] PropertyInfo propertyInfo)
+        #endregion
+
+        #region Properties
+
+        public virtual Property AddProperty([NotNull] PropertyInfo propertyInfo)
         {
             Check.NotNull(propertyInfo, "propertyInfo");
 
-            return GetOrAddProperty(propertyInfo.Name, propertyInfo.PropertyType);
+            // ReSharper disable once RedundantArgumentDefaultValue
+            return AddProperty(propertyInfo.Name, propertyInfo.PropertyType, shadowProperty: false);
         }
 
-        public virtual Property GetOrAddProperty([NotNull] string name, [NotNull] Type propertyType, bool shadowProperty = false)
+        public virtual Property AddProperty([NotNull] string name, [NotNull] Type propertyType, bool shadowProperty = false)
         {
-            Check.NotEmpty(name, "name");
+            Check.NotNull(name, "name");
             Check.NotNull(propertyType, "propertyType");
 
-            // Note: If the property already exists, then whether or not it is a shadow property is not changed.
-            // It is useful in many places to get an existing property if it exists, but then create it either in
-            // or out of shadow state if it doesn't.
-
-            return _properties.FirstOrDefault(p => p.Name == name)
-                   ?? AddProperty(new Property(name, propertyType, shadowProperty));
-        }
-
-        public virtual Property AddProperty([NotNull] Property property)
-        {
-            Check.NotNull(property, "property");
-
-            if (property.EntityType != null
-                && property.EntityType != this)
-            {
-                throw new InvalidOperationException(Strings.FormatPropertyAlreadyOwned(property.Name, Name, property.EntityType.Name));
-            }
+            var property = new Property(name, propertyType, this, shadowProperty);
 
             var currentIndex = _properties.BinarySearch(property, PropertyComparer.Instance);
             if (currentIndex >= 0)
@@ -478,8 +690,6 @@ namespace Microsoft.Data.Entity.Metadata
             }
 
             ValidateAgainstClrProperty(property);
-
-            property.EntityType = this;
 
             var newIndex = ~currentIndex;
             _properties.Insert(newIndex, property);
@@ -567,7 +777,61 @@ namespace Microsoft.Data.Entity.Metadata
                    || ForeignKeys.SelectMany(k => k.Properties).Contains(addedOrRemovedProperty);
         }
 
-        public virtual void RemoveProperty([NotNull] Property property)
+        public virtual Property GetOrAddProperty([NotNull] PropertyInfo propertyInfo)
+        {
+            Check.NotNull(propertyInfo, "propertyInfo");
+
+            return GetOrAddProperty(propertyInfo.Name, propertyInfo.PropertyType);
+        }
+
+        public virtual Property GetOrAddProperty([NotNull] string name, [NotNull] Type propertyType, bool shadowProperty = false)
+        {
+            // Note: If the property already exists, then whether or not it is a shadow property is not changed.
+            // It is useful in many places to get an existing property if it exists, but then create it either in
+            // or out of shadow state if it doesn't.
+            return TryGetProperty(name) ?? AddProperty(name, propertyType, shadowProperty);
+        }
+
+        [CanBeNull]
+        public virtual Property TryGetProperty([NotNull] PropertyInfo propertyInfo)
+        {
+            Check.NotNull(propertyInfo, "propertyInfo");
+
+            return TryGetProperty(propertyInfo.Name);
+        }
+
+        [CanBeNull]
+        public virtual Property TryGetProperty([NotNull] string name)
+        {
+            Check.NotEmpty(name, "name");
+
+            // TODO: Perf: This should be O(log(n)) but an additional index could be created
+            // TODO: if this is too slow or if creating the surrogate Property object is too expensive
+            var surrogate = new Property(name, typeof(object), new EntityType(typeof(object)));
+            var index = _properties.BinarySearch(surrogate, PropertyComparer.Instance);
+            return index >= 0 ? _properties[index] : null;
+        }
+
+        public virtual Property GetProperty([NotNull] PropertyInfo propertyInfo)
+        {
+            Check.NotNull(propertyInfo, "propertyInfo");
+
+            return GetProperty(propertyInfo.Name);
+        }
+
+        public virtual Property GetProperty([NotNull] string name)
+        {
+            Check.NotEmpty(name, "name");
+
+            var property = TryGetProperty(name);
+            if (property == null)
+            {
+                throw new ModelItemNotFoundException(Strings.FormatPropertyNotFound(name, Name));
+            }
+            return property;
+        }
+
+        public virtual Property RemoveProperty([NotNull] Property property)
         {
             Check.NotNull(property, "property");
 
@@ -581,36 +845,19 @@ namespace Microsoft.Data.Entity.Metadata
                     throw new InvalidOperationException(Strings.FormatPropertyInUse(property.Name, Name));
                 }
 
+                var removedProperty = _properties[currentIndex];
                 _properties.RemoveAt(currentIndex);
                 UpdateIndexes(property, currentIndex);
 
-                property.EntityType = null;
+                return removedProperty;
             }
+
+            return null;
         }
 
-        [CanBeNull]
-        public virtual Property TryGetProperty([NotNull] string name)
+        public virtual IReadOnlyList<Property> Properties
         {
-            Check.NotEmpty(name, "name");
-
-            // TODO: Perf: This should be O(log(n)) but an additional index could be created
-            // TODO: if this is too slow or if creating the surrogate Property object is too expensive
-            var surrogate = new Property(name, typeof(object));
-            var index = _properties.BinarySearch(surrogate, PropertyComparer.Instance);
-            return index >= 0 ? _properties[index] : null;
-        }
-
-        [NotNull]
-        public virtual Property GetProperty([NotNull] string name)
-        {
-            Check.NotEmpty(name, "name");
-
-            var property = TryGetProperty(name);
-            if (property == null)
-            {
-                throw new ModelItemNotFoundException(Strings.FormatPropertyNotFound(name, Name));
-            }
-            return property;
+            get { return _properties; }
         }
 
         public virtual int ShadowPropertyCount
@@ -650,10 +897,9 @@ namespace Microsoft.Data.Entity.Metadata
                        && typeof(INotifyPropertyChanged).GetTypeInfo().IsAssignableFrom(Type.GetTypeInfo()));
         }
 
-        public virtual IReadOnlyList<Property> Properties
-        {
-            get { return _properties; }
-        }
+        #endregion
+
+        #region Explicit interface implementations
 
         IModel IEntityType.Model
         {
@@ -709,6 +955,8 @@ namespace Microsoft.Data.Entity.Metadata
         {
             get { return Keys; }
         }
+
+        #endregion
 
         private class PropertyComparer : IComparer<Property>
         {

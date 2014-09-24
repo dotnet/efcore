@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 
@@ -24,11 +25,13 @@ namespace Microsoft.Data.Entity.Metadata
         public Key([NotNull] IReadOnlyList<Property> properties)
         {
             Check.NotEmpty(properties, "properties");
+            Check.HasNoNulls(properties, "properties");
             MetadataHelper.CheckSameEntityType(properties, "properties");
 
             _properties = properties;
         }
 
+        [NotNull]
         public virtual IReadOnlyList<Property> Properties
         {
             get { return _properties; }

@@ -16,10 +16,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Equal(
                 "foreignKey",
                 // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => new Navigation(null, "Handlebars", pointsToPrincipal: true)).ParamName);
+                Assert.Throws<ArgumentNullException>(() => new Navigation("Handlebars", null, pointsToPrincipal: true)).ParamName);
             Assert.Equal(
                 Strings.FormatArgumentIsEmpty("name"),
-                Assert.Throws<ArgumentException>(() => new Navigation(new Mock<ForeignKey>().Object, "", pointsToPrincipal: true)).Message);
+                Assert.Throws<ArgumentException>(() => new Navigation("", new Mock<ForeignKey>().Object, pointsToPrincipal: true)).Message);
         }
 
         [Fact]
@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             keyMock.Setup(m => m.IsUnique).Returns(false);
             var foreignKey = keyMock.Object;
 
-            var navigation = new Navigation(foreignKey, "Deception", pointsToPrincipal: true);
+            var navigation = new Navigation("Deception", foreignKey, pointsToPrincipal: true);
 
             Assert.Same(foreignKey, navigation.ForeignKey);
             Assert.Equal("Deception", navigation.Name);
@@ -48,7 +48,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             keyMock.Setup(m => m.IsUnique).Returns(true);
             var foreignKey = keyMock.Object;
 
-            var navigation = new Navigation(foreignKey, "Deception", pointsToPrincipal: false);
+            var navigation = new Navigation("Deception", foreignKey, pointsToPrincipal: false);
 
             Assert.Same(foreignKey, navigation.ForeignKey);
             Assert.Equal("Deception", navigation.Name);
@@ -67,7 +67,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             keyMock.Setup(m => m.IsUnique).Returns(false);
             var foreignKey = keyMock.Object;
 
-            var navigation = new Navigation(foreignKey, "Deception", pointsToPrincipal: false);
+            var navigation = new Navigation("Deception", foreignKey, pointsToPrincipal: false);
 
             Assert.Same(foreignKey, navigation.ForeignKey);
             Assert.Equal("Deception", navigation.Name);
@@ -77,18 +77,6 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Same(foreignKey, ((INavigation)navigation).ForeignKey);
             Assert.Null(((INavigation)navigation).EntityType);
-        }
-
-        [Fact]
-        public void Can_set_entity_type()
-        {
-            var navigation = new Navigation(new Mock<ForeignKey>().Object, "TheBattle", pointsToPrincipal: true);
-            var entityType = new Mock<EntityType>().Object;
-
-            navigation.EntityType = entityType;
-
-            Assert.Same(entityType, navigation.EntityType);
-            Assert.Same(entityType, ((INavigation)navigation).EntityType);
         }
     }
 }

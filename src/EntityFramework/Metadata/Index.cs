@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -24,6 +24,7 @@ namespace Microsoft.Data.Entity.Metadata
         public Index([NotNull] IReadOnlyList<Property> properties)
         {
             Check.NotEmpty(properties, "properties");
+            Check.HasNoNulls(properties, "properties");
             MetadataHelper.CheckSameEntityType(properties, "properties");
 
             _properties = properties;

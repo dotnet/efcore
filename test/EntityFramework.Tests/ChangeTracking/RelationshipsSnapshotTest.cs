@@ -299,14 +299,14 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var fkProperty = entityType.GetOrAddProperty("Fk", typeof(int));
 
             entityType.GetOrSetPrimaryKey(pkProperty);
-            var fk = entityType.GetOrAddForeignKey(entityType.GetPrimaryKey(), fkProperty);
+            var fk = entityType.GetOrAddForeignKey(fkProperty, entityType.GetPrimaryKey());
 
             entityType.GetOrAddProperty("Name", typeof(string));
 
             model.AddEntityType(entityType);
 
-            entityType.AddNavigation(new Navigation(fk, "LesserBananas", pointsToPrincipal: false));
-            entityType.AddNavigation(new Navigation(fk, "TopBanana", pointsToPrincipal: true));
+            entityType.AddNavigation("LesserBananas", fk, pointsToPrincipal: false);
+            entityType.AddNavigation("TopBanana", fk, pointsToPrincipal: true);
 
             return model;
         }

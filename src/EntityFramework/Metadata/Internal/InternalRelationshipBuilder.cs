@@ -236,15 +236,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         private InternalRelationshipBuilder ReplaceForeignKey()
         {
-            var newForeignKey = new ForeignKeyConvention().FindOrCreateForeignKey(
-                _principalType,
-                _dependentType,
-                _navigationToPrincipal != null ? _navigationToPrincipal.Name : null,
-                _navigationToDependent != null ? _navigationToDependent.Name : null,
-                _dependentProperties,
-                _principalProperties,
-                Metadata.IsUnique);
-
+            // TODO: avoid removing and readding the navigation property
             if (_navigationToPrincipal != null)
             {
                 _dependentType.RemoveNavigation(_navigationToPrincipal);
@@ -260,6 +252,15 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             // TODO: Remove FK only if it was added by convention
             // Issue #213
             entityType.RemoveForeignKey(Metadata);
+
+            var newForeignKey = new ForeignKeyConvention().FindOrCreateForeignKey(
+                _principalType,
+                _dependentType,
+                _navigationToPrincipal != null ? _navigationToPrincipal.Name : null,
+                _navigationToDependent != null ? _navigationToDependent.Name : null,
+                _dependentProperties,
+                _principalProperties,
+                Metadata.IsUnique);
 
             // TODO: Remove principal key only if it was added by convention
             // Issue #213
@@ -295,14 +296,12 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             if (_navigationToPrincipal != null)
             {
-                _navigationToPrincipal.ForeignKey = newForeignKey;
-                _dependentType.AddNavigation(_navigationToPrincipal);
+                _navigationToPrincipal = _dependentType.AddNavigation(_navigationToPrincipal.Name, newForeignKey, _navigationToPrincipal.PointsToPrincipal);
             }
 
             if (_navigationToDependent != null)
             {
-                _navigationToDependent.ForeignKey = newForeignKey;
-                _principalType.AddNavigation(_navigationToDependent);
+                _navigationToDependent = _principalType.AddNavigation(_navigationToDependent.Name, newForeignKey, _navigationToDependent.PointsToPrincipal);
             }
 
             return new InternalRelationshipBuilder(newForeignKey, this);

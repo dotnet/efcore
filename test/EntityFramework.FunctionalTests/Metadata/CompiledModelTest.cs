@@ -421,22 +421,22 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
                 var goo = entityType.GetOrAddProperty(entityType.Type.GetProperty("Goo" + i));
             }
 
-            var fk11 = entityType1.GetOrAddForeignKey(entityType2.GetPrimaryKey(), new[] { entityType1.GetProperty("KoolEntity2Id") });
-            var fk21 = entityType2.GetOrAddForeignKey(entityType1.GetPrimaryKey(), new[] { entityType2.GetProperty("KoolEntity1Id1") });
-            var fk22 = entityType2.GetOrAddForeignKey(entityType3.GetPrimaryKey(), new[] { entityType2.GetProperty("KoolEntity3Id") });
-            var fk31 = entityType3.GetOrAddForeignKey(entityType4.GetPrimaryKey(), new[] { entityType3.GetProperty("KoolEntity4Id") });
-            var fk61 = entityType6.GetOrAddForeignKey(entityType5.GetPrimaryKey(), new[] { entityType6.GetProperty("Kool5Id") });
+            var fk11 = entityType1.GetOrAddForeignKey(new[] { entityType1.GetProperty("KoolEntity2Id") }, entityType2.GetPrimaryKey());
+            var fk21 = entityType2.GetOrAddForeignKey(new[] { entityType2.GetProperty("KoolEntity1Id1") }, entityType1.GetPrimaryKey());
+            var fk22 = entityType2.GetOrAddForeignKey(new[] { entityType2.GetProperty("KoolEntity3Id") }, entityType3.GetPrimaryKey());
+            var fk31 = entityType3.GetOrAddForeignKey(new[] { entityType3.GetProperty("KoolEntity4Id") }, entityType4.GetPrimaryKey());
+            var fk61 = entityType6.GetOrAddForeignKey(new[] { entityType6.GetProperty("Kool5Id") }, entityType5.GetPrimaryKey());
 
-            entityType1.AddNavigation(new Navigation(fk11, "NavTo2", pointsToPrincipal: true));
-            entityType1.AddNavigation(new Navigation(fk21, "NavTo2s", pointsToPrincipal: false));
-            entityType2.AddNavigation(new Navigation(fk21, "NavTo1", pointsToPrincipal: true));
-            entityType2.AddNavigation(new Navigation(fk11, "NavTo1s", pointsToPrincipal: false));
-            entityType2.AddNavigation(new Navigation(fk22, "NavTo3", pointsToPrincipal: true));
-            entityType3.AddNavigation(new Navigation(fk22, "NavTo2s", pointsToPrincipal: false));
-            entityType3.AddNavigation(new Navigation(fk31, "NavTo4", pointsToPrincipal: true));
-            entityType4.AddNavigation(new Navigation(fk31, "NavTo3s", pointsToPrincipal: false));
-            entityType5.AddNavigation(new Navigation(fk61, "Kool6s", pointsToPrincipal: false));
-            entityType6.AddNavigation(new Navigation(fk61, "Kool5", pointsToPrincipal: true));
+            entityType1.AddNavigation("NavTo2", fk11, pointsToPrincipal: true);
+            entityType1.AddNavigation("NavTo2s", fk21, pointsToPrincipal: false);
+            entityType2.AddNavigation("NavTo1", fk21, pointsToPrincipal: true);
+            entityType2.AddNavigation("NavTo1s", fk11, pointsToPrincipal: false);
+            entityType2.AddNavigation("NavTo3", fk22, pointsToPrincipal: true);
+            entityType3.AddNavigation("NavTo2s", fk22, pointsToPrincipal: false);
+            entityType3.AddNavigation("NavTo4", fk31, pointsToPrincipal: true);
+            entityType4.AddNavigation("NavTo3s", fk31, pointsToPrincipal: false);
+            entityType5.AddNavigation("Kool6s", fk61, pointsToPrincipal: false);
+            entityType6.AddNavigation("Kool5", fk61, pointsToPrincipal: true);
 
             return model;
         }
