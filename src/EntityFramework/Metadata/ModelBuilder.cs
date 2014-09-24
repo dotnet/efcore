@@ -182,7 +182,7 @@ namespace Microsoft.Data.Entity.Metadata
                 get { return Builder.ModelBuilder.Metadata; }
             }
 
-            public virtual EntityBuilder Annotation([NotNull] string annotation, [NotNull] string value)
+            public virtual EntityBuilder Annotation(string annotation, string value)
             {
                 Check.NotEmpty(annotation, "annotation");
                 Check.NotEmpty(value, "value");
