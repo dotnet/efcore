@@ -130,7 +130,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         private void SetEntityState(EntityState entityState)
         {
             var oldState = _stateData.EntityState;
-            var valueGenerators = GetValueGenerators(entityState);
+            var valueGenerators = PrepareForAdd(entityState);
 
             if (valueGenerators != null)
             {
@@ -146,7 +146,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             Check.IsDefined(entityState, "entityState");
 
             var oldState = _stateData.EntityState;
-            var valueGenerators = GetValueGenerators(entityState);
+            var valueGenerators = PrepareForAdd(entityState);
 
             if (valueGenerators != null)
             {
@@ -180,7 +180,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             }
         }
 
-        private IEnumerable<Tuple<IProperty, IValueGenerator>> GetValueGenerators(EntityState newState)
+        private IEnumerable<Tuple<IProperty, IValueGenerator>> PrepareForAdd(EntityState newState)
         {
             if (newState != EntityState.Added
                 || EntityState == EntityState.Added)
@@ -194,12 +194,20 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             _stateData.FlagAllProperties(_entityType.Properties.Count(), isFlagged: false);
 
-            var properties = _entityType.Properties.Where(p => p.ValueGeneration == ValueGeneration.OnAdd || p.IsForeignKey());
-
-            return properties
+            var generators = _entityType.Properties
+                .Where(p => (p.ValueGeneration == ValueGeneration.OnAdd || p.IsForeignKey()) && HasDefaultValue(p))
                 .Select(p => Tuple.Create(p, _configuration.ValueGeneratorCache.GetGenerator(p)))
                 .Where(g => g.Item2 != null)
                 .ToList();
+
+            // Return null if there are no generators to avoid subsequent async method overhead
+            return generators.Count > 0 ? generators : null;
+        }
+
+        private bool HasDefaultValue(IProperty p)
+        {
+            var value = this[p];
+            return value == null || value.Equals(p.PropertyType.GetDefaultValue());
         }
 
         private void SetEntityState(EntityState oldState, EntityState newState)
@@ -246,6 +254,14 @@ namespace Microsoft.Data.Entity.ChangeTracking
             }
             else if (newState == EntityState.Unknown)
             {
+                if (oldState == EntityState.Added)
+                {
+                    foreach (var property in _entityType.Properties.Where(p => _stateData.IsPropertyFlagged(p.Index)))
+                    {
+                        this[property] = property.PropertyType.GetDefaultValue();
+                    }
+                }
+
                 // TODO: Does changing to Unknown really mean stop tracking?
                 _configuration.StateManager.StopTracking(this);
             }

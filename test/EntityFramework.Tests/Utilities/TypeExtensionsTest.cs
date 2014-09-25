@@ -375,5 +375,48 @@ namespace Microsoft.Data.Entity.Tests.Utilities
         }
 
         // ReSharper restore InconsistentNaming
+
+        public void Can_get_default_value_for_type()
+        {
+            Assert.Equal(false, typeof(bool).GetDefaultValue());
+            Assert.Equal((sbyte)0, typeof(sbyte).GetDefaultValue());
+            Assert.Equal((short)0, typeof(short).GetDefaultValue());
+            Assert.Equal(0, typeof(int).GetDefaultValue());
+            Assert.Equal((long)0, typeof(long).GetDefaultValue());
+            Assert.Equal((byte)0, typeof(byte).GetDefaultValue());
+            Assert.Equal((ushort)0, typeof(ushort).GetDefaultValue());
+            Assert.Equal((uint)0, typeof(uint).GetDefaultValue());
+            Assert.Equal((ulong)0, typeof(ulong).GetDefaultValue());
+            Assert.Equal((float)0.0, typeof(float).GetDefaultValue());
+            Assert.Equal(0.0, typeof(double).GetDefaultValue());
+            Assert.Equal((char)0, typeof(char).GetDefaultValue());
+            Assert.Equal(default(Guid), typeof(Guid).GetDefaultValue());
+            Assert.Equal(default(DateTime), typeof(DateTime).GetDefaultValue());
+            Assert.Equal(default(DateTimeOffset), typeof(DateTimeOffset).GetDefaultValue());
+            Assert.Equal(default(SomeStruct), typeof(SomeStruct).GetDefaultValue());
+            Assert.Equal(null, typeof(string).GetDefaultValue());
+            Assert.Equal(null, typeof(bool?).GetDefaultValue());
+            Assert.Equal(null, typeof(sbyte?).GetDefaultValue());
+            Assert.Equal(null, typeof(short?).GetDefaultValue());
+            Assert.Equal(null, typeof(int?).GetDefaultValue());
+            Assert.Equal(null, typeof(long?).GetDefaultValue());
+            Assert.Equal(null, typeof(byte?).GetDefaultValue());
+            Assert.Equal(null, typeof(ushort?).GetDefaultValue());
+            Assert.Equal(null, typeof(uint?).GetDefaultValue());
+            Assert.Equal(null, typeof(ulong?).GetDefaultValue());
+            Assert.Equal(null, typeof(float?).GetDefaultValue());
+            Assert.Equal(null, typeof(double?).GetDefaultValue());
+            Assert.Equal(null, typeof(char?).GetDefaultValue());
+            Assert.Equal(null, typeof(Guid?).GetDefaultValue());
+            Assert.Equal(null, typeof(DateTime?).GetDefaultValue());
+            Assert.Equal(null, typeof(DateTimeOffset?).GetDefaultValue());
+            Assert.Equal(null, typeof(SomeStruct?).GetDefaultValue());
+        }
+
+        private struct SomeStruct
+        {
+            public int Value1 { get; set; }
+            public long Value2 { get; set; }
+        }
     }
 }

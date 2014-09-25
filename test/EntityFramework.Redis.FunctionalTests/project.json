@@ -3,7 +3,7 @@
         "EntityFramework.Redis": "",
         "EntityFramework.FunctionalTests": "",
         "Microsoft.Framework.ConfigurationModel.Xml": "1.0.0-*",
-        "Redis-64": "2.8.9"
+        "redis-64": "2.8.9"
     },
     "commands": {
         "test": "Xunit.KRunner"

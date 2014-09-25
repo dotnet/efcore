@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Framework.DependencyInjection;
@@ -45,6 +46,42 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             }
         }
 
+        [Fact]
+        public async Task Can_use_explicit_values()
+        {
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFramework()
+                .AddSqlServer()
+                .ServiceCollection
+                .BuildServiceProvider();
+
+            var guids = new List<Guid>();
+
+            using (var context = new BronieContext(serviceProvider, "GooieExplicitBronies"))
+            {
+                context.Database.EnsureDeleted();
+                context.Database.EnsureCreated();
+
+                for (var i = 0; i < 50; i++)
+                {
+                    guids.Add((await context.AddAsync(new Pegasus { Name = "Rainbow Dash " + i, Index = i, Id = Guid.NewGuid() })).Id);
+                }
+
+                await context.SaveChangesAsync();
+            }
+
+            using (var context = new BronieContext(serviceProvider, "GooieExplicitBronies"))
+            {
+                var pegasuses = await context.Pegasuses.OrderBy(e => e.Index).ToListAsync();
+
+                for (var i = 0; i < 50; i++)
+                {
+                    Assert.Equal("Rainbow Dash " + i, pegasuses[i].Name);
+                    Assert.Equal(guids[i], pegasuses[i].Id);
+                }
+            }
+        }
+
         private class BronieContext : DbContext
         {
             private readonly string _databaseName;
@@ -67,6 +104,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             public Guid Id { get; set; }
             public string Name { get; set; }
+            public int Index { get; set; }
         }
     }
 }

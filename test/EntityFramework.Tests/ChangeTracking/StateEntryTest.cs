@@ -243,6 +243,44 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
+        public void Value_generation_does_not_happen_if_property_has_non_default_value()
+        {
+            var model = BuildModel();
+            var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
+            var keyProperty = entityType.GetProperty("Id");
+            var configuration = TestHelpers.CreateContextConfiguration(model);
+
+            var entry = CreateStateEntry(configuration, entityType, new SomeEntity());
+
+            entry[keyProperty] = 31143;
+
+            entry.EntityState = EntityState.Added;
+
+            Assert.Equal(31143, entry[keyProperty]);
+        }
+
+        [Fact]
+        public void Temporary_values_are_reset_when_entity_is_detached()
+        {
+            var model = BuildModel();
+            var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
+            var keyProperty = entityType.GetProperty("Id");
+            var configuration = TestHelpers.CreateContextConfiguration(model);
+
+            var entry = CreateStateEntry(configuration, entityType, new SomeEntity());
+
+            entry.EntityState = EntityState.Added;
+            entry.MarkAsTemporary(keyProperty);
+
+            Assert.NotNull(entry[keyProperty]);
+            Assert.NotEqual(0, entry[keyProperty]);
+
+            entry.EntityState = EntityState.Unknown;
+
+            Assert.Equal(0, entry[keyProperty]);
+        }
+
+        [Fact]
         public void Changing_state_to_Added_triggers_value_generation_for_any_property()
         {
             var model = BuildModel();

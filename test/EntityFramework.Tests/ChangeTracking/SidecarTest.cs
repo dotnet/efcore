@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Can_check_if_property_value_can_be_stored()
+        public virtual void Can_check_if_property_value_can_be_stored()
         {
             var sidecar = CreateSidecar();
 
@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Can_check_if_value_is_stored()
+        public virtual void Can_check_if_value_is_stored()
         {
             var sidecar = CreateSidecar();
 
@@ -46,7 +46,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Can_read_and_write_values()
+        public virtual void Can_read_and_write_values()
         {
             var entity = new Banana { Name = "Stand", Fk = 88 };
             var sidecar = CreateSidecar(CreateStateEntry(entity));
@@ -65,7 +65,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Can_read_and_write_null()
+        public virtual void Can_read_and_write_null()
         {
             var entity = new Banana { Name = "Stand", Fk = 88 };
             var sidecar = CreateSidecar(CreateStateEntry(entity));
@@ -79,7 +79,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Can_commit_values_into_state_entry()
+        public virtual void Can_commit_values_into_state_entry()
         {
             var entity = new Banana { Name = "Stand", Fk = 88 };
             var sidecar = CreateSidecar(CreateStateEntry(entity));
@@ -92,7 +92,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Committing_detaches_sidecar()
+        public virtual void Committing_detaches_sidecar()
         {
             var entity = new Banana { Name = "Stand", Fk = 88 };
             var stateEntry = CreateStateEntry(entity);
@@ -105,7 +105,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Rolling_back_detaches_sidecar_without_committing_values()
+        public virtual void Rolling_back_detaches_sidecar_without_committing_values()
         {
             var entity = new Banana { Name = "Stand", Fk = 88 };
             var stateEntry = CreateStateEntry(entity);
@@ -122,7 +122,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Can_snapshot_values()
+        public virtual void Can_snapshot_values()
         {
             var entity = new Banana { Name = "Stand", Fk = 88 };
             var sidecar = CreateSidecar(CreateStateEntry(entity));
@@ -157,7 +157,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Can_snapshot_individual_values()
+        public virtual void Can_snapshot_individual_values()
         {
             var entity = new Banana { Name = "Stand", Fk = 88 };
             var sidecar = CreateSidecar(CreateStateEntry(entity));
@@ -191,7 +191,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Can_snapshot_null_values()
+        public virtual void Can_snapshot_null_values()
         {
             var entity = new Banana { Name = "Stand", State = null };
             var sidecar = CreateSidecar(CreateStateEntry(entity));
@@ -217,7 +217,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Can_update_already_saved_values()
+        public virtual void Can_update_already_saved_values()
         {
             var entity = new Banana { Name = "Stand", Fk = 88 };
             var sidecar = CreateSidecar(CreateStateEntry(entity));
@@ -242,7 +242,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Can_ensure_value_is_snapshotted_but_not_overwrite_existing_snapshot_value()
+        public virtual void Can_ensure_value_is_snapshotted_but_not_overwrite_existing_snapshot_value()
         {
             var entity = new Banana { Name = "Stand", Fk = 88 };
             var sidecar = CreateSidecar(CreateStateEntry(entity));
@@ -261,7 +261,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Can_ensure_null_value_is_snapshotted_but_not_overwrite_existing_snapshot_value()
+        public virtual void Can_ensure_null_value_is_snapshotted_but_not_overwrite_existing_snapshot_value()
         {
             var entity = new Banana { Name = "Stand", State = null };
             var sidecar = CreateSidecar(CreateStateEntry(entity));
@@ -280,7 +280,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Ensuring_snapshot_does_nothing_for_property_that_cannot_be_stored()
+        public virtual void Ensuring_snapshot_does_nothing_for_property_that_cannot_be_stored()
         {
             var entity = new Banana { Name = "Stand", Fk = 88 };
             var sidecar = CreateSidecar(CreateStateEntry(entity));
@@ -291,7 +291,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Can_create_foreign_key_value_based_on_dependent_values()
+        public virtual void Can_create_foreign_key_value_based_on_dependent_values()
         {
             var entityType = _model.GetEntityType(typeof(Banana).FullName);
             var foreignKey = entityType.ForeignKeys.Single();
@@ -306,7 +306,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Can_create_foreign_key_value_based_on_principal_end_values()
+        public virtual void Can_create_foreign_key_value_based_on_principal_end_values()
         {
             var entityType = _model.GetEntityType(typeof(Banana).FullName);
             var foreignKey = entityType.ForeignKeys.Single();
@@ -321,7 +321,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Can_create_primary_key()
+        public virtual void Can_create_primary_key()
         {
             var entry = CreateStateEntry();
             var sidecar = CreateSidecar(entry);
@@ -333,7 +333,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Can_create_composite_foreign_key_value_based_on_dependent_values()
+        public virtual void Can_create_composite_foreign_key_value_based_on_dependent_values()
         {
             var entityType = _model.GetEntityType(typeof(SomeMoreDependentEntity).FullName);
             var foreignKey = entityType.ForeignKeys.Single();
@@ -349,7 +349,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Can_create_composite_foreign_key_value_based_on_principal_end_values()
+        public virtual void Can_create_composite_foreign_key_value_based_on_principal_end_values()
         {
             var dependentType = _model.GetEntityType(typeof(SomeMoreDependentEntity).FullName);
             var foreignKey = dependentType.ForeignKeys.Single();

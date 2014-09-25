@@ -174,6 +174,68 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             }
         }
 
+        [Fact]
+        public void Can_use_explicit_values()
+        {
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFramework()
+                .AddSqlServer()
+                .ServiceCollection
+                .BuildServiceProvider();
+
+            using (var context = new BronieContext(serviceProvider, "ExplicitBronies"))
+            {
+                context.Database.EnsureDeleted();
+                context.Database.EnsureCreated();
+
+                // TODO: Integrate sequence generation into Migrations
+                CreateDatabaseSequence(context, context.Database.AsRelational().Connection);
+            }
+
+            AddEntitiesWithIds(serviceProvider, 0);
+            AddEntitiesWithIds(serviceProvider, 2);
+
+            // Use a different service provider so a different generator pool is used but with
+            // the same server sequence.
+            serviceProvider = new ServiceCollection()
+                .AddEntityFramework()
+                .AddSqlServer()
+                .ServiceCollection
+                .BuildServiceProvider();
+
+            AddEntitiesWithIds(serviceProvider, 4);
+
+            using (var context = new BronieContext(serviceProvider, "ExplicitBronies"))
+            {
+                var pegasuses = context.Pegasuses.ToList();
+
+                for (var i = 1; i < 11; i++)
+                {
+                    Assert.Equal(3, pegasuses.Count(p => p.Name == "Rainbow Dash " + i));
+                    Assert.Equal(3, pegasuses.Count(p => p.Name == "Fluttershy " + i));
+
+                    for (var j = 0; j < 6; j++)
+                    {
+                        pegasuses.Single(p => p.Identifier == i * 100 + j);
+                    }
+                }
+            }
+        }
+
+        private static void AddEntitiesWithIds(IServiceProvider serviceProvider, int idOffset)
+        {
+            using (var context = new BronieContext(serviceProvider, "ExplicitBronies"))
+            {
+                for (var i = 1; i < 11; i++)
+                {
+                    context.Add(new Pegasus { Name = "Rainbow Dash " + i, Identifier = i * 100 + idOffset });
+                    context.Add(new Pegasus { Name = "Fluttershy " + i, Identifier = i * 100 + idOffset + 1 });
+                }
+
+                context.SaveChanges();
+            }
+        }
+
         private static void CreateDatabaseSequence(BronieContext context, RelationalConnection storeConnection)
         {
             var executor = new SqlStatementExecutor();
