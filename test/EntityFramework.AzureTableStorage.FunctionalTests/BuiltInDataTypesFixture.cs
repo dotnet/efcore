@@ -8,6 +8,7 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Advanced;
 using Microsoft.Framework.DependencyInjection.Fallback;
+using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
 {
@@ -69,7 +70,6 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
                     _serviceProvider = null;
                 }
             }
-
         }
     }
 }
