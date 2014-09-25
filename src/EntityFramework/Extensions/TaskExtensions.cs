@@ -3,8 +3,9 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+#if NET45
 using System.Threading;
-using System.Threading.Tasks;
+#endif
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 
@@ -28,19 +29,12 @@ namespace System.Threading.Tasks
         /// </typeparam>
         /// <param name="task">The task to be awaited on.</param>
         /// <returns>An object used to await this task.</returns>
-#if NET45
         public static CultureAwaiter<T> WithCurrentCulture<T>([NotNull] this Task<T> task)
         {
             Check.NotNull(task, "task");
 
             return new CultureAwaiter<T>(task);
         }
-#else
-        public static Task<T> WithCurrentCulture<T>([NotNull] this Task<T> task)
-        {
-            return task;
-        }
-#endif
 
         /// <summary>
         /// Configures an awaiter used to await this <see cref="Task" /> to avoid
@@ -50,22 +44,13 @@ namespace System.Threading.Tasks
         /// <remarks> Calling this has no effect on platforms that don't use <see cref="SynchronizationContext"/>. </remarks>
         /// <param name="task">The task to be awaited on.</param>
         /// <returns>An object used to await this task.</returns>
-#if NET45
         public static CultureAwaiter WithCurrentCulture([NotNull] this Task task)
         {
             Check.NotNull(task, "task");
 
             return new CultureAwaiter(task);
         }
-#else
-        public static Task WithCurrentCulture([NotNull] this Task task)
-        {
-            return task;
-        }
-#endif
 
-        
-#if NET45
         /// <summary>
         /// Provides an awaitable object that allows for awaits on <see cref="Task{TResult}" /> that
         /// preserve the culture.
@@ -85,7 +70,7 @@ namespace System.Threading.Tasks
             /// Constructs a new instance of the <see cref="CultureAwaiter{T}" /> class.
             /// </summary>
             /// <param name="task">The task to be awaited on.</param>
-            public CultureAwaiter(Task<T> task)
+            public CultureAwaiter([NotNull] Task<T> task)
             {
                 _task = task;
             }
@@ -145,6 +130,7 @@ namespace System.Threading.Tasks
             /// <remarks>This method is intended for compiler user rather than use directly in code.</remarks>
             public void UnsafeOnCompleted(Action continuation)
             {
+#if NET45
                 var currentCulture = Thread.CurrentThread.CurrentCulture;
                 var currentUICulture = Thread.CurrentThread.CurrentUICulture;
                 _task.ConfigureAwait(continueOnCapturedContext: false).GetAwaiter().UnsafeOnCompleted(
@@ -164,6 +150,9 @@ namespace System.Threading.Tasks
                             Thread.CurrentThread.CurrentUICulture = originalUICulture;
                         }
                     });
+#else
+                _task.GetAwaiter().UnsafeOnCompleted(continuation);
+#endif
             }
         }
 
@@ -183,7 +172,7 @@ namespace System.Threading.Tasks
             /// Constructs a new instance of the <see cref="CultureAwaiter" /> class.
             /// </summary>
             /// <param name="task">The task to be awaited on.</param>
-            public CultureAwaiter(Task task)
+            public CultureAwaiter([NotNull] Task task)
             {
                 _task = task;
             }
@@ -241,6 +230,7 @@ namespace System.Threading.Tasks
             /// <remarks>This method is intended for compiler user rather than use directly in code.</remarks>
             public void UnsafeOnCompleted(Action continuation)
             {
+#if NET45
                 var currentCulture = Thread.CurrentThread.CurrentCulture;
                 var currentUICulture = Thread.CurrentThread.CurrentUICulture;
                 _task.ConfigureAwait(continueOnCapturedContext: false).GetAwaiter().UnsafeOnCompleted(
@@ -260,8 +250,10 @@ namespace System.Threading.Tasks
                             Thread.CurrentThread.CurrentUICulture = originalUICulture;
                         }
                     });
-            }
-        }        
+#else
+                _task.GetAwaiter().UnsafeOnCompleted(continuation);
 #endif
+            }
+        }
     }
 }

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+#if NET45
 namespace System.Threading.Tasks.Tests
 {
     using System.Globalization;
@@ -10,7 +11,6 @@ namespace System.Threading.Tasks.Tests
 
     public class TaskExtensionsTest
     {
-#if NET45
         [Fact]
         public void NonGeneric_WithCurrentCulture_preserves_culture()
         {
@@ -121,22 +121,6 @@ namespace System.Threading.Tasks.Tests
             await Task.Yield();
             return default(T);
         }
-#else
-        [Fact]
-        public void NonGeneric_WithCurrentCulture_is_noop()
-        {
-            var task = (Task)Task.FromResult(true);
-
-            Assert.Same(task, task.WithCurrentCulture());
-        }
-
-        [Fact]
-        public void Generic_WithCurrentCulture_is_noop()
-        {
-            var task = Task.FromResult(true);
-
-            Assert.Same(task, task.WithCurrentCulture());
-        }
-#endif
     }
 }
+#endif
