@@ -25,8 +25,10 @@ namespace Microsoft.Data.Entity.FunctionalTests
             var builder = new BasicModelBuilder(model);
             builder.Entity<BuiltInNonNullableDataTypes>(b =>
                 {
-                    b.Key(dt => dt.Id);
-                    b.Property(dt => dt.Id);
+                    b.Key(dt => dt.Id0);
+                    // having 2 non-null properies is needed for Azure Table Storage (and should be supported by all other providers)
+                    b.Property(dt => dt.Id0);
+                    b.Property(dt => dt.Id1);
                     b.Property(dt => dt.TestInt32);
                     b.Property(dt => dt.TestInt64);
                     b.Property(dt => dt.TestDouble);
@@ -41,8 +43,10 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             builder.Entity<BuiltInNullableDataTypes>(b =>
             {
-                b.Key(dt => dt.Id);
-                b.Property(dt => dt.Id);
+                b.Key(dt => dt.Id0);
+                // having 2 non-null properies is needed for Azure Table Storage (and should be supported by all other providers)
+                b.Property(dt => dt.Id0);
+                b.Property(dt => dt.Id1);
                 b.Property(dt => dt.TestNullableInt32);
                 b.Property(dt => dt.TestString);
                 b.Property(dt => dt.TestNullableInt64);
@@ -62,7 +66,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
     public class BuiltInNonNullableDataTypes
     {
-        public int Id { get; set; }
+        public int Id0 { get; set; }
+        public int Id1 { get; set; }
         public int TestInt32 { get; set; }
         public long TestInt64 { get; set; }
         public double TestDouble { get; set; }
@@ -75,11 +80,42 @@ namespace Microsoft.Data.Entity.FunctionalTests
         public uint TestUnsignedInt32 { get; set; }
         public ulong TestUnsignedInt64 { get; set; }
         public short TestInt16 { get; set; }
+
+        public override bool Equals(object other)
+        {
+            var otherAsThisType = other as BuiltInNonNullableDataTypes;
+            if (otherAsThisType == null) { return false; }
+            return Equals(this, otherAsThisType);
+        }
+
+        protected bool Equals(BuiltInNonNullableDataTypes other)
+        {
+            return Id0 == other.Id0 && Id1 == other.Id1;
+        }
+
+        public static bool operator ==(BuiltInNonNullableDataTypes left, BuiltInNonNullableDataTypes right)
+        {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(BuiltInNonNullableDataTypes left, BuiltInNonNullableDataTypes right)
+        {
+            return !Equals(left, right);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return Id0.GetHashCode() * 397  ^ (Id1.GetHashCode());
+            }
+        }
     }
 
     public class BuiltInNullableDataTypes
     {
-        public int Id { get; set; }
+        public int Id0 { get; set; }
+        public int Id1 { get; set; }
         public int? TestNullableInt32 { get; set; }
         public string TestString { get; set; }
         public long? TestNullableInt64 { get; set; }
@@ -91,5 +127,35 @@ namespace Microsoft.Data.Entity.FunctionalTests
         public bool? TestNullableBoolean { get; set; }
         public byte? TestNullableByte { get; set; }
         public short? TestNullableInt16 { get; set; }
+
+        public override bool Equals(object other)
+        {
+            var otherAsThisType = other as BuiltInNullableDataTypes;
+            if (otherAsThisType == null) { return false; }
+            return this.Equals(otherAsThisType);
+        }
+        
+        protected bool Equals(BuiltInNullableDataTypes other)
+        {
+            return Id0 == other.Id0 && Id1 == other.Id1;
+        }
+
+        public static bool operator ==(BuiltInNullableDataTypes left, BuiltInNullableDataTypes right)
+        {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(BuiltInNullableDataTypes left, BuiltInNullableDataTypes right)
+        {
+            return !Equals(left, right);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return Id0.GetHashCode() * 397 ^ (Id1.GetHashCode());
+            }
+        }
     }
 }

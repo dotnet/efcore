@@ -81,6 +81,8 @@
     <Compile Include="BatchTests.cs" />
     <Compile Include="AtsOptimisticConcurrencyTests.cs" />
     <Compile Include="DeadlockTest.cs" />
+    <Compile Include="BuiltInDataTypesFixture.cs" />
+    <Compile Include="BuiltInDataTypesTest.cs" />
     <Compile Include="NorthwindAsyncQueryTest.cs" />
     <Compile Include="NorthwindQueryFixture.cs" />
     <Compile Include="TestFixture.cs" />
