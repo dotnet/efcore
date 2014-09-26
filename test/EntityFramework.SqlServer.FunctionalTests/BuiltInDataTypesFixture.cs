@@ -8,10 +8,8 @@ using Microsoft.Framework.DependencyInjection.Fallback;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
-    public class BuiltInDataTypesFixture : BuiltInDataTypesFixtureBase, IDisposable
+    public class BuiltInDataTypesFixture : BuiltInDataTypesFixtureBase
     {
-        private DbContext _context;
-
         public override DbContext CreateContext()
         {
             var testDatabase = SqlServerTestDatabase.Scratch().Result;
@@ -21,17 +19,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     .UseModel(CreateModel())
                     .UseSqlServer(testDatabase.Connection.ConnectionString);
 
-            _context = new DbContext(options);
-            _context.Database.EnsureCreated();
-            return _context;
-        }
-
-        void IDisposable.Dispose()
-        {
-            if (_context != null)
-            {
-                _context.Dispose();
-            }
+            var context = new DbContext(options);
+            context.Database.EnsureCreated();
+            return context;
         }
     }
 }
