@@ -11,7 +11,8 @@
         "aspnet50": { },
         "aspnetcore50": {
             "dependencies": {
-                "Microsoft.CSharp": "4.0.0.0"
+                "Microsoft.CSharp": "4.0.0.0",
+                "System.Text.RegularExpressions": "4.0.0.0"
             }
         },
         ".NETPortable,Version=v4.6,Profile=Profile151": {
