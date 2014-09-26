@@ -69,7 +69,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
             return ExecuteChanges(stateEntries);
         }
 
-        public override Task<int> SaveChangesAsync(IReadOnlyList<StateEntry> stateEntries, CancellationToken cancellationToken = new CancellationToken())
+        public override Task<int> SaveChangesAsync(IReadOnlyList<StateEntry> stateEntries, CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(stateEntries, "stateEntries");
 
@@ -226,7 +226,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
         }
 
         private async Task<int> ExecuteBatchedChangesAsync(IReadOnlyList<StateEntry> stateEntries,
-            CancellationToken cancellationToken = new CancellationToken())
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             var tableGroups = stateEntries.GroupBy(s => s.EntityType.TableName());
             var allBatchTasks = new List<Task<IList<TableResult>>>();

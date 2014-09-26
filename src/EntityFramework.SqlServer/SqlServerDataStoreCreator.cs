@@ -79,7 +79,7 @@ namespace Microsoft.Data.Entity.SqlServer
             return (int)_statementExecutor.ExecuteScalar(_connection.DbConnection, _connection.DbTransaction, CreateHasTablesCommand()) != 0;
         }
 
-        public override async Task<bool> HasTablesAsync(CancellationToken cancellationToken = new CancellationToken())
+        public override async Task<bool> HasTablesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             return (int)(await _statementExecutor
                 .ExecuteScalarAsync(_connection.DbConnection, _connection.DbTransaction, CreateHasTablesCommand(), cancellationToken)
