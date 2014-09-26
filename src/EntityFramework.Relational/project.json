@@ -10,7 +10,11 @@
     "code": [ "**\\*.cs", "..\\Shared\\*.cs" ],
     "frameworks": {
         "aspnet50": { },
-        "aspnetcore50": { },
+        "aspnetcore50": { 
+            "dependencies": {
+                "System.Text.RegularExpressions": "4.0.0.0"
+            }
+        },
         ".NETPortable,Version=v4.6,Profile=Profile151": { }
     }
 }
