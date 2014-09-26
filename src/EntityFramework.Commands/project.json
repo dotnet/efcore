@@ -19,7 +19,8 @@
             "dependencies": {
                 "Microsoft.Framework.CommandLineUtils": "1.0.0-*",
                 "System.Console": "4.0.0.0",
-                "System.Reflection.TypeExtensions": "4.0.0.0"
+                "System.Reflection.TypeExtensions": "4.0.0.0",
+                "System.Text.RegularExpressions": "4.0.0.0"
             }
         }
     },
