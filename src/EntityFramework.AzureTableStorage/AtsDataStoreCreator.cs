@@ -65,7 +65,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
             return created;
         }
 
-        public override async Task<bool> EnsureCreatedAsync(IModel model, CancellationToken cancellationToken = new CancellationToken())
+        public override async Task<bool> EnsureCreatedAsync(IModel model, CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(model, "model");
 

@@ -108,7 +108,7 @@ namespace Microsoft.Data.Entity.SQLite
             return (long)_executor.ExecuteScalar(_connection.DbConnection, _connection.DbTransaction, CreateHasTablesCommand()) != 0;
         }
 
-        public override async Task<bool> HasTablesAsync(CancellationToken cancellationToken = new CancellationToken())
+        public override async Task<bool> HasTablesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             return (long)(await _executor
                 .ExecuteScalarAsync(_connection.DbConnection, _connection.DbTransaction, CreateHasTablesCommand(), cancellationToken)
