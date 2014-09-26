@@ -11,6 +11,7 @@ namespace Microsoft.Data.Entity.Metadata
         Type UnderlyingType { get; }
         bool IsNullable { get; }
         bool IsReadOnly { get; }
+        bool UseStoreDefault { get; }
         ValueGeneration ValueGeneration { get; }
         int Index { get; }
         int ShadowIndex { get; }

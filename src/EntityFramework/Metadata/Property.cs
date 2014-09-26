@@ -12,10 +12,7 @@ namespace Microsoft.Data.Entity.Metadata
     public class Property : PropertyBase, IProperty
     {
         private readonly Type _propertyType;
-
-        private bool _isConcurrencyToken;
-        private bool _isNullable;
-        private bool _isReadOnly;
+        private PropertyFlags _flags;
         private int _shadowIndex;
         private int _originalValueIndex = -1;
         private int _index;
@@ -28,7 +25,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             _propertyType = propertyType;
             _shadowIndex = shadowProperty ? 0 : -1;
-            _isNullable = propertyType.IsNullableType();
+            IsNullable = propertyType.IsNullableType();
         }
 
         public virtual Type PropertyType
@@ -43,13 +40,19 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual bool IsNullable
         {
-            get { return _isNullable; }
-            set { _isNullable = value; }
+            get { return GetFlag(PropertyFlags.IsNullable); }
+            set { SetFlag(value, PropertyFlags.IsNullable); }
+        }
+
+        public virtual bool UseStoreDefault
+        {
+            get { return GetFlag(PropertyFlags.UseStoreDefault); }
+            set { SetFlag(value, PropertyFlags.UseStoreDefault); }
         }
 
         public virtual bool IsReadOnly
         {
-            get { return this.IsKey() || _isReadOnly; }
+            get { return this.IsKey() || GetFlag(PropertyFlags.IsReadOnly); }
             set
             {
                 if (!value
@@ -57,7 +60,7 @@ namespace Microsoft.Data.Entity.Metadata
                 {
                     throw new NotSupportedException(Strings.FormatKeyPropertyMustBeReadOnly(Name, EntityType.Name));
                 }
-                _isReadOnly = value;
+                SetFlag(value, PropertyFlags.IsReadOnly);
             }
         }
 
@@ -91,12 +94,12 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual bool IsConcurrencyToken
         {
-            get { return _isConcurrencyToken; }
+            get { return GetFlag(PropertyFlags.IsConcurrencyToken); }
             set
             {
-                if (_isConcurrencyToken != value)
+                if (IsConcurrencyToken != value)
                 {
-                    _isConcurrencyToken = value;
+                    SetFlag(value, PropertyFlags.IsConcurrencyToken);
 
                     if (EntityType != null)
                     {
@@ -146,6 +149,25 @@ namespace Microsoft.Data.Entity.Metadata
 
                 _originalValueIndex = value;
             }
+        }
+
+        private bool GetFlag(PropertyFlags flag)
+        {
+            return (_flags & flag) != 0;
+        }
+
+        private void SetFlag(bool value, PropertyFlags flag)
+        {
+            _flags = value ? (_flags | flag) : (_flags & ~flag);
+        }
+
+        [Flags]
+        private enum PropertyFlags
+        {
+            IsConcurrencyToken = 1,
+            IsNullable = 2,
+            IsReadOnly = 4,
+            UseStoreDefault = 8
         }
     }
 }

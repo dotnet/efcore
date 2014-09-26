@@ -36,5 +36,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         {
             Metadata.ValueGeneration = computed ? ValueGeneration.OnAddAndUpdate : ValueGeneration.None;
         }
+
+        public virtual void UseStoreDefault(bool useDefault = true)
+        {
+            Metadata.UseStoreDefault = useDefault;
+        }
     }
 }

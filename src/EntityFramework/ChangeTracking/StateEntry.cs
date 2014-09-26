@@ -542,6 +542,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             Check.NotNull(property, "property");
 
             return HasTemporaryValue(property)
+                   || (property.UseStoreDefault && HasDefaultValue(property))
                    || (property.ValueGeneration == ValueGeneration.OnAddAndUpdate
                        && (EntityState == EntityState.Modified || EntityState == EntityState.Added)
                        && !IsPropertyModified(property));

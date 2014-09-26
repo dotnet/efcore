@@ -40,6 +40,11 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
             get { return false; }
         }
 
+        public bool UseStoreDefault
+        {
+            get { return false; }
+        }
+
         public IEntityType EntityType
         {
             get { return _entityType; }

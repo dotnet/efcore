@@ -294,6 +294,13 @@ namespace Microsoft.Data.Entity.Metadata
 
                     return this;
                 }
+
+                public virtual PropertyBuilder UseStoreDefault(bool useDefault = true)
+                {
+                    Builder.UseStoreDefault(useDefault);
+
+                    return this;
+                }
             }
 
             public class ForeignKeyBuilder : IForeignKeyBuilder<ForeignKeyBuilder>
