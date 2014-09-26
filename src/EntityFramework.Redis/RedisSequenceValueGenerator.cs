@@ -34,6 +34,11 @@ namespace Microsoft.Data.Entity.Redis
         public override async Task<long> GetNewCurrentValueAsync(
             StateEntry stateEntry, IProperty property, CancellationToken cancellationToken)
         {
+            Check.NotNull(stateEntry, "stateEntry");
+            Check.NotNull(property, "property");
+
+            cancellationToken.ThrowIfCancellationRequested();
+
             return await
                 Task.FromResult<long>(_redisDatabase.GetNextGeneratedValue(property, BlockSize, SequenceName))
                 .WithCurrentCulture();

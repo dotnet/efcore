@@ -118,10 +118,7 @@ namespace Microsoft.Data.Entity.Redis
         {
             Check.NotNull(stateEntries, "stateEntries");
 
-            if (cancellationToken.IsCancellationRequested)
-            {
-                return 0;
-            }
+            cancellationToken.ThrowIfCancellationRequested();
 
             var transaction = PrepareTransactionForSaveChanges(stateEntries);
 
@@ -218,10 +215,7 @@ namespace Microsoft.Data.Entity.Redis
         public virtual async Task FlushDatabaseAsync(
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            if (cancellationToken.IsCancellationRequested)
-            {
-                return;
-            }
+            cancellationToken.ThrowIfCancellationRequested();
 
             var connection = (RedisConnection)Configuration.Connection;
 
@@ -375,6 +369,8 @@ namespace Microsoft.Data.Entity.Redis
         /// <returns>The next generated value</returns>
         public virtual long GetNextGeneratedValue([NotNull] IProperty property, long incrementBy, [CanBeNull] string sequenceName)
         {
+            Check.NotNull(property, "property");
+
             if (sequenceName == null)
             {
                 sequenceName = ConstructRedisValueGeneratorKeyName(property);
