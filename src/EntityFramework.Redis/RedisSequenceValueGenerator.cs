@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.Redis
 {
     public class RedisSequenceValueGenerator : BlockOfSequentialValuesGenerator
     {
-        private RedisDatabase _redisDatabase;
+        private readonly RedisDatabase _redisDatabase;
 
         public RedisSequenceValueGenerator(
             [NotNull] RedisDatabase redisDatabase,
@@ -40,8 +40,8 @@ namespace Microsoft.Data.Entity.Redis
             cancellationToken.ThrowIfCancellationRequested();
 
             return await
-                Task.FromResult<long>(_redisDatabase.GetNextGeneratedValue(property, BlockSize, SequenceName))
-                .WithCurrentCulture();
+                Task.FromResult(_redisDatabase.GetNextGeneratedValue(property, BlockSize, SequenceName))
+                    .WithCurrentCulture();
         }
     }
 }

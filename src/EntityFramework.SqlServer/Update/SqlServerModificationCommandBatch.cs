@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.SqlServer.Update
         private readonly int? _maxBatchSize;
         private readonly List<ModificationCommand> _bulkInsertCommands = new List<ModificationCommand>();
         private int _commandsLeftToLengthCheck = 50;
-        
+
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
         ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
@@ -49,7 +49,7 @@ namespace Microsoft.Data.Entity.SqlServer.Update
             }
 
             var additionalParameterCount = CountParameters(modificationCommand);
-            
+
             if (_parameterCount + additionalParameterCount >= MaxParameterCount)
             {
                 return false;
@@ -116,7 +116,7 @@ namespace Microsoft.Data.Entity.SqlServer.Update
 
             var stringBuilder = new StringBuilder();
             var grouping = ((SqlServerSqlGenerator)SqlGenerator).AppendBulkInsertOperation(stringBuilder, _bulkInsertCommands);
-            for (int i = lastIndex - _bulkInsertCommands.Count; i < lastIndex; i++)
+            for (var i = lastIndex - _bulkInsertCommands.Count; i < lastIndex; i++)
             {
                 ResultSetEnds[i] = grouping == SqlServerSqlGenerator.ResultsGrouping.OneCommandPerResultSet;
             }

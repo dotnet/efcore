@@ -69,7 +69,6 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
                     _serviceProvider = null;
                 }
             }
-
         }
     }
 }

@@ -27,8 +27,8 @@ namespace Microsoft.Data.Entity.Commands
 
             return assembly.GetTypes().Where(
                 t => !t.GetTypeInfo().IsAbstract
-                    && !t.GetTypeInfo().IsGenericType
-                    && typeof(DbContext).IsAssignableFrom(t));
+                     && !t.GetTypeInfo().IsGenericType
+                     && typeof(DbContext).IsAssignableFrom(t));
         }
 
         public static Type SelectType([NotNull] IEnumerable<Type> types, [CanBeNull] string name)
@@ -44,7 +44,7 @@ namespace Microsoft.Data.Entity.Commands
                 {
                     throw new InvalidOperationException(Strings.NoContext);
                 }
-                else if (candidates.Length == 1)
+                if (candidates.Length == 1)
                 {
                     return candidates[0];
                 }
@@ -57,7 +57,7 @@ namespace Microsoft.Data.Entity.Commands
             {
                 throw new InvalidOperationException(Strings.FormatNoContextWithName(name));
             }
-            else if (candidates.Length == 1)
+            if (candidates.Length == 1)
             {
                 return candidates[0];
             }
@@ -68,7 +68,7 @@ namespace Microsoft.Data.Entity.Commands
             {
                 throw new InvalidOperationException(Strings.FormatMultipleContextsWithName(name));
             }
-            else if (candidates.Length == 1)
+            if (candidates.Length == 1)
             {
                 return candidates[0];
             }

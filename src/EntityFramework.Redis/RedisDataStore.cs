@@ -26,6 +26,7 @@ namespace Microsoft.Data.Entity.Redis
         {
             _database = new LazyRef<RedisDatabase>(() => (RedisDatabase)configuration.Database);
         }
+
         public override int SaveChanges(
             IReadOnlyList<StateEntry> stateEntries)
         {

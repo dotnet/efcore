@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                     .BuildServiceProvider();
 
             _model = CreateModel();
-            
+
             _options
                 = new DbContextOptions()
                     .UseModel(_model)
@@ -44,14 +44,12 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             {
                 return new DbContext(_serviceProvider, _options);
             }
-            else
-            {
-                var options = new DbContextOptions()
-                    .UseModel(_model)
-                    .UseInMemoryStore(persist: false);
 
-                return new DbContext(_serviceProvider, options);
-            }
+            var options = new DbContextOptions()
+                .UseModel(_model)
+                .UseInMemoryStore(persist: false);
+
+            return new DbContext(_serviceProvider, options);
         }
 
         public void Seed(DbContext context)

@@ -31,7 +31,8 @@ namespace Microsoft.Data.Entity.Metadata
             if (!collectionType.GetTypeInfo().IsAbstract)
             {
                 var constructor = collectionType.GetDeclaredConstructor(null);
-                if (constructor != null && constructor.IsPublic)
+                if (constructor != null
+                    && constructor.IsPublic)
                 {
                     return collectionType;
                 }

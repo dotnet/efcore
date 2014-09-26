@@ -5475,7 +5475,6 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Equal(dependentPropertyCount, dependentType.Properties.Count);
             Assert.Empty(principalType.ForeignKeys);
 
-
             Assert.Equal(2, principalType.Keys.Count);
             Assert.Contains(principalKey, principalType.Keys);
             Assert.Contains(fk.ReferencedKey, principalType.Keys);

@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -41,7 +40,7 @@ namespace Microsoft.Data.Entity.SqlServer
                 ? 1
                 : modificationCommands.Count;
 
-            for (int i = 0; i < statementCount; i++)
+            for (var i = 0; i < statementCount; i++)
             {
                 var operations = modificationCommands[i].ColumnModifications;
                 var writeOperations = operations.Where(o => o.IsWrite).ToArray();
@@ -54,7 +53,7 @@ namespace Microsoft.Data.Entity.SqlServer
                 }
                 AppendValuesHeader(commandStringBuilder, writeOperations);
                 AppendValues(commandStringBuilder, writeOperations);
-                for (int j = 1; j < valueSetCount; j++)
+                for (var j = 1; j < valueSetCount; j++)
                 {
                     commandStringBuilder.Append(",").AppendLine();
                     AppendValues(commandStringBuilder, modificationCommands[j].ColumnModifications.Where(o => o.IsWrite).ToArray());

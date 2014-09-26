@@ -56,7 +56,8 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
         {
             Check.NotNull(property, "property");
 
-            if (property.PropertyType == typeof(Guid) || property.PropertyType.IsInteger())
+            if (property.PropertyType == typeof(Guid)
+                || property.PropertyType.IsInteger())
             {
                 property.ValueGeneration = ValueGeneration.OnAdd;
             }

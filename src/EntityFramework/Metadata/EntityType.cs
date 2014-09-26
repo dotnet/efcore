@@ -330,7 +330,8 @@ namespace Microsoft.Data.Entity.Metadata
             {
                 var elementType = clrProperty.PropertyType.TryGetElementType(typeof(IEnumerable<>));
 
-                if (elementType == null || !elementType.GetTypeInfo().IsAssignableFrom(targetClrType.GetTypeInfo()))
+                if (elementType == null
+                    || !elementType.GetTypeInfo().IsAssignableFrom(targetClrType.GetTypeInfo()))
                 {
                     throw new InvalidOperationException(Strings.FormatWrongClrCollectionNavigationType(
                         navigation.Name, Name, clrProperty.PropertyType.FullName, targetClrType.FullName));
@@ -343,7 +344,7 @@ namespace Microsoft.Data.Entity.Metadata
             }
 
             var otherNavigation = _navigations.Value.FirstOrDefault(n => n.ForeignKey == navigation.ForeignKey
-                                                  && navigation.PointsToPrincipal == n.PointsToPrincipal);
+                                                                         && navigation.PointsToPrincipal == n.PointsToPrincipal);
             if (otherNavigation != null)
             {
                 throw new InvalidOperationException(Strings.FormatMultipleNavigations(navigation.Name, otherNavigation.Name, Name));
@@ -668,7 +669,7 @@ namespace Microsoft.Data.Entity.Metadata
         {
             return TryGetProperty(name);
         }
-        
+
         IProperty IEntityType.GetProperty(string name)
         {
             return GetProperty(name);

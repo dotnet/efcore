@@ -8,13 +8,13 @@ using Xunit;
 namespace Microsoft.Data.Entity.FunctionalTests
 {
     /// <summary>
-    /// See also <see cref="SupplementalBuiltInDataTypesTestBase" />.
-    /// Not all built-in data types are supported on all providers yet.
-    /// At the same time, not all conventions (e.g. Ignore) are available yet.
-    /// So this class provides a base test class for those data types which are
-    /// supported on all current providers.
-    /// Over time, the aim is to transfer as many tests as possible into
-    /// this class and ultimately to delete <see cref="SupplementalBuiltInDataTypesTestBase" />.
+    ///     See also <see cref="SupplementalBuiltInDataTypesTestBase" />.
+    ///     Not all built-in data types are supported on all providers yet.
+    ///     At the same time, not all conventions (e.g. Ignore) are available yet.
+    ///     So this class provides a base test class for those data types which are
+    ///     supported on all current providers.
+    ///     Over time, the aim is to transfer as many tests as possible into
+    ///     this class and ultimately to delete <see cref="SupplementalBuiltInDataTypesTestBase" />.
     /// </summary>
     public abstract class BuiltInDataTypesTestBase
     {
@@ -27,24 +27,24 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 var allDataTypes = context.Set<BuiltInNonNullableDataTypes>().Add(
                     new BuiltInNonNullableDataTypes
-                    {
-                        Id0 = 0,
-                        Id1 = 0,
-                        TestInt32 = -123456789,
-                        TestInt64 = -1234567890123456789L,
-                        TestDouble = -1.23456789,
-                        // TODO: SQL Server default precision is 18 (use max precision, 38, 
-                        // when available but no way to define that in the model at the moment)
-                        TestDecimal = -1234567890.012345678M,
-                        TestDateTime = DateTime.Parse("01/01/2000 12:34:56"),
-                        TestDateTimeOffset = new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0)),
-                        TestSingle = -1.234F,
-                        TestBoolean = true,
-                        TestByte = 255,
-                        TestUnsignedInt32 = 1234565789U,
-                        TestUnsignedInt64 = 1234565789UL,
-                        TestInt16 = -1234,
-                    });
+                        {
+                            Id0 = 0,
+                            Id1 = 0,
+                            TestInt32 = -123456789,
+                            TestInt64 = -1234567890123456789L,
+                            TestDouble = -1.23456789,
+                            // TODO: SQL Server default precision is 18 (use max precision, 38, 
+                            // when available but no way to define that in the model at the moment)
+                            TestDecimal = -1234567890.012345678M,
+                            TestDateTime = DateTime.Parse("01/01/2000 12:34:56"),
+                            TestDateTimeOffset = new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0)),
+                            TestSingle = -1.234F,
+                            TestBoolean = true,
+                            TestByte = 255,
+                            TestUnsignedInt32 = 1234565789U,
+                            TestUnsignedInt64 = 1234565789UL,
+                            TestInt16 = -1234,
+                        });
 
                 var changes = context.SaveChanges();
                 Assert.Equal(1, changes);
@@ -73,21 +73,21 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 var allDataTypes = context.Set<BuiltInNullableDataTypes>().Add(
                     new BuiltInNullableDataTypes
-                    {
-                        Id0 = 100,
-                        Id1 = 100,
-                        TestNullableInt32 = null,
-                        TestString = null,
-                        TestNullableInt64 = null,
-                        TestNullableDouble = null,
-                        TestNullableDecimal = null,
-                        TestNullableDateTime = null,
-                        TestNullableDateTimeOffset = null,
-                        TestNullableSingle = null,
-                        TestNullableBoolean = null,
-                        TestNullableByte = null,
-                        TestNullableInt16 = null,
-                    });
+                        {
+                            Id0 = 100,
+                            Id1 = 100,
+                            TestNullableInt32 = null,
+                            TestString = null,
+                            TestNullableInt64 = null,
+                            TestNullableDouble = null,
+                            TestNullableDecimal = null,
+                            TestNullableDateTime = null,
+                            TestNullableDateTimeOffset = null,
+                            TestNullableSingle = null,
+                            TestNullableBoolean = null,
+                            TestNullableByte = null,
+                            TestNullableInt16 = null,
+                        });
 
                 var changes = context.SaveChanges();
                 Assert.Equal(1, changes);
@@ -115,23 +115,23 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 var allDataTypes = context.Set<BuiltInNullableDataTypes>().Add(
                     new BuiltInNullableDataTypes
-                    {
-                        Id0 = 101,
-                        Id1 = 101,
-                        TestNullableInt32 = -123456789,
-                        TestString = "TestString",
-                        TestNullableInt64 = -1234567890123456789L,
-                        TestNullableDouble = -1.23456789,
-                        // TODO: SQL Server default precision is 18 (use max precision, 38, 
-                        // when available but no way to define that in the model at the moment)
-                        TestNullableDecimal = -1234567890.012345678M,
-                        TestNullableDateTime = DateTime.Parse("01/01/2000 12:34:56"),
-                        TestNullableDateTimeOffset = new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0)),
-                        TestNullableSingle = -1.234F,
-                        TestNullableBoolean = false,
-                        TestNullableByte = 255,
-                        TestNullableInt16 = -1234,
-                    });
+                        {
+                            Id0 = 101,
+                            Id1 = 101,
+                            TestNullableInt32 = -123456789,
+                            TestString = "TestString",
+                            TestNullableInt64 = -1234567890123456789L,
+                            TestNullableDouble = -1.23456789,
+                            // TODO: SQL Server default precision is 18 (use max precision, 38, 
+                            // when available but no way to define that in the model at the moment)
+                            TestNullableDecimal = -1234567890.012345678M,
+                            TestNullableDateTime = DateTime.Parse("01/01/2000 12:34:56"),
+                            TestNullableDateTimeOffset = new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0)),
+                            TestNullableSingle = -1.234F,
+                            TestNullableBoolean = false,
+                            TestNullableByte = 255,
+                            TestNullableInt16 = -1234,
+                        });
 
                 var changes = context.SaveChanges();
                 Assert.Equal(1, changes);
@@ -153,4 +153,3 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
     }
 }
-

@@ -7,13 +7,13 @@ using Microsoft.Data.Entity.Metadata;
 namespace Microsoft.Data.Entity.FunctionalTests
 {
     /// <summary>
-    /// See also <see cref="SupplementalBuiltInDataTypesFixtureBase" />.
-    /// Not all built-in data types are supported on all providers yet.
-    /// At the same time, not all conventions (e.g. Ignore) are available yet.
-    /// So this class provides a base fixture for those data types which are
-    /// supported on all current providers.
-    /// Over time, the aim is to transfer as many data types as possible into
-    /// this class and ultimately to delete <see cref="SupplementalBuiltInDataTypesFixtureBase" />.
+    ///     See also <see cref="SupplementalBuiltInDataTypesFixtureBase" />.
+    ///     Not all built-in data types are supported on all providers yet.
+    ///     At the same time, not all conventions (e.g. Ignore) are available yet.
+    ///     So this class provides a base fixture for those data types which are
+    ///     supported on all current providers.
+    ///     Over time, the aim is to transfer as many data types as possible into
+    ///     this class and ultimately to delete <see cref="SupplementalBuiltInDataTypesFixtureBase" />.
     /// </summary>
     public abstract class BuiltInDataTypesFixtureBase
     {
@@ -42,23 +42,23 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 });
 
             builder.Entity<BuiltInNullableDataTypes>(b =>
-            {
-                b.Key(dt => dt.Id0);
-                // having 2 non-null properies is needed for Azure Table Storage (and should be supported by all other providers)
-                b.Property(dt => dt.Id0);
-                b.Property(dt => dt.Id1);
-                b.Property(dt => dt.TestNullableInt32);
-                b.Property(dt => dt.TestString);
-                b.Property(dt => dt.TestNullableInt64);
-                b.Property(dt => dt.TestNullableDouble);
-                b.Property(dt => dt.TestNullableDecimal);
-                b.Property(dt => dt.TestNullableDateTime);
-                b.Property(dt => dt.TestNullableDateTimeOffset);
-                b.Property(dt => dt.TestNullableSingle);
-                b.Property(dt => dt.TestNullableBoolean);
-                b.Property(dt => dt.TestNullableByte);
-                b.Property(dt => dt.TestNullableInt16);
-            });
+                {
+                    b.Key(dt => dt.Id0);
+                    // having 2 non-null properies is needed for Azure Table Storage (and should be supported by all other providers)
+                    b.Property(dt => dt.Id0);
+                    b.Property(dt => dt.Id1);
+                    b.Property(dt => dt.TestNullableInt32);
+                    b.Property(dt => dt.TestString);
+                    b.Property(dt => dt.TestNullableInt64);
+                    b.Property(dt => dt.TestNullableDouble);
+                    b.Property(dt => dt.TestNullableDecimal);
+                    b.Property(dt => dt.TestNullableDateTime);
+                    b.Property(dt => dt.TestNullableDateTimeOffset);
+                    b.Property(dt => dt.TestNullableSingle);
+                    b.Property(dt => dt.TestNullableBoolean);
+                    b.Property(dt => dt.TestNullableByte);
+                    b.Property(dt => dt.TestNullableInt16);
+                });
 
             return model;
         }
@@ -84,8 +84,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         public override bool Equals(object other)
         {
             var otherAsThisType = other as BuiltInNonNullableDataTypes;
-            if (otherAsThisType == null) { return false; }
-            return Equals(this, otherAsThisType);
+            return otherAsThisType != null && Equals(this, otherAsThisType);
         }
 
         protected bool Equals(BuiltInNonNullableDataTypes other)
@@ -107,7 +106,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             unchecked
             {
-                return Id0.GetHashCode() * 397  ^ (Id1.GetHashCode());
+                return Id0.GetHashCode() * 397 ^ (Id1.GetHashCode());
             }
         }
     }
@@ -131,10 +130,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
         public override bool Equals(object other)
         {
             var otherAsThisType = other as BuiltInNullableDataTypes;
-            if (otherAsThisType == null) { return false; }
-            return this.Equals(otherAsThisType);
+            return otherAsThisType != null && Equals(otherAsThisType);
         }
-        
+
         protected bool Equals(BuiltInNullableDataTypes other)
         {
             return Id0 == other.Id0 && Id1 == other.Id1;

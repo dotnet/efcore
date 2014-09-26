@@ -12,7 +12,7 @@ namespace Microsoft.Data.Entity.Redis
     {
         public const int DefaultBlockSize = 10;
 
-        private RedisDatabase _redisDatabase;
+        private readonly RedisDatabase _redisDatabase;
 
         public RedisValueGeneratorFactory([NotNull] RedisDatabase redisDatabase)
         {
@@ -55,6 +55,5 @@ namespace Microsoft.Data.Entity.Redis
 
             return RedisDatabase.ConstructRedisValueGeneratorKeyName(property);
         }
-
     }
 }

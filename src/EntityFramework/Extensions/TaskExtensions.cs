@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
 #if NET45
 using System.Threading;
 #endif
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 
@@ -14,18 +14,18 @@ using Microsoft.Data.Entity.Utilities;
 namespace System.Threading.Tasks
 {
     /// <summary>
-    /// Contains extension methods for the <see cref="Task" /> class.
+    ///     Contains extension methods for the <see cref="Task" /> class.
     /// </summary>
     public static class TaskExtensions
     {
         /// <summary>
-        /// Configures an awaiter used to await this <see cref="Task{TResult}" /> to avoid
-        /// marshalling the continuation back to the original context, but preserve the
-        /// current culture and UI culture.
+        ///     Configures an awaiter used to await this <see cref="Task{TResult}" /> to avoid
+        ///     marshalling the continuation back to the original context, but preserve the
+        ///     current culture and UI culture.
         /// </summary>
-        /// <remarks> Calling this has no effect on platforms that don't use <see cref="SynchronizationContext"/>. </remarks>
+        /// <remarks> Calling this has no effect on platforms that don't use <see cref="SynchronizationContext" />. </remarks>
         /// <typeparam name="T">
-        /// The type of the result produced by the associated <see cref="Task{TResult}"/>.
+        ///     The type of the result produced by the associated <see cref="Task{TResult}" />.
         /// </typeparam>
         /// <param name="task">The task to be awaited on.</param>
         /// <returns>An object used to await this task.</returns>
@@ -37,11 +37,11 @@ namespace System.Threading.Tasks
         }
 
         /// <summary>
-        /// Configures an awaiter used to await this <see cref="Task" /> to avoid
-        /// marshalling the continuation back to the original context, but preserve the
-        /// current culture and UI culture.
+        ///     Configures an awaiter used to await this <see cref="Task" /> to avoid
+        ///     marshalling the continuation back to the original context, but preserve the
+        ///     current culture and UI culture.
         /// </summary>
-        /// <remarks> Calling this has no effect on platforms that don't use <see cref="SynchronizationContext"/>. </remarks>
+        /// <remarks> Calling this has no effect on platforms that don't use <see cref="SynchronizationContext" />. </remarks>
         /// <param name="task">The task to be awaited on.</param>
         /// <returns>An object used to await this task.</returns>
         public static CultureAwaiter WithCurrentCulture([NotNull] this Task task)
@@ -52,11 +52,11 @@ namespace System.Threading.Tasks
         }
 
         /// <summary>
-        /// Provides an awaitable object that allows for awaits on <see cref="Task{TResult}" /> that
-        /// preserve the culture.
+        ///     Provides an awaitable object that allows for awaits on <see cref="Task{TResult}" /> that
+        ///     preserve the culture.
         /// </summary>
         /// <typeparam name="T">
-        /// The type of the result produced by the associated <see cref="Task{TResult}"/>.
+        ///     The type of the result produced by the associated <see cref="Task{TResult}" />.
         /// </typeparam>
         /// <remarks>This type is intended for compiler use only.</remarks>
         [SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Awaiter")]
@@ -67,7 +67,7 @@ namespace System.Threading.Tasks
             private readonly Task<T> _task;
 
             /// <summary>
-            /// Constructs a new instance of the <see cref="CultureAwaiter{T}" /> class.
+            ///     Constructs a new instance of the <see cref="CultureAwaiter{T}" /> class.
             /// </summary>
             /// <param name="task">The task to be awaited on.</param>
             public CultureAwaiter([NotNull] Task<T> task)
@@ -86,13 +86,13 @@ namespace System.Threading.Tasks
             }
 
             /// <summary>
-            /// Gets whether this <see cref="Task">Task</see> has completed.
+            ///     Gets whether this <see cref="Task">Task</see> has completed.
             /// </summary>
             /// <remarks>
-            /// <see cref="IsCompleted" /> will return true when the Task is in one of the three
-            /// final states: <see cref="TaskStatus.RanToCompletion">RanToCompletion</see>,
-            /// <see cref="TaskStatus.Faulted">Faulted</see>, or
-            /// <see cref="TaskStatus.Canceled">Canceled</see>.
+            ///     <see cref="IsCompleted" /> will return true when the Task is in one of the three
+            ///     final states: <see cref="TaskStatus.RanToCompletion">RanToCompletion</see>,
+            ///     <see cref="TaskStatus.Faulted">Faulted</see>, or
+            ///     <see cref="TaskStatus.Canceled">Canceled</see>.
             /// </remarks>
             public bool IsCompleted
             {
@@ -118,13 +118,13 @@ namespace System.Threading.Tasks
             }
 
             /// <summary>
-            /// Schedules the continuation onto the <see cref="Task{TResult}" /> associated with this
-            /// <see cref="TaskAwaiter{TResult}" />.
+            ///     Schedules the continuation onto the <see cref="Task{TResult}" /> associated with this
+            ///     <see cref="TaskAwaiter{TResult}" />.
             /// </summary>
             /// <param name="continuation">The action to invoke when the await operation completes.</param>
             /// <exception cref="System.ArgumentNullException">
-            /// The <paramref name="continuation" /> argument is null
-            /// (Nothing in Visual Basic).
+            ///     The <paramref name="continuation" /> argument is null
+            ///     (Nothing in Visual Basic).
             /// </exception>
             /// <exception cref="System.InvalidOperationException">The awaiter was not properly initialized.</exception>
             /// <remarks>This method is intended for compiler user rather than use directly in code.</remarks>
@@ -157,8 +157,8 @@ namespace System.Threading.Tasks
         }
 
         /// <summary>
-        /// Provides an awaitable object that allows for awaits on <see cref="Task" /> that
-        /// preserve the culture.
+        ///     Provides an awaitable object that allows for awaits on <see cref="Task" /> that
+        ///     preserve the culture.
         /// </summary>
         /// <remarks>This type is intended for compiler use only.</remarks>
         [SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Awaiter")]
@@ -169,7 +169,7 @@ namespace System.Threading.Tasks
             private readonly Task _task;
 
             /// <summary>
-            /// Constructs a new instance of the <see cref="CultureAwaiter" /> class.
+            ///     Constructs a new instance of the <see cref="CultureAwaiter" /> class.
             /// </summary>
             /// <param name="task">The task to be awaited on.</param>
             public CultureAwaiter([NotNull] Task task)
@@ -188,13 +188,13 @@ namespace System.Threading.Tasks
             }
 
             /// <summary>
-            /// Gets whether this <see cref="Task">Task</see> has completed.
+            ///     Gets whether this <see cref="Task">Task</see> has completed.
             /// </summary>
             /// <remarks>
-            /// <see cref="IsCompleted" /> will return true when the Task is in one of the three
-            /// final states: <see cref="TaskStatus.RanToCompletion">RanToCompletion</see>,
-            /// <see cref="TaskStatus.Faulted">Faulted</see>, or
-            /// <see cref="TaskStatus.Canceled">Canceled</see>.
+            ///     <see cref="IsCompleted" /> will return true when the Task is in one of the three
+            ///     final states: <see cref="TaskStatus.RanToCompletion">RanToCompletion</see>,
+            ///     <see cref="TaskStatus.Faulted">Faulted</see>, or
+            ///     <see cref="TaskStatus.Canceled">Canceled</see>.
             /// </remarks>
             public bool IsCompleted
             {
@@ -218,13 +218,13 @@ namespace System.Threading.Tasks
             }
 
             /// <summary>
-            /// Schedules the continuation onto the <see cref="Task" /> associated with this
-            /// <see cref="TaskAwaiter" />.
+            ///     Schedules the continuation onto the <see cref="Task" /> associated with this
+            ///     <see cref="TaskAwaiter" />.
             /// </summary>
             /// <param name="continuation">The action to invoke when the await operation completes.</param>
             /// <exception cref="System.ArgumentNullException">
-            /// The <paramref name="continuation" /> argument is null
-            /// (Nothing in Visual Basic).
+            ///     The <paramref name="continuation" /> argument is null
+            ///     (Nothing in Visual Basic).
             /// </exception>
             /// <exception cref="System.InvalidOperationException">The awaiter was not properly initialized.</exception>
             /// <remarks>This method is intended for compiler user rather than use directly in code.</remarks>

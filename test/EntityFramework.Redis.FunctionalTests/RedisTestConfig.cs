@@ -39,13 +39,8 @@ namespace Microsoft.Data.Entity.Redis.FunctionalTests
         private static bool AlreadyOwnRunningRedisServer()
         {
             // Does RedisTestConfig already know about a running server?
-            if (_redisServerProcess != null
-                && !_redisServerProcess.HasExited)
-            {
-                return true;
-            }
-
-            return false;
+            return _redisServerProcess != null
+                   && !_redisServerProcess.HasExited;
         }
 
         private static bool TryConnectToOrStartServer()
@@ -82,7 +77,8 @@ namespace Microsoft.Data.Entity.Redis.FunctionalTests
         private static bool CanFindExistingRedisServer()
         {
             var process = Process.GetProcessesByName(FunctionalTestsRedisServerExeName).SingleOrDefault();
-            if (process == null || process.HasExited)
+            if (process == null
+                || process.HasExited)
             {
                 lock (_redisServerProcessLock)
                 {

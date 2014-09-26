@@ -79,7 +79,6 @@ namespace Microsoft.Data.Entity.Redis.Query
                     });
         }
 
-
         protected override Expression BindMemberToValueReader(
             MemberExpression memberExpression, Expression expression)
         {
@@ -120,7 +119,7 @@ namespace Microsoft.Data.Entity.Redis.Query
             where TResult : class, new()
         {
             var redisQueryContext = (RedisQueryContext)queryContext;
-            
+
             return redisQueryContext.GetResultsFromRedis<TResult>(entityType);
         }
 
@@ -133,7 +132,7 @@ namespace Microsoft.Data.Entity.Redis.Query
         {
             var redisQuery = FindOrCreateQuery(querySource);
             var redisQueryContext = (RedisQueryContext)queryContext;
-            
+
             return redisQuery.GetValueReaders(redisQueryContext);
         }
     }

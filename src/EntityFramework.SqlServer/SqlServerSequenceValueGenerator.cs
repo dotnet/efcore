@@ -7,8 +7,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Identity;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.SqlServer.Utilities;
@@ -43,7 +43,7 @@ namespace Microsoft.Data.Entity.SqlServer
         {
             Check.NotNull(stateEntry, "stateEntry");
             Check.NotNull(property, "property");
-            
+
             var commandInfo = PrepareCommand(stateEntry.Configuration);
             return (long)await _executor
                 .ExecuteScalarAsync(commandInfo.Item1.DbConnection, commandInfo.Item1.DbTransaction, commandInfo.Item2, cancellationToken)

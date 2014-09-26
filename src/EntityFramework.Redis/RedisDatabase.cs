@@ -49,7 +49,7 @@ namespace Microsoft.Data.Entity.Redis
         private const string ValueGeneratorKeyNameFormat = // 1st arg is EntityType, 2nd is name of the property
             ValueGeneratorPrefix + "{0}" + KeyNameSeparator + "{1}";
 
-        private static readonly ConcurrentDictionary<string, ConnectionMultiplexer> _connectionMultiplexers 
+        private static readonly ConcurrentDictionary<string, ConnectionMultiplexer> _connectionMultiplexers
             = new ConcurrentDictionary<string, ConnectionMultiplexer>(); // key = ConfigurationOptions.ToString()
 
         public RedisDatabase([NotNull] DbContextConfiguration configuration)
@@ -100,7 +100,7 @@ namespace Microsoft.Data.Entity.Redis
             [NotNull] IReadOnlyList<StateEntry> stateEntries)
         {
             Check.NotNull(stateEntries, "stateEntries");
-            
+
             var transaction = PrepareTransactionForSaveChanges(stateEntries);
 
             var entitiesProcessed = 0;
@@ -365,7 +365,10 @@ namespace Microsoft.Data.Entity.Redis
         /// </summary>
         /// <param name="property">the property for which to get the next generated value</param>
         /// <param name="incrementBy">when getting blocks of values, set this to the block size, otherwise use 1</param>
-        /// <param name="sequenceName">the name under which the generated sequence is kept on the underlying database, can be null to use default name</param>
+        /// <param name="sequenceName">
+        ///     the name under which the generated sequence is kept on the underlying database, can be null
+        ///     to use default name
+        /// </param>
         /// <returns>The next generated value</returns>
         public virtual long GetNextGeneratedValue([NotNull] IProperty property, long incrementBy, [CanBeNull] string sequenceName)
         {
@@ -441,7 +444,7 @@ namespace Microsoft.Data.Entity.Redis
             }
             if (typeof(Decimal) == underlyingType)
             {
-                return MaybeNullable<Decimal>(Convert.ToDecimal(value), property);
+                return MaybeNullable(Convert.ToDecimal(value), property);
             }
             if (typeof(DateTime) == underlyingType)
             {

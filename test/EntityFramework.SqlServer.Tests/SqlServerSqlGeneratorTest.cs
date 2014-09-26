@@ -2,12 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Linq;
 using System.Text;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Tests;
-using Microsoft.Data.Entity.Relational.Update;
-using Moq;
 using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.Tests
@@ -99,7 +96,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var command = CreateInsertCommand(identityKey: true, computedProperty: true);
 
             var sqlGenerator = (SqlServerSqlGenerator)CreateSqlGenerator();
-            var grouping = sqlGenerator.AppendBulkInsertOperation(stringBuilder, new[] { command, command});
+            var grouping = sqlGenerator.AppendBulkInsertOperation(stringBuilder, new[] { command, command });
 
             Assert.Equal(
                 "INSERT INTO [dbo].[Ducks] ([Name], [Quacks], [ConcurrencyToken])" + Environment.NewLine +
