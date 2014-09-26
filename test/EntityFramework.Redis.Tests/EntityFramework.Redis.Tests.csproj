@@ -55,10 +55,16 @@
     <PackageReference Include="Moq">
       <TargetFramework>net40</TargetFramework>
     </PackageReference>
+    <PackageReference Include="Microsoft.Framework.ConfigurationModel">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
     <PackageReference Include="Microsoft.Framework.Logging">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
     <PackageReference Include="Microsoft.Framework.Logging.Interfaces">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Framework.DependencyInjection">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
     <PackageReference Include="Remotion.Linq">
@@ -69,6 +75,7 @@
     <Compile Include="..\Shared\ApiConsistencyTestBase.cs">
       <Link>ApiConsistencyTestBase.cs</Link>
     </Compile>
+    <Compile Include="..\Shared\TestHelpers.cs" />
     <Compile Include="Query\QueryTestType.cs" />
     <Compile Include="Query\RedisQueryCompilationContextTests.cs" />
     <Compile Include="Query\RedisQueryModelVisitorTests.cs" />
@@ -77,6 +84,12 @@
     <Compile Include="RedisDatabaseTests.cs" />
     <Compile Include="RedisDataStoreCreatorTests.cs" />
     <Compile Include="RedisDataStoreSourceTests.cs" />
+    <Compile Include="RedisSequenceValueGeneratorTest.cs" />
+    <Compile Include="RedisValueGeneratorSelectorTest.cs" />
+    <Compile Include="TestHelperExtensions.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\EntityFramework.Redis\EntityFramework.Redis.csproj">

@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.Redis
         private readonly RedisDataStore _store;
         private readonly RedisDataStoreCreator _creator;
         private readonly RedisConnection _connection;
-        private readonly ValueGeneratorCache _valueGeneratorCache;
+        private readonly RedisValueGeneratorCache _valueGeneratorCache;
         private readonly RedisDatabase _database;
         private readonly ModelBuilderFactory _modelBuilderFactory;
 
@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.Redis
             [NotNull] RedisDataStore store,
             [NotNull] RedisDataStoreCreator creator,
             [NotNull] RedisConnection connection,
-            [NotNull] ValueGeneratorCache valueGeneratorCache,
+            [NotNull] RedisValueGeneratorCache valueGeneratorCache,
             [NotNull] RedisDatabase database,
             [NotNull] ModelBuilderFactory modelBuilderFactory)
         {

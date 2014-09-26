@@ -89,7 +89,12 @@
     <Compile Include="RedisDataStoreServices.cs" />
     <Compile Include="RedisDataStoreSource.cs" />
     <Compile Include="RedisOptionsExtension.cs" />
+    <Compile Include="RedisSequenceValueGenerator.cs" />
+    <Compile Include="RedisValueGeneratorCache.cs" />
+    <Compile Include="RedisValueGeneratorFactory.cs" />
+    <Compile Include="RedisValueGeneratorSelector.cs" />
     <Compile Include="Utilities\Check.cs" />
+    <Compile Include="..\Shared\SharedTypeExtensions.cs" />
     <EmbeddedResource Include="Properties\Strings.resx">
       <LogicalName>EntityFramework.Redis.Strings.resources</LogicalName>
     </EmbeddedResource>
