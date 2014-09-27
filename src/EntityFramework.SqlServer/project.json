@@ -9,7 +9,11 @@
     },
     "code": [ "**\\*.cs", "..\\Shared\\*.cs" ],
     "frameworks": {
-        "net451": { },
+        "net451": { 
+            "dependencies": {
+                "System.Threading.Tasks": ""
+            }
+        },
         "aspnet50": { },
         "aspnetcore50": {
             "dependencies": {
