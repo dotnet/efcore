@@ -1,0 +1,159 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{9216D88D-CE9E-456F-9B77-1C43171633CB}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>StateManager</RootNamespace>
+    <AssemblyName>StateManager</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.Framework.ConfigurationModel, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\Microsoft.Framework.ConfigurationModel.1.0.0-beta1-10347\lib\net45\Microsoft.Framework.ConfigurationModel.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Framework.ConfigurationModel.Json, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\Microsoft.Framework.ConfigurationModel.Json.1.0.0-beta1-10347\lib\net45\Microsoft.Framework.ConfigurationModel.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Framework.ConfigurationModel.Shared">
+      <HintPath>..\..\packages\Microsoft.Framework.ConfigurationModel.Shared.1.0.0-beta1-10347\lib\net45\Microsoft.Framework.ConfigurationModel.Shared.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Framework.DependencyInjection, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\Microsoft.Framework.DependencyInjection.1.0.0-beta1-10348\lib\net45\Microsoft.Framework.DependencyInjection.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Framework.Logging, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\Microsoft.Framework.Logging.1.0.0-beta1-10333\lib\net45\Microsoft.Framework.Logging.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Framework.Logging.Interfaces, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\Microsoft.Framework.Logging.Interfaces.1.0.0-beta1-10333\lib\net45\Microsoft.Framework.Logging.Interfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.QualityTools.Testing.Fakes, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\Newtonsoft.Json.6.0.5\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Remotion.Linq, Version=1.15.15.0, Culture=neutral, PublicKeyToken=fee00910d6e5f53b, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\Remotion.Linq.1.15.15.0\lib\portable-net45+wp80+wpa81+win\Remotion.Linq.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Collections" />
+    <Reference Include="System.Collections.Concurrent" />
+    <Reference Include="System.Collections.Immutable, Version=1.1.22.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\Microsoft.Bcl.Immutable.1.1.22-beta\lib\portable-net45+win8+wpa81\System.Collections.Immutable.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ComponentModel" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data.Common, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\System.Data.Common.1.0.0-beta1-10322\lib\net451\System.Data.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data.SqlClient, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\System.Data.SqlClient.1.0.0-beta1-10354\lib\net45\System.Data.SqlClient.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Diagnostics.Debug" />
+    <Reference Include="System.Diagnostics.Tools" />
+    <Reference Include="System.Dynamic.Runtime" />
+    <Reference Include="System.Globalization" />
+    <Reference Include="System.Interactive.Async, Version=1.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\Ix-Async.1.2.2-withwpa81\lib\net45\System.Interactive.Async.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Linq" />
+    <Reference Include="System.Linq.Expressions" />
+    <Reference Include="System.ObjectModel" />
+    <Reference Include="System.Reflection" />
+    <Reference Include="System.Reflection.Primitives" />
+    <Reference Include="System.Resources.ResourceManager" />
+    <Reference Include="System.Runtime" />
+    <Reference Include="System.Runtime.Extensions" />
+    <Reference Include="System.Runtime.InteropServices" />
+    <Reference Include="System.Threading" />
+    <Reference Include="System.Threading.Tasks" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="FixupTests.cs" />
+    <Compile Include="Microbenchmarks\Core\IterationCounter.cs" />
+    <Compile Include="Microbenchmarks\Core\PerformanceMetric.cs" />
+    <Compile Include="Microbenchmarks\Core\PerfTestRunner.cs" />
+    <Compile Include="Microbenchmarks\Core\RunResult.cs" />
+    <Compile Include="Microbenchmarks\Core\TestDefinition.cs" />
+    <Compile Include="Model\AdventureWorks.cs" />
+    <Compile Include="Model\ProductCategory.cs" />
+    <Compile Include="Model\Product.cs" />
+    <Compile Include="Model\ProductModel.cs" />
+    <Compile Include="Model\ProductSubCategory.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="StateManagerTestBase.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="LocalConfig.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\..\EntityFramework\src\EntityFramework.Migrations\EntityFramework.Migrations.csproj">
+      <Project>{6e38b72f-31da-4aef-8f34-b8269572ec6b}</Project>
+      <Name>EntityFramework.Migrations</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\..\EntityFramework\src\EntityFramework.Relational\EntityFramework.Relational.csproj">
+      <Project>{75c5a774-a3f3-43eb-97d3-dbe0cf2825d8}</Project>
+      <Name>EntityFramework.Relational</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\..\EntityFramework\src\EntityFramework.SqlServer\EntityFramework.SqlServer.csproj">
+      <Project>{04e6620b-5b41-45fe-981a-f40eb7686b0e}</Project>
+      <Name>EntityFramework.SqlServer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\..\EntityFramework\src\EntityFramework\EntityFramework.csproj">
+      <Project>{71415cec-8111-4c73-8751-512d22f10602}</Project>
+      <Name>EntityFramework</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

@@ -1,0 +1,13 @@
+﻿{
+    "Data": {
+        "DefaultConnection": {
+            "Connectionstring": "Data Source=.\\SQLEXPRESS;Initial Catalog=EF7_Cud;Integrated Security=True;MultipleActiveResultSets=true"
+        },
+        "TcpIpConnection": {
+            "Connectionstring": "Data Source=.\\SQLEXPRESS;Initial Catalog=EF7_Cud;Integrated Security=True;MultipleActiveResultSets=true;Network Library=dbmssocn"
+        },
+        "SqlServer": {
+            "MaxBatchSize": "1"
+        }
+    }
+}

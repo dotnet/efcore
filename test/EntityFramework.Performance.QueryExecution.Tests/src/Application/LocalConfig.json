@@ -1,0 +1,7 @@
+﻿{
+    "Data": {
+        "DefaultConnection": { 
+            "Connectionstring": "Data Source=.\\SQLEXPRESS;Initial Catalog=EF7_QueryExecution_TPT;Integrated Security=True;MultipleActiveResultSets=true"
+        }
+    }
+}
