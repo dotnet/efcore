@@ -155,7 +155,8 @@ namespace Microsoft.Data.Entity.Relational
                         DefaultValue = property.ColumnDefaultValue(),
                         DefaultSql = property.ColumnDefaultSql(),
                         ValueGenerationStrategy = property.ValueGeneration,
-                        IsTimestamp = property.PropertyType == typeof(byte[]) && property.IsConcurrencyToken
+                        IsTimestamp = property.PropertyType == typeof(byte[]) && property.IsConcurrencyToken,
+                        MaxLength = property.MaxLength > 0 ? property.MaxLength : (int?)null
                     };
 
             // TODO: This is a workaround to get the value-generation annotations into the relational model

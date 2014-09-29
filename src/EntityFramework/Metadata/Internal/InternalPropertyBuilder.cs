@@ -17,6 +17,11 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Metadata.IsNullable = !isRequired;
         }
 
+        public virtual void MaxLength(int maxLength)
+        {
+            Metadata.MaxLength = maxLength;
+        }
+
         public virtual void ConcurrencyToken(bool isConcurrencyToken = true)
         {
             Metadata.IsConcurrencyToken = isConcurrencyToken;

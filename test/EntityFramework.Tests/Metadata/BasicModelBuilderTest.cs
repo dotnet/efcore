@@ -624,6 +624,34 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         }
 
         [Fact]
+        public void Can_set_max_length_for_properties()
+        {
+            var model = new Model();
+            var modelBuilder = new BasicModelBuilder(model);
+
+            modelBuilder.Entity<Quarks>(b =>
+            {
+                b.Property(e => e.Id);
+                b.Property(e => e.Up).MaxLength(0);
+                b.Property(e => e.Down).MaxLength(100);
+                b.Property<int>("Charm").MaxLength(0);
+                b.Property<string>("Strange").MaxLength(100);
+                b.Property(typeof(int), "Top").MaxLength(0);
+                b.Property(typeof(string), "Bottom").MaxLength(100);
+            });
+
+            var entityType = model.GetEntityType(typeof(Quarks));
+
+            Assert.Equal(0, entityType.GetProperty("Id").MaxLength);
+            Assert.Equal(0, entityType.GetProperty("Up").MaxLength);
+            Assert.Equal(100, entityType.GetProperty("Down").MaxLength);
+            Assert.Equal(0, entityType.GetProperty("Charm").MaxLength);
+            Assert.Equal(100, entityType.GetProperty("Strange").MaxLength);
+            Assert.Equal(0, entityType.GetProperty("Top").MaxLength);
+            Assert.Equal(100, entityType.GetProperty("Bottom").MaxLength);
+        }
+
+        [Fact]
         public void PropertyBuilder_methods_can_be_chained()
         {
             new BasicModelBuilder()
@@ -636,6 +664,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .StoreComputed()
                 .GenerateValuesOnAdd()
                 .UseStoreDefault()
+                .MaxLength(100)
                 .Required();
         }
 

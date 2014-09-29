@@ -40,6 +40,12 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
             get { return false; }
         }
 
+        public int MaxLength
+        {
+            // TODO:
+            get { return 0; }
+        }
+
         public bool UseStoreDefault
         {
             get { return false; }

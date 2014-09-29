@@ -134,9 +134,9 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             builder.Entity<HistoryRow>(b =>
                 {
                     b.Key(e => new { e.MigrationId, e.ContextKey });
-                    b.Property(e => e.MigrationId).Required().ColumnMaxLength(150);
-                    b.Property(e => e.ContextKey).Required().ColumnMaxLength(300);
-                    b.Property(e => e.ProductVersion).Required().ColumnMaxLength(32);
+                    b.Property(e => e.MigrationId).Required().MaxLength(150);
+                    b.Property(e => e.ContextKey).Required().MaxLength(300);
+                    b.Property(e => e.ProductVersion).Required().MaxLength(32);
                     b.ToTable(TableName);
                 });
 

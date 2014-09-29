@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Globalization;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Utilities;
@@ -17,7 +16,6 @@ namespace Microsoft.Data.Entity.Metadata
             public const string StorageTypeName = "StorageTypeName";
             public const string ColumnDefaultValue = "ColumnDefaultValue";
             public const string ColumnDefaultSql = "ColumnDefaultSql";
-            public const string ColumnMaxLength = "ColumnMaxLength";
             public const string IsClustered = "IsClustered";
             public const string CascadeDelete = "CascadeDelete";
             public const string TableName = "TableName";
@@ -91,19 +89,6 @@ namespace Microsoft.Data.Entity.Metadata
             Check.NotNull(columnDefaultSql, "columnDefaultSql");
 
             propertyBuilder.Annotation(Annotations.ColumnDefaultSql, columnDefaultSql);
-
-            return propertyBuilder;
-        }
-
-        public static TPropertyBuilder ColumnMaxLength<TPropertyBuilder>(
-            [NotNull] this TPropertyBuilder propertyBuilder,
-            [NotNull] int columnMaxLength)
-            where TPropertyBuilder : IPropertyBuilder<TPropertyBuilder>
-        {
-            Check.NotNull(propertyBuilder, "propertyBuilder");
-            Check.NotNull(columnMaxLength, "columnMaxLength");
-
-            propertyBuilder.Annotation(Annotations.ColumnMaxLength, columnMaxLength.ToString(CultureInfo.InvariantCulture));
 
             return propertyBuilder;
         }
@@ -190,22 +175,6 @@ namespace Microsoft.Data.Entity.Metadata
             Check.NotNull(property, "property");
 
             return property[Annotations.ColumnDefaultSql];
-        }
-
-        public static int? ColumnMaxLength([NotNull] this IProperty property)
-        {
-            Check.NotNull(property, "property");
-
-            var maxLengthString = property[Annotations.ColumnMaxLength];
-
-            int maxLength;
-            if (maxLengthString == null
-                || !int.TryParse(maxLengthString, NumberStyles.Integer, CultureInfo.InvariantCulture, out maxLength))
-            {
-                return null;
-            }
-
-            return maxLength;
         }
 
         public static bool IsClustered([NotNull] this IKey primaryKey)

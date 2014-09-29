@@ -44,6 +44,10 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                 Assert.Equal("Microsoft.Data.Entity.Migrations.Infrastructure.HistoryRepository+HistoryRow", entityType.Name);
                 Assert.Equal(3, entityType.Properties.Count);
                 Assert.Equal(new[] { "ContextKey", "MigrationId", "ProductVersion" }, entityType.Properties.Select(p => p.Name));
+
+                Assert.Equal(150, entityType.Properties.Single(p => p.Name == "MigrationId").MaxLength);
+                Assert.Equal(300, entityType.Properties.Single(p => p.Name == "ContextKey").MaxLength);
+                Assert.Equal(32, entityType.Properties.Single(p => p.Name == "ProductVersion").MaxLength);
             }
         }
 

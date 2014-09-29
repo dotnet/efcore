@@ -16,6 +16,7 @@ namespace Microsoft.Data.Entity.Metadata
         private int _shadowIndex;
         private int _originalValueIndex = -1;
         private int _index;
+        private int _maxLength;
         private ValueGeneration _valueGeneration;
 
         public Property([NotNull] string name, [NotNull] Type propertyType, bool shadowProperty = false)
@@ -48,6 +49,19 @@ namespace Microsoft.Data.Entity.Metadata
         {
             get { return GetFlag(PropertyFlags.UseStoreDefault); }
             set { SetFlag(value, PropertyFlags.UseStoreDefault); }
+        }
+
+        public virtual int MaxLength
+        {
+            get { return _maxLength; }
+            set
+            {
+                if (value < 0)
+                {
+                    throw new ArgumentOutOfRangeException("value");
+                }
+                _maxLength = value;
+            }
         }
 
         public virtual bool IsReadOnly

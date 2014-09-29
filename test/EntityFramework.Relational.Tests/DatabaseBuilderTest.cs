@@ -25,20 +25,28 @@ namespace Microsoft.Data.Entity.Relational.Tests
             Assert.Equal("Id", table0.Columns[0].Name);
             Assert.Equal("int", table0.Columns[0].DataType);
             Assert.Equal(ValueGeneration.None, table0.Columns[0].ValueGenerationStrategy);
+
             Assert.NotNull(table1.PrimaryKey.Name);
             Assert.Equal("MyPK0", table0.PrimaryKey.Name);
             Assert.Same(table0.Columns[0], table0.PrimaryKey.Columns[0]);
             Assert.Equal(1, table0.ForeignKeys.Count);
 
             Assert.Equal("dbo.MyTable1", table1.Name);
-            Assert.Equal(1, table1.Columns.Count);
+            Assert.Equal(2, table1.Columns.Count);
             Assert.Equal("Id", table1.Columns[0].Name);
             Assert.Equal("int", table1.Columns[0].DataType);
             Assert.Equal(ValueGeneration.OnAdd, table1.Columns[0].ValueGenerationStrategy);
+            Assert.Null(table1.Columns[0].MaxLength);
+
             Assert.NotNull(table1.PrimaryKey.Name);
             Assert.Equal("MyPK1", table1.PrimaryKey.Name);
             Assert.Same(table1.Columns[0], table1.PrimaryKey.Columns[0]);
             Assert.Equal(0, table1.ForeignKeys.Count);
+
+            Assert.Equal("Name", table1.Columns[1].Name);
+            Assert.Null(table1.Columns[1].DataType);
+            Assert.Equal(ValueGeneration.None, table1.Columns[1].ValueGenerationStrategy);
+            Assert.Equal(256, table1.Columns[1].MaxLength);
 
             var foreignKey = table0.ForeignKeys[0];
 
@@ -230,6 +238,9 @@ namespace Microsoft.Data.Entity.Relational.Tests
             var index = dependentEntityType.GetOrAddIndex(dependentProperty);
             index.SetIndexName("MyIndex");
             index.IsUnique = true;
+
+            var stringProperty = principalEntityType.GetOrAddProperty("Name", typeof(string), shadowProperty: true);
+            stringProperty.MaxLength = 256;
 
             return model;
         }

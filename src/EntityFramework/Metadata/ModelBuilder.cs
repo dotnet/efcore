@@ -378,6 +378,13 @@ namespace Microsoft.Data.Entity.Metadata
                     return this;
                 }
 
+                public virtual PropertyBuilder MaxLength(int maxLength)
+                {
+                    Builder.MaxLength(maxLength);
+
+                    return this;
+                }
+
                 public virtual PropertyBuilder ConcurrencyToken(bool isConcurrencyToken = true)
                 {
                     Builder.ConcurrencyToken(isConcurrencyToken);
