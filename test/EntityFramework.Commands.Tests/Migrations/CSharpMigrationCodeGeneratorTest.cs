@@ -143,6 +143,27 @@ namespace Microsoft.Data.Entity.Commands.Tests.Migrations
         }
 
         [Fact]
+        public void Generate_when_create_table_operation_with_column_having_enum_clr_type()
+        {
+            var table = new Table("dbo.MyTable",
+                new[]
+                    {
+                        new Column("Foo", typeof(BikeType)) { IsNullable = false, DefaultValue = BikeType.Mountain }
+                    });
+            var operation = new CreateTableOperation(table);
+
+            Assert.Equal(
+                @"CreateTable(""dbo.MyTable"",
+    c => new
+        {
+            Foo = c.Byte(nullable: false, defaultValue: 1)
+        })",
+                CSharpMigrationCodeGenerator.Generate(operation));
+
+            GenerateAndValidateCode(operation);
+        }
+
+        [Fact]
         public void Generate_when_drop_table_operation()
         {
             var operation = new DropTableOperation("dbo.MyTable");
@@ -186,6 +207,19 @@ namespace Microsoft.Data.Entity.Commands.Tests.Migrations
 
             Assert.Equal(
                 @"AddColumn(""dbo.MyTable"", ""Foo"", c => c.Int(nullable: false, defaultValue: 5))",
+                CSharpMigrationCodeGenerator.Generate(operation));
+
+            GenerateAndValidateCode(operation);
+        }
+
+        [Fact]
+        public void Generate_when_add_column_operation_with_enum_clr_type()
+        {
+            var column = new Column("Foo", typeof(BikeType)) { IsNullable = false, DefaultValue = BikeType.Mountain };
+            var operation = new AddColumnOperation("dbo.MyTable", column);
+
+            Assert.Equal(
+                @"AddColumn(""dbo.MyTable"", ""Foo"", c => c.Byte(nullable: false, defaultValue: 1))",
                 CSharpMigrationCodeGenerator.Generate(operation));
 
             GenerateAndValidateCode(operation);
@@ -544,6 +578,8 @@ namespace MyNamespace
 }",
                 stringBuilder.ToString());
         }
+
+        private enum BikeType : byte { Road, Mountain }
 
         public class MyContext : DbContext
         {

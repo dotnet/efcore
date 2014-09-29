@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Commands.Utilities;
@@ -674,9 +675,14 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             return "@\"" + EscapeVerbatimString(value) + "\"";
         }
 
-        public virtual string Generate([NotNull] object value)
+        public virtual string GenerateLiteral([NotNull] object value)
         {
             Check.NotNull(value, "value");
+
+            if (value.GetType().GetTypeInfo().IsEnum)
+            {
+                return Enum.Format(value.GetType(), value, "D");
+            }
 
             return string.Format(CultureInfo.InvariantCulture, "{0}", value);
         }
@@ -840,6 +846,11 @@ namespace Microsoft.Data.Entity.Commands.Migrations
         protected virtual string TranslateColumnType([NotNull] Type clrType)
         {
             Check.NotNull(clrType, "clrType");
+
+            if (clrType.GetTypeInfo().IsEnum)
+            {
+                clrType = Enum.GetUnderlyingType(clrType);
+            }
 
             if (clrType == typeof(short))
             {
