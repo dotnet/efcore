@@ -10,17 +10,44 @@ namespace Microsoft.Data.Entity.SQLite.FunctionalTests
 {
     public class BuiltInDataTypesFixture : BuiltInDataTypesFixtureBase
     {
+        private readonly IServiceProvider _serviceProvider;
+
+        public BuiltInDataTypesFixture()
+        {
+            _serviceProvider
+                = new ServiceCollection()
+                    .AddEntityFramework()
+                    .AddSQLite()
+                    .ServiceCollection
+                    .BuildServiceProvider();
+        }
+
+
         public override DbContext CreateContext()
         {
-            var testDatabase = SQLiteTestDatabase.Scratch().Result;
+            // do not use this method for SQLite tests
+            throw new NotImplementedException();
+        }
 
-            var options = new DbContextOptions()
-                .UseModel(CreateModel())
-                .UseSQLite(testDatabase.Connection.ConnectionString);
+        public SQLiteTestDatabase CreateSQLiteTestDatabase()
+        {
+            var db = SQLiteTestDatabase.Scratch().Result;
+            using (var context = CreateSQLiteContext(db))
+            {
+                context.Database.EnsureCreated();
+            }
 
-            var context = new DbContext(options);
-            context.Database.EnsureCreated();
-            return context;
+            return db;
+        }
+
+        public DbContext CreateSQLiteContext(SQLiteTestDatabase testDatabase)
+        {
+            var options
+                = new DbContextOptions()
+                    .UseModel(CreateModel())
+                    .UseSQLite(testDatabase.Connection.ConnectionString);
+
+            return new DbContext(_serviceProvider, options);
         }
     }
 }
