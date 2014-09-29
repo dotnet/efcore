@@ -10,52 +10,108 @@ using Microsoft.AspNet.Http;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Framework.DependencyInjection;
+using System.Net;
+using Microsoft.Framework.Logging;
 
 namespace Microsoft.AspNet.Diagnostics.Entity
 {
     public class MigrationsEndPointMiddleware
     {
         private readonly RequestDelegate _next;
+        private readonly ILogger _logger;
         private readonly MigrationsEndPointOptions _options;
-        private readonly bool _isDevMode;
 
-        public MigrationsEndPointMiddleware([NotNull] RequestDelegate next, [NotNull] MigrationsEndPointOptions options, bool isDevMode)
+        public MigrationsEndPointMiddleware([NotNull] RequestDelegate next, [NotNull] ILoggerFactory loggerFactory, [NotNull] MigrationsEndPointOptions options)
         {
             Check.NotNull(next, "next");
+            Check.NotNull(loggerFactory, "loggerFactory");
             Check.NotNull(options, "options");
 
             _next = next;
+            _logger = loggerFactory.Create<MigrationsEndPointMiddleware>();
             _options = options;
-            _isDevMode = isDevMode;
         }
 
         public virtual async Task Invoke([NotNull] HttpContext context)
         {
             Check.NotNull(context, "context");
 
-            if (_isDevMode || !_options.DevModeOnly)
+            if (context.Request.Path.Equals(_options.Path))
             {
-                if (context.Request.Path.Equals(_options.Path))
-                {
-                    var form = context.Request.GetFormAsync().Result;
-                    var contextTypeName = form["context"];
-                    var contextType = Type.GetType(contextTypeName);
+                _logger.WriteVerbose(Strings.FormatMigrationsEndPointMiddleware_RequestPathMatched(context.Request.Path));
 
-                    // TODO Handle context not being registered in DI
-                    using (var db = (DbContext)context.ApplicationServices.GetService(contextType))
+                var db = await GetDbContext(context, _logger).WithCurrentCulture();
+                if (db != null)
+                {
+                    try
                     {
+                        _logger.WriteVerbose(Strings.FormatMigrationsEndPointMiddleware_ApplyingMigrations(db.GetType().FullName));
+
                         var migrator = db.Configuration.Services.ServiceProvider.GetService<Migrator>();
                         migrator.UpdateDatabase();
 
-                        context.Response.StatusCode = 204;
+                        context.Response.StatusCode = (int)HttpStatusCode.NoContent;
                         context.Response.Headers.Add("Pragma", new[] { "no-cache" });
                         context.Response.Headers.Add("Cache-Control", new[] { "no-cache" });
-                        return;
+
+                        _logger.WriteVerbose(Strings.FormatMigrationsEndPointMiddleware_Applied(db.GetType().FullName));
+                    }
+                    catch (Exception ex)
+                    {
+                        var message = Strings.FormatMigrationsEndPointMiddleware_Exception(db.GetType().FullName);
+                        _logger.WriteError(message);
+                        throw new InvalidOperationException(message, ex);
                     }
                 }
             }
+            else
+            {
+                await _next(context).WithCurrentCulture();
+            }
+        }
 
-            await _next(context).WithCurrentCulture();
+        private static async Task<DbContext> GetDbContext(HttpContext context, ILogger logger)
+        {
+            var form = await context.Request.GetFormAsync().WithCurrentCulture();
+            var contextTypeName = form["context"];
+            if (string.IsNullOrWhiteSpace(contextTypeName))
+            {
+                logger.WriteError(Strings.MigrationsEndPointMiddleware_NoContextType);
+                await WriteErrorToResponse(context.Response, Strings.MigrationsEndPointMiddleware_NoContextType).WithCurrentCulture();
+                return null;
+            }
+
+            var contextType = Type.GetType(contextTypeName);
+            if (contextType == null)
+            {
+                var message = Strings.FormatMigrationsEndPointMiddleware_InvalidContextType(contextTypeName);
+                logger.WriteError(message);
+                await WriteErrorToResponse(context.Response, message).WithCurrentCulture();
+                return null;
+            }
+
+            var db = (DbContext)context.ApplicationServices.GetServiceOrNull(contextType);
+            if (db == null)
+            {
+                var message = Strings.FormatMigrationsEndPointMiddleware_ContextNotRegistered(contextType.FullName);
+                logger.WriteError(message);
+                await WriteErrorToResponse(context.Response, message).WithCurrentCulture();
+                return null;
+            }
+
+            return db;
+        }
+
+        private static async Task WriteErrorToResponse(HttpResponse response, string error)
+        {
+            response.StatusCode = (int)HttpStatusCode.BadRequest;
+            response.Headers.Add("Pragma", new[] { "no-cache" });
+            response.Headers.Add("Cache-Control", new[] { "no-cache" });
+            response.ContentType = "text/plain";
+
+            // Padding to >512 to ensure IE doesn't hide the message
+            // http://stackoverflow.com/questions/16741062/what-rules-does-ie-use-to-determine-whether-to-show-the-entity-body
+            await response.WriteAsync(error.PadRight(513)).WithCurrentCulture();
         }
     }
 }

@@ -43,6 +43,54 @@ namespace Microsoft.AspNet.Diagnostics.Entity
         }
 
         /// <summary>
+        /// The context type '{0}' was not found in services. This usually means the context was not registered in services during startup. You probably want to call AddScoped&lt;{0}&gt;() inside the UseServices(...) call in your application startup code. Skipping display of the database error page.
+        /// </summary>
+        internal static string DatabaseErrorPageMiddleware_ContextNotRegistered
+        {
+            get { return GetString("DatabaseErrorPageMiddleware_ContextNotRegistered"); }
+        }
+
+        /// <summary>
+        /// The context type '{0}' was not found in services. This usually means the context was not registered in services during startup. You probably want to call AddScoped&lt;{0}&gt;() inside the UseServices(...) call in your application startup code. Skipping display of the database error page.
+        /// </summary>
+        internal static string FormatDatabaseErrorPageMiddleware_ContextNotRegistered(object p0)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("DatabaseErrorPageMiddleware_ContextNotRegistered"), p0);
+        }
+
+        /// <summary>
+        /// An exception occured while calculating the database error page content. Skipping display of the database error page.
+        /// </summary>
+        internal static string DatabaseErrorPageMiddleware_Exception
+        {
+            get { return GetString("DatabaseErrorPageMiddleware_Exception"); }
+        }
+
+        /// <summary>
+        /// An exception occured while calculating the database error page content. Skipping display of the database error page.
+        /// </summary>
+        internal static string FormatDatabaseErrorPageMiddleware_Exception()
+        {
+            return GetString("DatabaseErrorPageMiddleware_Exception");
+        }
+
+        /// <summary>
+        /// There are no services available in the current request. This is usually due to calling UseDatabaseErrorPage() on IApplicationBuilder before calling UseServices(...), check the order of these in your application startup code. Skipping display of the database error page.
+        /// </summary>
+        internal static string DatabaseErrorPageMiddleware_NoServices
+        {
+            get { return GetString("DatabaseErrorPageMiddleware_NoServices"); }
+        }
+
+        /// <summary>
+        /// There are no services available in the current request. This is usually due to calling UseDatabaseErrorPage() on IApplicationBuilder before calling UseServices(...), check the order of these in your application startup code. Skipping display of the database error page.
+        /// </summary>
+        internal static string FormatDatabaseErrorPageMiddleware_NoServices()
+        {
+            return GetString("DatabaseErrorPageMiddleware_NoServices");
+        }
+
+        /// <summary>
         /// &gt; k ef migration add [migration name]
         /// </summary>
         internal static string DatabaseErrorPage_AddMigrationCommand
@@ -280,6 +328,118 @@ namespace Microsoft.AspNet.Diagnostics.Entity
         internal static string FormatInvalidEnumValue(object argumentName, object enumType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("InvalidEnumValue", "argumentName", "enumType"), argumentName, enumType);
+        }
+
+        /// <summary>
+        /// Migrations successfully applied for context '{0}'.
+        /// </summary>
+        internal static string MigrationsEndPointMiddleware_Applied
+        {
+            get { return GetString("MigrationsEndPointMiddleware_Applied"); }
+        }
+
+        /// <summary>
+        /// Migrations successfully applied for context '{0}'.
+        /// </summary>
+        internal static string FormatMigrationsEndPointMiddleware_Applied(object p0)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("MigrationsEndPointMiddleware_Applied"), p0);
+        }
+
+        /// <summary>
+        /// Request is valid, applying migrations for context '{0}'.
+        /// </summary>
+        internal static string MigrationsEndPointMiddleware_ApplyingMigrations
+        {
+            get { return GetString("MigrationsEndPointMiddleware_ApplyingMigrations"); }
+        }
+
+        /// <summary>
+        /// Request is valid, applying migrations for context '{0}'.
+        /// </summary>
+        internal static string FormatMigrationsEndPointMiddleware_ApplyingMigrations(object p0)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("MigrationsEndPointMiddleware_ApplyingMigrations"), p0);
+        }
+
+        /// <summary>
+        /// The context type '{0}' was not found in services. This usually means the context was not registered in services during startup. You probably want to call AddScoped&lt;{0}&gt;() inside the UseServices(...) call in your application startup code.
+        /// </summary>
+        internal static string MigrationsEndPointMiddleware_ContextNotRegistered
+        {
+            get { return GetString("MigrationsEndPointMiddleware_ContextNotRegistered"); }
+        }
+
+        /// <summary>
+        /// The context type '{0}' was not found in services. This usually means the context was not registered in services during startup. You probably want to call AddScoped&lt;{0}&gt;() inside the UseServices(...) call in your application startup code.
+        /// </summary>
+        internal static string FormatMigrationsEndPointMiddleware_ContextNotRegistered(object p0)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("MigrationsEndPointMiddleware_ContextNotRegistered"), p0);
+        }
+
+        /// <summary>
+        /// An error occured while applying the migrations for '{0}'. See InnerException for details.
+        /// </summary>
+        internal static string MigrationsEndPointMiddleware_Exception
+        {
+            get { return GetString("MigrationsEndPointMiddleware_Exception"); }
+        }
+
+        /// <summary>
+        /// An error occured while applying the migrations for '{0}'. See InnerException for details.
+        /// </summary>
+        internal static string FormatMigrationsEndPointMiddleware_Exception(object p0)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("MigrationsEndPointMiddleware_Exception"), p0);
+        }
+
+        /// <summary>
+        /// The context type '{0}' could not be loaded. Ensure this is the correct type name for the context you are trying to apply migrations for.
+        /// </summary>
+        internal static string MigrationsEndPointMiddleware_InvalidContextType
+        {
+            get { return GetString("MigrationsEndPointMiddleware_InvalidContextType"); }
+        }
+
+        /// <summary>
+        /// The context type '{0}' could not be loaded. Ensure this is the correct type name for the context you are trying to apply migrations for.
+        /// </summary>
+        internal static string FormatMigrationsEndPointMiddleware_InvalidContextType(object p0)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("MigrationsEndPointMiddleware_InvalidContextType"), p0);
+        }
+
+        /// <summary>
+        /// No context type was specified. Ensure the form data from the request includes a contextTypeName value, specifying the context to apply migrations for.
+        /// </summary>
+        internal static string MigrationsEndPointMiddleware_NoContextType
+        {
+            get { return GetString("MigrationsEndPointMiddleware_NoContextType"); }
+        }
+
+        /// <summary>
+        /// No context type was specified. Ensure the form data from the request includes a contextTypeName value, specifying the context to apply migrations for.
+        /// </summary>
+        internal static string FormatMigrationsEndPointMiddleware_NoContextType()
+        {
+            return GetString("MigrationsEndPointMiddleware_NoContextType");
+        }
+
+        /// <summary>
+        /// Request path matched the path configured for this migrations endpoint ({0}). Attempting to process the migrations request.
+        /// </summary>
+        internal static string MigrationsEndPointMiddleware_RequestPathMatched
+        {
+            get { return GetString("MigrationsEndPointMiddleware_RequestPathMatched"); }
+        }
+
+        /// <summary>
+        /// Request path matched the path configured for this migrations endpoint ({0}). Attempting to process the migrations request.
+        /// </summary>
+        internal static string FormatMigrationsEndPointMiddleware_RequestPathMatched(object p0)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("MigrationsEndPointMiddleware_RequestPathMatched"), p0);
         }
 
         private static string GetString(string name, params string[] formatterNames)

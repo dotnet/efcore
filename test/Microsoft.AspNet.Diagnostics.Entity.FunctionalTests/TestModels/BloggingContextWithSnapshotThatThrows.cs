@@ -7,26 +7,31 @@ using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Builders;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
 using System;
+using System.Linq;
+using System.Reflection;
 
 namespace Microsoft.AspNet.Diagnostics.Entity.Tests
 {
-    public class BloggingContextWithPendingModelChanges : BloggingContext
+    public class BloggingContextWithSnapshotThatThrows : BloggingContext
     {
-        public BloggingContextWithPendingModelChanges(IServiceProvider provider, DbContextOptions options)
+        public BloggingContextWithSnapshotThatThrows(IServiceProvider provider, DbContextOptions options)
             : base(provider, options)
         { }
 
-        [ContextType(typeof(BloggingContextWithPendingModelChanges))]
-        public class BloggingModelSnapshot : ModelSnapshot
+        [ContextType(typeof(BloggingContextWithSnapshotThatThrows))]
+        public class BloggingContextWithSnapshotThatThrowsModelSnapshot : ModelSnapshot
         {
             public override IModel Model
             {
-                get { return new BasicModelBuilder().Model; }
+                get
+                {
+                    throw new Exception("Welcome to the invalid snapshot!");
+                }
             }
         }
 
-        [ContextType(typeof(BloggingContextWithPendingModelChanges))]
-        public partial class MigrationOne : Migration, IMigrationMetadata
+        [ContextType(typeof(BloggingContextWithSnapshotThatThrows))]
+        public class MigrationOne : Migration, IMigrationMetadata
         {
             string IMigrationMetadata.MigrationId
             {
@@ -40,11 +45,13 @@ namespace Microsoft.AspNet.Diagnostics.Entity.Tests
 
             IModel IMigrationMetadata.TargetModel
             {
-                get { return new BasicModelBuilder().Model; }
+                get { return new BloggingContextWithSnapshotThatThrowsModelSnapshot().Model; }
             }
 
             public override void Up(MigrationBuilder migrationBuilder)
-            { }
+            {
+                throw new Exception("Welcome to the invalid migration!");
+            }
 
             public override void Down(MigrationBuilder migrationBuilder)
             { }

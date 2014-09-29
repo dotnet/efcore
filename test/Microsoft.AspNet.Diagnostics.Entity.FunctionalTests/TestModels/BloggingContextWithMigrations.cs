@@ -7,14 +7,26 @@ using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Builders;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
 using System;
+using System.Linq;
+using System.Reflection;
 
 namespace Microsoft.AspNet.Diagnostics.Entity.Tests
 {
     public class BloggingContextWithMigrations : BloggingContext
     {
+        protected BloggingContextWithMigrations(DbContextOptions options)
+            : base(options)
+        { }
+
         public BloggingContextWithMigrations(IServiceProvider provider, DbContextOptions options)
             : base(provider, options)
         { }
+
+        // Providing a factory method so that the ctor is hidden from DI
+        public static BloggingContextWithMigrations CreateWithoutExternalServiceProvider(DbContextOptions options)
+        {
+            return new BloggingContextWithMigrations(options);
+        }
 
         [ContextType(typeof(BloggingContextWithMigrations))]
         public class BloggingContextWithMigrationsModelSnapshot : ModelSnapshot
@@ -46,6 +58,11 @@ namespace Microsoft.AspNet.Diagnostics.Entity.Tests
                 get { return "111111111111111_MigrationOne"; }
             }
 
+            string IMigrationMetadata.ProductVersion
+            {
+                get { return CurrentProductVersion; }
+            }
+
             IModel IMigrationMetadata.TargetModel
             {
                 get { return new BloggingContextWithMigrationsModelSnapshot().Model; }
@@ -74,6 +91,11 @@ namespace Microsoft.AspNet.Diagnostics.Entity.Tests
             string IMigrationMetadata.MigrationId
             {
                 get { return "222222222222222_MigrationTwo"; }
+            }
+
+            string IMigrationMetadata.ProductVersion
+            {
+                get { return CurrentProductVersion; }
             }
 
             IModel IMigrationMetadata.TargetModel

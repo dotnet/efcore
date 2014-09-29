@@ -10,7 +10,6 @@ namespace Microsoft.AspNet.Diagnostics.Entity
     {
         public static PathString DefaultPath = new PathString("/ApplyDatabaseMigrations");
         private PathString _path = DefaultPath;
-        private bool _devModeOnly = true;
 
         public virtual PathString Path
         {
@@ -20,12 +19,6 @@ namespace Microsoft.AspNet.Diagnostics.Entity
                 Check.NotNull(value, "value");
                 _path = value;
             }
-        }
-
-        public virtual bool DevModeOnly
-        {
-            get { return _devModeOnly; }
-            set { _devModeOnly = value; }
         }
     }
 }

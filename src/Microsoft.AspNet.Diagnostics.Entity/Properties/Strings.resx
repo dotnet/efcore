@@ -123,6 +123,15 @@
   <data name="CollectionArgumentIsEmpty" xml:space="preserve">
     <value>The collection argument '{argumentName}' must contain at least one element.</value>
   </data>
+  <data name="DatabaseErrorPageMiddleware_ContextNotRegistered" xml:space="preserve">
+    <value>The context type '{0}' was not found in services. This usually means the context was not registered in services during startup. You probably want to call AddScoped&lt;{0}&gt;() inside the UseServices(...) call in your application startup code. Skipping display of the database error page.</value>
+  </data>
+  <data name="DatabaseErrorPageMiddleware_Exception" xml:space="preserve">
+    <value>An exception occured while calculating the database error page content. Skipping display of the database error page.</value>
+  </data>
+  <data name="DatabaseErrorPageMiddleware_NoServices" xml:space="preserve">
+    <value>There are no services available in the current request. This is usually due to calling UseDatabaseErrorPage() on IApplicationBuilder before calling UseServices(...), check the order of these in your application startup code. Skipping display of the database error page.</value>
+  </data>
   <data name="DatabaseErrorPage_AddMigrationCommand" xml:space="preserve">
     <value>&gt; k ef migration add [migration name]</value>
   </data>
@@ -167,5 +176,26 @@
   </data>
   <data name="InvalidEnumValue" xml:space="preserve">
     <value>The value provided for argument '{argumentName}' must be a valid value of enum type '{enumType}'.</value>
+  </data>
+  <data name="MigrationsEndPointMiddleware_Applied" xml:space="preserve">
+    <value>Migrations successfully applied for context '{0}'.</value>
+  </data>
+  <data name="MigrationsEndPointMiddleware_ApplyingMigrations" xml:space="preserve">
+    <value>Request is valid, applying migrations for context '{0}'.</value>
+  </data>
+  <data name="MigrationsEndPointMiddleware_ContextNotRegistered" xml:space="preserve">
+    <value>The context type '{0}' was not found in services. This usually means the context was not registered in services during startup. You probably want to call AddScoped&lt;{0}&gt;() inside the UseServices(...) call in your application startup code.</value>
+  </data>
+  <data name="MigrationsEndPointMiddleware_Exception" xml:space="preserve">
+    <value>An error occured while applying the migrations for '{0}'. See InnerException for details.</value>
+  </data>
+  <data name="MigrationsEndPointMiddleware_InvalidContextType" xml:space="preserve">
+    <value>The context type '{0}' could not be loaded. Ensure this is the correct type name for the context you are trying to apply migrations for.</value>
+  </data>
+  <data name="MigrationsEndPointMiddleware_NoContextType" xml:space="preserve">
+    <value>No context type was specified. Ensure the form data from the request includes a contextTypeName value, specifying the context to apply migrations for.</value>
+  </data>
+  <data name="MigrationsEndPointMiddleware_RequestPathMatched" xml:space="preserve">
+    <value>Request path matched the path configured for this migrations endpoint ({0}). Attempting to process the migrations request.</value>
   </data>
 </root>

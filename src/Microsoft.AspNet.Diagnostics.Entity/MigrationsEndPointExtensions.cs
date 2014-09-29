@@ -21,11 +21,7 @@ namespace Microsoft.AspNet.Builder
             Check.NotNull(builder, "builder");
             Check.NotNull(options, "options");
 
-            /* TODO: Development, Staging, or Production
-            string appMode = new AppProperties(builder.Properties).Get<string>(Constants.HostAppMode);
-            bool isDevMode = string.Equals(Constants.DevMode, appMode, StringComparison.Ordinal);*/
-            var isDevMode = true;
-            return builder.Use(next => new MigrationsEndPointMiddleware(next, options, isDevMode).Invoke);
+            return builder.UseMiddleware<MigrationsEndPointMiddleware>(options);
         }
     }
 }

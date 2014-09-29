@@ -16,8 +16,9 @@
 
     public virtual DatabaseErrorPageModel Model
     {
-        get { return _model;}
-        [param: NotNull] set
+        get { return _model; }
+        [param: NotNull]
+        set
         {
             Check.NotNull(value, "value");
 
@@ -28,114 +29,112 @@
 <!DOCTYPE html>
 
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
-    <head>
-        <meta charset="utf-8" />
-        <title>Internal Server Error</title>
-        <style>
+<head>
+    <meta charset="utf-8" />
+    <title>Internal Server Error</title>
+    <style>
             <%$ include: ErrorPage.css %>
             @string.Empty
-        </style>
-    </head>
-    <body>
-        <h1>A database operartion failed while processing the request.</h1>
-        @if (Model.Options.ShowExceptionDetails)
-        {
-            <p>
-                @for (Exception ex = Model.Exception; ex != null; ex = ex.InnerException)
+    </style>
+</head>
+<body>
+    <h1>A database operartion failed while processing the request.</h1>
+    @if (Model.Options.ShowExceptionDetails)
+    {
+        <p>
+            @for (Exception ex = Model.Exception; ex != null; ex = ex.InnerException)
                 {
-                    <span>@ex.GetType().Name: @ex.Message</span>
-                    <br />
-                }
-            </p>
+                <span>@ex.GetType().Name: @ex.Message</span>
+                <br />
+            }
+        </p>
+        <hr />
+    }
+
+    @if (!Model.DatabaseExists && !Model.PendingMigrations.Any())
+    {
+        <h2>@Strings.FormatDatabaseErrorPage_NoDbOrMigrationsTitle(Model.ContextType.Name)</h2>
+        <p>@Strings.DatabaseErrorPage_NoDbOrMigrationsInfo</p>
+        <code> @Strings.DatabaseErrorPage_AddMigrationCommand </code>
+        <br />
+        <code> @Strings.DatabaseErrorPage_UpdateDatabaseCommand </code>
+        <hr />
+    }
+    else if (Model.PendingMigrations.Any())
+    {
+        <div>
+            <h2>@Strings.FormatDatabaseErrorPage_PendingMigrationsTitle(Model.ContextType.Name)</h2>
+            <p>@Strings.FormatDatabaseErrorPage_PendingMigrationsInfo(Model.ContextType.Name)</p>
+
+            @if (Model.Options.ListMigrations)
+            {
+                <ul>
+                    @foreach (var migration in Model.PendingMigrations)
+                    {
+                        <li>@migration</li>
+                    }
+                </ul>
+            }
+
+            @if (Model.Options.EnableMigrationCommands)
+            {
+                <p>
+                    <button id="applyMigrations" onclick=" ApplyMigrations() ">@Strings.DatabaseErrorPage_ApplyMigrationsButton</button>
+                    <span id="applyMigrationsError" class="error"></span>
+                    <span id="applyMigrationsSuccess"></span>
+                </p>
+                <script>
+                    function ApplyMigrations() {
+                        applyMigrations.disabled = true;
+                        applyMigrationsError.innerHTML = "";
+                        applyMigrations.innerHTML = "@Strings.DatabaseErrorPage_ApplyMigrationsButtonRunning";
+
+                        var req = new XMLHttpRequest();
+                        req.open("POST", "@Model.Options.MigrationsEndPointPath.Value", true);
+                        var params = "context=" + encodeURIComponent("@Model.ContextType.AssemblyQualifiedName");
+                        req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                        req.setRequestHeader("Content-length", params.length);
+                        req.setRequestHeader("Connection", "close");
+
+                        req.onload = function (e) {
+                            if (req.status == 204) {
+                                applyMigrations.innerHTML = "@Strings.DatabaseErrorPage_ApplyMigrationsButtonDone";
+                                applyMigrationsSuccess.innerHTML = "<a href='.'>@Strings.DatabaseErrorPage_MigrationsAppliedRefresh</a>";
+                            } else {
+                                ErrorApplyingMigrations();
+                            }
+                        };
+
+                        req.onerror = function (e) {
+                            ErrorApplyingMigrations();
+                        };
+
+                        req.send(params);
+                    }
+
+                    function ErrorApplyingMigrations() {
+                        applyMigrations.innerHTML = "@Strings.DatabaseErrorPage_ApplyMigrationsButton";
+                        applyMigrationsError.innerHTML = "@Strings.DatabaseErrorPage_ApplyMigrationsFailed";
+                        applyMigrations.disabled = false;
+                    }
+                </script>
+            }
+
+            <p>@Strings.DatabaseErrorPage_HowToApplyFromCmd</p>
+            <code>@Strings.DatabaseErrorPage_UpdateDatabaseCommand</code>
             <hr />
-        }
-
-
-        @if (Model.Options.ShowMigrationStatus)
-        {
-            @if (!Model.DatabaseExists
-                 && !Model.PendingMigrations.Any())
-             {
-                 <h2>@Strings.FormatDatabaseErrorPage_NoDbOrMigrationsTitle(Model.ContextType.Name)</h2>
-                 <p>@Strings.DatabaseErrorPage_NoDbOrMigrationsInfo</p>
-                 <code> @Strings.DatabaseErrorPage_AddMigrationCommand </code>
-                 <br />
-                 <code> @Strings.DatabaseErrorPage_UpdateDatabaseCommand </code>
-                 <hr />
-             }
-             else
-             {
-                 if (Model.PendingMigrations.Any())
-                 {
-                     <div>
-                         <h2>@Strings.FormatDatabaseErrorPage_PendingMigrationsTitle(Model.ContextType.Name)</h2>
-                         <p>@Strings.FormatDatabaseErrorPage_PendingMigrationsInfo(Model.ContextType.Name)</p>
-                         <ul>
-                             @foreach (var migration in Model.PendingMigrations)
-                             {
-                                 <li>@migration</li>
-                             }
-                         </ul>
-                         @if (Model.Options.EnableMigrationCommands)
-                         {
-                             <p>
-                                 <button id="applyMigrations" onclick=" ApplyMigrations() ">@Strings.DatabaseErrorPage_ApplyMigrationsButton</button>
-                                 <span id="applyMigrationsError" class="error"></span>
-                                 <span id="applyMigrationsSuccess"></span>
-                             </p>
-                             <script>
-                                 function ApplyMigrations() {
-                                     applyMigrations.disabled = true;
-                                     applyMigrationsError.innerHTML = "";
-                                     applyMigrations.innerHTML = "@Strings.DatabaseErrorPage_ApplyMigrationsButtonRunning";
-
-                                     var req = new XMLHttpRequest();
-                                     req.open("POST", "@Model.Options.MigrationsEndPointPath.Value", true);
-                                     var params = "context=" + encodeURIComponent("@Model.ContextType.AssemblyQualifiedName");
-                                     req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-                                     req.setRequestHeader("Content-length", params.length);
-                                     req.setRequestHeader("Connection", "close");
-
-                                     req.onload = function(e) {
-                                         if (req.status == 204) {
-                                             applyMigrations.innerHTML = "@Strings.DatabaseErrorPage_ApplyMigrationsButtonDone";
-                                             applyMigrationsSuccess.innerHTML = "<a href='.'>@Strings.DatabaseErrorPage_MigrationsAppliedRefresh</a>";
-                                         } else {
-                                             ErrorApplyingMigrations();
-                                         }
-                                     };
-
-                                     req.onerror = function(e) {
-                                         ErrorApplyingMigrations();
-                                     };
-
-                                     req.send(params);
-                                 }
-
-                                 function ErrorApplyingMigrations() {
-                                     applyMigrations.innerHTML = "@Strings.DatabaseErrorPage_ApplyMigrationsButton";
-                                     applyMigrationsError.innerHTML = "@Strings.DatabaseErrorPage_ApplyMigrationsFailed";
-                                     applyMigrations.disabled = false;
-                                 }
-                             </script>
-                         }
-                         <p>@Strings.DatabaseErrorPage_HowToApplyFromCmd</p>
-                         <code>@Strings.DatabaseErrorPage_UpdateDatabaseCommand</code>
-                         <hr />
-                     </div>
-                 }
-                 else if (Model.PendingModelChanges)
-                 {
-                     <div>
-                         <h2>@Strings.FormatDatabaseErrorPage_PendingChangesTitle(Model.ContextType.Name)</h2>
-                         <p>@Strings.DatabaseErrorPage_PendingChangesInfo</p>
-                         <code>@Strings.DatabaseErrorPage_AddMigrationCommand</code>
-                         <br />
-                         <code>@Strings.DatabaseErrorPage_UpdateDatabaseCommand</code>
-                         <hr />
-                     </div>
-                 }
-             }
-        }
-    </body>
+        </div>
+    }
+    else if (Model.PendingModelChanges)
+    {
+        <div>
+            <h2>@Strings.FormatDatabaseErrorPage_PendingChangesTitle(Model.ContextType.Name)</h2>
+            <p>@Strings.DatabaseErrorPage_PendingChangesInfo</p>
+            <code>@Strings.DatabaseErrorPage_AddMigrationCommand</code>
+            <br />
+            <code>@Strings.DatabaseErrorPage_UpdateDatabaseCommand</code>
+            <hr />
+        </div>
+    }
+</body>
 </html>

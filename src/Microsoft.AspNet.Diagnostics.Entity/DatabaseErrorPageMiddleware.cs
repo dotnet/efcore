@@ -22,6 +22,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity
     {
         private readonly RequestDelegate _next;
         private readonly DatabaseErrorPageOptions _options;
+        private readonly ILogger _logger;
         private readonly DataStoreErrorLoggerProvider _loggerProvider;
 
         public DatabaseErrorPageMiddleware([NotNull] RequestDelegate next, [NotNull] ILoggerFactory loggerFactory, [NotNull] DatabaseErrorPageOptions options, bool isDevMode)
@@ -36,6 +37,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity
 
             _next = next;
             _options = options;
+            _logger = loggerFactory.Create<DatabaseErrorPageMiddleware>();
 
             _loggerProvider = new DataStoreErrorLoggerProvider();
             loggerFactory.AddProvider(_loggerProvider);
@@ -58,42 +60,59 @@ namespace Microsoft.AspNet.Diagnostics.Entity
             }
             catch (Exception ex)
             {
-                if (_loggerProvider.Logger.LastError.IsErrorLogged
-                    && _loggerProvider.Logger.LastError.Exception == ex)
+                try
                 {
-                    var dbContextType = _loggerProvider.Logger.LastError.ContextType;
-                    var dbContext = (DbContext)context.RequestServices.GetService(dbContextType);
-
-                    if (dbContext.Database is RelationalDatabase)
+                    if (_loggerProvider.Logger.LastError.IsErrorLogged
+                        && _loggerProvider.Logger.LastError.Exception == ex)
                     {
-                        var databaseExists = dbContext.Database.AsRelational().Exists();
-
-                        var serviceProvider = dbContext.Configuration.Services.ServiceProvider;
-
-                        var migrator = serviceProvider.GetService<Migrator>();
-
-                        var pendingMigrations = migrator.GetPendingMigrations().Select(m => m.MigrationId);
-
-                        var pendingModelChanges = true;
-                        var migrationsAssembly = serviceProvider.GetService<MigrationAssembly>();
-                        var snapshot = migrationsAssembly.Model;
-                        if (snapshot != null)
+                        if (context.RequestServices == null)
                         {
-                            var differ = serviceProvider.GetService<ModelDiffer>();
-                            pendingModelChanges = differ.Diff(snapshot, dbContext.Model).Any();
+                            _logger.WriteError(Strings.DatabaseErrorPageMiddleware_NoServices);
                         }
-
-                        if ((!databaseExists && pendingMigrations.Any()) || pendingMigrations.Any() || pendingModelChanges)
+                        else
                         {
-                            var page = new DatabaseErrorPage();
-                            page.Model = new DatabaseErrorPageModel(dbContextType, ex, databaseExists, pendingModelChanges, pendingMigrations, _options);
+                            var dbContextType = _loggerProvider.Logger.LastError.ContextType;
+                            var dbContext = (DbContext)context.RequestServices.GetServiceOrNull(dbContextType);
+                            if (dbContext == null)
+                            {
+                                _logger.WriteError(Strings.FormatDatabaseErrorPageMiddleware_ContextNotRegistered(dbContextType.FullName));
+                            }
+                            else
+                            {
+                                if (dbContext.Database is RelationalDatabase)
+                                {
+                                    var databaseExists = dbContext.Database.AsRelational().Exists();
 
-                            // TODO Building in VS2013 prevents await in catch block
-                            //      swap to await once we move to just VS14
-                            page.ExecuteAsync(context).Wait();
-                            return;
+                                    var serviceProvider = dbContext.Configuration.Services.ServiceProvider;
+
+                                    var migrator = serviceProvider.GetService<Migrator>();
+
+                                    var pendingMigrations = migrator.GetPendingMigrations().Select(m => m.MigrationId);
+
+                                    var pendingModelChanges = true;
+                                    var migrationsAssembly = serviceProvider.GetService<MigrationAssembly>();
+                                    var snapshot = migrationsAssembly.Model;
+                                    if (snapshot != null)
+                                    {
+                                        var differ = serviceProvider.GetService<ModelDiffer>();
+                                        pendingModelChanges = differ.Diff(snapshot, dbContext.Model).Any();
+                                    }
+
+                                    if ((!databaseExists && pendingMigrations.Any()) || pendingMigrations.Any() || pendingModelChanges)
+                                    {
+                                        var page = new DatabaseErrorPage();
+                                        page.Model = new DatabaseErrorPageModel(dbContextType, ex, databaseExists, pendingModelChanges, pendingMigrations, _options);
+                                        await page.ExecuteAsync(context).WithCurrentCulture();
+                                        return;
+                                    }
+                                }
+                            }
                         }
                     }
+                }
+                catch (Exception e)
+                {
+                    _logger.WriteError(Strings.DatabaseErrorPageMiddleware_Exception, e);
                 }
 
                 throw;

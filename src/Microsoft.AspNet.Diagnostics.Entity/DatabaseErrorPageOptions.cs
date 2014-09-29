@@ -11,7 +11,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity
         private PathString _migrationsEndPointPath = MigrationsEndPointOptions.DefaultPath;
         private bool _defaultVisibility;
         private bool? _showExceptionDetails;
-        private bool? _showMigrationStatus;
+        private bool? _listMigrations;
         private bool? _enableMigrationCommands;
 
         public virtual PathString MigrationsEndPointPath
@@ -30,10 +30,10 @@ namespace Microsoft.AspNet.Diagnostics.Entity
             set { _showExceptionDetails = value; }
         }
 
-        public virtual bool ShowMigrationStatus
+        public virtual bool ListMigrations
         {
-            get { return _showMigrationStatus ?? _defaultVisibility; }
-            set { _showMigrationStatus = value; }
+            get { return _listMigrations ?? _defaultVisibility; }
+            set { _listMigrations = value; }
         }
 
         public virtual bool EnableMigrationCommands
