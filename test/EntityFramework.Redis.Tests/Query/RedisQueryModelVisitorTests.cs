@@ -15,7 +15,8 @@ namespace Microsoft.Data.Entity.Redis.Tests.Query
             : base(new RedisQueryCompilationContext(
                 QueryTestType.Model(),
                 new LinqOperatorProvider(),
-                new ResultOperatorHandler()))
+                new ResultOperatorHandler(),
+                false))
         {
         }
 

@@ -12,10 +12,14 @@ namespace Microsoft.Data.Entity.Redis.Query
         public RedisQueryCompilationContext(
             [NotNull] IModel model,
             [NotNull] ILinqOperatorProvider linqOperatorProvider,
-            [NotNull] IResultOperatorHandler resultOperatorHandler)
+            [NotNull] IResultOperatorHandler resultOperatorHandler,
+            bool isAsync)
             : base(model, linqOperatorProvider, resultOperatorHandler)
         {
+            IsAsync = isAsync;
         }
+
+        public virtual bool IsAsync { get; protected set; }
 
         public override EntityQueryModelVisitor CreateQueryModelVisitor(
             EntityQueryModelVisitor parentEntityQueryModelVisitor)

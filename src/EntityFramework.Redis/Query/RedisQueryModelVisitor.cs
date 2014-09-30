@@ -114,13 +114,28 @@ namespace Microsoft.Data.Entity.Redis.Query
             typeof(RedisQueryModelVisitor).GetTypeInfo().GetDeclaredMethod("ExecuteMaterializedQueryExpression");
 
         [UsedImplicitly]
-        private static IEnumerable<TResult> ExecuteMaterializedQueryExpression<TResult>(
-            QueryContext queryContext, IEntityType entityType)
+        private IEnumerable<TResult> ExecuteMaterializedQueryExpression<TResult>(
+            IQuerySource querySource, QueryContext queryContext)
             where TResult : class, new()
         {
+            var redisQuery = FindOrCreateQuery(querySource);
             var redisQueryContext = (RedisQueryContext)queryContext;
 
-            return redisQueryContext.GetResultsFromRedis<TResult>(entityType);
+            return redisQueryContext.GetMaterializedResults<TResult>(redisQuery);
+        }
+
+        private static readonly MethodInfo _executeMaterializedQueryExpressionMethodInfoAsync =
+            typeof(RedisQueryModelVisitor).GetTypeInfo().GetDeclaredMethod("ExecuteMaterializedQueryExpressionAsync");
+
+        [UsedImplicitly]
+        private IAsyncEnumerable<TResult> ExecuteMaterializedQueryExpressionAsync<TResult>(
+            IQuerySource querySource, QueryContext queryContext)
+            where TResult : class, new()
+        {
+            var redisQuery = FindOrCreateQuery(querySource);
+            var redisQueryContext = (RedisQueryContext)queryContext;
+
+            return redisQueryContext.GetMaterializedResultsAsync<TResult>(redisQuery);
         }
 
         private static readonly MethodInfo _executeNonMaterializedQueryExpressionMethodInfo =
@@ -134,6 +149,21 @@ namespace Microsoft.Data.Entity.Redis.Query
             var redisQueryContext = (RedisQueryContext)queryContext;
 
             return redisQuery.GetValueReaders(redisQueryContext);
+        }
+
+        private static readonly MethodInfo
+            _executeNonMaterializedQueryExpressionMethodInfoAsync =
+                typeof(RedisQueryModelVisitor).GetTypeInfo()
+                    .GetDeclaredMethod("ExecuteValueReaderAsync");
+
+        [UsedImplicitly]
+        private IAsyncEnumerable<IValueReader> ExecuteValueReaderAsync(
+            IQuerySource querySource, QueryContext queryContext)
+        {
+            var redisQuery = FindOrCreateQuery(querySource);
+            var redisQueryContext = (RedisQueryContext)queryContext;
+
+            return redisQuery.GetValueReadersAsync(redisQueryContext);
         }
     }
 }

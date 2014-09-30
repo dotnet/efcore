@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
@@ -30,12 +31,24 @@ namespace Microsoft.Data.Entity.Redis.Query
             _redisDatabase = redisDatabase;
         }
 
-        public virtual IEnumerable<TResult> GetResultsFromRedis<TResult>(
-            [NotNull] IEntityType entityType)
+        public virtual IEnumerable<TResult> GetMaterializedResults<TResult>([NotNull] RedisQuery redisQuery)
         {
-            Check.NotNull(entityType, "entityType");
+            Check.NotNull(redisQuery, "redisQuery");
 
-            return _redisDatabase.GetMaterializedResults<TResult>(entityType, QueryBuffer);
+            return _redisDatabase.GetResults(redisQuery)
+                    .Select(objectArrayFromHash
+                        => (TResult)QueryBuffer
+                            .GetEntity(redisQuery.EntityType, new ObjectArrayValueReader(objectArrayFromHash)));
+        }
+
+        public virtual IAsyncEnumerable<TResult> GetMaterializedResultsAsync<TResult>([NotNull] RedisQuery redisQuery)
+        {
+            Check.NotNull(redisQuery, "redisQuery");
+
+            return _redisDatabase.GetResultsAsync(redisQuery)
+                    .Select(objectArrayFromHash
+                        => (TResult)QueryBuffer
+                            .GetEntity(redisQuery.EntityType, new ObjectArrayValueReader(objectArrayFromHash)));
         }
 
         public virtual IEnumerable<object[]> GetResultsFromRedis([NotNull] RedisQuery redisQuery)
@@ -43,6 +56,13 @@ namespace Microsoft.Data.Entity.Redis.Query
             Check.NotNull(redisQuery, "redisQuery");
 
             return _redisDatabase.GetResults(redisQuery);
+        }
+
+        public virtual IAsyncEnumerable<object[]> GetResultsFromRedisAsync([NotNull] RedisQuery redisQuery)
+        {
+            Check.NotNull(redisQuery, "redisQuery");
+
+            return _redisDatabase.GetResultsAsync(redisQuery);
         }
     }
 }

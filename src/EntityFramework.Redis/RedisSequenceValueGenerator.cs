@@ -39,8 +39,9 @@ namespace Microsoft.Data.Entity.Redis
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            return await
-                Task.FromResult(_redisDatabase.GetNextGeneratedValue(property, BlockSize, SequenceName))
+            return 
+                await _redisDatabase.GetNextGeneratedValueAsync(
+                        property, BlockSize, SequenceName, cancellationToken)
                     .WithCurrentCulture();
         }
     }

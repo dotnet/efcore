@@ -37,10 +37,24 @@ namespace Microsoft.Data.Entity.Redis.Query
             _selectedProperties.Add(property);
         }
 
-        public virtual IEnumerable<IValueReader> GetValueReaders([NotNull] RedisQueryContext redisQueryContext)
+        public virtual IEnumerable<IValueReader> GetValueReaders(
+            [NotNull] RedisQueryContext redisQueryContext)
         {
             Check.NotNull(redisQueryContext, "redisQueryContext");
-            return redisQueryContext.GetResultsFromRedis(this).Select(array => new ObjectArrayValueReader(array));
+
+            return redisQueryContext
+                .GetResultsFromRedis(this)
+                .Select(array => new ObjectArrayValueReader(array));
+        }
+
+        public virtual IAsyncEnumerable<IValueReader> GetValueReadersAsync(
+            [NotNull] RedisQueryContext redisQueryContext)
+        {
+            Check.NotNull(redisQueryContext, "redisQueryContext");
+
+            return redisQueryContext
+                .GetResultsFromRedisAsync(this)
+                .Select(array => new ObjectArrayValueReader(array));
         }
 
         public virtual int GetProjectionIndex([NotNull] IProperty property)

@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -51,9 +50,13 @@ namespace Microsoft.Data.Entity.Redis
             var queryCompilationContext
                 = CreateQueryCompilationContext(
                     new LinqOperatorProvider(),
-                    new ResultOperatorHandler());
+                    new ResultOperatorHandler(),
+                    false);
 
-            var queryExecutor = queryCompilationContext.CreateQueryModelVisitor().CreateQueryExecutor<TResult>(queryModel);
+            var queryExecutor 
+                = queryCompilationContext
+                    .CreateQueryModelVisitor()
+                    .CreateQueryExecutor<TResult>(queryModel);
 
             var queryContext
                 = new RedisQueryContext(
@@ -68,19 +71,44 @@ namespace Microsoft.Data.Entity.Redis
         public override IAsyncEnumerable<TResult> AsyncQuery<TResult>(
             QueryModel queryModel, CancellationToken cancellationToken)
         {
-            // TODO
-            throw new NotImplementedException();
+            Check.NotNull(queryModel, "queryModel");
+
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var queryCompilationContext
+                = CreateQueryCompilationContext(
+                    new AsyncLinqOperatorProvider(),
+                    new ResultOperatorHandler(),
+                    true);
+
+            var queryExecutor
+                = queryCompilationContext
+                    .CreateQueryModelVisitor()
+                    .CreateAsyncQueryExecutor<TResult>(queryModel);
+
+            var queryContext
+                = new RedisQueryContext(
+                    Logger,
+                    CreateQueryBuffer(),
+                    StateManager,
+                    _database.Value)
+                {
+                    CancellationToken = cancellationToken
+                };
+
+            return queryExecutor(queryContext);
         }
 
         protected virtual RedisQueryCompilationContext CreateQueryCompilationContext(
             [NotNull] ILinqOperatorProvider linqOperatorProvider,
-            [NotNull] IResultOperatorHandler resultOperatorHandler)
+            [NotNull] IResultOperatorHandler resultOperatorHandler,
+            bool isAsync)
         {
             Check.NotNull(linqOperatorProvider, "linqOperatorProvider");
             Check.NotNull(resultOperatorHandler, "resultOperatorHandler");
 
             return new RedisQueryCompilationContext(
-                Model, linqOperatorProvider, resultOperatorHandler);
+                Model, linqOperatorProvider, resultOperatorHandler, isAsync);
         }
     }
 }

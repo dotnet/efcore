@@ -13,7 +13,6 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Redis.Query;
 using Microsoft.Data.Entity.Redis.Utilities;
 using StackExchange.Redis;
@@ -155,49 +154,46 @@ namespace Microsoft.Data.Entity.Redis
         }
 
         /// <summary>
-        ///     Gets values from database and materializes new EntityTypes
+        ///     Gets a set of object[] values from database each of which represents the values
+        ///     of the Properties required by the query for a particular EntityType
         /// </summary>
-        /// <typeparam name="TResult">type of expected result</typeparam>
-        /// <param name="entityType">EntityType of </param>
-        /// <param name="queryBuffer"></param>
-        /// <returns>An Enumerable of materialized EntityType objects</returns>
-        public virtual IEnumerable<TResult> GetMaterializedResults<TResult>(
-            [NotNull] IEntityType entityType,
-            [NotNull] IQueryBuffer queryBuffer)
+        /// <param name="redisQuery">An object representing the parameters of the query</param>
+        /// <returns>
+        ///     An Enumerable of object[] values from database each of which represents
+        ///     the values of the Properties for the EntityType (either all the propoerties
+        ///     or the selected properties as defined by the query)
+        /// </returns>
+        public virtual IEnumerable<object[]> GetResults([NotNull] RedisQuery redisQuery)
         {
-            Check.NotNull(entityType, "entityType");
-            Check.NotNull(queryBuffer, "queryBuffer");
+            Check.NotNull(redisQuery, "redisQuery");
 
             var redisPrimaryKeyIndexKeyName
-                = ConstructRedisPrimaryKeyIndexKeyName(entityType);
+                = ConstructRedisPrimaryKeyIndexKeyName(redisQuery.EntityType);
 
             var allKeysForEntity
                 = GetUnderlyingDatabase().SetMembers(redisPrimaryKeyIndexKeyName);
 
             return allKeysForEntity
-                .Select(compositePrimaryKeyValues
-                    => GetEntityQueryObjectsFromDatabase(compositePrimaryKeyValues, entityType, DecodeBytes))
-                .Select(objectArrayFromHash
-                    => (TResult)queryBuffer
-                        .GetEntity(entityType, new ObjectArrayValueReader(objectArrayFromHash)));
+                .Select(compositePrimaryKey
+                    => GetQueryObjectsFromDatabase(
+                        compositePrimaryKey, redisQuery, DecodeBytes));
         }
 
         /// <summary>
-        ///     Gets non-materialized values from database
+        ///     Gets a set of object[] values from database each of which represents the values
+        ///     of the Properties required by the query for a particular EntityType
         /// </summary>
-        /// <param name="redisQuery">Query data to decide what is selected from the database</param>
-        /// <returns>An Enumerable of non-materialized object[]'s each of which represents one primary key</returns>
-        public virtual IEnumerable<object[]> GetResults([NotNull] RedisQuery redisQuery)
+        /// <param name="redisQuery">An object representing the parameters of the query</param>
+        /// <returns>
+        ///     An Enumerable of object[] values from database each of which represents
+        ///     the values of the Properties for the EntityType (either all the propoerties
+        ///     or the selected properties as defined by the query)
+        /// </returns>
+        public virtual IAsyncEnumerable<object[]> GetResultsAsync([NotNull] RedisQuery redisQuery)
         {
             Check.NotNull(redisQuery, "redisQuery");
 
-            var redisPrimaryKeyIndexKeyName =
-                ConstructRedisPrimaryKeyIndexKeyName(redisQuery.EntityType);
-
-            var allKeysForEntity = GetUnderlyingDatabase().SetMembers(redisPrimaryKeyIndexKeyName).AsEnumerable();
-            return allKeysForEntity
-                .Select(compositePrimaryKeyValue =>
-                    GetProjectionQueryObjectsFromDatabase(compositePrimaryKeyValue, redisQuery.EntityType, redisQuery.SelectedProperties, DecodeBytes));
+            return new AsyncEnumerable(this, redisQuery);
         }
 
         /// <summary>
@@ -305,56 +301,105 @@ namespace Microsoft.Data.Entity.Redis
         }
 
         // returns the object array representing all the properties
-        // from an EntityType with a particular primary key
-        private object[] GetEntityQueryObjectsFromDatabase(
-            string compositePrimaryKeyValues, IEntityType entityType, Func<byte[], IProperty, object> decoder)
+        // required by the RedisQuery. Note: if SelectedProperties is
+        // null or empty then return all properties.
+        private object[] GetQueryObjectsFromDatabase(
+            string primaryKey, RedisQuery redisQuery, Func<byte[], IProperty, object> decoder)
         {
-            var results = new object[entityType.Properties.Count];
+            object[] results = null;
+            var dataKeyName = ConstructRedisDataKeyName(redisQuery.EntityType, primaryKey);
 
-            // HGETALL
-            var redisHashEntries = GetUnderlyingDatabase().HashGetAll(
-                ConstructRedisDataKeyName(entityType, compositePrimaryKeyValues))
-                .ToDictionary(he => he.Name, he => he.Value);
-
-            foreach (var property in entityType.Properties)
+            if (redisQuery.SelectedProperties == null
+                || !redisQuery.SelectedProperties.Any())
             {
-                // Note: since null's are stored in the database as the absence of the column name in the hash
-                // need to insert null's into the objectArray at the appropriate places.
-                RedisValue propertyRedisValue;
-                if (redisHashEntries.TryGetValue(property.Name, out propertyRedisValue))
+                results = new object[redisQuery.EntityType.Properties.Count];
+
+                // HGETALL (all properties)
+                var redisHashEntries = GetUnderlyingDatabase().HashGetAll(dataKeyName)
+                    .ToDictionary(he => he.Name, he => he.Value);
+
+                foreach (var property in redisQuery.EntityType.Properties)
                 {
-                    results[property.Index] = decoder(propertyRedisValue, property);
+                    // Note: since null's are stored in the database as the absence of the column name in the hash
+                    // need to insert null's into the objectArray at the appropriate places.
+                    RedisValue propertyRedisValue;
+                    if (redisHashEntries.TryGetValue(property.Name, out propertyRedisValue))
+                    {
+                        results[property.Index] = decoder(propertyRedisValue, property);
+                    }
+                    else
+                    {
+                        results[property.Index] = null;
+                    }
                 }
-                else
+            }
+            else
+            {
+                var selectedPropertiesArray = redisQuery.SelectedProperties.ToArray();
+                results = new object[selectedPropertiesArray.Length];
+
+                // HMGET (selected properties)
+                var fields = selectedPropertiesArray.Select(p => (RedisValue)p.Name).ToArray();
+                var redisHashEntries = GetUnderlyingDatabase().HashGet(dataKeyName, fields);
+                for (var i = 0; i < selectedPropertiesArray.Length; i++)
                 {
-                    results[property.Index] = null;
+                    results[i] =
+                        redisHashEntries[i].IsNull
+                            ? null
+                            : decoder(redisHashEntries[i], selectedPropertiesArray[i]);
                 }
             }
 
             return results;
         }
-
-        /// <returns>
-        ///     returns the object[] representing the set of selected properties from
-        ///     an EntityType with a particular primary key
-        /// </returns>
-        private object[] GetProjectionQueryObjectsFromDatabase(
-            string primaryKey, IEntityType entityType,
-            IEnumerable<IProperty> selectedProperties, Func<byte[], IProperty, object> decoder)
+        
+        // returns the object array representing all the properties
+        // from an EntityType with a particular primary key
+        private async Task<object[]> GetQueryObjectsFromDatabaseAsync(
+            string primaryKey, RedisQuery redisQuery, Func<byte[], IProperty, object> decoder)
         {
-            var selectedPropertiesArray = selectedProperties.ToArray();
-            var results = new object[selectedPropertiesArray.Length];
+            object[] results = null;
+            var dataKeyName = ConstructRedisDataKeyName(redisQuery.EntityType, primaryKey);
 
-            // HMGET
-            var fields = selectedPropertiesArray.Select(p => (RedisValue)p.Name).ToArray();
-            var redisHashEntries = GetUnderlyingDatabase().HashGet(
-                ConstructRedisDataKeyName(entityType, primaryKey), fields);
-            for (var i = 0; i < selectedPropertiesArray.Length; i++)
+            if (redisQuery.SelectedProperties == null
+                || !redisQuery.SelectedProperties.Any())
             {
-                results[i] =
-                    redisHashEntries[i].IsNull
-                        ? null
-                        : decoder(redisHashEntries[i], selectedPropertiesArray[i]);
+                results = new object[redisQuery.EntityType.Properties.Count];
+
+                // Async HGETALL
+                var redisHashEntries = await GetUnderlyingDatabase().HashGetAllAsync(dataKeyName);
+
+                foreach (var property in redisQuery.EntityType.Properties)
+                {
+                    var redisHashEntriesDictionary = redisHashEntries.ToDictionary(he => he.Name, he => he.Value);
+                    // Note: since null's are stored in the database as the absence of the column name in the hash
+                    // need to insert null's into the objectArray at the appropriate places.
+                    RedisValue propertyRedisValue;
+                    if (redisHashEntriesDictionary.TryGetValue(property.Name, out propertyRedisValue))
+                    {
+                        results[property.Index] = decoder(propertyRedisValue, property);
+                    }
+                    else
+                    {
+                        results[property.Index] = null;
+                    }
+                }
+            }
+            else
+            {
+                var selectedPropertiesArray = redisQuery.SelectedProperties.ToArray();
+                results = new object[selectedPropertiesArray.Length];
+
+                // Async HMGET
+                var fields = selectedPropertiesArray.Select(p => (RedisValue)p.Name).ToArray();
+                var redisHashEntries = await GetUnderlyingDatabase().HashGetAsync(dataKeyName, fields);
+                for (var i = 0; i < selectedPropertiesArray.Length; i++)
+                {
+                    results[i] =
+                        redisHashEntries[i].IsNull
+                            ? null
+                            : decoder(redisHashEntries[i], selectedPropertiesArray[i]);
+                }
             }
 
             return results;
@@ -381,6 +426,34 @@ namespace Microsoft.Data.Entity.Redis
 
             // INCRBY
             return GetUnderlyingDatabase().StringIncrement(sequenceName, incrementBy);
+        }
+
+        /// <summary>
+        ///     Get the next generated value for the given property
+        /// </summary>
+        /// <param name="property">the property for which to get the next generated value</param>
+        /// <param name="incrementBy">when getting blocks of values, set this to the block size, otherwise use 1</param>
+        /// <param name="sequenceName">
+        ///     the name under which the generated sequence is kept on the underlying database, can be null
+        ///     to use default name
+        /// </param>
+        /// <param name="cancellationToken">propagates notification that operations should be canceled</param>
+        /// <returns>The next generated value</returns>
+        public virtual Task<long> GetNextGeneratedValueAsync(
+            [NotNull] IProperty property, long incrementBy,
+            [CanBeNull] string sequenceName, CancellationToken cancellationToken)
+        {
+            Check.NotNull(property, "property");
+
+            cancellationToken.ThrowIfCancellationRequested();
+
+            if (sequenceName == null)
+            {
+                sequenceName = ConstructRedisValueGeneratorKeyName(property);
+            }
+
+            // Async INCRBY
+            return GetUnderlyingDatabase().StringIncrementAsync(sequenceName, incrementBy);
         }
 
         private static string EncodeKeyValue([NotNull] object propertyValue)
@@ -509,6 +582,97 @@ namespace Microsoft.Data.Entity.Redis
             }
 
             return value;
+        }
+
+        private sealed class AsyncEnumerable : IAsyncEnumerable<object[]>
+        {
+            private readonly RedisDatabase _redisDatabase;
+            private readonly RedisQuery _redisQuery;
+
+            public AsyncEnumerable(
+                RedisDatabase redisDatabase,
+                RedisQuery redisQuery)
+            {
+                _redisDatabase = redisDatabase;
+                _redisQuery = redisQuery;
+            }
+
+            public IAsyncEnumerator<object[]> GetEnumerator()
+            {
+                return new AsyncEnumerator(this);
+            }
+
+            private sealed class AsyncEnumerator : IAsyncEnumerator<object[]>
+            {
+                private readonly AsyncEnumerable _enumerable;
+                private RedisValue[] _entityKeysForQuery;
+                private int _currentOffset = -1;
+                private object[] _current;
+                private bool _disposed;
+
+                public AsyncEnumerator(AsyncEnumerable enumerable)
+                {
+                    _enumerable = enumerable;
+                }
+
+                public async Task<bool> MoveNext(CancellationToken cancellationToken)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    if (_entityKeysForQuery == null)
+                    {
+                        await InitializeRedisKeys(cancellationToken);
+                    }
+
+                    var hasNext = (++_currentOffset < _entityKeysForQuery.Length);
+                    if (!hasNext)
+                    {
+                        _current = null;
+                        // H.A.C.K.: Workaround https://github.com/Reactive-Extensions/Rx.NET/issues/5
+                        Dispose();
+                        return false;
+                    }
+
+                    _current = await _enumerable._redisDatabase.GetQueryObjectsFromDatabaseAsync(
+                                _entityKeysForQuery[_currentOffset],
+                                _enumerable._redisQuery,
+                                DecodeBytes);
+
+                    return true;
+                }
+
+                private async Task InitializeRedisKeys(CancellationToken cancellationToken)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    var redisPrimaryKeyIndexKeyName =
+                        ConstructRedisPrimaryKeyIndexKeyName(_enumerable._redisQuery.EntityType);
+
+                    _entityKeysForQuery = await _enumerable
+                        ._redisDatabase.GetUnderlyingDatabase().SetMembersAsync(redisPrimaryKeyIndexKeyName);
+                }
+
+                public object[] Current
+                {
+                    get 
+                    {
+                        if (_current == null)
+                        {
+                            throw new InvalidOperationException();
+                        }
+
+                        return _current;
+                    }
+                }
+
+                public void Dispose()
+                {
+                    if (!_disposed)
+                    {
+                        _disposed = true;
+                    }
+                }
+            }
         }
     }
 }

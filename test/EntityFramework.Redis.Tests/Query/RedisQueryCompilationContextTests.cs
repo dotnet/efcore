@@ -10,15 +10,33 @@ namespace Microsoft.Data.Entity.Redis.Tests.Query
     public class RedisQueryCompilationContextTests
     {
         [Fact]
-        public void Can_construct_RedisQueryCompilationContext()
+        public void Can_construct_sync_RedisQueryCompilationContext()
         {
             var model = QueryTestType.Model();
 
-            Assert.DoesNotThrow(() =>
+            var redisQueryCompilationContext =
                 new RedisQueryCompilationContext(
                     model,
                     new LinqOperatorProvider(),
-                    new ResultOperatorHandler()));
+                    new ResultOperatorHandler(),
+                    false);
+
+            Assert.False(redisQueryCompilationContext.IsAsync);
+        }
+
+        [Fact]
+        public void Can_construct_async_RedisQueryCompilationContext()
+        {
+            var model = QueryTestType.Model();
+
+            var redisQueryCompilationContext =
+                new RedisQueryCompilationContext(
+                    model,
+                    new LinqOperatorProvider(),
+                    new ResultOperatorHandler(),
+                    true);
+
+            Assert.True(redisQueryCompilationContext.IsAsync);
         }
 
         [Fact]
@@ -29,7 +47,8 @@ namespace Microsoft.Data.Entity.Redis.Tests.Query
                 new RedisQueryCompilationContext(
                     model,
                     new LinqOperatorProvider(),
-                    new ResultOperatorHandler());
+                    new ResultOperatorHandler(),
+                    false);
 
             var parentVisitor = new RedisQueryModelVisitor(redisQueryCompilationContext);
             var visitor = redisQueryCompilationContext.CreateQueryModelVisitor(parentVisitor);
