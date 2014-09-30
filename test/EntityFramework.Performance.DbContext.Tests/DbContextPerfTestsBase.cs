@@ -1,15 +1,16 @@
-﻿using System.Diagnostics;
-using Microsoft.Framework.ConfigurationModel;
+﻿
 
 namespace DbContextPerfTests
 {
     using System;
     using System.Collections.Generic;
     using System.Data.SqlClient;
+    using System.Diagnostics;
     using System.Linq;
     using Microsoft.Data.Entity;
     using Microsoft.Framework.DependencyInjection;
     using Microsoft.Framework.DependencyInjection.Fallback;
+    using Microsoft.Framework.ConfigurationModel;
     using Model;
 
     public class DbContextPerfTestsBase

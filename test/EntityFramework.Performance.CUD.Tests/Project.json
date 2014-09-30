@@ -13,17 +13,16 @@
             }
         },
         "aspnet50": {
-            "dependencies": {
-            }
+            "dependencies": { }
         }
     },
     "dependencies": {
         "System.Collections": "4.0.0.0",
-        "EntityFramework": "7.0.0-*",
-        "EntityFramework.InMemory": "7.0.0-*",
-        "EntityFramework.Migrations": "7.0.0-*",
-        "EntityFramework.Relational": "7.0.0-*",
-        "EntityFramework.SqlServer": "7.0.0-*",
+        "EntityFramework": "",
+        "EntityFramework.InMemory": "",
+        "EntityFramework.Migrations": "",
+        "EntityFramework.Relational": "",
+        "EntityFramework.SqlServer": "",
         "Microsoft.Framework.ConfigurationModel": "1.0.0-*",
         "Microsoft.Framework.ConfigurationModel.Json": "1.0.0-*",
         "Newtonsoft.Json": "5.0.8",

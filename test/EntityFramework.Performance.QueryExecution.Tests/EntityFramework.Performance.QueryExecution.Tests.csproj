@@ -7,8 +7,8 @@
     <ProjectGuid>{9216D88D-CE9E-456F-9B77-1C43171633CB}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>QueryExecution</RootNamespace>
-    <AssemblyName>QueryExecution</AssemblyName>
+    <RootNamespace>EntityFramework.Performance.QueryExecution.Tests</RootNamespace>
+    <AssemblyName>EntityFramework.Performance.QueryExecution.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -33,21 +33,17 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="EntityFramework, Version=7.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\EntityFramework.7.0.0-beta1-10966\lib\net45\EntityFramework.dll</HintPath>
-    </Reference>
     <Reference Include="EntityFramework.Migrations, Version=7.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\EntityFramework.Migrations.7.0.0-beta1-10966\lib\portable-net451+win81+wpa81\EntityFramework.Migrations.dll</HintPath>
+      <HintPath>..\..\src\EntityFramework.Migrations\bin\Debug\EntityFramework.Migrations.dll</HintPath>
     </Reference>
     <Reference Include="EntityFramework.Relational, Version=7.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\EntityFramework.Relational.7.0.0-beta1-10966\lib\portable-net451+win81+wpa81\EntityFramework.Relational.dll</HintPath>
+      <HintPath>..\..\src\EntityFramework.Relational\bin\Debug\EntityFramework.Relational.dll</HintPath>
     </Reference>
     <Reference Include="EntityFramework.SqlServer, Version=7.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\EntityFramework.SqlServer.7.0.0-beta1-10966\lib\net451\EntityFramework.SqlServer.dll</HintPath>
+      <HintPath>..\..\src\EntityFramework.SqlServer\bin\Debug\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Framework.ConfigurationModel, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -177,7 +173,13 @@
     <None Include="LocalConfig.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="packages.config" />
+    <None Include="Project.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\EntityFramework\EntityFramework.csproj">
+      <Project>{71415cec-8111-4c73-8751-512d22f10602}</Project>
+      <Name>EntityFramework</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -7,8 +7,8 @@
     <ProjectGuid>{0DC8A4B7-05A2-465E-9203-F41102B1A69F}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Cud</RootNamespace>
-    <AssemblyName>EF7-Cud</AssemblyName>
+    <RootNamespace>EntityFramework.Performance.CUD.Tests</RootNamespace>
+    <AssemblyName>EntityFramework.Performance.CUD.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -33,16 +33,16 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="EntityFramework">
-      <HintPath>..\..\..\..\packages\EntityFramework.7.0.0-alpha4-10606\lib\net45\EntityFramework.dll</HintPath>
+      <HintPath>..\..\src\EntityFramework\bin\Debug\EntityFramework.dll</HintPath>
     </Reference>
     <Reference Include="EntityFramework.Migrations">
-      <HintPath>..\..\..\..\packages\EntityFramework.Migrations.7.0.0-alpha4-10606\lib\net451\EntityFramework.Migrations.dll</HintPath>
+      <HintPath>..\..\src\EntityFramework.Migrations\bin\Debug\EntityFramework.Migrations.dll</HintPath>
     </Reference>
     <Reference Include="EntityFramework.Relational">
-      <HintPath>..\..\..\..\packages\EntityFramework.Relational.7.0.0-alpha4-10606\lib\net451\EntityFramework.Relational.dll</HintPath>
+      <HintPath>..\..\src\EntityFramework.Relational\bin\Debug\EntityFramework.Relational.dll</HintPath>
     </Reference>
     <Reference Include="EntityFramework.SqlServer">
-      <HintPath>..\..\..\..\packages\EntityFramework.SqlServer.7.0.0-alpha4-10606\lib\net451\EntityFramework.SqlServer.dll</HintPath>
+      <HintPath>..\..\src\EntityFramework.SqlServer\bin\Debug\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Framework.ConfigurationModel">
       <HintPath>..\..\..\..\packages\Microsoft.Framework.ConfigurationModel.1.0.0-alpha4-10243\lib\net45\Microsoft.Framework.ConfigurationModel.dll</HintPath>
@@ -121,7 +121,6 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="LocalConfig.json" />
-    <None Include="packages.config" />
     <None Include="Project.json" />
   </ItemGroup>
   <ItemGroup>
