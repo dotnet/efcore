@@ -36,7 +36,9 @@ namespace Microsoft.Data.Entity.SqlServer
             Check.NotNull(property, "property");
 
             var commandInfo = PrepareCommand(stateEntry.Configuration);
-            return (long)_executor.ExecuteScalar(commandInfo.Item1.DbConnection, commandInfo.Item1.DbTransaction, commandInfo.Item2);
+            var nextValue = _executor.ExecuteScalar(commandInfo.Item1.DbConnection, commandInfo.Item1.DbTransaction, commandInfo.Item2);
+
+            return (long)Convert.ChangeType(nextValue, typeof(long), CultureInfo.InvariantCulture);
         }
 
         public override async Task<long> GetNewCurrentValueAsync(StateEntry stateEntry, IProperty property, CancellationToken cancellationToken)
@@ -45,9 +47,11 @@ namespace Microsoft.Data.Entity.SqlServer
             Check.NotNull(property, "property");
 
             var commandInfo = PrepareCommand(stateEntry.Configuration);
-            return (long)await _executor
+            var nextValue = await _executor
                 .ExecuteScalarAsync(commandInfo.Item1.DbConnection, commandInfo.Item1.DbTransaction, commandInfo.Item2, cancellationToken)
                 .WithCurrentCulture();
+
+            return (long)Convert.ChangeType(nextValue, typeof(long), CultureInfo.InvariantCulture);
         }
 
         private Tuple<RelationalConnection, SqlStatement> PrepareCommand(DbContextConfiguration contextConfiguration)

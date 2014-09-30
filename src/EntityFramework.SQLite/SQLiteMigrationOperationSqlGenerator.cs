@@ -41,25 +41,56 @@ namespace Microsoft.Data.Entity.SQLite
             CreateDatabaseOperation createDatabaseOperation,
             IndentedStringBuilder stringBuilder)
         {
-            throw new NotSupportedException();
+            throw new NotSupportedException(Strings.FormatMigrationOperationNotSupported(
+                GetType(), createDatabaseOperation.GetType()));
         }
 
         public override void Generate(
             DropDatabaseOperation dropDatabaseOperation,
             IndentedStringBuilder stringBuilder)
         {
-            throw new NotSupportedException();
+            throw new NotSupportedException(Strings.FormatMigrationOperationNotSupported(
+                GetType(), dropDatabaseOperation.GetType()));
         }
 
         public override void Generate(
             CreateSequenceOperation createSequenceOperation,
             IndentedStringBuilder stringBuilder)
         {
-            throw new NotSupportedException();
+            throw new NotSupportedException(Strings.FormatMigrationOperationNotSupported(
+                GetType(), createSequenceOperation.GetType()));
         }
 
-        public override void Generate(DropSequenceOperation dropSequenceOperation, IndentedStringBuilder stringBuilder)
+        public override void Generate(
+            DropSequenceOperation dropSequenceOperation,
+            IndentedStringBuilder stringBuilder)
         {
+            throw new NotSupportedException(Strings.FormatMigrationOperationNotSupported(
+                GetType(), dropSequenceOperation.GetType()));
+        }
+
+        public override void Generate(
+            MoveSequenceOperation moveSequenceOperation,
+            IndentedStringBuilder stringBuilder)
+        {
+            throw new NotSupportedException(Strings.FormatMigrationOperationNotSupported(
+                GetType(), moveSequenceOperation.GetType()));
+        }
+
+        public override void Generate(
+            RenameSequenceOperation renameSequenceOperation,
+            IndentedStringBuilder stringBuilder)
+        {
+            throw new NotSupportedException(Strings.FormatMigrationOperationNotSupported(
+                GetType(), renameSequenceOperation.GetType()));
+        }
+
+        public override void Generate(
+            AlterSequenceOperation alterSequenceOperation,
+            IndentedStringBuilder stringBuilder)
+        {
+            throw new NotSupportedException(Strings.FormatMigrationOperationNotSupported(
+                GetType(), alterSequenceOperation.GetType()));
         }
 
         protected override void GenerateTableConstraints(

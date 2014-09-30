@@ -119,15 +119,21 @@ namespace Microsoft.Data.Entity.Migrations
             _targetMapping = _databaseBuilder.GetMapping(targetModel);
             _operations = new MigrationOperationCollection();
 
-            DiffSequences();
-            DiffTables();
+            Dictionary<Column, Column> columnMap;
+            DiffTables(out columnMap);
+            DiffSequences(columnMap);
 
             // TODO: Add more unit tests for the operation order.
 
             HandleTransitiveRenames();
 
             return
-                ((IEnumerable<MigrationOperation>)_operations.Get<DropIndexOperation>())
+                ((IEnumerable<MigrationOperation>)_operations.Get<DropSequenceOperation>())
+                    .Concat(_operations.Get<MoveSequenceOperation>())
+                    .Concat(_operations.Get<RenameSequenceOperation>())
+                    .Concat(_operations.Get<AlterSequenceOperation>())
+                    .Concat(_operations.Get<CreateSequenceOperation>())
+                    .Concat(_operations.Get<DropIndexOperation>())
                     .Concat(_operations.Get<DropForeignKeyOperation>())
                     .Concat(_operations.Get<DropPrimaryKeyOperation>())
                     .Concat(_operations.Get<DropColumnOperation>())
@@ -145,16 +151,11 @@ namespace Microsoft.Data.Entity.Migrations
                     .ToArray();
         }
 
-        private void DiffSequences()
-        {
-            // TODO: Not implemented.
-        }
-
-        private void DiffTables()
+        private void DiffTables(out Dictionary<Column, Column> columnMap)
         {
             var tablePairs = FindTablePairs(FindEntityTypePairs());
             var columnPairs = new IReadOnlyList<Tuple<Column, Column>>[tablePairs.Count];
-            var columnMap = new Dictionary<Column, Column>();
+            columnMap = new Dictionary<Column, Column>();
 
             for (var i = 0; i < tablePairs.Count; i++)
             {
@@ -198,25 +199,55 @@ namespace Microsoft.Data.Entity.Migrations
             }
         }
 
+        private void DiffSequences(Dictionary<Column, Column> columnMap)
+        {
+            Check.NotNull(columnMap, "columnMap");
+
+            var sequencePairs = FindSequencePairs(columnMap);
+
+            FindMovedSequences(sequencePairs);
+            FindRenamedSequences(sequencePairs);
+            FindCreatedSequences(sequencePairs);
+            FindDroppedSequences(sequencePairs);
+            FindAlteredSequences(sequencePairs);
+        }
+
         private void HandleTransitiveRenames()
         {
             const string temporaryNamePrefix = "__mig_tmp__";
             var temporaryNameIndex = 0;
 
-            _operations.Set(
-                HandleTransitiveRenames(
-                    _operations.Get<RenameTableOperation>(), op => null, op => op.TableName, op => new SchemaQualifiedName(op.NewTableName, op.TableName.Schema), op => new SchemaQualifiedName(temporaryNamePrefix + temporaryNameIndex++, op.TableName.Schema), (parentName, name, newName)
-                        => new RenameTableOperation(name, SchemaQualifiedName.Parse(newName).Name)));
+            _operations.Set(HandleTransitiveRenames(
+                _operations.Get<RenameSequenceOperation>(),
+                op => null,
+                op => op.SequenceName,
+                op => new SchemaQualifiedName(op.NewSequenceName, op.SequenceName.Schema),
+                op => new SchemaQualifiedName(temporaryNamePrefix + temporaryNameIndex++, op.SequenceName.Schema),
+                (parentName, name, newName) => new RenameSequenceOperation(name, SchemaQualifiedName.Parse(newName).Name)));
 
-            _operations.Set(
-                HandleTransitiveRenames(
-                    _operations.Get<RenameColumnOperation>(), op => op.TableName, op => op.ColumnName, op => op.NewColumnName, op => temporaryNamePrefix + temporaryNameIndex++, (parentName, name, newName)
-                        => new RenameColumnOperation(parentName, name, newName)));
+            _operations.Set(HandleTransitiveRenames(
+                _operations.Get<RenameTableOperation>(),
+                op => null, 
+                op => op.TableName, 
+                op => new SchemaQualifiedName(op.NewTableName, op.TableName.Schema), 
+                op => new SchemaQualifiedName(temporaryNamePrefix + temporaryNameIndex++, op.TableName.Schema), 
+                (parentName, name, newName) => new RenameTableOperation(name, SchemaQualifiedName.Parse(newName).Name)));
 
-            _operations.Set(
-                HandleTransitiveRenames(
-                    _operations.Get<RenameIndexOperation>(), op => op.TableName, op => op.IndexName, op => op.NewIndexName, op => temporaryNamePrefix + temporaryNameIndex++, (parentName, name, newName)
-                        => new RenameIndexOperation(parentName, name, newName)));
+            _operations.Set(HandleTransitiveRenames(
+                _operations.Get<RenameColumnOperation>(), 
+                op => op.TableName, 
+                op => op.ColumnName, 
+                op => op.NewColumnName, 
+                op => temporaryNamePrefix + temporaryNameIndex++, 
+                (parentName, name, newName) => new RenameColumnOperation(parentName, name, newName)));
+
+            _operations.Set(HandleTransitiveRenames(
+                _operations.Get<RenameIndexOperation>(), 
+                op => op.TableName, 
+                op => op.IndexName, 
+                op => op.NewIndexName, 
+                op => temporaryNamePrefix + temporaryNameIndex++, 
+                (parentName, name, newName) => new RenameIndexOperation(parentName, name, newName)));
         }
 
         private static IEnumerable<T> HandleTransitiveRenames<T>(
@@ -580,6 +611,74 @@ namespace Microsoft.Data.Entity.Migrations
                             idx.Name)));
         }
 
+        private IReadOnlyList<Tuple<Sequence, Sequence>> FindSequencePairs(Dictionary<Column, Column> columnMap)
+        {
+            return
+                (from columnPair in columnMap
+                    let sourceSequenceName = GetSequenceName(columnPair.Key)
+                    where sourceSequenceName != null
+                    let targetSequenceName = GetSequenceName(columnPair.Value)
+                    where targetSequenceName != null
+                    let sourceSequence = _sourceMapping.Database.GetSequence(sourceSequenceName)
+                    let targetSequence = _targetMapping.Database.GetSequence(targetSequenceName)
+                    where SimpleMatchSequences(sourceSequence, targetSequence)
+                    select Tuple.Create(sourceSequence, targetSequence))
+                    .ToList();
+        }
+
+        private void FindMovedSequences(IEnumerable<Tuple<Sequence, Sequence>> sequencePairs)
+        {
+            _operations.AddRange(
+                sequencePairs
+                    .Where(pair =>
+                        pair.Item1.Name.Schema != pair.Item2.Name.Schema)
+                    .Select(pair =>
+                        new MoveSequenceOperation(
+                            pair.Item1.Name,
+                            pair.Item2.Name.Schema)));
+        }
+
+        private void FindRenamedSequences(IEnumerable<Tuple<Sequence, Sequence>> sequencePairs)
+        {
+            _operations.AddRange(
+                sequencePairs
+                    .Where(pair =>
+                        pair.Item1.Name.Name != pair.Item2.Name.Name)
+                    .Select(pair =>
+                        new RenameSequenceOperation(
+                            new SchemaQualifiedName(
+                                pair.Item1.Name.Name,
+                                pair.Item2.Name.Schema),
+                            pair.Item2.Name.Name)));
+        }
+
+        private void FindCreatedSequences(IEnumerable<Tuple<Sequence, Sequence>> sequencePairs)
+        {
+            _operations.AddRange(
+                _targetMapping.Database.Sequences
+                    .Except(sequencePairs.Select(p => p.Item2))
+                    .Select(s => new CreateSequenceOperation(s)));
+        }
+
+        private void FindDroppedSequences(IEnumerable<Tuple<Sequence, Sequence>> sequencePairs)
+        {
+            _operations.AddRange(
+                _sourceMapping.Database.Sequences
+                    .Except(sequencePairs.Select(p => p.Item1))
+                    .Select(s => new DropSequenceOperation(s.Name)));
+        }
+
+        private void FindAlteredSequences(IEnumerable<Tuple<Sequence, Sequence>> sequencePairs)
+        {
+            _operations.AddRange(
+                sequencePairs
+                    .Where(pair => !EquivalentSequences(pair.Item1, pair.Item2))
+                    .Select(pair =>
+                        new AlterSequenceOperation(
+                            pair.Item2.Name,
+                            pair.Item2.IncrementBy)));
+        }
+
         protected virtual bool SimpleMatchEntityTypes([NotNull] IEntityType sourceEntityType, [NotNull] IEntityType targetEntityType)
         {
             Check.NotNull(sourceEntityType, "sourceEntityType");
@@ -640,6 +739,24 @@ namespace Microsoft.Data.Entity.Migrations
                 && sourceColumn.Scale == targetColumn.Scale
                 && sourceColumn.IsFixedLength == targetColumn.IsFixedLength
                 && sourceColumn.IsUnicode == targetColumn.IsUnicode;
+        }
+
+        protected virtual bool SimpleMatchSequences([NotNull] Sequence sourceSequence, [NotNull] Sequence targetSequence)
+        {
+            Check.NotNull(sourceSequence, "sourceSequence");
+            Check.NotNull(targetSequence, "targetSequence");
+
+            return
+                sourceSequence.DataType == targetSequence.DataType;
+        }
+
+        protected virtual bool EquivalentSequences([NotNull] Sequence sourceSequence, [NotNull] Sequence targetSequence)
+        {
+            Check.NotNull(sourceSequence, "sourceSequence");
+            Check.NotNull(targetSequence, "targetSequence");
+
+            return 
+                sourceSequence.IncrementBy == targetSequence.IncrementBy;
         }
 
         protected virtual bool SimpleMatchColumns([NotNull] Column sourceColumn, [NotNull] Column targetColumn)
@@ -723,7 +840,12 @@ namespace Microsoft.Data.Entity.Migrations
                 && !sourceColumns.Where((t, i) => !MatchColumnReferences(t, targetColumns[i], columnMap)).Any();
         }
 
-        private class MigrationOperationCollection
+        protected virtual string GetSequenceName([NotNull] Column column)
+        {
+            return null;
+        }
+
+        protected class MigrationOperationCollection
         {
             private readonly Dictionary<Type, List<MigrationOperation>> _allOperations
                 = new Dictionary<Type, List<MigrationOperation>>();

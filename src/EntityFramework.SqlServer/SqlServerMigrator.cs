@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.SqlServer
             [NotNull] DbContextConfiguration contextConfiguration,
             [NotNull] HistoryRepository historyRepository,
             [NotNull] MigrationAssembly migrationAssembly,
-            [NotNull] ModelDiffer modelDiffer,
+            [NotNull] SqlServerModelDiffer modelDiffer,
             [NotNull] SqlServerMigrationOperationSqlGeneratorFactory sqlGeneratorFactory,
             [NotNull] SqlServerSqlGenerator sqlGenerator,
             [NotNull] SqlStatementExecutor sqlStatementExecutor)

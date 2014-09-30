@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using System.Globalization;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
@@ -33,7 +35,8 @@ namespace Microsoft.Data.Entity.Metadata
             return property.EntityType.Keys.SelectMany(e => e.Properties).Contains(property);
         }
 
-        public static string FindAnnotationInHierarchy([NotNull] this IProperty property, [NotNull] string name)
+        public static string FindAnnotationInHierarchy([NotNull] this IProperty property, [NotNull] string name,
+            [CanBeNull] string defaultValue = null)
         {
             Check.NotNull(property, "property");
             Check.NotEmpty(name, "name");
@@ -51,7 +54,20 @@ namespace Microsoft.Data.Entity.Metadata
                 return value;
             }
 
-            return property.EntityType.Model[name];
+            return property.EntityType.Model[name] ?? defaultValue;
+        }
+
+        public static T FindAnnotationInHierarchy<T>([NotNull] this IProperty property, [NotNull] string name,
+            [CanBeNull] T defaultValue = default(T))
+        {
+            Check.NotNull(property, "property");
+            Check.NotEmpty(name, "name");
+
+            var valueString = property.FindAnnotationInHierarchy(name);
+
+            return valueString != null 
+                ? (T)Convert.ChangeType(valueString, typeof(T), CultureInfo.InvariantCulture) 
+                : defaultValue;
         }
     }
 }

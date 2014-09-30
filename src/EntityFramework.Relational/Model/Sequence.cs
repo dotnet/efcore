@@ -9,14 +9,10 @@ namespace Microsoft.Data.Entity.Relational.Model
     // TODO: Consider adding more validation.
     public class Sequence
     {
-        private readonly SchemaQualifiedName _name;
-        private int _incrementBy = 1;
-        private string _dataType = "BIGINT";
-
-        public Sequence(SchemaQualifiedName name)
-        {
-            _name = name;
-        }
+        private SchemaQualifiedName _name;
+        private string _dataType;
+        private int _startWith;
+        private int _incrementBy;
 
         public Sequence(SchemaQualifiedName name, [NotNull] string dataType, int startWith, int incrementBy)
         {
@@ -24,16 +20,21 @@ namespace Microsoft.Data.Entity.Relational.Model
 
             _name = name;
             _dataType = dataType;
-            StartWith = startWith;
+            _startWith = startWith;
             _incrementBy = incrementBy;
         }
 
         public virtual SchemaQualifiedName Name
         {
             get { return _name; }
+            set { _name = value; }
         }
 
-        public virtual int StartWith { get; set; }
+        public virtual int StartWith
+        {
+            get { return _startWith; }
+            set { _startWith = value; }
+        }
 
         public virtual int IncrementBy
         {

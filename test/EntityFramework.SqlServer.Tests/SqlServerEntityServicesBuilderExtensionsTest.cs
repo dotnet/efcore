@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 .UseLoggerFactory<NullLoggerFactory>();
 
             // Relational
-            Assert.True(services.Any(sd => sd.ServiceType == typeof(DatabaseBuilder)));
+            Assert.True(services.Any(sd => sd.ServiceType == typeof(SqlServerDatabaseBuilder)));
             Assert.True(services.Any(sd => sd.ServiceType == typeof(RelationalObjectArrayValueReaderFactory)));
             Assert.True(services.Any(sd => sd.ServiceType == typeof(RelationalTypedValueReaderFactory)));
             Assert.True(services.Any(sd => sd.ServiceType == typeof(CommandBatchPreparer)));
@@ -47,7 +47,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             // SQL Server scoped
             Assert.True(services.Any(sd => sd.ServiceType == typeof(SqlServerDataStore)));
             Assert.True(services.Any(sd => sd.ServiceType == typeof(SqlServerConnection)));
-            Assert.True(services.Any(sd => sd.ServiceType == typeof(ModelDiffer)));
+            Assert.True(services.Any(sd => sd.ServiceType == typeof(SqlServerModelDiffer)));
             Assert.True(services.Any(sd => sd.ServiceType == typeof(SqlServerMigrationOperationSqlGeneratorFactory)));
             Assert.True(services.Any(sd => sd.ServiceType == typeof(SqlServerDataStoreCreator)));
             Assert.True(services.Any(sd => sd.ServiceType == typeof(MigrationAssembly)));
@@ -71,7 +71,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             var scopedProvider = context.Configuration.Services.ServiceProvider;
 
-            var databaseBuilder = scopedProvider.GetService<DatabaseBuilder>();
+            var databaseBuilder = scopedProvider.GetService<SqlServerDatabaseBuilder>();
             var arrayReaderFactory = scopedProvider.GetService<RelationalObjectArrayValueReaderFactory>();
             var typedReaderFactory = scopedProvider.GetService<RelationalTypedValueReaderFactory>();
             var batchPreparer = scopedProvider.GetService<CommandBatchPreparer>();
@@ -87,7 +87,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             var sqlServerDataStore = scopedProvider.GetService<SqlServerDataStore>();
             var sqlServerConnection = scopedProvider.GetService<SqlServerConnection>();
-            var modelDiffer = scopedProvider.GetService<ModelDiffer>();
+            var modelDiffer = scopedProvider.GetService<SqlServerModelDiffer>();
             var serverMigrationOperationSqlGeneratorFactory = scopedProvider.GetService<SqlServerMigrationOperationSqlGeneratorFactory>();
             var sqlServerDataStoreCreator = scopedProvider.GetService<SqlServerDataStoreCreator>();
             var migrationAssembly = scopedProvider.GetService<MigrationAssembly>();
@@ -126,7 +126,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             scopedProvider = context.Configuration.Services.ServiceProvider;
 
             // Dingletons
-            Assert.Same(databaseBuilder, scopedProvider.GetService<DatabaseBuilder>());
+            Assert.Same(databaseBuilder, scopedProvider.GetService<SqlServerDatabaseBuilder>());
             Assert.Same(arrayReaderFactory, scopedProvider.GetService<RelationalObjectArrayValueReaderFactory>());
             Assert.Same(typedReaderFactory, scopedProvider.GetService<RelationalTypedValueReaderFactory>());
             Assert.Same(modificationCommandComparer, scopedProvider.GetService<ModificationCommandComparer>());
@@ -143,7 +143,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             Assert.NotSame(sqlServerDataStoreSource, scopedProvider.GetService<DataStoreSource>());
             Assert.NotSame(sqlServerDataStore, scopedProvider.GetService<SqlServerDataStore>());
             Assert.NotSame(sqlServerConnection, scopedProvider.GetService<SqlServerConnection>());
-            Assert.NotSame(modelDiffer, scopedProvider.GetService<ModelDiffer>());
+            Assert.NotSame(modelDiffer, scopedProvider.GetService<SqlServerModelDiffer>());
             Assert.NotSame(serverMigrationOperationSqlGeneratorFactory, scopedProvider.GetService<SqlServerMigrationOperationSqlGeneratorFactory>());
             Assert.NotSame(sqlServerDataStoreCreator, scopedProvider.GetService<SqlServerDataStoreCreator>());
             Assert.NotSame(migrationAssembly, scopedProvider.GetService<MigrationAssembly>());

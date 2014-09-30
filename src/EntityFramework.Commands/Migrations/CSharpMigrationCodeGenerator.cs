@@ -285,6 +285,45 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 .Append(")");
         }
 
+        public override void Generate(RenameSequenceOperation renameSequenceOperation, IndentedStringBuilder stringBuilder)
+        {
+            Check.NotNull(renameSequenceOperation, "renameSequenceOperation");
+            Check.NotNull(stringBuilder, "stringBuilder");
+
+            stringBuilder
+                .Append("RenameSequence(")
+                .Append(GenerateLiteral(renameSequenceOperation.SequenceName))
+                .Append(", ")
+                .Append(GenerateLiteral(renameSequenceOperation.NewSequenceName))
+                .Append(")");
+        }
+
+        public override void Generate(MoveSequenceOperation moveSequenceOperation, IndentedStringBuilder stringBuilder)
+        {
+            Check.NotNull(moveSequenceOperation, "moveSequenceOperation");
+            Check.NotNull(stringBuilder, "stringBuilder");
+
+            stringBuilder
+                .Append("MoveSequence(")
+                .Append(GenerateLiteral(moveSequenceOperation.SequenceName))
+                .Append(", ")
+                .Append(GenerateLiteral(moveSequenceOperation.NewSchema))
+                .Append(")");
+        }
+
+        public override void Generate(AlterSequenceOperation alterSequenceOperation, IndentedStringBuilder stringBuilder)
+        {
+            Check.NotNull(alterSequenceOperation, "alterSequenceOperation");
+            Check.NotNull(stringBuilder, "stringBuilder");
+
+            stringBuilder
+                .Append("AlterSequence(")
+                .Append(GenerateLiteral(alterSequenceOperation.SequenceName))
+                .Append(", ")
+                .Append(GenerateLiteral(alterSequenceOperation.NewIncrementBy))
+                .Append(")");
+        }
+
         public override void Generate(CreateTableOperation createTableOperation, IndentedStringBuilder stringBuilder)
         {
             Check.NotNull(createTableOperation, "createTableOperation");

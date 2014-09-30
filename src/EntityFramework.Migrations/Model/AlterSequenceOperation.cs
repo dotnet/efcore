@@ -1,34 +1,33 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.Data.Entity.Migrations.Utilities;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Migrations.Model
 {
-    public class RenameTableOperation : MigrationOperation
+    public class AlterSequenceOperation : MigrationOperation
     {
-        private readonly SchemaQualifiedName _tableName;
-        private readonly string _newTableName;
+        private readonly SchemaQualifiedName _sequenceName;
+        private readonly int _newIncrementBy;
 
-        public RenameTableOperation(SchemaQualifiedName tableName, [NotNull] string newTableName)
+        public AlterSequenceOperation(SchemaQualifiedName sequenceName, int newIncrementBy)
         {
-            Check.NotEmpty(newTableName, "newTableName");
+            Check.NotNull(newIncrementBy, "newIncrementBy");
 
-            _tableName = tableName;
-            _newTableName = newTableName;
+            _sequenceName = sequenceName;
+            _newIncrementBy = newIncrementBy;
         }
 
-        public virtual SchemaQualifiedName TableName
+        public virtual SchemaQualifiedName SequenceName
         {
-            get { return _tableName; }
+            get { return _sequenceName; }
         }
 
-        public virtual string NewTableName
+        public virtual int NewIncrementBy
         {
-            get { return _newTableName; }
+            get { return _newIncrementBy; }
         }
 
         public override void Accept<TVisitor, TContext>(TVisitor visitor, TContext context)

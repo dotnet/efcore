@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Model
         [Fact]
         public void Create_and_initialize_operation()
         {
-            var sequence = new Sequence("dbo.MySequence");
+            var sequence = new Sequence("dbo.MySequence", "bigint", 0, 1);
             var createSequenceOperation = new CreateSequenceOperation(sequence);
 
             Assert.Same(sequence, createSequenceOperation.Sequence);
@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Model
         [Fact]
         public void Dispatches_visitor()
         {
-            var createSequenceOperation = new CreateSequenceOperation(new Sequence("dbo.MySequence"));
+            var createSequenceOperation = new CreateSequenceOperation(new Sequence("dbo.MySequence", "bigint", 0, 1));
             var mockVisitor = new Mock<MigrationOperationSqlGenerator>(new RelationalTypeMapper());
             var builder = new Mock<IndentedStringBuilder>();
             createSequenceOperation.GenerateSql(mockVisitor.Object, builder.Object);

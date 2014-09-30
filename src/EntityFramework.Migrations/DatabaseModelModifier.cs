@@ -52,6 +52,33 @@ namespace Microsoft.Data.Entity.Migrations
             databaseModel.RemoveSequence(dropSequenceOperation.SequenceName);
         }
 
+        public override void Visit(RenameSequenceOperation renameSequenceOperation, DatabaseModel databaseModel)
+        {
+            Check.NotNull(renameSequenceOperation, "renameSequenceOperation");
+            Check.NotNull(databaseModel, "databaseModel");
+
+            var sequence = databaseModel.GetSequence(renameSequenceOperation.SequenceName);
+            sequence.Name = new SchemaQualifiedName(renameSequenceOperation.NewSequenceName, renameSequenceOperation.SequenceName.Schema);
+        }
+
+        public override void Visit(MoveSequenceOperation moveSequenceOperation, DatabaseModel databaseModel)
+        {
+            Check.NotNull(moveSequenceOperation, "moveSequenceOperation");
+            Check.NotNull(databaseModel, "databaseModel");
+
+            var sequence = databaseModel.GetSequence(moveSequenceOperation.SequenceName);
+            sequence.Name = new SchemaQualifiedName(moveSequenceOperation.SequenceName.Name, moveSequenceOperation.NewSchema);
+        }
+
+        public override void Visit(AlterSequenceOperation alterSequenceOperation, DatabaseModel databaseModel)
+        {
+            Check.NotNull(alterSequenceOperation, "alterSequenceOperation");
+            Check.NotNull(databaseModel, "databaseModel");
+
+            var sequence = databaseModel.GetSequence(alterSequenceOperation.SequenceName);
+            sequence.IncrementBy = alterSequenceOperation.NewIncrementBy;
+        }
+
         public override void Visit(CreateTableOperation createTableOperation, DatabaseModel databaseModel)
         {
             Check.NotNull(createTableOperation, "createTableOperation");

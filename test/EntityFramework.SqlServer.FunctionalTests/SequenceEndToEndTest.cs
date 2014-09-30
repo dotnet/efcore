@@ -5,7 +5,6 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Services;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Advanced;
@@ -30,9 +29,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 context.Database.EnsureDeleted();
                 context.Database.EnsureCreated();
-
-                // TODO: Integrate sequence generation into Migrations
-                CreateDatabaseSequence(context, context.Database.AsRelational().Connection);
             }
 
             AddEntities(serviceProvider);
@@ -89,9 +85,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 context.Database.EnsureDeleted();
                 context.Database.EnsureCreated();
-
-                // TODO: Integrate sequence generation into Migrations
-                CreateDatabaseSequence(context, context.Database.AsRelational().Connection);
             }
 
             await AddEntitiesAsync(serviceProvider, "BroniesAsync");
@@ -148,9 +141,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 context.Database.EnsureDeleted();
                 context.Database.EnsureCreated();
-
-                // TODO: Integrate sequence generation into Migrations
-                CreateDatabaseSequence(context, context.Database.AsRelational().Connection);
             }
 
             const int threadCount = 50;
@@ -195,9 +185,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 context.Database.EnsureDeleted();
                 context.Database.EnsureCreated();
-
-                // TODO: Integrate sequence generation into Migrations
-                CreateDatabaseSequence(context, context.Database.AsRelational().Connection);
             }
 
             AddEntitiesWithIds(serviceProvider, 0);
@@ -243,23 +230,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                 context.SaveChanges();
             }
-        }
-
-        private static void CreateDatabaseSequence(BronieContext context, RelationalConnection storeConnection)
-        {
-            var executor = new SqlStatementExecutor(new NullLoggerFactory());
-
-            var operations = new SqlServerSequenceValueGeneratorFactory(executor)
-                .GetUpMigrationOperations(context.Model.GetEntityType(typeof(Pegasus))
-                    .GetProperty("Identifier"));
-
-            var sql = new SqlServerMigrationOperationSqlGeneratorFactory().Create()
-                .Generate(operations);
-
-            // TODO: Should be able to get relational connection without cast
-            var connection = storeConnection.DbConnection;
-
-            executor.ExecuteNonQuery(connection, storeConnection.DbTransaction, sql);
         }
 
         private class BronieContext : DbContext

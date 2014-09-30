@@ -91,7 +91,23 @@ namespace Microsoft.Data.Entity.SqlServer
         }
 
         /// <summary>
-        /// The value provided for the SQL Server sequence block size must be positive.
+        /// The start value provided for the SQL Server sequence must be an integer.
+        /// </summary>
+        internal static string SequenceBadStartWith
+        {
+            get { return GetString("SequenceBadStartWith"); }
+        }
+
+        /// <summary>
+        /// The start value provided for the SQL Server sequence must be an integer.
+        /// </summary>
+        internal static string FormatSequenceBadStartWith()
+        {
+            return GetString("SequenceBadStartWith");
+        }
+
+        /// <summary>
+        /// The value provided for the SQL Server sequence block size must be a positive integer.
         /// </summary>
         internal static string SequenceBadBlockSize
         {
@@ -99,7 +115,7 @@ namespace Microsoft.Data.Entity.SqlServer
         }
 
         /// <summary>
-        /// The value provided for the SQL Server sequence block size must be positive.
+        /// The value provided for the SQL Server sequence block size must be a positive integer.
         /// </summary>
         internal static string FormatSequenceBadBlockSize()
         {

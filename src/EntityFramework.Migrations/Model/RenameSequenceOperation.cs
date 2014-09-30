@@ -8,27 +8,28 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Migrations.Model
 {
-    public class RenameTableOperation : MigrationOperation
+    // TODO: Consider merging all remove operations into one.
+    public class RenameSequenceOperation : MigrationOperation
     {
-        private readonly SchemaQualifiedName _tableName;
-        private readonly string _newTableName;
+        private readonly SchemaQualifiedName _sequenceName;
+        private readonly string _newSequenceName;
 
-        public RenameTableOperation(SchemaQualifiedName tableName, [NotNull] string newTableName)
+        public RenameSequenceOperation(SchemaQualifiedName sequenceName, [NotNull] string newSequenceName)
         {
-            Check.NotEmpty(newTableName, "newTableName");
+            Check.NotEmpty(newSequenceName, "newSequenceName");
 
-            _tableName = tableName;
-            _newTableName = newTableName;
+            _sequenceName = sequenceName;
+            _newSequenceName = newSequenceName;
         }
 
-        public virtual SchemaQualifiedName TableName
+        public virtual SchemaQualifiedName SequenceName
         {
-            get { return _tableName; }
+            get { return _sequenceName; }
         }
 
-        public virtual string NewTableName
+        public virtual string NewSequenceName
         {
-            get { return _newTableName; }
+            get { return _newSequenceName; }
         }
 
         public override void Accept<TVisitor, TContext>(TVisitor visitor, TContext context)

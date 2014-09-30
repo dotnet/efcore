@@ -4,6 +4,7 @@
 using System;
 using System.Globalization;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Relational.Model;
 using Microsoft.Data.Entity.SqlServer;
 using Microsoft.Data.Entity.SqlServer.Utilities;
 
@@ -11,9 +12,14 @@ namespace Microsoft.Data.Entity.Metadata
 {
     public static class SqlServerMetadataExtensions
     {
+        internal const string DefaultSequenceDataType = "bigint";
+        internal const int DefaultSequenceStartWith = 0;
+        internal const int DefaultSequenceBlockSize = 10;
+
         public static class Annotations
         {
             public const string ValueGeneration = "SqlServerValueGeneration";
+            // TODO: Add support for SqlServerSequenceStartWith if needed.
             public const string SequenceBlockSize = "SqlServerSequenceBlockSize";
             public const string SequenceName = "SqlServerSequenceName";
             public const string Sequence = "Sequence";
@@ -181,6 +187,45 @@ namespace Microsoft.Data.Entity.Metadata
             return (TModelBuilder)modelBuilder;
         }
 
+        internal static Sequence BuildSequence(this IProperty property)
+        {
+            return
+                property.ValueGeneration == ValueGeneration.OnAdd
+                && property.FindAnnotationInHierarchy(Annotations.ValueGeneration) == Annotations.Sequence
+                    ? new Sequence(
+                        property.FindAnnotationInHierarchy(Annotations.SequenceName, GetDefaultSequenceName(property)),
+                        DefaultSequenceDataType,
+                        DefaultSequenceStartWith,
+                        property.FindAnnotationInHierarchy(Annotations.SequenceBlockSize, DefaultSequenceBlockSize))
+                    : null;
+        }
+
+        internal static string GetSequenceName(this Column column)
+        {
+            return
+                column.ValueGenerationStrategy == ValueGeneration.OnAdd
+                && column[Annotations.ValueGeneration] == Annotations.Sequence
+                    ? column[Annotations.SequenceName] ?? GetDefaultSequenceName(column)
+                    : null;
+        }
+
+        internal static string GetDefaultSequenceName(IProperty property)
+        {
+            return GetDefaultSequenceName(property.EntityType.Schema(), property.EntityType.TableName());
+        }
+
+        private static string GetDefaultSequenceName(Column column)
+        {
+            return GetDefaultSequenceName(column.Table.Name.Schema, column.Table.Name.Name);
+        }
+
+        private static string GetDefaultSequenceName(string schemaName, string tableName)
+        {
+            return !string.IsNullOrEmpty(schemaName)
+                ? string.Concat(schemaName, "_", tableName, "_Sequence")
+                : string.Concat(tableName, "_Sequence");
+        }
+
         private static void CheckPropertyTypeForSequence<TPropertyBuilder>(IPropertyBuilder<TPropertyBuilder> propertyBuilder)
             where TPropertyBuilder : IPropertyBuilder<TPropertyBuilder>
         {
@@ -199,18 +244,18 @@ namespace Microsoft.Data.Entity.Metadata
             }
         }
 
-        private static void SetSequenceAnnotation(MetadataBase metadata)
-        {
-            metadata[Annotations.ValueGeneration] = Annotations.Sequence;
-            metadata[Annotations.SequenceName] = null;
-            metadata[Annotations.SequenceBlockSize] = null;
-        }
-
         private static void SetSequenceAnnotation(MetadataBase metadata, string sequenceName, int blockSize)
         {
             metadata[Annotations.ValueGeneration] = Annotations.Sequence;
             metadata[Annotations.SequenceName] = sequenceName;
             metadata[Annotations.SequenceBlockSize] = blockSize.ToString(CultureInfo.InvariantCulture);
+        }
+
+        private static void SetSequenceAnnotation(MetadataBase metadata, string sequenceName = null)
+        {
+            metadata[Annotations.ValueGeneration] = Annotations.Sequence;
+            metadata[Annotations.SequenceName] = sequenceName;
+            metadata[Annotations.SequenceBlockSize] = null;
         }
 
         private static void SetIdentityAnnotation(MetadataBase metadata)

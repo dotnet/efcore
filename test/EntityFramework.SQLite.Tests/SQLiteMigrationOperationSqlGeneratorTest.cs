@@ -18,7 +18,9 @@ namespace Microsoft.Data.Entity.SQLite.Tests
         {
             var operation = new CreateDatabaseOperation("Bronies");
 
-            Assert.Throws<NotSupportedException>(() => Generate(operation));
+            Assert.Equal(
+                Strings.FormatMigrationOperationNotSupported(typeof(SQLiteMigrationOperationSqlGenerator), operation.GetType()),
+                Assert.Throws<NotSupportedException>(() => Generate(operation)).Message);
         }
 
         [Fact]
@@ -26,25 +28,49 @@ namespace Microsoft.Data.Entity.SQLite.Tests
         {
             var operation = new DropDatabaseOperation("Bronies");
 
-            Assert.Throws<NotSupportedException>(() => Generate(operation));
+            Assert.Equal(
+                Strings.FormatMigrationOperationNotSupported(typeof(SQLiteMigrationOperationSqlGenerator), operation.GetType()),
+                Assert.Throws<NotSupportedException>(() => Generate(operation)).Message);
         }
 
         [Fact]
         public void Generate_with_create_sequence_not_supported()
         {
-            var operation = new CreateSequenceOperation(new Sequence("EpisodeSequence"));
+            var operation = new CreateSequenceOperation(new Sequence("EpisodeSequence", "bigint", 0, 1));
 
-            Assert.Throws<NotSupportedException>(() => Generate(operation));
+            Assert.Equal(
+                Strings.FormatMigrationOperationNotSupported(typeof(SQLiteMigrationOperationSqlGenerator), operation.GetType()),
+                Assert.Throws<NotSupportedException>(() => Generate(operation)).Message);
         }
 
         [Fact]
-        public void Generate_with_drop_sequence_is_noop()
+        public void Generate_with_drop_sequence_is_not_supported()
         {
             var operation = new DropSequenceOperation("EpisodeSequence");
 
-            var sql = Generate(operation);
+            Assert.Equal(
+                Strings.FormatMigrationOperationNotSupported(typeof(SQLiteMigrationOperationSqlGenerator), operation.GetType()),
+                Assert.Throws<NotSupportedException>(() => Generate(operation)).Message);
+        }
 
-            Assert.Empty(sql);
+        [Fact]
+        public void Generate_with_move_sequence_is_not_supported()
+        {
+            var operation = new RenameSequenceOperation("EpisodeSequence", "RenamedSchema");
+
+            Assert.Equal(
+                Strings.FormatMigrationOperationNotSupported(typeof(SQLiteMigrationOperationSqlGenerator), operation.GetType()),
+                Assert.Throws<NotSupportedException>(() => Generate(operation)).Message);
+        }
+
+        [Fact]
+        public void Generate_with_alter_sequence_is_not_supported()
+        {
+            var operation = new AlterSequenceOperation("EpisodeSequence", 7);
+
+            Assert.Equal(
+                Strings.FormatMigrationOperationNotSupported(typeof(SQLiteMigrationOperationSqlGenerator), operation.GetType()),
+                Assert.Throws<NotSupportedException>(() => Generate(operation)).Message);
         }
 
         [Fact]

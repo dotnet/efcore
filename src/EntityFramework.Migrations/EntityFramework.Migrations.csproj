@@ -71,6 +71,7 @@
     <Compile Include="Model\AddDefaultConstraintOperation.cs" />
     <Compile Include="Model\AddForeignKeyOperation.cs" />
     <Compile Include="Model\AddPrimaryKeyOperation.cs" />
+    <Compile Include="Model\AlterSequenceOperation.cs" />
     <Compile Include="Model\AlterColumnOperation.cs" />
     <Compile Include="Model\CopyDataOperation.cs" />
     <Compile Include="Model\CreateDatabaseOperation.cs" />
@@ -87,9 +88,11 @@
     <Compile Include="Model\DropTableOperation.cs" />
     <Compile Include="Model\MigrationOperation.cs" />
     <Compile Include="Model\MigrationOperationVisitor.cs" />
+    <Compile Include="Model\MoveSequenceOperation.cs" />
     <Compile Include="Model\MoveTableOperation.cs" />
     <Compile Include="Model\RenameColumnOperation.cs" />
     <Compile Include="Model\RenameIndexOperation.cs" />
+    <Compile Include="Model\RenameSequenceOperation.cs" />
     <Compile Include="Model\RenameTableOperation.cs" />
     <Compile Include="Model\SqlOperation.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

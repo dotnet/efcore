@@ -315,6 +315,22 @@ namespace Microsoft.Data.Entity.Relational
         }
 
         /// <summary>
+        /// The SQL Server sequence '{sequenceName}' was already specified with a different definition.
+        /// </summary>
+        internal static string SequenceDefinitionMismatch
+        {
+            get { return GetString("SequenceDefinitionMismatch"); }
+        }
+
+        /// <summary>
+        /// The SQL Server sequence '{sequenceName}' was already specified with a different definition.
+        /// </summary>
+        internal static string FormatSequenceDefinitionMismatch(object sequenceName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("SequenceDefinitionMismatch", "sequenceName"), sequenceName);
+        }
+
+        /// <summary>
         /// Creating database '{databaseName}'.
         /// </summary>
         internal static string RelationalLoggerCreatingDatabase

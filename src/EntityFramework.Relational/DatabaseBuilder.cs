@@ -33,46 +33,51 @@ namespace Microsoft.Data.Entity.Relational
         {
             Check.NotNull(model, "model");
 
-            return _mappingCache.GetOrAdd(model, m =>
+            return _mappingCache.GetOrAdd(model, BuildMapping);
+        }
+
+        protected virtual ModelDatabaseMapping BuildMapping([NotNull] IModel model)
+        {
+            Check.NotNull(model, "model");
+
+            // TODO: Consider making this lazy since we don't want to load the whole model just to
+            // save changes to a single entity.
+            var database = new DatabaseModel();
+            var mapping = new ModelDatabaseMapping(model, database);
+
+            foreach (var entityType in model.EntityTypes)
+            {
+                var table = BuildTable(database, entityType);
+                mapping.Map(entityType, table);
+
+                foreach (var property in OrderProperties(entityType))
                 {
-                    // TODO: Consider making this lazy since we don't want to load the whole model just to
-                    // save changes to a single entity.
-                    // Issue #766
-                    var database = new DatabaseModel();
-                    var mapping = new ModelDatabaseMapping(m, database);
+                    mapping.Map(property, BuildColumn(table, property));
 
-                    foreach (var entityType in m.EntityTypes)
-                    {
-                        var table = BuildTable(database, entityType);
-                        mapping.Map(entityType, table);
+                    BuildSequence(property, database);
+                }
 
-                        foreach (var property in OrderProperties(entityType))
-                        {
-                            mapping.Map(property, BuildColumn(table, property));
-                        }
+                var primaryKey = entityType.GetPrimaryKey();
+                if (primaryKey != null)
+                {
+                    mapping.Map(primaryKey, BuildPrimaryKey(database, primaryKey));
+                }
 
-                        var primaryKey = entityType.GetPrimaryKey();
-                        if (primaryKey != null)
-                        {
-                            mapping.Map(primaryKey, BuildPrimaryKey(database, primaryKey));
-                        }
+                foreach (var index in entityType.Indexes)
+                {
+                    mapping.Map(index, BuildIndex(database, index));
+                }
+            }
 
-                        foreach (var index in entityType.Indexes)
-                        {
-                            mapping.Map(index, BuildIndex(database, index));
-                        }
-                    }
+            foreach (var entityType in model.EntityTypes)
+            {
+                foreach (var foreignKey in entityType.ForeignKeys)
+                {
+                    mapping.Map(foreignKey, BuildForeignKey(database, foreignKey));
+                }
+            }
 
-                    foreach (var entityType in m.EntityTypes)
-                    {
-                        foreach (var foreignKey in entityType.ForeignKeys)
-                        {
-                            mapping.Map(foreignKey, BuildForeignKey(database, foreignKey));
-                        }
-                    }
-
-                    return mapping;
-                });
+            return mapping;            
         }
 
         private static IEnumerable<IProperty> OrderProperties(IEntityType entityType)
@@ -223,6 +228,37 @@ namespace Microsoft.Data.Entity.Relational
             table.AddIndex(storeIndex);
 
             return storeIndex;
+        }
+
+        private void BuildSequence([NotNull] IProperty property, [NotNull] DatabaseModel database)
+        {
+            Check.NotNull(property, "property");
+            Check.NotNull(database, "database");
+
+            var sequence = BuildSequence(property);
+            if (sequence == null)
+            {
+                return;
+            }
+
+            var existingSequence = database.TryGetSequence(sequence.Name);
+            if (existingSequence == null)
+            {
+                database.AddSequence(sequence);
+                return;
+            }
+
+            if (!string.Equals(sequence.DataType, existingSequence.DataType, StringComparison.OrdinalIgnoreCase)
+                || sequence.StartWith != existingSequence.StartWith
+                || sequence.IncrementBy != existingSequence.IncrementBy)
+            {
+                throw new InvalidOperationException(Strings.FormatSequenceDefinitionMismatch(sequence.Name));
+            }
+        }
+
+        protected virtual Sequence BuildSequence([NotNull] IProperty property)
+        {
+            return null;
         }
     }
 }

@@ -19,7 +19,6 @@ namespace Microsoft.Data.Entity.Relational
             Check.NotNull(builder, "builder");
 
             builder.ServiceCollection
-                .AddSingleton<DatabaseBuilder>()
                 .AddSingleton<RelationalObjectArrayValueReaderFactory>()
                 .AddSingleton<RelationalTypedValueReaderFactory>()
                 .AddSingleton<ParameterNameGeneratorFactory>()

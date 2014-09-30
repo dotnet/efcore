@@ -77,6 +77,9 @@
     <Compile Include="Model\CopyDataOperationTest.cs" />
     <Compile Include="Model\CreateDatabaseOperationTest.cs" />
     <Compile Include="Model\CreateIndexOperationTest.cs" />
+    <Compile Include="Model\AlterSequenceOperationTest .cs" />
+    <Compile Include="Model\RenameSequenceOperationTest.cs" />
+    <Compile Include="Model\MoveSequenceOperationTest .cs" />
     <Compile Include="Model\CreateSequenceOperationTest.cs" />
     <Compile Include="Model\CreateTableOperationTest.cs" />
     <Compile Include="Model\DropColumnOperationTest.cs" />

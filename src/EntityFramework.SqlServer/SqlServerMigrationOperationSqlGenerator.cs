@@ -38,17 +38,50 @@ namespace Microsoft.Data.Entity.SqlServer
             return preProcessorContext.Statements;
         }
 
+        public override void Generate(RenameSequenceOperation renameSequenceOperation, IndentedStringBuilder stringBuilder)
+        {
+            Check.NotNull(renameSequenceOperation, "renameSequenceOperation");
+            Check.NotNull(stringBuilder, "stringBuilder");
+
+            GenerateRename(
+                renameSequenceOperation.SequenceName, 
+                renameSequenceOperation.NewSequenceName, 
+                "OBJECT", 
+                stringBuilder);
+        }
+
+        public override void Generate(MoveSequenceOperation moveSequenceOperation, IndentedStringBuilder stringBuilder)
+        {
+            Check.NotNull(moveSequenceOperation, "moveSequenceOperation");
+            Check.NotNull(stringBuilder, "stringBuilder");
+
+            GenerateMove(
+                moveSequenceOperation.SequenceName,
+                moveSequenceOperation.NewSchema,
+                stringBuilder);
+        }
+
         public override void Generate(RenameTableOperation renameTableOperation, IndentedStringBuilder stringBuilder)
         {
             Check.NotNull(renameTableOperation, "renameTableOperation");
             Check.NotNull(stringBuilder, "stringBuilder");
 
-            stringBuilder
-                .Append("EXECUTE sp_rename @objname = N")
-                .Append(DelimitLiteral(renameTableOperation.TableName))
-                .Append(", @newname = N")
-                .Append(DelimitLiteral(renameTableOperation.NewTableName))
-                .Append(", @objtype = N'OBJECT'");
+            GenerateRename(
+                renameTableOperation.TableName, 
+                renameTableOperation.NewTableName, 
+                "OBJECT", 
+                stringBuilder);
+        }
+
+        public override void Generate(MoveTableOperation moveTableOperation, IndentedStringBuilder stringBuilder)
+        {
+            Check.NotNull(moveTableOperation, "moveTableOperation");
+            Check.NotNull(stringBuilder, "stringBuilder");
+
+            GenerateMove(
+                moveTableOperation.TableName,
+                moveTableOperation.NewSchema,
+                stringBuilder);
         }
 
         public override void Generate(AddDefaultConstraintOperation addDefaultConstraintOperation, IndentedStringBuilder stringBuilder)
@@ -105,14 +138,14 @@ namespace Microsoft.Data.Entity.SqlServer
         {
             Check.NotNull(renameColumnOperation, "renameColumnOperation");
 
-            stringBuilder
-                .Append("EXECUTE sp_rename @objname = N'")
-                .Append(EscapeLiteral(renameColumnOperation.TableName))
-                .Append(".")
-                .Append(EscapeLiteral(renameColumnOperation.ColumnName))
-                .Append("', @newname = N")
-                .Append(DelimitLiteral(renameColumnOperation.NewColumnName))
-                .Append(", @objtype = N'COLUMN'");
+            GenerateRename(
+                string.Concat(
+                    EscapeLiteral(renameColumnOperation.TableName), 
+                    ".",
+                    EscapeLiteral(renameColumnOperation.ColumnName)),
+                renameColumnOperation.NewColumnName,
+                "COLUMN",
+                stringBuilder);
         }
 
         public override void Generate(RenameIndexOperation renameIndexOperation, IndentedStringBuilder stringBuilder)
@@ -176,6 +209,36 @@ namespace Microsoft.Data.Entity.SqlServer
             stringBuilder
                 .Append(" ON ")
                 .Append(DelimitIdentifier(dropIndexOperation.TableName));
+        }
+
+        protected virtual void GenerateRename([NotNull] string name, [NotNull] string newName, 
+            [NotNull] string objectType, [NotNull] IndentedStringBuilder stringBuilder)
+        {
+            Check.NotEmpty(name, "name");
+            Check.NotEmpty(newName, "newName");
+            Check.NotEmpty(objectType, "objectType");
+            Check.NotNull(stringBuilder, "stringBuilder");
+
+            stringBuilder
+                .Append("EXECUTE sp_rename @objname = N")
+                .Append(DelimitLiteral(name))
+                .Append(", @newname = N")
+                .Append(DelimitLiteral(newName))
+                .Append(", @objtype = N")
+                .Append(DelimitLiteral(objectType));
+        }
+
+        protected virtual void GenerateMove(SchemaQualifiedName name, [NotNull] string newSchema,
+            [NotNull] IndentedStringBuilder stringBuilder)
+        {
+            Check.NotEmpty(newSchema, "newSchema");
+            Check.NotNull(stringBuilder, "stringBuilder");
+
+            stringBuilder
+                .Append("ALTER SCHEMA ")
+                .Append(DelimitIdentifier(newSchema))
+                .Append(" TRANSFER ")
+                .Append(DelimitIdentifier(name));
         }
     }
 }

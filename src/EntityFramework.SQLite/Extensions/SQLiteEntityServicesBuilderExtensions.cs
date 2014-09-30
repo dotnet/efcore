@@ -22,6 +22,7 @@ namespace Microsoft.Framework.DependencyInjection
             Check.NotNull(builder, "builder");
 
             builder.AddRelational().ServiceCollection
+                .AddSingleton<DatabaseBuilder>()
                 .AddSingleton<SQLiteValueGeneratorCache>()
                 .AddSingleton<SQLiteValueGeneratorSelector>()
                 .AddSingleton<SQLiteSqlGenerator>()

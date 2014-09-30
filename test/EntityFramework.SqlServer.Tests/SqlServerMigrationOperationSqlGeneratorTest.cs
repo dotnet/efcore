@@ -35,8 +35,24 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         public void Generate_when_create_sequence_operation()
         {
             Assert.Equal(
-                @"CREATE SEQUENCE [dbo].[MySequence] AS BIGINT START WITH 0 INCREMENT BY 1",
-                Generate(new CreateSequenceOperation(new Sequence("dbo.MySequence"))).Sql);
+                @"CREATE SEQUENCE [dbo].[MySequence] AS bigint START WITH 0 INCREMENT BY 1",
+                Generate(new CreateSequenceOperation(new Sequence("dbo.MySequence", "bigint", 0, 1))).Sql);
+        }
+
+        [Fact]
+        public void Generate_when_move_sequence_operation()
+        {
+            Assert.Equal(
+                @"ALTER SCHEMA [dbo2] TRANSFER [dbo].[MySequence]",
+                Generate(new MoveSequenceOperation("dbo.MySequence", "dbo2")).Sql);
+        }
+
+        [Fact]
+        public void Generate_when_rename_sequence_operation()
+        {
+            Assert.Equal(
+                @"EXECUTE sp_rename @objname = N'dbo.MySequence', @newname = N'MySequence2', @objtype = N'OBJECT'",
+                Generate(new RenameSequenceOperation("dbo.MySequence", "MySequence2")).Sql);
         }
 
         [Fact]
@@ -45,6 +61,14 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             Assert.Equal(
                 @"DROP SEQUENCE [dbo].[MySequence]",
                 Generate(new DropSequenceOperation("dbo.MySequence")).Sql);
+        }
+
+        [Fact]
+        public void Generate_when_alter_sequence_operation()
+        {
+            Assert.Equal(
+                @"ALTER SEQUENCE [dbo].[MySequence] INCREMENT BY 7",
+                Generate(new AlterSequenceOperation("dbo.MySequence", 7)).Sql);
         }
 
         [Fact]

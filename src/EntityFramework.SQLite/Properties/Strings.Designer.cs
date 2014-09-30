@@ -42,6 +42,22 @@ namespace Microsoft.Data.Entity.SQLite
             return string.Format(CultureInfo.CurrentCulture, GetString("InvalidEnumValue", "argumentName", "enumType"), argumentName, enumType);
         }
 
+        /// <summary>
+        /// '{generatorType}' does not support migration operations of type '{operationType}'.
+        /// </summary>
+        internal static string MigrationOperationNotSupported
+        {
+            get { return GetString("MigrationOperationNotSupported"); }
+        }
+
+        /// <summary>
+        /// '{generatorType}' does not support migration operations of type '{operationType}'.
+        /// </summary>
+        internal static string FormatMigrationOperationNotSupported(object generatorType, object operationType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("MigrationOperationNotSupported", "generatorType", "operationType"), generatorType, operationType);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

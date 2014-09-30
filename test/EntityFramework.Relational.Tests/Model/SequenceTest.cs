@@ -12,19 +12,24 @@ namespace Microsoft.Data.Entity.Relational.Tests.Model
         [Fact]
         public void Create_and_initialize_sequence()
         {
-            var sequence = new Sequence("dbo.MySequence");
+            var sequence = new Sequence("dbo.MySequence2", "int", 5, 2);
 
-            Assert.Equal("dbo.MySequence", sequence.Name);
-            Assert.Equal("BIGINT", sequence.DataType);
-            Assert.Equal(0, sequence.StartWith);
-            Assert.Equal(1, sequence.IncrementBy);
+            Assert.Equal("dbo.MySequence2", sequence.Name);
+            Assert.Equal("int", sequence.DataType);
+            Assert.Equal(5, sequence.StartWith);
+            Assert.Equal(2, sequence.IncrementBy);
+        }
 
-            var sequence2 = new Sequence("dbo.MySequence2", "int", 5, 2);
+        [Fact]
+        public void Can_set_name()
+        {
+            var sequence = new Sequence("dbo.Sequence", "bigint", 0, 1);
 
-            Assert.Equal("dbo.MySequence2", sequence2.Name);
-            Assert.Equal("int", sequence2.DataType);
-            Assert.Equal(5, sequence2.StartWith);
-            Assert.Equal(2, sequence2.IncrementBy);
+            Assert.Equal("dbo.Sequence", sequence.Name);
+
+            sequence.Name = "dbo.RenamedSequence";
+
+            Assert.Equal("dbo.RenamedSequence", sequence.Name);
         }
 
         [Fact]

@@ -64,6 +64,42 @@ namespace Microsoft.Data.Entity.Commands.Tests.Migrations
         }
 
         [Fact]
+        public void Generate_when_move_sequence_operation()
+        {
+            var operation = new MoveSequenceOperation("dbo.MySequence", "RenamedSchema");
+
+            Assert.Equal(
+                @"MoveSequence(""dbo.MySequence"", ""RenamedSchema"")",
+                CSharpMigrationCodeGenerator.Generate(operation));
+
+            GenerateAndValidateCode(operation);
+        }
+
+        [Fact]
+        public void Generate_when_rename_sequence_operation()
+        {
+            var operation = new RenameSequenceOperation("dbo.MySequence", "RenamedSequence");
+
+            Assert.Equal(
+                @"RenameSequence(""dbo.MySequence"", ""RenamedSequence"")",
+                CSharpMigrationCodeGenerator.Generate(operation));
+
+            GenerateAndValidateCode(operation);
+        }
+
+        [Fact]
+        public void Generate_when_alter_sequence_operation()
+        {
+            var operation = new AlterSequenceOperation("dbo.MySequence", newIncrementBy: 13);
+
+            Assert.Equal(
+                @"AlterSequence(""dbo.MySequence"", 13)",
+                CSharpMigrationCodeGenerator.Generate(operation));
+
+            GenerateAndValidateCode(operation);
+        }
+
+        [Fact]
         public void Generate_when_create_table_operation_without_primary_key()
         {
             var table = new Table("dbo.MyTable",

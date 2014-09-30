@@ -39,13 +39,55 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             var model = new DatabaseModel();
             var operation = new DropSequenceOperation("dbo.MySequence");
 
-            model.AddSequence(new Sequence("dbo.MySequence"));
+            model.AddSequence(new Sequence("dbo.MySequence", "bigint", 0, 1));
 
             Assert.Equal(1, model.Sequences.Count);
 
             operation.Accept(new DatabaseModelModifier(), model);
 
             Assert.Equal(0, model.Sequences.Count);
+        }
+
+        [Fact]
+        public void Visit_with_move_sequence_operation()
+        {
+            var model = new DatabaseModel();
+            var operation = new MoveSequenceOperation("dbo.MySequence", "RenamedSchema");
+
+            model.AddSequence(new Sequence("dbo.MySequence", "bigint", 0, 1));
+            operation.Accept(new DatabaseModelModifier(), model);
+
+            Assert.Equal(1, model.Sequences.Count);
+            Assert.Equal("RenamedSchema.MySequence", model.Sequences[0].Name);
+        }
+
+        [Fact]
+        public void Visit_with_rename_sequence_operation()
+        {
+            var model = new DatabaseModel();
+            var operation = new RenameSequenceOperation("dbo.MySequence", "RenamedSequence");
+
+            model.AddSequence(new Sequence("dbo.MySequence", "bigint", 0, 1));
+            operation.Accept(new DatabaseModelModifier(), model);
+
+            Assert.Equal(1, model.Sequences.Count);
+            Assert.Equal("dbo.RenamedSequence", model.Sequences[0].Name);
+        }
+
+        [Fact]
+        public void Visit_with_alter_sequence_operation()
+        {
+            var model = new DatabaseModel();
+            var operation = new AlterSequenceOperation("dbo.MySequence", 7);
+
+            model.AddSequence(new Sequence("dbo.MySequence", "bigint", 0, 6));
+            operation.Accept(new DatabaseModelModifier(), model);
+
+            Assert.Equal(1, model.Sequences.Count);
+            Assert.Equal("dbo.MySequence", model.Sequences[0].Name);
+            Assert.Equal("bigint", model.Sequences[0].DataType);
+            Assert.Equal(0, model.Sequences[0].StartWith);
+            Assert.Equal(7, model.Sequences[0].IncrementBy);
         }
 
         [Fact]

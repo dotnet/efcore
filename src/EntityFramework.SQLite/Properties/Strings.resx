@@ -123,4 +123,7 @@
   <data name="InvalidEnumValue" xml:space="preserve">
     <value>The value provided for argument '{argumentName}' must be a valid value of enum type '{enumType}'.</value>
   </data>
+  <data name="MigrationOperationNotSupported" xml:space="preserve">
+    <value>'{generatorType}' does not support migration operations of type '{operationType}'.</value>
+  </data>
 </root>

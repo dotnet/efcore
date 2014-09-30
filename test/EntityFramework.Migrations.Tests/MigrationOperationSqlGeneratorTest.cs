@@ -33,9 +33,9 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         public void Generate_when_create_sequence_operation()
         {
             Assert.Equal(
-                @"CREATE SEQUENCE ""dbo"".""MySequence"" AS BIGINT START WITH 0 INCREMENT BY 1",
+                @"CREATE SEQUENCE ""dbo"".""MySequence"" AS bigint START WITH 0 INCREMENT BY 1",
                 Generate(
-                    new CreateSequenceOperation(new Sequence("dbo.MySequence"))).Sql);
+                    new CreateSequenceOperation(new Sequence("dbo.MySequence", "bigint", 0, 1))).Sql);
         }
 
         [Fact]
@@ -44,6 +44,14 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             Assert.Equal(
                 @"DROP SEQUENCE ""dbo"".""MySequence""",
                 Generate(new DropSequenceOperation("dbo.MySequence")).Sql);
+        }
+
+        [Fact]
+        public void Generate_when_alter_sequence_operation()
+        {
+            Assert.Equal(
+                @"ALTER SEQUENCE ""dbo"".""MySequence"" INCREMENT BY 7",
+                Generate(new AlterSequenceOperation("dbo.MySequence", 7)).Sql);
         }
 
         [Fact]
@@ -77,22 +85,6 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             Assert.Equal(
                 @"DROP TABLE ""dbo"".""MyTable""",
                 Generate(new DropTableOperation("dbo.MyTable")).Sql);
-        }
-
-        [Fact]
-        public void Generate_when_rename_table_operation()
-        {
-            Assert.Throws<NotImplementedException>(() => Generate(
-                new RenameTableOperation("dbo.MyTable", "MyTable2")).Sql);
-        }
-
-        [Fact]
-        public void Generate_when_move_table_operation()
-        {
-            Assert.Equal(
-                @"ALTER SCHEMA ""dbo2"" TRANSFER ""dbo"".""MyTable""",
-                Generate(
-                    new MoveTableOperation("dbo.MyTable", "dbo2")).Sql);
         }
 
         [Fact]
@@ -187,13 +179,6 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         }
 
         [Fact]
-        public void Generate_when_rename_column_operation()
-        {
-            Assert.Throws<NotImplementedException>(() => Generate(
-                new RenameColumnOperation("dbo.MyTable", "Foo", "Bar")).Sql);
-        }
-
-        [Fact]
         public void Generate_when_add_primary_key_operation()
         {
             Assert.Equal(
@@ -253,13 +238,6 @@ namespace Microsoft.Data.Entity.Migrations.Tests
 @"INSERT INTO ""dbo"".""T2"" ( ""C"", ""D"" )
     SELECT ""A"", ""B"" FROM ""dbo"".""T1""",
                 Generate(new CopyDataOperation("dbo.T1", new[] { "A", "B" }, "dbo.T2", new[] { "C", "D" })).Sql);
-        }
-
-        [Fact]
-        public void Generate_when_rename_index_operation()
-        {
-            Assert.Throws<NotImplementedException>(() => Generate(
-                new RenameIndexOperation("dbo.MyTable", "MyIndex", "MyIndex2")).Sql);
         }
 
         [Fact]

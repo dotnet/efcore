@@ -86,6 +86,8 @@
     <Compile Include="SequentialGuidValueGenerator.cs" />
     <Compile Include="SqlServerBuilderExtensions.cs" />
     <Compile Include="SqlServerMetadataExtensions.cs" />
+    <Compile Include="SqlServerDatabaseBuilder.cs" />
+    <Compile Include="SqlServerModelDiffer.cs" />
     <Compile Include="Update\SqlServerBatchExecutor.cs" />
     <Compile Include="SqlServerDataStoreServices.cs" />
     <Compile Include="SqlServerMigrationOperationPreProcessor.cs" />

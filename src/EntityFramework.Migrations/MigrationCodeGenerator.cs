@@ -81,6 +81,9 @@ namespace Microsoft.Data.Entity.Migrations
         public abstract void Generate([NotNull] DropDatabaseOperation dropDatabaseOperation, [NotNull] IndentedStringBuilder stringBuilder);
         public abstract void Generate([NotNull] CreateSequenceOperation createSequenceOperation, [NotNull] IndentedStringBuilder stringBuilder);
         public abstract void Generate([NotNull] DropSequenceOperation dropSequenceOperation, [NotNull] IndentedStringBuilder stringBuilder);
+        public abstract void Generate([NotNull] RenameSequenceOperation renameSequenceOperation, [NotNull] IndentedStringBuilder stringBuilder);
+        public abstract void Generate([NotNull] MoveSequenceOperation moveSequenceOperation, [NotNull] IndentedStringBuilder stringBuilder);
+        public abstract void Generate([NotNull] AlterSequenceOperation alterSequenceOperation, [NotNull] IndentedStringBuilder stringBuilder);
         public abstract void Generate([NotNull] CreateTableOperation createTableOperation, [NotNull] IndentedStringBuilder stringBuilder);
         public abstract void Generate([NotNull] DropTableOperation dropTableOperation, [NotNull] IndentedStringBuilder stringBuilder);
         public abstract void Generate([NotNull] RenameTableOperation dropTableOperation, [NotNull] IndentedStringBuilder stringBuilder);

@@ -57,6 +57,25 @@ namespace Microsoft.Data.Entity.Migrations.Builders
             AddOperation(new DropSequenceOperation(sequenceName));
         }
 
+        public virtual void RenameSequence(SchemaQualifiedName sequenceName, [NotNull] string newSequenceName)
+        {
+            Check.NotEmpty(newSequenceName, "newSequenceName");
+
+            AddOperation(new RenameSequenceOperation(sequenceName, newSequenceName));
+        }
+
+        public virtual void MoveSequence(SchemaQualifiedName sequenceName, [NotNull] string newSchema)
+        {
+            Check.NotEmpty(newSchema, "newSchema");
+
+            AddOperation(new MoveSequenceOperation(sequenceName, newSchema));
+        }
+
+        public virtual void AlterSequence(SchemaQualifiedName sequenceName, int newIncrementBy)
+        {
+            AddOperation(new AlterSequenceOperation(sequenceName, newIncrementBy));
+        }
+
         public virtual TableBuilder<TColumns> CreateTable<TColumns>(SchemaQualifiedName tableName,
             [NotNull] Func<ColumnBuilder, TColumns> columnsSpecFunc)
         {

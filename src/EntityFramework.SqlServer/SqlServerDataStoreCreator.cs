@@ -17,13 +17,13 @@ namespace Microsoft.Data.Entity.SqlServer
     public class SqlServerDataStoreCreator : RelationalDataStoreCreator
     {
         private readonly SqlServerConnection _connection;
-        private readonly ModelDiffer _modelDiffer;
+        private readonly SqlServerModelDiffer _modelDiffer;
         private readonly SqlServerMigrationOperationSqlGeneratorFactory _sqlGeneratorFactory;
         private readonly SqlStatementExecutor _statementExecutor;
 
         public SqlServerDataStoreCreator(
             [NotNull] SqlServerConnection connection,
-            [NotNull] ModelDiffer modelDiffer,
+            [NotNull] SqlServerModelDiffer modelDiffer,
             [NotNull] SqlServerMigrationOperationSqlGeneratorFactory sqlGeneratorFactory,
             [NotNull] SqlStatementExecutor statementExecutor)
         {

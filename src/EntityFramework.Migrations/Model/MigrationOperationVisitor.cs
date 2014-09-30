@@ -28,6 +28,21 @@ namespace Microsoft.Data.Entity.Migrations.Model
             VisitDefault(dropSequenceOperation, context);
         }
 
+        public virtual void Visit([NotNull] RenameSequenceOperation renameSequenceOperation, [NotNull] TContext context)
+        {
+            VisitDefault(renameSequenceOperation, context);
+        }
+
+        public virtual void Visit([NotNull] MoveSequenceOperation moveSequenceOperation, [NotNull] TContext context)
+        {
+            VisitDefault(moveSequenceOperation, context);
+        }
+
+        public virtual void Visit([NotNull] AlterSequenceOperation alterSequenceOperation, [NotNull] TContext context)
+        {
+            VisitDefault(alterSequenceOperation, context);
+        }
+
         public virtual void Visit([NotNull] CreateTableOperation createTableOperation, [NotNull] TContext context)
         {
             VisitDefault(createTableOperation, context);

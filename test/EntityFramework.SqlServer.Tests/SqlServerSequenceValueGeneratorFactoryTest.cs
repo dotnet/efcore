@@ -3,9 +3,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Services;
 using Xunit;
@@ -57,7 +55,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new NullLoggerFactory()));
 
-            Assert.Equal(SqlServerSequenceValueGeneratorFactory.DefaultBlockSize, factory.GetBlockSize(property));
+            Assert.Equal(Entity.Metadata.SqlServerMetadataExtensions.DefaultSequenceBlockSize, factory.GetBlockSize(property));
         }
 
         [Fact]
@@ -104,36 +102,6 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new NullLoggerFactory()));
 
             Assert.Equal("MyTable_Sequence", factory.GetSequenceName(property));
-        }
-
-        [Fact]
-        public void Creates_CreateSequenceOperation()
-        {
-            var property = CreateProperty();
-            property[Entity.Metadata.SqlServerMetadataExtensions.Annotations.SequenceBlockSize] = "11";
-            property[Entity.Metadata.SqlServerMetadataExtensions.Annotations.SequenceName] = "Plant";
-
-            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new NullLoggerFactory()));
-
-            var operation = (CreateSequenceOperation)factory.GetUpMigrationOperations(property).Single();
-
-            Assert.Equal("BIGINT", operation.Sequence.DataType);
-            Assert.Equal(0, operation.Sequence.StartWith);
-            Assert.Equal(11, operation.Sequence.IncrementBy);
-            Assert.Equal("Plant", operation.Sequence.Name);
-        }
-
-        [Fact]
-        public void Creates_DropSequenceOperation()
-        {
-            var property = CreateProperty();
-            property[Entity.Metadata.SqlServerMetadataExtensions.Annotations.SequenceName] = "Page";
-
-            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new NullLoggerFactory()));
-
-            var operation = (DropSequenceOperation)factory.GetDownMigrationOperations(property).Single();
-
-            Assert.Equal("Page", operation.SequenceName);
         }
 
         [Fact]

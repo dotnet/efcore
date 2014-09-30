@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Linq;
 using Microsoft.Data.Entity.Migrations.Builders;
 using Microsoft.Data.Entity.Migrations.Model;
@@ -88,6 +87,54 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Builders
             var operation = (DropSequenceOperation)builder.Operations[0];
 
             Assert.Equal("dbo.MySequence", operation.SequenceName);
+        }
+
+        [Fact]
+        public void MoveSequence_adds_operation()
+        {
+            var builder = new MigrationBuilder();
+
+            builder.MoveSequence("dbo.MySequence", "RenamedSchema");
+
+            Assert.Equal(1, builder.Operations.Count);
+            Assert.IsType<MoveSequenceOperation>(builder.Operations[0]);
+
+            var operation = (MoveSequenceOperation)builder.Operations[0];
+
+            Assert.Equal("dbo.MySequence", operation.SequenceName);
+            Assert.Equal("RenamedSchema", operation.NewSchema);
+        }
+
+        [Fact]
+        public void RenameSequence_adds_operation()
+        {
+            var builder = new MigrationBuilder();
+
+            builder.RenameSequence("dbo.MySequence", "RenamedSequence");
+
+            Assert.Equal(1, builder.Operations.Count);
+            Assert.IsType<RenameSequenceOperation>(builder.Operations[0]);
+
+            var operation = (RenameSequenceOperation)builder.Operations[0];
+
+            Assert.Equal("dbo.MySequence", operation.SequenceName);
+            Assert.Equal("RenamedSequence", operation.NewSequenceName);
+        }
+
+        [Fact]
+        public void AlterSequence_adds_operation()
+        {
+            var builder = new MigrationBuilder();
+
+            builder.AlterSequence("dbo.MySequence", 7);
+
+            Assert.Equal(1, builder.Operations.Count);
+            Assert.IsType<AlterSequenceOperation>(builder.Operations[0]);
+
+            var operation = (AlterSequenceOperation)builder.Operations[0];
+
+            Assert.Equal("dbo.MySequence", operation.SequenceName);
+            Assert.Equal(7, operation.NewIncrementBy);
         }
 
         [Fact]

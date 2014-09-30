@@ -110,6 +110,7 @@ namespace Microsoft.Data.Entity.Migrations
         public virtual void Generate([NotNull] DropDatabaseOperation dropDatabaseOperation, [NotNull] IndentedStringBuilder stringBuilder)
         {
             Check.NotNull(dropDatabaseOperation, "dropDatabaseOperation");
+            Check.NotNull(stringBuilder, "stringBuilder");
 
             stringBuilder
                 .Append("DROP DATABASE ")
@@ -119,6 +120,7 @@ namespace Microsoft.Data.Entity.Migrations
         public virtual void Generate([NotNull] CreateSequenceOperation createSequenceOperation, [NotNull] IndentedStringBuilder stringBuilder)
         {
             Check.NotNull(createSequenceOperation, "createSequenceOperation");
+            Check.NotNull(stringBuilder, "stringBuilder");
 
             var sequence = createSequenceOperation.Sequence;
 
@@ -136,15 +138,33 @@ namespace Microsoft.Data.Entity.Migrations
         public virtual void Generate([NotNull] DropSequenceOperation dropSequenceOperation, [NotNull] IndentedStringBuilder stringBuilder)
         {
             Check.NotNull(dropSequenceOperation, "dropSequenceOperation");
+            Check.NotNull(stringBuilder, "stringBuilder");
 
             stringBuilder
                 .Append("DROP SEQUENCE ")
                 .Append(DelimitIdentifier(dropSequenceOperation.SequenceName));
         }
 
+        public abstract void Generate([NotNull] RenameSequenceOperation renameSequenceOperation, [NotNull] IndentedStringBuilder stringBuilder);
+
+        public abstract void Generate([NotNull] MoveSequenceOperation moveSequenceOperation, [NotNull] IndentedStringBuilder stringBuilder);
+
+        public virtual void Generate([NotNull] AlterSequenceOperation alterSequenceOperation, [NotNull] IndentedStringBuilder stringBuilder)
+        {
+            Check.NotNull(alterSequenceOperation, "alterSequenceOperation");
+            Check.NotNull(stringBuilder, "stringBuilder");
+
+            stringBuilder
+                .Append("ALTER SEQUENCE ")
+                .Append(DelimitIdentifier(alterSequenceOperation.SequenceName))
+                .Append(" INCREMENT BY ")
+                .Append(alterSequenceOperation.NewIncrementBy);
+        }
+
         public virtual void Generate([NotNull] CreateTableOperation createTableOperation, [NotNull] IndentedStringBuilder stringBuilder)
         {
             Check.NotNull(createTableOperation, "createTableOperation");
+            Check.NotNull(stringBuilder, "stringBuilder");
 
             var table = createTableOperation.Table;
 
@@ -187,27 +207,16 @@ namespace Microsoft.Data.Entity.Migrations
         public virtual void Generate([NotNull] DropTableOperation dropTableOperation, [NotNull] IndentedStringBuilder stringBuilder)
         {
             Check.NotNull(dropTableOperation, "dropTableOperation");
+            Check.NotNull(stringBuilder, "stringBuilder");
 
             stringBuilder
                 .Append("DROP TABLE ")
                 .Append(DelimitIdentifier(dropTableOperation.TableName));
         }
 
-        public virtual void Generate([NotNull] RenameTableOperation renameTableOperation, [NotNull] IndentedStringBuilder stringBuilder)
-        {
-            throw new NotImplementedException();
-        }
+        public abstract void Generate([NotNull] RenameTableOperation renameTableOperation, [NotNull] IndentedStringBuilder stringBuilder);
 
-        public virtual void Generate([NotNull] MoveTableOperation moveTableOperation, [NotNull] IndentedStringBuilder stringBuilder)
-        {
-            Check.NotNull(moveTableOperation, "moveTableOperation");
-
-            stringBuilder
-                .Append("ALTER SCHEMA ")
-                .Append(DelimitIdentifier(moveTableOperation.NewSchema))
-                .Append(" TRANSFER ")
-                .Append(DelimitIdentifier(moveTableOperation.TableName));
-        }
+        public abstract void Generate([NotNull] MoveTableOperation moveTableOperation, [NotNull] IndentedStringBuilder stringBuilder);
 
         public virtual void Generate([NotNull] AddColumnOperation addColumnOperation, [NotNull] IndentedStringBuilder stringBuilder)
         {
@@ -226,6 +235,7 @@ namespace Microsoft.Data.Entity.Migrations
         public virtual void Generate([NotNull] DropColumnOperation dropColumnOperation, [NotNull] IndentedStringBuilder stringBuilder)
         {
             Check.NotNull(dropColumnOperation, "dropColumnOperation");
+            Check.NotNull(stringBuilder, "stringBuilder");
 
             stringBuilder
                 .Append("ALTER TABLE ")
@@ -237,6 +247,7 @@ namespace Microsoft.Data.Entity.Migrations
         public virtual void Generate([NotNull] AlterColumnOperation alterColumnOperation, [NotNull] IndentedStringBuilder stringBuilder)
         {
             Check.NotNull(alterColumnOperation, "alterColumnOperation");
+            Check.NotNull(stringBuilder, "stringBuilder");
 
             var table = Database.GetTable(alterColumnOperation.TableName);
             var newColumn = alterColumnOperation.NewColumn;
@@ -254,6 +265,7 @@ namespace Microsoft.Data.Entity.Migrations
         public virtual void Generate([NotNull] AddDefaultConstraintOperation addDefaultConstraintOperation, [NotNull] IndentedStringBuilder stringBuilder)
         {
             Check.NotNull(addDefaultConstraintOperation, "addDefaultConstraintOperation");
+            Check.NotNull(stringBuilder, "stringBuilder");
 
             stringBuilder
                 .Append("ALTER TABLE ")
@@ -268,6 +280,7 @@ namespace Microsoft.Data.Entity.Migrations
         public virtual void Generate([NotNull] DropDefaultConstraintOperation dropDefaultConstraintOperation, [NotNull] IndentedStringBuilder stringBuilder)
         {
             Check.NotNull(dropDefaultConstraintOperation, "dropDefaultConstraintOperation");
+            Check.NotNull(stringBuilder, "stringBuilder");
 
             stringBuilder
                 .Append("ALTER TABLE ")
@@ -277,14 +290,12 @@ namespace Microsoft.Data.Entity.Migrations
                 .Append(" DROP DEFAULT");
         }
 
-        public virtual void Generate([NotNull] RenameColumnOperation renameColumnOperation, [NotNull] IndentedStringBuilder stringBuilder)
-        {
-            throw new NotImplementedException();
-        }
+        public abstract void Generate([NotNull] RenameColumnOperation renameColumnOperation, [NotNull] IndentedStringBuilder stringBuilder);
 
         public virtual void Generate([NotNull] AddPrimaryKeyOperation addPrimaryKeyOperation, [NotNull] IndentedStringBuilder stringBuilder)
         {
             Check.NotNull(addPrimaryKeyOperation, "addPrimaryKeyOperation");
+            Check.NotNull(stringBuilder, "stringBuilder");
 
             stringBuilder
                 .Append("ALTER TABLE ")
@@ -297,6 +308,7 @@ namespace Microsoft.Data.Entity.Migrations
         public virtual void Generate([NotNull] DropPrimaryKeyOperation dropPrimaryKeyOperation, [NotNull] IndentedStringBuilder stringBuilder)
         {
             Check.NotNull(dropPrimaryKeyOperation, "dropPrimaryKeyOperation");
+            Check.NotNull(stringBuilder, "stringBuilder");
 
             stringBuilder
                 .Append("ALTER TABLE ")
@@ -308,6 +320,7 @@ namespace Microsoft.Data.Entity.Migrations
         public virtual void Generate([NotNull] AddForeignKeyOperation addForeignKeyOperation, [NotNull] IndentedStringBuilder stringBuilder)
         {
             Check.NotNull(addForeignKeyOperation, "addForeignKeyOperation");
+            Check.NotNull(stringBuilder, "stringBuilder");
 
             stringBuilder
                 .Append("ALTER TABLE ")
@@ -320,6 +333,7 @@ namespace Microsoft.Data.Entity.Migrations
         public virtual void Generate([NotNull] DropForeignKeyOperation dropForeignKeyOperation, [NotNull] IndentedStringBuilder stringBuilder)
         {
             Check.NotNull(dropForeignKeyOperation, "dropForeignKeyOperation");
+            Check.NotNull(stringBuilder, "stringBuilder");
 
             stringBuilder
                 .Append("ALTER TABLE ")
@@ -331,6 +345,7 @@ namespace Microsoft.Data.Entity.Migrations
         public virtual void Generate([NotNull] CreateIndexOperation createIndexOperation, [NotNull] IndentedStringBuilder stringBuilder)
         {
             Check.NotNull(createIndexOperation, "createIndexOperation");
+            Check.NotNull(stringBuilder, "stringBuilder");
 
             stringBuilder.Append("CREATE");
 
@@ -365,10 +380,7 @@ namespace Microsoft.Data.Entity.Migrations
                 .Append(DelimitIdentifier(dropIndexOperation.IndexName));
         }
 
-        public virtual void Generate([NotNull] RenameIndexOperation renameIndexOperation, [NotNull] IndentedStringBuilder stringBuilder)
-        {
-            throw new NotImplementedException();
-        }
+        public abstract void Generate([NotNull] RenameIndexOperation renameIndexOperation, [NotNull] IndentedStringBuilder stringBuilder);
 
         public virtual void Generate([NotNull] CopyDataOperation copyDataOperation, [NotNull] IndentedStringBuilder stringBuilder)
         {
