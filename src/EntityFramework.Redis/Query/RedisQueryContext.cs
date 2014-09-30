@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
@@ -30,19 +31,18 @@ namespace Microsoft.Data.Entity.Redis.Query
             _redisDatabase = redisDatabase;
         }
 
-        public virtual IEnumerable<TResult> GetResultsFromRedis<TResult>(
-            [NotNull] IEntityType entityType)
-        {
-            Check.NotNull(entityType, "entityType");
-
-            return _redisDatabase.GetMaterializedResults<TResult>(entityType, QueryBuffer);
-        }
-
-        public virtual IEnumerable<object[]> GetResultsFromRedis([NotNull] RedisQuery redisQuery)
+        public virtual IEnumerable<object[]> GetResultsEnumerable([NotNull] RedisQuery redisQuery)
         {
             Check.NotNull(redisQuery, "redisQuery");
 
-            return _redisDatabase.GetResults(redisQuery);
+            return _redisDatabase.GetResultsEnumerable(redisQuery);
+        }
+
+        public virtual IAsyncEnumerable<object[]> GetResultsAsyncEnumerable([NotNull] RedisQuery redisQuery)
+        {
+            Check.NotNull(redisQuery, "redisQuery");
+
+            return _redisDatabase.GetResultsAsyncEnumerable(redisQuery);
         }
     }
 }
