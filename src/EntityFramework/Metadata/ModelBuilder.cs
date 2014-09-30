@@ -232,6 +232,72 @@ namespace Microsoft.Data.Entity.Metadata
                 return new IndexBuilder(Builder.Index(propertyNames));
             }
 
+            public virtual OneToManyBuilder OneToMany(
+                [NotNull] Type relatedEntityType,
+                [CanBeNull] string collection = null,
+                [CanBeNull] string reference = null)
+            {
+                Check.NotNull(relatedEntityType, "relatedEntityType");
+
+                return new OneToManyBuilder(Builder.BuildRelationship(
+                    Metadata, Builder.ModelBuilder.GetOrAddEntity(relatedEntityType).Metadata, reference, collection, oneToOne: false));
+            }
+
+            public virtual ManyToOneBuilder ManyToOne(
+                [NotNull] Type relatedEntityType,
+                [CanBeNull] string reference = null,
+                [CanBeNull] string collection = null)
+            {
+                Check.NotNull(relatedEntityType, "relatedEntityType");
+
+                return new ManyToOneBuilder(Builder.BuildRelationship(
+                    Builder.ModelBuilder.GetOrAddEntity(relatedEntityType).Metadata, Metadata, reference, collection, oneToOne: false));
+            }
+
+            public virtual OneToOneBuilder OneToOne(
+                [NotNull] Type relatedEntityType,
+                [CanBeNull] string reference = null,
+                [CanBeNull] string inverse = null)
+            {
+                Check.NotNull(relatedEntityType, "relatedEntityType");
+
+                return new OneToOneBuilder(Builder.BuildRelationship(
+                    Metadata, Builder.ModelBuilder.GetOrAddEntity(relatedEntityType).Metadata, inverse, reference, oneToOne: true));
+            }
+
+            public virtual OneToManyBuilder OneToMany(
+                [NotNull] string relatedEntityTypeName,
+                [CanBeNull] string collection = null,
+                [CanBeNull] string reference = null)
+            {
+                Check.NotEmpty(relatedEntityTypeName, "relatedEntityTypeName");
+
+                return new OneToManyBuilder(Builder.BuildRelationship(
+                    Metadata, Builder.ModelBuilder.Metadata.GetEntityType(relatedEntityTypeName), reference, collection, oneToOne: false));
+            }
+
+            public virtual ManyToOneBuilder ManyToOne(
+                [NotNull] string relatedEntityTypeName,
+                [CanBeNull] string reference = null,
+                [CanBeNull] string collection = null)
+            {
+                Check.NotEmpty(relatedEntityTypeName, "relatedEntityTypeName");
+
+                return new ManyToOneBuilder(Builder.BuildRelationship(
+                    Builder.ModelBuilder.Metadata.GetEntityType(relatedEntityTypeName), Metadata, reference, collection, oneToOne: false));
+            }
+
+            public virtual OneToOneBuilder OneToOne(
+                [NotNull] string relatedEntityTypeName,
+                [CanBeNull] string reference = null,
+                [CanBeNull] string inverse = null)
+            {
+                Check.NotEmpty(relatedEntityTypeName, "relatedEntityTypeName");
+
+                return new OneToOneBuilder(Builder.BuildRelationship(
+                    Metadata, Builder.ModelBuilder.Metadata.GetEntityType(relatedEntityTypeName), inverse, reference, oneToOne: true));
+            }
+
             public class KeyBuilder : IKeyBuilder<KeyBuilder>
             {
                 private readonly InternalKeyBuilder _builder;
@@ -472,7 +538,19 @@ namespace Microsoft.Data.Entity.Metadata
                     return this;
                 }
 
-                // TODO: Non-generic APIs
+                public virtual OneToManyBuilder ForeignKey([NotNull] params string[] foreignKeyPropertyNames)
+                {
+                    Check.NotNull(foreignKeyPropertyNames, "foreignKeyPropertyNames");
+
+                    return new OneToManyBuilder(Builder.ForeignKey(foreignKeyPropertyNames));
+                }
+
+                public virtual OneToManyBuilder ReferencedKey([NotNull] params string[] keyPropertyNames)
+                {
+                    Check.NotNull(keyPropertyNames, "keyPropertyNames");
+
+                    return new OneToManyBuilder(Builder.ReferencedKey(keyPropertyNames));
+                }
             }
 
             public class ManyToOneBuilder : IManyToOneBuilder<ManyToOneBuilder>
@@ -511,7 +589,19 @@ namespace Microsoft.Data.Entity.Metadata
                     return this;
                 }
 
-                // TODO: Non-generic APIs
+                public virtual ManyToOneBuilder ForeignKey([NotNull] params string[] foreignKeyPropertyNames)
+                {
+                    Check.NotNull(foreignKeyPropertyNames, "foreignKeyPropertyNames");
+
+                    return new ManyToOneBuilder(Builder.ForeignKey(foreignKeyPropertyNames));
+                }
+
+                public virtual ManyToOneBuilder ReferencedKey([NotNull] params string[] keyPropertyNames)
+                {
+                    Check.NotNull(keyPropertyNames, "keyPropertyNames");
+
+                    return new ManyToOneBuilder(Builder.ReferencedKey(keyPropertyNames));
+                }
             }
 
             public class OneToOneBuilder : IOneToOneBuilder<OneToOneBuilder>
@@ -550,15 +640,50 @@ namespace Microsoft.Data.Entity.Metadata
                     return this;
                 }
 
+                public virtual OneToOneBuilder ForeignKey(
+                    [NotNull] Type dependentEntityType,
+                    [NotNull] params string[] foreignKeyPropertyNames)
+                {
+                    Check.NotNull(dependentEntityType, "dependentEntityType");
+                    Check.NotNull(foreignKeyPropertyNames, "foreignKeyPropertyNames");
+
+                    return new OneToOneBuilder(Builder.OneToOneForeignKey(dependentEntityType, foreignKeyPropertyNames));
+                }
+
+                public virtual OneToOneBuilder ReferencedKey(
+                    [NotNull] Type principalEntityType,
+                    [NotNull] params string[] keyPropertyNames)
+                {
+                    Check.NotNull(principalEntityType, "principalEntityType");
+                    Check.NotNull(keyPropertyNames, "keyPropertyNames");
+
+                    return new OneToOneBuilder(Builder.OneToOneReferencedKey(principalEntityType, keyPropertyNames));
+                }
+
+                public virtual OneToOneBuilder ForeignKey(
+                    [NotNull] string dependentEntityTypeName,
+                    [NotNull] params string[] foreignKeyPropertyNames)
+                {
+                    Check.NotNull(dependentEntityTypeName, "dependentEntityTypeName");
+                    Check.NotNull(foreignKeyPropertyNames, "foreignKeyPropertyNames");
+
+                    return new OneToOneBuilder(Builder.OneToOneForeignKey(dependentEntityTypeName, foreignKeyPropertyNames));
+                }
+
+                public virtual OneToOneBuilder ReferencedKey(
+                    [NotNull] string principalEntityTypeName,
+                    [NotNull] params string[] keyPropertyNames)
+                {
+                    Check.NotNull(principalEntityTypeName, "principalEntityTypeName");
+                    Check.NotNull(keyPropertyNames, "keyPropertyNames");
+
+                    return new OneToOneBuilder(Builder.OneToOneReferencedKey(principalEntityTypeName, keyPropertyNames));
+                }
+
                 public virtual OneToOneBuilder ForeignKey<TDependentEntity>(
                     [NotNull] Expression<Func<TDependentEntity, object>> foreignKeyExpression)
                 {
                     Check.NotNull(foreignKeyExpression, "foreignKeyExpression");
-
-                    if (Builder.ModelBuilder.GetOrAddEntity(typeof(TDependentEntity)).Metadata != _builder.DependentType)
-                    {
-                        _builder.Invert();
-                    }
 
                     return new OneToOneBuilder(
                         Builder.OneToOneForeignKey(typeof(TDependentEntity), foreignKeyExpression.GetPropertyAccessList()));
@@ -571,8 +696,6 @@ namespace Microsoft.Data.Entity.Metadata
 
                     return new OneToOneBuilder(Builder.OneToOneReferencedKey(typeof(TPrincipalEntity), keyExpression.GetPropertyAccessList()));
                 }
-
-                // TODO: Non-generic APIs
             }
         }
 

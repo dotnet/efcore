@@ -112,6 +112,16 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var dependentEntityType = ModelBuilder.GetOrAddEntity(dependentType).Metadata;
             var principalEntityType = ModelBuilder.GetOrAddEntity(principalType).Metadata;
 
+            return BuildRelationship(principalEntityType, dependentEntityType, navNameToPrincipal, navNameToDependent, oneToOne);
+        }
+
+        public virtual InternalRelationshipBuilder BuildRelationship(
+            [NotNull] EntityType principalEntityType, [NotNull] EntityType dependentEntityType,
+            [CanBeNull] string navNameToPrincipal, [CanBeNull] string navNameToDependent, bool oneToOne)
+        {
+            Check.NotNull(principalEntityType, "principalEntityType");
+            Check.NotNull(dependentEntityType, "dependentEntityType");
+
             var navToDependent = principalEntityType.Navigations.FirstOrDefault(e => e.Name == navNameToDependent);
             var navToPrincipal = dependentEntityType.Navigations.FirstOrDefault(e => e.Name == navNameToPrincipal);
 

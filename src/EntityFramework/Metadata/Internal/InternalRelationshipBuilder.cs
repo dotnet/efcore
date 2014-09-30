@@ -85,9 +85,21 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         {
             Check.NotNull(propertyAccessList, "propertyAccessList");
 
-            _dependentProperties = propertyAccessList
-                .Select(pi => _dependentType.GetOrAddProperty(pi))
-                .ToArray();
+            return ForeignKey(propertyAccessList.Select(p => _dependentType.GetOrAddProperty(p)));
+        }
+
+        public virtual InternalRelationshipBuilder ForeignKey([NotNull] IReadOnlyList<string> propertyNames)
+        {
+            Check.NotNull(propertyNames, "propertyNames");
+
+            return ForeignKey(propertyNames.Select(p => _dependentType.GetProperty(p)));
+        }
+
+        public virtual InternalRelationshipBuilder ForeignKey([NotNull] IEnumerable<Property> properties)
+        {
+            Check.NotNull(properties, "properties");
+
+            _dependentProperties = properties.ToArray();
 
             if (Metadata.Properties.SequenceEqual(_dependentProperties))
             {
@@ -101,9 +113,21 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         {
             Check.NotNull(propertyAccessList, "propertyAccessList");
 
-            _principalProperties = propertyAccessList
-                .Select(pi => _principalType.GetOrAddProperty(pi))
-                .ToArray();
+            return ReferencedKey(propertyAccessList.Select(p => _principalType.GetOrAddProperty(p)));
+        }
+
+        public virtual InternalRelationshipBuilder ReferencedKey([NotNull] IReadOnlyList<string> propertyNames)
+        {
+            Check.NotNull(propertyNames, "propertyNames");
+
+            return ReferencedKey(propertyNames.Select(p => _principalType.GetProperty(p)));
+        }
+
+        public virtual InternalRelationshipBuilder ReferencedKey([NotNull] IEnumerable<Property> properties)
+        {
+            Check.NotNull(properties, "properties");
+
+            _principalProperties = properties.ToArray();
 
             if (Metadata.ReferencedProperties.SequenceEqual(_principalProperties))
             {
@@ -114,19 +138,74 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         }
 
         public virtual InternalRelationshipBuilder OneToOneForeignKey(
-            [NotNull] Type specifiedDepdnentType,
+            [NotNull] Type specifiedDependentType,
             [NotNull] IList<PropertyInfo> propertyAccessList)
         {
-            Check.NotNull(specifiedDepdnentType, "specifiedDepdnentType");
+            Check.NotNull(specifiedDependentType, "specifiedDependentType");
             Check.NotNull(propertyAccessList, "propertyAccessList");
 
-            if (ModelBuilder.GetOrAddEntity(specifiedDepdnentType).Metadata != DependentType)
-            {
-                Invert();
-            }
+            ForeignInvertIfNeeded(specifiedDependentType);
 
             return ForeignKey(propertyAccessList);
         }
+
+        public virtual InternalRelationshipBuilder OneToOneForeignKey(
+            [NotNull] Type specifiedDependentType,
+            [NotNull] IReadOnlyList<string> propertyNames)
+        {
+            Check.NotNull(specifiedDependentType, "specifiedDependentType");
+            Check.NotNull(propertyNames, "propertyNames");
+
+            ForeignInvertIfNeeded(specifiedDependentType);
+
+            return ForeignKey(propertyNames);
+        }
+
+        public virtual InternalRelationshipBuilder OneToOneForeignKey(
+            [NotNull] string specifiedDependentTypeName,
+            [NotNull] IReadOnlyList<string> propertyNames)
+        {
+            Check.NotNull(specifiedDependentTypeName, "specifiedDependentTypeName");
+            Check.NotNull(propertyNames, "propertyNames");
+
+            ForeignInvertIfNeeded(ModelBuilder.Metadata.GetEntityType(specifiedDependentTypeName));
+
+            return ForeignKey(propertyNames);
+        }
+
+        private void ForeignInvertIfNeeded(Type specifiedDependentType)
+        {
+            ForeignInvertIfNeeded(ModelBuilder.GetOrAddEntity(specifiedDependentType).Metadata);
+        }
+
+        private void ForeignInvertIfNeeded(EntityType entityType)
+        {
+            if (entityType != DependentType)
+            {
+                Invert();
+            }
+        }
+
+        public virtual InternalRelationshipBuilder OneToOneReferencedKey(
+            [NotNull] Type specifiedPrincipalType,
+            [NotNull] IReadOnlyList<string> propertyNames)
+        {
+            Check.NotNull(specifiedPrincipalType, "specifiedPrincipalType");
+            Check.NotNull(propertyNames, "propertyNames");
+
+            return ReferenceInvertIfNeeded(specifiedPrincipalType).ReferencedKey(propertyNames);
+        }
+
+        public virtual InternalRelationshipBuilder OneToOneReferencedKey(
+            [NotNull] string specifiedPrincipalTypeName,
+            [NotNull] IReadOnlyList<string> propertyNames)
+        {
+            Check.NotNull(specifiedPrincipalTypeName, "specifiedPrincipalTypeName");
+            Check.NotNull(propertyNames, "propertyNames");
+
+            return ReferenceInvertIfNeeded(ModelBuilder.Metadata.GetEntityType(specifiedPrincipalTypeName)).ReferencedKey(propertyNames);
+        }
+
 
         public virtual InternalRelationshipBuilder OneToOneReferencedKey(
             [NotNull] Type specifiedPrincipalType,
@@ -135,11 +214,19 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Check.NotNull(specifiedPrincipalType, "specifiedPrincipalType");
             Check.NotNull(propertyAccessList, "propertyAccessList");
 
-            var builder = ModelBuilder.GetOrAddEntity(specifiedPrincipalType).Metadata == PrincipalType
+            return ReferenceInvertIfNeeded(specifiedPrincipalType).ReferencedKey(propertyAccessList);
+        }
+
+        private InternalRelationshipBuilder ReferenceInvertIfNeeded(Type specifiedPrincipalType)
+        {
+            return ReferenceInvertIfNeeded(ModelBuilder.GetOrAddEntity(specifiedPrincipalType).Metadata);
+        }
+
+        private InternalRelationshipBuilder ReferenceInvertIfNeeded(EntityType entityType)
+        {
+            return entityType == PrincipalType
                 ? this
                 : Invert().ReplaceForeignKey();
-
-            return builder.ReferencedKey(propertyAccessList);
         }
 
         private InternalRelationshipBuilder ReplaceForeignKey()
