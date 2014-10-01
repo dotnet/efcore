@@ -1,19 +1,20 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <Import Project="..\..\tools\EntityFramework.props" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{0DC8A4B7-05A2-465E-9203-F41102B1A69F}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>EntityFramework.Performance.CUD.Tests</RootNamespace>
+    <RootNamespace>Microsoft.Data.Entity.Performance.CUD.Tests</RootNamespace>
     <AssemblyName>EntityFramework.Performance.CUD.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -23,7 +24,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -32,57 +32,23 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="EntityFramework">
-      <HintPath>..\..\src\EntityFramework\bin\Debug\EntityFramework.dll</HintPath>
-    </Reference>
-    <Reference Include="EntityFramework.Migrations">
-      <HintPath>..\..\src\EntityFramework.Migrations\bin\Debug\EntityFramework.Migrations.dll</HintPath>
-    </Reference>
-    <Reference Include="EntityFramework.Relational">
-      <HintPath>..\..\src\EntityFramework.Relational\bin\Debug\EntityFramework.Relational.dll</HintPath>
-    </Reference>
-    <Reference Include="EntityFramework.SqlServer">
-      <HintPath>..\..\src\EntityFramework.SqlServer\bin\Debug\EntityFramework.SqlServer.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Framework.ConfigurationModel">
-      <HintPath>..\..\..\..\packages\Microsoft.Framework.ConfigurationModel.1.0.0-alpha4-10243\lib\net45\Microsoft.Framework.ConfigurationModel.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Framework.DependencyInjection">
-      <HintPath>..\..\..\..\packages\Microsoft.Framework.DependencyInjection.1.0.0-alpha4-10237\lib\net45\Microsoft.Framework.DependencyInjection.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Framework.Logging">
-      <HintPath>..\..\..\..\packages\Microsoft.Framework.Logging.1.0.0-alpha4-10239\lib\net45\Microsoft.Framework.Logging.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Framework.Logging.Interfaces">
-      <HintPath>..\..\..\..\packages\Microsoft.Framework.Logging.Interfaces.1.0.0-alpha4-10239\lib\net45\Microsoft.Framework.Logging.Interfaces.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Framework.Runtime.Interfaces">
-      <HintPath>..\..\..\..\packages\Microsoft.Framework.Runtime.Interfaces.1.0.0-alpha4-10304\lib\net45\Microsoft.Framework.Runtime.Interfaces.dll</HintPath>
-    </Reference>
-    <Reference Include="Remotion.Linq">
-      <HintPath>..\..\..\..\packages\Remotion.Linq.1.15.13.0\lib\portable-net45+wp80+win\Remotion.Linq.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Collections" />
     <Reference Include="System.Collections.Concurrent" />
-    <Reference Include="System.Collections.Immutable, Version=1.1.22.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\packages\Microsoft.Bcl.Immutable.1.1.22-beta\lib\portable-net45+win8+wpa81\System.Collections.Immutable.dll</HintPath>
-    </Reference>
     <Reference Include="System.ComponentModel" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data.Common">
-      <HintPath>..\..\..\..\packages\System.Data.Common.1.0.0-alpha4-10232\lib\net451\System.Data.Common.dll</HintPath>
+      <HintPath>..\..\packages\System.Data.Common.1.0.0-alpha4-10232\lib\net451\System.Data.Common.dll</HintPath>
     </Reference>
     <Reference Include="System.Data.SqlClient">
-      <HintPath>..\..\..\..\packages\System.Data.SqlClient.1.0.0-alpha4-10240\lib\net45\System.Data.SqlClient.dll</HintPath>
+      <HintPath>..\..\packages\System.Data.SqlClient.1.0.0-alpha4-10240\lib\net45\System.Data.SqlClient.dll</HintPath>
     </Reference>
     <Reference Include="System.Diagnostics.Debug" />
     <Reference Include="System.Diagnostics.Tools" />
     <Reference Include="System.Dynamic.Runtime" />
     <Reference Include="System.Globalization" />
     <Reference Include="System.Interactive.Async">
-      <HintPath>..\..\..\..\packages\Ix-Async.1.2.2\lib\net45\System.Interactive.Async.dll</HintPath>
+      <HintPath>..\..\packages\Ix-Async.1.2.2\lib\net45\System.Interactive.Async.dll</HintPath>
     </Reference>
     <Reference Include="System.Linq" />
     <Reference Include="System.Linq.Expressions" />
@@ -100,6 +66,44 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <PackageReference Include="Remotion.Linq">
+      <TargetFramework>portable-net45+wp80+wpa81+win</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="Ix-Async">
+      <TargetFramework>net45</TargetFramework>
+      <Assemblies>System.Interactive.Async</Assemblies>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Bcl.Immutable">
+      <TargetFramework>portable-net45+win8+wpa81</TargetFramework>
+      <Assemblies>System.Collections.Immutable</Assemblies>
+    </PackageReference>
+    <PackageReference Include="System.Data.Common">
+      <TargetFramework>net451</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="System.Data.SqlClient">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Framework.ConfigurationModel">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Framework.ConfigurationModel.Json">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Framework.DependencyInjection">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Framework.Logging">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Framework.Logging.Interfaces">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Framework.Runtime.Interfaces">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="Newtonsoft.Json">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Microbenchmarks\Core\IterationCounter.cs" />
@@ -119,8 +123,27 @@
     <Compile Include="Utilities\ListExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
-    <None Include="LocalConfig.json" />
+    <ProjectReference Include="..\..\src\EntityFramework\EntityFramework.csproj">
+      <Project>{71415cec-8111-4c73-8751-512d22f10602}</Project>
+      <Name>EntityFramework</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\EntityFramework.Migrations\EntityFramework.Migrations.csproj">
+      <Project>{6E38B72F-31DA-4AEF-8F34-B8269572EC6B}</Project>
+      <Name>EntityFramework.Migrations</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\EntityFramework.Relational\EntityFramework.Relational.csproj">
+      <Project>{75C5A774-A3F3-43EB-97D3-DBE0CF2825D8}</Project>
+      <Name>EntityFramework.Relational</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\EntityFramework.SqlServer\EntityFramework.SqlServer.csproj">
+      <Project>{04E6620B-5B41-45FE-981A-F40EB7686B0E}</Project>
+      <Name>EntityFramework.SqlServer</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="LocalConfig.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Project.json" />
   </ItemGroup>
   <ItemGroup>
