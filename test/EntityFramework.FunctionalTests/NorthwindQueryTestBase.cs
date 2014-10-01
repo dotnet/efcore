@@ -489,6 +489,13 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void Where_compare_null()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.City == null && c.Country == "UK"));
+        }
+
+        [Fact]
         public virtual void Where_projection()
         {
             AssertQuery<Customer>(

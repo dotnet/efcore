@@ -1031,6 +1031,17 @@ FROM [Customers] AS [c]",
                 _fixture.Sql);
         }
 
+        public override void Where_compare_null()
+        {
+            base.Where_compare_null();
+
+            Assert.Equal(
+                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE ([c].[City] IS NULL AND [c].[Country] = @p0)", 
+                _fixture.Sql);
+        }
+
         public override void Single_Predicate()
         {
             base.Single_Predicate();
