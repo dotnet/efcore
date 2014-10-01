@@ -1,12 +1,13 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Relational.Query.Sql;
 using Microsoft.Data.Entity.Relational.Utilities;
 using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Parsing;
+using System;
+using System.Linq.Expressions;
 
 namespace Microsoft.Data.Entity.Relational.Query.Expressions
 {
@@ -46,6 +47,14 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             return newExpression != _operand
                 ? new IsNullExpression(newExpression)
                 : this;
+        }
+
+        public override Type Type
+        {
+            get
+            {
+                return typeof(bool);
+            }
         }
     }
 }
