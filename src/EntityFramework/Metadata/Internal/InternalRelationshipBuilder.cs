@@ -54,6 +54,11 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             get { return _dependentType; }
         }
 
+        public virtual void Required(bool required)
+        {
+            Metadata.IsRequired = required;
+        }
+
         public virtual InternalRelationshipBuilder Invert()
         {
             var navigationToDependent = _navigationToDependent;

@@ -5901,5 +5901,249 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             public event PropertyChangedEventHandler PropertyChanged;
 #pragma warning restore 67
         }
+
+        [Fact]
+        public void One_to_many_relationships_with_nullable_keys_are_optional_by_default()
+        {
+            var modelBuilder = HobNobBuilder();
+
+            modelBuilder
+                .Entity<Hob>()
+                .OneToMany(e => e.Nobs, e => e.Hob)
+                .ForeignKey(e => new { e.HobId1, e.HobId2 });
+
+            var entityType = modelBuilder.Model.GetEntityType(typeof(Nob));
+
+            Assert.True(entityType.GetProperty("HobId1").IsNullable);
+            Assert.True(entityType.GetProperty("HobId1").IsNullable);
+            Assert.False(entityType.ForeignKeys.Single().IsRequired);
+        }
+
+        [Fact]
+        public void One_to_many_relationships_with_non_nullable_keys_are_required_by_default()
+        {
+            var modelBuilder = HobNobBuilder();
+
+            modelBuilder
+                .Entity<Nob>()
+                .OneToMany(e => e.Hobs, e => e.Nob)
+                .ForeignKey(e => new { e.NobId1, e.NobId2 });
+
+            var entityType = modelBuilder.Model.GetEntityType(typeof(Hob));
+
+            Assert.False(entityType.GetProperty("NobId1").IsNullable);
+            Assert.False(entityType.GetProperty("NobId1").IsNullable);
+            Assert.True(entityType.ForeignKeys.Single().IsRequired);
+        }
+
+        [Fact]
+        public void Many_to_one_relationships_with_nullable_keys_are_optional_by_default()
+        {
+            var modelBuilder = HobNobBuilder();
+
+            modelBuilder
+                .Entity<Nob>()
+                .ManyToOne(e => e.Hob, e => e.Nobs)
+                .ForeignKey(e => new { e.HobId1, e.HobId2 });
+
+            var entityType = modelBuilder.Model.GetEntityType(typeof(Nob));
+
+            Assert.True(entityType.GetProperty("HobId1").IsNullable);
+            Assert.True(entityType.GetProperty("HobId1").IsNullable);
+            Assert.False(entityType.ForeignKeys.Single().IsRequired);
+        }
+
+        [Fact]
+        public void Many_to_one_relationships_with_non_nullable_keys_are_required_by_default()
+        {
+            var modelBuilder = HobNobBuilder();
+
+            modelBuilder
+                .Entity<Hob>()
+                .ManyToOne(e => e.Nob, e => e.Hobs)
+                .ForeignKey(e => new { e.NobId1, e.NobId2 });
+
+            var entityType = modelBuilder.Model.GetEntityType(typeof(Hob));
+
+            Assert.False(entityType.GetProperty("NobId1").IsNullable);
+            Assert.False(entityType.GetProperty("NobId1").IsNullable);
+            Assert.True(entityType.ForeignKeys.Single().IsRequired);
+        }
+
+        [Fact]
+        public void One_to_one_relationships_with_nullable_keys_are_optional_by_default()
+        {
+            var modelBuilder = HobNobBuilder();
+
+            modelBuilder
+                .Entity<Hob>()
+                .OneToOne(e => e.Nob, e => e.Hob)
+                .ForeignKey<Nob>(e => new { e.HobId1, e.HobId2 });
+
+            var entityType = modelBuilder.Model.GetEntityType(typeof(Nob));
+
+            Assert.True(entityType.GetProperty("HobId1").IsNullable);
+            Assert.True(entityType.GetProperty("HobId1").IsNullable);
+            Assert.False(entityType.ForeignKeys.Single().IsRequired);
+        }
+
+        [Fact]
+        public void One_to_one_relationships_with_non_nullable_keys_are_required_by_default()
+        {
+            var modelBuilder = HobNobBuilder();
+
+            modelBuilder
+                .Entity<Nob>()
+                .OneToOne(e => e.Hob, e => e.Nob)
+                .ForeignKey<Hob>(e => new { e.NobId1, e.NobId2 });
+
+            var entityType = modelBuilder.Model.GetEntityType(typeof(Hob));
+
+            Assert.False(entityType.GetProperty("NobId1").IsNullable);
+            Assert.False(entityType.GetProperty("NobId1").IsNullable);
+            Assert.True(entityType.ForeignKeys.Single().IsRequired);
+        }
+
+        [Fact]
+        public void One_to_many_relationships_with_nullable_keys_can_be_made_required()
+        {
+            var modelBuilder = HobNobBuilder();
+
+            modelBuilder
+                .Entity<Hob>()
+                .OneToMany(e => e.Nobs, e => e.Hob)
+                .ForeignKey(e => new { e.HobId1, e.HobId2 })
+                .Required();
+
+            var entityType = modelBuilder.Model.GetEntityType(typeof(Nob));
+
+            Assert.False(entityType.GetProperty("HobId1").IsNullable);
+            Assert.False(entityType.GetProperty("HobId1").IsNullable);
+            Assert.True(entityType.ForeignKeys.Single().IsRequired);
+        }
+
+        [Fact]
+        public void One_to_many_relationships_with_non_nullable_keys_can_be_made_optional()
+        {
+            var modelBuilder = HobNobBuilder();
+
+            modelBuilder
+                .Entity<Nob>()
+                .OneToMany(e => e.Hobs, e => e.Nob)
+                .ForeignKey(e => new { e.NobId1, e.NobId2 })
+                .Required(false);
+
+            var entityType = modelBuilder.Model.GetEntityType(typeof(Hob));
+
+            Assert.True(entityType.GetProperty("NobId1").IsNullable);
+            Assert.True(entityType.GetProperty("NobId1").IsNullable);
+            Assert.False(entityType.ForeignKeys.Single().IsRequired);
+        }
+
+        [Fact]
+        public void Many_to_one_relationships_with_nullable_keys_can_be_made_required()
+        {
+            var modelBuilder = HobNobBuilder();
+
+            modelBuilder
+                .Entity<Nob>()
+                .ManyToOne(e => e.Hob, e => e.Nobs)
+                .ForeignKey(e => new { e.HobId1, e.HobId2 })
+                .Required();
+
+            var entityType = modelBuilder.Model.GetEntityType(typeof(Nob));
+
+            Assert.False(entityType.GetProperty("HobId1").IsNullable);
+            Assert.False(entityType.GetProperty("HobId1").IsNullable);
+            Assert.True(entityType.ForeignKeys.Single().IsRequired);
+        }
+
+        [Fact]
+        public void Many_to_one_relationships_with_non_nullable_keys_can_be_made_optional()
+        {
+            var modelBuilder = HobNobBuilder();
+
+            modelBuilder
+                .Entity<Hob>()
+                .ManyToOne(e => e.Nob, e => e.Hobs)
+                .ForeignKey(e => new { e.NobId1, e.NobId2 })
+                .Required(false);
+
+            var entityType = modelBuilder.Model.GetEntityType(typeof(Hob));
+
+            Assert.True(entityType.GetProperty("NobId1").IsNullable);
+            Assert.True(entityType.GetProperty("NobId1").IsNullable);
+            Assert.False(entityType.ForeignKeys.Single().IsRequired);
+        }
+
+        [Fact]
+        public void One_to_one_relationships_with_nullable_keys_can_be_made_required()
+        {
+            var modelBuilder = HobNobBuilder();
+
+            modelBuilder
+                .Entity<Hob>()
+                .OneToOne(e => e.Nob, e => e.Hob)
+                .ForeignKey<Nob>(e => new { e.HobId1, e.HobId2 })
+                .Required();
+
+            var entityType = modelBuilder.Model.GetEntityType(typeof(Nob));
+
+            Assert.False(entityType.GetProperty("HobId1").IsNullable);
+            Assert.False(entityType.GetProperty("HobId1").IsNullable);
+            Assert.True(entityType.ForeignKeys.Single().IsRequired);
+        }
+
+        [Fact]
+        public void One_to_one_relationships_with_non_nullable_keys_can_be_made_optional()
+        {
+            var modelBuilder = HobNobBuilder();
+
+            modelBuilder
+                .Entity<Nob>()
+                .OneToOne(e => e.Hob, e => e.Nob)
+                .ForeignKey<Hob>(e => new { e.NobId1, e.NobId2 })
+                .Required(false);
+
+            var entityType = modelBuilder.Model.GetEntityType(typeof(Hob));
+
+            Assert.True(entityType.GetProperty("NobId1").IsNullable);
+            Assert.True(entityType.GetProperty("NobId1").IsNullable);
+            Assert.False(entityType.ForeignKeys.Single().IsRequired);
+        }
+
+        private class Hob
+        {
+            public string Id1 { get; set; }
+            public string Id2 { get; set; }
+
+            public int NobId1 { get; set; }
+            public int NobId2 { get; set; }
+
+            public Nob Nob { get; set; }
+            public ICollection<Nob> Nobs { get; set; }
+        }
+
+        private class Nob
+        {
+            public int Id1 { get; set; }
+            public int Id2 { get; set; }
+
+            public string HobId1 { get; set; }
+            public string HobId2 { get; set; }
+
+            public Hob Hob { get; set; }
+            public ICollection<Hob> Hobs { get; set; }
+        }
+
+        private ModelBuilder HobNobBuilder()
+        {
+            var builder = new ModelBuilder();
+
+            builder.Entity<Hob>().Key(e => new { e.Id1, e.Id2 });
+            builder.Entity<Nob>().Key(e => new { e.Id1, e.Id2 });
+
+            return builder;
+        }
     }
 }

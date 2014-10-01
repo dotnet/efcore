@@ -187,7 +187,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             Assert.Same(typeof(int), fk.ReferencedProperties[1].PropertyType);
             Assert.True(fk.ReferencedProperties[1].IsShadowProperty);
             Assert.False(fk.IsUnique);
-            Assert.True(fk.IsRequired);
+            Assert.False(fk.IsRequired);
         }
 
         [Fact]

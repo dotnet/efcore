@@ -551,6 +551,13 @@ namespace Microsoft.Data.Entity.Metadata
 
                     return new OneToManyBuilder(Builder.ReferencedKey(keyPropertyNames));
                 }
+
+                public virtual OneToManyBuilder Required(bool required = true)
+                {
+                    Builder.Required(required);
+
+                    return this;
+                }
             }
 
             public class ManyToOneBuilder : IManyToOneBuilder<ManyToOneBuilder>
@@ -601,6 +608,13 @@ namespace Microsoft.Data.Entity.Metadata
                     Check.NotNull(keyPropertyNames, "keyPropertyNames");
 
                     return new ManyToOneBuilder(Builder.ReferencedKey(keyPropertyNames));
+                }
+
+                public virtual ManyToOneBuilder Required(bool required = true)
+                {
+                    Builder.Required(required);
+
+                    return this;
                 }
             }
 
@@ -695,6 +709,13 @@ namespace Microsoft.Data.Entity.Metadata
                     Check.NotNull(keyExpression, "keyExpression");
 
                     return new OneToOneBuilder(Builder.OneToOneReferencedKey(typeof(TPrincipalEntity), keyExpression.GetPropertyAccessList()));
+                }
+
+                public virtual OneToOneBuilder Required(bool required = true)
+                {
+                    Builder.Required(required);
+
+                    return this;
                 }
             }
         }

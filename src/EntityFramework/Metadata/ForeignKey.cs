@@ -63,7 +63,15 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual bool IsRequired
         {
-            get { return Properties.Any(p => !p.IsNullable); }
+            get { return !Properties.Any(p => p.IsNullable); }
+            set
+            {
+                foreach (var property in Properties)
+                {
+                    // TODO: Depending on resolution of #723 this may change
+                    property.IsNullable = !value;
+                }
+            }
         }
 
         IReadOnlyList<IProperty> IForeignKey.ReferencedProperties
