@@ -827,6 +827,33 @@ namespace Microsoft.Data.Entity.Metadata
 
                     return new OneToManyBuilder<TRelatedEntity>(Builder.ReferencedKey(keyExpression.GetPropertyAccessList()));
                 }
+
+                public virtual new OneToManyBuilder<TRelatedEntity> Annotation([NotNull] string annotation, [NotNull] string value)
+                {
+                    Check.NotEmpty(annotation, "annotation");
+                    Check.NotEmpty(value, "value");
+
+                    return (OneToManyBuilder<TRelatedEntity>)base.Annotation(annotation, value);
+                }
+
+                public virtual new OneToManyBuilder<TRelatedEntity> ForeignKey([NotNull] params string[] foreignKeyPropertyNames)
+                {
+                    Check.NotNull(foreignKeyPropertyNames, "foreignKeyPropertyNames");
+
+                    return new OneToManyBuilder<TRelatedEntity>(Builder.ForeignKey(foreignKeyPropertyNames));
+                }
+
+                public virtual new OneToManyBuilder<TRelatedEntity> ReferencedKey([NotNull] params string[] keyPropertyNames)
+                {
+                    Check.NotNull(keyPropertyNames, "keyPropertyNames");
+
+                    return new OneToManyBuilder<TRelatedEntity>(Builder.ReferencedKey(keyPropertyNames));
+                }
+
+                public virtual new OneToManyBuilder<TRelatedEntity> Required(bool required = true)
+                {
+                    return (OneToManyBuilder<TRelatedEntity>)base.Required(required);
+                }
             }
 
             public class ManyToOneBuilder<TRelatedEntity> : ManyToOneBuilder
@@ -850,6 +877,33 @@ namespace Microsoft.Data.Entity.Metadata
                     Check.NotNull(keyExpression, "keyExpression");
 
                     return new ManyToOneBuilder<TRelatedEntity>(Builder.ReferencedKey(keyExpression.GetPropertyAccessList()));
+                }
+
+                public virtual new ManyToOneBuilder<TRelatedEntity> Annotation([NotNull] string annotation, [NotNull] string value)
+                {
+                    Check.NotEmpty(annotation, "annotation");
+                    Check.NotEmpty(value, "value");
+
+                    return (ManyToOneBuilder<TRelatedEntity>)base.Annotation(annotation, value);
+                }
+
+                public virtual new ManyToOneBuilder<TRelatedEntity> ForeignKey([NotNull] params string[] foreignKeyPropertyNames)
+                {
+                    Check.NotNull(foreignKeyPropertyNames, "foreignKeyPropertyNames");
+
+                    return new ManyToOneBuilder<TRelatedEntity>(Builder.ForeignKey(foreignKeyPropertyNames));
+                }
+
+                public virtual new ManyToOneBuilder<TRelatedEntity> ReferencedKey([NotNull] params string[] keyPropertyNames)
+                {
+                    Check.NotNull(keyPropertyNames, "keyPropertyNames");
+
+                    return new ManyToOneBuilder<TRelatedEntity>(Builder.ReferencedKey(keyPropertyNames));
+                }
+
+                public virtual new ManyToOneBuilder<TRelatedEntity> Required(bool required = true)
+                {
+                    return (ManyToOneBuilder<TRelatedEntity>)base.Required(required);
                 }
             }
         }
