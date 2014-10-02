@@ -143,6 +143,10 @@ namespace Microbenchmarks.Core
             }
             catch (Exception e)
             {
+                if (e.InnerException != null)
+                {
+                    return new RunResult(testName, e.InnerException);
+                }
                 return new RunResult(testName, e);
             }
 
@@ -156,6 +160,10 @@ namespace Microbenchmarks.Core
             }
             catch (Exception e)
             {
+                if (e.InnerException != null)
+                {
+                    return new RunResult(testName, e.InnerException);
+                }
                 return new RunResult(testName, e);
             }
 
@@ -185,6 +193,10 @@ namespace Microbenchmarks.Core
             }
             catch (Exception e)
             {
+                if (e.InnerException != null)
+                {
+                    return new RunResult(testName, e.InnerException);
+                }
                 return new RunResult(testName, e);
             }
 
@@ -200,6 +212,10 @@ namespace Microbenchmarks.Core
             }
             catch (Exception e)
             {
+                if (e.InnerException != null)
+                {
+                    return new RunResult(testName, e.InnerException);
+                }
                 result.ReportedException = e;
             }
 

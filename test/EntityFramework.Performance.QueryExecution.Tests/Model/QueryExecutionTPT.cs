@@ -129,6 +129,7 @@ namespace QueryExecution.Model
             modelBuilder.Entity<Order>(b =>
             {
                 b.ToTable("Order", "dbo");
+                b.Property(e => e.OrderId).GenerateValuesOnAdd(false);
             });
             modelBuilder.Entity<OrderLine>(b =>
             {
@@ -157,6 +158,7 @@ namespace QueryExecution.Model
             modelBuilder.Entity<Product>(b =>
             {
                 b.ToTable("Product", "dbo");
+                b.Property(e => e.ProductId).GenerateValuesOnAdd(false);
             });
             modelBuilder.Entity<ProductDetail>(b =>
             {

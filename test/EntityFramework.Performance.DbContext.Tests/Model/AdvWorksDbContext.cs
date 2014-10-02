@@ -32,21 +32,25 @@
             builder.Entity<DbProduct>(b =>
             {
                 b.Key(e => e.ProductID);
+                b.Property(e => e.ProductID).GenerateValuesUsingSequence();
                 b.ToTable("Product", "dbo");
             });
             builder.Entity<DbProductModel>(b =>
             {
                 b.Key(e => e.ProductModelID);
+                b.Property(e => e.ProductModelID).GenerateValuesUsingSequence();
                 b.ToTable("ProductModel", "dbo");
             });
             builder.Entity<DbWorkOrder>(b =>
             {
                 b.Key(e => e.WorkOrderID);
+                b.Property(e => e.WorkOrderID).GenerateValuesUsingSequence();
                 b.ToTable("WorkOrder", "dbo");
             });
             builder.Entity<DbProductSubcategory>(b =>
             {
                 b.Key(e => e.ProductSubcategoryID);
+                b.Property(e => e.ProductSubcategoryID).GenerateValuesUsingSequence();
                 b.ToTable("ProductSubcategory", "dbo");
             });
 
