@@ -10,7 +10,7 @@
     "code": [ "**\\*.cs", "..\\Shared\\*.cs" ],
     "frameworks": {
         "net451": { 
-            "dependencies": {
+            "frameworkAssemblies": {
                 "System.Threading.Tasks": ""
             }
         },

@@ -11,7 +11,7 @@
     "code": [ "**\\*.cs", "..\\Shared\\*.cs" ],
     "frameworks": {
         "aspnet50": {
-            "dependencies": {
+            "frameworkAssemblies": {
                 "System.Configuration": ""
             }
         },

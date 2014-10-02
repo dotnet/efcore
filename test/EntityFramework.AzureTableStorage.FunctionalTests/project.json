@@ -9,7 +9,7 @@
     },
     "frameworks": {
         "aspnet50": {
-            "dependencies": {
+            "frameworkAssemblies": {
                 "System.Threading.Tasks": ""
             }
         }

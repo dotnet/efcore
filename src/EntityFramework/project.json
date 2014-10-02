@@ -12,22 +12,26 @@
     "code": [ "**\\*.cs", "..\\Shared\\*.cs" ],
     "frameworks": {
         "net45": {
-            "dependencies": {
+            "frameworkAssemblies": {
                 "System.Collections": "",
                 "System.Linq.Expressions": "",
                 "System.ObjectModel": "",
-                "System.Reflection":  "",
-                "System.Runtime": "",
+                "System.Reflection": "",
+                "System.Runtime": ""
+            },
+            "dependencies": {
                 "Microsoft.Bcl.Immutable": "1.1.22-beta"
             }
         },
         "aspnet50": {
-            "dependencies": {
+            "frameworkAssemblies": {
                 "System.Collections": "",
                 "System.Linq.Expressions": "",
                 "System.ObjectModel": "",
-                "System.Reflection":  "",
-                "System.Runtime": "",
+                "System.Reflection": "",
+                "System.Runtime": ""
+            },
+            "dependencies": {
                 "Microsoft.Bcl.Immutable": "1.1.18-beta-*"
             }
         },
@@ -47,13 +51,15 @@
             }
         },
         ".NETPortable,Version=v4.6,Profile=Profile151": {
-            "dependencies": {
+            "frameworkAssemblies": {
                 "System.ComponentModel": "",
                 "System.Diagnostics.Contracts": "",
                 "System.Linq.Expressions": "",
                 "System.Linq.Queryable": "",
                 "System.ObjectModel": "",
-                "System.Reflection.Extensions": "",
+                "System.Reflection.Extensions": ""
+            },
+            "dependencies": {
                 "Microsoft.Bcl.Immutable": "1.1.22-beta"
             }
         }
