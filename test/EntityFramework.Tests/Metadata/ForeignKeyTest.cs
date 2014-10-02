@@ -116,5 +116,61 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.False(foreignKey.IsRequired);
         }
+
+        [Fact]
+        public void IsRequired_false_when_any_part_of_composite_FK_is_nullable()
+        {
+            var entityType = new EntityType("E");
+            entityType.GetOrSetPrimaryKey(
+                entityType.GetOrAddProperty("Id1", typeof(int), shadowProperty: true),
+                entityType.GetOrAddProperty("Id2", typeof(string), shadowProperty: true));
+
+            var dependentProp1 = entityType.GetOrAddProperty("P1", typeof(int), shadowProperty: true);
+            var dependentProp2 = entityType.GetOrAddProperty("P2", typeof(string), shadowProperty: true);
+
+            var foreignKey = new ForeignKey(entityType.GetPrimaryKey(), new[] { dependentProp1, dependentProp2 });
+
+            Assert.False(foreignKey.IsRequired);
+        }
+
+        [Fact]
+        public void Setting_IsRequired_will_set_all_FK_properties_as_non_nullable()
+        {
+            var entityType = new EntityType("E");
+            entityType.GetOrSetPrimaryKey(
+                entityType.GetOrAddProperty("Id1", typeof(int), shadowProperty: true),
+                entityType.GetOrAddProperty("Id2", typeof(string), shadowProperty: true));
+
+            var dependentProp1 = entityType.GetOrAddProperty("P1", typeof(int), shadowProperty: true);
+            var dependentProp2 = entityType.GetOrAddProperty("P2", typeof(string), shadowProperty: true);
+
+            var foreignKey = new ForeignKey(entityType.GetPrimaryKey(), new[] { dependentProp1, dependentProp2 });
+            
+            foreignKey.IsRequired = true;
+
+            Assert.True(foreignKey.IsRequired);
+            Assert.False(dependentProp1.IsNullable);
+            Assert.False(dependentProp2.IsNullable);
+        }
+
+        [Fact]
+        public void Clearing_IsRequired_will_set_all_FK_properties_as_nullable()
+        {
+            var entityType = new EntityType("E");
+            entityType.GetOrSetPrimaryKey(
+                entityType.GetOrAddProperty("Id1", typeof(int), shadowProperty: true),
+                entityType.GetOrAddProperty("Id2", typeof(string), shadowProperty: true));
+
+            var dependentProp1 = entityType.GetOrAddProperty("P1", typeof(int), shadowProperty: true);
+            var dependentProp2 = entityType.GetOrAddProperty("P2", typeof(string), shadowProperty: true);
+
+            var foreignKey = new ForeignKey(entityType.GetPrimaryKey(), new[] { dependentProp1, dependentProp2 });
+
+            foreignKey.IsRequired = false;
+
+            Assert.False(foreignKey.IsRequired);
+            Assert.True(dependentProp1.IsNullable);
+            Assert.True(dependentProp2.IsNullable);
+        }
     }
 }
