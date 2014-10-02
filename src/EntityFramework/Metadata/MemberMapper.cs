@@ -31,6 +31,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         // TODO: Consider doing this at model building time, but also consider mapping to interfaces
+        // Issue #757
         public virtual IEnumerable<Tuple<IProperty, MemberInfo>> MapPropertiesToMembers([NotNull] IEntityType entityType)
         {
             Check.NotNull(entityType, "entityType");
@@ -46,6 +47,7 @@ namespace Microsoft.Data.Entity.Metadata
                 foreach (var propertyInfo in entityType.Type.GetPropertiesInHierarchy(propertyName))
                 {
                     // TODO: Handle cases where backing field is declared in a different class than the property
+                    // Issue #758
                     Dictionary<string, FieldInfo> fields;
                     if (!fieldCache.TryGetValue(propertyInfo.DeclaringType, out fields))
                     {

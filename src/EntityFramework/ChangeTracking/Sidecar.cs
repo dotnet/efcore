@@ -17,7 +17,6 @@ namespace Microsoft.Data.Entity.ChangeTracking
             public const string StoreGeneratedValues = "StoreGeneratedValues";
         }
 
-        // TODO: Perf: Consider removing this reference to save memory
         private readonly StateEntry _stateEntry;
 
         /// <summary>

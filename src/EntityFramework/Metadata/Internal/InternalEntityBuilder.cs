@@ -77,6 +77,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         private InternalForeignKeyBuilder ForeignKey(EntityType principalType, IEnumerable<Property> dependentProperties)
         {
             // TODO: This code currently assumes that the FK maps to a PK on the principal end
+            // Issue #756
             var foreignKey = Metadata.GetOrAddForeignKey(principalType.GetPrimaryKey(), dependentProperties.ToArray());
 
             return new InternalForeignKeyBuilder(foreignKey, ModelBuilder);
@@ -116,6 +117,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             // Find the associated FK on an already existing navigation, or create one by convention
             // TODO: If FK isn't already specified, then creating the navigation should cause it to be found/created
+            // Issue #213
             // by convention, but this part of conventions is not done yet, so we do it here instead--kind of h.acky
 
             var foreignKey = navToDependent != null

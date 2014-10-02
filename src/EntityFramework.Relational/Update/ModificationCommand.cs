@@ -118,12 +118,8 @@ namespace Microsoft.Data.Entity.Relational.Update
                 foreach (var property in entityType.Properties)
                 {
                     var isKey = property.IsPrimaryKey();
-
                     var isCondition = !adding && (isKey || property.IsConcurrencyToken);
-
                     var readValue = stateEntry.NeedsStoreValue(property);
-
-                    // TODO: Default values
                     var writeValue = !readValue && (adding || stateEntry.IsPropertyModified(property));
 
                     if (readValue
@@ -155,6 +151,7 @@ namespace Microsoft.Data.Entity.Relational.Update
             Check.NotNull(reader, "reader");
 
             // TODO: Consider using strongly typed ReadValue instead of just <object>
+            // Issue #771
             // Note that this call sets the value into a sidecar and will only commit to the actual entity
             // if SaveChanges is successful.
             var columnOperations = ColumnModifications.Where(o => o.IsRead).ToArray();

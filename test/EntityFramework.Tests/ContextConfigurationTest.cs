@@ -13,20 +13,6 @@ namespace Microsoft.Data.Entity.Tests
 {
     public class ContextConfigurationTest
     {
-        // TODO: Re-enable once DI changes are in
-        //[Fact]
-        //public void Throws_if_required_services_not_configured()
-        //{
-        //    RequiredServiceTest(c => c.Services.ModelSource);
-        //    RequiredServiceTest(c => c.Services.EntityKeyFactorySource);
-        //    RequiredServiceTest(c => c.Services.ClrPropertyGetterSource);
-        //    RequiredServiceTest(c => c.Services.ClrPropertySetterSource);
-        //    RequiredServiceTest(c => c.Services.StateManager);
-        //    RequiredServiceTest(c => c.Services.ContextSets);
-        //    RequiredServiceTest(c => c.Services.StateEntryNotifier);
-        //    RequiredServiceTest(c => c.Services.StateEntryFactory);
-        //}
-
         private void RequiredServiceTest<TService>(Func<DbContextConfiguration, TService> test)
         {
             // TODO: Check for proper message/type once DI has this

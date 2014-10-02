@@ -28,10 +28,12 @@ namespace Microsoft.Data.Entity.Relational.Model
             };
 
         // TODO: What is the best size value for the base provider mapping?
+        // Issue #768
         private readonly RelationalTypeMapping _nonKeyStringMapping
             = new RelationalSizedTypeMapping("varchar(4000)", DbType.AnsiString, 4000);
 
         // TODO: What is the best size value for the base provider mapping?
+        // Issue #768
         private readonly RelationalTypeMapping _keyStringMapping
             = new RelationalSizedTypeMapping("varchar(128)", DbType.AnsiString, 128);
 
@@ -42,6 +44,7 @@ namespace Microsoft.Data.Entity.Relational.Model
 
         // TODO: It would be nice to just pass IProperty into this method, but Migrations uses its own
         // store model for which there is no easy way to get an IProperty.
+        // Issue #769
         public virtual RelationalTypeMapping GetTypeMapping(
             [CanBeNull] string specifiedType,
             [NotNull] string storageName,
@@ -54,6 +57,7 @@ namespace Microsoft.Data.Entity.Relational.Model
 
             // TODO: if specifiedType is non-null then parse it to create a type mapping
             // TODO: Consider allowing Code First to specify an actual type mapping instead of just the string
+            // Issue #587
             // type since that would remove the need to parse the string.
 
             propertyType = propertyType.UnwrapNullableType();
@@ -72,6 +76,7 @@ namespace Microsoft.Data.Entity.Relational.Model
             if (propertyType == typeof(decimal))
             {
                 // TODO: If scale/precision have been configured for the property, then create parameter appropriately
+                // Issue #587
                 return _decimalMapping;
             }
 
@@ -90,6 +95,7 @@ namespace Microsoft.Data.Entity.Relational.Model
             }
 
             // TODO: Consider TimeSpan mapping
+            // Issue #770
 
             throw new NotSupportedException(Strings.FormatUnsupportedType(storageName, propertyType.Name));
         }

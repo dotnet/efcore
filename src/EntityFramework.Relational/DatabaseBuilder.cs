@@ -18,6 +18,7 @@ namespace Microsoft.Data.Entity.Relational
     {
         // TODO: IModel may not be an appropriate cache key if we want to be
         // able to unload IModel instances and create new ones.
+        // Issue #765
         private readonly ThreadSafeDictionaryCache<IModel, ModelDatabaseMapping> _mappingCache
             = new ThreadSafeDictionaryCache<IModel, ModelDatabaseMapping>();
 
@@ -36,6 +37,7 @@ namespace Microsoft.Data.Entity.Relational
                 {
                     // TODO: Consider making this lazy since we don't want to load the whole model just to
                     // save changes to a single entity.
+                    // Issue #766
                     var database = new DatabaseModel();
                     var mapping = new ModelDatabaseMapping(m, database);
 
@@ -159,6 +161,7 @@ namespace Microsoft.Data.Entity.Relational
             // TODO: This is a workaround to get the value-generation annotations into the relational model
             // so they can be used for appropriate DDL gen. Hopefully changes can be made to avoid copying all
             // this stuff, or to do it in a cleaner manner.
+            // Issue #767
             foreach (var annotation in property.EntityType.Model.Annotations
                 .Concat(property.EntityType.Annotations)
                 .Concat(property.Annotations))

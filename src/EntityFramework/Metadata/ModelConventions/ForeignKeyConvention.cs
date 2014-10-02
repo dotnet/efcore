@@ -11,6 +11,7 @@ using Microsoft.Data.Entity.Utilities;
 namespace Microsoft.Data.Entity.Metadata.ModelConventions
 {
     // TODO: This is not yet a "real" convention because the convention infrastructure is not in place
+    // Issue #213
     // Instead this is the basic logic for discovering an FK based on navigation properties, etc. such that this
     // logic can be used in the model builder to create an FK by convention when needed.
     public class ForeignKeyConvention
@@ -93,6 +94,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
                         && !principalKey.Properties.Select(p => p.UnderlyingType).SequenceEqual(foreignKeyProperties.Select(p => p.UnderlyingType))))
                 {
                     // TODO: Convention property naming/disambiguation
+                    // Issue #213
                     if (foreignKeyProperties.Any())
                     {
                         principalKey = principalType.GetOrAddKey(
@@ -111,12 +113,14 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             {
                 // Create foreign key properties in shadow state
                 // TODO: Convention property naming/disambiguation
+                // Issue #213
                 var baseName = (navigationToPrincipal ?? principalType.SimpleName) + "Id";
                 var isComposite = principalKey.Properties.Count > 1;
 
                 foreignKeyProperties = principalKey.Properties.Select((p, i) => dependentType.GetOrAddProperty(
                     baseName + (isComposite ? i.ToString() : ""),
                     // TODO: Make nullable
+                    // Issue #213
                     principalKey.Properties[i].PropertyType,
                     shadowProperty: true)).ToList();
             }

@@ -28,6 +28,7 @@ namespace Microsoft.Data.Entity.Relational
                 .AddSingleton<CommandBatchPreparer>()
                 .AddScoped<RelationalDatabase>()
                 // TODO: Is singleton correct here? What is IConfiguration scoped as?
+                // Issue #192
                 .AddSingleton<ConnectionStringResolver>();
 
             return builder;

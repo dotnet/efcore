@@ -56,6 +56,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             Check.NotNull(entityType, "entityType");
 
             // TODO: Consider entities without parameterless constructor--use o/c mapping info?
+            // Issue #240
             var entity = entityType.HasClrType ? Activator.CreateInstance(entityType.Type) : null;
 
             return _subscriber.SnapshotAndSubscribe(_factory.Create(entityType, entity));
@@ -66,7 +67,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             Check.NotNull(entity, "entity");
 
             // TODO: Consider how to handle derived types that are not explicitly in the model
-
+            // Issue #743
             StateEntry stateEntry;
             if (!_entityReferenceMap.TryGetValue(entity, out stateEntry))
             {
@@ -84,7 +85,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             Check.NotNull(entityType, "entityType");
             Check.NotNull(valueReader, "valueReader");
 
-            // TODO: Pre-compute this for speed
+            // TODO: Perf: Pre-compute this for speed
             var keyProperties = entityType.GetPrimaryKey().Properties;
             var keyValue = _keyFactorySource.GetKeyFactory(keyProperties).Create(entityType, keyProperties, valueReader);
 
@@ -162,8 +163,8 @@ namespace Microsoft.Data.Entity.ChangeTracking
             {
                 if (existingEntry != entry)
                 {
-                    // TODO: Consider a hook for identity resolution
                     // TODO: Consider specialized exception types
+                    // Issue #611
                     throw new InvalidOperationException(Strings.FormatIdentityConflict(entityType.Name));
                 }
             }
@@ -219,6 +220,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             if (principals.Length > 1)
             {
                 // TODO: Better exception message
+                // Issue #739
                 throw new InvalidOperationException("Multiple matching principals.");
             }
 
@@ -272,7 +274,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             var principalKeyValue = principalEntry.GetPrincipalKeyValue(foreignKey);
 
-            // TODO: Add additional indexes so that this isn't a linear lookup
+            // TODO: Perf: Add additional indexes so that this isn't a linear lookup
             return principalKeyValue == EntityKey.NullEntityKey
                 ? Enumerable.Empty<StateEntry>()
                 : StateEntries.Where(
@@ -297,6 +299,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 var result = SaveChanges(entriesToSave);
 
                 // TODO: When transactions supported, make it possible to commit/accept at end of all transactions
+                // Issue #744
                 foreach (var entry in entriesToSave)
                 {
                     entry.AutoCommitSidecars();
@@ -334,6 +337,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                         .WithCurrentCulture();
 
                 // TODO: When transactions supported, make it possible to commit/accept at end of all transactions
+                // Issue #744
                 foreach (var entry in entriesToSave)
                 {
                     entry.AutoCommitSidecars();

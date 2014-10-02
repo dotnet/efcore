@@ -8,6 +8,7 @@ using Microsoft.Data.Entity.Metadata;
 namespace Microsoft.Data.Entity.ChangeTracking
 {
     // TODO: Consider which of listerners/events/interceptors/etc is better here
+    // See issue #737
     public interface IEntityStateListener
     {
         void StateChanging([NotNull] StateEntry entry, EntityState newState);

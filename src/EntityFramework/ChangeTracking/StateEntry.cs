@@ -263,6 +263,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 }
 
                 // TODO: Does changing to Unknown really mean stop tracking?
+                // Issue #323
                 _configuration.StateManager.StopTracking(this);
             }
 
@@ -297,12 +298,14 @@ namespace Microsoft.Data.Entity.ChangeTracking
             Check.NotNull(property, "property");
 
             // TODO: Restore original value to reject changes when isModified is false
+            // Issue #742
 
             var currentState = _stateData.EntityState;
 
             if ((currentState != EntityState.Modified
                  && currentState != EntityState.Unchanged)
                 // TODO: Consider allowing computed properties to be forcibly marked as modified
+                // Issue #711
                 || property.ValueGeneration == ValueGeneration.OnAddAndUpdate)
             {
                 return;

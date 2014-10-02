@@ -32,6 +32,7 @@ namespace Microsoft.Data.Entity.SqlServer
             var annotatedIncrement = property.FindAnnotationInHierarchy(SqlServerMetadataExtensions.Annotations.SequenceBlockSize);
 
             // TODO: Allow integer annotations
+            // Issue #777
             return annotatedIncrement != null ? int.Parse(annotatedIncrement) : DefaultBlockSize;
         }
 
@@ -94,6 +95,7 @@ namespace Microsoft.Data.Entity.SqlServer
             Check.NotNull(property, "property");
 
             // TODO: Allow configuration without creation of derived factory type
+            // Issue #778
             return 5;
         }
 

@@ -424,6 +424,7 @@ namespace Microsoft.Data.Entity.Relational.Update
 
                 // TODO: It would be nice to just pass IProperty to the type mapper, but Migrations uses its own
                 // store model for which there is no easy way to get an IProperty.
+                // Issue #769
                 var typeMapping = typeMapper
                     .GetTypeMapping(
                         property.ColumnType(), property.ColumnName(), property.PropertyType, isKey, property.IsConcurrencyToken);

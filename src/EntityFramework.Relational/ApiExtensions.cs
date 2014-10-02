@@ -241,6 +241,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         // TODO: Move this to Microsoft.Data.Entity.SqlServer
+        // Issue #764
         public static bool IsClustered([NotNull] this IIndex index)
         {
             Check.NotNull(index, "index");

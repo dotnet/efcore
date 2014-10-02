@@ -63,6 +63,7 @@ namespace Microsoft.Data.Entity
         }
 
         // TODO: Consider removing this constructor if DbContextOptions should be obtained from serviceProvider
+        // Issue #192
         public DbContext([NotNull] IServiceProvider serviceProvider, [NotNull] DbContextOptions options)
         {
             Check.NotNull(serviceProvider, "serviceProvider");
@@ -122,6 +123,7 @@ namespace Microsoft.Data.Entity
             var stateManager = Configuration.StateManager;
 
             // TODO: Allow auto-detect changes to be switched off
+            // Issue #745
             Configuration.Services.ChangeDetector.DetectChanges(stateManager);
 
             try
@@ -146,6 +148,7 @@ namespace Microsoft.Data.Entity
             var stateManager = Configuration.StateManager;
 
             // TODO: Allow auto-detect changes to be switched off
+            // Issue #745
             Configuration.Services.ChangeDetector.DetectChanges(stateManager);
 
             try
@@ -166,6 +169,7 @@ namespace Microsoft.Data.Entity
         }
 
         // TODO: Consider Framework Guidelines recommended dispose pattern
+        // Issue #746
         public virtual void Dispose()
         {
             var disposableServiceProvider = _scopedServiceProvider as IDisposable;

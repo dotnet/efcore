@@ -34,6 +34,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             Check.NotNull(entityType, "entityType");
 
             // TODO: Honor [Key]
+            // Issue #213
             var keyProperties = entityType.Properties
                 .Where(p => string.Equals(p.Name, KeySuffix, StringComparison.OrdinalIgnoreCase));
 
@@ -63,6 +64,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             }
 
             // TODO: Nullable, Sequence
+            // Issue #213
         }
     }
 }

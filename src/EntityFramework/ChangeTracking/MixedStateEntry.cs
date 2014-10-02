@@ -94,6 +94,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 if (property.IsShadowProperty)
                 {
                     // TODO: Consider using strongly typed ReadValue instead of always object
+                    // Issue #738
                     shadowValues[property.ShadowIndex] = valueReader.IsNull(i) ? null : valueReader.ReadValue<object>(i);
                 }
             }

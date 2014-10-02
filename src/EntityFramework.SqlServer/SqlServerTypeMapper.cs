@@ -33,6 +33,7 @@ namespace Microsoft.Data.Entity.SqlServer
             = new RelationalTypeMapping("nvarchar(max)", DbType.String);
 
         // TODO: It may be possible to increase 128 to 900, at least for SQL Server
+        // Issue #768
         private readonly RelationalTypeMapping _keyStringMapping
             = new RelationalSizedTypeMapping("nvarchar(128)", DbType.String, 128);
 
@@ -40,6 +41,7 @@ namespace Microsoft.Data.Entity.SqlServer
             = new RelationalTypeMapping("varbinary(max)", DbType.Binary);
 
         // TODO: It may be possible to increase 128 to 900, at least for SQL Server
+        // Issue #768
         private readonly RelationalTypeMapping _keyByteArrayMapping
             = new RelationalSizedTypeMapping("varbinary(128)", DbType.Binary, 128);
 

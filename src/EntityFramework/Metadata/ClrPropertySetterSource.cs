@@ -14,6 +14,7 @@ namespace Microsoft.Data.Entity.Metadata
             Check.NotNull(property, "property");
 
             // TODO: Handle case where there is not setter or setter is private on a base type
+            // Issue #753
             var setterDelegate = (Action<TEntity, TValue>)property.SetMethod.CreateDelegate(typeof(Action<TEntity, TValue>));
 
             return new ClrPropertySetter<TEntity, TValue>(setterDelegate);

@@ -33,6 +33,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         // TODO: Consider whether these conversions are useful
+        // Issue #750
         public static explicit operator ModelBuilder([NotNull] BasicModelBuilder builder)
         {
             Check.NotNull(builder, "builder");
@@ -41,6 +42,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         // TODO: Consider removing this and just using Metadata
+        // Issue #751
         public virtual Model Model
         {
             get { return Metadata; }

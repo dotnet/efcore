@@ -98,6 +98,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 entry.OriginalValues.EnsureSnapshot(propertyBase);
 
                 // TODO: Consider making snapshot temporary here since it is no longer required after PropertyChanged is called
+                // See issue #730
                 entry.RelationshipsSnapshot.TakeSnapshot(propertyBase);
             }
         }
@@ -126,6 +127,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             var originalValues = entry.TryGetSidecar(Sidecar.WellKnownNames.OriginalValues);
 
             // TODO: Consider more efficient/higher-level/abstract mechanism for checking if DetectChanges is needed
+            // See issue #731
             if (entityType.Type == null
                 || originalValues == null
                 || typeof(INotifyPropertyChanged).GetTypeInfo().IsAssignableFrom(entityType.Type.GetTypeInfo()))

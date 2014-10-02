@@ -12,6 +12,7 @@ using Microsoft.Data.Entity.Utilities;
 namespace Microsoft.Data.Entity.ChangeTracking
 {
     // TODO: Consider using ArraySidecar with pre-defined indexes
+    // Issue #741
     public class RelationshipsSnapshot : DictionarySidecar
     {
         /// <summary>

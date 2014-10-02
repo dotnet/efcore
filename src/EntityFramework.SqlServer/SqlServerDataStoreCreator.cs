@@ -100,6 +100,7 @@ namespace Microsoft.Data.Entity.SqlServer
         private IEnumerable<SqlStatement> CreateCreateOperations()
         {
             // TODO Check DbConnection.Database always gives us what we want
+            // Issue #775
             var databaseName = _connection.DbConnection.Database;
             var sqlGenerator = _sqlGeneratorFactory.Create();
 
@@ -181,6 +182,7 @@ namespace Microsoft.Data.Entity.SqlServer
         {
             // TODO Explore if there are important scenarios where this could give a false negative
             // Login failed is thrown when database does not exist
+            // Issue #776
             return exception.Number == 4060;
         }
 
@@ -230,6 +232,7 @@ namespace Microsoft.Data.Entity.SqlServer
             var operations = new MigrationOperation[]
                 {
                     // TODO Check DbConnection.Database always gives us what we want
+                    // Issue #775
                     new DropDatabaseOperation(_connection.DbConnection.Database)
                 };
 

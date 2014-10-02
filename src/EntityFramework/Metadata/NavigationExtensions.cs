@@ -28,7 +28,6 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotNull(navigation, "navigation");
 
-            // TODO: Ensure only one inverse can be created when building metadata
             return navigation.PointsToPrincipal
                 ? navigation.ForeignKey.ReferencedEntityType
                 : navigation.ForeignKey.EntityType;

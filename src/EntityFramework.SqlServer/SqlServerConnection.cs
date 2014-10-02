@@ -21,6 +21,7 @@ namespace Microsoft.Data.Entity.SqlServer
         protected override DbConnection CreateDbConnection()
         {
             // TODO: Consider using DbProviderFactory to create connection instance
+            // Issue #774
             return new SqlConnection(ConnectionString);
         }
 

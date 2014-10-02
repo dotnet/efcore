@@ -14,6 +14,7 @@ namespace Microsoft.Data.Entity.SQLite
     public class SQLiteMigrationOperationPreProcessor : MigrationOperationVisitor<SQLiteMigrationOperationPreProcessor.Context>
     {
         // TODO: Figure out what needs to be done with the sequence operations.
+        // Issue #449
 
         public override void Visit(CreateTableOperation operation, Context context)
         {

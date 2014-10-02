@@ -35,6 +35,7 @@ namespace Microsoft.Data.Entity.Storage
         public override bool IsAvailable
         {
             // TODO: Consider finding connection string in config file by convention
+            // Issue #763
             get { return IsConfigured; }
         }
     }

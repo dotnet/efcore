@@ -33,6 +33,7 @@ namespace Microsoft.Data.Entity
 
             // TODO: Consider more robust hashing algorithm
             // Note that no cryptographic algorithm is available on all of phone/store/k/desktop
+            // Issue #762
             unchecked
             {
                 var key = services.Aggregate(0, (t, d) => (t * 397) ^ CalculateHash(d).GetHashCode());

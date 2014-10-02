@@ -49,6 +49,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             for (var i = 0; i < valueReader.Count; i++)
             {
                 // TODO: Consider using strongly typed ReadValue instead of always object
+                // Issue #738
                 _propertyValues[i] = valueReader.IsNull(i) ? null : valueReader.ReadValue<object>(i);
             }
         }

@@ -593,7 +593,7 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotEmpty(name, "name");
 
-            // TODO: This should be O(log(n)) but an additional index could be created
+            // TODO: Perf: This should be O(log(n)) but an additional index could be created
             // TODO: if this is too slow or if creating the surrogate Property object is too expensive
             var surrogate = new Property(name, typeof(object));
             var index = _properties.BinarySearch(surrogate, PropertyComparer.Instance);

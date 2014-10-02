@@ -39,6 +39,7 @@ namespace Microsoft.Data.Entity
         IEnumerator IEnumerable.GetEnumerator()
         {
             // TODO: Consider something better here
+            // Issue #747
             return ((IEnumerable)this).GetEnumerator();
         }
 
@@ -47,6 +48,8 @@ namespace Microsoft.Data.Entity
         public abstract IQueryProvider Provider { get; }
 
         // TODO: Decide whether/how to implement non-generic API
+        // Issue #747
         // TODO: Consider the role of DbSet when entity is in shadow
+        // Issue #749
     }
 }

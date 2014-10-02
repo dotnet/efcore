@@ -17,6 +17,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             Check.NotNull(valueReader, "valueReader");
 
             // TODO: Consider using strongly typed ReadValue instead of always object
+            // See issue #736
             return Create(entityType, properties.Select(p => valueReader.ReadValue<object>(p.Index)).ToArray());
         }
 

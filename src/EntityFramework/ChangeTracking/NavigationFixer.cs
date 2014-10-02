@@ -77,6 +77,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                         var oldDependents = stateManager.GetDependents(principalEntry, foreignKey).Where(e => e != entry).ToArray();
 
                         // TODO: Decide how to handle case where multiple values found (negative case)
+                        // Issue #739
                         if (oldDependents.Length > 0)
                         {
                             StealReference(foreignKey, oldDependents[0]);
@@ -104,7 +105,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             var stateManager = _configuration.StateManager;
 
             // TODO: What if the other entry is not yet being tracked?
-
+            // Issue #323
             if (navigation.PointsToPrincipal)
             {
                 if (newValue != null)
@@ -163,7 +164,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             var principalValues = navigation.ForeignKey.ReferencedProperties.Select(p => entry[p]).ToArray();
 
             // TODO: What if the entity is not yet being tracked?
-
+            // Issue #323
             foreach (var entity in removed)
             {
                 ConditionallySetNullForeignKey(stateManager.GetOrCreateEntry(entity), dependentProperties, principalValues);
@@ -368,6 +369,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                     else
                     {
                         // TODO: Decide how to handle case where multiple values match non-collection nav prop
+                        // Issue #739
                         _setterSource.GetAccessor(navigation).SetClrValue(principalEntry.Entity, dependentEntries.Single().Entity);
                     }
                     principalEntry.RelationshipsSnapshot.TakeSnapshot(navigation);
@@ -439,6 +441,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             for (var i = 0; i < dependentProperties.Count; i++)
             {
                 // TODO: Consider nullable/non-nullable assignment issues
+                // Issue #740
                 var dependentProperty = dependentProperties[i];
                 dependentEntry[dependentProperty] = principalValues[i];
                 dependentEntry.RelationshipsSnapshot.TakeSnapshot(dependentProperty);
@@ -467,6 +470,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             foreach (var dependentProperty in dependentProperties)
             {
                 // TODO: Conceptual nulls
+                // Issue #323
                 dependentEntry[dependentProperty] = null;
                 dependentEntry.RelationshipsSnapshot.TakeSnapshot(dependentProperty);
             }

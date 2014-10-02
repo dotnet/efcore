@@ -16,7 +16,9 @@ namespace Microsoft.Data.Entity.Metadata
         private readonly InternalModelBuilder _builder;
 
         // TODO: Get the default convention list from DI
+        // Issue #213
         // TODO: Configure property facets, foreign keys & navigation properties
+        // Issue #213
         private readonly IList<IModelConvention> _conventions;
 
         public ModelBuilder()
@@ -53,6 +55,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         // TODO: Consider whether these conversions are useful
+        // Issue #750
         public static explicit operator BasicModelBuilder([NotNull] ModelBuilder builder)
         {
             Check.NotNull(builder, "builder");
@@ -638,8 +641,6 @@ namespace Microsoft.Data.Entity.Metadata
                 Expression<Func<TPrincipalEntity, IEnumerable<TDependentEntity>>> collection,
                 Expression<Func<TDependentEntity, TPrincipalEntity>> reference)
             {
-                // TODO: Checking for bad/inconsistent FK/navigation/type configuration in this method and below
-
                 // Find either navigation that already exists
                 var navNameToDependent = collection != null ? collection.GetPropertyAccess().Name : null;
                 var navNameToPrincipal = reference != null ? reference.GetPropertyAccess().Name : null;
@@ -652,8 +653,6 @@ namespace Microsoft.Data.Entity.Metadata
                 [CanBeNull] Expression<Func<TEntity, TRelatedEntity>> reference = null,
                 [CanBeNull] Expression<Func<TRelatedEntity, TEntity>> inverse = null)
             {
-                // TODO: Checking for bad/inconsistent FK/navigation/type configuration in this method and below
-
                 // Find either navigation that already exists
                 var navNameToDependent = reference != null ? reference.GetPropertyAccess().Name : null;
                 var navNameToPrincipal = inverse != null ? inverse.GetPropertyAccess().Name : null;

@@ -166,9 +166,11 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var entityType = Metadata.EntityType;
 
             // TODO: Remove FK only if it was added by convention
+            // Issue #213
             entityType.RemoveForeignKey(Metadata);
 
             // TODO: Remove principal key only if it was added by convention
+            // Issue #213
             var currentPrincipalKey = Metadata.ReferencedKey;
             if (currentPrincipalKey != newForeignKey.ReferencedKey
                 && currentPrincipalKey != currentPrincipalKey.EntityType.TryGetPrimaryKey()
@@ -193,6 +195,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 .Except(propertiesInUse);
 
             // TODO: Remove property only if it was added by convention
+            // Issue #213
             foreach (var property in propertiesToRemove)
             {
                 property.EntityType.RemoveProperty(property);

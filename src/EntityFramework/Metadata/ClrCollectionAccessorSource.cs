@@ -43,6 +43,7 @@ namespace Microsoft.Data.Entity.Metadata
             var elementType = property.PropertyType.TryGetElementType(typeof(ICollection<>));
 
             // TODO: Only ICollections supported; add support for enumerables with add/remove methods
+            // Issue #752
             if (elementType == null)
             {
                 throw new NotSupportedException(

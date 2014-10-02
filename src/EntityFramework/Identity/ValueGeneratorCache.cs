@@ -40,8 +40,6 @@ namespace Microsoft.Data.Entity.Identity
         {
             Check.NotNull(property, "property");
 
-            // TODO: Consider if a specific generator has been set on the property then use it instead
-
             if (property.IsForeignKey())
             {
                 return _foreignKeyValueGenerator;

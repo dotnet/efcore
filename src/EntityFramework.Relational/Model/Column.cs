@@ -12,6 +12,7 @@ namespace Microsoft.Data.Entity.Relational.Model
 {
     // TODO: Consider adding more validation.
     // TODO: Inheriting from MetadataBase to get annotations; it is unfortunate that all property information
+    // Issue #767
     // has to be duplicated in the relational model
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class Column : MetadataBase
