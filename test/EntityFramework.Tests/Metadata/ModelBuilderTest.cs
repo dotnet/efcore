@@ -6145,5 +6145,125 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             return builder;
         }
+
+        [Fact]
+        public void Generic_OneToMany_is_preserved_when_chaining_from_Annotation()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            AssertIsGenericOneToMany(modelBuilder
+                .Entity<Customer>()
+                .OneToMany(e => e.Orders, e => e.Customer)
+                .Annotation("X", "Y"));
+
+            var entityType = modelBuilder.Model.GetEntityType(typeof(Order));
+            Assert.Equal("Y", entityType.ForeignKeys.Single()["X"]);
+        }
+
+        [Fact]
+        public void Generic_OneToMany_is_preserved_when_chaining_from_ForeignKey()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            AssertIsGenericOneToMany(modelBuilder
+                .Entity<Customer>()
+                .OneToMany(e => e.Orders, e => e.Customer)
+                .ForeignKey("AnotherCustomerId"));
+
+            var entityType = modelBuilder.Model.GetEntityType(typeof(Order));
+            Assert.Equal("AnotherCustomerId", entityType.ForeignKeys.Single().Properties.Single().Name);
+        }
+
+        [Fact]
+        public void Generic_OneToMany_is_preserved_when_chaining_from_ReferencedKey()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            AssertIsGenericOneToMany(modelBuilder
+                .Entity<Customer>()
+                .OneToMany(e => e.Orders, e => e.Customer)
+                .ReferencedKey("AlternateKey"));
+
+            var entityType = modelBuilder.Model.GetEntityType(typeof(Order));
+            Assert.Equal("AlternateKey", entityType.ForeignKeys.Single().ReferencedProperties.Single().Name);
+        }
+
+        [Fact]
+        public void Generic_OneToMany_is_preserved_when_chaining_from_Required()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            AssertIsGenericOneToMany(modelBuilder
+                .Entity<Customer>()
+                .OneToMany(e => e.Orders, e => e.Customer)
+                .Required(false));
+
+            var entityType = modelBuilder.Model.GetEntityType(typeof(Order));
+            Assert.False(entityType.ForeignKeys.Single().IsRequired);
+        }
+
+        private static void AssertIsGenericOneToMany(ModelBuilder.EntityBuilder<Customer>.OneToManyBuilder<Order> _)
+        {
+        }
+
+        [Fact]
+        public void Generic_ManyToOne_is_preserved_when_chaining_from_Annotation()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            AssertIsGenericManyToOne(modelBuilder
+                .Entity<Order>()
+                .ManyToOne(e => e.Customer, e => e.Orders)
+                .Annotation("X", "Y"));
+
+            var entityType = modelBuilder.Model.GetEntityType(typeof(Order));
+            Assert.Equal("Y", entityType.ForeignKeys.Single()["X"]);
+        }
+
+        [Fact]
+        public void Generic_ManyToOne_is_preserved_when_chaining_from_ForeignKey()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            AssertIsGenericManyToOne(modelBuilder
+                .Entity<Order>()
+                .ManyToOne(e => e.Customer, e => e.Orders)
+                .ForeignKey("AnotherCustomerId"));
+
+            var entityType = modelBuilder.Model.GetEntityType(typeof(Order));
+            Assert.Equal("AnotherCustomerId", entityType.ForeignKeys.Single().Properties.Single().Name);
+        }
+
+        [Fact]
+        public void Generic_ManyToOne_is_preserved_when_chaining_from_ReferencedKey()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            AssertIsGenericManyToOne(modelBuilder
+                .Entity<Order>()
+                .ManyToOne(e => e.Customer, e => e.Orders)
+                .ReferencedKey("AlternateKey"));
+
+            var entityType = modelBuilder.Model.GetEntityType(typeof(Order));
+            Assert.Equal("AlternateKey", entityType.ForeignKeys.Single().ReferencedProperties.Single().Name);
+        }
+
+        [Fact]
+        public void Generic_ManyToOne_is_preserved_when_chaining_from_Required()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            AssertIsGenericManyToOne(modelBuilder
+                .Entity<Order>()
+                .ManyToOne(e => e.Customer, e => e.Orders)
+                .Required(false));
+
+            var entityType = modelBuilder.Model.GetEntityType(typeof(Order));
+            Assert.False(entityType.ForeignKeys.Single().IsRequired);
+        }
+
+        private static void AssertIsGenericManyToOne(ModelBuilder.EntityBuilder<Order>.ManyToOneBuilder<Customer> _)
+        {
+        }
     }
 }
