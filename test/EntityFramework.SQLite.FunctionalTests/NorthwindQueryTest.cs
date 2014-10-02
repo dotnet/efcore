@@ -71,6 +71,17 @@ WHERE ((""c"".""City"" = @p0 AND ""c"".""Country"" = @p1) AND (""e"".""City"" = 
                 _fixture.Sql);
         }
 
+        public override void Where_compare_null()
+        {
+            base.Where_compare_null();
+
+            Assert.Equal(
+                @"SELECT ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""CustomerID"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+FROM ""Customers"" AS ""c""
+WHERE (""c"".""City"" IS NULL AND ""c"".""Country"" = @p0)",
+                _fixture.Sql);
+        }
+
         public void Skip_when_no_order_by()
         {
             AssertQuery<Customer>(cs => cs.Skip(5).Take(10));
