@@ -62,7 +62,6 @@ namespace Microsoft.Data.Entity.Redis
                 = new RedisQueryContext(
                     Logger,
                     CreateQueryBuffer(),
-                    StateManager,
                     _database.Value);
 
             return queryExecutor(queryContext);
@@ -90,7 +89,6 @@ namespace Microsoft.Data.Entity.Redis
                 = new RedisQueryContext(
                     Logger,
                     CreateQueryBuffer(),
-                    StateManager,
                     _database.Value)
                 {
                     CancellationToken = cancellationToken

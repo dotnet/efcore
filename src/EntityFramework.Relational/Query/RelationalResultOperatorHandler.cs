@@ -286,7 +286,7 @@ namespace Microsoft.Data.Entity.Relational.Query
         {
             return new ResultTransformingExpressionTreeVisitor<TResult>(
                 handlerContext.QueryModel.MainFromClause,
-                (RelationalQueryCompilationContext)handlerContext.QueryModelVisitor.QueryCompilationContext)
+                handlerContext.QueryModelVisitor.QueryCompilationContext)
                 .VisitExpression(handlerContext.QueryModelVisitor.Expression);
         }
     }

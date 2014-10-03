@@ -6,34 +6,29 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Relational.Query.Sql;
 using Microsoft.Data.Entity.Relational.Utilities;
 using Remotion.Linq.Clauses;
-using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Parsing;
 
 namespace Microsoft.Data.Entity.Relational.Query.Expressions
 {
-    public class TableExpression : ExtensionExpression
+    public class TableExpression : TableExpressionBase
     {
         private readonly string _table;
         private readonly string _schema;
-        private readonly string _alias;
-
-        private readonly IQuerySource _querySource;
 
         public TableExpression(
             [NotNull] string table,
             [CanBeNull] string schema,
             [NotNull] string alias,
             [NotNull] IQuerySource querySource)
-            : base(typeof(object))
+            : base(
+            Check.NotNull(querySource, "querySource"),
+            Check.NotEmpty(alias, "alias"))
         {
             Check.NotEmpty(table, "table");
-            Check.NotEmpty(alias, "alias");
             Check.NotNull(querySource, "querySource");
 
             _table = table;
             _schema = schema;
-            _alias = alias;
-            _querySource = querySource;
         }
 
         public virtual string Table
@@ -44,16 +39,6 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
         public virtual string Schema
         {
             get { return _schema; }
-        }
-
-        public virtual string Alias
-        {
-            get { return _alias; }
-        }
-
-        public virtual IQuerySource QuerySource
-        {
-            get { return _querySource; }
         }
 
         public override Expression Accept([NotNull] ExpressionTreeVisitor visitor)
@@ -70,14 +55,9 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             return base.Accept(visitor);
         }
 
-        protected override Expression VisitChildren(ExpressionTreeVisitor visitor)
-        {
-            return this;
-        }
-
         public override string ToString()
         {
-            return _table + " " + _alias;
+            return _table + " " + Alias;
         }
     }
 }

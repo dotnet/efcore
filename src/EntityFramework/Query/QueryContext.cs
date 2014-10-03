@@ -3,7 +3,6 @@
 
 using System.Threading;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 
@@ -13,22 +12,19 @@ namespace Microsoft.Data.Entity.Query
     {
         private readonly ILogger _logger;
         private readonly IQueryBuffer _queryBuffer;
-        private readonly StateManager _stateManager;
 
         public QueryContext(
             [NotNull] ILogger logger,
-            [NotNull] IQueryBuffer queryBuffer,
-            [NotNull] StateManager stateManager)
+            [NotNull] IQueryBuffer queryBuffer)
         {
             Check.NotNull(logger, "logger");
             Check.NotNull(queryBuffer, "queryBuffer");
-            Check.NotNull(stateManager, "stateManager");
 
             _logger = logger;
             _queryBuffer = queryBuffer;
-            _stateManager = stateManager;
         }
 
+        // TODO: Move this to compilation context
         public virtual ILogger Logger
         {
             get { return _logger; }
@@ -37,11 +33,6 @@ namespace Microsoft.Data.Entity.Query
         public virtual IQueryBuffer QueryBuffer
         {
             get { return _queryBuffer; }
-        }
-
-        public virtual StateManager StateManager
-        {
-            get { return _stateManager; }
         }
 
         public virtual CancellationToken CancellationToken { get; set; }

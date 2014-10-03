@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Query.ExpressionTreeVisitors;
 using Microsoft.Data.Entity.Query.ResultOperators;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq;
@@ -83,7 +84,7 @@ namespace Microsoft.Data.Entity.Query
 
         protected virtual ExpressionTreeVisitor CreateOrderingExpressionTreeVisitor(Ordering ordering)
         {
-            return new DefaultExpressionTreeVisitor(this);
+            return new DefaultQueryExpressionTreeVisitor(this);
         }
 
         public virtual Func<QueryContext, IEnumerable<TResult>> CreateQueryExecutor<TResult>([NotNull] QueryModel queryModel)
@@ -92,55 +93,19 @@ namespace Microsoft.Data.Entity.Query
 
             _blockTaskExpressions = false;
 
+            var queryAnnotations = ExtractQueryAnnotations(queryModel);
+
+            OptimizeQueryModel(queryModel, queryAnnotations);
+
             VisitQueryModel(queryModel);
 
-            if (_streamedSequenceInfo == null)
-            {
-                _expression
-                    = Expression.Call(
-                        LinqOperatorProvider.ToSequence
-                            .MakeGenericMethod(typeof(TResult)),
-                        _expression);
-            }
+            SingleResultToSequence(queryModel, typeof(TResult));
 
-            if (ShouldTrackResults(queryModel))
-            {
-                _expression
-                    = Expression.Call(
-                        _trackEntitiesShim
-                            .MakeGenericMethod(typeof(TResult)),
-                        _expression,
-                        QueryContextParameter);
-            }
+            IncludeNavigations(queryModel, typeof(TResult), queryAnnotations);
 
-            var queryExecutor
-                = Expression
-                    .Lambda<Func<QueryContext, QuerySourceScope, IEnumerable<TResult>>>(
-                        _expression, QueryContextParameter, QuerySourceScopeParameter)
-                    .Compile();
+            TrackEntitiesInResults<TResult>(queryModel, queryAnnotations);
 
-            return qc => queryExecutor(qc, null);
-        }
-
-        private static readonly MethodInfo _trackEntitiesShim
-            = typeof(EntityQueryModelVisitor)
-                .GetTypeInfo().GetDeclaredMethod("TrackEntities");
-
-        [UsedImplicitly]
-        private static IEnumerable<T> TrackEntities<T>(IEnumerable<T> entities, QueryContext queryContext)
-            where T : class
-        {
-            foreach (var entity in entities)
-            {
-                if (entity != null)
-                {
-                    yield return (T)queryContext.QueryBuffer.StartTracking(entity);
-                }
-                else
-                {
-                    yield return null;
-                }
-            }
+            return CreateExecutorLambda<IEnumerable<TResult>>();
         }
 
         public virtual Func<QueryContext, IAsyncEnumerable<TResult>> CreateAsyncQueryExecutor<TResult>([NotNull] QueryModel queryModel)
@@ -149,67 +114,69 @@ namespace Microsoft.Data.Entity.Query
 
             _blockTaskExpressions = false;
 
+            var queryAnnotations = ExtractQueryAnnotations(queryModel);
+
+            OptimizeQueryModel(queryModel, queryAnnotations);
+
             VisitQueryModel(queryModel);
 
-            if (_streamedSequenceInfo == null)
+            AsyncSingleResultToSequence(queryModel, typeof(TResult));
+
+            IncludeNavigations(queryModel, typeof(TResult), queryAnnotations);
+
+            TrackEntitiesInResults<TResult>(queryModel, queryAnnotations);
+
+            return CreateExecutorLambda<IAsyncEnumerable<TResult>>();
+        }
+
+        protected virtual ICollection<QueryAnnotation> ExtractQueryAnnotations([NotNull] QueryModel queryModel)
+        {
+            Check.NotNull(queryModel, "queryModel");
+
+            return new QueryAnnotationExtractor().ExtractQueryAnnotations(queryModel);
+        }
+
+        protected virtual void OptimizeQueryModel(
+            [NotNull] QueryModel queryModel,
+            [NotNull] ICollection<QueryAnnotation> queryAnnotations)
+        {
+            Check.NotNull(queryModel, "queryModel");
+            Check.NotNull(queryAnnotations, "queryAnnotations");
+
+            new QueryOptimizer(queryAnnotations).VisitQueryModel(queryModel);
+        }
+
+        protected virtual void SingleResultToSequence(
+            [NotNull] QueryModel queryModel,
+            [NotNull] Type resultType)
+        {
+            Check.NotNull(queryModel, "queryModel");
+            Check.NotNull(resultType, "resultType");
+
+            if (!(queryModel.GetOutputDataInfo() is StreamedSequenceInfo))
             {
                 _expression
                     = Expression.Call(
-                        _taskToSequenceShim.MakeGenericMethod(typeof(TResult)),
+                        LinqOperatorProvider.ToSequence
+                            .MakeGenericMethod(resultType),
                         _expression);
             }
+        }
 
-            if (ShouldTrackResults(queryModel))
+        protected virtual void AsyncSingleResultToSequence(
+            [NotNull] QueryModel queryModel,
+            [NotNull] Type resultType)
+        {
+            Check.NotNull(queryModel, "queryModel");
+            Check.NotNull(resultType, "resultType");
+
+            if (!(queryModel.GetOutputDataInfo() is StreamedSequenceInfo))
             {
                 _expression
                     = Expression.Call(
-                        _asyncTrackEntitiesShim.MakeGenericMethod(typeof(TResult)),
-                        _expression,
-                        QueryContextParameter);
+                        _taskToSequenceShim.MakeGenericMethod(resultType),
+                        _expression);
             }
-
-            var asyncQueryExecutor
-                = Expression
-                    .Lambda<Func<QueryContext, QuerySourceScope, IAsyncEnumerable<TResult>>>(
-                        _expression, QueryContextParameter, QuerySourceScopeParameter)
-                    .Compile();
-
-            return qc => asyncQueryExecutor(qc, null);
-        }
-
-        private static readonly MethodInfo _asyncTrackEntitiesShim
-            = typeof(EntityQueryModelVisitor)
-                .GetTypeInfo().GetDeclaredMethod("AsyncTrackEntities");
-
-        [UsedImplicitly]
-        private static IAsyncEnumerable<T> AsyncTrackEntities<T>(IAsyncEnumerable<T> entities, QueryContext queryContext)
-            where T : class
-        {
-            return entities.Select(entity =>
-                {
-                    if (entity != null)
-                    {
-                        entity = (T)queryContext.QueryBuffer.StartTracking(entity);
-                    }
-
-                    return entity;
-                });
-        }
-
-        private bool ShouldTrackResults(QueryModel queryModel)
-        {
-            if (queryModel.ResultOperators.OfType<AsNoTrackingResultOperator>().Any())
-            {
-                return false;
-            }
-
-            var itemType
-                = _streamedSequenceInfo != null
-                    ? _streamedSequenceInfo.ResultItemType
-                    : queryModel.ResultOperators.Last()
-                        .GetOutputDataInfo(queryModel.SelectClause.GetOutputDataInfo()).DataType;
-
-            return QueryCompilationContext.Model.TryGetEntityType(itemType) != null;
         }
 
         private static readonly MethodInfo _taskToSequenceShim
@@ -222,7 +189,136 @@ namespace Microsoft.Data.Entity.Query
             return new TaskResultAsyncEnumerable<T>(task);
         }
 
-        protected bool QuerySourceRequiresMaterialization([NotNull] IQuerySource querySource)
+        protected virtual void IncludeNavigations(
+            [NotNull] QueryModel queryModel,
+            [NotNull] Type resultType,
+            [NotNull] ICollection<QueryAnnotation> queryAnnotations)
+        {
+            Check.NotNull(queryModel, "queryModel");
+            Check.NotNull(resultType, "resultType");
+            Check.NotNull(queryAnnotations, "queryAnnotations");
+
+            var querySourceTracingExpressionTreeVisitor
+                = new QuerySourceTracingExpressionTreeVisitor();
+
+            foreach (var queryAnnotation in queryAnnotations)
+            {
+                var includeResultOperator
+                    = queryAnnotation.ResultOperator as IncludeResultOperator;
+
+                if (includeResultOperator != null)
+                {
+                    var resultQuerySourceReferenceExpression
+                        = querySourceTracingExpressionTreeVisitor
+                            .FindResultQuerySourceReferenceExpression(
+                                queryModel.SelectClause.Selector,
+                                queryAnnotation.QuerySource);
+
+                    if (resultQuerySourceReferenceExpression != null)
+                    {
+                        var accessorLambda
+                            = AccessorFindingExpressionTreeVisitor
+                                .FindAccessorLambda(
+                                    resultQuerySourceReferenceExpression,
+                                    queryModel.SelectClause.Selector,
+                                    Expression.Parameter(queryModel.SelectClause.Selector.Type));
+
+                        IncludeNavigation(
+                            queryAnnotation.QuerySource,
+                            resultType,
+                            accessorLambda,
+                            includeResultOperator.NavigationPropertyPath);
+                    }
+                }
+            }
+        }
+
+        protected virtual void IncludeNavigation(
+            IQuerySource querySource,
+            Type resultType,
+            LambdaExpression accessorLambda,
+            Expression navigationPropertyPath)
+        {
+            // template method
+        }
+
+        protected virtual void TrackEntitiesInResults<TResult>(
+            [NotNull] QueryModel queryModel,
+            [NotNull] ICollection<QueryAnnotation> queryAnnotations)
+        {
+            Check.NotNull(queryModel, "queryModel");
+            Check.NotNull(queryAnnotations, "queryAnnotations");
+
+            if (!typeof(TResult).GetTypeInfo()
+                .IsAssignableFrom(queryModel.SelectClause.Selector.Type.GetTypeInfo()))
+            {
+                return;
+            }
+
+            var querySourceReferenceExpressionsToTrack
+                = new EntityResultFindingExpressionTreeVisitor(QueryCompilationContext.Model)
+                    .FindEntitiesInResult(queryModel.SelectClause.Selector)
+                    .Where(qsre => !queryAnnotations
+                        .Any(qa => qa.ResultOperator is AsNoTrackingResultOperator
+                                   && qa.QuerySource == qsre.ReferencedQuerySource))
+                    .ToList();
+
+            if (querySourceReferenceExpressionsToTrack.Any())
+            {
+                _expression
+                    = Expression.Call(
+                        LinqOperatorProvider.TrackEntities
+                            .MakeGenericMethod(
+                                typeof(TResult),
+                                queryModel.SelectClause.Selector.Type),
+                        _expression,
+                        QueryContextParameter,
+                        Expression.Constant(
+                            _getEntityAccessorsShim
+                                .MakeGenericMethod(queryModel.SelectClause.Selector.Type)
+                                .Invoke(null, new object[]
+                                    {
+                                        querySourceReferenceExpressionsToTrack,
+                                        queryModel.SelectClause.Selector
+                                    })));
+            }
+        }
+
+        private static readonly MethodInfo _getEntityAccessorsShim
+            = typeof(EntityQueryModelVisitor)
+                .GetTypeInfo().GetDeclaredMethod("GetEntityAccessors");
+
+        [UsedImplicitly]
+        private static ICollection<Func<TResult, object>> GetEntityAccessors<TResult>(
+            IEnumerable<QuerySourceReferenceExpression> querySourceReferenceExpressions,
+            Expression selector)
+        {
+            return
+                (from qsre in querySourceReferenceExpressions
+                    select
+                        (Func<TResult, object>)
+                            AccessorFindingExpressionTreeVisitor
+                                .FindAccessorLambda(
+                                    qsre,
+                                    selector,
+                                    Expression.Parameter(typeof(TResult)))
+                                .Compile()
+                    )
+                    .ToList();
+        }
+
+        protected virtual Func<QueryContext, TResults> CreateExecutorLambda<TResults>()
+        {
+            var queryExecutor
+                = Expression
+                    .Lambda<Func<QueryContext, QuerySourceScope, TResults>>(
+                        _expression, QueryContextParameter, QuerySourceScopeParameter)
+                    .Compile();
+
+            return qc => queryExecutor(qc, null);
+        }
+
+        protected virtual bool QuerySourceRequiresMaterialization([NotNull] IQuerySource querySource)
         {
             Check.NotNull(querySource, "querySource");
 
@@ -234,7 +330,7 @@ namespace Microsoft.Data.Entity.Query
             Check.NotNull(queryModel, "queryModel");
 
             var requiresEntityMaterializationExpressionTreeVisitor
-                = new RequiresEntityMaterializationExpressionTreeVisitor(this);
+                = new RequiresMaterializationExpressionTreeVisitor(this);
 
             queryModel.TransformExpressions(requiresEntityMaterializationExpressionTreeVisitor.VisitExpression);
 
@@ -253,90 +349,6 @@ namespace Microsoft.Data.Entity.Query
                 _expression
                     = new TaskBlockingExpressionTreeVisitor()
                         .VisitExpression(_expression);
-            }
-        }
-
-        private class TaskBlockingExpressionTreeVisitor : ExpressionTreeVisitor
-        {
-            public override Expression VisitExpression(Expression expression)
-            {
-                if (expression != null)
-                {
-                    var typeInfo = expression.Type.GetTypeInfo();
-
-                    if (typeInfo.IsGenericType
-                        && typeInfo.GetGenericTypeDefinition() == typeof(Task<>))
-                    {
-                        return Expression.Call(
-                            _resultMethodInfo.MakeGenericMethod(typeInfo.GenericTypeArguments[0]),
-                            expression);
-                    }
-                }
-
-                return base.VisitExpression(expression);
-            }
-
-            private static readonly MethodInfo _resultMethodInfo
-                = typeof(TaskBlockingExpressionTreeVisitor).GetTypeInfo()
-                    .GetDeclaredMethod("_Result");
-
-            [UsedImplicitly]
-            private static T _Result<T>(Task<T> task)
-            {
-                return task.Result;
-            }
-        }
-
-        private class RequiresEntityMaterializationExpressionTreeVisitor : ExpressionTreeVisitor
-        {
-            private readonly EntityQueryModelVisitor _queryModelVisitor;
-            private readonly Dictionary<IQuerySource, int> _querySources = new Dictionary<IQuerySource, int>();
-
-            public RequiresEntityMaterializationExpressionTreeVisitor(EntityQueryModelVisitor queryModelVisitor)
-            {
-                _queryModelVisitor = queryModelVisitor;
-            }
-
-            public ISet<IQuerySource> QuerySourcesRequiringMaterialization
-            {
-                get { return new HashSet<IQuerySource>(_querySources.Where(kv => kv.Value > 0).Select(kv => kv.Key)); }
-            }
-
-            protected override Expression VisitQuerySourceReferenceExpression(
-                QuerySourceReferenceExpression querySourceReferenceExpression)
-            {
-                if (!_querySources.ContainsKey(querySourceReferenceExpression.ReferencedQuerySource))
-                {
-                    _querySources.Add(querySourceReferenceExpression.ReferencedQuerySource, 0);
-                }
-
-                _querySources[querySourceReferenceExpression.ReferencedQuerySource]++;
-
-                return base.VisitQuerySourceReferenceExpression(querySourceReferenceExpression);
-            }
-
-            protected override Expression VisitMemberExpression(MemberExpression memberExpression)
-            {
-                var newExpression = base.VisitMemberExpression(memberExpression);
-
-                _queryModelVisitor
-                    .BindMemberExpression(
-                        memberExpression,
-                        (property, querySource) => _querySources[querySource]--);
-
-                return newExpression;
-            }
-
-            protected override Expression VisitMethodCallExpression(MethodCallExpression methodCallExpression)
-            {
-                var newExpression = base.VisitMethodCallExpression(methodCallExpression);
-
-                _queryModelVisitor
-                    .BindMethodCallExpression(
-                        methodCallExpression,
-                        (property, querySource) => _querySources[querySource]--);
-
-                return newExpression;
             }
         }
 
@@ -745,82 +757,7 @@ namespace Microsoft.Data.Entity.Query
                 .VisitExpression(expression);
         }
 
-        private class PropertyAccessBindingExpressionTreeVisitor : ReferenceReplacingExpressionTreeVisitor
-        {
-            private readonly EntityQueryModelVisitor _queryModelVisitor;
-
-            public PropertyAccessBindingExpressionTreeVisitor(
-                QuerySourceMapping querySourceMapping,
-                EntityQueryModelVisitor queryModelVisitor)
-                : base(querySourceMapping, throwOnUnmappedReferences: false)
-            {
-                _queryModelVisitor = queryModelVisitor;
-            }
-
-            protected override Expression VisitMemberExpression(MemberExpression memberExpression)
-            {
-                var newExpression = VisitExpression(memberExpression.Expression);
-
-                if (newExpression != memberExpression.Expression)
-                {
-                    if (newExpression.Type == typeof(IValueReader))
-                    {
-                        return _queryModelVisitor.BindMemberToValueReader(memberExpression, newExpression);
-                    }
-
-                    var member = memberExpression.Member;
-                    var typeInfo = newExpression.Type.GetTypeInfo();
-
-                    if (typeInfo.IsGenericType
-                        && typeInfo.GetGenericTypeDefinition() == typeof(IAsyncGrouping<,>))
-                    {
-                        member = typeInfo.GetDeclaredProperty("Key");
-                    }
-
-                    return Expression.MakeMemberAccess(newExpression, member);
-                }
-
-                return memberExpression;
-            }
-
-            protected override Expression VisitMethodCallExpression(MethodCallExpression methodCallExpression)
-            {
-                var newExpression
-                    = (MethodCallExpression)base.VisitMethodCallExpression(methodCallExpression);
-
-                if (newExpression != methodCallExpression
-                    && newExpression.Arguments.Any()
-                    && newExpression.Arguments[0].Type == typeof(IValueReader))
-                {
-                    return
-                        _queryModelVisitor
-                            .BindMethodCallToValueReader(methodCallExpression, newExpression.Arguments[0])
-                        ?? newExpression;
-                }
-
-                return _queryModelVisitor
-                    .BindMethodCallExpression(
-                        methodCallExpression,
-                        (property, _) => Expression.Call(
-                            _getValueMethodInfo.MakeGenericMethod(newExpression.Method.GetGenericArguments()[0]),
-                            QueryContextParameter,
-                            newExpression.Arguments[0],
-                            Expression.Constant(property)))
-                       ?? newExpression;
-            }
-
-            private static readonly MethodInfo _getValueMethodInfo
-                = typeof(PropertyAccessBindingExpressionTreeVisitor)
-                    .GetTypeInfo().GetDeclaredMethod("GetValue");
-
-            [UsedImplicitly]
-            private static T GetValue<T>(QueryContext queryContext, object entity, IProperty property)
-            {
-                return (T)queryContext.QueryBuffer.GetPropertyValue(entity, property);
-            }
-        }
-
-        protected virtual Expression BindMethodCallToValueReader(
+        public virtual Expression BindMethodCallToValueReader(
             [NotNull] MethodCallExpression methodCallExpression,
             [NotNull] Expression expression)
         {
@@ -833,7 +770,7 @@ namespace Microsoft.Data.Entity.Query
                     => BindReadValueMethod(methodCallExpression.Type, expression, property.Index));
         }
 
-        protected virtual Expression BindMemberToValueReader(
+        public virtual Expression BindMemberToValueReader(
             [NotNull] MemberExpression memberExpression,
             [NotNull] Expression expression)
         {
@@ -875,7 +812,7 @@ namespace Microsoft.Data.Entity.Query
                     });
         }
 
-        protected virtual void BindMemberExpression(
+        public virtual void BindMemberExpression(
             [NotNull] MemberExpression memberExpression,
             [NotNull] Action<IProperty, IQuerySource> memberBinder)
         {
@@ -891,7 +828,7 @@ namespace Microsoft.Data.Entity.Query
                     });
         }
 
-        protected virtual TResult BindMemberExpression<TResult>(
+        public virtual TResult BindMemberExpression<TResult>(
             [NotNull] MemberExpression memberExpression,
             [NotNull] Func<IProperty, IQuerySource, TResult> memberBinder)
         {
@@ -901,10 +838,10 @@ namespace Microsoft.Data.Entity.Query
             return BindMemberExpression(memberExpression, null, memberBinder);
         }
 
-        protected virtual TResult BindMemberExpression<TResult>(
+        public virtual TResult BindMemberExpression<TResult>(
             [NotNull] MemberExpression memberExpression,
             [CanBeNull] IQuerySource querySource,
-            Func<IProperty, IQuerySource, TResult> memberBinder)
+            [NotNull] Func<IProperty, IQuerySource, TResult> memberBinder)
         {
             Check.NotNull(memberExpression, "memberExpression");
             Check.NotNull(memberBinder, "memberBinder");
@@ -958,7 +895,7 @@ namespace Microsoft.Data.Entity.Query
             return default(TResult);
         }
 
-        protected virtual TResult BindMethodCallExpression<TResult>(
+        public virtual TResult BindMethodCallExpression<TResult>(
             [NotNull] MethodCallExpression methodCallExpression,
             [NotNull] Func<IProperty, IQuerySource, TResult> methodCallBinder)
         {
@@ -971,10 +908,10 @@ namespace Microsoft.Data.Entity.Query
         private static readonly MethodInfo _propertyMethodInfo
             = typeof(QueryExtensions).GetTypeInfo().GetDeclaredMethod("Property");
 
-        protected virtual TResult BindMethodCallExpression<TResult>(
+        public virtual TResult BindMethodCallExpression<TResult>(
             [NotNull] MethodCallExpression methodCallExpression,
             [CanBeNull] IQuerySource querySource,
-            Func<IProperty, IQuerySource, TResult> methodCallBinder)
+            [NotNull] Func<IProperty, IQuerySource, TResult> methodCallBinder)
         {
             Check.NotNull(methodCallExpression, "methodCallExpression");
             Check.NotNull(methodCallBinder, "methodCallBinder");
@@ -1012,111 +949,6 @@ namespace Microsoft.Data.Entity.Query
             }
 
             return default(TResult);
-        }
-
-        protected class DefaultExpressionTreeVisitor : ExpressionTreeVisitor
-        {
-            private readonly EntityQueryModelVisitor _entityQueryModelVisitor;
-
-            public DefaultExpressionTreeVisitor([NotNull] EntityQueryModelVisitor entityQueryModelVisitor)
-            {
-                Check.NotNull(entityQueryModelVisitor, "entityQueryModelVisitor");
-
-                _entityQueryModelVisitor = entityQueryModelVisitor;
-            }
-
-            public EntityQueryModelVisitor QueryModelVisitor
-            {
-                get { return _entityQueryModelVisitor; }
-            }
-
-            protected override Expression VisitSubQueryExpression(SubQueryExpression subQueryExpression)
-            {
-                var queryModelVisitor = CreateQueryModelVisitor();
-
-                queryModelVisitor.VisitQueryModel(subQueryExpression.QueryModel);
-
-                return queryModelVisitor.Expression;
-            }
-
-            protected EntityQueryModelVisitor CreateQueryModelVisitor()
-            {
-                return QueryModelVisitor.QueryCompilationContext
-                    .CreateQueryModelVisitor(_entityQueryModelVisitor);
-            }
-        }
-
-        protected abstract class QueryingExpressionTreeVisitor : DefaultExpressionTreeVisitor
-        {
-            protected QueryingExpressionTreeVisitor([NotNull] EntityQueryModelVisitor entityQueryModelVisitor)
-                : base(entityQueryModelVisitor)
-            {
-            }
-
-            protected override Expression VisitConstantExpression(ConstantExpression constantExpression)
-            {
-                if (constantExpression.Type.GetTypeInfo().IsGenericType
-                    && constantExpression.Type.GetGenericTypeDefinition() == typeof(EntityQueryable<>))
-                {
-                    return VisitEntityQueryable(((IQueryable)constantExpression.Value).ElementType);
-                }
-
-                return constantExpression;
-            }
-
-            protected abstract Expression VisitEntityQueryable([NotNull] Type elementType);
-        }
-
-        protected class ProjectionExpressionTreeVisitor : DefaultExpressionTreeVisitor
-        {
-            public ProjectionExpressionTreeVisitor([NotNull] EntityQueryModelVisitor entityQueryModelVisitor)
-                : base(entityQueryModelVisitor)
-            {
-            }
-
-            protected override Expression VisitSubQueryExpression(SubQueryExpression subQueryExpression)
-            {
-                var queryModelVisitor = CreateQueryModelVisitor();
-
-                queryModelVisitor.VisitQueryModel(subQueryExpression.QueryModel);
-
-                var subExpression = queryModelVisitor.Expression;
-
-                if (queryModelVisitor._streamedSequenceInfo == null)
-                {
-                    return subExpression;
-                }
-
-                var typeInfo = subQueryExpression.Type.GetTypeInfo();
-
-                if (typeof(IQueryable).GetTypeInfo().IsAssignableFrom(typeInfo))
-                {
-                    subExpression
-                        = Expression.Call(
-                            QueryModelVisitor.LinqOperatorProvider.AsQueryable
-                                .MakeGenericMethod(
-                                    queryModelVisitor._streamedSequenceInfo.ResultItemType),
-                            subExpression);
-                }
-                else if (typeInfo.IsGenericType
-                         && typeInfo.GetGenericTypeDefinition() == typeof(IOrderedEnumerable<>))
-                {
-                    var elementType
-                        = subExpression.Type.TryGetElementType(typeof(IOrderedAsyncEnumerable<>));
-
-                    if (elementType != null)
-                    {
-                        subExpression
-                            = Expression.Call(
-                                QueryModelVisitor.LinqOperatorProvider.AsQueryable
-                                    .MakeGenericMethod(
-                                        queryModelVisitor._streamedSequenceInfo.ResultItemType),
-                                subExpression);
-                    }
-                }
-
-                return Expression.Convert(subExpression, subQueryExpression.Type);
-            }
         }
     }
 }

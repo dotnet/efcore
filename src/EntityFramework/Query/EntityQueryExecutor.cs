@@ -13,10 +13,6 @@ using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 using Remotion.Linq;
-using Remotion.Linq.Clauses;
-using Remotion.Linq.Clauses.Expressions;
-using Remotion.Linq.Clauses.ExpressionTreeVisitors;
-using Remotion.Linq.Transformations;
 
 namespace Microsoft.Data.Entity.Query
 {
@@ -67,8 +63,6 @@ namespace Microsoft.Data.Entity.Query
         {
             Check.NotNull(queryModel, "queryModel");
 
-            new SubQueryFlattener().VisitQueryModel(queryModel);
-
             LogQueryModel(queryModel);
 
             var enumerable = _context.Configuration.DataStore.Query<T>(queryModel);
@@ -80,8 +74,6 @@ namespace Microsoft.Data.Entity.Query
             [NotNull] QueryModel queryModel, CancellationToken cancellationToken)
         {
             Check.NotNull(queryModel, "queryModel");
-
-            new SubQueryFlattener().VisitQueryModel(queryModel);
 
             LogQueryModel(queryModel);
 
@@ -97,45 +89,6 @@ namespace Microsoft.Data.Entity.Query
             if (_logger.Value.IsEnabled(TraceType.Information))
             {
                 _logger.Value.WriteInformation(queryModel + Environment.NewLine);
-            }
-        }
-
-        private class SubQueryFlattener : SubQueryFromClauseFlattener
-        {
-            protected override void FlattenSubQuery(
-                SubQueryExpression subQueryExpression,
-                FromClauseBase fromClause,
-                QueryModel queryModel,
-                int destinationIndex)
-            {
-                var subQueryModel = subQueryExpression.QueryModel;
-
-                if (!(subQueryModel.ResultOperators.Count <= 0
-                      && !subQueryModel.BodyClauses.Any(bc => bc is OrderByClause)))
-                {
-                    return;
-                }
-
-                var innerMainFromClause
-                    = subQueryExpression.QueryModel.MainFromClause;
-
-                CopyFromClauseData(innerMainFromClause, fromClause);
-
-                var innerSelectorMapping = new QuerySourceMapping();
-                innerSelectorMapping.AddMapping(fromClause, subQueryExpression.QueryModel.SelectClause.Selector);
-
-                queryModel.TransformExpressions(
-                    ex => ReferenceReplacingExpressionTreeVisitor
-                        .ReplaceClauseReferences(ex, innerSelectorMapping, false));
-
-                InsertBodyClauses(subQueryExpression.QueryModel.BodyClauses, queryModel, destinationIndex);
-
-                var innerBodyClauseMapping = new QuerySourceMapping();
-                innerBodyClauseMapping.AddMapping(innerMainFromClause, new QuerySourceReferenceExpression(fromClause));
-
-                queryModel.TransformExpressions(
-                    ex => ReferenceReplacingExpressionTreeVisitor
-                        .ReplaceClauseReferences(ex, innerBodyClauseMapping, false));
             }
         }
 
@@ -263,11 +216,11 @@ namespace Microsoft.Data.Entity.Query
                     catch (Exception ex)
                     {
                         _logger.Value.WriteCore(
-                           TraceType.Error,
-                           0,
-                           new DataStoreErrorLogState(_context.GetType()),
-                           ex,
-                           (state, exception) => string.Format("{0}" + Environment.NewLine + "{1}", Strings.LogExceptionDuringQueryIteration, exception.ToString()));
+                            TraceType.Error,
+                            0,
+                            new DataStoreErrorLogState(_context.GetType()),
+                            ex,
+                            (state, exception) => string.Format("{0}" + Environment.NewLine + "{1}", Strings.LogExceptionDuringQueryIteration, exception.ToString()));
 
                         throw;
                     }

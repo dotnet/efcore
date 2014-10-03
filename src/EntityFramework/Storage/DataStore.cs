@@ -53,15 +53,10 @@ namespace Microsoft.Data.Entity.Storage
             get { return _configuration.Services.EntityKeyFactorySource; }
         }
 
-        public virtual StateManager StateManager
-        {
-            get { return _configuration.StateManager; }
-        }
-
         protected virtual IQueryBuffer CreateQueryBuffer()
         {
             return new QueryBuffer(
-                StateManager,
+                _configuration.StateManager,
                 _configuration.Services.EntityKeyFactorySource,
                 _configuration.Services.EntityMaterializerSource,
                 _configuration.Services.ClrCollectionAccessorSource,

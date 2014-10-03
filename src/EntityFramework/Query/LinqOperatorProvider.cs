@@ -14,6 +14,46 @@ namespace Microsoft.Data.Entity.Query
 {
     public class LinqOperatorProvider : ILinqOperatorProvider
     {
+        private static readonly MethodInfo _trackEntitiesShim
+            = typeof(LinqOperatorProvider)
+                .GetTypeInfo().GetDeclaredMethod("TrackEntitiesShim");
+
+        [UsedImplicitly]
+        private static IEnumerable<TOut> TrackEntitiesShim<TOut, TIn>(
+            IEnumerable<TOut> results,
+            QueryContext queryContext,
+            ICollection<Func<TIn, object>> entityAccessors)
+            where TOut : class
+            where TIn : TOut
+        {
+            foreach (var result in results)
+            {
+                if (result != null)
+                {
+                    foreach (var entityAccessor in entityAccessors)
+                    {
+                        var entity = entityAccessor((TIn)result);
+
+                        if (entity != null)
+                        {
+                            queryContext.QueryBuffer.StartTracking(entity);
+                        }
+                    }
+
+                    yield return result;
+                }
+                else
+                {
+                    yield return null;
+                }
+            }
+        }
+
+        public virtual MethodInfo TrackEntities
+        {
+            get { return _trackEntitiesShim; }
+        }
+
         private static readonly MethodInfo _toSequenceShim
             = typeof(LinqOperatorProvider)
                 .GetTypeInfo().GetDeclaredMethod("ToSequenceShim");

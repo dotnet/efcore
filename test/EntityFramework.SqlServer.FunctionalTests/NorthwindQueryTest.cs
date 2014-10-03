@@ -180,12 +180,9 @@ FROM (
             Assert.Equal(
                 @"SELECT COUNT(*)
 FROM (
-    SELECT DISTINCT [t0].*
-    FROM (
-        SELECT TOP(@p0) [o].[CustomerID], [o].[OrderDate], [o].[OrderID]
-        FROM [Orders] AS [o]
-    ) AS [t0]
-) AS [t1]",
+    SELECT DISTINCT TOP(@p0) [o].[CustomerID], [o].[OrderDate], [o].[OrderID]
+    FROM [Orders] AS [o]
+) AS [t0]",
                 _fixture.Sql);
         }
 
@@ -1197,6 +1194,11 @@ FROM [Orders] AS [o]
 
 ",
                 _fixture.Sql);
+        }
+
+        public override void SelectMany_Joined_DefaultIfEmpty()
+        {
+            base.SelectMany_Joined_DefaultIfEmpty();
         }
 
         private readonly NorthwindQueryFixture _fixture;

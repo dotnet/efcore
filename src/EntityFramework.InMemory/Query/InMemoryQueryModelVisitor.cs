@@ -10,6 +10,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.InMemory.Utilities;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
+using Microsoft.Data.Entity.Query.ExpressionTreeVisitors;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Parsing;
 
@@ -24,7 +25,70 @@ namespace Microsoft.Data.Entity.InMemory.Query
 
         protected override ExpressionTreeVisitor CreateQueryingExpressionTreeVisitor(IQuerySource querySource)
         {
-            return new InMemoryQueryingExpressionTreeVisitor(this, querySource);
+            return new InMemoryEntityQueryableExpressionTreeVisitor(this, querySource);
+        }
+
+        protected override void IncludeNavigation(
+            IQuerySource querySource,
+            Type resultType,
+            LambdaExpression accessorLambda,
+            Expression navigationPropertyPath)
+        {
+            var navigation
+                = BindNavigationMemberExpression(
+                    (MemberExpression)navigationPropertyPath,
+                    (n, _) => n);
+
+            if (navigation != null)
+            {
+                var inMemoryQueryCompilationContext
+                    = ((InMemoryQueryCompilationContext)QueryCompilationContext);
+
+                var targetTable
+                    = inMemoryQueryCompilationContext.Database
+                        .GetTable(navigation.GetTargetType());
+
+                Expression
+                    = Expression.Call(
+                        _includeMethodInfo.MakeGenericMethod(resultType),
+                        QueryContextParameter,
+                        Expression,
+                        Expression.Constant(navigation),
+                        Expression.Constant(targetTable),
+                        accessorLambda);
+            }
+        }
+
+        private static readonly MethodInfo _includeMethodInfo
+            = typeof(InMemoryQueryModelVisitor).GetTypeInfo()
+                .GetDeclaredMethod("Include");
+
+        [UsedImplicitly]
+        private static IEnumerable<TResult> Include<TResult>(
+            QueryContext queryContext,
+            IEnumerable<TResult> source,
+            INavigation navigation,
+            InMemoryDatabase.InMemoryTable targetTable,
+            Func<TResult, object> accessorLambda)
+        {
+            var inMemoryQueryContext = ((InMemoryQueryContext)queryContext);
+
+            return
+                source
+                    .Select(result =>
+                        {
+                            inMemoryQueryContext.QueryBuffer
+                                .Include(
+                                    accessorLambda.Invoke(result),
+                                    navigation,
+                                    (primaryKey, relatedKeyFactory) =>
+                                        targetTable
+                                            .Select(vs => new ObjectArrayValueReader(vs))
+                                            .Where(valueReader => relatedKeyFactory(valueReader).Equals(primaryKey))
+                                );
+
+                            return result;
+                        });
         }
 
         private static readonly MethodInfo _entityQueryMethodInfo
@@ -32,12 +96,11 @@ namespace Microsoft.Data.Entity.InMemory.Query
                 .GetDeclaredMethod("EntityQuery");
 
         [UsedImplicitly]
-        private static IEnumerable<TEntity> EntityQuery<TEntity>(QueryContext queryContext, IEntityType entityType)
+        private static IEnumerable<TEntity> EntityQuery<TEntity>(
+            QueryContext queryContext,
+            IEntityType entityType,
+            InMemoryDatabase.InMemoryTable inMemoryTable)
         {
-            var inMemoryTable
-                = ((InMemoryQueryContext)queryContext).Database
-                    .GetTable(entityType);
-
             return inMemoryTable
                 .Select(t => (TEntity)queryContext.QueryBuffer
                     .GetEntity(entityType, new ObjectArrayValueReader(t)));
@@ -48,17 +111,16 @@ namespace Microsoft.Data.Entity.InMemory.Query
                 .GetDeclaredMethod("ProjectionQuery");
 
         [UsedImplicitly]
-        private static IEnumerable<IValueReader> ProjectionQuery(QueryContext queryContext, IEntityType entityType)
+        private static IEnumerable<IValueReader> ProjectionQuery(InMemoryDatabase.InMemoryTable inMemoryTable)
         {
-            return ((InMemoryQueryContext)queryContext).Database.GetTable(entityType)
-                .Select(t => new ObjectArrayValueReader(t));
+            return inMemoryTable.Select(t => new ObjectArrayValueReader(t));
         }
 
-        private class InMemoryQueryingExpressionTreeVisitor : QueryingExpressionTreeVisitor
+        private class InMemoryEntityQueryableExpressionTreeVisitor : EntityQueryableExpressionTreeVisitor
         {
             private readonly IQuerySource _querySource;
 
-            public InMemoryQueryingExpressionTreeVisitor(
+            public InMemoryEntityQueryableExpressionTreeVisitor(
                 InMemoryQueryModelVisitor entityQueryModelVisitor, IQuerySource querySource)
                 : base(entityQueryModelVisitor)
             {
@@ -74,21 +136,24 @@ namespace Microsoft.Data.Entity.InMemory.Query
             {
                 Check.NotNull(elementType, "elementType");
 
-                var entityType 
+                var entityType
                     = QueryModelVisitor.QueryCompilationContext.Model
                         .GetEntityType(elementType);
 
-                var queryMethodInfo = _projectionQueryMethodInfo;
+                var inMemoryTable
+                    = ((InMemoryQueryCompilationContext)QueryModelVisitor.QueryCompilationContext).Database
+                        .GetTable(entityType);
 
                 if (QueryModelVisitor.QuerySourceRequiresMaterialization(_querySource))
                 {
-                    queryMethodInfo = _entityQueryMethodInfo.MakeGenericMethod(elementType);
+                    return Expression.Call(
+                        _entityQueryMethodInfo.MakeGenericMethod(elementType),
+                        QueryContextParameter,
+                        Expression.Constant(entityType),
+                        Expression.Constant(inMemoryTable));
                 }
 
-                return Expression.Call(
-                    queryMethodInfo,
-                    QueryContextParameter, 
-                    Expression.Constant(entityType));
+                return Expression.Call(_projectionQueryMethodInfo, Expression.Constant(inMemoryTable));
             }
         }
     }

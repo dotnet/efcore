@@ -8,6 +8,11 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 {
     public class NorthwindQueryTest : NorthwindQueryTestBase, IClassFixture<NorthwindQueryFixture>
     {
+        public override void Count_with_predicate()
+        {
+            base.Count_with_predicate();
+        }
+
         private readonly NorthwindQueryFixture _fixture;
 
         public NorthwindQueryTest(NorthwindQueryFixture fixture)

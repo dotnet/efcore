@@ -98,9 +98,12 @@
     <Compile Include="Query\CommandBuilder.cs" />
     <Compile Include="Query\CommandParameter.cs" />
     <Compile Include="Query\Expressions\ColumnAggregateExpression.cs" />
+    <Compile Include="Query\Expressions\JoinExpressionBase.cs" />
+    <Compile Include="Query\Expressions\LeftOuterJoinExpression.cs" />
     <Compile Include="Query\Expressions\MaxExpression.cs" />
     <Compile Include="Query\Expressions\MinExpression.cs" />
     <Compile Include="Query\Expressions\SumExpression.cs" />
+    <Compile Include="Query\Expressions\TableExpressionBase.cs" />
     <Compile Include="Query\QueryMethodProvider.cs" />
     <Compile Include="Query\Expressions\CountExpression.cs" />
     <Compile Include="Query\Expressions\CaseExpression.cs" />

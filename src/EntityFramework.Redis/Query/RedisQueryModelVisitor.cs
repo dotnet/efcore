@@ -47,10 +47,10 @@ namespace Microsoft.Data.Entity.Redis.Query
 
         protected override ExpressionTreeVisitor CreateQueryingExpressionTreeVisitor(IQuerySource querySource)
         {
-            return new RedisQueryingExpressionTreeVisitor(this, querySource);
+            return new RedisEntityQueryableExpressionTreeVisitor(this, querySource);
         }
 
-        protected override Expression BindMethodCallToValueReader(
+        public override Expression BindMethodCallToValueReader(
             MethodCallExpression methodCallExpression,
             Expression expression)
         {
@@ -80,7 +80,7 @@ namespace Microsoft.Data.Entity.Redis.Query
                     });
         }
 
-        protected override Expression BindMemberToValueReader(
+        public override Expression BindMemberToValueReader(
             MemberExpression memberExpression, Expression expression)
         {
             Check.NotNull(memberExpression, "memberExpression");

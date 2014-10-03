@@ -94,7 +94,6 @@ namespace Microsoft.Data.Entity.AzureTableStorage
                     Model,
                     Logger,
                     CreateQueryBuffer(),
-                    StateManager,
                     Connection);
 
             return queryExecutor(queryContext);

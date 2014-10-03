@@ -14,20 +14,25 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
     public class ColumnExpression : ExtensionExpression
     {
         private readonly IProperty _property;
-        private readonly string _tableAlias;
+        private readonly TableExpressionBase _tableExpression;
 
-        public ColumnExpression([NotNull] IProperty property, [NotNull] string tableAlias)
+        public ColumnExpression([NotNull] IProperty property, [NotNull] TableExpressionBase tableExpression)
             : base(Check.NotNull(property, "property").PropertyType)
         {
-            Check.NotEmpty(tableAlias, "tableAlias");
+            Check.NotNull(tableExpression, "tableExpression");
 
             _property = property;
-            _tableAlias = tableAlias;
+            _tableExpression = tableExpression;
+        }
+
+        public virtual TableExpressionBase Table
+        {
+            get { return _tableExpression; }
         }
 
         public virtual string TableAlias
         {
-            get { return _tableAlias; }
+            get { return _tableExpression.Alias; }
         }
 
 #pragma warning disable 108
@@ -63,9 +68,40 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             return this;
         }
 
+        protected bool Equals(ColumnExpression other)
+        {
+            return _property.Equals(other._property)
+                   && _tableExpression.Equals(other._tableExpression);
+        }
+
+        public override bool Equals([CanBeNull] object obj)
+        {
+            if (ReferenceEquals(null, obj))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+
+            return obj.GetType() == GetType()
+                   && Equals((ColumnExpression)obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return (_property.GetHashCode() * 397)
+                       ^ _tableExpression.GetHashCode();
+            }
+        }
+
         public override string ToString()
         {
-            var s = _tableAlias + "." + _property.ColumnName();
+            var s = _tableExpression.Alias + "." + _property.ColumnName();
 
             if (Alias != null)
             {

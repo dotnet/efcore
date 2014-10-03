@@ -23,7 +23,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
         public virtual void Queryable_simple_anonymous()
         {
             AssertQuery<Customer>(
-                cs => cs.Select(c => new { c }));
+                cs => cs.Select(c => new { c }),
+                stateEntryCount: 91);
         }
 
         [Fact]
@@ -550,7 +551,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
         public virtual void Select_anonymous_with_object()
         {
             AssertQuery<Customer>(
-                cs => cs.Select(c => new { c.City, c }));
+                cs => cs.Select(c => new { c.City, c }),
+                stateEntryCount: 91);
         }
 
         [Fact]
@@ -886,7 +888,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     from e1 in es
                     from e2 in es
                     from e3 in es
-                    select new { e2, e3, e1 });
+                    select new { e2, e3, e1 },
+                stateEntryCount: 9);
         }
 
         [Fact]
@@ -1039,6 +1042,17 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 from c in cs
                 join o1 in
                     (from o2 in os orderby o2.OrderID select o2) on c.CustomerID equals o1.CustomerID
+                where o1.CustomerID == "ALFKI"
+                select new { c.ContactName, o1.OrderID });
+        }
+        
+        [Fact]
+        public virtual void Join_customers_orders_with_subquery_predicate()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                from c in cs
+                join o1 in
+                    (from o2 in os where o2.OrderID > 0 orderby o2.OrderID select o2) on c.CustomerID equals o1.CustomerID
                 where o1.CustomerID == "ALFKI"
                 select new { c.ContactName, o1.OrderID });
         }
@@ -1432,6 +1446,12 @@ namespace Microsoft.Data.Entity.FunctionalTests
         public virtual void Sum_with_no_arg()
         {
             AssertQuery<Order>(os => os.Select(o => o.OrderID).Sum());
+        }
+        
+        [Fact]
+        public virtual void Sum_with_no_arg_empty()
+        {
+            AssertQuery<Order>(os => os.Where(o => o.OrderID == 42).Select(o => o.OrderID).Sum());
         }
 
         [Fact]

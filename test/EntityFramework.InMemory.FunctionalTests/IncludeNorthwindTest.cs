@@ -8,11 +8,6 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 {
     public class IncludeNorthwindTest : IncludeNorthwindTestBase, IClassFixture<NorthwindQueryFixture>
     {
-        public override void Include_reference_dependent_already_tracked()
-        {
-            base.Include_reference_dependent_already_tracked();
-        }
-
         private readonly NorthwindQueryFixture _fixture;
 
         public IncludeNorthwindTest(NorthwindQueryFixture fixture)

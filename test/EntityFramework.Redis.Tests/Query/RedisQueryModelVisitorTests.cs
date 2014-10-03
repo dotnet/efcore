@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity.Redis.Tests.Query
 
             var queryModelVisitor = CreateQueryingExpressionTreeVisitor(querySourceMock.Object);
 
-            Assert.IsType<RedisQueryingExpressionTreeVisitor>(queryModelVisitor);
+            Assert.IsType<RedisEntityQueryableExpressionTreeVisitor>(queryModelVisitor);
         }
     }
 }

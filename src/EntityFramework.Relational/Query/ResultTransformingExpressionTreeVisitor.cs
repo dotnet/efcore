@@ -38,9 +38,12 @@ namespace Microsoft.Data.Entity.Relational.Query
             QuerySourceScope parentQuerySourceScope,
             DbDataReader dataReader)
         {
+            // TODO: Need async here...
             return new QuerySourceScope<TResult>(
                 querySource,
-                dataReader.GetFieldValue<TResult>(0),
+                dataReader.IsDBNull(0) 
+                    ? default(TResult)
+                    : dataReader.GetFieldValue<TResult>(0),
                 parentQuerySourceScope);
         }
 

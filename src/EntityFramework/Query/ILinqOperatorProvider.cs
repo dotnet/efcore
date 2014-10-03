@@ -37,6 +37,7 @@ namespace Microsoft.Data.Entity.Query
         MethodInfo Take { get; }
         MethodInfo _First { get; }
         MethodInfo AsQueryable { get; }
+        MethodInfo TrackEntities { get; }
 
         MethodInfo GetAggregateMethod(
             [NotNull] string methodName, [NotNull] Type elementType);
