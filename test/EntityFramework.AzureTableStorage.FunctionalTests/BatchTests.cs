@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
             Context.Database.EnsureCreated();
             Context.Set<Purchase>().AddRange(TestFixture.SampleData(TestPartition));
             Context.SaveChanges();
-            Context.Configuration.Connection.UseBatching(true);
+            Context.Configuration.Connection.AsAtsConnection().UseBatching(true);
         }
 
         [Theory]
