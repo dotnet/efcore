@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq.Expressions;
-using System.Reflection;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
 
@@ -34,30 +33,20 @@ namespace Microsoft.Data.Entity.Redis.Query
 
             protected override Expression VisitEntityQueryable(Type elementType)
             {
-                var isAsync =
-                    ((RedisQueryCompilationContext)_parentVisitor.QueryCompilationContext).IsAsync;
-                MethodInfo methodInfo;
+                var methodProvider =
+                    ((RedisQueryCompilationContext)_parentVisitor.QueryCompilationContext).QueryMethodProvider;
+                var methodInfo = methodProvider.ProjectionQueryMethod;
                 if (_parentVisitor.QuerySourceRequiresMaterialization(_querySource))
                 {
-                    var entityType = _parentVisitor.QueryCompilationContext.Model.GetEntityType(elementType);
-
-                    methodInfo = (isAsync
-                                    ? _executeMaterializedQueryExpressionMethodInfoAsync
-                                    : _executeMaterializedQueryExpressionMethodInfo)
-                                .MakeGenericMethod(elementType);
-                }
-                else
-                {
-                    methodInfo = isAsync
-                        ? _executeNonMaterializedQueryExpressionMethodInfoAsync
-                        : _executeNonMaterializedQueryExpressionMethodInfo;
+                    methodInfo = methodProvider.MaterializationQueryMethod
+                                    .MakeGenericMethod(elementType);
                 }
 
                 return Expression.Call(
-                    Expression.Constant(_parentVisitor),
                     methodInfo,
                     Expression.Constant(_querySource),
-                    QueryContextParameter);
+                    QueryContextParameter,
+                    Expression.Constant(_parentVisitor));
             }
         }
     }

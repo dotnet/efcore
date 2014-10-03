@@ -31,38 +31,18 @@ namespace Microsoft.Data.Entity.Redis.Query
             _redisDatabase = redisDatabase;
         }
 
-        public virtual IEnumerable<TResult> GetMaterializedResults<TResult>([NotNull] RedisQuery redisQuery)
+        public virtual IEnumerable<object[]> GetResultsEnumerable([NotNull] RedisQuery redisQuery)
         {
             Check.NotNull(redisQuery, "redisQuery");
 
-            return _redisDatabase.GetResults(redisQuery)
-                    .Select(objectArrayFromHash
-                        => (TResult)QueryBuffer
-                            .GetEntity(redisQuery.EntityType, new ObjectArrayValueReader(objectArrayFromHash)));
+            return _redisDatabase.GetResultsEnumerable(redisQuery);
         }
 
-        public virtual IAsyncEnumerable<TResult> GetMaterializedResultsAsync<TResult>([NotNull] RedisQuery redisQuery)
+        public virtual IAsyncEnumerable<object[]> GetResultsAsyncEnumerable([NotNull] RedisQuery redisQuery)
         {
             Check.NotNull(redisQuery, "redisQuery");
 
-            return _redisDatabase.GetResultsAsync(redisQuery)
-                    .Select(objectArrayFromHash
-                        => (TResult)QueryBuffer
-                            .GetEntity(redisQuery.EntityType, new ObjectArrayValueReader(objectArrayFromHash)));
-        }
-
-        public virtual IEnumerable<object[]> GetResultsFromRedis([NotNull] RedisQuery redisQuery)
-        {
-            Check.NotNull(redisQuery, "redisQuery");
-
-            return _redisDatabase.GetResults(redisQuery);
-        }
-
-        public virtual IAsyncEnumerable<object[]> GetResultsFromRedisAsync([NotNull] RedisQuery redisQuery)
-        {
-            Check.NotNull(redisQuery, "redisQuery");
-
-            return _redisDatabase.GetResultsAsync(redisQuery);
+            return _redisDatabase.GetResultsAsyncEnumerable(redisQuery);
         }
     }
 }

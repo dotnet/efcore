@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.Redis.Tests.Query
                 QueryTestType.Model(),
                 new LinqOperatorProvider(),
                 new ResultOperatorHandler(),
-                false))
+                new QueryMethodProvider()))
         {
         }
 

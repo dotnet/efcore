@@ -163,7 +163,7 @@ namespace Microsoft.Data.Entity.Redis
         ///     the values of the Properties for the EntityType (either all the propoerties
         ///     or the selected properties as defined by the query)
         /// </returns>
-        public virtual IEnumerable<object[]> GetResults([NotNull] RedisQuery redisQuery)
+        public virtual IEnumerable<object[]> GetResultsEnumerable([NotNull] RedisQuery redisQuery)
         {
             Check.NotNull(redisQuery, "redisQuery");
 
@@ -189,7 +189,7 @@ namespace Microsoft.Data.Entity.Redis
         ///     the values of the Properties for the EntityType (either all the propoerties
         ///     or the selected properties as defined by the query)
         /// </returns>
-        public virtual IAsyncEnumerable<object[]> GetResultsAsync([NotNull] RedisQuery redisQuery)
+        public virtual IAsyncEnumerable<object[]> GetResultsAsyncEnumerable([NotNull] RedisQuery redisQuery)
         {
             Check.NotNull(redisQuery, "redisQuery");
 

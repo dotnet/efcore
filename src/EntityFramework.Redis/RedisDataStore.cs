@@ -51,7 +51,7 @@ namespace Microsoft.Data.Entity.Redis
                 = CreateQueryCompilationContext(
                     new LinqOperatorProvider(),
                     new ResultOperatorHandler(),
-                    false);
+                    new QueryMethodProvider());
 
             var queryExecutor 
                 = queryCompilationContext
@@ -79,7 +79,7 @@ namespace Microsoft.Data.Entity.Redis
                 = CreateQueryCompilationContext(
                     new AsyncLinqOperatorProvider(),
                     new ResultOperatorHandler(),
-                    true);
+                    new AsyncQueryMethodProvider());
 
             var queryExecutor
                 = queryCompilationContext
@@ -102,13 +102,14 @@ namespace Microsoft.Data.Entity.Redis
         protected virtual RedisQueryCompilationContext CreateQueryCompilationContext(
             [NotNull] ILinqOperatorProvider linqOperatorProvider,
             [NotNull] IResultOperatorHandler resultOperatorHandler,
-            bool isAsync)
+            [NotNull] IQueryMethodProvider queryMethodProvider)
         {
             Check.NotNull(linqOperatorProvider, "linqOperatorProvider");
             Check.NotNull(resultOperatorHandler, "resultOperatorHandler");
+            Check.NotNull(queryMethodProvider, "queryMethodProvider");
 
             return new RedisQueryCompilationContext(
-                Model, linqOperatorProvider, resultOperatorHandler, isAsync);
+                Model, linqOperatorProvider, resultOperatorHandler, queryMethodProvider);
         }
     }
 }

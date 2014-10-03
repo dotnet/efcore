@@ -19,9 +19,7 @@ namespace Microsoft.Data.Entity.Redis.Tests.Query
                     model,
                     new LinqOperatorProvider(),
                     new ResultOperatorHandler(),
-                    false);
-
-            Assert.False(redisQueryCompilationContext.IsAsync);
+                    new QueryMethodProvider());
         }
 
         [Fact]
@@ -34,9 +32,7 @@ namespace Microsoft.Data.Entity.Redis.Tests.Query
                     model,
                     new LinqOperatorProvider(),
                     new ResultOperatorHandler(),
-                    true);
-
-            Assert.True(redisQueryCompilationContext.IsAsync);
+                    new AsyncQueryMethodProvider());
         }
 
         [Fact]
@@ -48,7 +44,7 @@ namespace Microsoft.Data.Entity.Redis.Tests.Query
                     model,
                     new LinqOperatorProvider(),
                     new ResultOperatorHandler(),
-                    false);
+                    new QueryMethodProvider());
 
             var parentVisitor = new RedisQueryModelVisitor(redisQueryCompilationContext);
             var visitor = redisQueryCompilationContext.CreateQueryModelVisitor(parentVisitor);
