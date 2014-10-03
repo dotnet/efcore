@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.Commands
             _assembly = assembly;
         }
 
-        public virtual ScaffoldedMigration CreateMigration(
+        public virtual ScaffoldedMigration AddMigration(
             [NotNull] string migrationName,
             [NotNull] string rootNamespace,
             [CanBeNull] string contextTypeName)
@@ -110,7 +110,7 @@ namespace Microsoft.Data.Entity.Commands
             }
         }
 
-        public virtual string GenerateScript(
+        public virtual string ScriptMigration(
             [CanBeNull] string fromMigrationName,
             [CanBeNull] string toMigrationName,
             bool idempotent,
@@ -132,7 +132,7 @@ namespace Microsoft.Data.Entity.Commands
             }
         }
 
-        public virtual void UpdateDatabase([CanBeNull] string migrationName, [CanBeNull] string contextTypeName)
+        public virtual void ApplyMigration([CanBeNull] string migrationName, [CanBeNull] string contextTypeName)
         {
             var contextType = GetContextType(contextTypeName);
             using (var context = CreateContext(contextType))

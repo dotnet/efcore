@@ -38,74 +38,75 @@ namespace Microsoft.Data.Entity.Commands
             _migrationTool = new MigrationTool(assembly);
         }
 
-        public class GetContextName : OperationBase
+        public class GetContextType : OperationBase
         {
-            public GetContextName([NotNull] Executor executor, [NotNull] object handler, [NotNull] IDictionary args)
+            public GetContextType([NotNull] Executor executor, [NotNull] object handler, [NotNull] IDictionary args)
                 : base(handler)
             {
                 Check.NotNull(executor, "executor");
                 Check.NotNull(args, "args");
 
-                var contextName = (string)args["contextName"];
+                var name = (string)args["name"];
 
-                Execute(() => executor.GetContextNameImpl(contextName));
+                Execute(() => executor.GetContextTypeImpl(name));
             }
         }
 
-        public virtual string GetContextNameImpl([CanBeNull] string contextName)
+        public virtual string GetContextTypeImpl([CanBeNull] string name)
         {
-            return _migrationTool.GetContextType(contextName).FullName;
+            // TODO: Assembly-qualified
+            return _migrationTool.GetContextType(name).FullName;
         }
 
-        public class CreateMigration : OperationBase
+        public class AddMigration : OperationBase
         {
-            public CreateMigration([NotNull] Executor executor, [NotNull] object handler, [NotNull] IDictionary args)
+            public AddMigration([NotNull] Executor executor, [NotNull] object handler, [NotNull] IDictionary args)
                 : base(handler)
             {
                 Check.NotNull(executor, "executor");
                 Check.NotNull(args, "args");
 
                 var migrationName = (string)args["migrationName"];
-                var contextName = (string)args["contextName"];
+                var contextTypeName = (string)args["contextTypeName"];
 
-                Execute(() => executor.CreateMigrationImpl(migrationName, contextName));
+                Execute(() => executor.AddMigrationImpl(migrationName, contextTypeName));
             }
         }
 
-        public virtual IEnumerable<string> CreateMigrationImpl(
+        public virtual IEnumerable<string> AddMigrationImpl(
             [NotNull] string migrationName,
-            [CanBeNull] string contextName)
+            [CanBeNull] string contextTypeName)
         {
             Check.NotEmpty(migrationName, "migrationName");
 
-            var migration = _migrationTool.CreateMigration(migrationName, _rootNamespace, contextName);
+            var migration = _migrationTool.AddMigration(migrationName, _rootNamespace, contextTypeName);
 
             return _migrationTool.WriteMigration(_projectDir, migration);
         }
 
-        public class PublishMigration : OperationBase
+        public class ApplyMigration : OperationBase
         {
-            public PublishMigration([NotNull] Executor executor, [NotNull] object handler, [NotNull] IDictionary args)
+            public ApplyMigration([NotNull] Executor executor, [NotNull] object handler, [NotNull] IDictionary args)
                 : base(handler)
             {
                 Check.NotNull(executor, "executor");
                 Check.NotNull(args, "args");
 
                 var migrationName = (string)args["migrationName"];
-                var contextName = (string)args["contextName"];
+                var contextTypeName = (string)args["contextTypeName"];
 
-                Execute(() => executor.PublishMigrationImpl(migrationName, contextName));
+                Execute(() => executor.ApplyMigrationImpl(migrationName, contextTypeName));
             }
         }
 
-        public virtual void PublishMigrationImpl([CanBeNull] string migrationName, [CanBeNull] string contextName)
+        public virtual void ApplyMigrationImpl([CanBeNull] string migrationName, [CanBeNull] string contextTypeName)
         {
-            _migrationTool.UpdateDatabase(migrationName, contextName);
+            _migrationTool.ApplyMigration(migrationName, contextTypeName);
         }
 
-        public class CreateMigrationScript : OperationBase
+        public class ScriptMigration : OperationBase
         {
-            public CreateMigrationScript(
+            public ScriptMigration(
                 [NotNull] Executor executor,
                 [NotNull] object handler,
                 [NotNull] IDictionary args)
@@ -114,41 +115,42 @@ namespace Microsoft.Data.Entity.Commands
                 Check.NotNull(executor, "executor");
                 Check.NotNull(args, "args");
 
-                var fromMigration = (string)args["fromMigration"];
-                var toMigration = (string)args["toMigration"];
+                var fromMigrationName = (string)args["fromMigrationName"];
+                var toMigrationName = (string)args["toMigrationName"];
                 var idempotent = (bool)args["idempotent"];
-                var contextName = (string)args["contextName"];
+                var contextTypeName = (string)args["contextTypeName"];
 
-                Execute(() => executor.CreateMigrationScriptImpl(fromMigration, toMigration, idempotent, contextName));
+                Execute(() => executor.ScriptMigrationImpl(fromMigrationName, toMigrationName, idempotent, contextTypeName));
             }
         }
 
-        public virtual string CreateMigrationScriptImpl(
-            [CanBeNull] string fromMigration,
-            [CanBeNull] string toMigration,
+        public virtual string ScriptMigrationImpl(
+            [CanBeNull] string fromMigrationName,
+            [CanBeNull] string toMigrationName,
             bool idempotent,
-            [CanBeNull] string contextName)
+            [CanBeNull] string contextTypeName)
         {
-            return _migrationTool.GenerateScript(fromMigration, toMigration, idempotent, contextName);
+            return _migrationTool.ScriptMigration(fromMigrationName, toMigrationName, idempotent, contextTypeName);
         }
 
-        public class GetContextNames : OperationBase
+        public class GetContextTypes : OperationBase
         {
-            public GetContextNames([NotNull] Executor executor, [NotNull] object handler, [NotNull] IDictionary args)
+            public GetContextTypes([NotNull] Executor executor, [NotNull] object handler, [NotNull] IDictionary args)
                 : base(handler)
             {
                 Check.NotNull(executor, "executor");
                 Check.NotNull(args, "args");
 
-                Execute(() => executor.GetContextNamesImpl());
+                Execute(() => executor.GetContextTypesImpl());
             }
         }
 
-        public virtual IEnumerable<IDictionary> GetContextNamesImpl()
+        public virtual IEnumerable<IDictionary> GetContextTypesImpl()
         {
             var contextTypes = _migrationTool.GetContextTypes().ToArray();
             var groups = contextTypes.GroupBy(t => t.Name).ToArray();
 
+            // TODO: Assembly-qualified
             return contextTypes.Select(
                 t =>
                 {
@@ -161,24 +163,24 @@ namespace Microsoft.Data.Entity.Commands
                 });
         }
 
-        public class GetMigrationNames : OperationBase
+        public class GetMigrations : OperationBase
         {
-            public GetMigrationNames([NotNull] Executor executor, [NotNull] object handler, [NotNull] IDictionary args)
+            public GetMigrations([NotNull] Executor executor, [NotNull] object handler, [NotNull] IDictionary args)
                 : base(handler)
             {
                 Check.NotNull(executor, "executor");
                 Check.NotNull(args, "args");
 
-                var contextName = (string)args["contextName"];
+                var contextTypeName = (string)args["contextTypeName"];
 
-                Execute(() => executor.GetMigrationNamesImpl(contextName));
+                Execute(() => executor.GetMigrationsImpl(contextTypeName));
             }
         }
 
-        // TODO: DRY (See GetContextNamesImpl)
-        public virtual IEnumerable<IDictionary> GetMigrationNamesImpl([CanBeNull] string contextName)
+        // TODO: DRY (See GetContextTypesImpl)
+        public virtual IEnumerable<IDictionary> GetMigrationsImpl([CanBeNull] string contextTypeName)
         {
-            var migrations = _migrationTool.GetMigrations(contextName);
+            var migrations = _migrationTool.GetMigrations(contextTypeName);
             var groups = migrations.GroupBy(m => m.GetMigrationName()).ToArray();
 
             return migrations.Select(

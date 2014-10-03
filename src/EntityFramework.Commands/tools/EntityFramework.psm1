@@ -2,7 +2,7 @@ $ErrorActionPreference = "Stop"
 
 $EFDefaultParameterValues = @{
     ProjectName = ''
-    ContextName = ''
+    ContextTypeName = ''
 }
 
 #
@@ -10,20 +10,19 @@ $EFDefaultParameterValues = @{
 #
 
 Register-TabExpansion Use-DbContext @{
-    ContextName = { param ($context) GetContextNames $context.ProjectName }
-    ProjectName = { GetProjectNames }
+    Context = { param ($context) GetContextTypes $context.Project }
+    Project = { GetProjects }
 }
 
 function Use-DbContext {
     [CmdletBinding()]
-    param ([Parameter(Mandatory = $true)] [string] $ContextName, [string] $ProjectName)
+    param ([Parameter(Mandatory = $true)] [string] $Context, [string] $Project)
 
-    $project = GetProject $ProjectName
-    $ProjectName = $project.ProjectName
-    $ContextName = InvokeOperation $project GetContextName @{ contextName = $ContextName }
+    $dteProject = GetProject $Project
+    $contextTypeName = InvokeOperation $dteProject GetContextType @{ name = $Context }
 
-    $EFDefaultParameterValues.ContextName = $ContextName
-    $EFDefaultParameterValues.ProjectName = $ProjectName
+    $EFDefaultParameterValues.ContextTypeName = $contextTypeName
+    $EFDefaultParameterValues.ProjectName = $dteProject.ProjectName
 }
 
 #
@@ -31,51 +30,70 @@ function Use-DbContext {
 #
 
 Register-TabExpansion Add-Migration @{
-    ContextName = { param ($context) GetContextNames $context.ProjectName }
-    ProjectName = { GetProjectNames }
+    Context = { param ($context) GetContextTypes $context.Project }
+    Project = { GetProjects }
 }
 
 function Add-Migration {
     [CmdletBinding()]
-    param ([Parameter(Mandatory = $true)] [string] $MigrationName, [string] $ContextName, [string] $ProjectName)
+    param ([Parameter(Mandatory = $true)] [string] $Name, [string] $Context, [string] $Project)
 
-    $values = ProcessCommonParameters $ContextName $ProjectName
-    $project = $values.Project
-    $ContextName = $values.ContextName
+    $values = ProcessCommonParameters $Context $Project
+    $dteProject = $values.Project
+    $contextTypeName = $values.ContextTypeName
 
-    $artifacts = InvokeOperation $project CreateMigration @{
-        migrationName = $MigrationName
-        contextName = $ContextName
+    $artifacts = InvokeOperation $dteProject AddMigration @{
+        migrationName = $Name
+        contextTypeName = $contextTypeName
     }
 
-    $artifacts | %{ $project.ProjectItems.AddFromFile($_) | Out-Null }
+    $artifacts | %{ $dteProject.ProjectItems.AddFromFile($_) | Out-Null }
     $DTE.ItemOperations.OpenFile($artifacts[0]) | Out-Null
     ShowConsole
 }
 
 #
-# Update-Database
+# Apply-Migration
 #
 
-Register-TabExpansion Update-Database @{
-    MigrationName = { param ($context) GetMigrationNames $context.ContextName $context.ProjectName }
-    ContextName = { param ($context) GetContextNames $context.ProjectName }
-    ProjectName = { Get-ProjectNames }
+Register-TabExpansion Apply-Migration @{
+    Migration = { param ($context) GetMigrations $context.Context $context.Project }
+    Context = { param ($context) GetContextTypes $context.Project }
+    Project = { GetProjects }
 }
 
 # TODO: WhatIf
+function Apply-Migration {
+    [CmdletBinding()]
+    param ([string] $Migration, [string] $Context, [string] $Project)
+
+    $values = ProcessCommonParameters $Context $Project
+    $dteProject = $values.Project
+    $contextTypeName = $values.ContextTypeName
+
+    InvokeOperation $dteProject ApplyMigration @{
+        migrationName = $Migration
+        contextTypeName = $contextTypeName
+    }
+}
+
+#
+# Update-Database (Obsolete)
+#
+
+Register-TabExpansion Update-Database @{
+    Migration = { param ($context) GetMigrations $context.Context $context.Project }
+    Context = { param ($context) GetContextTypes $context.Project }
+    Project = { GetProjects }
+}
+
 function Update-Database {
     [CmdletBinding()]
-    param ([string] $MigrationName, [string] $ContextName, [string] $ProjectName)
+    param ([string] $Migration, [string] $Context, [string] $Project)
 
-    $values = ProcessCommonParameters $ContextName $ProjectName
-    $project = $values.Project
-    $ContextName = $values.ContextName
+    Write-Warning 'Update-Database is obsolete. Use Apply-Migration instead.'
 
-    InvokeOperation $project PublishMigration @{
-        migrationName = $MigrationName
-        contextName = $ContextName
-    }
+    Apply-Migration $Migration -Context $Context -Project $Project
 }
 
 #
@@ -83,31 +101,25 @@ function Update-Database {
 #
 
 Register-TabExpansion Script-Migration @{
-    FromMigration = { param ($context) GetMigrationNames $context.ContextName $context.ProjectName }
-    ToMigration = { param ($context) GetMigrationNames $context.ContextName $context.ProjectName }
-    ContextName = { param ($context) GetContextNames $context.ProjectName }
-    ProjectName = { Get-ProjectNames }
+    From = { param ($context) GetMigrations $context.Context $context.Project }
+    To = { param ($context) GetMigrations $context.Context $context.Project }
+    Context = { param ($context) GetContextTypes $context.Project }
+    Project = { GetProjects }
 }
 
 function Script-Migration {
     [CmdletBinding()]
-    param (
-        [string] $FromMigration,
-        [string] $ToMigration,
-        [switch] $Idempotent,
-        [string] $ContextName,
-        [string] $ProjectName
-    )
+    param ([string] $From, [string] $To, [switch] $Idempotent, [string] $Context, [string] $Project)
 
-    $values = ProcessCommonParameters $ContextName $ProjectName
-    $project = $values.Project
-    $ContextName = $values.ContextName
+    $values = ProcessCommonParameters $Context $Project
+    $dteProject = $values.Project
+    $contextTypeName = $values.ContextTypeName
 
-    $script = InvokeOperation $project CreateMigrationScript @{
-        fromMigration = $FromMigration
-        toMigration = $ToMigration
+    $script = InvokeOperation $dteProject ScriptMigration @{
+        fromMigrationName = $From
+        toMigrationName = $To
         idempotent = [bool]$Idempotent
-        contextName = $ContextName
+        contextTypeName = $contextTypeName
     }
 
     try {
@@ -118,8 +130,8 @@ function Script-Migration {
         $editPoint.Insert($script)
     }
     catch {
-        $fullPath = GetProperty $project.Properties FullPath
-        $intermediatePath = GetProperty $project.ConfigurationManager.ActiveConfiguration.Properties IntermediatePath
+        $fullPath = GetProperty $dteProject.Properties FullPath
+        $intermediatePath = GetProperty $dteProject.ConfigurationManager.ActiveConfiguration.Properties IntermediatePath
         $fullIntermediatePath = Join-Path $fullPath $intermediatePath
         $fileName = [IO.Path]::GetRandomFileName()
         $fileName = [IO.Path]::ChangeExtension($fileName, '.sql')
@@ -135,7 +147,7 @@ function Script-Migration {
 # (Private Helpers)
 #
 
-function GetProjectNames {
+function GetProjects {
     $projects = Get-Project -All
     $groups = $projects | group Name
 
@@ -148,27 +160,27 @@ function GetProjectNames {
     }
 }
 
-function GetContextNames($projectName) {
+function GetContextTypes($projectName) {
     $project = GetProject $projectName
 
-    $contextNames = InvokeOperation $project GetContextNames -skipBuild
+    $contextTypes = InvokeOperation $project GetContextTypes -skipBuild
 
-    return $contextNames | %{ $_.SafeName }
+    return $contextTypes | %{ $_.SafeName }
 }
 
-function GetMigrationNames($contextName, $projectName) {
-    $values = ProcessCommonParameters $contextName $projectName
+function GetMigrations($contextTypeName, $projectName) {
+    $values = ProcessCommonParameters $contextTypeName $projectName
     $project = $values.Project
-    $contextName = $values.ContextName
+    $contextTypeName = $values.ContextTypeName
 
-    $migrationNames = InvokeOperation $project GetMigrationNames @{ contextName = $contextName } -skipBuild
+    $migrations = InvokeOperation $project GetMigrations @{ contextTypeName = $contextTypeName } -skipBuild
 
-    return $migrationNames | %{ $_.SafeName }
+    return $migrations | %{ $_.SafeName }
 }
 
-function ProcessCommonParameters($contextName, $projectName) {
-    if (!$contextName) {
-        $contextName = $EFDefaultParameterValues.ContextName
+function ProcessCommonParameters($contextTypeName, $projectName) {
+    if (!$contextTypeName) {
+        $contextTypeName = $EFDefaultParameterValues.ContextTypeName
         $projectName = $EFDefaultParameterValues.ProjectName
     }
 
@@ -180,7 +192,7 @@ function ProcessCommonParameters($contextName, $projectName) {
 
     return @{
         Project = $project
-        ContextName = $contextName
+        ContextTypeName = $contextTypeName
     }
 }
 

@@ -97,15 +97,15 @@ namespace Microsoft.Data.Entity.Commands
         {
             Check.NotEmpty(name, "name");
 
-            var migration = _migrationTool.CreateMigration(name, _rootNamespace, context);
+            var migration = _migrationTool.AddMigration(name, _rootNamespace, context);
             _migrationTool.WriteMigration(_projectDir, migration).ToArray();
 
             return 0;
         }
 
-        public virtual int UpdateDatabase([CanBeNull] string migration, [CanBeNull] string context)
+        public virtual int ApplyMigration([CanBeNull] string migration, [CanBeNull] string context)
         {
-            _migrationTool.UpdateDatabase(migration, context);
+            _migrationTool.ApplyMigration(migration, context);
 
             return 0;
         }
