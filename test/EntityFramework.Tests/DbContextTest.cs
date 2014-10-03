@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Infrastructure;
@@ -922,6 +923,10 @@ namespace Microsoft.Data.Entity.Tests
 
         private class FakeClrCollectionAccessorSource : ClrCollectionAccessorSource
         {
+            public FakeClrCollectionAccessorSource()
+                : base(new CollectionTypeFactory())
+            {
+            }
         }
 
         private class FakeClrPropertyGetterSource : ClrPropertyGetterSource

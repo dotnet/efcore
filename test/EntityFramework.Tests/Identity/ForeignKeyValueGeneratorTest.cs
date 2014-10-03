@@ -222,7 +222,7 @@ namespace Microsoft.Data.Entity.Tests.Identity
 
         private static ForeignKeyValueGenerator CreateValueGenerator()
         {
-            return new ForeignKeyValueGenerator(new ClrPropertyGetterSource(), new ClrCollectionAccessorSource());
+            return new ForeignKeyValueGenerator(new ClrPropertyGetterSource(), new ClrCollectionAccessorSource(new CollectionTypeFactory()));
         }
     }
 }

@@ -31,6 +31,7 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddSingleton<ClrPropertyGetterSource>()
                 .AddSingleton<ClrPropertySetterSource>()
                 .AddSingleton<ClrCollectionAccessorSource>()
+                .AddSingleton<CollectionTypeFactory>()
                 .AddSingleton<EntityMaterializerSource>()
                 .AddSingleton<CompositeEntityKeyFactory>()
                 .AddSingleton<ForeignKeyValueGenerator>()

@@ -12,6 +12,8 @@ namespace Microsoft.Data.Entity.Metadata
 {
     public class ClrCollectionAccessorSource
     {
+        private readonly CollectionTypeFactory _collectionTypeFactory;
+
         private static readonly MethodInfo _genericCreate
             = typeof(ClrCollectionAccessorSource).GetTypeInfo().GetDeclaredMethods("CreateGeneric").Single();
 
@@ -20,6 +22,22 @@ namespace Microsoft.Data.Entity.Metadata
 
         private readonly ThreadSafeDictionaryCache<Tuple<Type, string>, IClrCollectionAccessor> _cache
             = new ThreadSafeDictionaryCache<Tuple<Type, string>, IClrCollectionAccessor>();
+
+        /// <summary>
+        ///     This constructor is intended only for use when creating test doubles that will override members
+        ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
+        ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
+        /// </summary>
+        protected ClrCollectionAccessorSource()
+        {
+        }
+
+        public ClrCollectionAccessorSource([NotNull] CollectionTypeFactory collectionTypeFactory)
+        {
+            Check.NotNull(collectionTypeFactory, "collectionTypeFactory");
+
+            _collectionTypeFactory = collectionTypeFactory;
+        }
 
         public virtual IClrCollectionAccessor GetAccessor([NotNull] INavigation navigation)
         {
@@ -37,7 +55,7 @@ namespace Microsoft.Data.Entity.Metadata
                 k => Create(navigation));
         }
 
-        private static IClrCollectionAccessor Create(INavigation navigation)
+        private IClrCollectionAccessor Create(INavigation navigation)
         {
             var property = navigation.EntityType.Type.GetAnyProperty(navigation.Name);
             var elementType = property.PropertyType.TryGetElementType(typeof(ICollection<>));
@@ -65,11 +83,11 @@ namespace Microsoft.Data.Entity.Metadata
             var boundMethod = _genericCreate.MakeGenericMethod(
                 property.DeclaringType, property.PropertyType, elementType);
 
-            return (IClrCollectionAccessor)boundMethod.Invoke(null, new object[] { property });
+            return (IClrCollectionAccessor)boundMethod.Invoke(this, new object[] { property });
         }
 
         // ReSharper disable once UnusedMember.Local
-        private static IClrCollectionAccessor CreateGeneric<TEntity, TCollection, TElement>(PropertyInfo property)
+        private IClrCollectionAccessor CreateGeneric<TEntity, TCollection, TElement>(PropertyInfo property)
             where TCollection : class, ICollection<TElement>
         {
             var getterDelegate = (Func<TEntity, TCollection>)property.GetMethod.CreateDelegate(typeof(Func<TEntity, TCollection>));
@@ -82,7 +100,7 @@ namespace Microsoft.Data.Entity.Metadata
             {
                 setterDelegate = (Action<TEntity, TCollection>)setter.CreateDelegate(typeof(Action<TEntity, TCollection>));
 
-                var concreteType = new CollectionTypeFactory().TryFindTypeToInstantiate(typeof(TCollection));
+                var concreteType = _collectionTypeFactory.TryFindTypeToInstantiate(typeof(TCollection));
 
                 if (concreteType != null)
                 {

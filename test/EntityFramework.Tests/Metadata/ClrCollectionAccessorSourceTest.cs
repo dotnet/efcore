@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var accessorMock = new Mock<IClrCollectionAccessor>();
             var navigationMock = accessorMock.As<INavigation>();
 
-            var source = new ClrCollectionAccessorSource();
+            var source = new ClrCollectionAccessorSource(new CollectionTypeFactory());
 
             Assert.Same(accessorMock.Object, source.GetAccessor(navigationMock.Object));
         }
@@ -98,7 +98,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         private static void AccessorTest(
             string navigationName, Func<MyEntity, IEnumerable<MyOtherEntity>> reader, bool initializeCollections = true)
         {
-            var accessor = new ClrCollectionAccessorSource().GetAccessor(CreateNavigation(navigationName));
+            var accessor = new ClrCollectionAccessorSource(new CollectionTypeFactory()).GetAccessor(CreateNavigation(navigationName));
 
             var entity = new MyEntity();
             var value = new MyOtherEntity();
@@ -131,7 +131,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var navigation = entityType.AddNavigation("AsICollection", foreignKey, pointsToPrincipal: false);
 
-            var source = new ClrCollectionAccessorSource();
+            var source = new ClrCollectionAccessorSource(new CollectionTypeFactory());
 
             Assert.Same(source.GetAccessor(navigation), source.GetAccessor(navigation));
         }
@@ -143,7 +143,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal(
                 Strings.FormatNavigationNoGetter("WithNoGetter", typeof(MyEntity).FullName),
-                Assert.Throws<NotSupportedException>(() => new ClrCollectionAccessorSource().GetAccessor(navigation)).Message);
+                Assert.Throws<NotSupportedException>(() => new ClrCollectionAccessorSource(new CollectionTypeFactory()).GetAccessor(navigation)).Message);
         }
 
         [Fact]
@@ -154,7 +154,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Equal(
                 Strings.FormatNavigationBadType(
                     "AsIEnumerable", typeof(MyEntity).FullName, typeof(IEnumerable<MyOtherEntity>).FullName, typeof(MyOtherEntity).FullName),
-                Assert.Throws<NotSupportedException>(() => new ClrCollectionAccessorSource().GetAccessor(navigation)).Message);
+                Assert.Throws<NotSupportedException>(() => new ClrCollectionAccessorSource(new CollectionTypeFactory()).GetAccessor(navigation)).Message);
         }
 
         [Fact]
@@ -164,13 +164,13 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal(
                 Strings.FormatNavigationArray("AsArray", typeof(MyEntity).FullName, typeof(MyOtherEntity[]).FullName),
-                Assert.Throws<NotSupportedException>(() => new ClrCollectionAccessorSource().GetAccessor(navigation)).Message);
+                Assert.Throws<NotSupportedException>(() => new ClrCollectionAccessorSource(new CollectionTypeFactory()).GetAccessor(navigation)).Message);
         }
 
         [Fact]
         public void Initialization_for_navigation_without_setter_throws()
         {
-            var accessor = new ClrCollectionAccessorSource().GetAccessor(CreateNavigation("WithNoSetter"));
+            var accessor = new ClrCollectionAccessorSource(new CollectionTypeFactory()).GetAccessor(CreateNavigation("WithNoSetter"));
 
             Assert.Equal(
                 Strings.FormatNavigationNoSetter("WithNoSetter", typeof(MyEntity).FullName),
@@ -180,7 +180,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Initialization_for_navigation_with_private_constructor_throws()
         {
-            var accessor = new ClrCollectionAccessorSource().GetAccessor(CreateNavigation("AsMyPrivateCollection"));
+            var accessor = new ClrCollectionAccessorSource(new CollectionTypeFactory()).GetAccessor(CreateNavigation("AsMyPrivateCollection"));
 
             Assert.Equal(
                 Strings.FormatNavigationCannotCreateType("AsMyPrivateCollection", typeof(MyEntity).FullName, typeof(MyPrivateCollection).FullName),
@@ -190,7 +190,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Initialization_for_navigation_with_internal_constructor_throws()
         {
-            var accessor = new ClrCollectionAccessorSource().GetAccessor(CreateNavigation("AsMyInternalCollection"));
+            var accessor = new ClrCollectionAccessorSource(new CollectionTypeFactory()).GetAccessor(CreateNavigation("AsMyInternalCollection"));
 
             Assert.Equal(
                 Strings.FormatNavigationCannotCreateType("AsMyInternalCollection", typeof(MyEntity).FullName, typeof(MyInternalCollection).FullName),
@@ -200,7 +200,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Initialization_for_navigation_without_parameterless_constructor_throws()
         {
-            var accessor = new ClrCollectionAccessorSource().GetAccessor(CreateNavigation("AsMyUnavailableCollection"));
+            var accessor = new ClrCollectionAccessorSource(new CollectionTypeFactory()).GetAccessor(CreateNavigation("AsMyUnavailableCollection"));
 
             Assert.Equal(
                 Strings.FormatNavigationCannotCreateType("AsMyUnavailableCollection", typeof(MyEntity).FullName, typeof(MyUnavailableCollection).FullName),

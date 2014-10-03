@@ -988,7 +988,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
         private static NavigationFixer CreateNavigationFixer(DbContextConfiguration contextConfiguration)
         {
-            return new NavigationFixer(contextConfiguration, new ClrPropertyGetterSource(), new ClrPropertySetterSource(), new ClrCollectionAccessorSource());
+            return new NavigationFixer(contextConfiguration, new ClrPropertyGetterSource(), new ClrPropertySetterSource(), new ClrCollectionAccessorSource(new CollectionTypeFactory()));
         }
     }
 }
