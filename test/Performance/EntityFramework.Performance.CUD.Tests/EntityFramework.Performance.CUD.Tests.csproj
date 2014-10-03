@@ -1,20 +1,20 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <Import Project="..\..\tools\EntityFramework.props" />
+  <Import Project="..\..\..\tools\EntityFramework.props" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{21B0C556-99B1-4A80-8CB8-45C56F17F785}</ProjectGuid>
+    <ProjectGuid>{0DC8A4B7-05A2-465E-9203-F41102B1A69F}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Microsoft.Data.Entity.Performance.DbContext.Tests</RootNamespace>
-    <AssemblyName>EntityFramework.Performance.DbContext.Tests</AssemblyName>
+    <RootNamespace>Microsoft.Data.Entity.Performance.CUD.Tests</RootNamespace>
+    <AssemblyName>EntityFramework.Performance.CUD.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -24,7 +24,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -39,17 +38,17 @@
     <Reference Include="System.ComponentModel" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data.Common">
-      <HintPath>..\..\packages\System.Data.Common.1.0.0-alpha4-10253\lib\net451\System.Data.Common.dll</HintPath>
+      <HintPath>..\..\..\packages\System.Data.Common.1.0.0-alpha4-10232\lib\net451\System.Data.Common.dll</HintPath>
     </Reference>
     <Reference Include="System.Data.SqlClient">
-      <HintPath>..\..\packages\System.Data.SqlClient.1.0.0-alpha4-10276\lib\net45\System.Data.SqlClient.dll</HintPath>
+      <HintPath>..\..\..\packages\System.Data.SqlClient.1.0.0-alpha4-10240\lib\net45\System.Data.SqlClient.dll</HintPath>
     </Reference>
     <Reference Include="System.Diagnostics.Debug" />
     <Reference Include="System.Diagnostics.Tools" />
     <Reference Include="System.Dynamic.Runtime" />
     <Reference Include="System.Globalization" />
     <Reference Include="System.Interactive.Async">
-      <HintPath>..\..\packages\Ix-Async.1.2.2\lib\net45\System.Interactive.Async.dll</HintPath>
+      <HintPath>..\..\..\packages\Ix-Async.1.2.2\lib\net45\System.Interactive.Async.dll</HintPath>
     </Reference>
     <Reference Include="System.Linq" />
     <Reference Include="System.Linq.Expressions" />
@@ -107,33 +106,36 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DbContextAssociationPerfTests.cs" />
-    <Compile Include="DbContextPerfTests.cs" />
-    <Compile Include="DbContextPerfTestsBase.cs" />
-    <Compile Include="DbContextPerfTestsWithExistingDbContext.cs" />
     <Compile Include="Microbenchmarks\Core\IterationCounter.cs" />
     <Compile Include="Microbenchmarks\Core\PerformanceMetric.cs" />
     <Compile Include="Microbenchmarks\Core\PerfTestRunner.cs" />
     <Compile Include="Microbenchmarks\Core\RunResult.cs" />
     <Compile Include="Microbenchmarks\Core\TestDefinition.cs" />
-    <Compile Include="Model\AdvWorksDbContext.cs" />
-    <Compile Include="Model\AdvWorksEntities.cs" />
+    <Compile Include="Model\Customer.cs" />
+    <Compile Include="Model\CudContext.cs" />
+    <Compile Include="Model\FixupCollection.cs" />
+    <Compile Include="Model\Order.cs" />
+    <Compile Include="Model\OrderLine.cs" />
+    <Compile Include="Model\Product.cs" />
+    <Compile Include="Model\SpecialProduct.cs" />
+    <Compile Include="CudTests.cs" />
     <Compile Include="Program.cs" />
+    <Compile Include="Utilities\ListExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\EntityFramework\EntityFramework.csproj">
+    <ProjectReference Include="..\..\..\src\EntityFramework\EntityFramework.csproj">
       <Project>{71415cec-8111-4c73-8751-512d22f10602}</Project>
       <Name>EntityFramework</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\src\EntityFramework.Migrations\EntityFramework.Migrations.csproj">
+    <ProjectReference Include="..\..\..\src\EntityFramework.Migrations\EntityFramework.Migrations.csproj">
       <Project>{6E38B72F-31DA-4AEF-8F34-B8269572EC6B}</Project>
       <Name>EntityFramework.Migrations</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\src\EntityFramework.Relational\EntityFramework.Relational.csproj">
+    <ProjectReference Include="..\..\..\src\EntityFramework.Relational\EntityFramework.Relational.csproj">
       <Project>{75C5A774-A3F3-43EB-97D3-DBE0CF2825D8}</Project>
       <Name>EntityFramework.Relational</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\src\EntityFramework.SqlServer\EntityFramework.SqlServer.csproj">
+    <ProjectReference Include="..\..\..\src\EntityFramework.SqlServer\EntityFramework.SqlServer.csproj">
       <Project>{04E6620B-5B41-45FE-981A-F40EB7686B0E}</Project>
       <Name>EntityFramework.SqlServer</Name>
     </ProjectReference>

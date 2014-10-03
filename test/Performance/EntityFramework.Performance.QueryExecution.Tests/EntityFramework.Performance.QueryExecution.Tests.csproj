@@ -1,20 +1,21 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <Import Project="..\..\tools\EntityFramework.props" />
+  <Import Project="..\..\..\tools\EntityFramework.props" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{0DC8A4B7-05A2-465E-9203-F41102B1A69F}</ProjectGuid>
+    <ProjectGuid>{9216D88D-CE9E-456F-9B77-1C43171633CB}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Microsoft.Data.Entity.Performance.CUD.Tests</RootNamespace>
-    <AssemblyName>EntityFramework.Performance.CUD.Tests</AssemblyName>
+    <RootNamespace>Microsoft.Data.Entity.Performance.QueryExecution.Tests</RootNamespace>
+    <AssemblyName>EntityFramework.Performance.QueryExecution.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -24,6 +25,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -32,23 +34,28 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.QualityTools.Testing.Fakes, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="System" />
     <Reference Include="System.Collections" />
     <Reference Include="System.Collections.Concurrent" />
     <Reference Include="System.ComponentModel" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data.Common">
-      <HintPath>..\..\packages\System.Data.Common.1.0.0-alpha4-10232\lib\net451\System.Data.Common.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\packages\System.Data.Common.1.0.0-beta1-10322\lib\net451\System.Data.Common.dll</HintPath>
     </Reference>
     <Reference Include="System.Data.SqlClient">
-      <HintPath>..\..\packages\System.Data.SqlClient.1.0.0-alpha4-10240\lib\net45\System.Data.SqlClient.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\packages\System.Data.SqlClient.1.0.0-beta1-10354\lib\net45\System.Data.SqlClient.dll</HintPath>
     </Reference>
     <Reference Include="System.Diagnostics.Debug" />
     <Reference Include="System.Diagnostics.Tools" />
     <Reference Include="System.Dynamic.Runtime" />
     <Reference Include="System.Globalization" />
     <Reference Include="System.Interactive.Async">
-      <HintPath>..\..\packages\Ix-Async.1.2.2\lib\net45\System.Interactive.Async.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\packages\Ix-Async.1.2.2-withwpa81\lib\net45\System.Interactive.Async.dll</HintPath>
     </Reference>
     <Reference Include="System.Linq" />
     <Reference Include="System.Linq.Expressions" />
@@ -104,6 +111,9 @@
     <PackageReference Include="Newtonsoft.Json">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
+    <PackageReference Include="Microsoft.Framework.ConfigurationModel.Shared">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Microbenchmarks\Core\IterationCounter.cs" />
@@ -111,43 +121,71 @@
     <Compile Include="Microbenchmarks\Core\PerfTestRunner.cs" />
     <Compile Include="Microbenchmarks\Core\RunResult.cs" />
     <Compile Include="Microbenchmarks\Core\TestDefinition.cs" />
+    <Compile Include="Model\BackOrderLine.cs" />
+    <Compile Include="Model\Barcode.cs" />
+    <Compile Include="Model\BarcodeDetail.cs" />
+    <Compile Include="Model\Complaint.cs" />
+    <Compile Include="Model\Computer.cs" />
+    <Compile Include="Model\ComputerDetail.cs" />
     <Compile Include="Model\Customer.cs" />
-    <Compile Include="Model\CudContext.cs" />
-    <Compile Include="Model\FixupCollection.cs" />
+    <Compile Include="Model\CustomerInfo.cs" />
+    <Compile Include="Model\DiscontinuedProduct.cs" />
+    <Compile Include="Model\Driver.cs" />
+    <Compile Include="Model\IncorrectScan.cs" />
+    <Compile Include="Model\LastLogin.cs" />
+    <Compile Include="Model\License.cs" />
+    <Compile Include="Model\Login.cs" />
+    <Compile Include="Model\Message.cs" />
     <Compile Include="Model\Order.cs" />
     <Compile Include="Model\OrderLine.cs" />
+    <Compile Include="Model\OrderNote.cs" />
+    <Compile Include="Model\OrderQualityCheck.cs" />
+    <Compile Include="Model\PageView.cs" />
+    <Compile Include="Model\PasswordReset.cs" />
     <Compile Include="Model\Product.cs" />
-    <Compile Include="Model\SpecialProduct.cs" />
-    <Compile Include="CudTests.cs" />
+    <Compile Include="Model\ProductDetail.cs" />
+    <Compile Include="Model\ProductPageView.cs" />
+    <Compile Include="Model\ProductPhoto.cs" />
+    <Compile Include="Model\ProductReview.cs" />
+    <Compile Include="Model\ProductWebFeature.cs" />
+    <Compile Include="Model\QueryExecutionTPT.cs" />
+    <Compile Include="Model\Resolution.cs" />
+    <Compile Include="Model\RSAToken.cs" />
+    <Compile Include="Model\SmartCard.cs" />
+    <Compile Include="Model\Supplier.cs" />
+    <Compile Include="Model\SupplierInfo.cs" />
+    <Compile Include="Model\SupplierLogo.cs" />
+    <Compile Include="Model\SuspiciousActivity.cs" />
     <Compile Include="Program.cs" />
-    <Compile Include="Utilities\ListExtensions.cs" />
+    <Compile Include="QueryExecution.Base.cs" />
+    <Compile Include="QueryExecution.DatabaseSetup.cs" />
+    <Compile Include="QueryExecution.Funcletization.cs" />
+    <Compile Include="QueryExecution.Tests.TPT.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\EntityFramework\EntityFramework.csproj">
+    <ProjectReference Include="..\..\..\src\EntityFramework\EntityFramework.csproj">
       <Project>{71415cec-8111-4c73-8751-512d22f10602}</Project>
       <Name>EntityFramework</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\src\EntityFramework.Migrations\EntityFramework.Migrations.csproj">
+    <ProjectReference Include="..\..\..\src\EntityFramework.Migrations\EntityFramework.Migrations.csproj">
       <Project>{6E38B72F-31DA-4AEF-8F34-B8269572EC6B}</Project>
       <Name>EntityFramework.Migrations</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\src\EntityFramework.Relational\EntityFramework.Relational.csproj">
+    <ProjectReference Include="..\..\..\src\EntityFramework.Relational\EntityFramework.Relational.csproj">
       <Project>{75C5A774-A3F3-43EB-97D3-DBE0CF2825D8}</Project>
       <Name>EntityFramework.Relational</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\src\EntityFramework.SqlServer\EntityFramework.SqlServer.csproj">
+    <ProjectReference Include="..\..\..\src\EntityFramework.SqlServer\EntityFramework.SqlServer.csproj">
       <Project>{04E6620B-5B41-45FE-981A-F40EB7686B0E}</Project>
       <Name>EntityFramework.SqlServer</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Fakes Include="Fakes\System.Collections.fakes" />
     <None Include="LocalConfig.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Project.json" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Properties\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

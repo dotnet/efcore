@@ -57,13 +57,15 @@ Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.AspNet.Diagnostic
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.AspNet.Diagnostics.Entity.Tests", "test\Microsoft.AspNet.Diagnostics.Entity.Tests\Microsoft.AspNet.Diagnostics.Entity.Tests.kproj", "{5486117B-A742-49E0-94FC-12B76F061803}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFramework.Performance.CUD.Tests", "test\EntityFramework.Performance.CUD.Tests\EntityFramework.Performance.CUD.Tests.kproj", "{697E4E88-27D4-4FC8-8F66-DDFC21C3B18C}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFramework.Performance.CUD.Tests", "test\Performance\EntityFramework.Performance.CUD.Tests\EntityFramework.Performance.CUD.Tests.kproj", "{697E4E88-27D4-4FC8-8F66-DDFC21C3B18C}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFramework.Performance.DbContext.Tests", "test\EntityFramework.Performance.DbContext.Tests\EntityFramework.Performance.DbContext.Tests.kproj", "{7599A685-77C2-497B-80F0-1C5BECFB2B1F}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFramework.Performance.DbContext.Tests", "test\Performance\EntityFramework.Performance.DbContext.Tests\EntityFramework.Performance.DbContext.Tests.kproj", "{7599A685-77C2-497B-80F0-1C5BECFB2B1F}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFramework.Performance.QueryExecution.Tests", "test\EntityFramework.Performance.QueryExecution.Tests\EntityFramework.Performance.QueryExecution.Tests.kproj", "{F3DD138F-DD8D-4A85-BD8E-CE8D83139707}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFramework.Performance.QueryExecution.Tests", "test\Performance\EntityFramework.Performance.QueryExecution.Tests\EntityFramework.Performance.QueryExecution.Tests.kproj", "{F3DD138F-DD8D-4A85-BD8E-CE8D83139707}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFramework.Performance.StateManager.Tests", "test\EntityFramework.Performance.StateManager.Tests\EntityFramework.Performance.StateManager.Tests.kproj", "{19B68792-E760-41AE-8450-C75CBB0A8C85}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFramework.Performance.StateManager.Tests", "test\Performance\EntityFramework.Performance.StateManager.Tests\EntityFramework.Performance.StateManager.Tests.kproj", "{19B68792-E760-41AE-8450-C75CBB0A8C85}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Performance", "Performance", "{22A56D45-1A71-40B6-97A4-27AC131AAC1D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -217,9 +219,10 @@ Global
 		{4F5A6A72-FFE4-49C4-B4C6-58132CFCB9FE} = {E7D68B03-3A5D-4710-9A1F-20D198E41F78}
 		{2F9B479D-8247-4210-804B-78E6DD5C3E98} = {C605BAB7-B06E-4BDF-80B2-E661B7670E25}
 		{5486117B-A742-49E0-94FC-12B76F061803} = {C605BAB7-B06E-4BDF-80B2-E661B7670E25}
-		{697E4E88-27D4-4FC8-8F66-DDFC21C3B18C} = {C605BAB7-B06E-4BDF-80B2-E661B7670E25}
-		{7599A685-77C2-497B-80F0-1C5BECFB2B1F} = {C605BAB7-B06E-4BDF-80B2-E661B7670E25}
-		{F3DD138F-DD8D-4A85-BD8E-CE8D83139707} = {C605BAB7-B06E-4BDF-80B2-E661B7670E25}
-		{19B68792-E760-41AE-8450-C75CBB0A8C85} = {C605BAB7-B06E-4BDF-80B2-E661B7670E25}
+		{697E4E88-27D4-4FC8-8F66-DDFC21C3B18C} = {22A56D45-1A71-40B6-97A4-27AC131AAC1D}
+		{7599A685-77C2-497B-80F0-1C5BECFB2B1F} = {22A56D45-1A71-40B6-97A4-27AC131AAC1D}
+		{F3DD138F-DD8D-4A85-BD8E-CE8D83139707} = {22A56D45-1A71-40B6-97A4-27AC131AAC1D}
+		{19B68792-E760-41AE-8450-C75CBB0A8C85} = {22A56D45-1A71-40B6-97A4-27AC131AAC1D}
+		{22A56D45-1A71-40B6-97A4-27AC131AAC1D} = {C605BAB7-B06E-4BDF-80B2-E661B7670E25}
 	EndGlobalSection
 EndGlobal
