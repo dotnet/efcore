@@ -479,23 +479,23 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
         private static void ValidateSequence(MetadataBase property)
         {
-            Assert.Equal(SqlServerMetadataExtensions.Annotations.Sequence, property[SqlServerMetadataExtensions.Annotations.ValueGeneration]);
-            Assert.Null(property[SqlServerMetadataExtensions.Annotations.SequenceBlockSize]);
-            Assert.Null(property[SqlServerMetadataExtensions.Annotations.SequenceName]);
+            Assert.Equal(Entity.Metadata.SqlServerMetadataExtensions.Annotations.Sequence, property[Entity.Metadata.SqlServerMetadataExtensions.Annotations.ValueGeneration]);
+            Assert.Null(property[Entity.Metadata.SqlServerMetadataExtensions.Annotations.SequenceBlockSize]);
+            Assert.Null(property[Entity.Metadata.SqlServerMetadataExtensions.Annotations.SequenceName]);
         }
 
         private static void ValidateSequenceWithOptions(MetadataBase property)
         {
-            Assert.Equal(SqlServerMetadataExtensions.Annotations.Sequence, property[SqlServerMetadataExtensions.Annotations.ValueGeneration]);
-            Assert.Equal("8", property[SqlServerMetadataExtensions.Annotations.SequenceBlockSize]);
-            Assert.Equal("SlimShady", property[SqlServerMetadataExtensions.Annotations.SequenceName]);
+            Assert.Equal(Entity.Metadata.SqlServerMetadataExtensions.Annotations.Sequence, property[Entity.Metadata.SqlServerMetadataExtensions.Annotations.ValueGeneration]);
+            Assert.Equal("8", property[Entity.Metadata.SqlServerMetadataExtensions.Annotations.SequenceBlockSize]);
+            Assert.Equal("SlimShady", property[Entity.Metadata.SqlServerMetadataExtensions.Annotations.SequenceName]);
         }
 
         private static void ValidateIdentity(MetadataBase property)
         {
-            Assert.Equal(SqlServerMetadataExtensions.Annotations.Identity, property[SqlServerMetadataExtensions.Annotations.ValueGeneration]);
-            Assert.Null(property[SqlServerMetadataExtensions.Annotations.SequenceBlockSize]);
-            Assert.Null(property[SqlServerMetadataExtensions.Annotations.SequenceName]);
+            Assert.Equal(Entity.Metadata.SqlServerMetadataExtensions.Annotations.Identity, property[Entity.Metadata.SqlServerMetadataExtensions.Annotations.ValueGeneration]);
+            Assert.Null(property[Entity.Metadata.SqlServerMetadataExtensions.Annotations.SequenceBlockSize]);
+            Assert.Null(property[Entity.Metadata.SqlServerMetadataExtensions.Annotations.SequenceName]);
         }
 
         private static Property GetProperty(Model model, string propertyName)

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <Import Project="..\..\tools\EntityFramework.props" />
@@ -65,6 +65,27 @@
     <Compile Include="ConnectionStringResolver.cs" />
     <Compile Include="DatabaseBuilder.cs" />
     <Compile Include="IDbCommandExecutor.cs" />
+    <Compile Include="Metadata\IRelationalEntityTypeExtensions.cs" />
+    <Compile Include="Metadata\IRelationalForeignKeyExtensions.cs" />
+    <Compile Include="Metadata\IRelationalIndexExtensions.cs" />
+    <Compile Include="Metadata\IRelationalKeyExtensions.cs" />
+    <Compile Include="Metadata\IRelationalPropertyExtensions.cs" />
+    <Compile Include="Metadata\ReadOnlyRelationalEntityTypeExtensions.cs" />
+    <Compile Include="Metadata\ReadOnlyRelationalForeignKeyExtensions.cs" />
+    <Compile Include="Metadata\ReadOnlyRelationalIndexExtensions.cs" />
+    <Compile Include="Metadata\ReadOnlyRelationalKeyExtensions.cs" />
+    <Compile Include="Metadata\ReadOnlyRelationalPropertyExtensions.cs" />
+    <Compile Include="Metadata\RelationalAnnotationNames.cs" />
+    <Compile Include="Metadata\RelationalEntityBuilder.cs" />
+    <Compile Include="Metadata\RelationalEntityTypeExtensions.cs" />
+    <Compile Include="Metadata\RelationalForeignKeyExtensions.cs" />
+    <Compile Include="Metadata\RelationalForeignKeyBuilder.cs" />
+    <Compile Include="Metadata\RelationalIndexExtensions.cs" />
+    <Compile Include="Metadata\RelationalIndexBuilder.cs" />
+    <Compile Include="Metadata\RelationalKeyExtensions.cs" />
+    <Compile Include="Metadata\RelationalKeyBuilder.cs" />
+    <Compile Include="Metadata\RelationalPropertyExtensions.cs" />
+    <Compile Include="Metadata\RelationalPropertyBuilder.cs" />
     <Compile Include="ModelDatabaseMapping.cs" />
     <Compile Include="Query\AsyncQueryMethodProvider.cs" />
     <Compile Include="Query\CommandBuilder.cs" />
@@ -99,9 +120,11 @@
     <Compile Include="Query\RelationalResultOperatorHandler.cs" />
     <Compile Include="Query\Sql\ISqlQueryGenerator.cs" />
     <Compile Include="Query\Sql\DefaultSqlQueryGenerator.cs" />
+    <Compile Include="RelationalBuilderExtensions.cs" />
     <Compile Include="RelationalDatabase.cs" />
     <Compile Include="RelationalDatabaseExtensions.cs" />
     <Compile Include="RelationalDataStoreCreator.cs" />
+    <Compile Include="RelationalMetadataExtensions.cs" />
     <Compile Include="RelationalOptionsExtension.cs" />
     <Compile Include="RelationalConnection.cs" />
     <Compile Include="RelationalDataStore.cs" />

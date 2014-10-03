@@ -203,7 +203,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
 
         private static IModel CreateModel()
         {
-            var model = new Metadata.Model { StorageName = "MyDatabase" };
+            var model = new Entity.Metadata.Model { StorageName = "MyDatabase" };
 
             var dependentEntityType = new EntityType("Dependent");
             dependentEntityType.SetSchema("dbo");

@@ -148,9 +148,9 @@ namespace Microsoft.Data.Entity.SqlServer
             // TODO: This is essentially duplicated logic from the selector; combine if possible
             if (column.ValueGenerationStrategy == ValueGeneration.OnAdd)
             {
-                var strategy = column[SqlServerMetadataExtensions.Annotations.ValueGeneration];
+                var strategy = column[Entity.Metadata.SqlServerMetadataExtensions.Annotations.ValueGeneration];
 
-                if (strategy == SqlServerMetadataExtensions.Annotations.Identity
+                if (strategy == Entity.Metadata.SqlServerMetadataExtensions.Annotations.Identity
                     || (strategy == null
                         && column.ClrType.IsInteger()))
                 {

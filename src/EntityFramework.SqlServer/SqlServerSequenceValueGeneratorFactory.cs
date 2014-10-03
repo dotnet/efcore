@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.SqlServer
         {
             Check.NotNull(property, "property");
 
-            var annotatedIncrement = property.FindAnnotationInHierarchy(SqlServerMetadataExtensions.Annotations.SequenceBlockSize);
+            var annotatedIncrement = property.FindAnnotationInHierarchy(Entity.Metadata.SqlServerMetadataExtensions.Annotations.SequenceBlockSize);
 
             // TODO: Allow integer annotations
             // Issue #777
@@ -40,7 +40,7 @@ namespace Microsoft.Data.Entity.SqlServer
         {
             Check.NotNull(property, "property");
 
-            var sequenceName = property.FindAnnotationInHierarchy(SqlServerMetadataExtensions.Annotations.SequenceName);
+            var sequenceName = property.FindAnnotationInHierarchy(Entity.Metadata.SqlServerMetadataExtensions.Annotations.SequenceName);
             if (sequenceName != null)
             {
                 return sequenceName;

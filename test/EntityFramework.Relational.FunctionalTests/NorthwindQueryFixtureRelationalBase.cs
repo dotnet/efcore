@@ -9,7 +9,7 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
 {
     public abstract class NorthwindQueryFixtureRelationalBase : NorthwindQueryFixtureBase
     {
-        public Metadata.Model SetTableNames(Metadata.Model model)
+        public Entity.Metadata.Model SetTableNames(Entity.Metadata.Model model)
         {
             model.GetEntityType(typeof(Customer)).SetTableName("Customers");
             model.GetEntityType(typeof(Employee)).SetTableName("Employees");

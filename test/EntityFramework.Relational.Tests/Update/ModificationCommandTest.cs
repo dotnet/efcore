@@ -360,7 +360,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
 
         private static IModel BuildModel(ValueGeneration keyStrategy, ValueGeneration nonKeyStrategy)
         {
-            var model = new Metadata.Model();
+            var model = new Entity.Metadata.Model();
 
             var entityType = new EntityType(typeof(T1));
 

@@ -67,6 +67,8 @@
     <Compile Include="ApiConsistencyTest.cs" />
     <Compile Include="..\Shared\ApiConsistencyTestBase.cs" />
     <Compile Include="..\Shared\TestHelpers.cs" />
+    <Compile Include="Metadata\SqlServerBuilderExtensionsTest.cs" />
+    <Compile Include="Metadata\SqlServerMetadataExtensionsTest.cs" />
     <Compile Include="SequentialGuidValueGeneratorTest.cs" />
     <Compile Include="..\EntityFramework.Relational.Tests\SqlGeneratorTestBase.cs" />
     <Compile Include="SqlServerDbContextOptionsExtensionsTest.cs" />

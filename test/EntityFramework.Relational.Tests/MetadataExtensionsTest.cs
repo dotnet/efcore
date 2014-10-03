@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
         [Fact]
         public void ToTable_sets_table_name_on_entity()
         {
-            var model = new Metadata.Model();
+            var model = new Entity.Metadata.Model();
             var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder.Entity<Customer>().ToTable("customers");
@@ -40,7 +40,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
         [Fact]
         public void ColumnName_sets_storage_name_on_entity_property()
         {
-            var model = new Metadata.Model();
+            var model = new Entity.Metadata.Model();
             var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder.Entity<Customer>().Property(c => c.Id).ColumnName("id");
@@ -55,7 +55,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
         [Fact]
         public void ColumnType_sets_annotation_on_entity_property()
         {
-            var model = new Metadata.Model();
+            var model = new Entity.Metadata.Model();
             var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder.Entity<Customer>().Property(c => c.Id).ColumnType("bigint");

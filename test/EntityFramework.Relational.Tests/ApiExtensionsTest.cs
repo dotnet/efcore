@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
         [Fact]
         public void Can_set_entity_table_name()
         {
-            var model = new Metadata.Model();
+            var model = new Entity.Metadata.Model();
             var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder
@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
         [Fact]
         public void Can_set_entity_table_name_with_dot()
         {
-            var model = new Metadata.Model();
+            var model = new Entity.Metadata.Model();
             var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder
@@ -37,7 +37,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
         [Fact]
         public void Can_set_entity_table_name_and_schema()
         {
-            var model = new Metadata.Model();
+            var model = new Entity.Metadata.Model();
             var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder
@@ -50,7 +50,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
         [Fact]
         public void Can_set_entity_table_name_when_no_clr_type()
         {
-            var model = new Metadata.Model();
+            var model = new Entity.Metadata.Model();
             var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder
@@ -63,7 +63,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
         [Fact]
         public void Can_set_entity_table_name_and_schema_when_no_clr_type()
         {
-            var model = new Metadata.Model();
+            var model = new Entity.Metadata.Model();
             var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder
@@ -77,7 +77,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
         [Fact]
         public void Can_set_property_column_name()
         {
-            var model = new Metadata.Model();
+            var model = new Entity.Metadata.Model();
             var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder
@@ -90,7 +90,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
         [Fact]
         public void Can_set_property_column_name_when_no_clr_property()
         {
-            var model = new Metadata.Model();
+            var model = new Entity.Metadata.Model();
             var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder
@@ -103,7 +103,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
         [Fact]
         public void Can_set_property_column_name_when_no_clr_type()
         {
-            var model = new Metadata.Model();
+            var model = new Entity.Metadata.Model();
             var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder
@@ -116,7 +116,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
         [Fact]
         public void Can_set_foreign_key_name()
         {
-            var model = new Metadata.Model();
+            var model = new Entity.Metadata.Model();
             var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder.Entity(typeof(Customer).FullName, b =>
@@ -154,7 +154,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
         [Fact]
         public void Property_column_name_defaults_to_name()
         {
-            var model = new Metadata.Model();
+            var model = new Entity.Metadata.Model();
             var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder
@@ -167,7 +167,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
         [Fact]
         public void Property_column_name_can_be_different_from_name()
         {
-            var model = new Metadata.Model();
+            var model = new Entity.Metadata.Model();
             var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder

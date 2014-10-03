@@ -60,9 +60,32 @@
       <DependentUpon>Resources.tt</DependentUpon>
     </Compile>
     <Compile Include="Extensions\SqlServerMetadataExtensions.cs" />
+    <Compile Include="Metadata\ISqlServerEntityTypeExtensions.cs" />
+    <Compile Include="Metadata\ISqlServerForeignKeyExtensions.cs" />
+    <Compile Include="Metadata\ISqlServerIndexExtensions.cs" />
+    <Compile Include="Metadata\ISqlServerKeyExtensions.cs" />
+    <Compile Include="Metadata\ISqlServerPropertyExtensions.cs" />
+    <Compile Include="Metadata\ReadOnlySqlServerEntityTypeExtensions.cs" />
+    <Compile Include="Metadata\ReadOnlySqlServerForeignKeyExtensions.cs" />
+    <Compile Include="Metadata\ReadOnlySqlServerIndexExtensions.cs" />
+    <Compile Include="Metadata\ReadOnlySqlServerKeyExtensions.cs" />
+    <Compile Include="Metadata\ReadOnlySqlServerPropertyExtensions.cs" />
+    <Compile Include="Metadata\SqlServerAnnotationNames.cs" />
+    <Compile Include="Metadata\SqlServerEntityBuilder.cs" />
+    <Compile Include="Metadata\SqlServerEntityTypeExtensions.cs" />
+    <Compile Include="Metadata\SqlServerForeignKeyBuilder.cs" />
+    <Compile Include="Metadata\SqlServerForeignKeyExtensions.cs" />
+    <Compile Include="Metadata\SqlServerIndexBuilder.cs" />
+    <Compile Include="Metadata\SqlServerIndexExtensions.cs" />
+    <Compile Include="Metadata\SqlServerKeyBuilder.cs" />
+    <Compile Include="Metadata\SqlServerKeyExtensions.cs" />
+    <Compile Include="Metadata\SqlServerPropertyExtensions.cs" />
+    <Compile Include="Metadata\SqlServerPropertyBuilder.cs" />
     <Compile Include="Query\SqlServerQueryCompilationContext.cs" />
     <Compile Include="Query\SqlServerQueryGenerator.cs" />
     <Compile Include="SequentialGuidValueGenerator.cs" />
+    <Compile Include="SqlServerBuilderExtensions.cs" />
+    <Compile Include="SqlServerMetadataExtensions.cs" />
     <Compile Include="Update\SqlServerBatchExecutor.cs" />
     <Compile Include="SqlServerDataStoreServices.cs" />
     <Compile Include="SqlServerMigrationOperationPreProcessor.cs" />

@@ -36,14 +36,14 @@ namespace Microsoft.Data.Entity.SqlServer
 
             if (property.ValueGeneration == ValueGeneration.OnAdd)
             {
-                var strategy = property.FindAnnotationInHierarchy(SqlServerMetadataExtensions.Annotations.ValueGeneration);
+                var strategy = property.FindAnnotationInHierarchy(Entity.Metadata.SqlServerMetadataExtensions.Annotations.ValueGeneration);
 
-                if (strategy == SqlServerMetadataExtensions.Annotations.Sequence)
+                if (strategy == Entity.Metadata.SqlServerMetadataExtensions.Annotations.Sequence)
                 {
                     return _sequenceFactory;
                 }
 
-                if (strategy == SqlServerMetadataExtensions.Annotations.Identity)
+                if (strategy == Entity.Metadata.SqlServerMetadataExtensions.Annotations.Identity)
                 {
                     return _tempFactory;
                 }

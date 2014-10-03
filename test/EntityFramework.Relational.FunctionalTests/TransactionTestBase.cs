@@ -322,9 +322,9 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
 
         #region Helpers
 
-        protected Metadata.Model CreateModel()
+        protected Entity.Metadata.Model CreateModel()
         {
-            var model = new Metadata.Model();
+            var model = new Entity.Metadata.Model();
             var modelBuilder = new BasicModelBuilder(model);
 
             // TODO: Uncomment when complex types are supported

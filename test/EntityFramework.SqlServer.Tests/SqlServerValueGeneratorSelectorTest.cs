@@ -27,19 +27,19 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             Assert.Same(
                 sequenceFactory, 
-                selector.Select(CreateProperty(typeof(long), ValueGeneration.OnAdd, SqlServerMetadataExtensions.Annotations.Sequence)));
+                selector.Select(CreateProperty(typeof(long), ValueGeneration.OnAdd, Entity.Metadata.SqlServerMetadataExtensions.Annotations.Sequence)));
 
             Assert.Same(
                 sequenceFactory,
-                selector.Select(CreateProperty(typeof(int), ValueGeneration.OnAdd, SqlServerMetadataExtensions.Annotations.Sequence)));
+                selector.Select(CreateProperty(typeof(int), ValueGeneration.OnAdd, Entity.Metadata.SqlServerMetadataExtensions.Annotations.Sequence)));
 
             Assert.Same(
                 sequenceFactory,
-                selector.Select(CreateProperty(typeof(short), ValueGeneration.OnAdd, SqlServerMetadataExtensions.Annotations.Sequence)));
+                selector.Select(CreateProperty(typeof(short), ValueGeneration.OnAdd, Entity.Metadata.SqlServerMetadataExtensions.Annotations.Sequence)));
 
             Assert.Same(
                 sequenceFactory,
-                selector.Select(CreateProperty(typeof(byte), ValueGeneration.OnAdd, SqlServerMetadataExtensions.Annotations.Sequence)));
+                selector.Select(CreateProperty(typeof(byte), ValueGeneration.OnAdd, Entity.Metadata.SqlServerMetadataExtensions.Annotations.Sequence)));
         }
 
         [Fact]
@@ -55,15 +55,15 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             Assert.Same(
                 tempFactory,
-                selector.Select(CreateProperty(typeof(long), ValueGeneration.OnAdd, SqlServerMetadataExtensions.Annotations.Identity)));
+                selector.Select(CreateProperty(typeof(long), ValueGeneration.OnAdd, Entity.Metadata.SqlServerMetadataExtensions.Annotations.Identity)));
 
             Assert.Same(
                 tempFactory,
-                selector.Select(CreateProperty(typeof(int), ValueGeneration.OnAdd, SqlServerMetadataExtensions.Annotations.Identity)));
+                selector.Select(CreateProperty(typeof(int), ValueGeneration.OnAdd, Entity.Metadata.SqlServerMetadataExtensions.Annotations.Identity)));
 
             Assert.Same(
                 tempFactory,
-                selector.Select(CreateProperty(typeof(short), ValueGeneration.OnAdd, SqlServerMetadataExtensions.Annotations.Identity)));
+                selector.Select(CreateProperty(typeof(short), ValueGeneration.OnAdd, Entity.Metadata.SqlServerMetadataExtensions.Annotations.Identity)));
         }
 
         [Fact] // TODO: This will change when sequence becomes the default
@@ -139,7 +139,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             if (annotation != null)
             {
-                property[SqlServerMetadataExtensions.Annotations.ValueGeneration] = annotation;
+                property[Entity.Metadata.SqlServerMetadataExtensions.Annotations.ValueGeneration] = annotation;
             }
 
             return property;

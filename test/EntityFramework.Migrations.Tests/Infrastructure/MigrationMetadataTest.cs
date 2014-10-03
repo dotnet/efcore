@@ -12,7 +12,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         [Fact]
         public void Create_migration_metadata()
         {
-            var targetModel = new Metadata.Model();
+            var targetModel = new Entity.Metadata.Model();
             var upgradeOperations = new MigrationOperation[0];
             var downgradeOperations = new MigrationOperation[0];
 
@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         [Fact]
         public void Create_migration_metadata_with_product_version()
         {
-            var targetModel = new Metadata.Model();
+            var targetModel = new Entity.Metadata.Model();
             var upgradeOperations = new MigrationOperation[0];
             var downgradeOperations = new MigrationOperation[0];
 

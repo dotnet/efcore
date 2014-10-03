@@ -108,7 +108,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                     {
                         new MigrationMetadata("000000000000001_Migration1")
                             {
-                                TargetModel = new Metadata.Model(),
+                                TargetModel = new Entity.Metadata.Model(),
                                 UpgradeOperations
                                     = new MigrationOperation[]
                                         {
@@ -134,7 +134,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                     {
                         new MigrationMetadata("000000000000001_Migration1")
                             {
-                                TargetModel = new Metadata.Model(),
+                                TargetModel = new Entity.Metadata.Model(),
                                 UpgradeOperations
                                     = new MigrationOperation[]
                                         {
@@ -143,7 +143,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                             },
                         new MigrationMetadata("000000000000002_Migration2")
                             {
-                                TargetModel = new Metadata.Model(),
+                                TargetModel = new Entity.Metadata.Model(),
                                 UpgradeOperations
                                     = new MigrationOperation[]
                                         {
@@ -176,11 +176,11 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                     {
                         new MigrationMetadata("000000000000001_Migration1")
                             {
-                                TargetModel = new Metadata.Model()
+                                TargetModel = new Entity.Metadata.Model()
                             },
                         new MigrationMetadata("000000000000002_Migration2")
                             {
-                                TargetModel = new Metadata.Model(),
+                                TargetModel = new Entity.Metadata.Model(),
                                 UpgradeOperations
                                     = new MigrationOperation[]
                                         {
@@ -212,15 +212,15 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                     {
                         new MigrationMetadata("000000000000001_Migration1")
                             {
-                                TargetModel = new Metadata.Model()
+                                TargetModel = new Entity.Metadata.Model()
                             },
                         new MigrationMetadata("000000000000002_Migration2")
                             {
-                                TargetModel = new Metadata.Model()
+                                TargetModel = new Entity.Metadata.Model()
                             },
                         new MigrationMetadata("000000000000003_Migration3")
                             {
-                                TargetModel = new Metadata.Model(),
+                                TargetModel = new Entity.Metadata.Model(),
                                 UpgradeOperations
                                     = new MigrationOperation[]
                                         {
@@ -230,7 +230,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                             },
                         new MigrationMetadata("000000000000004_Migration4")
                             {
-                                TargetModel = new Metadata.Model(),
+                                TargetModel = new Entity.Metadata.Model(),
                                 UpgradeOperations
                                     = new MigrationOperation[]
                                         {
@@ -263,15 +263,15 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                     {
                         new MigrationMetadata("000000000000001_Migration1")
                             {
-                                TargetModel = new Metadata.Model()
+                                TargetModel = new Entity.Metadata.Model()
                             },
                         new MigrationMetadata("000000000000002_Migration2")
                             {
-                                TargetModel = new Metadata.Model()
+                                TargetModel = new Entity.Metadata.Model()
                             },
                         new MigrationMetadata("000000000000003_Migration3")
                             {
-                                TargetModel = new Metadata.Model(),
+                                TargetModel = new Entity.Metadata.Model(),
                                 UpgradeOperations
                                     = new MigrationOperation[]
                                         {
@@ -281,7 +281,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                             },
                         new MigrationMetadata("000000000000004_Migration4")
                             {
-                                TargetModel = new Metadata.Model(),
+                                TargetModel = new Entity.Metadata.Model(),
                                 UpgradeOperations
                                     = new MigrationOperation[]
                                         {
@@ -314,15 +314,15 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                     {
                         new MigrationMetadata("000000000000001_Migration1")
                             {
-                                TargetModel = new Metadata.Model()
+                                TargetModel = new Entity.Metadata.Model()
                             },
                         new MigrationMetadata("000000000000002_Migration2")
                             {
-                                TargetModel = new Metadata.Model()
+                                TargetModel = new Entity.Metadata.Model()
                             },
                         new MigrationMetadata("000000000000003_Migration3")
                             {
-                                TargetModel = new Metadata.Model(),
+                                TargetModel = new Entity.Metadata.Model(),
                                 UpgradeOperations
                                     = new MigrationOperation[]
                                         {
@@ -332,7 +332,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                             },
                         new MigrationMetadata("000000000000004_Migration4")
                             {
-                                TargetModel = new Metadata.Model(),
+                                TargetModel = new Entity.Metadata.Model(),
                                 UpgradeOperations
                                     = new MigrationOperation[]
                                         {
@@ -389,15 +389,15 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                     {
                         new MigrationMetadata("000000000000001_Migration1")
                             {
-                                TargetModel = new Metadata.Model()
+                                TargetModel = new Entity.Metadata.Model()
                             },
                         new MigrationMetadata("000000000000002_Migration2")
                             {
-                                TargetModel = new Metadata.Model()
+                                TargetModel = new Entity.Metadata.Model()
                             },
                         new MigrationMetadata("000000000000003_Migration3")
                             {
-                                TargetModel = new Metadata.Model(),
+                                TargetModel = new Entity.Metadata.Model(),
                                 DowngradeOperations
                                     = new MigrationOperation[]
                                         {
@@ -407,7 +407,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                             },
                         new MigrationMetadata("000000000000004_Migration4")
                             {
-                                TargetModel = new Metadata.Model(),
+                                TargetModel = new Entity.Metadata.Model(),
                                 DowngradeOperations
                                     = new MigrationOperation[]
                                         {
@@ -442,15 +442,15 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                     {
                         new MigrationMetadata("000000000000001_Migration1")
                             {
-                                TargetModel = new Metadata.Model()
+                                TargetModel = new Entity.Metadata.Model()
                             },
                         new MigrationMetadata("000000000000002_Migration2")
                             {
-                                TargetModel = new Metadata.Model()
+                                TargetModel = new Entity.Metadata.Model()
                             },
                         new MigrationMetadata("000000000000003_Migration3")
                             {
-                                TargetModel = new Metadata.Model(),
+                                TargetModel = new Entity.Metadata.Model(),
                                 UpgradeOperations
                                     = new MigrationOperation[]
                                         {
@@ -484,15 +484,15 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                     {
                         new MigrationMetadata("000000000000001_Migration1")
                             {
-                                TargetModel = new Metadata.Model()
+                                TargetModel = new Entity.Metadata.Model()
                             },
                         new MigrationMetadata("000000000000002_Migration2")
                             {
-                                TargetModel = new Metadata.Model()
+                                TargetModel = new Entity.Metadata.Model()
                             },
                         new MigrationMetadata("000000000000003_Migration3")
                             {
-                                TargetModel = new Metadata.Model(),
+                                TargetModel = new Entity.Metadata.Model(),
                                 UpgradeOperations
                                     = new MigrationOperation[]
                                         {
@@ -502,7 +502,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                             },
                         new MigrationMetadata("000000000000004_Migration4")
                             {
-                                TargetModel = new Metadata.Model(),
+                                TargetModel = new Entity.Metadata.Model(),
                                 DowngradeOperations
                                     = new MigrationOperation[]
                                         {
@@ -536,7 +536,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                     {
                         new MigrationMetadata("000000000000001_Migration1")
                             {
-                                TargetModel = new Metadata.Model(),
+                                TargetModel = new Entity.Metadata.Model(),
                                 DowngradeOperations
                                     = new MigrationOperation[]
                                         {
@@ -545,7 +545,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                             },
                         new MigrationMetadata("000000000000002_Migration2")
                             {
-                                TargetModel = new Metadata.Model(),
+                                TargetModel = new Entity.Metadata.Model(),
                                 DowngradeOperations
                                     = new MigrationOperation[]
                                         {
@@ -577,7 +577,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                     {
                         new MigrationMetadata("000000000000001_Migration1")
                             {
-                                TargetModel = new Metadata.Model(),
+                                TargetModel = new Entity.Metadata.Model(),
                                 UpgradeOperations
                                     = new MigrationOperation[]
                                         {
