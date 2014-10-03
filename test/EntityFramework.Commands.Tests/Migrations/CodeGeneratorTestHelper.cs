@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.Commands.Tests.Migrations
         {
             var assemblies = AppDomain.CurrentDomain.GetAssemblies();
 
-            return references.Select(n => new MetadataFileReference(
+            return references.Select(n => MetadataReference.CreateFromFile(
                 assemblies.Single(a => a.GetName().Name == n).Location));
         }
     }
