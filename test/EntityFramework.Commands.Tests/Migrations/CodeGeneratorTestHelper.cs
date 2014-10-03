@@ -37,7 +37,7 @@ namespace Microsoft.Data.Entity.Commands.Tests.Migrations
                 {
                     var fileReference = r as IMetadataFileReference;
                     return fileReference != null
-                        ? new MetadataFileReference(fileReference.Path)
+                        ? MetadataReference.CreateFromFile(fileReference.Path)
                         : ((IRoslynMetadataReference)r).MetadataReference;
                 });
         }
