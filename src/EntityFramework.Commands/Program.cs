@@ -44,6 +44,24 @@ namespace Microsoft.Data.Entity.Commands
                     .InformationalVersion);
             _app.HelpOption("-h|--help");
             _app.Command(
+                "context",
+                context =>
+                {
+                    context.Description = "Commands to manage your DbContext";
+                    context.HelpOption("-h|--help");
+                    context.Command(
+                        "list",
+                        list =>
+                        {
+                            list.Description = "List the contexts";
+                            list.HelpOption("-h|--help");
+                            list.OnExecute(() => ListContexts());
+                        },
+                        addHelpCommand: false);
+                    context.OnExecute(() => ShowHelp(context.Name));
+                },
+                addHelpCommand: false);
+            _app.Command(
                 "migration",
                 migration =>
                 {
@@ -74,9 +92,42 @@ namespace Microsoft.Data.Entity.Commands
                                 "The context class to use",
                                 CommandOptionType.SingleValue);
                             apply.HelpOption("-h|--help");
-                            apply.OnExecute(() => UpdateDatabase(migrationName.Value, context.Value()));
+                            apply.OnExecute(() => ApplyMigration(migrationName.Value, context.Value()));
                         },
                         addHelpCommand: false);
+                    migration.Command(
+                        "list",
+                        list =>
+                        {
+                            list.Description = "List the migrations";
+                            var context = list.Option(
+                                "-c|--context <context>",
+                                "The context class to use",
+                                CommandOptionType.SingleValue);
+                            list.HelpOption("-h|--help");
+                            list.OnExecute(() => ListMigrations(context.Value()));
+                        },
+                        addHelpCommand: false);
+                    migration.Command(
+                        "script",
+                        script =>
+                        {
+                            script.Description = "Generate a SQL script from migrations";
+                            var from = script.Argument("[from]", "The starting migration");
+                            var to = script.Argument("[to]", "The ending migration");
+                            var idempotent = script.Option(
+                                "-i|--idempotent",
+                                "Generate an idempotent script",
+                                CommandOptionType.NoValue);
+                            var context = script.Option(
+                                "-c|--context <context>",
+                                "The context class to use",
+                                CommandOptionType.SingleValue);
+                            script.HelpOption("-h|--help");
+                            script.OnExecute(() => ScriptMigration(from.Value, to.Value, idempotent.HasValue(), context.Value()));
+                        },
+                        addHelpCommand: false);
+                    migration.OnExecute(() => ShowHelp(migration.Name));
                 },
                 addHelpCommand: false);
             _app.Command(
@@ -93,6 +144,18 @@ namespace Microsoft.Data.Entity.Commands
             return _app.Execute(args);
         }
 
+        public virtual int ListContexts()
+        {
+            var contexts = _migrationTool.GetContextTypes();
+            foreach (var context in contexts)
+            {
+                // TODO: Show simple names
+                Console.WriteLine(context.FullName);
+            }
+
+            return 0;
+        }
+
         public virtual int AddMigration([NotNull] string name, [CanBeNull] string context)
         {
             Check.NotEmpty(name, "name");
@@ -106,6 +169,32 @@ namespace Microsoft.Data.Entity.Commands
         public virtual int ApplyMigration([CanBeNull] string migration, [CanBeNull] string context)
         {
             _migrationTool.ApplyMigration(migration, context);
+
+            return 0;
+        }
+
+        public virtual int ListMigrations([CanBeNull] string context)
+        {
+            var migrations = _migrationTool.GetMigrations(context);
+            foreach (var migration in migrations)
+            {
+                // TODO: Show simple names
+                Console.WriteLine(migration.MigrationId);
+            }
+
+            return 0;
+        }
+
+        public virtual int ScriptMigration(
+            [CanBeNull] string from,
+            [CanBeNull] string to,
+            bool idempotent, 
+            [CanBeNull] string context)
+        {
+            var sql = _migrationTool.ScriptMigration(from, to, idempotent, context);
+
+            // TODO: Write to file?
+            Console.WriteLine(sql);
 
             return 0;
         }
