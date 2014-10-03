@@ -80,6 +80,7 @@
     <Compile Include="AtsOptionsExtension.cs" />
     <Compile Include="AtsValueGeneratorCache.cs" />
     <Compile Include="Extensions\AtsDatabaseExtensions.cs" />
+    <Compile Include="Extensions\AtsConnectionExtensions.cs" />
     <Compile Include="Extensions\AtsDbContextExtensions.cs" />
     <Compile Include="Extensions\DataStoreConnectionExtensions.cs" />
     <Compile Include="Extensions\EntityServicesBuilderExtensions.cs" />
