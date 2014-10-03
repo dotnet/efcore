@@ -51,7 +51,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
 
         protected override ExpressionTreeVisitor CreateQueryingExpressionTreeVisitor(IQuerySource querySource)
         {
-            return new AtsQueryingExpressionTreeVisitor(this, querySource);
+            return new AtsEntityQueryableExpressionTreeVisitor(this, querySource);
         }
 
         public override void VisitWhereClause(WhereClause whereClause, QueryModel queryModel, int index)

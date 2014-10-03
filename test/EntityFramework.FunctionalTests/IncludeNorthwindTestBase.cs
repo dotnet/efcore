@@ -28,6 +28,42 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void Include_collection_order_by_key()
+        {
+            using (var context = CreateContext())
+            {
+                var customers
+                    = context.Set<Customer>()
+                        .Include(c => c.Orders)
+                        .OrderBy(c => c.CustomerID)
+                        .ToList();
+
+                Assert.Equal(91, customers.Count);
+                Assert.Equal(830, customers.Where(c => c.Orders != null).SelectMany(c => c.Orders).Count());
+                Assert.True(customers.Where(c => c.Orders != null).SelectMany(c => c.Orders).All(o => o.Customer != null));
+                Assert.Equal(91 + 830, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [Fact]
+        public virtual void Include_collection_order_by_non_key()
+        {
+            using (var context = CreateContext())
+            {
+                var customers
+                    = context.Set<Customer>()
+                        .Include(c => c.Orders)
+                        .OrderBy(c => c.City)
+                        .ToList();
+
+                Assert.Equal(91, customers.Count);
+                Assert.Equal(830, customers.Where(c => c.Orders != null).SelectMany(c => c.Orders).Count());
+                Assert.True(customers.Where(c => c.Orders != null).SelectMany(c => c.Orders).All(o => o.Customer != null));
+                Assert.Equal(91 + 830, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [Fact]
         public virtual void Include_collection_as_no_tracking()
         {
             using (var context = CreateContext())
@@ -39,8 +75,28 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         .ToList();
 
                 Assert.Equal(91, customers.Count);
-                Assert.Equal(830, customers.SelectMany(c => c.Orders).Count());
-                Assert.True(customers.SelectMany(c => c.Orders).All(o => o.Customer != null));
+                Assert.Equal(830, customers.Where(c => c.Orders != null).SelectMany(c => c.Orders).Count());
+                Assert.True(customers.Where(c => c.Orders != null).SelectMany(c => c.Orders).All(o => o.Customer != null));
+                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [Fact]
+        public virtual void Include_collection_as_no_tracking2()
+        {
+            using (var context = CreateContext())
+            {
+                var customers
+                    = context.Set<Customer>()
+                        .AsNoTracking()
+                        .OrderBy(c => c.CustomerID)
+                        .Take(5)
+                        .Include(c => c.Orders)
+                        .ToList();
+
+                Assert.Equal(5, customers.Count);
+                Assert.Equal(48, customers.Where(c => c.Orders != null).SelectMany(c => c.Orders).Count());
+                Assert.True(customers.Where(c => c.Orders != null).SelectMany(c => c.Orders).All(o => o.Customer != null));
                 Assert.Equal(0, context.ChangeTracker.Entries().Count());
             }
         }
@@ -122,7 +178,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 Assert.Same(customer1, customer2);
                 Assert.Equal(6, customer2.Orders.Count);
                 Assert.True(customer2.Orders.All(o => o.Customer != null));
-                Assert.Equal(1 + 6, context.ChangeTracker.Entries().Count());
+                Assert.Equal(1, context.ChangeTracker.Entries().Count());
             }
         }
 
@@ -132,7 +188,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
             using (var context = CreateContext())
             {
                 var orders1
-                    = context.Set<Order>().Where(o => o.CustomerID == "ALFKI")
+                    = context.Set<Order>()
+                        .Where(o => o.CustomerID == "ALFKI")
                         .ToList();
 
                 Assert.Equal(6, context.ChangeTracker.Entries().Count());
@@ -149,12 +206,37 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public virtual void Include_reference_dependent_already_tracked_as_no_tracking()
+        public virtual void Include_collection_dependent_already_tracked()
         {
             using (var context = CreateContext())
             {
                 var orders
-                    = context.Set<Order>().Where(o => o.CustomerID == "ALFKI")
+                    = context.Set<Order>()
+                        .Where(o => o.CustomerID == "ALFKI")
+                        .ToList();
+
+                Assert.Equal(6, context.ChangeTracker.Entries().Count());
+
+                var customer
+                    = context.Set<Customer>()
+                        .Include(c => c.Orders)
+                        .Single(c => c.CustomerID == "ALFKI");
+
+                Assert.Equal(orders, customer.Orders, ReferenceEqualityComparer.Instance);
+                Assert.Equal(6, customer.Orders.Count);
+                Assert.True(customer.Orders.All(o => o.Customer != null));
+                Assert.Equal(6 + 1, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [Fact]
+        public virtual void Include_collection_dependent_already_tracked_as_no_tracking()
+        {
+            using (var context = CreateContext())
+            {
+                var orders
+                    = context.Set<Order>()
+                        .Where(o => o.CustomerID == "ALFKI")
                         .ToList();
 
                 Assert.Equal(6, context.ChangeTracker.Entries().Count());
@@ -168,7 +250,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 Assert.Equal(orders, customer.Orders, ReferenceEqualityComparer.Instance);
                 Assert.Equal(6, customer.Orders.Count);
                 Assert.True(customer.Orders.All(o => o.Customer != null));
-                Assert.Equal(1 + 6, context.ChangeTracker.Entries().Count());
+                Assert.Equal(6, context.ChangeTracker.Entries().Count());
             }
         }
 
@@ -198,7 +280,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 var orders
                     = context.Set<Order>()
                         .Include(o => o.Customer)
-                        .Where(c => c.CustomerID == "ALFKI")
+                        .Where(o => o.CustomerID == "ALFKI")
                         .ToList();
 
                 Assert.Equal(6, orders.Count);
@@ -233,7 +315,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 var orders
                     = context.Set<Order>()
-                        .Where(c => c.CustomerID == "ALFKI")
+                        .Where(o => o.CustomerID == "ALFKI")
                         .Include(o => o.Customer)
                         .ToList();
 
@@ -268,7 +350,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 var orders
                     = context.Set<Order>()
                         .Include(o => o.Customer)
-                        .Select(c => c.CustomerID)
+                        .Select(o => o.CustomerID)
                         .ToList();
 
                 Assert.Equal(830, orders.Count);
@@ -283,11 +365,11 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 var customers
                     = (from c1 in context.Set<Customer>()
-                        .Include(o => o.Orders)
+                        .Include(c => c.Orders)
                         .OrderBy(c => c.CustomerID)
                         .Take(2)
                         from c2 in context.Set<Customer>()
-                            .Include(o => o.Orders)
+                            .Include(c => c.Orders)
                             .OrderBy(c => c.CustomerID)
                             .Skip(2)
                             .Take(2)
@@ -299,7 +381,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 Assert.True(customers.SelectMany(c => c.c1.Orders).All(o => o.Customer != null));
                 Assert.Equal(40, customers.SelectMany(c => c.c2.Orders).Count());
                 Assert.True(customers.SelectMany(c => c.c2.Orders).All(o => o.Customer != null));
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Equal(34, context.ChangeTracker.Entries().Count());
             }
         }
 
@@ -315,7 +397,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         .Take(2)
                         from o2 in context.Set<Order>()
                             .Include(o => o.Customer)
-                            .OrderBy(c => c.CustomerID)
+                            .OrderBy(o => o.CustomerID)
                             .Skip(2)
                             .Take(2)
                         select new { o1, o2 })
@@ -326,7 +408,57 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 Assert.True(orders.All(o => o.o2.Customer != null));
                 Assert.Equal(1, orders.Select(o => o.o1.Customer).Distinct().Count());
                 Assert.Equal(1, orders.Select(o => o.o2.Customer).Distinct().Count());
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Equal(5, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [Fact]
+        public virtual void Include_multiple_reference2()
+        {
+            using (var context = CreateContext())
+            {
+                var orders
+                    = (from o1 in context.Set<Order>()
+                        .Include(o => o.Customer)
+                        .OrderBy(o => o.OrderID)
+                        .Take(2)
+                        from o2 in context.Set<Order>()
+                            .OrderBy(o => o.OrderID)
+                            .Skip(2)
+                            .Take(2)
+                        select new { o1, o2 })
+                        .ToList();
+
+                Assert.Equal(4, orders.Count);
+                Assert.True(orders.All(o => o.o1.Customer != null));
+                Assert.True(orders.All(o => o.o2.Customer == null));
+                Assert.Equal(2, orders.Select(o => o.o1.Customer).Distinct().Count());
+                Assert.Equal(6, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [Fact]
+        public virtual void Include_multiple_reference3()
+        {
+            using (var context = CreateContext())
+            {
+                var orders
+                    = (from o1 in context.Set<Order>()
+                        .OrderBy(o => o.OrderID)
+                        .Take(2)
+                        from o2 in context.Set<Order>()
+                            .OrderBy(o => o.OrderID)
+                            .Include(o => o.Customer)
+                            .Skip(2)
+                            .Take(2)
+                        select new { o1, o2 })
+                        .ToList();
+
+                Assert.Equal(4, orders.Count);
+                Assert.True(orders.All(o => o.o1.Customer == null));
+                Assert.True(orders.All(o => o.o2.Customer != null));
+                Assert.Equal(2, orders.Select(o => o.o2.Customer).Distinct().Count());
+                Assert.Equal(6, context.ChangeTracker.Entries().Count());
             }
         }
 
@@ -337,11 +469,11 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 var customers
                     = (from c1 in context.Set<Customer>()
-                        .Include(o => o.Orders)
+                        .Include(c => c.Orders)
                         .OrderBy(c => c.CustomerID)
                         .Take(2)
                         from c2 in context.Set<Customer>()
-                            .Include(o => o.Orders)
+                            .Include(c => c.Orders)
                             .OrderBy(c => c.CustomerID)
                             .Skip(2)
                             .Take(2)
@@ -354,7 +486,33 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 Assert.True(customers.SelectMany(c => c.c1.Orders).All(o => o.Customer != null));
                 Assert.Equal(7, customers.SelectMany(c => c.c2.Orders).Count());
                 Assert.True(customers.SelectMany(c => c.c2.Orders).All(o => o.Customer != null));
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Equal(15, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [Fact]
+        public virtual void Include_multiple_collection_result_operator2()
+        {
+            using (var context = CreateContext())
+            {
+                var customers
+                    = (from c1 in context.Set<Customer>()
+                        .Include(c => c.Orders)
+                        .OrderBy(c => c.CustomerID)
+                        .Take(2)
+                        from c2 in context.Set<Customer>()
+                            .OrderBy(c => c.CustomerID)
+                            .Skip(2)
+                            .Take(2)
+                        select new { c1, c2 })
+                        .Take(1)
+                        .ToList();
+
+                Assert.Equal(1, customers.Count);
+                Assert.Equal(6, customers.SelectMany(c => c.c1.Orders).Count());
+                Assert.True(customers.SelectMany(c => c.c1.Orders).All(o => o.Customer != null));
+                Assert.True(customers.All(c => c.c2.Orders == null));
+                Assert.Equal(8, context.ChangeTracker.Entries().Count());
             }
         }
 
@@ -365,7 +523,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 var customers
                     = (from c1 in context.Set<Customer>().OrderBy(c => c.CustomerID).Take(5)
-                        from c2 in context.Set<Customer>().Include(o => o.Orders)
+                        from c2 in context.Set<Customer>().Include(c => c.Orders)
                         select c2)
                         .ToList();
 
@@ -377,6 +535,23 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void Include_collection_on_additional_from_clause2()
+        {
+            using (var context = CreateContext())
+            {
+                var customers
+                    = (from c1 in context.Set<Customer>().OrderBy(c => c.CustomerID).Take(5)
+                        from c2 in context.Set<Customer>().Include(c => c.Orders)
+                        select c1)
+                        .ToList();
+
+                Assert.Equal(455, customers.Count);
+                Assert.True(customers.All(c => c.Orders == null));
+                Assert.Equal(5, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [Fact]
         public virtual void Include_collection_on_additional_from_clause_with_filter()
         {
             using (var context = CreateContext())
@@ -384,7 +559,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 var customers
                     = (from c1 in context.Set<Customer>()
                         from c2 in context.Set<Customer>()
-                            .Include(o => o.Orders)
+                            .Include(c => c.Orders)
                             .Where(c => c.CustomerID == "ALFKI")
                         select c2)
                         .ToList();
@@ -402,9 +577,29 @@ namespace Microsoft.Data.Entity.FunctionalTests
             using (var context = CreateContext())
             {
                 var customers
-                    = (from c in context.Set<Customer>().Include(o => o.Orders)
+                    = (from c in context.Set<Customer>().Include(c => c.Orders)
                         join o in context.Set<Order>() on c.CustomerID equals o.CustomerID
                         where c.CustomerID == "ALFKI"
+                        select c)
+                        .ToList();
+
+                Assert.Equal(6, customers.Count);
+                Assert.Equal(36, customers.SelectMany(c => c.Orders).Count());
+                Assert.True(customers.SelectMany(c => c.Orders).All(o => o.Customer != null));
+                Assert.Equal(1 + 6, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [Fact]
+        public virtual void Include_collection_on_join_clause_with_order_by_and_filter()
+        {
+            using (var context = CreateContext())
+            {
+                var customers
+                    = (from c in context.Set<Customer>().Include(c => c.Orders)
+                        join o in context.Set<Order>() on c.CustomerID equals o.CustomerID
+                        where c.CustomerID == "ALFKI"
+                        orderby c.City
                         select c)
                         .ToList();
 

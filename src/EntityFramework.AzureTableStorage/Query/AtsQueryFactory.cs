@@ -3,7 +3,6 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.AzureTableStorage.Utilities;
-using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Framework.Logging;
@@ -30,16 +29,14 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
             [NotNull] IModel model,
             [NotNull] ILogger logger,
             [NotNull] IQueryBuffer queryBuffer,
-            [NotNull] StateManager stateManager,
             [NotNull] AtsConnection connection)
         {
             Check.NotNull(model, "model");
             Check.NotNull(logger, "logger");
             Check.NotNull(queryBuffer, "queryBuffer");
-            Check.NotNull(stateManager, "stateManager");
             Check.NotNull(connection, "connection");
 
-            return new AtsQueryContext(logger, queryBuffer, stateManager, connection, _valueReaderFactory);
+            return new AtsQueryContext(logger, queryBuffer, connection, _valueReaderFactory);
         }
     }
 }

@@ -77,16 +77,14 @@ namespace Microsoft.Data.Entity.InMemory
         {
             Check.NotNull(queryModel, "queryModel");
 
-            var queryCompilationContext = new InMemoryQueryCompilationContext(Model);
-            var queryExecutor = queryCompilationContext.CreateQueryModelVisitor().CreateQueryExecutor<TResult>(queryModel);
-
-            var queryContext
-                = new InMemoryQueryContext(
-                    Logger,
-                    CreateQueryBuffer(),
-                    StateManager,
+            var queryCompilationContext
+                = new InMemoryQueryCompilationContext(
+                    Model,
                     EntityKeyFactorySource,
                     _database.Value);
+
+            var queryExecutor = queryCompilationContext.CreateQueryModelVisitor().CreateQueryExecutor<TResult>(queryModel);
+            var queryContext = new InMemoryQueryContext(Logger, CreateQueryBuffer());
 
             return queryExecutor(queryContext);
         }

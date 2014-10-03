@@ -84,13 +84,15 @@ namespace Microsoft.Data.Entity.Relational
                     new RelationalResultOperatorHandler(),
                     new QueryMethodProvider());
 
-            var queryExecutor = queryCompilationContext.CreateQueryModelVisitor().CreateQueryExecutor<TResult>(queryModel);
+            var queryExecutor
+                = queryCompilationContext
+                    .CreateQueryModelVisitor()
+                    .CreateQueryExecutor<TResult>(queryModel);
 
             var queryContext
                 = new RelationalQueryContext(
                     Logger,
                     CreateQueryBuffer(),
-                    StateManager,
                     _connection,
                     ValueReaderFactory);
 
@@ -116,7 +118,6 @@ namespace Microsoft.Data.Entity.Relational
                 = new RelationalQueryContext(
                     Logger,
                     CreateQueryBuffer(),
-                    StateManager,
                     _connection,
                     ValueReaderFactory)
                     {

@@ -9,10 +9,10 @@ using Remotion.Linq.Parsing;
 
 namespace Microsoft.Data.Entity.Relational.Query.Expressions
 {
-    public class InnerJoinExpression : JoinExpressionBase
+    public class LeftOuterJoinExpression : JoinExpressionBase
     {
-        public InnerJoinExpression([NotNull] TableExpressionBase tableExpression)
-            : base(tableExpression)
+        public LeftOuterJoinExpression([NotNull] TableExpressionBase tableExpression)
+            : base(Check.NotNull(tableExpression, "tableExpression"))
         {
         }
 
@@ -22,14 +22,17 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
             var specificVisitor = visitor as ISqlExpressionVisitor;
 
-            return specificVisitor != null
-                ? specificVisitor.VisitInnerJoinExpression(this)
-                : base.Accept(visitor);
+            if (specificVisitor != null)
+            {
+                return specificVisitor.VisitOuterJoinExpression(this);
+            }
+
+            return base.Accept(visitor);
         }
 
         public override string ToString()
         {
-            return "INNER JOIN (" + _tableExpression + ") ON " + Predicate;
+            return "OUTER JOIN (" + _tableExpression + ") ON " + Predicate;
         }
     }
 }

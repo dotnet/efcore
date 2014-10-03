@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
@@ -37,10 +38,9 @@ namespace Microsoft.Data.Entity.Query
                 get { return _valueReader; }
             }
 
-            public object StartTracking(StateManager stateManager)
+            public void StartTracking(StateManager stateManager)
             {
-                // TODO: We are potentially materializing twice here, need another code path into the SM
-                return stateManager.GetOrMaterializeEntry(_entityType, _valueReader).Entity;
+                stateManager.StartTracking(_entityType, Instance, _valueReader);
             }
         }
 
@@ -96,6 +96,8 @@ namespace Microsoft.Data.Entity.Query
                 bufferedEntity
                     = new BufferedEntity(entityType, valueReader)
                         {
+                            // TODO: Optimize this by not materializing when not required for query execution. i.e.
+                            //       entity is only needed in final results
                             Instance = _materializerSource.GetMaterializer(entityType)(valueReader)
                         };
 
@@ -115,38 +117,28 @@ namespace Microsoft.Data.Entity.Query
 
             return stateEntry != null
                 ? stateEntry[property]
-                : _byEntityInstance[entity][0].ValueReader.ReadValue<object>(property.Index);
+                : _byEntityInstance[entity][0].ValueReader
+                    .ReadValue<object>(property.Index);
         }
 
-        public virtual object StartTracking(object entity)
+        public virtual void StartTracking(object entity)
         {
             Check.NotNull(entity, "entity");
 
             List<BufferedEntity> bufferedEntities;
             if (_byEntityInstance.TryGetValue(entity, out bufferedEntities))
             {
-                var skip = 0;
-
-                if (_stateManager.TryGetEntry(entity) == null)
-                {
-                    entity = bufferedEntities[0].StartTracking(_stateManager);
-
-                    skip = 1;
-                }
-
-                foreach (var bufferedEntity in bufferedEntities.Skip(skip))
+                foreach (var bufferedEntity in bufferedEntities)
                 {
                     bufferedEntity.StartTracking(_stateManager);
                 }
             }
-
-            return entity;
         }
 
         public virtual void Include(
             object entity,
             INavigation navigation,
-            IEnumerable<IValueReader> relatedValueReaders)
+            Func<EntityKey, Func<IValueReader, EntityKey>, IEnumerable<IValueReader>> relatedValueReaders)
         {
             Check.NotNull(entity, "entity");
             Check.NotNull(navigation, "navigation");
@@ -159,6 +151,8 @@ namespace Microsoft.Data.Entity.Query
             var foreignKeyFactory
                 = _entityKeyFactorySource
                     .GetKeyFactory(navigation.ForeignKey.Properties);
+
+            var targetEntityType = navigation.GetTargetType();
 
             EntityKey primaryKey;
 
@@ -182,7 +176,7 @@ namespace Microsoft.Data.Entity.Query
                     = navigation.PointsToPrincipal
                         ? foreignKeyFactory
                             .Create(
-                                navigation.GetTargetType(),
+                                targetEntityType,
                                 navigation.ForeignKey.Properties,
                                 bufferedEntities[0].ValueReader)
                         : primaryKeyFactory
@@ -192,39 +186,54 @@ namespace Microsoft.Data.Entity.Query
                                 bufferedEntities[0].ValueReader);
             }
 
+            Func<IValueReader, EntityKey> relatedKeyFactory;
+
+            if (navigation.PointsToPrincipal)
+            {
+                relatedKeyFactory
+                    = valueReader =>
+                        primaryKeyFactory
+                            .Create(
+                                targetEntityType,
+                                navigation.ForeignKey.ReferencedProperties,
+                                valueReader);
+            }
+            else
+            {
+                relatedKeyFactory
+                    = valueReader =>
+                        foreignKeyFactory
+                            .Create(
+                                navigation.EntityType,
+                                navigation.ForeignKey.Properties,
+                                valueReader);
+            }
+
             var relatedEntities
-                = (navigation.PointsToPrincipal
-                    ? relatedValueReaders
-                        .Where(valueReader
-                            => primaryKeyFactory
-                                .Create(
-                                    navigation.GetTargetType(),
-                                    navigation.ForeignKey.ReferencedProperties,
-                                    valueReader)
-                                .Equals(primaryKey))
-                    : relatedValueReaders
-                        .Where(valueReader
-                            => foreignKeyFactory
-                                .Create(
-                                    navigation.EntityType,
-                                    navigation.ForeignKey.Properties,
-                                    valueReader)
-                                .Equals(primaryKey)))
+                = relatedValueReaders(primaryKey, relatedKeyFactory)
                     .Select(valueReader =>
                         {
-                            var targetEntityType = navigation.GetTargetType();
                             var targetEntity = GetEntity(targetEntityType, valueReader);
 
                             List<BufferedEntity> bufferedTargetEntities;
                             bufferedEntities.Add(
                                 _byEntityInstance.TryGetValue(targetEntity, out bufferedTargetEntities)
                                     ? bufferedTargetEntities[0]
-                                    : new BufferedEntity(targetEntityType, valueReader));
+                                    : new BufferedEntity(targetEntityType, valueReader)
+                                        {
+                                            Instance = targetEntity
+                                        });
 
                             return targetEntity;
                         })
                     .ToList();
 
+            LoadNavigationProperties(entity, navigation, relatedEntities);
+        }
+
+        private void LoadNavigationProperties(
+            object entity, INavigation navigation, IReadOnlyList<object> relatedEntities)
+        {
             if (navigation.PointsToPrincipal)
             {
                 _clrPropertySetterSource

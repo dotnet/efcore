@@ -3,6 +3,8 @@
 
 using System;
 using System.Linq.Expressions;
+using Microsoft.Data.Entity.Query;
+using Microsoft.Data.Entity.Query.ExpressionTreeVisitors;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
 
@@ -10,12 +12,12 @@ namespace Microsoft.Data.Entity.Redis.Query
 {
     public partial class RedisQueryModelVisitor
     {
-        protected class RedisQueryingExpressionTreeVisitor : QueryingExpressionTreeVisitor
+        protected class RedisEntityQueryableExpressionTreeVisitor : EntityQueryableExpressionTreeVisitor
         {
             private readonly RedisQueryModelVisitor _parentVisitor;
             private readonly IQuerySource _querySource;
 
-            public RedisQueryingExpressionTreeVisitor(RedisQueryModelVisitor parentVisitor, IQuerySource querySource)
+            public RedisEntityQueryableExpressionTreeVisitor(RedisQueryModelVisitor parentVisitor, IQuerySource querySource)
                 : base(parentVisitor)
             {
                 _parentVisitor = parentVisitor;

@@ -41,6 +41,15 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
         {
             Check.NotNull(selectExpression, "selectExpression");
 
+            IDisposable subQueryIndent = null;
+
+            if (selectExpression.Alias != null)
+            {
+                _sql.AppendLine("(");
+
+                subQueryIndent = _sql.Indent();
+            }
+
             _sql.Append("SELECT ");
 
             if (selectExpression.IsDistinct)
@@ -60,7 +69,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             }
             else if (selectExpression.IsProjectStar)
             {
-                _sql.Append(DelimitIdentifier(selectExpression.SubqueryAlias))
+                _sql.Append(DelimitIdentifier(selectExpression.Tables.Single().Alias))
                     .Append(".*");
             }
             else
@@ -68,21 +77,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                 _sql.Append("1");
             }
 
-            if (selectExpression.Subquery != null)
-            {
-                _sql.AppendLine()
-                    .AppendLine("FROM (");
-
-                using (_sql.Indent())
-                {
-                    selectExpression.Subquery.Accept(this);
-                }
-
-                _sql.AppendLine()
-                    .Append(") AS ")
-                    .Append(DelimitIdentifier(selectExpression.SubqueryAlias));
-            }
-            else if (selectExpression.Tables.Any())
+            if (selectExpression.Tables.Any())
             {
                 _sql.AppendLine()
                     .Append("FROM ");
@@ -115,6 +110,15 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             }
 
             GenerateLimitOffset(selectExpression);
+
+            if (subQueryIndent != null)
+            { 
+                subQueryIndent.Dispose();
+
+                _sql.AppendLine()
+                    .Append(") AS ")
+                    .Append(DelimitIdentifier(selectExpression.Alias));
+            }
 
             return selectExpression;
         }
@@ -156,10 +160,9 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
         {
             Check.NotNull(crossJoinExpression, "crossJoinExpression");
 
-            _sql.Append("CROSS JOIN ")
-                .Append(DelimitIdentifier(crossJoinExpression.Table))
-                .Append(" AS ")
-                .Append(DelimitIdentifier(crossJoinExpression.Alias));
+            _sql.Append("CROSS JOIN ");
+
+            VisitExpression(crossJoinExpression.TableExpression);
 
             return crossJoinExpression;
         }
@@ -216,15 +219,30 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
         {
             Check.NotNull(innerJoinExpression, "innerJoinExpression");
 
-            _sql.Append("INNER JOIN ")
-                .Append(DelimitIdentifier(innerJoinExpression.Table))
-                .Append(" AS ")
-                .Append(DelimitIdentifier(innerJoinExpression.Alias))
-                .Append(" ON ");
+            _sql.Append("INNER JOIN ");
+
+            VisitExpression(innerJoinExpression.TableExpression);
+
+            _sql.Append(" ON ");
 
             VisitExpression(innerJoinExpression.Predicate);
 
             return innerJoinExpression;
+        }
+
+        public virtual Expression VisitOuterJoinExpression(LeftOuterJoinExpression leftOuterJoinExpression)
+        {
+            Check.NotNull(leftOuterJoinExpression, "leftOuterJoinExpression");
+
+            _sql.Append("LEFT JOIN ");
+
+            VisitExpression(leftOuterJoinExpression.TableExpression);
+
+            _sql.Append(" ON ");
+
+            VisitExpression(leftOuterJoinExpression.Predicate);
+
+            return leftOuterJoinExpression;
         }
 
         protected virtual void GenerateTop([NotNull] SelectExpression selectExpression)

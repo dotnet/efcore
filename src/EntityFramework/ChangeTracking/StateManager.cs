@@ -74,10 +74,36 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 var entityType = Model.GetEntityType(entity.GetType());
 
                 stateEntry = _subscriber.SnapshotAndSubscribe(_factory.Create(entityType, entity));
-                
+
                 _entityReferenceMap[entity] = stateEntry;
             }
             return stateEntry;
+        }
+
+        public virtual void StartTracking(
+            [NotNull] IEntityType entityType, [NotNull] object entity, [NotNull] IValueReader valueReader)
+        {
+            Check.NotNull(entityType, "entityType");
+            Check.NotNull(entity, "entity");
+            Check.NotNull(valueReader, "valueReader");
+
+            // TODO: Perf: Pre-compute this for speed
+            var keyProperties = entityType.GetPrimaryKey().Properties;
+            var keyValue = _keyFactorySource.GetKeyFactory(keyProperties).Create(entityType, keyProperties, valueReader);
+
+            var existingEntry = TryGetEntry(keyValue);
+
+            if (existingEntry != null)
+            {
+                return;
+            }
+
+            var newEntry = _subscriber.SnapshotAndSubscribe(_factory.Create(entityType, entity, valueReader));
+
+            _identityMap.Add(keyValue, newEntry);
+            _entityReferenceMap[entity] = newEntry;
+
+            newEntry.EntityState = EntityState.Unchanged;
         }
 
         public virtual StateEntry GetOrMaterializeEntry([NotNull] IEntityType entityType, [NotNull] IValueReader valueReader)
@@ -143,7 +169,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             {
                 throw new InvalidOperationException(Strings.FormatWrongStateManager(entityType.Name));
             }
-           
+
             StateEntry existingEntry;
             if (entry.Entity != null)
             {

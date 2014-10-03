@@ -49,6 +49,16 @@ namespace Microsoft.Data.Entity.ChangeTracking
             return NewStateEntry(entityType, valueReader);
         }
 
+        public virtual StateEntry Create(
+            [NotNull] IEntityType entityType, [NotNull] object entity, [NotNull] IValueReader valueReader)
+        {
+            Check.NotNull(entityType, "entityType");
+            Check.NotNull(entity, "entity");
+            Check.NotNull(valueReader, "valueReader");
+
+            return NewStateEntry(entityType, entity, valueReader);
+        }
+
         private StateEntry NewStateEntry(IEntityType entityType, object entity)
         {
             if (!entityType.HasClrType)
@@ -71,6 +81,18 @@ namespace Microsoft.Data.Entity.ChangeTracking
             }
 
             var entity = _materializerSource.GetMaterializer(entityType)(valueReader);
+
+            return entityType.ShadowPropertyCount > 0
+                ? (StateEntry)new MixedStateEntry(_configuration, entityType, entity, valueReader)
+                : new ClrStateEntry(_configuration, entityType, entity);
+        }
+
+        private StateEntry NewStateEntry(IEntityType entityType, object entity, IValueReader valueReader)
+        {
+            if (!entityType.HasClrType)
+            {
+                return new ShadowStateEntry(_configuration, entityType, valueReader);
+            }
 
             return entityType.ShadowPropertyCount > 0
                 ? (StateEntry)new MixedStateEntry(_configuration, entityType, entity, valueReader)

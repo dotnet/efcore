@@ -4,6 +4,7 @@
 using System;
 using System.Linq.Expressions;
 using Microsoft.Data.Entity.AzureTableStorage.Query.Expressions;
+using Microsoft.Data.Entity.Query.ExpressionTreeVisitors;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
 
@@ -11,12 +12,12 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
 {
     public partial class AtsQueryModelVisitor
     {
-        protected class AtsQueryingExpressionTreeVisitor : QueryingExpressionTreeVisitor
+        protected class AtsEntityQueryableExpressionTreeVisitor : EntityQueryableExpressionTreeVisitor
         {
             private readonly AtsQueryModelVisitor _parent;
             private readonly IQuerySource _querySource;
 
-            public AtsQueryingExpressionTreeVisitor(AtsQueryModelVisitor parent, IQuerySource querySource)
+            public AtsEntityQueryableExpressionTreeVisitor(AtsQueryModelVisitor parent, IQuerySource querySource)
                 : base(parent)
             {
                 _parent = parent;

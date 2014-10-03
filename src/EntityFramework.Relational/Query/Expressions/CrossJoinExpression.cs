@@ -5,27 +5,28 @@ using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Relational.Query.Sql;
 using Microsoft.Data.Entity.Relational.Utilities;
-using Remotion.Linq.Clauses;
 using Remotion.Linq.Parsing;
 
 namespace Microsoft.Data.Entity.Relational.Query.Expressions
 {
-    public class CrossJoinExpression : TableExpression
+    public class CrossJoinExpression : TableExpressionBase
     {
-        public CrossJoinExpression(
-            [NotNull] string table,
-            [CanBeNull] string schema,
-            [NotNull] string alias,
-            [NotNull] IQuerySource querySource)
+        private readonly TableExpressionBase _tableExpression;
+
+        public CrossJoinExpression([NotNull] TableExpressionBase tableExpression)
             : base(
-                Check.NotEmpty(table, "table"),
-                schema,
-                Check.NotEmpty(alias, "alias"),
-                Check.NotNull(querySource, "querySource"))
+                Check.NotNull(tableExpression, "tableExpression").QuerySource, 
+                tableExpression.Alias)
         {
+            _tableExpression = tableExpression;
         }
 
-        public override Expression Accept(ExpressionTreeVisitor visitor)
+        public virtual TableExpressionBase TableExpression
+        {
+            get { return _tableExpression; }
+        }
+
+        public override Expression Accept([NotNull] ExpressionTreeVisitor visitor)
         {
             Check.NotNull(visitor, "visitor");
 
@@ -41,7 +42,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         public override string ToString()
         {
-            return "CROSS JOIN " + base.ToString();
+            return "CROSS JOIN " + _tableExpression;
         }
     }
 }
