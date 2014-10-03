@@ -108,7 +108,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             Check.NotNull(stateManager, "stateManager");
 
             var foundChanges = false;
-            foreach (var entry in stateManager.StateEntries.ToArray())
+            foreach (var entry in stateManager.StateEntries.ToList())
             {
                 if (DetectChanges(entry))
                 {
@@ -244,9 +244,9 @@ namespace Microsoft.Data.Entity.ChangeTracking
             var isPrimaryKey = property.IsPrimaryKey();
 
             // TODO: Perf: make it faster to check if the property is at the principal end or not
-            var foreignKeys = _configuration.Model.GetReferencingForeignKeys(property).ToArray();
+            var foreignKeys = _configuration.Model.GetReferencingForeignKeys(property).ToList();
 
-            if (isPrimaryKey || foreignKeys.Length > 0)
+            if (isPrimaryKey || foreignKeys.Count > 0)
             {
                 var snapshotValue = entry.RelationshipsSnapshot[property];
                 var currentValue = entry[property];

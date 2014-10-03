@@ -24,6 +24,8 @@ namespace Microsoft.Data.Entity.ChangeTracking
         private StateData _stateData;
         private Sidecar[] _sidecars;
 
+        private readonly Dictionary<IForeignKey, EntityKey> _principalKeys = new Dictionary<IForeignKey, EntityKey>();
+
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
         ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
@@ -464,6 +466,20 @@ namespace Microsoft.Data.Entity.ChangeTracking
             return _configuration.Services.EntityKeyFactorySource
                 .GetKeyFactory(foreignKey.Properties)
                 .Create(foreignKey.ReferencedEntityType, foreignKey.Properties, RelationshipsSnapshot);
+        }
+
+        public EntityKey GetPrincipalKey([NotNull] IForeignKey foreignKey, IEntityType referencedEntityType, IReadOnlyList<IProperty> referencedProperties)
+        {
+            Check.NotNull(foreignKey, "foreignKey");
+
+            EntityKey result;
+            if (!_principalKeys.TryGetValue(foreignKey, out result))
+            {
+                _principalKeys.Add(foreignKey, 
+                    result = CreateKey(referencedEntityType, referencedProperties, this));
+            }
+
+            return result;
         }
 
         public virtual object[] GetValueBuffer()
