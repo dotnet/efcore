@@ -61,7 +61,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             foreach (var foreignKey in entry.EntityType.ForeignKeys.Where(p => p.Properties.Contains(property)).Distinct())
             {
-                var navigations = stateManager.Model.GetNavigations(foreignKey).ToArray();
+                var navigations = stateManager.Model.GetNavigations(foreignKey).ToList();
 
                 var oldPrincipalEntry = stateManager.GetPrincipal(entry.RelationshipsSnapshot, foreignKey);
                 if (oldPrincipalEntry != null)
@@ -74,11 +74,11 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 {
                     if (foreignKey.IsUnique)
                     {
-                        var oldDependents = stateManager.GetDependents(principalEntry, foreignKey).Where(e => e != entry).ToArray();
+                        var oldDependents = stateManager.GetDependents(principalEntry, foreignKey).Where(e => e != entry).ToList();
 
                         // TODO: Decide how to handle case where multiple values found (negative case)
                         // Issue #739
-                        if (oldDependents.Length > 0)
+                        if (oldDependents.Count > 0)
                         {
                             StealReference(foreignKey, oldDependents[0]);
                         }
@@ -161,7 +161,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             var stateManager = _configuration.StateManager;
 
             var dependentProperties = navigation.ForeignKey.Properties;
-            var principalValues = navigation.ForeignKey.ReferencedProperties.Select(p => entry[p]).ToArray();
+            var principalValues = navigation.ForeignKey.ReferencedProperties.Select(p => entry[p]).ToList();
 
             // TODO: What if the entity is not yet being tracked?
             // Issue #323
@@ -194,12 +194,12 @@ namespace Microsoft.Data.Entity.ChangeTracking
             foreach (var foreignKey in _configuration.Model.EntityTypes.SelectMany(
                 e => e.ForeignKeys.Where(f => f.ReferencedProperties.Contains(property))))
             {
-                var newKeyValues = foreignKey.ReferencedProperties.Select(p => entry[p]).ToArray();
+                var newKeyValues = foreignKey.ReferencedProperties.Select(p => entry[p]).ToList();
                 var oldKey = entry.RelationshipsSnapshot.GetPrincipalKeyValue(foreignKey);
 
                 foreach (var dependent in stateManager.StateEntries.Where(
                     e => e.EntityType == foreignKey.EntityType
-                         && oldKey.Equals(e.GetDependentKeyValue(foreignKey))).ToArray())
+                         && oldKey.Equals(e.GetDependentKeyValue(foreignKey))).ToList())
                 {
                     if (dependent.TryGetSidecar(Sidecar.WellKnownNames.StoreGeneratedValues) == null)
                     {
@@ -257,37 +257,53 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 }
             }
 
+            var stateEntries = stateManager.StateEntries.ToList();
+
             // TODO: Perf on this state manager query
             foreach (var navigation in stateManager.Model.EntityTypes
                 .SelectMany(e => e.Navigations)
                 .Where(n => n.GetTargetType() == entityType))
             {
-                // TODO: Perf on this
-                foreach (var relatedEntry in stateManager.StateEntries.Where(e => e.EntityType == navigation.EntityType && e != entry))
+                IClrCollectionAccessor collectionAccessor = null;
+                if (navigation.IsCollection())
                 {
-                    var navigationValue = relatedEntry[navigation];
+                    collectionAccessor = _collectionAccessorSource.GetAccessor(navigation);
+                }
 
-                    if (navigationValue != null)
+                var navigationEntityType = navigation.EntityType;
+
+                for (var stateEntryIterator = 0; stateEntryIterator < stateEntries.Count; ++stateEntryIterator)
+                {
+                    var relatedEntry = stateEntries[stateEntryIterator];
+                    if (relatedEntry.EntityType != navigationEntityType || relatedEntry == entry)
                     {
-                        if (ReferenceEquals(navigationValue, entry.Entity))
+                        continue;
+                    }
+
+                    if (collectionAccessor != null)
+                    {
+                        if (collectionAccessor.Contains(relatedEntry.Entity, entry.Entity))
                         {
-                            NavigationReferenceChangedAction(
+                            NavigationCollectionChangedAction(
                                 relatedEntry,
                                 navigation,
-                                null,
-                                navigationValue);
+                                new[] {entry.Entity},
+                                Enumerable.Empty<object>());
                         }
-                        else if (navigation.IsCollection())
-                        {
-                            var collectionAccessor = _collectionAccessorSource.GetAccessor(navigation);
+                    }
+                    else
+                    {
+                        var navigationValue = relatedEntry[navigation];
 
-                            if (collectionAccessor.Contains(relatedEntry.Entity, entry.Entity))
+                        if (navigationValue != null)
+                        {
+                            if (ReferenceEquals(navigationValue, entry.Entity))
                             {
-                                NavigationCollectionChangedAction(
+                                NavigationReferenceChangedAction(
                                     relatedEntry,
                                     navigation,
-                                    new[] { entry.Entity },
-                                    Enumerable.Empty<object>());
+                                    null,
+                                    navigationValue);
                             }
                         }
                     }
@@ -335,7 +351,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         private void DoFixup(IForeignKey foreignKey, StateEntry principalEntry, StateEntry[] dependentEntries)
         {
-            DoFixup(_configuration.StateManager.Model.GetNavigations(foreignKey).ToArray(), principalEntry, dependentEntries);
+            DoFixup(_configuration.StateManager.Model.GetNavigations(foreignKey).ToList(), principalEntry, dependentEntries);
         }
 
         private void DoFixup(IEnumerable<INavigation> navigations, StateEntry principalEntry, StateEntry[] dependentEntries)
@@ -416,8 +432,8 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 }
             }
 
-            var nullableProperties = foreignKey.Properties.Where(p => p.IsNullable).ToArray();
-            if (nullableProperties.Length > 0)
+            var nullableProperties = foreignKey.Properties.Where(p => p.IsNullable).ToList();
+            if (nullableProperties.Count > 0)
             {
                 foreach (var property in nullableProperties)
                 {
@@ -432,7 +448,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
             Contract.Assert(principalProperties.Count == dependentProperties.Count);
 
-            SetForeignKeyValue(dependentEntry, dependentProperties, principalProperties.Select(p => principalEntry[p]).ToArray());
+            SetForeignKeyValue(dependentEntry, dependentProperties, principalProperties.Select(p => principalEntry[p]).ToList());
         }
 
         private static void SetForeignKeyValue(
@@ -452,7 +468,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             StateEntry dependentEntry, IReadOnlyList<IProperty> dependentProperties,
             StateEntry principalEntry, IReadOnlyList<IProperty> principalProperties)
         {
-            ConditionallySetNullForeignKey(dependentEntry, dependentProperties, principalProperties.Select(p => principalEntry[p]).ToArray());
+            ConditionallySetNullForeignKey(dependentEntry, dependentProperties, principalProperties.Select(p => principalEntry[p]).ToList());
         }
 
         private static void ConditionallySetNullForeignKey(
