@@ -81,54 +81,54 @@
         {
             model.GetEntityType(type)
                 .AddNavigation(
-                    new Navigation(
+                    navigation,
                         model.GetEntityType(type).ForeignKeys.Single(
                             f => f.Properties.Count == 1 && f.Properties.Single().Name == fk),
-                        navigation, pointsToPrincipal: true));
+                        pointsToPrincipal: true);
         }
 
         private static void AddNavigationToDependent(Microsoft.Data.Entity.Metadata.Model model, Type type, string fk, string navigation)
         {
             model.GetEntityType(type)
                 .AddNavigation(
-                    new Navigation(
-                        model.GetEntityType(type).ForeignKeys.Single(
-                            f => f.Properties.Count == 1 && f.Properties.Single().Name == fk),
-                        navigation, pointsToPrincipal: false));
+                    navigation,
+                    model.GetEntityType(type).ForeignKeys.Single(
+                        f => f.Properties.Count == 1 && f.Properties.Single().Name == fk),
+                    pointsToPrincipal: false);
         }
 
         private static void AddNavigationToDependent(Microsoft.Data.Entity.Metadata.Model model, Type type, Type dependentType, string fk, string navigation)
         {
             model.GetEntityType(type)
                 .AddNavigation(
-                    new Navigation(
-                        model.GetEntityType(dependentType).ForeignKeys.Single(
-                            f => f.Properties.Count == 1 && f.Properties.Single().Name == fk),
-                        navigation, pointsToPrincipal: false));
+                    navigation,
+                    model.GetEntityType(dependentType).ForeignKeys.Single(
+                        f => f.Properties.Count == 1 && f.Properties.Single().Name == fk),
+                    pointsToPrincipal: false);
         }
 
         private static void AddNavigationToDependent(Microsoft.Data.Entity.Metadata.Model model, Type type, Type dependentType, string fk1, string fk2, string navigation)
         {
             model.GetEntityType(type)
                 .AddNavigation(
-                    new Navigation(
-                        model.GetEntityType(dependentType).ForeignKeys.Single(
-                            f => f.Properties.Count == 2
-                                 && f.Properties.Any(p => p.Name == fk1)
-                                 && f.Properties.Any(p => p.Name == fk2)),
-                        navigation, pointsToPrincipal: false));
+                    navigation,
+                    model.GetEntityType(dependentType).ForeignKeys.Single(
+                        f => f.Properties.Count == 2
+                                && f.Properties.Any(p => p.Name == fk1)
+                                && f.Properties.Any(p => p.Name == fk2)),
+                    pointsToPrincipal: false);
         }
 
         private static void AddNavigationToPrincipal(Microsoft.Data.Entity.Metadata.Model model, Type type, string fk1, string fk2, string navigation)
         {
             model.GetEntityType(type)
                 .AddNavigation(
-                    new Navigation(
-                        model.GetEntityType(type).ForeignKeys.Single(
-                            f => f.Properties.Count == 2
-                                 && f.Properties.Any(p => p.Name == fk1)
-                                 && f.Properties.Any(p => p.Name == fk2)),
-                        navigation, pointsToPrincipal: true));
+                    navigation,
+                    model.GetEntityType(type).ForeignKeys.Single(
+                        f => f.Properties.Count == 2
+                                && f.Properties.Any(p => p.Name == fk1)
+                                && f.Properties.Any(p => p.Name == fk2)),
+                    pointsToPrincipal: true);
         }
     }
 
