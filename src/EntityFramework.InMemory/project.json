@@ -4,7 +4,7 @@
         "warningsAsErrors": true
     },
     "dependencies": {
-        "EntityFramework": ""
+        "EntityFramework": "7.0.0-*"
     },
     "code": [ "**\\*.cs", "..\\Shared\\*.cs" ],
     "frameworks": {

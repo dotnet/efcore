@@ -1,7 +1,7 @@
 {
     "dependencies": {
-        "EntityFramework.InMemory": "",
-        "EntityFramework.Relational": "",
+        "EntityFramework.InMemory": "7.0.0-*",
+        "EntityFramework.Relational": "7.0.0-*",
         "Moq": "4.2.1312.1622",
         "Xunit.KRunner": "1.0.0-*"
     },

@@ -4,10 +4,11 @@
         "warningsAsErrors": true
     },
     "dependencies": {
-        "EntityFramework.Relational": ""
+        "EntityFramework.Relational": "7.0.0-*"
     },
     "code": [ "**\\*.cs", "..\\Shared\\*.cs" ],
     "frameworks": {
+        "net451": { },
         "aspnet50": { },
         "aspnetcore50": {
             "dependencies": {
@@ -17,9 +18,9 @@
         },
         ".NETPortable,Version=v4.6,Profile=Profile151": {
             "frameworkAssemblies": {
-                "Microsoft.CSharp": "",
-                "System.Dynamic.Runtime": "",
-                "System.Reflection.Primitives": ""
+                "Microsoft.CSharp": "4.0.0.0",
+                "System.Dynamic.Runtime": "4.0.0.0",
+                "System.Reflection.Primitives": "4.0.0.0"
             }
         }
     }

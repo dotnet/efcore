@@ -5,10 +5,11 @@
     },
     "dependencies": {
         "System.Data.Common": "1.0.0-*",
-        "EntityFramework": ""
+        "EntityFramework": "7.0.0-*"
     },
     "code": [ "**\\*.cs", "..\\Shared\\*.cs" ],
     "frameworks": {
+        "net451": { },
         "aspnet50": { },
         "aspnetcore50": { 
             "dependencies": {

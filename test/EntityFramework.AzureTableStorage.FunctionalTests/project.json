@@ -1,7 +1,7 @@
 {
     "dependencies": {
-        "EntityFramework.AzureTableStorage": "",
-        "EntityFramework.FunctionalTests": "",
+        "EntityFramework.AzureTableStorage": "7.0.0-*",
+        "EntityFramework.FunctionalTests": "1.0.0",
         "Microsoft.Framework.ConfigurationModel.Xml": "1.0.0-*"
     },
     "commands": {
@@ -10,7 +10,7 @@
     "frameworks": {
         "aspnet50": {
             "frameworkAssemblies": {
-                "System.Threading.Tasks": ""
+                "System.Threading.Tasks": "4.0.0.0"
             }
         }
     }

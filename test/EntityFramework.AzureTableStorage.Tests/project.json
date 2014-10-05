@@ -1,6 +1,6 @@
 {
     "dependencies": {
-        "EntityFramework.AzureTableStorage": "",
+        "EntityFramework.AzureTableStorage": "7.0.0-*",
         "Moq": "4.2.1402.2112",
         "Xunit.KRunner": "1.0.0-*"
     },

@@ -6,13 +6,13 @@
     "dependencies": {
         "Microsoft.AspNet.Diagnostics": "1.0.0-*",
         "Microsoft.AspNet.RequestContainer": "1.0.0-*",
-        "EntityFramework.Migrations": ""
+        "EntityFramework.Migrations": "7.0.0-*"
     },
     "code": [ "**\\*.cs", "..\\Shared\\*.cs" ],
     "frameworks": {
         "aspnet50": {
             "frameworkAssemblies": {
-                "System.Configuration": ""
+                "System.Configuration": "4.0.0.0"
             }
         },
         "aspnetcore50": {

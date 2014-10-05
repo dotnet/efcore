@@ -1,6 +1,6 @@
 {
     "dependencies": {
-        "EntityFramework.FunctionalTests": ""
+        "EntityFramework.FunctionalTests": "1.0.0"
     },
     "commands": {
         "test": "Xunit.KRunner"

@@ -1,6 +1,6 @@
 {
     "dependencies": {
-        "EntityFramework.InMemory": "",
+        "EntityFramework.InMemory": "7.0.0-*",
         "Xunit.KRunner": "1.0.0-*"
     },
     "commands": {
@@ -9,7 +9,7 @@
     "frameworks": {
         "net45": {
             "frameworkAssemblies": {
-                "WindowsBase": ""
+                "WindowsBase": "4.0.0.0"
             }
         },
         "aspnet50": { },

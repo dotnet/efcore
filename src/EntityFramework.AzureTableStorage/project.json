@@ -5,7 +5,7 @@
     },
     "dependencies": {
         "WindowsAzure.Storage": "4.1.0",
-        "EntityFramework": ""
+        "EntityFramework": "7.0.0-*"
     },
     "code": [ "**\\*.cs", "..\\Shared\\*.cs" ],
     "frameworks": {

@@ -1,7 +1,7 @@
 {
     "dependencies": {
-        "EntityFramework.FunctionalTests": "",
-        "EntityFramework.Relational": "",
+        "EntityFramework.FunctionalTests": "1.0.0",
+        "EntityFramework.Relational": "7.0.0-*",
         "Xunit.KRunner": "1.0.0-*"
     },
     "frameworks": {

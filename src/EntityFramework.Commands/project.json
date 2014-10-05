@@ -4,7 +4,7 @@
         "warningsAsErrors": true
     },
     "dependencies": {
-        "EntityFramework.Migrations": ""
+        "EntityFramework.Migrations": "7.0.0-*"
     },
     "code": [ "**\\*.cs", "..\\Shared\\*.cs" ],
     "exclude": "tools\\Handler.cs",
@@ -12,12 +12,12 @@
         "net451": { },
         "aspnet50": {
             "dependencies": {
-                "Microsoft.Framework.CommandLineUtils": "1.0.0-*"
+                "Microsoft.Framework.CommandLineUtils": { "version": "1.0.0-*", "type": "build" }
             }
         },
         "aspnetcore50": {
             "dependencies": {
-                "Microsoft.Framework.CommandLineUtils": "1.0.0-*",
+                "Microsoft.Framework.CommandLineUtils": { "version": "1.0.0-*", "type": "build" },
                 "System.Console": "4.0.0.0",
                 "System.Reflection.TypeExtensions": "4.0.0.0",
                 "System.Text.RegularExpressions": "4.0.0.0"

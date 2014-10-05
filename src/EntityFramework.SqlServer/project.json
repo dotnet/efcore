@@ -4,14 +4,14 @@
         "warningsAsErrors": true
     },
     "dependencies": {
-        "EntityFramework.Migrations": "",
+        "EntityFramework.Migrations": "7.0.0-*",
         "System.Data.SqlClient": "1.0.0-*"
     },
     "code": [ "**\\*.cs", "..\\Shared\\*.cs" ],
     "frameworks": {
         "net451": { 
             "frameworkAssemblies": {
-                "System.Threading.Tasks": ""
+                "System.Threading.Tasks": "4.0.0.0"
             }
         },
         "aspnet50": { },

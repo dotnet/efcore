@@ -1,7 +1,7 @@
 {
     "dependencies": {
-        "EntityFramework.Relational.FunctionalTests": "",
-        "EntityFramework.SQLite": "",
+        "EntityFramework.Relational.FunctionalTests": "1.0.0",
+        "EntityFramework.SQLite": "7.0.0-*",
         "Xunit.KRunner": "1.0.0-*"
     },
     "commands": {
