@@ -78,7 +78,6 @@
     <Compile Include="NorthwindQueryTest.cs" />
     <Compile Include="RedisTestConfig.cs" />
     <Compile Include="RedisXunitTestFramework.cs" />
-    <Compile Include="SimpleFixture.cs" />
     <Compile Include="SimpleTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SupplementalBuiltInDataTypesFixture.cs" />
