@@ -808,9 +808,11 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                     out dbTransactionMock,
                     out sqlStatementExecutorMock);
 
+            var expectedSql = new[] { "SomeSql", "Migration1InsertSql" };
+
             sqlStatementExecutorMock.Setup(m => m.ExecuteNonQuery(It.IsAny<DbConnection>(), It.IsAny<DbTransaction>(), It.IsAny<IEnumerable<SqlStatement>>()))
                 .Callback<DbConnection, DbTransaction, IEnumerable<SqlStatement>>(
-                    (_, __, statements) => Assert.Equal(new[] { "SomeSql", "Migration1InsertSql" }, statements.Select(s => s.Sql)));
+                    (_, __, statements) => Assert.Equal(expectedSql, statements.Select(s => s.Sql)));
 
             migrator.UpdateDatabase();
 
@@ -858,9 +860,11 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                     out dbTransactionMock,
                     out sqlStatementExecutorMock);
 
+            var expectedSql = new[] { "SomeSql", "Migration2DeleteSql" };
+
             sqlStatementExecutorMock.Setup(m => m.ExecuteNonQuery(It.IsAny<DbConnection>(), It.IsAny<DbTransaction>(), It.IsAny<IEnumerable<SqlStatement>>()))
                 .Callback<DbConnection, DbTransaction, IEnumerable<SqlStatement>>(
-                    (_, __, statements) => Assert.Equal(new[] { "SomeSql", "Migration2DeleteSql" }, statements.Select(s => s.Sql)));
+                    (_, __, statements) => Assert.Equal(expectedSql, statements.Select(s => s.Sql)));
 
             migrator.UpdateDatabase("Migration1");
 
