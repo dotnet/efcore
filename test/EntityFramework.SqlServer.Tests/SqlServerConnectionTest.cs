@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             {
                 using (var master = connection.CreateMasterConnection())
                 {
-                    Assert.Equal(@"Data Source=""(localdb)11.0"";Initial Catalog=master;Integrated Security=True", master.ConnectionString);
+                    Assert.Equal(@"Data Source=""(localdb)\v11.0"";Initial Catalog=master;Integrated Security=True", master.ConnectionString);
                 }
             }
         }
@@ -44,7 +44,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 .UseLoggerFactory<NullLoggerFactory>();
             return new DbContext(serviceCollection.BuildServiceProvider(),
                 new DbContextOptions()
-                    .UseSqlServer("Server=(localdb)\v11.0;Database=SqlServerConnectionTest;Trusted_Connection=True;"))
+                    .UseSqlServer(@"Server=(localdb)\v11.0;Database=SqlServerConnectionTest;Trusted_Connection=True;"))
                 .Configuration;
         }
     }
