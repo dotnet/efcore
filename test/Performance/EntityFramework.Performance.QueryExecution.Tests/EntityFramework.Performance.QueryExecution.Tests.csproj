@@ -41,22 +41,10 @@
     <Reference Include="System.ComponentModel" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Data.Common">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\packages\System.Data.Common.1.0.0-beta1-10322\lib\net451\System.Data.Common.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Data.SqlClient">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\packages\System.Data.SqlClient.1.0.0-beta1-10354\lib\net45\System.Data.SqlClient.dll</HintPath>
-    </Reference>
     <Reference Include="System.Diagnostics.Debug" />
     <Reference Include="System.Diagnostics.Tools" />
     <Reference Include="System.Dynamic.Runtime" />
     <Reference Include="System.Globalization" />
-    <Reference Include="System.Interactive.Async">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\packages\Ix-Async.1.2.2-withwpa81\lib\net45\System.Interactive.Async.dll</HintPath>
-    </Reference>
     <Reference Include="System.Linq" />
     <Reference Include="System.Linq.Expressions" />
     <Reference Include="System.ObjectModel" />
@@ -109,9 +97,6 @@
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json">
-      <TargetFramework>net45</TargetFramework>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Framework.ConfigurationModel.Shared">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
   </ItemGroup>

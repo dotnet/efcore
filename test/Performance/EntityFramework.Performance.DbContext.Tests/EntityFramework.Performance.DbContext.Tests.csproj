@@ -38,19 +38,10 @@
     <Reference Include="System.Collections.Concurrent" />
     <Reference Include="System.ComponentModel" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Data.Common">
-      <HintPath>..\..\..\packages\System.Data.Common.1.0.0-alpha4-10253\lib\net451\System.Data.Common.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Data.SqlClient">
-      <HintPath>..\..\..\packages\System.Data.SqlClient.1.0.0-alpha4-10276\lib\net45\System.Data.SqlClient.dll</HintPath>
-    </Reference>
     <Reference Include="System.Diagnostics.Debug" />
     <Reference Include="System.Diagnostics.Tools" />
     <Reference Include="System.Dynamic.Runtime" />
     <Reference Include="System.Globalization" />
-    <Reference Include="System.Interactive.Async">
-      <HintPath>..\..\..\packages\Ix-Async.1.2.2\lib\net45\System.Interactive.Async.dll</HintPath>
-    </Reference>
     <Reference Include="System.Linq" />
     <Reference Include="System.Linq.Expressions" />
     <Reference Include="System.ObjectModel" />
