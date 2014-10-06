@@ -45,7 +45,7 @@ namespace Microsoft.Data.SQLite.Utilities
             {
                 // Ignore. Running outside of Project K
             }
-#elif NET451
+#else
             if (TryLoadFromDirectory(dllName, new Uri(AppDomain.CurrentDomain.BaseDirectory).LocalPath))
                 return;
 #endif
