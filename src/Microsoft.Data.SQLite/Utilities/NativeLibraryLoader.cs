@@ -2,14 +2,17 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 
-#if NET451 || ASPNETCORE50
+#if NET451 || ASPNET50 || ASPNETCORE50
 using System;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
+
+#if ASPNET50 || ASPNETCORE50
 using Microsoft.Framework.Runtime;
 using Microsoft.Framework.Runtime.Infrastructure;
+#endif
 
 namespace Microsoft.Data.SQLite.Utilities
 {
@@ -32,6 +35,7 @@ namespace Microsoft.Data.SQLite.Utilities
 
             var currentAssembly = typeof(NativeLibraryLoader).GetTypeInfo().Assembly;
 
+#if ASPNET50 || ASPNETCORE50
             try
             {
                 if (TryLoadUnderKRuntime(currentAssembly, dllName))
@@ -41,8 +45,7 @@ namespace Microsoft.Data.SQLite.Utilities
             {
                 // Ignore. Running outside of Project K
             }
-
-#if NET451
+#elif NET451
             if (TryLoadFromDirectory(dllName, new Uri(AppDomain.CurrentDomain.BaseDirectory).LocalPath))
                 return;
 #endif
@@ -50,6 +53,8 @@ namespace Microsoft.Data.SQLite.Utilities
             Debug.Fail(dllName + " was not loaded.");
         }
 
+
+#if ASPNET50 || ASPNETCORE50
         private static bool TryLoadUnderKRuntime(Assembly currentAssembly, string dllName)
         {
             var serviceProvider = CallContextServiceLocator.Locator.ServiceProvider;
@@ -71,6 +76,7 @@ namespace Microsoft.Data.SQLite.Utilities
             return applicationEnvironment != null
                 && TryLoadFromDirectory(dllName, applicationEnvironment.ApplicationBasePath);
         }
+#endif
 
         private static bool IsLoaded(string dllName)
         {

@@ -4,9 +4,10 @@
     "System.Data.Common": "1.0.0-*"
   },
   "frameworks": {
-    "net451": {
+    "net451": { },
+    "aspnet50": {
       "dependencies": {
-        "Microsoft.Framework.Runtime.Interfaces": "1.0.0-*"
+        "Microsoft.Framework.Runtime.Interfaces": { "version": "1.0.0-*", "type": "build" },
       }
     },
     "aspnetcore50": {
@@ -25,22 +26,22 @@
         "System.Runtime.Handles": "4.0.0.0",
         "System.Runtime.InteropServices": "4.0.20.0",
         "System.Text.Encoding": "4.0.10.0",
-        "Microsoft.Framework.Runtime.Interfaces": "1.0.0-*"
+        "Microsoft.Framework.Runtime.Interfaces": { "version": "1.0.0-*", "type": "build" }
       }
     },
     ".NETPortable,Version=4.6,Profile=Profile151": {
-      "dependencies": {
-        "System.Collections": "",
-        "System.ComponentModel": "",
-        "System.Diagnostics.Debug": "",
-        "System.Globalization": "",
-        "System.Linq": "",
-        "System.Reflection": "",
-        "System.Resources.ResourceManager": "",
-        "System.Runtime": "",
-        "System.Runtime.Extensions": "",
-        "System.Runtime.InteropServices": "",
-        "System.Text.Encoding": ""
+      "frameworkAssemblies": {
+        "System.Collections": "4.0.0.0",
+        "System.ComponentModel": "4.0.0.0",
+        "System.Diagnostics.Debug": "4.0.0.0",
+        "System.Globalization": "4.0.0.0",
+        "System.Linq": "4.0.0.0",
+        "System.Reflection": "4.0.0.0",
+        "System.Resources.ResourceManager": "4.0.0.0",
+        "System.Runtime": "4.0.10.0",
+        "System.Runtime.Extensions": "4.0.0.0",
+        "System.Runtime.InteropServices": "4.0.10.0",
+        "System.Text.Encoding": "4.0.0.0"
       }
     }
   }
