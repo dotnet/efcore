@@ -3,168 +3,216 @@
 
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Redis.Extensions;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Redis.FunctionalTests
 {
-    public class SimpleTest : IClassFixture<SimpleFixture>
+    public class SimpleTest
     {
-        private readonly DbContext _context;
-
-        public SimpleTest(SimpleFixture fixture)
-        {
-            _context = fixture.CreateContext();
-        }
-
         [Fact]
-        public void Add_modify_and_delete_Customer()
+        public void Add_modify_and_delete_simple_poco()
         {
-            var simplePoco = _context.Set<SimplePoco>().Add(
-                new SimplePoco
+            using (var context = CreateContext())
+            {
+                var simplePoco = context.Set<SimplePoco>().Add(
+                    new SimplePoco
+                        {
+                            PocoKey = 100,
+                            Name = "A. Name",
+                        });
+                var changes = context.SaveChanges();
+                Assert.Equal(1, changes);
+
+                simplePoco.Name = "Updated Name";
+                changes = context.SaveChanges();
+                Assert.Equal(1, changes);
+
+                context.Set<SimplePoco>().Remove(simplePoco);
+                changes = context.SaveChanges();
+                Assert.Equal(1, changes);
+                
+            }
+        }
+        
+        [Fact]
+        public async Task Add_modify_and_delete_simple_poco_async()
+        {
+            using (var context = CreateContext())
+            {
+                var simplePoco = context.Set<SimplePoco>().Add(
+                    new SimplePoco
                     {
                         PocoKey = 100,
                         Name = "A. Name",
                     });
-            var changes = _context.SaveChanges();
-            Assert.Equal(1, changes);
+                var changes = await context.SaveChangesAsync();
+                Assert.Equal(1, changes);
 
-            simplePoco.Name = "Updated Name";
-            changes = _context.SaveChanges();
-            Assert.Equal(1, changes);
+                simplePoco.Name = "Updated Name";
+                changes = await context.SaveChangesAsync();
+                Assert.Equal(1, changes);
 
-            _context.Set<SimplePoco>().Remove(simplePoco);
-            changes = _context.SaveChanges();
-            Assert.Equal(1, changes);
-        }
-        
-        [Fact]
-        public async Task Add_modify_and_delete_Customer_Async()
-        {
-            var simplePoco = _context.Set<SimplePoco>().Add(
-                new SimplePoco
-                {
-                    PocoKey = 100,
-                    Name = "A. Name",
-                });
-            var changes = await _context.SaveChangesAsync();
-            Assert.Equal(1, changes);
-
-            simplePoco.Name = "Updated Name";
-            changes = await _context.SaveChangesAsync();
-            Assert.Equal(1, changes);
-
-            _context.Set<SimplePoco>().Remove(simplePoco);
-            changes = await _context.SaveChangesAsync();
-            Assert.Equal(1, changes);
+                context.Set<SimplePoco>().Remove(simplePoco);
+                changes = await context.SaveChangesAsync();
+                Assert.Equal(1, changes);
+                
+            }
         }
 
         [Fact]
-        public void Add_modify_and_delete_Customer_together()
+        public void Add_modify_and_delete_simple_poco_together()
         {
-            var simplePoco = _context.Set<SimplePoco>().Add(
-                new SimplePoco
-                {
-                    PocoKey = 100,
-                    Name = "A. Name",
-                });
-            var simplePoco2 = _context.Set<SimplePoco>().Add(
-                new SimplePoco
-                {
-                    PocoKey = 101,
-                    Name = "B. Name",
-                });
-            var changes = _context.SaveChanges();
-            Assert.Equal(2, changes);
-            
-            _context.Set<SimplePoco>().Add(
-                new SimplePoco
-                {
-                    PocoKey = 102,
-                    Name = "C. Name",
-                });
-            simplePoco.Name = "Updated Name";
+            using (var context = CreateContext())
+            {
+                var simplePoco = context.Set<SimplePoco>().Add(
+                    new SimplePoco
+                    {
+                        PocoKey = 100,
+                        Name = "A. Name",
+                    });
+                var simplePoco2 = context.Set<SimplePoco>().Add(
+                    new SimplePoco
+                    {
+                        PocoKey = 101,
+                        Name = "B. Name",
+                    });
+                var changes = context.SaveChanges();
+                Assert.Equal(2, changes);
 
-            _context.Set<SimplePoco>().Remove(simplePoco2);
-            changes = _context.SaveChanges();
-            Assert.Equal(3, changes);
+                context.Set<SimplePoco>().Add(
+                    new SimplePoco
+                    {
+                        PocoKey = 102,
+                        Name = "C. Name",
+                    });
+                simplePoco.Name = "Updated Name";
+
+                context.Set<SimplePoco>().Remove(simplePoco2);
+                changes = context.SaveChanges();
+                Assert.Equal(3, changes);
+                
+            }
         }
 
         [Fact]
-        public async Task Add_modify_and_delete_Customer_together_Async()
+        public async Task Add_modify_and_delete_simple_poco_together_async()
         {
-            var simplePoco = _context.Set<SimplePoco>().Add(
-                new SimplePoco
-                {
-                    PocoKey = 100,
-                    Name = "A. Name",
-                });
-            var simplePoco2 = _context.Set<SimplePoco>().Add(
-                new SimplePoco
-                {
-                    PocoKey = 101,
-                    Name = "B. Name",
-                });
-            var changes = await _context.SaveChangesAsync();
-            Assert.Equal(2, changes);
+            using (var context = CreateContext())
+            {
+                var simplePoco = context.Set<SimplePoco>().Add(
+                    new SimplePoco
+                    {
+                        PocoKey = 100,
+                        Name = "A. Name",
+                    });
+                var simplePoco2 = context.Set<SimplePoco>().Add(
+                    new SimplePoco
+                    {
+                        PocoKey = 101,
+                        Name = "B. Name",
+                    });
+                var changes = await context.SaveChangesAsync();
+                Assert.Equal(2, changes);
 
-            _context.Set<SimplePoco>().Add(
-                new SimplePoco
-                {
-                    PocoKey = 102,
-                    Name = "C. Name",
-                });
-            simplePoco.Name = "Updated Name";
+                context.Set<SimplePoco>().Add(
+                    new SimplePoco
+                    {
+                        PocoKey = 102,
+                        Name = "C. Name",
+                    });
+                simplePoco.Name = "Updated Name";
 
-            _context.Set<SimplePoco>().Remove(simplePoco2);
-            changes = await _context.SaveChangesAsync();
-            Assert.Equal(3, changes);
+                context.Set<SimplePoco>().Remove(simplePoco2);
+                changes = await context.SaveChangesAsync();
+                Assert.Equal(3, changes);
+                
+            }
         }
 
         [Fact]
-        public void Get_customer_count()
+        public void Get_simple_poco_count()
         {
-            _context.Set<SimplePoco>().Add(
-                new SimplePoco
-                {
-                    PocoKey = 200,
-                    Name = "B. Name",
-                });
-            var changes = _context.SaveChanges();
-            Assert.Equal(1, changes);
+            using (var context = CreateContext())
+            {
+                context.Set<SimplePoco>().Add(
+                    new SimplePoco
+                    {
+                        PocoKey = 200,
+                        Name = "B. Name",
+                    });
+                var changes = context.SaveChanges();
+                Assert.Equal(1, changes);
 
-            var simplePocos =
-                from c in _context.Set<SimplePoco>()
-                select c;
-            Assert.Equal(1, simplePocos.Count(cust => cust.PocoKey == 200));
+                var simplePocos =
+                    from c in context.Set<SimplePoco>()
+                    select c;
+                Assert.Equal(1, simplePocos.Count(cust => cust.PocoKey == 200));
+                
+            }
         }
 
         [Fact]
-        public void Get_customer_projection()
+        public void Get_simple_poco_projection()
         {
-            _context.Set<SimplePoco>().Add(
-                new SimplePoco
-                {
-                    PocoKey = 300,
-                    Name = "C. Name",
-                });
-            _context.Set<SimplePoco>().Add(
-                new SimplePoco
-                {
-                    PocoKey = 301,
-                    Name = "C. Name the 2nd",
-                });
-            var changes = _context.SaveChanges();
-            Assert.Equal(2, changes);
+            using (var context = CreateContext())
+            {
+                context.Set<SimplePoco>().Add(
+                    new SimplePoco
+                    {
+                        PocoKey = 300,
+                        Name = "C. Name",
+                    });
+                context.Set<SimplePoco>().Add(
+                    new SimplePoco
+                    {
+                        PocoKey = 301,
+                        Name = "C. Name the 2nd",
+                    });
+                var changes = context.SaveChanges();
+                Assert.Equal(2, changes);
 
-            var simplePocoNames =
-                from simplePoco in _context.Set<SimplePoco>()
-                where (simplePoco.PocoKey == 300 || simplePoco.PocoKey == 301)
-                select simplePoco.Name;
+                var simplePocoNames =
+                    from simplePoco in context.Set<SimplePoco>()
+                    where (simplePoco.PocoKey == 300 || simplePoco.PocoKey == 301)
+                    select simplePoco.Name;
 
-            var simplePocoNamesArray = simplePocoNames.ToArray();
-            Assert.Equal(2, simplePocoNamesArray.Length);
-            Assert.Equal("C. Name", simplePocoNamesArray[0]);
-            Assert.Equal("C. Name the 2nd", simplePocoNamesArray[1]);
+                var simplePocoNamesArray = simplePocoNames.ToArray();
+                Assert.Equal(2, simplePocoNamesArray.Length);
+                Assert.Equal("C. Name", simplePocoNamesArray[0]);
+                Assert.Equal("C. Name the 2nd", simplePocoNamesArray[1]);
+                
+            }
         }
+
+        private DbContext CreateContext()
+        {
+            var options = new DbContextOptions()
+                .UseModel(CreateModel())
+                .UseRedis("127.0.0.1", RedisTestConfig.RedisPort);
+
+            return new DbContext(options);
+        }
+
+        private IModel CreateModel()
+        {
+            var model = new Model();
+            var builder = new BasicModelBuilder(model);
+            builder.Entity<SimplePoco>(b =>
+                {
+                    b.Key(cust => cust.PocoKey);
+                    b.Property(cust => cust.PocoKey);
+                    b.Property(cust => cust.Name);
+                });
+
+            return model;
+        }
+    }
+
+    public class SimplePoco
+    {
+        public int PocoKey { get; set; }
+        public string Name { get; set; }
     }
 }
