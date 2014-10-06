@@ -7,7 +7,7 @@
         "test": "Xunit.KRunner"
     },
     "frameworks": {
-        "aspnet50": {},
-        "aspnetcore50": {}
+        "aspnet50": { },
+        "aspnetcore50": { }
     }
 }
