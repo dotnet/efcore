@@ -10,7 +10,7 @@
     "frameworks": {
         "aspnet50": {
             "frameworkAssemblies": {
-                "System.Threading.Tasks": "4.0.0.0"
+                "System.Threading.Tasks": ""
             }
         }
     }

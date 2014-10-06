@@ -9,7 +9,7 @@
     "frameworks": {
         "net45": {
             "frameworkAssemblies": {
-                "WindowsBase": "4.0.0.0"
+                "WindowsBase": ""
             }
         },
         "aspnet50": { },

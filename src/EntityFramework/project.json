@@ -13,11 +13,11 @@
     "frameworks": {
         "net45": {
             "frameworkAssemblies": {
-                "System.Collections": "4.0.0.0",
-                "System.Linq.Expressions": "4.0.0.0",
-                "System.ObjectModel": "4.0.0.0",
-                "System.Reflection": "4.0.0.0",
-                "System.Runtime": "4.0.0.0"
+                "System.Collections": "",
+                "System.Linq.Expressions": "",
+                "System.ObjectModel": "",
+                "System.Reflection": "",
+                "System.Runtime": ""
             },
             "dependencies": {
                 "Microsoft.Bcl.Immutable": "1.1.22-beta"
@@ -25,11 +25,11 @@
         },
         "aspnet50": {
             "frameworkAssemblies": {
-                "System.Collections": "4.0.0.0",
-                "System.Linq.Expressions": "4.0.0.0",
-                "System.ObjectModel": "4.0.0.0",
-                "System.Reflection": "4.0.0.0",
-                "System.Runtime": "4.0.10.0"
+                "System.Collections": "",
+                "System.Linq.Expressions": "",
+                "System.ObjectModel": "",
+                "System.Reflection": "",
+                "System.Runtime": ""
             },
             "dependencies": {
                 "Microsoft.Bcl.Immutable": "1.1.18-beta-*"
@@ -52,12 +52,12 @@
         },
         ".NETPortable,Version=v4.6,Profile=Profile151": {
             "frameworkAssemblies": {
-                "System.ComponentModel": "4.0.0.0",
-                "System.Diagnostics.Contracts": "4.0.0.0",
-                "System.Linq.Expressions": "4.0.0.0",
-                "System.Linq.Queryable": "4.0.0.0",
-                "System.ObjectModel": "4.0.0.0",
-                "System.Reflection.Extensions": "4.0.0.0"
+                "System.ComponentModel": "",
+                "System.Diagnostics.Contracts": "",
+                "System.Linq.Expressions": "",
+                "System.Linq.Queryable": "",
+                "System.ObjectModel": "",
+                "System.Reflection.Extensions": ""
             },
             "dependencies": {
                 "Microsoft.Bcl.Immutable": "1.1.22-beta"

@@ -18,9 +18,9 @@
         },
         ".NETPortable,Version=v4.6,Profile=Profile151": {
             "frameworkAssemblies": {
-                "Microsoft.CSharp": "4.0.0.0",
-                "System.Dynamic.Runtime": "4.0.0.0",
-                "System.Reflection.Primitives": "4.0.0.0"
+                "Microsoft.CSharp": "",
+                "System.Dynamic.Runtime": "",
+                "System.Reflection.Primitives": ""
             }
         }
     }
