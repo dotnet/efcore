@@ -19,9 +19,9 @@ namespace Microsoft.Data.Entity.Tests
                 = from type in GetAllTypes(fluentApiTypes)
                     where type.IsVisible
                     from method in type.GetMethods(PublicInstance)
-                    where GetBasestTypeInAssembly(method.DeclaringType) == type
+                    where method.DeclaringType == type
                           && method.ReturnType == typeof(void)
-                    select type.Name + "." + method.Name;
+                    select type.FullName + "." + method.Name;
 
             Assert.Equal("", string.Join("\r\n", voidMethods));
         }

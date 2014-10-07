@@ -30,9 +30,9 @@ namespace Microsoft.Data.Entity
                           && type.Namespace != null
                           && !type.Namespace.EndsWith(".Compiled")
                     from method in type.GetMethods(PublicInstance)
-                    where GetBasestTypeInAssembly(method.DeclaringType) == type
+                    where method.DeclaringType == type
                           && !(method.IsVirtual && !method.IsFinal)
-                    select type.Name + "." + method.Name)
+                    select type.FullName + "." + method.Name)
                     .ToList();
 
             Assert.False(
@@ -50,7 +50,7 @@ namespace Microsoft.Data.Entity
                     let events = type.GetEvents()
                     from method in type.GetMethods(PublicInstance | BindingFlags.Static)
                         .Concat<MethodBase>(type.GetConstructors())
-                    where GetBasestTypeInAssembly(method.DeclaringType) == type
+                    where method.DeclaringType == type
                     where type.IsInterface || !interfaceMappings.Any(im => im.TargetMethods.Contains(method))
                     where !events.Any(e => e.AddMethod == method || e.RemoveMethod == method)
                     from parameter in method.GetParameters()
@@ -59,7 +59,7 @@ namespace Microsoft.Data.Entity
                               .Any(
                                   a => a.GetType().Name == "NotNullAttribute"
                                        || a.GetType().Name == "CanBeNullAttribute")
-                    select type.Name + "." + method.Name + "[" + parameter.Name + "]")
+                    select type.FullName + "." + method.Name + "[" + parameter.Name + "]")
                     .ToList();
 
             Assert.False(
@@ -74,7 +74,7 @@ namespace Microsoft.Data.Entity
                 = (from type in GetAllTypes(TargetAssembly.GetTypes())
                     where type.IsVisible
                     from method in type.GetMethods(PublicInstance | BindingFlags.Static)
-                    where GetBasestTypeInAssembly(method.DeclaringType) == type
+                    where method.DeclaringType == type
                     where typeof(Task).IsAssignableFrom(method.ReturnType)
                     select method).ToList();
 
@@ -137,17 +137,6 @@ namespace Microsoft.Data.Entity
                     yield return nestedType;
                 }
             }
-        }
-
-        protected Type GetBasestTypeInAssembly(Type type)
-        {
-            while (type.BaseType != null
-                   && type.BaseType.Assembly == type.Assembly)
-            {
-                type = type.BaseType;
-            }
-
-            return type;
         }
     }
 }
