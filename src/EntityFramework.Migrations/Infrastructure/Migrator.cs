@@ -189,7 +189,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             var database = (RelationalDatabase)ContextConfiguration.Database;
             var statements = new List<SqlStatement>();
 
-            if (!simulate && (downgradeIndexes.Any() || upgradeIndexes.Any()) && !database.Exists())
+            if (!simulate && !database.Exists())
             {
                 database.Create();
             }
@@ -203,7 +203,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
 
             statements.AddRange(upgradeIndexes.SelectMany(i => ApplyMigration(i, simulate)));
 
-            if (targetMigrationIndex == -1)
+            if (targetMigrationIndex == -1 && historyTableExists)
             {
                 statements.AddRange(DropHistoryTable(simulate));
             }
