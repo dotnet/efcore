@@ -10,6 +10,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
     public class ReadOnlySqlServerKeyExtensions : ReadOnlyRelationalKeyExtensions, ISqlServerKeyExtensions
     {
         protected const string SqlServerNameAnnotation = SqlServerAnnotationNames.Prefix + RelationalAnnotationNames.Name;
+        protected const string SqlServerClusteredAnnotation = SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.Clustered;
 
         public ReadOnlySqlServerKeyExtensions([NotNull] IKey key)
             : base(key)
@@ -19,6 +20,17 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
         public override string Name
         {
             get { return Key[SqlServerNameAnnotation] ?? base.Name; }
+        }
+
+        public virtual bool? IsClustered
+        {
+            get
+            {
+                // TODO: Issue #777: Non-string annotations
+                // TODO: Issue #700: Annotate associated index object instead
+                var value = Key[SqlServerClusteredAnnotation];
+                return value == null ? null : (bool?)bool.Parse(value);
+            }
         }
     }
 }

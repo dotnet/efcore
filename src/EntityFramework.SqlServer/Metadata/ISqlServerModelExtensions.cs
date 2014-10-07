@@ -6,12 +6,12 @@ using Microsoft.Data.Entity.Relational.Metadata;
 
 namespace Microsoft.Data.Entity.SqlServer.Metadata
 {
-    public interface ISqlServerPropertyExtensions : IRelationalPropertyExtensions
+    public interface ISqlServerModelExtensions : IRelationalModelExtensions
     {
         [CanBeNull]
         SqlServerValueGenerationStrategy? ValueGenerationStrategy { get; }
 
         [CanBeNull]
-        string SequenceName { get; }
+        string DefaultSequenceName { get; }
     }
 }

@@ -195,4 +195,10 @@
   <data name="RelationalLoggerRollingbackTransaction" xml:space="preserve">
     <value>Rolling back transaction.</value>
   </data>
+  <data name="BadSequenceType" xml:space="preserve">
+    <value>Invalid type for sequence. Valid types are 'Int64' (the default), 'Int32', 'Int16', and 'Byte'.</value>
+  </data>
+  <data name="BadSequenceString" xml:space="preserve">
+    <value>Unable to deserialize sequence from model metadata. See inner exception for details.</value>
+  </data>
 </root>

@@ -1,8 +1,9 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Relational.Metadata;
+using Microsoft.Data.Entity.SqlServer.Metadata;
 using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
@@ -313,6 +314,300 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             Assert.Equal("MyIndex", ((IIndex)index).Relational().Name);
             Assert.Equal("MyIndex", index.SqlServer().Name);
             Assert.Equal("MyIndex", ((IIndex)index).SqlServer().Name);
+        }
+
+        [Fact]
+        public void Can_get_and_set_index_clustering()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            var index = modelBuilder
+                .Entity<Customer>()
+                .Index(e => e.Id)
+                .Metadata;
+
+            Assert.Null(index.SqlServer().IsClustered);
+            Assert.Null(((IIndex)index).SqlServer().IsClustered);
+
+            index.SqlServer().IsClustered = true;
+
+            Assert.True(index.SqlServer().IsClustered.Value);
+            Assert.True(((IIndex)index).SqlServer().IsClustered.Value);
+
+            index.SqlServer().IsClustered = null;
+
+            Assert.Null(index.SqlServer().IsClustered);
+            Assert.Null(((IIndex)index).SqlServer().IsClustered);
+        }
+
+        [Fact]
+        public void Can_get_and_set_key_clustering()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            var key = modelBuilder
+                .Entity<Customer>()
+                .Key(e => e.Id)
+                .Metadata;
+
+            Assert.Null(key.SqlServer().IsClustered);
+            Assert.Null(((IKey)key).SqlServer().IsClustered);
+
+            key.SqlServer().IsClustered = true;
+
+            Assert.True(key.SqlServer().IsClustered.Value);
+            Assert.True(((IKey)key).SqlServer().IsClustered.Value);
+
+            key.SqlServer().IsClustered = null;
+
+            Assert.Null(key.SqlServer().IsClustered);
+            Assert.Null(((IKey)key).SqlServer().IsClustered);
+        }
+
+        [Fact]
+        public void Can_get_and_set_sequence()
+        {
+            var modelBuilder = new BasicModelBuilder();
+            var model = modelBuilder.Metadata;
+
+            Assert.Null(model.Relational().TryGetSequence("Foo"));
+            Assert.Null(((IModel)model).Relational().TryGetSequence("Foo"));
+            Assert.Null(model.SqlServer().TryGetSequence("Foo"));
+            Assert.Null(((IModel)model).SqlServer().TryGetSequence("Foo"));
+
+            var sequence = model.SqlServer().GetOrAddSequence("Foo");
+
+            Assert.Null(model.Relational().TryGetSequence("Foo"));
+            Assert.Null(((IModel)model).Relational().TryGetSequence("Foo"));
+            Assert.Equal("Foo", model.SqlServer().TryGetSequence("Foo").Name);
+            Assert.Equal("Foo", ((IModel)model).SqlServer().TryGetSequence("Foo").Name);
+
+            Assert.Equal("Foo", sequence.Name);
+            Assert.Null(sequence.Schema);
+            Assert.Equal(10, sequence.IncrementBy);
+            Assert.Equal(1, sequence.StartValue);
+            Assert.Null(sequence.MinValue);
+            Assert.Null(sequence.MaxValue);
+            Assert.Same(typeof(long), sequence.Type);
+
+            model.SqlServer().AddOrReplaceSequence(new Sequence("Foo", null, 1729, 11, 2001, 2010, typeof(int)));
+
+            Assert.Null(model.Relational().TryGetSequence("Foo"));
+
+            sequence = model.SqlServer().GetOrAddSequence("Foo");
+
+            Assert.Equal("Foo", sequence.Name);
+            Assert.Null(sequence.Schema);
+            Assert.Equal(11, sequence.IncrementBy);
+            Assert.Equal(1729, sequence.StartValue);
+            Assert.Equal(2001, sequence.MinValue);
+            Assert.Equal(2010, sequence.MaxValue);
+            Assert.Same(typeof(int), sequence.Type);
+        }
+
+        [Fact]
+        public void Can_get_and_set_sequence_with_schema_name()
+        {
+            var modelBuilder = new BasicModelBuilder();
+            var model = modelBuilder.Metadata;
+
+            Assert.Null(model.Relational().TryGetSequence("Foo", "Smoo"));
+            Assert.Null(((IModel)model).Relational().TryGetSequence("Foo", "Smoo"));
+            Assert.Null(model.SqlServer().TryGetSequence("Foo", "Smoo"));
+            Assert.Null(((IModel)model).SqlServer().TryGetSequence("Foo", "Smoo"));
+
+            var sequence = model.SqlServer().GetOrAddSequence("Foo", "Smoo");
+
+            Assert.Null(model.Relational().TryGetSequence("Foo", "Smoo"));
+            Assert.Null(((IModel)model).Relational().TryGetSequence("Foo", "Smoo"));
+            Assert.Equal("Foo", model.SqlServer().TryGetSequence("Foo", "Smoo").Name);
+            Assert.Equal("Foo", ((IModel)model).SqlServer().TryGetSequence("Foo", "Smoo").Name);
+
+            Assert.Equal("Foo", sequence.Name);
+            Assert.Equal("Smoo", sequence.Schema);
+            Assert.Equal(10, sequence.IncrementBy);
+            Assert.Equal(1, sequence.StartValue);
+            Assert.Null(sequence.MinValue);
+            Assert.Null(sequence.MaxValue);
+            Assert.Same(typeof(long), sequence.Type);
+
+            model.SqlServer().AddOrReplaceSequence(new Sequence("Foo", "Smoo", 1729, 11, 2001, 2010, typeof(int)));
+
+            Assert.Null(model.Relational().TryGetSequence("Foo", "Smoo"));
+
+            sequence = model.SqlServer().GetOrAddSequence("Foo", "Smoo");
+
+            Assert.Equal("Foo", sequence.Name);
+            Assert.Equal("Smoo", sequence.Schema);
+            Assert.Equal(11, sequence.IncrementBy);
+            Assert.Equal(1729, sequence.StartValue);
+            Assert.Equal(2001, sequence.MinValue);
+            Assert.Equal(2010, sequence.MaxValue);
+            Assert.Same(typeof(int), sequence.Type);
+        }
+
+        [Fact]
+        public void Can_add_and_replace_sequence()
+        {
+            var modelBuilder = new BasicModelBuilder();
+            var model = modelBuilder.Metadata;
+
+            model.SqlServer().AddOrReplaceSequence(new Sequence("Foo"));
+
+            Assert.Null(model.Relational().TryGetSequence("Foo"));
+            Assert.Null(((IModel)model).Relational().TryGetSequence("Foo"));
+            Assert.Equal("Foo", model.SqlServer().TryGetSequence("Foo").Name);
+            Assert.Equal("Foo", ((IModel)model).SqlServer().TryGetSequence("Foo").Name);
+
+            var sequence = model.SqlServer().TryGetSequence("Foo");
+
+            Assert.Equal("Foo", sequence.Name);
+            Assert.Null(sequence.Schema);
+            Assert.Equal(10, sequence.IncrementBy);
+            Assert.Equal(1, sequence.StartValue);
+            Assert.Null(sequence.MinValue);
+            Assert.Null(sequence.MaxValue);
+            Assert.Same(typeof(long), sequence.Type);
+
+            model.SqlServer().AddOrReplaceSequence(new Sequence("Foo", null, 1729, 11, 2001, 2010, typeof(int)));
+
+            Assert.Null(model.Relational().TryGetSequence("Foo"));
+
+            sequence = model.SqlServer().TryGetSequence("Foo");
+
+            Assert.Equal("Foo", sequence.Name);
+            Assert.Null(sequence.Schema);
+            Assert.Equal(11, sequence.IncrementBy);
+            Assert.Equal(1729, sequence.StartValue);
+            Assert.Equal(2001, sequence.MinValue);
+            Assert.Equal(2010, sequence.MaxValue);
+            Assert.Same(typeof(int), sequence.Type);
+        }
+
+        [Fact]
+        public void Can_add_and_replace_sequence_with_schema_name()
+        {
+            var modelBuilder = new BasicModelBuilder();
+            var model = modelBuilder.Metadata;
+
+            model.SqlServer().AddOrReplaceSequence(new Sequence("Foo", "Smoo"));
+
+            Assert.Null(model.Relational().TryGetSequence("Foo", "Smoo"));
+            Assert.Null(((IModel)model).Relational().TryGetSequence("Foo", "Smoo"));
+            Assert.Equal("Foo", model.SqlServer().TryGetSequence("Foo", "Smoo").Name);
+            Assert.Equal("Foo", ((IModel)model).SqlServer().TryGetSequence("Foo", "Smoo").Name);
+
+            var sequence = model.SqlServer().TryGetSequence("Foo", "Smoo");
+
+            Assert.Equal("Foo", sequence.Name);
+            Assert.Equal("Smoo", sequence.Schema);
+            Assert.Equal(10, sequence.IncrementBy);
+            Assert.Equal(1, sequence.StartValue);
+            Assert.Null(sequence.MinValue);
+            Assert.Null(sequence.MaxValue);
+            Assert.Same(typeof(long), sequence.Type);
+
+            model.SqlServer().AddOrReplaceSequence(new Sequence("Foo", "Smoo", 1729, 11, 2001, 2010, typeof(int)));
+
+            Assert.Null(model.Relational().TryGetSequence("Foo", "Smoo"));
+
+            sequence = model.SqlServer().TryGetSequence("Foo", "Smoo");
+
+            Assert.Equal("Foo", sequence.Name);
+            Assert.Equal("Smoo", sequence.Schema);
+            Assert.Equal(11, sequence.IncrementBy);
+            Assert.Equal(1729, sequence.StartValue);
+            Assert.Equal(2001, sequence.MinValue);
+            Assert.Equal(2010, sequence.MaxValue);
+            Assert.Same(typeof(int), sequence.Type);
+        }
+
+        [Fact]
+        public void Can_get_and_set_value_generation_on_model()
+        {
+            var modelBuilder = new BasicModelBuilder();
+            var model = modelBuilder.Metadata;
+
+            Assert.Null(model.SqlServer().ValueGenerationStrategy);
+            Assert.Null(((IModel)model).SqlServer().ValueGenerationStrategy);
+
+            model.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Sequence;
+
+            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, model.SqlServer().ValueGenerationStrategy);
+            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, ((IModel)model).SqlServer().ValueGenerationStrategy);
+
+            model.SqlServer().ValueGenerationStrategy = null;
+
+            Assert.Null(model.SqlServer().ValueGenerationStrategy);
+            Assert.Null(((IModel)model).SqlServer().ValueGenerationStrategy);
+        }
+
+        [Fact]
+        public void Can_get_and_set_default_sequence_name_on_model()
+        {
+            var modelBuilder = new BasicModelBuilder();
+            var model = modelBuilder.Metadata;
+
+            Assert.Null(model.SqlServer().DefaultSequenceName);
+            Assert.Null(((IModel)model).SqlServer().DefaultSequenceName);
+
+            model.SqlServer().DefaultSequenceName = "Tasty.Snook";
+
+            Assert.Equal("Tasty.Snook", model.SqlServer().DefaultSequenceName);
+            Assert.Equal("Tasty.Snook", ((IModel)model).SqlServer().DefaultSequenceName);
+
+            model.SqlServer().DefaultSequenceName = null;
+
+            Assert.Null(model.SqlServer().DefaultSequenceName);
+            Assert.Null(((IModel)model).SqlServer().DefaultSequenceName);
+        }
+
+        [Fact]
+        public void Can_get_and_set_value_generation_on_property()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            var property = modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Id)
+                .Metadata;
+
+            Assert.Null(property.SqlServer().ValueGenerationStrategy);
+            Assert.Null(((IProperty)property).SqlServer().ValueGenerationStrategy);
+
+            property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Sequence;
+
+            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
+            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, ((IProperty)property).SqlServer().ValueGenerationStrategy);
+
+            property.SqlServer().ValueGenerationStrategy = null;
+
+            Assert.Null(property.SqlServer().ValueGenerationStrategy);
+            Assert.Null(((IProperty)property).SqlServer().ValueGenerationStrategy);
+        }
+
+        [Fact]
+        public void Can_get_and_set_sequence_name_on_property()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            var property = modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Id)
+                .Metadata;
+
+            Assert.Null(property.SqlServer().SequenceName);
+            Assert.Null(((IProperty)property).SqlServer().SequenceName);
+
+            property.SqlServer().SequenceName = "Tasty.Snook";
+
+            Assert.Equal("Tasty.Snook", property.SqlServer().SequenceName);
+            Assert.Equal("Tasty.Snook", ((IProperty)property).SqlServer().SequenceName);
+
+            property.SqlServer().SequenceName = null;
+
+            Assert.Null(property.SqlServer().SequenceName);
+            Assert.Null(((IProperty)property).SqlServer().SequenceName);
         }
 
         private class Customer

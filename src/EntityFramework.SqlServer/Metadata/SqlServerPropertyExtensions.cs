@@ -51,5 +51,30 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
                 ((Property)Property)[SqlServerDefaultExpressionAnnotation] = value;
             }
         }
+
+        [CanBeNull]
+        public new virtual string SequenceName
+        {
+            get { return base.SequenceName; }
+            [param: CanBeNull]
+            set
+            {
+                Check.NullButNotEmpty(value, "value");
+
+                ((Property)Property)[SqlServerSequenceNameAnnotation] = value;
+            }
+        }
+
+        [CanBeNull]
+        public new virtual SqlServerValueGenerationStrategy? ValueGenerationStrategy
+        {
+            get { return base.ValueGenerationStrategy; }
+            [param: CanBeNull]
+            set
+            {
+                // TODO: Issue #777: Non-string annotations
+                ((Property)Property)[SqlServerValueGenerationAnnotation] = value == null ? null : value.ToString();
+            }
+        }
     }
 }

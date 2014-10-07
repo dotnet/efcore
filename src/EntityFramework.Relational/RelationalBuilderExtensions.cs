@@ -208,5 +208,27 @@ namespace Microsoft.Data.Entity
 
             return (TOneToOneBuilder)foreignKeyBuilder;
         }
+
+        public static RelationalModelBuilder ForRelational<TModelBuilder>(
+        [NotNull] this IModelBuilder<TModelBuilder> modelBuilder)
+        where TModelBuilder : IModelBuilder<TModelBuilder>
+        {
+            Check.NotNull(modelBuilder, "modelBuilder");
+
+            return new RelationalModelBuilder(modelBuilder.Metadata);
+        }
+
+        public static TModelBuilder ForRelational<TModelBuilder>(
+            [NotNull] this IModelBuilder<TModelBuilder> modelBuilder,
+            [NotNull] Action<RelationalModelBuilder> sqlServerModelBuilder)
+            where TModelBuilder : IModelBuilder<TModelBuilder>
+        {
+            Check.NotNull(modelBuilder, "modelBuilder");
+            Check.NotNull(sqlServerModelBuilder, "sqlServerModelBuilder");
+
+            sqlServerModelBuilder(ForRelational(modelBuilder));
+
+            return (TModelBuilder)modelBuilder;
+        }
     }
 }

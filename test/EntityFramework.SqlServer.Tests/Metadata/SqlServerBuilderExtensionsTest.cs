@@ -4,6 +4,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Relational.Metadata;
+using Microsoft.Data.Entity.SqlServer.Metadata;
 using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
@@ -967,7 +969,6 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             Assert.Equal("Custardizer", entityType.SqlServer().Table);
         }
 
-
         [Fact]
         public void Can_set_table_and_schema_name_with_basic_builder()
         {
@@ -1160,6 +1161,1716 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             Assert.Equal("Custardizer", entityType.SqlServer().Table);
             Assert.Equal("db0", entityType.Relational().Schema);
             Assert.Equal("dbOh", entityType.SqlServer().Schema);
+        }
+
+        [Fact]
+        public void Can_set_index_clustering_with_basic_builder()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .Index(e => e.Id)
+                .ForSqlServer()
+                .Clustered();
+
+            var index = modelBuilder.Model.GetEntityType(typeof(Customer)).Indexes.Single();
+
+            Assert.True(index.SqlServer().IsClustered.Value);
+
+            modelBuilder
+                .Entity<Customer>()
+                .Index(e => e.Id)
+                .ForSqlServer()
+                .Clustered(false);
+
+            Assert.False(index.SqlServer().IsClustered.Value);
+        }
+
+        [Fact]
+        public void Can_set_index_clustering_with_basic_builder_using_nested_closure()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .Index(e => e.Id)
+                .ForSqlServer(b => { b.Clustered(); });
+
+            var index = modelBuilder.Model.GetEntityType(typeof(Customer)).Indexes.Single();
+
+            Assert.True(index.SqlServer().IsClustered.Value);
+        }
+
+        [Fact]
+        public void Can_set_index_clustering_with_convention_builder()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .Index(e => e.Id)
+                .ForSqlServer()
+                .Clustered();
+
+            var index = modelBuilder.Model.GetEntityType(typeof(Customer)).Indexes.Single();
+
+            Assert.True(index.SqlServer().IsClustered.Value);
+        }
+
+        [Fact]
+        public void Can_set_index_clustering_with_convention_builder_using_nested_closure()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .Index(e => e.Id)
+                .ForSqlServer(b => { b.Clustered(); });
+
+            var index = modelBuilder.Model.GetEntityType(typeof(Customer)).Indexes.Single();
+
+            Assert.True(index.SqlServer().IsClustered.Value);
+        }
+
+        [Fact]
+        public void Can_set_key_clustering_with_basic_builder()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .Key(e => e.Id)
+                .ForSqlServer()
+                .Clustered();
+
+            var key = modelBuilder.Model.GetEntityType(typeof(Customer)).GetPrimaryKey();
+
+            Assert.True(key.SqlServer().IsClustered.Value);
+
+            modelBuilder
+                .Entity<Customer>()
+                .Key(e => e.Id)
+                .ForSqlServer()
+                .Clustered(false);
+
+            Assert.False(key.SqlServer().IsClustered.Value);
+        }
+
+        [Fact]
+        public void Can_set_key_clustering_with_basic_builder_using_nested_closure()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .Key(e => e.Id)
+                .ForSqlServer(b => { b.Clustered(); });
+
+            var key = modelBuilder.Model.GetEntityType(typeof(Customer)).GetPrimaryKey();
+
+            Assert.True(key.SqlServer().IsClustered.Value);
+        }
+
+        [Fact]
+        public void Can_set_key_clustering_with_convention_builder()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .Key(e => e.Id)
+                .ForSqlServer()
+                .Clustered();
+
+            var key = modelBuilder.Model.GetEntityType(typeof(Customer)).GetPrimaryKey();
+
+            Assert.True(key.SqlServer().IsClustered.Value);
+        }
+
+        [Fact]
+        public void Can_set_key_clustering_with_convention_builder_using_nested_closure()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .Key(e => e.Id)
+                .ForSqlServer(b => { b.Clustered(); });
+
+            var key = modelBuilder.Model.GetEntityType(typeof(Customer)).GetPrimaryKey();
+
+            Assert.True(key.SqlServer().IsClustered.Value);
+        }
+
+        [Fact]
+        public void Can_set_sequences_for_model_with_basic_builder()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            modelBuilder
+                .ForSqlServer()
+                .UseSequences();
+
+            var relationalExtensions = modelBuilder.Model.Relational();
+            var sqlServerExtensions = modelBuilder.Model.SqlServer();
+
+            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, sqlServerExtensions.ValueGenerationStrategy);
+            Assert.Null(sqlServerExtensions.DefaultSequenceName);
+
+            Assert.Null(relationalExtensions.TryGetSequence(Sequence.DefaultName));
+            Assert.Null(sqlServerExtensions.TryGetSequence(Sequence.DefaultName));
+        }
+
+        [Fact]
+        public void Can_set_sequences_for_model_with_basic_builder_using_nested_closure()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            modelBuilder
+                .ForSqlServer(b => { b.UseSequences(); });
+
+            var relationalExtensions = modelBuilder.Model.Relational();
+            var sqlServerExtensions = modelBuilder.Model.SqlServer();
+
+            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, sqlServerExtensions.ValueGenerationStrategy);
+            Assert.Null(sqlServerExtensions.DefaultSequenceName);
+
+            Assert.Null(relationalExtensions.TryGetSequence(Sequence.DefaultName));
+            Assert.Null(sqlServerExtensions.TryGetSequence(Sequence.DefaultName));
+        }
+
+        [Fact]
+        public void Can_set_sequences_for_model_with_convention_builder()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            modelBuilder
+                .ForSqlServer()
+                .UseSequences();
+
+            var relationalExtensions = modelBuilder.Model.Relational();
+            var sqlServerExtensions = modelBuilder.Model.SqlServer();
+
+            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, sqlServerExtensions.ValueGenerationStrategy);
+            Assert.Null(sqlServerExtensions.DefaultSequenceName);
+
+            Assert.Null(relationalExtensions.TryGetSequence(Sequence.DefaultName));
+            Assert.Null(sqlServerExtensions.TryGetSequence(Sequence.DefaultName));
+        }
+
+        [Fact]
+        public void Can_set_sequences_for_model_with_convention_builder_using_nested_closure()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            modelBuilder
+                .ForSqlServer(b => { b.UseSequences(); });
+
+            var relationalExtensions = modelBuilder.Model.Relational();
+            var sqlServerExtensions = modelBuilder.Model.SqlServer();
+
+            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, sqlServerExtensions.ValueGenerationStrategy);
+            Assert.Null(sqlServerExtensions.DefaultSequenceName);
+
+            Assert.Null(relationalExtensions.TryGetSequence(Sequence.DefaultName));
+            Assert.Null(sqlServerExtensions.TryGetSequence(Sequence.DefaultName));
+        }
+
+        private static void ValidateDefaultSequence(Sequence sequence)
+        {
+            Assert.Equal(Sequence.DefaultName, sequence.Name);
+            Assert.Null(sequence.Schema);
+            Assert.Equal(Sequence.DefaultIncrement, sequence.IncrementBy);
+            Assert.Equal(Sequence.DefaultStartValue, sequence.StartValue);
+            Assert.Same(Sequence.DefaultType, sequence.Type);
+        }
+
+        [Fact]
+        public void Can_set_sequences_with_name_for_model_with_basic_builder()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            modelBuilder
+                .ForSqlServer()
+                .UseSequences("Snook");
+
+            var relationalExtensions = modelBuilder.Model.Relational();
+            var sqlServerExtensions = modelBuilder.Model.SqlServer();
+
+            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, sqlServerExtensions.ValueGenerationStrategy);
+            Assert.Equal(".Snook", sqlServerExtensions.DefaultSequenceName);
+
+            Assert.Null(relationalExtensions.TryGetSequence("Snook"));
+            ValidateNamedSequence(sqlServerExtensions.TryGetSequence("Snook"));
+        }
+
+        [Fact]
+        public void Can_set_sequences_with_name_for_model_with_basic_builder_using_nested_closure()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            modelBuilder
+                .ForSqlServer(b => { b.UseSequences("Snook"); });
+
+            var relationalExtensions = modelBuilder.Model.Relational();
+            var sqlServerExtensions = modelBuilder.Model.SqlServer();
+
+            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, sqlServerExtensions.ValueGenerationStrategy);
+            Assert.Equal(".Snook", sqlServerExtensions.DefaultSequenceName);
+
+            Assert.Null(relationalExtensions.TryGetSequence("Snook"));
+            ValidateNamedSequence(sqlServerExtensions.TryGetSequence("Snook"));
+        }
+
+        [Fact]
+        public void Can_set_sequences_with_name_for_model_with_convention_builder()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            modelBuilder
+                .ForSqlServer()
+                .UseSequences("Snook");
+
+            var relationalExtensions = modelBuilder.Model.Relational();
+            var sqlServerExtensions = modelBuilder.Model.SqlServer();
+
+            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, sqlServerExtensions.ValueGenerationStrategy);
+            Assert.Equal(".Snook", sqlServerExtensions.DefaultSequenceName);
+
+            Assert.Null(relationalExtensions.TryGetSequence("Snook"));
+            ValidateNamedSequence(sqlServerExtensions.TryGetSequence("Snook"));
+        }
+
+        [Fact]
+        public void Can_set_sequences_with_name_for_model_with_convention_builder_using_nested_closure()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            modelBuilder
+                .ForSqlServer(b => { b.UseSequences("Snook"); });
+
+            var relationalExtensions = modelBuilder.Model.Relational();
+            var sqlServerExtensions = modelBuilder.Model.SqlServer();
+
+            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, sqlServerExtensions.ValueGenerationStrategy);
+            Assert.Equal(".Snook", sqlServerExtensions.DefaultSequenceName);
+
+            Assert.Null(relationalExtensions.TryGetSequence("Snook"));
+            ValidateNamedSequence(sqlServerExtensions.TryGetSequence("Snook"));
+        }
+
+        private static void ValidateNamedSequence(Sequence sequence)
+        {
+            Assert.Equal("Snook", sequence.Name);
+            Assert.Null(sequence.Schema);
+            Assert.Equal(Sequence.DefaultIncrement, sequence.IncrementBy);
+            Assert.Equal(Sequence.DefaultStartValue, sequence.StartValue);
+            Assert.Null(sequence.MinValue);
+            Assert.Null(sequence.MaxValue);
+            Assert.Same(Sequence.DefaultType, sequence.Type);
+        }
+
+        [Fact]
+        public void Can_set_sequences_with_schema_and_name_for_model_with_basic_builder()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            modelBuilder
+                .ForSqlServer()
+                .UseSequences("Snook", "Tasty");
+
+            var relationalExtensions = modelBuilder.Model.Relational();
+            var sqlServerExtensions = modelBuilder.Model.SqlServer();
+
+            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, sqlServerExtensions.ValueGenerationStrategy);
+            Assert.Equal("Tasty.Snook", sqlServerExtensions.DefaultSequenceName);
+
+            Assert.Null(relationalExtensions.TryGetSequence("Snook", "Tasty"));
+            ValidateSchemaNamedSequence(sqlServerExtensions.TryGetSequence("Snook", "Tasty"));
+        }
+
+        [Fact]
+        public void Can_set_sequences_with_schema_and_name_for_model_with_basic_builder_using_nested_closure()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            modelBuilder
+                .ForSqlServer(b => { b.UseSequences("Snook", "Tasty"); });
+
+            var relationalExtensions = modelBuilder.Model.Relational();
+            var sqlServerExtensions = modelBuilder.Model.SqlServer();
+
+            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, sqlServerExtensions.ValueGenerationStrategy);
+            Assert.Equal("Tasty.Snook", sqlServerExtensions.DefaultSequenceName);
+
+            Assert.Null(relationalExtensions.TryGetSequence("Snook", "Tasty"));
+            ValidateSchemaNamedSequence(sqlServerExtensions.TryGetSequence("Snook", "Tasty"));
+        }
+
+        [Fact]
+        public void Can_set_sequences_with_schema_and_name_for_model_with_convention_builder()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            modelBuilder
+                .ForSqlServer()
+                .UseSequences("Snook", "Tasty");
+
+            var relationalExtensions = modelBuilder.Model.Relational();
+            var sqlServerExtensions = modelBuilder.Model.SqlServer();
+
+            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, sqlServerExtensions.ValueGenerationStrategy);
+            Assert.Equal("Tasty.Snook", sqlServerExtensions.DefaultSequenceName);
+
+            Assert.Null(relationalExtensions.TryGetSequence("Snook", "Tasty"));
+            ValidateSchemaNamedSequence(sqlServerExtensions.TryGetSequence("Snook", "Tasty"));
+        }
+
+        [Fact]
+        public void Can_set_sequences_with_schema_and_name_for_model_with_convention_builder_using_nested_closure()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            modelBuilder
+                .ForSqlServer(b => { b.UseSequences("Snook", "Tasty"); });
+
+            var relationalExtensions = modelBuilder.Model.Relational();
+            var sqlServerExtensions = modelBuilder.Model.SqlServer();
+
+            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, sqlServerExtensions.ValueGenerationStrategy);
+            Assert.Equal("Tasty.Snook", sqlServerExtensions.DefaultSequenceName);
+
+            Assert.Null(relationalExtensions.TryGetSequence("Snook", "Tasty"));
+            ValidateSchemaNamedSequence(sqlServerExtensions.TryGetSequence("Snook", "Tasty"));
+        }
+
+        private static void ValidateSchemaNamedSequence(Sequence sequence)
+        {
+            Assert.Equal("Snook", sequence.Name);
+            Assert.Equal("Tasty", sequence.Schema);
+            Assert.Equal(Sequence.DefaultIncrement, sequence.IncrementBy);
+            Assert.Equal(Sequence.DefaultStartValue, sequence.StartValue);
+            Assert.Null(sequence.MinValue);
+            Assert.Null(sequence.MaxValue);
+            Assert.Same(Sequence.DefaultType, sequence.Type);
+        }
+
+        [Fact]
+        public void Can_set_use_of_existing_relational_sequence_for_model_with_basic_builder()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            modelBuilder
+                .ForRelational()
+                .Sequence("Snook", "Tasty")
+                .IncrementBy(11)
+                .Start(1729)
+                .Min(111)
+                .Max(2222)
+                .Type<int>();
+
+            modelBuilder
+                .ForSqlServer()
+                .UseSequences("Snook", "Tasty");
+
+            var relationalExtensions = modelBuilder.Model.Relational();
+            var sqlServerExtensions = modelBuilder.Model.SqlServer();
+
+            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, sqlServerExtensions.ValueGenerationStrategy);
+            Assert.Equal("Tasty.Snook", sqlServerExtensions.DefaultSequenceName);
+
+            ValidateSchemaNamedSpecificSequence(relationalExtensions.TryGetSequence("Snook", "Tasty"));
+            ValidateSchemaNamedSpecificSequence(sqlServerExtensions.TryGetSequence("Snook", "Tasty"));
+        }
+
+        [Fact]
+        public void Can_set_use_of_existing_relational_sequence_for_model_with_basic_builder_using_nested_closure()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            modelBuilder
+                .ForRelational(b =>
+                    {
+                        b.Sequence("Snook", "Tasty")
+                            .IncrementBy(11)
+                            .Start(1729)
+                            .Min(111)
+                            .Max(2222)
+                            .Type<int>();
+                    })
+                .ForSqlServer(b => { b.UseSequences("Snook", "Tasty"); });
+
+            var relationalExtensions = modelBuilder.Model.Relational();
+            var sqlServerExtensions = modelBuilder.Model.SqlServer();
+
+            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, sqlServerExtensions.ValueGenerationStrategy);
+            Assert.Equal("Tasty.Snook", sqlServerExtensions.DefaultSequenceName);
+
+            ValidateSchemaNamedSpecificSequence(relationalExtensions.TryGetSequence("Snook", "Tasty"));
+            ValidateSchemaNamedSpecificSequence(sqlServerExtensions.TryGetSequence("Snook", "Tasty"));
+        }
+
+        [Fact]
+        public void Can_set_use_of_existing_relational_sequence_for_model_with_convention_builder()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            modelBuilder
+                .ForRelational()
+                .Sequence("Snook", "Tasty")
+                .IncrementBy(11)
+                .Start(1729)
+                .Min(111)
+                .Max(2222)
+                .Type<int>();
+
+            modelBuilder
+                .ForSqlServer()
+                .UseSequences("Snook", "Tasty");
+
+            var relationalExtensions = modelBuilder.Model.Relational();
+            var sqlServerExtensions = modelBuilder.Model.SqlServer();
+
+            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, sqlServerExtensions.ValueGenerationStrategy);
+            Assert.Equal("Tasty.Snook", sqlServerExtensions.DefaultSequenceName);
+
+            ValidateSchemaNamedSpecificSequence(relationalExtensions.TryGetSequence("Snook", "Tasty"));
+            ValidateSchemaNamedSpecificSequence(sqlServerExtensions.TryGetSequence("Snook", "Tasty"));
+        }
+
+        [Fact]
+        public void Can_set_use_of_existing_relational_sequence_for_model_with_convention_builder_using_nested_closure()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            modelBuilder
+                .ForRelational(b =>
+                    {
+                        b.Sequence("Snook", "Tasty")
+                            .IncrementBy(11)
+                            .Start(1729)
+                            .Min(111)
+                            .Max(2222)
+                            .Type<int>();
+                    })
+                .ForSqlServer(b => { b.UseSequences("Snook", "Tasty"); });
+
+            var relationalExtensions = modelBuilder.Model.Relational();
+            var sqlServerExtensions = modelBuilder.Model.SqlServer();
+
+            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, sqlServerExtensions.ValueGenerationStrategy);
+            Assert.Equal("Tasty.Snook", sqlServerExtensions.DefaultSequenceName);
+
+            ValidateSchemaNamedSpecificSequence(relationalExtensions.TryGetSequence("Snook", "Tasty"));
+            ValidateSchemaNamedSpecificSequence(sqlServerExtensions.TryGetSequence("Snook", "Tasty"));
+        }
+
+        [Fact]
+        public void Can_set_use_of_existing_SQL_sequence_for_model_with_basic_builder()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            modelBuilder
+                .ForSqlServer()
+                .Sequence("Snook", "Tasty")
+                .IncrementBy(11)
+                .Start(1729)
+                .Min(111)
+                .Max(2222)
+                .Type<int>();
+
+            modelBuilder
+                .ForSqlServer()
+                .UseSequences("Snook", "Tasty");
+
+            var relationalExtensions = modelBuilder.Model.Relational();
+            var sqlServerExtensions = modelBuilder.Model.SqlServer();
+
+            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, sqlServerExtensions.ValueGenerationStrategy);
+            Assert.Equal("Tasty.Snook", sqlServerExtensions.DefaultSequenceName);
+
+            Assert.Null(relationalExtensions.TryGetSequence("Snook", "Tasty"));
+            ValidateSchemaNamedSpecificSequence(sqlServerExtensions.TryGetSequence("Snook", "Tasty"));
+        }
+
+        [Fact]
+        public void Can_set_use_of_existing_SQL_sequence_for_model_with_basic_builder_using_nested_closure()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            modelBuilder
+                .ForSqlServer(b =>
+                    {
+                        b.Sequence("Snook", "Tasty")
+                            .IncrementBy(11)
+                            .Start(1729)
+                            .Min(111)
+                            .Max(2222)
+                            .Type<int>();
+                        b.UseSequences("Snook", "Tasty");
+                    });
+
+            var relationalExtensions = modelBuilder.Model.Relational();
+            var sqlServerExtensions = modelBuilder.Model.SqlServer();
+
+            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, sqlServerExtensions.ValueGenerationStrategy);
+            Assert.Equal("Tasty.Snook", sqlServerExtensions.DefaultSequenceName);
+
+            Assert.Null(relationalExtensions.TryGetSequence("Snook", "Tasty"));
+            ValidateSchemaNamedSpecificSequence(sqlServerExtensions.TryGetSequence("Snook", "Tasty"));
+        }
+
+        [Fact]
+        public void Can_set_use_of_existing_SQL_sequence_for_model_with_convention_builder()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            modelBuilder
+                .ForSqlServer()
+                .Sequence("Snook", "Tasty")
+                .IncrementBy(11)
+                .Start(1729)
+                .Min(111)
+                .Max(2222)
+                .Type<int>();
+
+            modelBuilder
+                .ForSqlServer()
+                .UseSequences("Snook", "Tasty");
+
+            var relationalExtensions = modelBuilder.Model.Relational();
+            var sqlServerExtensions = modelBuilder.Model.SqlServer();
+
+            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, sqlServerExtensions.ValueGenerationStrategy);
+            Assert.Equal("Tasty.Snook", sqlServerExtensions.DefaultSequenceName);
+
+            Assert.Null(relationalExtensions.TryGetSequence("Snook", "Tasty"));
+            ValidateSchemaNamedSpecificSequence(sqlServerExtensions.TryGetSequence("Snook", "Tasty"));
+        }
+
+        [Fact]
+        public void Can_set_use_of_existing_SQL_sequence_for_model_with_convention_builder_using_nested_closure()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            modelBuilder
+                .ForSqlServer(b =>
+                    {
+                        b.Sequence("Snook", "Tasty")
+                            .IncrementBy(11)
+                            .Start(1729)
+                            .Min(111)
+                            .Max(2222)
+                            .Type<int>();
+                        b.UseSequences("Snook", "Tasty");
+                    });
+
+            var relationalExtensions = modelBuilder.Model.Relational();
+            var sqlServerExtensions = modelBuilder.Model.SqlServer();
+
+            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, sqlServerExtensions.ValueGenerationStrategy);
+            Assert.Equal("Tasty.Snook", sqlServerExtensions.DefaultSequenceName);
+
+            Assert.Null(relationalExtensions.TryGetSequence("Snook", "Tasty"));
+            ValidateSchemaNamedSpecificSequence(sqlServerExtensions.TryGetSequence("Snook", "Tasty"));
+        }
+
+        private static void ValidateSchemaNamedSpecificSequence(Sequence sequence)
+        {
+            Assert.Equal("Snook", sequence.Name);
+            Assert.Equal("Tasty", sequence.Schema);
+            Assert.Equal(11, sequence.IncrementBy);
+            Assert.Equal(1729, sequence.StartValue);
+            Assert.Equal(111, sequence.MinValue);
+            Assert.Equal(2222, sequence.MaxValue);
+            Assert.Same(typeof(int), sequence.Type);
+        }
+
+        [Fact]
+        public void Can_set_identities_for_model_with_basic_builder()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            modelBuilder
+                .ForSqlServer()
+                .UseIdentity();
+
+            var relationalExtensions = modelBuilder.Model.Relational();
+            var sqlServerExtensions = modelBuilder.Model.SqlServer();
+
+            Assert.Equal(SqlServerValueGenerationStrategy.Identity, sqlServerExtensions.ValueGenerationStrategy);
+            Assert.Null(sqlServerExtensions.DefaultSequenceName);
+
+            Assert.Null(relationalExtensions.TryGetSequence(Sequence.DefaultName));
+            Assert.Null(sqlServerExtensions.TryGetSequence(Sequence.DefaultName));
+        }
+
+        [Fact]
+        public void Can_set_identities_for_model_with_basic_builder_using_nested_closure()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            modelBuilder
+                .ForSqlServer(b => { b.UseIdentity(); });
+
+            var relationalExtensions = modelBuilder.Model.Relational();
+            var sqlServerExtensions = modelBuilder.Model.SqlServer();
+
+            Assert.Equal(SqlServerValueGenerationStrategy.Identity, sqlServerExtensions.ValueGenerationStrategy);
+            Assert.Null(sqlServerExtensions.DefaultSequenceName);
+
+            Assert.Null(relationalExtensions.TryGetSequence(Sequence.DefaultName));
+            Assert.Null(sqlServerExtensions.TryGetSequence(Sequence.DefaultName));
+        }
+
+        [Fact]
+        public void Can_set_identities_for_model_with_convention_builder()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            modelBuilder
+                .ForSqlServer()
+                .UseIdentity();
+
+            var relationalExtensions = modelBuilder.Model.Relational();
+            var sqlServerExtensions = modelBuilder.Model.SqlServer();
+
+            Assert.Equal(SqlServerValueGenerationStrategy.Identity, sqlServerExtensions.ValueGenerationStrategy);
+            Assert.Null(sqlServerExtensions.DefaultSequenceName);
+
+            Assert.Null(relationalExtensions.TryGetSequence(Sequence.DefaultName));
+            Assert.Null(sqlServerExtensions.TryGetSequence(Sequence.DefaultName));
+        }
+
+        [Fact]
+        public void Can_set_identities_for_model_with_convention_builder_using_nested_closure()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            modelBuilder
+                .ForSqlServer(b => { b.UseIdentity(); });
+
+            var relationalExtensions = modelBuilder.Model.Relational();
+            var sqlServerExtensions = modelBuilder.Model.SqlServer();
+
+            Assert.Equal(SqlServerValueGenerationStrategy.Identity, sqlServerExtensions.ValueGenerationStrategy);
+            Assert.Null(sqlServerExtensions.DefaultSequenceName);
+
+            Assert.Null(relationalExtensions.TryGetSequence(Sequence.DefaultName));
+            Assert.Null(sqlServerExtensions.TryGetSequence(Sequence.DefaultName));
+        }
+
+        [Fact]
+        public void Can_set_sequence_for_property_with_basic_builder()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Id)
+                .ForSqlServer()
+                .UseSequence();
+
+            var model = modelBuilder.Model;
+            var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
+
+            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
+            Assert.Null(property.SqlServer().SequenceName);
+
+            Assert.Null(model.Relational().TryGetSequence(Sequence.DefaultName));
+            Assert.Null(model.SqlServer().TryGetSequence(Sequence.DefaultName));
+        }
+
+        [Fact]
+        public void Can_set_sequence_for_property_with_basic_builder_using_nested_closure()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Id)
+                .ForSqlServer(b => { b.UseSequence(); });
+
+            var model = modelBuilder.Model;
+            var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
+
+            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
+            Assert.Null(property.SqlServer().SequenceName);
+
+            Assert.Null(model.Relational().TryGetSequence(Sequence.DefaultName));
+            Assert.Null(model.SqlServer().TryGetSequence(Sequence.DefaultName));
+        }
+
+        [Fact]
+        public void Can_set_sequence_for_property_with_convention_builder()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Id)
+                .ForSqlServer()
+                .UseSequence();
+
+            var model = modelBuilder.Model;
+            var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
+
+            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
+            Assert.Null(property.SqlServer().SequenceName);
+
+            Assert.Null(model.Relational().TryGetSequence(Sequence.DefaultName));
+            Assert.Null(model.SqlServer().TryGetSequence(Sequence.DefaultName));
+        }
+
+        [Fact]
+        public void Can_set_sequence_for_property_with_convention_builder_using_nested_closure()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Id)
+                .ForSqlServer(b => { b.UseSequence(); });
+
+            var model = modelBuilder.Model;
+            var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
+
+            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
+            Assert.Null(property.SqlServer().SequenceName);
+
+            Assert.Null(model.Relational().TryGetSequence(Sequence.DefaultName));
+            Assert.Null(model.SqlServer().TryGetSequence(Sequence.DefaultName));
+        }
+
+        [Fact]
+        public void Can_set_sequences_with_name_for_property_with_basic_builder()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Id)
+                .ForSqlServer()
+                .UseSequence("Snook");
+
+            var model = modelBuilder.Model;
+            var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
+
+            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
+            Assert.Equal(".Snook", property.SqlServer().SequenceName);
+
+            Assert.Null(model.Relational().TryGetSequence("Snook"));
+            ValidateNamedSequence(model.SqlServer().TryGetSequence("Snook"));
+        }
+
+        [Fact]
+        public void Can_set_sequences_with_name_for_property_with_basic_builder_using_nested_closure()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Id)
+                .ForSqlServer(b => { b.UseSequence("Snook"); });
+
+            var model = modelBuilder.Model;
+            var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
+
+            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
+            Assert.Equal(".Snook", property.SqlServer().SequenceName);
+
+            Assert.Null(model.Relational().TryGetSequence("Snook"));
+            ValidateNamedSequence(model.SqlServer().TryGetSequence("Snook"));
+        }
+
+        [Fact]
+        public void Can_set_sequences_with_name_for_property_with_convention_builder()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Id)
+                .ForSqlServer()
+                .UseSequence("Snook");
+
+            var model = modelBuilder.Model;
+            var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
+
+            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
+            Assert.Equal(".Snook", property.SqlServer().SequenceName);
+
+            Assert.Null(model.Relational().TryGetSequence("Snook"));
+            ValidateNamedSequence(model.SqlServer().TryGetSequence("Snook"));
+        }
+
+        [Fact]
+        public void Can_set_sequences_with_name_for_property_with_convention_builder_using_nested_closure()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Id)
+                .ForSqlServer(b => { b.UseSequence("Snook"); });
+
+            var model = modelBuilder.Model;
+            var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
+
+            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
+            Assert.Equal(".Snook", property.SqlServer().SequenceName);
+
+            Assert.Null(model.Relational().TryGetSequence("Snook"));
+            ValidateNamedSequence(model.SqlServer().TryGetSequence("Snook"));
+        }
+
+        [Fact]
+        public void Can_set_sequences_with_schema_and_name_for_property_with_basic_builder()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Id)
+                .ForSqlServer()
+                .UseSequence("Snook", "Tasty");
+
+            var model = modelBuilder.Model;
+            var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
+
+            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
+            Assert.Equal("Tasty.Snook", property.SqlServer().SequenceName);
+
+            Assert.Null(model.Relational().TryGetSequence("Snook", "Tasty"));
+            ValidateSchemaNamedSequence(model.SqlServer().TryGetSequence("Snook", "Tasty"));
+        }
+
+        [Fact]
+        public void Can_set_sequences_with_schema_and_name_for_property_with_basic_builder_using_nested_closure()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Id)
+                .ForSqlServer(b => { b.UseSequence("Snook", "Tasty"); });
+
+            var model = modelBuilder.Model;
+            var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
+
+            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
+            Assert.Equal("Tasty.Snook", property.SqlServer().SequenceName);
+
+            Assert.Null(model.Relational().TryGetSequence("Snook", "Tasty"));
+            ValidateSchemaNamedSequence(model.SqlServer().TryGetSequence("Snook", "Tasty"));
+        }
+
+        [Fact]
+        public void Can_set_sequences_with_schema_and_name_for_property_with_convention_builder()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Id)
+                .ForSqlServer()
+                .UseSequence("Snook", "Tasty");
+
+            var model = modelBuilder.Model;
+            var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
+
+            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
+            Assert.Equal("Tasty.Snook", property.SqlServer().SequenceName);
+
+            Assert.Null(model.Relational().TryGetSequence("Snook", "Tasty"));
+            ValidateSchemaNamedSequence(model.SqlServer().TryGetSequence("Snook", "Tasty"));
+        }
+
+        [Fact]
+        public void Can_set_sequences_with_schema_and_name_for_property_with_convention_builder_using_nested_closure()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Id)
+                .ForSqlServer(b => { b.UseSequence("Snook", "Tasty"); });
+
+            var model = modelBuilder.Model;
+            var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
+
+            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
+            Assert.Equal("Tasty.Snook", property.SqlServer().SequenceName);
+
+            Assert.Null(model.Relational().TryGetSequence("Snook", "Tasty"));
+            ValidateSchemaNamedSequence(model.SqlServer().TryGetSequence("Snook", "Tasty"));
+        }
+
+        [Fact]
+        public void Can_set_use_of_existing_relational_sequence_for_property_with_basic_builder()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            modelBuilder
+                .ForRelational()
+                .Sequence("Snook", "Tasty")
+                .IncrementBy(11)
+                .Start(1729)
+                .Min(111)
+                .Max(2222)
+                .Type<int>();
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Id)
+                .ForSqlServer()
+                .UseSequence("Snook", "Tasty");
+
+            var model = modelBuilder.Model;
+            var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
+
+            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
+            Assert.Equal("Tasty.Snook", property.SqlServer().SequenceName);
+
+            ValidateSchemaNamedSpecificSequence(model.Relational().TryGetSequence("Snook", "Tasty"));
+            ValidateSchemaNamedSpecificSequence(model.SqlServer().TryGetSequence("Snook", "Tasty"));
+        }
+
+        [Fact]
+        public void Can_set_use_of_existing_relational_sequence_for_property_with_basic_builder_using_nested_closure()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            modelBuilder
+                .ForRelational(b =>
+                    {
+                        b.Sequence("Snook", "Tasty")
+                            .IncrementBy(11)
+                            .Start(1729)
+                            .Min(111)
+                            .Max(2222)
+                            .Type<int>();
+                    })
+                .Entity<Customer>()
+                .Property(e => e.Id)
+                .ForSqlServer(b => { b.UseSequence("Snook", "Tasty"); });
+
+            var model = modelBuilder.Model;
+            var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
+
+            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
+            Assert.Equal("Tasty.Snook", property.SqlServer().SequenceName);
+
+            ValidateSchemaNamedSpecificSequence(model.Relational().TryGetSequence("Snook", "Tasty"));
+            ValidateSchemaNamedSpecificSequence(model.SqlServer().TryGetSequence("Snook", "Tasty"));
+        }
+
+        [Fact]
+        public void Can_set_use_of_existing_relational_sequence_for_property_with_convention_builder()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            modelBuilder
+                .ForRelational()
+                .Sequence("Snook", "Tasty")
+                .IncrementBy(11)
+                .Start(1729)
+                .Min(111)
+                .Max(2222)
+                .Type<int>();
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Id)
+                .ForSqlServer()
+                .UseSequence("Snook", "Tasty");
+
+            var model = modelBuilder.Model;
+            var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
+
+            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
+            Assert.Equal("Tasty.Snook", property.SqlServer().SequenceName);
+
+            ValidateSchemaNamedSpecificSequence(model.Relational().TryGetSequence("Snook", "Tasty"));
+            ValidateSchemaNamedSpecificSequence(model.SqlServer().TryGetSequence("Snook", "Tasty"));
+        }
+
+        [Fact]
+        public void Can_set_use_of_existing_relational_sequence_for_property_with_convention_builder_using_nested_closure()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            modelBuilder
+                .ForRelational(b =>
+                    {
+                        b.Sequence("Snook", "Tasty")
+                            .IncrementBy(11)
+                            .Start(1729)
+                            .Min(111)
+                            .Max(2222)
+                            .Type<int>();
+                    })
+                .Entity<Customer>()
+                .Property(e => e.Id)
+                .ForSqlServer(b => { b.UseSequence("Snook", "Tasty"); });
+
+            var model = modelBuilder.Model;
+            var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
+
+            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
+            Assert.Equal("Tasty.Snook", property.SqlServer().SequenceName);
+
+            ValidateSchemaNamedSpecificSequence(model.Relational().TryGetSequence("Snook", "Tasty"));
+            ValidateSchemaNamedSpecificSequence(model.SqlServer().TryGetSequence("Snook", "Tasty"));
+        }
+
+        [Fact]
+        public void Can_set_use_of_existing_SQL_sequence_for_property_with_basic_builder()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            modelBuilder
+                .ForSqlServer()
+                .Sequence("Snook", "Tasty")
+                .IncrementBy(11)
+                .Start(1729)
+                .Min(111)
+                .Max(2222)
+                .Type<int>();
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Id)
+                .ForSqlServer()
+                .UseSequence("Snook", "Tasty");
+
+            var model = modelBuilder.Model;
+            var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
+
+            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
+            Assert.Equal("Tasty.Snook", property.SqlServer().SequenceName);
+
+            Assert.Null(model.Relational().TryGetSequence("Snook", "Tasty"));
+            ValidateSchemaNamedSpecificSequence(model.SqlServer().TryGetSequence("Snook", "Tasty"));
+        }
+
+        [Fact]
+        public void Can_set_use_of_existing_SQL_sequence_for_property_with_basic_builder_using_nested_closure()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            modelBuilder
+                .ForSqlServer(b =>
+                    {
+                        b.Sequence("Snook", "Tasty")
+                            .IncrementBy(11)
+                            .Start(1729)
+                            .Min(111)
+                            .Max(2222)
+                            .Type<int>();
+                    })
+                .Entity<Customer>()
+                .Property(e => e.Id)
+                .ForSqlServer(b => { b.UseSequence("Snook", "Tasty"); });
+
+            var model = modelBuilder.Model;
+            var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
+
+            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
+            Assert.Equal("Tasty.Snook", property.SqlServer().SequenceName);
+
+            Assert.Null(model.Relational().TryGetSequence("Snook", "Tasty"));
+            ValidateSchemaNamedSpecificSequence(model.SqlServer().TryGetSequence("Snook", "Tasty"));
+        }
+
+        [Fact]
+        public void Can_set_use_of_existing_SQL_sequence_for_property_with_convention_builder()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            modelBuilder
+                .ForSqlServer()
+                .Sequence("Snook", "Tasty")
+                .IncrementBy(11)
+                .Start(1729)
+                .Min(111)
+                .Max(2222)
+                .Type<int>();
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Id)
+                .ForSqlServer()
+                .UseSequence("Snook", "Tasty");
+
+            var model = modelBuilder.Model;
+            var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
+
+            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
+            Assert.Equal("Tasty.Snook", property.SqlServer().SequenceName);
+
+            Assert.Null(model.Relational().TryGetSequence("Snook", "Tasty"));
+            ValidateSchemaNamedSpecificSequence(model.SqlServer().TryGetSequence("Snook", "Tasty"));
+        }
+
+        [Fact]
+        public void Can_set_use_of_existing_SQL_sequence_for_property_with_convention_builder_using_nested_closure()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            modelBuilder
+                .ForSqlServer(b =>
+                    {
+                        b.Sequence("Snook", "Tasty")
+                            .IncrementBy(11)
+                            .Start(1729)
+                            .Min(111)
+                            .Max(2222)
+                            .Type<int>();
+                    })
+                .Entity<Customer>()
+                .Property(e => e.Id)
+                .ForSqlServer(b => { b.UseSequence("Snook", "Tasty"); });
+
+            var model = modelBuilder.Model;
+            var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
+
+            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
+            Assert.Equal("Tasty.Snook", property.SqlServer().SequenceName);
+
+            Assert.Null(model.Relational().TryGetSequence("Snook", "Tasty"));
+            ValidateSchemaNamedSpecificSequence(model.SqlServer().TryGetSequence("Snook", "Tasty"));
+        }
+
+        [Fact]
+        public void Can_set_identities_for_property_with_basic_builder()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Id)
+                .ForSqlServer()
+                .UseIdentity();
+
+            var model = modelBuilder.Model;
+            var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
+
+            Assert.Equal(SqlServerValueGenerationStrategy.Identity, property.SqlServer().ValueGenerationStrategy);
+            Assert.Null(property.SqlServer().SequenceName);
+
+            Assert.Null(model.Relational().TryGetSequence(Sequence.DefaultName));
+            Assert.Null(model.SqlServer().TryGetSequence(Sequence.DefaultName));
+        }
+
+        [Fact]
+        public void Can_set_identities_for_property_with_basic_builder_using_nested_closure()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Id)
+                .ForSqlServer(b => { b.UseIdentity(); });
+
+            var model = modelBuilder.Model;
+            var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
+
+            Assert.Equal(SqlServerValueGenerationStrategy.Identity, property.SqlServer().ValueGenerationStrategy);
+            Assert.Null(property.SqlServer().SequenceName);
+
+            Assert.Null(model.Relational().TryGetSequence(Sequence.DefaultName));
+            Assert.Null(model.SqlServer().TryGetSequence(Sequence.DefaultName));
+        }
+
+        [Fact]
+        public void Can_set_identities_for_property_with_convention_builder()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Id)
+                .ForSqlServer()
+                .UseIdentity();
+
+            var model = modelBuilder.Model;
+            var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
+
+            Assert.Equal(SqlServerValueGenerationStrategy.Identity, property.SqlServer().ValueGenerationStrategy);
+            Assert.Null(property.SqlServer().SequenceName);
+
+            Assert.Null(model.Relational().TryGetSequence(Sequence.DefaultName));
+            Assert.Null(model.SqlServer().TryGetSequence(Sequence.DefaultName));
+        }
+
+        [Fact]
+        public void Can_set_identities_for_property_with_convention_builder_using_nested_closure()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Id)
+                .ForSqlServer(b => { b.UseIdentity(); });
+
+            var model = modelBuilder.Model;
+            var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
+
+            Assert.Equal(SqlServerValueGenerationStrategy.Identity, property.SqlServer().ValueGenerationStrategy);
+            Assert.Null(property.SqlServer().SequenceName);
+
+            Assert.Null(model.Relational().TryGetSequence(Sequence.DefaultName));
+            Assert.Null(model.SqlServer().TryGetSequence(Sequence.DefaultName));
+        }
+
+        [Fact]
+        public void Can_create_default_sequence_with_basic_builder()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            modelBuilder
+                .ForSqlServer()
+                .Sequence();
+
+            Assert.Null(modelBuilder.Model.Relational().TryGetSequence(Sequence.DefaultName));
+            var sequence = modelBuilder.Model.SqlServer().TryGetSequence(Sequence.DefaultName);
+
+            ValidateDefaultSequence(sequence);
+        }
+
+        [Fact]
+        public void Can_create_default_sequence_with_basic_builder_using_nested_closure()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            modelBuilder
+                .ForSqlServer(b => { b.Sequence(); });
+
+            Assert.Null(modelBuilder.Model.Relational().TryGetSequence(Sequence.DefaultName));
+            var sequence = modelBuilder.Model.SqlServer().TryGetSequence(Sequence.DefaultName);
+
+            ValidateDefaultSequence(sequence);
+        }
+
+        [Fact]
+        public void Can_create_default_sequence_with_convention_builder()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            modelBuilder
+                .ForSqlServer()
+                .Sequence();
+
+            Assert.Null(modelBuilder.Model.Relational().TryGetSequence(Sequence.DefaultName));
+            var sequence = modelBuilder.Model.SqlServer().TryGetSequence(Sequence.DefaultName);
+
+            ValidateDefaultSequence(sequence);
+        }
+
+        [Fact]
+        public void Can_create_default_sequence_with_convention_builder_using_nested_closure()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            modelBuilder
+                .ForSqlServer(b => { b.Sequence(); });
+
+            Assert.Null(modelBuilder.Model.Relational().TryGetSequence(Sequence.DefaultName));
+            var sequence = modelBuilder.Model.SqlServer().TryGetSequence(Sequence.DefaultName);
+
+            ValidateDefaultSequence(sequence);
+        }
+
+        [Fact]
+        public void Can_create_named_sequence_with_basic_builder()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            modelBuilder
+                .ForSqlServer()
+                .Sequence("Snook");
+
+            Assert.Null(modelBuilder.Model.Relational().TryGetSequence("Snook"));
+            var sequence = modelBuilder.Model.SqlServer().TryGetSequence("Snook");
+
+            ValidateNamedSequence(sequence);
+        }
+
+        [Fact]
+        public void Can_create_named_sequence_with_basic_builder_using_nested_closure()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            modelBuilder
+                .ForSqlServer(b => { b.Sequence("Snook"); });
+
+            Assert.Null(modelBuilder.Model.Relational().TryGetSequence("Snook"));
+            var sequence = modelBuilder.Model.SqlServer().TryGetSequence("Snook");
+
+            ValidateNamedSequence(sequence);
+        }
+
+        [Fact]
+        public void Can_create_named_sequence_with_convention_builder()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            modelBuilder
+                .ForSqlServer()
+                .Sequence("Snook");
+
+            Assert.Null(modelBuilder.Model.Relational().TryGetSequence("Snook"));
+            var sequence = modelBuilder.Model.SqlServer().TryGetSequence("Snook");
+
+            ValidateNamedSequence(sequence);
+        }
+
+        [Fact]
+        public void Can_create_named_sequence_with_convention_builder_using_nested_closure()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            modelBuilder
+                .ForSqlServer(b => { b.Sequence("Snook"); });
+
+            Assert.Null(modelBuilder.Model.Relational().TryGetSequence("Snook"));
+            var sequence = modelBuilder.Model.SqlServer().TryGetSequence("Snook");
+
+            ValidateNamedSequence(sequence);
+        }
+
+        [Fact]
+        public void Can_create_schema_named_sequence_with_basic_builder()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            modelBuilder
+                .ForSqlServer()
+                .Sequence("Snook", "Tasty");
+
+            Assert.Null(modelBuilder.Model.Relational().TryGetSequence("Snook", "Tasty"));
+            var sequence = modelBuilder.Model.SqlServer().TryGetSequence("Snook", "Tasty");
+
+            ValidateSchemaNamedSequence(sequence);
+        }
+
+        [Fact]
+        public void Can_create_schema_named_sequence_with_basic_builder_using_nested_closure()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            modelBuilder
+                .ForSqlServer(b => { b.Sequence("Snook", "Tasty"); });
+
+            Assert.Null(modelBuilder.Model.Relational().TryGetSequence("Snook", "Tasty"));
+            var sequence = modelBuilder.Model.SqlServer().TryGetSequence("Snook", "Tasty");
+
+            ValidateSchemaNamedSequence(sequence);
+        }
+
+        [Fact]
+        public void Can_create_schema_named_sequence_with_convention_builder()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            modelBuilder
+                .ForSqlServer()
+                .Sequence("Snook", "Tasty");
+
+            Assert.Null(modelBuilder.Model.Relational().TryGetSequence("Snook", "Tasty"));
+            var sequence = modelBuilder.Model.SqlServer().TryGetSequence("Snook", "Tasty");
+
+            ValidateSchemaNamedSequence(sequence);
+        }
+
+        [Fact]
+        public void Can_create_schema_named_sequence_with_convention_builder_using_nested_closure()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            modelBuilder
+                .ForSqlServer(b => { b.Sequence("Snook", "Tasty"); });
+
+            Assert.Null(modelBuilder.Model.Relational().TryGetSequence("Snook", "Tasty"));
+            var sequence = modelBuilder.Model.SqlServer().TryGetSequence("Snook", "Tasty");
+
+            ValidateSchemaNamedSequence(sequence);
+        }
+
+        [Fact]
+        public void Can_create_default_sequence_with_specific_facets_with_basic_builder()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            modelBuilder
+                .ForSqlServer()
+                .Sequence()
+                .IncrementBy(11)
+                .Start(1729)
+                .Min(111)
+                .Max(2222)
+                .Type<int>();
+
+            Assert.Null(modelBuilder.Model.Relational().TryGetSequence(Sequence.DefaultName));
+            var sequence = modelBuilder.Model.SqlServer().TryGetSequence(Sequence.DefaultName);
+
+            ValidateDefaultSpecificSequence(sequence);
+        }
+
+        [Fact]
+        public void Can_create_default_sequence_with_specific_facets_with_basic_builder_using_nested_closure()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            modelBuilder
+                .ForSqlServer(b =>
+                    {
+                        b.Sequence()
+                            .IncrementBy(11)
+                            .Start(1729)
+                            .Min(111)
+                            .Max(2222)
+                            .Type<int>();
+                    });
+
+            Assert.Null(modelBuilder.Model.Relational().TryGetSequence(Sequence.DefaultName));
+            var sequence = modelBuilder.Model.SqlServer().TryGetSequence(Sequence.DefaultName);
+
+            ValidateDefaultSpecificSequence(sequence);
+        }
+
+        [Fact]
+        public void Can_create_default_sequence_with_specific_facets_with_convention_builder()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            modelBuilder
+                .ForSqlServer()
+                .Sequence()
+                .IncrementBy(11)
+                .Start(1729)
+                .Min(111)
+                .Max(2222)
+                .Type<int>();
+
+            Assert.Null(modelBuilder.Model.Relational().TryGetSequence(Sequence.DefaultName));
+            var sequence = modelBuilder.Model.SqlServer().TryGetSequence(Sequence.DefaultName);
+
+            ValidateDefaultSpecificSequence(sequence);
+        }
+
+        [Fact]
+        public void Can_create_default_sequence_with_specific_facets_with_convention_builder_using_nested_closure()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            modelBuilder
+                .ForSqlServer(b =>
+                    {
+                        b.Sequence()
+                            .IncrementBy(11)
+                            .Start(1729)
+                            .Min(111)
+                            .Max(2222)
+                            .Type<int>();
+                    });
+
+            Assert.Null(modelBuilder.Model.Relational().TryGetSequence(Sequence.DefaultName));
+            var sequence = modelBuilder.Model.SqlServer().TryGetSequence(Sequence.DefaultName);
+
+            ValidateDefaultSpecificSequence(sequence);
+        }
+
+        private static void ValidateDefaultSpecificSequence(Sequence sequence)
+        {
+            Assert.Equal(Sequence.DefaultName, sequence.Name);
+            Assert.Null(sequence.Schema);
+            Assert.Equal(11, sequence.IncrementBy);
+            Assert.Equal(1729, sequence.StartValue);
+            Assert.Equal(111, sequence.MinValue);
+            Assert.Equal(2222, sequence.MaxValue);
+            Assert.Same(typeof(int), sequence.Type);
+        }
+
+        [Fact]
+        public void Can_create_named_sequence_with_specific_facets_with_basic_builder()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            modelBuilder
+                .ForSqlServer()
+                .Sequence("Snook")
+                .IncrementBy(11)
+                .Start(1729)
+                .Min(111)
+                .Max(2222)
+                .Type<int>();
+
+            Assert.Null(modelBuilder.Model.Relational().TryGetSequence("Snook"));
+            var sequence = modelBuilder.Model.SqlServer().TryGetSequence("Snook");
+
+            ValidateNamedSpecificSequence(sequence);
+        }
+
+        [Fact]
+        public void Can_create_named_sequence_with_specific_facets_with_basic_builder_using_nested_closure()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            modelBuilder
+                .ForSqlServer(b =>
+                    {
+                        b.Sequence("Snook")
+                            .IncrementBy(11)
+                            .Start(1729)
+                            .Min(111)
+                            .Max(2222)
+                            .Type<int>();
+                    });
+
+            Assert.Null(modelBuilder.Model.Relational().TryGetSequence("Snook"));
+            var sequence = modelBuilder.Model.SqlServer().TryGetSequence("Snook");
+
+            ValidateNamedSpecificSequence(sequence);
+        }
+
+        [Fact]
+        public void Can_create_named_sequence_with_specific_facets_with_convention_builder()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            modelBuilder
+                .ForSqlServer()
+                .Sequence("Snook")
+                .IncrementBy(11)
+                .Start(1729)
+                .Min(111)
+                .Max(2222)
+                .Type<int>();
+
+            Assert.Null(modelBuilder.Model.Relational().TryGetSequence("Snook"));
+            var sequence = modelBuilder.Model.SqlServer().TryGetSequence("Snook");
+
+            ValidateNamedSpecificSequence(sequence);
+        }
+
+        [Fact]
+        public void Can_create_named_sequence_with_specific_facets_with_convention_builder_using_nested_closure()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            modelBuilder
+                .ForSqlServer(b =>
+                    {
+                        b.Sequence("Snook")
+                            .IncrementBy(11)
+                            .Start(1729)
+                            .Min(111)
+                            .Max(2222)
+                            .Type<int>();
+                    });
+
+            Assert.Null(modelBuilder.Model.Relational().TryGetSequence("Snook"));
+            var sequence = modelBuilder.Model.SqlServer().TryGetSequence("Snook");
+
+            ValidateNamedSpecificSequence(sequence);
+        }
+
+        private static void ValidateNamedSpecificSequence(Sequence sequence)
+        {
+            Assert.Equal("Snook", sequence.Name);
+            Assert.Null(sequence.Schema);
+            Assert.Equal(11, sequence.IncrementBy);
+            Assert.Equal(1729, sequence.StartValue);
+            Assert.Equal(111, sequence.MinValue);
+            Assert.Equal(2222, sequence.MaxValue);
+            Assert.Same(typeof(int), sequence.Type);
+        }
+
+        [Fact]
+        public void Can_create_schema_named_sequence_with_specific_facets_with_basic_builder()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            modelBuilder
+                .ForSqlServer()
+                .Sequence("Snook", "Tasty")
+                .IncrementBy(11)
+                .Start(1729)
+                .Min(111)
+                .Max(2222)
+                .Type<int>();
+
+            Assert.Null(modelBuilder.Model.Relational().TryGetSequence("Snook", "Tasty"));
+            var sequence = modelBuilder.Model.SqlServer().TryGetSequence("Snook", "Tasty");
+
+            ValidateSchemaNamedSpecificSequence(sequence);
+        }
+
+        [Fact]
+        public void Can_create_schema_named_sequence_with_specific_facets_with_basic_builder_using_nested_closure()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            modelBuilder
+                .ForSqlServer(b =>
+                    {
+                        b.Sequence("Snook", "Tasty")
+                            .IncrementBy(11)
+                            .Start(1729)
+                            .Min(111)
+                            .Max(2222)
+                            .Type<int>();
+                    });
+
+            Assert.Null(modelBuilder.Model.Relational().TryGetSequence("Snook", "Tasty"));
+            var sequence = modelBuilder.Model.SqlServer().TryGetSequence("Snook", "Tasty");
+
+            ValidateSchemaNamedSpecificSequence(sequence);
+        }
+
+        [Fact]
+        public void Can_create_schema_named_sequence_with_specific_facets_with_convention_builder()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            modelBuilder
+                .ForSqlServer()
+                .Sequence("Snook", "Tasty")
+                .IncrementBy(11)
+                .Start(1729)
+                .Min(111)
+                .Max(2222)
+                .Type<int>();
+
+            Assert.Null(modelBuilder.Model.Relational().TryGetSequence("Snook", "Tasty"));
+            var sequence = modelBuilder.Model.SqlServer().TryGetSequence("Snook", "Tasty");
+
+            ValidateSchemaNamedSpecificSequence(sequence);
+        }
+
+        [Fact]
+        public void Can_create_schema_named_sequence_with_specific_facets_with_convention_builder_using_nested_closure()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            modelBuilder
+                .ForSqlServer(b =>
+                    {
+                        b.Sequence("Snook", "Tasty")
+                            .IncrementBy(11)
+                            .Start(1729)
+                            .Min(111)
+                            .Max(2222)
+                            .Type<int>();
+                    });
+
+            Assert.Null(modelBuilder.Model.Relational().TryGetSequence("Snook", "Tasty"));
+            var sequence = modelBuilder.Model.SqlServer().TryGetSequence("Snook", "Tasty");
+
+            ValidateSchemaNamedSpecificSequence(sequence);
         }
 
         private class Customer

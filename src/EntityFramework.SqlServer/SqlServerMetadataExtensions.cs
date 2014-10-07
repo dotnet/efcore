@@ -81,5 +81,19 @@ namespace Microsoft.Data.Entity
 
             return new ReadOnlySqlServerForeignKeyExtensions(foreignKey);
         }
+
+        public static SqlServerModelExtensions SqlServer([NotNull] this Model model)
+        {
+            Check.NotNull(model, "model");
+
+            return new SqlServerModelExtensions(model);
+        }
+
+        public static ISqlServerModelExtensions SqlServer([NotNull] this IModel model)
+        {
+            Check.NotNull(model, "model");
+
+            return new ReadOnlySqlServerModelExtensions(model);
+        }
     }
 }

@@ -26,5 +26,12 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
 
             return this;
         }
+
+        public virtual SqlServerIndexBuilder Clustered(bool isClustered = true)
+        {
+            _index.SqlServer().IsClustered = isClustered;
+
+            return this;
+        }
     }
 }

@@ -144,69 +144,91 @@ namespace Microsoft.Data.Entity
         }
 
         public static SqlServerForeignKeyBuilder ForSqlServer<TOneToManyBuilder>(
-            [NotNull] this IOneToManyBuilder<TOneToManyBuilder> foreignKeyBuilder)
+            [NotNull] this IOneToManyBuilder<TOneToManyBuilder> oneToManyBuilder)
             where TOneToManyBuilder : IOneToManyBuilder<TOneToManyBuilder>
         {
-            Check.NotNull(foreignKeyBuilder, "foreignKeyBuilder");
+            Check.NotNull(oneToManyBuilder, "oneToManyBuilder");
 
-            return new SqlServerForeignKeyBuilder(foreignKeyBuilder.Metadata);
+            return new SqlServerForeignKeyBuilder(oneToManyBuilder.Metadata);
         }
 
         public static TOneToManyBuilder ForSqlServer<TOneToManyBuilder>(
-            [NotNull] this IOneToManyBuilder<TOneToManyBuilder> foreignKeyBuilder,
+            [NotNull] this IOneToManyBuilder<TOneToManyBuilder> oneToManyBuilder,
             [NotNull] Action<SqlServerForeignKeyBuilder> relationalOneToManyBuilder)
             where TOneToManyBuilder : IOneToManyBuilder<TOneToManyBuilder>
         {
-            Check.NotNull(foreignKeyBuilder, "foreignKeyBuilder");
+            Check.NotNull(oneToManyBuilder, "oneToManyBuilder");
             Check.NotNull(relationalOneToManyBuilder, "relationalOneToManyBuilder");
 
-            relationalOneToManyBuilder(ForSqlServer(foreignKeyBuilder));
+            relationalOneToManyBuilder(ForSqlServer(oneToManyBuilder));
 
-            return (TOneToManyBuilder)foreignKeyBuilder;
+            return (TOneToManyBuilder)oneToManyBuilder;
         }
 
         public static SqlServerForeignKeyBuilder ForSqlServer<TManyToOneBuilder>(
-            [NotNull] this IManyToOneBuilder<TManyToOneBuilder> foreignKeyBuilder)
+            [NotNull] this IManyToOneBuilder<TManyToOneBuilder> manyToOneBuilder)
             where TManyToOneBuilder : IManyToOneBuilder<TManyToOneBuilder>
         {
-            Check.NotNull(foreignKeyBuilder, "foreignKeyBuilder");
+            Check.NotNull(manyToOneBuilder, "manyToOneBuilder");
 
-            return new SqlServerForeignKeyBuilder(foreignKeyBuilder.Metadata);
+            return new SqlServerForeignKeyBuilder(manyToOneBuilder.Metadata);
         }
 
         public static TManyToOneBuilder ForSqlServer<TManyToOneBuilder>(
-            [NotNull] this IManyToOneBuilder<TManyToOneBuilder> foreignKeyBuilder,
+            [NotNull] this IManyToOneBuilder<TManyToOneBuilder> manyToOneBuilder,
             [NotNull] Action<SqlServerForeignKeyBuilder> relationalManyToOneBuilder)
             where TManyToOneBuilder : IManyToOneBuilder<TManyToOneBuilder>
         {
-            Check.NotNull(foreignKeyBuilder, "foreignKeyBuilder");
+            Check.NotNull(manyToOneBuilder, "manyToOneBuilder");
             Check.NotNull(relationalManyToOneBuilder, "relationalManyToOneBuilder");
 
-            relationalManyToOneBuilder(ForSqlServer(foreignKeyBuilder));
+            relationalManyToOneBuilder(ForSqlServer(manyToOneBuilder));
 
-            return (TManyToOneBuilder)foreignKeyBuilder;
+            return (TManyToOneBuilder)manyToOneBuilder;
         }
 
         public static SqlServerForeignKeyBuilder ForSqlServer<TOneToOneBuilder>(
-            [NotNull] this IOneToOneBuilder<TOneToOneBuilder> foreignKeyBuilder)
+            [NotNull] this IOneToOneBuilder<TOneToOneBuilder> oneToOneBuilder)
             where TOneToOneBuilder : IOneToOneBuilder<TOneToOneBuilder>
         {
-            Check.NotNull(foreignKeyBuilder, "foreignKeyBuilder");
+            Check.NotNull(oneToOneBuilder, "oneToOneBuilder");
 
-            return new SqlServerForeignKeyBuilder(foreignKeyBuilder.Metadata);
+            return new SqlServerForeignKeyBuilder(oneToOneBuilder.Metadata);
         }
 
         public static TOneToOneBuilder ForSqlServer<TOneToOneBuilder>(
-            [NotNull] this IOneToOneBuilder<TOneToOneBuilder> foreignKeyBuilder,
+            [NotNull] this IOneToOneBuilder<TOneToOneBuilder> oneToOneBuilder,
             [NotNull] Action<SqlServerForeignKeyBuilder> relationalOneToOneBuilder)
             where TOneToOneBuilder : IOneToOneBuilder<TOneToOneBuilder>
         {
-            Check.NotNull(foreignKeyBuilder, "foreignKeyBuilder");
+            Check.NotNull(oneToOneBuilder, "oneToOneBuilder");
             Check.NotNull(relationalOneToOneBuilder, "relationalOneToOneBuilder");
 
-            relationalOneToOneBuilder(ForSqlServer(foreignKeyBuilder));
+            relationalOneToOneBuilder(ForSqlServer(oneToOneBuilder));
 
-            return (TOneToOneBuilder)foreignKeyBuilder;
+            return (TOneToOneBuilder)oneToOneBuilder;
+        }
+
+        public static SqlServerModelBuilder ForSqlServer<TModelBuilder>(
+        [NotNull] this IModelBuilder<TModelBuilder> modelBuilder)
+        where TModelBuilder : IModelBuilder<TModelBuilder>
+        {
+            Check.NotNull(modelBuilder, "modelBuilder");
+
+            return new SqlServerModelBuilder(modelBuilder.Metadata);
+        }
+
+        public static TModelBuilder ForSqlServer<TModelBuilder>(
+            [NotNull] this IModelBuilder<TModelBuilder> modelBuilder,
+            [NotNull] Action<SqlServerModelBuilder> sqlServerModelBuilder)
+            where TModelBuilder : IModelBuilder<TModelBuilder>
+        {
+            Check.NotNull(modelBuilder, "modelBuilder");
+            Check.NotNull(sqlServerModelBuilder, "sqlServerModelBuilder");
+
+            sqlServerModelBuilder(ForSqlServer(modelBuilder));
+
+            return (TModelBuilder)modelBuilder;
         }
     }
 }

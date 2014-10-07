@@ -80,5 +80,19 @@ namespace Microsoft.Data.Entity
 
             return new ReadOnlyRelationalForeignKeyExtensions(foreignKey);
         }
+
+        public static RelationalModelExtensions Relational([NotNull] this Model model)
+        {
+            Check.NotNull(model, "model");
+
+            return new RelationalModelExtensions(model);
+        }
+
+        public static IRelationalModelExtensions Relational([NotNull] this IModel model)
+        {
+            Check.NotNull(model, "model");
+
+            return new ReadOnlyRelationalModelExtensions(model);
+        }
     }
 }

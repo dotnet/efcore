@@ -72,6 +72,7 @@
     <Compile Include="DatabaseBuilderTest.cs" />
     <Compile Include="MetadataExtensionsTest.cs" />
     <Compile Include="Metadata\RelationalMetadataExtensionsTest.cs" />
+    <Compile Include="Metadata\SequenceTest.cs" />
     <Compile Include="Model\RelationalTypeMappingTest.cs" />
     <Compile Include="Metadata\RelationalBuilderExtensionsTest.cs" />
     <Compile Include="RelationalConnectionTest.cs" />

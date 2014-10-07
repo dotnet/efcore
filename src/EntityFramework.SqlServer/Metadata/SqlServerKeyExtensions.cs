@@ -26,5 +26,18 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
                 ((Key)Key)[SqlServerNameAnnotation] = value;
             }
         }
+
+        [CanBeNull]
+        public new virtual bool? IsClustered
+        {
+            get { return base.IsClustered; }
+            [param: CanBeNull]
+            set
+            {
+                // TODO: Issue #777: Non-string annotations
+                // TODO: Issue #700: Annotate associated index object instead
+                ((Key)Key)[SqlServerClusteredAnnotation] = value == null ? null : value.ToString();
+            }
+        }
     }
 }

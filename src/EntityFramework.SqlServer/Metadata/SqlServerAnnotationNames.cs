@@ -6,5 +6,9 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
     public static class SqlServerAnnotationNames
     {
         public const string Prefix = "SqlServer:";
+        public const string Clustered = "Clustered";
+        public const string ValueGeneration = "ValueGeneration";
+        public const string DefaultSequenceName = "DefaultSequenceName";
+        public const string SequenceName = "SequenceName";
     }
 }

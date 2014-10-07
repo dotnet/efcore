@@ -44,5 +44,34 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
 
             return this;
         }
+
+        public virtual SqlServerPropertyBuilder UseSequence()
+        {
+            _property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Sequence;
+            _property.SqlServer().SequenceName = null;
+
+            return this;
+        }
+
+        public virtual SqlServerPropertyBuilder UseSequence([NotNull] string name, [CanBeNull] string schema = null)
+        {
+            Check.NotEmpty(name, "name");
+            Check.NullButNotEmpty(schema, "schema");
+
+            var sequence = _property.EntityType.Model.SqlServer().GetOrAddSequence(name, schema);
+
+            _property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Sequence;
+            _property.SqlServer().SequenceName = sequence.Schema + "." + sequence.Name;
+         
+            return this;
+        }
+
+        public virtual SqlServerPropertyBuilder UseIdentity()
+        {
+            _property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Identity;
+            _property.SqlServer().SequenceName = null;
+
+            return this;
+        }
     }
 }

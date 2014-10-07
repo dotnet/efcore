@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
 using Microsoft.Data.Entity.Metadata;
 using Xunit;
 
@@ -205,6 +204,148 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
 
             Assert.Null(index.Relational().Name);
             Assert.Null(((IIndex)index).Relational().Name);
+        }
+
+        [Fact]
+        public void Can_get_and_set_sequence()
+        {
+            var modelBuilder = new BasicModelBuilder();
+            var model = modelBuilder.Metadata;
+            var extensions = model.Relational();
+
+            Assert.Null(extensions.TryGetSequence("Foo"));
+            Assert.Null(((IModel)model).Relational().TryGetSequence("Foo"));
+
+            var sequence = extensions.GetOrAddSequence("Foo");
+
+            Assert.Equal("Foo", extensions.TryGetSequence("Foo").Name);
+            Assert.Equal("Foo", ((IModel)model).Relational().TryGetSequence("Foo").Name);
+
+            Assert.Equal("Foo", sequence.Name);
+            Assert.Null(sequence.Schema);
+            Assert.Equal(10, sequence.IncrementBy);
+            Assert.Equal(1, sequence.StartValue);
+            Assert.Null(sequence.MinValue);
+            Assert.Null(sequence.MaxValue);
+            Assert.Same(typeof(long), sequence.Type);
+
+            extensions.AddOrReplaceSequence(new Sequence("Foo", null, 1729, 11, 2001, 2010, typeof(int)));
+
+            sequence = extensions.GetOrAddSequence("Foo");
+
+            Assert.Equal("Foo", sequence.Name);
+            Assert.Null(sequence.Schema);
+            Assert.Equal(11, sequence.IncrementBy);
+            Assert.Equal(1729, sequence.StartValue);
+            Assert.Equal(2001, sequence.MinValue);
+            Assert.Equal(2010, sequence.MaxValue);
+            Assert.Same(typeof(int), sequence.Type);
+        }
+
+        [Fact]
+        public void Can_get_and_set_sequence_with_schema_name()
+        {
+            var modelBuilder = new BasicModelBuilder();
+            var model = modelBuilder.Metadata;
+            var extensions = model.Relational();
+
+            Assert.Null(extensions.TryGetSequence("Foo", "Smoo"));
+            Assert.Null(((IModel)model).Relational().TryGetSequence("Foo", "Smoo"));
+
+            var sequence = extensions.GetOrAddSequence("Foo", "Smoo");
+
+            Assert.Equal("Foo", extensions.TryGetSequence("Foo", "Smoo").Name);
+            Assert.Equal("Foo", ((IModel)model).Relational().TryGetSequence("Foo", "Smoo").Name);
+
+            Assert.Equal("Foo", sequence.Name);
+            Assert.Equal("Smoo", sequence.Schema);
+            Assert.Equal(10, sequence.IncrementBy);
+            Assert.Equal(1, sequence.StartValue);
+            Assert.Null(sequence.MinValue);
+            Assert.Null(sequence.MaxValue);
+            Assert.Same(typeof(long), sequence.Type);
+
+            extensions.AddOrReplaceSequence(new Sequence("Foo", "Smoo", 1729, 11, 2001, 2010, typeof(int)));
+
+            sequence = extensions.GetOrAddSequence("Foo", "Smoo");
+
+            Assert.Equal("Foo", sequence.Name);
+            Assert.Equal("Smoo", sequence.Schema);
+            Assert.Equal(11, sequence.IncrementBy);
+            Assert.Equal(1729, sequence.StartValue);
+            Assert.Equal(2001, sequence.MinValue);
+            Assert.Equal(2010, sequence.MaxValue);
+            Assert.Same(typeof(int), sequence.Type);
+        }
+
+        [Fact]
+        public void Can_add_and_replace_sequence()
+        {
+            var modelBuilder = new BasicModelBuilder();
+            var model = modelBuilder.Metadata;
+            var extensions = model.Relational();
+
+            extensions.AddOrReplaceSequence(new Sequence("Foo"));
+
+            Assert.Equal("Foo", extensions.TryGetSequence("Foo").Name);
+            Assert.Equal("Foo", ((IModel)model).Relational().TryGetSequence("Foo").Name);
+
+            var sequence = extensions.TryGetSequence("Foo");
+
+            Assert.Equal("Foo", sequence.Name);
+            Assert.Null(sequence.Schema);
+            Assert.Equal(10, sequence.IncrementBy);
+            Assert.Equal(1, sequence.StartValue);
+            Assert.Null(sequence.MinValue);
+            Assert.Null(sequence.MaxValue);
+            Assert.Same(typeof(long), sequence.Type);
+
+            extensions.AddOrReplaceSequence(new Sequence("Foo", null, 1729, 11, 2001, 2010, typeof(int)));
+
+            sequence = extensions.TryGetSequence("Foo");
+
+            Assert.Equal("Foo", sequence.Name);
+            Assert.Null(sequence.Schema);
+            Assert.Equal(11, sequence.IncrementBy);
+            Assert.Equal(1729, sequence.StartValue);
+            Assert.Equal(2001, sequence.MinValue);
+            Assert.Equal(2010, sequence.MaxValue);
+            Assert.Same(typeof(int), sequence.Type);
+        }
+
+        [Fact]
+        public void Can_add_and_replace_sequence_with_schema_name()
+        {
+            var modelBuilder = new BasicModelBuilder();
+            var model = modelBuilder.Metadata;
+            var extensions = model.Relational();
+
+            extensions.AddOrReplaceSequence(new Sequence("Foo", "Smoo"));
+
+            Assert.Equal("Foo", extensions.TryGetSequence("Foo", "Smoo").Name);
+            Assert.Equal("Foo", ((IModel)model).Relational().TryGetSequence("Foo", "Smoo").Name);
+
+            var sequence = extensions.TryGetSequence("Foo", "Smoo");
+
+            Assert.Equal("Foo", sequence.Name);
+            Assert.Equal("Smoo", sequence.Schema);
+            Assert.Equal(10, sequence.IncrementBy);
+            Assert.Equal(1, sequence.StartValue);
+            Assert.Null(sequence.MinValue);
+            Assert.Null(sequence.MaxValue);
+            Assert.Same(typeof(long), sequence.Type);
+
+            extensions.AddOrReplaceSequence(new Sequence("Foo", "Smoo", 1729, 11, 2001, 2010, typeof(int)));
+
+            sequence = extensions.TryGetSequence("Foo", "Smoo");
+
+            Assert.Equal("Foo", sequence.Name);
+            Assert.Equal("Smoo", sequence.Schema);
+            Assert.Equal(11, sequence.IncrementBy);
+            Assert.Equal(1729, sequence.StartValue);
+            Assert.Equal(2001, sequence.MinValue);
+            Assert.Equal(2010, sequence.MaxValue);
+            Assert.Same(typeof(int), sequence.Type);
         }
 
         private class Customer

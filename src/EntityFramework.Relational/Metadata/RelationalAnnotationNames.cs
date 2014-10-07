@@ -12,5 +12,6 @@ namespace Microsoft.Data.Entity.Relational.Metadata
         public const string TableName = "TableName";
         public const string Schema = "Schema";
         public const string Name = "Name";
+        public const string Sequence = "Sequence:";
     }
 }

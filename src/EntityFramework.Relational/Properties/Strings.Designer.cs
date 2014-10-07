@@ -426,6 +426,38 @@ namespace Microsoft.Data.Entity.Relational
             return GetString("RelationalLoggerRollingbackTransaction");
         }
 
+        /// <summary>
+        /// Invalid type for sequence. Valid types are 'Int64' (the default), 'Int32', 'Int16', and 'Byte'.
+        /// </summary>
+        internal static string BadSequenceType
+        {
+            get { return GetString("BadSequenceType"); }
+        }
+
+        /// <summary>
+        /// Invalid type for sequence. Valid types are 'Int64' (the default), 'Int32', 'Int16', and 'Byte'.
+        /// </summary>
+        internal static string FormatBadSequenceType()
+        {
+            return GetString("BadSequenceType");
+        }
+
+        /// <summary>
+        /// Unable to deserialize sequence from model metadata. See inner exception for details.
+        /// </summary>
+        internal static string BadSequenceString
+        {
+            get { return GetString("BadSequenceString"); }
+        }
+
+        /// <summary>
+        /// Unable to deserialize sequence from model metadata. See inner exception for details.
+        /// </summary>
+        internal static string FormatBadSequenceString()
+        {
+            return GetString("BadSequenceString");
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

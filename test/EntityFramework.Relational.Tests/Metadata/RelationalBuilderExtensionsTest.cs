@@ -898,6 +898,474 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
             Assert.Equal("db0", entityType.Relational().Schema);
         }
 
+        [Fact]
+        public void Can_create_default_sequence_with_basic_builder()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            modelBuilder
+                .ForRelational()
+                .Sequence();
+
+            var sequence = modelBuilder.Model.Relational().TryGetSequence(Sequence.DefaultName);
+
+            ValidateDefaultSequence(sequence);
+        }
+
+        [Fact]
+        public void Can_create_default_sequence_with_basic_builder_using_nested_closure()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            modelBuilder
+                .ForRelational(b => { b.Sequence(); });
+
+            var sequence = modelBuilder.Model.Relational().TryGetSequence(Sequence.DefaultName);
+
+            ValidateDefaultSequence(sequence);
+        }
+
+        [Fact]
+        public void Can_create_default_sequence_with_convention_builder()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            modelBuilder
+                .ForRelational()
+                .Sequence();
+
+            var sequence = modelBuilder.Model.Relational().TryGetSequence(Sequence.DefaultName);
+
+            ValidateDefaultSequence(sequence);
+        }
+
+        [Fact]
+        public void Can_create_default_sequence_with_convention_builder_using_nested_closure()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            modelBuilder
+                .ForRelational(b => { b.Sequence(); });
+
+            var sequence = modelBuilder.Model.Relational().TryGetSequence(Sequence.DefaultName);
+
+            ValidateDefaultSequence(sequence);
+        }
+
+        private static void ValidateDefaultSequence(Sequence sequence)
+        {
+            Assert.Equal(Sequence.DefaultName, sequence.Name);
+            Assert.Null(sequence.Schema);
+            Assert.Equal(Sequence.DefaultIncrement, sequence.IncrementBy);
+            Assert.Equal(Sequence.DefaultStartValue, sequence.StartValue);
+            Assert.Null(sequence.MinValue);
+            Assert.Null(sequence.MaxValue);
+            Assert.Same(Sequence.DefaultType, sequence.Type);
+        }
+
+        [Fact]
+        public void Can_create_named_sequence_with_basic_builder()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            modelBuilder
+                .ForRelational()
+                .Sequence("Snook");
+
+            var sequence = modelBuilder.Model.Relational().TryGetSequence("Snook");
+
+            ValidateNamedSequence(sequence);
+        }
+
+        [Fact]
+        public void Can_create_named_sequence_with_basic_builder_using_nested_closure()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            modelBuilder
+                .ForRelational(b => { b.Sequence("Snook"); });
+
+            var sequence = modelBuilder.Model.Relational().TryGetSequence("Snook");
+
+            ValidateNamedSequence(sequence);
+        }
+
+        [Fact]
+        public void Can_create_named_sequence_with_convention_builder()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            modelBuilder
+                .ForRelational()
+                .Sequence("Snook");
+
+            var sequence = modelBuilder.Model.Relational().TryGetSequence("Snook");
+
+            ValidateNamedSequence(sequence);
+        }
+
+        [Fact]
+        public void Can_create_named_sequence_with_convention_builder_using_nested_closure()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            modelBuilder
+                .ForRelational(b => { b.Sequence("Snook"); });
+
+            var sequence = modelBuilder.Model.Relational().TryGetSequence("Snook");
+
+            ValidateNamedSequence(sequence);
+        }
+
+        private static void ValidateNamedSequence(Sequence sequence)
+        {
+            Assert.Equal("Snook", sequence.Name);
+            Assert.Null(sequence.Schema);
+            Assert.Equal(Sequence.DefaultIncrement, sequence.IncrementBy);
+            Assert.Equal(Sequence.DefaultStartValue, sequence.StartValue);
+            Assert.Null(sequence.MinValue);
+            Assert.Null(sequence.MaxValue);
+            Assert.Same(Sequence.DefaultType, sequence.Type);
+        }
+
+        [Fact]
+        public void Can_create_schema_named_sequence_with_basic_builder()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            modelBuilder
+                .ForRelational()
+                .Sequence("Snook", "Tasty");
+
+            var sequence = modelBuilder.Model.Relational().TryGetSequence("Snook", "Tasty");
+
+            ValidateSchemaNamedSequence(sequence);
+        }
+
+        [Fact]
+        public void Can_create_schema_named_sequence_with_basic_builder_using_nested_closure()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            modelBuilder
+                .ForRelational(b => { b.Sequence("Snook", "Tasty"); });
+
+            var sequence = modelBuilder.Model.Relational().TryGetSequence("Snook", "Tasty");
+
+            ValidateSchemaNamedSequence(sequence);
+        }
+
+        [Fact]
+        public void Can_create_schema_named_sequence_with_convention_builder()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            modelBuilder
+                .ForRelational()
+                .Sequence("Snook", "Tasty");
+
+            var sequence = modelBuilder.Model.Relational().TryGetSequence("Snook", "Tasty");
+
+            ValidateSchemaNamedSequence(sequence);
+        }
+
+        [Fact]
+        public void Can_create_schema_named_sequence_with_convention_builder_using_nested_closure()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            modelBuilder
+                .ForRelational(b => { b.Sequence("Snook", "Tasty"); });
+
+            var sequence = modelBuilder.Model.Relational().TryGetSequence("Snook", "Tasty");
+
+            ValidateSchemaNamedSequence(sequence);
+        }
+
+        private static void ValidateSchemaNamedSequence(Sequence sequence)
+        {
+            Assert.Equal("Snook", sequence.Name);
+            Assert.Equal("Tasty", sequence.Schema);
+            Assert.Equal(Sequence.DefaultIncrement, sequence.IncrementBy);
+            Assert.Equal(Sequence.DefaultStartValue, sequence.StartValue);
+            Assert.Null(sequence.MinValue);
+            Assert.Null(sequence.MaxValue);
+            Assert.Same(Sequence.DefaultType, sequence.Type);
+        }
+
+        [Fact]
+        public void Can_create_default_sequence_with_specific_facets_with_basic_builder()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            modelBuilder
+                .ForRelational()
+                .Sequence()
+                .IncrementBy(11)
+                .Start(1729)
+                .Min(111)
+                .Max(2222)
+                .Type<int>();
+
+            var sequence = modelBuilder.Model.Relational().TryGetSequence(Sequence.DefaultName);
+
+            ValidateDefaultSpecificSequence(sequence);
+        }
+
+        [Fact]
+        public void Can_create_default_sequence_with_specific_facets_with_basic_builder_using_nested_closure()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            modelBuilder
+                .ForRelational(b =>
+                    {
+                        b.Sequence()
+                            .IncrementBy(11)
+                            .Start(1729)
+                            .Min(111)
+                            .Max(2222)
+                            .Type<int>();
+                    });
+
+            var sequence = modelBuilder.Model.Relational().TryGetSequence(Sequence.DefaultName);
+
+            ValidateDefaultSpecificSequence(sequence);
+        }
+
+        [Fact]
+        public void Can_create_default_sequence_with_specific_facets_with_convention_builder()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            modelBuilder
+                .ForRelational()
+                .Sequence()
+                .IncrementBy(11)
+                .Start(1729)
+                .Min(111)
+                .Max(2222)
+                .Type<int>();
+
+            var sequence = modelBuilder.Model.Relational().TryGetSequence(Sequence.DefaultName);
+
+            ValidateDefaultSpecificSequence(sequence);
+        }
+
+        [Fact]
+        public void Can_create_default_sequence_with_specific_facets_with_convention_builder_using_nested_closure()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            modelBuilder
+                .ForRelational(b =>
+                    {
+                        b.Sequence()
+                            .IncrementBy(11)
+                            .Start(1729)
+                            .Min(111)
+                            .Max(2222)
+                            .Type<int>();
+                    });
+
+            var sequence = modelBuilder.Model.Relational().TryGetSequence(Sequence.DefaultName);
+
+            ValidateDefaultSpecificSequence(sequence);
+        }
+
+        private static void ValidateDefaultSpecificSequence(Sequence sequence)
+        {
+            Assert.Equal(Sequence.DefaultName, sequence.Name);
+            Assert.Null(sequence.Schema);
+            Assert.Equal(11, sequence.IncrementBy);
+            Assert.Equal(1729, sequence.StartValue);
+            Assert.Equal(111, sequence.MinValue);
+            Assert.Equal(2222, sequence.MaxValue);
+            Assert.Same(typeof(int), sequence.Type);
+        }
+
+        [Fact]
+        public void Can_create_named_sequence_with_specific_facets_with_basic_builder()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            modelBuilder
+                .ForRelational()
+                .Sequence("Snook")
+                .IncrementBy(11)
+                .Start(1729)
+                .Min(111)
+                .Max(2222)
+                .Type<int>();
+
+            var sequence = modelBuilder.Model.Relational().TryGetSequence("Snook");
+
+            ValidateNamedSpecificSequence(sequence);
+        }
+
+        [Fact]
+        public void Can_create_named_sequence_with_specific_facets_with_basic_builder_using_nested_closure()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            modelBuilder
+                .ForRelational(b =>
+                    {
+                        b.Sequence("Snook")
+                            .IncrementBy(11)
+                            .Start(1729)
+                            .Min(111)
+                            .Max(2222)
+                            .Type<int>();
+                    });
+
+            var sequence = modelBuilder.Model.Relational().TryGetSequence("Snook");
+
+            ValidateNamedSpecificSequence(sequence);
+        }
+
+        [Fact]
+        public void Can_create_named_sequence_with_specific_facets_with_convention_builder()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            modelBuilder
+                .ForRelational()
+                .Sequence("Snook")
+                .IncrementBy(11)
+                .Start(1729)
+                .Min(111)
+                .Max(2222)
+                .Type<int>();
+
+            var sequence = modelBuilder.Model.Relational().TryGetSequence("Snook");
+
+            ValidateNamedSpecificSequence(sequence);
+        }
+
+        [Fact]
+        public void Can_create_named_sequence_with_specific_facets_with_convention_builder_using_nested_closure()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            modelBuilder
+                .ForRelational(b =>
+                    {
+                        b.Sequence("Snook")
+                            .IncrementBy(11)
+                            .Start(1729)
+                            .Min(111)
+                            .Max(2222)
+                            .Type<int>();
+                    });
+
+            var sequence = modelBuilder.Model.Relational().TryGetSequence("Snook");
+
+            ValidateNamedSpecificSequence(sequence);
+        }
+
+        private static void ValidateNamedSpecificSequence(Sequence sequence)
+        {
+            Assert.Equal("Snook", sequence.Name);
+            Assert.Null(sequence.Schema);
+            Assert.Equal(11, sequence.IncrementBy);
+            Assert.Equal(1729, sequence.StartValue);
+            Assert.Equal(111, sequence.MinValue);
+            Assert.Equal(2222, sequence.MaxValue);
+            Assert.Same(typeof(int), sequence.Type);
+        }
+
+        [Fact]
+        public void Can_create_schema_named_sequence_with_specific_facets_with_basic_builder()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            modelBuilder
+                .ForRelational()
+                .Sequence("Snook", "Tasty")
+                .IncrementBy(11)
+                .Start(1729)
+                .Min(111)
+                .Max(2222)
+                .Type<int>();
+
+            var sequence = modelBuilder.Model.Relational().TryGetSequence("Snook", "Tasty");
+
+            ValidateSchemaNamedSpecificSequence(sequence);
+        }
+
+        [Fact]
+        public void Can_create_schema_named_sequence_with_specific_facets_with_basic_builder_using_nested_closure()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            modelBuilder
+                .ForRelational(b =>
+                    {
+                        b.Sequence("Snook", "Tasty")
+                            .IncrementBy(11)
+                            .Start(1729)
+                            .Min(111)
+                            .Max(2222)
+                            .Type<int>();
+                    });
+
+            var sequence = modelBuilder.Model.Relational().TryGetSequence("Snook", "Tasty");
+
+            ValidateSchemaNamedSpecificSequence(sequence);
+        }
+
+        [Fact]
+        public void Can_create_schema_named_sequence_with_specific_facets_with_convention_builder()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            modelBuilder
+                .ForRelational()
+                .Sequence("Snook", "Tasty")
+                .IncrementBy(11)
+                .Start(1729)
+                .Min(111)
+                .Max(2222)
+                .Type<int>();
+
+            var sequence = modelBuilder.Model.Relational().TryGetSequence("Snook", "Tasty");
+
+            ValidateSchemaNamedSpecificSequence(sequence);
+        }
+
+        [Fact]
+        public void Can_create_schema_named_sequence_with_specific_facets_with_convention_builder_using_nested_closure()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            modelBuilder
+                .ForRelational(b =>
+                    {
+                        b.Sequence("Snook", "Tasty")
+                            .IncrementBy(11)
+                            .Start(1729)
+                            .Min(111)
+                            .Max(2222)
+                            .Type<int>();
+                    });
+
+            var sequence = modelBuilder.Model.Relational().TryGetSequence("Snook", "Tasty");
+
+            ValidateSchemaNamedSpecificSequence(sequence);
+        }
+
+        private static void ValidateSchemaNamedSpecificSequence(Sequence sequence)
+        {
+            Assert.Equal("Snook", sequence.Name);
+            Assert.Equal("Tasty", sequence.Schema);
+            Assert.Equal(11, sequence.IncrementBy);
+            Assert.Equal(1729, sequence.StartValue);
+            Assert.Equal(111, sequence.MinValue);
+            Assert.Equal(2222, sequence.MaxValue);
+            Assert.Same(typeof(int), sequence.Type);
+        }
+
         private class Customer
         {
             public int Id { get; set; }

@@ -10,6 +10,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
     public class ReadOnlySqlServerIndexExtensions : ReadOnlyRelationalIndexExtensions, ISqlServerIndexExtensions
     {
         protected const string SqlServerNameAnnotation = SqlServerAnnotationNames.Prefix + RelationalAnnotationNames.Name;
+        protected const string SqlServerClusteredAnnotation = SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.Clustered;
 
         public ReadOnlySqlServerIndexExtensions([NotNull] IIndex index)
             : base(index)
@@ -19,6 +20,16 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
         public override string Name
         {
             get { return Index[SqlServerNameAnnotation] ?? base.Name; }
+        }
+
+        public virtual bool? IsClustered
+        {
+            get
+            {
+                // TODO: Issue #777: Non-string annotations
+                var value = Index[SqlServerClusteredAnnotation];
+                return value == null ? null : (bool?)bool.Parse(value);
+            }
         }
     }
 }
