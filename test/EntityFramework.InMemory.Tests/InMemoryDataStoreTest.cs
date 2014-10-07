@@ -142,7 +142,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             await inMemoryDataStore.SaveChangesAsync(new[] { entityEntry });
 
             mockLogger.Verify(
-                l => l.WriteCore(
+                l => l.Write(
                     TraceType.Information,
                     0,
                     It.IsAny<string>(),

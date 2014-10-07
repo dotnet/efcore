@@ -60,7 +60,7 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
 
             private CancellationTokenSource _cancellationTokenSource;
 
-            public bool WriteCore(
+            public void Write(
                 TraceType eventType,
                 int eventId,
                 object state,
@@ -79,7 +79,10 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
 
                     SqlStatements.Add(sql);
                 }
+            }
 
+            public bool IsEnabled(TraceType eventType)
+            {
                 return true;
             }
 
