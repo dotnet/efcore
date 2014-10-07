@@ -37,6 +37,14 @@ var sqliteTestDir='test/EntityFramework.SQLite.FunctionalTests/bin/Debug'
             {
                 CreatePartFromFile(
                     package,
+                    @"src\EntityFramework.Commands\build\portable-net451+win81+wpa81\EntityFramework.Commands.targets",
+                    @"build\portable-net451+win81+wpa81\EntityFramework.Commands.targets");
+                CreatePartFromFile(
+                    package,
+                    @"src\EntityFramework.Commands\lib\portable-net451+win81+wpa81\_._",
+                    @"lib\portable-net451+win81+wpa81\_._");
+                CreatePartFromFile(
+                    package,
                     @"src\EntityFramework.Commands\tools\EntityFramework.psd1",
                     @"tools\EntityFramework.psd1");
                 CreatePartFromFile(

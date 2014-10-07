@@ -22,6 +22,11 @@
                 "System.Reflection.TypeExtensions": "4.0.0.0",
                 "System.Text.RegularExpressions": "4.0.0.0"
             }
+        },
+        ".NETPortable,Version=v4.6,Profile=Profile151": {
+            "bin": {
+                "assembly": "lib\\portable-net451+win81+wpa81\\_._"
+            }
         }
     },
     "commands": { 
