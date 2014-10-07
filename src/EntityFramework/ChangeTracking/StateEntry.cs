@@ -468,9 +468,11 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 .Create(foreignKey.ReferencedEntityType, foreignKey.Properties, RelationshipsSnapshot);
         }
 
-        public EntityKey GetPrincipalKey([NotNull] IForeignKey foreignKey, IEntityType referencedEntityType, IReadOnlyList<IProperty> referencedProperties)
+        public virtual EntityKey GetPrincipalKey([NotNull] IForeignKey foreignKey, [NotNull] IEntityType referencedEntityType, [NotNull] IReadOnlyList<IProperty> referencedProperties)
         {
             Check.NotNull(foreignKey, "foreignKey");
+            Check.NotNull(referencedEntityType, "referencedEntityType");
+            Check.NotNull(referencedProperties, "referencedProperties");
 
             EntityKey result;
             if (!_principalKeys.TryGetValue(foreignKey, out result))
