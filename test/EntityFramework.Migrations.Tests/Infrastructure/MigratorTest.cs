@@ -940,6 +940,38 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         }
 
         [Fact]
+        public void UpdateDatabase_creates_database_if_no_migrations()
+        {
+            Mock<RelationalDataStoreCreator> dbCreatorMock;
+            Mock<DbConnection> dbConnectionMock;
+            Mock<DbTransaction> dbTransactionMock;
+            Mock<SqlStatementExecutor> sqlStatementExecutorMock;
+
+            var migrator
+                = MockMigrator(
+                    new MigrationMetadata[0],
+                    new MigrationMetadata[0],
+                    /*databaseExists*/ false,
+                    /*historyTableExists*/ false,
+                    out dbCreatorMock,
+                    out dbConnectionMock,
+                    out dbTransactionMock,
+                    out sqlStatementExecutorMock);
+
+            migrator.UpdateDatabase();
+
+            dbCreatorMock.Verify(m => m.Exists(), Times.Once);
+            dbCreatorMock.Verify(m => m.Create(), Times.Once);
+
+            migrator.UpdateDatabase(Migrator.InitialDatabase);
+
+            dbCreatorMock.Verify(m => m.Exists(), Times.Exactly(2));
+            dbCreatorMock.Verify(m => m.Create(), Times.Exactly(2));
+
+            sqlStatementExecutorMock.Verify(m => m.ExecuteNonQuery(It.IsAny<DbConnection>(), It.IsAny<DbTransaction>(), It.IsAny<IEnumerable<SqlStatement>>()), Times.Never);
+        }
+
+        [Fact]
         public void Sql_statements_with_suppress_transaction_true_trigger_commit_of_current_transaction()
         {
             var databaseMigrations = new IMigrationMetadata[0];
