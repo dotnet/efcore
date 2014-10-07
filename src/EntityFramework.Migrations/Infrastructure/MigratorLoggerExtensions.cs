@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
         {
             Check.NotNull(logger, "logger");
 
-            logger.WriteCore(TraceType.Information, MigratorLoggerEventIds.CreatingHistoryTable, null, null,
+            logger.Write(TraceType.Information, MigratorLoggerEventIds.CreatingHistoryTable, null, null,
                 (_, __) => Strings.MigratorLoggerCreatingHistoryTable);
         }
 
@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
         {
             Check.NotNull(logger, "logger");
 
-            logger.WriteCore(TraceType.Information, MigratorLoggerEventIds.DroppingHistoryTable, null, null,
+            logger.Write(TraceType.Information, MigratorLoggerEventIds.DroppingHistoryTable, null, null,
                 (_, __) => Strings.MigratorLoggerDroppingHistoryTable);
         }
 
@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             Check.NotNull(logger, "logger");
             Check.NotEmpty(migrationId, "migrationId");
 
-            logger.WriteCore(TraceType.Information, MigratorLoggerEventIds.ApplyingMigration, migrationId, null,
+            logger.Write(TraceType.Information, MigratorLoggerEventIds.ApplyingMigration, migrationId, null,
                 (o, _) => Strings.FormatMigratorLoggerApplyingMigration(o));
         }
 
@@ -39,7 +39,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             Check.NotNull(logger, "logger");
             Check.NotEmpty(migrationId, "migrationId");
 
-            logger.WriteCore(TraceType.Information, MigratorLoggerEventIds.RevertingMigration, migrationId, null,
+            logger.Write(TraceType.Information, MigratorLoggerEventIds.RevertingMigration, migrationId, null,
                 (o, _) => Strings.FormatMigratorLoggerRevertingMigration(o));
         }
     }

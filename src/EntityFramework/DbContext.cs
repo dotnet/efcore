@@ -132,7 +132,7 @@ namespace Microsoft.Data.Entity
             }
             catch (Exception ex)
             {
-                _logger.Value.WriteCore(
+                _logger.Value.Write(
                     TraceType.Error,
                     0,
                     new DataStoreErrorLogState(GetType()),
@@ -157,7 +157,7 @@ namespace Microsoft.Data.Entity
             }
             catch (Exception ex)
             {
-                _logger.Value.WriteCore(
+                _logger.Value.Write(
                     TraceType.Error, 
                     0, 
                     new DataStoreErrorLogState(GetType()), 

@@ -41,7 +41,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             _logFilePath = Path.Combine(logDirectory, fileName);
         }
 
-        public bool WriteCore(
+        public void Write(
             TraceType eventType, int eventId, object state, Exception exception, Func<object, Exception, string> formatter)
         {
             if (formatter != null)
@@ -56,7 +56,10 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     }
                 }
             }
+        }
 
+        public bool IsEnabled(TraceType eventType)
+        {
             return true;
         }
 
