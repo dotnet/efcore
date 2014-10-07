@@ -1194,6 +1194,22 @@ namespace Microsoft.Data.Entity
             return string.Format(CultureInfo.CurrentCulture, GetString("CollectionArgumentContainsNulls", "argumentName"), argumentName);
         }
 
+        /// <summary>
+        /// The specified type '{type}' is invalid. It should be either the dependent type '{dependentType}' or the principal type '{principalType}'.
+        /// </summary>
+        internal static string EntityTypeNotInRelationship
+        {
+            get { return GetString("EntityTypeNotInRelationship"); }
+        }
+
+        /// <summary>
+        /// The specified type '{type}' is invalid. It should be either the dependent type '{dependentType}' or the principal type '{principalType}'.
+        /// </summary>
+        internal static string FormatEntityTypeNotInRelationship(object type, object dependentType, object principalType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("EntityTypeNotInRelationship", "type", "dependentType", "principalType"), type, dependentType, principalType);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

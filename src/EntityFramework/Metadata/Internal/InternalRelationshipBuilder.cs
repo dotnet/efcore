@@ -55,12 +55,12 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             get { return _dependentType; }
         }
 
-        public Navigation NavigationToPrincipal
+        public virtual Navigation NavigationToPrincipal
         {
             get { return _navigationToPrincipal; }
         }
 
-        public Navigation NavigationToDependent
+        public virtual Navigation NavigationToDependent
         {
             get { return _navigationToDependent; }
         }
@@ -79,7 +79,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var dependentType = _dependentType;
             _dependentType = _principalType;
             _principalType = dependentType;
-            
+
             var arePrincipalPropertiesByConvention = _areDependentPropertiesByConvention;
             _areDependentPropertiesByConvention = _arePrincipalPropertiesByConvention;
             _arePrincipalPropertiesByConvention = arePrincipalPropertiesByConvention;
@@ -97,21 +97,24 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return this;
         }
 
-        public virtual InternalRelationshipBuilder ForeignKey([NotNull] IList<PropertyInfo> propertyAccessList)
+        public virtual InternalRelationshipBuilder ForeignKey([NotNull] IList<PropertyInfo> propertyAccessList,
+            ConfigurationSource configurationSource)
         {
             Check.NotNull(propertyAccessList, "propertyAccessList");
 
-            return ForeignKey(propertyAccessList.Select(p => _dependentType.GetOrAddProperty(p)));
+            return ForeignKey(propertyAccessList.Select(p => _dependentType.GetOrAddProperty(p)), configurationSource);
         }
 
-        public virtual InternalRelationshipBuilder ForeignKey([NotNull] IReadOnlyList<string> propertyNames)
+        public virtual InternalRelationshipBuilder ForeignKey([NotNull] IReadOnlyList<string> propertyNames,
+            ConfigurationSource configurationSource)
         {
             Check.NotNull(propertyNames, "propertyNames");
 
-            return ForeignKey(propertyNames.Select(p => _dependentType.GetProperty(p)));
+            return ForeignKey(propertyNames.Select(p => _dependentType.GetProperty(p)), configurationSource);
         }
 
-        public virtual InternalRelationshipBuilder ForeignKey([NotNull] IEnumerable<Property> properties)
+        public virtual InternalRelationshipBuilder ForeignKey([NotNull] IEnumerable<Property> properties,
+            ConfigurationSource configurationSource)
         {
             Check.NotNull(properties, "properties");
 
@@ -122,24 +125,27 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 return this;
             }
 
-            return ReplaceForeignKey(dependentProperties: dependentProperties);
+            return ReplaceForeignKey(configurationSource, dependentProperties: dependentProperties);
         }
 
-        public virtual InternalRelationshipBuilder ReferencedKey([NotNull] IList<PropertyInfo> propertyAccessList)
+        public virtual InternalRelationshipBuilder ReferencedKey([NotNull] IList<PropertyInfo> propertyAccessList,
+            ConfigurationSource configurationSource)
         {
             Check.NotNull(propertyAccessList, "propertyAccessList");
 
-            return ReferencedKey(propertyAccessList.Select(p => _principalType.GetOrAddProperty(p)));
+            return ReferencedKey(propertyAccessList.Select(p => _principalType.GetOrAddProperty(p)), configurationSource);
         }
 
-        public virtual InternalRelationshipBuilder ReferencedKey([NotNull] IReadOnlyList<string> propertyNames)
+        public virtual InternalRelationshipBuilder ReferencedKey([NotNull] IReadOnlyList<string> propertyNames,
+            ConfigurationSource configurationSource)
         {
             Check.NotNull(propertyNames, "propertyNames");
 
-            return ReferencedKey(propertyNames.Select(p => _principalType.GetProperty(p)));
+            return ReferencedKey(propertyNames.Select(p => _principalType.GetProperty(p)), configurationSource);
         }
 
-        public virtual InternalRelationshipBuilder ReferencedKey([NotNull] IEnumerable<Property> properties)
+        public virtual InternalRelationshipBuilder ReferencedKey([NotNull] IEnumerable<Property> properties,
+            ConfigurationSource configurationSource)
         {
             Check.NotNull(properties, "properties");
 
@@ -150,42 +156,43 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 return this;
             }
 
-            return ReplaceForeignKey(principalProperties: principalProperties);
+            return ReplaceForeignKey(configurationSource, principalProperties: principalProperties);
         }
 
         public virtual InternalRelationshipBuilder OneToOneForeignKey(
             [NotNull] Type specifiedDependentType,
-            [NotNull] IList<PropertyInfo> propertyAccessList)
+            [NotNull] IList<PropertyInfo> propertyAccessList,
+            ConfigurationSource configurationSource)
         {
             Check.NotNull(specifiedDependentType, "specifiedDependentType");
             Check.NotNull(propertyAccessList, "propertyAccessList");
 
-            return ForeignInvertIfNeeded(specifiedDependentType).ForeignKey(propertyAccessList);
+            return ForeignInvertIfNeeded(ResolveType(specifiedDependentType))
+                .ForeignKey(propertyAccessList, configurationSource);
         }
 
         public virtual InternalRelationshipBuilder OneToOneForeignKey(
             [NotNull] Type specifiedDependentType,
-            [NotNull] IReadOnlyList<string> propertyNames)
+            [NotNull] IReadOnlyList<string> propertyNames,
+            ConfigurationSource configurationSource)
         {
             Check.NotNull(specifiedDependentType, "specifiedDependentType");
             Check.NotNull(propertyNames, "propertyNames");
 
-            return ForeignInvertIfNeeded(specifiedDependentType).ForeignKey(propertyNames);
+            return ForeignInvertIfNeeded(ResolveType(specifiedDependentType))
+                .ForeignKey(propertyNames, configurationSource);
         }
 
         public virtual InternalRelationshipBuilder OneToOneForeignKey(
             [NotNull] string specifiedDependentTypeName,
-            [NotNull] IReadOnlyList<string> propertyNames)
+            [NotNull] IReadOnlyList<string> propertyNames,
+            ConfigurationSource configurationSource)
         {
             Check.NotNull(specifiedDependentTypeName, "specifiedDependentTypeName");
             Check.NotNull(propertyNames, "propertyNames");
 
-            return ForeignInvertIfNeeded(ModelBuilder.Metadata.GetEntityType(specifiedDependentTypeName)).ForeignKey(propertyNames);
-        }
-
-        private InternalRelationshipBuilder ForeignInvertIfNeeded(Type specifiedDependentType)
-        {
-            return ForeignInvertIfNeeded(ModelBuilder.Entity(specifiedDependentType).Metadata);
+            return ForeignInvertIfNeeded(ResolveType(specifiedDependentTypeName))
+                .ForeignKey(propertyNames, configurationSource);
         }
 
         private InternalRelationshipBuilder ForeignInvertIfNeeded(EntityType entityType)
@@ -199,47 +206,49 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual InternalRelationshipBuilder OneToOneReferencedKey(
             [NotNull] Type specifiedPrincipalType,
-            [NotNull] IReadOnlyList<string> propertyNames)
+            [NotNull] IReadOnlyList<string> propertyNames,
+            ConfigurationSource configurationSource)
         {
             Check.NotNull(specifiedPrincipalType, "specifiedPrincipalType");
             Check.NotNull(propertyNames, "propertyNames");
 
-            return ReferenceInvertIfNeeded(specifiedPrincipalType).ReferencedKey(propertyNames);
+            return ReferenceInvertIfNeeded(ResolveType(specifiedPrincipalType), configurationSource)
+                .ReferencedKey(propertyNames, configurationSource);
         }
 
         public virtual InternalRelationshipBuilder OneToOneReferencedKey(
             [NotNull] string specifiedPrincipalTypeName,
-            [NotNull] IReadOnlyList<string> propertyNames)
+            [NotNull] IReadOnlyList<string> propertyNames,
+            ConfigurationSource configurationSource)
         {
             Check.NotNull(specifiedPrincipalTypeName, "specifiedPrincipalTypeName");
             Check.NotNull(propertyNames, "propertyNames");
 
-            return ReferenceInvertIfNeeded(ModelBuilder.Metadata.GetEntityType(specifiedPrincipalTypeName)).ReferencedKey(propertyNames);
+            return ReferenceInvertIfNeeded(ResolveType(specifiedPrincipalTypeName), configurationSource)
+                .ReferencedKey(propertyNames, configurationSource);
         }
-        
+
         public virtual InternalRelationshipBuilder OneToOneReferencedKey(
             [NotNull] Type specifiedPrincipalType,
-            [NotNull] IList<PropertyInfo> propertyAccessList)
+            [NotNull] IList<PropertyInfo> propertyAccessList,
+            ConfigurationSource configurationSource)
         {
             Check.NotNull(specifiedPrincipalType, "specifiedPrincipalType");
             Check.NotNull(propertyAccessList, "propertyAccessList");
 
-            return ReferenceInvertIfNeeded(specifiedPrincipalType).ReferencedKey(propertyAccessList);
+            return ReferenceInvertIfNeeded(ResolveType(specifiedPrincipalType), configurationSource)
+                .ReferencedKey(propertyAccessList, configurationSource);
         }
 
-        private InternalRelationshipBuilder ReferenceInvertIfNeeded(Type specifiedPrincipalType)
-        {
-            return ReferenceInvertIfNeeded(ModelBuilder.Entity(specifiedPrincipalType).Metadata);
-        }
-
-        private InternalRelationshipBuilder ReferenceInvertIfNeeded(EntityType entityType)
+        private InternalRelationshipBuilder ReferenceInvertIfNeeded(EntityType entityType, ConfigurationSource configurationSource)
         {
             return entityType == PrincipalType
                 ? this
-                : Invert().ReplaceForeignKey();
+                : Invert().ReplaceForeignKey(configurationSource);
         }
 
-        private InternalRelationshipBuilder ReplaceForeignKey(IReadOnlyList<Property> dependentProperties = null, IReadOnlyList<Property> principalProperties = null)
+        private InternalRelationshipBuilder ReplaceForeignKey(ConfigurationSource configurationSource,
+            IReadOnlyList<Property> dependentProperties = null, IReadOnlyList<Property> principalProperties = null)
         {
             var inverted = Metadata.EntityType != DependentType;
             dependentProperties = dependentProperties ??
@@ -256,8 +265,38 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                                           ? Metadata.Properties
                                           : Metadata.ReferencedProperties);
 
-            return ModelBuilder.Entity(Metadata.EntityType.Name)
-                .ReplaceForeignKey(this, dependentProperties, principalProperties);
+            return ModelBuilder.Entity(Metadata.EntityType.Name, configurationSource)
+                .ReplaceForeignKey(this, dependentProperties, principalProperties, configurationSource);
+        }
+
+        private EntityType ResolveType(Type type)
+        {
+            if (type == _dependentType.Type)
+            {
+                return _dependentType;
+            }
+
+            if (type == _principalType.Type)
+            {
+                return _principalType;
+            }
+
+            throw new ArgumentException(Strings.FormatEntityTypeNotInRelationship(type.FullName, _dependentType.Name, _principalType.Name));
+        }
+
+        private EntityType ResolveType(string name)
+        {
+            if (name == _dependentType.Name)
+            {
+                return _dependentType;
+            }
+
+            if (name == _principalType.Name)
+            {
+                return _principalType;
+            }
+
+            throw new ArgumentException(Strings.FormatEntityTypeNotInRelationship(name, _dependentType.Name, _principalType.Name));
         }
     }
 }

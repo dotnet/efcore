@@ -95,6 +95,7 @@
     <Compile Include="Metadata\CollectionTyoeFactoryTest.cs" />
     <Compile Include="Metadata\EntityTypeExtensionsTest.cs" />
     <Compile Include="Metadata\IndexTest.cs" />
+    <Compile Include="Metadata\Internal\ConfigurationSourceExtensionsTest.cs" />
     <Compile Include="Metadata\Internal\InternalEntityBuilderTest.cs" />
     <Compile Include="Metadata\Internal\InternalModelBuilderTest.cs" />
     <Compile Include="Metadata\MetadataBuilderTest.cs" />

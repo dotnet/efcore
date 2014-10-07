@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -14,28 +14,52 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public void ForeignKey_returns_same_instance_for_clr_properties()
         {
             var modelBuilder = new InternalModelBuilder(new Model(), null);
-            modelBuilder.Entity(typeof(Customer)).Key(new[] { Customer.IdProperty, Customer.UniqueProperty });
-            var entityBuilder = modelBuilder.Entity(typeof(Order));
+            modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit).Key(new[] { Customer.IdProperty, Customer.UniqueProperty });
+            var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
 
-            var foreignKeyBuilder = entityBuilder.ForeignKey(typeof(Customer), new[] { Order.CustomerIdProperty, Order.CustomerUniqueProperty });
+            var foreignKeyBuilder = entityBuilder.ForeignKey(typeof(Customer), new[] { Order.CustomerIdProperty, Order.CustomerUniqueProperty }, ConfigurationSource.Explicit);
 
             Assert.NotNull(foreignKeyBuilder);
-            Assert.Same(foreignKeyBuilder, entityBuilder.ForeignKey(typeof(Customer).FullName, new[] { Order.CustomerIdProperty.Name, Order.CustomerUniqueProperty.Name }));
+            Assert.Same(foreignKeyBuilder, entityBuilder.ForeignKey(typeof(Customer).FullName, new[] { Order.CustomerIdProperty.Name, Order.CustomerUniqueProperty.Name }, ConfigurationSource.Explicit));
         }
 
         [Fact]
         public void ForeignKey_returns_same_instance_for_property_names()
         {
             var modelBuilder = new InternalModelBuilder(new Model(), null);
-            modelBuilder.Entity(typeof(Customer)).Key(new[] { Customer.IdProperty, Customer.UniqueProperty });
-            var entityBuilder = modelBuilder.Entity(typeof(Order));
+            modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit).Key(new[] { Customer.IdProperty, Customer.UniqueProperty });
+            var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
             entityBuilder.Property(Order.CustomerIdProperty);
             entityBuilder.Property(Order.CustomerUniqueProperty);
 
-            var foreignKeyBuilder = entityBuilder.ForeignKey(typeof(Customer).FullName, new[] { Order.CustomerIdProperty.Name, Order.CustomerUniqueProperty.Name });
+            var foreignKeyBuilder = entityBuilder.ForeignKey(typeof(Customer).FullName, new[] { Order.CustomerIdProperty.Name, Order.CustomerUniqueProperty.Name }, ConfigurationSource.Explicit);
 
             Assert.NotNull(foreignKeyBuilder);
-            Assert.Same(foreignKeyBuilder, entityBuilder.ForeignKey(typeof(Customer), new[] { Order.CustomerIdProperty, Order.CustomerUniqueProperty }));
+            Assert.Same(foreignKeyBuilder, entityBuilder.ForeignKey(typeof(Customer), new[] { Order.CustomerIdProperty, Order.CustomerUniqueProperty }, ConfigurationSource.Explicit));
+        }
+
+        [Fact]
+        public void ForeignKey_returns_null_for_clr_properties_if_entity_type_ignored()
+        {
+            var modelBuilder = new InternalModelBuilder(new Model(), null);
+            modelBuilder.IgnoreEntity(typeof(Customer), ConfigurationSource.Explicit);
+            var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+
+            var foreignKeyBuilder = entityBuilder.ForeignKey(typeof(Customer), new[] { Order.CustomerIdProperty, Order.CustomerUniqueProperty }, ConfigurationSource.Convention);
+
+            Assert.Null(foreignKeyBuilder);
+        }
+
+        [Fact]
+        public void ForeignKey_returns_null_for_property_names_if_entity_type_ignored()
+        {
+            var modelBuilder = new InternalModelBuilder(new Model(), null);
+            modelBuilder.IgnoreEntity(typeof(Customer), ConfigurationSource.Explicit);
+            var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+
+            var foreignKeyBuilder = entityBuilder.ForeignKey(typeof(Customer).FullName, new[] { Order.CustomerIdProperty.Name, Order.CustomerUniqueProperty.Name }, ConfigurationSource.Convention);
+
+            Assert.Null(foreignKeyBuilder);
         }
 
         [Fact]
@@ -118,58 +142,83 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public void BuildRelationship_returns_same_instance_for_clr_types()
         {
             var modelBuilder = new InternalModelBuilder(new Model(), null);
-            var customerEntityBuilder = modelBuilder.Entity(typeof(Customer));
+            var customerEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
             customerEntityBuilder.Key(new[] { Customer.IdProperty, Customer.UniqueProperty });
-            var orderEntityBuilder = modelBuilder.Entity(typeof(Order));
+            var orderEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
 
-            var relationshipBuilder = orderEntityBuilder.BuildRelationship(typeof(Customer), typeof(Order), null, null, oneToOne: true);
+            var relationshipBuilder = orderEntityBuilder.BuildRelationship(typeof(Customer), typeof(Order), null, null, /*oneToOne:*/ true, ConfigurationSource.Explicit);
 
             Assert.NotNull(relationshipBuilder);
-            Assert.Same(relationshipBuilder, orderEntityBuilder.BuildRelationship(customerEntityBuilder.Metadata, orderEntityBuilder.Metadata, null, null, oneToOne: true));
+            Assert.Same(relationshipBuilder, customerEntityBuilder.BuildRelationship(customerEntityBuilder.Metadata, orderEntityBuilder.Metadata, null, null, /*oneToOne:*/ true, ConfigurationSource.Explicit));
         }
 
         [Fact]
         public void BuildRelationship_returns_same_instance_for_entity_type()
         {
             var modelBuilder = new InternalModelBuilder(new Model(), null);
-            var customerEntityBuilder = modelBuilder.Entity(typeof(Customer));
+            var customerEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
             customerEntityBuilder.Key(new[] { Customer.IdProperty, Customer.UniqueProperty });
-            var orderEntityBuilder = modelBuilder.Entity(typeof(Order));
+            var orderEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
 
-            var relationshipBuilder = orderEntityBuilder.BuildRelationship(customerEntityBuilder.Metadata, orderEntityBuilder.Metadata, null, null, oneToOne: true);
+            var relationshipBuilder = orderEntityBuilder.BuildRelationship(customerEntityBuilder.Metadata, orderEntityBuilder.Metadata, null, null, /*oneToOne:*/ true, ConfigurationSource.Explicit);
 
             Assert.NotNull(relationshipBuilder);
-            Assert.Same(relationshipBuilder, orderEntityBuilder.BuildRelationship(typeof(Customer), typeof(Order), null, null, oneToOne: true));
+            Assert.Same(relationshipBuilder, customerEntityBuilder.BuildRelationship(typeof(Customer), typeof(Order), null, null, /*oneToOne:*/ true, ConfigurationSource.Explicit));
+        }
+
+        [Fact]
+        public void BuildRelationship_returns_null_for_clr_types_if_dependent_entity_type_ignored()
+        {
+            var modelBuilder = new InternalModelBuilder(new Model(), null);
+            var customerEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
+            customerEntityBuilder.Key(new[] { Customer.IdProperty, Customer.UniqueProperty });
+            modelBuilder.IgnoreEntity(typeof(Order), ConfigurationSource.Explicit);
+
+            var relationshipBuilder = customerEntityBuilder.BuildRelationship(typeof(Customer), typeof(Order), null, null, /*oneToOne:*/ true, ConfigurationSource.Convention);
+
+            Assert.Null(relationshipBuilder);
+        }
+
+        [Fact]
+        public void BuildRelationship_returns_null_for_clr_types_if_principal_entity_type_ignored()
+        {
+            var modelBuilder = new InternalModelBuilder(new Model(), null);
+            modelBuilder.IgnoreEntity(typeof(Customer), ConfigurationSource.Explicit);
+            var orderEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+
+            var relationshipBuilder = orderEntityBuilder.BuildRelationship(typeof(Customer), typeof(Order), null, null, /*oneToOne:*/ true, ConfigurationSource.Convention);
+
+            Assert.Null(relationshipBuilder);
         }
 
         [Fact]
         public void ReplaceForeignKey_returns_same_instance_same_entity()
         {
             var modelBuilder = new InternalModelBuilder(new Model(), null);
-            var customerEntityBuilder = modelBuilder.Entity(typeof(Customer));
+            var customerEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
             customerEntityBuilder.Key(new[] { Customer.IdProperty, Customer.UniqueProperty });
-            var orderEntityBuilder = modelBuilder.Entity(typeof(Order));
+            var orderEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
 
-            var relationshipBuilder = orderEntityBuilder.BuildRelationship(typeof(Customer), typeof(Order), null, null, oneToOne: true);
-            var newRelationshipBuilder = orderEntityBuilder.ReplaceForeignKey(relationshipBuilder, new Property[0], new Property[0]);
+            var relationshipBuilder = orderEntityBuilder.BuildRelationship(typeof(Customer), typeof(Order), null, null, /*oneToOne:*/ true, ConfigurationSource.Explicit);
+            var newRelationshipBuilder = orderEntityBuilder.ReplaceForeignKey(relationshipBuilder, new Property[0], new Property[0], ConfigurationSource.Explicit);
 
             Assert.NotNull(relationshipBuilder);
-            Assert.Same(newRelationshipBuilder, orderEntityBuilder.BuildRelationship(typeof(Customer), typeof(Order), null, null, oneToOne: true));
+            Assert.Same(newRelationshipBuilder, orderEntityBuilder.BuildRelationship(typeof(Customer), typeof(Order), null, null, /*oneToOne:*/ true, ConfigurationSource.Explicit));
         }
 
         [Fact]
         public void ReplaceForeignKey_returns_same_instance_different_entity()
         {
             var modelBuilder = new InternalModelBuilder(new Model(), null);
-            var customerEntityBuilder = modelBuilder.Entity(typeof(Customer));
+            var customerEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
             customerEntityBuilder.Key(new[] { Customer.IdProperty, Customer.UniqueProperty });
-            var orderEntityBuilder = modelBuilder.Entity(typeof(Order));
+            var orderEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
 
-            var relationshipBuilder = orderEntityBuilder.BuildRelationship(typeof(Customer), typeof(Order), null, null, oneToOne: true);
-            var newRelationshipBuilder = orderEntityBuilder.ReplaceForeignKey(relationshipBuilder.Invert(), relationshipBuilder.Metadata.ReferencedProperties, relationshipBuilder.Metadata.Properties);
+            var relationshipBuilder = orderEntityBuilder.BuildRelationship(typeof(Customer), typeof(Order), null, null, /*oneToOne:*/ true, ConfigurationSource.Explicit);
+            var newRelationshipBuilder = orderEntityBuilder.ReplaceForeignKey(relationshipBuilder.Invert(), relationshipBuilder.Metadata.ReferencedProperties, relationshipBuilder.Metadata.Properties, ConfigurationSource.Explicit);
 
             Assert.NotNull(relationshipBuilder);
-            Assert.Same(newRelationshipBuilder, orderEntityBuilder.BuildRelationship(typeof(Order), typeof(Customer), null, null, oneToOne: true));
+            Assert.Same(newRelationshipBuilder, orderEntityBuilder.BuildRelationship(typeof(Order), typeof(Customer), null, null, /*oneToOne:*/ true, ConfigurationSource.Explicit));
         }
 
         private class Order

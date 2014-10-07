@@ -11,7 +11,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
     public class InternalModelBuilder : InternalMetadataBuilder<Model>
     {
         private readonly IModelChangeListener _modelChangeListener;
-        private readonly Dictionary<EntityType, InternalEntityBuilder> _entityBuilders = new Dictionary<EntityType, InternalEntityBuilder>();
+        private readonly MetadataDictionary<EntityType, InternalEntityBuilder> _entityBuilders =
+            new MetadataDictionary<EntityType, InternalEntityBuilder>();
+        private readonly LazyRef<Dictionary<string, ConfigurationSource>> _ignoredEntityTypeNames =
+            new LazyRef<Dictionary<string, ConfigurationSource>>(() => new Dictionary<string, ConfigurationSource>());
 
         public InternalModelBuilder([NotNull] Model metadata, [CanBeNull] IModelChangeListener modelChangeListener)
             : base(metadata)
@@ -24,62 +27,102 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             get { return this; }
         }
 
-        public virtual InternalEntityBuilder Entity([NotNull] string name)
+        public virtual InternalEntityBuilder Entity([NotNull] string name, ConfigurationSource configurationSource)
         {
             Check.NotEmpty(name, "name");
 
-            InternalEntityBuilder entityBuilder;
-            var entityType = Metadata.TryGetEntityType(name);
-            if (entityType == null)
+            if (!CanAdd(name, configurationSource))
             {
-                entityType = new EntityType(name);
-                Metadata.AddEntityType(entityType);
-                EntityTypeAdded(entityType);
-            }
-            else
-            {
-                if (_entityBuilders.TryGetValue(entityType, out entityBuilder))
-                {
-                    return entityBuilder;
-                }
+                return null;
             }
 
-            entityBuilder = new InternalEntityBuilder(entityType, ModelBuilder);
-            _entityBuilders.Add(entityType, entityBuilder);
-            return entityBuilder;
+            return _entityBuilders.GetOrAdd(
+                () => Metadata.TryGetEntityType(name),
+                () => EntityTypeAdded(new EntityType(name)),
+                entityType => new InternalEntityBuilder(entityType, ModelBuilder),
+                configurationSource);
         }
 
-        public virtual InternalEntityBuilder Entity([NotNull] Type type)
+        public virtual InternalEntityBuilder Entity([NotNull] Type type, ConfigurationSource configurationSource)
         {
             Check.NotNull(type, "type");
 
-            InternalEntityBuilder entityBuilder;
-            var entityType = Metadata.TryGetEntityType(type);
-            if (entityType == null)
+            if (!CanAdd(type.FullName, configurationSource))
             {
-                entityType = new EntityType(type);
-                Metadata.AddEntityType(entityType);
-                EntityTypeAdded(entityType);
-            }
-            else
-            {
-                if (_entityBuilders.TryGetValue(entityType, out entityBuilder))
-                {
-                    return entityBuilder;
-                }
+                return null;
             }
 
-            entityBuilder = new InternalEntityBuilder(entityType, ModelBuilder);
-            _entityBuilders.Add(entityType, entityBuilder);
-            return entityBuilder;
+            return _entityBuilders.GetOrAdd(
+                () => Metadata.TryGetEntityType(type),
+                () => EntityTypeAdded(new EntityType(type)),
+                entityType => new InternalEntityBuilder(entityType, ModelBuilder),
+                configurationSource);
         }
 
-        private void EntityTypeAdded(EntityType entityType)
+        private bool CanAdd(string name, ConfigurationSource configurationSource)
         {
+            ConfigurationSource ignoredConfigurationSource;
+            if (_ignoredEntityTypeNames.HasValue
+                && _ignoredEntityTypeNames.Value.TryGetValue(name, out ignoredConfigurationSource))
+            {
+                if (!configurationSource.Overrides(ignoredConfigurationSource))
+                {
+                    return false;
+                }
+
+                _ignoredEntityTypeNames.Value.Remove(name);
+            }
+
+            return true;
+        }
+
+        private EntityType EntityTypeAdded(EntityType entityType)
+        {
+            Metadata.AddEntityType(entityType);
+
             if (_modelChangeListener != null)
             {
                 _modelChangeListener.OnEntityTypeAdded(entityType);
             }
+
+            return entityType;
+        }
+
+        public virtual bool IgnoreEntity([NotNull] string name, ConfigurationSource configurationSource)
+        {
+            Check.NotEmpty(name, "name");
+
+            ConfigurationSource ignoredConfigurationSource;
+            if (_ignoredEntityTypeNames.Value.TryGetValue(name, out ignoredConfigurationSource))
+            {
+                if (!configurationSource.Overrides(ignoredConfigurationSource)
+                    || configurationSource == ignoredConfigurationSource)
+                {
+                    return true;
+                }
+            }
+
+            var entityType = Metadata.TryGetEntityType(name);
+            if (entityType != null)
+            {
+                if (!_entityBuilders.Remove(entityType, configurationSource))
+                {
+                    return false;
+                }
+
+                Metadata.RemoveEntityType(entityType);
+            }
+
+            _ignoredEntityTypeNames.Value[name] = configurationSource;
+
+            return true;
+        }
+
+        public virtual bool IgnoreEntity([NotNull] Type type, ConfigurationSource configurationSource)
+        {
+            Check.NotNull(type, "type");
+
+            return IgnoreEntity(type.FullName, configurationSource);
         }
     }
 }

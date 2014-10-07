@@ -70,21 +70,21 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual EntityBuilder<T> Entity<T>()
         {
-            return new EntityBuilder<T>(Builder.Entity(typeof(T)));
+            return new EntityBuilder<T>(Builder.Entity(typeof(T), ConfigurationSource.Explicit));
         }
 
         public virtual EntityBuilder Entity([NotNull] Type entityType)
         {
             Check.NotNull(entityType, "entityType");
 
-            return new EntityBuilder(Builder.Entity(entityType));
+            return new EntityBuilder(Builder.Entity(entityType, ConfigurationSource.Explicit));
         }
 
         public virtual EntityBuilder Entity([NotNull] string name)
         {
             Check.NotEmpty(name, "name");
 
-            return new EntityBuilder(Builder.Entity(name));
+            return new EntityBuilder(Builder.Entity(name, ConfigurationSource.Explicit));
         }
 
         public virtual BasicModelBuilder Entity<T>([NotNull] Action<EntityBuilder<T>> entityBuilder)
@@ -179,7 +179,7 @@ namespace Microsoft.Data.Entity.Metadata
                 Check.NotNull(referencedEntityTypeName, "referencedEntityTypeName");
                 Check.NotNull(propertyNames, "propertyNames");
 
-                return new ForeignKeyBuilder(Builder.ForeignKey(referencedEntityTypeName, propertyNames));
+                return new ForeignKeyBuilder(Builder.ForeignKey(referencedEntityTypeName, propertyNames, ConfigurationSource.Explicit));
             }
 
             public virtual IndexBuilder Index([NotNull] params string[] propertyNames)
@@ -438,7 +438,7 @@ namespace Microsoft.Data.Entity.Metadata
             {
                 Check.NotNull(foreignKeyExpression, "foreignKeyExpression");
 
-                return new ForeignKeyBuilder(Builder.ForeignKey(typeof(TReferencedEntityType), foreignKeyExpression.GetPropertyAccessList()));
+                return new ForeignKeyBuilder(Builder.ForeignKey(typeof(TReferencedEntityType), foreignKeyExpression.GetPropertyAccessList(), ConfigurationSource.Explicit));
             }
 
             public virtual IndexBuilder Index([NotNull] Expression<Func<TEntity, object>> indexExpression)

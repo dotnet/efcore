@@ -339,4 +339,7 @@
   <data name="CollectionArgumentContainsNulls" xml:space="preserve">
     <value>The collection argument '{argumentName}' must not contain any null references.</value>
   </data>
+  <data name="EntityTypeNotInRelationship" xml:space="preserve">
+    <value>The specified type '{type}' is invalid. It should be either the dependent type '{dependentType}' or the principal type '{principalType}'.</value>
+  </data>
 </root>
