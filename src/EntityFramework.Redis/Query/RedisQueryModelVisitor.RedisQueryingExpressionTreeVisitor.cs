@@ -33,21 +33,20 @@ namespace Microsoft.Data.Entity.Redis.Query
 
             protected override Expression VisitEntityQueryable(Type elementType)
             {
+                var methodProvider =
+                    ((RedisQueryCompilationContext)_parentVisitor.QueryCompilationContext).QueryMethodProvider;
+                var methodInfo = methodProvider.ProjectionQueryMethod;
                 if (_parentVisitor.QuerySourceRequiresMaterialization(_querySource))
                 {
-                    var entityType = _parentVisitor.QueryCompilationContext.Model.GetEntityType(elementType);
-
-                    return Expression.Call(
-                        _executeMaterializedQueryExpressionMethodInfo.MakeGenericMethod(elementType),
-                        QueryContextParameter,
-                        Expression.Constant(entityType));
+                    methodInfo = methodProvider.MaterializationQueryMethod
+                                    .MakeGenericMethod(elementType);
                 }
 
                 return Expression.Call(
-                    Expression.Constant(_parentVisitor),
-                    _executeNonMaterializedQueryExpressionMethodInfo,
+                    methodInfo,
                     Expression.Constant(_querySource),
-                    QueryContextParameter);
+                    QueryContextParameter,
+                    Expression.Constant(_parentVisitor));
             }
         }
     }

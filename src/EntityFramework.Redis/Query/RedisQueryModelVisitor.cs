@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq.Expressions;
-using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
@@ -31,8 +30,10 @@ namespace Microsoft.Data.Entity.Redis.Query
         {
         }
 
-        private RedisQuery FindOrCreateQuery(IQuerySource querySource)
+        public virtual RedisQuery FindOrCreateQuery([NotNull] IQuerySource querySource)
         {
+            Check.NotNull(querySource, "querySource");
+
             var entityType = QueryCompilationContext.Model.GetEntityType(querySource.ItemType);
             RedisQuery redisQuery;
             if (!_queriesBySource.TryGetValue(querySource, out redisQuery))
@@ -108,32 +109,6 @@ namespace Microsoft.Data.Entity.Redis.Query
                         redisQuery.AddProperty(property);
                         return memberBinder(property, qs, redisQuery);
                     });
-        }
-
-        private static readonly MethodInfo _executeMaterializedQueryExpressionMethodInfo =
-            typeof(RedisQueryModelVisitor).GetTypeInfo().GetDeclaredMethod("ExecuteMaterializedQueryExpression");
-
-        [UsedImplicitly]
-        private static IEnumerable<TResult> ExecuteMaterializedQueryExpression<TResult>(
-            QueryContext queryContext, IEntityType entityType)
-            where TResult : class, new()
-        {
-            var redisQueryContext = (RedisQueryContext)queryContext;
-
-            return redisQueryContext.GetResultsFromRedis<TResult>(entityType);
-        }
-
-        private static readonly MethodInfo _executeNonMaterializedQueryExpressionMethodInfo =
-            typeof(RedisQueryModelVisitor).GetTypeInfo().GetDeclaredMethod("ExecuteValueReader");
-
-        [UsedImplicitly]
-        private IEnumerable<IValueReader> ExecuteValueReader(
-            IQuerySource querySource, QueryContext queryContext)
-        {
-            var redisQuery = FindOrCreateQuery(querySource);
-            var redisQueryContext = (RedisQueryContext)queryContext;
-
-            return redisQuery.GetValueReaders(redisQueryContext);
         }
     }
 }

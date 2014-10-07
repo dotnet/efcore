@@ -74,6 +74,7 @@
     <Compile Include="AsNoTrackingTest.cs" />
     <Compile Include="BuiltInDataTypesFixture.cs" />
     <Compile Include="BuiltInDataTypesTest.cs" />
+    <Compile Include="NorthwindAsyncQueryTest.cs" />
     <Compile Include="NorthwindQueryFixture.cs" />
     <Compile Include="NorthwindQueryTest.cs" />
     <Compile Include="RedisTestConfig.cs" />

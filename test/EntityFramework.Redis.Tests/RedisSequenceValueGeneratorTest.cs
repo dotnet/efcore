@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
@@ -123,12 +124,13 @@ namespace Microsoft.Data.Entity.Redis.Tests
             var dbConfigurationMock = new Mock<DbContextConfiguration>();
             var redisDatabaseMock = new Mock<RedisDatabase>(dbConfigurationMock.Object);
             redisDatabaseMock
-                .Setup(db => db.GetNextGeneratedValue(It.IsAny<IProperty>(), It.IsAny<long>(), It.IsAny<string>()))
-                .Returns<IProperty, long, string>((p, l, s) =>
+                .Setup(db => db.GetNextGeneratedValueAsync(
+                    It.IsAny<IProperty>(), It.IsAny<long>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .Returns<IProperty, long, string, CancellationToken>((p, l, s, c) =>
                 {
                     var originalValue = incrementingValue;
                     incrementingValue += l;
-                    return originalValue;
+                    return Task.FromResult(originalValue);
                 });
 
             var intProperty = stateEntry.EntityType.GetProperty("Id");
@@ -271,12 +273,13 @@ namespace Microsoft.Data.Entity.Redis.Tests
             var dbConfigurationMock = new Mock<DbContextConfiguration>();
             var redisDatabaseMock = new Mock<RedisDatabase>(dbConfigurationMock.Object);
             redisDatabaseMock
-                .Setup(db => db.GetNextGeneratedValue(It.IsAny<IProperty>(), It.IsAny<long>(), It.IsAny<string>()))
-                .Returns<IProperty, long, string>((p, l, s) =>
+                .Setup(db => db.GetNextGeneratedValueAsync(
+                    It.IsAny<IProperty>(), It.IsAny<long>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .Returns<IProperty, long, string, CancellationToken>((p, l, s, c) =>
                 {
                     var originalValue = incrementingValue;
                     incrementingValue += l;
-                    return originalValue;
+                    return Task.FromResult(originalValue);
                 });
 
             var generator = new RedisSequenceValueGenerator(redisDatabaseMock.Object, "TestSequenceName", 1);

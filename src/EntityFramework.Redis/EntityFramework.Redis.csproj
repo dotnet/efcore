@@ -77,6 +77,9 @@
     <Compile Include="Properties\Strings.Designer.cs">
       <DependentUpon>Strings.resx</DependentUpon>
     </Compile>
+    <Compile Include="Query\AsyncQueryMethodProvider.cs" />
+    <Compile Include="Query\IQueryMethodProvider.cs" />
+    <Compile Include="Query\QueryMethodProvider.cs" />
     <Compile Include="Query\RedisQuery.cs" />
     <Compile Include="Query\RedisQueryCompilationContext.cs" />
     <Compile Include="Query\RedisQueryContext.cs" />
