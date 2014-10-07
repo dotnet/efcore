@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             {
                 using (var master = connection.CreateMasterConnection())
                 {
-                    Assert.Equal(@"Data Source=""(localdb)\v11.0"";Initial Catalog=master;Integrated Security=True", master.ConnectionString);
+                    Assert.Equal(@"Data Source=(localdb)\v11.0;Initial Catalog=master;Integrated Security=True", master.ConnectionString);
                 }
             }
         }
