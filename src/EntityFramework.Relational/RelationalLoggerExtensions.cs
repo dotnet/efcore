@@ -17,7 +17,7 @@ namespace Microsoft.Framework.Logging
             Check.NotNull(logger, "logger");
             Check.NotEmpty(sql, "sql");
 
-            logger.WriteCore(TraceType.Verbose, RelationalLoggingEventIds.Sql, sql, null, (o, _) => (string)o);
+            logger.Write(TraceType.Verbose, RelationalLoggingEventIds.Sql, sql, null, (o, _) => (string)o);
         }
 
         public static void CreatingDatabase([NotNull] this ILogger logger, [NotNull] string databaseName)
@@ -25,7 +25,7 @@ namespace Microsoft.Framework.Logging
             Check.NotNull(logger, "logger");
             Check.NotEmpty(databaseName, "databaseName");
 
-            logger.WriteCore(TraceType.Information, RelationalLoggingEventIds.CreatingDatabase, databaseName, null,
+            logger.Write(TraceType.Information, RelationalLoggingEventIds.CreatingDatabase, databaseName, null,
                 (o, _) => Strings.FormatRelationalLoggerCreatingDatabase(databaseName));
         }
 
@@ -34,7 +34,7 @@ namespace Microsoft.Framework.Logging
             Check.NotNull(logger, "logger");
             Check.NotEmpty(connectionString, "connectionString");
 
-            logger.WriteCore(TraceType.Verbose, RelationalLoggingEventIds.OpeningConnection, connectionString, null,
+            logger.Write(TraceType.Verbose, RelationalLoggingEventIds.OpeningConnection, connectionString, null,
                 (o, _) => Strings.FormatRelationalLoggerOpeningConnection(o));
         }
 
@@ -43,7 +43,7 @@ namespace Microsoft.Framework.Logging
             Check.NotNull(logger, "logger");
             Check.NotEmpty(connectionString, "connectionString");
 
-            logger.WriteCore(TraceType.Verbose, RelationalLoggingEventIds.ClosingConnection, connectionString, null,
+            logger.Write(TraceType.Verbose, RelationalLoggingEventIds.ClosingConnection, connectionString, null,
                 (o, _) => Strings.FormatRelationalLoggerClosingConnection(o));
         }
 
@@ -51,7 +51,7 @@ namespace Microsoft.Framework.Logging
         {
             Check.NotNull(logger, "logger");
 
-            logger.WriteCore(TraceType.Verbose, RelationalLoggingEventIds.BeginningTransaction, isolationLevel.ToString("G"), null,
+            logger.Write(TraceType.Verbose, RelationalLoggingEventIds.BeginningTransaction, isolationLevel.ToString("G"), null,
                 (o, _) => Strings.FormatRelationalLoggerBeginningTransaction(o));
         }
 
@@ -59,7 +59,7 @@ namespace Microsoft.Framework.Logging
         {
             Check.NotNull(logger, "logger");
 
-            logger.WriteCore(TraceType.Verbose, RelationalLoggingEventIds.CommittingTransaction, null, null,
+            logger.Write(TraceType.Verbose, RelationalLoggingEventIds.CommittingTransaction, null, null,
                 (_, __) => Strings.RelationalLoggerCommittingTransaction);
         }
 
@@ -67,7 +67,7 @@ namespace Microsoft.Framework.Logging
         {
             Check.NotNull(logger, "logger");
 
-            logger.WriteCore(TraceType.Verbose, RelationalLoggingEventIds.RollingbackTransaction, null, null,
+            logger.Write(TraceType.Verbose, RelationalLoggingEventIds.RollingbackTransaction, null, null,
                 (_, __) => Strings.RelationalLoggerRollingbackTransaction);
         }
     }

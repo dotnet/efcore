@@ -171,7 +171,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     return NullScope.Instance;
                 }
 
-                public bool WriteCore(TraceType eventType, int eventId, object state, Exception exception, Func<object, Exception, string> formatter)
+                public void Write(TraceType eventType, int eventId, object state, Exception exception, Func<object, Exception, string> formatter)
                 {
                     var error = state as DataStoreErrorLogState;
                     if (error != null)
@@ -180,7 +180,10 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         LastDataStoreErrorException = exception;
                         LastDataStoreErrorFormatter = formatter;
                     }
+                }
 
+                public bool IsEnabled(TraceType eventType)
+                {
                     return true;
                 }
 

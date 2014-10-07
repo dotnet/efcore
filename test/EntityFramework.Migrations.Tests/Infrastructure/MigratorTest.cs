@@ -1491,7 +1491,7 @@ new StringBuilder()
                 _builder = builder;
             }
 
-            public bool WriteCore(TraceType eventType, int eventId, object state, Exception exception, Func<object, Exception, string> formatter)
+            public void Write(TraceType eventType, int eventId, object state, Exception exception, Func<object, Exception, string> formatter)
             {
                 _builder
                     .Append(_name)
@@ -1499,7 +1499,10 @@ new StringBuilder()
                     .Append(eventType.ToString("G"))
                     .Append(" ")
                     .AppendLine(formatter(state, exception));
+            }
 
+            public bool IsEnabled(TraceType eventType)
+            {
                 return true;
             }
 

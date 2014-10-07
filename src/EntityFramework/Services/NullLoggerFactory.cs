@@ -26,8 +26,12 @@ namespace Microsoft.Data.Entity.Services
         {
         }
 
-        public bool WriteCore(
+        public void Write(
             TraceType eventType, int eventId, object state, Exception exception, Func<object, Exception, string> formatter)
+        {
+        }
+
+        public bool IsEnabled(TraceType eventType)
         {
             return false;
         }

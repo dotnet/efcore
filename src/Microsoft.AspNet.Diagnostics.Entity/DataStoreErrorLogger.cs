@@ -48,14 +48,17 @@ namespace Microsoft.AspNet.Diagnostics.Entity
 #endif
         }
 
-        public virtual bool WriteCore(TraceType eventType, int eventId, [CanBeNull] object state, [CanBeNull] Exception exception, [CanBeNull] Func<object, Exception, string> formatter)
+        public virtual void Write(TraceType eventType, int eventId, [CanBeNull] object state, [CanBeNull] Exception exception, [CanBeNull] Func<object, Exception, string> formatter)
         {
             var errorState = state as DataStoreErrorLogState;
             if (errorState != null && exception != null && LastError != null)
             {
                 LastError.SetError(errorState.ContextType, exception);
             }
+        }
 
+        public virtual bool IsEnabled(TraceType eventType)
+        {
             return true;
         }
 

@@ -30,9 +30,13 @@ namespace Microsoft.AspNet.Diagnostics.Entity.FunctionalTests.Helpers
                 get { return _messages; }
             }
 
-            public bool WriteCore(TraceType eventType, int eventId, object state, Exception exception, Func<object, Exception, string> formatter)
+            public void Write(TraceType eventType, int eventId, object state, Exception exception, Func<object, Exception, string> formatter)
             {
                 _messages.Add(formatter(state, exception));
+            }
+            
+            public bool IsEnabled(TraceType eventType)
+            {
                 return true;
             }
 
