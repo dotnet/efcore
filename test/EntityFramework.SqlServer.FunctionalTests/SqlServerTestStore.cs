@@ -146,9 +146,26 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             }
         }
 
+        public Task<bool> ExistsAsync()
+        {
+            try
+            {
+                await _connection.OpenAsync();
+
+                _connection.Close();
+
+                return true;
+            }
+            catch (SqlException e) if (e.Number == 233 || e.Number == -2 || e.Number == 4060)
+            {
+            }
+
+            return false;
+        }
+
         private async Task<SqlServerTestStore> CreateTransientAsync(bool createDatabase)
         {
-            await DeleteDatabaseAsync(_name);
+            await DeleteDatabaseAsync();
 
             _connection = new SqlConnection(CreateConnectionString(_name));
 
@@ -173,7 +190,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             return this;
         }
 
-        private async Task DeleteDatabaseAsync(string name)
+        public async Task DeleteDatabaseAsync()
         {
             using (var master = new SqlConnection(CreateConnectionString("master")))
             {
@@ -189,7 +206,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                                           BEGIN
                                               ALTER DATABASE [{0}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
                                               DROP DATABASE [{0}];
-                                          END", name);
+                                          END", _name);
 
                     await command.ExecuteNonQueryAsync();
 
@@ -288,23 +305,23 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             if (_deleteDatabase)
             {
-                DeleteDatabaseAsync(_name).Wait();
+                DeleteDatabaseAsync().Wait();
             }
         }
 
         public static string CreateConnectionString(string name)
         {
             return new SqlConnectionStringBuilder
-                {
-                    DataSource = @"(localdb)\v11.0",
-                    // TODO: Currently nested queries are run while processing the results of outer queries
-                    // This either requires MARS or creation of a new connection for each query. Currently using
-                    // MARS since cloning connections is known to be problematic.
-                    MultipleActiveResultSets = true,
-                    InitialCatalog = name,
-                    IntegratedSecurity = true,
-                    ConnectTimeout = 30
-                }.ConnectionString;
+            {
+                DataSource = @"(localdb)\v11.0",
+                // TODO: Currently nested queries are run while processing the results of outer queries
+                // This either requires MARS or creation of a new connection for each query. Currently using
+                // MARS since cloning connections is known to be problematic.
+                MultipleActiveResultSets = true,
+                InitialCatalog = name,
+                IntegratedSecurity = true,
+                ConnectTimeout = 30
+            }.ConnectionString;
         }
     }
 }
