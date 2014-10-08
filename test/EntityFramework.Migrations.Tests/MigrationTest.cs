@@ -1,6 +1,8 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Builders;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Migrations.Model;
@@ -49,6 +51,21 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             {
                 migrationBuilder.DropColumn("dbo.MyTable", "Foo");
                 migrationBuilder.DropTable("dbo.MyTable");
+            }
+
+            protected override string MigrationId
+            {
+                get { throw new NotImplementedException(); }
+            }
+
+            protected override string ProductVersion
+            {
+                get { throw new NotImplementedException(); }
+            }
+
+            protected override IModel TargetModel
+            {
+                get { throw new NotImplementedException(); }
             }
         }
     }

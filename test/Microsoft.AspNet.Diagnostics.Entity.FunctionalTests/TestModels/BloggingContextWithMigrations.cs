@@ -53,17 +53,17 @@ namespace Microsoft.AspNet.Diagnostics.Entity.Tests
         [ContextType(typeof(BloggingContextWithMigrations))]
         public class MigrationOne : Migration, IMigrationMetadata
         {
-            string IMigrationMetadata.MigrationId
+            protected override string MigrationId
             {
                 get { return "111111111111111_MigrationOne"; }
             }
 
-            string IMigrationMetadata.ProductVersion
+            protected override string ProductVersion
             {
                 get { return CurrentProductVersion; }
             }
 
-            IModel IMigrationMetadata.TargetModel
+            protected override IModel TargetModel
             {
                 get { return new BloggingContextWithMigrationsModelSnapshot().Model; }
             }
@@ -88,17 +88,17 @@ namespace Microsoft.AspNet.Diagnostics.Entity.Tests
         [ContextType(typeof(BloggingContextWithMigrations))]
         public class MigrationTwo : Migration, IMigrationMetadata
         {
-            string IMigrationMetadata.MigrationId
+            protected override string MigrationId
             {
                 get { return "222222222222222_MigrationTwo"; }
             }
 
-            string IMigrationMetadata.ProductVersion
+            protected override string ProductVersion
             {
                 get { return CurrentProductVersion; }
             }
 
-            IModel IMigrationMetadata.TargetModel
+            protected override IModel TargetModel
             {
                 get { return new BloggingContextWithMigrationsModelSnapshot().Model; }
             }

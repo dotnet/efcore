@@ -33,17 +33,17 @@ namespace Microsoft.AspNet.Diagnostics.Entity.Tests
         [ContextType(typeof(BloggingContextWithSnapshotThatThrows))]
         public class MigrationOne : Migration, IMigrationMetadata
         {
-            string IMigrationMetadata.MigrationId
+            protected override string MigrationId
             {
                 get { return "111111111111111_MigrationOne"; }
             }
 
-            string IMigrationMetadata.ProductVersion
+            protected override string ProductVersion
             {
                 get { return CurrentProductVersion; }
             }
 
-            IModel IMigrationMetadata.TargetModel
+            protected override IModel TargetModel
             {
                 get { return new BloggingContextWithSnapshotThatThrowsModelSnapshot().Model; }
             }
