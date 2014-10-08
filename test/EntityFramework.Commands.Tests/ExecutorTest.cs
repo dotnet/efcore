@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.Commands.Tests
 
                 operation.Object.Execute(() => { throw error; });
 
-                Assert.Equal(error.GetType().FullName, handler.ErrorType);
+                Assert.Equal(error.GetType().AssemblyQualifiedName, handler.ErrorType);
                 Assert.Equal(error.Message, handler.ErrorMessage);
                 Assert.NotEmpty(handler.ErrorStackTrace);
             }

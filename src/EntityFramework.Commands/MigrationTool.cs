@@ -98,16 +98,11 @@ namespace Microsoft.Data.Entity.Commands
             yield return modelSnapshotFile;
         }
 
-        // TODO: Find in _assembly instead filtering by contextTypeName (See #628)
         public virtual IEnumerable<IMigrationMetadata> GetMigrations([CanBeNull] string contextTypeName)
         {
             var contextType = GetContextType(contextTypeName);
-            using (var context = CreateContext(contextType))
-            {
-                var migrator = CreateMigrator(context);
 
-                return migrator.GetLocalMigrations();
-            }
+            return MigrationAssembly.LoadMigartions(GetMigrationTypes(), contextType);
         }
 
         public virtual string ScriptMigration(
@@ -155,10 +150,14 @@ namespace Microsoft.Data.Entity.Commands
             return ContextTool.SelectType(GetContextTypes(), name);
         }
 
-        // TODO: Find from migration types instead (See #628)
         public virtual IEnumerable<Type> GetContextTypes()
         {
-            return ContextTool.GetContextTypes(_assembly);
+            return ContextTool.GetContextTypes(_assembly)
+                .Concat(
+                    GetMigrationTypes()
+                    .Select(MigrationAssembly.TryGetContextType)
+                    .Where(t => t != null))
+                .Distinct();
         }
 
         private DbContext CreateContext(Type type)
@@ -176,6 +175,11 @@ namespace Microsoft.Data.Entity.Commands
         private Migrator CreateMigrator(DbContext context)
         {
             return context.Configuration.Services.ServiceProvider.GetService<Migrator>();
+        }
+
+        private IEnumerable<Type> GetMigrationTypes()
+        {
+            return MigrationAssembly.GetMigrationTypes(_assembly);
         }
     }
 }

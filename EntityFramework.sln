@@ -67,6 +67,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.Performance
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Performance", "Performance", "{FBEBCED5-F50F-4F2F-954F-5F2E65777672}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.Commands.FunctionalTests", "test\EntityFramework.Commands.FunctionalTests\EntityFramework.Commands.FunctionalTests.csproj", "{43FC8426-D120-44F7-B6D7-6F256D78B5BE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -189,6 +191,10 @@ Global
 		{A01D56A2-5385-4049-A4B8-EC4D09228114}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A01D56A2-5385-4049-A4B8-EC4D09228114}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A01D56A2-5385-4049-A4B8-EC4D09228114}.Release|Any CPU.Build.0 = Release|Any CPU
+		{43FC8426-D120-44F7-B6D7-6F256D78B5BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{43FC8426-D120-44F7-B6D7-6F256D78B5BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{43FC8426-D120-44F7-B6D7-6F256D78B5BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{43FC8426-D120-44F7-B6D7-6F256D78B5BE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -224,5 +230,6 @@ Global
 		{9216D88D-CE9E-456F-9B77-1C43171633CB} = {FBEBCED5-F50F-4F2F-954F-5F2E65777672}
 		{A01D56A2-5385-4049-A4B8-EC4D09228114} = {FBEBCED5-F50F-4F2F-954F-5F2E65777672}
 		{FBEBCED5-F50F-4F2F-954F-5F2E65777672} = {547020C0-976F-4542-81CE-7FD465595614}
+		{43FC8426-D120-44F7-B6D7-6F256D78B5BE} = {547020C0-976F-4542-81CE-7FD465595614}
 	EndGlobalSection
 EndGlobal

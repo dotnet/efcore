@@ -54,8 +54,7 @@ namespace Microsoft.Data.Entity.Commands
 
         public virtual string GetContextTypeImpl([CanBeNull] string name)
         {
-            // TODO: Assembly-qualified
-            return _migrationTool.GetContextType(name).FullName;
+            return _migrationTool.GetContextType(name).AssemblyQualifiedName;
         }
 
         public class AddMigration : OperationBase
@@ -148,16 +147,21 @@ namespace Microsoft.Data.Entity.Commands
         public virtual IEnumerable<IDictionary> GetContextTypesImpl()
         {
             var contextTypes = _migrationTool.GetContextTypes().ToArray();
-            var groups = contextTypes.GroupBy(t => t.Name).ToArray();
+            var nameGroups = contextTypes.GroupBy(t => t.Name).ToArray();
+            var fullNameGroups = contextTypes.GroupBy(t => t.FullName).ToArray();
 
-            // TODO: Assembly-qualified
             return contextTypes.Select(
                 t =>
                 {
                     var result = new Hashtable();
+                    result["AssemblyQualifiedName"] = t.AssemblyQualifiedName;
                     result["FullName"] = t.FullName;
                     result["Name"] = t.Name;
-                    result["SafeName"] = groups.Count(g => g.Key == t.Name) == 1 ? t.Name : t.FullName;
+                    result["SafeName"] = nameGroups.Count(g => g.Key == t.Name) == 1
+                        ? t.Name
+                        : fullNameGroups.Count(g => g.Key == t.FullName) == 1
+                            ? t.FullName
+                            : t.AssemblyQualifiedName;
 
                     return result;
                 });
@@ -223,7 +227,7 @@ namespace Microsoft.Data.Entity.Commands
                 }
                 catch (Exception ex)
                 {
-                    _handler.OnError(ex.GetType().FullName, ex.Message, ex.ToString());
+                    _handler.OnError(ex.GetType().AssemblyQualifiedName, ex.Message, ex.ToString());
                 }
             }
 

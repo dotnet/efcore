@@ -1,0 +1,14 @@
+{
+    "dependencies": {
+        "EntityFramework.Commands": "7.0.0-*",
+        "Microsoft.Framework.Runtime.Roslyn": "1.0.0-*",
+        "Xunit.KRunner": "1.0.0-*"
+    },
+    "code": [ "**\\*.cs", "..\\..\\src\\EntityFramework.Commands\\tools\\Handler.cs" ],
+    "commands": {
+        "test": "Xunit.KRunner"
+    },
+    "frameworks": {
+        "aspnet50": { }
+    }
+}

@@ -46,17 +46,33 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             get { return _model ?? (_model = LoadModel()); }
         }
 
+        public static IEnumerable<Type> GetMigrationTypes([NotNull] Assembly assembly)
+        {
+            Check.NotNull(assembly, "assembly");
+
+            return assembly.GetAccessibleTypes()
+                   .Where(t => t.GetTypeInfo().IsSubclassOf(typeof(Migration))
+                               && t.GetPublicConstructor() != null
+                               && !t.GetTypeInfo().IsAbstract
+                               && !t.GetTypeInfo().IsGenericType);
+        }
+
+        public static IEnumerable<IMigrationMetadata> LoadMigartions(
+            [NotNull] IEnumerable<Type> migrationTypes,
+            [CanBeNull] Type contextType)
+        {
+            Check.NotNull(migrationTypes, "migrationTypes");
+
+            return migrationTypes
+                .Where(t => TryGetContextType(t) == contextType)
+                .Select(t => (IMigrationMetadata)Activator.CreateInstance(t))
+                .OrderBy(m => m.MigrationId);
+        }
+
         protected virtual IReadOnlyList<IMigrationMetadata> LoadMigrations()
         {
             var contextType = ContextConfiguration.Context.GetType();
-            return Assembly.GetAccessibleTypes()
-                .Where(t => t.GetTypeInfo().IsSubclassOf(typeof(Migration))
-                            && t.GetPublicConstructor() != null
-                            && !t.GetTypeInfo().IsAbstract
-                            && !t.GetTypeInfo().IsGenericType
-                            && TryGetContextType(t) == contextType)
-                .Select(t => (IMigrationMetadata)Activator.CreateInstance(t))
-                .OrderBy(m => m.MigrationId)
+            return LoadMigartions(GetMigrationTypes(Assembly), contextType)
                 .ToArray();
         }
 
@@ -75,8 +91,10 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                 : null;
         }
 
-        protected virtual Type TryGetContextType(Type type)
+        public static Type TryGetContextType([NotNull] Type type)
         {
+            Check.NotNull(type, "type");
+
             var contextTypeAttribute = type.GetTypeInfo().GetCustomAttribute<ContextTypeAttribute>(inherit: true);
 
             return contextTypeAttribute != null ? contextTypeAttribute.ContextType : null;

@@ -96,7 +96,9 @@ namespace Microsoft.Data.Entity.Commands
             var comparisonType = ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
 
             return types.Where(
-                t => string.Equals(t.Name, name, comparisonType) || string.Equals(t.FullName, name, comparisonType));
+                t => string.Equals(t.Name, name, comparisonType)
+                    || string.Equals(t.FullName, name, comparisonType)
+                    || string.Equals(t.AssemblyQualifiedName, name, comparisonType));
         }
     }
 }
