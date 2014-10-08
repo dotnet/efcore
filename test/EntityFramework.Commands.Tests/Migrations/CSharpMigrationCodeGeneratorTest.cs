@@ -577,9 +577,9 @@ using System;
 namespace MyNamespace
 {
     [ContextType(typeof(CSharpMigrationCodeGeneratorTest.MyContext))]
-    public partial class MyClass : IMigrationMetadata
+    public partial class MyClass
     {
-        string IMigrationMetadata.MigrationId
+        protected override string MigrationId
         {
             get
             {
@@ -587,7 +587,7 @@ namespace MyNamespace
             }
         }
         
-        string IMigrationMetadata.ProductVersion
+        protected override string ProductVersion
         {
             get
             {
@@ -595,7 +595,7 @@ namespace MyNamespace
             }
         }
         
-        IModel IMigrationMetadata.TargetModel
+        protected override IModel TargetModel
         {
             get
             {

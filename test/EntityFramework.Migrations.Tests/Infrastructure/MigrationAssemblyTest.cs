@@ -132,9 +132,19 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                 throw new NotImplementedException();
             }
 
-            string IMigrationMetadata.MigrationId
+            protected override string MigrationId
             {
                 get { return "000000000000002_Migration2"; }
+            }
+
+            protected override string ProductVersion
+            {
+                get { throw new NotImplementedException(); }
+            }
+
+            protected override IModel TargetModel
+            {
+                get { throw new NotImplementedException(); }
             }
         }
 
@@ -151,9 +161,19 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                 throw new NotImplementedException();
             }
 
-            string IMigrationMetadata.MigrationId
+            protected override string MigrationId
             {
                 get { return "000000000000001_Migration1"; }
+            }
+
+            protected override string ProductVersion
+            {
+                get { throw new NotImplementedException(); }
+            }
+
+            protected override IModel TargetModel
+            {
+                get { throw new NotImplementedException(); }
             }
         }
 

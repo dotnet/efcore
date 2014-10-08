@@ -126,14 +126,13 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                     .Append(contextType.GetNestedName())
                     .AppendLine("))]")
                     .Append("public partial class ")
-                    .Append(className)
-                    .AppendLine(" : IMigrationMetadata")
+                    .AppendLine(className)
                     .AppendLine("{");
 
                 using (stringBuilder.Indent())
                 {
                     GenerateMigrationProperty(
-                        "string IMigrationMetadata.MigrationId",
+                        "protected override string MigrationId",
                         () => stringBuilder
                             .Append("return ")
                             .Append(GenerateLiteral(migration.MigrationId))
@@ -143,7 +142,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                     stringBuilder.AppendLine().AppendLine();
 
                     GenerateMigrationProperty(
-                        "string IMigrationMetadata.ProductVersion",
+                        "protected override string ProductVersion",
                         () => stringBuilder
                             .Append("return ")
                             .Append(GenerateLiteral(migration.ProductVersion))
@@ -153,7 +152,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                     stringBuilder.AppendLine().AppendLine();
 
                     GenerateMigrationProperty(
-                        "IModel IMigrationMetadata.TargetModel",
+                        "protected override IModel TargetModel",
                         () => ModelCodeGenerator.Generate(migration.TargetModel, stringBuilder),
                         stringBuilder);
                 }
