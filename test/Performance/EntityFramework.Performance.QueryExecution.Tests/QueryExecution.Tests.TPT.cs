@@ -3,12 +3,15 @@
 
 namespace QueryExecution
 {
-    using System;
-    using QueryExecution.Model;
     using Microsoft.Data.Entity;
-    using Microsoft.Framework.DependencyInjection;
-    using Microsoft.Framework.DependencyInjection.Fallback;
+    using Microsoft.Data.Entity.Services;
     using Microsoft.Framework.ConfigurationModel;
+    using Microsoft.Framework.DependencyInjection;
+    using Microsoft.Framework.DependencyInjection.Advanced;
+    using Microsoft.Framework.DependencyInjection.Fallback;
+    using QueryExecution.Model;
+    using System;
+
 
     public class QueryExecutionTestsTPT : QueryExecutionBase
     {
@@ -17,7 +20,7 @@ namespace QueryExecution
         public static IServiceProvider CreateServiceProvider()
         {
             var services = new ServiceCollection();
-            services.AddEntityFramework().AddSqlServer();
+            services.AddEntityFramework().AddSqlServer().UseLoggerFactory<NullLoggerFactory>();
             return services.BuildServiceProvider();
         }
 

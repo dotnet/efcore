@@ -1,12 +1,17 @@
-﻿using System;
+﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using System;
 using System.Linq;
 using Cud.Model;
 #if K10
 using Cud.Utilities;
 #endif
 using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.Services;
 using Microsoft.Framework.ConfigurationModel;
 using Microsoft.Framework.DependencyInjection;
+using Microsoft.Framework.DependencyInjection.Advanced;
 using Microsoft.Framework.DependencyInjection.Fallback;
 
 namespace Cud
@@ -20,7 +25,7 @@ namespace Cud
         public static IServiceProvider CreateServiceProvider(Configuration configuration)
         {
             var services = new ServiceCollection();
-            services.AddEntityFramework().AddSqlServer();
+            services.AddEntityFramework().AddSqlServer().UseLoggerFactory<NullLoggerFactory>();
             services.AddInstance<IConfiguration>(configuration);
             return services.BuildServiceProvider();
         }

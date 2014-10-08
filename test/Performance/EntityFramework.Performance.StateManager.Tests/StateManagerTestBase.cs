@@ -3,14 +3,17 @@
 
 namespace StateManager
 {
+    using Microsoft.Data.Entity;
+    using Microsoft.Data.Entity.Services;
+    using Microsoft.Framework.ConfigurationModel;
+    using Microsoft.Framework.DependencyInjection;
+    using Microsoft.Framework.DependencyInjection.Advanced;
+    using Microsoft.Framework.DependencyInjection.Fallback;
+    using StateManager.Model;
     using System;
     using System.Globalization;
     using System.Linq;
-    using Microsoft.Data.Entity;
-    using Microsoft.Framework.ConfigurationModel;
-    using Microsoft.Framework.DependencyInjection;
-    using Microsoft.Framework.DependencyInjection.Fallback;
-    using StateManager.Model;
+
 
     public class StateManagerTestBase
     {
@@ -24,7 +27,7 @@ namespace StateManager
         public static IServiceProvider CreateServiceProvider()
         {
             var services = new ServiceCollection();
-            services.AddEntityFramework().AddSqlServer();
+            services.AddEntityFramework().AddSqlServer().UseLoggerFactory<NullLoggerFactory>();
             return services.BuildServiceProvider();
         }
 
