@@ -52,7 +52,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Entry_subscribes_to_INotifyPropertyChanging_and_INotifyPropertyChanged()
         {
-            var entityType = new EntityType(typeof(FullNotificationEntity));
+            var entityType = new Model().AddEntityType(typeof(FullNotificationEntity));
             var property = entityType.GetOrAddProperty("Name", typeof(string));
 
             var entity = new FullNotificationEntity();
@@ -73,7 +73,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Subscriptions_to_INotifyPropertyChanging_and_INotifyPropertyChanged_ignore_unmapped_properties()
         {
-            var entityType = new EntityType(typeof(FullNotificationEntity));
+            var entityType = new Model().AddEntityType(typeof(FullNotificationEntity));
             entityType.GetOrAddProperty("Name", typeof(string));
 
             var entity = new FullNotificationEntity();

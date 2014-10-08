@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.Data.Entity.ChangeTracking;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Update;
 using Xunit;
 
@@ -17,29 +16,24 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
 
             var configuration = new DbContext(new DbContextOptions().UseInMemoryStore(persist: false)).Configuration;
 
-            var entityType1 = new EntityType(typeof(object));
-            var key1 = entityType1.GetOrAddProperty("Id", typeof(int), shadowProperty: true);
-            entityType1.GetOrSetPrimaryKey(key1);
-            var stateEntry1 = new MixedStateEntry(configuration, entityType1, new object());
-            stateEntry1[key1] = 0;
+            var entityType = new Entity.Metadata.Model().AddEntityType(typeof(object));
+            var key = entityType.GetOrAddProperty("Id", typeof(int), shadowProperty: true);
+            entityType.GetOrSetPrimaryKey(key);
+
+            var stateEntry1 = new MixedStateEntry(configuration, entityType, new object());
+            stateEntry1[key] = 0;
             stateEntry1.EntityState = EntityState.Added;
             var modificationCommandAdded = new ModificationCommand(new SchemaQualifiedName("A"), new ParameterNameGenerator());
             modificationCommandAdded.AddStateEntry(stateEntry1);
 
-            var entityType2 = new EntityType(typeof(object));
-            var key2 = entityType2.GetOrAddProperty("Id", typeof(int), shadowProperty: true);
-            entityType2.GetOrSetPrimaryKey(key2);
-            var stateEntry2 = new MixedStateEntry(configuration, entityType2, new object());
-            stateEntry2[key2] = 0;
+            var stateEntry2 = new MixedStateEntry(configuration, entityType, new object());
+            stateEntry2[key] = 1;
             stateEntry2.EntityState = EntityState.Modified;
             var modificationCommandModified = new ModificationCommand(new SchemaQualifiedName("A"), new ParameterNameGenerator());
             modificationCommandModified.AddStateEntry(stateEntry2);
 
-            var entityType3 = new EntityType(typeof(object));
-            var key3 = entityType3.GetOrAddProperty("Id", typeof(int), shadowProperty: true);
-            entityType3.GetOrSetPrimaryKey(key3);
-            var stateEntry3 = new MixedStateEntry(configuration, entityType3, new object());
-            stateEntry3[key3] = 0;
+            var stateEntry3 = new MixedStateEntry(configuration, entityType, new object());
+            stateEntry3[key] = 2;
             stateEntry3.EntityState = EntityState.Deleted;
             var modificationCommandDeleted = new ModificationCommand(new SchemaQualifiedName("A"), new ParameterNameGenerator());
             modificationCommandDeleted.AddStateEntry(stateEntry3);

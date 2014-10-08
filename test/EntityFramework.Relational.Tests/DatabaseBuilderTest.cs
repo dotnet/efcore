@@ -205,20 +205,17 @@ namespace Microsoft.Data.Entity.Relational.Tests
         {
             var model = new Entity.Metadata.Model { StorageName = "MyDatabase" };
 
-            var dependentEntityType = new EntityType("Dependent");
+            var dependentEntityType = model.AddEntityType("Dependent");
             dependentEntityType.SetSchema("dbo");
             dependentEntityType.SetTableName("MyTable0");
 
-            var principalEntityType = new EntityType("Principal");
+            var principalEntityType = model.AddEntityType("Principal");
             principalEntityType.SetSchema("dbo");
             principalEntityType.SetTableName("MyTable1");
 
             var dependentProperty = dependentEntityType.GetOrAddProperty("Id", typeof(int), shadowProperty: true);
             var principalProperty = principalEntityType.GetOrAddProperty("Id", typeof(int), shadowProperty: true);
             principalProperty.ValueGeneration = ValueGeneration.OnAdd;
-
-            model.AddEntityType(principalEntityType);
-            model.AddEntityType(dependentEntityType);
 
             principalProperty.Annotations.Add(new Annotation(
                 MetadataExtensions.Annotations.StorageTypeName, "int"));

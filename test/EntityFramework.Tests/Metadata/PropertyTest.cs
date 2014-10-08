@@ -12,7 +12,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_create_property_from_property_info()
         {
-            var property = new Property("Name", typeof(string), new EntityType(typeof(object)));
+            var property = new Property("Name", typeof(string), new Model().AddEntityType(typeof(object)));
 
             Assert.Equal("Name", property.Name);
             Assert.Same(typeof(string), property.PropertyType);
@@ -21,43 +21,43 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Default_nullability_of_property_is_based_on_nullability_of_CLR_type()
         {
-            Assert.True(new Property("Name", typeof(string), new EntityType(typeof(object))).IsNullable);
-            Assert.True(new Property("Name", typeof(int?), new EntityType(typeof(object))).IsNullable);
-            Assert.False(new Property("Name", typeof(int), new EntityType(typeof(object))).IsNullable);
+            Assert.True(new Property("Name", typeof(string), new Model().AddEntityType(typeof(object))).IsNullable);
+            Assert.True(new Property("Name", typeof(int?), new Model().AddEntityType(typeof(object))).IsNullable);
+            Assert.False(new Property("Name", typeof(int), new Model().AddEntityType(typeof(object))).IsNullable);
         }
 
         [Fact]
         public void Property_nullability_can_be_mutated()
         {
-            Assert.False(new Property("Name", typeof(string), new EntityType(typeof(object))) { IsNullable = false }.IsNullable);
-            Assert.True(new Property("Name", typeof(int), new EntityType(typeof(object))) { IsNullable = true }.IsNullable);
+            Assert.False(new Property("Name", typeof(string), new Model().AddEntityType(typeof(object))) { IsNullable = false }.IsNullable);
+            Assert.True(new Property("Name", typeof(int), new Model().AddEntityType(typeof(object))) { IsNullable = true }.IsNullable);
         }
 
         [Fact]
         public void UnderlyingType_returns_correct_underlying_type()
         {
-            Assert.Equal(typeof(int), new Property("Name", typeof(int?), new EntityType(typeof(object))).UnderlyingType);
-            Assert.Equal(typeof(int), new Property("Name", typeof(int), new EntityType(typeof(object))).UnderlyingType);
+            Assert.Equal(typeof(int), new Property("Name", typeof(int?), new Model().AddEntityType(typeof(object))).UnderlyingType);
+            Assert.Equal(typeof(int), new Property("Name", typeof(int), new Model().AddEntityType(typeof(object))).UnderlyingType);
         }
 
         [Fact]
         public void HasClrProperty_is_set_appropriately()
         {
-            Assert.False(new Property("Kake", typeof(int), new EntityType(typeof(object))).IsShadowProperty);
-            Assert.False(new Property("Kake", typeof(int), new EntityType(typeof(object))).IsShadowProperty);
-            Assert.True(new Property("Kake", typeof(int), new EntityType(typeof(object)), shadowProperty: true).IsShadowProperty);
+            Assert.False(new Property("Kake", typeof(int), new Model().AddEntityType(typeof(object))).IsShadowProperty);
+            Assert.False(new Property("Kake", typeof(int), new Model().AddEntityType(typeof(object))).IsShadowProperty);
+            Assert.True(new Property("Kake", typeof(int), new Model().AddEntityType(typeof(object)), shadowProperty: true).IsShadowProperty);
         }
 
         [Fact]
         public void Property_is_not_concurrency_token_by_default()
         {
-            Assert.False(new Property("Name", typeof(string), new EntityType(typeof(object))).IsConcurrencyToken);
+            Assert.False(new Property("Name", typeof(string), new Model().AddEntityType(typeof(object))).IsConcurrencyToken);
         }
 
         [Fact]
         public void Can_mark_property_as_concurrency_token()
         {
-            var property = new Property("Name", typeof(string), new EntityType(typeof(Entity)));
+            var property = new Property("Name", typeof(string), new Model().AddEntityType(typeof(Entity)));
             Assert.False(property.IsConcurrencyToken);
 
             property.IsConcurrencyToken = true;
@@ -67,13 +67,13 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Property_is_read_write_by_default()
         {
-            Assert.False(new Property("Name", typeof(string), new EntityType(typeof(object))).IsReadOnly);
+            Assert.False(new Property("Name", typeof(string), new Model().AddEntityType(typeof(object))).IsReadOnly);
         }
 
         [Fact]
         public void Property_can_be_marked_as_read_only()
         {
-            var property = new Property("Name", typeof(string), new EntityType(typeof(object)));
+            var property = new Property("Name", typeof(string), new Model().AddEntityType(typeof(object)));
             Assert.False(property.IsReadOnly);
 
             property.IsReadOnly = true;
@@ -86,7 +86,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_get_and_set_property_index_for_normal_property()
         {
-            var property = new Property("Kake", typeof(int), new EntityType(typeof(object)));
+            var property = new Property("Kake", typeof(int), new Model().AddEntityType(typeof(object)));
 
             Assert.Equal(0, property.Index);
             Assert.Equal(-1, property.ShadowIndex);
@@ -112,7 +112,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_get_and_set_property_and_shadow_index_for_shadow_property()
         {
-            var property = new Property("Kake", typeof(int), new EntityType(typeof(object)), shadowProperty: true);
+            var property = new Property("Kake", typeof(int), new Model().AddEntityType(typeof(object)), shadowProperty: true);
 
             Assert.Equal(0, property.Index);
             Assert.Equal(0, property.ShadowIndex);

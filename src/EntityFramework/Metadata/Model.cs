@@ -12,24 +12,44 @@ namespace Microsoft.Data.Entity.Metadata
 {
     public class Model : MetadataBase, IModel
     {
-        private readonly LazyRef<ImmutableSortedSet<EntityType>> _entities
-            = new LazyRef<ImmutableSortedSet<EntityType>>(
-                () => ImmutableSortedSet<EntityType>.Empty.WithComparer(new EntityTypeNameComparer()));
+        private ImmutableSortedSet<EntityType> _entities
+            = ImmutableSortedSet<EntityType>.Empty.WithComparer(new EntityTypeNameComparer());
 
-        public virtual void AddEntityType([NotNull] EntityType entityType)
+        public virtual EntityType AddEntityType([NotNull] Type type)
         {
-            Check.NotNull(entityType, "entityType");
+            Check.NotNull(type, "type");
 
-            _entities.Value = _entities.Value.Add(entityType);
-            entityType.Model = this;
+            return AddEntityType(new EntityType(type, this));
         }
 
-        public virtual void RemoveEntityType([NotNull] EntityType entityType)
+        public virtual EntityType AddEntityType([NotNull] string name)
         {
-            Check.NotNull(entityType, "entityType");
+            Check.NotEmpty(name, "name");
 
-            _entities.Value = _entities.Value.Remove(entityType);
-            entityType.Model = null;
+            return AddEntityType(new EntityType(name, this));
+        }
+
+        private EntityType AddEntityType(EntityType entityType)
+        {
+            var previousLength = _entities.Count;
+            _entities = _entities.Add(entityType);
+
+            if (previousLength == _entities.Count)
+            {
+                throw new InvalidOperationException(Strings.FormatDuplicateEntityType(entityType.Name));
+            }
+
+            return entityType;
+        }
+
+        public virtual EntityType GetOrAddEntityType([NotNull] Type type)
+        {
+            return TryGetEntityType(type) ?? AddEntityType(type);
+        }
+
+        public virtual EntityType GetOrAddEntityType([NotNull] string name)
+        {
+            return TryGetEntityType(name) ?? AddEntityType(name);
         }
 
         [CanBeNull]
@@ -37,19 +57,29 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotNull(type, "type");
 
-            EntityType entityType;
-            return _entities.Value.TryGetValue(new EntityType(type), out entityType)
+            return TryGetEntityType(new EntityType(type, this));
+        }
+
+        [CanBeNull]
+        public virtual EntityType TryGetEntityType([NotNull] string name)
+        {
+            Check.NotEmpty(name, "name");
+
+            return TryGetEntityType(new EntityType(name, this));
+        }
+
+        private EntityType TryGetEntityType(EntityType entityType)
+        {
+            return _entities.TryGetValue(entityType, out entityType)
                 ? entityType
                 : null;
         }
 
-        [NotNull]
         public virtual EntityType GetEntityType([NotNull] Type type)
         {
             Check.NotNull(type, "type");
 
             var entityType = TryGetEntityType(type);
-
             if (entityType == null)
             {
                 throw new ModelItemNotFoundException(Strings.FormatEntityTypeNotFound(type.Name));
@@ -58,24 +88,11 @@ namespace Microsoft.Data.Entity.Metadata
             return entityType;
         }
 
-        [CanBeNull]
-        public virtual EntityType TryGetEntityType([NotNull] string name)
-        {
-            Check.NotEmpty(name, "name");
-
-            EntityType entityType;
-            return _entities.Value.TryGetValue(new EntityType(name), out entityType)
-                ? entityType
-                : null;
-        }
-
-        [NotNull]
         public virtual EntityType GetEntityType([NotNull] string name)
         {
             Check.NotEmpty(name, "name");
 
             var entityType = TryGetEntityType(name);
-
             if (entityType == null)
             {
                 throw new ModelItemNotFoundException(Strings.FormatEntityTypeNotFound(name));
@@ -84,9 +101,24 @@ namespace Microsoft.Data.Entity.Metadata
             return entityType;
         }
 
+        public virtual EntityType RemoveEntityType([NotNull] EntityType entityType)
+        {
+            Check.NotNull(entityType, "entityType");
+
+            var previousEntities = _entities;
+            _entities = _entities.Remove(entityType);
+
+            EntityType removedEntityType = null;
+            if (previousEntities.Count != _entities.Count)
+            {
+                previousEntities.TryGetValue(entityType, out removedEntityType);
+            }
+            return removedEntityType;
+        }
+
         public virtual IReadOnlyList<EntityType> EntityTypes
         {
-            get { return _entities.HasValue ? (IReadOnlyList<EntityType>)_entities.Value : ImmutableList<EntityType>.Empty; }
+            get { return _entities; }
         }
 
         public virtual IEnumerable<IForeignKey> GetReferencingForeignKeys(IEntityType entityType)

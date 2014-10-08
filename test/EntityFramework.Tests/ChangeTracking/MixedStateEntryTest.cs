@@ -117,15 +117,13 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var model = new Model();
 
-            var entityType1 = new EntityType(typeof(SomeEntity));
-            model.AddEntityType(entityType1);
+            var entityType1 = model.AddEntityType(typeof(SomeEntity));
             var key1 = entityType1.GetOrAddProperty("Id", typeof(int), shadowProperty: true);
             key1.ValueGeneration = ValueGeneration.OnAdd;
             entityType1.GetOrSetPrimaryKey(key1);
             entityType1.GetOrAddProperty("Name", typeof(string));
 
-            var entityType2 = new EntityType(typeof(SomeDependentEntity));
-            model.AddEntityType(entityType2);
+            var entityType2 = model.AddEntityType(typeof(SomeDependentEntity));
             var key2a = entityType2.GetOrAddProperty("Id1", typeof(int));
             var key2b = entityType2.GetOrAddProperty("Id2", typeof(string));
             entityType2.GetOrSetPrimaryKey(new[] { key2a, key2b });
@@ -134,18 +132,15 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var justAProperty = entityType2.GetOrAddProperty("JustAProperty", typeof(int));
             justAProperty.ValueGeneration = ValueGeneration.OnAdd;
 
-            var entityType3 = new EntityType(typeof(FullNotificationEntity));
-            model.AddEntityType(entityType3);
+            var entityType3 = model.AddEntityType(typeof(FullNotificationEntity));
             entityType3.GetOrSetPrimaryKey(entityType3.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
             entityType3.GetOrAddProperty("Name", typeof(string)).IsConcurrencyToken = true;
 
-            var entityType4 = new EntityType(typeof(ChangedOnlyEntity));
-            model.AddEntityType(entityType4);
+            var entityType4 = model.AddEntityType(typeof(ChangedOnlyEntity));
             entityType4.GetOrSetPrimaryKey(entityType4.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
             entityType4.GetOrAddProperty("Name", typeof(string)).IsConcurrencyToken = true;
 
-            var entityType5 = new EntityType(typeof(SomeMoreDependentEntity));
-            model.AddEntityType(entityType5);
+            var entityType5 = model.AddEntityType(typeof(SomeMoreDependentEntity));
             var key5 = entityType5.GetOrAddProperty("Id", typeof(int));
             entityType5.GetOrSetPrimaryKey(key5);
             var fk5a = entityType5.GetOrAddProperty("Fk1", typeof(int));

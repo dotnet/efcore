@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_create_index_from_properties()
         {
-            var entityType = new EntityType(typeof(Customer));
+            var entityType = new Model().AddEntityType(typeof(Customer));
             var property1 = entityType.GetOrAddProperty(Customer.IdProperty);
             var property2 = entityType.GetOrAddProperty(Customer.NameProperty);
 
@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_create_unique_index_from_properties()
         {
-            var entityType = new EntityType(typeof(Customer));
+            var entityType = new Model().AddEntityType(typeof(Customer));
             var property1 = entityType.GetOrAddProperty(Customer.IdProperty);
             var property2 = entityType.GetOrAddProperty(Customer.NameProperty);
 
@@ -53,8 +53,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Constructor_validates_properties_from_same_entity()
         {
-            var property1 =  new EntityType(typeof(Customer)).GetOrAddProperty(Customer.IdProperty);
-            var property2 =  new EntityType(typeof(Order)).GetOrAddProperty(Order.IdProperty);
+            var property1 =  new Model().AddEntityType(typeof(Customer)).GetOrAddProperty(Customer.IdProperty);
+            var property2 =  new Model().AddEntityType(typeof(Order)).GetOrAddProperty(Order.IdProperty);
 
             Assert.Equal(Strings.FormatInconsistentEntityType("properties"),
                 Assert.Throws<ArgumentException>(

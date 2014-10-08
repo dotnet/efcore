@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Metadata
         [Fact]
         public void It_does_not_add_pk_and_rk_props()
         {
-            var entityType = new EntityType("John Maynard");
+            var entityType = new Model().AddEntityType("John Maynard");
 
             _convention.Apply(entityType);
 
@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Metadata
         [InlineData("RowKey")]
         public void It_requires_both_properties(string onlyProp)
         {
-            var entityType = new EntityType("John Maynard");
+            var entityType = new Model().AddEntityType("John Maynard");
             entityType.GetOrAddProperty(onlyProp, typeof(string), shadowProperty: true);
 
             _convention.Apply(entityType);
@@ -40,7 +40,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Metadata
         [Fact]
         public void It_adds_composite_key()
         {
-            var entityType = new EntityType("John Maynard");
+            var entityType = new Model().AddEntityType("John Maynard");
             entityType.GetOrAddProperty("PartitionKey", typeof(string), shadowProperty: true);
             entityType.GetOrAddProperty("RowKey", typeof(string), shadowProperty: true);
 

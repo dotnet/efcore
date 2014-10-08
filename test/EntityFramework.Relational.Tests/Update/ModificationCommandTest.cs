@@ -361,8 +361,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         private static IModel BuildModel(ValueGeneration keyStrategy, ValueGeneration nonKeyStrategy)
         {
             var model = new Entity.Metadata.Model();
-
-            var entityType = new EntityType(typeof(T1));
+            var entityType = model.AddEntityType(typeof(T1));
 
             var key = entityType.GetOrAddProperty("Id", typeof(int));
             key.ValueGeneration = keyStrategy;
@@ -374,8 +373,6 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
 
             nonKey.SetColumnName("Col2");
             nonKey.ValueGeneration = nonKeyStrategy;
-
-            model.AddEntityType(entityType);
 
             return model;
         }

@@ -48,11 +48,9 @@ namespace Microsoft.Data.Entity.Tests.Identity
 
         private static Property CreateProperty(Type propertyType, ValueGeneration valueGeneration)
         {
-            var entityType = new EntityType("MyType");
+            var entityType = new Model().AddEntityType("MyType");
             var property = entityType.GetOrAddProperty("MyProperty", propertyType, shadowProperty: true);
             property.ValueGeneration = valueGeneration;
-
-            new Model().AddEntityType(entityType);
 
             return property;
         }

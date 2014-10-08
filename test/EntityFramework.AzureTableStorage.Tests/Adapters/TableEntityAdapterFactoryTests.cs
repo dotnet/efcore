@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Adapters
         public TableEntityAdapterFactoryTests()
         {
             _factory = new TableEntityAdapterFactory();
-            _entityType = new EntityType(typeof(PocoTestType));
+            _entityType = new Model().AddEntityType(typeof(PocoTestType));
             _entityType.GetOrAddProperty("PartitionKey", typeof(string));
             _entityType.GetOrAddProperty("RowKey", typeof(string));
             _entityType.GetOrAddProperty("Timestamp", typeof(DateTimeOffset));

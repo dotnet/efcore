@@ -11,51 +11,81 @@ namespace Microsoft.Data.Entity.Tests.Metadata
     public class ModelTest
     {
         [Fact]
-        public void Members_check_arguments()
+        public void Can_add_and_remove_entity_by_type()
         {
             var model = new Model();
+            Assert.Null(model.TryGetEntityType(typeof(Customer)));
+            Assert.Null(model.RemoveEntityType(new EntityType(typeof(Customer), model)));
 
-            Assert.Equal(
-                "entityType",
-                // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => model.AddEntityType(null)).ParamName);
+            var entityType = model.AddEntityType(typeof(Customer));
 
-            Assert.Equal(
-                "entityType",
-                // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => model.RemoveEntityType(null)).ParamName);
-
-            Assert.Equal(
-                "type",
-                // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => model.TryGetEntityType((Type)null)).ParamName);
-        }
-
-        [Fact]
-        public void Can_add_and_remove_entity()
-        {
-            var model = new Model();
-            var entityType = new EntityType(typeof(Customer));
-
-            Assert.Null(entityType.Model);
-
-            model.AddEntityType(entityType);
-
+            Assert.Equal(typeof(Customer), entityType.Type);
             Assert.NotNull(model.TryGetEntityType(typeof(Customer)));
             Assert.Same(model, entityType.Model);
 
-            model.RemoveEntityType(entityType);
+            Assert.Same(entityType, model.GetOrAddEntityType(typeof(Customer)));
 
+            Assert.Equal(new[] { entityType }, model.EntityTypes.ToArray());
+
+            Assert.Same(entityType, model.RemoveEntityType(entityType));
+            Assert.Null(model.RemoveEntityType(entityType));
             Assert.Null(model.TryGetEntityType(typeof(Customer)));
-            Assert.Null(entityType.Model);
+        }
+
+        [Fact]
+        public void Can_add_and_remove_entity_by_name()
+        {
+            var model = new Model();
+            Assert.Null(model.TryGetEntityType(typeof(Customer).FullName));
+            Assert.Null(model.RemoveEntityType(new EntityType(typeof(Customer).FullName, model)));
+
+            var entityType = model.AddEntityType(typeof(Customer).FullName);
+
+            Assert.Null(entityType.Type);
+            Assert.Equal(typeof(Customer).FullName, entityType.Name);
+            Assert.NotNull(model.TryGetEntityType(typeof(Customer).FullName));
+            Assert.Same(model, entityType.Model);
+
+            Assert.Same(entityType, model.GetOrAddEntityType(typeof(Customer).FullName));
+
+            Assert.Equal(new[] { entityType }, model.EntityTypes.ToArray());
+
+            Assert.Same(entityType, model.RemoveEntityType(entityType));
+            Assert.Null(model.RemoveEntityType(entityType));
+            Assert.Null(model.TryGetEntityType(typeof(Customer).FullName));
+        }
+
+        [Fact]
+        public void Adding_duplicate_entity_by_type_throws()
+        {
+            var model = new Model();
+            Assert.Null(model.RemoveEntityType(new EntityType(typeof(Customer).FullName, model)));
+
+            model.AddEntityType(typeof(Customer));
+
+            Assert.Equal(
+                Strings.FormatDuplicateEntityType(typeof(Customer).FullName),
+                Assert.Throws<InvalidOperationException>(() => model.AddEntityType(typeof(Customer))).Message);
+        }
+
+        [Fact]
+        public void Adding_duplicate_entity_by_name_throws()
+        {
+            var model = new Model();
+            Assert.Null(model.RemoveEntityType(new EntityType(typeof(Customer), model)));
+
+            model.AddEntityType(typeof(Customer));
+
+            Assert.Equal(
+                Strings.FormatDuplicateEntityType(typeof(Customer).FullName),
+                Assert.Throws<InvalidOperationException>(() => model.AddEntityType(typeof(Customer).FullName)).Message);
         }
 
         [Fact]
         public void Can_get_entity_by_type()
         {
             var model = new Model();
-            var entityType = new EntityType(typeof(Customer));
-            model.AddEntityType(entityType);
+            var entityType = model.GetOrAddEntityType(typeof(Customer));
 
             Assert.Same(entityType, model.GetEntityType(typeof(Customer)));
             Assert.Same(entityType, model.TryGetEntityType(typeof(Customer)));
@@ -70,8 +100,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void Can_get_entity_by_name()
         {
             var model = new Model();
-            var entityType = new EntityType(typeof(Customer));
-            model.AddEntityType(entityType);
+            var entityType = model.GetOrAddEntityType(typeof(Customer).FullName);
 
             Assert.Same(entityType, model.GetEntityType(typeof(Customer).FullName));
             Assert.Same(entityType, model.TryGetEntityType(typeof(Customer).FullName));
@@ -86,11 +115,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void Entities_are_ordered_by_name()
         {
             var model = new Model();
-            var entityType1 = new EntityType(typeof(Order));
-            var entityType2 = new EntityType(typeof(Customer));
-
-            model.AddEntityType(entityType1);
-            model.AddEntityType(entityType2);
+            var entityType1 = model.AddEntityType(typeof(Order));
+            var entityType2 = model.AddEntityType(typeof(Customer));
 
             Assert.True(new[] { entityType2, entityType1 }.SequenceEqual(model.EntityTypes));
         }
@@ -99,14 +125,11 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void Can_get_referencing_foreign_keys()
         {
             var model = new Model();
-            var entityType1 = new EntityType(typeof(Customer));
-            var entityType2 = new EntityType(typeof(Order));
+            var entityType1 = model.AddEntityType(typeof(Customer));
+            var entityType2 = model.AddEntityType(typeof(Order));
             var keyProperty = new Property("Id", typeof(int), entityType1);
             var fkProperty = new Property("CustomerId", typeof(int?), entityType2);
             var foreignKey = entityType2.GetOrAddForeignKey(fkProperty, new Key(new[] { keyProperty }));
-
-            model.AddEntityType(entityType1);
-            model.AddEntityType(entityType2);
 
             var referencingForeignKeys = model.GetReferencingForeignKeys(entityType1);
 

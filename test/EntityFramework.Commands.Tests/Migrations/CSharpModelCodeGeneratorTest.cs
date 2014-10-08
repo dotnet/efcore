@@ -645,10 +645,9 @@ return builder.Model;",
         public void Generate_model_snapshot_class()
         {
             var model = new Model();
-            var entityType = new EntityType("Entity");
+            var entityType = model.AddEntityType("Entity");
 
             entityType.GetOrSetPrimaryKey(entityType.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
-            model.AddEntityType(entityType);
 
             var stringBuilder = new IndentedStringBuilder();
             new CSharpModelCodeGenerator()

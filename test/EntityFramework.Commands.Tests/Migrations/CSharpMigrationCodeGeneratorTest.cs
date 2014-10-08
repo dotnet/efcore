@@ -552,10 +552,9 @@ namespace MyNamespace
         public void Generate_migration_metadata_class()
         {
             var model = new Model();
-            var entityType = new EntityType("Entity");
+            var entityType = model.AddEntityType("Entity");
 
             entityType.GetOrSetPrimaryKey(entityType.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
-            model.AddEntityType(entityType);
 
             var migration
                 = new MigrationMetadata("000000000000001_Name", "1.2.3.4")

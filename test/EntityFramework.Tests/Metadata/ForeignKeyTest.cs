@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_create_foreign_key()
         {
-            var entityType = new EntityType("E");
+            var entityType = new Model().AddEntityType("E");
             var dependentProp = entityType.GetOrAddProperty("P", typeof(int), shadowProperty: true);
             var principalProp = entityType.GetOrAddProperty("Id", typeof(int), shadowProperty: true);
             entityType.GetOrSetPrimaryKey(principalProp);
@@ -34,8 +34,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Principal_and_depedent_property_count_must_match()
         {
-            var dependentType = new EntityType("D");
-            var principalType = new EntityType("P");
+            var dependentType = new Model().AddEntityType("D");
+            var principalType = new Model().AddEntityType("P");
 
             var dependentProperty1 = dependentType.GetOrAddProperty("P1", typeof(int), shadowProperty: true);
             var dependentProperty2 = dependentType.GetOrAddProperty("P2", typeof(int), shadowProperty: true);
@@ -51,8 +51,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Principal_and_depedent_property_types_must_match()
         {
-            var dependentType = new EntityType("D");
-            var principalType = new EntityType("P");
+            var dependentType = new Model().AddEntityType("D");
+            var principalType = new Model().AddEntityType("P");
 
             var dependentProperty1 = dependentType.GetOrAddProperty("P1", typeof(int), shadowProperty: true);
             var dependentProperty2 = dependentType.GetOrAddProperty("P2", typeof(string), shadowProperty: true);
@@ -75,7 +75,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_create_foreign_key_with_non_pk_principal()
         {
-            var entityType = new EntityType("E");
+            var entityType = new Model().AddEntityType("E");
             var keyProp = entityType.GetOrAddProperty("Id", typeof(int), shadowProperty: true);
             var dependentProp = entityType.GetOrAddProperty("P", typeof(int), shadowProperty: true);
             var principalProp = entityType.GetOrAddProperty("U", typeof(int), shadowProperty: true);
@@ -98,7 +98,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void IsRequired_when_dependent_property_not_nullable()
         {
-            var entityType = new EntityType("E");
+            var entityType = new Model().AddEntityType("E");
             entityType.GetOrSetPrimaryKey(entityType.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
             var dependentProp = entityType.GetOrAddProperty("P", typeof(int), shadowProperty: true);
 
@@ -110,7 +110,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void IsRequired_when_dependent_property_nullable()
         {
-            var entityType = new EntityType("E");
+            var entityType = new Model().AddEntityType("E");
             entityType.GetOrSetPrimaryKey(entityType.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
             var dependentProp = entityType.GetOrAddProperty("P", typeof(int?), shadowProperty: true);
 
@@ -122,7 +122,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void IsRequired_false_when_any_part_of_composite_FK_is_nullable()
         {
-            var entityType = new EntityType("E");
+            var entityType = new Model().AddEntityType("E");
             entityType.GetOrSetPrimaryKey(new[]
                 {
                     entityType.GetOrAddProperty("Id1", typeof(int), shadowProperty: true),
@@ -140,7 +140,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Setting_IsRequired_will_set_all_FK_properties_as_non_nullable()
         {
-            var entityType = new EntityType("E");
+            var entityType = new Model().AddEntityType("E");
             entityType.GetOrSetPrimaryKey(
                 new[]
                     {
@@ -161,7 +161,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Clearing_IsRequired_will_set_all_FK_properties_as_nullable()
         {
-            var entityType = new EntityType("E");
+            var entityType = new Model().AddEntityType("E");
             entityType.GetOrSetPrimaryKey(new[]
                 {
                     entityType.GetOrAddProperty("Id1", typeof(int), shadowProperty: true),

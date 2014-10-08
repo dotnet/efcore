@@ -12,9 +12,9 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Helpers
         public int PartitionID { get; set; }
         public int RowID { get; set; }
 
-        public static EntityType EntityType()
+        public static EntityType EntityType(Model model)
         {
-            var entityType = new EntityType(typeof(IntKeysPoco));
+            var entityType = model.AddEntityType(typeof(IntKeysPoco));
             entityType.GetOrAddProperty("PartitionID", typeof(int)).SetColumnName("PartitionKey");
             entityType.GetOrAddProperty("RowID", typeof(int)).SetColumnName("RowKey");
             return entityType;
@@ -26,9 +26,9 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Helpers
         public int? NullInt { get; set; }
         public double? NullDouble { get; set; }
 
-        public static EntityType EntityType()
+        public static EntityType EntityType(Model model)
         {
-            var entityType = new EntityType(typeof(NullablePoco));
+            var entityType = model.AddEntityType(typeof(NullablePoco));
             entityType.GetOrAddProperty("NullInt", typeof(int?));
             entityType.GetOrAddProperty("NullDouble", typeof(double?));
             return entityType;

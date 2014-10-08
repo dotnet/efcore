@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Delegate_setter_is_returned_for_IProperty_property()
         {
-            var entityType = new EntityType(typeof(Customer));
+            var entityType = new Model().AddEntityType(typeof(Customer));
             var idProperty = entityType.GetOrAddProperty("Id", typeof(int));
 
             var customer = new Customer { Id = 7 };
@@ -46,7 +46,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Delegate_setter_is_cached_by_type_and_property_name()
         {
-            var entityType = new EntityType(typeof(Customer));
+            var entityType = new Model().AddEntityType(typeof(Customer));
             var idProperty = entityType.GetOrAddProperty("Id", typeof(int));
 
             var source = new ClrPropertySetterSource();

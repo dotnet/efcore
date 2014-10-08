@@ -32,9 +32,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_get_referencing_foreign_keys()
         {
-            var entityType = new EntityType("Customer");
             var modelMock = new Mock<Model>();
-            entityType.Model = modelMock.Object;
+            var entityType = new EntityType("Customer", modelMock.Object);
 
             entityType.GetReferencingForeignKeys();
 

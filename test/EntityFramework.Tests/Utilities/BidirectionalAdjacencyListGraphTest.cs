@@ -45,9 +45,9 @@ namespace Microsoft.Data.Entity.Tests.Utilities
 
         #endregion
 
-        private class EntityTypeGraph : BidirectionalAdjacencyListGraph<NamedEntityType>
+        private class EntityTypeGraph : BidirectionalAdjacencyListGraph<EntityType>
         {
-            public void Populate(params NamedEntityType[] entityTypes)
+            public void Populate(params EntityType[] entityTypes)
             {
                 AddVertices(entityTypes);
 
@@ -55,123 +55,118 @@ namespace Microsoft.Data.Entity.Tests.Utilities
                 {
                     foreach (var foreignKey in entityType.ForeignKeys)
                     {
-                        AddEdge((NamedEntityType)foreignKey.ReferencedEntityType, (NamedEntityType)foreignKey.EntityType);
+                        AddEdge(foreignKey.ReferencedEntityType, foreignKey.EntityType);
                     }
                 }
-            }
-        }
-
-        private class NamedEntityType : EntityType
-        {
-            public NamedEntityType(Type type)
-                : base(type)
-            {
-            }
-
-            public override string ToString()
-            {
-                return Name;
             }
         }
 
         [Fact]
         public void Sort_simple()
         {
-            var entityTypeA = new NamedEntityType(typeof(A));
+            var model = new Model();
+
+            var entityTypeA = model.AddEntityType(typeof(A));
             entityTypeA.GetOrSetPrimaryKey(entityTypeA.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
-            var entityTypeB = new NamedEntityType(typeof(B));
+            var entityTypeB = model.AddEntityType(typeof(B));
             entityTypeB.GetOrSetPrimaryKey(entityTypeB.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
-            var entityTypeC = new NamedEntityType(typeof(C));
+            var entityTypeC = model.AddEntityType(typeof(C));
             entityTypeC.GetOrSetPrimaryKey(entityTypeC.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
             // B -> A -> C
             entityTypeC.GetOrAddForeignKey(entityTypeC.GetOrAddProperty("P", typeof(int)), entityTypeA.GetPrimaryKey());
             entityTypeA.GetOrAddForeignKey(entityTypeA.GetOrAddProperty("P", typeof(int)), entityTypeB.GetPrimaryKey());
 
-            var model = new EntityTypeGraph();
-            model.Populate(entityTypeA, entityTypeB, entityTypeC);
+            var graph = new EntityTypeGraph();
+            graph.Populate(entityTypeA, entityTypeB, entityTypeC);
 
             Assert.Equal(
                 new[] { entityTypeB.Name, entityTypeA.Name, entityTypeC.Name },
-                model.TopologicalSort().SelectMany(e => e).Select(e => e.Name).ToArray());
+                graph.TopologicalSort().SelectMany(e => e).Select(e => e.Name).ToArray());
         }
 
         [Fact]
         public void Sort_reverse()
         {
-            var entityTypeA = new NamedEntityType(typeof(A));
+            var model = new Model();
+
+            var entityTypeA = model.AddEntityType(typeof(A));
             entityTypeA.GetOrSetPrimaryKey(entityTypeA.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
-            var entityTypeB = new NamedEntityType(typeof(B));
+            var entityTypeB = model.AddEntityType(typeof(B));
             entityTypeB.GetOrSetPrimaryKey(entityTypeB.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
-            var entityTypeC = new NamedEntityType(typeof(C));
+            var entityTypeC = model.AddEntityType(typeof(C));
             entityTypeC.GetOrSetPrimaryKey(entityTypeC.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
             // C -> B -> A
             entityTypeA.GetOrAddForeignKey(entityTypeA.GetOrAddProperty("P", typeof(int)), entityTypeB.GetPrimaryKey());
             entityTypeB.GetOrAddForeignKey(entityTypeB.GetOrAddProperty("P", typeof(int)), entityTypeC.GetPrimaryKey());
 
-            var model = new EntityTypeGraph();
-            model.Populate(entityTypeA, entityTypeB, entityTypeC);
+            var graph = new EntityTypeGraph();
+            graph.Populate(entityTypeA, entityTypeB, entityTypeC);
 
             Assert.Equal(
                 new[] { entityTypeC.Name, entityTypeB.Name, entityTypeA.Name },
-                model.TopologicalSort().SelectMany(e => e).Select(e => e.Name).ToArray());
+                graph.TopologicalSort().SelectMany(e => e).Select(e => e.Name).ToArray());
         }
 
         [Fact]
         public void Sort_preserves_graph()
         {
-            var entityTypeA = new NamedEntityType(typeof(A));
+            var model = new Model();
+
+            var entityTypeA = model.AddEntityType(typeof(A));
             entityTypeA.GetOrSetPrimaryKey(entityTypeA.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
-            var entityTypeB = new NamedEntityType(typeof(B));
+            var entityTypeB = model.AddEntityType(typeof(B));
             entityTypeB.GetOrSetPrimaryKey(entityTypeB.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
-            var entityTypeC = new NamedEntityType(typeof(C));
+            var entityTypeC = model.AddEntityType(typeof(C));
             entityTypeC.GetOrSetPrimaryKey(entityTypeC.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
             // B -> A -> C
             entityTypeC.GetOrAddForeignKey(entityTypeC.GetOrAddProperty("P", typeof(int)), entityTypeA.GetPrimaryKey());
             entityTypeA.GetOrAddForeignKey(entityTypeA.GetOrAddProperty("P", typeof(int)), entityTypeB.GetPrimaryKey());
 
-            var model = new EntityTypeGraph();
-            model.Populate(entityTypeA, entityTypeB, entityTypeC);
+            var graph = new EntityTypeGraph();
+            graph.Populate(entityTypeA, entityTypeB, entityTypeC);
 
             Assert.Equal(
                 new[] { entityTypeB.Name, entityTypeA.Name, entityTypeC.Name },
-                model.TopologicalSort().SelectMany(e => e).Select(e => e.Name).ToArray());
+                graph.TopologicalSort().SelectMany(e => e).Select(e => e.Name).ToArray());
 
             Assert.Equal(
                 new[] { entityTypeA, entityTypeB, entityTypeC },
-                model.Vertices);
+                graph.Vertices);
 
             Assert.Equal(
                 new[] { entityTypeC },
-                model.GetOutgoingNeighbours(entityTypeA));
+                graph.GetOutgoingNeighbours(entityTypeA));
 
             Assert.Equal(
                 new[] { entityTypeA },
-                model.GetOutgoingNeighbours(entityTypeB));
+                graph.GetOutgoingNeighbours(entityTypeB));
 
             Assert.Equal(
                 new[] { entityTypeB.Name, entityTypeA.Name, entityTypeC.Name },
-                model.TopologicalSort().SelectMany(e => e).Select(e => e.Name).ToArray());
+                graph.TopologicalSort().SelectMany(e => e).Select(e => e.Name).ToArray());
         }
 
         [Fact]
         public void Sort_tree()
         {
-            var entityTypeA = new NamedEntityType(typeof(A));
+            var model = new Model();
+
+            var entityTypeA = model.AddEntityType(typeof(A));
             entityTypeA.GetOrSetPrimaryKey(entityTypeA.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
-            var entityTypeB = new NamedEntityType(typeof(B));
+            var entityTypeB = model.AddEntityType(typeof(B));
             entityTypeB.GetOrSetPrimaryKey(entityTypeB.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
-            var entityTypeC = new NamedEntityType(typeof(C));
+            var entityTypeC = model.AddEntityType(typeof(C));
             entityTypeC.GetOrSetPrimaryKey(entityTypeC.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
             // A -> B, A -> C, C -> B
@@ -179,86 +174,94 @@ namespace Microsoft.Data.Entity.Tests.Utilities
             entityTypeC.GetOrAddForeignKey(entityTypeC.GetOrAddProperty("P", typeof(int)), entityTypeA.GetPrimaryKey());
             entityTypeB.GetOrAddForeignKey(entityTypeB.GetOrAddProperty("P2", typeof(int)), entityTypeC.GetPrimaryKey());
 
-            var model = new EntityTypeGraph();
-            model.Populate(entityTypeA, entityTypeB, entityTypeC);
+            var graph = new EntityTypeGraph();
+            graph.Populate(entityTypeA, entityTypeB, entityTypeC);
 
             Assert.Equal(
                 new[] { entityTypeA.Name, entityTypeC.Name, entityTypeB.Name },
-                model.TopologicalSort().SelectMany(e => e).Select(e => e.Name).ToArray());
+                graph.TopologicalSort().SelectMany(e => e).Select(e => e.Name).ToArray());
         }
 
         [Fact]
         public void Sort_no_edges()
         {
-            var entityTypeA = new NamedEntityType(typeof(A));
+            var model = new Model();
+
+            var entityTypeA = model.AddEntityType(typeof(A));
             entityTypeA.GetOrSetPrimaryKey(entityTypeA.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
-            var entityTypeB = new NamedEntityType(typeof(B));
+            var entityTypeB = model.AddEntityType(typeof(B));
             entityTypeB.GetOrSetPrimaryKey(entityTypeB.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
-            var entityTypeC = new NamedEntityType(typeof(C));
+            var entityTypeC = model.AddEntityType(typeof(C));
             entityTypeC.GetOrSetPrimaryKey(entityTypeC.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
             // A B C
-            var model = new EntityTypeGraph();
-            model.Populate(entityTypeC, entityTypeA, entityTypeB);
+            var graph = new EntityTypeGraph();
+            graph.Populate(entityTypeC, entityTypeA, entityTypeB);
 
             Assert.Equal(
                 new[] { entityTypeC.Name, entityTypeA.Name, entityTypeB.Name },
-                model.TopologicalSort().SelectMany(e => e).Select(e => e.Name).ToArray());
+                graph.TopologicalSort().SelectMany(e => e).Select(e => e.Name).ToArray());
         }
 
         [Fact]
         public void Sort_self_ref()
         {
-            var entityTypeA = new NamedEntityType(typeof(A));
+            var model = new Model();
+
+            var entityTypeA = model.AddEntityType(typeof(A));
             entityTypeA.GetOrSetPrimaryKey(entityTypeA.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
             // A -> A
             entityTypeA.GetOrAddForeignKey(entityTypeA.GetOrAddProperty("P", typeof(int)), entityTypeA.GetPrimaryKey());
 
-            var model = new EntityTypeGraph();
-            model.Populate(entityTypeA);
+            var graph = new EntityTypeGraph();
+            graph.Populate(entityTypeA);
 
             Assert.Equal(
                 Strings.FormatCircularDependency(typeof(A).FullName + " -> " + typeof(A).FullName),
-                Assert.Throws<InvalidOperationException>(() => model.TopologicalSort()).Message);
+                Assert.Throws<InvalidOperationException>(() => graph.TopologicalSort()).Message);
         }
 
         [Fact]
         public void Sort_circular_direct()
         {
-            var entityTypeA = new NamedEntityType(typeof(A));
+            var model = new Model();
+
+            var entityTypeA = model.AddEntityType(typeof(A));
             entityTypeA.GetOrSetPrimaryKey(entityTypeA.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
-            var entityTypeB = new NamedEntityType(typeof(B));
+            var entityTypeB = model.AddEntityType(typeof(B));
             entityTypeB.GetOrSetPrimaryKey(entityTypeB.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
-            var entityTypeC = new NamedEntityType(typeof(C));
+            var entityTypeC = model.AddEntityType(typeof(C));
             entityTypeC.GetOrSetPrimaryKey(entityTypeC.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
             // C, A -> B -> A
             entityTypeA.GetOrAddForeignKey(entityTypeA.GetOrAddProperty("P", typeof(int)), entityTypeB.GetPrimaryKey());
             entityTypeB.GetOrAddForeignKey(entityTypeB.GetOrAddProperty("P", typeof(int)), entityTypeA.GetPrimaryKey());
 
-            var model = new EntityTypeGraph();
-            model.Populate(entityTypeC, entityTypeA, entityTypeB);
+            var graph = new EntityTypeGraph();
+            graph.Populate(entityTypeC, entityTypeA, entityTypeB);
 
             Assert.Equal(
                 Strings.FormatCircularDependency(typeof(A).FullName + " -> " + typeof(B).FullName + " -> " + typeof(A).FullName),
-                Assert.Throws<InvalidOperationException>(() => model.TopologicalSort()).Message);
+                Assert.Throws<InvalidOperationException>(() => graph.TopologicalSort()).Message);
         }
 
         [Fact]
         public void Sort_circular_transitive()
         {
-            var entityTypeA = new NamedEntityType(typeof(A));
+            var model = new Model();
+
+            var entityTypeA = model.AddEntityType(typeof(A));
             entityTypeA.GetOrSetPrimaryKey(entityTypeA.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
-            var entityTypeB = new NamedEntityType(typeof(B));
+            var entityTypeB = model.AddEntityType(typeof(B));
             entityTypeB.GetOrSetPrimaryKey(entityTypeB.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
-            var entityTypeC = new NamedEntityType(typeof(C));
+            var entityTypeC = model.AddEntityType(typeof(C));
             entityTypeC.GetOrSetPrimaryKey(entityTypeC.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
             // A -> C -> B -> A
@@ -266,30 +269,32 @@ namespace Microsoft.Data.Entity.Tests.Utilities
             entityTypeB.GetOrAddForeignKey(entityTypeB.GetOrAddProperty("P", typeof(int)), entityTypeC.GetPrimaryKey());
             entityTypeC.GetOrAddForeignKey(entityTypeC.GetOrAddProperty("P", typeof(int)), entityTypeA.GetPrimaryKey());
 
-            var model = new EntityTypeGraph();
-            model.Populate(entityTypeA, entityTypeB, entityTypeC);
+            var graph = new EntityTypeGraph();
+            graph.Populate(entityTypeA, entityTypeB, entityTypeC);
 
             Assert.Equal(
                 Strings.FormatCircularDependency(typeof(A).FullName + " -> " + typeof(C).FullName + " -> " + typeof(B).FullName + " -> " + typeof(A).FullName),
-                Assert.Throws<InvalidOperationException>(() => model.TopologicalSort()).Message);
+                Assert.Throws<InvalidOperationException>(() => graph.TopologicalSort()).Message);
         }
 
         [Fact]
         public void Sort_two_cycles()
         {
-            var entityTypeA = new NamedEntityType(typeof(A));
+            var model = new Model();
+
+            var entityTypeA = model.AddEntityType(typeof(A));
             entityTypeA.GetOrSetPrimaryKey(entityTypeA.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
-            var entityTypeB = new NamedEntityType(typeof(B));
+            var entityTypeB = model.AddEntityType(typeof(B));
             entityTypeB.GetOrSetPrimaryKey(entityTypeB.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
-            var entityTypeC = new NamedEntityType(typeof(C));
+            var entityTypeC = model.AddEntityType(typeof(C));
             entityTypeC.GetOrSetPrimaryKey(entityTypeC.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
-            var entityTypeD = new NamedEntityType(typeof(D));
+            var entityTypeD = model.AddEntityType(typeof(D));
             entityTypeD.GetOrSetPrimaryKey(entityTypeD.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
-            var entityTypeE = new NamedEntityType(typeof(E));
+            var entityTypeE = model.AddEntityType(typeof(E));
             entityTypeE.GetOrSetPrimaryKey(entityTypeE.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
             // A -> C -> B -> A
@@ -302,24 +307,26 @@ namespace Microsoft.Data.Entity.Tests.Utilities
             entityTypeD.GetOrAddForeignKey(entityTypeD.GetOrAddProperty("P2", typeof(int)), entityTypeE.GetPrimaryKey());
             entityTypeE.GetOrAddForeignKey(entityTypeE.GetOrAddProperty("P2", typeof(int)), entityTypeA.GetPrimaryKey());
 
-            var model = new EntityTypeGraph();
-            model.Populate(entityTypeA, entityTypeB, entityTypeC, entityTypeD, entityTypeE);
+            var graph = new EntityTypeGraph();
+            graph.Populate(entityTypeA, entityTypeB, entityTypeC, entityTypeD, entityTypeE);
 
             Assert.Equal(
                 Strings.FormatCircularDependency(typeof(A).FullName + " -> " + typeof(C).FullName + " -> " + typeof(B).FullName + " -> " + typeof(A).FullName),
-                Assert.Throws<InvalidOperationException>(() => model.TopologicalSort()).Message);
+                Assert.Throws<InvalidOperationException>(() => graph.TopologicalSort()).Message);
         }
 
         [Fact]
         public void Sort_leafy_cycle()
         {
-            var entityTypeA = new NamedEntityType(typeof(A));
+            var model = new Model();
+
+            var entityTypeA = model.AddEntityType(typeof(A));
             entityTypeA.GetOrSetPrimaryKey(entityTypeA.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
-            var entityTypeB = new NamedEntityType(typeof(B));
+            var entityTypeB = model.AddEntityType(typeof(B));
             entityTypeB.GetOrSetPrimaryKey(entityTypeB.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
-            var entityTypeC = new NamedEntityType(typeof(C));
+            var entityTypeC = model.AddEntityType(typeof(C));
             entityTypeC.GetOrSetPrimaryKey(entityTypeC.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
             // C -> B -> C -> A
@@ -327,12 +334,12 @@ namespace Microsoft.Data.Entity.Tests.Utilities
             entityTypeC.GetOrAddForeignKey(entityTypeC.GetOrAddProperty("P", typeof(int)), entityTypeB.GetPrimaryKey());
             entityTypeA.GetOrAddForeignKey(entityTypeA.GetOrAddProperty("P", typeof(int)), entityTypeC.GetPrimaryKey());
 
-            var model = new EntityTypeGraph();
-            model.Populate(entityTypeA, entityTypeB, entityTypeC);
+            var graph = new EntityTypeGraph();
+            graph.Populate(entityTypeA, entityTypeB, entityTypeC);
 
             Assert.Equal(
                 Strings.FormatCircularDependency(typeof(C).FullName + " -> " + typeof(B).FullName + " -> " + typeof(C).FullName + " -> " + typeof(A).FullName),
-                Assert.Throws<InvalidOperationException>(() => model.TopologicalSort()).Message);
+                Assert.Throws<InvalidOperationException>(() => graph.TopologicalSort()).Message);
         }
     }
 }

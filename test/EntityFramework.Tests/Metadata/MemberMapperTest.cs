@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Annotated_field_name_is_used_if_present()
         {
-            var entityType = new EntityType(typeof(TheDarkSide));
+            var entityType = new Model().AddEntityType(typeof(TheDarkSide));
             var property = entityType.GetOrAddProperty("SpeakToMe", typeof(int));
             property["BackingField"] = "fieldForSpeak";
 
@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Throws_if_annotated_field_name_is_not_found()
         {
-            var entityType = new EntityType(typeof(TheDarkSide));
+            var entityType = new Model().AddEntityType(typeof(TheDarkSide));
             var property = entityType.GetOrAddProperty("SpeakToMe", typeof(int));
             property["BackingField"] = "_speakToMe";
 
@@ -40,7 +40,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Throws_if_annotated_field_if_types_not_compatible()
         {
-            var entityType = new EntityType(typeof(TheDarkSide));
+            var entityType = new Model().AddEntityType(typeof(TheDarkSide));
             var property = entityType.GetOrAddProperty("SpeakToMe", typeof(int));
             property["BackingField"] = "_badFieldForSpeak";
 
@@ -53,7 +53,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Field_name_match_is_used_in_preference_to_property_setter()
         {
-            var entityType = new EntityType(typeof(TheDarkSide));
+            var entityType = new Model().AddEntityType(typeof(TheDarkSide));
             var property = entityType.GetOrAddProperty("Breathe", typeof(int));
 
             var mapping = new MemberMapper(new FieldMatcher()).MapPropertiesToMembers(entityType).Single();
@@ -66,7 +66,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Property_setter_is_used_if_no_matching_field_is_found()
         {
-            var entityType = new EntityType(typeof(TheDarkSide));
+            var entityType = new Model().AddEntityType(typeof(TheDarkSide));
             var property = entityType.GetOrAddProperty("OnTheRun", typeof(int));
 
             var mapping = new MemberMapper(new FieldMatcher()).MapPropertiesToMembers(entityType).Single();
@@ -79,7 +79,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Throws_if_no_match_found_and_no_property_setter()
         {
-            var entityType = new EntityType(typeof(TheDarkSide));
+            var entityType = new Model().AddEntityType(typeof(TheDarkSide));
             entityType.GetOrAddProperty("Time", typeof(int));
 
             Assert.Equal(
@@ -91,7 +91,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Property_and_field_in_base_type_is_matched()
         {
-            var entityType = new EntityType(typeof(TheDarkSide));
+            var entityType = new Model().AddEntityType(typeof(TheDarkSide));
             var property = entityType.GetOrAddProperty("TheGreatGigInTheSky", typeof(int));
 
             var mapping = new MemberMapper(new FieldMatcher()).MapPropertiesToMembers(entityType).Single();
@@ -104,7 +104,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Property_and_field_in_base_type_is_matched_even_when_overridden()
         {
-            var entityType = new EntityType(typeof(TheDarkSide));
+            var entityType = new Model().AddEntityType(typeof(TheDarkSide));
             var property = entityType.GetOrAddProperty("Money", typeof(int));
 
             var mapping = new MemberMapper(new FieldMatcher()).MapPropertiesToMembers(entityType).Single();
@@ -117,7 +117,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Private_setter_in_base_class_of_overridden_property_is_used()
         {
-            var entityType = new EntityType(typeof(TheDarkSide));
+            var entityType = new Model().AddEntityType(typeof(TheDarkSide));
             var property = entityType.GetOrAddProperty("UsAndThem", typeof(int));
 
             var mapping = new MemberMapper(new FieldMatcher()).MapPropertiesToMembers(entityType).Single();

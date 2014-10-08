@@ -137,7 +137,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
         [Fact]
         public void Entity_table_name_defaults_to_name()
         {
-            var entityType = new EntityType(typeof(Customer));
+            var entityType = new Entity.Metadata.Model().AddEntityType(typeof(Customer));
 
             Assert.Equal("Customer", entityType.TableName());
         }
@@ -145,7 +145,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
         [Fact]
         public void Entity_table_name_can_be_different_from_name()
         {
-            var entityType = new EntityType(typeof(Customer));
+            var entityType = new Entity.Metadata.Model().AddEntityType(typeof(Customer));
             entityType.SetTableName("CustomerTable");
 
             Assert.Equal("CustomerTable", entityType.TableName());

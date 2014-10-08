@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -65,7 +65,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         [Fact]
         public void Index_returns_same_instance_for_clr_properties()
         {
-            var entityType = new EntityType(typeof(Order));
+            var entityType = new Model().AddEntityType(typeof(Order));
             var entityBuilder = new InternalEntityBuilder(entityType, new InternalModelBuilder(new Model(), null));
 
             var indexBuilder = entityBuilder.Index(new[] { Order.IdProperty, Order.CustomerIdProperty });
@@ -77,7 +77,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         [Fact]
         public void Index_returns_same_instance_for_property_names()
         {
-            var entityType = new EntityType(typeof(Order));
+            var entityType = new Model().AddEntityType(typeof(Order));
             var entityBuilder = new InternalEntityBuilder(entityType, new InternalModelBuilder(new Model(), null));
             entityType.GetOrAddProperty(Order.IdProperty);
             entityType.GetOrAddProperty(Order.CustomerIdProperty);
@@ -91,7 +91,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         [Fact]
         public void Key_returns_same_instance_for_clr_properties()
         {
-            var entityType = new EntityType(typeof(Order));
+            var entityType = new Model().AddEntityType(typeof(Order));
             var entityBuilder = new InternalEntityBuilder(entityType, new InternalModelBuilder(new Model(), null));
 
             var keyBuilder = entityBuilder.Key(new[] { Order.IdProperty, Order.CustomerIdProperty });
@@ -103,7 +103,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         [Fact]
         public void Key_returns_same_instance_for_property_names()
         {
-            var entityType = new EntityType(typeof(Order));
+            var entityType = new Model().AddEntityType(typeof(Order));
             var entityBuilder = new InternalEntityBuilder(entityType, new InternalModelBuilder(new Model(), null));
             entityType.GetOrAddProperty(Order.IdProperty);
             entityType.GetOrAddProperty(Order.CustomerIdProperty);
@@ -117,7 +117,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         [Fact]
         public void Property_returns_same_instance_for_clr_properties()
         {
-            var entityType = new EntityType(typeof(Order));
+            var entityType = new Model().AddEntityType(typeof(Order));
             var entityBuilder = new InternalEntityBuilder(entityType, new InternalModelBuilder(new Model(), null));
 
             var propertyBuilder = entityBuilder.Property(Order.IdProperty);
@@ -129,7 +129,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         [Fact]
         public void Property_returns_same_instance_for_property_names()
         {
-            var entityType = new EntityType(typeof(Order));
+            var entityType = new Model().AddEntityType(typeof(Order));
             var entityBuilder = new InternalEntityBuilder(entityType, new InternalModelBuilder(new Model(), null));
 
             var propertyBuilder = entityBuilder.Property(typeof(Order), Order.IdProperty.Name);

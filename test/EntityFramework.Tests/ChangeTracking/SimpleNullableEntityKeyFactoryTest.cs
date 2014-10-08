@@ -96,14 +96,12 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var model = new Model();
 
-            var entityType = new EntityType(typeof(Banana));
+            var entityType = model.AddEntityType(typeof(Banana));
             var property1 = entityType.GetOrAddProperty("P1", typeof(int));
             var property2 = entityType.GetOrAddProperty("P2", typeof(int?));
 
             entityType.GetOrSetPrimaryKey(property1);
             entityType.GetOrAddForeignKey(property2, entityType.GetPrimaryKey());
-
-            model.AddEntityType(entityType);
 
             return model;
         }

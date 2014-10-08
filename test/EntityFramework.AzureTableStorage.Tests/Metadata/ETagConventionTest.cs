@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Metadata
         [Fact]
         public void It_adds_etag()
         {
-            var entityType = new EntityType("TestType");
+            var entityType = new Model().AddEntityType("TestType");
             _convention.Apply(entityType);
             var etagProp = entityType.GetProperty("ETag");
             Assert.NotNull(etagProp);
@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Metadata
         [Fact]
         public void It_does_not_overwrite_etag_prop()
         {
-            var entityType = new EntityType("TestType");
+            var entityType = new Model().AddEntityType("TestType");
             entityType.GetOrAddProperty("ETag", typeof(int), shadowProperty: true);
 
             _convention.Apply(entityType);

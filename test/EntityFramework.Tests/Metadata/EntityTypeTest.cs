@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_create_entity_type()
         {
-            var entityType = new EntityType(typeof(Customer));
+            var entityType = new EntityType(typeof(Customer), new Model());
 
             Assert.Equal(typeof(Customer).FullName, entityType.Name);
             Assert.Same(typeof(Customer), entityType.Type);
@@ -26,24 +26,24 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Simple_name_is_simple_CLR_name()
         {
-            Assert.Equal("EntityTypeTest", new EntityType(typeof(EntityTypeTest)).SimpleName);
-            Assert.Equal("Customer", new EntityType(typeof(Customer)).SimpleName);
-            Assert.Equal("List`1", new EntityType(typeof(List<Customer>)).SimpleName);
+            Assert.Equal("EntityTypeTest", new EntityType(typeof(EntityTypeTest), new Model()).SimpleName);
+            Assert.Equal("Customer", new EntityType(typeof(Customer), new Model()).SimpleName);
+            Assert.Equal("List`1", new EntityType(typeof(List<Customer>), new Model()).SimpleName);
         }
 
         [Fact]
         public void Simple_name_is_part_of_name_following_final_separator_when_no_CLR_type()
         {
-            Assert.Equal("Everything", new EntityType("Everything").SimpleName);
-            Assert.Equal("Is", new EntityType("Everything.Is").SimpleName);
-            Assert.Equal("Awesome", new EntityType("Everything.Is.Awesome").SimpleName);
-            Assert.Equal("WhenWe`reLivingOurDream", new EntityType("Everything.Is.Awesome+WhenWe`reLivingOurDream").SimpleName);
+            Assert.Equal("Everything", new EntityType("Everything", new Model()).SimpleName);
+            Assert.Equal("Is", new EntityType("Everything.Is", new Model()).SimpleName);
+            Assert.Equal("Awesome", new EntityType("Everything.Is.Awesome", new Model()).SimpleName);
+            Assert.Equal("WhenWe`reLivingOurDream", new EntityType("Everything.Is.Awesome+WhenWe`reLivingOurDream", new Model()).SimpleName);
         }
 
         [Fact]
         public void Can_set_reset_and_clear_primary_key()
         {
-            var entityType = new EntityType(typeof(Customer));
+            var entityType = new EntityType(typeof(Customer), new Model());
             var idProperty = entityType.GetOrAddProperty(Customer.IdProperty);
             var nameProperty = entityType.GetOrAddProperty(Customer.NameProperty);
 
@@ -79,8 +79,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Setting_primary_key_throws_if_properties_from_different_type()
         {
-            var entityType1 = new EntityType(typeof(Customer));
-            var entityType2 = new EntityType(typeof(Order));
+            var entityType1 = new EntityType(typeof(Customer), new Model());
+            var entityType2 = new EntityType(typeof(Order), new Model());
             var idProperty = entityType2.GetOrAddProperty(Customer.IdProperty);
 
             Assert.Equal(
@@ -91,7 +91,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_get_set_reset_and_clear_primary_key()
         {
-            var entityType = new EntityType(typeof(Customer));
+            var entityType = new EntityType(typeof(Customer), new Model());
             var idProperty = entityType.GetOrAddProperty(Customer.IdProperty);
             var nameProperty = entityType.GetOrAddProperty(Customer.NameProperty);
 
@@ -130,16 +130,13 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Clearing_the_primary_throws_if_it_referenced_from_a_foreign_key_in_the_model()
         {
-            var customerType = new EntityType(typeof(Customer));
+            var model = new Model();
+            var customerType = model.AddEntityType(typeof(Customer));
             var customerPk = customerType.GetOrSetPrimaryKey(customerType.AddProperty(Customer.IdProperty));
 
-            var orderType = new EntityType(typeof(Order));
+            var orderType = model.AddEntityType(typeof(Order));
             var customerFk = orderType.GetOrAddProperty(Order.CustomerIdProperty);
             orderType.GetOrAddForeignKey(customerFk, customerPk);
-
-            var model = new Model();
-            model.AddEntityType(customerType);
-            model.AddEntityType(orderType);
 
             Assert.Equal(
                 Strings.FormatKeyInUse("'" + Customer.IdProperty.Name + "'", typeof(Customer).FullName, typeof(Order).FullName),
@@ -149,16 +146,14 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Changing_the_primary_key_throws_if_it_referenced_from_a_foreign_key_in_the_model()
         {
-            var customerType = new EntityType(typeof(Customer));
+            var model = new Model();
+
+            var customerType = model.AddEntityType(typeof(Customer));
             var customerPk = customerType.GetOrSetPrimaryKey(customerType.AddProperty(Customer.IdProperty));
 
-            var orderType = new EntityType(typeof(Order));
+            var orderType = model.AddEntityType(typeof(Order));
             var customerFk = orderType.GetOrAddProperty(Order.CustomerIdProperty);
             orderType.GetOrAddForeignKey(customerFk, customerPk);
-
-            var model = new Model();
-            model.AddEntityType(customerType);
-            model.AddEntityType(orderType);
 
             Assert.Equal(
                 Strings.FormatKeyInUse("'" + Customer.IdProperty.Name + "'", typeof(Customer).FullName, typeof(Order).FullName),
@@ -169,7 +164,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_add_and_get_a_key()
         {
-            var entityType = new EntityType(typeof(Customer));
+            var entityType = new EntityType(typeof(Customer), new Model());
             var idProperty = entityType.GetOrAddProperty(Customer.IdProperty);
             var nameProperty = entityType.GetOrAddProperty(Customer.NameProperty);
 
@@ -189,8 +184,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Adding_a_key_throws_if_properties_from_different_type()
         {
-            var entityType1 = new EntityType(typeof(Customer));
-            var entityType2 = new EntityType(typeof(Order));
+            var entityType1 = new EntityType(typeof(Customer), new Model());
+            var entityType2 = new EntityType(typeof(Order), new Model());
             var idProperty = entityType2.GetOrAddProperty(Customer.IdProperty);
 
             Assert.Equal(
@@ -201,7 +196,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Adding_a_key_throws_if_duplicated()
         {
-            var entityType = new EntityType(typeof(Customer));
+            var entityType = new EntityType(typeof(Customer), new Model());
             var idProperty = entityType.GetOrAddProperty(Customer.IdProperty);
             var nameProperty = entityType.GetOrAddProperty(Customer.NameProperty);
             entityType.GetOrAddKey(new[] { idProperty, nameProperty });
@@ -214,7 +209,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Adding_a_key_throws_if_same_as_primary()
         {
-            var entityType = new EntityType(typeof(Customer));
+            var entityType = new EntityType(typeof(Customer), new Model());
             var idProperty = entityType.GetOrAddProperty(Customer.IdProperty);
             var nameProperty = entityType.GetOrAddProperty(Customer.NameProperty);
             entityType.GetOrSetPrimaryKey(new[] { idProperty, nameProperty });
@@ -227,7 +222,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_remove_keys()
         {
-            var entityType = new EntityType(typeof(Customer));
+            var entityType = new EntityType(typeof(Customer), new Model());
             var idProperty = entityType.GetOrAddProperty(Customer.IdProperty);
             var nameProperty = entityType.GetOrAddProperty(Customer.NameProperty);
 
@@ -258,16 +253,14 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Removing_a_key_throws_if_it_referenced_from_a_foreign_key_in_the_model()
         {
-            var customerType = new EntityType(typeof(Customer));
+            var model = new Model();
+
+            var customerType = model.AddEntityType(typeof(Customer));
             var customerKey = customerType.GetOrAddKey(customerType.GetOrAddProperty(Customer.IdProperty));
 
-            var orderType = new EntityType(typeof(Order));
+            var orderType = model.AddEntityType(typeof(Order));
             var customerFk = orderType.GetOrAddProperty(Order.CustomerIdProperty);
             orderType.GetOrAddForeignKey(customerFk, customerKey);
-
-            var model = new Model();
-            model.AddEntityType(customerType);
-            model.AddEntityType(orderType);
 
             Assert.Equal(
                 Strings.FormatKeyInUse("'" + Customer.IdProperty.Name + "'", typeof(Customer).FullName, typeof(Order).FullName),
@@ -277,7 +270,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Key_properties_are_always_read_only()
         {
-            var entityType = new EntityType(typeof(Customer));
+            var entityType = new EntityType(typeof(Customer), new Model());
             var idProperty = entityType.GetOrAddProperty(Customer.IdProperty);
             var nameProperty = entityType.GetOrAddProperty(Customer.NameProperty);
 
@@ -302,10 +295,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_add_a_foreign_key()
         {
-            var customerType = new EntityType(typeof(Customer));
+            var customerType = new EntityType(typeof(Customer), new Model());
             var idProperty = customerType.GetOrAddProperty(Customer.IdProperty);
             var customerKey = customerType.GetOrAddKey(idProperty);
-            var orderType = new EntityType(typeof(Order));
+            var orderType = new EntityType(typeof(Order), new Model());
             var customerFk1 = orderType.GetOrAddProperty(Order.CustomerIdProperty);
             var customerFk2 = orderType.GetOrAddProperty("IdAgain", typeof(int), shadowProperty: true);
 
@@ -327,9 +320,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Adding_a_foreign_key_throws_if_duplicate()
         {
-            var customerType = new EntityType(typeof(Customer));
+            var customerType = new EntityType(typeof(Customer), new Model());
             var customerKey = customerType.GetOrAddKey(customerType.GetOrAddProperty(Customer.IdProperty));
-            var orderType = new EntityType(typeof(Order));
+            var orderType = new EntityType(typeof(Order), new Model());
             var customerFk1 = orderType.GetOrAddProperty(Order.CustomerIdProperty);
             orderType.AddForeignKey(customerFk1, customerKey);
 
@@ -341,8 +334,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Adding_a_foreign_key_throws_if_properties_from_different_type()
         {
-            var entityType1 = new EntityType(typeof(Customer));
-            var entityType2 = new EntityType(typeof(Order));
+            var entityType1 = new EntityType(typeof(Customer), new Model());
+            var entityType2 = new EntityType(typeof(Order), new Model());
             var idProperty = entityType2.GetOrAddProperty(Customer.IdProperty);
 
             Assert.Equal(
@@ -353,10 +346,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_get_or_add_a_foreign_key()
         {
-            var customerType = new EntityType(typeof(Customer));
+            var customerType = new EntityType(typeof(Customer), new Model());
             var idProperty = customerType.GetOrAddProperty(Customer.IdProperty);
             var customerKey = customerType.GetOrAddKey(idProperty);
-            var orderType = new EntityType(typeof(Order));
+            var orderType = new EntityType(typeof(Order), new Model());
             var customerFk1 = orderType.GetOrAddProperty(Order.CustomerIdProperty);
             var customerFk2 = orderType.GetOrAddProperty("IdAgain", typeof(int), shadowProperty: true);
             var fk1 = orderType.AddForeignKey(customerFk1, customerKey);
@@ -376,9 +369,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_remove_foreign_keys()
         {
-            var customerType = new EntityType(typeof(Customer));
+            var customerType = new EntityType(typeof(Customer), new Model());
             var customerKey = customerType.GetOrAddKey(customerType.GetOrAddProperty(Customer.IdProperty));
-            var orderType = new EntityType(typeof(Order));
+            var orderType = new EntityType(typeof(Order), new Model());
             var customerFk1 = orderType.GetOrAddProperty(Order.CustomerIdProperty);
             var customerFk2 = orderType.GetOrAddProperty("IdAgain", typeof(int), shadowProperty: true);
 
@@ -408,23 +401,22 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Removing_a_foreign_key_throws_if_it_referenced_from_a_navigation_in_the_model()
         {
-            var customerType = new EntityType(typeof(Customer));
+            var model = new Model();
+
+            var customerType = model.AddEntityType(typeof(Customer));
             var customerKey = customerType.GetOrAddKey(customerType.GetOrAddProperty(Customer.IdProperty));
 
-            var orderType = new EntityType(typeof(Order));
+            var orderType = model.AddEntityType(typeof(Order));
             var customerFk = orderType.GetOrAddProperty(Order.CustomerIdProperty);
             var fk = orderType.GetOrAddForeignKey(customerFk, customerKey);
 
             orderType.AddNavigation("Customer", fk, pointsToPrincipal: true);
-            customerType.AddNavigation("Orders", fk, pointsToPrincipal: false);
 
             Assert.Equal(
                 Strings.FormatForeignKeyInUse("'" + Order.CustomerIdProperty.Name + "'", typeof(Order).FullName, "Customer", typeof(Order).FullName),
                 Assert.Throws<InvalidOperationException>(() => orderType.RemoveForeignKey(fk)).Message);
 
-            var model = new Model();
-            model.AddEntityType(customerType);
-            model.AddEntityType(orderType);
+            customerType.AddNavigation("Orders", fk, pointsToPrincipal: false);
 
             Assert.Equal(
                 Strings.FormatForeignKeyInUse("'" + Order.CustomerIdProperty.Name + "'", typeof(Order).FullName, "Orders", typeof(Customer).FullName),
@@ -434,10 +426,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_add_and_remove_navigations()
         {
-            var customerType = new EntityType(typeof(Customer));
+            var customerType = new EntityType(typeof(Customer), new Model());
             var customerKey = customerType.GetOrAddKey(customerType.GetOrAddProperty(Customer.IdProperty));
 
-            var orderType = new EntityType(typeof(Order));
+            var orderType = new EntityType(typeof(Order), new Model());
             var foreignKeyProperty = orderType.GetOrAddProperty(Order.CustomerIdProperty);
             var customerForeignKey = orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey);
             Assert.Null(orderType.RemoveNavigation(new Navigation("Customer", customerForeignKey, pointsToPrincipal: true)));
@@ -465,7 +457,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Same(customerNavigation, orderType.RemoveNavigation(customerNavigation));
             Assert.Null(orderType.RemoveNavigation(customerNavigation));
             Assert.Empty(orderType.Navigations);
-            
+
             Assert.Same(ordersNavigation, customerType.RemoveNavigation(new Navigation("Orders", customerForeignKey, pointsToPrincipal: false)));
             Assert.Empty(customerType.Navigations);
         }
@@ -473,10 +465,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_add_new_navigations_or_get_existing_navigations()
         {
-            var customerType = new EntityType(typeof(Customer));
+            var customerType = new EntityType(typeof(Customer), new Model());
             var customerKey = customerType.GetOrAddKey(customerType.GetOrAddProperty(Customer.IdProperty));
 
-            var orderType = new EntityType(typeof(Order));
+            var orderType = new EntityType(typeof(Order), new Model());
             var foreignKeyProperty = orderType.GetOrAddProperty(Order.CustomerIdProperty);
             var customerForeignKey = orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey);
 
@@ -496,10 +488,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_get_navigation_and_can_try_get_navigation()
         {
-            var customerType = new EntityType(typeof(Customer));
+            var customerType = new EntityType(typeof(Customer), new Model());
             var customerKey = customerType.GetOrAddKey(customerType.GetOrAddProperty(Customer.IdProperty));
 
-            var orderType = new EntityType(typeof(Order));
+            var orderType = new EntityType(typeof(Order), new Model());
             var foreignKeyProperty = orderType.GetOrAddProperty(Order.CustomerIdProperty);
             var customerForeignKey = orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey);
 
@@ -518,10 +510,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Adding_a_new_navigation_with_a_name_that_already_exists_throws()
         {
-            var customerType = new EntityType(typeof(Customer));
+            var customerType = new EntityType(typeof(Customer), new Model());
             var customerKey = customerType.GetOrAddKey(customerType.GetOrAddProperty(Customer.IdProperty));
 
-            var orderType = new EntityType(typeof(Order));
+            var orderType = new EntityType(typeof(Order), new Model());
             var foreignKeyProperty = orderType.GetOrAddProperty(Order.CustomerIdProperty);
             var customerForeignKey = orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey);
 
@@ -536,10 +528,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Adding_a_navigation_that_belongs_to_a_different_type_throws()
         {
-            var customerType = new EntityType(typeof(Customer));
+            var customerType = new EntityType(typeof(Customer), new Model());
             var customerKey = customerType.GetOrAddKey(customerType.GetOrAddProperty(Customer.IdProperty));
 
-            var orderType = new EntityType(typeof(Order));
+            var orderType = new EntityType(typeof(Order), new Model());
             var foreignKeyProperty = orderType.GetOrAddProperty(Order.CustomerIdProperty);
             var customerForeignKey = orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey);
 
@@ -551,10 +543,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Adding_a_navigation_to_a_shadow_entity_type_throws()
         {
-            var customerType = new EntityType(typeof(Customer));
+            var customerType = new EntityType(typeof(Customer), new Model());
             var customerKey = customerType.GetOrAddKey(customerType.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
-            var orderType = new EntityType("Order");
+            var orderType = new EntityType("Order", new Model());
             var foreignKeyProperty = orderType.GetOrAddProperty("CustomerId", typeof(int), shadowProperty: true);
             var customerForeignKey = orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey);
 
@@ -567,10 +559,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Adding_a_navigation_pointing_to_a_shadow_entity_type_throws()
         {
-            var customerType = new EntityType("Customer");
+            var customerType = new EntityType("Customer", new Model());
             var customerKey = customerType.GetOrAddKey(customerType.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
-            var orderType = new EntityType(typeof(Order));
+            var orderType = new EntityType(typeof(Order), new Model());
             var foreignKeyProperty = orderType.GetOrAddProperty("CustomerId", typeof(int), shadowProperty: true);
             var customerForeignKey = orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey);
 
@@ -583,10 +575,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Adding_a_navigation_that_doesnt_match_a_CLR_property_throws()
         {
-            var customerType = new EntityType(typeof(Customer));
+            var customerType = new EntityType(typeof(Customer), new Model());
             var customerKey = customerType.GetOrAddKey(customerType.GetOrAddProperty(Customer.IdProperty));
 
-            var orderType = new EntityType(typeof(Order));
+            var orderType = new EntityType(typeof(Order), new Model());
             var foreignKeyProperty = orderType.GetOrAddProperty(Order.CustomerIdProperty);
             var customerForeignKey = orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey);
 
@@ -599,10 +591,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Collection_navigation_properties_must_be_IEnumerables_of_the_target_type()
         {
-            var customerType = new EntityType(typeof(Customer));
+            var customerType = new EntityType(typeof(Customer), new Model());
             var customerKey = customerType.GetOrAddKey(customerType.GetOrAddProperty(Customer.IdProperty));
 
-            var orderType = new EntityType(typeof(Order));
+            var orderType = new EntityType(typeof(Order), new Model());
             var foreignKeyProperty = orderType.GetOrAddProperty(Order.CustomerIdProperty);
             var customerForeignKey = orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey);
 
@@ -620,10 +612,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Reference_navigation_properties_must_be_of_the_target_type()
         {
-            var customerType = new EntityType(typeof(Customer));
+            var customerType = new EntityType(typeof(Customer), new Model());
             var customerKey = customerType.GetOrAddKey(customerType.GetOrAddProperty(Customer.IdProperty));
 
-            var orderType = new EntityType(typeof(Order));
+            var orderType = new EntityType(typeof(Order), new Model());
             var foreignKeyProperty = orderType.GetOrAddProperty(Order.CustomerIdProperty);
             var customerForeignKey = orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey);
 
@@ -641,10 +633,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Multiple_sets_of_navigations_using_the_same_foreign_key_are_not_allowed()
         {
-            var customerType = new EntityType(typeof(Customer));
+            var customerType = new EntityType(typeof(Customer), new Model());
             var customerKey = customerType.GetOrAddKey(customerType.GetOrAddProperty(Customer.IdProperty));
 
-            var orderType = new EntityType(typeof(Order));
+            var orderType = new EntityType(typeof(Order), new Model());
             var foreignKeyProperty = orderType.GetOrAddProperty(Order.CustomerIdProperty);
             var customerForeignKey = orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey);
 
@@ -659,7 +651,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_add_retrieve_and_remove_indexes()
         {
-            var entityType = new EntityType(typeof(Order));
+            var entityType = new EntityType(typeof(Order), new Model());
             var property1 = entityType.GetOrAddProperty(Order.IdProperty);
             var property2 = entityType.GetOrAddProperty(Order.CustomerIdProperty);
 
@@ -699,8 +691,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void AddIndex_throws_if_not_from_same_entity()
         {
-            var entityType1 = new EntityType(typeof(Customer));
-            var entityType2 = new EntityType(typeof(Order));
+            var entityType1 = new EntityType(typeof(Customer), new Model());
+            var entityType2 = new EntityType(typeof(Order), new Model());
             var property1 = entityType1.GetOrAddProperty(Customer.IdProperty);
             var property2 = entityType1.GetOrAddProperty(Customer.NameProperty);
 
@@ -712,7 +704,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void AddIndex_throws_if_duplicate()
         {
-            var entityType = new EntityType(typeof(Customer));
+            var entityType = new EntityType(typeof(Customer), new Model());
             var property1 = entityType.GetOrAddProperty(Customer.IdProperty);
             var property2 = entityType.GetOrAddProperty(Customer.NameProperty);
             entityType.AddIndex(new[] { property1, property2 });
@@ -725,11 +717,11 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void GetIndex_throws_if_index_not_found()
         {
-            var entityType = new EntityType(typeof(Customer));
+            var entityType = new EntityType(typeof(Customer), new Model());
             var property1 = entityType.GetOrAddProperty(Customer.IdProperty);
             var property2 = entityType.GetOrAddProperty(Customer.NameProperty);
 
-            Assert.Equal(Strings.FormatIndexNotFound("'" + Customer.IdProperty.Name + "', '" + Customer.NameProperty.Name+"'" , typeof(Customer).FullName),
+            Assert.Equal(Strings.FormatIndexNotFound("'" + Customer.IdProperty.Name + "', '" + Customer.NameProperty.Name + "'", typeof(Customer).FullName),
                 Assert.Throws<ModelItemNotFoundException>(
                     () => entityType.GetIndex(new[] { property1, property2 })).Message);
 
@@ -743,7 +735,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_add_and_remove_properties()
         {
-            var entityType = new EntityType(typeof(Customer));
+            var entityType = new EntityType(typeof(Customer), new Model());
             Assert.Null(entityType.RemoveProperty(new Property("Id", typeof(int), entityType)));
 
             var property1 = entityType.AddProperty("Id", typeof(int));
@@ -771,7 +763,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_add_new_properties_or_get_existing_properties_using_PropertyInfo_or_name()
         {
-            var entityType = new EntityType(typeof(Customer));
+            var entityType = new EntityType(typeof(Customer), new Model());
 
             var idProperty = entityType.GetOrAddProperty("Id", typeof(int));
 
@@ -803,7 +795,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Cannot_remove_property_when_used_by_primary_key()
         {
-            var entityType = new EntityType(typeof(Customer));
+            var entityType = new EntityType(typeof(Customer), new Model());
             var property = entityType.GetOrAddProperty(Customer.IdProperty);
 
             entityType.GetOrSetPrimaryKey(property);
@@ -816,7 +808,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Cannot_remove_property_when_used_by_non_primary_key()
         {
-            var entityType = new EntityType(typeof(Customer));
+            var entityType = new EntityType(typeof(Customer), new Model());
             var property = entityType.GetOrAddProperty(Customer.IdProperty);
 
             entityType.GetOrAddKey(property);
@@ -829,10 +821,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Cannot_remove_property_when_used_by_foreign_key()
         {
-            var customerType = new EntityType(typeof(Customer));
+            var customerType = new EntityType(typeof(Customer), new Model());
             var customerPk = customerType.GetOrSetPrimaryKey(customerType.GetOrAddProperty(Customer.IdProperty));
 
-            var orderType = new EntityType(typeof(Order));
+            var orderType = new EntityType(typeof(Order), new Model());
             var customerFk = orderType.GetOrAddProperty(Order.CustomerIdProperty);
             orderType.GetOrAddForeignKey(customerFk, customerPk);
 
@@ -844,7 +836,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Cannot_remove_property_when_used_by_an_index()
         {
-            var entityType = new EntityType(typeof(Customer));
+            var entityType = new EntityType(typeof(Customer), new Model());
             var property = entityType.GetOrAddProperty(Customer.IdProperty);
 
             entityType.GetOrAddIndex(property);
@@ -857,7 +849,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Properties_are_ordered_by_name()
         {
-            var entityType = new EntityType(typeof(Customer));
+            var entityType = new EntityType(typeof(Customer), new Model());
 
             var property1 = entityType.GetOrAddProperty(Customer.IdProperty);
             var property2 = entityType.GetOrAddProperty(Customer.NameProperty);
@@ -868,13 +860,13 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Properties_is_IList_to_ensure_collecting_the_count_is_fast()
         {
-            Assert.IsAssignableFrom<IList<Property>>(new EntityType(typeof(Customer)).Properties);
+            Assert.IsAssignableFrom<IList<Property>>(new EntityType(typeof(Customer), new Model()).Properties);
         }
 
         [Fact]
         public void Can_get_property_and_can_try_get_property()
         {
-            var entityType = new EntityType(typeof(Customer));
+            var entityType = new EntityType(typeof(Customer), new Model());
             var property = entityType.GetOrAddProperty(Customer.IdProperty);
 
             Assert.Same(property, entityType.TryGetProperty(Customer.IdProperty));
@@ -892,7 +884,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Shadow_properties_have_CLR_flag_set_to_false()
         {
-            var entityType = new EntityType(typeof(Customer));
+            var entityType = new EntityType(typeof(Customer), new Model());
 
             entityType.GetOrAddProperty(Customer.NameProperty);
             entityType.GetOrAddProperty("Id", typeof(int));
@@ -906,7 +898,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Adding_a_new_property_with_a_name_that_already_exists_throws()
         {
-            var entityType = new EntityType(typeof(Customer));
+            var entityType = new EntityType(typeof(Customer), new Model());
 
             entityType.AddProperty("Id", typeof(int));
 
@@ -918,7 +910,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Adding_a_CLR_property_to_a_shadow_entity_type_throws()
         {
-            var entityType = new EntityType("Hello");
+            var entityType = new EntityType("Hello", new Model());
 
             Assert.Equal(
                 Strings.FormatClrPropertyOnShadowEntity("Kitty", "Hello"),
@@ -928,7 +920,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Adding_a_CLR_property_that_doesnt_match_a_CLR_property_throws()
         {
-            var entityType = new EntityType(typeof(Customer));
+            var entityType = new EntityType(typeof(Customer), new Model());
 
             Assert.Equal(
                 Strings.FormatNoClrProperty("Snook", typeof(Customer).FullName),
@@ -938,7 +930,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Adding_a_CLR_property_where_the_type_doesnt_match_the_CLR_type_throws()
         {
-            var entityType = new EntityType(typeof(Customer));
+            var entityType = new EntityType(typeof(Customer), new Model());
 
             Assert.Equal(
                 Strings.FormatWrongClrPropertyType("Id", typeof(Customer).FullName),
@@ -948,7 +940,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Making_a_shadow_property_a_non_shadow_property_throws_if_CLR_property_does_not_match()
         {
-            var entityType = new EntityType(typeof(Customer));
+            var entityType = new EntityType(typeof(Customer), new Model());
 
             var property1 = entityType.AddProperty("Snook", typeof(int), shadowProperty: true);
             var property2 = entityType.AddProperty("Id", typeof(string), shadowProperty: true);
@@ -965,7 +957,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_get_property_indexes()
         {
-            var entityType = new EntityType(typeof(Customer));
+            var entityType = new EntityType(typeof(Customer), new Model());
 
             entityType.GetOrAddProperty(Customer.NameProperty);
             entityType.GetOrAddProperty("Id", typeof(int), shadowProperty: true);
@@ -985,7 +977,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Indexes_are_rebuilt_when_more_properties_added_or_relevant_state_changes()
         {
-            var entityType = new EntityType(typeof(FullNotificationEntity));
+            var entityType = new EntityType(typeof(FullNotificationEntity), new Model());
 
             var nameProperty = entityType.GetOrAddProperty("Name", typeof(string));
             entityType.GetOrAddProperty("Id", typeof(int), shadowProperty: true).IsConcurrencyToken = true;
@@ -1072,49 +1064,49 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Lazy_original_values_are_used_for_full_notification_and_shadow_enties()
         {
-            Assert.True(new EntityType(typeof(FullNotificationEntity)).UseLazyOriginalValues);
+            Assert.True(new EntityType(typeof(FullNotificationEntity), new Model()).UseLazyOriginalValues);
         }
 
         [Fact]
         public void Lazy_original_values_are_used_for_shadow_enties()
         {
-            Assert.True(new EntityType("Z'ha'dum").UseLazyOriginalValues);
+            Assert.True(new EntityType("Z'ha'dum", new Model()).UseLazyOriginalValues);
         }
 
         [Fact]
         public void Eager_original_values_are_used_for_enties_that_only_implement_INotifyPropertyChanged()
         {
-            Assert.False(new EntityType(typeof(ChangedOnlyEntity)).UseLazyOriginalValues);
+            Assert.False(new EntityType(typeof(ChangedOnlyEntity), new Model()).UseLazyOriginalValues);
         }
 
         [Fact]
         public void Eager_original_values_are_used_for_enties_that_do_no_notification()
         {
-            Assert.False(new EntityType(typeof(Customer)).UseLazyOriginalValues);
+            Assert.False(new EntityType(typeof(Customer), new Model()).UseLazyOriginalValues);
         }
 
         [Fact]
         public void Lazy_original_values_can_be_switched_off()
         {
-            Assert.False(new EntityType(typeof(FullNotificationEntity)) { UseLazyOriginalValues = false }.UseLazyOriginalValues);
+            Assert.False(new EntityType(typeof(FullNotificationEntity), new Model()) { UseLazyOriginalValues = false }.UseLazyOriginalValues);
         }
 
         [Fact]
         public void Lazy_original_values_can_be_switched_on_but_only_if_entity_does_not_require_eager_values()
         {
-            var entityType = new EntityType(typeof(FullNotificationEntity)) { UseLazyOriginalValues = false };
+            var entityType = new EntityType(typeof(FullNotificationEntity), new Model()) { UseLazyOriginalValues = false };
             entityType.UseLazyOriginalValues = true;
             Assert.True(entityType.UseLazyOriginalValues);
 
             Assert.Equal(
                 Strings.FormatEagerOriginalValuesRequired(typeof(ChangedOnlyEntity).FullName),
-                Assert.Throws<InvalidOperationException>(() => new EntityType(typeof(ChangedOnlyEntity)) { UseLazyOriginalValues = true }).Message);
+                Assert.Throws<InvalidOperationException>(() => new EntityType(typeof(ChangedOnlyEntity), new Model()) { UseLazyOriginalValues = true }).Message);
         }
 
         [Fact]
         public void All_properties_have_original_value_indexes_when_using_eager_original_values()
         {
-            var entityType = new EntityType(typeof(FullNotificationEntity)) { UseLazyOriginalValues = false };
+            var entityType = new EntityType(typeof(FullNotificationEntity), new Model()) { UseLazyOriginalValues = false };
 
             entityType.GetOrAddProperty("Name", typeof(string));
             entityType.GetOrAddProperty("Id", typeof(int));
@@ -1128,7 +1120,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Only_required_properties_have_original_value_indexes_when_using_lazy_original_values()
         {
-            var entityType = new EntityType(typeof(FullNotificationEntity));
+            var entityType = new EntityType(typeof(FullNotificationEntity), new Model());
 
             entityType.GetOrAddProperty("Name", typeof(string)).IsConcurrencyToken = true;
             entityType.GetOrAddProperty("Id", typeof(int));
@@ -1142,7 +1134,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void FK_properties_are_marked_as_requiring_original_values()
         {
-            var entityType = new EntityType(typeof(FullNotificationEntity));
+            var entityType = new EntityType(typeof(FullNotificationEntity), new Model());
             entityType.GetOrSetPrimaryKey(entityType.GetOrAddProperty("Id", typeof(int)));
 
             Assert.Equal(-1, entityType.GetProperty("Id").OriginalValueIndex);

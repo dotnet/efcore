@@ -439,11 +439,10 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             productType.GetOrAddForeignKey(productType.GetProperty("DependentId"), new Key(new[] { categoryType.GetProperty("PrincipalId") }));
 
-            var locationType = new EntityType("Location");
+            var locationType = model.AddEntityType("Location");
             var idProperty = locationType.GetOrAddProperty("Id", typeof(int), shadowProperty: true);
             locationType.GetOrAddProperty("Planet", typeof(string), shadowProperty: true);
             locationType.GetOrSetPrimaryKey(idProperty);
-            model.AddEntityType(locationType);
 
             return model;
         }

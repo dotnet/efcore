@@ -67,7 +67,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
         private static void FieldMatchTest(string propertyName, string fieldName)
         {
-            var entityType = new EntityType(typeof(TheDarkSideOfTheMoon));
+            var entityType = new Model().AddEntityType(typeof(TheDarkSideOfTheMoon));
             var property = entityType.GetOrAddProperty(propertyName, typeof(int));
             var propertyInfo = entityType.Type.GetAnyProperty(propertyName);
             var fields = propertyInfo.DeclaringType.GetRuntimeFields().ToDictionary(f => f.Name);
@@ -80,7 +80,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void M_underscore_matching_field_is_not_used_if_type_is_not_compatible()
         {
-            var entityType = new EntityType(typeof(TheDarkSideOfTheMoon));
+            var entityType = new Model().AddEntityType(typeof(TheDarkSideOfTheMoon));
             var property = entityType.GetOrAddProperty("SpeakToMe", typeof(int));
             var propertyInfo = entityType.Type.GetAnyProperty("SpeakToMe");
             var fields = propertyInfo.DeclaringType.GetRuntimeFields().ToDictionary(f => f.Name);

@@ -342,4 +342,7 @@
   <data name="EntityTypeNotInRelationship" xml:space="preserve">
     <value>The specified type '{type}' is invalid. It should be either the dependent type '{dependentType}' or the principal type '{principalType}'.</value>
   </data>
+  <data name="DuplicateEntityType" xml:space="preserve">
+    <value>The entity type '{entityType}' cannot be added to the model because an entity with the same name already exists.</value>
+  </data>
 </root>

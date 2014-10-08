@@ -178,7 +178,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
 
         private static Property CreateProperty(Type propertyType)
         {
-            var entityType = new EntityType("MyType");
+            var entityType = new Model().AddEntityType("MyType");
             return entityType.GetOrAddProperty("MyProperty", propertyType, shadowProperty: true);
         }
 

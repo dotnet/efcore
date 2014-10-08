@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         [Fact]
         public void IsValidProperty_returns_false_when_invalid()
         {
-            var entityType = new EntityType(typeof(EntityWithInvalidProperties));
+            var entityType = new Model().AddEntityType(typeof(EntityWithInvalidProperties));
 
             new PropertiesConvention().Apply(entityType);
 
@@ -92,7 +92,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         [Fact]
         public void IsPrimitiveProperty_returns_true_when_supported_type()
         {
-            var entityType = new EntityType(typeof(EntityWithEveryPrimitive));
+            var entityType = new Model().AddEntityType(typeof(EntityWithEveryPrimitive));
 
             new PropertiesConvention().Apply(entityType);
 
@@ -109,7 +109,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         [Fact]
         public void IsPrimitiveProperty_returns_false_when_unsupported_type()
         {
-            var entityType = new EntityType(typeof(EntityWithNoPrimitives));
+            var entityType = new Model().AddEntityType(typeof(EntityWithNoPrimitives));
 
             new PropertiesConvention().Apply(entityType);
 

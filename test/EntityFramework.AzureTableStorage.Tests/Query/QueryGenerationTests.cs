@@ -144,9 +144,9 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
         private static IModel SetupModel()
         {
             var model = new Model { StorageName = "TestModel" };
-            model.AddEntityType(PocoTestType.EntityType());
-            model.AddEntityType(IntKeysPoco.EntityType());
-            model.AddEntityType(NullablePoco.EntityType());
+            PocoTestType.EntityType(model);
+            IntKeysPoco.EntityType(model);
+            NullablePoco.EntityType(model);
             return model;
         }
 

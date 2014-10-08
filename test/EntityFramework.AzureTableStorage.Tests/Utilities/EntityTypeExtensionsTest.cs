@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Utilities
         [Fact]
         public void Can_lookup_by_storage_name()
         {
-            var entityType = new EntityType("Customer");
+            var entityType = new Model().AddEntityType("Customer");
             var property = entityType.GetOrAddProperty("Name", typeof(string), shadowProperty: true);
             property.SetColumnName("FirstName");
             Assert.Equal(property, entityType.GetPropertyByColumnName("FirstName"));
@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Utilities
         [Fact]
         public void Lookup_by_storage_name_returns_null()
         {
-            var entityType = new EntityType("Customer");
+            var entityType = new Model().AddEntityType("Customer");
             entityType.GetOrAddProperty("Name", typeof(string), shadowProperty: true);
 
             Assert.Equal(

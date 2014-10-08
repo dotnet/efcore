@@ -11,8 +11,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
     public class InternalModelBuilder : InternalMetadataBuilder<Model>
     {
         private readonly IModelChangeListener _modelChangeListener;
+
         private readonly MetadataDictionary<EntityType, InternalEntityBuilder> _entityBuilders =
             new MetadataDictionary<EntityType, InternalEntityBuilder>();
+
         private readonly LazyRef<Dictionary<string, ConfigurationSource>> _ignoredEntityTypeNames =
             new LazyRef<Dictionary<string, ConfigurationSource>>(() => new Dictionary<string, ConfigurationSource>());
 
@@ -38,7 +40,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             return _entityBuilders.GetOrAdd(
                 () => Metadata.TryGetEntityType(name),
-                () => EntityTypeAdded(new EntityType(name)),
+                () => EntityTypeAdded(Metadata.AddEntityType(name)),
                 entityType => new InternalEntityBuilder(entityType, ModelBuilder),
                 configurationSource);
         }
@@ -54,7 +56,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             return _entityBuilders.GetOrAdd(
                 () => Metadata.TryGetEntityType(type),
-                () => EntityTypeAdded(new EntityType(type)),
+                () => EntityTypeAdded(Metadata.AddEntityType(type)),
                 entityType => new InternalEntityBuilder(entityType, ModelBuilder),
                 configurationSource);
         }
@@ -78,8 +80,6 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         private EntityType EntityTypeAdded(EntityType entityType)
         {
-            Metadata.AddEntityType(entityType);
-
             if (_modelChangeListener != null)
             {
                 _modelChangeListener.OnEntityTypeAdded(entityType);

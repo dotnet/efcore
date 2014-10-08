@@ -130,12 +130,10 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
         private static Property CreateProperty(Type propertyType, ValueGeneration valueGeneration, string annotation = null)
         {
-            var entityType = new EntityType("MyType");
+            var entityType = new Model().AddEntityType("MyType");
             var property = entityType.GetOrAddProperty("MyProperty", propertyType, shadowProperty: true);
             property.ValueGeneration = valueGeneration;
             entityType.SetTableName("MyTable");
-
-            new Model().AddEntityType(entityType);
 
             if (annotation != null)
             {

@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Throws_for_shadow_entity_type()
         {
-            var entityType = new EntityType("SomeEntity");
+            var entityType = new Model().AddEntityType("SomeEntity");
 
             Assert.Equal(
                 Strings.FormatNoClrType("SomeEntity"),
@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_create_materializer_for_entity_with_auto_properties()
         {
-            var entityType = new EntityType(typeof(SomeEntity));
+            var entityType = new Model().AddEntityType(typeof(SomeEntity));
             entityType.GetOrAddProperty("Id", typeof(int));
             entityType.GetOrAddProperty("Foo", typeof(string));
             entityType.GetOrAddProperty("Goo", typeof(Guid?));
@@ -54,7 +54,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_create_materializer_for_entity_with_fields()
         {
-            var entityType = new EntityType(typeof(SomeEntityWithFields));
+            var entityType = new Model().AddEntityType(typeof(SomeEntityWithFields));
             entityType.GetOrAddProperty("Id", typeof(int));
             entityType.GetOrAddProperty("Foo", typeof(string));
             entityType.GetOrAddProperty("Goo", typeof(Guid?));
@@ -80,7 +80,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             valueReaderMock.Setup(m => m.IsNull(0)).Returns(true);
             valueReaderMock.Setup(m => m.IsNull(1)).Returns(true);
 
-            var entityType = new EntityType(typeof(SomeEntity));
+            var entityType = new Model().AddEntityType(typeof(SomeEntity));
             entityType.GetOrAddProperty("Id", typeof(int));
             entityType.GetOrAddProperty("Foo", typeof(string));
             entityType.GetOrAddProperty("Goo", typeof(Guid?));
@@ -97,7 +97,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_create_materializer_for_entity_ignoring_shadow_fields()
         {
-            var entityType = new EntityType(typeof(SomeEntity));
+            var entityType = new Model().AddEntityType(typeof(SomeEntity));
             entityType.GetOrAddProperty("Id", typeof(int));
             entityType.GetOrAddProperty("IdShadow", typeof(int), shadowProperty: true);
             entityType.GetOrAddProperty("Foo", typeof(string));

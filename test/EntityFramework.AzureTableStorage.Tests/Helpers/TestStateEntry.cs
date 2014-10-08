@@ -68,7 +68,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Helpers
 
         public TestStateEntry WithType(string name)
         {
-            var e = new EntityType(name);
+            var e = new Model().AddEntityType(name);
             e.GetOrAddProperty("PartitionKey", typeof(string), shadowProperty: true);
             e.GetOrAddProperty("RowKey", typeof(string), shadowProperty: true);
             e.GetOrAddProperty("ETag", typeof(string), shadowProperty: true);
@@ -79,7 +79,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Helpers
 
         public TestStateEntry WithType(Type type)
         {
-            var e = new EntityType(type);
+            var e = new Model().AddEntityType(type);
             e.GetOrAddProperty("PartitionKey", typeof(string));
             e.GetOrAddProperty("RowKey", typeof(string));
             e.GetOrAddProperty("ETag", typeof(string));

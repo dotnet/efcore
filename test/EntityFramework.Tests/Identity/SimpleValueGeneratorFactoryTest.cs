@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.Tests.Identity
 
         private static Property CreateProperty()
         {
-            var entityType = new EntityType("Led");
+            var entityType = new Model().AddEntityType("Led");
             return entityType.GetOrAddProperty("Zeppelin", typeof(int), shadowProperty: true);
         }
     }

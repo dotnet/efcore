@@ -127,7 +127,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var model = new Model();
 
-            var entityType = new EntityType(typeof(Banana));
+            var entityType = model.AddEntityType(typeof(Banana));
             var property1 = entityType.GetOrAddProperty("P1", typeof(int));
             var property2 = entityType.GetOrAddProperty("P2", typeof(string));
             var property3 = entityType.GetOrAddProperty("P3", typeof(Random));
@@ -137,8 +137,6 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             entityType.GetOrSetPrimaryKey(new[] { property1, property2, property3 });
             entityType.GetOrAddForeignKey(new[] { property4, property5, property6 }, entityType.GetPrimaryKey());
-
-            model.AddEntityType(entityType);
 
             return model;
         }

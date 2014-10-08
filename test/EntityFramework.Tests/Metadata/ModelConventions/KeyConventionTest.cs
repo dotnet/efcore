@@ -139,7 +139,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
 
         private static EntityType CreateEntityType<T>()
         {
-            var entityType = new EntityType(typeof(T));
+            var entityType = new Model().AddEntityType(typeof(T));
             new PropertiesConvention().Apply(entityType);
 
             return entityType;

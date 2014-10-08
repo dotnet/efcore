@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Xunit;
@@ -97,8 +97,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public void Can_only_ignore_existing_entity_type_explicitly_using_entity_entity_clr_type()
         {
             var model = new Model();
-            var entityType = new EntityType(typeof(Customer));
-            model.AddEntityType(entityType);
+            var entityType = model.AddEntityType(typeof(Customer));
             var modelBuilder = new InternalModelBuilder(model, null);
             Assert.Same(entityType, modelBuilder.Entity(typeof(Customer), ConfigurationSource.Convention).Metadata);
 
@@ -115,8 +114,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public void Can_only_ignore_existing_entity_type_explicitly_using_entity_entity_type_name()
         {
             var model = new Model();
-            var entityType = new EntityType(typeof(Customer).FullName);
-            model.AddEntityType(entityType);
+            var entityType = model.AddEntityType(typeof(Customer).FullName);
             var modelBuilder = new InternalModelBuilder(model, null);
             Assert.Same(entityType, modelBuilder.Entity(typeof(Customer).FullName, ConfigurationSource.Convention).Metadata);
 

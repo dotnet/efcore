@@ -359,32 +359,26 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
             builder.Annotation("ModelAnnotation1", "ModelValue1");
             builder.Annotation("ModelAnnotation2", "ModelValue2");
 
-            var entityType1 = new EntityType(typeof(KoolEntity1));
+            var entityType1 = model.AddEntityType(typeof(KoolEntity1));
             var property = entityType1.GetOrAddProperty("Id1", typeof(int));
             entityType1.GetOrSetPrimaryKey(property);
             entityType1.GetOrAddProperty("Id2", typeof(Guid));
             entityType1.GetOrAddProperty("KoolEntity2Id", typeof(int));
-            model.AddEntityType(entityType1);
 
-            var entityType2 = new EntityType(typeof(KoolEntity2));
+            var entityType2 = model.AddEntityType(typeof(KoolEntity2));
             entityType2.GetOrAddProperty("KoolEntity1Id1", typeof(int));
             entityType2.GetOrAddProperty("KoolEntity1Id2", typeof(Guid));
             entityType2.GetOrAddProperty("KoolEntity3Id", typeof(int));
-            model.AddEntityType(entityType2);
 
-            var entityType3 = new EntityType(typeof(KoolEntity3));
+            var entityType3 = model.AddEntityType(typeof(KoolEntity3));
             entityType3.GetOrAddProperty("KoolEntity4Id", typeof(int));
-            model.AddEntityType(entityType3);
 
-            var entityType4 = new EntityType(typeof(KoolEntity4));
-            model.AddEntityType(entityType4);
+            var entityType4 = model.AddEntityType(typeof(KoolEntity4));
 
-            var entityType5 = new EntityType(typeof(KoolEntity5));
-            model.AddEntityType(entityType5);
+            var entityType5 = model.AddEntityType(typeof(KoolEntity5));
 
-            var entityType6 = new EntityType(typeof(KoolEntity6));
+            var entityType6 = model.AddEntityType(typeof(KoolEntity6));
             entityType6.GetOrAddProperty("Kool5Id", typeof(int));
-            model.AddEntityType(entityType6);
 
             for (var i = 7; i <= 20; i++)
             {
@@ -392,7 +386,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
                 Assert.NotNull(type);
 
-                model.AddEntityType(new EntityType(type));
+                model.AddEntityType(type);
             }
 
             for (var i = 2; i <= 20; i++)

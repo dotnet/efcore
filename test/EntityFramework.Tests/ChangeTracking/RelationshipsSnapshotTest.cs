@@ -294,7 +294,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var model = new Model();
 
-            var entityType = new EntityType(typeof(Banana));
+            var entityType = model.AddEntityType(typeof(Banana));
             var pkProperty = entityType.GetOrAddProperty("Id", typeof(int));
             var fkProperty = entityType.GetOrAddProperty("Fk", typeof(int));
 
@@ -302,8 +302,6 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var fk = entityType.GetOrAddForeignKey(fkProperty, entityType.GetPrimaryKey());
 
             entityType.GetOrAddProperty("Name", typeof(string));
-
-            model.AddEntityType(entityType);
 
             entityType.AddNavigation("LesserBananas", fk, pointsToPrincipal: false);
             entityType.AddNavigation("TopBanana", fk, pointsToPrincipal: true);

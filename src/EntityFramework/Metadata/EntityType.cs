@@ -13,7 +13,6 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
 {
-    [DebuggerDisplay("{Name,nq}")]
     public class EntityType : MetadataBase, IEntityType
     {
         private readonly object _typeOrName;
@@ -43,10 +42,12 @@ namespace Microsoft.Data.Entity.Metadata
         ///     Creates a new metadata object representing an entity type associated with the given .NET type.
         /// </summary>
         /// <param name="type">The .NET entity type that this metadata object represents.</param>
-        public EntityType([NotNull] Type type)
+        /// <param name="model">The model associated with this entity type.</param>
+        public EntityType([NotNull] Type type, [NotNull] Model model)
         {
             Check.NotNull(type, "type");
 
+            Model = model;
             _typeOrName = type;
             _useLazyOriginalValues = CanUseLazyOriginalValues();
         }
@@ -56,14 +57,16 @@ namespace Microsoft.Data.Entity.Metadata
         ///     such that there is no underlying .NET type corresponding to this metadata object.
         /// </summary>
         /// <param name="name">The name of the shadow-state entity type.</param>
-        public EntityType([NotNull] string name)
+        /// <param name="model">The model associated with this entity type.</param>
+        public EntityType([NotNull] string name, [NotNull] Model model)
         {
             Check.NotEmpty(name, "name");
 
+            Model = model;
             _typeOrName = name;
         }
 
-        public virtual Model Model { get; internal set; }
+        public virtual Model Model { get; private set; }
 
         public virtual Type Type
         {
@@ -807,7 +810,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             // TODO: Perf: This should be O(log(n)) but an additional index could be created
             // TODO: if this is too slow or if creating the surrogate Property object is too expensive
-            var surrogate = new Property(name, typeof(object), new EntityType(typeof(object)));
+            var surrogate = new Property(name, typeof(object), this);
             var index = _properties.BinarySearch(surrogate, PropertyComparer.Instance);
             return index >= 0 ? _properties[index] : null;
         }
@@ -898,6 +901,11 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         #endregion
+
+        public override string ToString()
+        {
+            return Name;
+        }
 
         #region Explicit interface implementations
 

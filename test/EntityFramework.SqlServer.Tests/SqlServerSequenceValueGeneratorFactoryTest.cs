@@ -155,11 +155,9 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
         private static Property CreateProperty()
         {
-            var entityType = new EntityType("MyType");
+            var entityType = new Model().AddEntityType("MyType");
             var property = entityType.GetOrAddProperty("MyProperty", typeof(string), shadowProperty: true);
             entityType.SetTableName("MyTable");
-
-            new Model().AddEntityType(entityType);
 
             return property;
         }

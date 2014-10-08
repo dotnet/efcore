@@ -1210,6 +1210,22 @@ namespace Microsoft.Data.Entity
             return string.Format(CultureInfo.CurrentCulture, GetString("EntityTypeNotInRelationship", "type", "dependentType", "principalType"), type, dependentType, principalType);
         }
 
+        /// <summary>
+        /// The entity type '{entityType}' cannot be added to the model because an entity with the same name already exists.
+        /// </summary>
+        internal static string DuplicateEntityType
+        {
+            get { return GetString("DuplicateEntityType"); }
+        }
+
+        /// <summary>
+        /// The entity type '{entityType}' cannot be added to the model because an entity with the same name already exists.
+        /// </summary>
+        internal static string FormatDuplicateEntityType(object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("DuplicateEntityType", "entityType"), entityType);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

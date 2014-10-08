@@ -15,11 +15,9 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
         {
             var model = new Model();
 
-            var customerType = new EntityType("Customer");
+            var customerType = model.AddEntityType("Customer");
             customerType.GetOrSetPrimaryKey(customerType.AddProperty("Id", typeof(int), shadowProperty: true));
             customerType.GetOrAddProperty("Name", typeof(string), shadowProperty: true);
-
-            model.AddEntityType(customerType);
 
             var options = new DbContextOptions()
                 .UseModel(model)
@@ -79,11 +77,9 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
         {
             var model = new Model();
 
-            var customerType = new EntityType(typeof(Customer));
+            var customerType = model.AddEntityType(typeof(Customer));
             customerType.GetOrSetPrimaryKey(customerType.GetOrAddProperty("Id", typeof(int)));
             customerType.GetOrAddProperty("Name", typeof(string), shadowProperty: true);
-
-            model.AddEntityType(customerType);
 
             var options = new DbContextOptions()
                 .UseModel(model)

@@ -89,7 +89,7 @@ namespace Microsoft.Data.Entity.Tests.Identity
 
         private static Property CreateProperty(ValueGeneration valueGeneration)
         {
-            var entityType = new EntityType("Led");
+            var entityType = new Model().AddEntityType("Led");
             var property = entityType.GetOrAddProperty("Zeppelin", typeof(Guid), shadowProperty: true);
             property.ValueGeneration = valueGeneration;
             return property;

@@ -388,25 +388,21 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         {
             var model = new Model();
 
-            var principalType = new EntityType(typeof(PrincipalEntity));
+            var principalType = model.AddEntityType(typeof(PrincipalEntity));
             principalType.GetOrSetPrimaryKey(principalType.GetOrAddProperty("PeeKay", typeof(int)));
-            model.AddEntityType(principalType);
 
-            var dependentType = new EntityType(typeof(DependentEntity));
+            var dependentType = model.AddEntityType(typeof(DependentEntity));
             dependentType.GetOrSetPrimaryKey(dependentType.GetOrAddProperty("KayPee", typeof(int), shadowProperty: true));
-            model.AddEntityType(dependentType);
 
-            var principalTypeWithCompositeKey = new EntityType(typeof(PrincipalEntityWithCompositeKey));
+            var principalTypeWithCompositeKey = model.AddEntityType(typeof(PrincipalEntityWithCompositeKey));
             principalTypeWithCompositeKey.GetOrSetPrimaryKey(new[]
                 {
                     principalTypeWithCompositeKey.GetOrAddProperty("Id", typeof(int)),
                     principalTypeWithCompositeKey.GetOrAddProperty("Name", typeof(string))
                 });
-            model.AddEntityType(principalTypeWithCompositeKey);
 
-            var dependentTypeWithCompositeKey = new EntityType(typeof(DependentEntityWithCompositeKey));
+            var dependentTypeWithCompositeKey = model.AddEntityType(typeof(DependentEntityWithCompositeKey));
             dependentTypeWithCompositeKey.GetOrSetPrimaryKey(dependentTypeWithCompositeKey.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
-            model.AddEntityType(dependentTypeWithCompositeKey);
 
             return model;
         }

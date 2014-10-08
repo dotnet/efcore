@@ -47,7 +47,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Null_returned_if_annotation_not_found_with_no_model()
         {
-            var entityType = new EntityType("MyType");
+            var entityType = new Model().AddEntityType("MyType");
             var property = entityType.GetOrAddProperty("MyProperty", typeof(string), shadowProperty: true);
 
             Assert.Null(property.FindAnnotationInHierarchy("ArnieTheAnnotation"));
@@ -56,15 +56,13 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Null_returned_if_annotation_not_found_with_no_model_entity_type()
         {
-            Assert.Null(new Property("MyProperty", typeof(string), new EntityType(typeof(object))).FindAnnotationInHierarchy("ArnieTheAnnotation"));
+            Assert.Null(new Property("MyProperty", typeof(string), new Model().AddEntityType(typeof(object))).FindAnnotationInHierarchy("ArnieTheAnnotation"));
         }
 
         private static Property CreateProperty()
         {
-            var entityType = new EntityType("MyType");
+            var entityType = new Model().AddEntityType("MyType");
             var property = entityType.GetOrAddProperty("MyProperty", typeof(string), shadowProperty: true);
-
-            new Model().AddEntityType(entityType);
 
             return property;
         }

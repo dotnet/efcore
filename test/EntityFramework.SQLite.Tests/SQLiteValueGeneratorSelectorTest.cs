@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.SQLite.Tests
         [Fact]
         public void Select_returns_tempFactory_when_single_long_key()
         {
-            var entityType = new EntityType("Entity");
+            var entityType = new Model().AddEntityType("Entity");
             var property = entityType.GetOrAddProperty("Id", typeof(long), shadowProperty: true);
             property.ValueGeneration = ValueGeneration.OnAdd;
             entityType.GetOrSetPrimaryKey(property);
@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.SQLite.Tests
         [Fact]
         public void Select_returns_tempFactory_when_single_integer_column_key()
         {
-            var entityType = new EntityType("Entity");
+            var entityType = new Model().AddEntityType("Entity");
             var property = entityType.GetOrAddProperty("Id", typeof(int), shadowProperty: true);
             property.ValueGeneration = ValueGeneration.OnAdd;
             property[MetadataExtensions.Annotations.StorageTypeName] = "INTEGER";
@@ -40,7 +40,7 @@ namespace Microsoft.Data.Entity.SQLite.Tests
         [Fact]
         public void Select_returns_null_when_ValueGeneration_is_not_set()
         {
-            var entityType = new EntityType("Entity");
+            var entityType = new Model().AddEntityType("Entity");
             var property = entityType.GetOrAddProperty("Id", typeof(long), shadowProperty: true);
             entityType.GetOrSetPrimaryKey(property);
 
@@ -53,7 +53,7 @@ namespace Microsoft.Data.Entity.SQLite.Tests
         public void Select_throws_when_composite_key()
         {
             var selector = CreateSelector();
-            var entityType = new EntityType("Entity");
+            var entityType = new Model().AddEntityType("Entity");
             var property = entityType.GetOrAddProperty("Id1", typeof(long), shadowProperty: true);
             property.ValueGeneration = ValueGeneration.OnAdd;
             entityType.GetOrSetPrimaryKey(new[] { property, entityType.GetOrAddProperty("Id2", typeof(long), shadowProperty: true) });
@@ -65,7 +65,7 @@ namespace Microsoft.Data.Entity.SQLite.Tests
         public void Select_throws_when_non_integer_column_key()
         {
             var selector = CreateSelector();
-            var entityType = new EntityType("Entity");
+            var entityType = new Model().AddEntityType("Entity");
             var property = entityType.GetOrAddProperty("Id", typeof(int), shadowProperty: true);
             property.ValueGeneration = ValueGeneration.OnAdd;
             entityType.GetOrSetPrimaryKey(property);

@@ -393,7 +393,7 @@ namespace Microsoft.Data.Entity.Tests
         public void Context_will_use_explicit_model_if_set_in_config()
         {
             var model = new Model();
-            model.AddEntityType(new EntityType(typeof(TheGu)));
+            model.AddEntityType(typeof(TheGu));
 
             var options = new DbContextOptions().UseModel(model);
 

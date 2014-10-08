@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
         [Fact]
         public void It_gets_value_by_storage_name()
         {
-            var entityType = new EntityType("TestType");
+            var entityType = new Model().AddEntityType("TestType");
             var property = entityType.GetOrAddProperty("ClrName", typeof(object), shadowProperty: true);
             property.SetColumnName("StorageName");
 
@@ -37,7 +37,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
         [Fact]
         public void Reader_does_not_contain_ignored_properties()
         {
-            var entityType = new EntityType("TestType");
+            var entityType = new Model().AddEntityType("TestType");
             entityType.GetOrAddProperty("Prop1", typeof(string), shadowProperty: true);
             entityType.GetOrAddProperty("Prop2", typeof(int), shadowProperty: true);
             var data = new Dictionary<string, EntityProperty>
@@ -60,7 +60,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
         [Fact]
         public void Reader_contains_nulls_for_unmatched_properties()
         {
-            var entityType = new EntityType("TestType");
+            var entityType = new Model().AddEntityType("TestType");
             entityType.GetOrAddProperty("Prop1", typeof(string), shadowProperty: true);
             entityType.GetOrAddProperty("Prop2", typeof(int), shadowProperty: true);
             var buffer = new AtsNamedValueBuffer(new Dictionary<string, EntityProperty>());
@@ -75,7 +75,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
         [Fact]
         public void Reader_uses_default_clr_for_unmapped_properties()
         {
-            var entityType = new EntityType("TestType");
+            var entityType = new Model().AddEntityType("TestType");
             entityType.GetOrAddProperty("BoolProp", typeof(bool), shadowProperty: true);
 
             var buffer = new AtsNamedValueBuffer(new Dictionary<string, EntityProperty>());
