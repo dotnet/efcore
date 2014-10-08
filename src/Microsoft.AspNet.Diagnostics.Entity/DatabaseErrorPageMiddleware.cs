@@ -56,6 +56,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity
                 System.Configuration.ConfigurationManager.GetSection("system.xml/xmlReader");
 #endif
                 _loggerProvider.Logger.StartLoggingForCurrentCallContext();
+
                 await _next(context).WithCurrentCulture();
             }
             catch (Exception ex)
@@ -90,12 +91,10 @@ namespace Microsoft.AspNet.Diagnostics.Entity
                                     var pendingMigrations = migrator.GetPendingMigrations().Select(m => m.MigrationId);
 
                                     var pendingModelChanges = true;
-                                    var migrationsAssembly = serviceProvider.GetService<MigrationAssembly>();
-                                    var snapshot = migrationsAssembly.Model;
+                                    var snapshot = migrator.MigrationAssembly.Model;
                                     if (snapshot != null)
                                     {
-                                        var differ = serviceProvider.GetService<ModelDiffer>();
-                                        pendingModelChanges = differ.Diff(snapshot, dbContext.Model).Any();
+                                        pendingModelChanges = migrator.ModelDiffer.Diff(snapshot, dbContext.Model).Any();
                                     }
 
                                     if ((!databaseExists && pendingMigrations.Any()) || pendingMigrations.Any() || pendingModelChanges)

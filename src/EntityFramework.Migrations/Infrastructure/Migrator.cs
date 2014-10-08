@@ -70,17 +70,17 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             get { return _contextConfiguration; }
         }
 
-        protected virtual HistoryRepository HistoryRepository
+        public virtual HistoryRepository HistoryRepository
         {
             get { return _historyRepository; }
         }
 
-        protected virtual MigrationAssembly MigrationAssembly
+        public virtual MigrationAssembly MigrationAssembly
         {
             get { return _migrationAssembly; }
         }
 
-        protected virtual ModelDiffer ModelDiffer
+        public virtual ModelDiffer ModelDiffer
         {
             get { return _modelDiffer; }
         }

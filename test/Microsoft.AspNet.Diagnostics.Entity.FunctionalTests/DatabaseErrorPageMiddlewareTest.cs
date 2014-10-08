@@ -102,7 +102,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity.Tests
             }
         }
 
-        //[Fact]
+        [Fact]
         public async Task Error_page_displayed_pending_migrations()
         {
             TestServer server = await SetupTestServer<BloggingContextWithMigrations, PendingMigrationsMiddleware>();
@@ -135,7 +135,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity.Tests
             }
         }
 
-        //[Fact]
+        [Fact]
         public async Task Error_page_displayed_pending_model_changes()
         {
             TestServer server = await SetupTestServer<BloggingContextWithPendingModelChanges, PendingModelChangesMiddleware>();
@@ -168,7 +168,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity.Tests
             }
         }
 
-        //[Fact]
+        [Fact]
         public async Task Error_page_then_apply_migrations()
         {
             TestServer server = await SetupTestServer<BloggingContextWithMigrations, ApplyMigrationsMiddleware>();
@@ -219,7 +219,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity.Tests
             }
         }
 
-        //[Fact]
+        [Fact]
         public async Task Customize_migrations_end_point()
         {
             var migrationsEndpoint = "/MyCustomEndPoints/ApplyMyMigrationsHere";
