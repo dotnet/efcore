@@ -60,7 +60,9 @@ namespace Microsoft.Data.Entity.Commands
                         BuildReference.ByName("EntityFramework.Migrations", copyLocal: true)
                     },
                         Source = @"
+                        using System;
                         using Microsoft.Data.Entity;
+                        using Microsoft.Data.Entity.Metadata;
                         using Microsoft.Data.Entity.Migrations;
                         using Microsoft.Data.Entity.Migrations.Builders;
                         using Microsoft.Data.Entity.Migrations.Infrastructure;
@@ -82,10 +84,20 @@ namespace Microsoft.Data.Entity.Commands
                                         get { return ""201410102227260_InitialCreate""; }
                                     }
 
+                                    public string ProductVersion
+                                    {
+                                        get { throw new NotImplementedException(); }
+                                    }
+
+                                    public IModel TargetModel
+                                    {
+                                        get { throw new NotImplementedException(); }
+                                    }
+
                                     public override void Up(MigrationBuilder migrationBuilder)
                                     {
                                     }
-        
+
                                     public override void Down(MigrationBuilder migrationBuilder)
                                     {
                                     }
@@ -133,7 +145,9 @@ namespace Microsoft.Data.Entity.Commands
                         BuildReference.ByName("EntityFramework.Migrations", copyLocal: true)
                     },
                     Source = @"
+                        using System;
                         using Microsoft.Data.Entity;
+                        using Microsoft.Data.Entity.Metadata;
                         using Microsoft.Data.Entity.Migrations;
                         using Microsoft.Data.Entity.Migrations.Builders;
                         using Microsoft.Data.Entity.Migrations.Infrastructure;
@@ -161,10 +175,20 @@ namespace Microsoft.Data.Entity.Commands
                                             get { return ""000000000000000_Context1Migration""; }
                                         }
 
+                                        public string ProductVersion
+                                        {
+                                            get { throw new NotImplementedException(); }
+                                        }
+
+                                        public IModel TargetModel
+                                        {
+                                            get { throw new NotImplementedException(); }
+                                        }
+
                                         public override void Up(MigrationBuilder migrationBuilder)
                                         {
                                         }
-        
+
                                         public override void Down(MigrationBuilder migrationBuilder)
                                         {
                                         }
@@ -181,6 +205,16 @@ namespace Microsoft.Data.Entity.Commands
                                             get { return ""000000000000000_Context2Migration""; }
                                         }
 
+                                        public string ProductVersion
+                                        {
+                                            get { throw new NotImplementedException(); }
+                                        }
+
+                                        public IModel TargetModel
+                                        {
+                                            get { throw new NotImplementedException(); }
+                                        }
+
                                         public override void Up(MigrationBuilder migrationBuilder)
                                         {
                                         }
@@ -195,11 +229,12 @@ namespace Microsoft.Data.Entity.Commands
                     "
                 };
                 var build = source.Build();
-                var executor = new ExecutorWrapper(targetDir, build.TargetName + ".dll", targetDir, "MyProject");
+                using (var executor = new ExecutorWrapper(targetDir, build.TargetName + ".dll", targetDir, "MyProject"))
+                {
+                    var migrations = executor.GetMigrations("Context1");
 
-                var migrations = executor.GetMigrations("Context1");
-
-                Assert.Equal(1, migrations.Count());
+                    Assert.Equal(1, migrations.Count());
+                }
             }
         }
 
@@ -245,7 +280,9 @@ namespace Microsoft.Data.Entity.Commands
                         BuildReference.ByPath(contextsBuild.TargetPath)
                     },
                     Source = @"
+                        using System;
                         using Microsoft.Data.Entity;
+                        using Microsoft.Data.Entity.Metadata;
                         using Microsoft.Data.Entity.Migrations;
                         using Microsoft.Data.Entity.Migrations.Builders;
                         using Microsoft.Data.Entity.Migrations.Infrastructure;
@@ -269,10 +306,20 @@ namespace Microsoft.Data.Entity.Commands
                                             get { return ""000000000000000_Context1Migration""; }
                                         }
 
+                                        public string ProductVersion
+                                        {
+                                            get { throw new NotImplementedException(); }
+                                        }
+
+                                        public IModel TargetModel
+                                        {
+                                            get { throw new NotImplementedException(); }
+                                        }
+
                                         public override void Up(MigrationBuilder migrationBuilder)
                                         {
                                         }
-        
+
                                         public override void Down(MigrationBuilder migrationBuilder)
                                         {
                                         }
@@ -289,6 +336,16 @@ namespace Microsoft.Data.Entity.Commands
                                             get { return ""000000000000000_Context2Migration""; }
                                         }
 
+                                        public string ProductVersion
+                                        {
+                                            get { throw new NotImplementedException(); }
+                                        }
+
+                                        public IModel TargetModel
+                                        {
+                                            get { throw new NotImplementedException(); }
+                                        }
+
                                         public override void Up(MigrationBuilder migrationBuilder)
                                         {
                                         }
@@ -303,11 +360,12 @@ namespace Microsoft.Data.Entity.Commands
                     "
                 };
                 var migrationsBuild = migrationsSource.Build();
-                var executor = new ExecutorWrapper(targetDir, migrationsBuild.TargetName + ".dll", targetDir, "MyProject");
+                using (var executor = new ExecutorWrapper(targetDir, migrationsBuild.TargetName + ".dll", targetDir, "MyProject"))
+                {
+                    var contextTypes = executor.GetContextTypes();
 
-                var contextTypes = executor.GetContextTypes();
-
-                Assert.Equal(3, contextTypes.Count());
+                    Assert.Equal(3, contextTypes.Count());
+                }
             }
         }
     }

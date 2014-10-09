@@ -98,11 +98,11 @@ namespace Microsoft.Data.Entity.Commands
             yield return modelSnapshotFile;
         }
 
-        public virtual IEnumerable<IMigrationMetadata> GetMigrations([CanBeNull] string contextTypeName)
+        public virtual IEnumerable<Migration> GetMigrations([CanBeNull] string contextTypeName)
         {
             var contextType = GetContextType(contextTypeName);
 
-            return MigrationAssembly.LoadMigartions(GetMigrationTypes(), contextType);
+            return MigrationAssembly.LoadMigrations(GetMigrationTypes(), contextType);
         }
 
         public virtual string ScriptMigration(

@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
     {
         private readonly DbContextConfiguration _contextConfiguration;
 
-        private IReadOnlyList<IMigrationMetadata> _migrations;
+        private IReadOnlyList<Migration> _migrations;
         private IModel _model;
 
         public MigrationAssembly([NotNull] DbContextConfiguration contextConfiguration)
@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             get { return ContextConfiguration.GetMigrationAssembly(); }
         }
 
-        public virtual IReadOnlyList<IMigrationMetadata> Migrations
+        public virtual IReadOnlyList<Migration> Migrations
         {
             get { return _migrations ?? (_migrations = LoadMigrations()); }
         }
@@ -57,7 +57,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                                && !t.GetTypeInfo().IsGenericType);
         }
 
-        public static IEnumerable<IMigrationMetadata> LoadMigartions(
+        public static IEnumerable<Migration> LoadMigrations(
             [NotNull] IEnumerable<Type> migrationTypes,
             [CanBeNull] Type contextType)
         {
@@ -65,14 +65,14 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
 
             return migrationTypes
                 .Where(t => TryGetContextType(t) == contextType)
-                .Select(t => (IMigrationMetadata)Activator.CreateInstance(t))
-                .OrderBy(m => m.MigrationId);
+                .Select(t => (Migration)Activator.CreateInstance(t))
+                .OrderBy(m => m.GetMigrationId());
         }
 
-        protected virtual IReadOnlyList<IMigrationMetadata> LoadMigrations()
+        protected virtual IReadOnlyList<Migration> LoadMigrations()
         {
             var contextType = ContextConfiguration.Context.GetType();
-            return LoadMigartions(GetMigrationTypes(Assembly), contextType)
+            return LoadMigrations(GetMigrationTypes(Assembly), contextType)
                 .ToArray();
         }
 

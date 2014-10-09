@@ -1,14 +1,12 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.Data.Entity.Metadata;
-
 namespace Microsoft.Data.Entity.Migrations.Infrastructure
 {
-    public interface IMigrationMetadata
+    public class HistoryRow
     {
-        string MigrationId { get; }
-        string ProductVersion { get; }
-        IModel TargetModel { get; }
+        public virtual string MigrationId { get; internal set; }
+        public virtual string ContextKey { get; internal set; }
+        public virtual string ProductVersion { get; internal set; }
     }
 }

@@ -107,6 +107,22 @@ namespace Microsoft.Data.Entity.Migrations
         }
 
         /// <summary>
+        /// '{migrationType}' does not implement IMigrationMetadata.
+        /// </summary>
+        internal static string MissingMigrationMetadata
+        {
+            get { return GetString("MissingMigrationMetadata"); }
+        }
+
+        /// <summary>
+        /// '{migrationType}' does not implement IMigrationMetadata.
+        /// </summary>
+        internal static string FormatMissingMigrationMetadata(object migrationType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("MissingMigrationMetadata", "migrationType"), migrationType);
+        }
+
+        /// <summary>
         /// Creating migration history table.
         /// </summary>
         internal static string MigratorLoggerCreatingHistoryTable

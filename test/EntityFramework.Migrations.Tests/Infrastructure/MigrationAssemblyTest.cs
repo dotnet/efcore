@@ -1,12 +1,12 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Reflection;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Builders;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
+using Microsoft.Data.Entity.Migrations.Utilities;
 using Microsoft.Data.Entity.Relational;
 using Xunit;
 
@@ -53,8 +53,8 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
 
                 Assert.Same(migrations1, migrations2);
                 Assert.Equal(2, migrations1.Count);
-                Assert.Equal("Migration1", migrations1[0].GetType().Name);
-                Assert.Equal("Migration2", migrations1[1].GetType().Name);
+                Assert.Equal("000000000000001_Migration1", migrations1[0].GetMigrationId());
+                Assert.Equal("000000000000002_Migration2", migrations1[1].GetMigrationId());
             }
         }
 
@@ -124,17 +124,27 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         {
             public override void Up(MigrationBuilder migrationBuilder)
             {
-                throw new NotImplementedException();
+                migrationBuilder.Sql("UpSql");
             }
 
             public override void Down(MigrationBuilder migrationBuilder)
             {
-                throw new NotImplementedException();
+                migrationBuilder.Sql("DownSql");
             }
 
             string IMigrationMetadata.MigrationId
             {
                 get { return "000000000000002_Migration2"; }
+            }
+
+            public string ProductVersion
+            {
+                get { return "1.2.3.4"; }
+            }
+
+            public IModel TargetModel
+            {
+                get { return new Metadata.Model(); } 
             }
         }
 
@@ -143,17 +153,27 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         {
             public override void Up(MigrationBuilder migrationBuilder)
             {
-                throw new NotImplementedException();
+                migrationBuilder.Sql("UpSql");
             }
 
             public override void Down(MigrationBuilder migrationBuilder)
             {
-                throw new NotImplementedException();
+                migrationBuilder.Sql("DownSql");
             }
 
             string IMigrationMetadata.MigrationId
             {
                 get { return "000000000000001_Migration1"; }
+            }
+
+            public string ProductVersion
+            {
+                get { return "1.2.3.4"; }
+            }
+
+            public IModel TargetModel
+            {
+                get { return new Metadata.Model(); }
             }
         }
 

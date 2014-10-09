@@ -61,7 +61,7 @@
     <Compile Include="Infrastructure\ContextTypeAttributeTest.cs" />
     <Compile Include="Infrastructure\HistoryRepositoryTest.cs" />
     <Compile Include="Infrastructure\MigrationAssemblyTest.cs" />
-    <Compile Include="Infrastructure\MigrationMetadataTest.cs" />
+    <Compile Include="Infrastructure\MigrationInfoTest.cs" />
     <Compile Include="Infrastructure\MigratorTest.cs" />
     <Compile Include="MigrationOperationSqlGeneratorTest.cs" />
     <Compile Include="MigrationTest.cs" />

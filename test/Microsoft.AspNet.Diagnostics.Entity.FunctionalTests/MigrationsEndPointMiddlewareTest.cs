@@ -7,6 +7,7 @@ using Microsoft.AspNet.Http;
 using Microsoft.AspNet.TestHost;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
+using Microsoft.Data.Entity.Migrations.Utilities;
 using Microsoft.Data.Entity.SqlServer.FunctionalTests;
 using Microsoft.Framework.DependencyInjection;
 using System;
@@ -100,8 +101,8 @@ namespace Microsoft.AspNet.Diagnostics.Entity.Tests
                 Assert.True(db.Database.AsRelational().Exists());
                 var appliedMigrations = db.Configuration.Services.ServiceProvider.GetService<Migrator>().GetDatabaseMigrations();
                 Assert.Equal(2, appliedMigrations.Count);
-                Assert.Equal("111111111111111_MigrationOne", appliedMigrations.ElementAt(0).MigrationId);
-                Assert.Equal("222222222222222_MigrationTwo", appliedMigrations.ElementAt(1).MigrationId);
+                Assert.Equal("111111111111111_MigrationOne", appliedMigrations.ElementAt(0).GetMigrationId());
+                Assert.Equal("222222222222222_MigrationTwo", appliedMigrations.ElementAt(1).GetMigrationId());
             }
         }
 

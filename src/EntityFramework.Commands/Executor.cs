@@ -1,8 +1,8 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using Microsoft.Data.Entity.Migrations.Utilities;
 #if NET451 || ASPNET50
-
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -11,7 +11,6 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Commands.Utilities;
-using Microsoft.Data.Entity.Migrations.Infrastructure;
 
 namespace Microsoft.Data.Entity.Commands
 {
@@ -193,9 +192,9 @@ namespace Microsoft.Data.Entity.Commands
                     var migrationName = m.GetMigrationName();
 
                     var result = new Hashtable();
-                    result["MigrationId"] = m.MigrationId;
+                    result["MigrationId"] = m.GetMigrationId();
                     result["MigrationName"] = migrationName;
-                    result["SafeName"] = groups.Count(g => g.Key == migrationName) == 1 ? migrationName : m.MigrationId;
+                    result["SafeName"] = groups.Count(g => g.Key == migrationName) == 1 ? migrationName : m.GetMigrationId();
 
                     return result;
                 });
