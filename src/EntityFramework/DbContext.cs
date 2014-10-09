@@ -12,6 +12,7 @@ using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
+using Microsoft.Framework.OptionsModel;
 
 namespace Microsoft.Data.Entity
 {
@@ -27,9 +28,11 @@ namespace Microsoft.Data.Entity
 
         protected DbContext()
         {
-            var options = new DbContextOptions();
-            InitializeSets(null, options);
-            _configuration = new LazyRef<DbContextConfiguration>(() => Initialize(null, options));
+            var serviceProvider = DbContextActivator.ServiceProvider;
+            var options = GetOptions(serviceProvider);
+
+            InitializeSets(serviceProvider, options);
+            _configuration = new LazyRef<DbContextConfiguration>(() => Initialize(serviceProvider, options));
             _logger = new LazyRef<ILogger>(() => _configuration.Value.LoggerFactory.Create("DbContext"));
         }
 
@@ -46,11 +49,39 @@ namespace Microsoft.Data.Entity
 
         private DbContextOptions GetOptions(IServiceProvider serviceProvider)
         {
+            if (serviceProvider == null)
+            {
+                return new DbContextOptions();
+            }
+
             var genericOptions = _optionsTypes.GetOrAdd(GetType(), t => typeof(DbContextOptions<>).MakeGenericType(t));
 
-            return (DbContextOptions)serviceProvider.TryGetService(genericOptions)
-                   ?? serviceProvider.TryGetService<DbContextOptions>()
-                   ?? new DbContextOptions();
+            var optionsAccessor = (IOptionsAccessor<DbContextOptions>)serviceProvider.TryGetService(
+                typeof(IOptionsAccessor<>).MakeGenericType(genericOptions));
+            if (optionsAccessor != null)
+            {
+                return optionsAccessor.Options;
+            }
+
+            optionsAccessor = serviceProvider.TryGetService<IOptionsAccessor<DbContextOptions>>();
+            if (optionsAccessor != null)
+            {
+                return optionsAccessor.Options;
+            }
+
+            var options = (DbContextOptions)serviceProvider.TryGetService(genericOptions);
+            if (options != null)
+            {
+                return options;
+            }
+
+            options = serviceProvider.TryGetService<DbContextOptions>();
+            if (options != null)
+            {
+                return options;
+            }
+
+            return new DbContextOptions();
         }
 
         public DbContext([NotNull] DbContextOptions options)

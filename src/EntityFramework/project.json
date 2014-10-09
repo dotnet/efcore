@@ -5,8 +5,10 @@
     },
     "dependencies": {
         "Ix-Async": "1.2.3-beta",
+        "Microsoft.Framework.ConfigurationModel": "1.0.0-*",
         "Microsoft.Framework.DependencyInjection": "1.0.0-*",
         "Microsoft.Framework.Logging": "1.0.0-*",
+        "Microsoft.Framework.OptionsModel": "1.0.0-*",
         "Remotion.Linq": "1.15.15"
     },
     "code": [ "**\\*.cs", "..\\Shared\\*.cs" ],

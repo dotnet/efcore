@@ -45,9 +45,11 @@
       <TargetFramework>portable-net45+win8+wpa81</TargetFramework>
       <Assemblies>System.Collections.Immutable</Assemblies>
     </PackageReference>
+    <PackageReference Include="Microsoft.Framework.ConfigurationModel" />
     <PackageReference Include="Microsoft.Framework.DependencyInjection" />
     <PackageReference Include="Microsoft.Framework.Logging" />
     <PackageReference Include="Microsoft.Framework.Logging.Interfaces" />
+    <PackageReference Include="Microsoft.Framework.OptionsModel" />
     <PackageReference Include="Remotion.Linq">
       <TargetFramework>portable-net45+wp80+wpa81+win</TargetFramework>
     </PackageReference>
@@ -65,6 +67,7 @@
     <Compile Include="ChangeTracking\IPropertyBagEntry.cs" />
     <Compile Include="ChangeTracking\SimpleNullableEntityKeyFactory.cs" />
     <Compile Include="DbContext.cs" />
+    <Compile Include="Infrastructure\DbContextActivator.cs" />
     <Compile Include="DbContextOptions.cs" />
     <Compile Include="DbContextOptions`.cs" />
     <Compile Include="DbSet.cs" />

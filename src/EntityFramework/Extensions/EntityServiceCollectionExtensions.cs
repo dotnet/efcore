@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.ChangeTracking;
@@ -52,6 +53,23 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddScoped<StateManager>();
 
             return new EntityServicesBuilder(serviceCollection);
+        }
+
+        public static EntityServicesBuilder AddDbContext<TContext>(
+            [NotNull] this EntityServicesBuilder builder,
+            [CanBeNull] Action<DbContextOptions> optionsAction = null)
+            where TContext : DbContext
+        {
+            Check.NotNull(builder, "builder");
+
+            if (optionsAction != null)
+            {
+                builder.ServiceCollection.ConfigureOptions<DbContextOptions<TContext>>(optionsAction);
+            }
+
+            builder.ServiceCollection.AddScoped(typeof(TContext), DbContextActivator.CreateInstance<TContext>);
+
+            return builder;
         }
     }
 }

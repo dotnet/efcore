@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Infrastructure;
@@ -16,6 +15,7 @@ using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Advanced;
 using Microsoft.Framework.DependencyInjection.Fallback;
 using Microsoft.Framework.Logging;
+using Microsoft.Framework.OptionsModel;
 using Moq;
 using Xunit;
 
@@ -1017,6 +1017,138 @@ namespace Microsoft.Data.Entity.Tests
 
         private class FakeNavigationFixer : NavigationFixer
         {
+        }
+
+        [Fact]
+        public void Context_with_defaults_can_be_used_as_service()
+        {
+            var services = new ServiceCollection();
+
+            services
+                .AddSingleton<ITypeActivator, TypeActivator>()
+                .AddSingleton<FakeService>()
+                .AddEntityFramework()
+                .AddDbContext<ContextWithDefaults>();
+
+            var serviceProvider = services.BuildServiceProvider();
+
+            using (var context = serviceProvider.GetService<ContextWithDefaults>())
+            {
+                Assert.NotNull(serviceProvider.GetService<FakeService>());
+                Assert.NotSame(serviceProvider, context.Configuration.Services.ServiceProvider);
+                Assert.Equal(0, context.Configuration.ContextOptions.Extensions.Count);
+            }
+        }
+
+        [Fact]
+        public void Context_with_defaults_and_options_action_can_be_used_as_service()
+        {
+            var services = new ServiceCollection();
+            var contextOptionsExtension = new FakeDbContextOptionsExtension();
+
+            services
+                .AddSingleton<ITypeActivator, TypeActivator>()
+                .AddSingleton<FakeService>()
+                .Add(OptionsServices.GetDefaultServices())
+                .AddEntityFramework()
+                .AddDbContext<ContextWithDefaults>(options => ((IDbContextOptionsExtensions)options).AddExtension(contextOptionsExtension));
+
+            var serviceProvider = services.BuildServiceProvider();
+
+            using (var context = serviceProvider.GetService<ContextWithDefaults>())
+            {
+                Assert.NotNull(serviceProvider.GetService<FakeService>());
+                Assert.NotSame(serviceProvider, context.Configuration.Services.ServiceProvider);
+                Assert.Equal(1, context.Configuration.ContextOptions.Extensions.Count);
+                Assert.Same(contextOptionsExtension, context.Configuration.ContextOptions.Extensions[0]);
+            }
+        }
+
+        [Fact]
+        public void Context_with_service_provider_and_options_action_can_be_used_as_service()
+        {
+            var services = new ServiceCollection();
+            var contextOptionsExtension = new FakeDbContextOptionsExtension();
+
+            services
+                .AddSingleton<FakeService>()
+                .AddSingleton<ITypeActivator, TypeActivator>()
+                .AddSingleton<FakeService>()
+                .Add(OptionsServices.GetDefaultServices())
+                .AddEntityFramework()
+                .AddDbContext<ContextWithServiceProvider>(options => ((IDbContextOptionsExtensions)options).AddExtension(contextOptionsExtension));
+
+            var serviceProvider = services.BuildServiceProvider();
+
+            using (var context = serviceProvider.GetService<ContextWithServiceProvider>())
+            {
+                Assert.NotNull(serviceProvider.GetService<FakeService>());
+                Assert.NotSame(serviceProvider, context.Configuration.Services.ServiceProvider);
+                Assert.Equal(1, context.Configuration.ContextOptions.Extensions.Count);
+                Assert.Same(contextOptionsExtension, context.Configuration.ContextOptions.Extensions[0]);
+            }
+        }
+
+        // TODO: Figure out what should be expected in this scenario.
+        //[Fact]
+        public void Context_with_options_and_options_action_can_be_used_as_service()
+        {
+            var services = new ServiceCollection();
+            var contextOptionsExtension = new FakeDbContextOptionsExtension();
+
+            services
+                .AddSingleton<FakeService>()
+                .AddSingleton<ITypeActivator, TypeActivator>()
+                .AddSingleton<FakeService>()
+                .Add(OptionsServices.GetDefaultServices())
+                .AddEntityFramework()
+                .AddDbContext<ContextWithOptions>(options => ((IDbContextOptionsExtensions)options).AddExtension(contextOptionsExtension));
+
+            var serviceProvider = services.BuildServiceProvider();
+
+            using (var context = serviceProvider.GetService<ContextWithOptions>())
+            {
+                Assert.NotNull(serviceProvider.GetService<FakeService>());
+                Assert.NotSame(serviceProvider, context.Configuration.Services.ServiceProvider);
+                Assert.Equal(1, context.Configuration.ContextOptions.Extensions.Count);
+                Assert.Same(contextOptionsExtension, context.Configuration.ContextOptions.Extensions[0]);
+            }
+        }
+
+        private class FakeService
+        {
+        }
+
+        private class FakeDbContextOptionsExtension : DbContextOptionsExtension
+        {
+            protected internal override void ApplyServices(EntityServicesBuilder builder)
+            {
+            }
+        }
+
+        private class ContextWithDefaults : DbContext
+        {
+            public DbSet<Product> Products { get; set; }
+        }
+
+        private class ContextWithServiceProvider : DbContext
+        {
+            public ContextWithServiceProvider(IServiceProvider serviceProvider)
+                : base(serviceProvider)
+            {
+            }
+
+            public DbSet<Product> Products { get; set; }
+        }
+
+        private class ContextWithOptions : DbContext
+        {
+            public ContextWithOptions(DbContextOptions contextOptions)
+                : base(contextOptions)
+            {
+            }
+
+            public DbSet<Product> Products { get; set; }
         }
     }
 }
