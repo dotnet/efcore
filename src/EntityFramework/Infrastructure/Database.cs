@@ -10,7 +10,7 @@ using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Infrastructure
 {
-    public class Database
+    public class Database : IDbContextConfigurationAdapter
     {
         private readonly DbContextConfiguration _configuration;
         private readonly LazyRef<ILogger> _logger;
@@ -26,6 +26,14 @@ namespace Microsoft.Data.Entity.Infrastructure
         protected virtual DbContextConfiguration Configuration
         {
             get { return _configuration; }
+        }
+
+        DbContextConfiguration IDbContextConfigurationAdapter.Configuration
+        {
+            get
+            {
+                return Configuration;
+            }
         }
 
         protected virtual ILogger Logger
