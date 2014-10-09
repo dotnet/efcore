@@ -124,7 +124,7 @@
     <value>The collection argument '{argumentName}' must contain at least one element.</value>
   </data>
   <data name="DatabaseErrorPageMiddleware_ContextNotRegistered" xml:space="preserve">
-    <value>The context type '{0}' was not found in services. This usually means the context was not registered in services during startup. You probably want to call AddScoped&lt;{0}&gt;() inside the UseServices(...) call in your application startup code. Skipping display of the database error page.</value>
+    <value>The context type '{0}' was not found in services. This usually means the context was not registered in services during startup. You probably want to call AddScoped&lt;{0}&gt;() inside the UsePerRequestServices(...) call in your application startup code. Skipping display of the database error page.</value>
   </data>
   <data name="DatabaseErrorPageMiddleware_Exception" xml:space="preserve">
     <value>An exception occured while calculating the database error page content. Skipping display of the database error page.</value>
