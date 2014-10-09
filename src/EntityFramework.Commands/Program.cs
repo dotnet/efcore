@@ -202,7 +202,7 @@ namespace Microsoft.Data.Entity.Commands
         public virtual int ShowHelp([CanBeNull] string command)
         {
             // TODO: Enable multiple parameters in escape sequences
-            AnsiConsole.WriteLine(
+            AnsiConsole.Output.WriteLine(
                 "\x1b[1m\x1b[37m" + Environment.NewLine +
                 "                     _/\\__" + Environment.NewLine +
                 "               ---==/    \\\\" + Environment.NewLine +
