@@ -66,7 +66,6 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             // If existing FK matches, then use it
             if (!foreignKeyCandidates.Any())
             {
-
                 var foreignKey = dependentType.ForeignKeys
                     .FirstOrDefault(fk => fk.IsUnique == isUnique
                                           && fk.ReferencedEntityType == principalType

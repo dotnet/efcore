@@ -166,8 +166,11 @@ namespace Microsoft.Data.Entity.Metadata
             return _primaryKey;
         }
 
-        private Key TryGetPrimaryKey([CanBeNull] IEnumerable<Property> properties)
+        [CanBeNull]
+        public virtual Key TryGetPrimaryKey([CanBeNull] IReadOnlyList<Property> properties)
         {
+            Check.NotNull(properties, "properties");
+
             if (_primaryKey == null
                 || !Matches(_primaryKey, properties))
             {

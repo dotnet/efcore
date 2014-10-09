@@ -10,12 +10,23 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 {
     public class MetadataDictionary<TKey, TValue>
         where TKey : class
+        where TValue : class
     {
         private readonly Dictionary<TKey, Tuple<TValue, ConfigurationSource>> _values =
             new Dictionary<TKey, Tuple<TValue, ConfigurationSource>>();
 
         public virtual TValue GetOrAdd(
             [NotNull] Func<TKey> getKey,
+            [NotNull] Func<TKey> createKey,
+            [NotNull] Func<TKey, TValue> createValue,
+            ConfigurationSource configurationSource)
+        {
+            return GetOrReplace(getKey, () => null, createKey, createValue, configurationSource);
+        }
+
+        public virtual TValue GetOrReplace(
+            [NotNull] Func<TKey> getKey,
+            [CanBeNull] Func<TKey> getKeyToReplace,
             [NotNull] Func<TKey> createKey,
             [NotNull] Func<TKey, TValue> createValue,
             ConfigurationSource configurationSource)
@@ -28,11 +39,20 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var key = getKey();
             if (key == null)
             {
+                var keyToRemove = getKeyToReplace == null
+                    ? null
+                    : getKeyToReplace();
+                if (keyToRemove != null
+                    && !Remove(keyToRemove, configurationSource))
+                {
+                    return null;
+                }
                 key = createKey();
             }
             else
             {
-                if (TryGetValue(key, configurationSource, out value))
+                value = TryGetValue(key, configurationSource);
+                if (value != null)
                 {
                     return value;
                 }
@@ -44,7 +64,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return value;
         }
 
-        private bool TryGetValue(TKey key, ConfigurationSource configurationSource, out TValue value)
+        public virtual TValue TryGetValue([NotNull] TKey key, ConfigurationSource configurationSource)
         {
             Tuple<TValue, ConfigurationSource> tuple;
             if (_values.TryGetValue(key, out tuple))
@@ -57,12 +77,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     _values.Add(key, tuple);
                 }
 
-                value = tuple.Item1;
-                return true;
+                return tuple.Item1;
             }
 
-            value = default(TValue);
-            return false;
+            return default(TValue);
         }
 
         public virtual void Add([NotNull] TKey key, [NotNull] TValue value, ConfigurationSource configurationSource)

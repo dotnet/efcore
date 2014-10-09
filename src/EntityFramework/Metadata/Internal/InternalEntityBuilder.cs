@@ -14,104 +14,72 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 {
     public class InternalEntityBuilder : InternalMetadataItemBuilder<EntityType>
     {
-        private readonly LazyRef<Dictionary<ForeignKey, InternalForeignKeyBuilder>> _foreignKeyBuilders =
-            new LazyRef<Dictionary<ForeignKey, InternalForeignKeyBuilder>>(() => new Dictionary<ForeignKey, InternalForeignKeyBuilder>());
+        private readonly LazyRef<MetadataDictionary<ForeignKey, InternalForeignKeyBuilder>> _foreignKeyBuilders =
+            new LazyRef<MetadataDictionary<ForeignKey, InternalForeignKeyBuilder>>(() => new MetadataDictionary<ForeignKey, InternalForeignKeyBuilder>());
 
-        private readonly LazyRef<Dictionary<Index, InternalIndexBuilder>> _indexBuilders =
-            new LazyRef<Dictionary<Index, InternalIndexBuilder>>(() => new Dictionary<Index, InternalIndexBuilder>());
+        private readonly LazyRef<MetadataDictionary<Index, InternalIndexBuilder>> _indexBuilders =
+            new LazyRef<MetadataDictionary<Index, InternalIndexBuilder>>(() => new MetadataDictionary<Index, InternalIndexBuilder>());
 
-        private readonly Dictionary<Key, InternalKeyBuilder> _keyBuilders = new Dictionary<Key, InternalKeyBuilder>();
-        private readonly Dictionary<Property, InternalPropertyBuilder> _propertyBuilders = new Dictionary<Property, InternalPropertyBuilder>();
+        private readonly MetadataDictionary<Key, InternalKeyBuilder> _keyBuilders = new MetadataDictionary<Key, InternalKeyBuilder>();
+        private readonly MetadataDictionary<Property, InternalPropertyBuilder> _propertyBuilders = new MetadataDictionary<Property, InternalPropertyBuilder>();
 
-        private readonly LazyRef<Dictionary<ForeignKey, InternalRelationshipBuilder>> _relationshipBuilders =
-            new LazyRef<Dictionary<ForeignKey, InternalRelationshipBuilder>>(() => new Dictionary<ForeignKey, InternalRelationshipBuilder>());
+        private readonly LazyRef<MetadataDictionary<ForeignKey, InternalRelationshipBuilder>> _relationshipBuilders =
+            new LazyRef<MetadataDictionary<ForeignKey, InternalRelationshipBuilder>>(() => new MetadataDictionary<ForeignKey, InternalRelationshipBuilder>());
 
         public InternalEntityBuilder([NotNull] EntityType metadata, [NotNull] InternalModelBuilder modelBuilder)
             : base(metadata, modelBuilder)
         {
         }
 
-        public virtual InternalKeyBuilder Key([NotNull] IReadOnlyList<string> propertyNames)
+        public virtual InternalKeyBuilder Key([NotNull] IReadOnlyList<string> propertyNames, ConfigurationSource configurationSource)
         {
             Check.NotEmpty(propertyNames, "propertyNames");
 
-            return Key(GetExistingProperties(propertyNames));
+            return Key(GetExistingProperties(propertyNames), configurationSource);
         }
 
-        public virtual InternalKeyBuilder Key([NotNull] IList<PropertyInfo> clrProperties)
+        public virtual InternalKeyBuilder Key([NotNull] IList<PropertyInfo> clrProperties, ConfigurationSource configurationSource)
         {
             Check.NotEmpty(clrProperties, "clrProperties");
 
-            return Key(GetOrCreateProperties(clrProperties));
+            return Key(GetOrCreateProperties(clrProperties, configurationSource), configurationSource);
         }
 
-        private InternalKeyBuilder Key(IReadOnlyList<Property> properties)
+        private InternalKeyBuilder Key(IReadOnlyList<Property> properties, ConfigurationSource configurationSource)
         {
             Debug.Assert(properties != null);
 
-            InternalKeyBuilder keyBuilder;
-            var currentPrimaryKey = Metadata.TryGetPrimaryKey();
-            Key newKey;
-            if (currentPrimaryKey == null)
-            {
-                newKey = Metadata.SetPrimaryKey(properties);
-            }
-            else
-            {
-                newKey = Metadata.GetOrSetPrimaryKey(properties);
-                if (ReferenceEquals(currentPrimaryKey, newKey))
-                {
-                    if (_keyBuilders.TryGetValue(currentPrimaryKey, out keyBuilder))
-                    {
-                        return keyBuilder;
-                    }
-                }
-                else
-                {
-                    _keyBuilders.Remove(currentPrimaryKey);
-                }
-            }
-
-            keyBuilder = new InternalKeyBuilder(newKey, ModelBuilder);
-            _keyBuilders.Add(newKey, keyBuilder);
-            return keyBuilder;
+            return _keyBuilders.GetOrReplace(
+                () => Metadata.TryGetPrimaryKey(properties),
+                () => Metadata.TryGetPrimaryKey(),
+                () => Metadata.SetPrimaryKey(properties),
+                key => new InternalKeyBuilder(key, ModelBuilder),
+                configurationSource);
         }
 
         public virtual InternalPropertyBuilder Property(
-            [NotNull] Type propertyType, [NotNull] string name)
+            [NotNull] Type propertyType, [NotNull] string name, ConfigurationSource configurationSource)
         {
             Check.NotNull(propertyType, "propertyType");
             Check.NotEmpty(name, "name");
 
-            return InternalProperty(propertyType, name, shadowProperty: true);
+            return InternalProperty(propertyType, name, /*shadowProperty:*/ true, configurationSource);
         }
 
-        public virtual InternalPropertyBuilder Property([NotNull] PropertyInfo clrProperty)
+        public virtual InternalPropertyBuilder Property([NotNull] PropertyInfo clrProperty, ConfigurationSource configurationSource)
         {
             Check.NotNull(clrProperty, "clrProperty");
 
-            return InternalProperty(clrProperty.PropertyType, clrProperty.Name, shadowProperty: false);
+            return InternalProperty(clrProperty.PropertyType, clrProperty.Name, /*shadowProperty:*/ false, configurationSource);
         }
 
-        private InternalPropertyBuilder InternalProperty(Type propertyType, string name, bool shadowProperty)
+        private InternalPropertyBuilder InternalProperty(Type propertyType, string name, bool shadowProperty, ConfigurationSource configurationSource)
         {
-            InternalPropertyBuilder propertyBuilder;
-            var property = Metadata.TryGetProperty(name);
-            if (property == null)
-            {
-                property = Metadata.AddProperty(name, propertyType, shadowProperty);
-            }
-            else
-            {
-                if (_propertyBuilders.TryGetValue(property, out propertyBuilder))
-                {
-                    return propertyBuilder;
-                }
-            }
-
-            propertyBuilder = new InternalPropertyBuilder(property, ModelBuilder);
-            _propertyBuilders.Add(property, propertyBuilder);
-            return propertyBuilder;
+            return _propertyBuilders.GetOrAdd(
+                () => Metadata.TryGetProperty(name),
+                () => Metadata.AddProperty(name, propertyType, shadowProperty),
+                property => new InternalPropertyBuilder(property, ModelBuilder),
+                configurationSource);
         }
 
         public virtual InternalForeignKeyBuilder ForeignKey(
@@ -127,7 +95,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 return null;
             }
 
-            return ForeignKey(principalType.Metadata, GetExistingProperties(propertyNames));
+            return ForeignKey(principalType.Metadata, GetExistingProperties(propertyNames), configurationSource);
         }
 
         public virtual InternalForeignKeyBuilder ForeignKey([NotNull] Type referencedType, [NotNull] IList<PropertyInfo> clrProperties,
@@ -142,66 +110,39 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 return null;
             }
 
-            return ForeignKey(principalType.Metadata, GetOrCreateProperties(clrProperties));
+            return ForeignKey(principalType.Metadata, GetOrCreateProperties(clrProperties, configurationSource), configurationSource);
         }
 
-        private InternalForeignKeyBuilder ForeignKey(EntityType principalType, IReadOnlyList<Property> dependentProperties)
+        private InternalForeignKeyBuilder ForeignKey(EntityType principalType, IReadOnlyList<Property> dependentProperties, ConfigurationSource configurationSource)
         {
-            InternalForeignKeyBuilder foreignKeyBuilder;
-            var foreignKey = Metadata.TryGetForeignKey(dependentProperties);
-            if (foreignKey == null)
-            {
-                // TODO: This code currently assumes that the FK maps to a PK on the principal end
-                // Issue #756
-                foreignKey = Metadata.AddForeignKey(dependentProperties, principalType.GetPrimaryKey());
-            }
-            else
-            {
-                if (_foreignKeyBuilders.Value.TryGetValue(foreignKey, out foreignKeyBuilder))
-                {
-                    return foreignKeyBuilder;
-                }
-            }
-
-            foreignKeyBuilder = new InternalForeignKeyBuilder(foreignKey, ModelBuilder);
-            _foreignKeyBuilders.Value.Add(foreignKey, foreignKeyBuilder);
-            return foreignKeyBuilder;
+            return _foreignKeyBuilders.Value.GetOrAdd(
+                () => Metadata.TryGetForeignKey(dependentProperties),
+                () => Metadata.AddForeignKey(dependentProperties, principalType.GetPrimaryKey()),
+                foreignKey => new InternalForeignKeyBuilder(foreignKey, ModelBuilder),
+                configurationSource);
         }
 
-        public virtual InternalIndexBuilder Index([NotNull] IReadOnlyList<string> propertyNames)
+        public virtual InternalIndexBuilder Index([NotNull] IReadOnlyList<string> propertyNames, ConfigurationSource configurationSource)
         {
             Check.NotNull(propertyNames, "propertyNames");
 
-            return Index(GetExistingProperties(propertyNames));
+            return Index(GetExistingProperties(propertyNames), configurationSource);
         }
 
-        public virtual InternalIndexBuilder Index([NotNull] IList<PropertyInfo> clrProperties)
+        public virtual InternalIndexBuilder Index([NotNull] IList<PropertyInfo> clrProperties, ConfigurationSource configurationSource)
         {
             Check.NotNull(clrProperties, "clrProperties");
 
-            return Index(GetOrCreateProperties(clrProperties));
+            return Index(GetOrCreateProperties(clrProperties, configurationSource), configurationSource);
         }
 
-        private InternalIndexBuilder Index(IReadOnlyList<Property> properties)
+        private InternalIndexBuilder Index(IReadOnlyList<Property> properties, ConfigurationSource configurationSource)
         {
-            // TODO: This code currently assumes that the FK maps to a PK on the principal end
-            InternalIndexBuilder indexBuilder;
-            var index = Metadata.TryGetIndex(properties);
-            if (index == null)
-            {
-                index = Metadata.AddIndex(properties);
-            }
-            else
-            {
-                if (_indexBuilders.Value.TryGetValue(index, out indexBuilder))
-                {
-                    return indexBuilder;
-                }
-            }
-
-            indexBuilder = new InternalIndexBuilder(index, ModelBuilder);
-            _indexBuilders.Value.Add(index, indexBuilder);
-            return indexBuilder;
+            return _indexBuilders.Value.GetOrAdd(
+                () => Metadata.TryGetIndex(properties),
+                () => Metadata.AddIndex(properties),
+                index => new InternalIndexBuilder(index, ModelBuilder),
+                configurationSource);
         }
 
         public virtual InternalRelationshipBuilder BuildRelationship(
@@ -241,12 +182,31 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             // TODO: If FK isn't already specified, then creating the navigation should cause it to be found/created
             // by convention, but this part of conventions is not done yet, so we do it here instead--kind of h.acky
             // Issue #213
+            var originalForeignKeys = dependentEntityType.ForeignKeys.ToList();
             var foreignKey = navToDependent != null
                 ? navToDependent.ForeignKey
                 : navToPrincipal != null
                     ? navToPrincipal.ForeignKey
                     : new ForeignKeyConvention()
                         .FindOrCreateForeignKey(principalEntityType, dependentEntityType, navNameToPrincipal, navNameToDependent, oneToOne);
+
+            var newForeignKey = (ForeignKey)null;
+            if (originalForeignKeys.Count != dependentEntityType.ForeignKeys.Count)
+            {
+                foreach (var fk in dependentEntityType.ForeignKeys)
+                {
+                    var index = originalForeignKeys.IndexOf(fk);
+                    if (index < 0)
+                    {
+                        newForeignKey = fk;
+                        break;
+                    }
+                    else
+                    {
+                        originalForeignKeys.RemoveAt(index);
+                    }
+                }
+            }
 
             if (navNameToDependent != null
                 && navToDependent == null)
@@ -260,22 +220,18 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 navToPrincipal = dependentEntityType.AddNavigation(navNameToPrincipal, foreignKey, pointsToPrincipal: true);
             }
 
-            InternalRelationshipBuilder builder;
             var owner = this;
             if (Metadata != foreignKey.EntityType)
             {
                 owner = ModelBuilder.Entity(foreignKey.EntityType.Name, configurationSource);
             }
 
-            if (owner._relationshipBuilders.Value.TryGetValue(foreignKey, out builder))
-            {
-                return builder;
-            }
-
-            builder = new InternalRelationshipBuilder(
-                foreignKey, ModelBuilder, principalEntityType, dependentEntityType, navToPrincipal, navToDependent);
-            owner._relationshipBuilders.Value.Add(foreignKey, builder);
-            return builder;
+            return owner._relationshipBuilders.Value.GetOrAdd(
+                () => newForeignKey == null ? foreignKey : null,
+                () => newForeignKey,
+                fk => new InternalRelationshipBuilder(
+                    fk, ModelBuilder, principalEntityType, dependentEntityType, navToPrincipal, navToDependent),
+                configurationSource);
         }
 
         public virtual InternalRelationshipBuilder ReplaceForeignKey(
@@ -284,8 +240,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             [NotNull] IReadOnlyList<Property> principalProperties,
             ConfigurationSource configurationSource)
         {
-            var removed = _relationshipBuilders.Value.Remove(relationshipBuilder.Metadata);
-            Debug.Assert(removed);
+            if (!_relationshipBuilders.Value.Remove(relationshipBuilder.Metadata, configurationSource))
+            {
+                return null;
+            }
 
             // TODO: avoid removing and readding the navigation property
             if (relationshipBuilder.NavigationToPrincipal != null)
@@ -367,7 +325,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 owner = ModelBuilder.Entity(newForeignKey.EntityType.Name, configurationSource);
             }
 
-            if (owner._relationshipBuilders.Value.TryGetValue(newForeignKey, out builder))
+            builder = owner._relationshipBuilders.Value.TryGetValue(newForeignKey, configurationSource);
+            if (builder != null)
             {
                 if (builder.PrincipalType == relationshipBuilder.PrincipalType
                     && builder.DependentType == relationshipBuilder.DependentType
@@ -377,7 +336,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     return builder;
                 }
 
-                owner._relationshipBuilders.Value.Remove(newForeignKey);
+                if (!owner._relationshipBuilders.Value.Remove(newForeignKey, configurationSource))
+                {
+                    return null;
+                }
             }
 
             builder = new InternalRelationshipBuilder(
@@ -385,7 +347,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 newForeignKey,
                 navigationToPrincipal,
                 navigationToDependent);
-            owner._relationshipBuilders.Value.Add(newForeignKey, builder);
+            owner._relationshipBuilders.Value.Add(newForeignKey, builder, configurationSource);
             return builder;
         }
 
@@ -394,9 +356,9 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return propertyNames.Select(n => Metadata.GetProperty(n)).ToList();
         }
 
-        private IReadOnlyList<Property> GetOrCreateProperties(IEnumerable<PropertyInfo> clrProperties)
+        private IReadOnlyList<Property> GetOrCreateProperties(IEnumerable<PropertyInfo> clrProperties, ConfigurationSource configurationSource)
         {
-            return clrProperties.Select(p => Metadata.GetOrAddProperty(p.Name, p.PropertyType)).ToList();
+            return clrProperties.Select(p => Property(p, configurationSource).Metadata).ToList();
         }
     }
 }

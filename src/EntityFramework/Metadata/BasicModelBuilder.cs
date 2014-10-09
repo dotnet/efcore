@@ -156,7 +156,7 @@ namespace Microsoft.Data.Entity.Metadata
             {
                 Check.NotNull(propertyNames, "propertyNames");
 
-                return new KeyBuilder(Builder.Key(propertyNames));
+                return new KeyBuilder(Builder.Key(propertyNames, ConfigurationSource.Explicit));
             }
 
             public virtual PropertyBuilder Property<TProperty>([NotNull] string name)
@@ -171,7 +171,7 @@ namespace Microsoft.Data.Entity.Metadata
                 Check.NotNull(propertyType, "propertyType");
                 Check.NotEmpty(name, "name");
 
-                return new PropertyBuilder(Builder.Property(propertyType, name));
+                return new PropertyBuilder(Builder.Property(propertyType, name, ConfigurationSource.Explicit));
             }
 
             public virtual ForeignKeyBuilder ForeignKey([NotNull] string referencedEntityTypeName, [NotNull] params string[] propertyNames)
@@ -186,7 +186,7 @@ namespace Microsoft.Data.Entity.Metadata
             {
                 Check.NotNull(propertyNames, "propertyNames");
 
-                return new IndexBuilder(Builder.Index(propertyNames));
+                return new IndexBuilder(Builder.Index(propertyNames, ConfigurationSource.Explicit));
             }
 
             public class KeyBuilder : IKeyBuilder<KeyBuilder>
@@ -424,14 +424,14 @@ namespace Microsoft.Data.Entity.Metadata
             {
                 Check.NotNull(keyExpression, "keyExpression");
 
-                return new KeyBuilder(Builder.Key(keyExpression.GetPropertyAccessList()));
+                return new KeyBuilder(Builder.Key(keyExpression.GetPropertyAccessList(), ConfigurationSource.Explicit));
             }
 
             public virtual PropertyBuilder Property([NotNull] Expression<Func<TEntity, object>> propertyExpression)
             {
                 Check.NotNull(propertyExpression, "propertyExpression");
 
-                return new PropertyBuilder(Builder.Property(propertyExpression.GetPropertyAccess()));
+                return new PropertyBuilder(Builder.Property(propertyExpression.GetPropertyAccess(), ConfigurationSource.Explicit));
             }
 
             public virtual ForeignKeyBuilder ForeignKey<TReferencedEntityType>([NotNull] Expression<Func<TEntity, object>> foreignKeyExpression)
@@ -445,7 +445,7 @@ namespace Microsoft.Data.Entity.Metadata
             {
                 Check.NotNull(indexExpression, "indexExpression");
 
-                return new IndexBuilder(Builder.Index(indexExpression.GetPropertyAccessList()));
+                return new IndexBuilder(Builder.Index(indexExpression.GetPropertyAccessList(), ConfigurationSource.Explicit));
             }
         }
     }
