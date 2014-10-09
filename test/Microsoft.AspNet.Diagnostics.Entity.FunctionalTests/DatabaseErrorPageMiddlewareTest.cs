@@ -228,7 +228,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity.Tests
 
             var server = TestServer.Create(app =>
             {
-                app.UseServices(services =>
+                app.UsePerRequestServices(services =>
                 {
                     services.AddEntityFramework().AddSqlServer();
                     services.AddScoped<BloggingContextWithMigrations>();
@@ -261,7 +261,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity.Tests
                 // is registered, context.RequestServices will be null
                 app.UseDatabaseErrorPage();
 
-                app.UseServices(services =>
+                app.UsePerRequestServices(services =>
                 {
                     services.AddEntityFramework()
                         .AddSqlServer();
@@ -292,7 +292,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity.Tests
 
             var server = TestServer.Create(app =>
             {
-                app.UseServices(services =>
+                app.UsePerRequestServices(services =>
                 {
                     services.AddEntityFramework()
                         .AddSqlServer();
@@ -371,7 +371,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity.Tests
 
             return TestServer.Create(app =>
             {
-                app.UseServices(services =>
+                app.UsePerRequestServices(services =>
                 {
                     services.AddEntityFramework()
                         .AddSqlServer();
