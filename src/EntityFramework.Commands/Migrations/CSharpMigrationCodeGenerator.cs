@@ -41,7 +41,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
         public override void GenerateMigrationClass(
             string @namespace,
             string className,
-            IMigrationMetadata migration,
+            MigrationInfo migration,
             IndentedStringBuilder stringBuilder)
         {
             Check.NotEmpty(@namespace, "namespace");
@@ -95,7 +95,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
         public override void GenerateMigrationMetadataClass(
             string @namespace,
             string className,
-            IMigrationMetadata migration,
+            MigrationInfo migration,
             Type contextType,
             IndentedStringBuilder stringBuilder)
         {

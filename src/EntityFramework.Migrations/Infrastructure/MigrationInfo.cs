@@ -6,24 +6,25 @@ using System.Collections.Generic;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Migrations.Builders;
 using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Migrations.Utilities;
 
 namespace Microsoft.Data.Entity.Migrations.Infrastructure
 {
-    public class MigrationMetadata : IMigrationMetadata
+    public class MigrationInfo : IMigrationMetadata
     {
         internal static readonly string CurrentProductVersion = typeof(HistoryRepository).GetTypeInfo().Assembly.GetInformationalVersion();
 
         private readonly string _migrationId;
         private readonly string _productVersion;
 
-        public MigrationMetadata([NotNull] string migrationId)
+        public MigrationInfo([NotNull] string migrationId)
             : this(migrationId, CurrentProductVersion)
         {
         }
 
-        public MigrationMetadata([NotNull] string migrationId, [NotNull] string productVersion)
+        public MigrationInfo([NotNull] string migrationId, [NotNull] string productVersion)
         {
             Check.NotEmpty(migrationId, "migrationId");
             Check.NotEmpty(productVersion, "productVersion");
@@ -35,6 +36,19 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
 
             _migrationId = migrationId;
             _productVersion = productVersion;
+        }
+
+        public MigrationInfo([NotNull] Migration migration)
+        {
+            Check.NotNull(migration, "migration");
+
+            var metadata = migration.GetMetadata();
+
+            _migrationId = metadata.MigrationId;
+            TargetModel = metadata.TargetModel;
+            _productVersion = metadata.ProductVersion;
+            UpgradeOperations = migration.GetUpgradeOperations();
+            DowngradeOperations = migration.GetDowngradeOperations();
         }
 
         public virtual string MigrationId

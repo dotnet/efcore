@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.Migrations
             return GetDefaultNamespaces();
         }
 
-        public virtual IReadOnlyList<string> GetMetadataNamespaces([NotNull] IMigrationMetadata migration, [NotNull] Type contextType)
+        public virtual IReadOnlyList<string> GetMetadataNamespaces([NotNull] MigrationInfo migration, [NotNull] Type contextType)
         {
             Check.NotNull(migration, "migration");
             Check.NotNull(contextType, "contextType");
@@ -67,13 +67,13 @@ namespace Microsoft.Data.Entity.Migrations
         public abstract void GenerateMigrationClass(
             [NotNull] string @namespace,
             [NotNull] string className,
-            [NotNull] IMigrationMetadata migration,
+            [NotNull] MigrationInfo migration,
             [NotNull] IndentedStringBuilder stringBuilder);
 
         public abstract void GenerateMigrationMetadataClass(
             [NotNull] string @namespace,
             [NotNull] string className,
-            [NotNull] IMigrationMetadata migration,
+            [NotNull] MigrationInfo migration,
             [NotNull] Type contextType,
             [NotNull] IndentedStringBuilder stringBuilder);
 

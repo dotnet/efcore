@@ -5,6 +5,7 @@ using System;
 using System.Reflection;
 using Microsoft.Data.Entity.Commands.Migrations;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Relational.Model;
@@ -570,7 +571,7 @@ namespace Microsoft.Data.Entity.Commands.Tests.Migrations
                     };
 
             var migration
-                = new MigrationMetadata("000000000000001_Name")
+                = new MigrationInfo("000000000000001_Name")
                     {
                         UpgradeOperations = upgradeOperations,
                         DowngradeOperations = downgradeOperations
@@ -618,7 +619,7 @@ namespace MyNamespace
             entityType.GetOrSetPrimaryKey(entityType.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
             var migration
-                = new MigrationMetadata("000000000000001_Name", "1.2.3.4")
+                = new MigrationInfo("000000000000001_Name", "1.2.3.4")
                     {
                         TargetModel = model
                     };
@@ -686,7 +687,7 @@ namespace MyNamespace
         private void GenerateAndValidateCode(MigrationOperation operation)
         {
             GenerateAndValidateCode(
-                new MigrationMetadata("000000000000000_Migration")
+                new MigrationInfo("000000000000000_Migration")
                     {
                         UpgradeOperations = new[] { operation },
                         DowngradeOperations = new[] { operation },
@@ -694,7 +695,7 @@ namespace MyNamespace
                     });
         }
 
-        private void GenerateAndValidateCode(IMigrationMetadata migration)
+        private void GenerateAndValidateCode(MigrationInfo migration)
         {
             var @namespace = GetType().Namespace + ".DynamicallyCompiled";
             var className = "Migration" + Guid.NewGuid().ToString("N");
@@ -725,10 +726,8 @@ namespace MyNamespace
                         "EntityFramework.Migrations"
                     });
 
-            var compiledMigration = (IMigrationMetadata)
-                compiledAssembly.CreateInstance(@namespace + "." + className);
-
-            Assert.NotNull(compiledMigration);
+            var compiledMigration = new MigrationInfo(
+                (Migration)compiledAssembly.CreateInstance(@namespace + "." + className));
 
             generator = new CSharpMigrationCodeGenerator(new CSharpModelCodeGenerator());
             migrationBuilder = new IndentedStringBuilder();

@@ -96,7 +96,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                     };
         }
 
-        protected virtual IMigrationMetadata CreateMigration([NotNull] string migrationName)
+        protected virtual MigrationInfo CreateMigration([NotNull] string migrationName)
         {
             Check.NotEmpty(migrationName, "migrationName");
 
@@ -116,7 +116,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             }
 
             return
-                new MigrationMetadata(CreateMigrationId(migrationName))
+                new MigrationInfo(CreateMigrationId(migrationName))
                     {
                         TargetModel = targetModel,
                         UpgradeOperations = upgradeOperations,
@@ -130,7 +130,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
         }
 
         protected virtual void ScaffoldMigration(
-            [NotNull] IMigrationMetadata migration,
+            [NotNull] MigrationInfo migration,
             [NotNull] Type contextType,
             [NotNull] IndentedStringBuilder migrationCode,
             [NotNull] IndentedStringBuilder migrationMetadataCode)
@@ -158,7 +158,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             MigrationCodeGenerator.ModelCodeGenerator.GenerateModelSnapshotClass(MigrationNamespace, className, model, contextType, snapshotModelCode);
         }
 
-        protected virtual string GetClassName([NotNull] IMigrationMetadata migration)
+        protected virtual string GetClassName([NotNull] MigrationInfo migration)
         {
             Check.NotNull(migration, "migration");
 

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
@@ -35,7 +36,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             get { return _historyModel ?? (_historyModel = CreateHistoryModel()); }
         }
 
-        public virtual IReadOnlyList<IMigrationMetadata> Migrations
+        public virtual IReadOnlyList<HistoryRow> Rows
         {
             get
             {
@@ -44,6 +45,25 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                     return GetMigrationsQuery(historyContext).ToArray();
                 }
             }
+        }
+
+        internal protected virtual IReadOnlyList<HistoryRow> GetRows(out bool historyTableExists)
+        {
+            IReadOnlyList<HistoryRow> rows;
+
+            try
+            {
+                rows = Rows;
+                historyTableExists = true;
+            }
+            catch (DbException)
+            {
+                // TODO: Log the exception message.
+                rows = new HistoryRow[0];
+                historyTableExists = false;
+            }
+
+            return rows;
         }
 
         protected virtual DbContextConfiguration ContextConfiguration
@@ -61,15 +81,14 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             return new DbContext(ContextConfiguration.Services.ServiceProvider, HistoryContextOptions);
         }
 
-        public virtual IQueryable<IMigrationMetadata> GetMigrationsQuery([NotNull] DbContext historyContext)
+        public virtual IQueryable<HistoryRow> GetMigrationsQuery([NotNull] DbContext historyContext)
         {
             Check.NotNull(historyContext, "historyContext");
 
             return
                 historyContext.Set<HistoryRow>()
                     .Where(h => h.ContextKey == GetContextKey())
-                    .OrderBy(h => h.MigrationId)
-                    .Select(h => new MigrationMetadata(h.MigrationId, h.ProductVersion));
+                    .OrderBy(h => h.MigrationId);
         }
 
         public virtual IReadOnlyList<SqlStatement> GenerateInsertMigrationSql(
@@ -162,13 +181,6 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
         protected virtual string GetContextKey()
         {
             return ContextConfiguration.Context.GetType().FullName;
-        }
-
-        private class HistoryRow
-        {
-            public string MigrationId { get; set; }
-            public string ContextKey { get; set; }
-            public string ProductVersion { get; set; }
         }
     }
 }

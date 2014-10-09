@@ -124,24 +124,16 @@ namespace Microsoft.Data.Entity.Commands.TestUtilities
         {
             var handler = new Handler();
 
-            var currentDirectory = Directory.GetCurrentDirectory();
-            Directory.SetCurrentDirectory(_targetDir);
-            try
-            {
-                _domain.CreateInstance(
-                    AssemblyName,
-                    TypeName + "+" + operation,
-                    false,
-                    0,
-                    null,
-                    new[] { _executor, handler, arguments },
-                    null,
-                    null);
-            }
-            finally
-            {
-                Directory.SetCurrentDirectory(currentDirectory);
-            }
+            // TODO: Set current directory
+            _domain.CreateInstance(
+                AssemblyName,
+                TypeName + "+" + operation,
+                false,
+                0,
+                null,
+                new[] { _executor, handler, arguments },
+                null,
+                null);
 
             if (handler.ErrorType != null)
             {

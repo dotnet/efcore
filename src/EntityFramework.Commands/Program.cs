@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Commands.Utilities;
+using Microsoft.Data.Entity.Migrations.Utilities;
 using Microsoft.Framework.Runtime;
 using Microsoft.Framework.Runtime.Common.CommandLine;
 
@@ -179,7 +180,7 @@ namespace Microsoft.Data.Entity.Commands
             foreach (var migration in migrations)
             {
                 // TODO: Show simple names
-                Console.WriteLine(migration.MigrationId);
+                Console.WriteLine(migration.GetMigrationId());
             }
 
             return 0;

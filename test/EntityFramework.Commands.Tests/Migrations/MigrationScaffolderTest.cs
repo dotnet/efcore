@@ -726,7 +726,7 @@ namespace MyNamespace
         {
             var mock = new Mock<MigrationAssembly>(contextConfiguration);
 
-            mock.SetupGet(ma => ma.Migrations).Returns(new IMigrationMetadata[0]);
+            mock.SetupGet(ma => ma.Migrations).Returns(new Migration[0]);
             mock.SetupGet(ma => ma.Model).Returns((IModel)null);
 
             return mock.Object;
@@ -891,12 +891,12 @@ namespace MyNamespace
                 return "000000000000001_" + migrationName;
             }
 
-            protected override IMigrationMetadata CreateMigration(string migrationName)
+            protected override MigrationInfo CreateMigration(string migrationName)
             {
                 var migration = base.CreateMigration(migrationName);
 
                 return
-                    new MigrationMetadata(migration.MigrationId, "1.2.3.4")
+                    new MigrationInfo(migration.MigrationId, "1.2.3.4")
                         {
                             TargetModel = migration.TargetModel,
                             UpgradeOperations = migration.UpgradeOperations,

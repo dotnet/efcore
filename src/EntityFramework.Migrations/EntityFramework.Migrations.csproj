@@ -51,10 +51,11 @@
     <Compile Include="IMigrationOperationSqlGeneratorFactory.cs" />
     <Compile Include="Infrastructure\ContextTypeAttribute.cs" />
     <Compile Include="Infrastructure\HistoryRepository.cs" />
+    <Compile Include="Infrastructure\HistoryRow.cs" />
     <Compile Include="Infrastructure\IMigrationMetadata.cs" />
     <Compile Include="Infrastructure\MigrationAssembly.cs" />
     <Compile Include="Infrastructure\MigrationMetadataExtensions.cs" />
-    <Compile Include="Infrastructure\MigrationMetadata.cs" />
+    <Compile Include="Infrastructure\MigrationInfo.cs" />
     <Compile Include="Infrastructure\Migrator.cs" />
     <Compile Include="Infrastructure\MigratorLoggerEventIds.cs" />
     <Compile Include="Infrastructure\MigratorLoggerExtensions.cs" />
@@ -107,6 +108,7 @@
     <Compile Include="Utilities\Check.cs" />
     <Compile Include="Utilities\DbContextConfigurationExtensions.cs" />
     <Compile Include="Utilities\EnumerableExtensions.cs" />
+    <Compile Include="Utilities\MigrationExtensions.cs" />
     <Compile Include="Utilities\PropertyInfoExtensions.cs" />
     <Compile Include="Utilities\TypeExtensions.cs" />
     <Compile Include="..\Shared\CodeAnnotations.cs" />

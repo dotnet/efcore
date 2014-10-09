@@ -11,8 +11,10 @@ using System.Text;
 using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Migrations.Builders;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Migrations.Model;
+using Microsoft.Data.Entity.Migrations.Utilities;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Model;
 using Microsoft.Data.Entity.Services;
@@ -32,21 +34,22 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         [Fact]
         public void Get_database_migrations()
         {
-            var databaseMigrations
-                = new IMigrationMetadata[]
+            var localMigrations
+                = new[]
                     {
-                        new MigrationMetadata("000000000000001_Migration1"),
-                        new MigrationMetadata("000000000000002_Migration2")
+                        new MigrationInfo("000000000000001_Migration1"),
+                        new MigrationInfo("000000000000002_Migration2")
                     };
+            var databaseMigrations = localMigrations;
 
-            var migrator = MockMigrator(databaseMigrations, new IMigrationMetadata[0]);
+            var migrator = MockMigrator(databaseMigrations, localMigrations);
             var migrations = migrator.GetDatabaseMigrations();
 
             Assert.Equal(databaseMigrations.Length, migrations.Count);
 
             for (var i = 0; i < databaseMigrations.Length; i++)
             {
-                Assert.Equal(databaseMigrations[i], migrations[i]);
+                Assert.Equal(databaseMigrations[i].MigrationId, migrations[i].GetMigrationId());
             }
         }
 
@@ -54,20 +57,20 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         public void Get_local_migrations()
         {
             var localMigrations
-                = new IMigrationMetadata[]
+                = new[]
                     {
-                        new MigrationMetadata("000000000000001_Migration1"),
-                        new MigrationMetadata("000000000000002_Migration2")
+                        new MigrationInfo("000000000000001_Migration1"),
+                        new MigrationInfo("000000000000002_Migration2")
                     };
 
-            var migrator = MockMigrator(new IMigrationMetadata[0], localMigrations);
+            var migrator = MockMigrator(new MigrationInfo[0], localMigrations);
             var migrations = migrator.GetLocalMigrations();
 
             Assert.Equal(localMigrations.Length, migrations.Count);
 
             for (var i = 0; i < localMigrations.Length; i++)
             {
-                Assert.Equal(localMigrations[i], migrations[i]);
+                Assert.Equal(localMigrations[i].MigrationId, migrations[i].GetMigrationId());
             }
         }
 
@@ -75,19 +78,19 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         public void Get_pending_migrations()
         {
             var databaseMigrations
-                = new IMigrationMetadata[]
+                = new[]
                     {
-                        new MigrationMetadata("000000000000001_M1"),
-                        new MigrationMetadata("000000000000003_M3")
+                        new MigrationInfo("000000000000001_M1"),
+                        new MigrationInfo("000000000000003_M3")
                     };
 
             var localMigrations
-                = new IMigrationMetadata[]
+                = new[]
                     {
-                        new MigrationMetadata("000000000000001_M1"),
-                        new MigrationMetadata("000000000000002_M2"),
-                        new MigrationMetadata("000000000000003_M3"),
-                        new MigrationMetadata("000000000000004_M4")
+                        new MigrationInfo("000000000000001_M1"),
+                        new MigrationInfo("000000000000002_M2"),
+                        new MigrationInfo("000000000000003_M3"),
+                        new MigrationInfo("000000000000004_M4")
                     };
 
             var migrator = MockMigrator(databaseMigrations, localMigrations);
@@ -95,18 +98,18 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
 
             Assert.Equal(2, migrations.Count);
 
-            Assert.Equal(localMigrations[1], migrations[0]);
-            Assert.Equal(localMigrations[3], migrations[1]);
+            Assert.Equal(localMigrations[1].MigrationId, migrations[0].GetMigrationId());
+            Assert.Equal(localMigrations[3].MigrationId, migrations[1].GetMigrationId());
         }
 
         [Fact]
         public void ScriptMigrations_with_single_initial_migration()
         {
             var migrator = MockMigrator(
-                new IMigrationMetadata[0],
+                new MigrationInfo[0],
                 new[]
                     {
-                        new MigrationMetadata("000000000000001_Migration1")
+                        new MigrationInfo("000000000000001_Migration1")
                             {
                                 TargetModel = new Entity.Metadata.Model(),
                                 UpgradeOperations
@@ -129,10 +132,10 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         public void ScriptMigrations_with_multiple_initial_migrations()
         {
             var migrator = MockMigrator(
-                new IMigrationMetadata[0],
+                new MigrationInfo[0],
                 new[]
                     {
-                        new MigrationMetadata("000000000000001_Migration1")
+                        new MigrationInfo("000000000000001_Migration1")
                             {
                                 TargetModel = new Entity.Metadata.Model(),
                                 UpgradeOperations
@@ -141,7 +144,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                                             new CreateTableOperation(new Table("MyTable1"))
                                         }
                             },
-                        new MigrationMetadata("000000000000002_Migration2")
+                        new MigrationInfo("000000000000002_Migration2")
                             {
                                 TargetModel = new Entity.Metadata.Model(),
                                 UpgradeOperations
@@ -170,15 +173,15 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             var migrator = MockMigrator(
                 new[]
                     {
-                        new MigrationMetadata("000000000000001_Migration1")
+                        new MigrationInfo("000000000000001_Migration1")
                     },
                 new[]
                     {
-                        new MigrationMetadata("000000000000001_Migration1")
+                        new MigrationInfo("000000000000001_Migration1")
                             {
                                 TargetModel = new Entity.Metadata.Model()
                             },
-                        new MigrationMetadata("000000000000002_Migration2")
+                        new MigrationInfo("000000000000002_Migration2")
                             {
                                 TargetModel = new Entity.Metadata.Model(),
                                 UpgradeOperations
@@ -205,20 +208,20 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             var migrator = MockMigrator(
                 new[]
                     {
-                        new MigrationMetadata("000000000000001_Migration1"),
-                        new MigrationMetadata("000000000000002_Migration2")
+                        new MigrationInfo("000000000000001_Migration1"),
+                        new MigrationInfo("000000000000002_Migration2")
                     },
                 new[]
                     {
-                        new MigrationMetadata("000000000000001_Migration1")
+                        new MigrationInfo("000000000000001_Migration1")
                             {
                                 TargetModel = new Entity.Metadata.Model()
                             },
-                        new MigrationMetadata("000000000000002_Migration2")
+                        new MigrationInfo("000000000000002_Migration2")
                             {
                                 TargetModel = new Entity.Metadata.Model()
                             },
-                        new MigrationMetadata("000000000000003_Migration3")
+                        new MigrationInfo("000000000000003_Migration3")
                             {
                                 TargetModel = new Entity.Metadata.Model(),
                                 UpgradeOperations
@@ -228,7 +231,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                                             new CreateTableOperation(new Table("MyTable2"))
                                         }
                             },
-                        new MigrationMetadata("000000000000004_Migration4")
+                        new MigrationInfo("000000000000004_Migration4")
                             {
                                 TargetModel = new Entity.Metadata.Model(),
                                 UpgradeOperations
@@ -256,20 +259,20 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             var migrator = MockMigrator(
                 new[]
                     {
-                        new MigrationMetadata("000000000000001_Migration1"),
-                        new MigrationMetadata("000000000000002_Migration2")
+                        new MigrationInfo("000000000000001_Migration1"),
+                        new MigrationInfo("000000000000002_Migration2")
                     },
                 new[]
                     {
-                        new MigrationMetadata("000000000000001_Migration1")
+                        new MigrationInfo("000000000000001_Migration1")
                             {
                                 TargetModel = new Entity.Metadata.Model()
                             },
-                        new MigrationMetadata("000000000000002_Migration2")
+                        new MigrationInfo("000000000000002_Migration2")
                             {
                                 TargetModel = new Entity.Metadata.Model()
                             },
-                        new MigrationMetadata("000000000000003_Migration3")
+                        new MigrationInfo("000000000000003_Migration3")
                             {
                                 TargetModel = new Entity.Metadata.Model(),
                                 UpgradeOperations
@@ -279,7 +282,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                                             new CreateTableOperation(new Table("MyTable2"))
                                         }
                             },
-                        new MigrationMetadata("000000000000004_Migration4")
+                        new MigrationInfo("000000000000004_Migration4")
                             {
                                 TargetModel = new Entity.Metadata.Model(),
                                 UpgradeOperations
@@ -307,20 +310,20 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             var migrator = MockMigrator(
                 new[]
                     {
-                        new MigrationMetadata("000000000000001_Migration1"),
-                        new MigrationMetadata("000000000000002_Migration2")
+                        new MigrationInfo("000000000000001_Migration1"),
+                        new MigrationInfo("000000000000002_Migration2")
                     },
                 new[]
                     {
-                        new MigrationMetadata("000000000000001_Migration1")
+                        new MigrationInfo("000000000000001_Migration1")
                             {
                                 TargetModel = new Entity.Metadata.Model()
                             },
-                        new MigrationMetadata("000000000000002_Migration2")
+                        new MigrationInfo("000000000000002_Migration2")
                             {
                                 TargetModel = new Entity.Metadata.Model()
                             },
-                        new MigrationMetadata("000000000000003_Migration3")
+                        new MigrationInfo("000000000000003_Migration3")
                             {
                                 TargetModel = new Entity.Metadata.Model(),
                                 UpgradeOperations
@@ -330,7 +333,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                                             new CreateTableOperation(new Table("MyTable2"))
                                         }
                             },
-                        new MigrationMetadata("000000000000004_Migration4")
+                        new MigrationInfo("000000000000004_Migration4")
                             {
                                 TargetModel = new Entity.Metadata.Model(),
                                 UpgradeOperations
@@ -356,16 +359,16 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             var migrator = MockMigrator(
                 new[]
                     {
-                        new MigrationMetadata("000000000000001_Migration1"),
-                        new MigrationMetadata("000000000000002_Migration2"),
-                        new MigrationMetadata("000000000000003_Migration3")
+                        new MigrationInfo("000000000000001_Migration1"),
+                        new MigrationInfo("000000000000002_Migration2"),
+                        new MigrationInfo("000000000000003_Migration3")
                     },
                 new[]
                     {
-                        new MigrationMetadata("000000000000001_Migration1"),
-                        new MigrationMetadata("000000000000002_Migration2"),
-                        new MigrationMetadata("000000000000003_Migration3"),
-                        new MigrationMetadata("000000000000004_Migration4")
+                        new MigrationInfo("000000000000001_Migration1"),
+                        new MigrationInfo("000000000000002_Migration2"),
+                        new MigrationInfo("000000000000003_Migration3"),
+                        new MigrationInfo("000000000000004_Migration4")
                     }
                 );
 
@@ -380,22 +383,22 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             var migrator = MockMigrator(
                 new[]
                     {
-                        new MigrationMetadata("000000000000001_Migration1"),
-                        new MigrationMetadata("000000000000002_Migration2"),
-                        new MigrationMetadata("000000000000003_Migration3"),
-                        new MigrationMetadata("000000000000004_Migration4")
+                        new MigrationInfo("000000000000001_Migration1"),
+                        new MigrationInfo("000000000000002_Migration2"),
+                        new MigrationInfo("000000000000003_Migration3"),
+                        new MigrationInfo("000000000000004_Migration4")
                     },
                 new[]
                     {
-                        new MigrationMetadata("000000000000001_Migration1")
+                        new MigrationInfo("000000000000001_Migration1")
                             {
                                 TargetModel = new Entity.Metadata.Model()
                             },
-                        new MigrationMetadata("000000000000002_Migration2")
+                        new MigrationInfo("000000000000002_Migration2")
                             {
                                 TargetModel = new Entity.Metadata.Model()
                             },
-                        new MigrationMetadata("000000000000003_Migration3")
+                        new MigrationInfo("000000000000003_Migration3")
                             {
                                 TargetModel = new Entity.Metadata.Model(),
                                 DowngradeOperations
@@ -405,7 +408,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                                             new DropTableOperation("MyTable2")
                                         }
                             },
-                        new MigrationMetadata("000000000000004_Migration4")
+                        new MigrationInfo("000000000000004_Migration4")
                             {
                                 TargetModel = new Entity.Metadata.Model(),
                                 DowngradeOperations
@@ -414,7 +417,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                                             new AddColumnOperation("MyTable1", new Column("Foo", typeof(string)))
                                         }
                             },
-                        new MigrationMetadata("000000000000005_Migration5")
+                        new MigrationInfo("000000000000005_Migration5")
                     }
                 );
 
@@ -434,21 +437,21 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             var migrator = MockMigrator(
                 new[]
                     {
-                        new MigrationMetadata("000000000000001_Migration1"),
-                        new MigrationMetadata("000000000000002_Migration2"),
-                        new MigrationMetadata("000000000000004_Migration4")
+                        new MigrationInfo("000000000000001_Migration1"),
+                        new MigrationInfo("000000000000002_Migration2"),
+                        new MigrationInfo("000000000000004_Migration4")
                     },
                 new[]
                     {
-                        new MigrationMetadata("000000000000001_Migration1")
+                        new MigrationInfo("000000000000001_Migration1")
                             {
                                 TargetModel = new Entity.Metadata.Model()
                             },
-                        new MigrationMetadata("000000000000002_Migration2")
+                        new MigrationInfo("000000000000002_Migration2")
                             {
                                 TargetModel = new Entity.Metadata.Model()
                             },
-                        new MigrationMetadata("000000000000003_Migration3")
+                        new MigrationInfo("000000000000003_Migration3")
                             {
                                 TargetModel = new Entity.Metadata.Model(),
                                 UpgradeOperations
@@ -458,7 +461,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                                             new DropTableOperation("MyTable2")
                                         }
                             },
-                        new MigrationMetadata("000000000000004_Migration4")
+                        new MigrationInfo("000000000000004_Migration4")
                     }
                 );
 
@@ -476,21 +479,21 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             var migrator = MockMigrator(
                 new[]
                     {
-                        new MigrationMetadata("000000000000001_Migration1"),
-                        new MigrationMetadata("000000000000002_Migration2"),
-                        new MigrationMetadata("000000000000004_Migration4")
+                        new MigrationInfo("000000000000001_Migration1"),
+                        new MigrationInfo("000000000000002_Migration2"),
+                        new MigrationInfo("000000000000004_Migration4")
                     },
                 new[]
                     {
-                        new MigrationMetadata("000000000000001_Migration1")
+                        new MigrationInfo("000000000000001_Migration1")
                             {
                                 TargetModel = new Entity.Metadata.Model()
                             },
-                        new MigrationMetadata("000000000000002_Migration2")
+                        new MigrationInfo("000000000000002_Migration2")
                             {
                                 TargetModel = new Entity.Metadata.Model()
                             },
-                        new MigrationMetadata("000000000000003_Migration3")
+                        new MigrationInfo("000000000000003_Migration3")
                             {
                                 TargetModel = new Entity.Metadata.Model(),
                                 UpgradeOperations
@@ -500,7 +503,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                                             new DropTableOperation("MyTable2")
                                         }
                             },
-                        new MigrationMetadata("000000000000004_Migration4")
+                        new MigrationInfo("000000000000004_Migration4")
                             {
                                 TargetModel = new Entity.Metadata.Model(),
                                 DowngradeOperations
@@ -528,13 +531,13 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             var databaseMigrations
                 = new[]
                     {
-                        new MigrationMetadata("000000000000001_Migration1"),
-                        new MigrationMetadata("000000000000002_Migration2")
+                        new MigrationInfo("000000000000001_Migration1"),
+                        new MigrationInfo("000000000000002_Migration2")
                     };
             var localMigrations
                 = new[]
                     {
-                        new MigrationMetadata("000000000000001_Migration1")
+                        new MigrationInfo("000000000000001_Migration1")
                             {
                                 TargetModel = new Entity.Metadata.Model(),
                                 DowngradeOperations
@@ -543,7 +546,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                                             new DropTableOperation("MyTable1")
                                         }
                             },
-                        new MigrationMetadata("000000000000002_Migration2")
+                        new MigrationInfo("000000000000002_Migration2")
                             {
                                 TargetModel = new Entity.Metadata.Model(),
                                 DowngradeOperations
@@ -571,11 +574,11 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         [Fact]
         public void ScriptMigrations_when_history_repository_does_not_exist()
         {
-            var databaseMigrations = new MigrationMetadata[0];
+            var databaseMigrations = new MigrationInfo[0];
             var localMigrations
                 = new[]
                     {
-                        new MigrationMetadata("000000000000001_Migration1")
+                        new MigrationInfo("000000000000001_Migration1")
                             {
                                 TargetModel = new Entity.Metadata.Model(),
                                 UpgradeOperations
@@ -602,12 +605,12 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             var migrator = MockMigrator(
                 new[]
                     {
-                        new MigrationMetadata("000000000000001_Migration1"),
-                        new MigrationMetadata("000000000000002_Migration2")
+                        new MigrationInfo("000000000000001_Migration1"),
+                        new MigrationInfo("000000000000002_Migration2")
                     },
                 new[]
                     {
-                        new MigrationMetadata("000000000000001_Migration1")
+                        new MigrationInfo("000000000000001_Migration1")
                     }
                 );
 
@@ -621,14 +624,14 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             migrator = MockMigrator(
                 new[]
                     {
-                        new MigrationMetadata("000000000000001_Migration1"),
-                        new MigrationMetadata("000000000000002_Migration2")
+                        new MigrationInfo("000000000000001_Migration1"),
+                        new MigrationInfo("000000000000002_Migration2")
                     },
                 new[]
                     {
-                        new MigrationMetadata("000000000000001_Migration1"),
-                        new MigrationMetadata("000000000000003_Migration3"),
-                        new MigrationMetadata("000000000000004_Migration4")
+                        new MigrationInfo("000000000000001_Migration1"),
+                        new MigrationInfo("000000000000003_Migration3"),
+                        new MigrationInfo("000000000000004_Migration4")
                     }
                 );
 
@@ -646,12 +649,12 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             var migrator = MockMigrator(
                 new[]
                     {
-                        new MigrationMetadata("000000000000001_Migration1")
+                        new MigrationInfo("000000000000001_Migration1")
                     },
                 new[]
                     {
-                        new MigrationMetadata("000000000000001_Migration1"),
-                        new MigrationMetadata("000000000000002_Migration2")
+                        new MigrationInfo("000000000000001_Migration1"),
+                        new MigrationInfo("000000000000002_Migration2")
                     }
                 );
 
@@ -663,11 +666,11 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         [Fact]
         public void ApplyMigrations_creates_database_and_executes_upgrade_statements()
         {
-            var databaseMigrations = new IMigrationMetadata[0];
+            var databaseMigrations = new MigrationInfo[0];
             var localMigrations
                 = new[]
                       {
-                          new MigrationMetadata("000000000000001_Migration1")
+                          new MigrationInfo("000000000000001_Migration1")
                               {
                                   UpgradeOperations = new[] { new SqlOperation("SomeSql") }
                               }
@@ -722,11 +725,11 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         [Fact]
         public void ApplyMigrations_creates_history_table_and_executes_upgrade_statements_if_database_exists()
         {
-            var databaseMigrations = new IMigrationMetadata[0];
+            var databaseMigrations = new MigrationInfo[0];
             var localMigrations
                 = new[]
                       {
-                          new MigrationMetadata("000000000000001_Migration1")
+                          new MigrationInfo("000000000000001_Migration1")
                               {
                                   UpgradeOperations = new[] { new SqlOperation("SomeSql") }
                               }
@@ -781,11 +784,11 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         [Fact]
         public void ApplyMigrations_executes_upgrade_statements_if_database_and_history_table_exist()
         {
-            var databaseMigrations = new IMigrationMetadata[0];
+            var databaseMigrations = new MigrationInfo[0];
             var localMigrations
                 = new[]
                       {
-                          new MigrationMetadata("000000000000001_Migration1")
+                          new MigrationInfo("000000000000001_Migration1")
                               {
                                   UpgradeOperations = new[] { new SqlOperation("SomeSql") }
                               }
@@ -829,14 +832,14 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             var databaseMigrations
                 = new[]
                       {
-                          new MigrationMetadata("000000000000001_Migration1"),
-                          new MigrationMetadata("000000000000001_Migration2")
+                          new MigrationInfo("000000000000001_Migration1"),
+                          new MigrationInfo("000000000000001_Migration2")
                       };
             var localMigrations
                 = new[]
                       {
-                          new MigrationMetadata("000000000000001_Migration1"),
-                          new MigrationMetadata("000000000000001_Migration2")
+                          new MigrationInfo("000000000000001_Migration1"),
+                          new MigrationInfo("000000000000001_Migration2")
                               {
                                   DowngradeOperations = new[] { new SqlOperation("SomeSql") },
                                   TargetModel = new Metadata.Model()
@@ -881,12 +884,12 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             var databaseMigrations
                 = new[]
                       {
-                          new MigrationMetadata("000000000000001_Migration1"),
+                          new MigrationInfo("000000000000001_Migration1"),
                       };
             var localMigrations
                 = new[]
                       {
-                          new MigrationMetadata("000000000000001_Migration1")
+                          new MigrationInfo("000000000000001_Migration1")
                               {
                                   DowngradeOperations = new[] { new SqlOperation("SomeSql") },
                                   TargetModel = new Metadata.Model()
@@ -949,8 +952,8 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
 
             var migrator
                 = MockMigrator(
-                    new MigrationMetadata[0],
-                    new MigrationMetadata[0],
+                    new MigrationInfo[0],
+                    new MigrationInfo[0],
                     /*databaseExists*/ false,
                     /*historyTableExists*/ false,
                     out dbCreatorMock,
@@ -974,11 +977,11 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         [Fact]
         public void Sql_statements_with_suppress_transaction_true_trigger_commit_of_current_transaction()
         {
-            var databaseMigrations = new IMigrationMetadata[0];
+            var databaseMigrations = new MigrationInfo[0];
             var localMigrations
                 = new[]
                       {
-                          new MigrationMetadata("000000000000001_Migration1")
+                          new MigrationInfo("000000000000001_Migration1")
                               {
                                   UpgradeOperations
                                       = new[]
@@ -1059,11 +1062,11 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         [Fact]
         public void ApplyMigrations_logs_upgrades()
         {
-            var databaseMigrations = new IMigrationMetadata[0];
+            var databaseMigrations = new MigrationInfo[0];
             var localMigrations
                 = new[]
                       {
-                          new MigrationMetadata("000000000000001_Migration1")
+                          new MigrationInfo("000000000000001_Migration1")
                               {
                                   UpgradeOperations = new[] { new SqlOperation("SomeSql") }
                               }
@@ -1118,12 +1121,12 @@ new StringBuilder()
             var databaseMigrations
                 = new[]
                       {
-                          new MigrationMetadata("000000000000001_Migration1"),
+                          new MigrationInfo("000000000000001_Migration1"),
                       };
             var localMigrations
                 = new[]
                       {
-                          new MigrationMetadata("000000000000001_Migration1")
+                          new MigrationInfo("000000000000001_Migration1")
                               {
                                   DowngradeOperations = new[] { new SqlOperation("SomeSql") },
                                   TargetModel = new Metadata.Model()
@@ -1179,8 +1182,8 @@ new StringBuilder()
         #region Fixture
 
         private static Migrator MockMigrator(
-            IReadOnlyList<IMigrationMetadata> databaseMigrations,
-            IReadOnlyList<IMigrationMetadata> localMigrations,
+            IReadOnlyList<MigrationInfo> databaseMigrations,
+            IReadOnlyList<MigrationInfo> localMigrations,
             bool databaseExists = true,
             bool historyRepositoryExists = true,
             ILoggerFactory loggerFactory = null)
@@ -1203,8 +1206,8 @@ new StringBuilder()
         }
 
         private static Migrator MockMigrator(
-            IReadOnlyList<IMigrationMetadata> databaseMigrations,
-            IReadOnlyList<IMigrationMetadata> localMigrations,            
+            IReadOnlyList<MigrationInfo> databaseMigrations,
+            IReadOnlyList<MigrationInfo> localMigrations,            
             bool databaseExists,
             bool historyRepositoryExists,
             out Mock<RelationalDataStoreCreator> dbCreatorMock,
@@ -1278,20 +1281,20 @@ new StringBuilder()
         }
 
         private static Mock<HistoryRepository> MockHistoryRepository(
-            DbContextConfiguration contextConfiguration, IReadOnlyList<IMigrationMetadata> migrations,
+            DbContextConfiguration contextConfiguration, IReadOnlyList<MigrationInfo> migrations,
             bool historyRepositoryExists = true)
         {
             var mock = new Mock<HistoryRepository>(contextConfiguration) { CallBase = true };
 
             if (historyRepositoryExists)
             {
-                mock.SetupGet(hr => hr.Migrations).Returns(migrations.ToArray());
+                mock.SetupGet(hr => hr.Rows).Returns(migrations.Select(m => new HistoryRow { MigrationId = m.MigrationId }).ToArray());
             }
             else
             {
                 var dbException = new Mock<DbException>();
 
-                mock.SetupGet(hr => hr.Migrations).Throws(dbException.Object);
+                mock.SetupGet(hr => hr.Rows).Throws(dbException.Object);
             }
 
             mock.Setup(hr => hr.GenerateInsertMigrationSql(It.IsAny<IMigrationMetadata>(), It.IsAny<SqlGenerator>()))
@@ -1304,11 +1307,11 @@ new StringBuilder()
         }
 
         private static Mock<MigrationAssembly> MockMigrationAssembly(
-            DbContextConfiguration contextConfiguration, IReadOnlyList<IMigrationMetadata> migrations)
+            DbContextConfiguration contextConfiguration, IReadOnlyList<MigrationInfo> migrations)
         {
             var mock = new Mock<MigrationAssembly>(contextConfiguration);
 
-            mock.SetupGet(ma => ma.Migrations).Returns(migrations);
+            mock.SetupGet(ma => ma.Migrations).Returns(migrations.Select(m => new FakeMigration(m)).ToArray());
 
             return mock;
         }
@@ -1457,6 +1460,47 @@ new StringBuilder()
             protected override void VisitDefault(MigrationOperation operation, IndentedStringBuilder builder)
             {
                 builder.Append(operation.GetType().Name).Append("Sql");
+            }
+        }
+
+        private class FakeMigration : Migration, IMigrationMetadata
+        {
+            private readonly MigrationInfo _migration;
+
+            public FakeMigration(MigrationInfo migration)
+            {
+                _migration = migration;
+            }
+
+            public override void Up(MigrationBuilder migrationBuilder)
+            {
+                foreach (var operation in _migration.UpgradeOperations)
+                {
+                    migrationBuilder.AddOperation(operation);
+                }
+            }
+
+            public override void Down(MigrationBuilder migrationBuilder)
+            {
+                foreach (var operation in _migration.DowngradeOperations)
+                {
+                    migrationBuilder.AddOperation(operation);
+                }
+            }
+
+            public string MigrationId
+            {
+                get { return _migration.MigrationId; }
+            }
+
+            public string ProductVersion
+            {
+                get { return _migration.ProductVersion; }
+            }
+
+            public IModel TargetModel
+            {
+                get { return _migration.TargetModel; }
             }
         }
 

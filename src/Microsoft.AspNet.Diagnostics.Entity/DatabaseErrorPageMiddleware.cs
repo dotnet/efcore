@@ -9,6 +9,7 @@ using Microsoft.AspNet.Http;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
+using Microsoft.Data.Entity.Migrations.Utilities;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
@@ -88,7 +89,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity
 
                                     var migrator = serviceProvider.GetService<Migrator>();
 
-                                    var pendingMigrations = migrator.GetPendingMigrations().Select(m => m.MigrationId);
+                                    var pendingMigrations = migrator.GetPendingMigrations().Select(m => m.GetMigrationId());
 
                                     var pendingModelChanges = true;
                                     var snapshot = migrator.MigrationAssembly.Model;
