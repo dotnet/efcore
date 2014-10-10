@@ -189,7 +189,7 @@ namespace Microsoft.Data.Entity.Query
                 {
                     if (entity != null)
                     {
-                        queryContext.QueryBuffer.StartTracking(entity);
+                        entity = (T)queryContext.QueryBuffer.StartTracking(entity);
                     }
 
                     return entity;

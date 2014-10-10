@@ -267,6 +267,24 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         }
 
         [Fact]
+        public async Task Tracking_entities_asynchronously_returns_tracked_entities_back()
+        {
+            using (var testDatabase = await SqlServerTestDatabase.Northwind())
+            {
+                using (var db = new NorthwindContext())
+                {
+                    var customer = await db.Customers.FirstOrDefaultAsync();
+
+                    var trackedCustomerEntry = db.ChangeTracker.StateManager.StateEntries.Single();
+                    Assert.Same(trackedCustomerEntry.Entity, customer);
+
+                    // if references are different this will throw
+                    db.Customers.Remove(customer);
+                }
+            }
+        }
+
+        [Fact]
         public async Task Can_round_trip_changes_with_snapshot_change_tracking()
         {
             await RoundTripChanges<Blog>();
