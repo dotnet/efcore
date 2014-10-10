@@ -17,7 +17,7 @@
         "aspnet50": { },
         "aspnetcore50": {
             "dependencies": {
-                "System.Threading.Thread": "4.0.0.0"
+                "System.Threading.Thread": "4.0.0-beta-*"
             }
         }
     }

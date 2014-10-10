@@ -5,12 +5,12 @@
     "frameworks": {
         "aspnetcore50": {
             "dependencies": {
-                "System.Collections": "4.0.0.0",
-                "System.Console": "4.0.0.0",
-                "System.IO": "4.0.0.0",
-                "System.Runtime": "4.0.20.0",
-                "System.Runtime.Extensions": "4.0.10.0",
-                "System.ComponentModel": "4.0.0.0"
+                "System.Collections": "4.0.0-beta-*",
+                "System.Console": "4.0.0-beta-*",
+                "System.IO": "4.0.0-beta-*",
+                "System.Runtime": "4.0.20-beta-*",
+                "System.Runtime.Extensions": "4.0.10-beta-*",
+                "System.ComponentModel": "4.0.0-beta-*"
             }
         },
         "aspnet50": {

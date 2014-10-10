@@ -37,16 +37,16 @@
         },
         "aspnetcore50": {
             "dependencies": {
-                "System.ComponentModel": "4.0.0.0",
-                "System.Diagnostics.Contracts": "4.0.0.0",
-                "System.Diagnostics.Debug": "4.0.10.0",
-                "System.Linq": "4.0.0.0",
-                "System.Linq.Queryable": "4.0.0.0",
-                "System.ObjectModel": "4.0.10.0",
-                "System.Reflection.Extensions": "4.0.0.0",
-                "System.Resources.ResourceManager": "4.0.0.0",
-                "System.Runtime.Extensions": "4.0.10.0",
-                "System.Threading": "4.0.0.0",
+                "System.ComponentModel": "4.0.0-beta-*",
+                "System.Diagnostics.Contracts": "4.0.0-beta-*",
+                "System.Diagnostics.Debug": "4.0.10-beta-*",
+                "System.Linq": "4.0.0-beta-*",
+                "System.Linq.Queryable": "4.0.0-beta-*",
+                "System.ObjectModel": "4.0.10-beta-*",
+                "System.Reflection.Extensions": "4.0.0-beta-*",
+                "System.Resources.ResourceManager": "4.0.0-beta-*",
+                "System.Runtime.Extensions": "4.0.10-beta-*",
+                "System.Threading": "4.0.0-beta-*",
                 "Microsoft.Bcl.Immutable": "1.1.18-beta-*"
             }
         },
