@@ -26,17 +26,18 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
             return this;
         }
 
-        public virtual SqlServerModelBuilder UseSequences()
+        public virtual SqlServerModelBuilder UseSequence()
         {
             var extensions = _model.SqlServer();
 
             extensions.ValueGenerationStrategy = SqlServerValueGenerationStrategy.Sequence;
             extensions.DefaultSequenceName = null;
+            extensions.DefaultSequenceSchema = null;
 
             return this;
         }
 
-        public virtual SqlServerModelBuilder UseSequences([NotNull] string name, [CanBeNull] string schema = null)
+        public virtual SqlServerModelBuilder UseSequence([NotNull] string name, [CanBeNull] string schema = null)
         {
             Check.NotEmpty(name, "name");
             Check.NullButNotEmpty(schema, "schema");
@@ -46,7 +47,8 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
             var sequence = extensions.GetOrAddSequence(name, schema);
 
             extensions.ValueGenerationStrategy = SqlServerValueGenerationStrategy.Sequence;
-            extensions.DefaultSequenceName = sequence.Schema + "." + sequence.Name;
+            extensions.DefaultSequenceName = sequence.Name;
+            extensions.DefaultSequenceSchema = sequence.Schema;
 
             return this;
         }

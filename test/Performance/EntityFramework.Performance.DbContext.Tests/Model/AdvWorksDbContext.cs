@@ -32,25 +32,25 @@
             builder.Entity<DbProduct>(b =>
             {
                 b.Key(e => e.ProductID);
-                b.Property(e => e.ProductID).GenerateValuesUsingSequence();
+                b.Property(e => e.ProductID).ForSqlServer().UseSequence();
                 b.ToTable("Product", "dbo");
             });
             builder.Entity<DbProductModel>(b =>
             {
                 b.Key(e => e.ProductModelID);
-                b.Property(e => e.ProductModelID).GenerateValuesUsingSequence();
+                b.Property(e => e.ProductModelID).ForSqlServer().UseSequence();
                 b.ToTable("ProductModel", "dbo");
             });
             builder.Entity<DbWorkOrder>(b =>
             {
                 b.Key(e => e.WorkOrderID);
-                b.Property(e => e.WorkOrderID).GenerateValuesUsingSequence();
+                b.Property(e => e.WorkOrderID).ForSqlServer().UseSequence();
                 b.ToTable("WorkOrder", "dbo");
             });
             builder.Entity<DbProductSubcategory>(b =>
             {
                 b.Key(e => e.ProductSubcategoryID);
-                b.Property(e => e.ProductSubcategoryID).GenerateValuesUsingSequence();
+                b.Property(e => e.ProductSubcategoryID).ForSqlServer().UseSequence();
                 b.ToTable("ProductSubcategory", "dbo");
             });
 

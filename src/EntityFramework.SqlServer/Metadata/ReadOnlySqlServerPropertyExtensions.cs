@@ -15,6 +15,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
         protected const string SqlServerDefaultExpressionAnnotation = SqlServerAnnotationNames.Prefix + RelationalAnnotationNames.ColumnDefaultExpression;
         protected const string SqlServerValueGenerationAnnotation = SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ValueGeneration;
         protected const string SqlServerSequenceNameAnnotation = SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.SequenceName;
+        protected const string SqlServerSequenceSchemaAnnotation = SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.SequenceSchema;
 
         public ReadOnlySqlServerPropertyExtensions([NotNull] IProperty property)
             : base(property)
@@ -49,6 +50,33 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
         public virtual string SequenceName
         {
             get { return Property[SqlServerSequenceNameAnnotation]; }
+        }
+
+        public virtual string SequenceSchema
+        {
+            get { return Property[SqlServerSequenceSchemaAnnotation]; }
+        }
+
+        public virtual Sequence TryGetSequence()
+        {
+            var modelExtensions = Property.EntityType.Model.SqlServer();
+
+            if (ValueGenerationStrategy != SqlServerValueGenerationStrategy.Sequence
+                && (ValueGenerationStrategy != null
+                    || modelExtensions.ValueGenerationStrategy != SqlServerValueGenerationStrategy.Sequence))
+            {
+                return null;
+            }
+
+            var sequenceName = SequenceName
+                               ?? modelExtensions.DefaultSequenceName
+                               ?? Sequence.DefaultName;
+
+            var sequenceSchema = SequenceSchema
+                                 ?? modelExtensions.DefaultSequenceSchema;
+
+            return modelExtensions.TryGetSequence(sequenceName, sequenceSchema)
+                   ?? new Sequence(Sequence.DefaultName);
         }
     }
 }

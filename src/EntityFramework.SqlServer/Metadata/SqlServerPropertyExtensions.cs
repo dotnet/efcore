@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.SqlServer.Utilities;
@@ -66,14 +67,55 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
         }
 
         [CanBeNull]
+        public new virtual string SequenceSchema
+        {
+            get { return base.SequenceSchema; }
+            [param: CanBeNull]
+            set
+            {
+                Check.NullButNotEmpty(value, "value");
+
+                ((Property)Property)[SqlServerSequenceSchemaAnnotation] = value;
+            }
+        }
+
+        [CanBeNull]
         public new virtual SqlServerValueGenerationStrategy? ValueGenerationStrategy
         {
             get { return base.ValueGenerationStrategy; }
             [param: CanBeNull]
             set
             {
-                // TODO: Issue #777: Non-string annotations
-                ((Property)Property)[SqlServerValueGenerationAnnotation] = value == null ? null : value.ToString();
+                var property = ((Property)Property);
+
+                if (value == null)
+                {
+                    property[SqlServerValueGenerationAnnotation] = null;
+                    property.ValueGeneration = ValueGeneration.None;
+                }
+                else
+                {
+                    var propertyType = Property.PropertyType;
+
+                    if (value == SqlServerValueGenerationStrategy.Identity
+                        && (!propertyType.IsInteger()
+                            || propertyType == typeof(byte)))
+                    {
+                        throw new ArgumentException(Strings.FormatIdentityBadType(
+                            Property.Name, Property.EntityType.Name, propertyType.Name));
+                    }
+
+                    if (value == SqlServerValueGenerationStrategy.Sequence
+                        && !propertyType.IsInteger())
+                    {
+                        throw new ArgumentException(Strings.FormatSequenceBadType(
+                            Property.Name, Property.EntityType.Name, propertyType.Name));
+                    }
+
+                    // TODO: Issue #777: Non-string annotations
+                    property[SqlServerValueGenerationAnnotation] = value.ToString();
+                    property.ValueGeneration = ValueGeneration.OnAdd;
+                }
             }
         }
     }

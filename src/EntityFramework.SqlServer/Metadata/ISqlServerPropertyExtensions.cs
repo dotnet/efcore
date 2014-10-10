@@ -13,5 +13,11 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
 
         [CanBeNull]
         string SequenceName { get; }
+
+        [CanBeNull]
+        string SequenceSchema { get; }
+
+        [CanBeNull]
+        Sequence TryGetSequence();
     }
 }

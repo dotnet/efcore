@@ -254,7 +254,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 modelBuilder.Entity<Pegasus>(b =>
                     {
                         b.Key(e => e.Identifier);
-                        b.Property(e => e.Identifier).GenerateValuesUsingSequence();
+                        b.Property(e => e.Identifier).ForSqlServer().UseSequence();
                     });
             }
         }

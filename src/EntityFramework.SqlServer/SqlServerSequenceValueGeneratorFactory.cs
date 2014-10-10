@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Metadata;
@@ -24,18 +25,23 @@ namespace Microsoft.Data.Entity.SqlServer
         {
             Check.NotNull(property, "property");
 
-            return property.FindAnnotationInHierarchy(
-                Entity.Metadata.SqlServerMetadataExtensions.Annotations.SequenceBlockSize,
-                Entity.Metadata.SqlServerMetadataExtensions.DefaultSequenceBlockSize);
+            var incrementBy = property.SqlServer().TryGetSequence().IncrementBy;
+
+            if (incrementBy <= 0)
+            {
+                throw new NotSupportedException(Strings.FormatSequenceBadBlockSize(incrementBy, GetSequenceName(property)));
+            }
+
+            return incrementBy;
         }
 
         public virtual string GetSequenceName([NotNull] IProperty property)
         {
             Check.NotNull(property, "property");
 
-            return property.FindAnnotationInHierarchy(
-                Entity.Metadata.SqlServerMetadataExtensions.Annotations.SequenceName,
-                Entity.Metadata.SqlServerMetadataExtensions.GetDefaultSequenceName(property));
+            var sequence = property.SqlServer().TryGetSequence();
+
+            return (sequence.Schema == null ? "" : (sequence.Schema + ".")) + sequence.Name;
         }
 
         public virtual IValueGenerator Create(IProperty property)

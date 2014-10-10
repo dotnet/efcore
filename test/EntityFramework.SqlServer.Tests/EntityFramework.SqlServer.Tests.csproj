@@ -73,7 +73,6 @@
     <Compile Include="..\EntityFramework.Relational.Tests\SqlGeneratorTestBase.cs" />
     <Compile Include="SqlServerDatabaseBuilderTest.cs" />
     <Compile Include="SqlServerDbContextOptionsExtensionsTest.cs" />
-    <Compile Include="SqlServerMetadataExtensionsTest.cs" />
     <Compile Include="SqlServerMigrationOperationPreProcessorTest.cs" />
     <Compile Include="SqlServerModelDifferTest.cs" />
     <Compile Include="SqlServerOptionsExtensionTest.cs" />
