@@ -39,12 +39,12 @@ namespace Microsoft.Data.Entity.InMemory
 
         public override bool EnsureCreated(IModel model)
         {
-            return false;
+            return _dataStore.EnsurePersistentDatabaseCreated();
         }
 
         public override Task<bool> EnsureCreatedAsync(IModel model, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return Task.FromResult(false);
+            return Task.FromResult(_dataStore.EnsurePersistentDatabaseCreated());
         }
     }
 }

@@ -54,6 +54,34 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         }
 
         [Fact]
+        public void EnsurePersistentDatabaseCreated_returns_true_for_first_use_of_persistent_database_and_false_thereafter()
+        {
+            var options = CreateConfiguration(new DbContextOptions().UseInMemoryStore(persist: true));
+
+            var persistentDatabase = new InMemoryDatabase(new[] { new NullLoggerFactory() });
+
+            var inMemoryDataStore = new InMemoryDataStore(options, persistentDatabase);
+
+            Assert.True(inMemoryDataStore.EnsurePersistentDatabaseCreated());
+            Assert.False(inMemoryDataStore.EnsurePersistentDatabaseCreated());
+            Assert.False(inMemoryDataStore.EnsurePersistentDatabaseCreated());
+        }
+
+        [Fact]
+        public void EnsurePersistentDatabaseCreated_returns_false_for_non_persistent_database()
+        {
+            var options = CreateConfiguration(new DbContextOptions().UseInMemoryStore(persist: false));
+
+            var nonPersistentDatabase = new InMemoryDatabase(new[] { new NullLoggerFactory() });
+
+            var inMemoryDataStore = new InMemoryDataStore(options, nonPersistentDatabase);
+
+            Assert.False(inMemoryDataStore.EnsurePersistentDatabaseCreated());
+            Assert.False(inMemoryDataStore.EnsurePersistentDatabaseCreated());
+            Assert.False(inMemoryDataStore.EnsurePersistentDatabaseCreated());
+        }
+
+        [Fact]
         public async Task Save_changes_adds_new_objects_to_store()
         {
             var model = CreateModel();
