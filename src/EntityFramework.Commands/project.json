@@ -20,7 +20,7 @@
                 "Microsoft.Framework.CommandLineUtils": { "version": "1.0.0-*", "type": "build" },
                 "System.Console": "4.0.0-beta-*",
                 "System.Reflection.TypeExtensions": "4.0.0-beta-*",
-                "System.Text.RegularExpressions": "4.0.0-beta-*"
+                "System.Text.RegularExpressions": "4.0.10-beta-*"
             }
         },
         ".NETPortable,Version=v4.6,Profile=Profile151": {
