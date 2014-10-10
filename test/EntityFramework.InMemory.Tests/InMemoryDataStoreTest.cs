@@ -30,11 +30,11 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         [Fact]
         public void Uses_persistent_database_if_configured_as_persistent()
         {
-            var options = CreateConfiguration(new DbContextOptions().UseInMemoryStore(persist: true));
+            var configuration = CreateConfiguration(new DbContextOptions().UseInMemoryStore(persist: true));
 
             var persistentDatabase = new InMemoryDatabase(new[] { new NullLoggerFactory() });
 
-            var inMemoryDataStore = new InMemoryDataStore(options, persistentDatabase);
+            var inMemoryDataStore = new InMemoryDataStore(configuration, persistentDatabase);
 
             Assert.Same(persistentDatabase, inMemoryDataStore.Database);
         }
@@ -42,15 +42,47 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         [Fact]
         public void Uses_transient_database_if_not_configured_as_persistent()
         {
-            var options = CreateConfiguration(new DbContextOptions().UseInMemoryStore(persist: false));
+            var configuration = CreateConfiguration(new DbContextOptions().UseInMemoryStore(persist: false));
 
             var persistentDatabase = new InMemoryDatabase(new[] { new NullLoggerFactory() });
 
-            var inMemoryDataStore = new InMemoryDataStore(options, persistentDatabase);
+            var inMemoryDataStore = new InMemoryDataStore(configuration, persistentDatabase);
 
             Assert.NotNull(inMemoryDataStore.Database);
             Assert.NotSame(persistentDatabase, inMemoryDataStore.Database);
             Assert.Same(inMemoryDataStore.Database, inMemoryDataStore.Database);
+        }
+
+        [Fact]
+        public void IsDatabaseCreated_returns_true_for_first_use_of_persistent_database_and_false_thereafter()
+        {
+            var model = CreateModel();
+            var configuration = CreateConfiguration(new DbContextOptions().UseInMemoryStore(persist: true));
+            var entityType = model.GetEntityType(typeof(Customer));
+
+            var persistentDatabase = new InMemoryDatabase(new[] { new NullLoggerFactory() });
+
+            var inMemoryDataStore = new InMemoryDataStore(configuration, persistentDatabase);
+
+            Assert.True(inMemoryDataStore.IsDatabaseCreated(model));
+            Assert.False(inMemoryDataStore.IsDatabaseCreated(model));
+            Assert.False(inMemoryDataStore.IsDatabaseCreated(model));
+        }
+
+        [Fact]
+        public void IsDatabaseCreated_returns_true_for_first_use_of_non_persistent_database_and_false_thereafter()
+        {
+            var model = CreateModel();
+            var configuration = CreateConfiguration(new DbContextOptions().UseInMemoryStore(persist: false));
+            var entityType = model.GetEntityType(typeof(Customer));
+
+            var nonPersistentDatabase = new InMemoryDatabase(new[] { new NullLoggerFactory() });
+
+            var inMemoryDataStore = new InMemoryDataStore(configuration, nonPersistentDatabase);
+
+            Assert.True(inMemoryDataStore.IsDatabaseCreated(model));
+            Assert.False(inMemoryDataStore.IsDatabaseCreated(model));
+            Assert.False(inMemoryDataStore.IsDatabaseCreated(model));
         }
 
         [Fact]

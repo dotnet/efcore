@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -11,6 +10,7 @@ using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.InMemory.Query;
 using Microsoft.Data.Entity.InMemory.Utilities;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq;
@@ -93,6 +93,11 @@ namespace Microsoft.Data.Entity.InMemory
             QueryModel queryModel, CancellationToken cancellationToken)
         {
             return Query<TResult>(queryModel).ToAsyncEnumerable();
+        }
+
+        public virtual bool IsDatabaseCreated([NotNull] IModel model)
+        {
+            return _database.Value.IsCreated(model);
         }
     }
 }

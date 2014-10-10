@@ -3,8 +3,9 @@
 
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
-using Moq;
+using Microsoft.Data.Entity.Services;
 using Xunit;
 
 namespace Microsoft.Data.Entity.InMemory.Tests
@@ -12,12 +13,69 @@ namespace Microsoft.Data.Entity.InMemory.Tests
     public class InMemoryDataStoreCreatorTest
     {
         [Fact]
-        public async Task EnsureCreated_is_no_op_and_returns_false()
+        public void EnsureCreated_returns_true_for_first_use_of_persistent_database_and_false_thereafter()
         {
-            var creator = new InMemoryDataStoreCreator(Mock.Of<InMemoryDataStore>());
+            var model = CreateModel();
+            var configuration = CreateConfiguration(new DbContextOptions().UseInMemoryStore(persist: true));
+            var entityType = model.GetEntityType(typeof(Test));
+            var persistentDatabase = new InMemoryDatabase(new[] { new NullLoggerFactory() });
 
-            Assert.False(creator.EnsureCreated(Mock.Of<IModel>()));
-            Assert.False(await creator.EnsureCreatedAsync(Mock.Of<IModel>()));
+            var inMemoryDataStore = new InMemoryDataStore(configuration, persistentDatabase);
+
+            var creator = new InMemoryDataStoreCreator(inMemoryDataStore);
+
+            Assert.True(creator.EnsureCreated(model));
+            Assert.False(creator.EnsureCreated(model));
+            Assert.False(creator.EnsureCreated(model));
+        }
+
+        [Fact]
+        public void EnsureCreated_returns_true_for_first_use_of_non_persistent_database_and_false_thereafter()
+        {
+            var model = CreateModel();
+            var configuration = CreateConfiguration(new DbContextOptions().UseInMemoryStore(persist: false));
+            var entityType = model.GetEntityType(typeof(Test));
+            var nonPersistentDatabase = new InMemoryDatabase(new[] { new NullLoggerFactory() });
+            var inMemoryDataStore = new InMemoryDataStore(configuration, nonPersistentDatabase);
+
+            var creator = new InMemoryDataStoreCreator(inMemoryDataStore);
+
+            Assert.True(creator.EnsureCreated(model));
+            Assert.False(creator.EnsureCreated(model));
+            Assert.False(creator.EnsureCreated(model));
+        }
+
+        [Fact]
+        public async Task EnsureCreatedAsync_returns_true_for_first_use_of_persistent_database_and_false_thereafter()
+        {
+            var model = CreateModel();
+            var configuration = CreateConfiguration(new DbContextOptions().UseInMemoryStore(persist: true));
+            var entityType = model.GetEntityType(typeof(Test));
+            var persistentDatabase = new InMemoryDatabase(new[] { new NullLoggerFactory() });
+            var inMemoryDataStore = new InMemoryDataStore(configuration, persistentDatabase);
+
+            var creator = new InMemoryDataStoreCreator(inMemoryDataStore);
+
+            Assert.True(await creator.EnsureCreatedAsync(model));
+            Assert.False(await creator.EnsureCreatedAsync(model));
+            Assert.False(await creator.EnsureCreatedAsync(model));
+        }
+
+
+        [Fact]
+        public async Task EnsureCreatedAsync_returns_true_for_first_use_of_non_persistent_database_and_false_thereafter()
+        {
+            var model = CreateModel();
+            var configuration = CreateConfiguration(new DbContextOptions().UseInMemoryStore(persist: false));
+            var entityType = model.GetEntityType(typeof(Test));
+            var nonPersistentDatabase = new InMemoryDatabase(new[] { new NullLoggerFactory() });
+            var inMemoryDataStore = new InMemoryDataStore(configuration, nonPersistentDatabase);
+
+            var creator = new InMemoryDataStoreCreator(inMemoryDataStore);
+
+            Assert.True(await creator.EnsureCreatedAsync(model));
+            Assert.False(await creator.EnsureCreatedAsync(model));
+            Assert.False(await creator.EnsureCreatedAsync(model));
         }
 
         [Fact]
@@ -95,6 +153,31 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         {
             public int Id { get; set; }
             public string Name { get; set; }
+        }
+
+        private static IModel CreateModel()
+        {
+            var model = new Model();
+            var modelBuilder = new BasicModelBuilder(model);
+
+            modelBuilder.Entity<Test>(b =>
+            {
+                b.Key(c => c.Id);
+                b.Property(c => c.Name);
+            });
+
+            return model;
+        }
+
+        private class Test
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+        }
+
+        private static DbContextConfiguration CreateConfiguration(DbContextOptions options)
+        {
+            return new DbContext(options).Configuration;
         }
     }
 }
