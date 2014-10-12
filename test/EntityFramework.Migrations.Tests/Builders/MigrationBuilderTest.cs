@@ -342,6 +342,39 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Builders
         }
 
         [Fact]
+        public void AddUniqueConstraint_adds_operation()
+        {
+            var builder = new MigrationBuilder();
+
+            builder.AddUniqueConstraint("dbo.MyTable", "MyUC", new[] { "Foo", "Bar" });
+
+            Assert.Equal(1, builder.Operations.Count);
+            Assert.IsType<AddUniqueConstraintOperation>(builder.Operations[0]);
+
+            var operation = (AddUniqueConstraintOperation)builder.Operations[0];
+
+            Assert.Equal("dbo.MyTable", operation.TableName);
+            Assert.Equal("MyUC", operation.UniqueConstraintName);
+            Assert.Equal(new[] { "Foo", "Bar" }, operation.ColumnNames);
+        }
+
+        [Fact]
+        public void DropUniqueConstraint_adds_operation()
+        {
+            var builder = new MigrationBuilder();
+
+            builder.DropUniqueConstraint("dbo.MyTable", "MyUC");
+
+            Assert.Equal(1, builder.Operations.Count);
+            Assert.IsType<DropUniqueConstraintOperation>(builder.Operations[0]);
+
+            var operation = (DropUniqueConstraintOperation)builder.Operations[0];
+
+            Assert.Equal("dbo.MyTable", operation.TableName);
+            Assert.Equal("MyUC", operation.UniqueConstraintName);
+        }
+
+        [Fact]
         public void AddForeignKey_adds_operation()
         {
             var builder = new MigrationBuilder();

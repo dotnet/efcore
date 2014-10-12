@@ -135,6 +135,7 @@ namespace Microsoft.Data.Entity.Migrations
                     .Concat(_operations.Get<CreateSequenceOperation>())
                     .Concat(_operations.Get<DropIndexOperation>())
                     .Concat(_operations.Get<DropForeignKeyOperation>())
+                    .Concat(_operations.Get<DropUniqueConstraintOperation>())
                     .Concat(_operations.Get<DropPrimaryKeyOperation>())
                     .Concat(_operations.Get<DropColumnOperation>())
                     .Concat(_operations.Get<DropTableOperation>())
@@ -146,6 +147,7 @@ namespace Microsoft.Data.Entity.Migrations
                     .Concat(_operations.Get<CreateTableOperation>())
                     .Concat(_operations.Get<AddColumnOperation>())
                     .Concat(_operations.Get<AddPrimaryKeyOperation>())
+                    .Concat(_operations.Get<AddUniqueConstraintOperation>())
                     .Concat(_operations.Get<AddForeignKeyOperation>())
                     .Concat(_operations.Get<CreateIndexOperation>())
                     .ToArray();
@@ -185,6 +187,11 @@ namespace Microsoft.Data.Entity.Migrations
                 FindAlteredColumns(tableColumnPairs);
 
                 FindPrimaryKeyChanges(tablePair, columnMap);
+
+                var uniqueConstraintPairs = FindUniqueConstraintPairs(tablePair, columnMap);
+
+                FindAddedUniqueConstraints(tablePair, uniqueConstraintPairs);
+                FindDroppedUniqueConstraints(tablePair, uniqueConstraintPairs);
 
                 var foreignKeyPairs = FindForeignKeyPairs(tablePair, columnMap);
 
@@ -514,6 +521,41 @@ namespace Microsoft.Data.Entity.Migrations
                     primaryKey.Name));
         }
 
+        private IReadOnlyList<Tuple<UniqueConstraint, UniqueConstraint>> FindUniqueConstraintPairs(
+            Tuple<Table, Table> table,
+            IDictionary<Column, Column> columnMap)
+        {
+            return
+                (from uc1 in table.Item1.UniqueConstraints
+                 from uc2 in table.Item2.UniqueConstraints
+                 where MatchUniqueConstraints(uc1, uc2, columnMap)
+                 select Tuple.Create(uc1, uc2))
+                    .ToArray();
+        }
+
+        private void FindAddedUniqueConstraints(
+            Tuple<Table, Table> tablePair,
+            IEnumerable<Tuple<UniqueConstraint, UniqueConstraint>> uniqueConstraintPairs)
+        {
+            _operations.AddRange(
+                tablePair.Item2.UniqueConstraints
+                    .Except(uniqueConstraintPairs.Select(pair => pair.Item2))
+                    .Select(uc => new AddUniqueConstraintOperation(uc)));
+        }
+
+        private void FindDroppedUniqueConstraints(
+            Tuple<Table, Table> tablePair,
+            IEnumerable<Tuple<UniqueConstraint, UniqueConstraint>> uniqueConstraintPairs)
+        {
+            _operations.AddRange(
+                tablePair.Item1.UniqueConstraints
+                    .Except(uniqueConstraintPairs.Select(pair => pair.Item1))
+                    .Select(uc =>
+                        new DropUniqueConstraintOperation(
+                            uc.Table.Name,
+                            uc.Name)));
+        }
+
         private IReadOnlyList<Tuple<ForeignKey, ForeignKey>> FindForeignKeyPairs(
             Tuple<Table, Table> table,
             IDictionary<Column, Column> columnMap)
@@ -780,6 +822,20 @@ namespace Microsoft.Data.Entity.Migrations
                 sourcePrimaryKey.Name == targetPrimaryKey.Name
                 && sourcePrimaryKey.IsClustered == targetPrimaryKey.IsClustered
                 && MatchColumnReferences(sourcePrimaryKey.Columns, targetPrimaryKey.Columns, columnMap);
+        }
+
+        protected virtual bool MatchUniqueConstraints(
+            [NotNull] UniqueConstraint sourceUniqueConstraint,
+            [NotNull] UniqueConstraint targetUniqueConstraint,
+            [NotNull] IDictionary<Column, Column> columnMap)
+        {
+            Check.NotNull(sourceUniqueConstraint, "sourceUniqueConstraint");
+            Check.NotNull(targetUniqueConstraint, "targetUniqueConstraint");
+            Check.NotNull(columnMap, "columnMap");
+
+            return
+                sourceUniqueConstraint.Name == targetUniqueConstraint.Name
+                && MatchColumnReferences(sourceUniqueConstraint.Columns, targetUniqueConstraint.Columns, columnMap);
         }
 
         protected virtual bool MatchForeignKeys(

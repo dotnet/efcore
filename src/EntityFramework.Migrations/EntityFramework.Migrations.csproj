@@ -70,6 +70,7 @@
     <Compile Include="Model\AddColumnOperation.cs" />
     <Compile Include="Model\AddDefaultConstraintOperation.cs" />
     <Compile Include="Model\AddForeignKeyOperation.cs" />
+    <Compile Include="Model\AddUniqueConstraintOperation.cs" />
     <Compile Include="Model\AddPrimaryKeyOperation.cs" />
     <Compile Include="Model\AlterSequenceOperation.cs" />
     <Compile Include="Model\AlterColumnOperation.cs" />
@@ -83,6 +84,7 @@
     <Compile Include="Model\DropDefaultConstraintOperation.cs" />
     <Compile Include="Model\DropForeignKeyOperation.cs" />
     <Compile Include="Model\DropIndexOperation.cs" />
+    <Compile Include="Model\DropUniqueConstraintOperation.cs" />
     <Compile Include="Model\DropPrimaryKeyOperation.cs" />
     <Compile Include="Model\DropSequenceOperation.cs" />
     <Compile Include="Model\DropTableOperation.cs" />

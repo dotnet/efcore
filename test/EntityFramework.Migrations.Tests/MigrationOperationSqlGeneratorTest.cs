@@ -80,6 +80,38 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         }
 
         [Fact]
+        public void Generate_when_create_table_with_unique_constraints()
+        {
+            Column foo, bar, c1, c2;
+            var table = new Table(
+                "dbo.MyTable",
+                new[]
+                    {
+                        foo = new Column("Foo", "int") { IsNullable = false, DefaultValue = 5 },
+                        bar = new Column("Bar", "int") { IsNullable = true },
+                        c1 = new Column("C1", "varchar"),
+                        c2 = new Column("C2", "varchar")
+                    })
+            {
+                PrimaryKey = new PrimaryKey("MyPK", new[] { foo }, isClustered: false)
+            };
+            table.AddUniqueConstraint(new UniqueConstraint("MyUC0", new[] { c1 }));
+            table.AddUniqueConstraint(new UniqueConstraint("MyUC1", new[] { bar, c2 }));
+
+            Assert.Equal(
+                @"CREATE TABLE ""dbo"".""MyTable"" (
+    ""Foo"" int NOT NULL DEFAULT 5,
+    ""Bar"" int,
+    ""C1"" varchar,
+    ""C2"" varchar,
+    CONSTRAINT ""MyPK"" PRIMARY KEY (""Foo""),
+    CONSTRAINT ""MyUC0"" UNIQUE (""C1""),
+    CONSTRAINT ""MyUC1"" UNIQUE (""Bar"", ""C2"")
+)",
+                Generate(new CreateTableOperation(table)).Sql);
+        }
+
+        [Fact]
         public void Generate_when_drop_table_operation()
         {
             Assert.Equal(
@@ -193,6 +225,23 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             Assert.Equal(
                 @"ALTER TABLE ""dbo"".""MyTable"" DROP CONSTRAINT ""MyPK""",
                 Generate(new DropPrimaryKeyOperation("dbo.MyTable", "MyPK")).Sql);
+        }
+
+        [Fact]
+        public void Generate_when_add_unique_constraint_operation()
+        {
+            Assert.Equal(
+                @"ALTER TABLE ""dbo"".""MyTable"" ADD CONSTRAINT ""MyUC"" UNIQUE (""Foo"", ""Bar"")",
+                Generate(
+                    new AddUniqueConstraintOperation("dbo.MyTable", "MyUC", new[] { "Foo", "Bar" })).Sql);
+        }
+
+        [Fact]
+        public void Generate_when_drop_unique_constraint_operation()
+        {
+            Assert.Equal(
+                @"ALTER TABLE ""dbo"".""MyTable"" DROP CONSTRAINT ""MyUC""",
+                Generate(new DropUniqueConstraintOperation("dbo.MyTable", "MyUC")).Sql);
         }
 
         [Fact]

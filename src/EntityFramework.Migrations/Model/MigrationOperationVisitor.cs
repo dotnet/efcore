@@ -103,6 +103,16 @@ namespace Microsoft.Data.Entity.Migrations.Model
             VisitDefault(dropPrimaryKeyOperation, context);
         }
 
+        public virtual void Visit([NotNull] AddUniqueConstraintOperation addUniqueConstraintOperation, [NotNull] TContext context)
+        {
+            VisitDefault(addUniqueConstraintOperation, context);
+        }
+
+        public virtual void Visit([NotNull] DropUniqueConstraintOperation dropUniqueConstraintOperation, [NotNull] TContext context)
+        {
+            VisitDefault(dropUniqueConstraintOperation, context);
+        }
+
         public virtual void Visit([NotNull] AddForeignKeyOperation addForeignKeyOperation, [NotNull] TContext context)
         {
             VisitDefault(addForeignKeyOperation, context);

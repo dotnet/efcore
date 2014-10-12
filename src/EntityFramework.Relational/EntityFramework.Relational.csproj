@@ -94,6 +94,7 @@
     <Compile Include="Metadata\RelationalSequenceBuilder.cs" />
     <Compile Include="Metadata\Sequence.cs" />
     <Compile Include="ModelDatabaseMapping.cs" />
+    <Compile Include="Model\UniqueConstraint.cs" />
     <Compile Include="Query\AsyncQueryMethodProvider.cs" />
     <Compile Include="Query\CommandBuilder.cs" />
     <Compile Include="Query\CommandParameter.cs" />

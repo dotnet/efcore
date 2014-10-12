@@ -200,6 +200,43 @@ namespace Microsoft.Data.Entity.Commands.Tests.Migrations
         }
 
         [Fact]
+        public void Generate_when_create_table_with_unique_constraints()
+        {
+            Column foo, bar, c1, c2;
+            var table = new Table("dbo.MyTable",
+                new[]
+                    {
+                        foo = new Column("Foo", typeof(int)) { IsNullable = false, DefaultValue = 5 },
+                        bar = new Column("Bar", typeof(int)),
+                        c1 = new Column("C1", typeof(string)),
+                        c2 = new Column("C2", typeof(string))
+                    })
+            {
+                PrimaryKey = new PrimaryKey("MyPK", new[] { foo })
+            };
+            table.AddUniqueConstraint(new UniqueConstraint("MyUC0", new[] { c1 }));
+            table.AddUniqueConstraint(new UniqueConstraint("MyUC1", new[] { bar, c2 }));
+
+            var operation = new CreateTableOperation(table);
+
+            Assert.Equal(
+                @"CreateTable(""dbo.MyTable"",
+    c => new
+        {
+            Foo = c.Int(nullable: false, defaultValue: 5),
+            Bar = c.Int(),
+            C1 = c.String(),
+            C2 = c.String()
+        })
+    .PrimaryKey(""MyPK"", t => t.Foo)
+    .UniqueConstraint(""MyUC0"", t => t.C1)
+    .UniqueConstraint(""MyUC1"", t => new { t.Bar, t.C2 })",
+                CSharpMigrationCodeGenerator.Generate(operation));
+
+            GenerateAndValidateCode(operation);
+        }
+
+        [Fact]
         public void Generate_when_drop_table_operation()
         {
             var operation = new DropTableOperation("dbo.MyTable");
@@ -351,6 +388,30 @@ namespace Microsoft.Data.Entity.Commands.Tests.Migrations
 
             Assert.Equal(
                 @"DropPrimaryKey(""dbo.MyTable"", ""MyPK"")",
+                CSharpMigrationCodeGenerator.Generate(operation));
+
+            GenerateAndValidateCode(operation);
+        }
+
+        [Fact]
+        public void Generate_when_add_unique_constraint_operation()
+        {
+            var operation = new AddUniqueConstraintOperation("dbo.MyTable", "MyUC", new[] { "Foo", "Bar" });
+
+            Assert.Equal(
+                @"AddUniqueConstraint(""dbo.MyTable"", ""MyUC"", new[] { ""Foo"", ""Bar"" })",
+                CSharpMigrationCodeGenerator.Generate(operation));
+
+            GenerateAndValidateCode(operation);
+        }
+
+        [Fact]
+        public void Generate_when_drop_unique_constraint_operation()
+        {
+            var operation = new DropUniqueConstraintOperation("dbo.MyTable", "MyUC");
+
+            Assert.Equal(
+                @"DropUniqueConstraint(""dbo.MyTable"", ""MyUC"")",
                 CSharpMigrationCodeGenerator.Generate(operation));
 
             GenerateAndValidateCode(operation);

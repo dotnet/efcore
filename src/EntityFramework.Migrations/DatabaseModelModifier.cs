@@ -220,6 +220,27 @@ namespace Microsoft.Data.Entity.Migrations
             table.PrimaryKey = null;
         }
 
+        public override void Visit(AddUniqueConstraintOperation addUniqueConstraintOperation, DatabaseModel databaseModel)
+        {
+            Check.NotNull(addUniqueConstraintOperation, "addUniqueConstraintOperation");
+            Check.NotNull(databaseModel, "databaseModel");
+
+            var table = databaseModel.GetTable(addUniqueConstraintOperation.TableName);
+            table.AddUniqueConstraint(
+                new UniqueConstraint(
+                    addUniqueConstraintOperation.UniqueConstraintName,
+                    addUniqueConstraintOperation.ColumnNames.Select(table.GetColumn).ToArray()));
+        }
+
+        public override void Visit(DropUniqueConstraintOperation dropUniqueConstraintOperation, DatabaseModel databaseModel)
+        {
+            Check.NotNull(dropUniqueConstraintOperation, "dropUniqueConstraintOperation");
+            Check.NotNull(databaseModel, "databaseModel");
+
+            var table = databaseModel.GetTable(dropUniqueConstraintOperation.TableName);
+            table.RemoveUniqueConstraint(dropUniqueConstraintOperation.UniqueConstraintName);
+        }
+
         public override void Visit(AddForeignKeyOperation addForeignKeyOperation, DatabaseModel databaseModel)
         {
             Check.NotNull(addForeignKeyOperation, "addForeignKeyOperation");

@@ -83,6 +83,7 @@
     <Compile Include="Utilities\Check.cs" />
     <Compile Include="..\Shared\CodeAnnotations.cs" />
     <Compile Include="..\Shared\StringBuilderExtensions.cs" />
+    <Compile Include="Utilities\EnumerableExtensions.cs" />
     <EmbeddedResource Include="Properties\Strings.resx">
       <LogicalName>EntityFramework.SQLite.Strings.resources</LogicalName>
     </EmbeddedResource>

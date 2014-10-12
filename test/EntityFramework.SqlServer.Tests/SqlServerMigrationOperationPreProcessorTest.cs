@@ -81,6 +81,40 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         }
 
         [Fact]
+        public void Visit_with_alter_column_operation_resets_unique_constraints_on_column()
+        {
+            var modelBuilder = new BasicModelBuilder();
+            modelBuilder.Entity("A",
+                b =>
+                {
+                    b.Property<int>("Id");
+                    var p = b.Property<string>("P").Metadata;
+                    b.Key("Id");
+                    b.Metadata.AddKey(p);
+                });
+
+            var alterColumnOperation
+                = new AlterColumnOperation(
+                    "A",
+                    new Column("P", typeof(int)), true);
+
+            var operations = PreProcess(modelBuilder, alterColumnOperation);
+
+            Assert.Equal(3, operations.Count);
+
+            Assert.IsType<DropUniqueConstraintOperation>(operations[0]);
+            Assert.Same(alterColumnOperation, operations[1]);
+            Assert.IsType<AddUniqueConstraintOperation>(operations[2]);
+
+            var dropUniqueConstraintOperation = (DropUniqueConstraintOperation)operations[0];
+            var addUniqueConstraintOperation = (AddUniqueConstraintOperation)operations[2];
+
+            Assert.Equal("UC_A_P", dropUniqueConstraintOperation.UniqueConstraintName);
+            Assert.Equal("UC_A_P", addUniqueConstraintOperation.UniqueConstraintName);
+            Assert.Equal(new[] { "P" }, addUniqueConstraintOperation.ColumnNames);
+        }
+
+        [Fact]
         public void Visit_with_alter_column_operation_resets_foreign_keys_on_the_column()
         {
             var modelBuilder = new BasicModelBuilder();

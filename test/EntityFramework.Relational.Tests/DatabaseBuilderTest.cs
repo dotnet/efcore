@@ -68,8 +68,6 @@ namespace Microsoft.Data.Entity.Relational.Tests
         [Fact]
         public void Build_fills_in_names_if_StorageName_not_specified()
         {
-            // TODO: Add and Index when supported by DatabaseBuilder.
-
             var modelBuilder = new BasicModelBuilder();
 
             modelBuilder.Entity<Blog>(b =>
@@ -102,6 +100,67 @@ namespace Microsoft.Data.Entity.Relational.Tests
             Assert.Equal("FK_Post_Blog_BelongsToBlogId", database.GetTable("Post").ForeignKeys.Single().Name);
 
             Assert.Equal("IX_Post_PostId", database.GetTable("Post").Indexes.Single().Name);
+        }
+
+        [Fact]
+        public void Build_creates_unique_constraints()
+        {
+            var modelBuilder = new BasicModelBuilder();
+            modelBuilder.Entity("A",
+                b =>
+                {
+                    var id = b.Property<int>("Id").Metadata;
+                    var p1 = b.Property<long>("P1").ColumnName("C1").Metadata;
+                    var p2 = b.Property<string>("P2").Metadata;
+                    b.Key("Id").KeyName("PK");
+                    b.Metadata.AddKey(new[] { id, p1 }).SetKeyName("UC1");
+                    b.Metadata.AddKey(new[] { p2 }).SetKeyName("UC2");
+                });
+
+            var database = new DatabaseBuilder().GetDatabase(modelBuilder.Model);
+
+            Assert.Equal(1, database.Tables.Count);
+
+            var table = database.Tables[0];
+
+            Assert.Equal(2, table.UniqueConstraints.Count);
+            Assert.Equal("UC1", table.UniqueConstraints[0].Name);
+            Assert.Equal(new[] { "Id", "C1" }, table.UniqueConstraints[0].Columns.Select(c => c.Name));
+            Assert.Equal("UC2", table.UniqueConstraints[1].Name);
+            Assert.Equal(new[] { "P2" }, table.UniqueConstraints[1].Columns.Select(c => c.Name));
+            Assert.NotNull(table.PrimaryKey);
+            Assert.Equal("PK", table.PrimaryKey.Name);
+        }
+
+        [Fact]
+        public void Build_fills_in_unique_constraint_name_if_not_specified()
+        {
+            var modelBuilder = new BasicModelBuilder();
+            modelBuilder.Entity("A",
+                b =>
+                {
+                    var id = b.Property<int>("Id").Metadata;
+                    var p1 = b.Property<long>("P1").ColumnName("C1").Metadata;
+                    var p2 = b.Property<string>("P2").Metadata;
+                    b.Key("Id").KeyName("PK");
+                    b.Metadata.AddKey(new[] { id, p1 });
+                    b.Metadata.AddKey(new[] { p2 });
+                });
+
+            var database = new DatabaseBuilder().GetDatabase(modelBuilder.Model);
+            var table = database.Tables[0];
+
+            Assert.Equal(2, table.UniqueConstraints.Count);
+            Assert.Equal("UC_A_Id_C1", table.UniqueConstraints[0].Name);
+            Assert.Equal("UC_A_P2", table.UniqueConstraints[1].Name);
+
+            modelBuilder.Entity("A").ToTable("T", "dbo");
+            database = new DatabaseBuilder().GetDatabase(modelBuilder.Model);
+            table = database.Tables[0];
+
+            Assert.Equal(2, table.UniqueConstraints.Count);
+            Assert.Equal("UC_dbo.T_Id_C1", table.UniqueConstraints[0].Name);
+            Assert.Equal("UC_dbo.T_P2", table.UniqueConstraints[1].Name);
         }
 
         private class Blog

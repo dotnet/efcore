@@ -355,6 +355,19 @@ namespace Microsoft.Data.Entity.Commands.Migrations
 
                     stringBuilder.Append(")");
                 }
+
+                foreach (var uniqueConstraint in table.UniqueConstraints)
+                {
+                    stringBuilder
+                        .AppendLine()
+                        .Append(".UniqueConstraint(")
+                        .Append(GenerateLiteral(uniqueConstraint.Name))
+                        .Append(", ");
+
+                    GenerateColumnReferences(uniqueConstraint.Columns, stringBuilder);
+
+                    stringBuilder.Append(")");
+                }
             }
         }
 
@@ -525,6 +538,34 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 .Append(GenerateLiteral(dropPrimaryKeyOperation.TableName))
                 .Append(", ")
                 .Append(GenerateLiteral(dropPrimaryKeyOperation.PrimaryKeyName))
+                .Append(")");
+        }
+
+        public override void Generate(AddUniqueConstraintOperation addUniqueConstraintOperation, IndentedStringBuilder stringBuilder)
+        {
+            Check.NotNull(addUniqueConstraintOperation, "addUniqueConstraintOperation");
+            Check.NotNull(stringBuilder, "stringBuilder");
+
+            stringBuilder
+                .Append("AddUniqueConstraint(")
+                .Append(GenerateLiteral(addUniqueConstraintOperation.TableName))
+                .Append(", ")
+                .Append(GenerateLiteral(addUniqueConstraintOperation.UniqueConstraintName))
+                .Append(", new[] { ")
+                .Append(addUniqueConstraintOperation.ColumnNames.Select(GenerateLiteral).Join())
+                .Append(" })");
+        }
+
+        public override void Generate(DropUniqueConstraintOperation dropUniqueConstraintOperation, IndentedStringBuilder stringBuilder)
+        {
+            Check.NotNull(dropUniqueConstraintOperation, "dropUniqueConstraintOperation");
+            Check.NotNull(stringBuilder, "stringBuilder");
+
+            stringBuilder
+                .Append("DropUniqueConstraint(")
+                .Append(GenerateLiteral(dropUniqueConstraintOperation.TableName))
+                .Append(", ")
+                .Append(GenerateLiteral(dropUniqueConstraintOperation.UniqueConstraintName))
                 .Append(")");
         }
 
