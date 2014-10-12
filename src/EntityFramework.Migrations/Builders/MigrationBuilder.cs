@@ -185,6 +185,22 @@ namespace Microsoft.Data.Entity.Migrations.Builders
             AddOperation(new DropPrimaryKeyOperation(tableName, primaryKeyName));
         }
 
+        public virtual void AddUniqueConstraint(SchemaQualifiedName tableName, [NotNull] string uniqueConstraintName,
+            [NotNull] IReadOnlyList<string> columnNames)
+        {
+            Check.NotEmpty(uniqueConstraintName, "uniqueConstraintName");
+            Check.NotNull(columnNames, "columnNames");
+
+            AddOperation(new AddUniqueConstraintOperation(tableName, uniqueConstraintName, columnNames));
+        }
+
+        public virtual void DropUniqueConstraint(SchemaQualifiedName tableName, [NotNull] string uniqueConstraintName)
+        {
+            Check.NotEmpty(uniqueConstraintName, "uniqueConstraintName");
+
+            AddOperation(new DropUniqueConstraintOperation(tableName, uniqueConstraintName));
+        }
+
         public virtual void AddForeignKey(SchemaQualifiedName tableName, [NotNull] string foreignKeyName,
             [NotNull] IReadOnlyList<string> columnNames, SchemaQualifiedName referencedTableName,
             [NotNull] IReadOnlyList<string> referencedColumnNames, bool cascadeDelete)

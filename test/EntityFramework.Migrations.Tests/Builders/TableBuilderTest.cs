@@ -37,6 +37,34 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Builders
         }
 
         [Fact]
+        public void UniqueConstraint_adds_unique_constraint_to_table()
+        {
+            var migrationBuilder = new MigrationBuilder();
+            migrationBuilder.CreateTable("dbo.MyTable",
+                c => new
+                {
+                    Foo = c.Int(),
+                    Bar = c.Int(),
+                    C1 = c.Int(),
+                    C2 = c.Int()
+                })
+                .PrimaryKey("MyPK", t => t.Foo)
+                .UniqueConstraint("MyUC1", t => t.Bar)
+                .UniqueConstraint("MyUC2", t => new { t.C1, t.C2 });
+
+            Assert.Equal(1, migrationBuilder.Operations.Count);
+
+            var createTableOperation = (CreateTableOperation)migrationBuilder.Operations[0];
+            var table = createTableOperation.Table;
+
+            Assert.Equal(2, table.UniqueConstraints.Count);
+            Assert.Equal("MyUC1", table.UniqueConstraints[0].Name);
+            Assert.Equal(new[] { "Bar" }, table.UniqueConstraints[0].Columns.Select(c => c.Name));
+            Assert.Equal("MyUC2", table.UniqueConstraints[1].Name);
+            Assert.Equal(new[] { "C1", "C2" }, table.UniqueConstraints[1].Columns.Select(c => c.Name));
+        }
+
+        [Fact]
         public void ForeignKey_appends_add_primary_key_operation()
         {
             var migrationBuilder = new MigrationBuilder();

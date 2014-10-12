@@ -63,6 +63,11 @@ namespace Microsoft.Data.Entity.Relational
                     mapping.Map(primaryKey, BuildPrimaryKey(database, primaryKey));
                 }
 
+                foreach (var key in entityType.Keys.Except(new[] { primaryKey }))
+                {
+                    mapping.Map(key, BuildUniqueConstraint(database, key));
+                }
+
                 foreach (var index in entityType.Indexes)
                 {
                     mapping.Map(index, BuildIndex(database, index));
@@ -112,6 +117,16 @@ namespace Microsoft.Data.Entity.Relational
             Check.NotNull(primaryKey, "primaryKey");
 
             return primaryKey.KeyName() ?? string.Format("PK_{0}", GetFullTableName(primaryKey.EntityType));
+        }
+
+        private static string UniqueConstraintName([NotNull] IKey key)
+        {
+            Check.NotNull(key, "key");
+
+            return key.KeyName() ?? string.Format(
+                "UC_{0}_{1}",
+                GetFullTableName(key.EntityType),
+                string.Join("_", key.Properties.OrderBy(p => p.Name, StringComparer.OrdinalIgnoreCase).Select(p => p.ColumnName())));
         }
 
         private static string ForeignKeyName([NotNull] IForeignKey foreignKey)
@@ -192,6 +207,21 @@ namespace Microsoft.Data.Entity.Relational
             table.PrimaryKey = new PrimaryKey(PrimaryKeyName(primaryKey), columns, isClustered);
 
             return table.PrimaryKey;
+        }
+
+        private static UniqueConstraint BuildUniqueConstraint(DatabaseModel database, IKey key)
+        {
+            Check.NotNull(key, "key");
+
+            var table = database.GetTable(key.EntityType.SchemaQualifiedName());
+            var columns = key.Properties.Select(
+                p => table.GetColumn(p.ColumnName())).ToArray();
+
+            var uniqueConstraint = new UniqueConstraint(UniqueConstraintName(key), columns);
+
+            table.AddUniqueConstraint(uniqueConstraint);
+
+            return uniqueConstraint;
         }
 
         private ForeignKey BuildForeignKey(DatabaseModel database, IForeignKey foreignKey)

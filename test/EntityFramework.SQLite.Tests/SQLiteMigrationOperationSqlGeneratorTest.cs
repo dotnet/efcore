@@ -74,6 +74,35 @@ namespace Microsoft.Data.Entity.SQLite.Tests
         }
 
         [Fact]
+        public void Generate_with_create_table_with_unique_constraints()
+        {
+            var c0 = new Column("Id", typeof(long));
+            var c1 = new Column("C1", typeof(int));
+            var c2 = new Column("C2", typeof(string));
+            var table = new Table("T", new[] { c0, c1, c2 })
+            {
+                PrimaryKey = new PrimaryKey("PK", new[] { c0 })
+            };
+
+            table.AddUniqueConstraint(new UniqueConstraint("UC0", new[] { c0, c1 }));
+            table.AddUniqueConstraint(new UniqueConstraint("UC1", new[] { c2 }));
+
+            var operation = new CreateTableOperation(table);
+            var sql = Generate(operation);
+
+            Assert.Equal(
+                @"CREATE TABLE ""T"" (
+    ""Id"" INTEGER,
+    ""C1"" INT,
+    ""C2"" CHAR,
+    CONSTRAINT ""PK"" PRIMARY KEY (""Id""),
+    UNIQUE (""Id"", ""C1""),
+    UNIQUE (""C2"")
+)",
+                sql);            
+        }
+
+        [Fact]
         public void Generate_with_create_table_generates_fks()
         {
             var pegasusId = new Column("Id", typeof(long));

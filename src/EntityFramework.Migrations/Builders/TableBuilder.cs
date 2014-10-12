@@ -41,12 +41,27 @@ namespace Microsoft.Data.Entity.Migrations.Builders
             Check.NotEmpty(name, "name");
             Check.NotNull(primaryKeyExpression, "primaryKeyExpression");
 
-            var table = _createTableOperation.Table;
             var columns = primaryKeyExpression.GetPropertyAccessList()
                 .Select(p => _propertyInfoToColumnMap[p])
                 .ToArray();
 
             _createTableOperation.Table.PrimaryKey = new PrimaryKey(name, columns, clustered);
+
+            return this;
+        }
+
+        public virtual TableBuilder<TColumns> UniqueConstraint(
+            [NotNull] string name,
+            [NotNull] Expression<Func<TColumns, object>> uniqueConstraintExpression)
+        {
+            Check.NotEmpty(name, "name");
+            Check.NotNull(uniqueConstraintExpression, "uniqueConstraintExpression");
+
+            var columns = uniqueConstraintExpression.GetPropertyAccessList()
+                .Select(p => _propertyInfoToColumnMap[p])
+                .ToArray();
+
+            _createTableOperation.Table.AddUniqueConstraint(new UniqueConstraint(name, columns));
 
             return this;
         }

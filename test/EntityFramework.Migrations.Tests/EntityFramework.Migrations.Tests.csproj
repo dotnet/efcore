@@ -73,9 +73,11 @@
     <Compile Include="Model\AddDefaultConstraintOperationTest.cs" />
     <Compile Include="Model\AddForeignKeyOperationTest.cs" />
     <Compile Include="Model\AddPrimaryKeyOperationTest.cs" />
+    <Compile Include="Model\DropUniqueConstraintOperationTest.cs" />
     <Compile Include="Model\AlterColumnOperationTest.cs" />
     <Compile Include="Model\CopyDataOperationTest.cs" />
     <Compile Include="Model\CreateDatabaseOperationTest.cs" />
+    <Compile Include="Model\AddUniqueConstraintOperationTest.cs" />
     <Compile Include="Model\CreateIndexOperationTest.cs" />
     <Compile Include="Model\AlterSequenceOperationTest .cs" />
     <Compile Include="Model\RenameSequenceOperationTest.cs" />

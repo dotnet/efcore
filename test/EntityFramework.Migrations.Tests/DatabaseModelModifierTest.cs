@@ -338,6 +338,49 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         }
 
         [Fact]
+        public void Visit_with_add_unique_constraint_operation()
+        {
+            var model = new DatabaseModel();
+            var column = new Column("Foo", typeof(int));
+            var table = new Table("dbo.MyTable", new[] { column });
+            var operation = new AddUniqueConstraintOperation("dbo.MyTable", "UK", new[] { "Foo" });
+
+            model.AddTable(table);
+
+            Assert.Equal(0, table.UniqueConstraints.Count);
+
+            operation.Accept(new DatabaseModelModifier(), model);
+
+            Assert.Equal(1, table.UniqueConstraints.Count);
+
+            var uniqueConstraint = table.UniqueConstraints[0];
+
+            Assert.Equal("UK", uniqueConstraint.Name);
+            Assert.Equal(1, uniqueConstraint.Columns.Count);
+            Assert.Same(column, uniqueConstraint.Columns[0]);
+        }
+
+        [Fact]
+        public void Visit_with_drop_unique_constraint_operation()
+        {
+            var model = new DatabaseModel();
+            var column = new Column("Foo", typeof(int));
+            var table = new Table("dbo.MyTable", new[] { column });
+
+            table.AddUniqueConstraint(new UniqueConstraint("UC", new[] { column }));
+
+            var operation = new DropUniqueConstraintOperation("dbo.MyTable", "UC");
+
+            model.AddTable(table);
+
+            Assert.Equal(1, table.UniqueConstraints.Count);
+
+            operation.Accept(new DatabaseModelModifier(), model);
+
+            Assert.Equal(0, table.UniqueConstraints.Count);
+        }
+
+        [Fact]
         public void Visit_with_add_foreign_key_operation()
         {
             var model = new DatabaseModel();

@@ -15,6 +15,7 @@ namespace Microsoft.Data.Entity.Relational.Model
         private SchemaQualifiedName _name;
         private readonly List<Column> _columns = new List<Column>();
         private PrimaryKey _primaryKey;
+        private readonly List<UniqueConstraint> _uniqueConstraints = new List<UniqueConstraint>();
         private readonly List<ForeignKey> _foreignKeys = new List<ForeignKey>();
         private readonly List<Index> _indexes = new List<Index>();
 
@@ -53,6 +54,11 @@ namespace Microsoft.Data.Entity.Relational.Model
             [param: CanBeNull] set { _primaryKey = value; }
         }
 
+        public virtual IReadOnlyList<UniqueConstraint> UniqueConstraints
+        {
+            get { return _uniqueConstraints; }
+        }
+
         public virtual IReadOnlyList<ForeignKey> ForeignKeys
         {
             get { return _foreignKeys; }
@@ -87,6 +93,29 @@ namespace Microsoft.Data.Entity.Relational.Model
 
             _columns.RemoveAt(i);
             column.Table = null;
+        }
+
+        public virtual UniqueConstraint GetUniqueConstraint([NotNull] string uniqueConstraintName)
+        {
+            Check.NotEmpty(uniqueConstraintName, "uniqueConstraintName");
+
+            return _uniqueConstraints.First(c => c.Name.Equals(uniqueConstraintName, StringComparison.Ordinal));
+        }
+
+        public virtual void AddUniqueConstraint([NotNull] UniqueConstraint uniqueConstraint)
+        {
+            Check.NotNull(uniqueConstraint, "uniqueConstraint");
+
+            _uniqueConstraints.Add(uniqueConstraint);
+        }
+
+        public virtual void RemoveUniqueConstraint([NotNull] string uniqueConstraintName)
+        {
+            Check.NotEmpty(uniqueConstraintName, "uniqueConstraintName");
+
+            var i = _uniqueConstraints.FindIndex(uc => uc.Name == uniqueConstraintName);
+
+            _uniqueConstraints.RemoveAt(i);
         }
 
         public virtual ForeignKey GetForeignKey([NotNull] string foreignKeyName)
@@ -146,6 +175,7 @@ namespace Microsoft.Data.Entity.Relational.Model
                 clone._primaryKey = PrimaryKey.Clone(cloneContext);
             }
 
+            clone._uniqueConstraints.AddRange(UniqueConstraints.Select(uc => uc.Clone(cloneContext)));
             clone._foreignKeys.AddRange(ForeignKeys.Select(fk => fk.Clone(cloneContext)));
             clone._indexes.AddRange(Indexes.Select(ix => ix.Clone(cloneContext)));
 

@@ -130,6 +130,79 @@ namespace Microsoft.Data.Entity.Relational.Tests.Model
         }
 
         [Fact]
+        public void UniqueConstraints_gets_read_only_list_of_unique_constraints()
+        {
+            var column0 = new Column("C0", typeof(int));
+            var column1 = new Column("C1", typeof(string));
+            var column2 = new Column("C2", typeof(int));
+            var column3 = new Column("C3", typeof(string));
+            var table = new Table("dbo.T", new[] { column0, column1, column2, column3 });
+            var uniqueConstraint0 = new UniqueConstraint("UC0", new[] { column0, column1 });
+            var uniqueConstraint1 = new UniqueConstraint("UC1", new[] { column2, column3 });
+
+            table.AddUniqueConstraint(uniqueConstraint0);
+            table.AddUniqueConstraint(uniqueConstraint1);
+
+            Assert.IsAssignableFrom<IReadOnlyList<UniqueConstraint>>(table.UniqueConstraints);
+            Assert.Equal(2, table.UniqueConstraints.Count);
+            Assert.Same(uniqueConstraint0, table.UniqueConstraints[0]);
+            Assert.Same(uniqueConstraint1, table.UniqueConstraints[1]);
+        }
+
+        [Fact]
+        public void AddUniqueConstraint_adds_specified_unique_constraint()
+        {
+            var column0 = new Column("Foo", "int");
+            var column1 = new Column("Bar", "int");
+            var table = new Table("dbo.MyTable", new[] { column0, column1 });
+
+            Assert.Equal(0, table.UniqueConstraints.Count);
+
+            var uniqueConstraint = new UniqueConstraint("MyUniqueConstraint", new[] { column1 });
+            table.AddUniqueConstraint(uniqueConstraint);
+
+            Assert.Equal(1, table.UniqueConstraints.Count);
+            Assert.Same(column1, uniqueConstraint.Columns[0]);
+            Assert.Same(table, uniqueConstraint.Table);
+        }
+
+        [Fact]
+        public void RemoveUniqueConstraint_removes_specified_unique_constraint()
+        {
+            var column0 = new Column("Foo", "int");
+            var column1 = new Column("Bar", "int");
+            var table = new Table("dbo.MyTable", new[] { column0, column1 });
+            var uniqueConstraint0 = new UniqueConstraint("MyUniqueConstraint0", new[] { column0 });
+            var uniqueConstraint1 = new UniqueConstraint("MyUniqueConstraint1", new[] { column1 });
+
+            table.AddUniqueConstraint(uniqueConstraint0);
+            table.AddUniqueConstraint(uniqueConstraint1);
+
+            Assert.Equal(2, table.UniqueConstraints.Count);
+
+            table.RemoveUniqueConstraint("MyUniqueConstraint1");
+
+            Assert.Equal(1, table.UniqueConstraints.Count);
+            Assert.Same(uniqueConstraint0, table.UniqueConstraints[0]);
+        }
+
+        [Fact]
+        public void GetUniqueConstraint_finds_unique_constraint_by_name()
+        {
+            var column0 = new Column("Foo", "int");
+            var column1 = new Column("Bar", "int");
+            var table = new Table("dbo.MyTable", new[] { column0, column1 });
+            var uniqueConstraint0 = new UniqueConstraint("MyUniqueConstraint0", new[] { column0 });
+            var uniqueConstraint1 = new UniqueConstraint("MyUniqueConstraint1", new[] { column1 });
+
+            table.AddUniqueConstraint(uniqueConstraint0);
+            table.AddUniqueConstraint(uniqueConstraint1);
+
+            Assert.Same(uniqueConstraint0, table.GetUniqueConstraint("MyUniqueConstraint0"));
+            Assert.Same(uniqueConstraint1, table.GetUniqueConstraint("MyUniqueConstraint1"));
+        }
+
+        [Fact]
         public void ForeignKeys_gets_read_only_list_of_foreign_keys()
         {
             var column00 = new Column("C00", "int");
@@ -237,7 +310,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Model
         }
 
         [Fact]
-        public void AddIndex_adds_specified_column()
+        public void AddIndex_adds_specified_index()
         {
             var column0 = new Column("Foo", "int");
             var column1 = new Column("Bar", "int");
@@ -300,6 +373,8 @@ namespace Microsoft.Data.Entity.Relational.Tests.Model
             var table1 = new Table("dbo.T1", new[] { column10, column11 });
             var primaryKey0 = new PrimaryKey("PK0", new[] { column00 });
             var primaryKey1 = new PrimaryKey("PK1", new[] { column10 });
+            var uniqueConstraint0 = new UniqueConstraint("UC0", new[] { column00, column01 });
+            var uniqueConstraint1 = new UniqueConstraint("UC1", new[] { column10, column11 });
             var foreignKey0 = new ForeignKey("FK0", new[] { column01 }, new[] { column10 });
             var foreignKey1 = new ForeignKey("FK1", new[] { column11 }, new[] { column00 });
             var index0 = new Index("IX0", new[] { column00 });
@@ -307,6 +382,8 @@ namespace Microsoft.Data.Entity.Relational.Tests.Model
 
             table0.PrimaryKey = primaryKey0;
             table1.PrimaryKey = primaryKey1;
+            table0.AddUniqueConstraint(uniqueConstraint0);
+            table1.AddUniqueConstraint(uniqueConstraint1);
             table0.AddForeignKey(foreignKey0);
             table1.AddForeignKey(foreignKey1);
             table0.AddIndex(index0);
@@ -331,6 +408,13 @@ namespace Microsoft.Data.Entity.Relational.Tests.Model
             Assert.Equal("PK0", clone0.PrimaryKey.Name);
             Assert.Equal(1, clone0.PrimaryKey.Columns.Count);
             Assert.Same(clone0.Columns[0], clone0.PrimaryKey.Columns[0]);
+
+            Assert.Equal(1, clone0.UniqueConstraints.Count);
+            Assert.NotSame(index0, clone0.UniqueConstraints[0]);
+            Assert.Equal("UC0", clone0.UniqueConstraints[0].Name);
+            Assert.Equal(2, clone0.UniqueConstraints[0].Columns.Count);
+            Assert.Same(clone0.Columns[0], clone0.UniqueConstraints[0].Columns[0]);
+            Assert.Same(clone0.Columns[1], clone0.UniqueConstraints[0].Columns[1]);
 
             Assert.Equal(1, clone0.ForeignKeys.Count);
             Assert.NotSame(foreignKey0, clone0.ForeignKeys[0]);
@@ -369,6 +453,13 @@ namespace Microsoft.Data.Entity.Relational.Tests.Model
             Assert.Equal("PK1", clone1.PrimaryKey.Name);
             Assert.Equal(1, clone1.PrimaryKey.Columns.Count);
             Assert.Same(clone1.Columns[0], clone1.PrimaryKey.Columns[0]);
+
+            Assert.Equal(1, clone1.UniqueConstraints.Count);
+            Assert.NotSame(index1, clone1.UniqueConstraints[0]);
+            Assert.Equal("UC1", clone1.UniqueConstraints[0].Name);
+            Assert.Equal(2, clone1.UniqueConstraints[0].Columns.Count);
+            Assert.Same(clone1.Columns[0], clone1.UniqueConstraints[0].Columns[0]);
+            Assert.Same(clone1.Columns[1], clone1.UniqueConstraints[0].Columns[1]);
 
             Assert.Equal(1, clone1.ForeignKeys.Count);
             Assert.NotSame(foreignKey1, clone1.ForeignKeys[0]);

@@ -58,6 +58,11 @@ namespace Microsoft.Data.Entity.SqlServer
                 compositeOperation.AddPrimaryKey(table.PrimaryKey);
             }
 
+            // TODO: Changing the length of a variable-length column used in a UNIQUE constraint is allowed.
+            compositeOperation.AddUniqueConstraints(
+                table.UniqueConstraints
+                    .Where(uc => uc.Columns.Any(c => ReferenceEquals(c, column))));
+
             compositeOperation.AddForeignKeys(
                 table.ForeignKeys
                     .Where(fk => fk.Columns.Any(c => ReferenceEquals(c, column))));
@@ -206,6 +211,7 @@ namespace Microsoft.Data.Entity.SqlServer
         public class CompositeAlterColumnOperation : CompositeOperation
         {
             private readonly List<PrimaryKey> _primaryKeys = new List<PrimaryKey>();
+            private readonly List<UniqueConstraint> _uniqueConstraints = new List<UniqueConstraint>();
             private readonly List<ForeignKey> _foreignKeys = new List<ForeignKey>();
             private readonly List<Index> _indexes = new List<Index>();
 
@@ -216,9 +222,11 @@ namespace Microsoft.Data.Entity.SqlServer
                     return
                         ((IEnumerable<MigrationOperation>)_indexes.Select(ix => new DropIndexOperation(ix.Table.Name, ix.Name)))
                             .Concat(_foreignKeys.Select(fk => new DropForeignKeyOperation(fk.Table.Name, fk.Name)))
+                            .Concat(_uniqueConstraints.Select(uc => new DropUniqueConstraintOperation(uc.Table.Name, uc.Name)))
                             .Concat(_primaryKeys.Select(pk => new DropPrimaryKeyOperation(pk.Table.Name, pk.Name)))
                             .Concat(base.Operations)
                             .Concat(_primaryKeys.Select(pk => new AddPrimaryKeyOperation(pk)))
+                            .Concat(_uniqueConstraints.Select(uc => new AddUniqueConstraintOperation(uc)))
                             .Concat(_foreignKeys.Select(fk => new AddForeignKeyOperation(fk)))
                             .Concat(_indexes.Select(ix => new CreateIndexOperation(ix)));
                 }
@@ -232,6 +240,13 @@ namespace Microsoft.Data.Entity.SqlServer
                 {
                     _primaryKeys.Add(primaryKey);
                 }
+            }
+
+            public virtual void AddUniqueConstraints([NotNull] IEnumerable<UniqueConstraint> uniqueConstraints)
+            {
+                Check.NotNull(uniqueConstraints, "uniqueConstraints");
+
+                _uniqueConstraints.AddRange(uniqueConstraints.Where(uc => !_uniqueConstraints.Contains(uc)));
             }
 
             public virtual void AddForeignKeys([NotNull] IEnumerable<ForeignKey> foreignKeys)

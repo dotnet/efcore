@@ -18,6 +18,7 @@ namespace Microsoft.Data.Entity.Migrations
     /// <summary>
     ///     Default migration operation SQL generator, outputs best-effort ANSI-99 compliant SQL.
     /// </summary>
+    // TODO: For simplicity we could rename the "abcOperation" parameters to "operation".
     public abstract class MigrationOperationSqlGenerator
     {
         // TODO: Check whether the following formats ar SqlServer specific or not and move
@@ -175,24 +176,9 @@ namespace Microsoft.Data.Entity.Migrations
 
             using (stringBuilder.Indent())
             {
-                GenerateColumns(table, table.Columns, stringBuilder);
+                GenerateColumns(table, stringBuilder);
 
-                var primaryKey = table.PrimaryKey;
-
-                if (primaryKey != null)
-                {
-                    stringBuilder.AppendLine(",");
-
-                    GeneratePrimaryKey(
-                        new AddPrimaryKeyOperation(
-                            table.Name,
-                            primaryKey.Name,
-                            primaryKey.Columns.Select(c => c.Name).ToArray(),
-                            primaryKey.IsClustered),
-                        stringBuilder);
-                }
-
-                GenerateTableConstraints(createTableOperation, stringBuilder);
+                GenerateTableConstraints(table, stringBuilder);
             }
 
             stringBuilder
@@ -200,8 +186,37 @@ namespace Microsoft.Data.Entity.Migrations
                 .Append(")");
         }
 
-        protected virtual void GenerateTableConstraints([NotNull] CreateTableOperation createTableOperation, [NotNull] IndentedStringBuilder stringBuilder)
+        protected virtual void GenerateTableConstraints([NotNull] Table table, [NotNull] IndentedStringBuilder stringBuilder)
         {
+            Check.NotNull(table, "table");
+            Check.NotNull(stringBuilder, "stringBuilder");
+
+            var primaryKey = table.PrimaryKey;
+
+            if (primaryKey != null)
+            {
+                stringBuilder.AppendLine(",");
+
+                GeneratePrimaryKey(
+                    new AddPrimaryKeyOperation(
+                        table.Name,
+                        primaryKey.Name,
+                        primaryKey.Columns.Select(c => c.Name).ToArray(),
+                        primaryKey.IsClustered),
+                    stringBuilder);
+            }
+
+            foreach (var uniqueConstraint in table.UniqueConstraints)
+            {
+                stringBuilder.AppendLine(",");
+
+                GenerateUniqueConstraint(
+                    new AddUniqueConstraintOperation(
+                        uniqueConstraint.Table.Name,
+                        uniqueConstraint.Name,
+                        uniqueConstraint.Columns.Select(c => c.Name).ToArray()),
+                    stringBuilder);
+            }
         }
 
         public virtual void Generate([NotNull] DropTableOperation dropTableOperation, [NotNull] IndentedStringBuilder stringBuilder)
@@ -315,6 +330,31 @@ namespace Microsoft.Data.Entity.Migrations
                 .Append(DelimitIdentifier(dropPrimaryKeyOperation.TableName))
                 .Append(" DROP CONSTRAINT ")
                 .Append(DelimitIdentifier(dropPrimaryKeyOperation.PrimaryKeyName));
+        }
+
+        public virtual void Generate([NotNull] AddUniqueConstraintOperation addUniqueConstraintOperation, [NotNull] IndentedStringBuilder stringBuilder)
+        {
+            Check.NotNull(addUniqueConstraintOperation, "addUniqueConstraintOperation");
+            Check.NotNull(stringBuilder, "stringBuilder");
+
+            stringBuilder
+                .Append("ALTER TABLE ")
+                .Append(DelimitIdentifier(addUniqueConstraintOperation.TableName))
+                .Append(" ADD ");
+
+            GenerateUniqueConstraint(addUniqueConstraintOperation, stringBuilder);
+        }
+
+        public virtual void Generate([NotNull] DropUniqueConstraintOperation dropUniqueConstraintOperation, [NotNull] IndentedStringBuilder stringBuilder)
+        {
+            Check.NotNull(dropUniqueConstraintOperation, "dropUniqueConstraintOperation");
+            Check.NotNull(stringBuilder, "stringBuilder");
+
+            stringBuilder
+                .Append("ALTER TABLE ")
+                .Append(DelimitIdentifier(dropUniqueConstraintOperation.TableName))
+                .Append(" DROP CONSTRAINT ")
+                .Append(DelimitIdentifier(dropUniqueConstraintOperation.UniqueConstraintName));
         }
 
         public virtual void Generate([NotNull] AddForeignKeyOperation addForeignKeyOperation, [NotNull] IndentedStringBuilder stringBuilder)
@@ -519,12 +559,12 @@ namespace Microsoft.Data.Entity.Migrations
         }
 
         protected virtual void GenerateColumns(
-            [NotNull] Table table, [NotNull] IReadOnlyList<Column> columns, [NotNull] IndentedStringBuilder stringBuilder)
+            [NotNull] Table table, [NotNull] IndentedStringBuilder stringBuilder)
         {
             Check.NotNull(table, "table");
-            Check.NotNull(columns, "columns");
             Check.NotNull(stringBuilder, "stringBuilder");
 
+            var columns = table.Columns;
             if (columns.Count == 0)
             {
                 return;
@@ -602,6 +642,21 @@ namespace Microsoft.Data.Entity.Migrations
             [NotNull] AddPrimaryKeyOperation primaryKeyOperation,
             [NotNull] IndentedStringBuilder stringBuilder)
         {
+        }
+
+        protected virtual void GenerateUniqueConstraint(
+            [NotNull] AddUniqueConstraintOperation uniqueConstraintOperation,
+            [NotNull] IndentedStringBuilder stringBuilder)
+        {
+            Check.NotNull(uniqueConstraintOperation, "uniqueConstraintOperation");
+            Check.NotNull(stringBuilder, "stringBuilder");
+
+            stringBuilder
+                .Append("CONSTRAINT ")
+                .Append(DelimitIdentifier(uniqueConstraintOperation.UniqueConstraintName))
+                .Append(" UNIQUE (")
+                .Append(uniqueConstraintOperation.ColumnNames.Select(DelimitIdentifier).Join())
+                .Append(")");
         }
 
         protected virtual void GenerateForeignKey(

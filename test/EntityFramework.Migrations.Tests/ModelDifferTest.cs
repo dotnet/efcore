@@ -433,6 +433,75 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         }
 
         [Fact]
+        public void Diff_finds_added_unique_constraint()
+        {
+            var sourceModelBuilder = new BasicModelBuilder();
+            sourceModelBuilder.Entity("A",
+                b =>
+                {
+                    b.Property<int>("Id");
+                    b.Property<string>("P");
+                    b.Key("Id");
+                });
+
+            var targetModelBuilder = new BasicModelBuilder();
+            targetModelBuilder.Entity("A",
+                b =>
+                {
+                    var id = b.Property<int>("Id").Metadata;
+                    var p = b.Property<string>("P").Metadata;
+                    b.Key("Id");
+                    b.Metadata.AddKey(new[] { id, p }).SetKeyName("UC");
+                });
+
+            var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
+                sourceModelBuilder.Model, targetModelBuilder.Model);
+
+            Assert.Equal(1, operations.Count);
+            Assert.IsType<AddUniqueConstraintOperation>(operations[0]);
+
+            var addUniqueConstraintOperation = (AddUniqueConstraintOperation)operations[0];
+
+            Assert.Equal("A", addUniqueConstraintOperation.TableName);
+            Assert.Equal("UC", addUniqueConstraintOperation.UniqueConstraintName);
+            Assert.Equal(new[] { "Id", "P" }, addUniqueConstraintOperation.ColumnNames);
+        }
+
+        [Fact]
+        public void Diff_finds_removed_unique_constraint()
+        {
+            var sourceModelBuilder = new BasicModelBuilder();
+            sourceModelBuilder.Entity("A",
+                b =>
+                {
+                    var id = b.Property<int>("Id").Metadata;
+                    var p = b.Property<string>("P").Metadata;
+                    b.Key("Id");
+                    b.Metadata.AddKey(new[] { id, p }).SetKeyName("UC");
+                });
+
+            var targetModelBuilder = new BasicModelBuilder();
+            targetModelBuilder.Entity("A",
+                b =>
+                {
+                    b.Property<int>("Id");
+                    b.Property<string>("P");
+                    b.Key("Id");
+                });
+
+            var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
+                sourceModelBuilder.Model, targetModelBuilder.Model);
+
+            Assert.Equal(1, operations.Count);
+            Assert.IsType<DropUniqueConstraintOperation>(operations[0]);
+
+            var dropUniqueConstraintOperation = (DropUniqueConstraintOperation)operations[0];
+
+            Assert.Equal("A", dropUniqueConstraintOperation.TableName);
+            Assert.Equal("UC", dropUniqueConstraintOperation.UniqueConstraintName);
+        }
+
+        [Fact]
         public void Diff_finds_added_foreign_key()
         {
             var sourceModelBuilder = new BasicModelBuilder();
@@ -1357,6 +1426,191 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             Assert.Equal("PK", dropPrimaryKeyOperation.PrimaryKeyName);
             Assert.Equal("PK", addPrimaryKeyOperation.PrimaryKeyName);
             Assert.Equal(new[] { "Id", "P2" }, addPrimaryKeyOperation.ColumnNames);
+        }
+
+        #endregion
+
+        #region UniqueConstraint matching
+
+        [Fact]
+        public void Unique_constraints_are_matched_if_different_columns_but_same_property_names()
+        {
+            var sourceModelBuilder = new BasicModelBuilder();
+            sourceModelBuilder.Entity("A",
+                b =>
+                {
+                    var id = b.Property<int>("Id").Metadata;
+                    var p = b.Property<int>("P").ColumnName("C1").Metadata;
+                    b.Key("Id");
+                    b.Metadata.AddKey(new[] { id, p }).SetKeyName("UC");
+                });
+
+            var targetModelBuilder = new BasicModelBuilder();
+            targetModelBuilder.Entity("A",
+                b =>
+                {
+                    var id = b.Property<int>("Id").Metadata;
+                    var p = b.Property<string>("P").ColumnName("C2").Metadata;
+                    b.Key("Id");
+                    b.Metadata.AddKey(new[] { id, p }).SetKeyName("UC");
+                });
+
+            var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
+                sourceModelBuilder.Model, targetModelBuilder.Model);
+
+            Assert.Equal(2, operations.Count);
+
+            Assert.IsType<RenameColumnOperation>(operations[0]);
+            Assert.IsType<AlterColumnOperation>(operations[1]);
+        }
+
+        [Fact]
+        public void Unique_constraints_are_matched_if_different_properties_but_same_column_names()
+        {
+            var sourceModelBuilder = new BasicModelBuilder();
+            sourceModelBuilder.Entity("A",
+                b =>
+                {
+                    var id = b.Property<int>("Id").Metadata;
+                    var p = b.Property<int>("P1").ColumnName("C").Metadata;
+                    b.Key("Id");
+                    b.Metadata.AddKey(new[] { id, p }).SetKeyName("UC");
+                });
+
+            var targetModelBuilder = new BasicModelBuilder();
+            targetModelBuilder.Entity("A",
+                b =>
+                {
+                    var id = b.Property<int>("Id").Metadata;
+                    var p = b.Property<string>("P2").ColumnName("C").Metadata;
+                    b.Key("Id");
+                    b.Metadata.AddKey(new[] { id, p }).SetKeyName("UC");
+                });
+
+            var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
+                sourceModelBuilder.Model, targetModelBuilder.Model);
+
+            Assert.Equal(1, operations.Count);
+
+            Assert.IsType<AlterColumnOperation>(operations[0]);
+        }
+
+        [Fact]
+        public void Unique_constraints_are_not_matched_if_different_names()
+        {
+            var sourceModelBuilder = new BasicModelBuilder();
+            sourceModelBuilder.Entity("A",
+                b =>
+                {
+                    var id = b.Property<int>("Id").Metadata;
+                    var p = b.Property<string>("P").Metadata;
+                    b.Key("Id");
+                    b.Metadata.AddKey(new[] { id, p }).SetKeyName("UC1");
+                });
+
+            var targetModelBuilder = new BasicModelBuilder();
+            targetModelBuilder.Entity("A",
+                b =>
+                {
+                    var id = b.Property<int>("Id").Metadata;
+                    var p = b.Property<string>("P").Metadata;
+                    b.Key("Id");
+                    b.Metadata.AddKey(new[] { id, p }).SetKeyName("UC2");
+                });
+
+            var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
+                sourceModelBuilder.Model, targetModelBuilder.Model);
+
+            Assert.Equal(2, operations.Count);
+
+            Assert.IsType<DropUniqueConstraintOperation>(operations[0]);
+            Assert.IsType<AddUniqueConstraintOperation>(operations[1]);
+
+            var dropUniqueConstraintOperation = (DropUniqueConstraintOperation)operations[0];
+            var addUniqueConstraintOperation = (AddUniqueConstraintOperation)operations[1];
+
+            Assert.Equal("UC1", dropUniqueConstraintOperation.UniqueConstraintName);
+            Assert.Equal("UC2", addUniqueConstraintOperation.UniqueConstraintName);
+        }
+
+        [Fact]
+        public void Unique_constraints_are_not_matched_if_different_property_count()
+        {
+            var sourceModelBuilder = new BasicModelBuilder();
+            sourceModelBuilder.Entity("A",
+                b =>
+                {
+                    b.Property<int>("Id");
+                    var p = b.Property<string>("P").Metadata;
+                    b.Key("Id");
+                    b.Metadata.AddKey(new[] { p }).SetKeyName("UC");
+                });
+
+            var targetModelBuilder = new BasicModelBuilder();
+            targetModelBuilder.Entity("A",
+                b =>
+                {
+                    var id = b.Property<int>("Id").Metadata;
+                    var p = b.Property<string>("P").Metadata;
+                    b.Key("Id");
+                    b.Metadata.AddKey(new[] { p, id }).SetKeyName("UC");
+                });
+
+            var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
+                sourceModelBuilder.Model, targetModelBuilder.Model);
+
+            Assert.Equal(2, operations.Count);
+
+            Assert.IsType<DropUniqueConstraintOperation>(operations[0]);
+            Assert.IsType<AddUniqueConstraintOperation>(operations[1]);
+
+            var dropUniqueConstraintOperation = (DropUniqueConstraintOperation)operations[0];
+            var addUniqueConstraintOperation = (AddUniqueConstraintOperation)operations[1];
+
+            Assert.Equal("UC", dropUniqueConstraintOperation.UniqueConstraintName);
+            Assert.Equal("UC", addUniqueConstraintOperation.UniqueConstraintName);
+            Assert.Equal(new[] { "P", "Id" }, addUniqueConstraintOperation.ColumnNames);
+        }
+
+        [Fact]
+        public void Unique_constraints_are_not_matched_if_different_property_and_column_names()
+        {
+            var sourceModelBuilder = new BasicModelBuilder();
+            sourceModelBuilder.Entity("A",
+                b =>
+                {
+                    var id = b.Property<int>("Id").Metadata;
+                    var p1 = b.Property<int>("P1").Metadata;
+                    b.Property<int>("P2");
+                    b.Key("Id");
+                    b.Metadata.AddKey(new[] { id, p1 }).SetKeyName("UC");
+                });
+
+            var targetModelBuilder = new BasicModelBuilder();
+            targetModelBuilder.Entity("A",
+                b =>
+                {
+                    var id = b.Property<int>("Id").Metadata;
+                    b.Property<int>("P1");
+                    var p2 = b.Property<int>("P2").Metadata;
+                    b.Key("Id");
+                    b.Metadata.AddKey(new[] { id, p2 }).SetKeyName("UC");
+                });
+
+            var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
+                sourceModelBuilder.Model, targetModelBuilder.Model);
+
+            Assert.Equal(2, operations.Count);
+
+            Assert.IsType<DropUniqueConstraintOperation>(operations[0]);
+            Assert.IsType<AddUniqueConstraintOperation>(operations[1]);
+
+            var dropUniqueConstraintOperation = (DropUniqueConstraintOperation)operations[0];
+            var addUniqueConstraintOperation = (AddUniqueConstraintOperation)operations[1];
+
+            Assert.Equal("UC", dropUniqueConstraintOperation.UniqueConstraintName);
+            Assert.Equal("UC", addUniqueConstraintOperation.UniqueConstraintName);
+            Assert.Equal(new[] { "Id", "P2" }, addUniqueConstraintOperation.ColumnNames);
         }
 
         #endregion

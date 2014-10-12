@@ -10,6 +10,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Relational;
+using Microsoft.Data.Entity.Relational.Model;
 using Microsoft.Data.Entity.SQLite.Utilities;
 using Microsoft.Data.Entity.Utilities;
 
@@ -94,13 +95,15 @@ namespace Microsoft.Data.Entity.SQLite
         }
 
         protected override void GenerateTableConstraints(
-            CreateTableOperation createTableOperation,
+            Table table,
             IndentedStringBuilder stringBuilder)
         {
-            Check.NotNull(createTableOperation, "createTableOperation");
+            Check.NotNull(table, "table");
             Check.NotNull(stringBuilder, "stringBuilder");
 
-            foreach (var foreignKey in createTableOperation.Table.ForeignKeys)
+            base.GenerateTableConstraints(table, stringBuilder);
+
+            foreach (var foreignKey in table.ForeignKeys)
             {
                 stringBuilder.AppendLine(",");
                 GenerateForeignKey(
@@ -248,6 +251,19 @@ namespace Microsoft.Data.Entity.SQLite
                     ? schemaQualifiedName.Schema + "."
                     : string.Empty)
                 + schemaQualifiedName.Name);
+        }
+
+        protected override void GenerateUniqueConstraint(
+            AddUniqueConstraintOperation uniqueConstraintOperation,
+            IndentedStringBuilder stringBuilder)
+        {
+            Check.NotNull(uniqueConstraintOperation, "uniqueConstraintOperation");
+            Check.NotNull(stringBuilder, "stringBuilder");
+
+            stringBuilder
+                .Append("UNIQUE (")
+                .Append(uniqueConstraintOperation.ColumnNames.Select(DelimitIdentifier).Join())
+                .Append(")");
         }
     }
 }
