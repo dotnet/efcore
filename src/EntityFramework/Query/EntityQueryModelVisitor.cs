@@ -174,17 +174,17 @@ namespace Microsoft.Data.Entity.Query
             {
                 _expression
                     = Expression.Call(
-                        _taskToSequenceShim.MakeGenericMethod(resultType),
+                        _taskToSequence.MakeGenericMethod(resultType),
                         _expression);
             }
         }
 
-        private static readonly MethodInfo _taskToSequenceShim
+        private static readonly MethodInfo _taskToSequence
             = typeof(EntityQueryModelVisitor)
-                .GetTypeInfo().GetDeclaredMethod("TaskToSequenceShim");
+                .GetTypeInfo().GetDeclaredMethod("_TaskToSequence");
 
         [UsedImplicitly]
-        private static IAsyncEnumerable<T> TaskToSequenceShim<T>(Task<T> task)
+        private static IAsyncEnumerable<T> _TaskToSequence<T>(Task<T> task)
         {
             return new TaskResultAsyncEnumerable<T>(task);
         }
@@ -274,7 +274,7 @@ namespace Microsoft.Data.Entity.Query
                         _expression,
                         QueryContextParameter,
                         Expression.Constant(
-                            _getEntityAccessorsShim
+                            _getEntityAccessors
                                 .MakeGenericMethod(queryModel.SelectClause.Selector.Type)
                                 .Invoke(null, new object[]
                                     {
@@ -284,7 +284,7 @@ namespace Microsoft.Data.Entity.Query
             }
         }
 
-        private static readonly MethodInfo _getEntityAccessorsShim
+        private static readonly MethodInfo _getEntityAccessors
             = typeof(EntityQueryModelVisitor)
                 .GetTypeInfo().GetDeclaredMethod("GetEntityAccessors");
 
