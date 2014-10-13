@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using Microsoft.Data.Entity.Metadata;
 using Xunit;
 
@@ -128,6 +129,32 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
 
             Assert.Null(property.Relational().DefaultExpression);
             Assert.Null(((IProperty)property).Relational().DefaultExpression);
+        }
+
+        [Fact]
+        public void Can_get_and_set_column_default_value()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            var property = modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Name)
+                .Metadata;
+
+            Assert.Null(property.Relational().DefaultValue);
+            Assert.Null(((IProperty)property).Relational().DefaultValue);
+
+            var guid = new Guid("{3FDFC4F5-AEAB-4D72-9C96-201E004349FA}");
+
+            property.Relational().DefaultValue = guid;
+
+            Assert.Equal(guid, property.Relational().DefaultValue);
+            Assert.Equal(guid, ((IProperty)property).Relational().DefaultValue);
+
+            property.Relational().DefaultValue = null;
+
+            Assert.Null(property.Relational().DefaultValue);
+            Assert.Null(((IProperty)property).Relational().DefaultValue);
         }
 
         [Fact]

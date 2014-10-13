@@ -45,6 +45,13 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
             return this;
         }
 
+        public virtual SqlServerPropertyBuilder DefaultValue([CanBeNull] object value)
+        {
+            _property.SqlServer().DefaultValue = value;
+
+            return this;
+        }
+
         public virtual SqlServerPropertyBuilder UseSequence()
         {
             _property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Sequence;

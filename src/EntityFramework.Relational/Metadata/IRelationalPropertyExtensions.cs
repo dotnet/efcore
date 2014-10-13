@@ -14,5 +14,8 @@ namespace Microsoft.Data.Entity.Relational.Metadata
 
         [CanBeNull]
         string DefaultExpression { get; }
+
+        [CanBeNull]
+        object DefaultValue { get; }
     }
 }

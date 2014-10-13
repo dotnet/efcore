@@ -345,4 +345,7 @@
   <data name="DuplicateEntityType" xml:space="preserve">
     <value>The entity type '{entityType}' cannot be added to the model because an entity with the same name already exists.</value>
   </data>
+  <data name="UnsupportedAnnotationType" xml:space="preserve">
+    <value>Annotations of type '{type}' are not supported. Only common simple .NET types are currently supported.</value>
+  </data>
 </root>

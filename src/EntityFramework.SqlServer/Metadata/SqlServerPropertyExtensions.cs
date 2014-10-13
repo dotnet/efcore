@@ -4,6 +4,7 @@
 using System;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.SqlServer.Utilities;
 
 namespace Microsoft.Data.Entity.SqlServer.Metadata
@@ -50,6 +51,19 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
                 Check.NullButNotEmpty(value, "value");
 
                 ((Property)Property)[SqlServerDefaultExpressionAnnotation] = value;
+            }
+        }
+
+        public new virtual object DefaultValue
+        {
+            get { return base.DefaultValue; }
+            [param: CanBeNull]
+            set
+            {
+                var typedAnnotation = new TypedAnnotation(value);
+
+                ((Property)Property)[SqlServerDefaultValueTypeAnnotation] = typedAnnotation.TypeString;
+                ((Property)Property)[SqlServerDefaultValueAnnotation] = typedAnnotation.ValueString;
             }
         }
 

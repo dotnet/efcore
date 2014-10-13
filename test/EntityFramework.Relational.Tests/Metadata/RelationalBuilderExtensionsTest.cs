@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.Entity.Metadata;
@@ -222,6 +223,80 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
             var property = modelBuilder.Model.GetEntityType(typeof(Customer)).GetProperty("Name");
 
             Assert.Equal("CherryCoke", property.Relational().DefaultExpression);
+        }
+
+        [Fact]
+        public void Can_set_column_default_value_with_basic_builder()
+        {
+            var modelBuilder = new BasicModelBuilder();
+            var guid = new Guid("{3FDFC4F5-AEAB-4D72-9C96-201E004349FA}");
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Name)
+                .ForRelational()
+                .DefaultValue(guid);
+
+            var property = modelBuilder.Model.GetEntityType(typeof(Customer)).GetProperty("Name");
+
+            Assert.Equal(guid, property.Relational().DefaultValue);
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Name)
+                .ForRelational()
+                .DefaultValue(null);
+
+            Assert.Null(property.Relational().DefaultValue);
+        }
+
+        [Fact]
+        public void Can_set_column_default_value_with_basic_builder_using_nested_closure()
+        {
+            var modelBuilder = new BasicModelBuilder();
+            var guid = new Guid("{3FDFC4F5-AEAB-4D72-9C96-201E004349FA}");
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Name)
+                .ForRelational(b => { b.DefaultValue(guid); });
+
+            var property = modelBuilder.Model.GetEntityType(typeof(Customer)).GetProperty("Name");
+
+            Assert.Equal(guid, property.Relational().DefaultValue);
+        }
+
+        [Fact]
+        public void Can_set_column_default_value_with_convention_builder()
+        {
+            var modelBuilder = new ModelBuilder();
+            var guid = new Guid("{3FDFC4F5-AEAB-4D72-9C96-201E004349FA}");
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Name)
+                .ForRelational()
+                .DefaultValue(guid);
+
+            var property = modelBuilder.Model.GetEntityType(typeof(Customer)).GetProperty("Name");
+
+            Assert.Equal(guid, property.Relational().DefaultValue);
+        }
+
+        [Fact]
+        public void Can_set_column_default_value_with_convention_builder_using_nested_closure()
+        {
+            var modelBuilder = new ModelBuilder();
+            var guid = new Guid("{3FDFC4F5-AEAB-4D72-9C96-201E004349FA}");
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Name)
+                .ForRelational(b => { b.DefaultValue(guid); });
+
+            var property = modelBuilder.Model.GetEntityType(typeof(Customer)).GetProperty("Name");
+
+            Assert.Equal(guid, property.Relational().DefaultValue);
         }
 
         [Fact]

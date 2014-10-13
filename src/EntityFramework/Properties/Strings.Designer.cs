@@ -1226,6 +1226,22 @@ namespace Microsoft.Data.Entity
             return string.Format(CultureInfo.CurrentCulture, GetString("DuplicateEntityType", "entityType"), entityType);
         }
 
+        /// <summary>
+        /// Annotations of type '{type}' are not supported. Only common simple .NET types are currently supported.
+        /// </summary>
+        internal static string UnsupportedAnnotationType
+        {
+            get { return GetString("UnsupportedAnnotationType"); }
+        }
+
+        /// <summary>
+        /// Annotations of type '{type}' are not supported. Only common simple .NET types are currently supported.
+        /// </summary>
+        internal static string FormatUnsupportedAnnotationType(object type)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("UnsupportedAnnotationType", "type"), type);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

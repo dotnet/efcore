@@ -203,6 +203,43 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         }
 
         [Fact]
+        public void Can_get_and_set_column_default_value()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            var property = modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Name)
+                .Metadata;
+
+            Assert.Null(property.Relational().DefaultValue);
+            Assert.Null(((IProperty)property).Relational().DefaultValue);
+            Assert.Null(property.SqlServer().DefaultValue);
+            Assert.Null(((IProperty)property).SqlServer().DefaultValue);
+
+            property.Relational().DefaultValue = new Byte[] { 69, 70, 32, 82, 79, 67, 75, 83 };
+
+            Assert.Equal(new Byte[] { 69, 70, 32, 82, 79, 67, 75, 83 }, property.Relational().DefaultValue);
+            Assert.Equal(new Byte[] { 69, 70, 32, 82, 79, 67, 75, 83 }, ((IProperty)property).Relational().DefaultValue);
+            Assert.Equal(new Byte[] { 69, 70, 32, 82, 79, 67, 75, 83 }, property.SqlServer().DefaultValue);
+            Assert.Equal(new Byte[] { 69, 70, 32, 82, 79, 67, 75, 83 }, ((IProperty)property).SqlServer().DefaultValue);
+
+            property.SqlServer().DefaultValue = new Byte[] { 69, 70, 32, 83, 79, 67, 75, 83 };
+
+            Assert.Equal(new Byte[] { 69, 70, 32, 82, 79, 67, 75, 83 }, property.Relational().DefaultValue);
+            Assert.Equal(new Byte[] { 69, 70, 32, 82, 79, 67, 75, 83 }, ((IProperty)property).Relational().DefaultValue);
+            Assert.Equal(new Byte[] { 69, 70, 32, 83, 79, 67, 75, 83 }, property.SqlServer().DefaultValue);
+            Assert.Equal(new Byte[] { 69, 70, 32, 83, 79, 67, 75, 83 }, ((IProperty)property).SqlServer().DefaultValue);
+
+            property.SqlServer().DefaultValue = null;
+
+            Assert.Equal(new Byte[] { 69, 70, 32, 82, 79, 67, 75, 83 }, property.Relational().DefaultValue);
+            Assert.Equal(new Byte[] { 69, 70, 32, 82, 79, 67, 75, 83 }, ((IProperty)property).Relational().DefaultValue);
+            Assert.Equal(new Byte[] { 69, 70, 32, 82, 79, 67, 75, 83 }, property.SqlServer().DefaultValue);
+            Assert.Equal(new Byte[] { 69, 70, 32, 82, 79, 67, 75, 83 }, ((IProperty)property).SqlServer().DefaultValue);
+        }
+
+        [Fact]
         public void Can_get_and_set_column_key_name()
         {
             var modelBuilder = new BasicModelBuilder();

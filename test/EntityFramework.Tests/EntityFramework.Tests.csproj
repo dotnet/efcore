@@ -108,6 +108,7 @@
     <Compile Include="Metadata\NonGenericRelationshipBuilderTest.cs" />
     <Compile Include="Metadata\PropertyExtensionsTest.cs" />
     <Compile Include="Metadata\StringRelationshipBuilderTest.cs" />
+    <Compile Include="Metadata\TypedAnnotationTest.cs" />
     <Compile Include="TestHelperExtensions.cs" />
     <Compile Include="ServiceProviderCacheTest.cs" />
     <Compile Include="ChangeTracking\ChangeTrackerTest.cs" />

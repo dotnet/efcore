@@ -44,5 +44,12 @@ namespace Microsoft.Data.Entity.Relational.Metadata
 
             return this;
         }
+
+        public virtual RelationalPropertyBuilder DefaultValue([CanBeNull] object value)
+        {
+            _property.Relational().DefaultValue = value;
+
+            return this;
+        }
     }
 }

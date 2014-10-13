@@ -49,5 +49,18 @@ namespace Microsoft.Data.Entity.Relational.Metadata
                 ((Property)Property)[DefaultExpressionAnnotation] = value;
             }
         }
+
+        public new virtual object DefaultValue
+        {
+            get { return base.DefaultValue; }
+            [param: CanBeNull]
+            set
+            {
+                var typedAnnotation = new TypedAnnotation(value);
+
+                ((Property)Property)[DefaultValueTypeAnnotation] = typedAnnotation.TypeString;
+                ((Property)Property)[DefaultValueAnnotation] = typedAnnotation.ValueString;
+            }
+        }
     }
 }

@@ -7,8 +7,10 @@ namespace Microsoft.Data.Entity.Relational.Metadata
     {
         public const string Prefix = "Relational:";
         public const string ColumnName = "ColumnName";
-        public const string ColumnType = "ColumnName";
-        public const string ColumnDefaultExpression = "ColumnName";
+        public const string ColumnType = "ColumnType";
+        public const string ColumnDefaultExpression = "ColumnDefaultExpression";
+        public const string ColumnDefaultValue = "ColumnDefaultValue";
+        public const string ColumnDefaultValueType = "ColumnDefaultValueType";
         public const string TableName = "TableName";
         public const string Schema = "Schema";
         public const string Name = "Name";

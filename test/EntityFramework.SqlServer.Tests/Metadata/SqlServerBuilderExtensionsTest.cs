@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.Entity.Metadata;
@@ -282,6 +283,95 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             Assert.Equal("CherryCoke", property.Relational().DefaultExpression);
             Assert.Equal("VanillaCoke", property.SqlServer().DefaultExpression);
+        }
+
+        [Fact]
+        public void Can_set_column_default_value_with_basic_builder()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Name)
+                .ForRelational()
+                .DefaultValue(new DateTimeOffset(1973, 9, 3, 0, 10, 0, new TimeSpan(1, 0, 0)));
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Name)
+                .ForSqlServer()
+                .DefaultValue(new DateTimeOffset(2006, 9, 19, 19, 0, 0, new TimeSpan(-8, 0, 0)));
+
+            var property = modelBuilder.Model.GetEntityType(typeof(Customer)).GetProperty("Name");
+
+            Assert.Equal(new DateTimeOffset(1973, 9, 3, 0, 10, 0, new TimeSpan(1, 0, 0)), property.Relational().DefaultValue);
+            Assert.Equal(new DateTimeOffset(2006, 9, 19, 19, 0, 0, new TimeSpan(-8, 0, 0)), property.SqlServer().DefaultValue);
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Name)
+                .ForSqlServer()
+                .DefaultValue(null);
+
+            Assert.Equal(new DateTimeOffset(1973, 9, 3, 0, 10, 0, new TimeSpan(1, 0, 0)), property.Relational().DefaultValue);
+            Assert.Equal(new DateTimeOffset(1973, 9, 3, 0, 10, 0, new TimeSpan(1, 0, 0)), property.SqlServer().DefaultValue);
+        }
+
+        [Fact]
+        public void Can_set_column_default_value_with_basic_builder_using_nested_closure()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Name)
+                .ForRelational(b => { b.DefaultValue(new DateTimeOffset(1973, 9, 3, 0, 10, 0, new TimeSpan(1, 0, 0))); })
+                .ForSqlServer(b => { b.DefaultValue(new DateTimeOffset(2006, 9, 19, 19, 0, 0, new TimeSpan(-8, 0, 0))); });
+
+            var property = modelBuilder.Model.GetEntityType(typeof(Customer)).GetProperty("Name");
+
+            Assert.Equal(new DateTimeOffset(1973, 9, 3, 0, 10, 0, new TimeSpan(1, 0, 0)), property.Relational().DefaultValue);
+            Assert.Equal(new DateTimeOffset(2006, 9, 19, 19, 0, 0, new TimeSpan(-8, 0, 0)), property.SqlServer().DefaultValue);
+        }
+
+        [Fact]
+        public void Can_set_column_default_value_with_convention_builder()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Name)
+                .ForRelational()
+                .DefaultValue(new DateTimeOffset(1973, 9, 3, 0, 10, 0, new TimeSpan(1, 0, 0)));
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Name)
+                .ForSqlServer()
+                .DefaultValue(new DateTimeOffset(2006, 9, 19, 19, 0, 0, new TimeSpan(-8, 0, 0)));
+
+            var property = modelBuilder.Model.GetEntityType(typeof(Customer)).GetProperty("Name");
+
+            Assert.Equal(new DateTimeOffset(1973, 9, 3, 0, 10, 0, new TimeSpan(1, 0, 0)), property.Relational().DefaultValue);
+            Assert.Equal(new DateTimeOffset(2006, 9, 19, 19, 0, 0, new TimeSpan(-8, 0, 0)), property.SqlServer().DefaultValue);
+        }
+
+        [Fact]
+        public void Can_set_column_default_value_with_convention_builder_using_nested_closure()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Name)
+                .ForRelational(b => { b.DefaultValue(new DateTimeOffset(1973, 9, 3, 0, 10, 0, new TimeSpan(1, 0, 0))); })
+                .ForSqlServer(b => { b.DefaultValue(new DateTimeOffset(2006, 9, 19, 19, 0, 0, new TimeSpan(-8, 0, 0))); });
+
+            var property = modelBuilder.Model.GetEntityType(typeof(Customer)).GetProperty("Name");
+
+            Assert.Equal(new DateTimeOffset(1973, 9, 3, 0, 10, 0, new TimeSpan(1, 0, 0)), property.Relational().DefaultValue);
+            Assert.Equal(new DateTimeOffset(2006, 9, 19, 19, 0, 0, new TimeSpan(-8, 0, 0)), property.SqlServer().DefaultValue);
         }
 
         [Fact]

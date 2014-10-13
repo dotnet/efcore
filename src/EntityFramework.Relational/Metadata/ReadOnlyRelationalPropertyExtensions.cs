@@ -12,6 +12,8 @@ namespace Microsoft.Data.Entity.Relational.Metadata
         protected const string NameAnnotation = RelationalAnnotationNames.Prefix + RelationalAnnotationNames.ColumnName;
         protected const string ColumnTypeAnnotation = RelationalAnnotationNames.Prefix + RelationalAnnotationNames.ColumnType;
         protected const string DefaultExpressionAnnotation = RelationalAnnotationNames.Prefix + RelationalAnnotationNames.ColumnDefaultExpression;
+        protected const string DefaultValueAnnotation = RelationalAnnotationNames.Prefix + RelationalAnnotationNames.ColumnDefaultValue;
+        protected const string DefaultValueTypeAnnotation = RelationalAnnotationNames.Prefix + RelationalAnnotationNames.ColumnDefaultValueType;
 
         private readonly IProperty _property;
 
@@ -35,6 +37,11 @@ namespace Microsoft.Data.Entity.Relational.Metadata
         public virtual string DefaultExpression
         {
             get { return _property[DefaultExpressionAnnotation]; }
+        }
+
+        public virtual object DefaultValue
+        {
+            get { return new TypedAnnotation(_property[DefaultValueTypeAnnotation], _property[DefaultValueAnnotation]).Value; }
         }
 
         protected virtual IProperty Property

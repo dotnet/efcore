@@ -16,6 +16,8 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
         protected const string SqlServerValueGenerationAnnotation = SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ValueGeneration;
         protected const string SqlServerSequenceNameAnnotation = SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.SequenceName;
         protected const string SqlServerSequenceSchemaAnnotation = SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.SequenceSchema;
+        protected const string SqlServerDefaultValueAnnotation = SqlServerAnnotationNames.Prefix + RelationalAnnotationNames.ColumnDefaultValue;
+        protected const string SqlServerDefaultValueTypeAnnotation = SqlServerAnnotationNames.Prefix + RelationalAnnotationNames.ColumnDefaultValueType;
 
         public ReadOnlySqlServerPropertyExtensions([NotNull] IProperty property)
             : base(property)
@@ -29,12 +31,21 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
 
         public override string ColumnType
         {
-            get { return Property[SqlServerNameAnnotation] ?? base.ColumnType; }
+            get { return Property[SqlServerColumnTypeAnnotation] ?? base.ColumnType; }
         }
 
         public override string DefaultExpression
         {
             get { return Property[SqlServerDefaultExpressionAnnotation] ?? base.DefaultExpression; }
+        }
+
+        public override object DefaultValue
+        {
+            get
+            {
+                return new TypedAnnotation(Property[SqlServerDefaultValueTypeAnnotation], Property[SqlServerDefaultValueAnnotation]).Value 
+                    ?? base.DefaultValue;
+            }
         }
 
         public virtual SqlServerValueGenerationStrategy? ValueGenerationStrategy

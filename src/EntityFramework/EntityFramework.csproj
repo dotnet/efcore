@@ -118,6 +118,7 @@
     <Compile Include="Metadata\IOneToOneBuilder.cs" />
     <Compile Include="Metadata\IPropertyBuilder.cs" />
     <Compile Include="Metadata\ModelBuilder.cs" />
+    <Compile Include="Metadata\TypedAnnotation.cs" />
     <Compile Include="QueryExtensions.cs" />
     <Compile Include="Query\IAsyncEnumerableAccessor.cs" />
     <Compile Include="Query\ResultOperators\IncludeExpressionNode.cs" />
