@@ -144,7 +144,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
                 {
                     var subquery = PushDownSubquery();
 
-                   subquery._offset = null;
+                    subquery._offset = null;
 
                     foreach (var ordering in subquery.OrderBy)
                     {

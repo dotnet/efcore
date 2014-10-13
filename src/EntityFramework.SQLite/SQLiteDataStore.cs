@@ -6,6 +6,7 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Query;
+using Microsoft.Data.Entity.Relational.Query.Methods;
 using Microsoft.Data.Entity.Relational.Update;
 using Microsoft.Data.Entity.SQLite.Query;
 using Microsoft.Data.Entity.SQLite.Utilities;
@@ -31,14 +32,15 @@ namespace Microsoft.Data.Entity.SQLite
         protected override RelationalQueryCompilationContext CreateQueryCompilationContext(
             ILinqOperatorProvider linqOperatorProvider,
             IResultOperatorHandler resultOperatorHandler,
-            IQueryMethodProvider queryMethodProvider)
+            IQueryMethodProvider queryMethodProvider,
+            IMethodCallTranslator methodCallTranslator)
         {
             Check.NotNull(linqOperatorProvider, "linqOperatorProvider");
             Check.NotNull(resultOperatorHandler, "resultOperatorHandler");
             Check.NotNull(queryMethodProvider, "queryMethodProvider");
 
             return new SQLiteQueryCompilationContext(
-                Model, linqOperatorProvider, resultOperatorHandler, queryMethodProvider);
+                Model, linqOperatorProvider, resultOperatorHandler, queryMethodProvider, methodCallTranslator);
         }
     }
 }

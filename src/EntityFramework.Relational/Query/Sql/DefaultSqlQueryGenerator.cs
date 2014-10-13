@@ -112,7 +112,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             GenerateLimitOffset(selectExpression);
 
             if (subQueryIndent != null)
-            { 
+            {
                 subQueryIndent.Dispose();
 
                 _sql.AppendLine()

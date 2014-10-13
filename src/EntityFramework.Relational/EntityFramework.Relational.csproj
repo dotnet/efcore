@@ -105,6 +105,11 @@
     <Compile Include="Query\Expressions\MinExpression.cs" />
     <Compile Include="Query\Expressions\SumExpression.cs" />
     <Compile Include="Query\Expressions\TableExpressionBase.cs" />
+    <Compile Include="Query\ExpressionTreeVisitors\FilteringExpressionTreeVisitor.cs" />
+    <Compile Include="Query\IncludeCollectionIterator.cs" />
+    <Compile Include="Query\ExpressionTreeVisitors\QueryFlatteningExpressionTreeVisitor.cs" />
+    <Compile Include="Query\ExpressionTreeVisitors\IncludeReferenceExpressionTreeVisitor.cs" />
+    <Compile Include="Query\OffsetValueReaderDecorator.cs" />
     <Compile Include="Query\QueryMethodProvider.cs" />
     <Compile Include="Query\Expressions\CountExpression.cs" />
     <Compile Include="Query\Expressions\CaseExpression.cs" />
@@ -123,7 +128,10 @@
     <Compile Include="Query\Methods\EndsWithTranslator.cs" />
     <Compile Include="Query\Methods\IMethodCallTranslator.cs" />
     <Compile Include="Query\Methods\StartsWithTranslator.cs" />
-    <Compile Include="Query\ResultTransformingExpressionTreeVisitor.cs" />
+    <Compile Include="Query\ExpressionTreeVisitors\ResultTransformingExpressionTreeVisitor.cs" />
+    <Compile Include="Query\ExpressionTreeVisitors\RelationalOrderingExpressionTreeVisitor.cs" />
+    <Compile Include="Query\ExpressionTreeVisitors\RelationalProjectionExpressionTreeVisitor.cs" />
+    <Compile Include="Query\ExpressionTreeVisitors\RelationalEntityQueryableExpressionTreeVisitor.cs" />
     <Compile Include="Query\Sql\ISqlExpressionVisitor.cs" />
     <Compile Include="Query\Expressions\ColumnExpression.cs" />
     <Compile Include="Query\RelationalQueryCompilationContext.cs" />

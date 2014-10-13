@@ -93,7 +93,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                         _current = default(T);
                     }
                     else
-                    { 
+                    {
                         _current = _enumerable._shaper(_reader);
                     }
 

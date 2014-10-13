@@ -318,7 +318,7 @@ namespace Microsoft.Data.Entity.Query
             return qc => queryExecutor(qc, null);
         }
 
-        protected virtual bool QuerySourceRequiresMaterialization([NotNull] IQuerySource querySource)
+        public virtual bool QuerySourceRequiresMaterialization([NotNull] IQuerySource querySource)
         {
             Check.NotNull(querySource, "querySource");
 

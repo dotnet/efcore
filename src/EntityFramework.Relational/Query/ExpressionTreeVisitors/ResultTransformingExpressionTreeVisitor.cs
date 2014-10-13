@@ -10,7 +10,7 @@ using Microsoft.Data.Entity.Relational.Utilities;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Parsing;
 
-namespace Microsoft.Data.Entity.Relational.Query
+namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 {
     public class ResultTransformingExpressionTreeVisitor<TResult> : ExpressionTreeVisitor
     {
@@ -41,14 +41,16 @@ namespace Microsoft.Data.Entity.Relational.Query
             // TODO: Need async here...
             return new QuerySourceScope<TResult>(
                 querySource,
-                dataReader.IsDBNull(0) 
+                dataReader.IsDBNull(0)
                     ? default(TResult)
                     : dataReader.GetFieldValue<TResult>(0),
                 parentQuerySourceScope);
         }
 
-        protected override Expression VisitMethodCallExpression(MethodCallExpression methodCallExpression)
+        protected override Expression VisitMethodCallExpression([NotNull] MethodCallExpression methodCallExpression)
         {
+            Check.NotNull(methodCallExpression, "methodCallExpression");
+
             var newObject = VisitExpression(methodCallExpression.Object);
 
             if (newObject != methodCallExpression.Object)
@@ -113,8 +115,10 @@ namespace Microsoft.Data.Entity.Relational.Query
             return methodCallExpression;
         }
 
-        protected override Expression VisitLambdaExpression(LambdaExpression lambdaExpression)
+        protected override Expression VisitLambdaExpression([NotNull] LambdaExpression lambdaExpression)
         {
+            Check.NotNull(lambdaExpression, "lambdaExpression");
+
             var newBodyExpression = VisitExpression(lambdaExpression.Body);
 
             return newBodyExpression != lambdaExpression.Body
