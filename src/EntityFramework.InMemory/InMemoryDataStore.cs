@@ -96,22 +96,9 @@ namespace Microsoft.Data.Entity.InMemory
             return Query<TResult>(queryModel).ToAsyncEnumerable();
         }
 
-        /// <summary>
-        /// Ensures the underlying persistent database has been created
-        /// </summary>
-        /// <returns>
-        ///     true if the underlying database is persistent and has just been created,
-        ///     false if the underlying database is not persistent or had already been created
-        /// </returns>
-        public virtual bool EnsurePersistentDatabaseCreated()
+        public virtual bool IsDatabaseCreated()
         {
-            var result = _persist && !_database.HasValue;
-            if (result)
-            {
-                var _ = _database.Value;
-            }
-
-            return result;
+            return _database.Value.IsCreated();
         }
     }
 }

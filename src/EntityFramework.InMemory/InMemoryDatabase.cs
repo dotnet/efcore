@@ -30,6 +30,18 @@ namespace Microsoft.Data.Entity.InMemory
             _logger = factory.Create(typeof(InMemoryDatabase).Name);
         }
 
+        /// <summary>
+        /// Returns true just after the database has been created, before any data has been entered
+        /// </summary>
+        /// <returns>
+        ///     true if the database has just been created but not yet
+        ///     been used to enter data, false otherwise
+        /// </returns>
+        public virtual bool IsCreated()
+        {
+            return !_tables.HasValue;
+        }
+
         public virtual void Clear()
         {
             _tables.ExchangeValue(ts => ImmutableDictionary<IEntityType, InMemoryTable>.Empty);

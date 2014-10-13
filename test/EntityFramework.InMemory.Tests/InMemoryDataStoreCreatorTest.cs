@@ -3,6 +3,7 @@
 
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Services;
@@ -13,71 +14,88 @@ namespace Microsoft.Data.Entity.InMemory.Tests
     public class InMemoryDataStoreCreatorTest
     {
         [Fact]
-        public void EnsureCreated_returns_true_for_first_use_of_persistent_database_and_false_thereafter()
+        public async Task EnsureCreated_returns_true_until_persistent_database_is_used_and_false_thereafter()
         {
-            var options = CreateConfiguration(new DbContextOptions().UseInMemoryStore(persist: true));
-
+            var model = CreateModel();
+            var configuration = CreateConfiguration(new DbContextOptions().UseInMemoryStore(persist: true));
+            var entityType = model.GetEntityType(typeof(Test));
             var persistentDatabase = new InMemoryDatabase(new[] { new NullLoggerFactory() });
 
-            var inMemoryDataStore = new InMemoryDataStore(options, persistentDatabase);
+            var inMemoryDataStore = new InMemoryDataStore(configuration, persistentDatabase);
 
-            var model = CreateModel();
             var creator = new InMemoryDataStoreCreator(inMemoryDataStore);
 
             Assert.True(creator.EnsureCreated(model));
-            Assert.False(creator.EnsureCreated(model));
-            Assert.False(creator.EnsureCreated(model));
+
+            var customer = new Test { Id = 1, Name = "Fred" };
+            var entityEntry = new ClrStateEntry(configuration, entityType, customer);
+            await entityEntry.SetEntityStateAsync(EntityState.Added);
+            inMemoryDataStore.SaveChanges(new[] { entityEntry });
+
+            Assert.False(inMemoryDataStore.IsDatabaseCreated());
         }
 
         [Fact]
-        public void EnsureCreated_returns_false_for_non_persistent_database()
+        public async Task EnsureCreated_returns_true_until_non_persistent_database_is_used_and_false_thereafter()
         {
-            var options = CreateConfiguration(new DbContextOptions().UseInMemoryStore(persist: false));
-
-            var persistentDatabase = new InMemoryDatabase(new[] { new NullLoggerFactory() });
-
-            var inMemoryDataStore = new InMemoryDataStore(options, persistentDatabase);
-
             var model = CreateModel();
+            var configuration = CreateConfiguration(new DbContextOptions().UseInMemoryStore(persist: false));
+            var entityType = model.GetEntityType(typeof(Test));
+            var nonPersistentDatabase = new InMemoryDatabase(new[] { new NullLoggerFactory() });
+            var inMemoryDataStore = new InMemoryDataStore(configuration, nonPersistentDatabase);
+
             var creator = new InMemoryDataStoreCreator(inMemoryDataStore);
 
-            Assert.False(creator.EnsureCreated(model));
-            Assert.False(creator.EnsureCreated(model));
-            Assert.False(creator.EnsureCreated(model));
+            Assert.True(creator.EnsureCreated(model));
+
+            var customer = new Test { Id = 2, Name = "George" };
+            var entityEntry = new ClrStateEntry(configuration, entityType, customer);
+            await entityEntry.SetEntityStateAsync(EntityState.Added);
+            inMemoryDataStore.SaveChanges(new[] { entityEntry });
+
+            Assert.False(inMemoryDataStore.IsDatabaseCreated());
         }
 
         [Fact]
-        public async Task EnsureCreatedAsync_returns_true_for_first_use_of_persistent_database_and_false_thereafter()
+        public async Task EnsureCreatedAsync_returns_true_until_persistent_database_is_used_and_false_thereafter()
         {
-            var options = CreateConfiguration(new DbContextOptions().UseInMemoryStore(persist: true));
-
-            var persistentDatabase = new InMemoryDatabase(new[] { new NullLoggerFactory() });
-
-            var inMemoryDataStore = new InMemoryDataStore(options, persistentDatabase);
-
             var model = CreateModel();
+            var configuration = CreateConfiguration(new DbContextOptions().UseInMemoryStore(persist: true));
+            var entityType = model.GetEntityType(typeof(Test));
+            var persistentDatabase = new InMemoryDatabase(new[] { new NullLoggerFactory() });
+            var inMemoryDataStore = new InMemoryDataStore(configuration, persistentDatabase);
+
             var creator = new InMemoryDataStoreCreator(inMemoryDataStore);
 
             Assert.True(await creator.EnsureCreatedAsync(model));
-            Assert.False(await creator.EnsureCreatedAsync(model));
+
+            var customer = new Test { Id = 3, Name = "Bill" };
+            var entityEntry = new ClrStateEntry(configuration, entityType, customer);
+            await entityEntry.SetEntityStateAsync(EntityState.Added);
+            inMemoryDataStore.SaveChanges(new[] { entityEntry });
+
             Assert.False(await creator.EnsureCreatedAsync(model));
         }
 
 
         [Fact]
-        public async Task EnsureCreatedAsync_returns_false_for_non_persistent_database()
+        public async Task EnsureCreatedAsync_returns_true_until_non_persistent_database_is_used_and_false_thereafter()
         {
-            var options = CreateConfiguration(new DbContextOptions().UseInMemoryStore(persist: false));
-
-            var persistentDatabase = new InMemoryDatabase(new[] { new NullLoggerFactory() });
-
-            var inMemoryDataStore = new InMemoryDataStore(options, persistentDatabase);
-
             var model = CreateModel();
+            var configuration = CreateConfiguration(new DbContextOptions().UseInMemoryStore(persist: false));
+            var entityType = model.GetEntityType(typeof(Test));
+            var nonPersistentDatabase = new InMemoryDatabase(new[] { new NullLoggerFactory() });
+            var inMemoryDataStore = new InMemoryDataStore(configuration, nonPersistentDatabase);
+
             var creator = new InMemoryDataStoreCreator(inMemoryDataStore);
 
-            Assert.False(await creator.EnsureCreatedAsync(model));
-            Assert.False(await creator.EnsureCreatedAsync(model));
+            Assert.True(await creator.EnsureCreatedAsync(model));
+
+            var customer = new Test { Id = 4, Name = "Percy" };
+            var entityEntry = new ClrStateEntry(configuration, entityType, customer);
+            await entityEntry.SetEntityStateAsync(EntityState.Added);
+            inMemoryDataStore.SaveChanges(new[] { entityEntry });
+
             Assert.False(await creator.EnsureCreatedAsync(model));
         }
 
