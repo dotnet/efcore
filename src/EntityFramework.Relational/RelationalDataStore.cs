@@ -10,6 +10,7 @@ using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Relational.Query;
+using Microsoft.Data.Entity.Relational.Query.Methods;
 using Microsoft.Data.Entity.Relational.Update;
 using Microsoft.Data.Entity.Relational.Utilities;
 using Microsoft.Data.Entity.Storage;
@@ -82,7 +83,8 @@ namespace Microsoft.Data.Entity.Relational
                 = CreateQueryCompilationContext(
                     new LinqOperatorProvider(),
                     new RelationalResultOperatorHandler(),
-                    new QueryMethodProvider());
+                    new QueryMethodProvider(),
+                    new CompositeMethodCallTranslator());
 
             var queryExecutor
                 = queryCompilationContext
@@ -107,7 +109,8 @@ namespace Microsoft.Data.Entity.Relational
                 = CreateQueryCompilationContext(
                     new AsyncLinqOperatorProvider(),
                     new RelationalResultOperatorHandler(),
-                    new AsyncQueryMethodProvider());
+                    new AsyncQueryMethodProvider(),
+                    new CompositeMethodCallTranslator());
 
             var queryExecutor
                 = queryCompilationContext
@@ -130,14 +133,16 @@ namespace Microsoft.Data.Entity.Relational
         protected virtual RelationalQueryCompilationContext CreateQueryCompilationContext(
             [NotNull] ILinqOperatorProvider linqOperatorProvider,
             [NotNull] IResultOperatorHandler resultOperatorHandler,
-            [NotNull] IQueryMethodProvider queryMethodProvider)
+            [NotNull] IQueryMethodProvider queryMethodProvider,
+            [NotNull] IMethodCallTranslator methodCallTranslator)
         {
             Check.NotNull(linqOperatorProvider, "linqOperatorProvider");
             Check.NotNull(resultOperatorHandler, "resultOperatorHandler");
             Check.NotNull(queryMethodProvider, "queryMethodProvider");
+            Check.NotNull(methodCallTranslator, "methodCallTranslator");
 
             return new RelationalQueryCompilationContext(
-                Model, linqOperatorProvider, resultOperatorHandler, queryMethodProvider);
+                Model, linqOperatorProvider, resultOperatorHandler, queryMethodProvider, methodCallTranslator);
         }
     }
 }

@@ -51,10 +51,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         public override Type Type
         {
-            get
-            {
-                return typeof(bool);
-            }
+            get { return typeof(bool); }
         }
     }
 }

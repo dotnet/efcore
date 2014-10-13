@@ -8,6 +8,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Relational.Query.Expressions;
+using Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors;
 using Microsoft.Data.Entity.Relational.Utilities;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
@@ -107,7 +108,7 @@ namespace Microsoft.Data.Entity.Relational.Query
 
             var selectExpression
                 = relationalQueryModelVisitor
-                    .TryGetSelectExpression(queryModel.MainFromClause);
+                    .TryGetQuery(queryModel.MainFromClause);
 
             var handlerContext
                 = new HandlerContext(
@@ -131,7 +132,7 @@ namespace Microsoft.Data.Entity.Relational.Query
         private static Expression HandleAll(HandlerContext handlerContext)
         {
             var filteringVisitor
-                = new RelationalQueryModelVisitor.FilteringExpressionTreeVisitor(handlerContext.QueryModelVisitor);
+                = new FilteringExpressionTreeVisitor(handlerContext.QueryModelVisitor);
 
             var predicate
                 = filteringVisitor.VisitExpression(

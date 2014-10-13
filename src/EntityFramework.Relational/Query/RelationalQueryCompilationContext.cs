@@ -7,6 +7,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Relational.Query.Expressions;
+using Microsoft.Data.Entity.Relational.Query.Methods;
 using Microsoft.Data.Entity.Relational.Query.Sql;
 using Microsoft.Data.Entity.Relational.Utilities;
 using Remotion.Linq.Clauses;
@@ -16,6 +17,7 @@ namespace Microsoft.Data.Entity.Relational.Query
     public class RelationalQueryCompilationContext : QueryCompilationContext
     {
         private readonly IQueryMethodProvider _queryMethodProvider;
+        private readonly IMethodCallTranslator _methodCallTranslator;
 
         private readonly List<RelationalQueryModelVisitor> _relationalQueryModelVisitors
             = new List<RelationalQueryModelVisitor>();
@@ -24,15 +26,18 @@ namespace Microsoft.Data.Entity.Relational.Query
             [NotNull] IModel model,
             [NotNull] ILinqOperatorProvider linqOperatorProvider,
             [NotNull] IResultOperatorHandler resultOperatorHandler,
-            [NotNull] IQueryMethodProvider queryMethodProvider)
+            [NotNull] IQueryMethodProvider queryMethodProvider,
+            [NotNull] IMethodCallTranslator methodCallTranslator)
             : base(
                 Check.NotNull(model, "model"),
                 Check.NotNull(linqOperatorProvider, "linqOperatorProvider"),
                 Check.NotNull(resultOperatorHandler, "resultOperatorHandler"))
         {
             Check.NotNull(queryMethodProvider, "queryMethodProvider");
+            Check.NotNull(methodCallTranslator, "methodCallTranslator");
 
             _queryMethodProvider = queryMethodProvider;
+            _methodCallTranslator = methodCallTranslator;
         }
 
         public override EntityQueryModelVisitor CreateQueryModelVisitor(
@@ -53,7 +58,7 @@ namespace Microsoft.Data.Entity.Relational.Query
 
             return
                 (from v in _relationalQueryModelVisitors
-                    let selectExpression = v.TryGetSelectExpression(querySource)
+                    let selectExpression = v.TryGetQuery(querySource)
                     where selectExpression != null
                     select selectExpression)
                     .Single();
@@ -62,6 +67,11 @@ namespace Microsoft.Data.Entity.Relational.Query
         public virtual IQueryMethodProvider QueryMethodProvider
         {
             get { return _queryMethodProvider; }
+        }
+
+        public virtual IMethodCallTranslator MethodCallTranslator
+        {
+            get { return _methodCallTranslator; }
         }
 
         public virtual ISqlQueryGenerator CreateSqlQueryGenerator()

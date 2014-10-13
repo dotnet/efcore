@@ -21,8 +21,8 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             [NotNull] string alias,
             [NotNull] IQuerySource querySource)
             : base(
-            Check.NotNull(querySource, "querySource"),
-            Check.NotEmpty(alias, "alias"))
+                Check.NotNull(querySource, "querySource"),
+                Check.NotEmpty(alias, "alias"))
         {
             Check.NotEmpty(table, "table");
             Check.NotNull(querySource, "querySource");

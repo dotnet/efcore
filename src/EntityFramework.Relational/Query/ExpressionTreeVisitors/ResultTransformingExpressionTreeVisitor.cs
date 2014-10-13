@@ -10,7 +10,7 @@ using Microsoft.Data.Entity.Relational.Utilities;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Parsing;
 
-namespace Microsoft.Data.Entity.Relational.Query
+namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 {
     public class ResultTransformingExpressionTreeVisitor<TResult> : ExpressionTreeVisitor
     {
@@ -41,7 +41,7 @@ namespace Microsoft.Data.Entity.Relational.Query
             // TODO: Need async here...
             return new QuerySourceScope<TResult>(
                 querySource,
-                dataReader.IsDBNull(0) 
+                dataReader.IsDBNull(0)
                     ? default(TResult)
                     : dataReader.GetFieldValue<TResult>(0),
                 parentQuerySourceScope);

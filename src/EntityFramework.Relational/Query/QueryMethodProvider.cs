@@ -93,7 +93,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                     var hasNext = _reader.Read();
 
                     _current = hasNext ? _enumerable._shaper(_reader) : default(T);
-                
+
                     return hasNext;
                 }
 
