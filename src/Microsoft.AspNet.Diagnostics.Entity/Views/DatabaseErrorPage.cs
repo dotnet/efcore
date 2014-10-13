@@ -172,7 +172,7 @@ using Microsoft.AspNet.Diagnostics.Entity.Views
 #line hidden
             WriteLiteral(" </code>\r\n        <br />\r\n        <code> ");
 #line 60 "DatabaseErrorPage.cshtml"
-          Write(Strings.DatabaseErrorPage_UpdateDatabaseCommand);
+          Write(Strings.DatabaseErrorPage_ApplyMigrationsCommand);
 
 #line default
 #line hidden
@@ -356,7 +356,7 @@ using Microsoft.AspNet.Diagnostics.Entity.Views
 #line hidden
             WriteLiteral("</p>\r\n            <code>");
 #line 124 "DatabaseErrorPage.cshtml"
-             Write(Strings.DatabaseErrorPage_UpdateDatabaseCommand);
+             Write(Strings.DatabaseErrorPage_ApplyMigrationsCommand);
 
 #line default
 #line hidden
@@ -389,7 +389,7 @@ using Microsoft.AspNet.Diagnostics.Entity.Views
 #line hidden
             WriteLiteral("</code>\r\n            <br />\r\n            <code>");
 #line 135 "DatabaseErrorPage.cshtml"
-             Write(Strings.DatabaseErrorPage_UpdateDatabaseCommand);
+             Write(Strings.DatabaseErrorPage_ApplyMigrationsCommand);
 
 #line default
 #line hidden

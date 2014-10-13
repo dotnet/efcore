@@ -171,7 +171,7 @@
   <data name="DatabaseErrorPage_PendingMigrationsTitle" xml:space="preserve">
     <value>Applying existing migrations for {0} may resolve this issue</value>
   </data>
-  <data name="DatabaseErrorPage_UpdateDatabaseCommand" xml:space="preserve">
+  <data name="DatabaseErrorPage_ApplyMigrationsCommand" xml:space="preserve">
     <value>&gt; k ef migration apply</value>
   </data>
   <data name="InvalidEnumValue" xml:space="preserve">

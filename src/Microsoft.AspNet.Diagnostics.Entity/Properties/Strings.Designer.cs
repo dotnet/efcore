@@ -301,17 +301,17 @@ namespace Microsoft.AspNet.Diagnostics.Entity
         /// <summary>
         /// &gt; k ef migration apply
         /// </summary>
-        internal static string DatabaseErrorPage_UpdateDatabaseCommand
+        internal static string DatabaseErrorPage_ApplyMigrationsCommand
         {
-            get { return GetString("DatabaseErrorPage_UpdateDatabaseCommand"); }
+            get { return GetString("DatabaseErrorPage_ApplyMigrationsCommand"); }
         }
 
         /// <summary>
         /// &gt; k ef migration apply
         /// </summary>
-        internal static string FormatDatabaseErrorPage_UpdateDatabaseCommand()
+        internal static string FormatDatabaseErrorPage_ApplyMigrationsCommand()
         {
-            return GetString("DatabaseErrorPage_UpdateDatabaseCommand");
+            return GetString("DatabaseErrorPage_ApplyMigrationsCommand");
         }
 
         /// <summary>

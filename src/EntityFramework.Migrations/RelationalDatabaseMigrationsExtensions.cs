@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity
 
             var config = ((IDbContextConfigurationAdapter)database).Configuration;
             var migrator = config.Services.ServiceProvider.GetService<Migrator>();
-            migrator.UpdateDatabase();
+            migrator.ApplyMigrations();
         }
     }
 }

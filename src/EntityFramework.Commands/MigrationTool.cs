@@ -119,8 +119,8 @@ namespace Microsoft.Data.Entity.Commands
                 // TODO: Use fromMigrationName
                 // TODO: Use idempotent
                 var statements = string.IsNullOrEmpty(toMigrationName)
-                    ? migrator.GenerateUpdateDatabaseSql()
-                    : migrator.GenerateUpdateDatabaseSql(toMigrationName);
+                    ? migrator.ScriptMigrations()
+                    : migrator.ScriptMigrations(toMigrationName);
 
                 // TODO: Use SuppressTransaction somehow?
                 return string.Join(Environment.NewLine, statements.Select(s => s.Sql));
@@ -136,11 +136,11 @@ namespace Microsoft.Data.Entity.Commands
 
                 if (string.IsNullOrEmpty(migrationName))
                 {
-                    migrator.UpdateDatabase();
+                    migrator.ApplyMigrations();
                 }
                 else
                 {
-                    migrator.UpdateDatabase(migrationName);
+                    migrator.ApplyMigrations(migrationName);
                 }
             }
         }

@@ -100,7 +100,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         }
 
         [Fact]
-        public void GenerateUpdateDatabaseSql_with_single_initial_migration()
+        public void ScriptMigrations_with_single_initial_migration()
         {
             var migrator = MockMigrator(
                 new IMigrationMetadata[0],
@@ -118,7 +118,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                     }
                 );
 
-            var sqlStatements = migrator.GenerateUpdateDatabaseSql();
+            var sqlStatements = migrator.ScriptMigrations();
 
             Assert.Equal(2, sqlStatements.Count);
             Assert.Equal("CreateMyTable1Sql", sqlStatements[0].Sql);
@@ -126,7 +126,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         }
 
         [Fact]
-        public void GenerateUpdateDatabaseSql_with_multiple_initial_migrations()
+        public void ScriptMigrations_with_multiple_initial_migrations()
         {
             var migrator = MockMigrator(
                 new IMigrationMetadata[0],
@@ -154,7 +154,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                     }
                 );
 
-            var sqlStatements = migrator.GenerateUpdateDatabaseSql();
+            var sqlStatements = migrator.ScriptMigrations();
 
             Assert.Equal(5, sqlStatements.Count);
             Assert.Equal("CreateMyTable1Sql", sqlStatements[0].Sql);
@@ -165,7 +165,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         }
 
         [Fact]
-        public void GenerateUpdateDatabaseSql_with_single_migration()
+        public void ScriptMigrations_with_single_migration()
         {
             var migrator = MockMigrator(
                 new[]
@@ -191,7 +191,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                     }
                 );
 
-            var sqlStatements = migrator.GenerateUpdateDatabaseSql();
+            var sqlStatements = migrator.ScriptMigrations();
 
             Assert.Equal(3, sqlStatements.Count);
             Assert.Equal("AddColumnOperationSql", sqlStatements[0].Sql);
@@ -200,7 +200,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         }
 
         [Fact]
-        public void GenerateUpdateDatabaseSql_with_multiple_migrations()
+        public void ScriptMigrations_with_multiple_migrations()
         {
             var migrator = MockMigrator(
                 new[]
@@ -240,7 +240,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                     }
                 );
 
-            var sqlStatements = migrator.GenerateUpdateDatabaseSql();
+            var sqlStatements = migrator.ScriptMigrations();
 
             Assert.Equal(5, sqlStatements.Count);
             Assert.Equal("AddColumnOperationSql", sqlStatements[0].Sql);
@@ -251,7 +251,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         }
 
         [Fact]
-        public void GenerateUpdateDatabaseSql_with_target_last_local_migration()
+        public void ScriptMigrations_with_target_last_local_migration()
         {
             var migrator = MockMigrator(
                 new[]
@@ -291,7 +291,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                     }
                 );
 
-            var sqlStatements = migrator.GenerateUpdateDatabaseSql("Migration4");
+            var sqlStatements = migrator.ScriptMigrations("Migration4");
 
             Assert.Equal(5, sqlStatements.Count);
             Assert.Equal("AddColumnOperationSql", sqlStatements[0].Sql);
@@ -302,7 +302,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         }
 
         [Fact]
-        public void GenerateUpdateDatabaseSql_with_target_local_migration()
+        public void ScriptMigrations_with_target_local_migration()
         {
             var migrator = MockMigrator(
                 new[]
@@ -342,7 +342,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                     }
                 );
 
-            var sqlStatements = migrator.GenerateUpdateDatabaseSql("Migration3");
+            var sqlStatements = migrator.ScriptMigrations("Migration3");
 
             Assert.Equal(3, sqlStatements.Count);
             Assert.Equal("AddColumnOperationSql", sqlStatements[0].Sql);
@@ -351,7 +351,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         }
 
         [Fact]
-        public void GenerateUpdateDatabaseSql_with_target_last_database_migration()
+        public void ScriptMigrations_with_target_last_database_migration()
         {
             var migrator = MockMigrator(
                 new[]
@@ -369,13 +369,13 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                     }
                 );
 
-            var sqlStatements = migrator.GenerateUpdateDatabaseSql("Migration3");
+            var sqlStatements = migrator.ScriptMigrations("Migration3");
 
             Assert.Equal(0, sqlStatements.Count);
         }
 
         [Fact]
-        public void GenerateUpdateDatabaseSql_with_target_database_migration()
+        public void ScriptMigrations_with_target_database_migration()
         {
             var migrator = MockMigrator(
                 new[]
@@ -418,7 +418,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                     }
                 );
 
-            var sqlStatements = migrator.GenerateUpdateDatabaseSql("Migration2");
+            var sqlStatements = migrator.ScriptMigrations("Migration2");
 
             Assert.Equal(5, sqlStatements.Count);
             Assert.Equal("AddColumnOperationSql", sqlStatements[0].Sql);
@@ -429,7 +429,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         }
 
         [Fact]
-        public void GenerateUpdateDatabaseSql_with_local_migration_before_last_database_migration()
+        public void ScriptMigrations_with_local_migration_before_last_database_migration()
         {
             var migrator = MockMigrator(
                 new[]
@@ -462,7 +462,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                     }
                 );
 
-            var sqlStatements = migrator.GenerateUpdateDatabaseSql();
+            var sqlStatements = migrator.ScriptMigrations();
 
             Assert.Equal(3, sqlStatements.Count);
             Assert.Equal("DropColumnOperationSql", sqlStatements[0].Sql);
@@ -471,7 +471,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         }
 
         [Fact]
-        public void GenerateUpdateDatabaseSql_with_target_local_migration_before_last_database_migration()
+        public void ScriptMigrations_with_target_local_migration_before_last_database_migration()
         {
             var migrator = MockMigrator(
                 new[]
@@ -512,7 +512,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                     }
                 );
 
-            var sqlStatements = migrator.GenerateUpdateDatabaseSql("Migration3");
+            var sqlStatements = migrator.ScriptMigrations("Migration3");
 
             Assert.Equal(5, sqlStatements.Count);
             Assert.Equal("AddColumnOperationSql", sqlStatements[0].Sql);
@@ -523,7 +523,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         }
 
         [Fact]
-        public void GenerateUpdateDatabaseSql_with_InitialDatabase()
+        public void ScriptMigrations_with_InitialDatabase()
         {
             var databaseMigrations
                 = new[]
@@ -557,7 +557,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
 
             var migrator = MockMigrator(databaseMigrations, localMigrations);
 
-            var sqlStatements = migrator.GenerateUpdateDatabaseSql(Migrator.InitialDatabase);
+            var sqlStatements = migrator.ScriptMigrations(Migrator.InitialDatabase);
 
             Assert.Equal(6, sqlStatements.Count);
             Assert.Equal("DropColumnOperationSql", sqlStatements[0].Sql);
@@ -569,7 +569,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         }
 
         [Fact]
-        public void GenerateUpdateDatabaseSql_when_history_repository_does_not_exist()
+        public void ScriptMigrations_when_history_repository_does_not_exist()
         {
             var databaseMigrations = new MigrationMetadata[0];
             var localMigrations
@@ -588,7 +588,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
 
             var migrator = MockMigrator(databaseMigrations, localMigrations, databaseExists: true, historyRepositoryExists: false);
 
-            var sqlStatements = migrator.GenerateUpdateDatabaseSql();
+            var sqlStatements = migrator.ScriptMigrations();
 
             Assert.Equal(3, sqlStatements.Count);
             Assert.Equal("Create__MigrationHistorySql", sqlStatements[0].Sql);
@@ -597,7 +597,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         }
 
         [Fact]
-        public void GenerateUpdateDatabaseSql_throws_if_local_migrations_do_not_include_all_database_migrations()
+        public void ScriptMigrations_throws_if_local_migrations_do_not_include_all_database_migrations()
         {
             var migrator = MockMigrator(
                 new[]
@@ -613,10 +613,10 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
 
             Assert.Equal(
                 Strings.FormatLocalMigrationNotFound("000000000000002_Migration2"),
-                Assert.Throws<InvalidOperationException>(() => migrator.GenerateUpdateDatabaseSql()).Message);
+                Assert.Throws<InvalidOperationException>(() => migrator.ScriptMigrations()).Message);
             Assert.Equal(
                 Strings.FormatLocalMigrationNotFound("000000000000002_Migration2"),
-                Assert.Throws<InvalidOperationException>(() => migrator.GenerateUpdateDatabaseSql("Migration1")).Message);
+                Assert.Throws<InvalidOperationException>(() => migrator.ScriptMigrations("Migration1")).Message);
 
             migrator = MockMigrator(
                 new[]
@@ -634,14 +634,14 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
 
             Assert.Equal(
                 Strings.FormatLocalMigrationNotFound("000000000000002_Migration2"),
-                Assert.Throws<InvalidOperationException>(() => migrator.GenerateUpdateDatabaseSql()).Message);
+                Assert.Throws<InvalidOperationException>(() => migrator.ScriptMigrations()).Message);
             Assert.Equal(
                 Strings.FormatLocalMigrationNotFound("000000000000002_Migration2"),
-                Assert.Throws<InvalidOperationException>(() => migrator.GenerateUpdateDatabaseSql("Migration1")).Message);
+                Assert.Throws<InvalidOperationException>(() => migrator.ScriptMigrations("Migration1")).Message);
         }
 
         [Fact]
-        public void GenerateUpdateDatabaseSql_throws_if_target_migration_not_found()
+        public void ScriptMigrations_throws_if_target_migration_not_found()
         {
             var migrator = MockMigrator(
                 new[]
@@ -657,11 +657,11 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
 
             Assert.Equal(
                 Strings.FormatTargetMigrationNotFound("Foo"),
-                Assert.Throws<InvalidOperationException>(() => migrator.GenerateUpdateDatabaseSql("Foo")).Message);
+                Assert.Throws<InvalidOperationException>(() => migrator.ScriptMigrations("Foo")).Message);
         }
 
         [Fact]
-        public void UpdateDatabase_creates_database_and_executes_upgrade_statements()
+        public void ApplyMigrations_creates_database_and_executes_upgrade_statements()
         {
             var databaseMigrations = new IMigrationMetadata[0];
             var localMigrations
@@ -710,7 +710,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                             }
                         });
 
-            migrator.UpdateDatabase();
+            migrator.ApplyMigrations();
 
             dbCreatorMock.Verify(m => m.Exists(), Times.Once);
             dbCreatorMock.Verify(m => m.Create(), Times.Once);
@@ -720,7 +720,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         }
 
         [Fact]
-        public void UpdateDatabase_creates_history_table_and_executes_upgrade_statements_if_database_exists()
+        public void ApplyMigrations_creates_history_table_and_executes_upgrade_statements_if_database_exists()
         {
             var databaseMigrations = new IMigrationMetadata[0];
             var localMigrations
@@ -769,7 +769,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                         }
                     });
 
-            migrator.UpdateDatabase();
+            migrator.ApplyMigrations();
 
             dbCreatorMock.Verify(m => m.Exists(), Times.Once);
             dbCreatorMock.Verify(m => m.Create(), Times.Never);
@@ -779,7 +779,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         }
 
         [Fact]
-        public void UpdateDatabase_executes_upgrade_statements_if_database_and_history_table_exist()
+        public void ApplyMigrations_executes_upgrade_statements_if_database_and_history_table_exist()
         {
             var databaseMigrations = new IMigrationMetadata[0];
             var localMigrations
@@ -814,7 +814,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                 .Callback<DbConnection, DbTransaction, IEnumerable<SqlStatement>>(
                     (_, __, statements) => Assert.Equal(expectedSql, statements.Select(s => s.Sql)));
 
-            migrator.UpdateDatabase();
+            migrator.ApplyMigrations();
 
             dbCreatorMock.Verify(m => m.Exists(), Times.Once);
             dbCreatorMock.Verify(m => m.Create(), Times.Never);
@@ -824,7 +824,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         }
 
         [Fact]
-        public void UpdateDatabase_executes_downgrade_statements()
+        public void ApplyMigrations_executes_downgrade_statements()
         {
             var databaseMigrations
                 = new[]
@@ -866,7 +866,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                 .Callback<DbConnection, DbTransaction, IEnumerable<SqlStatement>>(
                     (_, __, statements) => Assert.Equal(expectedSql, statements.Select(s => s.Sql)));
 
-            migrator.UpdateDatabase("Migration1");
+            migrator.ApplyMigrations("Migration1");
 
             dbCreatorMock.Verify(m => m.Exists(), Times.Once);
             dbCreatorMock.Verify(m => m.Create(), Times.Never);
@@ -876,7 +876,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         }
 
         [Fact]
-        public void UpdateDatabase_executes_downgrade_statements_and_removes_history_table()
+        public void ApplyMigrations_executes_downgrade_statements_and_removes_history_table()
         {
             var databaseMigrations
                 = new[]
@@ -930,7 +930,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                         }
                     });
 
-            migrator.UpdateDatabase(Migrator.InitialDatabase);
+            migrator.ApplyMigrations(Migrator.InitialDatabase);
 
             dbCreatorMock.Verify(m => m.Exists(), Times.Once);
             dbCreatorMock.Verify(m => m.Create(), Times.Never);
@@ -940,7 +940,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         }
 
         [Fact]
-        public void UpdateDatabase_creates_database_if_no_migrations()
+        public void ApplyMigrations_creates_database_if_no_migrations()
         {
             Mock<RelationalDataStoreCreator> dbCreatorMock;
             Mock<DbConnection> dbConnectionMock;
@@ -958,12 +958,12 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                     out dbTransactionMock,
                     out sqlStatementExecutorMock);
 
-            migrator.UpdateDatabase();
+            migrator.ApplyMigrations();
 
             dbCreatorMock.Verify(m => m.Exists(), Times.Once);
             dbCreatorMock.Verify(m => m.Create(), Times.Once);
 
-            migrator.UpdateDatabase(Migrator.InitialDatabase);
+            migrator.ApplyMigrations(Migrator.InitialDatabase);
 
             dbCreatorMock.Verify(m => m.Exists(), Times.Exactly(2));
             dbCreatorMock.Verify(m => m.Create(), Times.Exactly(2));
@@ -1047,7 +1047,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                         }
                     });
 
-            migrator.UpdateDatabase();
+            migrator.ApplyMigrations();
 
             dbCreatorMock.Verify(m => m.Exists(), Times.Once);
             dbCreatorMock.Verify(m => m.Create(), Times.Never);
@@ -1057,7 +1057,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         }
 
         [Fact]
-        public void UpdateDatabase_logs_upgrades()
+        public void ApplyMigrations_logs_upgrades()
         {
             var databaseMigrations = new IMigrationMetadata[0];
             var localMigrations
@@ -1079,7 +1079,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                     /*historyTableExists*/ false,
                     loggerFactory);
 
-            migrator.UpdateDatabase();
+            migrator.ApplyMigrations();
 
             Assert.Equal(
 new StringBuilder()
@@ -1113,7 +1113,7 @@ new StringBuilder()
         }
 
         [Fact]
-        public void UpdateDatabase_logs_downgrades()
+        public void ApplyMigrations_logs_downgrades()
         {
             var databaseMigrations
                 = new[]
@@ -1139,7 +1139,7 @@ new StringBuilder()
                     /*historyTableExists*/ true,
                     loggerFactory);
 
-            migrator.UpdateDatabase(Migrator.InitialDatabase);
+            migrator.ApplyMigrations(Migrator.InitialDatabase);
 
             Assert.Equal(
 new StringBuilder()

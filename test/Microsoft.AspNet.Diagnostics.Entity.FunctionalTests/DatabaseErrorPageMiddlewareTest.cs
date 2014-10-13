@@ -83,7 +83,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity.Tests
             var content = await response.Content.ReadAsStringAsync();
             Assert.Contains(StringsHelpers.GetResourceString("FormatDatabaseErrorPage_NoDbOrMigrationsTitle", typeof(BloggingContext).Name), content);
             Assert.Contains(StringsHelpers.GetResourceString("FormatDatabaseErrorPage_AddMigrationCommand").Replace(">", "&gt;"), content);
-            Assert.Contains(StringsHelpers.GetResourceString("FormatDatabaseErrorPage_UpdateDatabaseCommand").Replace(">", "&gt;"), content);
+            Assert.Contains(StringsHelpers.GetResourceString("FormatDatabaseErrorPage_ApplyMigrationsCommand").Replace(">", "&gt;"), content);
         }
 
         class NoMigrationsMiddleware
@@ -112,7 +112,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity.Tests
 
             var content = await response.Content.ReadAsStringAsync();
             Assert.Contains(StringsHelpers.GetResourceString("FormatDatabaseErrorPage_PendingMigrationsTitle", typeof(BloggingContextWithMigrations).Name), content);
-            Assert.Contains(StringsHelpers.GetResourceString("FormatDatabaseErrorPage_UpdateDatabaseCommand").Replace(">", "&gt;"), content);
+            Assert.Contains(StringsHelpers.GetResourceString("FormatDatabaseErrorPage_ApplyMigrationsCommand").Replace(">", "&gt;"), content);
             Assert.Contains("<li>111111111111111_MigrationOne</li>", content);
             Assert.Contains("<li>222222222222222_MigrationTwo</li>", content);
 
@@ -146,7 +146,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity.Tests
             var content = await response.Content.ReadAsStringAsync();
             Assert.Contains(StringsHelpers.GetResourceString("FormatDatabaseErrorPage_PendingChangesTitle", typeof(BloggingContextWithPendingModelChanges).Name), content);
             Assert.Contains(StringsHelpers.GetResourceString("FormatDatabaseErrorPage_AddMigrationCommand").Replace(">", "&gt;"), content);
-            Assert.Contains(StringsHelpers.GetResourceString("FormatDatabaseErrorPage_UpdateDatabaseCommand").Replace(">", "&gt;"), content);
+            Assert.Contains(StringsHelpers.GetResourceString("FormatDatabaseErrorPage_ApplyMigrationsCommand").Replace(">", "&gt;"), content);
         }
 
         class PendingModelChangesMiddleware
@@ -159,7 +159,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity.Tests
                 using (var db = context.ApplicationServices.GetService<BloggingContextWithPendingModelChanges>())
                 {
                     var migrator = db.Configuration.Services.ServiceProvider.GetService<Migrator>();
-                    migrator.UpdateDatabase();
+                    migrator.ApplyMigrations();
 
                     db.Blogs.Add(new Blog());
                     db.SaveChanges();

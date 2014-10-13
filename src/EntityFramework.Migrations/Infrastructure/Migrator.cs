@@ -145,31 +145,31 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             return migrations;
         }
 
-        public virtual void UpdateDatabase()
+        public virtual void ApplyMigrations()
         {
-            UpdateDatabase(GetLocalMigrations().Count - 1, simulate: false);
+            ApplyMigrations(GetLocalMigrations().Count - 1, simulate: false);
         }
 
-        public virtual void UpdateDatabase([NotNull] string targetMigrationName)
-        {
-            Check.NotEmpty(targetMigrationName, "targetMigrationName");
-
-            UpdateDatabase(GetTargetMigrationIndex(targetMigrationName), simulate: false);
-        }
-
-        public virtual IReadOnlyList<SqlStatement> GenerateUpdateDatabaseSql()
-        {
-            return UpdateDatabase(GetLocalMigrations().Count - 1, simulate: true);
-        }
-
-        public virtual IReadOnlyList<SqlStatement> GenerateUpdateDatabaseSql([NotNull] string targetMigrationName)
+        public virtual void ApplyMigrations([NotNull] string targetMigrationName)
         {
             Check.NotEmpty(targetMigrationName, "targetMigrationName");
 
-            return UpdateDatabase(GetTargetMigrationIndex(targetMigrationName), simulate: true);
+            ApplyMigrations(GetTargetMigrationIndex(targetMigrationName), simulate: false);
         }
 
-        protected virtual IReadOnlyList<SqlStatement> UpdateDatabase(int targetMigrationIndex, bool simulate)
+        public virtual IReadOnlyList<SqlStatement> ScriptMigrations()
+        {
+            return ApplyMigrations(GetLocalMigrations().Count - 1, simulate: true);
+        }
+
+        public virtual IReadOnlyList<SqlStatement> ScriptMigrations([NotNull] string targetMigrationName)
+        {
+            Check.NotEmpty(targetMigrationName, "targetMigrationName");
+
+            return ApplyMigrations(GetTargetMigrationIndex(targetMigrationName), simulate: true);
+        }
+
+        protected virtual IReadOnlyList<SqlStatement> ApplyMigrations(int targetMigrationIndex, bool simulate)
         {
             bool historyTableExists;
             var migrationPairs = PairMigrations(GetLocalMigrations(), GetDatabaseMigrations(out historyTableExists));
