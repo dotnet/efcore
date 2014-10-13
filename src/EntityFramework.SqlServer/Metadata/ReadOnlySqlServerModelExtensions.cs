@@ -14,6 +14,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
         protected const string SqlServerValueGenerationAnnotation = SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ValueGeneration;
         protected const string SqlServerSequenceAnnotation = SqlServerAnnotationNames.Prefix + RelationalAnnotationNames.Sequence;
         protected const string SqlServerDefaultSequenceNameAnnotation = SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.DefaultSequenceName;
+        protected const string SqlServerDefaultSequenceSchemaAnnotation = SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.DefaultSequenceSchema;
 
         public ReadOnlySqlServerModelExtensions([NotNull] IModel model)
             : base(model)
@@ -33,6 +34,11 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
         public virtual string DefaultSequenceName
         {
             get { return Model[SqlServerDefaultSequenceNameAnnotation]; }
+        }
+
+        public virtual string DefaultSequenceSchema
+        {
+            get { return Model[SqlServerDefaultSequenceSchemaAnnotation]; }
         }
 
         public override Sequence TryGetSequence(string name, string schema = null)

@@ -5,6 +5,7 @@ using System;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.SqlServer.Metadata;
 using Microsoft.Data.Entity.SqlServer.Utilities;
 
 namespace Microsoft.Data.Entity.SqlServer
@@ -36,14 +37,15 @@ namespace Microsoft.Data.Entity.SqlServer
 
             if (property.ValueGeneration == ValueGeneration.OnAdd)
             {
-                var strategy = property.FindAnnotationInHierarchy(Entity.Metadata.SqlServerMetadataExtensions.Annotations.ValueGeneration);
+                var strategy = property.SqlServer().ValueGenerationStrategy
+                               ?? property.EntityType.Model.SqlServer().ValueGenerationStrategy;
 
-                if (strategy == Entity.Metadata.SqlServerMetadataExtensions.Annotations.Sequence)
+                if (strategy == SqlServerValueGenerationStrategy.Sequence)
                 {
                     return _sequenceFactory;
                 }
 
-                if (strategy == Entity.Metadata.SqlServerMetadataExtensions.Annotations.Identity)
+                if (strategy == SqlServerValueGenerationStrategy.Identity)
                 {
                     return _tempFactory;
                 }

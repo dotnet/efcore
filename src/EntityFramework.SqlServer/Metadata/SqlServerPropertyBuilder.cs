@@ -49,6 +49,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
         {
             _property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Sequence;
             _property.SqlServer().SequenceName = null;
+            _property.SqlServer().SequenceSchema = null;
 
             return this;
         }
@@ -61,7 +62,8 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
             var sequence = _property.EntityType.Model.SqlServer().GetOrAddSequence(name, schema);
 
             _property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Sequence;
-            _property.SqlServer().SequenceName = sequence.Schema + "." + sequence.Name;
+            _property.SqlServer().SequenceName = sequence.Name;
+            _property.SqlServer().SequenceSchema = sequence.Schema;
          
             return this;
         }
@@ -70,6 +72,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
         {
             _property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Identity;
             _property.SqlServer().SequenceName = null;
+            _property.SqlServer().SequenceSchema = null;
 
             return this;
         }

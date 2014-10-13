@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.SqlServer.Metadata;
@@ -563,6 +564,26 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         }
 
         [Fact]
+        public void Can_get_and_set_default_sequence_schema_on_model()
+        {
+            var modelBuilder = new BasicModelBuilder();
+            var model = modelBuilder.Metadata;
+
+            Assert.Null(model.SqlServer().DefaultSequenceSchema);
+            Assert.Null(((IModel)model).SqlServer().DefaultSequenceSchema);
+
+            model.SqlServer().DefaultSequenceSchema = "Tasty.Snook";
+
+            Assert.Equal("Tasty.Snook", model.SqlServer().DefaultSequenceSchema);
+            Assert.Equal("Tasty.Snook", ((IModel)model).SqlServer().DefaultSequenceSchema);
+
+            model.SqlServer().DefaultSequenceSchema = null;
+
+            Assert.Null(model.SqlServer().DefaultSequenceSchema);
+            Assert.Null(((IModel)model).SqlServer().DefaultSequenceSchema);
+        }
+
+        [Fact]
         public void Can_get_and_set_value_generation_on_property()
         {
             var modelBuilder = new BasicModelBuilder();
@@ -574,16 +595,67 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             Assert.Null(property.SqlServer().ValueGenerationStrategy);
             Assert.Null(((IProperty)property).SqlServer().ValueGenerationStrategy);
+            Assert.Equal(ValueGeneration.None, property.ValueGeneration);
 
             property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Sequence;
 
             Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
             Assert.Equal(SqlServerValueGenerationStrategy.Sequence, ((IProperty)property).SqlServer().ValueGenerationStrategy);
+            Assert.Equal(ValueGeneration.OnAdd, property.ValueGeneration);
 
             property.SqlServer().ValueGenerationStrategy = null;
 
             Assert.Null(property.SqlServer().ValueGenerationStrategy);
             Assert.Null(((IProperty)property).SqlServer().ValueGenerationStrategy);
+            Assert.Equal(ValueGeneration.None, property.ValueGeneration);
+        }
+
+        [Fact]
+        public void Throws_setting_sequence_generation_for_invalid_type()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            var property = modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Name)
+                .Metadata;
+
+            Assert.Equal(
+                Strings.FormatSequenceBadType("Name", typeof(Customer).FullName, "String"),
+                Assert.Throws<ArgumentException>(
+                    () => property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Sequence).Message);
+        }
+
+        [Fact]
+        public void Throws_setting_identity_generation_for_invalid_type()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            var property = modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Name)
+                .Metadata;
+
+            Assert.Equal(
+                Strings.FormatIdentityBadType("Name", typeof(Customer).FullName, "String"),
+                Assert.Throws<ArgumentException>(
+                    () => property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Identity).Message);
+        }
+
+        [Fact]
+        public void Throws_setting_identity_generation_for_byte_property()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            var property = modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Byte)
+                .Metadata;
+
+            Assert.Equal(
+                Strings.FormatIdentityBadType("Byte", typeof(Customer).FullName, "Byte"),
+                Assert.Throws<ArgumentException>(
+                    () => property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Identity).Message);
         }
 
         [Fact]
@@ -599,10 +671,10 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             Assert.Null(property.SqlServer().SequenceName);
             Assert.Null(((IProperty)property).SqlServer().SequenceName);
 
-            property.SqlServer().SequenceName = "Tasty.Snook";
+            property.SqlServer().SequenceName = "Snook";
 
-            Assert.Equal("Tasty.Snook", property.SqlServer().SequenceName);
-            Assert.Equal("Tasty.Snook", ((IProperty)property).SqlServer().SequenceName);
+            Assert.Equal("Snook", property.SqlServer().SequenceName);
+            Assert.Equal("Snook", ((IProperty)property).SqlServer().SequenceName);
 
             property.SqlServer().SequenceName = null;
 
@@ -610,10 +682,223 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             Assert.Null(((IProperty)property).SqlServer().SequenceName);
         }
 
+        [Fact]
+        public void Can_get_and_set_sequence_schema_on_property()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            var property = modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Id)
+                .Metadata;
+
+            Assert.Null(property.SqlServer().SequenceSchema);
+            Assert.Null(((IProperty)property).SqlServer().SequenceSchema);
+
+            property.SqlServer().SequenceSchema = "Tasty";
+
+            Assert.Equal("Tasty", property.SqlServer().SequenceSchema);
+            Assert.Equal("Tasty", ((IProperty)property).SqlServer().SequenceSchema);
+
+            property.SqlServer().SequenceSchema = null;
+
+            Assert.Null(property.SqlServer().SequenceSchema);
+            Assert.Null(((IProperty)property).SqlServer().SequenceSchema);
+        }
+
+        [Fact]
+        public void TryGetSequence_returns_null_if_property_is_not_configured_for_sequence_value_generation()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            var property = modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Id)
+                .Metadata;
+
+            modelBuilder.Model.SqlServer().AddOrReplaceSequence(new Sequence("DaneelOlivaw"));
+
+            Assert.Null(property.SqlServer().TryGetSequence());
+            Assert.Null(((IProperty)property).SqlServer().TryGetSequence());
+
+            property.SqlServer().SequenceName = "DaneelOlivaw";
+
+            Assert.Null(property.SqlServer().TryGetSequence());
+            Assert.Null(((IProperty)property).SqlServer().TryGetSequence());
+
+            modelBuilder.Model.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Identity;
+
+            Assert.Null(property.SqlServer().TryGetSequence());
+            Assert.Null(((IProperty)property).SqlServer().TryGetSequence());
+
+            modelBuilder.Model.SqlServer().ValueGenerationStrategy = null;
+            property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Identity;
+
+            Assert.Null(property.SqlServer().TryGetSequence());
+            Assert.Null(((IProperty)property).SqlServer().TryGetSequence());
+        }
+
+        [Fact]
+        public void TryGetSequence_returns_sequence_property_is_marked_for_sequence_generation()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            var property = modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Id)
+                .Metadata;
+
+            modelBuilder.Model.SqlServer().AddOrReplaceSequence(new Sequence("DaneelOlivaw"));
+            property.SqlServer().SequenceName = "DaneelOlivaw";
+            property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Sequence;
+
+            Assert.Equal("DaneelOlivaw", property.SqlServer().TryGetSequence().Name);
+            Assert.Equal("DaneelOlivaw", ((IProperty)property).SqlServer().TryGetSequence().Name);
+        }
+
+        [Fact]
+        public void TryGetSequence_returns_sequence_model_is_marked_for_sequence_generation()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            var property = modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Id)
+                .Metadata;
+
+            modelBuilder.Model.SqlServer().AddOrReplaceSequence(new Sequence("DaneelOlivaw"));
+            modelBuilder.Model.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Sequence;
+            property.SqlServer().SequenceName = "DaneelOlivaw";
+
+            Assert.Equal("DaneelOlivaw", property.SqlServer().TryGetSequence().Name);
+            Assert.Equal("DaneelOlivaw", ((IProperty)property).SqlServer().TryGetSequence().Name);
+        }
+
+        [Fact]
+        public void TryGetSequence_returns_sequence_property_is_marked_for_sequence_generation_and_model_has_name()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            var property = modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Id)
+                .Metadata;
+
+            modelBuilder.Model.SqlServer().AddOrReplaceSequence(new Sequence("DaneelOlivaw"));
+            modelBuilder.Model.SqlServer().DefaultSequenceName = "DaneelOlivaw";
+            property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Sequence;
+
+            Assert.Equal("DaneelOlivaw", property.SqlServer().TryGetSequence().Name);
+            Assert.Equal("DaneelOlivaw", ((IProperty)property).SqlServer().TryGetSequence().Name);
+        }
+
+        [Fact]
+        public void TryGetSequence_returns_sequence_model_is_marked_for_sequence_generation_and_model_has_name()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            var property = modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Id)
+                .Metadata;
+
+            modelBuilder.Model.SqlServer().AddOrReplaceSequence(new Sequence("DaneelOlivaw"));
+            modelBuilder.Model.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Sequence;
+            modelBuilder.Model.SqlServer().DefaultSequenceName = "DaneelOlivaw";
+
+            Assert.Equal("DaneelOlivaw", property.SqlServer().TryGetSequence().Name);
+            Assert.Equal("DaneelOlivaw", ((IProperty)property).SqlServer().TryGetSequence().Name);
+        }
+
+        [Fact]
+        public void TryGetSequence_with_schema_returns_sequence_property_is_marked_for_sequence_generation()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            var property = modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Id)
+                .Metadata;
+
+            modelBuilder.Model.SqlServer().AddOrReplaceSequence(new Sequence("DaneelOlivaw", "R"));
+            property.SqlServer().SequenceName = "DaneelOlivaw";
+            property.SqlServer().SequenceSchema = "R";
+            property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Sequence;
+
+            Assert.Equal("DaneelOlivaw", property.SqlServer().TryGetSequence().Name);
+            Assert.Equal("DaneelOlivaw", ((IProperty)property).SqlServer().TryGetSequence().Name);
+            Assert.Equal("R", property.SqlServer().TryGetSequence().Schema);
+            Assert.Equal("R", ((IProperty)property).SqlServer().TryGetSequence().Schema);
+        }
+
+        [Fact]
+        public void TryGetSequence_with_schema_returns_sequence_model_is_marked_for_sequence_generation()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            var property = modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Id)
+                .Metadata;
+
+            modelBuilder.Model.SqlServer().AddOrReplaceSequence(new Sequence("DaneelOlivaw", "R"));
+            modelBuilder.Model.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Sequence;
+            property.SqlServer().SequenceName = "DaneelOlivaw";
+            property.SqlServer().SequenceSchema = "R";
+
+            Assert.Equal("DaneelOlivaw", property.SqlServer().TryGetSequence().Name);
+            Assert.Equal("DaneelOlivaw", ((IProperty)property).SqlServer().TryGetSequence().Name);
+            Assert.Equal("R", property.SqlServer().TryGetSequence().Schema);
+            Assert.Equal("R", ((IProperty)property).SqlServer().TryGetSequence().Schema);
+        }
+
+        [Fact]
+        public void TryGetSequence_with_schema_returns_sequence_property_is_marked_for_sequence_generation_and_model_has_name()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            var property = modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Id)
+                .Metadata;
+
+            modelBuilder.Model.SqlServer().AddOrReplaceSequence(new Sequence("DaneelOlivaw", "R"));
+            modelBuilder.Model.SqlServer().DefaultSequenceName = "DaneelOlivaw";
+            modelBuilder.Model.SqlServer().DefaultSequenceSchema = "R";
+            property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Sequence;
+
+            Assert.Equal("DaneelOlivaw", property.SqlServer().TryGetSequence().Name);
+            Assert.Equal("DaneelOlivaw", ((IProperty)property).SqlServer().TryGetSequence().Name);
+            Assert.Equal("R", property.SqlServer().TryGetSequence().Schema);
+            Assert.Equal("R", ((IProperty)property).SqlServer().TryGetSequence().Schema);
+        }
+
+        [Fact]
+        public void TryGetSequence_with_schema_returns_sequence_model_is_marked_for_sequence_generation_and_model_has_name()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            var property = modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Id)
+                .Metadata;
+
+            modelBuilder.Model.SqlServer().AddOrReplaceSequence(new Sequence("DaneelOlivaw", "R"));
+            modelBuilder.Model.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Sequence;
+            modelBuilder.Model.SqlServer().DefaultSequenceName = "DaneelOlivaw";
+            modelBuilder.Model.SqlServer().DefaultSequenceSchema = "R";
+
+            Assert.Equal("DaneelOlivaw", property.SqlServer().TryGetSequence().Name);
+            Assert.Equal("DaneelOlivaw", ((IProperty)property).SqlServer().TryGetSequence().Name);
+            Assert.Equal("R", property.SqlServer().TryGetSequence().Schema);
+            Assert.Equal("R", ((IProperty)property).SqlServer().TryGetSequence().Schema);
+        }
+
         private class Customer
         {
             public int Id { get; set; }
             public string Name { get; set; }
+            public byte Byte { get; set; }
         }
 
         private class Order

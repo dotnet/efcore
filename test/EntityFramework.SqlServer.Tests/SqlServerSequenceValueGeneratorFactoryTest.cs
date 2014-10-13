@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Services;
@@ -13,12 +12,72 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
     public class SqlServerSequenceValueGeneratorFactoryTest
     {
         [Fact]
-        public void Block_size_is_obtained_from_property_annotation()
+        public void Block_size_is_obtained_from_default_sequence()
         {
-            var property = CreateProperty();
-            property[Entity.Metadata.SqlServerMetadataExtensions.Annotations.SequenceBlockSize] = "11";
-            property.EntityType[Entity.Metadata.SqlServerMetadataExtensions.Annotations.SequenceBlockSize] = "-1";
-            property.EntityType.Model[Entity.Metadata.SqlServerMetadataExtensions.Annotations.SequenceBlockSize] = "-1";
+            var property = new ModelBuilder()
+                .Entity<Robot>()
+                .Property(e => e.Id)
+                .ForSqlServer(b => b.UseSequence())
+                .Metadata;
+
+            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new NullLoggerFactory()));
+
+            Assert.Equal(10, factory.GetBlockSize(property));
+        }
+
+        [Fact]
+        public void Block_size_is_obtained_from_named_sequence()
+        {
+            var property = new ModelBuilder()
+                .Entity<Robot>()
+                .Property(e => e.Id)
+                .ForSqlServer(b => b.UseSequence("DaneelOlivaw"))
+                .Metadata;
+
+            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new NullLoggerFactory()));
+
+            Assert.Equal(10, factory.GetBlockSize(property));
+        }
+
+        [Fact]
+        public void Block_size_is_obtained_from_model_default_sequence()
+        {
+            var property = new ModelBuilder()
+                .ForSqlServer(b => b.UseSequence())
+                .Entity<Robot>()
+                .Property(e => e.Id)
+                .GenerateValuesOnAdd()
+                .Metadata;
+
+            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new NullLoggerFactory()));
+
+            Assert.Equal(10, factory.GetBlockSize(property));
+        }
+
+        [Fact]
+        public void Block_size_is_obtained_from_named_model_default_sequence()
+        {
+            var property = new ModelBuilder()
+                .ForSqlServer(b => b.UseSequence("DaneelOlivaw"))
+                .Entity<Robot>()
+                .Property(e => e.Id)
+                .GenerateValuesOnAdd()
+                .Metadata;
+
+            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new NullLoggerFactory()));
+
+            Assert.Equal(10, factory.GetBlockSize(property));
+        }
+
+        [Fact]
+        public void Block_size_is_obtained_from_specified_default_sequence()
+        {
+            var property = new ModelBuilder()
+                .ForSqlServer(b => b.Sequence().IncrementBy(11))
+                .Entity<Robot>()
+                .Property(e => e.Id)
+                .ForSqlServer(b => b.UseSequence())
+                .Metadata;
 
             var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new NullLoggerFactory()));
 
@@ -26,11 +85,14 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         }
 
         [Fact]
-        public void Block_size_is_obtained_from_entity_type_annotation_if_not_set_on_property()
+        public void Block_size_is_obtained_from_specified_sequence()
         {
-            var property = CreateProperty();
-            property.EntityType[Entity.Metadata.SqlServerMetadataExtensions.Annotations.SequenceBlockSize] = "11";
-            property.EntityType.Model[Entity.Metadata.SqlServerMetadataExtensions.Annotations.SequenceBlockSize] = "-1";
+            var property = new ModelBuilder()
+                .ForSqlServer(b => b.Sequence("DaneelOlivaw").IncrementBy(11))
+                .Entity<Robot>()
+                .Property(e => e.Id)
+                .ForSqlServer(b => b.UseSequence("DaneelOlivaw"))
+                .Metadata;
 
             var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new NullLoggerFactory()));
 
@@ -38,10 +100,18 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         }
 
         [Fact]
-        public void Block_size_is_obtained_from_model_annotation_if_not_set_on_property_or_type()
+        public void Block_size_is_obtained_from_model_specified_model_default_sequence()
         {
-            var property = CreateProperty();
-            property.EntityType.Model[Entity.Metadata.SqlServerMetadataExtensions.Annotations.SequenceBlockSize] = "11";
+            var property = new ModelBuilder()
+                .ForSqlServer(b =>
+                    {
+                        b.UseSequence();
+                        b.Sequence().IncrementBy(11);
+                    })
+                .Entity<Robot>()
+                .Property(e => e.Id)
+                .GenerateValuesOnAdd()
+                .Metadata;
 
             var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new NullLoggerFactory()));
 
@@ -49,73 +119,245 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         }
 
         [Fact]
-        public void Default_block_size_is_used_if_not_set_anywhere()
+        public void Non_positive_block_sizes_are_not_allowed()
         {
-            var property = CreateProperty();
+            var property = new ModelBuilder()
+                .ForSqlServer(b => b.Sequence("DaneelOlivaw").IncrementBy(-1))
+                .Entity<Robot>()
+                .Property(e => e.Id)
+                .ForSqlServer(b => b.UseSequence("DaneelOlivaw"))
+                .Metadata;
 
             var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new NullLoggerFactory()));
 
-            Assert.Equal(Entity.Metadata.SqlServerMetadataExtensions.DefaultSequenceBlockSize, factory.GetBlockSize(property));
+            Assert.Equal(
+                Strings.FormatSequenceBadBlockSize(-1, "DaneelOlivaw"),
+                Assert.Throws<NotSupportedException>(() => factory.GetBlockSize(property)).Message);
         }
 
         [Fact]
-        public void Sequence_name_is_obtained_from_property_annotation()
+        public void Block_size_is_obtained_from_specified_model_default_sequence()
         {
-            var property = CreateProperty();
-            property[Entity.Metadata.SqlServerMetadataExtensions.Annotations.SequenceName] = "Robert";
-            property.EntityType[Entity.Metadata.SqlServerMetadataExtensions.Annotations.SequenceName] = "Jimmy";
-            property.EntityType.Model[Entity.Metadata.SqlServerMetadataExtensions.Annotations.SequenceName] = "Jimmy";
+            var property = new ModelBuilder()
+                .ForSqlServer(b =>
+                    {
+                        b.UseSequence("DaneelOlivaw");
+                        b.Sequence("DaneelOlivaw").IncrementBy(11);
+                    })
+                .Entity<Robot>()
+                .Property(e => e.Id)
+                .GenerateValuesOnAdd()
+                .Metadata;
 
             var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new NullLoggerFactory()));
 
-            Assert.Equal("Robert", factory.GetSequenceName(property));
+            Assert.Equal(11, factory.GetBlockSize(property));
         }
 
         [Fact]
-        public void Sequence_name_is_obtained_from_entity_type_annotation_if_not_set_on_property()
+        public void Sequence_name_is_obtained_from_default_sequence()
         {
-            var property = CreateProperty();
-            property.EntityType[Entity.Metadata.SqlServerMetadataExtensions.Annotations.SequenceName] = "Robert";
-            property.EntityType.Model[Entity.Metadata.SqlServerMetadataExtensions.Annotations.SequenceName] = "Jimmy";
+            var property = new ModelBuilder()
+                .Entity<Robot>()
+                .Property(e => e.Id)
+                .ForSqlServer(b => b.UseSequence())
+                .Metadata;
 
             var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new NullLoggerFactory()));
 
-            Assert.Equal("Robert", factory.GetSequenceName(property));
+            Assert.Equal("EntityFrameworkDefaultSequence", factory.GetSequenceName(property));
         }
 
         [Fact]
-        public void Sequence_name_is_obtained_from_model_annotation_if_not_set_on_property_or_type()
+        public void Sequence_name_is_obtained_from_named_sequence()
         {
-            var property = CreateProperty();
-            property.EntityType.Model[Entity.Metadata.SqlServerMetadataExtensions.Annotations.SequenceName] = "Robert";
+            var property = new ModelBuilder()
+                .Entity<Robot>()
+                .Property(e => e.Id)
+                .ForSqlServer(b => b.UseSequence("DaneelOlivaw"))
+                .Metadata;
 
             var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new NullLoggerFactory()));
 
-            Assert.Equal("Robert", factory.GetSequenceName(property));
+            Assert.Equal("DaneelOlivaw", factory.GetSequenceName(property));
         }
 
         [Fact]
-        public void Default_Sequence_name_is_used_if_not_set_anywhere()
+        public void Sequence_name_is_obtained_from_model_default_sequence()
         {
-            var property = CreateProperty();
+            var property = new ModelBuilder()
+                .ForSqlServer(b => b.UseSequence())
+                .Entity<Robot>()
+                .Property(e => e.Id)
+                .GenerateValuesOnAdd()
+                .Metadata;
 
             var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new NullLoggerFactory()));
 
-            Assert.Equal("MyTable_Sequence", factory.GetSequenceName(property));
+            Assert.Equal("EntityFrameworkDefaultSequence", factory.GetSequenceName(property));
+        }
+
+        [Fact]
+        public void Sequence_name_is_obtained_from_named_model_default_sequence()
+        {
+            var property = new ModelBuilder()
+                .ForSqlServer(b => b.UseSequence("DaneelOlivaw"))
+                .Entity<Robot>()
+                .Property(e => e.Id)
+                .GenerateValuesOnAdd()
+                .Metadata;
+
+            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new NullLoggerFactory()));
+
+            Assert.Equal("DaneelOlivaw", factory.GetSequenceName(property));
+        }
+
+        [Fact]
+        public void Sequence_name_is_obtained_from_specified_default_sequence()
+        {
+            var property = new ModelBuilder()
+                .ForSqlServer(b => b.Sequence().IncrementBy(11))
+                .Entity<Robot>()
+                .Property(e => e.Id)
+                .ForSqlServer(b => b.UseSequence())
+                .Metadata;
+
+            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new NullLoggerFactory()));
+
+            Assert.Equal("EntityFrameworkDefaultSequence", factory.GetSequenceName(property));
+        }
+
+        [Fact]
+        public void Sequence_name_is_obtained_from_specified_sequence()
+        {
+            var property = new ModelBuilder()
+                .ForSqlServer(b => b.Sequence("DaneelOlivaw").IncrementBy(11))
+                .Entity<Robot>()
+                .Property(e => e.Id)
+                .ForSqlServer(b => b.UseSequence("DaneelOlivaw"))
+                .Metadata;
+
+            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new NullLoggerFactory()));
+
+            Assert.Equal("DaneelOlivaw", factory.GetSequenceName(property));
+        }
+
+        [Fact]
+        public void Sequence_name_is_obtained_from_model_specified_model_default_sequence()
+        {
+            var property = new ModelBuilder()
+                .ForSqlServer(b =>
+                    {
+                        b.UseSequence();
+                        b.Sequence().IncrementBy(11);
+                    })
+                .Entity<Robot>()
+                .Property(e => e.Id)
+                .GenerateValuesOnAdd()
+                .Metadata;
+
+            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new NullLoggerFactory()));
+
+            Assert.Equal("EntityFrameworkDefaultSequence", factory.GetSequenceName(property));
+        }
+
+        [Fact]
+        public void Sequence_name_is_obtained_from_specified_model_default_sequence()
+        {
+            var property = new ModelBuilder()
+                .ForSqlServer(b =>
+                    {
+                        b.UseSequence("DaneelOlivaw");
+                        b.Sequence("DaneelOlivaw").IncrementBy(11);
+                    })
+                .Entity<Robot>()
+                .Property(e => e.Id)
+                .GenerateValuesOnAdd()
+                .Metadata;
+
+            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new NullLoggerFactory()));
+
+            Assert.Equal("DaneelOlivaw", factory.GetSequenceName(property));
+        }
+
+        [Fact]
+        public void Schema_qualified_sequence_name_is_obtained_from_named_sequence()
+        {
+            var property = new ModelBuilder()
+                .Entity<Robot>()
+                .Property(e => e.Id)
+                .ForSqlServer(b => b.UseSequence("DaneelOlivaw", "R"))
+                .Metadata;
+
+            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new NullLoggerFactory()));
+
+            Assert.Equal("R.DaneelOlivaw", factory.GetSequenceName(property));
+        }
+
+        [Fact]
+        public void Schema_qualified_sequence_name_is_obtained_from_named_model_default_sequence()
+        {
+            var property = new ModelBuilder()
+                .ForSqlServer(b => b.UseSequence("DaneelOlivaw", "R"))
+                .Entity<Robot>()
+                .Property(e => e.Id)
+                .GenerateValuesOnAdd()
+                .Metadata;
+
+            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new NullLoggerFactory()));
+
+            Assert.Equal("R.DaneelOlivaw", factory.GetSequenceName(property));
+        }
+
+        [Fact]
+        public void Schema_qualified_sequence_name_is_obtained_from_specified_sequence()
+        {
+            var property = new ModelBuilder()
+                .ForSqlServer(b => b.Sequence("DaneelOlivaw", "R").IncrementBy(11))
+                .Entity<Robot>()
+                .Property(e => e.Id)
+                .ForSqlServer(b => b.UseSequence("DaneelOlivaw", "R"))
+                .Metadata;
+
+            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new NullLoggerFactory()));
+
+            Assert.Equal("R.DaneelOlivaw", factory.GetSequenceName(property));
+        }
+
+        [Fact]
+        public void Schema_qualified_sequence_name_is_obtained_from_specified_model_default_sequence()
+        {
+            var property = new ModelBuilder()
+                .ForSqlServer(b =>
+                    {
+                        b.UseSequence("DaneelOlivaw", "R");
+                        b.Sequence("DaneelOlivaw", "R").IncrementBy(11);
+                    })
+                .Entity<Robot>()
+                .Property(e => e.Id)
+                .GenerateValuesOnAdd()
+                .Metadata;
+
+            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new NullLoggerFactory()));
+
+            Assert.Equal("R.DaneelOlivaw", factory.GetSequenceName(property));
         }
 
         [Fact]
         public void Creates_the_appropriate_value_generator()
         {
-            var property = CreateProperty();
-            property[Entity.Metadata.SqlServerMetadataExtensions.Annotations.SequenceBlockSize] = "11";
-            property[Entity.Metadata.SqlServerMetadataExtensions.Annotations.SequenceName] = "Zeppelin";
+            var property = new ModelBuilder()
+                .ForSqlServer(b => b.Sequence("DaneelOlivaw", "R").IncrementBy(11))
+                .Entity<Robot>()
+                .Property(e => e.Id)
+                .ForSqlServer(b => b.UseSequence("DaneelOlivaw", "R"))
+                .Metadata;
 
             var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new NullLoggerFactory()));
 
             var generator = (SqlServerSequenceValueGenerator)factory.Create(property);
 
-            Assert.Equal("Zeppelin", generator.SequenceName);
+            Assert.Equal("R.DaneelOlivaw", generator.SequenceName);
             Assert.Equal(11, generator.BlockSize);
         }
 
@@ -132,25 +374,15 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         [Fact]
         public void Sequence_name_is_the_cache_key()
         {
-            var property = CreateProperty();
-            property[Entity.Metadata.SqlServerMetadataExtensions.Annotations.SequenceName] = "Led";
+            var property = new ModelBuilder()
+                .Entity<Robot>()
+                .Property(e => e.Id)
+                .ForSqlServer(b => b.UseSequence("DaneelOlivaw", "R"))
+                .Metadata;
 
             var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new NullLoggerFactory()));
 
-            Assert.Equal("Led", factory.GetCacheKey(property));
-        }
-
-        protected static IEnumerable<Type> GetAllTypes(IEnumerable<Type> types)
-        {
-            foreach (var type in types)
-            {
-                yield return type;
-
-                foreach (var nestedType in GetAllTypes(type.GetNestedTypes()))
-                {
-                    yield return nestedType;
-                }
-            }
+            Assert.Equal("R.DaneelOlivaw", factory.GetCacheKey(property));
         }
 
         private static Property CreateProperty()
@@ -160,6 +392,11 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             entityType.SetTableName("MyTable");
 
             return property;
+        }
+
+        private class Robot
+        {
+            public int Id { get; set; }
         }
     }
 }

@@ -133,7 +133,7 @@
     <value>The value provided for max batch size must be positive.</value>
   </data>
   <data name="SequenceBadBlockSize" xml:space="preserve">
-    <value>The value provided for the SQL Server sequence block size must be positive.</value>
+    <value>The increment value of '{increment}' for sequence '{sequenceName}' cannot be used for value generation. Sequences used for value generation must have positive increments.</value>
   </data>
   <data name="IdentityBadType" xml:space="preserve">
     <value>Identity value generation cannot be used for the property '{property}' on entity type '{entityType}' because the property type is '{propertyType}'. Identity value generation can only be used with signed integer properties.</value>

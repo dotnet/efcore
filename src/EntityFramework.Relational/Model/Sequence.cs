@@ -11,10 +11,10 @@ namespace Microsoft.Data.Entity.Relational.Model
     {
         private SchemaQualifiedName _name;
         private string _dataType;
-        private int _startWith;
+        private long _startWith;
         private int _incrementBy;
 
-        public Sequence(SchemaQualifiedName name, [NotNull] string dataType, int startWith, int incrementBy)
+        public Sequence(SchemaQualifiedName name, [NotNull] string dataType, long startWith, int incrementBy)
         {
             Check.NotEmpty(dataType, "dataType");
 
@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.Relational.Model
             set { _name = value; }
         }
 
-        public virtual int StartWith
+        public virtual long StartWith
         {
             get { return _startWith; }
             set { _startWith = value; }

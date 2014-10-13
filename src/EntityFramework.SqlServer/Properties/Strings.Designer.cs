@@ -91,23 +91,7 @@ namespace Microsoft.Data.Entity.SqlServer
         }
 
         /// <summary>
-        /// The start value provided for the SQL Server sequence must be an integer.
-        /// </summary>
-        internal static string SequenceBadStartWith
-        {
-            get { return GetString("SequenceBadStartWith"); }
-        }
-
-        /// <summary>
-        /// The start value provided for the SQL Server sequence must be an integer.
-        /// </summary>
-        internal static string FormatSequenceBadStartWith()
-        {
-            return GetString("SequenceBadStartWith");
-        }
-
-        /// <summary>
-        /// The value provided for the SQL Server sequence block size must be a positive integer.
+        /// The increment value of '{increment}' for sequence '{sequenceName}' cannot be used for value generation. Sequences used for value generation must have positive increments.
         /// </summary>
         internal static string SequenceBadBlockSize
         {
@@ -115,11 +99,11 @@ namespace Microsoft.Data.Entity.SqlServer
         }
 
         /// <summary>
-        /// The value provided for the SQL Server sequence block size must be a positive integer.
+        /// The increment value of '{increment}' for sequence '{sequenceName}' cannot be used for value generation. Sequences used for value generation must have positive increments.
         /// </summary>
-        internal static string FormatSequenceBadBlockSize()
+        internal static string FormatSequenceBadBlockSize(object increment, object sequenceName)
         {
-            return GetString("SequenceBadBlockSize");
+            return string.Format(CultureInfo.CurrentCulture, GetString("SequenceBadBlockSize", "increment", "sequenceName"), increment, sequenceName);
         }
 
         /// <summary>

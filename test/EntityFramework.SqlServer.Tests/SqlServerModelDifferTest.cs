@@ -18,8 +18,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             sourceModelBuilder.Entity("A",
                 b =>
                     {
-                        b.Property<int>("Id")
-                            .GenerateValuesUsingSequence("dbo.S", 6);
+                        b.Property<int>("Id").ForSqlServer().UseSequence("S", "dbo");
                         b.Key("Id").KeyName("PK");
                     });
 
@@ -27,8 +26,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             targetModelBuilder.Entity("A",
                 b =>
                     {
-                        b.Property<int>("Id")
-                            .GenerateValuesUsingSequence("OtherSchema.S", 6);
+                        b.Property<int>("Id").ForSqlServer().UseSequence("S", "OtherSchema");
                         b.Key("Id").KeyName("PK");
                     });
 
@@ -51,8 +49,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             sourceModelBuilder.Entity("A",
                 b =>
                     {
-                        b.Property<int>("Id")
-                            .GenerateValuesUsingSequence("dbo.S1", 6);
+                        b.Property<int>("Id").ForSqlServer().UseSequence("S1", "dbo");
                         b.Key("Id").KeyName("PK");
                     });
 
@@ -60,8 +57,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             targetModelBuilder.Entity("A",
                 b =>
                     {
-                        b.Property<int>("Id")
-                            .GenerateValuesUsingSequence("dbo.S2", 6);
+                        b.Property<int>("Id").ForSqlServer().UseSequence("S2", "dbo");
                         b.Key("Id").KeyName("PK");
                     });
 
@@ -84,8 +80,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             sourceModelBuilder.Entity("A",
                 b =>
                     {
-                        b.Property<int>("Id")
-                            .GenerateValuesUsingSequence("dbo.S1", 6);
+                        b.Property<int>("Id").ForSqlServer().UseSequence("S1", "dbo");
                         b.Property<short>("P");
                         b.Key("Id");
                     });
@@ -94,10 +89,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             targetModelBuilder.Entity("A",
                 b =>
                     {
-                        b.Property<int>("Id")
-                            .GenerateValuesUsingSequence("dbo.S1", 6);
-                        b.Property<short>("P")
-                            .GenerateValuesUsingSequence("dbo.S2", 7);
+                        b.Property<int>("Id").ForSqlServer().UseSequence("S1", "dbo");
+                        b.Property<short>("P").ForSqlServer().UseSequence("S2", "dbo");
                         b.Key("Id");
                     });
 
@@ -118,7 +111,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var alterColumnOperation = (AlterColumnOperation)operations[1];
 
             Assert.Equal(ValueGeneration.None, sourceDbModel.GetTable(alterColumnOperation.TableName).GetColumn(alterColumnOperation.NewColumn.Name).ValueGenerationStrategy);
-            Assert.Equal(ValueGeneration.OnAdd, alterColumnOperation.NewColumn.ValueGenerationStrategy);            
+            Assert.Equal(ValueGeneration.OnAdd, alterColumnOperation.NewColumn.ValueGenerationStrategy);
         }
 
         [Fact]
@@ -128,10 +121,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             sourceModelBuilder.Entity("A",
                 b =>
                     {
-                        b.Property<int>("Id")
-                            .GenerateValuesUsingSequence("dbo.S1", 6);
-                        b.Property<short>("P")
-                            .GenerateValuesUsingSequence("dbo.S2", 7);
+                        b.Property<int>("Id").ForSqlServer().UseSequence("S1", "dbo");
+                        b.Property<short>("P").ForSqlServer().UseSequence("S2", "dbo");
                         b.Key("Id");
                     });
 
@@ -139,8 +130,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             targetModelBuilder.Entity("A",
                 b =>
                     {
-                        b.Property<int>("Id")
-                            .GenerateValuesUsingSequence("dbo.S1", 6);
+                        b.Property<int>("Id").ForSqlServer().UseSequence("S1", "dbo");
                         b.Property<short>("P");
                         b.Key("Id");
                     });
@@ -169,22 +159,26 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         public void Diff_finds_altered_sequence()
         {
             var sourceModelBuilder = new BasicModelBuilder();
-            sourceModelBuilder.Entity("A",
-                b =>
-                {
-                    b.Property<int>("Id")
-                        .GenerateValuesUsingSequence("dbo.S", 6);
-                    b.Key("Id");
-                });
+            sourceModelBuilder
+                .ForSqlServer(
+                    b => { b.Sequence("S", "dbo").IncrementBy(6); })
+                .Entity("A",
+                    b =>
+                        {
+                            b.Property<int>("Id").ForSqlServer().UseSequence("S", "dbo");
+                            b.Key("Id");
+                        });
 
             var targetModelBuilder = new BasicModelBuilder();
-            targetModelBuilder.Entity("A",
-                b =>
-                {
-                    b.Property<int>("Id")
-                        .GenerateValuesUsingSequence("dbo.S", 7);
-                    b.Key("Id");
-                });
+            targetModelBuilder
+                .ForSqlServer(
+                    b => { b.Sequence("S", "dbo").IncrementBy(7); })
+                .Entity("A",
+                    b =>
+                        {
+                            b.Property<int>("Id").ForSqlServer().UseSequence("S", "dbo");
+                            b.Key("Id");
+                        });
 
             var operations = new SqlServerModelDiffer(new SqlServerDatabaseBuilder()).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
@@ -209,10 +203,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             sourceModelBuilder.Entity("A",
                 b =>
                     {
-                        b.Property<int>("Id")
-                            .GenerateValuesUsingSequence("dbo.S0", 6);
-                        b.Property<int>("P")
-                            .GenerateValuesUsingSequence("dbo.S1", 6);
+                        b.Property<int>("Id").ForSqlServer().UseSequence("S0", "dbo");
+                        b.Property<int>("P").ForSqlServer().UseSequence("S1", "dbo");
                         b.Key("Id").KeyName("PK");
                     });
 
@@ -220,10 +212,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             targetModelBuilder.Entity("A",
                 b =>
                     {
-                        b.Property<int>("Id")
-                            .GenerateValuesUsingSequence("dbo.S1", 6);
-                        b.Property<int>("P")
-                            .GenerateValuesUsingSequence("dbo.S0", 6);
+                        b.Property<int>("Id").ForSqlServer().UseSequence("S1", "dbo");
+                        b.Property<int>("P").ForSqlServer().UseSequence("S0", "dbo");
                         b.Key("Id").KeyName("PK");
                     });
 
@@ -253,15 +243,14 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         #region Sequence matching
 
         [Fact]
-        public void Sequences_are_matched_if_specified_on_matching_properties_of_fuzzy_matched_entity_types()
+        public void Sequences_are_matched_if_named_on_matching_properties_of_fuzzy_matched_entity_types()
         {
             var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
                     {
                         b.Property<int>("Id");
-                        b.Property<int>("P1")
-                            .GenerateValuesUsingSequence("S1", 6);
+                        b.Property<int>("P1").ForSqlServer().UseSequence("S1");
                         b.Key("Id").KeyName("PK");
                     });
 
@@ -270,11 +259,53 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 b =>
                     {
                         b.Property<int>("Id");
-                        b.Property<int>("P1")
-                            .GenerateValuesUsingSequence("S2", 7);
+                        b.Property<int>("P1").ForSqlServer().UseSequence("S2");
                         b.Property<string>("P2");
                         b.Key("Id").KeyName("PK");
                     });
+
+            var operations = new SqlServerModelDiffer(new SqlServerDatabaseBuilder()).Diff(
+                sourceModelBuilder.Model, targetModelBuilder.Model);
+
+            Assert.Equal(3, operations.Count);
+
+            Assert.IsType<RenameSequenceOperation>(operations[0]);
+            Assert.IsType<RenameTableOperation>(operations[1]);
+            Assert.IsType<AddColumnOperation>(operations[2]);
+
+            var renameSequenceOperation = (RenameSequenceOperation)operations[0];
+
+            Assert.Equal("S1", renameSequenceOperation.SequenceName);
+            Assert.Equal("S2", renameSequenceOperation.NewSequenceName);
+        }
+
+        [Fact]
+        public void Sequences_are_matched_if_specified_on_matching_properties_of_fuzzy_matched_entity_types()
+        {
+            var sourceModelBuilder = new BasicModelBuilder();
+            sourceModelBuilder
+                .ForSqlServer(
+                    b => { b.Sequence("S1").IncrementBy(6); })
+                .Entity("A",
+                    b =>
+                        {
+                            b.Property<int>("Id");
+                            b.Property<int>("P1").ForSqlServer().UseSequence("S1");
+                            b.Key("Id").KeyName("PK");
+                        });
+
+            var targetModelBuilder = new BasicModelBuilder();
+            targetModelBuilder
+                .ForSqlServer(
+                    b => { b.Sequence("S2").IncrementBy(7); })
+                .Entity("B",
+                    b =>
+                        {
+                            b.Property<int>("Id");
+                            b.Property<int>("P1").ForSqlServer().UseSequence("S2");
+                            b.Property<string>("P2");
+                            b.Key("Id").KeyName("PK");
+                        });
 
             var operations = new SqlServerModelDiffer(new SqlServerDatabaseBuilder()).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
@@ -296,7 +327,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         }
 
         [Fact]
-        public void Sequences_are_matched_if_specified_on_properties_with_same_name_and_different_column_names()
+        public void Sequences_are_matched_if_named_on_properties_with_same_name_and_different_column_names()
         {
             var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
@@ -305,7 +336,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                         b.Property<int>("Id");
                         b.Property<int>("P")
                             .ColumnName("C1")
-                            .GenerateValuesUsingSequence("S1", 6);
+                            .ForSqlServer().UseSequence("S1");
                         b.Key("Id");
                     });
 
@@ -316,9 +347,54 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                         b.Property<int>("Id");
                         b.Property<int>("P")
                             .ColumnName("C2")
-                            .GenerateValuesUsingSequence("S2", 7);
+                            .ForSqlServer().UseSequence("S2");
                         b.Key("Id");
                     });
+
+            var operations = new SqlServerModelDiffer(new SqlServerDatabaseBuilder()).Diff(
+                sourceModelBuilder.Model, targetModelBuilder.Model);
+
+            Assert.Equal(2, operations.Count);
+
+            Assert.IsType<RenameSequenceOperation>(operations[0]);
+            Assert.IsType<RenameColumnOperation>(operations[1]);
+
+            var renameSequenceOperation = (RenameSequenceOperation)operations[0];
+
+            Assert.Equal("S1", renameSequenceOperation.SequenceName);
+            Assert.Equal("S2", renameSequenceOperation.NewSequenceName);
+        }
+
+        [Fact]
+        public void Sequences_are_matched_if_specified_on_properties_with_same_name_and_different_column_names()
+        {
+            var sourceModelBuilder = new BasicModelBuilder();
+            sourceModelBuilder
+                .ForSqlServer(
+                    b => { b.Sequence("S1").IncrementBy(6); })
+                .Entity("A",
+                    b =>
+                        {
+                            b.Property<int>("Id");
+                            b.Property<int>("P")
+                                .ColumnName("C1")
+                                .ForSqlServer().UseSequence("S1");
+                            b.Key("Id");
+                        });
+
+            var targetModelBuilder = new BasicModelBuilder();
+            targetModelBuilder
+                .ForSqlServer(
+                    b => { b.Sequence("S2").IncrementBy(7); })
+                .Entity("A",
+                    b =>
+                        {
+                            b.Property<int>("Id");
+                            b.Property<int>("P")
+                                .ColumnName("C2")
+                                .ForSqlServer().UseSequence("S2");
+                            b.Key("Id");
+                        });
 
             var operations = new SqlServerModelDiffer(new SqlServerDatabaseBuilder()).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
@@ -342,26 +418,32 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         public void Sequences_are_matched_if_specified_on_different_properties_with_same_column_names()
         {
             var sourceModelBuilder = new BasicModelBuilder();
-            sourceModelBuilder.Entity("A",
-                b =>
-                    {
-                        b.Property<int>("Id");
-                        b.Property<int>("P1")
-                            .ColumnName("C")
-                            .GenerateValuesUsingSequence("S1", 6);
-                        b.Key("Id");
-                    });
+            sourceModelBuilder
+                .ForSqlServer(
+                    b => { b.Sequence("S1").IncrementBy(6); })
+                .Entity("A",
+                    b =>
+                        {
+                            b.Property<int>("Id");
+                            b.Property<int>("P1")
+                                .ColumnName("C")
+                                .ForSqlServer().UseSequence("S1");
+                            b.Key("Id");
+                        });
 
             var targetModelBuilder = new BasicModelBuilder();
-            targetModelBuilder.Entity("A",
-                b =>
-                    {
-                        b.Property<int>("Id");
-                        b.Property<int>("P2")
-                            .ColumnName("C")
-                            .GenerateValuesUsingSequence("S2", 7);
-                        b.Key("Id");
-                    });
+            targetModelBuilder
+                .ForSqlServer(
+                    b => { b.Sequence("S2").IncrementBy(7); })
+                .Entity("A",
+                    b =>
+                        {
+                            b.Property<int>("Id");
+                            b.Property<int>("P2")
+                                .ColumnName("C")
+                                .ForSqlServer().UseSequence("S2");
+                            b.Key("Id");
+                        });
 
             var operations = new SqlServerModelDiffer(new SqlServerDatabaseBuilder()).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
@@ -381,27 +463,63 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         }
 
         [Fact]
+        public void Sequences_are_matched_if_named_on_different_properties_with_same_column_names()
+        {
+            var sourceModelBuilder = new BasicModelBuilder();
+            sourceModelBuilder.Entity("A",
+                b =>
+                    {
+                        b.Property<int>("Id");
+                        b.Property<int>("P1")
+                            .ColumnName("C")
+                            .ForSqlServer().UseSequence("S1");
+                        b.Key("Id");
+                    });
+
+            var targetModelBuilder = new BasicModelBuilder();
+            targetModelBuilder.Entity("A",
+                b =>
+                    {
+                        b.Property<int>("Id");
+                        b.Property<int>("P2")
+                            .ColumnName("C")
+                            .ForSqlServer().UseSequence("S2");
+                        b.Key("Id");
+                    });
+
+            var operations = new SqlServerModelDiffer(new SqlServerDatabaseBuilder()).Diff(
+                sourceModelBuilder.Model, targetModelBuilder.Model);
+
+            Assert.Equal(1, operations.Count);
+
+            Assert.IsType<RenameSequenceOperation>(operations[0]);
+
+            var renameSequenceOperation = (RenameSequenceOperation)operations[0];
+
+            Assert.Equal("S1", renameSequenceOperation.SequenceName);
+            Assert.Equal("S2", renameSequenceOperation.NewSequenceName);
+        }
+
+        [Fact]
         public void Sequences_are_matched_if_specified_on_matching_properties_with_different_clr_types()
         {
             var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<int>("P")
-                        .GenerateValuesUsingSequence("S", 6);
-                    b.Key("Id");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<int>("P").ForSqlServer().UseSequence("S");
+                        b.Key("Id");
+                    });
 
             var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<short>("P")
-                        .GenerateValuesUsingSequence("S", 6);
-                    b.Key("Id");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<short>("P").ForSqlServer().UseSequence("S");
+                        b.Key("Id");
+                    });
 
             var operations = new SqlServerModelDiffer(new SqlServerDatabaseBuilder()).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);

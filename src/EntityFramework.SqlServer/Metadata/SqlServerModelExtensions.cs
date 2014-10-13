@@ -40,6 +40,19 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
 
         }
 
+        public new virtual string DefaultSequenceSchema
+        {
+            get { return base.DefaultSequenceSchema; }
+            [param: CanBeNull]
+            set
+            {
+                Check.NullButNotEmpty(value, "value");
+
+                ((Model)Model)[SqlServerDefaultSequenceSchemaAnnotation] = value;
+            }
+
+        }
+
         public virtual Sequence AddOrReplaceSequence([NotNull] Sequence sequence)
         {
             Check.NotNull(sequence, "sequence");

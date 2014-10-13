@@ -59,7 +59,6 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.tt</DependentUpon>
     </Compile>
-    <Compile Include="Extensions\SqlServerMetadataExtensions.cs" />
     <Compile Include="Metadata\ISqlServerEntityTypeExtensions.cs" />
     <Compile Include="Metadata\ISqlServerForeignKeyExtensions.cs" />
     <Compile Include="Metadata\ISqlServerIndexExtensions.cs" />

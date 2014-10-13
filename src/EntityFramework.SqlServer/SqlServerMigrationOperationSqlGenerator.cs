@@ -9,6 +9,7 @@ using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Model;
+using Microsoft.Data.Entity.SqlServer.Metadata;
 using Microsoft.Data.Entity.SqlServer.Utilities;
 using Microsoft.Data.Entity.Utilities;
 
@@ -181,9 +182,12 @@ namespace Microsoft.Data.Entity.SqlServer
             // TODO: This is essentially duplicated logic from the selector; combine if possible
             if (column.ValueGenerationStrategy == ValueGeneration.OnAdd)
             {
-                var strategy = column[Entity.Metadata.SqlServerMetadataExtensions.Annotations.ValueGeneration];
+                // TODO: This can't use the normal APIs because all the annotations have been
+                // copied from the core metadata into the relational model.
 
-                if (strategy == Entity.Metadata.SqlServerMetadataExtensions.Annotations.Identity
+                var strategy = column[SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ValueGeneration];
+
+                if (strategy == SqlServerValueGenerationStrategy.Identity.ToString()
                     || (strategy == null
                         && column.ClrType.IsInteger()))
                 {

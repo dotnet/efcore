@@ -1310,13 +1310,14 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             modelBuilder
                 .ForSqlServer()
-                .UseSequences();
+                .UseSequence();
 
             var relationalExtensions = modelBuilder.Model.Relational();
             var sqlServerExtensions = modelBuilder.Model.SqlServer();
 
             Assert.Equal(SqlServerValueGenerationStrategy.Sequence, sqlServerExtensions.ValueGenerationStrategy);
             Assert.Null(sqlServerExtensions.DefaultSequenceName);
+            Assert.Null(sqlServerExtensions.DefaultSequenceSchema);
 
             Assert.Null(relationalExtensions.TryGetSequence(Sequence.DefaultName));
             Assert.Null(sqlServerExtensions.TryGetSequence(Sequence.DefaultName));
@@ -1328,13 +1329,14 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var modelBuilder = new BasicModelBuilder();
 
             modelBuilder
-                .ForSqlServer(b => { b.UseSequences(); });
+                .ForSqlServer(b => { b.UseSequence(); });
 
             var relationalExtensions = modelBuilder.Model.Relational();
             var sqlServerExtensions = modelBuilder.Model.SqlServer();
 
             Assert.Equal(SqlServerValueGenerationStrategy.Sequence, sqlServerExtensions.ValueGenerationStrategy);
             Assert.Null(sqlServerExtensions.DefaultSequenceName);
+            Assert.Null(sqlServerExtensions.DefaultSequenceSchema);
 
             Assert.Null(relationalExtensions.TryGetSequence(Sequence.DefaultName));
             Assert.Null(sqlServerExtensions.TryGetSequence(Sequence.DefaultName));
@@ -1347,13 +1349,14 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             modelBuilder
                 .ForSqlServer()
-                .UseSequences();
+                .UseSequence();
 
             var relationalExtensions = modelBuilder.Model.Relational();
             var sqlServerExtensions = modelBuilder.Model.SqlServer();
 
             Assert.Equal(SqlServerValueGenerationStrategy.Sequence, sqlServerExtensions.ValueGenerationStrategy);
             Assert.Null(sqlServerExtensions.DefaultSequenceName);
+            Assert.Null(sqlServerExtensions.DefaultSequenceSchema);
 
             Assert.Null(relationalExtensions.TryGetSequence(Sequence.DefaultName));
             Assert.Null(sqlServerExtensions.TryGetSequence(Sequence.DefaultName));
@@ -1365,13 +1368,14 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var modelBuilder = new ModelBuilder();
 
             modelBuilder
-                .ForSqlServer(b => { b.UseSequences(); });
+                .ForSqlServer(b => { b.UseSequence(); });
 
             var relationalExtensions = modelBuilder.Model.Relational();
             var sqlServerExtensions = modelBuilder.Model.SqlServer();
 
             Assert.Equal(SqlServerValueGenerationStrategy.Sequence, sqlServerExtensions.ValueGenerationStrategy);
             Assert.Null(sqlServerExtensions.DefaultSequenceName);
+            Assert.Null(sqlServerExtensions.DefaultSequenceSchema);
 
             Assert.Null(relationalExtensions.TryGetSequence(Sequence.DefaultName));
             Assert.Null(sqlServerExtensions.TryGetSequence(Sequence.DefaultName));
@@ -1393,13 +1397,14 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             modelBuilder
                 .ForSqlServer()
-                .UseSequences("Snook");
+                .UseSequence("Snook");
 
             var relationalExtensions = modelBuilder.Model.Relational();
             var sqlServerExtensions = modelBuilder.Model.SqlServer();
 
             Assert.Equal(SqlServerValueGenerationStrategy.Sequence, sqlServerExtensions.ValueGenerationStrategy);
-            Assert.Equal(".Snook", sqlServerExtensions.DefaultSequenceName);
+            Assert.Equal("Snook", sqlServerExtensions.DefaultSequenceName);
+            Assert.Null(sqlServerExtensions.DefaultSequenceSchema);
 
             Assert.Null(relationalExtensions.TryGetSequence("Snook"));
             ValidateNamedSequence(sqlServerExtensions.TryGetSequence("Snook"));
@@ -1411,13 +1416,14 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var modelBuilder = new BasicModelBuilder();
 
             modelBuilder
-                .ForSqlServer(b => { b.UseSequences("Snook"); });
+                .ForSqlServer(b => { b.UseSequence("Snook"); });
 
             var relationalExtensions = modelBuilder.Model.Relational();
             var sqlServerExtensions = modelBuilder.Model.SqlServer();
 
             Assert.Equal(SqlServerValueGenerationStrategy.Sequence, sqlServerExtensions.ValueGenerationStrategy);
-            Assert.Equal(".Snook", sqlServerExtensions.DefaultSequenceName);
+            Assert.Equal("Snook", sqlServerExtensions.DefaultSequenceName);
+            Assert.Null(sqlServerExtensions.DefaultSequenceSchema);
 
             Assert.Null(relationalExtensions.TryGetSequence("Snook"));
             ValidateNamedSequence(sqlServerExtensions.TryGetSequence("Snook"));
@@ -1430,13 +1436,14 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             modelBuilder
                 .ForSqlServer()
-                .UseSequences("Snook");
+                .UseSequence("Snook");
 
             var relationalExtensions = modelBuilder.Model.Relational();
             var sqlServerExtensions = modelBuilder.Model.SqlServer();
 
             Assert.Equal(SqlServerValueGenerationStrategy.Sequence, sqlServerExtensions.ValueGenerationStrategy);
-            Assert.Equal(".Snook", sqlServerExtensions.DefaultSequenceName);
+            Assert.Equal("Snook", sqlServerExtensions.DefaultSequenceName);
+            Assert.Null(sqlServerExtensions.DefaultSequenceSchema);
 
             Assert.Null(relationalExtensions.TryGetSequence("Snook"));
             ValidateNamedSequence(sqlServerExtensions.TryGetSequence("Snook"));
@@ -1448,13 +1455,14 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var modelBuilder = new ModelBuilder();
 
             modelBuilder
-                .ForSqlServer(b => { b.UseSequences("Snook"); });
+                .ForSqlServer(b => { b.UseSequence("Snook"); });
 
             var relationalExtensions = modelBuilder.Model.Relational();
             var sqlServerExtensions = modelBuilder.Model.SqlServer();
 
             Assert.Equal(SqlServerValueGenerationStrategy.Sequence, sqlServerExtensions.ValueGenerationStrategy);
-            Assert.Equal(".Snook", sqlServerExtensions.DefaultSequenceName);
+            Assert.Equal("Snook", sqlServerExtensions.DefaultSequenceName);
+            Assert.Null(sqlServerExtensions.DefaultSequenceSchema);
 
             Assert.Null(relationalExtensions.TryGetSequence("Snook"));
             ValidateNamedSequence(sqlServerExtensions.TryGetSequence("Snook"));
@@ -1478,13 +1486,14 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             modelBuilder
                 .ForSqlServer()
-                .UseSequences("Snook", "Tasty");
+                .UseSequence("Snook", "Tasty");
 
             var relationalExtensions = modelBuilder.Model.Relational();
             var sqlServerExtensions = modelBuilder.Model.SqlServer();
 
             Assert.Equal(SqlServerValueGenerationStrategy.Sequence, sqlServerExtensions.ValueGenerationStrategy);
-            Assert.Equal("Tasty.Snook", sqlServerExtensions.DefaultSequenceName);
+            Assert.Equal("Snook", sqlServerExtensions.DefaultSequenceName);
+            Assert.Equal("Tasty", sqlServerExtensions.DefaultSequenceSchema);
 
             Assert.Null(relationalExtensions.TryGetSequence("Snook", "Tasty"));
             ValidateSchemaNamedSequence(sqlServerExtensions.TryGetSequence("Snook", "Tasty"));
@@ -1496,13 +1505,14 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var modelBuilder = new BasicModelBuilder();
 
             modelBuilder
-                .ForSqlServer(b => { b.UseSequences("Snook", "Tasty"); });
+                .ForSqlServer(b => { b.UseSequence("Snook", "Tasty"); });
 
             var relationalExtensions = modelBuilder.Model.Relational();
             var sqlServerExtensions = modelBuilder.Model.SqlServer();
 
             Assert.Equal(SqlServerValueGenerationStrategy.Sequence, sqlServerExtensions.ValueGenerationStrategy);
-            Assert.Equal("Tasty.Snook", sqlServerExtensions.DefaultSequenceName);
+            Assert.Equal("Snook", sqlServerExtensions.DefaultSequenceName);
+            Assert.Equal("Tasty", sqlServerExtensions.DefaultSequenceSchema);
 
             Assert.Null(relationalExtensions.TryGetSequence("Snook", "Tasty"));
             ValidateSchemaNamedSequence(sqlServerExtensions.TryGetSequence("Snook", "Tasty"));
@@ -1515,13 +1525,14 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             modelBuilder
                 .ForSqlServer()
-                .UseSequences("Snook", "Tasty");
+                .UseSequence("Snook", "Tasty");
 
             var relationalExtensions = modelBuilder.Model.Relational();
             var sqlServerExtensions = modelBuilder.Model.SqlServer();
 
             Assert.Equal(SqlServerValueGenerationStrategy.Sequence, sqlServerExtensions.ValueGenerationStrategy);
-            Assert.Equal("Tasty.Snook", sqlServerExtensions.DefaultSequenceName);
+            Assert.Equal("Snook", sqlServerExtensions.DefaultSequenceName);
+            Assert.Equal("Tasty", sqlServerExtensions.DefaultSequenceSchema);
 
             Assert.Null(relationalExtensions.TryGetSequence("Snook", "Tasty"));
             ValidateSchemaNamedSequence(sqlServerExtensions.TryGetSequence("Snook", "Tasty"));
@@ -1533,13 +1544,14 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var modelBuilder = new ModelBuilder();
 
             modelBuilder
-                .ForSqlServer(b => { b.UseSequences("Snook", "Tasty"); });
+                .ForSqlServer(b => { b.UseSequence("Snook", "Tasty"); });
 
             var relationalExtensions = modelBuilder.Model.Relational();
             var sqlServerExtensions = modelBuilder.Model.SqlServer();
 
             Assert.Equal(SqlServerValueGenerationStrategy.Sequence, sqlServerExtensions.ValueGenerationStrategy);
-            Assert.Equal("Tasty.Snook", sqlServerExtensions.DefaultSequenceName);
+            Assert.Equal("Snook", sqlServerExtensions.DefaultSequenceName);
+            Assert.Equal("Tasty", sqlServerExtensions.DefaultSequenceSchema);
 
             Assert.Null(relationalExtensions.TryGetSequence("Snook", "Tasty"));
             ValidateSchemaNamedSequence(sqlServerExtensions.TryGetSequence("Snook", "Tasty"));
@@ -1572,13 +1584,14 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             modelBuilder
                 .ForSqlServer()
-                .UseSequences("Snook", "Tasty");
+                .UseSequence("Snook", "Tasty");
 
             var relationalExtensions = modelBuilder.Model.Relational();
             var sqlServerExtensions = modelBuilder.Model.SqlServer();
 
             Assert.Equal(SqlServerValueGenerationStrategy.Sequence, sqlServerExtensions.ValueGenerationStrategy);
-            Assert.Equal("Tasty.Snook", sqlServerExtensions.DefaultSequenceName);
+            Assert.Equal("Snook", sqlServerExtensions.DefaultSequenceName);
+            Assert.Equal("Tasty", sqlServerExtensions.DefaultSequenceSchema);
 
             ValidateSchemaNamedSpecificSequence(relationalExtensions.TryGetSequence("Snook", "Tasty"));
             ValidateSchemaNamedSpecificSequence(sqlServerExtensions.TryGetSequence("Snook", "Tasty"));
@@ -1599,13 +1612,14 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                             .Max(2222)
                             .Type<int>();
                     })
-                .ForSqlServer(b => { b.UseSequences("Snook", "Tasty"); });
+                .ForSqlServer(b => { b.UseSequence("Snook", "Tasty"); });
 
             var relationalExtensions = modelBuilder.Model.Relational();
             var sqlServerExtensions = modelBuilder.Model.SqlServer();
 
             Assert.Equal(SqlServerValueGenerationStrategy.Sequence, sqlServerExtensions.ValueGenerationStrategy);
-            Assert.Equal("Tasty.Snook", sqlServerExtensions.DefaultSequenceName);
+            Assert.Equal("Snook", sqlServerExtensions.DefaultSequenceName);
+            Assert.Equal("Tasty", sqlServerExtensions.DefaultSequenceSchema);
 
             ValidateSchemaNamedSpecificSequence(relationalExtensions.TryGetSequence("Snook", "Tasty"));
             ValidateSchemaNamedSpecificSequence(sqlServerExtensions.TryGetSequence("Snook", "Tasty"));
@@ -1627,13 +1641,14 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             modelBuilder
                 .ForSqlServer()
-                .UseSequences("Snook", "Tasty");
+                .UseSequence("Snook", "Tasty");
 
             var relationalExtensions = modelBuilder.Model.Relational();
             var sqlServerExtensions = modelBuilder.Model.SqlServer();
 
             Assert.Equal(SqlServerValueGenerationStrategy.Sequence, sqlServerExtensions.ValueGenerationStrategy);
-            Assert.Equal("Tasty.Snook", sqlServerExtensions.DefaultSequenceName);
+            Assert.Equal("Snook", sqlServerExtensions.DefaultSequenceName);
+            Assert.Equal("Tasty", sqlServerExtensions.DefaultSequenceSchema);
 
             ValidateSchemaNamedSpecificSequence(relationalExtensions.TryGetSequence("Snook", "Tasty"));
             ValidateSchemaNamedSpecificSequence(sqlServerExtensions.TryGetSequence("Snook", "Tasty"));
@@ -1654,13 +1669,14 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                             .Max(2222)
                             .Type<int>();
                     })
-                .ForSqlServer(b => { b.UseSequences("Snook", "Tasty"); });
+                .ForSqlServer(b => { b.UseSequence("Snook", "Tasty"); });
 
             var relationalExtensions = modelBuilder.Model.Relational();
             var sqlServerExtensions = modelBuilder.Model.SqlServer();
 
             Assert.Equal(SqlServerValueGenerationStrategy.Sequence, sqlServerExtensions.ValueGenerationStrategy);
-            Assert.Equal("Tasty.Snook", sqlServerExtensions.DefaultSequenceName);
+            Assert.Equal("Snook", sqlServerExtensions.DefaultSequenceName);
+            Assert.Equal("Tasty", sqlServerExtensions.DefaultSequenceSchema);
 
             ValidateSchemaNamedSpecificSequence(relationalExtensions.TryGetSequence("Snook", "Tasty"));
             ValidateSchemaNamedSpecificSequence(sqlServerExtensions.TryGetSequence("Snook", "Tasty"));
@@ -1682,13 +1698,14 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             modelBuilder
                 .ForSqlServer()
-                .UseSequences("Snook", "Tasty");
+                .UseSequence("Snook", "Tasty");
 
             var relationalExtensions = modelBuilder.Model.Relational();
             var sqlServerExtensions = modelBuilder.Model.SqlServer();
 
             Assert.Equal(SqlServerValueGenerationStrategy.Sequence, sqlServerExtensions.ValueGenerationStrategy);
-            Assert.Equal("Tasty.Snook", sqlServerExtensions.DefaultSequenceName);
+            Assert.Equal("Snook", sqlServerExtensions.DefaultSequenceName);
+            Assert.Equal("Tasty", sqlServerExtensions.DefaultSequenceSchema);
 
             Assert.Null(relationalExtensions.TryGetSequence("Snook", "Tasty"));
             ValidateSchemaNamedSpecificSequence(sqlServerExtensions.TryGetSequence("Snook", "Tasty"));
@@ -1708,14 +1725,15 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                             .Min(111)
                             .Max(2222)
                             .Type<int>();
-                        b.UseSequences("Snook", "Tasty");
+                        b.UseSequence("Snook", "Tasty");
                     });
 
             var relationalExtensions = modelBuilder.Model.Relational();
             var sqlServerExtensions = modelBuilder.Model.SqlServer();
 
             Assert.Equal(SqlServerValueGenerationStrategy.Sequence, sqlServerExtensions.ValueGenerationStrategy);
-            Assert.Equal("Tasty.Snook", sqlServerExtensions.DefaultSequenceName);
+            Assert.Equal("Snook", sqlServerExtensions.DefaultSequenceName);
+            Assert.Equal("Tasty", sqlServerExtensions.DefaultSequenceSchema);
 
             Assert.Null(relationalExtensions.TryGetSequence("Snook", "Tasty"));
             ValidateSchemaNamedSpecificSequence(sqlServerExtensions.TryGetSequence("Snook", "Tasty"));
@@ -1737,13 +1755,14 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             modelBuilder
                 .ForSqlServer()
-                .UseSequences("Snook", "Tasty");
+                .UseSequence("Snook", "Tasty");
 
             var relationalExtensions = modelBuilder.Model.Relational();
             var sqlServerExtensions = modelBuilder.Model.SqlServer();
 
             Assert.Equal(SqlServerValueGenerationStrategy.Sequence, sqlServerExtensions.ValueGenerationStrategy);
-            Assert.Equal("Tasty.Snook", sqlServerExtensions.DefaultSequenceName);
+            Assert.Equal("Snook", sqlServerExtensions.DefaultSequenceName);
+            Assert.Equal("Tasty", sqlServerExtensions.DefaultSequenceSchema);
 
             Assert.Null(relationalExtensions.TryGetSequence("Snook", "Tasty"));
             ValidateSchemaNamedSpecificSequence(sqlServerExtensions.TryGetSequence("Snook", "Tasty"));
@@ -1763,14 +1782,15 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                             .Min(111)
                             .Max(2222)
                             .Type<int>();
-                        b.UseSequences("Snook", "Tasty");
+                        b.UseSequence("Snook", "Tasty");
                     });
 
             var relationalExtensions = modelBuilder.Model.Relational();
             var sqlServerExtensions = modelBuilder.Model.SqlServer();
 
             Assert.Equal(SqlServerValueGenerationStrategy.Sequence, sqlServerExtensions.ValueGenerationStrategy);
-            Assert.Equal("Tasty.Snook", sqlServerExtensions.DefaultSequenceName);
+            Assert.Equal("Snook", sqlServerExtensions.DefaultSequenceName);
+            Assert.Equal("Tasty", sqlServerExtensions.DefaultSequenceSchema);
 
             Assert.Null(relationalExtensions.TryGetSequence("Snook", "Tasty"));
             ValidateSchemaNamedSpecificSequence(sqlServerExtensions.TryGetSequence("Snook", "Tasty"));
@@ -1801,6 +1821,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             Assert.Equal(SqlServerValueGenerationStrategy.Identity, sqlServerExtensions.ValueGenerationStrategy);
             Assert.Null(sqlServerExtensions.DefaultSequenceName);
+            Assert.Null(sqlServerExtensions.DefaultSequenceSchema);
 
             Assert.Null(relationalExtensions.TryGetSequence(Sequence.DefaultName));
             Assert.Null(sqlServerExtensions.TryGetSequence(Sequence.DefaultName));
@@ -1819,6 +1840,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             Assert.Equal(SqlServerValueGenerationStrategy.Identity, sqlServerExtensions.ValueGenerationStrategy);
             Assert.Null(sqlServerExtensions.DefaultSequenceName);
+            Assert.Null(sqlServerExtensions.DefaultSequenceSchema);
 
             Assert.Null(relationalExtensions.TryGetSequence(Sequence.DefaultName));
             Assert.Null(sqlServerExtensions.TryGetSequence(Sequence.DefaultName));
@@ -1838,6 +1860,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             Assert.Equal(SqlServerValueGenerationStrategy.Identity, sqlServerExtensions.ValueGenerationStrategy);
             Assert.Null(sqlServerExtensions.DefaultSequenceName);
+            Assert.Null(sqlServerExtensions.DefaultSequenceSchema);
 
             Assert.Null(relationalExtensions.TryGetSequence(Sequence.DefaultName));
             Assert.Null(sqlServerExtensions.TryGetSequence(Sequence.DefaultName));
@@ -1856,6 +1879,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             Assert.Equal(SqlServerValueGenerationStrategy.Identity, sqlServerExtensions.ValueGenerationStrategy);
             Assert.Null(sqlServerExtensions.DefaultSequenceName);
+            Assert.Null(sqlServerExtensions.DefaultSequenceSchema);
 
             Assert.Null(relationalExtensions.TryGetSequence(Sequence.DefaultName));
             Assert.Null(sqlServerExtensions.TryGetSequence(Sequence.DefaultName));
@@ -1958,7 +1982,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
 
             Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
-            Assert.Equal(".Snook", property.SqlServer().SequenceName);
+            Assert.Equal("Snook", property.SqlServer().SequenceName);
+            Assert.Null(property.SqlServer().SequenceSchema);
 
             Assert.Null(model.Relational().TryGetSequence("Snook"));
             ValidateNamedSequence(model.SqlServer().TryGetSequence("Snook"));
@@ -1978,7 +2003,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
 
             Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
-            Assert.Equal(".Snook", property.SqlServer().SequenceName);
+            Assert.Equal("Snook", property.SqlServer().SequenceName);
+            Assert.Null(property.SqlServer().SequenceSchema);
 
             Assert.Null(model.Relational().TryGetSequence("Snook"));
             ValidateNamedSequence(model.SqlServer().TryGetSequence("Snook"));
@@ -1999,7 +2025,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
 
             Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
-            Assert.Equal(".Snook", property.SqlServer().SequenceName);
+            Assert.Equal("Snook", property.SqlServer().SequenceName);
+            Assert.Null(property.SqlServer().SequenceSchema);
 
             Assert.Null(model.Relational().TryGetSequence("Snook"));
             ValidateNamedSequence(model.SqlServer().TryGetSequence("Snook"));
@@ -2019,7 +2046,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
 
             Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
-            Assert.Equal(".Snook", property.SqlServer().SequenceName);
+            Assert.Equal("Snook", property.SqlServer().SequenceName);
+            Assert.Null(property.SqlServer().SequenceSchema);
 
             Assert.Null(model.Relational().TryGetSequence("Snook"));
             ValidateNamedSequence(model.SqlServer().TryGetSequence("Snook"));
@@ -2040,7 +2068,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
 
             Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
-            Assert.Equal("Tasty.Snook", property.SqlServer().SequenceName);
+            Assert.Equal("Snook", property.SqlServer().SequenceName);
+            Assert.Equal("Tasty", property.SqlServer().SequenceSchema);
 
             Assert.Null(model.Relational().TryGetSequence("Snook", "Tasty"));
             ValidateSchemaNamedSequence(model.SqlServer().TryGetSequence("Snook", "Tasty"));
@@ -2060,7 +2089,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
 
             Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
-            Assert.Equal("Tasty.Snook", property.SqlServer().SequenceName);
+            Assert.Equal("Snook", property.SqlServer().SequenceName);
+            Assert.Equal("Tasty", property.SqlServer().SequenceSchema);
 
             Assert.Null(model.Relational().TryGetSequence("Snook", "Tasty"));
             ValidateSchemaNamedSequence(model.SqlServer().TryGetSequence("Snook", "Tasty"));
@@ -2081,7 +2111,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
 
             Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
-            Assert.Equal("Tasty.Snook", property.SqlServer().SequenceName);
+            Assert.Equal("Snook", property.SqlServer().SequenceName);
+            Assert.Equal("Tasty", property.SqlServer().SequenceSchema);
 
             Assert.Null(model.Relational().TryGetSequence("Snook", "Tasty"));
             ValidateSchemaNamedSequence(model.SqlServer().TryGetSequence("Snook", "Tasty"));
@@ -2101,7 +2132,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
 
             Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
-            Assert.Equal("Tasty.Snook", property.SqlServer().SequenceName);
+            Assert.Equal("Snook", property.SqlServer().SequenceName);
+            Assert.Equal("Tasty", property.SqlServer().SequenceSchema);
 
             Assert.Null(model.Relational().TryGetSequence("Snook", "Tasty"));
             ValidateSchemaNamedSequence(model.SqlServer().TryGetSequence("Snook", "Tasty"));
@@ -2131,7 +2163,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
 
             Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
-            Assert.Equal("Tasty.Snook", property.SqlServer().SequenceName);
+            Assert.Equal("Snook", property.SqlServer().SequenceName);
+            Assert.Equal("Tasty", property.SqlServer().SequenceSchema);
 
             ValidateSchemaNamedSpecificSequence(model.Relational().TryGetSequence("Snook", "Tasty"));
             ValidateSchemaNamedSpecificSequence(model.SqlServer().TryGetSequence("Snook", "Tasty"));
@@ -2160,7 +2193,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
 
             Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
-            Assert.Equal("Tasty.Snook", property.SqlServer().SequenceName);
+            Assert.Equal("Snook", property.SqlServer().SequenceName);
+            Assert.Equal("Tasty", property.SqlServer().SequenceSchema);
 
             ValidateSchemaNamedSpecificSequence(model.Relational().TryGetSequence("Snook", "Tasty"));
             ValidateSchemaNamedSpecificSequence(model.SqlServer().TryGetSequence("Snook", "Tasty"));
@@ -2190,7 +2224,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
 
             Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
-            Assert.Equal("Tasty.Snook", property.SqlServer().SequenceName);
+            Assert.Equal("Snook", property.SqlServer().SequenceName);
+            Assert.Equal("Tasty", property.SqlServer().SequenceSchema);
 
             ValidateSchemaNamedSpecificSequence(model.Relational().TryGetSequence("Snook", "Tasty"));
             ValidateSchemaNamedSpecificSequence(model.SqlServer().TryGetSequence("Snook", "Tasty"));
@@ -2219,7 +2254,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
 
             Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
-            Assert.Equal("Tasty.Snook", property.SqlServer().SequenceName);
+            Assert.Equal("Snook", property.SqlServer().SequenceName);
+            Assert.Equal("Tasty", property.SqlServer().SequenceSchema);
 
             ValidateSchemaNamedSpecificSequence(model.Relational().TryGetSequence("Snook", "Tasty"));
             ValidateSchemaNamedSpecificSequence(model.SqlServer().TryGetSequence("Snook", "Tasty"));
@@ -2249,7 +2285,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
 
             Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
-            Assert.Equal("Tasty.Snook", property.SqlServer().SequenceName);
+            Assert.Equal("Snook", property.SqlServer().SequenceName);
+            Assert.Equal("Tasty", property.SqlServer().SequenceSchema);
 
             Assert.Null(model.Relational().TryGetSequence("Snook", "Tasty"));
             ValidateSchemaNamedSpecificSequence(model.SqlServer().TryGetSequence("Snook", "Tasty"));
@@ -2278,7 +2315,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
 
             Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
-            Assert.Equal("Tasty.Snook", property.SqlServer().SequenceName);
+            Assert.Equal("Snook", property.SqlServer().SequenceName);
+            Assert.Equal("Tasty", property.SqlServer().SequenceSchema);
 
             Assert.Null(model.Relational().TryGetSequence("Snook", "Tasty"));
             ValidateSchemaNamedSpecificSequence(model.SqlServer().TryGetSequence("Snook", "Tasty"));
@@ -2308,7 +2346,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
 
             Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
-            Assert.Equal("Tasty.Snook", property.SqlServer().SequenceName);
+            Assert.Equal("Snook", property.SqlServer().SequenceName);
+            Assert.Equal("Tasty", property.SqlServer().SequenceSchema);
 
             Assert.Null(model.Relational().TryGetSequence("Snook", "Tasty"));
             ValidateSchemaNamedSpecificSequence(model.SqlServer().TryGetSequence("Snook", "Tasty"));
@@ -2337,7 +2376,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
 
             Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
-            Assert.Equal("Tasty.Snook", property.SqlServer().SequenceName);
+            Assert.Equal("Snook", property.SqlServer().SequenceName);
+            Assert.Equal("Tasty", property.SqlServer().SequenceSchema);
 
             Assert.Null(model.Relational().TryGetSequence("Snook", "Tasty"));
             ValidateSchemaNamedSpecificSequence(model.SqlServer().TryGetSequence("Snook", "Tasty"));
