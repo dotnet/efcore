@@ -16,12 +16,12 @@ namespace Microsoft.Data.Entity.Query
 {
     public class AsyncLinqOperatorProvider : ILinqOperatorProvider
     {
-        private static readonly MethodInfo _trackEntitiesShim
+        private static readonly MethodInfo _trackEntities
             = typeof(AsyncLinqOperatorProvider)
-                .GetTypeInfo().GetDeclaredMethod("TrackEntitiesShim");
+                .GetTypeInfo().GetDeclaredMethod("_TrackEntities");
 
         [UsedImplicitly]
-        private static IAsyncEnumerable<TOut> TrackEntitiesShim<TOut, TIn>(
+        private static IAsyncEnumerable<TOut> _TrackEntities<TOut, TIn>(
             IAsyncEnumerable<TOut> results,
             QueryContext queryContext,
             ICollection<Func<TIn, object>> entityAccessors)
@@ -49,30 +49,30 @@ namespace Microsoft.Data.Entity.Query
 
         public virtual MethodInfo TrackEntities
         {
-            get { return _trackEntitiesShim; }
+            get { return _trackEntities; }
         }
 
-        private static readonly MethodInfo _toSequenceShim
+        private static readonly MethodInfo _toSequence
             = typeof(AsyncLinqOperatorProvider)
-                .GetTypeInfo().GetDeclaredMethod("ToSequenceShim");
+                .GetTypeInfo().GetDeclaredMethod("_ToSequence");
 
         [UsedImplicitly]
-        private static IAsyncEnumerable<T> ToSequenceShim<T>(T element)
+        private static IAsyncEnumerable<T> _ToSequence<T>(T element)
         {
             return AsyncEnumerable.Return(element);
         }
 
         public virtual MethodInfo ToSequence
         {
-            get { return _toSequenceShim; }
+            get { return _toSequence; }
         }
 
-        private static readonly MethodInfo _asQueryableShim
+        private static readonly MethodInfo _asQueryable
             = typeof(AsyncLinqOperatorProvider)
-                .GetTypeInfo().GetDeclaredMethod("AsQueryableShim");
+                .GetTypeInfo().GetDeclaredMethod("_AsQueryable");
 
         [UsedImplicitly]
-        private static IOrderedQueryable<TSource> AsQueryableShim<TSource>(IAsyncEnumerable<TSource> source)
+        private static IOrderedQueryable<TSource> _AsQueryable<TSource>(IAsyncEnumerable<TSource> source)
         {
             return new AsyncQueryableAdapter<TSource>(source);
         }
@@ -128,15 +128,15 @@ namespace Microsoft.Data.Entity.Query
 
         public virtual MethodInfo AsQueryable
         {
-            get { return _asQueryableShim; }
+            get { return _asQueryable; }
         }
 
-        private static readonly MethodInfo _selectManyShim
+        private static readonly MethodInfo _selectMany
             = typeof(AsyncLinqOperatorProvider)
-                .GetTypeInfo().GetDeclaredMethod("SelectManyShim");
+                .GetTypeInfo().GetDeclaredMethod("_SelectMany");
 
         [UsedImplicitly]
-        private static IAsyncEnumerable<TResult> SelectManyShim<TSource, TResult>(
+        private static IAsyncEnumerable<TResult> _SelectMany<TSource, TResult>(
             IAsyncEnumerable<TSource> source, Func<TSource, IAsyncEnumerable<TResult>> selector)
         {
             return source.SelectMany(selector);
@@ -144,15 +144,15 @@ namespace Microsoft.Data.Entity.Query
 
         public virtual MethodInfo SelectMany
         {
-            get { return _selectManyShim; }
+            get { return _selectMany; }
         }
 
-        private static readonly MethodInfo _joinShim
+        private static readonly MethodInfo _join
             = typeof(AsyncLinqOperatorProvider)
-                .GetTypeInfo().GetDeclaredMethod("JoinShim");
+                .GetTypeInfo().GetDeclaredMethod("_Join");
 
         [UsedImplicitly]
-        private static IAsyncEnumerable<TResult> JoinShim<TOuter, TInner, TKey, TResult>(
+        private static IAsyncEnumerable<TResult> _Join<TOuter, TInner, TKey, TResult>(
             IAsyncEnumerable<TOuter> outer,
             IAsyncEnumerable<TInner> inner,
             Func<TOuter, TKey> outerKeySelector,
@@ -164,15 +164,15 @@ namespace Microsoft.Data.Entity.Query
 
         public virtual MethodInfo Join
         {
-            get { return _joinShim; }
+            get { return _join; }
         }
 
-        private static readonly MethodInfo _groupJoinShim
+        private static readonly MethodInfo _groupJoin
             = typeof(AsyncLinqOperatorProvider)
-                .GetTypeInfo().GetDeclaredMethod("GroupJoinShim");
+                .GetTypeInfo().GetDeclaredMethod("_GroupJoin");
 
         [UsedImplicitly]
-        private static IAsyncEnumerable<TResult> GroupJoinShim<TOuter, TInner, TKey, TResult>(
+        private static IAsyncEnumerable<TResult> _GroupJoin<TOuter, TInner, TKey, TResult>(
             IAsyncEnumerable<TOuter> outer,
             IAsyncEnumerable<TInner> inner,
             Func<TOuter, TKey> outerKeySelector,
@@ -184,15 +184,15 @@ namespace Microsoft.Data.Entity.Query
 
         public virtual MethodInfo GroupJoin
         {
-            get { return _groupJoinShim; }
+            get { return _groupJoin; }
         }
 
-        private static readonly MethodInfo _selectShim
+        private static readonly MethodInfo _select
             = typeof(AsyncLinqOperatorProvider)
-                .GetTypeInfo().GetDeclaredMethod("SelectShim");
+                .GetTypeInfo().GetDeclaredMethod("_Select");
 
         [UsedImplicitly]
-        private static IAsyncEnumerable<TResult> SelectShim<TSource, TResult>(
+        private static IAsyncEnumerable<TResult> _Select<TSource, TResult>(
             IAsyncEnumerable<TSource> source, Func<TSource, TResult> selector)
         {
             return source.Select(selector);
@@ -200,15 +200,15 @@ namespace Microsoft.Data.Entity.Query
 
         public virtual MethodInfo Select
         {
-            get { return _selectShim; }
+            get { return _select; }
         }
 
-        private static readonly MethodInfo _orderByShim
+        private static readonly MethodInfo _orderBy
             = typeof(AsyncLinqOperatorProvider)
-                .GetTypeInfo().GetDeclaredMethod("OrderByShim");
+                .GetTypeInfo().GetDeclaredMethod("_OrderBy");
 
         [UsedImplicitly]
-        private static IOrderedAsyncEnumerable<TSource> OrderByShim<TSource, TKey>(
+        private static IOrderedAsyncEnumerable<TSource> _OrderBy<TSource, TKey>(
             IAsyncEnumerable<TSource> source, Func<TSource, TKey> expression, OrderingDirection orderingDirection)
         {
             return orderingDirection == OrderingDirection.Asc
@@ -218,15 +218,15 @@ namespace Microsoft.Data.Entity.Query
 
         public virtual MethodInfo OrderBy
         {
-            get { return _orderByShim; }
+            get { return _orderBy; }
         }
 
-        private static readonly MethodInfo _thenByShim
+        private static readonly MethodInfo _thenBy
             = typeof(AsyncLinqOperatorProvider)
-                .GetTypeInfo().GetDeclaredMethod("ThenByShim");
+                .GetTypeInfo().GetDeclaredMethod("_ThenBy");
 
         [UsedImplicitly]
-        private static IOrderedAsyncEnumerable<TSource> ThenByShim<TSource, TKey>(
+        private static IOrderedAsyncEnumerable<TSource> _ThenBy<TSource, TKey>(
             IOrderedAsyncEnumerable<TSource> source, Func<TSource, TKey> expression, OrderingDirection orderingDirection)
         {
             return orderingDirection == OrderingDirection.Asc
@@ -236,15 +236,15 @@ namespace Microsoft.Data.Entity.Query
 
         public virtual MethodInfo ThenBy
         {
-            get { return _thenByShim; }
+            get { return _thenBy; }
         }
 
-        private static readonly MethodInfo _whereShim
+        private static readonly MethodInfo _where
             = typeof(AsyncLinqOperatorProvider)
-                .GetTypeInfo().GetDeclaredMethod("WhereShim");
+                .GetTypeInfo().GetDeclaredMethod("_Where");
 
         [UsedImplicitly]
-        private static IAsyncEnumerable<TSource> WhereShim<TSource>(
+        private static IAsyncEnumerable<TSource> _Where<TSource>(
             IAsyncEnumerable<TSource> source, Func<TSource, bool> predicate)
         {
             return source.Where(predicate);
@@ -252,7 +252,7 @@ namespace Microsoft.Data.Entity.Query
 
         public virtual MethodInfo Where
         {
-            get { return _whereShim; }
+            get { return _where; }
         }
 
         // TODO: Replace with First when IX-Async dispose bug is fixed.
@@ -412,19 +412,19 @@ namespace Microsoft.Data.Entity.Query
             {
                 return
                     Expression.Call(
-                        _toAsyncEnumerableShim.MakeGenericMethod(elementType),
+                        _toAsyncEnumerable.MakeGenericMethod(elementType),
                         expression);
             }
 
             return expression;
         }
 
-        private static readonly MethodInfo _toAsyncEnumerableShim
+        private static readonly MethodInfo _toAsyncEnumerable
             = typeof(AsyncLinqOperatorProvider)
-                .GetTypeInfo().GetDeclaredMethod("ToAsyncEnumerableShim");
+                .GetTypeInfo().GetDeclaredMethod("_ToAsyncEnumerable");
 
         [UsedImplicitly]
-        private static IAsyncEnumerable<T> ToAsyncEnumerableShim<T>(IEnumerable<T> source)
+        private static IAsyncEnumerable<T> _ToAsyncEnumerable<T>(IEnumerable<T> source)
         {
             return source.ToAsyncEnumerable();
         }

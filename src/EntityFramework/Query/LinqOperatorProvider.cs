@@ -14,12 +14,12 @@ namespace Microsoft.Data.Entity.Query
 {
     public class LinqOperatorProvider : ILinqOperatorProvider
     {
-        private static readonly MethodInfo _trackEntitiesShim
+        private static readonly MethodInfo _trackEntities
             = typeof(LinqOperatorProvider)
-                .GetTypeInfo().GetDeclaredMethod("TrackEntitiesShim");
+                .GetTypeInfo().GetDeclaredMethod("_TrackEntities");
 
         [UsedImplicitly]
-        private static IEnumerable<TOut> TrackEntitiesShim<TOut, TIn>(
+        private static IEnumerable<TOut> _TrackEntities<TOut, TIn>(
             IEnumerable<TOut> results,
             QueryContext queryContext,
             ICollection<Func<TIn, object>> entityAccessors)
@@ -51,45 +51,45 @@ namespace Microsoft.Data.Entity.Query
 
         public virtual MethodInfo TrackEntities
         {
-            get { return _trackEntitiesShim; }
+            get { return _trackEntities; }
         }
 
-        private static readonly MethodInfo _toSequenceShim
+        private static readonly MethodInfo _toSequence
             = typeof(LinqOperatorProvider)
-                .GetTypeInfo().GetDeclaredMethod("ToSequenceShim");
+                .GetTypeInfo().GetDeclaredMethod("_ToSequence");
 
         [UsedImplicitly]
-        private static IEnumerable<T> ToSequenceShim<T>(T element)
+        private static IEnumerable<T> _ToSequence<T>(T element)
         {
             return new[] { element };
         }
 
         public virtual MethodInfo ToSequence
         {
-            get { return _toSequenceShim; }
+            get { return _toSequence; }
         }
 
-        private static readonly MethodInfo _asQueryableShim
+        private static readonly MethodInfo _asQueryable
             = typeof(LinqOperatorProvider)
-                .GetTypeInfo().GetDeclaredMethod("AsQueryableShim");
+                .GetTypeInfo().GetDeclaredMethod("_AsQueryable");
 
         [UsedImplicitly]
-        private static IOrderedQueryable<TSource> AsQueryableShim<TSource>(IEnumerable<TSource> source)
+        private static IOrderedQueryable<TSource> _AsQueryable<TSource>(IEnumerable<TSource> source)
         {
             return new EnumerableQuery<TSource>(source);
         }
 
         public virtual MethodInfo AsQueryable
         {
-            get { return _asQueryableShim; }
+            get { return _asQueryable; }
         }
 
-        private static readonly MethodInfo _selectManyShim
+        private static readonly MethodInfo _selectMany
             = typeof(LinqOperatorProvider)
-                .GetTypeInfo().GetDeclaredMethod("SelectManyShim");
+                .GetTypeInfo().GetDeclaredMethod("_SelectMany");
 
         [UsedImplicitly]
-        private static IEnumerable<TResult> SelectManyShim<TSource, TResult>(
+        private static IEnumerable<TResult> _SelectMany<TSource, TResult>(
             IEnumerable<TSource> source, Func<TSource, IEnumerable<TResult>> selector)
         {
             return source.SelectMany(selector);
@@ -97,15 +97,15 @@ namespace Microsoft.Data.Entity.Query
 
         public virtual MethodInfo SelectMany
         {
-            get { return _selectManyShim; }
+            get { return _selectMany; }
         }
 
-        private static readonly MethodInfo _joinShim
+        private static readonly MethodInfo _join
             = typeof(LinqOperatorProvider)
-                .GetTypeInfo().GetDeclaredMethod("JoinShim");
+                .GetTypeInfo().GetDeclaredMethod("_Join");
 
         [UsedImplicitly]
-        private static IEnumerable<TResult> JoinShim<TOuter, TInner, TKey, TResult>(
+        private static IEnumerable<TResult> _Join<TOuter, TInner, TKey, TResult>(
             IEnumerable<TOuter> outer,
             IEnumerable<TInner> inner,
             Func<TOuter, TKey> outerKeySelector,
@@ -117,15 +117,15 @@ namespace Microsoft.Data.Entity.Query
 
         public virtual MethodInfo Join
         {
-            get { return _joinShim; }
+            get { return _join; }
         }
 
-        private static readonly MethodInfo _groupJoinShim
+        private static readonly MethodInfo _groupJoin
             = typeof(LinqOperatorProvider)
-                .GetTypeInfo().GetDeclaredMethod("GroupJoinShim");
+                .GetTypeInfo().GetDeclaredMethod("_GroupJoin");
 
         [UsedImplicitly]
-        private static IEnumerable<TResult> GroupJoinShim<TOuter, TInner, TKey, TResult>(
+        private static IEnumerable<TResult> _GroupJoin<TOuter, TInner, TKey, TResult>(
             IEnumerable<TOuter> outer,
             IEnumerable<TInner> inner,
             Func<TOuter, TKey> outerKeySelector,
@@ -137,15 +137,15 @@ namespace Microsoft.Data.Entity.Query
 
         public virtual MethodInfo GroupJoin
         {
-            get { return _groupJoinShim; }
+            get { return _groupJoin; }
         }
 
-        private static readonly MethodInfo _selectShim
+        private static readonly MethodInfo _select
             = typeof(LinqOperatorProvider)
-                .GetTypeInfo().GetDeclaredMethod("SelectShim");
+                .GetTypeInfo().GetDeclaredMethod("_Select");
 
         [UsedImplicitly]
-        private static IEnumerable<TResult> SelectShim<TSource, TResult>(
+        private static IEnumerable<TResult> _Select<TSource, TResult>(
             IEnumerable<TSource> source, Func<TSource, TResult> selector)
         {
             return source.Select(selector);
@@ -153,15 +153,15 @@ namespace Microsoft.Data.Entity.Query
 
         public virtual MethodInfo Select
         {
-            get { return _selectShim; }
+            get { return _select; }
         }
 
-        private static readonly MethodInfo _orderByShim
+        private static readonly MethodInfo _orderBy
             = typeof(LinqOperatorProvider)
-                .GetTypeInfo().GetDeclaredMethod("OrderByShim");
+                .GetTypeInfo().GetDeclaredMethod("_OrderBy");
 
         [UsedImplicitly]
-        private static IOrderedEnumerable<TSource> OrderByShim<TSource, TKey>(
+        private static IOrderedEnumerable<TSource> _OrderBy<TSource, TKey>(
             IEnumerable<TSource> source, Func<TSource, TKey> expression, OrderingDirection orderingDirection)
         {
             return orderingDirection == OrderingDirection.Asc
@@ -171,15 +171,15 @@ namespace Microsoft.Data.Entity.Query
 
         public virtual MethodInfo OrderBy
         {
-            get { return _orderByShim; }
+            get { return _orderBy; }
         }
 
-        private static readonly MethodInfo _thenByShim
+        private static readonly MethodInfo _thenBy
             = typeof(LinqOperatorProvider)
-                .GetTypeInfo().GetDeclaredMethod("ThenByShim");
+                .GetTypeInfo().GetDeclaredMethod("_ThenBy");
 
         [UsedImplicitly]
-        private static IOrderedEnumerable<TSource> ThenByShim<TSource, TKey>(
+        private static IOrderedEnumerable<TSource> _ThenBy<TSource, TKey>(
             IOrderedEnumerable<TSource> source, Func<TSource, TKey> expression, OrderingDirection orderingDirection)
         {
             return orderingDirection == OrderingDirection.Asc
@@ -189,15 +189,15 @@ namespace Microsoft.Data.Entity.Query
 
         public virtual MethodInfo ThenBy
         {
-            get { return _thenByShim; }
+            get { return _thenBy; }
         }
 
-        private static readonly MethodInfo _whereShim
+        private static readonly MethodInfo _where
             = typeof(LinqOperatorProvider)
-                .GetTypeInfo().GetDeclaredMethod("WhereShim");
+                .GetTypeInfo().GetDeclaredMethod("_Where");
 
         [UsedImplicitly]
-        private static IEnumerable<TSource> WhereShim<TSource>(
+        private static IEnumerable<TSource> _Where<TSource>(
             IEnumerable<TSource> source, Func<TSource, bool> predicate)
         {
             return source.Where(predicate);
@@ -205,7 +205,7 @@ namespace Microsoft.Data.Entity.Query
 
         public virtual MethodInfo Where
         {
-            get { return _whereShim; }
+            get { return _where; }
         }
 
         // Result operators
