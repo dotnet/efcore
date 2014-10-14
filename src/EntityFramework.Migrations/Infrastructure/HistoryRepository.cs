@@ -40,20 +40,18 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
         {
             get
             {
-                using (var historyContext = CreateHistoryContext())
-                {
-                    return GetMigrationsQuery(historyContext).ToArray();
-                }
+                bool historyTableExists;
+                return GetRows(out historyTableExists);
             }
         }
 
-        internal protected virtual IReadOnlyList<HistoryRow> GetRows(out bool historyTableExists)
+        public virtual IReadOnlyList<HistoryRow> GetRows([NotNull] out bool historyTableExists)
         {
             IReadOnlyList<HistoryRow> rows;
 
             try
             {
-                rows = Rows;
+                rows = GetRows();
                 historyTableExists = true;
             }
             catch (DbException)
@@ -64,6 +62,14 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             }
 
             return rows;
+        }
+
+        protected virtual IReadOnlyList<HistoryRow> GetRows()
+        {
+            using (var historyContext = CreateHistoryContext())
+            {
+                return GetMigrationsQuery(historyContext).ToArray();
+            }
         }
 
         protected virtual DbContextConfiguration ContextConfiguration

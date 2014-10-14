@@ -1288,13 +1288,14 @@ new StringBuilder()
 
             if (historyRepositoryExists)
             {
-                mock.SetupGet(hr => hr.Rows).Returns(migrations.Select(m => new HistoryRow { MigrationId = m.MigrationId }).ToArray());
+                mock.Protected().Setup<IReadOnlyList<HistoryRow>>("GetRows")
+                    .Returns(migrations.Select(m => new HistoryRow { MigrationId = m.MigrationId }).ToArray());
             }
             else
             {
                 var dbException = new Mock<DbException>();
 
-                mock.SetupGet(hr => hr.Rows).Throws(dbException.Object);
+                mock.Protected().Setup<IReadOnlyList<HistoryRow>>("GetRows").Throws(dbException.Object);
             }
 
             mock.Setup(hr => hr.GenerateInsertMigrationSql(It.IsAny<IMigrationMetadata>(), It.IsAny<SqlGenerator>()))
