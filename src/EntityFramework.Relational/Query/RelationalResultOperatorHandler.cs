@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.Relational.Query
 {
     public class RelationalResultOperatorHandler : IResultOperatorHandler
     {
-        private class HandlerContext
+        private sealed class HandlerContext
         {
             private readonly IResultOperatorHandler _resultOperatorHandler;
             private readonly RelationalQueryModelVisitor _queryModelVisitor;

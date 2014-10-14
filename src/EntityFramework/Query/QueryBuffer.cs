@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
@@ -144,6 +146,54 @@ namespace Microsoft.Data.Entity.Query
             Check.NotNull(navigation, "navigation");
             Check.NotNull(relatedValueReaders, "relatedValueReaders");
 
+            EntityKey primaryKey;
+            List<BufferedEntity> bufferedEntities;
+            Func<IValueReader, EntityKey> relatedKeyFactory;
+
+            var targetEntityType
+                = IncludeCore(entity, navigation, out primaryKey, out bufferedEntities, out relatedKeyFactory);
+
+            LoadNavigationProperties(
+                entity,
+                navigation,
+                relatedValueReaders(primaryKey, relatedKeyFactory)
+                    .Select(valueReader => GetTargetEntity(targetEntityType, valueReader, bufferedEntities))
+                    .ToList());
+        }
+
+        public virtual async Task IncludeAsync(
+            object entity,
+            INavigation navigation,
+            Func<EntityKey, Func<IValueReader, EntityKey>, IAsyncEnumerable<IValueReader>> relatedValueReaders,
+            CancellationToken cancellationToken)
+        {
+            Check.NotNull(entity, "entity");
+            Check.NotNull(navigation, "navigation");
+            Check.NotNull(relatedValueReaders, "relatedValueReaders");
+
+            EntityKey primaryKey;
+            List<BufferedEntity> bufferedEntities;
+            Func<IValueReader, EntityKey> relatedKeyFactory;
+
+            var targetEntityType
+                = IncludeCore(entity, navigation, out primaryKey, out bufferedEntities, out relatedKeyFactory);
+
+            LoadNavigationProperties(
+                entity,
+                navigation,
+                await relatedValueReaders(primaryKey, relatedKeyFactory)
+                    .Select(valueReader => GetTargetEntity(targetEntityType, valueReader, bufferedEntities))
+                    .ToList(cancellationToken)
+                    .WithCurrentCulture());
+        }
+
+        private IEntityType IncludeCore(
+            object entity,
+            INavigation navigation,
+            out EntityKey primaryKey,
+            out List<BufferedEntity> bufferedEntities,
+            out Func<IValueReader, EntityKey> relatedKeyFactory)
+        {
             var primaryKeyFactory
                 = _entityKeyFactorySource
                     .GetKeyFactory(navigation.ForeignKey.ReferencedProperties);
@@ -154,9 +204,6 @@ namespace Microsoft.Data.Entity.Query
 
             var targetEntityType = navigation.GetTargetType();
 
-            EntityKey primaryKey;
-
-            List<BufferedEntity> bufferedEntities;
             if (!_byEntityInstance.TryGetValue(entity, out bufferedEntities))
             {
                 _byEntityInstance.Add(entity, bufferedEntities = new List<BufferedEntity>());
@@ -186,8 +233,6 @@ namespace Microsoft.Data.Entity.Query
                                 bufferedEntities[0].ValueReader);
             }
 
-            Func<IValueReader, EntityKey> relatedKeyFactory;
-
             if (navigation.PointsToPrincipal)
             {
                 relatedKeyFactory
@@ -209,26 +254,7 @@ namespace Microsoft.Data.Entity.Query
                                 valueReader);
             }
 
-            var relatedEntities
-                = relatedValueReaders(primaryKey, relatedKeyFactory)
-                    .Select(valueReader =>
-                        {
-                            var targetEntity = GetEntity(targetEntityType, valueReader);
-
-                            List<BufferedEntity> bufferedTargetEntities;
-                            bufferedEntities.Add(
-                                _byEntityInstance.TryGetValue(targetEntity, out bufferedTargetEntities)
-                                    ? bufferedTargetEntities[0]
-                                    : new BufferedEntity(targetEntityType, valueReader)
-                                        {
-                                            Instance = targetEntity
-                                        });
-
-                            return targetEntity;
-                        })
-                    .ToList();
-
-            LoadNavigationProperties(entity, navigation, relatedEntities);
+            return targetEntityType;
         }
 
         private void LoadNavigationProperties(
@@ -296,6 +322,23 @@ namespace Microsoft.Data.Entity.Query
                     }
                 }
             }
+        }
+
+        private object GetTargetEntity(
+            IEntityType targetEntityType, IValueReader valueReader, ICollection<BufferedEntity> bufferedEntities)
+        {
+            var targetEntity = GetEntity(targetEntityType, valueReader);
+
+            List<BufferedEntity> bufferedTargetEntities;
+            bufferedEntities.Add(
+                _byEntityInstance.TryGetValue(targetEntity, out bufferedTargetEntities)
+                    ? bufferedTargetEntities[0]
+                    : new BufferedEntity(targetEntityType, valueReader)
+                        {
+                            Instance = targetEntity
+                        });
+
+            return targetEntity;
         }
     }
 }

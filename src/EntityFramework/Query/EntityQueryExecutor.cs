@@ -13,10 +13,6 @@ using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 using Remotion.Linq;
-using Remotion.Linq.Clauses;
-using Remotion.Linq.Clauses.Expressions;
-using Remotion.Linq.Clauses.ExpressionTreeVisitors;
-using Remotion.Linq.Transformations;
 
 namespace Microsoft.Data.Entity.Query
 {
@@ -67,8 +63,6 @@ namespace Microsoft.Data.Entity.Query
         {
             Check.NotNull(queryModel, "queryModel");
 
-            new SubQueryFlattener().VisitQueryModel(queryModel);
-
             LogQueryModel(queryModel);
 
             try
@@ -94,8 +88,6 @@ namespace Microsoft.Data.Entity.Query
             [NotNull] QueryModel queryModel, CancellationToken cancellationToken)
         {
             Check.NotNull(queryModel, "queryModel");
-
-            new SubQueryFlattener().VisitQueryModel(queryModel);
 
             LogQueryModel(queryModel);
 
@@ -128,46 +120,7 @@ namespace Microsoft.Data.Entity.Query
             }
         }
 
-        private class SubQueryFlattener : SubQueryFromClauseFlattener
-        {
-            protected override void FlattenSubQuery(
-                SubQueryExpression subQueryExpression,
-                FromClauseBase fromClause,
-                QueryModel queryModel,
-                int destinationIndex)
-            {
-                var subQueryModel = subQueryExpression.QueryModel;
-
-                if (!(subQueryModel.ResultOperators.Count <= 0
-                      && !subQueryModel.BodyClauses.Any(bc => bc is OrderByClause)))
-                {
-                    return;
-                }
-
-                var innerMainFromClause
-                    = subQueryExpression.QueryModel.MainFromClause;
-
-                CopyFromClauseData(innerMainFromClause, fromClause);
-
-                var innerSelectorMapping = new QuerySourceMapping();
-                innerSelectorMapping.AddMapping(fromClause, subQueryExpression.QueryModel.SelectClause.Selector);
-
-                queryModel.TransformExpressions(
-                    ex => ReferenceReplacingExpressionTreeVisitor
-                        .ReplaceClauseReferences(ex, innerSelectorMapping, false));
-
-                InsertBodyClauses(subQueryExpression.QueryModel.BodyClauses, queryModel, destinationIndex);
-
-                var innerBodyClauseMapping = new QuerySourceMapping();
-                innerBodyClauseMapping.AddMapping(innerMainFromClause, new QuerySourceReferenceExpression(fromClause));
-
-                queryModel.TransformExpressions(
-                    ex => ReferenceReplacingExpressionTreeVisitor
-                        .ReplaceClauseReferences(ex, innerBodyClauseMapping, false));
-            }
-        }
-
-        private class EnumerableExceptionInterceptor<T> : IEnumerable<T>
+        private sealed class EnumerableExceptionInterceptor<T> : IEnumerable<T>
         {
             private readonly IEnumerable<T> _inner;
             private readonly DbContext _context;
@@ -191,7 +144,7 @@ namespace Microsoft.Data.Entity.Query
             }
 
             [DebuggerStepThrough]
-            private class EnumeratorExceptionInterceptor : IEnumerator<T>
+            private sealed class EnumeratorExceptionInterceptor : IEnumerator<T>
             {
                 private readonly IEnumerator<T> _inner;
                 private readonly DbContext _context;
@@ -227,7 +180,8 @@ namespace Microsoft.Data.Entity.Query
                             0,
                             new DataStoreErrorLogState(_context.GetType()),
                             ex,
-                            (state, exception) => string.Format("{0}" + Environment.NewLine + "{1}", Strings.LogExceptionDuringQueryIteration, exception.ToString()));
+                            (state, exception) => string.Format("{0}" + Environment.NewLine 
+                                + "{1}", Strings.LogExceptionDuringQueryIteration, exception.ToString()));
 
                         throw;
                     }
@@ -245,7 +199,8 @@ namespace Microsoft.Data.Entity.Query
             }
         }
 
-        private class AsyncEnumerableExceptionInterceptor<T> : IAsyncEnumerable<T>
+        [DebuggerStepThrough]
+        private sealed class AsyncEnumerableExceptionInterceptor<T> : IAsyncEnumerable<T>
         {
             private readonly IAsyncEnumerable<T> _inner;
             private readonly DbContext _context;
@@ -264,7 +219,7 @@ namespace Microsoft.Data.Entity.Query
             }
 
             [DebuggerStepThrough]
-            private class AsyncEnumeratorExceptionInterceptor : IAsyncEnumerator<T>
+            private sealed class AsyncEnumeratorExceptionInterceptor : IAsyncEnumerator<T>
             {
                 private readonly IAsyncEnumerator<T> _inner;
                 private readonly DbContext _context;
@@ -286,16 +241,16 @@ namespace Microsoft.Data.Entity.Query
                 {
                     try
                     {
-                        return await _inner.MoveNext().WithCurrentCulture();
+                        return await _inner.MoveNext(cancellationToken).WithCurrentCulture();
                     }
                     catch (Exception ex)
                     {
                         _logger.Value.Write(
-                           TraceType.Error,
-                           0,
-                           new DataStoreErrorLogState(_context.GetType()),
-                           ex,
-                           (state, exception) => string.Format("{0}" + Environment.NewLine + "{1}", Strings.LogExceptionDuringQueryIteration, exception.ToString()));
+                            TraceType.Error,
+                            0,
+                            new DataStoreErrorLogState(_context.GetType()),
+                            ex,
+                            (state, exception) => string.Format("{0}" + Environment.NewLine + "{1}", Strings.LogExceptionDuringQueryIteration, exception.ToString()));
 
                         throw;
                     }

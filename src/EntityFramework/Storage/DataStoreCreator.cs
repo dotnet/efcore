@@ -5,9 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Services;
-using Microsoft.Data.Entity.Utilities;
-using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Storage
 {
