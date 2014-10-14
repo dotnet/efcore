@@ -42,5 +42,13 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             logger.Write(TraceType.Information, MigratorLoggerEventIds.RevertingMigration, migrationId, null,
                 (o, _) => Strings.FormatMigratorLoggerRevertingMigration(o));
         }
+
+        public static void UpToDate([NotNull] this ILogger logger)
+        {
+            Check.NotNull(logger, "logger");
+
+            logger.Write(TraceType.Information, MigratorLoggerEventIds.UpToDate, null, null,
+                (_, __) => Strings.MigratorLoggerUpToDate);
+        }
     }
 }

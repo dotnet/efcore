@@ -186,6 +186,22 @@ namespace Microsoft.Data.Entity.Migrations
             return string.Format(CultureInfo.CurrentCulture, GetString("MigratorLoggerRevertingMigration", "migrationId"), migrationId);
         }
 
+        /// <summary>
+        /// The database is up to date.
+        /// </summary>
+        internal static string MigratorLoggerUpToDate
+        {
+            get { return GetString("MigratorLoggerUpToDate"); }
+        }
+
+        /// <summary>
+        /// The database is up to date.
+        /// </summary>
+        internal static string FormatMigratorLoggerUpToDate()
+        {
+            return GetString("MigratorLoggerUpToDate");
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

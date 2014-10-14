@@ -150,4 +150,7 @@
   <data name="MigratorLoggerRevertingMigration" xml:space="preserve">
     <value>Reverting migration '{migrationId}'.</value>
   </data>
+  <data name="MigratorLoggerUpToDate" xml:space="preserve">
+    <value>The database is up to date.</value>
+  </data>
 </root>

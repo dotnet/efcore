@@ -3,12 +3,14 @@
 
 namespace Microsoft.Data.Entity.Commands
 {
-    // TODO: Separate logging from results
-    public interface IHandler
+    public interface IResultHandler
     {
         void OnResult(object value);
         void OnError(string type, string message, string stackTrace);
-        void WriteError(string message);
+    }
+
+    public interface ILogHandler
+    {
         void WriteWarning(string message);
         void WriteInformation(string message);
         void WriteVerbose(string message);

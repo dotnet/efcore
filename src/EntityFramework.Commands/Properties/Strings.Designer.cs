@@ -154,6 +154,22 @@ namespace Microsoft.Data.Entity.Commands
             return string.Format(CultureInfo.CurrentCulture, GetString("NoContextWithName", "name"), name);
         }
 
+        /// <summary>
+        /// Using context '{name}'.
+        /// </summary>
+        internal static string LogUseContext
+        {
+            get { return GetString("LogUseContext"); }
+        }
+
+        /// <summary>
+        /// Using context '{name}'.
+        /// </summary>
+        internal static string FormatLogUseContext(object name)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("LogUseContext", "name"), name);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

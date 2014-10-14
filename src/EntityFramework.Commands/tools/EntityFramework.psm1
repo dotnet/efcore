@@ -6,7 +6,7 @@ $EFDefaultParameterValues = @{
 }
 
 #
-# Use-EFContext
+# Use-DbContext
 #
 
 Register-TabExpansion Use-DbContext @{
@@ -224,10 +224,10 @@ function InvokeOperation($project, $operation, $arguments = @{}, [switch] $skipB
             throw "Build failed for project '$projectName'."
         }
 
-        Write-Verbose "Build succeeded"
+        Write-Verbose "Build succeeded."
     }
 
-    if (![Type]::GetType('Microsoft.Data.Entity.Commands.IHandler')) {
+    if (![Type]::GetType('Microsoft.Data.Entity.Commands.ILogHandler')) {
         $componentModel = Get-VSComponentModel
         $packageInstaller = $componentModel.GetService([NuGet.VisualStudio.IVsPackageInstallerServices])
         $package = $packageInstaller.GetInstalledPackages() | ? Id -eq EntityFramework.Commands |
@@ -236,13 +236,12 @@ function InvokeOperation($project, $operation, $arguments = @{}, [switch] $skipB
         $toolsPath = Join-Path $installPath tools
 
         Add-Type @(
-            Join-Path $toolsPath IHandler.cs
-            Join-Path $toolsPath Handler.cs
+            Join-Path $toolsPath IHandlers.cs
+            Join-Path $toolsPath Handlers.cs
         )
     }
 
-    $handler = New-Object Microsoft.Data.Entity.Commands.Handler @(
-        { param ($message) Write-Error $message }
+    $logHandler = New-Object Microsoft.Data.Entity.Commands.LogHandler @(
         { param ($message) Write-Warning $message }
         { param ($message) Write-Host $message }
         { param ($message) Write-Verbose $message }
@@ -253,7 +252,7 @@ function InvokeOperation($project, $operation, $arguments = @{}, [switch] $skipB
     $fullPath = GetProperty $properties FullPath
     $targetDir = Join-Path $fullPath $outputPath
 
-    Write-Verbose "Using directory '$targetDir'"
+    Write-Verbose "Using directory '$targetDir'."
 
     # TODO: Set ConfigurationFile
     $info = New-Object AppDomainSetup -Property @{
@@ -267,9 +266,10 @@ function InvokeOperation($project, $operation, $arguments = @{}, [switch] $skipB
         $assemblyName = 'EntityFramework.Commands'
         $typeName = 'Microsoft.Data.Entity.Commands.Executor'
         $targetFileName = GetProperty $properties OutputFileName
+        $targetPath = Join-Path $targetDir $targetFileName
         $rootNamespace = GetProperty $properties RootNamespace
 
-        Write-Verbose "Using assembly '$targetFileName'"
+        Write-Verbose "Using assembly '$targetFileName'."
 
         $executor = $domain.CreateInstanceAndUnwrap(
             $assemblyName,
@@ -278,9 +278,9 @@ function InvokeOperation($project, $operation, $arguments = @{}, [switch] $skipB
             0,
             $null,
             @(
+                [MarshalByRefObject]$logHandler,
                 @{
-                    targetDir = [string]$targetDir
-                    targetFileName = $targetFileName
+                    targetPath = [string]$targetPath
                     projectDir = $fullPath
                     rootNamespace = $rootNamespace
                 }
@@ -288,6 +288,7 @@ function InvokeOperation($project, $operation, $arguments = @{}, [switch] $skipB
             $null,
             $null)
 
+        $resultHandler = New-Object Microsoft.Data.Entity.Commands.ResultHandler
         $currentDirectory = [IO.Directory]::GetCurrentDirectory()
 
         [IO.Directory]::SetCurrentDirectory($targetDir)
@@ -298,7 +299,7 @@ function InvokeOperation($project, $operation, $arguments = @{}, [switch] $skipB
                 $false,
                 0,
                 $null,
-                ($executor, [MarshalByRefObject]$handler, $arguments),
+                ($executor, [MarshalByRefObject]$resultHandler, $arguments),
                 $null,
                 $null) | Out-Null
         }
@@ -310,13 +311,13 @@ function InvokeOperation($project, $operation, $arguments = @{}, [switch] $skipB
         [AppDomain]::Unload($domain)
     }
 
-    if ($handler.ErrorType) {
-        Write-Verbose $handler.ErrorStackTrace
+    if ($resultHandler.ErrorType) {
+        Write-Verbose $resultHandler.ErrorStackTrace
 
-        throw $handler.ErrorMessage
+        throw $resultHandler.ErrorMessage
     }
-    if ($handler.HasResult) {
-        return $handler.Result
+    if ($resultHandler.HasResult) {
+        return $resultHandler.Result
     }
 }
 

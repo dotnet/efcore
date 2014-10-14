@@ -9,5 +9,6 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
         public static readonly int DroppingHistoryTable = 101;
         public static readonly int ApplyingMigration = 102;
         public static readonly int RevertingMigration = 103;
+        public static readonly int UpToDate = 104;
     }
 }

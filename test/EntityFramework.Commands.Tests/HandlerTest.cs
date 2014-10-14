@@ -10,19 +10,19 @@ namespace Microsoft.Data.Entity.Commands.Tests
         [Fact]
         public void HasResult_defaults_to_false()
         {
-            Assert.False(new Handler().HasResult);
+            Assert.False(new ResultHandler().HasResult);
         }
 
         [Fact]
         public void ErrorType_defaults_to_null()
         {
-            Assert.Null(new Handler().ErrorType);
+            Assert.Null(new ResultHandler().ErrorType);
         }
 
         [Fact]
         public void OnResult_works()
         {
-            var handler = new Handler();
+            var handler = new ResultHandler();
             var result = "Twilight Sparkle";
 
             handler.OnResult(result);
@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.Commands.Tests
         [Fact]
         public void OnError_works()
         {
-            var handler = new Handler();
+            var handler = new ResultHandler();
             var type = "System.ArgumentOutOfRangeException";
             var message = "Needs to be about 20% more cool.";
             var stackTrace = "The Coolest Trace Yet";
@@ -49,31 +49,18 @@ namespace Microsoft.Data.Entity.Commands.Tests
         [Fact]
         public void Write_methods_are_noops_when_null()
         {
-            var handler = new Handler();
+            var handler = new LogHandler();
 
-            handler.WriteError("Princess Celestia doesn't exist.");
             handler.WriteWarning("Princess Celestia is in danger.");
             handler.WriteInformation("Princess Celestia is on her way.");
             handler.WriteVerbose("Princess Celestia is an alicorn.");
         }
 
         [Fact]
-        public void WriteError_works()
-        {
-            string result = null;
-            var handler = new Handler(m => result = m);
-            var message = "Princess Celestia doesn't exist.";
-
-            handler.WriteError(message);
-
-            Assert.Equal(message, result);
-        }
-
-        [Fact]
         public void WriteWarning_works()
         {
             string result = null;
-            var handler = new Handler(writeWarning: m => result = m);
+            var handler = new LogHandler(writeWarning: m => result = m);
             var message = "Princess Celestia is in danger.";
 
             handler.WriteWarning(message);
@@ -85,7 +72,7 @@ namespace Microsoft.Data.Entity.Commands.Tests
         public void WriteInformation_works()
         {
             string result = null;
-            var handler = new Handler(writeInformation: m => result = m);
+            var handler = new LogHandler(writeInformation: m => result = m);
             var message = "Princess Celestia is on her way.";
 
             handler.WriteInformation(message);
@@ -97,7 +84,7 @@ namespace Microsoft.Data.Entity.Commands.Tests
         public void WriteVerbose_works()
         {
             string result = null;
-            var handler = new Handler(writeVerbose: m => result = m);
+            var handler = new LogHandler(writeVerbose: m => result = m);
             var message = "Princess Celestia is an alicorn.";
 
             handler.WriteVerbose(message);

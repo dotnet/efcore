@@ -6,6 +6,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 
 namespace Microsoft.Data.Entity.Commands.TestUtilities
 {
@@ -32,12 +33,13 @@ namespace Microsoft.Data.Entity.Commands.TestUtilities
                 false,
                 0,
                 null,
-                new[]
+                new object[]
                     {
+                        // TODO: Pass this in
+                        new LogHandler(),
                         new Hashtable
                             {
-                                { "targetDir", targetDir },
-                                { "targetFileName", targetFileName },
+                                { "targetPath", Path.Combine(targetDir ,targetFileName)},
                                 { "projectDir", projectDir },
                                 { "rootNamespace", rootNamespace }
                             }
@@ -121,7 +123,7 @@ namespace Microsoft.Data.Entity.Commands.TestUtilities
 
         private object InvokeOperationImpl(string operation, Hashtable arguments, bool isVoid = false)
         {
-            var handler = new Handler();
+            var resultHandler = new ResultHandler();
 
             // TODO: Set current directory
             _domain.CreateInstance(
@@ -130,22 +132,25 @@ namespace Microsoft.Data.Entity.Commands.TestUtilities
                 false,
                 0,
                 null,
-                new[] { _executor, handler, arguments },
+                new[] { _executor, resultHandler, arguments },
                 null,
                 null);
 
-            if (handler.ErrorType != null)
+            if (resultHandler.ErrorType != null)
             {
-                throw new CommandException(handler.ErrorMessage, handler.ErrorStackTrace, handler.ErrorType);
+                throw new CommandException(
+                    resultHandler.ErrorMessage,
+                    resultHandler.ErrorStackTrace,
+                    resultHandler.ErrorType);
             }
             if (!isVoid
-                && !handler.HasResult)
+                && !resultHandler.HasResult)
             {
                 throw new InvalidOperationException(
                     string.Format("A value was not returned for operation '{0}'.", operation));
             }
 
-            return handler.Result;
+            return resultHandler.Result;
         }
     }
 }

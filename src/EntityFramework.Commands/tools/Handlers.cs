@@ -5,29 +5,13 @@ using System;
 
 namespace Microsoft.Data.Entity.Commands
 {
-    public class Handler : MarshalByRefObject, IHandler
+    public class ResultHandler : MarshalByRefObject, IResultHandler
     {
         private bool _hasResult;
         private object _result;
         private string _errorType;
         private string _errorMessage;
         private string _errorStackTrace;
-        private readonly Action<string> _writeError;
-        private readonly Action<string> _writeWarning;
-        private readonly Action<string> _writeInformation;
-        private readonly Action<string> _writeVerbose;
-
-        public Handler(
-            Action<string> writeError = null,
-            Action<string> writeWarning = null,
-            Action<string> writeInformation = null,
-            Action<string> writeVerbose = null)
-        {
-            _writeError = writeError;
-            _writeWarning = writeWarning;
-            _writeInformation = writeInformation;
-            _writeVerbose = writeVerbose;
-        }
 
         public virtual bool HasResult
         {
@@ -66,13 +50,22 @@ namespace Microsoft.Data.Entity.Commands
             _errorMessage = message;
             _errorStackTrace = stackTrace;
         }
+    }
 
-        public virtual void WriteError(string message)
+    public class LogHandler : MarshalByRefObject, ILogHandler
+    {
+        private readonly Action<string> _writeWarning;
+        private readonly Action<string> _writeInformation;
+        private readonly Action<string> _writeVerbose;
+
+        public LogHandler(
+            Action<string> writeWarning = null,
+            Action<string> writeInformation = null,
+            Action<string> writeVerbose = null)
         {
-            if (_writeError != null)
-            {
-                _writeError(message);
-            }
+            _writeWarning = writeWarning;
+            _writeInformation = writeInformation;
+            _writeVerbose = writeVerbose;
         }
 
         public virtual void WriteWarning(string message)

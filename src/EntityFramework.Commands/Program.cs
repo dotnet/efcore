@@ -15,6 +15,7 @@ using Microsoft.Framework.Runtime.Common.CommandLine;
 
 namespace Microsoft.Data.Entity.Commands
 {
+    // TODO: Add verbose option
     public class Program
     {
         private readonly string _projectDir;
@@ -29,9 +30,10 @@ namespace Microsoft.Data.Entity.Commands
             _projectDir = appEnv.ApplicationBasePath;
             _rootNamespace = appEnv.ApplicationName;
 
+            var loggerProvider = new LoggerProvider(name => new ConsoleCommandLogger(name, verbose: true));
             var assemblyName = new AssemblyName(appEnv.ApplicationName);
             var assembly = Assembly.Load(assemblyName);
-            _migrationTool = new MigrationTool(assembly);
+            _migrationTool = new MigrationTool(loggerProvider, assembly);
         }
 
         public virtual int Main([NotNull] string[] args)
@@ -149,10 +151,17 @@ namespace Microsoft.Data.Entity.Commands
         public virtual int ListContexts()
         {
             var contexts = _migrationTool.GetContextTypes();
+            var any = false;
             foreach (var context in contexts)
             {
                 // TODO: Show simple names
                 Console.WriteLine(context.FullName);
+                any = true;
+            }
+
+            if (!any)
+            {
+                Console.WriteLine("No DbContext was found.");
             }
 
             return 0;
@@ -178,10 +187,17 @@ namespace Microsoft.Data.Entity.Commands
         public virtual int ListMigrations([CanBeNull] string context)
         {
             var migrations = _migrationTool.GetMigrations(context);
+            var any = false;
             foreach (var migration in migrations)
             {
                 // TODO: Show simple names
                 Console.WriteLine(migration.GetMigrationId());
+                any = true;
+            }
+
+            if (!any)
+            {
+                Console.WriteLine("No migrations were found.");
             }
 
             return 0;
@@ -190,7 +206,7 @@ namespace Microsoft.Data.Entity.Commands
         public virtual int ScriptMigration(
             [CanBeNull] string from,
             [CanBeNull] string to,
-            bool idempotent, 
+            bool idempotent,
             [CanBeNull] string context)
         {
             var sql = _migrationTool.ScriptMigration(from, to, idempotent, context);

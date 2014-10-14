@@ -53,12 +53,12 @@ var sqliteTestDir='test/EntityFramework.SQLite.FunctionalTests/bin/Debug'
                     @"tools\EntityFramework.psm1");
                 CreatePartFromFile(
                     package,
-                    @"src\EntityFramework.Commands\tools\Handler.cs",
-                    @"tools\Handler.cs");
+                    @"src\EntityFramework.Commands\tools\Handlers.cs",
+                    @"tools\Handlers.cs");
                 CreatePartFromFile(
                     package,
-                    @"src\EntityFramework.Commands\IHandler.cs",
-                    @"tools\IHandler.cs");
+                    @"src\EntityFramework.Commands\IHandlers.cs",
+                    @"tools\IHandlers.cs");
                 CreatePartFromFile(
                     package,
                     @"src\EntityFramework.Commands\tools\init.ps1",

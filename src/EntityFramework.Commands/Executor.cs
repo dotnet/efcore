@@ -1,16 +1,17 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.Data.Entity.Migrations.Utilities;
-#if NET451 || ASPNET50
+#if NET451
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Commands.Utilities;
+using Microsoft.Data.Entity.Migrations.Infrastructure;
+using Microsoft.Data.Entity.Migrations.Utilities;
 
 namespace Microsoft.Data.Entity.Commands
 {
@@ -20,27 +21,29 @@ namespace Microsoft.Data.Entity.Commands
         private readonly string _rootNamespace;
         private readonly MigrationTool _migrationTool;
 
-        public Executor([NotNull] IDictionary args)
+        public Executor([NotNull] object logHandler, [NotNull] IDictionary args)
         {
+            Check.NotNull(logHandler, "logHandler");
             Check.NotNull(args, "args");
 
-            // TODO: Pass in targetPath
-            var targetDir = (string)args["targetDir"];
-            var targetFileName = (string)args["targetFileName"];
-            var targetPath = Path.Combine(targetDir, targetFileName);
+            var unwrappedLogHandler = logHandler as ILogHandler
+                ?? new ForwardingProxy<ILogHandler>(logHandler).GetTransparentProxy();
+            var loggerProvider = new LoggerProvider(name => new CommandLoggerAdapter(name, unwrappedLogHandler));
+
+            var targetPath = (string)args["targetPath"];
 
             _projectDir = (string)args["projectDir"];
             _rootNamespace = (string)args["rootNamespace"];
 
             var assemblyName = AssemblyName.GetAssemblyName(targetPath);
             var assembly = Assembly.Load(assemblyName);
-            _migrationTool = new MigrationTool(assembly);
+            _migrationTool = new MigrationTool(loggerProvider, assembly);
         }
 
         public class GetContextType : OperationBase
         {
-            public GetContextType([NotNull] Executor executor, [NotNull] object handler, [NotNull] IDictionary args)
-                : base(handler)
+            public GetContextType([NotNull] Executor executor, [NotNull] object resultHandler, [NotNull] IDictionary args)
+                : base(resultHandler)
             {
                 Check.NotNull(executor, "executor");
                 Check.NotNull(args, "args");
@@ -58,8 +61,8 @@ namespace Microsoft.Data.Entity.Commands
 
         public class AddMigration : OperationBase
         {
-            public AddMigration([NotNull] Executor executor, [NotNull] object handler, [NotNull] IDictionary args)
-                : base(handler)
+            public AddMigration([NotNull] Executor executor, [NotNull] object resultHandler, [NotNull] IDictionary args)
+                : base(resultHandler)
             {
                 Check.NotNull(executor, "executor");
                 Check.NotNull(args, "args");
@@ -84,8 +87,8 @@ namespace Microsoft.Data.Entity.Commands
 
         public class ApplyMigration : OperationBase
         {
-            public ApplyMigration([NotNull] Executor executor, [NotNull] object handler, [NotNull] IDictionary args)
-                : base(handler)
+            public ApplyMigration([NotNull] Executor executor, [NotNull] object resultHandler, [NotNull] IDictionary args)
+                : base(resultHandler)
             {
                 Check.NotNull(executor, "executor");
                 Check.NotNull(args, "args");
@@ -106,9 +109,9 @@ namespace Microsoft.Data.Entity.Commands
         {
             public ScriptMigration(
                 [NotNull] Executor executor,
-                [NotNull] object handler,
+                [NotNull] object resultHandler,
                 [NotNull] IDictionary args)
-                : base(handler)
+                : base(resultHandler)
             {
                 Check.NotNull(executor, "executor");
                 Check.NotNull(args, "args");
@@ -133,8 +136,8 @@ namespace Microsoft.Data.Entity.Commands
 
         public class GetContextTypes : OperationBase
         {
-            public GetContextTypes([NotNull] Executor executor, [NotNull] object handler, [NotNull] IDictionary args)
-                : base(handler)
+            public GetContextTypes([NotNull] Executor executor, [NotNull] object resultHandler, [NotNull] IDictionary args)
+                : base(resultHandler)
             {
                 Check.NotNull(executor, "executor");
                 Check.NotNull(args, "args");
@@ -168,8 +171,8 @@ namespace Microsoft.Data.Entity.Commands
 
         public class GetMigrations : OperationBase
         {
-            public GetMigrations([NotNull] Executor executor, [NotNull] object handler, [NotNull] IDictionary args)
-                : base(handler)
+            public GetMigrations([NotNull] Executor executor, [NotNull] object resultHandler, [NotNull] IDictionary args)
+                : base(resultHandler)
             {
                 Check.NotNull(executor, "executor");
                 Check.NotNull(args, "args");
@@ -202,18 +205,19 @@ namespace Microsoft.Data.Entity.Commands
 
         public abstract class OperationBase : MarshalByRefObject
         {
-            private readonly IHandler _handler;
+            private readonly IResultHandler _resultHandler;
 
-            protected OperationBase([NotNull] object handler)
+            protected OperationBase([NotNull] object resultHandler)
             {
-                Check.NotNull(handler, "handler");
+                Check.NotNull(resultHandler, "resultHandler");
 
-                _handler = handler as IHandler ?? new ForwardingProxy<IHandler>(handler).GetTransparentProxy();
+                _resultHandler = resultHandler as IResultHandler
+                    ?? new ForwardingProxy<IResultHandler>(resultHandler).GetTransparentProxy();
             }
 
-            public virtual IHandler Handler
+            public virtual IResultHandler ResultHandler
             {
-                get { return _handler; }
+                get { return _resultHandler; }
             }
 
             public virtual void Execute([NotNull] Action action)
@@ -226,7 +230,7 @@ namespace Microsoft.Data.Entity.Commands
                 }
                 catch (Exception ex)
                 {
-                    _handler.OnError(ex.GetType().AssemblyQualifiedName, ex.Message, ex.ToString());
+                    _resultHandler.OnError(ex.GetType().AssemblyQualifiedName, ex.Message, ex.ToString());
                 }
             }
 
@@ -234,14 +238,14 @@ namespace Microsoft.Data.Entity.Commands
             {
                 Check.NotNull(action, "action");
 
-                Execute(() => _handler.OnResult(action()));
+                Execute(() => _resultHandler.OnResult(action()));
             }
 
             public virtual void Execute<T>([NotNull] Func<IEnumerable<T>> action)
             {
                 Check.NotNull(action, "action");
 
-                Execute(() => _handler.OnResult(action().ToArray()));
+                Execute(() => _resultHandler.OnResult(action().ToArray()));
             }
         }
     }

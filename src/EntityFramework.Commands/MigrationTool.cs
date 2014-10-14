@@ -12,18 +12,27 @@ using Microsoft.Data.Entity.Commands.Utilities;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Relational;
+using Microsoft.Data.Entity.Utilities;
+using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Commands
 {
-    // TODO: Log
     public class MigrationTool
     {
+        private readonly ILoggerProvider _loggerProvider;
+        private readonly LazyRef<ILogger> _logger;
         private readonly Assembly _assembly;
 
-        public MigrationTool([NotNull] Assembly assembly)
+        public MigrationTool([NotNull] ILoggerProvider loggerProvider, [NotNull] Assembly assembly)
         {
+            Check.NotNull(loggerProvider, "loggerProvider");
             Check.NotNull(assembly, "assembly");
 
+            var loggerFactory = new LoggerFactory();
+            loggerFactory.AddProvider(loggerProvider);
+
+            _loggerProvider = loggerProvider;
+            _logger = new LazyRef<ILogger>(() => loggerFactory.Create<MigrationTool>());
             _assembly = assembly;
         }
 
@@ -146,7 +155,10 @@ namespace Microsoft.Data.Entity.Commands
 
         public virtual Type GetContextType([CanBeNull] string name)
         {
-            return ContextTool.SelectType(GetContextTypes(), name);
+            var contextType = ContextTool.SelectType(GetContextTypes(), name);
+            _logger.Value.WriteVerbose(Strings.FormatLogUseContext(contextType.Name));
+
+            return contextType;
         }
 
         public virtual IEnumerable<Type> GetContextTypes()
@@ -162,6 +174,9 @@ namespace Microsoft.Data.Entity.Commands
         private DbContext CreateContext(Type type)
         {
             var context = ContextTool.CreateContext(type);
+
+            context.Configuration.LoggerFactory.AddProvider(_loggerProvider);
+
             var extension = RelationalOptionsExtension.Extract(context.Configuration);
             if (extension.MigrationAssembly == null)
             {

@@ -75,8 +75,8 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\src\EntityFramework.Commands\tools\Handler.cs">
-      <Link>Handler.cs</Link>
+    <Compile Include="..\..\src\EntityFramework.Commands\tools\Handlers.cs">
+      <Link>Handlers.cs</Link>
     </Compile>
     <Compile Include="ApiConsistencyTest.cs" />
     <Compile Include="Migrations\CodeGeneratorTestHelper.cs" />

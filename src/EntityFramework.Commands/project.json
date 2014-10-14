@@ -7,7 +7,7 @@
         "EntityFramework.Migrations": "7.0.0-*"
     },
     "code": [ "**\\*.cs", "..\\Shared\\*.cs" ],
-    "exclude": "tools\\Handler.cs",
+    "exclude": "tools\\Handlers.cs",
     "frameworks": {
         "net451": { },
         "aspnet50": {

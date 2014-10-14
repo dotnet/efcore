@@ -1,6 +1,8 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+#if NET451
+
 using System;
 using System.Collections.Generic;
 using Moq;
@@ -13,7 +15,10 @@ namespace Microsoft.Data.Entity.Commands.Tests
         [Fact]
         public void Ctor_validates_arguments()
         {
-            var ex = Assert.Throws<ArgumentNullException>(() => new Executor(null));
+            var ex = Assert.Throws<ArgumentNullException>(() => new Executor(null, null));
+            Assert.Equal(ex.ParamName, "logHandler");
+
+            ex = Assert.Throws<ArgumentNullException>(() => new Executor(Mock.Of<ILogHandler>(), null));
             Assert.Equal(ex.ParamName, "args");
         }
 
@@ -22,7 +27,7 @@ namespace Microsoft.Data.Entity.Commands.Tests
             [Fact]
             public void Execute_catches_exceptions()
             {
-                var handler = new Handler();
+                var handler = new ResultHandler();
                 var operation = new Mock<Executor.OperationBase>(handler) { CallBase = true };
                 var error = new ArgumentOutOfRangeException("Needs to be about 20% more cool.");
 
@@ -36,7 +41,7 @@ namespace Microsoft.Data.Entity.Commands.Tests
             [Fact]
             public void Execute_sets_results()
             {
-                var handler = new Handler();
+                var handler = new ResultHandler();
                 var operation = new Mock<Executor.OperationBase>(handler) { CallBase = true };
                 var result = "Twilight Sparkle";
 
@@ -48,7 +53,7 @@ namespace Microsoft.Data.Entity.Commands.Tests
             [Fact]
             public void Execute_enumerates_results()
             {
-                var handler = new Handler();
+                var handler = new ResultHandler();
                 var operation = new Mock<Executor.OperationBase>(handler) { CallBase = true };
 
                 operation.Object.Execute(() => YieldResults());
@@ -65,3 +70,5 @@ namespace Microsoft.Data.Entity.Commands.Tests
         }
     }
 }
+
+#endif

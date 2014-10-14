@@ -9,7 +9,7 @@
     "code": [
         "**\\*.cs",
         "..\\Shared\\ApiConsistencyTestBase.cs",
-        "..\\..\\src\\EntityFramework.Commands\\tools\\Handler.cs"
+        "..\\..\\src\\EntityFramework.Commands\\tools\\Handlers.cs"
     ],
     "commands": {
         "test": "Xunit.KRunner"

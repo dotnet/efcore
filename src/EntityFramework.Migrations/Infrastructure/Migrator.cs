@@ -196,6 +196,11 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                 statements.AddRange(DropHistoryTable(simulate));
             }
 
+            if (statements.Count == 0)
+            {
+                Logger.UpToDate();
+            }
+
             return statements;
         }
 

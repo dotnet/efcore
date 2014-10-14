@@ -17,8 +17,10 @@ namespace Microsoft.Data.Entity.Commands.Tests
 
         protected override IEnumerable<Type> GetAllTypes(IEnumerable<Type> types)
         {
-            // NOTE: This class is compiled by the PowerShell module and must not reference external types.
-            return base.GetAllTypes(types).Where(t => t.FullName != "Microsoft.Data.Entity.Commands.IHandler");
+            // NOTE: These classes are compiled by the PowerShell module and must not reference external types.
+            return base.GetAllTypes(types).Where(
+                t => t.FullName != "Microsoft.Data.Entity.Commands.IResultHandler"
+                    && t.FullName != "Microsoft.Data.Entity.Commands.ILogHandler");
         }
     }
 }
