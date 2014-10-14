@@ -99,6 +99,8 @@
     <Compile Include="Metadata\IndexTest.cs" />
     <Compile Include="Metadata\Internal\ConfigurationSourceExtensionsTest.cs" />
     <Compile Include="Metadata\Internal\InternalEntityBuilderTest.cs" />
+    <Compile Include="Metadata\Internal\InternalForeignKeyBuilderTest.cs" />
+    <Compile Include="Metadata\Internal\InternalIndexBuilderTest.cs" />
     <Compile Include="Metadata\Internal\InternalMetadataBuilderTest.cs" />
     <Compile Include="Metadata\Internal\InternalModelBuilderTest.cs" />
     <Compile Include="Metadata\MetadataBuilderTest.cs" />

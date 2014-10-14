@@ -35,7 +35,7 @@ namespace System.Linq.Expressions
             return propertyInfo;
         }
 
-        public static IList<PropertyInfo> GetPropertyAccessList([NotNull] this LambdaExpression propertyAccessExpression)
+        public static IReadOnlyList<PropertyInfo> GetPropertyAccessList([NotNull] this LambdaExpression propertyAccessExpression)
         {
             Contract.Assert(propertyAccessExpression.Parameters.Count == 1);
 
@@ -52,7 +52,7 @@ namespace System.Linq.Expressions
             return propertyPaths;
         }
 
-        private static IList<PropertyInfo> MatchPropertyAccessList(
+        private static IReadOnlyList<PropertyInfo> MatchPropertyAccessList(
             this LambdaExpression lambdaExpression, Func<Expression, Expression, PropertyInfo> propertyMatcher)
         {
             Contract.Assert(lambdaExpression.Body != null);

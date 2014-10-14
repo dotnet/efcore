@@ -7,14 +7,23 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 {
     public class InternalIndexBuilder : InternalMetadataItemBuilder<Index>
     {
-        public InternalIndexBuilder([NotNull] Index foreignKey, [NotNull] InternalModelBuilder modelBuilder)
-            : base(foreignKey, modelBuilder)
+        private ConfigurationSource? _isUniqueConfigurationSource;
+
+        public InternalIndexBuilder([NotNull] Index index, [NotNull] InternalModelBuilder modelBuilder)
+            : base(index, modelBuilder)
         {
         }
 
-        public virtual void IsUnique(bool isUnique)
+        public virtual bool IsUnique(bool isUnique, ConfigurationSource configurationSource)
         {
-            Metadata.IsUnique = isUnique;
+            if (configurationSource.CanSet(Metadata.IsUnique.HasValue, _isUniqueConfigurationSource))
+            {
+                _isUniqueConfigurationSource = configurationSource;
+                Metadata.IsUnique = isUnique;
+                return true;
+            }
+
+            return false;
         }
     }
 }

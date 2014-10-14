@@ -38,7 +38,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return Key(GetExistingProperties(propertyNames), configurationSource);
         }
 
-        public virtual InternalKeyBuilder Key([NotNull] IList<PropertyInfo> clrProperties, ConfigurationSource configurationSource)
+        public virtual InternalKeyBuilder Key([NotNull] IReadOnlyList<PropertyInfo> clrProperties, ConfigurationSource configurationSource)
         {
             Check.NotEmpty(clrProperties, "clrProperties");
 
@@ -98,7 +98,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return ForeignKey(principalType.Metadata, GetExistingProperties(propertyNames), configurationSource);
         }
 
-        public virtual InternalForeignKeyBuilder ForeignKey([NotNull] Type referencedType, [NotNull] IList<PropertyInfo> clrProperties,
+        public virtual InternalForeignKeyBuilder ForeignKey([NotNull] Type referencedType, [NotNull] IReadOnlyList<PropertyInfo> clrProperties,
             ConfigurationSource configurationSource)
         {
             Check.NotNull(referencedType, "referencedType");
@@ -129,7 +129,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return Index(GetExistingProperties(propertyNames), configurationSource);
         }
 
-        public virtual InternalIndexBuilder Index([NotNull] IList<PropertyInfo> clrProperties, ConfigurationSource configurationSource)
+        public virtual InternalIndexBuilder Index([NotNull] IReadOnlyList<PropertyInfo> clrProperties, ConfigurationSource configurationSource)
         {
             Check.NotNull(clrProperties, "clrProperties");
 

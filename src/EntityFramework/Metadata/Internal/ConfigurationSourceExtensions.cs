@@ -5,26 +5,43 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 {
     public static class ConfigurationSourceExtensions
     {
-        public static bool Overrides(this ConfigurationSource newConfiguration, ConfigurationSource oldConfiguration)
+        public static bool Overrides(this ConfigurationSource newConfigurationSource, ConfigurationSource oldConfigurationSource)
         {
-            if (newConfiguration == ConfigurationSource.Explicit)
+            if (newConfigurationSource == ConfigurationSource.Explicit)
             {
                 return true;
             }
 
-            if (oldConfiguration == ConfigurationSource.Explicit)
+            if (oldConfigurationSource == ConfigurationSource.Explicit)
             {
                 return false;
             }
 
-            if (newConfiguration == ConfigurationSource.DataAnnotation)
+            if (newConfigurationSource == ConfigurationSource.DataAnnotation)
             {
                 return true;
             }
 
-            if (oldConfiguration == ConfigurationSource.DataAnnotation)
+            if (oldConfigurationSource == ConfigurationSource.DataAnnotation)
             {
                 return false;
+            }
+
+            return true;
+        }
+
+        public static bool CanSet(this ConfigurationSource newConfigurationSource, bool currentValueSet, ConfigurationSource? oldConfigurationSource)
+        {
+            if (currentValueSet)
+            {
+                var existingConfigurationSource = oldConfigurationSource.HasValue
+                    ? oldConfigurationSource.Value
+                    : ConfigurationSource.Explicit;
+
+                if (!newConfigurationSource.Overrides(existingConfigurationSource))
+                {
+                    return false;
+                }
             }
 
             return true;

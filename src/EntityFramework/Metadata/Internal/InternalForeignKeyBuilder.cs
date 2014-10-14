@@ -7,14 +7,23 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 {
     public class InternalForeignKeyBuilder : InternalMetadataItemBuilder<ForeignKey>
     {
+        private ConfigurationSource? _isUniqueConfigurationSource;
+
         public InternalForeignKeyBuilder([NotNull] ForeignKey foreignKey, [NotNull] InternalModelBuilder modelBuilder)
             : base(foreignKey, modelBuilder)
         {
         }
 
-        public virtual void IsUnique(bool isUnique)
+        public virtual bool IsUnique(bool isUnique, ConfigurationSource configurationSource)
         {
-            Metadata.IsUnique = isUnique;
+            if (configurationSource.CanSet(Metadata.IsUnique.HasValue, _isUniqueConfigurationSource))
+            {
+                _isUniqueConfigurationSource = configurationSource;
+                Metadata.IsUnique = isUnique;
+                return true;
+            }
+
+            return false;
         }
     }
 }

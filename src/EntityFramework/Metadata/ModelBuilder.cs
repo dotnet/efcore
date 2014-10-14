@@ -459,7 +459,7 @@ namespace Microsoft.Data.Entity.Metadata
 
                 public virtual ForeignKeyBuilder IsUnique(bool isUnique = true)
                 {
-                    Builder.IsUnique(isUnique);
+                    Builder.IsUnique(isUnique, ConfigurationSource.Explicit);
 
                     return this;
                 }
@@ -503,7 +503,7 @@ namespace Microsoft.Data.Entity.Metadata
 
                 public virtual IndexBuilder IsUnique(bool isUnique = true)
                 {
-                    Builder.IsUnique(isUnique);
+                    Builder.IsUnique(isUnique, ConfigurationSource.Explicit);
 
                     return this;
                 }
