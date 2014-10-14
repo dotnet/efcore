@@ -37,7 +37,9 @@ namespace Microsoft.Data.Entity.SQLite
                     // TODO: Consider using RelationalTypeMapper service
                     var integerClrType = SQLiteTypeMap.FromDeclaredType("INTEGER", SQLiteType.Integer).ClrType;
                     if (property.PropertyType == integerClrType
-                        || string.Equals(property.ColumnType(), "INTEGER", StringComparison.OrdinalIgnoreCase))
+                        // TODO: Use SQLite-specific column tyoe
+                        // Issue #875
+                        || string.Equals(property.Relational().ColumnType, "INTEGER", StringComparison.OrdinalIgnoreCase))
                     {
                         // NOTE: This assumes no WITHOUT ROWID tables
                         return _tempFactory;

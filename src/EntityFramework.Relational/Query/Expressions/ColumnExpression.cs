@@ -44,7 +44,9 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         public virtual string Name
         {
-            get { return Property.ColumnName(); }
+            // TODO: Get provider-specific name
+            // Issue #871 
+            get { return Property.Relational().Column; }
         }
 
         public virtual string Alias { get; [param: CanBeNull] set; }
@@ -101,7 +103,9 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         public override string ToString()
         {
-            var s = _tableExpression.Alias + "." + _property.ColumnName();
+            // TODO: Get provider-specific name
+            // Issue #871 
+            var s = _tableExpression.Alias + "." + _property.Relational().Column;
 
             if (Alias != null)
             {

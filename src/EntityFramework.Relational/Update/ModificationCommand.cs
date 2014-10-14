@@ -7,6 +7,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Relational.Utilities;
 using Microsoft.Data.Entity.Utilities;
 
@@ -16,6 +17,7 @@ namespace Microsoft.Data.Entity.Relational.Update
     {
         private readonly ParameterNameGenerator _parameterNameGenerator;
         private readonly string _schemaQualifiedName;
+        private readonly Func<IProperty, IRelationalPropertyExtensions> _getPropertyExtensions;
         private readonly List<StateEntry> _stateEntries = new List<StateEntry>();
 
         private readonly LazyRef<IReadOnlyList<ColumnModification>> _columnModifications
@@ -32,13 +34,18 @@ namespace Microsoft.Data.Entity.Relational.Update
         {
         }
 
-        public ModificationCommand(SchemaQualifiedName schemaQualifiedName, [NotNull] ParameterNameGenerator parameterNameGenerator)
+        public ModificationCommand(
+            SchemaQualifiedName schemaQualifiedName, 
+            [NotNull] ParameterNameGenerator parameterNameGenerator,
+            [NotNull] Func<IProperty, IRelationalPropertyExtensions> getPropertyExtensions)
         {
             Check.NotEmpty(schemaQualifiedName, "schemaQualifiedName");
             Check.NotNull(parameterNameGenerator, "parameterNameGenerator");
+            Check.NotNull(getPropertyExtensions, "getPropertyExtensions");
 
             _schemaQualifiedName = schemaQualifiedName;
             _parameterNameGenerator = parameterNameGenerator;
+            _getPropertyExtensions = getPropertyExtensions;
         }
 
         public virtual SchemaQualifiedName SchemaQualifiedName
@@ -134,6 +141,7 @@ namespace Microsoft.Data.Entity.Relational.Update
                         columnModifications.Add(new ColumnModification(
                             stateEntry,
                             property,
+                            _getPropertyExtensions(property),
                             ParameterNameGenerator,
                             readValue,
                             writeValue,

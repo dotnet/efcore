@@ -7,12 +7,13 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Relational.Utilities;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational.Update
 {
-    public class CommandBatchPreparer
+    public abstract class CommandBatchPreparer
     {
         private readonly ModificationCommandBatchFactory _modificationCommandBatchFactory;
         private readonly ParameterNameGeneratorFactory _parameterNameGeneratorFactory;
@@ -28,7 +29,7 @@ namespace Microsoft.Data.Entity.Relational.Update
         {
         }
 
-        public CommandBatchPreparer(
+        protected CommandBatchPreparer(
             [NotNull] ModificationCommandBatchFactory modificationCommandBatchFactory,
             [NotNull] ParameterNameGeneratorFactory parameterNameGeneratorFactory,
             [NotNull] GraphFactory graphFactory,
@@ -79,8 +80,17 @@ namespace Microsoft.Data.Entity.Relational.Update
         {
             var parameterNameGenerator = _parameterNameGeneratorFactory.Create();
             // TODO: Handle multiple state entries that update the same row
-            return stateEntries.Select(e => new ModificationCommand(e.EntityType.SchemaQualifiedName(), parameterNameGenerator).AddStateEntry(e));
+            return stateEntries.Select(
+                e => new ModificationCommand(
+                    new SchemaQualifiedName(GetEntityTypeExtensions(e.EntityType).Table, GetEntityTypeExtensions(e.EntityType).Schema),
+                    parameterNameGenerator,
+                    GetPropertyExtensions)
+                    .AddStateEntry(e));
         }
+
+        public abstract IRelationalPropertyExtensions GetPropertyExtensions([NotNull] IProperty property);
+
+        public abstract IRelationalEntityTypeExtensions GetEntityTypeExtensions([NotNull] IEntityType entityType);
 
         // To avoid violating store constraints the modification commands must be sorted
         // according to these rules:

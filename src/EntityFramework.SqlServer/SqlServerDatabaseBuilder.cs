@@ -42,5 +42,60 @@ namespace Microsoft.Data.Entity.SqlServer
                         ? "smallint"
                         : "tinyint";
         }
+
+        protected override string GetSchema(IEntityType entityType)
+        {
+            return entityType.SqlServer().Schema;
+        }
+
+        protected override string GetTableName(IEntityType entityType)
+        {
+            return entityType.SqlServer().Table;
+        }
+
+        protected override string GetIndexName(IIndex index)
+        {
+            return index.SqlServer().Name;
+        }
+
+        protected override string GetColumnName(IProperty property)
+        {
+            return property.SqlServer().Column;
+        }
+
+        protected override string GetColumnType(IProperty property)
+        {
+            return property.SqlServer().ColumnType;
+        }
+
+        protected override object GetColumnDefaultValue(IProperty property)
+        {
+            return property.SqlServer().DefaultValue;
+        }
+
+        protected override string GetColumnDefaultSql(IProperty property)
+        {
+            return property.SqlServer().DefaultExpression;
+        }
+
+        protected override string GetForeignKeyName(IForeignKey foreignKey)
+        {
+            return foreignKey.SqlServer().Name;
+        }
+
+        protected override string GetKeyName(IKey key)
+        {
+            return key.SqlServer().Name;
+        }
+
+        protected override bool IsKeyClustered(IKey key)
+        {
+            return key.SqlServer().IsClustered == true;
+        }
+
+        protected override bool IsIndexClustered(IIndex index)
+        {
+            return index.SqlServer().IsClustered == true;
+        }
     }
 }

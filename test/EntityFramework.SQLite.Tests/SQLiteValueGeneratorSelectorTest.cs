@@ -29,7 +29,8 @@ namespace Microsoft.Data.Entity.SQLite.Tests
             var entityType = new Model().AddEntityType("Entity");
             var property = entityType.GetOrAddProperty("Id", typeof(int), shadowProperty: true);
             property.ValueGeneration = ValueGeneration.OnAdd;
-            property[MetadataExtensions.Annotations.StorageTypeName] = "INTEGER";
+            // TODO: SQLite-specific. Issue #875
+            property.Relational().ColumnType = "INTEGER";
             entityType.GetOrSetPrimaryKey(property);
 
             var result = CreateSelector().Select(property);

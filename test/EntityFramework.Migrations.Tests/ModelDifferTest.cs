@@ -21,19 +21,21 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                 b =>
                     {
                         b.Property<int>("Id");
-                        b.Property<string>("P0").ColumnName("C0");
-                        b.Key("Id").KeyName("PK0");
-                        b.ToTable("T0", "dbo");
+                        b.Property<string>("P0").ForRelational().Column("C0");
+                        b.Key("Id").ForRelational().Name("PK0");
+                        b.ForRelational().Table("T0", "dbo");
                     });
             modelBuider.Entity("B",
                 b =>
                     {
                         b.Property<int>("Id");
-                        b.Property<string>("P1").ColumnName("C1");
-                        b.Key("Id").KeyName("PK1");
-                        b.ToTable("T1", "dbo");
-                        b.ForeignKey("A", "Id").KeyName("FK").CascadeDelete(true);
-                        b.Index("Id").IsUnique().IndexName("IX").IsUnique();
+                        b.Property<string>("P1").ForRelational().Column("C1");
+                        b.Key("Id").ForRelational().Name("PK1");
+                        b.ForRelational().Table("T1", "dbo");
+                        b.ForeignKey("A", "Id").ForRelational().Name("FK");
+                        // TODO: Cascading behaviors not supported. Issue #333
+                        //.CascadeDelete(true);
+                        b.Index("Id").IsUnique().ForRelational().Name("IX");
                     });
 
             var databaseBuilder = new DatabaseBuilder();
@@ -55,7 +57,8 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             Assert.Equal("dbo.T0", addForeignKeyOperation.ReferencedTableName);
             Assert.Equal(new[] { "Id" }, addForeignKeyOperation.ColumnNames);
             Assert.Equal(new[] { "Id" }, addForeignKeyOperation.ReferencedColumnNames);
-            Assert.True(addForeignKeyOperation.CascadeDelete);
+            // TODO: Cascading behaviors not supported. Issue #333
+            //Assert.True(addForeignKeyOperation.CascadeDelete);
 
             var createIndexOperation = (CreateIndexOperation)operations[3];
 
@@ -73,19 +76,19 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                 b =>
                     {
                         b.Property<int>("Id");
-                        b.Property<string>("P0").ColumnName("C0");
-                        b.Key("Id").KeyName("PK0");
-                        b.ToTable("T0", "dbo");
+                        b.Property<string>("P0").ForRelational().Column("C0");
+                        b.Key("Id").ForRelational().Name("PK0");
+                        b.ForRelational().Table("T0", "dbo");
                     });
             modelBuider.Entity("B",
                 b =>
                     {
                         b.Property<int>("Id");
-                        b.Property<string>("P1").ColumnName("C1");
-                        b.Key("Id").KeyName("PK1");
-                        b.ToTable("T1", "dbo");
-                        b.ForeignKey("A", "Id").KeyName("FK");
-                        b.Index("Id").IsUnique().IndexName("IX");
+                        b.Property<string>("P1").ForRelational().Column("C1");
+                        b.Key("Id").ForRelational().Name("PK1");
+                        b.ForRelational().Table("T1", "dbo");
+                        b.ForeignKey("A", "Id").ForRelational().Name("FK");
+                        b.Index("Id").IsUnique().ForRelational().Name("IX");
                     });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).DropSchema(modelBuider.Model);
@@ -109,8 +112,8 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                 b =>
                     {
                         b.Property<int>("Id");
-                        b.Key("Id").KeyName("PK");
-                        b.ToTable("T", "dbo");
+                        b.Key("Id").ForRelational().Name("PK");
+                        b.ForRelational().Table("T", "dbo");
                     });
 
             var targetModelBuilder = new BasicModelBuilder();
@@ -118,8 +121,8 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                 b =>
                     {
                         b.Property<int>("Id");
-                        b.Key("Id").KeyName("PK");
-                        b.ToTable("T", "OtherSchema");
+                        b.Key("Id").ForRelational().Name("PK");
+                        b.ForRelational().Table("T", "OtherSchema");
                     });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
@@ -142,8 +145,8 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                 b =>
                     {
                         b.Property<int>("Id");
-                        b.Key("Id").KeyName("PK");
-                        b.ToTable("T", "dbo");
+                        b.Key("Id").ForRelational().Name("PK");
+                        b.ForRelational().Table("T", "dbo");
                     });
 
             var targetModelBuilder = new BasicModelBuilder();
@@ -151,8 +154,8 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                 b =>
                     {
                         b.Property<int>("Id");
-                        b.Key("Id").KeyName("PK");
-                        b.ToTable("RenamedTable", "dbo");
+                        b.Key("Id").ForRelational().Name("PK");
+                        b.ForRelational().Table("RenamedTable", "dbo");
                     });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
@@ -189,9 +192,11 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                 b =>
                     {
                         b.Property<int>("Id");
-                        b.Key("Id").KeyName("PK");
-                        b.ForeignKey("A", "Id").KeyName("FK").CascadeDelete(true);
-                        b.Index("Id").IndexName("IX").IsUnique();
+                        b.Key("Id").ForRelational().Name("PK");
+                        b.ForeignKey("A", "Id").ForRelational().Name("FK");
+                        // TODO: Cascading behaviors not supported. Issue #333
+                        //.CascadeDelete(true);
+                        b.Index("Id").IsUnique().ForRelational().Name("IX");
                     });
 
             var databaseBuilder = new DatabaseBuilder();
@@ -215,7 +220,9 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             Assert.Equal("A", addForeignKeyOperation.ReferencedTableName);
             Assert.Equal(new[] { "Id" }, addForeignKeyOperation.ColumnNames);
             Assert.Equal(new[] { "Id" }, addForeignKeyOperation.ReferencedColumnNames);
-            Assert.True(addForeignKeyOperation.CascadeDelete);
+
+            // TODO: Cascading behaviors not supported. Issue #333
+            //Assert.True(addForeignKeyOperation.CascadeDelete);
 
             var createIndexOperation = (CreateIndexOperation)operations[2];
 
@@ -269,7 +276,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                 b =>
                     {
                         b.Property<int>("Id");
-                        b.Property<string>("P").ColumnName("C");
+                        b.Property<string>("P").ForRelational().Column("C");
                         b.Key("Id");
                     });
 
@@ -278,7 +285,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                 b =>
                     {
                         b.Property<int>("Id");
-                        b.Property<string>("P").ColumnName("RenamedColumn");
+                        b.Property<string>("P").ForRelational().Column("RenamedColumn");
                         b.Key("Id");
                     });
 
@@ -403,7 +410,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                     {
                         b.Property<int>("Id");
                         b.Property<int>("P");
-                        b.Key("Id").KeyName("PK");
+                        b.Key("Id").ForRelational().Name("PK");
                     });
 
             var targetModelBuilder = new BasicModelBuilder();
@@ -412,7 +419,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                     {
                         b.Property<int>("Id");
                         b.Property<int>("P");
-                        b.Key("Id", "P").KeyName("PK");
+                        b.Key("Id", "P").ForRelational().Name("PK");
                     });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
@@ -451,7 +458,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                     var id = b.Property<int>("Id").Metadata;
                     var p = b.Property<string>("P").Metadata;
                     b.Key("Id");
-                    b.Metadata.AddKey(new[] { id, p }).SetKeyName("UC");
+                    b.Metadata.AddKey(new[] { id, p }).Relational().Name = "UC";
                 });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
@@ -477,7 +484,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                     var id = b.Property<int>("Id").Metadata;
                     var p = b.Property<string>("P").Metadata;
                     b.Key("Id");
-                    b.Metadata.AddKey(new[] { id, p }).SetKeyName("UC");
+                    b.Metadata.AddKey(new[] { id, p }).Relational().Name = "UC";
                 });
 
             var targetModelBuilder = new BasicModelBuilder();
@@ -534,7 +541,9 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                         b.Property<int>("P");
                         b.Key("Id");
                         b.ForeignKey("A", "Id");
-                        b.ForeignKey("A", "P").KeyName("FK").CascadeDelete(true);
+                        b.ForeignKey("A", "P").ForRelational().Name("FK");
+                        // TODO: Cascading behaviors not supported. Issue #333
+                        //.CascadeDelete(true);
                     });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
@@ -550,7 +559,8 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             Assert.Equal("A", addForeignKeyOperation.ReferencedTableName);
             Assert.Equal(new[] { "P" }, addForeignKeyOperation.ColumnNames);
             Assert.Equal(new[] { "Id" }, addForeignKeyOperation.ReferencedColumnNames);
-            Assert.True(addForeignKeyOperation.CascadeDelete);
+            // TODO: Cascading behaviors not supported. Issue #333
+            //Assert.True(addForeignKeyOperation.CascadeDelete);
         }
 
         [Fact]
@@ -570,7 +580,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                         b.Property<int>("P");
                         b.Key("Id");
                         b.ForeignKey("A", "Id");
-                        b.ForeignKey("A", "P").KeyName("FK");
+                        b.ForeignKey("A", "P").ForRelational().Name("FK");
                     });
 
             var targetModelBuilder = new BasicModelBuilder();
@@ -622,7 +632,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                         b.Property<string>("P");
                         b.Key("Id");
                         b.Index("Id");
-                        b.Index("P").IndexName("IX").IsUnique();
+                        b.Index("P").IsUnique().ForRelational().Name("IX");
                     });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
@@ -650,7 +660,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                         b.Property<string>("P");
                         b.Key("Id");
                         b.Index("Id");
-                        b.Index("P").IndexName("IX");
+                        b.Index("P").ForRelational().Name("IX");
                     });
 
             var targetModelBuilder = new BasicModelBuilder();
@@ -684,7 +694,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                     {
                         b.Property<int>("Id");
                         b.Key("Id");
-                        b.Index("Id").IndexName("IX");
+                        b.Index("Id").ForRelational().Name("IX");
                     });
 
             var targetModelBuilder = new BasicModelBuilder();
@@ -693,7 +703,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                     {
                         b.Property<int>("Id");
                         b.Key("Id");
-                        b.Index("Id").IndexName("RenamedIndex");
+                        b.Index("Id").ForRelational().Name("RenamedIndex");
                     });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
@@ -721,15 +731,15 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                 b =>
                     {
                         b.Property<int>("Id");
-                        b.Key("Id").KeyName("PK0");
-                        b.ToTable("T0", "dbo");
+                        b.Key("Id").ForRelational().Name("PK0");
+                        b.ForRelational().Table("T0", "dbo");
                     });
             sourceModelBuilder.Entity("B",
                 b =>
                     {
                         b.Property<int>("Id");
-                        b.Key("Id").KeyName("PK1");
-                        b.ToTable("T1", "dbo");
+                        b.Key("Id").ForRelational().Name("PK1");
+                        b.ForRelational().Table("T1", "dbo");
                     });
 
             var targetModelBuilder = new BasicModelBuilder();
@@ -737,15 +747,15 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                 b =>
                     {
                         b.Property<int>("Id");
-                        b.Key("Id").KeyName("PK0");
-                        b.ToTable("T1", "dbo");
+                        b.Key("Id").ForRelational().Name("PK0");
+                        b.ForRelational().Table("T1", "dbo");
                     });
             targetModelBuilder.Entity("B",
                 b =>
                     {
                         b.Property<int>("Id");
-                        b.Key("Id").KeyName("PK1");
-                        b.ToTable("T0", "dbo");
+                        b.Key("Id").ForRelational().Name("PK1");
+                        b.ForRelational().Table("T0", "dbo");
                     });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
@@ -777,8 +787,8 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                 b =>
                     {
                         b.Property<int>("Id");
-                        b.Property<string>("P0").ColumnName("C0");
-                        b.Property<string>("P1").ColumnName("C1");
+                        b.Property<string>("P0").ForRelational().Column("C0");
+                        b.Property<string>("P1").ForRelational().Column("C1");
                         b.Key("Id");
                     });
 
@@ -787,8 +797,8 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                 b =>
                     {
                         b.Property<int>("Id");
-                        b.Property<string>("P0").ColumnName("C1");
-                        b.Property<string>("P1").ColumnName("C0");
+                        b.Property<string>("P0").ForRelational().Column("C1");
+                        b.Property<string>("P1").ForRelational().Column("C0");
                         b.Key("Id");
                     });
 
@@ -823,8 +833,8 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                         b.Property<int>("Id");
                         b.Property<string>("P");
                         b.Key("Id");
-                        b.Index("Id").IndexName("IX0");
-                        b.Index("P").IndexName("IX1");
+                        b.Index("Id").ForRelational().Name("IX0");
+                        b.Index("P").ForRelational().Name("IX1");
                     });
 
             var targetModelBuilder = new BasicModelBuilder();
@@ -834,8 +844,8 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                         b.Property<int>("Id");
                         b.Property<string>("P");
                         b.Key("Id");
-                        b.Index("Id").IndexName("IX1");
-                        b.Index("P").IndexName("IX0");
+                        b.Index("Id").ForRelational().Name("IX1");
+                        b.Index("P").ForRelational().Name("IX0");
                     });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
@@ -872,7 +882,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                     {
                         b.Property<int>("Id");
                         b.Property<string>("P1");
-                        b.Key("Id").KeyName("PK");
+                        b.Key("Id").ForRelational().Name("PK");
                     });
 
             var targetModelBuilder = new BasicModelBuilder();
@@ -882,7 +892,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                         b.Property<int>("Id");
                         b.Property<string>("P1");
                         b.Property<string>("P2");
-                        b.Key("Id").KeyName("PK");
+                        b.Key("Id").ForRelational().Name("PK");
                     });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
@@ -911,7 +921,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                         b.Property<int>("Id");
                         b.Property<string>("P1");
                         b.Property<string>("P2");
-                        b.Key("Id").KeyName("PK");
+                        b.Key("Id").ForRelational().Name("PK");
                     });
 
             var targetModelBuilder = new BasicModelBuilder();
@@ -921,7 +931,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                         b.Property<int>("Id");
                         b.Property<string>("P1");
                         b.Property<string>("P3");
-                        b.Key("Id").KeyName("PK");
+                        b.Key("Id").ForRelational().Name("PK");
                     });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
@@ -952,7 +962,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                 b =>
                     {
                         b.Property<int>("Id");
-                        b.Property<string>("P1").ColumnName("C");
+                        b.Property<string>("P1").ForRelational().Column("C");
                         b.Key("Id");
                     });
 
@@ -961,7 +971,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                 b =>
                     {
                         b.Property<int>("Id");
-                        b.Property<int>("P2").ColumnName("C");
+                        b.Property<int>("P2").ForRelational().Column("C");
                         b.Key("Id");
                     });
 
@@ -1022,8 +1032,8 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                 b =>
                     {
                         b.Property<int>("Id");
-                        b.Property<string>("P1").ColumnName("C2");
-                        b.Property<int>("P2").ColumnName("C1");
+                        b.Property<string>("P1").ForRelational().Column("C2");
+                        b.Property<int>("P2").ForRelational().Column("C1");
                         b.Key("Id");
                     });
 
@@ -1032,8 +1042,8 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                 b =>
                     {
                         b.Property<int>("Id");
-                        b.Property<string>("P1").ColumnName("C1");
-                        b.Property<string>("P4").ColumnName("C2");
+                        b.Property<string>("P1").ForRelational().Column("C1");
+                        b.Property<string>("P4").ForRelational().Column("C2");
                         b.Key("Id");
                     });
 
@@ -1069,7 +1079,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                 b =>
                     {
                         b.Property<int>("Id");
-                        b.Property<int>("P").ColumnName("C1");
+                        b.Property<int>("P").ForRelational().Column("C1");
                         b.Key("Id");
                     });
 
@@ -1078,7 +1088,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                 b =>
                     {
                         b.Property<int>("Id");
-                        b.Property<string>("P").ColumnName("C2");
+                        b.Property<string>("P").ForRelational().Column("C2");
                         b.Key("Id");
                     });
 
@@ -1135,7 +1145,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             sourceModelBuilder.Entity("A",
                 b =>
                     {
-                        b.Property<int>("Id").ColumnType("int");
+                        b.Property<int>("Id").ForRelational().ColumnType("int");
                         b.Key("Id");
                     });
 
@@ -1143,7 +1153,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             targetModelBuilder.Entity("A",
                 b =>
                     {
-                        b.Property<string>("Id").ColumnType("smallint");
+                        b.Property<string>("Id").ForRelational().ColumnType("smallint");
                         b.Key("Id");
                     });
 
@@ -1165,7 +1175,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             sourceModelBuilder.Entity("A",
                 b =>
                     {
-                        b.Property<int>("Id").Annotation(MetadataExtensions.Annotations.ColumnDefaultValue, "V0");
+                        b.Property<int>("Id").ForRelational().DefaultValue("V0");
                         b.Key("Id");
                     });
 
@@ -1173,7 +1183,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             targetModelBuilder.Entity("A",
                 b =>
                     {
-                        b.Property<string>("Id").Annotation(MetadataExtensions.Annotations.ColumnDefaultValue, "V1");
+                        b.Property<string>("Id").ForRelational().DefaultValue("V1");
                         b.Key("Id");
                     });
 
@@ -1195,7 +1205,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             sourceModelBuilder.Entity("A",
                 b =>
                     {
-                        b.Property<int>("Id").ColumnDefaultSql("Sql0");
+                        b.Property<int>("Id").ForRelational().DefaultExpression("Sql0");
                         b.Key("Id");
                     });
 
@@ -1203,7 +1213,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             targetModelBuilder.Entity("A",
                 b =>
                     {
-                        b.Property<int>("Id").ColumnDefaultSql("Sql1");
+                        b.Property<int>("Id").ForRelational().DefaultExpression("Sql1");
                         b.Key("Id");
                     });
 
@@ -1232,7 +1242,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                 b =>
                     {
                         b.Property<int>("Id");
-                        b.Property<int>("P").ColumnName("C1");
+                        b.Property<int>("P").ForRelational().Column("C1");
                         b.Key("Id", "P");
                     });
 
@@ -1241,7 +1251,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                 b =>
                     {
                         b.Property<int>("Id");
-                        b.Property<string>("P").ColumnName("C2");
+                        b.Property<string>("P").ForRelational().Column("C2");
                         b.Key("Id", "P");
                     });
 
@@ -1262,8 +1272,8 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                 b =>
                     {
                         b.Property<int>("Id");
-                        b.Property<int>("P1").ColumnName("C");
-                        b.Key("Id", "P1").KeyName("PK");
+                        b.Property<int>("P1").ForRelational().Column("C");
+                        b.Key("Id", "P1").ForRelational().Name("PK");
                     });
 
             var targetModelBuilder = new BasicModelBuilder();
@@ -1271,8 +1281,8 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                 b =>
                     {
                         b.Property<int>("Id");
-                        b.Property<string>("P2").ColumnName("C");
-                        b.Key("Id", "P2").KeyName("PK");
+                        b.Property<string>("P2").ForRelational().Column("C");
+                        b.Key("Id", "P2").ForRelational().Name("PK");
                     });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
@@ -1291,7 +1301,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                 b =>
                     {
                         b.Property<int>("Id");
-                        b.Key("Id").KeyName("PK1");
+                        b.Key("Id").ForRelational().Name("PK1");
                     });
 
             var targetModelBuilder = new BasicModelBuilder();
@@ -1299,7 +1309,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                 b =>
                     {
                         b.Property<int>("Id");
-                        b.Key("Id").KeyName("PK2");
+                        b.Key("Id").ForRelational().Name("PK2");
                     });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
@@ -1318,41 +1328,6 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         }
 
         [Fact]
-        public void Primary_keys_are_not_matched_if_different_clustered_flag()
-        {
-            var sourceModelBuilder = new BasicModelBuilder();
-            sourceModelBuilder.Entity("A",
-                b =>
-                    {
-                        b.Property<int>("Id");
-                        b.Key("Id").Annotation(MetadataExtensions.Annotations.IsClustered, "true");
-                    });
-
-            var targetModelBuilder = new BasicModelBuilder();
-            targetModelBuilder.Entity("A",
-                b =>
-                    {
-                        b.Property<int>("Id");
-                        b.Key("Id").Annotation(MetadataExtensions.Annotations.IsClustered, "false");
-                    });
-
-            var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
-                sourceModelBuilder.Model, targetModelBuilder.Model);
-
-            Assert.Equal(2, operations.Count);
-
-            Assert.IsType<DropPrimaryKeyOperation>(operations[0]);
-            Assert.IsType<AddPrimaryKeyOperation>(operations[1]);
-
-            var dropPrimaryKeyOperation = (DropPrimaryKeyOperation)operations[0];
-            var addPrimaryKeyOperation = (AddPrimaryKeyOperation)operations[1];
-
-            Assert.Equal("PK_A", dropPrimaryKeyOperation.PrimaryKeyName);
-            Assert.Equal("PK_A", addPrimaryKeyOperation.PrimaryKeyName);
-            Assert.False(addPrimaryKeyOperation.IsClustered);
-        }
-
-        [Fact]
         public void Primary_keys_are_not_matched_if_different_property_count()
         {
             var sourceModelBuilder = new BasicModelBuilder();
@@ -1361,7 +1336,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                     {
                         b.Property<int>("Id");
                         b.Property<string>("P1");
-                        b.Key("Id", "P1").KeyName("PK");
+                        b.Key("Id", "P1").ForRelational().Name("PK");
                     });
 
             var targetModelBuilder = new BasicModelBuilder();
@@ -1370,7 +1345,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                     {
                         b.Property<int>("Id");
                         b.Property<string>("P1");
-                        b.Key("Id").KeyName("PK");
+                        b.Key("Id").ForRelational().Name("PK");
                     });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
@@ -1399,7 +1374,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                         b.Property<int>("Id");
                         b.Property<string>("P1");
                         b.Property<string>("P2");
-                        b.Key("Id", "P1").KeyName("PK");
+                        b.Key("Id", "P1").ForRelational().Name("PK");
                     });
 
             var targetModelBuilder = new BasicModelBuilder();
@@ -1409,7 +1384,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                         b.Property<int>("Id");
                         b.Property<string>("P1");
                         b.Property<string>("P2");
-                        b.Key("Id", "P2").KeyName("PK");
+                        b.Key("Id", "P2").ForRelational().Name("PK");
                     });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
@@ -1440,9 +1415,9 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                 b =>
                 {
                     var id = b.Property<int>("Id").Metadata;
-                    var p = b.Property<int>("P").ColumnName("C1").Metadata;
+                    var p = b.Property<int>("P").ForRelational(rb => rb.Column("C1")).Metadata;
                     b.Key("Id");
-                    b.Metadata.AddKey(new[] { id, p }).SetKeyName("UC");
+                    b.Metadata.AddKey(new[] { id, p }).Relational().Name = "UC";
                 });
 
             var targetModelBuilder = new BasicModelBuilder();
@@ -1450,9 +1425,9 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                 b =>
                 {
                     var id = b.Property<int>("Id").Metadata;
-                    var p = b.Property<string>("P").ColumnName("C2").Metadata;
+                    var p = b.Property<string>("P").ForRelational(rb => rb.Column("C2")).Metadata;
                     b.Key("Id");
-                    b.Metadata.AddKey(new[] { id, p }).SetKeyName("UC");
+                    b.Metadata.AddKey(new[] { id, p }).Relational().Name = "UC";
                 });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
@@ -1472,9 +1447,9 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                 b =>
                 {
                     var id = b.Property<int>("Id").Metadata;
-                    var p = b.Property<int>("P1").ColumnName("C").Metadata;
+                    var p = b.Property<int>("P1").ForRelational(rb => rb.Column("C")).Metadata;
                     b.Key("Id");
-                    b.Metadata.AddKey(new[] { id, p }).SetKeyName("UC");
+                    b.Metadata.AddKey(new[] { id, p }).Relational().Name = "UC";
                 });
 
             var targetModelBuilder = new BasicModelBuilder();
@@ -1482,9 +1457,9 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                 b =>
                 {
                     var id = b.Property<int>("Id").Metadata;
-                    var p = b.Property<string>("P2").ColumnName("C").Metadata;
+                    var p = b.Property<string>("P2").ForRelational(rb => rb.Column("C")).Metadata;
                     b.Key("Id");
-                    b.Metadata.AddKey(new[] { id, p }).SetKeyName("UC");
+                    b.Metadata.AddKey(new[] { id, p }).Relational().Name = "UC";
                 });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
@@ -1505,7 +1480,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                     var id = b.Property<int>("Id").Metadata;
                     var p = b.Property<string>("P").Metadata;
                     b.Key("Id");
-                    b.Metadata.AddKey(new[] { id, p }).SetKeyName("UC1");
+                    b.Metadata.AddKey(new[] { id, p }).Relational().Name = "UC1";
                 });
 
             var targetModelBuilder = new BasicModelBuilder();
@@ -1515,7 +1490,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                     var id = b.Property<int>("Id").Metadata;
                     var p = b.Property<string>("P").Metadata;
                     b.Key("Id");
-                    b.Metadata.AddKey(new[] { id, p }).SetKeyName("UC2");
+                    b.Metadata.AddKey(new[] { id, p }).Relational().Name = "UC2";
                 });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
@@ -1543,7 +1518,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                     b.Property<int>("Id");
                     var p = b.Property<string>("P").Metadata;
                     b.Key("Id");
-                    b.Metadata.AddKey(new[] { p }).SetKeyName("UC");
+                    b.Metadata.AddKey(new[] { p }).Relational().Name = "UC";
                 });
 
             var targetModelBuilder = new BasicModelBuilder();
@@ -1553,7 +1528,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                     var id = b.Property<int>("Id").Metadata;
                     var p = b.Property<string>("P").Metadata;
                     b.Key("Id");
-                    b.Metadata.AddKey(new[] { p, id }).SetKeyName("UC");
+                    b.Metadata.AddKey(new[] { p, id }).Relational().Name = "UC";
                 });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
@@ -1583,7 +1558,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                     var p1 = b.Property<int>("P1").Metadata;
                     b.Property<int>("P2");
                     b.Key("Id");
-                    b.Metadata.AddKey(new[] { id, p1 }).SetKeyName("UC");
+                    b.Metadata.AddKey(new[] { id, p1 }).Relational().Name = "UC";
                 });
 
             var targetModelBuilder = new BasicModelBuilder();
@@ -1594,7 +1569,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                     b.Property<int>("P1");
                     var p2 = b.Property<int>("P2").Metadata;
                     b.Key("Id");
-                    b.Metadata.AddKey(new[] { id, p2 }).SetKeyName("UC");
+                    b.Metadata.AddKey(new[] { id, p2 }).Relational().Name = "UC";
                 });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
@@ -1624,32 +1599,32 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             sourceModelBuilder.Entity("A",
                 b =>
                     {
-                        b.Property<int>("Id").ColumnName("C1");
+                        b.Property<int>("Id").ForRelational().Column("C1");
                         b.Key("Id");
                     });
             sourceModelBuilder.Entity("B",
                 b =>
                     {
                         b.Property<int>("Id");
-                        b.Property<int>("P").ColumnName("C2");
+                        b.Property<int>("P").ForRelational().Column("C2");
                         b.Key("Id");
-                        b.ForeignKey("A", "P").KeyName("FK");
+                        b.ForeignKey("A", "P").ForRelational().Name("FK");
                     });
 
             var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
                     {
-                        b.Property<string>("Id").ColumnName("C2");
+                        b.Property<string>("Id").ForRelational().Column("C2");
                         b.Key("Id");
                     });
             targetModelBuilder.Entity("B",
                 b =>
                     {
                         b.Property<int>("Id");
-                        b.Property<string>("P").ColumnName("C3");
+                        b.Property<string>("P").ForRelational().Column("C3");
                         b.Key("Id");
-                        b.ForeignKey("A", "P").KeyName("FK");
+                        b.ForeignKey("A", "P").ForRelational().Name("FK");
                     });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
@@ -1671,32 +1646,32 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             sourceModelBuilder.Entity("A",
                 b =>
                     {
-                        b.Property<int>("Id1").ColumnName("C1");
+                        b.Property<int>("Id1").ForRelational().Column("C1");
                         b.Key("Id1");
                     });
             sourceModelBuilder.Entity("B",
                 b =>
                     {
                         b.Property<int>("Id");
-                        b.Property<int>("P1").ColumnName("C2");
+                        b.Property<int>("P1").ForRelational().Column("C2");
                         b.Key("Id");
-                        b.ForeignKey("A", "P1").KeyName("FK");
+                        b.ForeignKey("A", "P1").ForRelational().Name("FK");
                     });
 
             var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
                     {
-                        b.Property<string>("Id2").ColumnName("C1");
+                        b.Property<string>("Id2").ForRelational().Column("C1");
                         b.Key("Id2");
                     });
             targetModelBuilder.Entity("B",
                 b =>
                     {
                         b.Property<int>("Id");
-                        b.Property<string>("P2").ColumnName("C2");
+                        b.Property<string>("P2").ForRelational().Column("C2");
                         b.Key("Id");
-                        b.ForeignKey("A", "P2").KeyName("FK");
+                        b.ForeignKey("A", "P2").ForRelational().Name("FK");
                     });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
@@ -1723,7 +1698,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                     {
                         b.Property<int>("Id");
                         b.Key("Id");
-                        b.ForeignKey("A", "Id").KeyName("FK1");
+                        b.ForeignKey("A", "Id").ForRelational().Name("FK1");
                     });
 
             var targetModelBuilder = new BasicModelBuilder();
@@ -1738,7 +1713,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                     {
                         b.Property<int>("Id");
                         b.Key("Id");
-                        b.ForeignKey("A", "Id").KeyName("FK2");
+                        b.ForeignKey("A", "Id").ForRelational().Name("FK2");
                     });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
@@ -1756,7 +1731,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             Assert.Equal("FK2", addForeignKeyOperation.ForeignKeyName);
         }
 
-        [Fact]
+        // [Fact] // TODO: Cascading behaviors not supported. Issue #333
         public void Foreign_keys_are_not_matched_if_different_cascade_delete_flag()
         {
             var sourceModelBuilder = new BasicModelBuilder();
@@ -1771,7 +1746,9 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                     {
                         b.Property<int>("Id");
                         b.Key("Id");
-                        b.ForeignKey("A", "Id").CascadeDelete(true);
+                        b.ForeignKey("A", "Id");
+                        // TODO: Cascading behaviors not supported. Issue #333
+                        //.CascadeDelete(true);
                     });
 
             var targetModelBuilder = new BasicModelBuilder();
@@ -1786,7 +1763,9 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                     {
                         b.Property<int>("Id");
                         b.Key("Id");
-                        b.ForeignKey("A", "Id").CascadeDelete(false);
+                        b.ForeignKey("A", "Id");
+                        // TODO: Cascading behaviors not supported. Issue #333
+                        //.CascadeDelete(false);
                     });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
@@ -1824,7 +1803,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                         b.Property<int>("P1");
                         b.Property<int>("P2");
                         b.Key("Id");
-                        b.ForeignKey("A", "Id", "P1").KeyName("FK");
+                        b.ForeignKey("A", "Id", "P1").ForRelational().Name("FK");
                     });
 
             var targetModelBuilder = new BasicModelBuilder();
@@ -1843,7 +1822,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                         b.Property<int>("P1");
                         b.Property<int>("P2");
                         b.Key("Id");
-                        b.ForeignKey("A", "Id", "P2").KeyName("FK");
+                        b.ForeignKey("A", "Id", "P2").ForRelational().Name("FK");
                     });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
@@ -1872,7 +1851,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                         b.Property<int>("Id");
                         b.Property<int>("P1");
                         b.Property<int>("P2");
-                        b.Key("Id", "P1").KeyName("PK");
+                        b.Key("Id", "P1").ForRelational().Name("PK");
                     });
             sourceModelBuilder.Entity("B",
                 b =>
@@ -1881,7 +1860,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                         b.Property<int>("P1");
                         b.Property<int>("P2");
                         b.Key("Id");
-                        b.ForeignKey("A", "Id", "P1").KeyName("FK");
+                        b.ForeignKey("A", "Id", "P1").ForRelational().Name("FK");
                     });
 
             var targetModelBuilder = new BasicModelBuilder();
@@ -1891,7 +1870,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                         b.Property<int>("Id");
                         b.Property<int>("P1");
                         b.Property<int>("P2");
-                        b.Key("Id", "P2").KeyName("PK");
+                        b.Key("Id", "P2").ForRelational().Name("PK");
                     });
             targetModelBuilder.Entity("B",
                 b =>
@@ -1900,7 +1879,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                         b.Property<int>("P1");
                         b.Property<int>("P2");
                         b.Key("Id");
-                        b.ForeignKey("A", "Id", "P1").KeyName("FK");
+                        b.ForeignKey("A", "Id", "P1").ForRelational().Name("FK");
                     });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
@@ -1933,9 +1912,9 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                 b =>
                     {
                         b.Property<int>("Id");
-                        b.Property<int>("P").ColumnName("C1");
+                        b.Property<int>("P").ForRelational().Column("C1");
                         b.Key("Id");
-                        b.Index("Id", "P").IndexName("IX");
+                        b.Index("Id", "P").ForRelational().Name("IX");
                     });
 
             var targetModelBuilder = new BasicModelBuilder();
@@ -1943,9 +1922,9 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                 b =>
                     {
                         b.Property<int>("Id");
-                        b.Property<string>("P").ColumnName("C2");
+                        b.Property<string>("P").ForRelational().Column("C2");
                         b.Key("Id");
-                        b.Index("Id", "P").IndexName("IX");
+                        b.Index("Id", "P").ForRelational().Name("IX");
                     });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
@@ -1965,9 +1944,9 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                 b =>
                     {
                         b.Property<int>("Id");
-                        b.Property<int>("P1").ColumnName("C");
+                        b.Property<int>("P1").ForRelational().Column("C");
                         b.Key("Id");
-                        b.Index("Id", "P1").IndexName("IX");
+                        b.Index("Id", "P1").ForRelational().Name("IX");
                     });
 
             var targetModelBuilder = new BasicModelBuilder();
@@ -1975,9 +1954,9 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                 b =>
                     {
                         b.Property<int>("Id");
-                        b.Property<string>("P2").ColumnName("C");
+                        b.Property<string>("P2").ForRelational().Column("C");
                         b.Key("Id");
-                        b.Index("Id", "P2").IndexName("IX");
+                        b.Index("Id", "P2").ForRelational().Name("IX");
                     });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
@@ -1998,7 +1977,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                         b.Property<int>("Id");
                         b.Property<string>("P1");
                         b.Key("Id");
-                        b.Index("P1").IndexName("IX1");
+                        b.Index("P1").ForRelational().Name("IX1");
                     });
 
             var targetModelBuilder = new BasicModelBuilder();
@@ -2008,7 +1987,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                         b.Property<int>("Id");
                         b.Property<string>("P1");
                         b.Key("Id");
-                        b.Index("P1").IndexName("IX2");
+                        b.Index("P1").ForRelational().Name("IX2");
                     });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
@@ -2064,45 +2043,6 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         }
 
         [Fact]
-        public void Indexes_are_not_matched_if_different_clustered_flag()
-        {
-            var sourceModelBuilder = new BasicModelBuilder();
-            sourceModelBuilder.Entity("A",
-                b =>
-                    {
-                        b.Property<int>("Id");
-                        b.Property<string>("P1");
-                        b.Key("Id");
-                        b.Index("P1").IsClustered(false);
-                    });
-
-            var targetModelBuilder = new BasicModelBuilder();
-            targetModelBuilder.Entity("A",
-                b =>
-                    {
-                        b.Property<int>("Id");
-                        b.Property<string>("P1");
-                        b.Key("Id");
-                        b.Index("P1").IsClustered(true);
-                    });
-
-            var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
-                sourceModelBuilder.Model, targetModelBuilder.Model);
-
-            Assert.Equal(2, operations.Count);
-
-            Assert.IsType<DropIndexOperation>(operations[0]);
-            Assert.IsType<CreateIndexOperation>(operations[1]);
-
-            var dropIndexOperation = (DropIndexOperation)operations[0];
-            var createIndexOperation = (CreateIndexOperation)operations[1];
-
-            Assert.Equal("IX_A_P1", dropIndexOperation.IndexName);
-            Assert.Equal("IX_A_P1", createIndexOperation.IndexName);
-            Assert.True(createIndexOperation.IsClustered);
-        }
-
-        [Fact]
         public void Indexes_are_not_matched_if_different_property_count()
         {
             var sourceModelBuilder = new BasicModelBuilder();
@@ -2112,7 +2052,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                         b.Property<int>("Id");
                         b.Property<string>("P1");
                         b.Key("Id");
-                        b.Index("Id").IndexName("IX");
+                        b.Index("Id").ForRelational().Name("IX");
                     });
 
             var targetModelBuilder = new BasicModelBuilder();
@@ -2122,7 +2062,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                         b.Property<int>("Id");
                         b.Property<string>("P1");
                         b.Key("Id");
-                        b.Index("Id", "P1").IndexName("IX");
+                        b.Index("Id", "P1").ForRelational().Name("IX");
                     });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(
@@ -2151,7 +2091,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                         b.Property<string>("P1");
                         b.Property<string>("P2");
                         b.Key("Id");
-                        b.Index("P1").IndexName("IX");
+                        b.Index("P1").ForRelational().Name("IX");
                     });
 
             var targetModelBuilder = new BasicModelBuilder();
@@ -2162,7 +2102,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                         b.Property<string>("P1");
                         b.Property<string>("P2");
                         b.Key("Id");
-                        b.Index("P2").IndexName("IX");
+                        b.Index("P2").ForRelational().Name("IX");
                     });
 
             var operations = new ModelDiffer(new DatabaseBuilder()).Diff(

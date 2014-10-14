@@ -69,7 +69,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                     {
                         b.Property<int>("Id").ForSqlServer().UseSequence();
                         b.Key("Id");
-                        b.ToTable("T", "dbo");
+                        b.ForSqlServer().Table("T", "dbo");
                     });
 
             var databaseBuilder = new SqlServerDatabaseBuilder();
@@ -152,7 +152,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                         b.Property<int>("Id").ForSqlServer().UseSequence();
                         b.Property<short>("P").ForSqlServer().UseSequence();
                         b.Key("Id");
-                        b.ToTable("T", "dbo");
+                        b.ForSqlServer().Table("T", "dbo");
                     });
 
             var databaseBuilder = new SqlServerDatabaseBuilder();
@@ -242,14 +242,14 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 {
                     b.Property<int>("Id").GenerateValuesOnAdd();
                     b.Key("Id");
-                    b.ToTable("T0", "dbo");
+                    b.ForSqlServer().Table("T0", "dbo");
                 });
 
             modelBuilder.Entity("B", b =>
                 {
                     b.Property<short>("Id").GenerateValuesOnAdd();
                     b.Key("Id");
-                    b.ToTable("T1", "dbo");
+                    b.ForSqlServer().Table("T1", "dbo");
                 });
 
             var databaseBuilder = new SqlServerDatabaseBuilder();

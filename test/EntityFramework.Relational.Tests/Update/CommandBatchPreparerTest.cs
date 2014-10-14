@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Relational.Update;
 using Microsoft.Data.Entity.Utilities;
 using Moq;
@@ -23,7 +24,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
                 "modificationCommandBatchFactory",
                 // ReSharper disable once AssignNullToNotNullAttribute
                 Assert.Throws<ArgumentNullException>(() =>
-                    new CommandBatchPreparer(
+                    new TestCommandBatchPreparer(
                         null,
                         new ParameterNameGeneratorFactory(),
                         new BidirectionalAdjacencyListGraphFactory(),
@@ -33,7 +34,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
                 "parameterNameGeneratorFactory",
                 // ReSharper disable once AssignNullToNotNullAttribute
                 Assert.Throws<ArgumentNullException>(() =>
-                    new CommandBatchPreparer(
+                    new TestCommandBatchPreparer(
                         new Mock<ModificationCommandBatchFactory>().Object,
                         null,
                         new BidirectionalAdjacencyListGraphFactory(),
@@ -43,7 +44,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
                 "graphFactory",
                 // ReSharper disable once AssignNullToNotNullAttribute
                 Assert.Throws<ArgumentNullException>(() =>
-                    new CommandBatchPreparer(
+                    new TestCommandBatchPreparer(
                         new Mock<ModificationCommandBatchFactory>().Object,
                         new ParameterNameGeneratorFactory(),
                         null,
@@ -53,7 +54,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
                 "modificationCommandComparer",
                 // ReSharper disable once AssignNullToNotNullAttribute
                 Assert.Throws<ArgumentNullException>(() =>
-                    new CommandBatchPreparer(
+                    new TestCommandBatchPreparer(
                         new Mock<ModificationCommandBatchFactory>().Object,
                         new ParameterNameGeneratorFactory(),
                         new BidirectionalAdjacencyListGraphFactory(),
@@ -303,9 +304,9 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         private static CommandBatchPreparer CreateCommandBatchPreparer(ModificationCommandBatchFactory modificationCommandBatchFactory = null)
         {
             modificationCommandBatchFactory =
-                modificationCommandBatchFactory ?? new ModificationCommandBatchFactory(new Mock<SqlGenerator>().Object);
+                modificationCommandBatchFactory ?? new TestModificationCommandBatchFactory(new Mock<SqlGenerator>().Object);
 
-            return new CommandBatchPreparer(modificationCommandBatchFactory,
+            return new TestCommandBatchPreparer(modificationCommandBatchFactory,
                 new ParameterNameGeneratorFactory(),
                 new BidirectionalAdjacencyListGraphFactory(),
                 new ModificationCommandComparer());
@@ -366,6 +367,54 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         {
             public int Id { get; set; }
             public int? RelatedId { get; set; }
+        }
+
+        private class TestCommandBatchPreparer : CommandBatchPreparer
+        {
+            public TestCommandBatchPreparer(
+                ModificationCommandBatchFactory modificationCommandBatchFactory,
+                ParameterNameGeneratorFactory parameterNameGeneratorFactory,
+                GraphFactory graphFactory,
+                ModificationCommandComparer modificationCommandComparer)
+                : base(modificationCommandBatchFactory, parameterNameGeneratorFactory, graphFactory, modificationCommandComparer)
+            {
+            }
+
+            public override IRelationalPropertyExtensions GetPropertyExtensions(IProperty property)
+            {
+                return property.Relational();
+            }
+
+            public override IRelationalEntityTypeExtensions GetEntityTypeExtensions(IEntityType entityType)
+            {
+                return entityType.Relational();
+            }
+        }
+
+        private class TestModificationCommandBatchFactory : ModificationCommandBatchFactory
+        {
+            public TestModificationCommandBatchFactory(SqlGenerator sqlGenerator)
+                : base(sqlGenerator)
+            {
+            }
+
+            public override ModificationCommandBatch Create()
+            {
+                return new TestModificationCommandBatch(SqlGenerator);
+            }
+        }
+
+        private class TestModificationCommandBatch : SingularModificationCommandBatch
+        {
+            public TestModificationCommandBatch(SqlGenerator sqlGenerator)
+                : base(sqlGenerator)
+            {
+            }
+
+            public override IRelationalPropertyExtensions GetPropertyExtensions(IProperty property)
+            {
+                return property.Relational();
+            }
         }
     }
 }

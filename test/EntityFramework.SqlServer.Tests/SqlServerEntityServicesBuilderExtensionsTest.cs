@@ -32,7 +32,6 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             Assert.True(services.Any(sd => sd.ServiceType == typeof(SqlServerDatabaseBuilder)));
             Assert.True(services.Any(sd => sd.ServiceType == typeof(RelationalObjectArrayValueReaderFactory)));
             Assert.True(services.Any(sd => sd.ServiceType == typeof(RelationalTypedValueReaderFactory)));
-            Assert.True(services.Any(sd => sd.ServiceType == typeof(CommandBatchPreparer)));
             Assert.True(services.Any(sd => sd.ServiceType == typeof(ModificationCommandComparer)));
             Assert.True(services.Any(sd => sd.ServiceType == typeof(GraphFactory)));
 
@@ -42,7 +41,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             Assert.True(services.Any(sd => sd.ServiceType == typeof(SqlStatementExecutor)));
             Assert.True(services.Any(sd => sd.ServiceType == typeof(SqlServerTypeMapper)));
             Assert.True(services.Any(sd => sd.ServiceType == typeof(SqlServerBatchExecutor)));
-            Assert.True(services.Any(sd => sd.ServiceType == typeof(ModificationCommandBatchFactory)));
+            Assert.True(services.Any(sd => sd.ServiceType == typeof(SqlServerModificationCommandBatchFactory)));
+            Assert.True(services.Any(sd => sd.ServiceType == typeof(SqlServerCommandBatchPreparer)));
 
             // SQL Server scoped
             Assert.True(services.Any(sd => sd.ServiceType == typeof(SqlServerDataStore)));
@@ -74,7 +74,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var databaseBuilder = scopedProvider.GetService<SqlServerDatabaseBuilder>();
             var arrayReaderFactory = scopedProvider.GetService<RelationalObjectArrayValueReaderFactory>();
             var typedReaderFactory = scopedProvider.GetService<RelationalTypedValueReaderFactory>();
-            var batchPreparer = scopedProvider.GetService<CommandBatchPreparer>();
+            var batchPreparer = scopedProvider.GetService<SqlServerCommandBatchPreparer>();
             var modificationCommandComparer = scopedProvider.GetService<ModificationCommandComparer>();
             var graphFactory = scopedProvider.GetService<GraphFactory>();
 
@@ -83,7 +83,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var sqlStatementExecutor = scopedProvider.GetService<SqlStatementExecutor>();
             var sqlTypeMapper = scopedProvider.GetService<SqlServerTypeMapper>();
             var sqlServerBatchExecutor = scopedProvider.GetService<SqlServerBatchExecutor>();
-            var sqlServerModificationCommandBatchFactory = scopedProvider.GetService<ModificationCommandBatchFactory>() as SqlServerModificationCommandBatchFactory;
+            var sqlServerModificationCommandBatchFactory = scopedProvider.GetService<SqlServerModificationCommandBatchFactory>();
 
             var sqlServerDataStore = scopedProvider.GetService<SqlServerDataStore>();
             var sqlServerConnection = scopedProvider.GetService<SqlServerConnection>();
@@ -135,8 +135,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             Assert.Same(sqlServerSqlGenerator, scopedProvider.GetService<SqlServerSqlGenerator>());
             Assert.Same(sqlStatementExecutor, scopedProvider.GetService<SqlStatementExecutor>());
             Assert.Same(sqlTypeMapper, scopedProvider.GetService<SqlServerTypeMapper>());
-            Assert.Same(batchPreparer, scopedProvider.GetService<CommandBatchPreparer>());
-            Assert.Same(sqlServerModificationCommandBatchFactory, scopedProvider.GetService<ModificationCommandBatchFactory>());
+            Assert.Same(batchPreparer, scopedProvider.GetService<SqlServerCommandBatchPreparer>());
+            Assert.Same(sqlServerModificationCommandBatchFactory, scopedProvider.GetService<SqlServerModificationCommandBatchFactory>());
 
             // Scoped
             Assert.NotSame(sqlServerBatchExecutor, scopedProvider.GetService<SqlServerBatchExecutor>());

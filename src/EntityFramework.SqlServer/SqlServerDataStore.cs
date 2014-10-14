@@ -7,7 +7,6 @@ using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Query;
 using Microsoft.Data.Entity.Relational.Query.Methods;
-using Microsoft.Data.Entity.Relational.Update;
 using Microsoft.Data.Entity.SqlServer.Query;
 using Microsoft.Data.Entity.SqlServer.Update;
 using Microsoft.Data.Entity.SqlServer.Utilities;
@@ -19,7 +18,7 @@ namespace Microsoft.Data.Entity.SqlServer
         public SqlServerDataStore(
             [NotNull] DbContextConfiguration configuration,
             [NotNull] SqlServerConnection connection,
-            [NotNull] CommandBatchPreparer batchPreparer,
+            [NotNull] SqlServerCommandBatchPreparer batchPreparer,
             [NotNull] SqlServerBatchExecutor batchExecutor)
             : base(configuration, connection, batchPreparer, batchExecutor)
         {

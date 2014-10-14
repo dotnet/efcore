@@ -33,22 +33,22 @@ namespace StateManager.Model
 
             modelBuilder.Entity<Product>(b =>
             {
-                b.ToTable("Product", "dbo");
+                b.ForRelational().Table("Product", "dbo");
                 b.Key(e => e.ProductId);
             });
             modelBuilder.Entity<ProductModel>(b =>
             {
-                b.ToTable("ProductModel", "dbo");
+                b.ForRelational().Table("ProductModel", "dbo");
                 b.Key(e => e.ProductModelId);
             });
             modelBuilder.Entity<ProductCategory>(b =>
             {
-                b.ToTable("ProductCategory", "dbo");
+                b.ForRelational().Table("ProductCategory", "dbo");
                 b.Key(e => e.ProductCategoryId);
             });
             modelBuilder.Entity<ProductSubCategory>(b =>
             {
-                b.ToTable("ProductSubCategory", "dbo");
+                b.ForRelational().Table("ProductSubCategory", "dbo");
                 b.Key(e => e.ProductSubcategoryId);
             });
 

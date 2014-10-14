@@ -23,5 +23,10 @@ namespace Microsoft.Data.Entity.SQLite
             : base(sqlGenerator)
         {
         }
+
+        public override ModificationCommandBatch Create()
+        {
+            return new SQLiteSingularModificationCommandBatch(SqlGenerator);
+        }
     }
 }

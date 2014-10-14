@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var stateEntry = CreateStateEntry(EntityState.Added, ValueGeneration.OnAdd);
             stateEntry.MarkAsTemporary(stateEntry.EntityType.GetPrimaryKey().Properties[0]);
 
-            var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator());
+            var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator(), p => p.Relational());
             command.AddStateEntry(stateEntry);
 
             Assert.Equal("T1", command.SchemaQualifiedName);
@@ -54,7 +54,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var stateEntry = CreateStateEntry(EntityState.Added, ValueGeneration.OnAdd);
             stateEntry.MarkAsTemporary(stateEntry.EntityType.GetPrimaryKey().Properties[0], isTemporary: false);
 
-            var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator());
+            var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator(), p => p.Relational());
             command.AddStateEntry(stateEntry);
 
             Assert.Equal("T1", command.SchemaQualifiedName);
@@ -87,7 +87,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         {
             var stateEntry = CreateStateEntry(EntityState.Added);
 
-            var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator());
+            var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator(), p => p.Relational());
             command.AddStateEntry(stateEntry);
 
             Assert.Equal("T1", command.SchemaQualifiedName);
@@ -120,7 +120,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         {
             var stateEntry = CreateStateEntry(EntityState.Modified, ValueGeneration.OnAdd);
 
-            var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator());
+            var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator(), p => p.Relational());
             command.AddStateEntry(stateEntry);
 
             Assert.Equal("T1", command.SchemaQualifiedName);
@@ -153,7 +153,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         {
             var stateEntry = CreateStateEntry(EntityState.Modified);
 
-            var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator());
+            var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator(), p => p.Relational());
             command.AddStateEntry(stateEntry);
 
             Assert.Equal("T1", command.SchemaQualifiedName);
@@ -186,7 +186,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         {
             var stateEntry = CreateStateEntry(EntityState.Modified, nonKeyStrategy: ValueGeneration.OnAddAndUpdate);
 
-            var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator());
+            var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator(), p => p.Relational());
             command.AddStateEntry(stateEntry);
 
             Assert.Equal("T1", command.SchemaQualifiedName);
@@ -219,7 +219,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         {
             var stateEntry = CreateStateEntry(EntityState.Deleted);
 
-            var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator());
+            var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator(), p => p.Relational());
             command.AddStateEntry(stateEntry);
 
             Assert.Equal("T1", command.SchemaQualifiedName);
@@ -242,7 +242,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         {
             var stateEntry = CreateStateEntry(EntityState.Deleted, nonKeyStrategy: ValueGeneration.OnAddAndUpdate);
 
-            var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator());
+            var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator(), p => p.Relational());
             command.AddStateEntry(stateEntry);
 
             Assert.Equal("T1", command.SchemaQualifiedName);
@@ -275,7 +275,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         {
             var stateEntry = CreateStateEntry(EntityState.Unchanged);
 
-            var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator());
+            var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator(), p => p.Relational());
 
             Assert.Equal(
                 Strings.FormatModificationFunctionInvalidEntityState(EntityState.Unchanged),
@@ -287,7 +287,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         {
             var stateEntry = CreateStateEntry(EntityState.Unknown);
 
-            var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator());
+            var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator(), p => p.Relational());
 
             Assert.Equal(
                 Strings.FormatModificationFunctionInvalidEntityState(EntityState.Unknown),
@@ -300,7 +300,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var stateEntry = CreateStateEntry(
                 EntityState.Deleted, ValueGeneration.OnAdd, ValueGeneration.OnAddAndUpdate);
 
-            var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator());
+            var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator(), p => p.Relational());
             command.AddStateEntry(stateEntry);
 
             Assert.False(command.RequiresResultPropagation);
@@ -312,7 +312,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var stateEntry = CreateStateEntry(
                 EntityState.Added, ValueGeneration.OnAdd, ValueGeneration.OnAddAndUpdate);
 
-            var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator());
+            var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator(), p => p.Relational());
             command.AddStateEntry(stateEntry);
 
             Assert.True(command.RequiresResultPropagation);
@@ -323,7 +323,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         {
             var stateEntry = CreateStateEntry(EntityState.Added);
 
-            var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator());
+            var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator(), p => p.Relational());
             command.AddStateEntry(stateEntry);
 
             Assert.False(command.RequiresResultPropagation);
@@ -335,7 +335,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var stateEntry = CreateStateEntry(
                 EntityState.Modified, ValueGeneration.OnAdd, ValueGeneration.OnAddAndUpdate);
 
-            var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator());
+            var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator(), p => p.Relational());
             command.AddStateEntry(stateEntry);
 
             Assert.True(command.RequiresResultPropagation);
@@ -346,7 +346,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         {
             var stateEntry = CreateStateEntry(EntityState.Modified, ValueGeneration.OnAdd);
 
-            var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator());
+            var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator(), p => p.Relational());
             command.AddStateEntry(stateEntry);
 
             Assert.False(command.RequiresResultPropagation);
@@ -365,13 +365,13 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
 
             var key = entityType.GetOrAddProperty("Id", typeof(int));
             key.ValueGeneration = keyStrategy;
-            key.SetColumnName("Col1");
+            key.Relational().Column = "Col1";
             entityType.GetOrSetPrimaryKey(key);
 
             var nonKey = entityType.GetOrAddProperty("Name", typeof(string));
             nonKey.IsConcurrencyToken = nonKeyStrategy == ValueGeneration.OnAddAndUpdate;
 
-            nonKey.SetColumnName("Col2");
+            nonKey.Relational().Column = "Col2";
             nonKey.ValueGeneration = nonKeyStrategy;
 
             return model;

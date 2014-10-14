@@ -78,5 +78,19 @@ namespace Microsoft.Data.Entity.Relational.Query
         {
             return new DefaultSqlQueryGenerator();
         }
+
+        public virtual string GetTableName([NotNull] IEntityType entityType)
+        {
+            Check.NotNull(entityType, "entityType");
+
+            return entityType.Relational().Table;
+        }
+
+        public virtual string GetSchema([NotNull] IEntityType entityType)
+        {
+            Check.NotNull(entityType, "entityType");
+
+            return entityType.Relational().Schema;
+        }
     }
 }

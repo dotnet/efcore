@@ -67,10 +67,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApiConsistencyTest.cs" />
-    <Compile Include="ApiExtensionsTest.cs" />
     <Compile Include="ConnectionStringResolverTest.cs" />
     <Compile Include="DatabaseBuilderTest.cs" />
-    <Compile Include="MetadataExtensionsTest.cs" />
     <Compile Include="Metadata\RelationalMetadataExtensionsTest.cs" />
     <Compile Include="Metadata\SequenceTest.cs" />
     <Compile Include="Model\RelationalTypeMappingTest.cs" />

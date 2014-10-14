@@ -3,6 +3,7 @@
 
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Relational.Update;
 using Moq;
 using Xunit;
@@ -17,6 +18,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var columnModification = new ColumnModification(
                 new Mock<StateEntry>().Object,
                 new Mock<IProperty>().Object,
+                new Mock<IRelationalPropertyExtensions>().Object,
                 new ParameterNameGenerator(),
                 isRead: true,
                 isWrite: true,
@@ -43,6 +45,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var columnModification = new ColumnModification(
                 stateEntryMock.Object,
                 new Mock<IProperty>().Object,
+                new Mock<IRelationalPropertyExtensions>().Object,
                 new ParameterNameGenerator(),
                 isRead: false,
                 isWrite: false,
@@ -65,6 +68,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var columnModification = new ColumnModification(
                 stateEntryMock.Object,
                 new Mock<IProperty>().Object,
+                new Mock<IRelationalPropertyExtensions>().Object,
                 new ParameterNameGenerator(),
                 isRead: false,
                 isWrite: false,
@@ -84,6 +88,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var columnModification = new ColumnModification(
                 stateEntryMock.Object,
                 new Mock<IProperty>().Object,
+                new Mock<IRelationalPropertyExtensions>().Object,
                 new ParameterNameGenerator(),
                 isRead: false,
                 isWrite: false,
@@ -103,6 +108,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var columnModification = new ColumnModification(
                 stateEntryMock.Object,
                 property,
+                property.Relational(),
                 new ParameterNameGenerator(),
                 isRead: false,
                 isWrite: false,

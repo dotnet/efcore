@@ -60,6 +60,8 @@ namespace Microsoft.Data.Entity.Relational.Model
             get { return _isUnique; }
         }
 
+        // TODO: Clustered is SQL Server-specific elsewhere in the stack
+        // Issue #879
         public virtual bool IsClustered
         {
             get { return _isClustered; }

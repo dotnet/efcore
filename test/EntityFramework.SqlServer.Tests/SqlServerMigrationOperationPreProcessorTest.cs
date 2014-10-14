@@ -269,7 +269,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 b =>
                     {
                         b.Property<int>("Id");
-                        b.Property<string>("P").ColumnDefaultSql("abc");
+                        b.Property<string>("P").ForSqlServer().DefaultExpression("abc");
                         b.Key("Id");
                     });
 
@@ -298,14 +298,14 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 {
                     b.Property<string>("Id");
                     b.Key("Id");
-                    b.Index("Id").IsClustered(false);
+                    b.Index("Id").ForSqlServer().Clustered(false);
                 });
             modelBuilder.Entity("B", b =>
                 {
                     b.Property<string>("Id");
                     b.Key("Id");
                     b.ForeignKey("A", "Id");
-                    b.Index("Id").IsClustered(false);
+                    b.Index("Id").ForSqlServer().Clustered(false);
                 });
             modelBuilder.Entity("A", b => b.ForeignKey("B", "Id"));
 
@@ -380,7 +380,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 b =>
                     {
                         b.Property<int>("Id");
-                        b.Property<string>("P").ColumnDefaultSql("abc");
+                        b.Property<string>("P").ForSqlServer().DefaultExpression("abc");
                         b.Key("Id");
                     });
 
@@ -396,7 +396,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
         private static IReadOnlyList<MigrationOperation> PreProcess(BasicModelBuilder modelBuilder, params MigrationOperation[] operations)
         {
-            return PreProcess(new DatabaseBuilder().GetDatabase(modelBuilder.Model), operations);
+            return PreProcess(new SqlServerDatabaseBuilder().GetDatabase(modelBuilder.Model), operations);
         }
 
         private static IReadOnlyList<MigrationOperation> PreProcess(DatabaseModel database, params MigrationOperation[] operations)

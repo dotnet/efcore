@@ -7,7 +7,7 @@ using Microsoft.Data.Entity.Relational.Utilities;
 
 namespace Microsoft.Data.Entity.Relational.Update
 {
-    public class ModificationCommandBatchFactory
+    public abstract class ModificationCommandBatchFactory
     {
         private readonly SqlGenerator _sqlGenerator;
 
@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Relational.Update
         {
         }
 
-        public ModificationCommandBatchFactory(
+        protected ModificationCommandBatchFactory(
             [NotNull] SqlGenerator sqlGenerator)
         {
             Check.NotNull(sqlGenerator, "sqlGenerator");
@@ -33,10 +33,7 @@ namespace Microsoft.Data.Entity.Relational.Update
             get { return _sqlGenerator; }
         }
 
-        public virtual ModificationCommandBatch Create()
-        {
-            return new SingularModificationCommandBatch(SqlGenerator);
-        }
+        public abstract ModificationCommandBatch Create();
 
         public virtual bool AddCommand(
             [NotNull] ModificationCommandBatch modificationCommandBatch,

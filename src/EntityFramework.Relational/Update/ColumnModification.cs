@@ -5,6 +5,7 @@ using System;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Relational.Utilities;
 using Microsoft.Data.Entity.Utilities;
 
@@ -35,6 +36,7 @@ namespace Microsoft.Data.Entity.Relational.Update
         public ColumnModification(
             [NotNull] StateEntry stateEntry,
             [NotNull] IProperty property,
+            [NotNull] IRelationalPropertyExtensions propertyExtensions,
             [NotNull] ParameterNameGenerator parameterNameGenerator,
             bool isRead,
             bool isWrite,
@@ -43,11 +45,12 @@ namespace Microsoft.Data.Entity.Relational.Update
         {
             Check.NotNull(stateEntry, "stateEntry");
             Check.NotNull(property, "property");
+            Check.NotNull(propertyExtensions, "propertyExtensions");
             Check.NotNull(parameterNameGenerator, "parameterNameGenerator");
 
             _stateEntry = stateEntry;
             _property = property;
-            _columnName = property.ColumnName();
+            _columnName = propertyExtensions.Column;
             _parameterName = isWrite
                 ? new LazyRef<string>(parameterNameGenerator.GenerateNext)
                 : new LazyRef<string>((string)null);

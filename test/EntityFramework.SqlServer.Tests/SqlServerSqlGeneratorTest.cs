@@ -93,7 +93,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         public void AppendBulkInsertOperation_appends_insert_if_store_generated_columns_exist()
         {
             var stringBuilder = new StringBuilder();
-            var command = CreateInsertCommand(identityKey: true, computedProperty: true);
+            var command = CreateInsertCommand(identityKey: true, isComputed: true);
 
             var sqlGenerator = (SqlServerSqlGenerator)CreateSqlGenerator();
             var grouping = sqlGenerator.AppendBulkInsertOperation(stringBuilder, new[] { command, command });
@@ -111,7 +111,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         public void AppendBulkInsertOperation_appends_insert_if_no_store_generated_columns_exist()
         {
             var stringBuilder = new StringBuilder();
-            var command = CreateInsertCommand(identityKey: false, computedProperty: false);
+            var command = CreateInsertCommand(identityKey: false, isComputed: false);
 
             var sqlGenerator = (SqlServerSqlGenerator)CreateSqlGenerator();
             var grouping = sqlGenerator.AppendBulkInsertOperation(stringBuilder, new[] { command, command });
@@ -129,7 +129,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         public void AppendBulkInsertOperation_appends_insert_if_store_generated_columns_exist_default_values_only()
         {
             var stringBuilder = new StringBuilder();
-            var command = CreateInsertCommand(identityKey: true, computedProperty: true, defaultsOnly: true);
+            var command = CreateInsertCommand(identityKey: true, isComputed: true, defaultsOnly: true);
 
             var sqlGenerator = (SqlServerSqlGenerator)CreateSqlGenerator();
             var grouping = sqlGenerator.AppendBulkInsertOperation(stringBuilder, new[] { command, command });
@@ -146,7 +146,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         public void AppendBulkInsertOperation_appends_insert_if_no_store_generated_columns_exist_default_values_only()
         {
             var stringBuilder = new StringBuilder();
-            var command = CreateInsertCommand(identityKey: false, computedProperty: false, defaultsOnly: true);
+            var command = CreateInsertCommand(identityKey: false, isComputed: false, defaultsOnly: true);
 
             var sqlGenerator = (SqlServerSqlGenerator)CreateSqlGenerator();
             var grouping = sqlGenerator.AppendBulkInsertOperation(stringBuilder, new[] { command, command });

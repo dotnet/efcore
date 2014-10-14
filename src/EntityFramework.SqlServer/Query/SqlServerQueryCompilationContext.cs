@@ -32,5 +32,19 @@ namespace Microsoft.Data.Entity.SqlServer.Query
         {
             return new SqlServerQueryGenerator();
         }
+
+        public override string GetTableName(IEntityType entityType)
+        {
+            Check.NotNull(entityType, "entityType");
+
+            return entityType.SqlServer().Table;
+        }
+
+        public override string GetSchema(IEntityType entityType)
+        {
+            Check.NotNull(entityType, "entityType");
+
+            return entityType.SqlServer().Schema;
+        }
     }
 }

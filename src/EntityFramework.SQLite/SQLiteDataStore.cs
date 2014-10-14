@@ -7,7 +7,6 @@ using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Query;
 using Microsoft.Data.Entity.Relational.Query.Methods;
-using Microsoft.Data.Entity.Relational.Update;
 using Microsoft.Data.Entity.SQLite.Query;
 using Microsoft.Data.Entity.SQLite.Utilities;
 
@@ -18,7 +17,7 @@ namespace Microsoft.Data.Entity.SQLite
         public SQLiteDataStore(
             [NotNull] DbContextConfiguration configuration,
             [NotNull] SQLiteConnection connection,
-            [NotNull] CommandBatchPreparer batchPreparer,
+            [NotNull] SQLiteCommandBatchPreparer batchPreparer,
             [NotNull] SQLiteBatchExecutor batchExecutor)
             : base(configuration, connection, batchPreparer, batchExecutor)
         {

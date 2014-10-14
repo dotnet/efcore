@@ -6,7 +6,6 @@ using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Relational;
-using Microsoft.Data.Entity.Relational.Update;
 using Microsoft.Data.Entity.SQLite;
 using Microsoft.Data.Entity.SQLite.Utilities;
 using Microsoft.Data.Entity.Storage;
@@ -28,7 +27,8 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddSingleton<SQLiteSqlGenerator>()
                 .AddSingleton<SqlStatementExecutor>()
                 .AddSingleton<SQLiteTypeMapper>()
-                .AddSingleton<ModificationCommandBatchFactory, SQLiteModificationCommandBatchFactory>()
+                .AddSingleton<SQLiteModificationCommandBatchFactory>()
+                .AddSingleton<SQLiteCommandBatchPreparer>()
                 .AddScoped<SQLiteBatchExecutor>()
                 .AddScoped<DataStoreSource, SQLiteDataStoreSource>()
                 .AddScoped<SQLiteDataStoreServices>()

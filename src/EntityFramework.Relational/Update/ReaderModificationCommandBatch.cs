@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Relational.Model;
 using Microsoft.Data.Entity.Relational.Utilities;
 using Microsoft.Data.Entity.Update;
@@ -412,6 +413,8 @@ namespace Microsoft.Data.Entity.Relational.Update
             return stateEntries;
         }
 
+        public abstract IRelationalPropertyExtensions GetPropertyExtensions([NotNull] IProperty property);
+
         protected virtual void PopulateParameters(DbCommand command, ColumnModification columnModification, RelationalTypeMapper typeMapper)
         {
             if (columnModification.ParameterName != null
@@ -425,9 +428,9 @@ namespace Microsoft.Data.Entity.Relational.Update
                 // TODO: It would be nice to just pass IProperty to the type mapper, but Migrations uses its own
                 // store model for which there is no easy way to get an IProperty.
                 // Issue #769
+                var extensions = GetPropertyExtensions(property);
                 var typeMapping = typeMapper
-                    .GetTypeMapping(
-                        property.ColumnType(), property.ColumnName(), property.PropertyType, isKey, property.IsConcurrencyToken);
+                    .GetTypeMapping(extensions.ColumnType, extensions.Column, property.PropertyType, isKey, property.IsConcurrencyToken);
 
                 if (columnModification.ParameterName != null)
                 {

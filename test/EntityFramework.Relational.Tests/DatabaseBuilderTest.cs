@@ -55,7 +55,8 @@ namespace Microsoft.Data.Entity.Relational.Tests
             Assert.Same(table1, foreignKey.ReferencedTable);
             Assert.Same(table0.Columns[0], foreignKey.Columns[0]);
             Assert.Same(table1.Columns[0], foreignKey.ReferencedColumns[0]);
-            Assert.True(foreignKey.CascadeDelete);
+            // TODO: Cascading behaviors not supported. Issue #333
+            //Assert.True(foreignKey.CascadeDelete);
 
             var index = table0.Indexes[0];
 
@@ -110,11 +111,11 @@ namespace Microsoft.Data.Entity.Relational.Tests
                 b =>
                 {
                     var id = b.Property<int>("Id").Metadata;
-                    var p1 = b.Property<long>("P1").ColumnName("C1").Metadata;
+                    var p1 = b.Property<long>("P1").ForRelational(rb => rb.Column("C1")).Metadata;
                     var p2 = b.Property<string>("P2").Metadata;
-                    b.Key("Id").KeyName("PK");
-                    b.Metadata.AddKey(new[] { id, p1 }).SetKeyName("UC1");
-                    b.Metadata.AddKey(new[] { p2 }).SetKeyName("UC2");
+                    b.Key("Id").ForRelational().Name("PK");
+                    b.Metadata.AddKey(new[] { id, p1 }).Relational().Name = "UC1";
+                    b.Metadata.AddKey(new[] { p2 }).Relational().Name = "UC2";
                 });
 
             var database = new DatabaseBuilder().GetDatabase(modelBuilder.Model);
@@ -140,9 +141,9 @@ namespace Microsoft.Data.Entity.Relational.Tests
                 b =>
                 {
                     var id = b.Property<int>("Id").Metadata;
-                    var p1 = b.Property<long>("P1").ColumnName("C1").Metadata;
+                    var p1 = b.Property<long>("P1").ForRelational(rb => rb.Column("C1")).Metadata;
                     var p2 = b.Property<string>("P2").Metadata;
-                    b.Key("Id").KeyName("PK");
+                    b.Key("Id").ForRelational().Name("PK");
                     b.Metadata.AddKey(new[] { id, p1 });
                     b.Metadata.AddKey(new[] { p2 });
                 });
@@ -154,7 +155,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
             Assert.Equal("UC_A_Id_C1", table.UniqueConstraints[0].Name);
             Assert.Equal("UC_A_P2", table.UniqueConstraints[1].Name);
 
-            modelBuilder.Entity("A").ToTable("T", "dbo");
+            modelBuilder.Entity("A").ForRelational().Table("T", "dbo");
             database = new DatabaseBuilder().GetDatabase(modelBuilder.Model);
             table = database.Tables[0];
 
@@ -216,9 +217,9 @@ namespace Microsoft.Data.Entity.Relational.Tests
                 {
                     b.Key(e => e.Id);
                     b.Property(e => e.Id);
-                    b.Property(e => e.FkAAA).ColumnName("ColumnAaa");
-                    b.Property(e => e.FkZZZ).ColumnName("ColumnZzz");
-                    b.ToTable("MyTable");
+                    b.Property(e => e.FkAAA).ForRelational().Column("ColumnAaa");
+                    b.Property(e => e.FkZZZ).ForRelational().Column("ColumnZzz");
+                    b.ForRelational().Table("MyTable");
                     b.Index(e => new { e.FkAAA, e.FkZZZ });
                 });
 
@@ -265,34 +266,33 @@ namespace Microsoft.Data.Entity.Relational.Tests
             var model = new Entity.Metadata.Model { StorageName = "MyDatabase" };
 
             var dependentEntityType = model.AddEntityType("Dependent");
-            dependentEntityType.SetSchema("dbo");
-            dependentEntityType.SetTableName("MyTable0");
+            dependentEntityType.Relational().Schema = "dbo";
+            dependentEntityType.Relational().Table = "MyTable0";
 
             var principalEntityType = model.AddEntityType("Principal");
-            principalEntityType.SetSchema("dbo");
-            principalEntityType.SetTableName("MyTable1");
+            principalEntityType.Relational().Schema = "dbo";
+            principalEntityType.Relational().Table = "MyTable1";
 
             var dependentProperty = dependentEntityType.GetOrAddProperty("Id", typeof(int), shadowProperty: true);
             var principalProperty = principalEntityType.GetOrAddProperty("Id", typeof(int), shadowProperty: true);
             principalProperty.ValueGeneration = ValueGeneration.OnAdd;
 
-            principalProperty.Annotations.Add(new Annotation(
-                MetadataExtensions.Annotations.StorageTypeName, "int"));
-            dependentProperty.Annotations.Add(new Annotation(
-                MetadataExtensions.Annotations.StorageTypeName, "int"));
+            principalProperty.Relational().ColumnType = "int";
+            dependentProperty.Relational().ColumnType = "int";
 
             dependentEntityType.GetOrSetPrimaryKey(dependentProperty);
             principalEntityType.GetOrSetPrimaryKey(principalProperty);
-            dependentEntityType.GetPrimaryKey().SetKeyName("MyPK0");
-            principalEntityType.GetPrimaryKey().SetKeyName("MyPK1");
+            dependentEntityType.GetPrimaryKey().Relational().Name = "MyPK0";
+            principalEntityType.GetPrimaryKey().Relational().Name = "MyPK1";
 
             var foreignKey = dependentEntityType.GetOrAddForeignKey(dependentProperty, principalEntityType.GetPrimaryKey());
-            foreignKey.SetKeyName("MyFK");
-            foreignKey.Annotations.Add(new Annotation(
-                MetadataExtensions.Annotations.CascadeDelete, "True"));
+            foreignKey.Relational().Name = "MyFK";
+            // TODO: Cascading behaviors not supported. Issue #333
+            //foreignKey.Annotations.Add(new Annotation(
+            //    MetadataExtensions.Annotations.CascadeDelete, "True"));
 
             var index = dependentEntityType.GetOrAddIndex(dependentProperty);
-            index.SetIndexName("MyIndex");
+            index.Relational().Name = "MyIndex";
             index.IsUnique = true;
 
             var stringProperty = principalEntityType.GetOrAddProperty("Name", typeof(string), shadowProperty: true);

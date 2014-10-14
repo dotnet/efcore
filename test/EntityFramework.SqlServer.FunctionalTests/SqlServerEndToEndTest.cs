@@ -91,7 +91,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             public SqlStoreWithBufferReader(
                 DbContextConfiguration configuration,
                 SqlServerConnection connection,
-                CommandBatchPreparer batchPreparer,
+                SqlServerCommandBatchPreparer batchPreparer,
                 SqlServerBatchExecutor batchExecutor)
                 : base(configuration, connection, batchPreparer, batchExecutor)
             {
@@ -446,7 +446,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 modelBuilder.Entity<Customer>(b =>
                     {
                         b.Key(c => c.CustomerID);
-                        b.ToTable("Customers");
+                        b.ForSqlServer().Table("Customers");
                     });
             }
         }
@@ -506,7 +506,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.Entity<TBlog>().ToTable("Blog", "dbo");
+                modelBuilder.Entity<TBlog>().ForRelational().Table("Blog", "dbo");
             }
 
             public DbSet<TBlog> Blogs { get; set; }

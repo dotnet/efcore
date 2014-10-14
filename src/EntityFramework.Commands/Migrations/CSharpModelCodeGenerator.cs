@@ -8,16 +8,17 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Commands.Utilities;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations;
+using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Commands.Migrations
 {
     public class CSharpModelCodeGenerator : ModelCodeGenerator
     {
-        private const string TableNameAnnotationName = "TableName";
-        private const string SchemaAnnotationName = "Schema";
-        private const string ColumnNameAnnotationName = "ColumnName";
-        private const string KeyNameAnnotationName = "KeyName";
+        private const string TableNameAnnotationName = RelationalAnnotationNames.Prefix + RelationalAnnotationNames.TableName;
+        private const string SchemaAnnotationName = RelationalAnnotationNames.Prefix + RelationalAnnotationNames.Schema;
+        private const string ColumnNameAnnotationName = RelationalAnnotationNames.Prefix + RelationalAnnotationNames.ColumnName;
+        private const string KeyNameAnnotationName = RelationalAnnotationNames.Prefix + RelationalAnnotationNames.Name;
 
         public override void GenerateModelSnapshotClass(
             string @namespace,
@@ -267,25 +268,22 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 .Append(key.Properties.Select(p => DelimitString(p.Name)).Join())
                 .Append(")");
 
-            if (key.Annotations.Any())
+            var keyName = key.Relational().Name;
+            if (keyName != null)
             {
-                var keyName = key[KeyNameAnnotationName];
-                if (keyName != null)
-                {
-                    using (stringBuilder.Indent())
-                    {
-                        stringBuilder
-                            .AppendLine()
-                            .Append(".KeyName(")
-                            .Append(DelimitString(keyName))
-                            .Append(")");
-                    }
-                }
-
                 using (stringBuilder.Indent())
                 {
-                    GenerateAnnotations(key.Annotations.Where(a => a.Name != KeyNameAnnotationName).ToArray(), stringBuilder);
+                    stringBuilder
+                        .AppendLine()
+                        .Append(".ForRelational(rb => rb.Name(")
+                        .Append(DelimitString(keyName))
+                        .Append("))");
                 }
+            }
+
+            using (stringBuilder.Indent())
+            {
+                GenerateAnnotations(key.Annotations.Where(a => a.Name != KeyNameAnnotationName).ToArray(), stringBuilder);
             }
 
             stringBuilder.Append(";");
@@ -296,16 +294,16 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             Check.NotNull(entityType, "entityType");
             Check.NotNull(stringBuilder, "stringBuilder");
 
-            var tableName = entityType[TableNameAnnotationName];
-            if (!string.IsNullOrEmpty(tableName))
+            var tableName = entityType.Relational().Table;
+            var schema = entityType.Relational().Schema;
+            if (tableName != entityType.SimpleName || schema != null)
             {
                 stringBuilder
                     .AppendLine()
-                    .Append("b.TableName(")
+                    .Append("b.ForRelational().Table(")
                     .Append(DelimitString(tableName));
 
-                var schema = entityType[SchemaAnnotationName];
-                if (!string.IsNullOrEmpty(schema))
+                if (schema != null)
                 {
                     stringBuilder
                         .Append(", ")
@@ -367,16 +365,16 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             Check.NotNull(foreignKey, "foreignKey");
             Check.NotNull(stringBuilder, "stringBuilder");
 
-            var foreignKeyName = foreignKey[KeyNameAnnotationName];
+            var foreignKeyName = foreignKey.Relational().Name;
             if (foreignKeyName != null)
             {
                 using (stringBuilder.Indent())
                 {
                     stringBuilder
                         .AppendLine()
-                        .Append(".KeyName(")
+                        .Append(".ForRelational(rb => rb.Name(")
                         .Append(DelimitString(foreignKeyName))
-                        .Append(")");
+                        .Append("))");
                 }
             }
 

@@ -32,27 +32,27 @@ namespace Cud.Model
             modelBuilder.Entity<Customer>(entityBuilder =>
             {
                 entityBuilder.Key(c => c.Id);
-                entityBuilder.ToTable("Customers");
+                entityBuilder.ForRelational().Table("Customers");
                 entityBuilder.OneToMany(c => c.Orders, o => o.Customer);
             });
 
             modelBuilder.Entity<Order>(entityBuilder =>
             {
                 entityBuilder.Key(o => o.Id);
-                entityBuilder.ToTable("Orders");
+                entityBuilder.ForRelational().Table("Orders");
                 entityBuilder.OneToMany(o => o.OrderLines, ol => ol.Order);
             });
 
             modelBuilder.Entity<OrderLine>(entityBuilder =>
             {
                 entityBuilder.Key(o => o.Id);
-                entityBuilder.ToTable("OrderLines");
+                entityBuilder.ForRelational().Table("OrderLines");
             });
 
             modelBuilder.Entity<Product>(entityBuilder =>
             {
                 entityBuilder.Key(o => o.Id);
-                entityBuilder.ToTable("Products");
+                entityBuilder.ForRelational().Table("Products");
                 entityBuilder.OneToMany(p => p.OrderLines, ol => ol.Product);
             });
         }

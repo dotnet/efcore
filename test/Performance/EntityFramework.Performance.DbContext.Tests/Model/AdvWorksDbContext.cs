@@ -33,25 +33,25 @@
             {
                 b.Key(e => e.ProductID);
                 b.Property(e => e.ProductID).ForSqlServer().UseSequence();
-                b.ToTable("Product", "dbo");
+                b.ForRelational().Table("Product", "dbo");
             });
             builder.Entity<DbProductModel>(b =>
             {
                 b.Key(e => e.ProductModelID);
                 b.Property(e => e.ProductModelID).ForSqlServer().UseSequence();
-                b.ToTable("ProductModel", "dbo");
+                b.ForRelational().Table("ProductModel", "dbo");
             });
             builder.Entity<DbWorkOrder>(b =>
             {
                 b.Key(e => e.WorkOrderID);
                 b.Property(e => e.WorkOrderID).ForSqlServer().UseSequence();
-                b.ToTable("WorkOrder", "dbo");
+                b.ForRelational().Table("WorkOrder", "dbo");
             });
             builder.Entity<DbProductSubcategory>(b =>
             {
                 b.Key(e => e.ProductSubcategoryID);
                 b.Property(e => e.ProductSubcategoryID).ForSqlServer().UseSequence();
-                b.ToTable("ProductSubcategory", "dbo");
+                b.ForRelational().Table("ProductSubcategory", "dbo");
             });
 
             //Foreign keys

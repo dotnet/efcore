@@ -65,156 +65,156 @@ namespace QueryExecution.Model
             //Keys and tables
             modelBuilder.Entity<BackOrderLine>(b =>
             {
-                b.ToTable("BackOrderLine", "dbo");
+                b.ForRelational().Table("BackOrderLine", "dbo");
                 b.Key(e => new {e.OrderId, e.ProductId});
             });
             modelBuilder.Entity<Barcode>(b =>
             {
-                b.ToTable("Barcode", "dbo");
+                b.ForRelational().Table("Barcode", "dbo");
                 b.Key(e => e.Code);
             });
             modelBuilder.Entity<BarcodeDetail>(b =>
             {
-                b.ToTable("Detail", "dbo");
+                b.ForRelational().Table("Detail", "dbo");
                 b.Key(e => e.Code);
             });
-            modelBuilder.Entity<Complaint>(b => b.ToTable("Complaint", "dbo"));
+            modelBuilder.Entity<Complaint>(b => b.ForRelational().Table("Complaint", "dbo"));
             modelBuilder.Entity<Computer>(b =>
             {
-                b.ToTable("Computer", "dbo");
+                b.ForRelational().Table("Computer", "dbo");
             });
             modelBuilder.Entity<Customer>(b =>
             {
-                b.ToTable("Customer", "dbo");
+                b.ForRelational().Table("Customer", "dbo");
             });
             modelBuilder.Entity<CustomerInfo>(b =>
             {
-                b.ToTable("Info", "dbo");
+                b.ForRelational().Table("Info", "dbo");
             });
             modelBuilder.Entity<DiscontinuedProduct>(b =>
             {
-                b.ToTable("DiscontinuedProduct", "dbo");
+                b.ForRelational().Table("DiscontinuedProduct", "dbo");
                 b.Key(e => e.ProductId);
             });
             modelBuilder.Entity<Driver>(b =>
             {
-                b.ToTable("Driver", "dbo");
+                b.ForRelational().Table("Driver", "dbo");
                 b.Key(e => e.Name);
             });
             modelBuilder.Entity<IncorrectScan>(b =>
             {
-                b.ToTable("IncorrectScan", "dbo");
+                b.ForRelational().Table("IncorrectScan", "dbo");
             });
 
             modelBuilder.Entity<LastLogin>(b =>
             {
                 b.Key(e => e.Username);
-                b.ToTable("LastLogin", "dbo");
+                b.ForRelational().Table("LastLogin", "dbo");
             });
             modelBuilder.Entity<License>(b =>
             {
                 b.Key(e => e.Name);
-                b.ToTable("License", "dbo");
+                b.ForRelational().Table("License", "dbo");
             });
             modelBuilder.Entity<Login>(b =>
             {
                 b.Key(e => e.Username);
-                b.ToTable("Login", "dbo");
+                b.ForRelational().Table("Login", "dbo");
             });
             modelBuilder.Entity<Message>(b =>
             {
                 b.Key(e => new {e.MessageId, e.FromUsername});
-                b.ToTable("Message", "dbo");
+                b.ForRelational().Table("Message", "dbo");
             });
             modelBuilder.Entity<Order>(b =>
             {
-                b.ToTable("Order", "dbo");
+                b.ForRelational().Table("Order", "dbo");
                 b.Property(e => e.OrderId).GenerateValuesOnAdd(false);
             });
             modelBuilder.Entity<OrderLine>(b =>
             {
                 b.Key(e => new {e.OrderId, e.ProductId});
-                b.ToTable("OrderLine", "dbo");
+                b.ForRelational().Table("OrderLine", "dbo");
             });
             modelBuilder.Entity<OrderNote>(b =>
             {
                 b.Key(e => e.NoteId);
-                b.ToTable("OrderNote", "dbo");
+                b.ForRelational().Table("OrderNote", "dbo");
             });
             modelBuilder.Entity<OrderQualityCheck>(b =>
             {
                 b.Key(e => e.OrderId);
-                b.ToTable("OrderQualityCheck", "dbo");
+                b.ForRelational().Table("OrderQualityCheck", "dbo");
             });
             modelBuilder.Entity<PageView>(b =>
             {
-                b.ToTable("PageView", "dbo");
+                b.ForRelational().Table("PageView", "dbo");
             });
             modelBuilder.Entity<PasswordReset>(b =>
             {
                 b.Key(e => new {e.ResetNo, e.Username});
-                b.ToTable("PasswordReset", "dbo");
+                b.ForRelational().Table("PasswordReset", "dbo");
             });
             modelBuilder.Entity<Product>(b =>
             {
-                b.ToTable("Product", "dbo");
+                b.ForRelational().Table("Product", "dbo");
                 b.Property(e => e.ProductId).GenerateValuesOnAdd(false);
             });
             modelBuilder.Entity<ProductDetail>(b =>
             {
                 b.Key(e => e.ProductId);
-                b.ToTable("ProductDetail", "dbo");
+                b.ForRelational().Table("ProductDetail", "dbo");
             });
             modelBuilder.Entity<ProductPageView>(b =>
             {
                 b.Key(e => e.PageViewId);
-                b.ToTable("ProductPageView", "dbo");
+                b.ForRelational().Table("ProductPageView", "dbo");
             });
             modelBuilder.Entity<ProductPhoto>(b =>
             {
                 b.Key(e => new {e.ProductId, e.PhotoId});
-                b.ToTable("ProductPhoto", "dbo");
+                b.ForRelational().Table("ProductPhoto", "dbo");
             });
             modelBuilder.Entity<ProductReview>(b =>
             {
                 b.Key(e => new {e.ProductId, e.ReviewId});
-                b.ToTable("ProductReview", "dbo");
+                b.ForRelational().Table("ProductReview", "dbo");
             });
             modelBuilder.Entity<ProductWebFeature>(b =>
             {
                 b.Key(e => e.FeatureId);
-                b.ToTable("ProductWebFeature", "dbo");
+                b.ForRelational().Table("ProductWebFeature", "dbo");
             });
             modelBuilder.Entity<Resolution>(b =>
             {
-                b.ToTable("Resolution", "dbo");
+                b.ForRelational().Table("Resolution", "dbo");
             });
             modelBuilder.Entity<RSAToken>(b =>
             {
                 b.Key(e => e.Serial);
-                b.ToTable("RSAToken", "dbo");
+                b.ForRelational().Table("RSAToken", "dbo");
             });
             modelBuilder.Entity<SmartCard>(b =>
             {
                 b.Key(e => e.Username);
-                b.ToTable("SmartCard", "dbo");
+                b.ForRelational().Table("SmartCard", "dbo");
             });
             modelBuilder.Entity<Supplier>(b =>
             {
-                b.ToTable("Supplier", "dbo");
+                b.ForRelational().Table("Supplier", "dbo");
             });
             modelBuilder.Entity<SupplierInfo>(b =>
             {
-                b.ToTable("SupplierInfo", "dbo"); 
+                b.ForRelational().Table("SupplierInfo", "dbo"); 
             });
             modelBuilder.Entity<SupplierLogo>(b =>
             {
                 b.Key(e => e.SupplierId);
-                b.ToTable("SupplierLogo", "dbo");
+                b.ForRelational().Table("SupplierLogo", "dbo");
             });
             modelBuilder.Entity<SuspiciousActivity>(b =>
             {
-                b.ToTable("SuspiciousActivity", "dbo");
+                b.ForRelational().Table("SuspiciousActivity", "dbo");
             });
 
             modelBuilder.Entity<Order>(b =>

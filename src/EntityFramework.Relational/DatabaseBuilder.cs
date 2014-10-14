@@ -85,7 +85,7 @@ namespace Microsoft.Data.Entity.Relational
             return mapping;            
         }
 
-        private static IEnumerable<IProperty> OrderProperties(IEntityType entityType)
+        private IEnumerable<IProperty> OrderProperties(IEntityType entityType)
         {
             var primaryKey = entityType.GetPrimaryKey();
 
@@ -104,7 +104,7 @@ namespace Microsoft.Data.Entity.Relational
             var otherProperties
                 = entityType.Properties
                     .Except(primaryKeyProperties.Concat(foreignKeyProperties))
-                    .OrderBy(p => p.ColumnName())
+                    .OrderBy(GetColumnName)
                     .ToArray();
 
             return primaryKeyProperties
@@ -112,68 +112,134 @@ namespace Microsoft.Data.Entity.Relational
                 .Concat(foreignKeyProperties);
         }
 
-        private static string PrimaryKeyName([NotNull] IKey primaryKey)
+        private string PrimaryKeyName([NotNull] IKey primaryKey)
         {
             Check.NotNull(primaryKey, "primaryKey");
 
-            return primaryKey.KeyName() ?? string.Format("PK_{0}", GetFullTableName(primaryKey.EntityType));
+            return GetKeyName(primaryKey) ?? string.Format("PK_{0}", GetFullTableName(primaryKey.EntityType));
         }
 
-        private static string UniqueConstraintName([NotNull] IKey key)
+        private string UniqueConstraintName([NotNull] IKey key)
         {
             Check.NotNull(key, "key");
 
-            return key.KeyName() ?? string.Format(
+            return GetKeyName(key) ?? string.Format(
                 "UC_{0}_{1}",
                 GetFullTableName(key.EntityType),
-                string.Join("_", key.Properties.OrderBy(p => p.Name, StringComparer.OrdinalIgnoreCase).Select(p => p.ColumnName())));
+                string.Join("_", key.Properties.OrderBy(p => p.Name, StringComparer.OrdinalIgnoreCase).Select(GetColumnName)));
         }
 
-        private static string ForeignKeyName([NotNull] IForeignKey foreignKey)
+        private string ForeignKeyName([NotNull] IForeignKey foreignKey)
         {
             Check.NotNull(foreignKey, "foreignKey");
 
-            return foreignKey.KeyName() ?? string.Format(
+            return GetForeignKeyName(foreignKey) ?? string.Format(
                 "FK_{0}_{1}_{2}",
                 GetFullTableName(foreignKey.EntityType),
                 GetFullTableName(foreignKey.ReferencedEntityType),
-                string.Join("_", foreignKey.Properties.OrderBy(p => p.Name, StringComparer.OrdinalIgnoreCase).Select(p => p.ColumnName())));
+                string.Join("_", foreignKey.Properties.OrderBy(p => p.Name, StringComparer.OrdinalIgnoreCase).Select(GetColumnName)));
         }
 
-        private static string IndexName([NotNull] IIndex index)
+        private string IndexName([NotNull] IIndex index)
         {
             Check.NotNull(index, "index");
 
-            return index.IndexName() ?? string.Format(
+            return GetIndexName(index) ?? string.Format(
                 "IX_{0}_{1}",
                 GetFullTableName(index.EntityType),
-                string.Join("_", index.Properties.OrderBy(p => p.Name, StringComparer.OrdinalIgnoreCase).Select(p => p.ColumnName())));
+                string.Join("_", index.Properties.OrderBy(p => p.Name, StringComparer.OrdinalIgnoreCase).Select(GetColumnName)));
         }
 
-        private static string GetFullTableName(IEntityType entityType)
+        private string GetFullTableName(IEntityType entityType)
         {
-            var schema = entityType.Schema();
-            var tableName = entityType.TableName();
+            var schema = GetSchema(entityType);
+            var tableName = GetTableName(entityType);
             return !string.IsNullOrEmpty(schema) ? schema + "." + tableName : tableName;
         }
 
-        private static Table BuildTable(DatabaseModel database, IEntityType entityType)
+        // TODO: Make database builders for all providers, including SQLite, then remove these relational-only methods
+        // See Issues #853, #875
+        protected virtual string GetSchema(IEntityType entityType)
         {
-            var table = new Table(entityType.SchemaQualifiedName());
+            return entityType.Relational().Schema;
+        }
+
+        protected virtual string GetTableName(IEntityType entityType)
+        {
+            return entityType.Relational().Table;
+        }
+
+        protected virtual string GetIndexName(IIndex index)
+        {
+            return index.Relational().Name;
+        }
+
+        protected virtual string GetColumnName(IProperty property)
+        {
+            return property.Relational().Column;
+        }
+
+        protected virtual string GetColumnType(IProperty property)
+        {
+            return property.Relational().ColumnType;
+        }
+
+        protected virtual object GetColumnDefaultValue(IProperty property)
+        {
+            return property.Relational().DefaultValue;
+        }
+
+        protected virtual string GetColumnDefaultSql(IProperty property)
+        {
+            return property.Relational().DefaultExpression;
+        }
+
+        protected virtual string GetForeignKeyName(IForeignKey foreignKey)
+        {
+            return foreignKey.Relational().Name;
+        }
+
+        protected virtual string GetKeyName(IKey key)
+        {
+            return key.Relational().Name;
+        }
+
+        protected virtual bool IsKeyClustered(IKey key)
+        {
+            // TODO: Clustered is SQL Server-specific elsewhere in the stack
+            // Issue #879
+            return false;
+        }
+
+        protected virtual bool IsIndexClustered(IIndex index)
+        {
+            // TODO: Clustered is SQL Server-specific elsewhere in the stack
+            // Issue #879
+            return false;
+        }
+
+        protected virtual SchemaQualifiedName GetSchemaQualifiedName(IEntityType entityType)
+        {
+            return new SchemaQualifiedName(entityType.Relational().Table, entityType.Relational().Schema);
+        }
+
+        private Table BuildTable(DatabaseModel database, IEntityType entityType)
+        {
+            var table = new Table(GetSchemaQualifiedName(entityType));
 
             database.AddTable(table);
 
             return table;
         }
 
-        private static Column BuildColumn(Table table, IProperty property)
+        private Column BuildColumn(Table table, IProperty property)
         {
             var column =
-                new Column(property.ColumnName(), property.PropertyType, property.ColumnType())
+                new Column(GetColumnName(property), property.PropertyType, GetColumnType(property))
                     {
                         IsNullable = property.IsNullable,
-                        DefaultValue = property.ColumnDefaultValue(),
-                        DefaultSql = property.ColumnDefaultSql(),
+                        DefaultValue = GetColumnDefaultValue(property),
+                        DefaultSql = GetColumnDefaultSql(property),
                         ValueGenerationStrategy = property.ValueGeneration,
                         IsTimestamp = property.PropertyType == typeof(byte[]) && property.IsConcurrencyToken,
                         MaxLength = property.MaxLength > 0 ? property.MaxLength : (int?)null
@@ -199,23 +265,25 @@ namespace Microsoft.Data.Entity.Relational
         {
             Check.NotNull(primaryKey, "primaryKey");
 
-            var table = database.GetTable(primaryKey.EntityType.SchemaQualifiedName());
+            var table = database.GetTable(GetSchemaQualifiedName(primaryKey.EntityType));
             var columns = primaryKey.Properties.Select(
-                p => table.GetColumn(p.ColumnName())).ToArray();
-            var isClustered = primaryKey.IsClustered();
+                p => table.GetColumn(GetColumnName(p))).ToArray();
+            // TODO: Clustered is SQL Server-specific elsewhere in the stack
+            // Issue #879
+            var isClustered = IsKeyClustered(primaryKey);
 
             table.PrimaryKey = new PrimaryKey(PrimaryKeyName(primaryKey), columns, isClustered);
 
             return table.PrimaryKey;
         }
 
-        private static UniqueConstraint BuildUniqueConstraint(DatabaseModel database, IKey key)
+        private UniqueConstraint BuildUniqueConstraint(DatabaseModel database, IKey key)
         {
             Check.NotNull(key, "key");
 
-            var table = database.GetTable(key.EntityType.SchemaQualifiedName());
+            var table = database.GetTable(GetSchemaQualifiedName(key.EntityType));
             var columns = key.Properties.Select(
-                p => table.GetColumn(p.ColumnName())).ToArray();
+                p => table.GetColumn(GetColumnName(p))).ToArray();
 
             var uniqueConstraint = new UniqueConstraint(UniqueConstraintName(key), columns);
 
@@ -228,32 +296,35 @@ namespace Microsoft.Data.Entity.Relational
         {
             Check.NotNull(foreignKey, "foreignKey");
 
-            var table = database.GetTable(foreignKey.EntityType.SchemaQualifiedName());
-            var referencedTable = database.GetTable(foreignKey.ReferencedEntityType.SchemaQualifiedName());
+            var table = database.GetTable(GetSchemaQualifiedName(foreignKey.EntityType));
+            var referencedTable = database.GetTable(GetSchemaQualifiedName(foreignKey.ReferencedEntityType));
             var columns = foreignKey.Properties.Select(
-                p => table.GetColumn(p.ColumnName())).ToArray();
+                p => table.GetColumn(GetColumnName(p))).ToArray();
             var referenceColumns = foreignKey.ReferencedProperties.Select(
-                p => referencedTable.GetColumn(p.ColumnName())).ToArray();
-            var cascadeDelete = foreignKey.CascadeDelete();
+                p => referencedTable.GetColumn(GetColumnName(p))).ToArray();
+            // TODO: Cascading behaviors not supported. Issue #333
+            //var cascadeDelete = foreignKey.CascadeDelete();
 
             var storeForeignKey = new ForeignKey(
-                ForeignKeyName(foreignKey), columns, referenceColumns, cascadeDelete);
+                ForeignKeyName(foreignKey), columns, referenceColumns, cascadeDelete: false);
 
             table.AddForeignKey(storeForeignKey);
 
             return storeForeignKey;
         }
 
-        private static Index BuildIndex(DatabaseModel database, IIndex index)
+        private Index BuildIndex(DatabaseModel database, IIndex index)
         {
             Check.NotNull(index, "index");
 
-            var table = database.GetTable(index.EntityType.SchemaQualifiedName());
+            var table = database.GetTable(GetSchemaQualifiedName(index.EntityType));
             var columns = index.Properties.Select(
-                p => table.GetColumn(p.ColumnName())).ToArray();
+                p => table.GetColumn(GetColumnName(p))).ToArray();
 
+            // TODO: Clustered is SQL Server-specific elsewhere in the stack
+            // Issue #879
             var storeIndex = new Index(
-                IndexName(index), columns, index.IsUnique, index.IsClustered());
+                IndexName(index), columns, index.IsUnique, IsIndexClustered(index));
 
             table.AddIndex(storeIndex);
 

@@ -32,5 +32,21 @@ namespace Microsoft.Data.Entity.SQLite.Query
         {
             return new SQLiteSqlQueryGenerator();
         }
+
+        public override string GetTableName(IEntityType entityType)
+        {
+            Check.NotNull(entityType, "entityType");
+
+            // TODO: SQLite provider-specific APIs
+            return entityType.Relational().Table;
+        }
+
+        public override string GetSchema(IEntityType entityType)
+        {
+            Check.NotNull(entityType, "entityType");
+
+            // TODO: SQLite provider-specific APIs
+            return entityType.Relational().Schema;
+        }
     }
 }

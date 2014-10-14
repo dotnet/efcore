@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Relational.Update;
 using Moq;
 using Xunit;
@@ -48,7 +49,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
         public void AppendInsertOperation_appends_insert_and_select_and_where_if_store_generated_columns_exist()
         {
             var stringBuilder = new StringBuilder();
-            var command = CreateInsertCommand(identityKey: true, computedProperty: true);
+            var command = CreateInsertCommand(identityKey: true, isComputed: true);
 
             CreateSqlGenerator().AppendInsertOperation(stringBuilder, command);
 
@@ -87,7 +88,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
         public void AppendInsertOperation_appends_insert_and_select_store_generated_columns_but_no_identity()
         {
             var stringBuilder = new StringBuilder();
-            var command = CreateInsertCommand(false, computedProperty: true);
+            var command = CreateInsertCommand(false, isComputed: true);
 
             CreateSqlGenerator().AppendInsertOperation(stringBuilder, command);
 
@@ -178,7 +179,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
         public void AppendUpdateOperation_appends_update_and_select_if_store_generated_columns_exist()
         {
             var stringBuilder = new StringBuilder();
-            var command = CreateUpdateCommand(computedProperty: true, concurrencyToken: true);
+            var command = CreateUpdateCommand(isComputed: true, concurrencyToken: true);
 
             CreateSqlGenerator().AppendUpdateOperation(stringBuilder, command);
 
@@ -284,23 +285,28 @@ namespace Microsoft.Data.Entity.Relational.Tests
             get { return "\""; }
         }
 
-        protected ModificationCommand CreateInsertCommand(bool identityKey = true, bool computedProperty = true, bool defaultsOnly = false)
+        protected ModificationCommand CreateInsertCommand(bool identityKey = true, bool isComputed = true, bool defaultsOnly = false)
         {
             var entry = new Mock<StateEntry>().Object;
             var generator = new ParameterNameGenerator();
 
+            var idProperty = CreateMockProperty("Id");
+            var nameProperty = CreateMockProperty("Name");
+            var quacksProperty = CreateMockProperty("Quacks");
+            var computedProperty = CreateMockProperty("Computed");
+            var concurrencyProperty = CreateMockProperty("ConcurrencyToken");
             var columnModifications = new[]
                 {
                     new ColumnModification(
-                        entry, CreateMockProperty("Id"), generator, identityKey, !identityKey, true, false),
+                        entry, idProperty, idProperty.Relational(), generator, identityKey, !identityKey, true, false),
                     new ColumnModification(
-                        entry, CreateMockProperty("Name"), generator, false, true, false, false),
+                        entry, nameProperty, nameProperty.Relational(), generator, false, true, false, false),
                     new ColumnModification(
-                        entry, CreateMockProperty("Quacks"), generator, false, true, false, false),
+                        entry, quacksProperty, quacksProperty.Relational(), generator, false, true, false, false),
                     new ColumnModification(
-                        entry, CreateMockProperty("Computed"), generator, computedProperty, false, false, false),
+                        entry, computedProperty, computedProperty.Relational(), generator, isComputed, false, false, false),
                     new ColumnModification(
-                        entry, CreateMockProperty("ConcurrencyToken"), generator, false, true, false, false)
+                        entry, concurrencyProperty, concurrencyProperty.Relational(), generator, false, true, false, false)
                 };
 
             if (defaultsOnly)
@@ -308,32 +314,39 @@ namespace Microsoft.Data.Entity.Relational.Tests
                 columnModifications = columnModifications.Where(c => !c.IsWrite).ToArray();
             }
 
-            var commandMock = new Mock<ModificationCommand>(new SchemaQualifiedName("Ducks", "dbo"), new ParameterNameGenerator()) { CallBase = true };
+            Func<IProperty, IRelationalPropertyExtensions> func = p => p.Relational();
+            var commandMock = new Mock<ModificationCommand>(new SchemaQualifiedName("Ducks", "dbo"), new ParameterNameGenerator(), func) { CallBase = true };
             commandMock.Setup(m => m.ColumnModifications).Returns(columnModifications);
 
             return commandMock.Object;
         }
 
-        protected ModificationCommand CreateUpdateCommand(bool computedProperty = true, bool concurrencyToken = true)
+        protected ModificationCommand CreateUpdateCommand(bool isComputed = true, bool concurrencyToken = true)
         {
             var entry = new Mock<StateEntry>().Object;
             var generator = new ParameterNameGenerator();
 
+            var idProperty = CreateMockProperty("Id");
+            var nameProperty = CreateMockProperty("Name");
+            var quacksProperty = CreateMockProperty("Quacks");
+            var computedProperty = CreateMockProperty("Computed");
+            var concurrencyProperty = CreateMockProperty("ConcurrencyToken");
             var columnModifications = new[]
                 {
                     new ColumnModification(
-                        entry, CreateMockProperty("Id"), generator, false, false, true, true),
+                        entry, idProperty, idProperty.Relational(), generator, false, false, true, true),
                     new ColumnModification(
-                        entry, CreateMockProperty("Name"), generator, false, true, false, false),
+                        entry, nameProperty, nameProperty.Relational(), generator, false, true, false, false),
                     new ColumnModification(
-                        entry, CreateMockProperty("Quacks"), generator, false, true, false, false),
+                        entry, quacksProperty, quacksProperty.Relational(), generator, false, true, false, false),
                     new ColumnModification(
-                        entry, CreateMockProperty("Computed"), generator, computedProperty, false, false, false),
+                        entry, computedProperty, computedProperty.Relational(), generator, isComputed, false, false, false),
                     new ColumnModification(
-                        entry, CreateMockProperty("ConcurrencyToken"), generator, false, true, false, concurrencyToken)
+                        entry, concurrencyProperty, concurrencyProperty.Relational(), generator, false, true, false, concurrencyToken)
                 };
 
-            var commandMock = new Mock<ModificationCommand>(new SchemaQualifiedName("Ducks", "dbo"), new ParameterNameGenerator()) { CallBase = true };
+            Func<IProperty, IRelationalPropertyExtensions> func = p => p.Relational();
+            var commandMock = new Mock<ModificationCommand>(new SchemaQualifiedName("Ducks", "dbo"), new ParameterNameGenerator(), func) { CallBase = true };
             commandMock.Setup(m => m.ColumnModifications).Returns(columnModifications);
 
             return commandMock.Object;
@@ -344,15 +357,18 @@ namespace Microsoft.Data.Entity.Relational.Tests
             var entry = new Mock<StateEntry>().Object;
             var generator = new ParameterNameGenerator();
 
+            var idProperty = CreateMockProperty("Id");
+            var concurrencyProperty = CreateMockProperty("ConcurrencyToken");
             var columnModifications = new[]
                 {
                     new ColumnModification(
-                        entry, CreateMockProperty("Id"), generator, false, false, true, true),
+                        entry, idProperty, idProperty.Relational(), generator, false, false, true, true),
                     new ColumnModification(
-                        entry, CreateMockProperty("ConcurrencyToken"), generator, false, false, false, concurrencyToken)
+                        entry, concurrencyProperty, concurrencyProperty.Relational(), generator, false, false, false, concurrencyToken)
                 };
 
-            var commandMock = new Mock<ModificationCommand>(new SchemaQualifiedName("Ducks", "dbo"), new ParameterNameGenerator()) { CallBase = true };
+            Func<IProperty, IRelationalPropertyExtensions> func = p => p.Relational();
+            var commandMock = new Mock<ModificationCommand>(new SchemaQualifiedName("Ducks", "dbo"), new ParameterNameGenerator(), func) { CallBase = true };
             commandMock.Setup(m => m.ColumnModifications).Returns(columnModifications);
 
             return commandMock.Object;

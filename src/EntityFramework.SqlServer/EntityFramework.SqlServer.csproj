@@ -98,6 +98,7 @@
     <Compile Include="SqlServerMigrationOperationPreProcessor.cs" />
     <Compile Include="SqlServerMigrationOperationSqlGeneratorFactory.cs" />
     <Compile Include="SqlServerMigrator.cs" />
+    <Compile Include="Update\SqlServerCommandBatchPreparer.cs" />
     <Compile Include="Update\SqlServerModificationCommandBatchFactory.cs" />
     <Compile Include="SqlServerOptionsExtension.cs" />
     <Compile Include="SqlServerConnection.cs" />

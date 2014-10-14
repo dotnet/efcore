@@ -79,7 +79,8 @@ namespace Microsoft.Data.Entity.SQLite.FunctionalTests
             foreach (var property in keyProperties)
             {
                 // Fix-up int properties to be INTEGER columns so rowid aliasing is enabled
-                property[MetadataExtensions.Annotations.StorageTypeName] = "INTEGER";
+                // TODO: Make SQLite specific type. Issue #875
+                property.Relational().ColumnType = "INTEGER";
             }
         }
     }

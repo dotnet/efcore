@@ -113,12 +113,12 @@ namespace Microsoft.Data.Entity.Relational.Query
             var selectExpression = QueryCompilationContext.FindSelectExpression(querySource);
             var dependentTableExpression = selectExpression.FindTableForQuerySource(querySource);
             var targetEntityType = navigation.GetTargetType();
-            var targetTableName = targetEntityType.TableName();
+            var targetTableName = QueryCompilationContext.GetTableName(targetEntityType);
 
             var targetTableExpression
                 = new TableExpression(
                     targetTableName,
-                    targetEntityType.Schema(),
+                    QueryCompilationContext.GetSchema(targetEntityType),
                     targetTableName.First().ToString().ToLower(),
                     querySource);
 
@@ -199,14 +199,14 @@ namespace Microsoft.Data.Entity.Relational.Query
             }
 
             var targetEntityType = navigation.GetTargetType();
-            var targetTableName = targetEntityType.TableName();
+            var targetTableName = QueryCompilationContext.GetTableName(targetEntityType);
 
             var targetSelectExpression = new SelectExpression();
 
             var targetTableExpression
                 = new TableExpression(
                     targetTableName,
-                    targetEntityType.Schema(),
+                    QueryCompilationContext.GetSchema(targetEntityType),
                     targetTableName.First().ToString().ToLower(),
                     querySource);
 

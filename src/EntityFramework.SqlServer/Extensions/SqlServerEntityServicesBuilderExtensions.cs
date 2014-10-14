@@ -4,10 +4,8 @@
 using JetBrains.Annotations;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Identity;
-using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Relational;
-using Microsoft.Data.Entity.Relational.Update;
 using Microsoft.Data.Entity.SqlServer;
 using Microsoft.Data.Entity.SqlServer.Update;
 using Microsoft.Data.Entity.SqlServer.Utilities;
@@ -32,7 +30,8 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddSingleton<SqlServerSqlGenerator>()
                 .AddSingleton<SqlStatementExecutor>()
                 .AddSingleton<SqlServerTypeMapper>()
-                .AddSingleton<ModificationCommandBatchFactory, SqlServerModificationCommandBatchFactory>()
+                .AddSingleton<SqlServerModificationCommandBatchFactory>()
+                .AddSingleton<SqlServerCommandBatchPreparer>()
                 .AddScoped<SqlServerBatchExecutor>()
                 .AddScoped<DataStoreSource, SqlServerDataStoreSource>()
                 .AddScoped<SqlServerDataStoreServices>()

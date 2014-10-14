@@ -156,7 +156,8 @@ namespace Microsoft.Data.Entity.SQLite.Tests
                     {
                         b.Property<int>("Id");
                         b.Key("Id");
-                        b.ToTable("T", "dbo");
+                        // TODO: SQLite-specific. Issue #875
+                        b.ForRelational().Table("T", "dbo");
                     });
             var moveTableOperation = new MoveTableOperation("dbo.T", "dbo2");
             var renameTableOperation = new RenameTableOperation("dbo2.T", "T2");
@@ -243,7 +244,8 @@ namespace Microsoft.Data.Entity.SQLite.Tests
                         b.Property<int>("Id");
                         b.Property<int>("C");
                         b.Key("Id");
-                        b.ToTable("T", "dbo");
+                        // TODO: SQLite-specific. Issue #875
+                        b.ForRelational().Table("T", "dbo");
                     });
 
             var moveTableOperation = new MoveTableOperation("dbo.T", "dbo2");
@@ -340,7 +342,8 @@ namespace Microsoft.Data.Entity.SQLite.Tests
                     {
                         b.Property<int>("Id");
                         b.Key("Id");
-                        b.Index("Id").IndexName("IX").IsUnique();
+                        // TODO: SQLite-specific. Issue #875
+                        b.Index("Id").IsUnique().ForRelational().Name("IX");
                     });
 
             var renameIndexOperation = new RenameIndexOperation("T", "IX", "IX2");
@@ -356,7 +359,7 @@ namespace Microsoft.Data.Entity.SQLite.Tests
             Assert.Equal(2, context.Statements.Count);
 
             Assert.Equal(@"DROP INDEX ""IX""", context.Statements[0].Sql);
-            Assert.Equal(@"CREATE UNIQUE CLUSTERED INDEX ""IX"" ON ""T"" (""Id"")", context.Statements[1].Sql);
+            Assert.Equal(@"CREATE UNIQUE INDEX ""IX"" ON ""T"" (""Id"")", context.Statements[1].Sql);
         }
 
         [Fact]

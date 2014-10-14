@@ -333,7 +333,7 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
                 {
                     ps.Property(c => c.Name);
                     ps.Key(c => c.Id);
-                    ps.ToTable("Customers");
+                    ps.ForRelational().Table("Customers");
                 });
 
             return model;

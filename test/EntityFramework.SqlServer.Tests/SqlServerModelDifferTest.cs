@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 b =>
                     {
                         b.Property<int>("Id").ForSqlServer().UseSequence("S", "dbo");
-                        b.Key("Id").KeyName("PK");
+                        b.Key("Id").ForSqlServer().Name("PK");
                     });
 
             var targetModelBuilder = new BasicModelBuilder();
@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 b =>
                     {
                         b.Property<int>("Id").ForSqlServer().UseSequence("S", "OtherSchema");
-                        b.Key("Id").KeyName("PK");
+                        b.Key("Id").ForSqlServer().Name("PK");
                     });
 
             var operations = new SqlServerModelDiffer(new SqlServerDatabaseBuilder()).Diff(
@@ -50,7 +50,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 b =>
                     {
                         b.Property<int>("Id").ForSqlServer().UseSequence("S1", "dbo");
-                        b.Key("Id").KeyName("PK");
+                        b.Key("Id").ForSqlServer().Name("PK");
                     });
 
             var targetModelBuilder = new BasicModelBuilder();
@@ -58,7 +58,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 b =>
                     {
                         b.Property<int>("Id").ForSqlServer().UseSequence("S2", "dbo");
-                        b.Key("Id").KeyName("PK");
+                        b.Key("Id").ForSqlServer().Name("PK");
                     });
 
             var operations = new SqlServerModelDiffer(new SqlServerDatabaseBuilder()).Diff(
@@ -205,7 +205,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                     {
                         b.Property<int>("Id").ForSqlServer().UseSequence("S0", "dbo");
                         b.Property<int>("P").ForSqlServer().UseSequence("S1", "dbo");
-                        b.Key("Id").KeyName("PK");
+                        b.Key("Id").ForSqlServer().Name("PK");
                     });
 
             var targetModelBuilder = new BasicModelBuilder();
@@ -214,7 +214,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                     {
                         b.Property<int>("Id").ForSqlServer().UseSequence("S1", "dbo");
                         b.Property<int>("P").ForSqlServer().UseSequence("S0", "dbo");
-                        b.Key("Id").KeyName("PK");
+                        b.Key("Id").ForSqlServer().Name("PK");
                     });
 
             var operations = new SqlServerModelDiffer(new SqlServerDatabaseBuilder()).Diff(
@@ -251,7 +251,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                     {
                         b.Property<int>("Id");
                         b.Property<int>("P1").ForSqlServer().UseSequence("S1");
-                        b.Key("Id").KeyName("PK");
+                        b.Key("Id").ForSqlServer().Name("PK");
                     });
 
             var targetModelBuilder = new BasicModelBuilder();
@@ -261,7 +261,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                         b.Property<int>("Id");
                         b.Property<int>("P1").ForSqlServer().UseSequence("S2");
                         b.Property<string>("P2");
-                        b.Key("Id").KeyName("PK");
+                        b.Key("Id").ForSqlServer().Name("PK");
                     });
 
             var operations = new SqlServerModelDiffer(new SqlServerDatabaseBuilder()).Diff(
@@ -291,7 +291,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                         {
                             b.Property<int>("Id");
                             b.Property<int>("P1").ForSqlServer().UseSequence("S1");
-                            b.Key("Id").KeyName("PK");
+                            b.Key("Id").ForSqlServer().Name("PK");
                         });
 
             var targetModelBuilder = new BasicModelBuilder();
@@ -304,7 +304,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                             b.Property<int>("Id");
                             b.Property<int>("P1").ForSqlServer().UseSequence("S2");
                             b.Property<string>("P2");
-                            b.Key("Id").KeyName("PK");
+                            b.Key("Id").ForSqlServer().Name("PK");
                         });
 
             var operations = new SqlServerModelDiffer(new SqlServerDatabaseBuilder()).Diff(
@@ -334,9 +334,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 b =>
                     {
                         b.Property<int>("Id");
-                        b.Property<int>("P")
-                            .ColumnName("C1")
-                            .ForSqlServer().UseSequence("S1");
+                        b.Property<int>("P").ForSqlServer().Column("C1").UseSequence("S1");
                         b.Key("Id");
                     });
 
@@ -345,9 +343,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 b =>
                     {
                         b.Property<int>("Id");
-                        b.Property<int>("P")
-                            .ColumnName("C2")
-                            .ForSqlServer().UseSequence("S2");
+                        b.Property<int>("P").ForSqlServer().Column("C2").UseSequence("S2");
                         b.Key("Id");
                     });
 
@@ -376,9 +372,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                     b =>
                         {
                             b.Property<int>("Id");
-                            b.Property<int>("P")
-                                .ColumnName("C1")
-                                .ForSqlServer().UseSequence("S1");
+                            b.Property<int>("P").ForSqlServer().Column("C1").UseSequence("S1");
                             b.Key("Id");
                         });
 
@@ -390,9 +384,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                     b =>
                         {
                             b.Property<int>("Id");
-                            b.Property<int>("P")
-                                .ColumnName("C2")
-                                .ForSqlServer().UseSequence("S2");
+                            b.Property<int>("P").ForSqlServer().Column("C2").UseSequence("S2");
                             b.Key("Id");
                         });
 
@@ -425,9 +417,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                     b =>
                         {
                             b.Property<int>("Id");
-                            b.Property<int>("P1")
-                                .ColumnName("C")
-                                .ForSqlServer().UseSequence("S1");
+                            b.Property<int>("P1").ForSqlServer().Column("C").UseSequence("S1");
                             b.Key("Id");
                         });
 
@@ -439,9 +429,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                     b =>
                         {
                             b.Property<int>("Id");
-                            b.Property<int>("P2")
-                                .ColumnName("C")
-                                .ForSqlServer().UseSequence("S2");
+                            b.Property<int>("P2").ForSqlServer().Column("C").UseSequence("S2");
                             b.Key("Id");
                         });
 
@@ -470,9 +458,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 b =>
                     {
                         b.Property<int>("Id");
-                        b.Property<int>("P1")
-                            .ColumnName("C")
-                            .ForSqlServer().UseSequence("S1");
+                        b.Property<int>("P1").ForSqlServer().Column("C").UseSequence("S1");
                         b.Key("Id");
                     });
 
@@ -481,9 +467,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 b =>
                     {
                         b.Property<int>("Id");
-                        b.Property<int>("P2")
-                            .ColumnName("C")
-                            .ForSqlServer().UseSequence("S2");
+                        b.Property<int>("P2").ForSqlServer().Column("C").UseSequence("S2");
                         b.Key("Id");
                     });
 
@@ -527,6 +511,80 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             Assert.Equal(1, operations.Count);
 
             Assert.IsType<AlterColumnOperation>(operations[0]);
+        }
+
+        [Fact]
+        public void Indexes_are_not_matched_if_different_clustered_flag()
+        {
+            var sourceModelBuilder = new BasicModelBuilder();
+            sourceModelBuilder.Entity("A",
+                b =>
+                    {
+                        b.Property<int>("Id");
+                        b.Property<string>("P1");
+                        b.Key("Id");
+                        b.Index("P1").ForSqlServer().Clustered(false);
+                    });
+
+            var targetModelBuilder = new BasicModelBuilder();
+            targetModelBuilder.Entity("A",
+                b =>
+                    {
+                        b.Property<int>("Id");
+                        b.Property<string>("P1");
+                        b.Key("Id");
+                        b.Index("P1").ForSqlServer().Clustered();
+                    });
+
+            var operations = new SqlServerModelDiffer(new SqlServerDatabaseBuilder()).Diff(
+                sourceModelBuilder.Model, targetModelBuilder.Model);
+
+            Assert.Equal(2, operations.Count);
+
+            Assert.IsType<DropIndexOperation>(operations[0]);
+            Assert.IsType<CreateIndexOperation>(operations[1]);
+
+            var dropIndexOperation = (DropIndexOperation)operations[0];
+            var createIndexOperation = (CreateIndexOperation)operations[1];
+
+            Assert.Equal("IX_A_P1", dropIndexOperation.IndexName);
+            Assert.Equal("IX_A_P1", createIndexOperation.IndexName);
+            Assert.True(createIndexOperation.IsClustered);
+        }
+
+        [Fact]
+        public void Primary_keys_are_not_matched_if_different_clustered_flag()
+        {
+            var sourceModelBuilder = new BasicModelBuilder();
+            sourceModelBuilder.Entity("A",
+                b =>
+                {
+                    b.Property<int>("Id");
+                    b.Key("Id").ForSqlServer().Clustered();
+                });
+
+            var targetModelBuilder = new BasicModelBuilder();
+            targetModelBuilder.Entity("A",
+                b =>
+                {
+                    b.Property<int>("Id");
+                    b.Key("Id").ForSqlServer().Clustered(false);
+                });
+
+            var operations = new SqlServerModelDiffer(new SqlServerDatabaseBuilder()).Diff(
+                sourceModelBuilder.Model, targetModelBuilder.Model);
+
+            Assert.Equal(2, operations.Count);
+
+            Assert.IsType<DropPrimaryKeyOperation>(operations[0]);
+            Assert.IsType<AddPrimaryKeyOperation>(operations[1]);
+
+            var dropPrimaryKeyOperation = (DropPrimaryKeyOperation)operations[0];
+            var addPrimaryKeyOperation = (AddPrimaryKeyOperation)operations[1];
+
+            Assert.Equal("PK_A", dropPrimaryKeyOperation.PrimaryKeyName);
+            Assert.Equal("PK_A", addPrimaryKeyOperation.PrimaryKeyName);
+            Assert.False(addPrimaryKeyOperation.IsClustered);
         }
 
         #endregion

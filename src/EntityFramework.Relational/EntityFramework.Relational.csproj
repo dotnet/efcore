@@ -61,7 +61,6 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.tt</DependentUpon>
     </Compile>
-    <Compile Include="ApiExtensions.cs" />
     <Compile Include="ConnectionStringResolver.cs" />
     <Compile Include="DatabaseBuilder.cs" />
     <Compile Include="IDbCommandExecutor.cs" />

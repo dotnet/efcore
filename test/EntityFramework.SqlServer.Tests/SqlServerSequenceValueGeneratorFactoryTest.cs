@@ -389,7 +389,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         {
             var entityType = new Model().AddEntityType("MyType");
             var property = entityType.GetOrAddProperty("MyProperty", typeof(string), shadowProperty: true);
-            entityType.SetTableName("MyTable");
+            entityType.SqlServer().Table = "MyTable";
 
             return property;
         }

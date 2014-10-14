@@ -162,7 +162,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                     b.Property(e => e.MigrationId).Required().MaxLength(150);
                     b.Property(e => e.ContextKey).Required().MaxLength(300);
                     b.Property(e => e.ProductVersion).Required().MaxLength(32);
-                    b.ToTable(TableName);
+                    b.ForRelational().Table(TableName);
                 });
 
             return builder.Model;

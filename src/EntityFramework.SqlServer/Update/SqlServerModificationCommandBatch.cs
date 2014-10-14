@@ -5,7 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Relational.Update;
+using Microsoft.Data.Entity.SqlServer.Utilities;
 
 namespace Microsoft.Data.Entity.SqlServer.Update
 {
@@ -149,6 +152,13 @@ namespace Microsoft.Data.Entity.SqlServer.Update
 
                 base.UpdateCachedCommandText(commandPosition);
             }
+        }
+
+        public override IRelationalPropertyExtensions GetPropertyExtensions(IProperty property)
+        {
+            Check.NotNull(property, "property");
+
+            return property.SqlServer();
         }
     }
 }
