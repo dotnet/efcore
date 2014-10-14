@@ -8,5 +8,6 @@ namespace Microsoft.Data.Entity.Relational.Query
     public interface IQueryMethodProvider
     {
         MethodInfo QueryMethod { get; }
+        MethodInfo IncludeCollectionMethod { get; }
     }
 }

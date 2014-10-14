@@ -263,7 +263,7 @@ namespace Microsoft.Data.Entity.Relational.Query
 
             Expression
                 = Expression.Call(
-                    _includeCollectionMethodInfo
+                    QueryCompilationContext.QueryMethodProvider.IncludeCollectionMethod
                         .MakeGenericMethod(resultType),
                     QueryContextParameter,
                     Expression,
@@ -281,33 +281,6 @@ namespace Microsoft.Data.Entity.Relational.Query
                                 Expression.Constant(targetEntityType)),
                             readerParameter)),
                     accessorLambda);
-        }
-
-        private static readonly MethodInfo _includeCollectionMethodInfo
-            = typeof(RelationalQueryModelVisitor).GetTypeInfo()
-                .GetDeclaredMethod("_IncludeCollection");
-
-        [UsedImplicitly]
-        private static IEnumerable<TResult> _IncludeCollection<TResult>(
-            QueryContext queryContext,
-            IEnumerable<TResult> source,
-            INavigation navigation,
-            IEnumerable<IValueReader> relatedValueReaders,
-            Func<TResult, object> accessorLambda)
-        {
-            using (var relatedValuesIterator = new IncludeCollectionIterator(relatedValueReaders.GetEnumerator()))
-            {
-                foreach (var result in source)
-                {
-                    queryContext.QueryBuffer
-                        .Include(
-                            accessorLambda.Invoke(result),
-                            navigation,
-                            relatedValuesIterator.GetRelatedValues);
-
-                    yield return result;
-                }
-            }
         }
 
         private static readonly MethodInfo _createValueReaderForIncludeMethodInfo

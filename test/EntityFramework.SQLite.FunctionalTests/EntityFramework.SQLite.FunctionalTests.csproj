@@ -71,6 +71,7 @@
     <Compile Include="AsNoTrackingTest.cs" />
     <Compile Include="BuiltInDataTypesFixture.cs" />
     <Compile Include="BuiltInDataTypesTest.cs" />
+    <Compile Include="IncludeNorthwindAsyncTest.cs" />
     <Compile Include="IncludeNorthwindTest.cs" />
     <Compile Include="MonsterFixupTest.cs" />
     <Compile Include="NorthwindAsyncQueryTest.cs" />

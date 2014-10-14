@@ -73,6 +73,7 @@
     <Compile Include="BuiltInDataTypesFixtureBase.cs" />
     <Compile Include="BuiltInDataTypesTestBase.cs" />
     <Compile Include="FixupTest.cs" />
+    <Compile Include="IncludeNorthwindAsyncTestBase.cs" />
     <Compile Include="IncludeOneToOneTestBase.cs" />
     <Compile Include="IncludeNorthwindTestBase.cs" />
     <Compile Include="Metadata\CompiledModelTest.cs" />

@@ -1035,7 +1035,7 @@ FROM [Customers] AS [c]",
             Assert.Equal(
                 @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[City] IS NULL AND [c].[Country] = @p0)", 
+WHERE ([c].[City] IS NULL AND [c].[Country] = @p0)",
                 _fixture.Sql);
         }
 

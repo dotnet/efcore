@@ -67,7 +67,7 @@ namespace Microsoft.Data.Entity.Utilities
             _indentPending = false;
         }
 
-        private class Indenter : IDisposable
+        private sealed class Indenter : IDisposable
         {
             private readonly IndentedStringBuilder _stringBuilder;
 

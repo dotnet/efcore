@@ -3,6 +3,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
@@ -20,5 +22,11 @@ namespace Microsoft.Data.Entity.Query
             [NotNull] object entity,
             [NotNull] INavigation navigation,
             [NotNull] Func<EntityKey, Func<IValueReader, EntityKey>, IEnumerable<IValueReader>> relatedValueReaders);
+
+        Task IncludeAsync(
+            [NotNull] object entity,
+            [NotNull] INavigation navigation,
+            [NotNull] Func<EntityKey, Func<IValueReader, EntityKey>, IAsyncEnumerable<IValueReader>> relatedValueReaders,
+            CancellationToken cancellationToken);
     }
 }

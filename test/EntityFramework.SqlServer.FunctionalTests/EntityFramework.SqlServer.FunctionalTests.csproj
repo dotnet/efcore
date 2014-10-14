@@ -79,6 +79,7 @@
     <Compile Include="DeadlockTest.cs" />
     <Compile Include="DefaultValuesTest.cs" />
     <Compile Include="ExistingConnectionTest.cs" />
+    <Compile Include="IncludeNorthwindAsyncTest.cs" />
     <Compile Include="IncludeNorthwindTest.cs" />
     <Compile Include="NorthwindQueryFixture.cs" />
     <Compile Include="NorthwindAsyncQueryTest.cs" />
