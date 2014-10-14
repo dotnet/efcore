@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 
@@ -11,6 +12,9 @@ namespace Microsoft.Data.Entity.Metadata.Internal
     {
         private readonly TMetadata _metadata;
 
+        private readonly LazyRef<Dictionary<string, ConfigurationSource>> _annotationSources =
+            new LazyRef<Dictionary<string, ConfigurationSource>>(() => new Dictionary<string, ConfigurationSource>());
+
         protected InternalMetadataBuilder([NotNull] TMetadata metadata)
         {
             Check.NotNull(metadata, "metadata");
@@ -18,12 +22,29 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             _metadata = metadata;
         }
 
-        public virtual void Annotation([NotNull] string annotation, [NotNull] string value)
+        public virtual bool Annotation([NotNull] string annotation, [NotNull] string value, ConfigurationSource configurationSource)
         {
             Check.NotEmpty(annotation, "annotation");
             Check.NotEmpty(value, "value");
 
+            if (Metadata[annotation] != null)
+            {
+                ConfigurationSource existingConfigurationSource;
+                if (!_annotationSources.Value.TryGetValue(annotation, out existingConfigurationSource))
+                {
+                    existingConfigurationSource = ConfigurationSource.Explicit;
+                }
+
+                if (!configurationSource.Overrides(existingConfigurationSource))
+                {
+                    return false;
+                }
+            }
+
+            _annotationSources.Value[annotation] = configurationSource;
             _metadata[annotation] = value;
+
+            return true;
         }
 
         public virtual TMetadata Metadata

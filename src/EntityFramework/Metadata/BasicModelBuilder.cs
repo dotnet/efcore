@@ -58,7 +58,7 @@ namespace Microsoft.Data.Entity.Metadata
             Check.NotEmpty(annotation, "annotation");
             Check.NotEmpty(value, "value");
 
-            _builder.Annotation(annotation, value);
+            _builder.Annotation(annotation, value, ConfigurationSource.Explicit);
 
             return this;
         }
@@ -137,7 +137,7 @@ namespace Microsoft.Data.Entity.Metadata
                 Check.NotEmpty(annotation, "annotation");
                 Check.NotEmpty(value, "value");
 
-                Builder.Annotation(annotation, value);
+                Builder.Annotation(annotation, value, ConfigurationSource.Explicit);
 
                 return this;
             }
@@ -220,7 +220,7 @@ namespace Microsoft.Data.Entity.Metadata
                     Check.NotEmpty(annotation, "annotation");
                     Check.NotEmpty(value, "value");
 
-                    Builder.Annotation(annotation, value);
+                    Builder.Annotation(annotation, value, ConfigurationSource.Explicit);
 
                     return this;
                 }
@@ -257,7 +257,7 @@ namespace Microsoft.Data.Entity.Metadata
                     Check.NotNull(annotation, "annotation");
                     Check.NotNull(value, "value");
 
-                    Builder.Annotation(annotation, value);
+                    Builder.Annotation(annotation, value, ConfigurationSource.Explicit);
 
                     return this;
                 }
@@ -343,7 +343,7 @@ namespace Microsoft.Data.Entity.Metadata
                     Check.NotEmpty(annotation, "annotation");
                     Check.NotEmpty(value, "value");
 
-                    Builder.Annotation(annotation, value);
+                    Builder.Annotation(annotation, value, ConfigurationSource.Explicit);
 
                     return this;
                 }
@@ -387,7 +387,7 @@ namespace Microsoft.Data.Entity.Metadata
                     Check.NotEmpty(annotation, "annotation");
                     Check.NotEmpty(value, "value");
 
-                    Builder.Annotation(annotation, value);
+                    Builder.Annotation(annotation, value, ConfigurationSource.Explicit);
 
                     return this;
                 }
