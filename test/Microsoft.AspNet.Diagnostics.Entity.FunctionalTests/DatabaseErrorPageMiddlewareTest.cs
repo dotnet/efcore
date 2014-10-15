@@ -235,7 +235,9 @@ namespace Microsoft.AspNet.Diagnostics.Entity.Tests
                     services.AddInstance<DbContextOptions>(new DbContextOptions().UseSqlServer(database.Connection.ConnectionString));
                 });
 
-                app.UseDatabaseErrorPage(new DatabaseErrorPageOptions { MigrationsEndPointPath = new PathString(migrationsEndpoint) });
+                var options = DatabaseErrorPageOptions.ShowAll;
+                options.MigrationsEndPointPath = new PathString(migrationsEndpoint);
+                app.UseDatabaseErrorPage(options);
 
                 app.UseMiddleware<PendingMigrationsMiddleware>();
             });
@@ -381,8 +383,6 @@ namespace Microsoft.AspNet.Diagnostics.Entity.Tests
                         new DbContextOptions()
                             .UseSqlServer(database.Connection.ConnectionString));
                 });
-
-                app.UseMigrationsEndPoint();
 
                 app.UseDatabaseErrorPage();
 

@@ -14,6 +14,20 @@ namespace Microsoft.AspNet.Diagnostics.Entity
         private bool? _listMigrations;
         private bool? _enableMigrationCommands;
 
+        public static DatabaseErrorPageOptions ShowAll
+        {
+            get
+            {
+                // We don't use a static instance because it's mutable.
+                return new DatabaseErrorPageOptions()
+                {
+                    ShowExceptionDetails = true,
+                    ListMigrations = true,
+                    EnableMigrationCommands = true
+                };
+            }
+        }
+
         public virtual PathString MigrationsEndPointPath
         {
             get { return _migrationsEndPointPath; }

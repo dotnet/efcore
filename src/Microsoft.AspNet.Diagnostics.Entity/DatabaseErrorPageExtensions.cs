@@ -13,7 +13,7 @@ namespace Microsoft.AspNet.Builder
         {
             Check.NotNull(builder, "builder");
 
-            return builder.UseDatabaseErrorPage(new DatabaseErrorPageOptions());
+            return builder.UseDatabaseErrorPage(DatabaseErrorPageOptions.ShowAll);
         }
 
         public static IApplicationBuilder UseDatabaseErrorPage([NotNull] this IApplicationBuilder builder, [NotNull] DatabaseErrorPageOptions options)
@@ -21,11 +21,14 @@ namespace Microsoft.AspNet.Builder
             Check.NotNull(builder, "builder");
             Check.NotNull(options, "options");
 
-            /* TODO: Development, Staging, or Production
-            string appMode = new AppProperties(builder.Properties).Get<string>(Constants.HostAppMode);
-            bool isDevMode = string.Equals(Constants.DevMode, appMode, StringComparison.Ordinal);*/
-            var isDevMode = true;
-            return builder.UseMiddleware<DatabaseErrorPageMiddleware>(options, isDevMode);
+            builder = builder.UseMiddleware<DatabaseErrorPageMiddleware>(options);
+
+            if(options.EnableMigrationCommands)
+            {
+                builder.UseMigrationsEndPoint(new MigrationsEndPointOptions { Path = options.MigrationsEndPointPath });
+            }
+
+            return builder;
         }
     }
 }

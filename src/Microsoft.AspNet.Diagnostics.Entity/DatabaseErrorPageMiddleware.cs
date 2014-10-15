@@ -26,15 +26,10 @@ namespace Microsoft.AspNet.Diagnostics.Entity
         private readonly ILogger _logger;
         private readonly DataStoreErrorLoggerProvider _loggerProvider;
 
-        public DatabaseErrorPageMiddleware([NotNull] RequestDelegate next, [NotNull] ILoggerFactory loggerFactory, [NotNull] DatabaseErrorPageOptions options, bool isDevMode)
+        public DatabaseErrorPageMiddleware([NotNull] RequestDelegate next, [NotNull] ILoggerFactory loggerFactory, [NotNull] DatabaseErrorPageOptions options)
         {
             Check.NotNull(next, "next");
             Check.NotNull(options, "options");
-
-            if (isDevMode)
-            {
-                options.SetDefaultVisibility(isVisible: true);
-            }
 
             _next = next;
             _options = options;
