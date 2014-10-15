@@ -38,9 +38,9 @@ namespace Microsoft.Data.Entity.InMemory
         /// </returns>
         public virtual bool IsCreated([NotNull] IModel model)
         {
-            var returnVaalue = !_tables.HasValue;
+            var returnValue = !_tables.HasValue;
             var _ = _tables.Value;
-            return returnVaalue;
+            return returnValue;
         }
 
         public virtual void Clear()
