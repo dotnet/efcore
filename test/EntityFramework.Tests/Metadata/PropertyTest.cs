@@ -21,16 +21,38 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Default_nullability_of_property_is_based_on_nullability_of_CLR_type()
         {
-            Assert.True(new Property("Name", typeof(string), new Model().AddEntityType(typeof(object))).IsNullable);
-            Assert.True(new Property("Name", typeof(int?), new Model().AddEntityType(typeof(object))).IsNullable);
-            Assert.False(new Property("Name", typeof(int), new Model().AddEntityType(typeof(object))).IsNullable);
+            var stringProperty = new Property("Name", typeof(string), new Model().AddEntityType(typeof(object)));
+            var nullableIntProperty = new Property("Name", typeof(int?), new Model().AddEntityType(typeof(object)));
+            var intProperty = new Property("Name", typeof(int), new Model().AddEntityType(typeof(object)));
+
+            Assert.Null(stringProperty.IsNullable);
+            Assert.True(((IProperty)stringProperty).IsNullable);
+            Assert.Null(stringProperty.IsNullable);
+            Assert.True(((IProperty)nullableIntProperty).IsNullable);
+            Assert.Null(intProperty.IsNullable);
+            Assert.False(((IProperty)intProperty).IsNullable);
         }
 
         [Fact]
         public void Property_nullability_can_be_mutated()
         {
-            Assert.False(new Property("Name", typeof(string), new Model().AddEntityType(typeof(object))) { IsNullable = false }.IsNullable);
-            Assert.True(new Property("Name", typeof(int), new Model().AddEntityType(typeof(object))) { IsNullable = true }.IsNullable);
+            var stringProperty = new Property("Name", typeof(string), new Model().AddEntityType(typeof(object)));
+            var intProperty = new Property("Name", typeof(int), new Model().AddEntityType(typeof(object)));
+
+            stringProperty.IsNullable = false;
+            intProperty.IsNullable = true;
+            Assert.False(stringProperty.IsNullable.Value);
+            Assert.True(intProperty.IsNullable.Value);
+
+            stringProperty.IsNullable = true;
+            intProperty.IsNullable = false;
+            Assert.True(stringProperty.IsNullable.Value);
+            Assert.False(intProperty.IsNullable.Value);
+
+            stringProperty.IsNullable = null;
+            intProperty.IsNullable = null;
+            Assert.Null(stringProperty.IsNullable);
+            Assert.Null(intProperty.IsNullable);
         }
 
         [Fact]
@@ -49,38 +71,75 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         }
 
         [Fact]
+        public void Property_does_not_use_store_default_by_default()
+        {
+            var property = new Property("Name", typeof(string), new Model().AddEntityType(typeof(object)));
+
+            Assert.Null(property.UseStoreDefault);
+            Assert.False(((IProperty)property).UseStoreDefault);
+        }
+
+        [Fact]
+        public void Can_mark_property_as_using_store_default()
+        {
+            var property = new Property("Name", typeof(string), new Model().AddEntityType(typeof(Entity)));
+
+            property.UseStoreDefault = true;
+            Assert.True(property.UseStoreDefault.Value);
+
+            property.UseStoreDefault = false;
+            Assert.False(property.UseStoreDefault.Value);
+
+            property.UseStoreDefault = null;
+            Assert.Null(property.UseStoreDefault);
+        }
+
+        [Fact]
         public void Property_is_not_concurrency_token_by_default()
         {
-            Assert.False(new Property("Name", typeof(string), new Model().AddEntityType(typeof(object))).IsConcurrencyToken);
+            var property = new Property("Name", typeof(string), new Model().AddEntityType(typeof(object)));
+
+            Assert.Null(property.IsConcurrencyToken);
+            Assert.False(((IProperty)property).IsConcurrencyToken);
         }
 
         [Fact]
         public void Can_mark_property_as_concurrency_token()
         {
             var property = new Property("Name", typeof(string), new Model().AddEntityType(typeof(Entity)));
-            Assert.False(property.IsConcurrencyToken);
 
             property.IsConcurrencyToken = true;
-            Assert.True(property.IsConcurrencyToken);
+            Assert.True(property.IsConcurrencyToken.Value);
+
+            property.IsConcurrencyToken = false;
+            Assert.False(property.IsConcurrencyToken.Value);
+
+            property.IsConcurrencyToken = null;
+            Assert.Null(property.IsConcurrencyToken);
         }
 
         [Fact]
         public void Property_is_read_write_by_default()
         {
-            Assert.False(new Property("Name", typeof(string), new Model().AddEntityType(typeof(object))).IsReadOnly);
+            var property = new Property("Name", typeof(string), new Model().AddEntityType(typeof(object)));
+
+            Assert.Null(property.IsReadOnly);
+            Assert.False(((IProperty)property).IsReadOnly);
         }
 
         [Fact]
         public void Property_can_be_marked_as_read_only()
         {
             var property = new Property("Name", typeof(string), new Model().AddEntityType(typeof(object)));
-            Assert.False(property.IsReadOnly);
 
             property.IsReadOnly = true;
-            Assert.True(property.IsReadOnly);
+            Assert.True(property.IsReadOnly.Value);
 
             property.IsReadOnly = false;
-            Assert.False(property.IsReadOnly);
+            Assert.False(property.IsReadOnly.Value);
+
+            property.IsReadOnly = null;
+            Assert.Null(property.IsReadOnly);
         }
 
         [Fact]

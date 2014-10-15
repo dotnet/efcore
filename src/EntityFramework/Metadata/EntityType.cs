@@ -779,7 +779,7 @@ namespace Microsoft.Data.Entity.Metadata
         private bool RequiresOriginalValue(Property addedOrRemovedProperty)
         {
             return !_useLazyOriginalValues
-                   || addedOrRemovedProperty.IsConcurrencyToken
+                   || ((IProperty)addedOrRemovedProperty).IsConcurrencyToken
                    || ForeignKeys.SelectMany(k => k.Properties).Contains(addedOrRemovedProperty);
         }
 

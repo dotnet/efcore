@@ -67,11 +67,21 @@ namespace Microsoft.Data.Entity.Metadata
             get { return _referencedKey.EntityType; }
         }
 
-        public virtual bool IsUnique { get; set; }
+        public virtual bool? IsUnique { get; set; }
 
-        public virtual bool IsRequired
+        protected virtual bool DefaultIsUnique
         {
-            get { return !Properties.Any(p => p.IsNullable); }
+            get { return false; }
+        }
+
+        public virtual bool? IsRequired
+        {
+            get
+            {
+                return Properties.All(p => p.IsNullable.HasValue)
+                    ? (bool?)!Properties.Any(p => p.IsNullable.Value)
+                    : null;
+            }
             set
             {
                 foreach (var property in Properties)
@@ -80,6 +90,11 @@ namespace Microsoft.Data.Entity.Metadata
                     property.IsNullable = !value;
                 }
             }
+        }
+
+        protected virtual bool DefaultIsRequired
+        {
+            get { return !((IForeignKey)this).Properties.Any(p => p.IsNullable); }
         }
 
         IReadOnlyList<IProperty> IForeignKey.ReferencedProperties
@@ -95,6 +110,16 @@ namespace Microsoft.Data.Entity.Metadata
         IKey IForeignKey.ReferencedKey
         {
             get { return ReferencedKey; }
+        }
+
+        bool IForeignKey.IsUnique
+        {
+            get { return IsUnique ?? DefaultIsUnique; }
+        }
+
+        bool IForeignKey.IsRequired
+        {
+            get { return IsRequired ?? DefaultIsRequired; }
         }
     }
 }

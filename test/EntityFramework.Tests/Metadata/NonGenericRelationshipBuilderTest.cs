@@ -727,7 +727,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .ForeignKey<BigMak>(c => c.BurgerId)
                 .IsUnique();
 
-            var dependentType = model.GetEntityType(typeof(Pickle));
+            var dependentType = (IEntityType)model.GetEntityType(typeof(Pickle));
             var principalType = model.GetEntityType(typeof(BigMak));
             var fk = dependentType.ForeignKeys.Single();
 
@@ -1863,7 +1863,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .ForeignKey<BigMak>(c => c.BurgerId)
                 .IsUnique();
 
-            var dependentType = model.GetEntityType(typeof(Pickle));
+            var dependentType = (IEntityType)model.GetEntityType(typeof(Pickle));
             var principalType = model.GetEntityType(typeof(BigMak));
             var fk = dependentType.ForeignKeys.Single();
 
@@ -2936,7 +2936,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .Entity<Bun>()
                 .ForeignKey<BigMak>(c => c.BurgerId);
 
-            var dependentType = model.GetEntityType(typeof(Bun));
+            var dependentType = (IEntityType)model.GetEntityType(typeof(Bun));
             var principalType = model.GetEntityType(typeof(BigMak));
             var fk = dependentType.ForeignKeys.Single();
 
@@ -5038,7 +5038,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .OneToMany(typeof(Nob), "Nobs", "Hob")
                 .ForeignKey("HobId1", "HobId2");
 
-            var entityType = modelBuilder.Model.GetEntityType(typeof(Nob));
+            var entityType = (IEntityType)modelBuilder.Model.GetEntityType(typeof(Nob));
 
             Assert.True(entityType.GetProperty("HobId1").IsNullable);
             Assert.True(entityType.GetProperty("HobId1").IsNullable);
@@ -5055,7 +5055,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .OneToMany(typeof(Hob), "Hobs", "Nob")
                 .ForeignKey("NobId1", "NobId2");
 
-            var entityType = modelBuilder.Model.GetEntityType(typeof(Hob));
+            var entityType = (IEntityType)modelBuilder.Model.GetEntityType(typeof(Hob));
 
             Assert.False(entityType.GetProperty("NobId1").IsNullable);
             Assert.False(entityType.GetProperty("NobId1").IsNullable);
@@ -5072,7 +5072,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .ManyToOne(typeof(Hob), "Hob", "Nobs")
                 .ForeignKey("HobId1", "HobId2");
 
-            var entityType = modelBuilder.Model.GetEntityType(typeof(Nob));
+            var entityType = (IEntityType)modelBuilder.Model.GetEntityType(typeof(Nob));
 
             Assert.True(entityType.GetProperty("HobId1").IsNullable);
             Assert.True(entityType.GetProperty("HobId1").IsNullable);
@@ -5089,7 +5089,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .ManyToOne(typeof(Nob), "Nob", "Hobs")
                 .ForeignKey("NobId1", "NobId2");
 
-            var entityType = modelBuilder.Model.GetEntityType(typeof(Hob));
+            var entityType = (IEntityType)modelBuilder.Model.GetEntityType(typeof(Hob));
 
             Assert.False(entityType.GetProperty("NobId1").IsNullable);
             Assert.False(entityType.GetProperty("NobId1").IsNullable);
@@ -5106,7 +5106,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .OneToOne(typeof(Nob), "Nob", "Hob")
                 .ForeignKey(typeof(Nob), "HobId1", "HobId2");
 
-            var entityType = modelBuilder.Model.GetEntityType(typeof(Nob));
+            var entityType = (IEntityType)modelBuilder.Model.GetEntityType(typeof(Nob));
 
             Assert.True(entityType.GetProperty("HobId1").IsNullable);
             Assert.True(entityType.GetProperty("HobId1").IsNullable);
@@ -5123,7 +5123,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .OneToOne(typeof(Hob), "Hob", "Nob")
                 .ForeignKey(typeof(Hob), "NobId1", "NobId2");
 
-            var entityType = modelBuilder.Model.GetEntityType(typeof(Hob));
+            var entityType = (IEntityType)modelBuilder.Model.GetEntityType(typeof(Hob));
 
             Assert.False(entityType.GetProperty("NobId1").IsNullable);
             Assert.False(entityType.GetProperty("NobId1").IsNullable);
@@ -5141,7 +5141,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .ForeignKey("HobId1", "HobId2")
                 .Required();
 
-            var entityType = modelBuilder.Model.GetEntityType(typeof(Nob));
+            var entityType = (IEntityType)modelBuilder.Model.GetEntityType(typeof(Nob));
 
             Assert.False(entityType.GetProperty("HobId1").IsNullable);
             Assert.False(entityType.GetProperty("HobId1").IsNullable);
@@ -5159,7 +5159,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .ForeignKey("NobId1", "NobId2")
                 .Required(false);
 
-            var entityType = modelBuilder.Model.GetEntityType(typeof(Hob));
+            var entityType = (IEntityType)modelBuilder.Model.GetEntityType(typeof(Hob));
 
             Assert.True(entityType.GetProperty("NobId1").IsNullable);
             Assert.True(entityType.GetProperty("NobId1").IsNullable);
@@ -5177,7 +5177,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .ForeignKey("HobId1", "HobId2")
                 .Required();
 
-            var entityType = modelBuilder.Model.GetEntityType(typeof(Nob));
+            var entityType = (IEntityType)modelBuilder.Model.GetEntityType(typeof(Nob));
 
             Assert.False(entityType.GetProperty("HobId1").IsNullable);
             Assert.False(entityType.GetProperty("HobId1").IsNullable);
@@ -5195,7 +5195,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .ForeignKey("NobId1", "NobId2")
                 .Required(false);
 
-            var entityType = modelBuilder.Model.GetEntityType(typeof(Hob));
+            var entityType = (IEntityType)modelBuilder.Model.GetEntityType(typeof(Hob));
 
             Assert.True(entityType.GetProperty("NobId1").IsNullable);
             Assert.True(entityType.GetProperty("NobId1").IsNullable);
@@ -5213,7 +5213,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .ForeignKey(typeof(Nob), "HobId1", "HobId2")
                 .Required();
 
-            var entityType = modelBuilder.Model.GetEntityType(typeof(Nob));
+            var entityType = (IEntityType)modelBuilder.Model.GetEntityType(typeof(Nob));
 
             Assert.False(entityType.GetProperty("HobId1").IsNullable);
             Assert.False(entityType.GetProperty("HobId1").IsNullable);
@@ -5231,7 +5231,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .ForeignKey(typeof(Hob), "NobId1", "NobId2")
                 .Required(false);
 
-            var entityType = modelBuilder.Model.GetEntityType(typeof(Hob));
+            var entityType = (IEntityType)modelBuilder.Model.GetEntityType(typeof(Hob));
 
             Assert.True(entityType.GetProperty("NobId1").IsNullable);
             Assert.True(entityType.GetProperty("NobId1").IsNullable);

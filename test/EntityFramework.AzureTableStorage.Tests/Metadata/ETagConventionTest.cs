@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Metadata
         {
             var entityType = new Model().AddEntityType("TestType");
             _convention.Apply(entityType);
-            var etagProp = entityType.GetProperty("ETag");
+            var etagProp = (IProperty)entityType.GetProperty("ETag");
             Assert.NotNull(etagProp);
             Assert.True(etagProp.IsShadowProperty);
             Assert.True(etagProp.IsConcurrencyToken);
@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Metadata
             entityType.GetOrAddProperty("ETag", typeof(int), shadowProperty: true);
 
             _convention.Apply(entityType);
-            var etagProp = entityType.GetProperty("ETag");
+            var etagProp = (IProperty)entityType.GetProperty("ETag");
             Assert.NotNull(etagProp);
             Assert.True(etagProp.IsShadowProperty);
             Assert.True(etagProp.IsConcurrencyToken);

@@ -380,7 +380,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                     b.Property(typeof(string), "Bottom");
                 });
 
-            var entityType = model.GetEntityType(typeof(Quarks));
+            var entityType = (IEntityType)model.GetEntityType(typeof(Quarks));
 
             Assert.False(entityType.GetProperty("Up").IsNullable);
             Assert.True(entityType.GetProperty("Down").IsNullable);
@@ -406,7 +406,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                     b.Property(typeof(string), "Bottom").Required();
                 });
 
-            var entityType = model.GetEntityType(typeof(Quarks));
+            var entityType = (IEntityType)model.GetEntityType(typeof(Quarks));
 
             Assert.False(entityType.GetProperty("Up").IsNullable);
             Assert.False(entityType.GetProperty("Down").IsNullable);
@@ -432,7 +432,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                     b.Property(typeof(string), "Bottom").Required(false);
                 });
 
-            var entityType = model.GetEntityType(typeof(Quarks));
+            var entityType = (IEntityType)model.GetEntityType(typeof(Quarks));
 
             Assert.True(entityType.GetProperty("Up").IsNullable);
             Assert.True(entityType.GetProperty("Down").IsNullable);
@@ -520,7 +520,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                     b.Property(typeof(string), "Bottom").ConcurrencyToken(false);
                 });
 
-            var entityType = model.GetEntityType(typeof(Quarks));
+            var entityType = (IEntityType)model.GetEntityType(typeof(Quarks));
 
             Assert.False(entityType.GetProperty("Id").IsConcurrencyToken);
             Assert.True(entityType.GetProperty("Up").IsConcurrencyToken);
@@ -612,7 +612,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 b.Property(typeof(string), "Bottom").UseStoreDefault(false);
             });
 
-            var entityType = model.GetEntityType(typeof(Quarks));
+            var entityType = (IEntityType)model.GetEntityType(typeof(Quarks));
 
             Assert.False(entityType.GetProperty("Id").UseStoreDefault);
             Assert.True(entityType.GetProperty("Up").UseStoreDefault);
@@ -762,7 +762,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                     b.ForeignKey<Customer>(c => c.AnotherCustomerId).IsUnique();
                 });
 
-            var entityType = model.GetEntityType(typeof(Order));
+            var entityType = (IEntityType)model.GetEntityType(typeof(Order));
 
             Assert.Equal(2, entityType.ForeignKeys.Count());
             Assert.True(entityType.ForeignKeys.Last().IsUnique);
@@ -784,7 +784,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                     b.ForeignKey(typeof(Customer).FullName, "AnotherCustomerId").IsUnique();
                 });
 
-            var entityType = model.GetEntityType(typeof(Order));
+            var entityType = (IEntityType)model.GetEntityType(typeof(Order));
 
             Assert.Equal(2, entityType.ForeignKeys.Count());
             Assert.True(entityType.ForeignKeys.Last().IsUnique);
@@ -807,7 +807,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                         b.ForeignKey(typeof(Customer).FullName, "AnotherCustomerId").IsUnique();
                     });
 
-            var entityType = model.GetEntityType(typeof(Order));
+            var entityType = (IEntityType)model.GetEntityType(typeof(Order));
 
             Assert.Equal(2, entityType.ForeignKeys.Count());
             Assert.True(entityType.ForeignKeys.Last().IsUnique);
@@ -833,7 +833,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                     b.ForeignKey(typeof(Customer).FullName, "AnotherCustomerId").IsUnique();
                 });
 
-            var entityType = model.GetEntityType(typeof(Order));
+            var entityType = (IEntityType)model.GetEntityType(typeof(Order));
 
             Assert.Equal(2, entityType.ForeignKeys.Count());
             Assert.True(entityType.ForeignKeys.Last().IsUnique);
@@ -883,7 +883,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                     b.Index(ix => ix.Name).Annotation("A1", "V1");
                 });
 
-            var entityType = model.GetEntityType(typeof(Customer));
+            var entityType = (IEntityType)model.GetEntityType(typeof(Customer));
 
             Assert.Equal(2, entityType.Indexes.Count());
             Assert.True(entityType.Indexes.First().IsUnique);
@@ -905,7 +905,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                     b.Index("Name").Annotation("A1", "V1");
                 });
 
-            var entityType = model.GetEntityType(typeof(Customer));
+            var entityType = (IEntityType)model.GetEntityType(typeof(Customer));
 
             Assert.Equal(2, entityType.Indexes.Count());
             Assert.True(entityType.Indexes.First().IsUnique);

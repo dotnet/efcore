@@ -83,7 +83,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             foreach (var properties in foreignKeyCandidates)
             {
                 var foreignKey = dependentType.ForeignKeys
-                    .FirstOrDefault(fk => fk.IsUnique == isUnique
+                    .FirstOrDefault(fk => ((IForeignKey)fk).IsUnique == isUnique
                                           && fk.ReferencedEntityType == principalType
                                           && fk.Properties.SequenceEqual(properties)
                                           && !fk.EntityType.Navigations.Any(n => n.ForeignKey == fk && n.Name != navigationToPrincipal)

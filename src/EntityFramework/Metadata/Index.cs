@@ -30,7 +30,12 @@ namespace Microsoft.Data.Entity.Metadata
             _properties = properties;
         }
 
-        public virtual bool IsUnique { get; set; }
+        public virtual bool? IsUnique { get; set; }
+
+        protected virtual bool DefaultIsUnique
+        {
+            get { return false; }
+        }
 
         public virtual IReadOnlyList<Property> Properties
         {
@@ -50,6 +55,11 @@ namespace Microsoft.Data.Entity.Metadata
         IEntityType IIndex.EntityType
         {
             get { return EntityType; }
+        }
+
+        bool IIndex.IsUnique
+        {
+            get { return IsUnique ?? DefaultIsUnique; }
         }
     }
 }

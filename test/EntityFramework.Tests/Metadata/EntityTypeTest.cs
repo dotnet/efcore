@@ -274,13 +274,13 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var idProperty = entityType.GetOrAddProperty(Customer.IdProperty);
             var nameProperty = entityType.GetOrAddProperty(Customer.NameProperty);
 
-            Assert.False(idProperty.IsReadOnly);
-            Assert.False(nameProperty.IsReadOnly);
+            Assert.False(((IProperty)idProperty).IsReadOnly);
+            Assert.False(((IProperty)nameProperty).IsReadOnly);
 
             entityType.GetOrAddKey(new[] { idProperty, nameProperty });
 
-            Assert.True(idProperty.IsReadOnly);
-            Assert.True(nameProperty.IsReadOnly);
+            Assert.True(((IProperty)idProperty).IsReadOnly);
+            Assert.True(((IProperty)nameProperty).IsReadOnly);
 
             nameProperty.IsReadOnly = true;
 
@@ -288,8 +288,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 Strings.FormatKeyPropertyMustBeReadOnly(Customer.NameProperty.Name, typeof(Customer).FullName),
                 Assert.Throws<NotSupportedException>(() => nameProperty.IsReadOnly = false).Message);
 
-            Assert.True(idProperty.IsReadOnly);
-            Assert.True(nameProperty.IsReadOnly);
+            Assert.True(((IProperty)idProperty).IsReadOnly);
+            Assert.True(((IProperty)nameProperty).IsReadOnly);
         }
 
         [Fact]
@@ -743,7 +743,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.False(property1.IsShadowProperty);
             Assert.Equal("Id", property1.Name);
             Assert.Same(typeof(int), property1.PropertyType);
-            Assert.False(property1.IsConcurrencyToken);
+            Assert.False(((IProperty)property1).IsConcurrencyToken);
             Assert.Same(entityType, property1.EntityType);
 
             var property2 = entityType.AddProperty("Name", typeof(string));
@@ -765,7 +765,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             var entityType = new EntityType(typeof(Customer), new Model());
 
-            var idProperty = entityType.GetOrAddProperty("Id", typeof(int));
+            var idProperty = (IProperty)entityType.GetOrAddProperty("Id", typeof(int));
 
             Assert.False(idProperty.IsShadowProperty);
             Assert.Equal("Id", idProperty.Name);
@@ -777,7 +777,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Same(idProperty, entityType.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
             Assert.False(idProperty.IsShadowProperty);
 
-            var nameProperty = entityType.GetOrAddProperty("Name", typeof(string), shadowProperty: true);
+            var nameProperty = (IProperty)entityType.GetOrAddProperty("Name", typeof(string), shadowProperty: true);
 
             Assert.True(nameProperty.IsShadowProperty);
             Assert.Equal("Name", nameProperty.Name);

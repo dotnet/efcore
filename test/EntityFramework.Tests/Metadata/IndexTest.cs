@@ -21,7 +21,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var index = new Index(new[] { property1, property2 });
 
             Assert.True(new[] { property1, property2 }.SequenceEqual(index.Properties));
-            Assert.False(index.IsUnique);
+            Assert.Null(index.IsUnique);
+            Assert.False(((IIndex)index).IsUnique);
         }
 
         [Fact]
@@ -34,7 +35,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var index = new Index(new[] { property1, property2 }) { IsUnique = true, };
 
             Assert.True(new[] { property1, property2 }.SequenceEqual(index.Properties));
-            Assert.True(index.IsUnique);
+            Assert.True(index.IsUnique.Value);
         }
 
         [Fact]

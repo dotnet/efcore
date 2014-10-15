@@ -30,7 +30,6 @@ namespace Microsoft.Data.Entity.Metadata
             _propertyType = propertyType;
             EntityType = entityType;
             _shadowIndex = shadowProperty ? 0 : -1;
-            IsNullable = propertyType.IsNullableType();
         }
 
         public virtual Type PropertyType
@@ -43,16 +42,66 @@ namespace Microsoft.Data.Entity.Metadata
             get { return Nullable.GetUnderlyingType(_propertyType) ?? _propertyType; }
         }
 
-        public virtual bool IsNullable
+        // TODO: Remove this once the model is readonly
+        // Issue #868
+        private bool _isNullableSet;
+
+        public virtual bool? IsNullable
         {
-            get { return GetFlag(PropertyFlags.IsNullable); }
-            set { SetFlag(value, PropertyFlags.IsNullable); }
+            get
+            {
+                return _isNullableSet
+                    ? (bool?)GetFlag(PropertyFlags.IsNullable)
+                    : null;
+            }
+            set
+            {
+                if (!value.HasValue)
+                {
+                    _isNullableSet = false;
+                }
+                else
+                {
+                    _isNullableSet = true;
+                    SetFlag(value.Value, PropertyFlags.IsNullable);
+                }
+            }
         }
 
-        public virtual bool UseStoreDefault
+        protected virtual bool DefaultIsNullable
         {
-            get { return GetFlag(PropertyFlags.UseStoreDefault); }
-            set { SetFlag(value, PropertyFlags.UseStoreDefault); }
+            get { return _propertyType.IsNullableType(); }
+        }
+
+        // TODO: Remove this once the model is readonly
+        // Issue #868
+        private bool _useStoreDefaultSet;
+
+        public virtual bool? UseStoreDefault
+        {
+            get
+            {
+                return _useStoreDefaultSet
+                    ? (bool?)GetFlag(PropertyFlags.UseStoreDefault)
+                    : null;
+            }
+            set
+            {
+                if (!value.HasValue)
+                {
+                    _useStoreDefaultSet = false;
+                }
+                else
+                {
+                    _useStoreDefaultSet = true;
+                    SetFlag(value.Value, PropertyFlags.UseStoreDefault);
+                }
+            }
+        }
+
+        protected virtual bool DefaultUseStoreDefault
+        {
+            get { return false; }
         }
 
         public virtual int MaxLength
@@ -68,18 +117,40 @@ namespace Microsoft.Data.Entity.Metadata
             }
         }
 
-        public virtual bool IsReadOnly
+        // TODO: Remove this once the model is readonly
+        // Issue #868
+        private bool _isReadOnlySet;
+
+        public virtual bool? IsReadOnly
         {
-            get { return this.IsKey() || GetFlag(PropertyFlags.IsReadOnly); }
+            get
+            {
+                return _isReadOnlySet
+                    ? (bool?)GetFlag(PropertyFlags.IsReadOnly)
+                    : null;
+            }
             set
             {
-                if (!value
-                    && this.IsKey())
+                if (!value.HasValue)
                 {
-                    throw new NotSupportedException(Strings.FormatKeyPropertyMustBeReadOnly(Name, EntityType.Name));
+                    _isReadOnlySet = false;
                 }
-                SetFlag(value, PropertyFlags.IsReadOnly);
+                else
+                {
+                    if (!value.Value
+                        && this.IsKey())
+                    {
+                        throw new NotSupportedException(Strings.FormatKeyPropertyMustBeReadOnly(Name, EntityType.Name));
+                    }
+                    _isReadOnlySet = true;
+                    SetFlag(value.Value, PropertyFlags.IsReadOnly);
+                }
             }
+        }
+
+        protected virtual bool DefaultIsReadOnly
+        {
+            get { return this.IsKey(); }
         }
 
         public virtual ValueGeneration ValueGeneration
@@ -110,21 +181,43 @@ namespace Microsoft.Data.Entity.Metadata
             }
         }
 
-        public virtual bool IsConcurrencyToken
+        // TODO: Remove this once the model is readonly
+        // Issue #868
+        private bool _isConcurrencyTokenSet;
+
+        public virtual bool? IsConcurrencyToken
         {
-            get { return GetFlag(PropertyFlags.IsConcurrencyToken); }
+            get
+            {
+                return _isConcurrencyTokenSet ?
+                    (bool?)GetFlag(PropertyFlags.IsConcurrencyToken)
+                    : null;
+            }
             set
             {
-                if (IsConcurrencyToken != value)
+                if (!value.HasValue)
                 {
-                    SetFlag(value, PropertyFlags.IsConcurrencyToken);
-
-                    if (EntityType != null)
+                    _isConcurrencyTokenSet = false;
+                }
+                else
+                {
+                    _isConcurrencyTokenSet = true;
+                    if (IsConcurrencyToken != value)
                     {
-                        EntityType.PropertyMetadataChanged(this);
+                        SetFlag(value.Value, PropertyFlags.IsConcurrencyToken);
+
+                        if (EntityType != null)
+                        {
+                            EntityType.PropertyMetadataChanged(this);
+                        }
                     }
                 }
             }
+        }
+
+        protected virtual bool DefaultIsConcurrencyToken
+        {
+            get { return false; }
         }
 
         public virtual int Index
@@ -182,6 +275,26 @@ namespace Microsoft.Data.Entity.Metadata
         internal static string Format(IEnumerable<Property> properties)
         {
             return string.Join(", ", properties.Select(p => "'" + p.Name + "'"));
+        }
+
+        bool IProperty.IsNullable
+        {
+            get { return IsNullable ?? DefaultIsNullable; }
+        }
+
+        bool IProperty.UseStoreDefault
+        {
+            get { return UseStoreDefault ?? DefaultUseStoreDefault; }
+        }
+
+        bool IProperty.IsReadOnly
+        {
+            get { return IsReadOnly ?? DefaultIsReadOnly; }
+        }
+
+        bool IProperty.IsConcurrencyToken
+        {
+            get { return IsConcurrencyToken ?? DefaultIsConcurrencyToken; }
         }
 
         [Flags]

@@ -269,7 +269,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 relationshipBuilder.NavigationToDependent != null ? relationshipBuilder.NavigationToDependent.Name : null,
                 dependentProperties,
                 principalProperties,
-                relationshipBuilder.Metadata.IsUnique);
+                ((IForeignKey)relationshipBuilder.Metadata).IsUnique);
 
             // TODO: Remove principal key only if it was added by convention
             // Issue #213
