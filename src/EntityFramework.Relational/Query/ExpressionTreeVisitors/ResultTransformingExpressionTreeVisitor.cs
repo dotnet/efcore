@@ -28,25 +28,6 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             _relationalQueryCompilationContext = relationalQueryCompilationContext;
         }
 
-        private static readonly MethodInfo _getValueMethodInfo
-            = typeof(ResultTransformingExpressionTreeVisitor<TResult>).GetTypeInfo()
-                .GetDeclaredMethod("GetValue");
-
-        [UsedImplicitly]
-        private static QuerySourceScope<TResult> GetValue(
-            IQuerySource querySource,
-            QuerySourceScope parentQuerySourceScope,
-            DbDataReader dataReader)
-        {
-            // TODO: Need async here...
-            return new QuerySourceScope<TResult>(
-                querySource,
-                dataReader.IsDBNull(0)
-                    ? default(TResult)
-                    : dataReader.GetFieldValue<TResult>(0),
-                parentQuerySourceScope);
-        }
-
         protected override Expression VisitMethodCallExpression([NotNull] MethodCallExpression methodCallExpression)
         {
             Check.NotNull(methodCallExpression, "methodCallExpression");
@@ -64,12 +45,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                  || ReferenceEquals(methodCallExpression.Method, RelationalQueryModelVisitor.CreateValueReaderMethodInfo))
                 && ((ConstantExpression)methodCallExpression.Arguments[0]).Value == _outerQuerySource)
             {
-                return
-                    Expression.Call(
-                        _getValueMethodInfo,
-                        methodCallExpression.Arguments[0],
-                        methodCallExpression.Arguments[2],
-                        methodCallExpression.Arguments[3]);
+                return methodCallExpression.Arguments[3];
             }
 
             if (methodCallExpression.Method.MethodIsClosedFormOf(
@@ -90,23 +66,26 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 {
                     return Expression.Call(
                         _relationalQueryCompilationContext.QueryMethodProvider.QueryMethod
-                            .MakeGenericMethod(typeof(QuerySourceScope<TResult>)),
+                            .MakeGenericMethod(typeof(DbDataReader)),
                         newArguments);
                 }
 
                 if (methodCallExpression.Method.MethodIsClosedFormOf(
                     _relationalQueryCompilationContext.LinqOperatorProvider.Select))
                 {
-                    return
-                        ResultOperatorHandler.CallWithPossibleCancellationToken(
-                            _relationalQueryCompilationContext.LinqOperatorProvider._First
-                                .MakeGenericMethod(typeof(TResult)),
-                            Expression.Call(
-                                _relationalQueryCompilationContext.LinqOperatorProvider.Select
-                                    .MakeGenericMethod(
-                                        typeof(QuerySourceScope),
-                                        typeof(TResult)),
-                                newArguments));
+                    return ResultOperatorHandler.CallWithPossibleCancellationToken(
+                        _relationalQueryCompilationContext.QueryMethodProvider.GetResultMethod
+                            .MakeGenericMethod(typeof(TResult)),
+                        newArguments[0]);
+                }
+
+                if (methodCallExpression.Method.MethodIsClosedFormOf(
+                    _relationalQueryCompilationContext.LinqOperatorProvider.SelectMany))
+                {
+                    return Expression.Call(
+                        _relationalQueryCompilationContext.LinqOperatorProvider.SelectMany
+                            .MakeGenericMethod(typeof(QuerySourceScope), typeof(DbDataReader)),
+                        newArguments);
                 }
 
                 return Expression.Call(methodCallExpression.Method, newArguments);

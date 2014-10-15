@@ -260,12 +260,6 @@ namespace Microsoft.Data.Entity.Query
             get { return _first; }
         }
 
-        // TODO: Remove when IX-Async dispose bug is fixed.
-        public virtual MethodInfo _First
-        {
-            get { return First; }
-        }
-
         public virtual MethodInfo FirstOrDefault
         {
             get { return _firstOrDefault; }

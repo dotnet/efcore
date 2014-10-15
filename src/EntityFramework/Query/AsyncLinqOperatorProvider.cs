@@ -255,12 +255,6 @@ namespace Microsoft.Data.Entity.Query
             get { return _where; }
         }
 
-        // TODO: Replace with First when IX-Async dispose bug is fixed.
-        public virtual MethodInfo _First
-        {
-            get { return _single; }
-        }
-
         // Result operators
 
         private static readonly MethodInfo _any = GetMethod("Any");
