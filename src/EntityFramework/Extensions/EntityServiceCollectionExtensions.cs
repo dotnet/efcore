@@ -64,7 +64,7 @@ namespace Microsoft.Framework.DependencyInjection
 
             if (optionsAction != null)
             {
-                builder.ServiceCollection.ConfigureOptions<DbContextOptions<TContext>>(optionsAction);
+                builder.ServiceCollection.Configure<DbContextOptions<TContext>>(optionsAction);
             }
 
             builder.ServiceCollection.AddScoped(typeof(TContext), DbContextActivator.CreateInstance<TContext>);
