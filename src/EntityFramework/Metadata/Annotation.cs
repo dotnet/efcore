@@ -6,7 +6,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
 {
-    public class Annotation : MetadataBase, IAnnotation
+    public class Annotation : IAnnotation
     {
         private readonly string _name;
         private readonly string _value;

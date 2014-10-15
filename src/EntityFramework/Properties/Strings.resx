@@ -145,7 +145,7 @@
     <value>Cannot start tracking StateEntry for entity type '{entityType}' because another StateEntry is already tracking the same entity.</value>
   </data>
   <data name="EntityTypeNotFound" xml:space="preserve">
-    <value>The entity type '{entityType}' was not found. Ensure that the entity type '{entityType}' has been added to the model.</value>
+    <value>The entity type '{entityType}' was not found. Ensure that the entity type has been added to the model.</value>
   </data>
   <data name="PropertyNotFound" xml:space="preserve">
     <value>The property '{property}' on entity type '{entityType}' could not be found. Ensure that the property exists and has been included in the model.</value>
@@ -347,5 +347,11 @@
   </data>
   <data name="UnsupportedAnnotationType" xml:space="preserve">
     <value>Annotations of type '{type}' are not supported. Only common simple .NET types are currently supported.</value>
+  </data>
+  <data name="DuplicateAnnotation" xml:space="preserve">
+    <value>The annotation '{annotation}' cannot be added because an annotation with the same name already exists.</value>
+  </data>
+  <data name="AnnotationNotFound" xml:space="preserve">
+    <value>The annotation '{annotation}' was not found. Ensure that the annotation has been added.</value>
   </data>
 </root>

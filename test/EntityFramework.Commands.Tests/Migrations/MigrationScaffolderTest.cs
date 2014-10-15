@@ -762,10 +762,10 @@ namespace MyNamespace
             customerType.Relational().Table = @"Cus[""om.er]s";
             customerType.GetOrSetPrimaryKey(customerId);
             customerType.GetPrimaryKey().Relational().Name = @"My[""PK]";
-            customerType.GetPrimaryKey().Annotations.Add(new Annotation(@"My""PK""Annotat!on", @"""Foo"""));
+            customerType.GetPrimaryKey()[@"My""PK""Annotat!on"] = @"""Foo""";
             var customerFk = customerType.GetOrAddForeignKey(customerFkProperty, houseType.GetPrimaryKey());
             customerFk.Relational().Name = @"My_[""FK]";
-            customerFk.Annotations.Add(new Annotation(@"My""FK""Annotation", @"""Bar"""));
+            customerFk[@"My""FK""Annotation"] = @"""Bar""";
 
             var orderType = model.AddEntityType(typeof(Order));
             var orderId = orderType.GetOrAddProperty(@"OrderId", typeof(int));
@@ -774,7 +774,7 @@ namespace MyNamespace
             orderType.GetOrSetPrimaryKey(orderId);
             orderType.Relational().Table = @"Ord[""e.r]s";
             orderType.GetOrAddForeignKey(orderFK, customerType.GetPrimaryKey());
-            orderType.Annotations.Add(new Annotation("Random annotation", "42"));
+            orderType["Random annotation"] = "42";
 
             return model;
         }
@@ -785,27 +785,27 @@ namespace MyNamespace
             var entity1 = model.AddEntityType("EntityWithNamedKeyAndAnnotations");
 
             var id1 = entity1.GetOrAddProperty("Id", typeof(int), shadowProperty: true);
-            id1.Annotations.Add(new Annotation("Id_Annotation1", "Id1"));
-            id1.Annotations.Add(new Annotation("Id_Annotation2", "Id2"));
+            id1["Id_Annotation1"] = "Id1";
+            id1["Id_Annotation2"] = "Id2";
             var foo1 = entity1.GetOrAddProperty("Foo", typeof(int), shadowProperty: true);
-            foo1.Annotations.Add(new Annotation("Foo_Annotation", "Foo"));
+            foo1["Foo_Annotation"] = "Foo";
 
             entity1.GetOrSetPrimaryKey(new[] { id1, foo1 });
             entity1.GetPrimaryKey().Relational().Name = "MyPK1";
-            entity1.GetPrimaryKey().Annotations.Add(new Annotation("KeyAnnotation1", "Key1"));
-            entity1.GetPrimaryKey().Annotations.Add(new Annotation("KeyAnnotation2", "Key2"));
+            entity1.GetPrimaryKey()["KeyAnnotation1"] = "Key1";
+            entity1.GetPrimaryKey()["KeyAnnotation2"] = "Key2";
 
             var entity2 = model.AddEntityType("EntityWithUnnamedKeyAndAnnotations");
 
             var id2 = entity2.GetOrAddProperty("Id", typeof(int), shadowProperty: true);
-            id2.Annotations.Add(new Annotation("Id_Annotation1", "Id1"));
-            id2.Annotations.Add(new Annotation("Id_Annotation2", "Id2"));
+            id2["Id_Annotation1"] = "Id1";
+            id2["Id_Annotation2"] = "Id2";
             var foo2 = entity2.GetOrAddProperty("Foo", typeof(int), shadowProperty: true);
-            foo2.Annotations.Add(new Annotation("Foo_Annotation", "Foo"));
+            foo2["Foo_Annotation"] = "Foo";
 
             entity2.GetOrSetPrimaryKey(new[] { id2, foo2 });
-            entity2.GetPrimaryKey().Annotations.Add(new Annotation("KeyAnnotation1", "Key1"));
-            entity2.GetPrimaryKey().Annotations.Add(new Annotation("KeyAnnotation2", "Key2"));
+            entity2.GetPrimaryKey()["KeyAnnotation1"] = "Key1";
+            entity2.GetPrimaryKey()["KeyAnnotation2"] = "Key2";
 
             var entity3 = model.AddEntityType("EntityWithNamedKey");
             var id3 = entity3.GetOrAddProperty("Id", typeof(int), shadowProperty: true);

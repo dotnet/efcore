@@ -19,104 +19,67 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         #endregion
 
         [Fact]
-        public void Members_check_arguments()
+        public void Can_add_and_remove_annotation()
         {
             var metadataBase = new ConcreteMetadata();
+            Assert.Null(metadataBase.TryGetAnnotation("Foo"));
+            Assert.Null(metadataBase.RemoveAnnotation(new Annotation("Foo", "Bar")));
 
-            Assert.Equal(
-                "annotation",
-                // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => metadataBase.Annotations.Add(null)).ParamName);
+            var annotation = metadataBase.AddAnnotation("Foo", "Bar");
 
-            Assert.Equal(
-                "annotation",
-                // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => metadataBase.Annotations.Add(null)).ParamName);
-
-            Assert.Equal(
-                Strings.FormatArgumentIsEmpty("annotationName"),
-                Assert.Throws<ArgumentException>(() => metadataBase[""]).Message);
-
-            Assert.Equal(
-                Strings.FormatArgumentIsEmpty("annotationName"),
-                Assert.Throws<ArgumentException>(() => metadataBase[""] = "The kake is a lie").Message);
-        }
-
-        [Fact]
-        public void Can_add_annotation()
-        {
-            var metadataBase = new ConcreteMetadata();
-
-            metadataBase.Annotations.Add(new Annotation("Foo", "Bar"));
-
+            Assert.NotNull(annotation);
+            Assert.Equal("Bar", annotation.Value);
             Assert.Equal("Bar", metadataBase["Foo"]);
-        }
+            Assert.Same(annotation, metadataBase.TryGetAnnotation("Foo"));
 
-        [Fact]
-        public void Add_duplicate_annotation_replaces_current_annotation()
-        {
-            var metadataBase = new ConcreteMetadata();
+            Assert.Same(annotation, metadataBase.GetOrAddAnnotation("Foo", "Baz"));
 
-            metadataBase.Annotations.Add(new Annotation("Foo", "Bar"));
+            Assert.Equal(new[] { annotation }, metadataBase.Annotations.ToArray());
 
-            var newAnnotation = new Annotation("Foo", "Bar");
-            metadataBase.Annotations.Add(newAnnotation);
-
-            Assert.Same(newAnnotation, metadataBase.Annotations.Single());
-        }
-
-        [Fact]
-        public void Can_remove_annotation()
-        {
-            var metadataBase = new ConcreteMetadata();
-            var annotation = new Annotation("Foo", "Bar");
-
-            metadataBase.Annotations.Add(annotation);
-
-            Assert.Equal("Bar", metadataBase["Foo"]);
-
-            metadataBase.Annotations.Remove(annotation);
-
-            Assert.Null(metadataBase["Foo"]);
-
-            metadataBase.Annotations.Remove(annotation); // no throw
-        }
-
-        [Fact]
-        public void Can_update_existing_annotation()
-        {
-            var metadataBase = new ConcreteMetadata();
-            var annotation = new Annotation("Foo", "Bar");
-
-            metadataBase.Annotations.Add(annotation);
-
-            Assert.Equal("Bar", metadataBase["Foo"]);
-
-            metadataBase["Foo"] = "Baz";
-
-            Assert.Equal("Baz", metadataBase["Foo"]);
-        }
-
-        [Fact]
-        public void Can_get_set_model_annotations_via_indexer()
-        {
-            var metadataBase = new ConcreteMetadata();
-
-            Assert.Null(metadataBase["foo"]);
-
-            metadataBase["foo"] = "bar";
-
-            Assert.Equal("bar", metadataBase["foo"]);
-
-            metadataBase["foo"] = "horse";
-
-            Assert.Equal("horse", metadataBase["foo"]);
-
-            metadataBase["foo"] = null;
-
-            Assert.Null(metadataBase["foo"]);
+            Assert.Same(annotation, metadataBase.RemoveAnnotation(annotation));
 
             Assert.Empty(metadataBase.Annotations);
+            Assert.Null(metadataBase.RemoveAnnotation(annotation));
+            Assert.Null(metadataBase["Foo"]);
+            Assert.Null(metadataBase.TryGetAnnotation("Foo"));
+        }
+
+        [Fact]
+        public void Addind_duplicate_annotation_throws()
+        {
+            var metadataBase = new ConcreteMetadata();
+
+            metadataBase.AddAnnotation("Foo", "Bar");
+
+            Assert.Equal(
+                Strings.FormatDuplicateAnnotation("Foo"),
+                Assert.Throws<InvalidOperationException>(() => metadataBase.AddAnnotation("Foo", "Bar")).Message);
+        }
+
+        [Fact]
+        public void Can_get_and_set_model_annotations()
+        {
+            var metadataBase = new ConcreteMetadata();
+            var annotation = metadataBase.GetOrAddAnnotation("Foo", "Bar");
+
+            Assert.NotNull(annotation);
+            Assert.Same(annotation, metadataBase.TryGetAnnotation("Foo"));
+            Assert.Same(annotation, metadataBase.GetAnnotation("Foo"));
+            Assert.Null(metadataBase["foo"]);
+            Assert.Null(metadataBase.TryGetAnnotation("foo"));
+
+            metadataBase["Foo"] = "horse";
+
+            Assert.Equal("horse", metadataBase["Foo"]);
+
+            metadataBase["Foo"] = null;
+
+            Assert.Null(metadataBase["Foo"]);
+            Assert.Empty(metadataBase.Annotations);
+
+            Assert.Equal(
+                Strings.FormatAnnotationNotFound("Foo"),
+                Assert.Throws<ModelItemNotFoundException>(() => metadataBase.GetAnnotation("Foo")).Message);
         }
 
         [Fact]
@@ -124,11 +87,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             var metadataBase = new ConcreteMetadata();
 
-            var annotation1 = new Annotation("Z", "Foo");
-            var annotation2 = new Annotation("A", "Bar");
-
-            metadataBase.Annotations.Add(annotation1);
-            metadataBase.Annotations.Add(annotation2);
+            var annotation1 = metadataBase.AddAnnotation("Z", "Foo");
+            var annotation2 = metadataBase.AddAnnotation("A", "Bar");
 
             Assert.True(new[] { annotation2, annotation1 }.SequenceEqual(metadataBase.Annotations));
         }

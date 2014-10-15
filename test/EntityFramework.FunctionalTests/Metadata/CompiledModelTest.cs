@@ -404,13 +404,13 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
                 var entityType = model.GetEntityType(type);
 
-                entityType.Annotations.Add(new Annotation("Annotation1", "Value1"));
-                entityType.Annotations.Add(new Annotation("Annotation2", "Value2"));
+                entityType["Annotation1"] = "Value1";
+                entityType["Annotation2"] = "Value2";
 
                 var foo = entityType.GetOrAddProperty(entityType.Type.GetProperty("Foo" + i));
 
-                foo.Annotations.Add(new Annotation("Foo" + i + "Annotation1", "Foo" + i + "Value1"));
-                foo.Annotations.Add(new Annotation("Foo" + i + "Annotation2", "Foo" + i + "Value2"));
+                foo["Foo" + i + "Annotation1"] = "Foo" + i + "Value1";
+                foo["Foo" + i + "Annotation2"] = "Foo" + i + "Value2";
 
                 var goo = entityType.GetOrAddProperty(entityType.Type.GetProperty("Goo" + i));
             }

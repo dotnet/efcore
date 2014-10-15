@@ -113,7 +113,7 @@ namespace Microsoft.Data.Entity.Relational.Model
 
             foreach (var annotation in source.Annotations)
             {
-                Annotations.Add(annotation);
+                this[annotation.Name] = annotation.Value;
             }
         }
 

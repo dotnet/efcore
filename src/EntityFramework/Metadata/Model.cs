@@ -12,6 +12,8 @@ namespace Microsoft.Data.Entity.Metadata
 {
     public class Model : MetadataBase, IModel
     {
+        // TODO: Perf: use a mutable structure before the model is made readonly
+        // Issue #868
         private ImmutableSortedSet<EntityType> _entities
             = ImmutableSortedSet<EntityType>.Empty.WithComparer(new EntityTypeNameComparer());
 
@@ -113,6 +115,7 @@ namespace Microsoft.Data.Entity.Metadata
             {
                 previousEntities.TryGetValue(entityType, out removedEntityType);
             }
+
             return removedEntityType;
         }
 

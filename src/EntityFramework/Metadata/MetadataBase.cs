@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 
@@ -9,29 +11,112 @@ namespace Microsoft.Data.Entity.Metadata
 {
     public abstract class MetadataBase : IMetadata
     {
-        private readonly Annotations _annotations = new Annotations();
+        // TODO: Perf: use a mutable structure before the model is made readonly
+        // Issue #868 
+        private readonly LazyRef<ImmutableSortedSet<Annotation>> _annotations
+            = new LazyRef<ImmutableSortedSet<Annotation>>(
+                () => ImmutableSortedSet<Annotation>.Empty.WithComparer(new AnnotationComparer()));
+
+        public virtual Annotation AddAnnotation([NotNull] string annotationName, [NotNull] string value)
+        {
+            Check.NotNull(annotationName, "annotationName");
+            Check.NotNull(value, "value");
+
+            var annotation = new Annotation(annotationName, value);
+
+            var previousLength = _annotations.Value.Count;
+            _annotations.Value = _annotations.Value.Add(annotation);
+
+            if (previousLength == _annotations.Value.Count)
+            {
+                throw new InvalidOperationException(Strings.FormatDuplicateAnnotation(annotationName));
+            }
+
+            return annotation;
+        }
+
+        public virtual Annotation GetOrAddAnnotation([NotNull] string annotationName, [NotNull] string value)
+        {
+            return TryGetAnnotation(annotationName) ?? AddAnnotation(annotationName, value);
+        }
+
+        [CanBeNull]
+        public virtual Annotation TryGetAnnotation([NotNull] string annotationName)
+        {
+            Check.NotEmpty(annotationName, "annotationName");
+
+            Annotation annotation;
+            return _annotations.HasValue
+                   && _annotations.Value.TryGetValue(new Annotation(annotationName, "_"), out annotation)
+                ? annotation
+                : null;
+        }
+
+        public virtual Annotation GetAnnotation([NotNull] string annotationName)
+        {
+            var annotation = TryGetAnnotation(annotationName);
+            if (annotation == null)
+            {
+                throw new ModelItemNotFoundException(Strings.FormatAnnotationNotFound(annotationName));
+            }
+
+            return annotation;
+        }
+
+        public virtual Annotation RemoveAnnotation([NotNull] Annotation annotation)
+        {
+            Check.NotNull(annotation, "annotation");
+
+            var previousAnnotations = _annotations.Value;
+            _annotations.Value = _annotations.Value.Remove(annotation);
+
+            Annotation removedAnnotations = null;
+            if (previousAnnotations.Count != _annotations.Value.Count)
+            {
+                previousAnnotations.TryGetValue(annotation, out removedAnnotations);
+            }
+
+            return removedAnnotations;
+        }
 
         // ReSharper disable once AnnotationRedundanceInHierarchy
-        public virtual string this[[param: NotNull] string annotationName]
+        public virtual string this[[NotNull] string annotationName]
         {
             get
             {
-                Check.NotEmpty(annotationName, "annotationName");
-
-                return _annotations[annotationName];
+                var annotation = TryGetAnnotation(annotationName);
+                return annotation == null ? null : annotation.Value;
             }
             [param: CanBeNull]
             set
             {
                 Check.NotEmpty(annotationName, "annotationName");
 
-                _annotations[annotationName] = value;
+                _annotations.Value = _annotations.Value.Remove(new Annotation(annotationName, "_"));
+
+                if (value != null)
+                {
+                    AddAnnotation(annotationName, value);
+                }
             }
         }
 
-        public virtual Annotations Annotations
+        public virtual IEnumerable<Annotation> Annotations
         {
-            get { return _annotations; }
+            get
+            {
+                return _annotations.HasValue
+                    ? (IEnumerable<Annotation>)_annotations.Value
+                    : ImmutableList<Annotation>.Empty;
+            }
+        }
+
+        private class AnnotationComparer : IComparer<IAnnotation>
+        {
+            public int Compare(IAnnotation x, IAnnotation y)
+            {
+                return StringComparer.Ordinal.Compare(x.Name, y.Name);
+            }
         }
 
         IEnumerable<IAnnotation> IMetadata.Annotations

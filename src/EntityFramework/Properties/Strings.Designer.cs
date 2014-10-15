@@ -155,7 +155,7 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
-        /// The entity type '{entityType}' was not found. Ensure that the entity type '{entityType}' has been added to the model.
+        /// The entity type '{entityType}' was not found. Ensure that the entity type has been added to the model.
         /// </summary>
         internal static string EntityTypeNotFound
         {
@@ -163,7 +163,7 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
-        /// The entity type '{entityType}' was not found. Ensure that the entity type '{entityType}' has been added to the model.
+        /// The entity type '{entityType}' was not found. Ensure that the entity type has been added to the model.
         /// </summary>
         internal static string FormatEntityTypeNotFound(object entityType)
         {
@@ -1240,6 +1240,38 @@ namespace Microsoft.Data.Entity
         internal static string FormatUnsupportedAnnotationType(object type)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("UnsupportedAnnotationType", "type"), type);
+        }
+
+        /// <summary>
+        /// The annotation '{annotation}' cannot be added because an annotation with the same name already exists.
+        /// </summary>
+        internal static string DuplicateAnnotation
+        {
+            get { return GetString("DuplicateAnnotation"); }
+        }
+
+        /// <summary>
+        /// The annotation '{annotation}' cannot be added because an annotation with the same name already exists.
+        /// </summary>
+        internal static string FormatDuplicateAnnotation(object annotation)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("DuplicateAnnotation", "annotation"), annotation);
+        }
+
+        /// <summary>
+        /// The annotation '{annotation}' was not found. Ensure that the annotation has been added.
+        /// </summary>
+        internal static string AnnotationNotFound
+        {
+            get { return GetString("AnnotationNotFound"); }
+        }
+
+        /// <summary>
+        /// The annotation '{annotation}' was not found. Ensure that the annotation has been added.
+        /// </summary>
+        internal static string FormatAnnotationNotFound(object annotation)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("AnnotationNotFound", "annotation"), annotation);
         }
 
         private static string GetString(string name, params string[] formatterNames)
