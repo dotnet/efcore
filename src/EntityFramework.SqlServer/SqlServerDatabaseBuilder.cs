@@ -3,6 +3,7 @@
 
 using System;
 using System.Diagnostics.Contracts;
+using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Model;
@@ -12,6 +13,11 @@ namespace Microsoft.Data.Entity.SqlServer
 {
     public class SqlServerDatabaseBuilder : DatabaseBuilder
     {
+        public SqlServerDatabaseBuilder([NotNull] SqlServerTypeMapper typeMapper)
+            : base(typeMapper)
+        {
+        }
+
         protected override Sequence BuildSequence(IProperty property)
         {
             Check.NotNull(property, "property");

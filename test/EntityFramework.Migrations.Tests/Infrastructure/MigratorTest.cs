@@ -1242,7 +1242,7 @@ new StringBuilder()
                     contextConfiguration,
                     MockHistoryRepository(contextConfiguration, databaseMigrations, historyRepositoryExists).Object,
                     MockMigrationAssembly(contextConfiguration, localMigrations).Object,
-                    new ModelDiffer(new DatabaseBuilder()),
+                    new TestModelDiffer(),
                     MockMigrationOperationSqlGeneratorFactory().Object,
                     new Mock<SqlGenerator>().Object,
                     sqlStatementExecutorMock.Object)
@@ -1554,6 +1554,32 @@ new StringBuilder()
             public IDisposable BeginScope(object state)
             {
                 throw new NotImplementedException();
+            }
+        }
+
+        private class TestDatabaseBuilder : DatabaseBuilder
+        {
+            public TestDatabaseBuilder()
+                : base(new RelationalTypeMapper())
+            {
+            }
+
+            protected override Sequence BuildSequence(IProperty property)
+            {
+                return null;
+            }
+        }
+
+        private class TestModelDiffer : ModelDiffer
+        {
+            public TestModelDiffer()
+                : base(new TestDatabaseBuilder())
+            {
+            }
+
+            protected override string GetSequenceName(Column column)
+            {
+                return null;
             }
         }
         #endregion

@@ -396,7 +396,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
         private static IReadOnlyList<MigrationOperation> PreProcess(BasicModelBuilder modelBuilder, params MigrationOperation[] operations)
         {
-            return PreProcess(new SqlServerDatabaseBuilder().GetDatabase(modelBuilder.Model), operations);
+            return PreProcess(new SqlServerDatabaseBuilder(new SqlServerTypeMapper()).GetDatabase(modelBuilder.Model), operations);
         }
 
         private static IReadOnlyList<MigrationOperation> PreProcess(DatabaseModel database, params MigrationOperation[] operations)

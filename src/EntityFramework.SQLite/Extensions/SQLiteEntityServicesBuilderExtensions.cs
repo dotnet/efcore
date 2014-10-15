@@ -21,7 +21,7 @@ namespace Microsoft.Framework.DependencyInjection
             Check.NotNull(builder, "builder");
 
             builder.AddRelational().ServiceCollection
-                .AddSingleton<DatabaseBuilder>()
+                .AddSingleton<SQLiteDatabaseBuilder>()
                 .AddSingleton<SQLiteValueGeneratorCache>()
                 .AddSingleton<SQLiteValueGeneratorSelector>()
                 .AddSingleton<SQLiteSqlGenerator>()
@@ -39,7 +39,7 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddScoped<SQLiteMigrator>()
                 // TODO: Move to an AddMigrations extension method?
                 // Issue #556
-                .AddScoped<ModelDiffer>()
+                .AddScoped<SQLiteModelDiffer>()
                 .AddScoped<MigrationAssembly>()
                 .AddScoped<HistoryRepository>();
 

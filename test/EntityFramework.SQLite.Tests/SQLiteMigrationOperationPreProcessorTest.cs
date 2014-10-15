@@ -308,7 +308,7 @@ namespace Microsoft.Data.Entity.SQLite.Tests
             var context
                 = new MySQLiteMigrationOperationPreProcessorContext(
                     new SQLiteMigrationOperationSqlGeneratorFactory().Create(
-                        new DatabaseBuilder().GetDatabase(modelBuilder.Model)));
+                        new SQLiteDatabaseBuilder(new SQLiteTypeMapper()).GetDatabase(modelBuilder.Model)));
 
             preProcessor.Visit(createTableOperation, context);
             preProcessor.Visit(addForeignKeyOperation, context);
@@ -352,7 +352,7 @@ namespace Microsoft.Data.Entity.SQLite.Tests
             var context
                 = new SQLiteMigrationOperationPreProcessor.Context(
                     new SQLiteMigrationOperationSqlGeneratorFactory().Create(
-                        new DatabaseBuilder().GetDatabase(modelBuilder.Model)));
+                        new SQLiteDatabaseBuilder(new SQLiteTypeMapper()).GetDatabase(modelBuilder.Model)));
 
             preProcessor.Visit(renameIndexOperation, context);
 
@@ -434,7 +434,7 @@ namespace Microsoft.Data.Entity.SQLite.Tests
         private static IReadOnlyList<MigrationOperation> PreProcess(
             BasicModelBuilder modelBuilder, params MigrationOperation[] operations)
         {
-            return PreProcess(new DatabaseBuilder().GetDatabase(modelBuilder.Model), operations);
+            return PreProcess(new SQLiteDatabaseBuilder(new SQLiteTypeMapper()).GetDatabase(modelBuilder.Model), operations);
         }
 
         private static IReadOnlyList<MigrationOperation> PreProcess(

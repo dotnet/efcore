@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.SQLite
             [NotNull] DbContextConfiguration contextConfiguration,
             [NotNull] HistoryRepository historyRepository,
             [NotNull] MigrationAssembly migrationAssembly,
-            [NotNull] ModelDiffer modelDiffer,
+            [NotNull] SQLiteModelDiffer modelDiffer,
             [NotNull] SQLiteMigrationOperationSqlGeneratorFactory ddlSqlGeneratorFactory,
             [NotNull] SQLiteSqlGenerator dmlSqlGenerator,
             [NotNull] SqlStatementExecutor sqlExecutor)

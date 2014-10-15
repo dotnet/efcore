@@ -8,6 +8,7 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Relational;
+using Microsoft.Data.Entity.Relational.Model;
 using Moq;
 using Xunit;
 
@@ -24,7 +25,7 @@ namespace Microsoft.Data.Entity.Commands.Tests.Migrations
                     = new MyMigrationScaffolder(
                         context.Configuration,
                         MockMigrationAssembly(context.Configuration),
-                        new ModelDiffer(new DatabaseBuilder()),
+                        new TestModelDiffer(),
                         new CSharpMigrationCodeGenerator(
                             new CSharpModelCodeGenerator()),
                         ValidateEmptyMigration,
@@ -43,7 +44,7 @@ namespace Microsoft.Data.Entity.Commands.Tests.Migrations
                     = new MyMigrationScaffolder(
                         context.Configuration,
                         MockMigrationAssembly(context.Configuration),
-                        new ModelDiffer(new DatabaseBuilder()),
+                        new TestModelDiffer(),
                         new CSharpMigrationCodeGenerator(
                             new CSharpModelCodeGenerator()),
                         ValidateMigration,
@@ -62,7 +63,7 @@ namespace Microsoft.Data.Entity.Commands.Tests.Migrations
                     = new MyMigrationScaffolder(
                         context.Configuration,
                         MockMigrationAssembly(context.Configuration),
-                        new ModelDiffer(new DatabaseBuilder()),
+                        new TestModelDiffer(),
                         new CSharpMigrationCodeGenerator(
                             new CSharpModelCodeGenerator()),
                         ValidateMigrationWithForeignKeys,
@@ -81,7 +82,7 @@ namespace Microsoft.Data.Entity.Commands.Tests.Migrations
                     = new MyMigrationScaffolder(
                         context.Configuration,
                         MockMigrationAssembly(context.Configuration),
-                        new ModelDiffer(new DatabaseBuilder()),
+                        new TestModelDiffer(),
                         new CSharpMigrationCodeGenerator(
                             new CSharpModelCodeGenerator()),
                         ValidateMigrationWithCompositeKeys,
@@ -926,6 +927,32 @@ namespace MyNamespace
                     scaffoldedMigration.SnapshotModelCode);
 
                 return scaffoldedMigration;
+            }
+        }
+
+        private class TestDatabaseBuilder : DatabaseBuilder
+        {
+            public TestDatabaseBuilder()
+                : base(new RelationalTypeMapper())
+            {
+            }
+
+            protected override Sequence BuildSequence(IProperty property)
+            {
+                return null;
+            }
+        }
+
+        private class TestModelDiffer : ModelDiffer
+        {
+            public TestModelDiffer()
+                : base(new TestDatabaseBuilder())
+            {
+            }
+
+            protected override string GetSequenceName(Column column)
+            {
+                return null;
             }
         }
     }

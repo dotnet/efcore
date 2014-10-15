@@ -82,6 +82,8 @@
     </Compile>
     <Compile Include="SQLiteValueGeneratorCache.cs" />
     <Compile Include="SQLiteValueGeneratorSelector.cs" />
+    <Compile Include="SQLiteDatabaseBuilder.cs" />
+    <Compile Include="SQLiteModelDiffer.cs" />
     <Compile Include="Utilities\Check.cs" />
     <Compile Include="..\Shared\CodeAnnotations.cs" />
     <Compile Include="..\Shared\StringBuilderExtensions.cs" />
