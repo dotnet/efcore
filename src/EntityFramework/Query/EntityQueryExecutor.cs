@@ -71,9 +71,23 @@ namespace Microsoft.Data.Entity.Query
 
             LogQueryModel(queryModel);
 
-            var enumerable = _context.Configuration.DataStore.Query<T>(queryModel);
+            try
+            { 
+                var enumerable = _context.Configuration.DataStore.Query<T>(queryModel);
 
-            return new EnumerableExceptionInterceptor<T>(enumerable, _context, _logger);
+                return new EnumerableExceptionInterceptor<T>(enumerable, _context, _logger);
+            }
+            catch (Exception ex)
+            {
+                _logger.Value.Write(
+                    TraceType.Error,
+                    0,
+                    new DataStoreErrorLogState(_context.GetType()),
+                    ex,
+                    (state, exception) => string.Format("{0}" + Environment.NewLine + "{1}", Strings.LogExceptionDuringQueryIteration, exception.ToString()));
+
+                throw;
+            }
         }
 
         public virtual IAsyncEnumerable<T> AsyncExecuteCollection<T>(
@@ -85,11 +99,25 @@ namespace Microsoft.Data.Entity.Query
 
             LogQueryModel(queryModel);
 
-            var asyncEnumerable
-                = _context.Configuration.DataStore
-                    .AsyncQuery<T>(queryModel, cancellationToken);
+            try
+            {
+                var asyncEnumerable
+                    = _context.Configuration.DataStore
+                        .AsyncQuery<T>(queryModel, cancellationToken);
 
-            return new AsyncEnumerableExceptionInterceptor<T>(asyncEnumerable, _context, _logger);
+                return new AsyncEnumerableExceptionInterceptor<T>(asyncEnumerable, _context, _logger);
+            }
+            catch (Exception ex)
+            {
+                _logger.Value.Write(
+                    TraceType.Error,
+                    0,
+                    new DataStoreErrorLogState(_context.GetType()),
+                    ex,
+                    (state, exception) => string.Format("{0}" + Environment.NewLine + "{1}", Strings.LogExceptionDuringQueryIteration, exception.ToString()));
+
+                throw;
+            }
         }
 
         private void LogQueryModel(QueryModel queryModel)
