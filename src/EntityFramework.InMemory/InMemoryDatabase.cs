@@ -31,30 +31,16 @@ namespace Microsoft.Data.Entity.InMemory
         }
 
         /// <summary>
-        /// Returns true just after the database has been created, before any data has been entered
+        /// Returns true just after the database has been created, false thereafter
         /// </summary>
         /// <returns>
-        ///     true if the database has just been created but not yet
-        ///     been used to enter data, false otherwise
+        ///     true if the database has just been created, false otherwise
         /// </returns>
         public virtual bool IsCreated([NotNull] IModel model)
         {
-            if (!_tables.HasValue)
-            {
-                _tables.ExchangeValue(tablesDictionary =>
-                    {
-                        foreach (var entityType in model.EntityTypes)
-                        {
-                            tablesDictionary = tablesDictionary.Add(entityType, new InMemoryTable());
-                        }
-
-                        return tablesDictionary;
-                    });
-
-                return true;
-            }
-
-            return false;
+            var returnVaalue = !_tables.HasValue;
+            var _ = _tables.Value;
+            return returnVaalue;
         }
 
         public virtual void Clear()
