@@ -9,5 +9,6 @@ namespace Microsoft.Data.Entity.Relational.Query
     {
         MethodInfo QueryMethod { get; }
         MethodInfo IncludeCollectionMethod { get; }
+        MethodInfo GetResultMethod { get; }
     }
 }

@@ -13,6 +13,31 @@ namespace Microsoft.Data.Entity.Relational.Query
 {
     public class QueryMethodProvider : IQueryMethodProvider
     {
+        public virtual MethodInfo GetResultMethod
+        {
+            get { return _getResultMethodInfo; }
+        }
+
+        private static readonly MethodInfo _getResultMethodInfo
+            = typeof(QueryMethodProvider).GetTypeInfo()
+                .GetDeclaredMethod("GetResult");
+
+        [UsedImplicitly]
+        private static TResult GetResult<TResult>(IEnumerable<DbDataReader> dataReaders)
+        {
+            using (var enumerator = dataReaders.GetEnumerator())
+            {
+                if (enumerator.MoveNext())
+                {
+                    return enumerator.Current.IsDBNull(0)
+                        ? default(TResult)
+                        : enumerator.Current.GetFieldValue<TResult>(0);
+                }
+            }
+
+            return default(TResult);
+        }
+
         public virtual MethodInfo IncludeCollectionMethod
         {
             get { return _includeCollectionMethodInfo; }

@@ -35,7 +35,6 @@ namespace Microsoft.Data.Entity.Query
         MethodInfo SingleOrDefault { get; }
         MethodInfo Skip { get; }
         MethodInfo Take { get; }
-        MethodInfo _First { get; }
         MethodInfo AsQueryable { get; }
         MethodInfo TrackEntities { get; }
 
