@@ -3,6 +3,7 @@
 
 using System.Linq;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Relational.Model;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Relational.Tests
@@ -12,7 +13,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
         [Fact]
         public void Build_creates_database()
         {
-            var database = new DatabaseBuilder().GetDatabase(CreateModel());
+            var database = new TestDatabaseBuilder().GetDatabase(CreateModel());
 
             Assert.NotNull(database);
             Assert.Equal(2, database.Tables.Count);
@@ -86,7 +87,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
                     b.Index(ix => ix.PostId);
                 });
 
-            var database = new DatabaseBuilder().GetDatabase(modelBuilder.Model);
+            var database = new TestDatabaseBuilder().GetDatabase(modelBuilder.Model);
 
             Assert.True(database.Tables.Any(t => t.Name == "Blog"));
             Assert.True(database.Tables.Any(t => t.Name == "Post"));
@@ -118,7 +119,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
                     b.Metadata.AddKey(new[] { p2 }).Relational().Name = "UC2";
                 });
 
-            var database = new DatabaseBuilder().GetDatabase(modelBuilder.Model);
+            var database = new TestDatabaseBuilder().GetDatabase(modelBuilder.Model);
 
             Assert.Equal(1, database.Tables.Count);
 
@@ -148,7 +149,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
                     b.Metadata.AddKey(new[] { p2 });
                 });
 
-            var database = new DatabaseBuilder().GetDatabase(modelBuilder.Model);
+            var database = new TestDatabaseBuilder().GetDatabase(modelBuilder.Model);
             var table = database.Tables[0];
 
             Assert.Equal(2, table.UniqueConstraints.Count);
@@ -156,7 +157,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
             Assert.Equal("UC_A_P2", table.UniqueConstraints[1].Name);
 
             modelBuilder.Entity("A").ForRelational().Table("T", "dbo");
-            database = new DatabaseBuilder().GetDatabase(modelBuilder.Model);
+            database = new TestDatabaseBuilder().GetDatabase(modelBuilder.Model);
             table = database.Tables[0];
 
             Assert.Equal(2, table.UniqueConstraints.Count);
@@ -189,7 +190,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
                     b.ForeignKey<Principal>(p => new { p.FkAAA, p.FkZZZ });
                 });
 
-            var builder = new DatabaseBuilder();
+            var builder = new TestDatabaseBuilder();
             var name = builder.GetDatabase(modelBuilder.Model).GetTable("Dependent").ForeignKeys.Single().Name;
 
             Assert.Equal("FK_Dependent_Principal_FkAAA_FkZZZ", name);
@@ -223,7 +224,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
                     b.Index(e => new { e.FkAAA, e.FkZZZ });
                 });
 
-            var builder = new DatabaseBuilder();
+            var builder = new TestDatabaseBuilder();
             var name = builder.GetDatabase(modelBuilder.Model).GetTable("MyTable").Indexes.Single().Name;
 
             Assert.Equal("IX_MyTable_ColumnAaa_ColumnZzz", name);
@@ -254,7 +255,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
                         b.ForeignKey("A", "P4", "P5");
                     });
 
-            var databaseModel = new DatabaseBuilder().GetDatabase(modelBuider.Model);
+            var databaseModel = new TestDatabaseBuilder().GetDatabase(modelBuider.Model);
 
             Assert.Equal(2, databaseModel.Tables.Count);
             Assert.Equal(new[] { "Px", "Py" }, databaseModel.Tables[0].Columns.Select(c => c.Name));
@@ -299,6 +300,19 @@ namespace Microsoft.Data.Entity.Relational.Tests
             stringProperty.MaxLength = 256;
 
             return model;
+        }
+
+        private class TestDatabaseBuilder : DatabaseBuilder
+        {
+            public TestDatabaseBuilder()
+                : base(new RelationalTypeMapper())
+            {
+            }
+
+            protected override Sequence BuildSequence(IProperty property)
+            {
+                return null;
+            }
         }
     }
 }

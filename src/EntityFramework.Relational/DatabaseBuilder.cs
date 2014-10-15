@@ -14,13 +14,27 @@ using Index = Microsoft.Data.Entity.Relational.Model.Index;
 
 namespace Microsoft.Data.Entity.Relational
 {
-    public class DatabaseBuilder
+    public abstract class DatabaseBuilder
     {
         // TODO: IModel may not be an appropriate cache key if we want to be
         // able to unload IModel instances and create new ones.
         // Issue #765
         private readonly ThreadSafeDictionaryCache<IModel, ModelDatabaseMapping> _mappingCache
             = new ThreadSafeDictionaryCache<IModel, ModelDatabaseMapping>();
+
+        private readonly RelationalTypeMapper _typeMapper;
+
+        protected DatabaseBuilder([NotNull] RelationalTypeMapper typeMapper)
+        {
+            Check.NotNull(typeMapper, "typeMapper");
+
+            _typeMapper = typeMapper;
+        }
+
+        public virtual RelationalTypeMapper TypeMapper
+        {
+            get { return _typeMapper; }
+        }
 
         public virtual DatabaseModel GetDatabase([NotNull] IModel model)
         {
@@ -357,9 +371,6 @@ namespace Microsoft.Data.Entity.Relational
             }
         }
 
-        protected virtual Sequence BuildSequence([NotNull] IProperty property)
-        {
-            return null;
-        }
+        protected abstract Sequence BuildSequence([NotNull] IProperty property);
     }
 }

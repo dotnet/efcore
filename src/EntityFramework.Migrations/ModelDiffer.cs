@@ -15,7 +15,7 @@ using Index = Microsoft.Data.Entity.Relational.Model.Index;
 
 namespace Microsoft.Data.Entity.Migrations
 {
-    public class ModelDiffer
+    public abstract class ModelDiffer
     {
         private ModelDatabaseMapping _sourceMapping;
         private ModelDatabaseMapping _targetMapping;
@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.Migrations
 
         private readonly DatabaseBuilder _databaseBuilder;
 
-        public ModelDiffer([NotNull] DatabaseBuilder databaseBuilder)
+        protected ModelDiffer([NotNull] DatabaseBuilder databaseBuilder)
         {
             Check.NotNull(databaseBuilder, "databaseBuilder");
 
@@ -464,14 +464,47 @@ namespace Microsoft.Data.Entity.Migrations
         private void FindAlteredColumns(
             IEnumerable<Tuple<Column, Column>> columnPairs)
         {
-            _operations.AddRange(
-                columnPairs
-                    .Where(pair => !EquivalentColumns(pair.Item1, pair.Item2))
-                    .Select(pair =>
+            foreach (var pair in columnPairs)
+            {
+                if (!EquivalentColumns(pair.Item1, pair.Item2))
+                {
+                    _operations.Add(
                         new AlterColumnOperation(
                             pair.Item2.Table.Name,
                             pair.Item2,
-                            isDestructiveChange: true)));
+                            isDestructiveChange: true));
+                }
+                else if (pair.Item1.DataType == null && pair.Item2.DataType == null)
+                {
+                    var sourceProperty = _sourceMapping.GetModelObject<IProperty>(pair.Item1);
+                    var targetProperty = _targetMapping.GetModelObject<IProperty>(pair.Item2);
+                    var sourceColumnType
+                        = DatabaseBuilder.TypeMapper.GetTypeMapping(
+                            null,
+                            pair.Item1.Name,
+                            sourceProperty.PropertyType,
+                            sourceProperty.IsKey() || sourceProperty.IsForeignKey(),
+                            sourceProperty.IsConcurrencyToken)
+                            .StoreTypeName;
+                    var targetColumnType
+                        = DatabaseBuilder.TypeMapper.GetTypeMapping(
+                            null,
+                            pair.Item2.Name,
+                            targetProperty.PropertyType,
+                            targetProperty.IsKey() || targetProperty.IsForeignKey(),
+                            targetProperty.IsConcurrencyToken)
+                            .StoreTypeName;
+
+                    if (sourceColumnType != targetColumnType)
+                    {
+                        _operations.Add(
+                            new AlterColumnOperation(
+                                pair.Item2.Table.Name,
+                                new Column(pair.Item2) { DataType = targetColumnType },
+                                isDestructiveChange: true));
+                    }
+                }
+            }
 
             // TODO: Add functionality to determine the value of isDestructiveChange.
         }
@@ -896,10 +929,7 @@ namespace Microsoft.Data.Entity.Migrations
                 && !sourceColumns.Where((t, i) => !MatchColumnReferences(t, targetColumns[i], columnMap)).Any();
         }
 
-        protected virtual string GetSequenceName([NotNull] Column column)
-        {
-            return null;
-        }
+        protected abstract string GetSequenceName([NotNull] Column column);
 
         protected class MigrationOperationCollection
         {

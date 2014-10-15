@@ -465,6 +465,7 @@ namespace Microsoft.Data.Entity.Migrations
             var isKey
                 = table.PrimaryKey != null
                   && table.PrimaryKey.Columns.Contains(column)
+                  || table.UniqueConstraints.SelectMany(k => k.Columns).Contains(column)
                   || table.ForeignKeys.SelectMany(k => k.Columns).Contains(column);
 
             return _typeMapper.GetTypeMapping(column.DataType, column.Name, column.ClrType, isKey, column.IsTimestamp).StoreTypeName;
@@ -591,7 +592,7 @@ namespace Microsoft.Data.Entity.Migrations
                 .Append(DelimitIdentifier(column.Name))
                 .Append(" ");
 
-            stringBuilder.Append(column.DataType ?? GenerateDataType(table, column));
+            stringBuilder.Append(GenerateDataType(table, column));
 
             if (!column.IsNullable)
             {

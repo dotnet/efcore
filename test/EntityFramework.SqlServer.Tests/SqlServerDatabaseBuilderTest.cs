@@ -39,7 +39,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                             b.Key("Id");
                         });
 
-            var databaseBuilder = new SqlServerDatabaseBuilder();
+            var databaseBuilder = new SqlServerDatabaseBuilder(new SqlServerTypeMapper());
             var database = databaseBuilder.GetDatabase(modelBuilder.Model);
 
             Assert.Equal(2, database.Sequences.Count);
@@ -72,7 +72,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                         b.ForSqlServer().Table("T", "dbo");
                     });
 
-            var databaseBuilder = new SqlServerDatabaseBuilder();
+            var databaseBuilder = new SqlServerDatabaseBuilder(new SqlServerTypeMapper());
             var database = databaseBuilder.GetDatabase(modelBuilder.Model);
 
             Assert.Equal(1, database.Sequences.Count);
@@ -99,7 +99,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                             b.Key("Id");
                         });
 
-            var databaseBuilder = new SqlServerDatabaseBuilder();
+            var databaseBuilder = new SqlServerDatabaseBuilder(new SqlServerTypeMapper());
             var database = databaseBuilder.GetDatabase(modelBuilder.Model);
 
             Assert.Equal(1, database.Sequences.Count);
@@ -128,7 +128,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                             b.Key("Id");
                         });
 
-            var databaseBuilder = new SqlServerDatabaseBuilder();
+            var databaseBuilder = new SqlServerDatabaseBuilder(new SqlServerTypeMapper());
             var database = databaseBuilder.GetDatabase(modelBuilder.Model);
 
             Assert.Equal(1, database.Sequences.Count);
@@ -155,7 +155,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                         b.ForSqlServer().Table("T", "dbo");
                     });
 
-            var databaseBuilder = new SqlServerDatabaseBuilder();
+            var databaseBuilder = new SqlServerDatabaseBuilder(new SqlServerTypeMapper());
             var database = databaseBuilder.GetDatabase(modelBuilder.Model);
 
             Assert.Equal(1, database.Sequences.Count);
@@ -189,7 +189,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                     b.Key("Id");
                 });
 
-            var databaseBuilder = new SqlServerDatabaseBuilder();
+            var databaseBuilder = new SqlServerDatabaseBuilder(new SqlServerTypeMapper());
             var database = databaseBuilder.GetDatabase(modelBuilder.Model);
 
             Assert.Equal(1, database.Sequences.Count);
@@ -219,7 +219,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                     b.Key("Id");
                 });
 
-            var databaseBuilder = new SqlServerDatabaseBuilder();
+            var databaseBuilder = new SqlServerDatabaseBuilder(new SqlServerTypeMapper());
             var database = databaseBuilder.GetDatabase(modelBuilder.Model);
 
             Assert.Equal(1, database.Sequences.Count);
@@ -252,7 +252,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                     b.ForSqlServer().Table("T1", "dbo");
                 });
 
-            var databaseBuilder = new SqlServerDatabaseBuilder();
+            var databaseBuilder = new SqlServerDatabaseBuilder(new SqlServerTypeMapper());
             var database = databaseBuilder.GetDatabase(modelBuilder.Model);
 
             Assert.Equal(1, database.Sequences.Count);
@@ -286,7 +286,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                             b.Key("Id");
                         });
 
-            var databaseBuilder = new SqlServerDatabaseBuilder();
+            var databaseBuilder = new SqlServerDatabaseBuilder(new SqlServerTypeMapper());
             var database = databaseBuilder.GetDatabase(modelBuilder.Model);
 
             Assert.Equal(2, database.Sequences.Count);
@@ -326,7 +326,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                             b.Key("Id");
                         });
 
-            var databaseBuilder = new SqlServerDatabaseBuilder();
+            var databaseBuilder = new SqlServerDatabaseBuilder(new SqlServerTypeMapper());
             var database = databaseBuilder.GetDatabase(modelBuilder.Model);
 
             Assert.Equal(2, database.Sequences.Count);
@@ -362,7 +362,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                             b.Key("Id");
                         });
 
-            var databaseBuilder = new SqlServerDatabaseBuilder();
+            var databaseBuilder = new SqlServerDatabaseBuilder(new SqlServerTypeMapper());
             var database = databaseBuilder.GetDatabase(modelBuilder.Model);
 
             Assert.Equal(2, database.Sequences.Count);
@@ -398,7 +398,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                         b.Key("Id");
                     });
 
-            var databaseBuilder = new SqlServerDatabaseBuilder();
+            var databaseBuilder = new SqlServerDatabaseBuilder(new SqlServerTypeMapper());
             var database = databaseBuilder.GetDatabase(modelBuilder.Model);
 
             Assert.Equal(2, database.Sequences.Count);
@@ -449,7 +449,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                         b.Key("Id");
                     });
 
-            var databaseBuilder = new SqlServerDatabaseBuilder();
+            var databaseBuilder = new SqlServerDatabaseBuilder(new SqlServerTypeMapper());
             var database = databaseBuilder.GetDatabase(modelBuilder.Model);
 
             Assert.Equal(2, database.Sequences.Count);
@@ -483,7 +483,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                         b.Key("Id");
                     });
 
-            var databaseBuilder = new SqlServerDatabaseBuilder();
+            var databaseBuilder = new SqlServerDatabaseBuilder(new SqlServerTypeMapper());
             var database = databaseBuilder.GetDatabase(modelBuilder.Model);
 
             Assert.Equal(1, database.Sequences.Count);
@@ -512,7 +512,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                         b.Key("Id");
                     });
 
-            var databaseBuilder = new SqlServerDatabaseBuilder();
+            var databaseBuilder = new SqlServerDatabaseBuilder(new SqlServerTypeMapper());
             var database = databaseBuilder.GetDatabase(modelBuilder.Model);
 
             Assert.Equal(1, database.Sequences.Count);
@@ -546,7 +546,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 b.Key("Id");
             });
 
-            var databaseBuilder = new SqlServerDatabaseBuilder();
+            var databaseBuilder = new SqlServerDatabaseBuilder(new SqlServerTypeMapper());
             var database = databaseBuilder.GetDatabase(modelBuilder.Model);
 
             Assert.Equal(1, database.Sequences.Count);
@@ -576,7 +576,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 b.Key("Id");
             });
 
-            var databaseBuilder = new SqlServerDatabaseBuilder();
+            var databaseBuilder = new SqlServerDatabaseBuilder(new SqlServerTypeMapper());
             var database = databaseBuilder.GetDatabase(modelBuilder.Model);
 
             Assert.Equal(1, database.Sequences.Count);
@@ -610,7 +610,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                         b.Key("Id");
                     });
 
-            var databaseBuilder = new SqlServerDatabaseBuilder();
+            var databaseBuilder = new SqlServerDatabaseBuilder(new SqlServerTypeMapper());
             var database = databaseBuilder.GetDatabase(modelBuilder.Model);
 
             Assert.Equal(2, database.Sequences.Count);
@@ -650,7 +650,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                         b.Key("Id");
                     });
 
-            var databaseBuilder = new SqlServerDatabaseBuilder();
+            var databaseBuilder = new SqlServerDatabaseBuilder(new SqlServerTypeMapper());
             var database = databaseBuilder.GetDatabase(modelBuilder.Model);
 
             Assert.Equal(2, database.Sequences.Count);
@@ -686,7 +686,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                         b.Key("Id");
                     });
 
-            var databaseBuilder = new SqlServerDatabaseBuilder();
+            var databaseBuilder = new SqlServerDatabaseBuilder(new SqlServerTypeMapper());
             var database = databaseBuilder.GetDatabase(modelBuilder.Model);
 
             Assert.Equal(2, database.Sequences.Count);
@@ -722,7 +722,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                         b.Key("Id");
                     });
 
-            var databaseBuilder = new SqlServerDatabaseBuilder();
+            var databaseBuilder = new SqlServerDatabaseBuilder(new SqlServerTypeMapper());
             var database = databaseBuilder.GetDatabase(modelBuilder.Model);
 
             Assert.Equal(2, database.Sequences.Count);

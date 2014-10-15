@@ -19,13 +19,13 @@ namespace Microsoft.Data.Entity.SQLite
         private readonly SQLiteConnection _connection;
         private readonly SqlStatementExecutor _executor;
         private readonly SQLiteMigrationOperationSqlGeneratorFactory _generatorFactory;
-        private readonly ModelDiffer _modelDiffer;
+        private readonly SQLiteModelDiffer _modelDiffer;
 
         public SQLiteDataStoreCreator(
             [NotNull] SQLiteConnection connection,
             [NotNull] SqlStatementExecutor executor,
             [NotNull] SQLiteMigrationOperationSqlGeneratorFactory generatorFactory,
-            [NotNull] ModelDiffer modelDiffer)
+            [NotNull] SQLiteModelDiffer modelDiffer)
         {
             Check.NotNull(connection, "connection");
             Check.NotNull(executor, "executor");

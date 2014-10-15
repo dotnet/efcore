@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                         b.Key("Id").ForSqlServer().Name("PK");
                     });
 
-            var operations = new SqlServerModelDiffer(new SqlServerDatabaseBuilder()).Diff(
+            var operations = new SqlServerModelDiffer(new SqlServerDatabaseBuilder(new SqlServerTypeMapper())).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
 
             Assert.Equal(1, operations.Count);
@@ -61,7 +61,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                         b.Key("Id").ForSqlServer().Name("PK");
                     });
 
-            var operations = new SqlServerModelDiffer(new SqlServerDatabaseBuilder()).Diff(
+            var operations = new SqlServerModelDiffer(new SqlServerDatabaseBuilder(new SqlServerTypeMapper())).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
 
             Assert.Equal(1, operations.Count);
@@ -94,7 +94,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                         b.Key("Id");
                     });
 
-            var databaseBuilder = new SqlServerDatabaseBuilder();
+            var databaseBuilder = new SqlServerDatabaseBuilder(new SqlServerTypeMapper());
             var operations = new SqlServerModelDiffer(databaseBuilder).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
             var sourceDbModel = databaseBuilder.GetDatabase(sourceModelBuilder.Model);
@@ -135,7 +135,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                         b.Key("Id");
                     });
 
-            var databaseBuilder = new SqlServerDatabaseBuilder();
+            var databaseBuilder = new SqlServerDatabaseBuilder(new SqlServerTypeMapper());
             var operations = new SqlServerModelDiffer(databaseBuilder).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
             var sourceDbModel = databaseBuilder.GetDatabase(sourceModelBuilder.Model);
@@ -180,7 +180,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                             b.Key("Id");
                         });
 
-            var operations = new SqlServerModelDiffer(new SqlServerDatabaseBuilder()).Diff(
+            var operations = new SqlServerModelDiffer(new SqlServerDatabaseBuilder(new SqlServerTypeMapper())).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
 
             Assert.Equal(1, operations.Count);
@@ -217,7 +217,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                         b.Key("Id").ForSqlServer().Name("PK");
                     });
 
-            var operations = new SqlServerModelDiffer(new SqlServerDatabaseBuilder()).Diff(
+            var operations = new SqlServerModelDiffer(new SqlServerDatabaseBuilder(new SqlServerTypeMapper())).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
 
             Assert.Equal(3, operations.Count);
@@ -264,7 +264,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                         b.Key("Id").ForSqlServer().Name("PK");
                     });
 
-            var operations = new SqlServerModelDiffer(new SqlServerDatabaseBuilder()).Diff(
+            var operations = new SqlServerModelDiffer(new SqlServerDatabaseBuilder(new SqlServerTypeMapper())).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
 
             Assert.Equal(3, operations.Count);
@@ -307,7 +307,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                             b.Key("Id").ForSqlServer().Name("PK");
                         });
 
-            var operations = new SqlServerModelDiffer(new SqlServerDatabaseBuilder()).Diff(
+            var operations = new SqlServerModelDiffer(new SqlServerDatabaseBuilder(new SqlServerTypeMapper())).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
 
             Assert.Equal(4, operations.Count);
@@ -347,7 +347,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                         b.Key("Id");
                     });
 
-            var operations = new SqlServerModelDiffer(new SqlServerDatabaseBuilder()).Diff(
+            var operations = new SqlServerModelDiffer(new SqlServerDatabaseBuilder(new SqlServerTypeMapper())).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
 
             Assert.Equal(2, operations.Count);
@@ -388,7 +388,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                             b.Key("Id");
                         });
 
-            var operations = new SqlServerModelDiffer(new SqlServerDatabaseBuilder()).Diff(
+            var operations = new SqlServerModelDiffer(new SqlServerDatabaseBuilder(new SqlServerTypeMapper())).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
 
             Assert.Equal(3, operations.Count);
@@ -433,7 +433,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                             b.Key("Id");
                         });
 
-            var operations = new SqlServerModelDiffer(new SqlServerDatabaseBuilder()).Diff(
+            var operations = new SqlServerModelDiffer(new SqlServerDatabaseBuilder(new SqlServerTypeMapper())).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
 
             Assert.Equal(2, operations.Count);
@@ -471,7 +471,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                         b.Key("Id");
                     });
 
-            var operations = new SqlServerModelDiffer(new SqlServerDatabaseBuilder()).Diff(
+            var operations = new SqlServerModelDiffer(new SqlServerDatabaseBuilder(new SqlServerTypeMapper())).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
 
             Assert.Equal(1, operations.Count);
@@ -505,7 +505,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                         b.Key("Id");
                     });
 
-            var operations = new SqlServerModelDiffer(new SqlServerDatabaseBuilder()).Diff(
+            var operations = new SqlServerModelDiffer(new SqlServerDatabaseBuilder(new SqlServerTypeMapper())).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
 
             Assert.Equal(1, operations.Count);
@@ -536,7 +536,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                         b.Index("P1").ForSqlServer().Clustered();
                     });
 
-            var operations = new SqlServerModelDiffer(new SqlServerDatabaseBuilder()).Diff(
+            var operations = new SqlServerModelDiffer(new SqlServerDatabaseBuilder(new SqlServerTypeMapper())).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
 
             Assert.Equal(2, operations.Count);
@@ -571,7 +571,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                     b.Key("Id").ForSqlServer().Clustered(false);
                 });
 
-            var operations = new SqlServerModelDiffer(new SqlServerDatabaseBuilder()).Diff(
+            var operations = new SqlServerModelDiffer(new SqlServerDatabaseBuilder(new SqlServerTypeMapper())).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
 
             Assert.Equal(2, operations.Count);
@@ -588,5 +588,283 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         }
 
         #endregion
+
+        [Fact]
+        public void Diff_finds_altered_column_if_string_property_added_to_primary_key()
+        {
+            var sourceModelBuilder = new BasicModelBuilder();
+            sourceModelBuilder
+                .Entity("A",
+                    b =>
+                    {
+                        b.Property<int>("Id");
+                        b.Property<string>("P");
+                        b.Key("Id").ForRelational().Name("PK");
+                    });
+
+            var targetModelBuilder = new BasicModelBuilder();
+            targetModelBuilder
+                .Entity("A",
+                    b =>
+                    {
+                        b.Property<int>("Id");
+                        b.Property<string>("P");
+                        b.Key("Id", "P").ForRelational().Name("PK");
+                    });
+
+            var operations = new SqlServerModelDiffer(new SqlServerDatabaseBuilder(new SqlServerTypeMapper())).Diff(
+                sourceModelBuilder.Model, targetModelBuilder.Model);
+
+            Assert.Equal(3, operations.Count);
+            Assert.IsType<DropPrimaryKeyOperation>(operations[0]);
+            Assert.IsType<AlterColumnOperation>(operations[1]);
+            Assert.IsType<AddPrimaryKeyOperation>(operations[2]);
+
+            var alterColumnOperation = (AlterColumnOperation)operations[1];
+
+            Assert.Equal("P", alterColumnOperation.NewColumn.Name);
+            Assert.Equal("nvarchar(128)", alterColumnOperation.NewColumn.DataType);
+        }
+
+        [Fact]
+        public void Diff_finds_altered_column_if_string_property_removed_from_primary_key()
+        {
+            var sourceModelBuilder = new BasicModelBuilder();
+            sourceModelBuilder
+                .Entity("A",
+                    b =>
+                    {
+                        b.Property<int>("Id");
+                        b.Property<string>("P");
+                        b.Key("Id", "P").ForRelational().Name("PK");
+                    });
+
+            var targetModelBuilder = new BasicModelBuilder();
+            targetModelBuilder
+                .Entity("A",
+                    b =>
+                    {
+                        b.Property<int>("Id");
+                        b.Property<string>("P");
+                        b.Key("Id").ForRelational().Name("PK");
+                    });
+
+            var operations = new SqlServerModelDiffer(new SqlServerDatabaseBuilder(new SqlServerTypeMapper())).Diff(
+                sourceModelBuilder.Model, targetModelBuilder.Model);
+
+            Assert.Equal(3, operations.Count);
+            Assert.IsType<DropPrimaryKeyOperation>(operations[0]);
+            Assert.IsType<AlterColumnOperation>(operations[1]);
+            Assert.IsType<AddPrimaryKeyOperation>(operations[2]);
+
+            var alterColumnOperation = (AlterColumnOperation)operations[1];
+
+            Assert.Equal("P", alterColumnOperation.NewColumn.Name);
+            Assert.Equal("nvarchar(max)", alterColumnOperation.NewColumn.DataType);
+        }
+
+        [Fact]
+        public void Diff_finds_altered_column_if_string_property_added_to_unique_constraint()
+        {
+            var sourceModelBuilder = new BasicModelBuilder();
+            sourceModelBuilder
+                .Entity("A",
+                    b =>
+                    {
+                        b.Property<int>("Id");
+                        var p1 = b.Property<int>("P1").Metadata;
+                        b.Property<string>("P2");
+                        b.Key("Id");
+                        b.Metadata.AddKey(new[] { p1 }).Relational().Name = "UC";
+                    });
+
+            var targetModelBuilder = new BasicModelBuilder();
+            targetModelBuilder
+                .Entity("A",
+                    b =>
+                    {
+                        b.Property<int>("Id");
+                        var p1 = b.Property<int>("P1").Metadata;
+                        var p2 = b.Property<string>("P2").Metadata;
+                        b.Key("Id");
+                        b.Metadata.AddKey(new[] { p1, p2 }).Relational().Name = "UC";
+                    });
+
+            var operations = new SqlServerModelDiffer(new SqlServerDatabaseBuilder(new SqlServerTypeMapper())).Diff(
+                sourceModelBuilder.Model, targetModelBuilder.Model);
+
+            Assert.Equal(3, operations.Count);
+            Assert.IsType<DropUniqueConstraintOperation>(operations[0]);
+            Assert.IsType<AlterColumnOperation>(operations[1]);
+            Assert.IsType<AddUniqueConstraintOperation>(operations[2]);
+
+            var alterColumnOperation = (AlterColumnOperation)operations[1];
+
+            Assert.Equal("P2", alterColumnOperation.NewColumn.Name);
+            Assert.Equal("nvarchar(128)", alterColumnOperation.NewColumn.DataType);
+        }
+
+        [Fact]
+        public void Diff_finds_altered_column_if_string_property_removed_from_unique_constraint()
+        {
+            var sourceModelBuilder = new BasicModelBuilder();
+            sourceModelBuilder
+                .Entity("A",
+                    b =>
+                    {
+                        b.Property<int>("Id");
+                        var p1 = b.Property<int>("P1").Metadata;
+                        var p2 = b.Property<string>("P2").Metadata;
+                        b.Key("Id");
+                        b.Metadata.AddKey(new[] { p1, p2 }).Relational().Name = "UC";
+                    });
+
+            var targetModelBuilder = new BasicModelBuilder();
+            targetModelBuilder
+                .Entity("A",
+                    b =>
+                    {
+                        b.Property<int>("Id");
+                        var p1 = b.Property<int>("P1").Metadata;
+                        b.Property<string>("P2");
+                        b.Key("Id");
+                        b.Metadata.AddKey(new[] { p1 }).Relational().Name = "UC";
+                    });
+
+            var operations = new SqlServerModelDiffer(new SqlServerDatabaseBuilder(new SqlServerTypeMapper())).Diff(
+                sourceModelBuilder.Model, targetModelBuilder.Model);
+
+            Assert.Equal(3, operations.Count);
+            Assert.IsType<DropUniqueConstraintOperation>(operations[0]);
+            Assert.IsType<AlterColumnOperation>(operations[1]);
+            Assert.IsType<AddUniqueConstraintOperation>(operations[2]);
+
+            var alterColumnOperation = (AlterColumnOperation)operations[1];
+
+            Assert.Equal("P2", alterColumnOperation.NewColumn.Name);
+            Assert.Equal("nvarchar(max)", alterColumnOperation.NewColumn.DataType);
+        }
+
+        [Fact]
+        public void Diff_finds_altered_columns_if_string_property_added_to_foreign_key()
+        {
+            var sourceModelBuilder = new BasicModelBuilder();
+            sourceModelBuilder
+                .Entity("A",
+                    b =>
+                    {
+                        b.Property<int>("Id");
+                        b.Property<string>("P1");
+                        b.Key("Id");
+                    });
+            sourceModelBuilder
+                .Entity("B",
+                    b =>
+                    {
+                        b.Property<int>("Id");
+                        b.Property<string>("P2");
+                        b.Key("Id");
+                        b.ForeignKey("A", "Id");
+                    });
+
+            var targetModelBuilder = new BasicModelBuilder();
+            targetModelBuilder
+                .Entity("A",
+                    b =>
+                    {
+                        b.Property<int>("Id");
+                        b.Property<string>("P1");
+                        b.Key("Id", "P1");
+                    });
+            targetModelBuilder
+                .Entity("B",
+                    b =>
+                    {
+                        b.Property<int>("Id");
+                        b.Property<string>("P2");
+                        b.Key("Id");
+                        b.ForeignKey("A", "Id", "P2");
+                    });
+
+            var operations = new SqlServerModelDiffer(new SqlServerDatabaseBuilder(new SqlServerTypeMapper())).Diff(
+                sourceModelBuilder.Model, targetModelBuilder.Model);
+
+            Assert.Equal(6, operations.Count);
+            Assert.IsType<DropForeignKeyOperation>(operations[0]);
+            Assert.IsType<DropPrimaryKeyOperation>(operations[1]);
+            Assert.IsType<AlterColumnOperation>(operations[2]);
+            Assert.IsType<AlterColumnOperation>(operations[3]);
+            Assert.IsType<AddPrimaryKeyOperation>(operations[4]);
+            Assert.IsType<AddForeignKeyOperation>(operations[5]);
+
+            var alterColumnOperation1 = (AlterColumnOperation)operations[2];
+            var alterColumnOperation2 = (AlterColumnOperation)operations[3];
+
+            Assert.Equal("P1", alterColumnOperation1.NewColumn.Name);
+            Assert.Equal("P2", alterColumnOperation2.NewColumn.Name);
+            Assert.Equal("nvarchar(128)", alterColumnOperation1.NewColumn.DataType);
+            Assert.Equal("nvarchar(128)", alterColumnOperation2.NewColumn.DataType);
+        }
+
+        [Fact]
+        public void Diff_finds_altered_columns_if_string_property_removed_from_foreign_key()
+        {
+            var sourceModelBuilder = new BasicModelBuilder();
+            sourceModelBuilder
+                .Entity("A",
+                    b =>
+                    {
+                        b.Property<int>("Id");
+                        b.Property<string>("P1");
+                        b.Key("Id", "P1");
+                    });
+            sourceModelBuilder
+                .Entity("B",
+                    b =>
+                    {
+                        b.Property<int>("Id");
+                        b.Property<string>("P2");
+                        b.Key("Id");
+                        b.ForeignKey("A", "Id", "P2");
+                    });
+
+            var targetModelBuilder = new BasicModelBuilder();
+            targetModelBuilder
+                .Entity("A",
+                    b =>
+                    {
+                        b.Property<int>("Id");
+                        b.Property<string>("P1");
+                        b.Key("Id");
+                    });
+            targetModelBuilder
+                .Entity("B",
+                    b =>
+                    {
+                        b.Property<int>("Id");
+                        b.Property<string>("P2");
+                        b.Key("Id");
+                        b.ForeignKey("A", "Id");
+                    });
+
+            var operations = new SqlServerModelDiffer(new SqlServerDatabaseBuilder(new SqlServerTypeMapper())).Diff(
+                sourceModelBuilder.Model, targetModelBuilder.Model);
+
+            Assert.Equal(6, operations.Count);
+            Assert.IsType<DropForeignKeyOperation>(operations[0]);
+            Assert.IsType<DropPrimaryKeyOperation>(operations[1]);
+            Assert.IsType<AlterColumnOperation>(operations[2]);
+            Assert.IsType<AlterColumnOperation>(operations[3]);
+            Assert.IsType<AddPrimaryKeyOperation>(operations[4]);
+            Assert.IsType<AddForeignKeyOperation>(operations[5]);
+
+            var alterColumnOperation1 = (AlterColumnOperation)operations[2];
+            var alterColumnOperation2 = (AlterColumnOperation)operations[3];
+
+            Assert.Equal("P1", alterColumnOperation1.NewColumn.Name);
+            Assert.Equal("P2", alterColumnOperation2.NewColumn.Name);
+            Assert.Equal("nvarchar(max)", alterColumnOperation1.NewColumn.DataType);
+            Assert.Equal("nvarchar(max)", alterColumnOperation2.NewColumn.DataType);
+        }
     }
 }

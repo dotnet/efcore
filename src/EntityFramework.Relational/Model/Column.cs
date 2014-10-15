@@ -39,7 +39,7 @@ namespace Microsoft.Data.Entity.Relational.Model
             DataType = dataType;
         }
 
-        protected internal Column([NotNull] Column source)
+        public Column([NotNull] Column source)
         {
             Copy(source);
         }
