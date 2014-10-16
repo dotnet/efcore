@@ -5,13 +5,14 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.SQLite.Utilities;
 using Microsoft.Data.Entity.Storage;
 
 namespace Microsoft.Data.Entity.SQLite
 {
-    public class SQLiteDataStoreServices : DataStoreServices
+    public class SQLiteDataStoreServices : MigrationsDataStoreServices
     {
         private readonly SQLiteDataStore _store;
         private readonly SQLiteDataStoreCreator _creator;
@@ -19,6 +20,7 @@ namespace Microsoft.Data.Entity.SQLite
         private readonly SQLiteValueGeneratorCache _valueGeneratorCache;
         private readonly RelationalDatabase _database;
         private readonly ModelBuilderFactory _modelBuilderFactory;
+        private readonly SQLiteMigrator _migrator;
 
         public SQLiteDataStoreServices(
             [NotNull] SQLiteDataStore store,
@@ -26,7 +28,8 @@ namespace Microsoft.Data.Entity.SQLite
             [NotNull] SQLiteConnection connection,
             [NotNull] SQLiteValueGeneratorCache valueGeneratorCache,
             [NotNull] RelationalDatabase database,
-            [NotNull] ModelBuilderFactory modelBuilderFactory)
+            [NotNull] ModelBuilderFactory modelBuilderFactory,
+            [NotNull] SQLiteMigrator migrator)
         {
             Check.NotNull(store, "store");
             Check.NotNull(creator, "creator");
@@ -34,6 +37,7 @@ namespace Microsoft.Data.Entity.SQLite
             Check.NotNull(valueGeneratorCache, "valueGeneratorCache");
             Check.NotNull(database, "database");
             Check.NotNull(modelBuilderFactory, "modelBuilderFactory");
+            Check.NotNull(migrator, "migrator");
 
             _store = store;
             _creator = creator;
@@ -41,6 +45,7 @@ namespace Microsoft.Data.Entity.SQLite
             _valueGeneratorCache = valueGeneratorCache;
             _database = database;
             _modelBuilderFactory = modelBuilderFactory;
+            _migrator = migrator;
         }
 
         public override DataStore Store
@@ -71,6 +76,11 @@ namespace Microsoft.Data.Entity.SQLite
         public override IModelBuilderFactory ModelBuilderFactory
         {
             get { return _modelBuilderFactory; }
+        }
+
+        public override Migrator Migrator
+        {
+            get { return _migrator; }
         }
     }
 }

@@ -84,6 +84,11 @@ namespace Microsoft.Data.Entity.Infrastructure
             get { return _database.Value; }
         }
 
+        public virtual DataStoreServices DataStoreServices
+        {
+            get { return _dataStoreServices.Value; }
+        }
+
         public virtual DataStoreCreator DataStoreCreator
         {
             get { return _dataStoreServices.Value.Creator; }

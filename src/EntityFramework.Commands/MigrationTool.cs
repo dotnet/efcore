@@ -47,11 +47,11 @@ namespace Microsoft.Data.Entity.Commands
                     extension.MigrationNamespace = rootNamespace + ".Migrations";
                 }
 
-                var serviceProvider = configuration.Services.ServiceProvider;
+                var migrator = CreateMigrator(context);
                 var scaffolder = new MigrationScaffolder(
                     configuration,
-                    serviceProvider.GetService<MigrationAssembly>(),
-                    serviceProvider.GetService<ModelDiffer>(),
+                    migrator.MigrationAssembly,
+                    migrator.ModelDiffer,
                     new CSharpMigrationCodeGenerator(new CSharpModelCodeGenerator()));
 
                 var migration = scaffolder.ScaffoldMigration(migrationName);
@@ -174,7 +174,8 @@ namespace Microsoft.Data.Entity.Commands
 
         private Migrator CreateMigrator(DbContext context)
         {
-            return context.Configuration.Services.ServiceProvider.GetService<Migrator>();
+            var services = (MigrationsDataStoreServices)context.Configuration.DataStoreServices;
+            return services.Migrator;
         }
 
         private IEnumerable<Type> GetMigrationTypes()

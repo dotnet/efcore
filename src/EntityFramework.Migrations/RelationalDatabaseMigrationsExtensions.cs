@@ -17,8 +17,8 @@ namespace Microsoft.Data.Entity
             Check.NotNull(database, "database");
 
             var config = ((IDbContextConfigurationAdapter)database).Configuration;
-            var migrator = config.Services.ServiceProvider.GetService<Migrator>();
-            migrator.ApplyMigrations();
+            var services = (MigrationsDataStoreServices)config.DataStoreServices;
+            services.Migrator.ApplyMigrations();
         }
     }
 }

@@ -34,6 +34,7 @@ namespace Microsoft.Data.Entity.Migrations
         {
             return new[]
                 {
+                    "Microsoft.Data.Entity",
                     "Microsoft.Data.Entity.Metadata",
                     "Microsoft.Data.Entity.Migrations.Infrastructure",
                     "System"

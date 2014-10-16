@@ -56,6 +56,7 @@
     <Compile Include="Infrastructure\MigrationAssembly.cs" />
     <Compile Include="Infrastructure\MigrationMetadataExtensions.cs" />
     <Compile Include="Infrastructure\MigrationInfo.cs" />
+    <Compile Include="Infrastructure\MigrationsDataStoreServices.cs" />
     <Compile Include="Infrastructure\Migrator.cs" />
     <Compile Include="Infrastructure\MigratorLoggerEventIds.cs" />
     <Compile Include="Infrastructure\MigratorLoggerExtensions.cs" />
@@ -104,6 +105,7 @@
       <DependentUpon>Strings.resx</DependentUpon>
     </Compile>
     <Compile Include="DatabaseModelModifier.cs" />
+    <Compile Include="RelationalDatabaseMigrationsExtensions.cs" />
     <Compile Include="Utilities\AssemblyExtensions.cs" />
     <Compile Include="Utilities\Check.cs" />
     <Compile Include="Utilities\DbContextConfigurationExtensions.cs" />

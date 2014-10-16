@@ -99,7 +99,8 @@ namespace Microsoft.AspNet.Diagnostics.Entity.Tests
                 Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
 
                 Assert.True(db.Database.AsRelational().Exists());
-                var appliedMigrations = db.Configuration.Services.ServiceProvider.GetService<Migrator>().GetDatabaseMigrations();
+                var services = (MigrationsDataStoreServices)db.Configuration.DataStoreServices;
+                var appliedMigrations = services.Migrator.GetDatabaseMigrations();
                 Assert.Equal(2, appliedMigrations.Count);
                 Assert.Equal("111111111111111_MigrationOne", appliedMigrations.ElementAt(0).GetMigrationId());
                 Assert.Equal("222222222222222_MigrationTwo", appliedMigrations.ElementAt(1).GetMigrationId());

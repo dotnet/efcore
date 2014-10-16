@@ -158,8 +158,8 @@ namespace Microsoft.AspNet.Diagnostics.Entity.Tests
             {
                 using (var db = context.ApplicationServices.GetService<BloggingContextWithPendingModelChanges>())
                 {
-                    var migrator = db.Configuration.Services.ServiceProvider.GetService<Migrator>();
-                    migrator.ApplyMigrations();
+                    var services = (MigrationsDataStoreServices)db.Configuration.DataStoreServices;
+                    services.Migrator.ApplyMigrations();
 
                     db.Blogs.Add(new Blog());
                     db.SaveChanges();

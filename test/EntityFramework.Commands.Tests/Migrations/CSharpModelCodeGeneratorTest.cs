@@ -654,7 +654,8 @@ return builder.Model;",
                 .GenerateModelSnapshotClass("MyNamespace", "MyClass", model, typeof(MyContext), stringBuilder);
 
             Assert.Equal(
-                @"using Microsoft.Data.Entity.Commands.Tests.Migrations;
+                @"using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.Commands.Tests.Migrations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
 using System;

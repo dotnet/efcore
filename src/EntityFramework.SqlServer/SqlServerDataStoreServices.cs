@@ -5,13 +5,14 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.SqlServer.Utilities;
 using Microsoft.Data.Entity.Storage;
 
 namespace Microsoft.Data.Entity.SqlServer
 {
-    public class SqlServerDataStoreServices : DataStoreServices
+    public class SqlServerDataStoreServices : MigrationsDataStoreServices
     {
         private readonly SqlServerDataStore _store;
         private readonly SqlServerDataStoreCreator _creator;
@@ -19,6 +20,7 @@ namespace Microsoft.Data.Entity.SqlServer
         private readonly SqlServerValueGeneratorCache _valueGeneratorCache;
         private readonly RelationalDatabase _database;
         private readonly ModelBuilderFactory _modelBuilderFactory;
+        private readonly SqlServerMigrator _migrator;
 
         public SqlServerDataStoreServices(
             [NotNull] SqlServerDataStore store,
@@ -26,7 +28,8 @@ namespace Microsoft.Data.Entity.SqlServer
             [NotNull] SqlServerConnection connection,
             [NotNull] SqlServerValueGeneratorCache valueGeneratorCache,
             [NotNull] RelationalDatabase database,
-            [NotNull] ModelBuilderFactory modelBuilderFactory)
+            [NotNull] ModelBuilderFactory modelBuilderFactory,
+            [NotNull] SqlServerMigrator migrator)
         {
             Check.NotNull(store, "store");
             Check.NotNull(creator, "creator");
@@ -34,6 +37,7 @@ namespace Microsoft.Data.Entity.SqlServer
             Check.NotNull(valueGeneratorCache, "valueGeneratorCache");
             Check.NotNull(database, "database");
             Check.NotNull(modelBuilderFactory, "modelBuilderFactory");
+            Check.NotNull(migrator, "migrator");
 
             _store = store;
             _creator = creator;
@@ -41,6 +45,7 @@ namespace Microsoft.Data.Entity.SqlServer
             _valueGeneratorCache = valueGeneratorCache;
             _database = database;
             _modelBuilderFactory = modelBuilderFactory;
+            _migrator = migrator;
         }
 
         public override DataStore Store
@@ -71,6 +76,11 @@ namespace Microsoft.Data.Entity.SqlServer
         public override IModelBuilderFactory ModelBuilderFactory
         {
             get { return _modelBuilderFactory; }
+        }
+
+        public override Migrator Migrator
+        {
+            get { return _migrator; }
         }
     }
 }

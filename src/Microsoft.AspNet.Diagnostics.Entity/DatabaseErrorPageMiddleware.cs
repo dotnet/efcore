@@ -80,17 +80,15 @@ namespace Microsoft.AspNet.Diagnostics.Entity
                                 {
                                     var databaseExists = dbContext.Database.AsRelational().Exists();
 
-                                    var serviceProvider = dbContext.Configuration.Services.ServiceProvider;
+                                    var services = (MigrationsDataStoreServices)dbContext.Configuration.DataStoreServices;
 
-                                    var migrator = serviceProvider.GetService<Migrator>();
-
-                                    var pendingMigrations = migrator.GetPendingMigrations().Select(m => m.GetMigrationId());
+                                    var pendingMigrations = services.Migrator.GetPendingMigrations().Select(m => m.GetMigrationId());
 
                                     var pendingModelChanges = true;
-                                    var snapshot = migrator.MigrationAssembly.Model;
+                                    var snapshot = services.Migrator.MigrationAssembly.Model;
                                     if (snapshot != null)
                                     {
-                                        pendingModelChanges = migrator.ModelDiffer.Diff(snapshot, dbContext.Model).Any();
+                                        pendingModelChanges = services.Migrator.ModelDiffer.Diff(snapshot, dbContext.Model).Any();
                                     }
 
                                     if ((!databaseExists && pendingMigrations.Any()) || pendingMigrations.Any() || pendingModelChanges)
