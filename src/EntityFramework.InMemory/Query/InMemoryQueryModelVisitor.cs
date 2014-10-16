@@ -32,31 +32,28 @@ namespace Microsoft.Data.Entity.InMemory.Query
             IQuerySource querySource,
             Type resultType,
             LambdaExpression accessorLambda,
-            Expression navigationPropertyPath)
+            INavigation navigation)
         {
-            var navigation
-                = BindNavigationMemberExpression(
-                    (MemberExpression)navigationPropertyPath,
-                    (n, _) => n);
+            Check.NotNull(querySource, "querySource");
+            Check.NotNull(resultType, "resultType");
+            Check.NotNull(accessorLambda, "accessorLambda");
+            Check.NotNull(navigation, "navigation");
 
-            if (navigation != null)
-            {
-                var inMemoryQueryCompilationContext
-                    = ((InMemoryQueryCompilationContext)QueryCompilationContext);
+            var inMemoryQueryCompilationContext
+                = ((InMemoryQueryCompilationContext)QueryCompilationContext);
 
-                var targetTable
-                    = inMemoryQueryCompilationContext.Database
-                        .GetTable(navigation.GetTargetType());
+            var targetTable
+                = inMemoryQueryCompilationContext.Database
+                    .GetTable(navigation.GetTargetType());
 
-                Expression
-                    = Expression.Call(
-                        _includeMethodInfo.MakeGenericMethod(resultType),
-                        QueryContextParameter,
-                        Expression,
-                        Expression.Constant(navigation),
-                        Expression.Constant(targetTable),
-                        accessorLambda);
-            }
+            Expression
+                = Expression.Call(
+                    _includeMethodInfo.MakeGenericMethod(resultType),
+                    QueryContextParameter,
+                    Expression,
+                    Expression.Constant(navigation),
+                    Expression.Constant(targetTable),
+                    accessorLambda);
         }
 
         private static readonly MethodInfo _includeMethodInfo

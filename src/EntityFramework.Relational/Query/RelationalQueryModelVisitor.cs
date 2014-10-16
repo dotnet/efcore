@@ -86,17 +86,12 @@ namespace Microsoft.Data.Entity.Relational.Query
             IQuerySource querySource,
             Type resultType,
             LambdaExpression accessorLambda,
-            Expression navigationPropertyPath)
+            INavigation navigation)
         {
-            var navigation
-                = BindNavigationMemberExpression(
-                    (MemberExpression)navigationPropertyPath,
-                    (n, _) => n);
-
-            if (navigation == null)
-            {
-                return;
-            }
+            Check.NotNull(querySource, "querySource");
+            Check.NotNull(resultType, "resultType");
+            Check.NotNull(accessorLambda, "accessorLambda");
+            Check.NotNull(navigation, "navigation");
 
             if (!navigation.PointsToPrincipal)
             {

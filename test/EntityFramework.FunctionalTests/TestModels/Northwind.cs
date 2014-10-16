@@ -189,6 +189,8 @@ namespace Northwind
 
         public Customer Customer { get; set; }
 
+        public virtual ICollection<OrderDetail> OrderDetails { get; set; } 
+
         protected bool Equals(Order other)
         {
             return OrderID == other.OrderID;
@@ -229,6 +231,7 @@ namespace Northwind
         public float Discount { get; set; }
 
         public virtual Product Product { get; set; }
+        public virtual Order Order { get; set; }
 
         protected bool Equals(OrderDetail other)
         {

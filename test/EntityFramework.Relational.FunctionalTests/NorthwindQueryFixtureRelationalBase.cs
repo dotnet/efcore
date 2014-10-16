@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
             model.GetEntityType(typeof(Employee)).Relational().Table = "Employees";
             model.GetEntityType(typeof(Product)).Relational().Table = "Products";
             model.GetEntityType(typeof(Order)).Relational().Table = "Orders";
-            model.GetEntityType(typeof(OrderDetail)).Relational().Table = "OrderDetails";
+            model.GetEntityType(typeof(OrderDetail)).Relational().Table = "Order Details";
 
             return model;
         }
