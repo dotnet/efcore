@@ -18,8 +18,8 @@ namespace Microsoft.Data.Entity.Metadata
         private int _shadowIndex;
         private int _originalValueIndex = -1;
         private int _index;
-        private int _maxLength;
-        private ValueGeneration _valueGeneration;
+        private int _maxLength = -1;
+        private ValueGeneration? _valueGeneration;
 
         public Property([NotNull] string name, [NotNull] Type propertyType, [NotNull] EntityType entityType, bool shadowProperty = false)
             : base(name)
@@ -104,17 +104,35 @@ namespace Microsoft.Data.Entity.Metadata
             get { return false; }
         }
 
-        public virtual int MaxLength
+        public virtual int? MaxLength
         {
-            get { return _maxLength; }
+            get
+            {
+                return _maxLength >= 0
+                    ? (int?)_maxLength
+                    : null;
+            }
             set
             {
-                if (value < 0)
+                if (!value.HasValue)
                 {
-                    throw new ArgumentOutOfRangeException("value");
+                    _maxLength = -1;
                 }
-                _maxLength = value;
+                else
+                {
+                    if (value < 0)
+                    {
+                        throw new ArgumentOutOfRangeException("value");
+                    }
+
+                    _maxLength = value.Value;
+                }
             }
+        }
+
+        protected virtual int DefaultMaxLength
+        {
+            get { return 0; }
         }
 
         // TODO: Remove this once the model is readonly
@@ -153,15 +171,23 @@ namespace Microsoft.Data.Entity.Metadata
             get { return this.IsKey(); }
         }
 
-        public virtual ValueGeneration ValueGeneration
+        public virtual ValueGeneration? ValueGeneration
         {
             get { return _valueGeneration; }
             set
             {
-                Check.IsDefined(value, "value");
+                if (value.HasValue)
+                {
+                    Check.IsDefined(value.Value, "value");
+                }
 
                 _valueGeneration = value;
             }
+        }
+
+        protected virtual ValueGeneration DefaultValueGeneration
+        {
+            get { return Metadata.ValueGeneration.None; }
         }
 
         public virtual bool IsShadowProperty
@@ -287,9 +313,19 @@ namespace Microsoft.Data.Entity.Metadata
             get { return UseStoreDefault ?? DefaultUseStoreDefault; }
         }
 
+        int IProperty.MaxLength
+        {
+            get { return MaxLength ?? DefaultMaxLength; }
+        }
+
         bool IProperty.IsReadOnly
         {
             get { return IsReadOnly ?? DefaultIsReadOnly; }
+        }
+
+        ValueGeneration IProperty.ValueGeneration
+        {
+            get { return ValueGeneration ?? DefaultValueGeneration; }
         }
 
         bool IProperty.IsConcurrencyToken

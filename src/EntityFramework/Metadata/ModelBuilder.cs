@@ -373,49 +373,49 @@ namespace Microsoft.Data.Entity.Metadata
 
                 public virtual PropertyBuilder Required(bool isRequired = true)
                 {
-                    Builder.Required(isRequired);
+                    Builder.Required(isRequired, ConfigurationSource.Explicit);
 
                     return this;
                 }
 
                 public virtual PropertyBuilder MaxLength(int maxLength)
                 {
-                    Builder.MaxLength(maxLength);
+                    Builder.MaxLength(maxLength, ConfigurationSource.Explicit);
 
                     return this;
                 }
 
                 public virtual PropertyBuilder ConcurrencyToken(bool isConcurrencyToken = true)
                 {
-                    Builder.ConcurrencyToken(isConcurrencyToken);
+                    Builder.ConcurrencyToken(isConcurrencyToken, ConfigurationSource.Explicit);
 
                     return this;
                 }
 
                 public virtual PropertyBuilder Shadow(bool isShadowProperty = true)
                 {
-                    Builder.Shadow(isShadowProperty);
+                    Builder.Shadow(isShadowProperty, ConfigurationSource.Explicit);
 
                     return this;
                 }
 
                 public virtual PropertyBuilder GenerateValuesOnAdd(bool generateValues = true)
                 {
-                    Builder.GenerateValuesOnAdd(generateValues);
+                    Builder.GenerateValuesOnAdd(generateValues, ConfigurationSource.Explicit);
 
                     return this;
                 }
 
                 public virtual PropertyBuilder StoreComputed(bool computed = true)
                 {
-                    Builder.StoreComputed(computed);
+                    Builder.StoreComputed(computed, ConfigurationSource.Explicit);
 
                     return this;
                 }
 
                 public virtual PropertyBuilder UseStoreDefault(bool useDefault = true)
                 {
-                    Builder.UseStoreDefault(useDefault);
+                    Builder.UseStoreDefault(useDefault, ConfigurationSource.Explicit);
 
                     return this;
                 }

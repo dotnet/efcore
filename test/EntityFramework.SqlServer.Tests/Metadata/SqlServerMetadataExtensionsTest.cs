@@ -632,7 +632,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             Assert.Null(property.SqlServer().ValueGenerationStrategy);
             Assert.Null(((IProperty)property).SqlServer().ValueGenerationStrategy);
-            Assert.Equal(ValueGeneration.None, property.ValueGeneration);
+            Assert.Null(property.ValueGeneration);
+            Assert.Equal(ValueGeneration.None, ((IProperty)property).ValueGeneration);
 
             property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Sequence;
 

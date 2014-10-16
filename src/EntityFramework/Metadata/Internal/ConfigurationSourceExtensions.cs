@@ -30,13 +30,11 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return true;
         }
 
-        public static bool CanSet(this ConfigurationSource newConfigurationSource, bool currentValueSet, ConfigurationSource? oldConfigurationSource)
+        public static bool CanSet(this ConfigurationSource newConfigurationSource, ConfigurationSource? oldConfigurationSource, bool isValueSet)
         {
-            if (currentValueSet)
+            if (isValueSet)
             {
-                var existingConfigurationSource = oldConfigurationSource.HasValue
-                    ? oldConfigurationSource.Value
-                    : ConfigurationSource.Explicit;
+                var existingConfigurationSource = oldConfigurationSource ?? ConfigurationSource.Explicit;
 
                 if (!newConfigurationSource.Overrides(existingConfigurationSource))
                 {

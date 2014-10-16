@@ -78,7 +78,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return _propertyBuilders.GetOrAdd(
                 () => Metadata.TryGetProperty(name),
                 () => Metadata.AddProperty(name, propertyType, shadowProperty),
-                property => new InternalPropertyBuilder(property, ModelBuilder),
+                property => new InternalPropertyBuilder(property, ModelBuilder, configurationSource),
                 configurationSource);
         }
 

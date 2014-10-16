@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual bool IsUnique(bool isUnique, ConfigurationSource configurationSource)
         {
-            if (configurationSource.CanSet(Metadata.IsUnique.HasValue, _isUniqueConfigurationSource))
+            if (configurationSource.CanSet(_isUniqueConfigurationSource, Metadata.IsUnique.HasValue))
             {
                 _isUniqueConfigurationSource = configurationSource;
                 Metadata.IsUnique = isUnique;

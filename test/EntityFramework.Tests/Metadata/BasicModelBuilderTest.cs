@@ -584,7 +584,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 b.Property(typeof(string), "Bottom").StoreComputed(false);
             });
 
-            var entityType = model.GetEntityType(typeof(Quarks));
+            var entityType = (IEntityType)model.GetEntityType(typeof(Quarks));
 
             Assert.Equal(ValueGeneration.None, entityType.GetProperty("Id").ValueGeneration);
             Assert.Equal(ValueGeneration.OnAddAndUpdate, entityType.GetProperty("Up").ValueGeneration);
@@ -640,7 +640,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 b.Property(typeof(string), "Bottom").MaxLength(100);
             });
 
-            var entityType = model.GetEntityType(typeof(Quarks));
+            var entityType = (IEntityType)model.GetEntityType(typeof(Quarks));
 
             Assert.Equal(0, entityType.GetProperty("Id").MaxLength);
             Assert.Equal(0, entityType.GetProperty("Up").MaxLength);

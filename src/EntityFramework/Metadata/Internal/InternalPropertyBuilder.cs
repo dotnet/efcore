@@ -7,44 +7,101 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 {
     public class InternalPropertyBuilder : InternalMetadataItemBuilder<Property>
     {
-        public InternalPropertyBuilder([NotNull] Property property, [NotNull] InternalModelBuilder modelBuilder)
+        private ConfigurationSource? _isRequiredConfigurationSource;
+        private ConfigurationSource? _maxLengthConfigurationSource;
+        private ConfigurationSource? _isConcurrencyTokenConfigurationSource;
+        private ConfigurationSource _isShadowPropertyConfigurationSource;
+        private ConfigurationSource? _valueGenerationConfigurationSource;
+        private ConfigurationSource? _useStoreDefaultConfigurationSource;
+
+        public InternalPropertyBuilder([NotNull] Property property, [NotNull] InternalModelBuilder modelBuilder, ConfigurationSource configurationSource)
             : base(property, modelBuilder)
         {
+            _isShadowPropertyConfigurationSource = configurationSource;
         }
 
-        public virtual void Required(bool isRequired = true)
+        public virtual bool Required(bool isRequired, ConfigurationSource configurationSource)
         {
-            Metadata.IsNullable = !isRequired;
+            if (configurationSource.CanSet(_isRequiredConfigurationSource, Metadata.IsNullable.HasValue))
+            {
+                _isRequiredConfigurationSource = configurationSource;
+                Metadata.IsNullable = !isRequired;
+                return true;
+            }
+
+            return false;
         }
 
-        public virtual void MaxLength(int maxLength)
+        public virtual bool MaxLength(int maxLength, ConfigurationSource configurationSource)
         {
-            Metadata.MaxLength = maxLength;
+            if (configurationSource.CanSet(_maxLengthConfigurationSource, Metadata.MaxLength.HasValue))
+            {
+                _maxLengthConfigurationSource = configurationSource;
+                Metadata.MaxLength = maxLength;
+                return true;
+            }
+
+            return false;
         }
 
-        public virtual void ConcurrencyToken(bool isConcurrencyToken = true)
+        public virtual bool ConcurrencyToken(bool isConcurrencyToken, ConfigurationSource configurationSource)
         {
-            Metadata.IsConcurrencyToken = isConcurrencyToken;
+            if (configurationSource.CanSet(_isConcurrencyTokenConfigurationSource, Metadata.IsConcurrencyToken.HasValue))
+            {
+                _isConcurrencyTokenConfigurationSource = configurationSource;
+                Metadata.IsConcurrencyToken = isConcurrencyToken;
+                return true;
+            }
+
+            return false;
         }
 
-        public virtual void Shadow(bool isShadowProperty = true)
+        public virtual bool Shadow(bool isShadowProperty, ConfigurationSource configurationSource)
         {
-            Metadata.IsShadowProperty = isShadowProperty;
+            if (configurationSource.CanSet(_isShadowPropertyConfigurationSource, true))
+            {
+                _isShadowPropertyConfigurationSource = configurationSource;
+                Metadata.IsShadowProperty = isShadowProperty;
+                return true;
+            }
+
+            return false;
         }
 
-        public virtual void GenerateValuesOnAdd(bool generateValues = true)
+        public virtual bool GenerateValuesOnAdd(bool generateValues, ConfigurationSource configurationSource)
         {
-            Metadata.ValueGeneration = generateValues ? ValueGeneration.OnAdd : ValueGeneration.None;
+            if (configurationSource.CanSet(_valueGenerationConfigurationSource, Metadata.ValueGeneration.HasValue))
+            {
+                _valueGenerationConfigurationSource = configurationSource;
+                Metadata.ValueGeneration = generateValues ? ValueGeneration.OnAdd : ValueGeneration.None;
+                return true;
+            }
+
+            return false;
         }
 
-        public virtual void StoreComputed(bool computed = true)
+        public virtual bool StoreComputed(bool storeComputed, ConfigurationSource configurationSource)
         {
-            Metadata.ValueGeneration = computed ? ValueGeneration.OnAddAndUpdate : ValueGeneration.None;
+            if (configurationSource.CanSet(_valueGenerationConfigurationSource, Metadata.ValueGeneration.HasValue))
+            {
+                _valueGenerationConfigurationSource = configurationSource;
+                Metadata.ValueGeneration = storeComputed ? ValueGeneration.OnAddAndUpdate : ValueGeneration.None;
+                return true;
+            }
+
+            return false;
         }
 
-        public virtual void UseStoreDefault(bool useDefault = true)
+        public virtual bool UseStoreDefault(bool useDefault, ConfigurationSource configurationSource)
         {
-            Metadata.UseStoreDefault = useDefault;
+            if (configurationSource.CanSet(_useStoreDefaultConfigurationSource, Metadata.UseStoreDefault.HasValue))
+            {
+                _useStoreDefaultConfigurationSource = configurationSource;
+                Metadata.UseStoreDefault = useDefault;
+                return true;
+            }
+
+            return false;
         }
     }
 }
