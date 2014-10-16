@@ -80,5 +80,19 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 TestHelpers.GetCoreString("FormatEntityConfigurationLocked", "UseSqlServer"),
                 Assert.Throws<InvalidOperationException>(() => options.UseSqlServer(new SqlConnection())).Message);
         }
+
+        [Fact]
+        public void UseSqlServer_uses_connection_string_from_raw_options()
+        {
+            var options = new DbContextOptions();
+            options.RawOptions.Add("ConnectionString", "Database=Crunchie");
+
+            options = options.UseSqlServer();
+
+            var extension = ((IDbContextOptionsExtensions)options).Extensions.OfType<SqlServerOptionsExtension>().Single();
+
+            Assert.Equal("Database=Crunchie", extension.ConnectionString);
+            Assert.Null(extension.Connection);
+        }
     }
 }

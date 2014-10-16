@@ -36,6 +36,7 @@
     <PackageReference Include="System.Data.Common">
       <TargetFramework>net451</TargetFramework>
     </PackageReference>
+    <PackageReference Include="Microsoft.Framework.ConfigurationModel" />
     <PackageReference Include="Microsoft.Framework.DependencyInjection" />
     <PackageReference Include="Microsoft.Framework.Logging.Interfaces" />
     <PackageReference Include="xunit.abstractions">

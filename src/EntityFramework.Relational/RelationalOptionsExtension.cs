@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using System.Reflection;
@@ -13,6 +14,8 @@ namespace Microsoft.Data.Entity.Relational
 {
     public abstract class RelationalOptionsExtension : DbContextOptionsExtension
     {
+        private const string ConnectionStringKey = "ConnectionString";
+
         private string _connectionString;
         private DbConnection _connection;
         private Assembly _migrationAssembly;
@@ -55,6 +58,18 @@ namespace Microsoft.Data.Entity.Relational
             get { return _migrationNamespace; }
 
             [param: NotNull] set { _migrationNamespace = Check.NotEmpty(value, "value"); }
+        }
+
+        protected override void Configure(IDictionary<string, string> rawOptions)
+        {
+            Check.NotNull(rawOptions, "rawOptions");
+
+            if (string.IsNullOrEmpty(_connectionString))
+            {
+                rawOptions.TryGetValue(ConnectionStringKey, out _connectionString);
+            }
+
+            // TODO: Read other options.
         }
 
         public static RelationalOptionsExtension Extract([NotNull] DbContextConfiguration configuration)

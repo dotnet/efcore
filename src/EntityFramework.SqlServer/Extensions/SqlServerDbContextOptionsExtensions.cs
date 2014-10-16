@@ -13,6 +13,16 @@ namespace Microsoft.Data.Entity
 {
     public static class SqlServerDbContextOptionsExtensions
     {
+        public static DbContextOptions UseSqlServer([NotNull] this DbContextOptions options)
+        {
+            Check.NotNull(options, "options");
+
+            ((IDbContextOptionsExtensions)options)
+                .AddOrUpdateExtension<SqlServerOptionsExtension>(x => { });
+
+            return options;
+        }
+
         public static DbContextOptions UseSqlServer([NotNull] this DbContextOptions options, [NotNull] string connectionString)
         {
             Check.NotNull(options, "options");

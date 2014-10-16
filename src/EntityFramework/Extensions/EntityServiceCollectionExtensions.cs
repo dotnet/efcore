@@ -10,6 +10,8 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
+using Microsoft.Framework.ConfigurationModel;
+using Microsoft.Framework.OptionsModel;
 
 // ReSharper disable once CheckNamespace
 
@@ -17,7 +19,11 @@ namespace Microsoft.Framework.DependencyInjection
 {
     public static class EntityServiceCollectionExtensions
     {
-        public static EntityServicesBuilder AddEntityFramework([NotNull] this IServiceCollection serviceCollection)
+        private const int ConfigurationOrder = -1000; // OptionsConstants is internal.
+
+        public static EntityServicesBuilder AddEntityFramework(
+            [NotNull] this IServiceCollection serviceCollection,
+            [CanBeNull] IConfiguration configuration = null)
         {
             Check.NotNull(serviceCollection, "serviceCollection");
 
@@ -52,7 +58,7 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddScoped<ContextSets>()
                 .AddScoped<StateManager>();
 
-            return new EntityServicesBuilder(serviceCollection);
+            return new EntityServicesBuilder(serviceCollection, configuration);
         }
 
         public static EntityServicesBuilder AddDbContext<TContext>(
@@ -61,6 +67,18 @@ namespace Microsoft.Framework.DependencyInjection
             where TContext : DbContext
         {
             Check.NotNull(builder, "builder");
+
+            builder.ServiceCollection.AddSingleton<DbContextOptions<TContext>>(
+                sp => sp.GetService<IOptions<DbContextOptions<TContext>>>().Options);
+
+            if (builder.Configuration != null)
+            {
+                builder.ServiceCollection.ConfigureOptions(
+                    new DbContextConfigureOptions<TContext>(builder.Configuration)
+                        {
+                            Order = ConfigurationOrder
+                        });
+            }
 
             if (optionsAction != null)
             {

@@ -67,6 +67,7 @@
     <Compile Include="ChangeTracking\IPropertyBagEntry.cs" />
     <Compile Include="ChangeTracking\SimpleNullableEntityKeyFactory.cs" />
     <Compile Include="DbContext.cs" />
+    <Compile Include="DbContextConfigureOptions.cs" />
     <Compile Include="Infrastructure\DbContextActivator.cs" />
     <Compile Include="DbContextOptions.cs" />
     <Compile Include="DbContextOptions`.cs" />

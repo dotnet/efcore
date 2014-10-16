@@ -3,6 +3,7 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Framework.ConfigurationModel;
 
 namespace Microsoft.Data.Entity
 {
@@ -11,6 +12,11 @@ namespace Microsoft.Data.Entity
         public new virtual DbContextOptions<T> UseModel([NotNull] IModel model)
         {
             return (DbContextOptions<T>)base.UseModel(model);
+        }
+
+        protected internal virtual void ReadRawOptions([NotNull] IConfiguration configuration)
+        {
+            ReadRawOptions(configuration, typeof(T));
         }
     }
 }
