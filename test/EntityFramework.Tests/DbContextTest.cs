@@ -11,6 +11,7 @@ using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
+using Microsoft.Framework.ConfigurationModel;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Advanced;
 using Microsoft.Framework.DependencyInjection.Fallback;
@@ -1089,8 +1090,7 @@ namespace Microsoft.Data.Entity.Tests
             }
         }
 
-        // TODO: Figure out what should be expected in this scenario.
-        //[Fact]
+        [Fact]
         public void Context_with_options_and_options_action_can_be_used_as_service()
         {
             var services = new ServiceCollection();
@@ -1112,6 +1112,84 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.NotSame(serviceProvider, context.Configuration.Services.ServiceProvider);
                 Assert.Equal(1, context.Configuration.ContextOptions.Extensions.Count);
                 Assert.Same(contextOptionsExtension, context.Configuration.ContextOptions.Extensions[0]);
+            }
+        }
+
+        [Fact]
+        public void Context_activation_reads_options_from_configuration_keyed_using_context_type_name()
+        {
+            Context_activation_reads_options_from_configuration<ContextWithDefaults>(t => t.Name);
+            Context_activation_reads_options_from_configuration<ContextWithServiceProvider>(t => t.Name);
+            Context_activation_reads_options_from_configuration<ContextWithOptions>(t => t.Name);
+        }
+
+        [Fact]
+        public void Context_activation_reads_options_from_configuration_keyed_using_context_type_full_name()
+        {
+            Context_activation_reads_options_from_configuration<ContextWithDefaults>(t => t.FullName);
+            Context_activation_reads_options_from_configuration<ContextWithServiceProvider>(t => t.FullName);
+            Context_activation_reads_options_from_configuration<ContextWithOptions>(t => t.FullName);
+        }
+
+        private static void Context_activation_reads_options_from_configuration<ContextT>(Func<Type, string> contextKeyFunc)
+            where ContextT : DbContext
+        {
+            var configSource = new MemoryConfigurationSource();
+            configSource.Add(string.Concat("EntityFramework:", contextKeyFunc(typeof(ContextT)), ":ConnectionString"), "MyConnectionString");
+
+            var config = new Configuration();
+            config.Add(configSource);
+
+            var services = new ServiceCollection();
+            var contextOptionsExtension = new FakeDbContextOptionsExtension();
+
+            services
+                .AddSingleton<ITypeActivator, TypeActivator>()
+                .Add(OptionsServices.GetDefaultServices())
+                .AddEntityFramework(config)
+                .AddDbContext<ContextT>(options => ((IDbContextOptionsExtensions)options).AddExtension(contextOptionsExtension));
+
+            var serviceProvider = services.BuildServiceProvider();
+
+            using (var context = serviceProvider.GetService<ContextT>())
+            {
+                var contextOptions = context.Configuration.ContextOptions as DbContextOptions<ContextT>;
+
+                Assert.NotNull(contextOptions);
+                Assert.Equal(1, contextOptions.RawOptions.Count);
+                Assert.Equal("MyConnectionString", contextOptions.RawOptions["ConnectionString"]);
+                Assert.Equal(1, context.Configuration.ContextOptions.Extensions.Count);
+                Assert.Same(contextOptionsExtension, context.Configuration.ContextOptions.Extensions[0]);
+            }            
+        }
+
+        [Fact]
+        public void Context_activation_reads_options_from_configuration_with_key_redirection()
+        {
+            var configSource = new MemoryConfigurationSource();
+            configSource.Add("Data:DefaultConnection:ConnectionString", "MyConnectionString");
+            configSource.Add("EntityFramework:ContextWithDefaults:ConnectionStringKey", "Data:DefaultConnection:ConnectionString");
+
+            var config = new Configuration();
+            config.Add(configSource);
+
+            var services = new ServiceCollection();
+
+            services
+                .AddSingleton<ITypeActivator, TypeActivator>()
+                .Add(OptionsServices.GetDefaultServices())
+                .AddEntityFramework(config)
+                .AddDbContext<ContextWithDefaults>();
+
+            var serviceProvider = services.BuildServiceProvider();
+
+            using (var context = serviceProvider.GetService<ContextWithDefaults>())
+            {
+                var contextOptions = context.Configuration.ContextOptions as DbContextOptions<ContextWithDefaults>;
+
+                Assert.NotNull(contextOptions);
+                Assert.Equal(1, contextOptions.RawOptions.Count);
+                Assert.Equal("MyConnectionString", contextOptions.RawOptions["ConnectionString"]);
             }
         }
 
@@ -1143,7 +1221,7 @@ namespace Microsoft.Data.Entity.Tests
 
         private class ContextWithOptions : DbContext
         {
-            public ContextWithOptions(DbContextOptions contextOptions)
+            public ContextWithOptions(DbContextOptions<ContextWithOptions> contextOptions)
                 : base(contextOptions)
             {
             }
