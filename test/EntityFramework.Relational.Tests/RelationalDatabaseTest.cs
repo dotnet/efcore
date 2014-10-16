@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Services;
+using Microsoft.Framework.Logging;
 using Moq;
 using Xunit;
 
@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
             configurationMock.Setup(m => m.DataStoreCreator).Returns(creatorMock.Object);
             configurationMock.Setup(m => m.Model).Returns(model);
             configurationMock.Setup(m => m.Connection).Returns(connectionMock.Object);
-            configurationMock.Setup(m => m.LoggerFactory).Returns(new NullLoggerFactory());
+            configurationMock.Setup(m => m.LoggerFactory).Returns(new LoggerFactory());
             connectionMock.SetupGet(m => m.DbConnection).Returns(dbConnectionMock.Object);
             dbConnectionMock.SetupGet(m => m.Database).Returns("MyDb");
 
@@ -78,7 +78,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
             configurationMock.Setup(m => m.DataStoreCreator).Returns(creatorMock.Object);
             configurationMock.Setup(m => m.Model).Returns(model);
             configurationMock.Setup(m => m.Connection).Returns(connectionMock.Object);
-            configurationMock.Setup(m => m.LoggerFactory).Returns(new NullLoggerFactory());
+            configurationMock.Setup(m => m.LoggerFactory).Returns(new LoggerFactory());
             connectionMock.SetupGet(m => m.DbConnection).Returns(dbConnectionMock.Object);
             dbConnectionMock.SetupGet(m => m.Database).Returns("MyDb");
 

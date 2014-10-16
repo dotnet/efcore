@@ -5,7 +5,9 @@ using System;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Framework.DependencyInjection;
+using Microsoft.Framework.DependencyInjection.Advanced;
 using Microsoft.Framework.DependencyInjection.Fallback;
+using Microsoft.Framework.Logging;
 using Moq;
 using Xunit;
 
@@ -67,7 +69,7 @@ namespace Microsoft.Data.Entity.Tests
         public void Scoped_data_store_services_can_be_obtained_from_configuration()
         {
             var services = new ServiceCollection();
-            services.AddEntityFramework().AddInMemoryStore();
+            services.AddEntityFramework().AddInMemoryStore().UseLoggerFactory<LoggerFactory>();
             var serviceProvider = services.BuildServiceProvider();
 
             DataStore store;

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Services;
+using Microsoft.Framework.Logging;
 using Xunit;
 
 namespace Microsoft.Data.Entity.InMemory.Tests
@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             var model = CreateModel();
             var configuration = CreateConfiguration(new DbContextOptions().UseInMemoryStore(persist: true));
             var entityType = model.GetEntityType(typeof(Test));
-            var persistentDatabase = new InMemoryDatabase(new[] { new NullLoggerFactory() });
+            var persistentDatabase = new InMemoryDatabase(new[] { new LoggerFactory() });
 
             var inMemoryDataStore = new InMemoryDataStore(configuration, persistentDatabase);
 
@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             var model = CreateModel();
             var configuration = CreateConfiguration(new DbContextOptions().UseInMemoryStore(persist: false));
             var entityType = model.GetEntityType(typeof(Test));
-            var nonPersistentDatabase = new InMemoryDatabase(new[] { new NullLoggerFactory() });
+            var nonPersistentDatabase = new InMemoryDatabase(new[] { new LoggerFactory() });
             var inMemoryDataStore = new InMemoryDataStore(configuration, nonPersistentDatabase);
 
             var creator = new InMemoryDataStoreCreator(inMemoryDataStore);
@@ -51,7 +51,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             var model = CreateModel();
             var configuration = CreateConfiguration(new DbContextOptions().UseInMemoryStore(persist: true));
             var entityType = model.GetEntityType(typeof(Test));
-            var persistentDatabase = new InMemoryDatabase(new[] { new NullLoggerFactory() });
+            var persistentDatabase = new InMemoryDatabase(new[] { new LoggerFactory() });
             var inMemoryDataStore = new InMemoryDataStore(configuration, persistentDatabase);
 
             var creator = new InMemoryDataStoreCreator(inMemoryDataStore);
@@ -68,7 +68,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             var model = CreateModel();
             var configuration = CreateConfiguration(new DbContextOptions().UseInMemoryStore(persist: false));
             var entityType = model.GetEntityType(typeof(Test));
-            var nonPersistentDatabase = new InMemoryDatabase(new[] { new NullLoggerFactory() });
+            var nonPersistentDatabase = new InMemoryDatabase(new[] { new LoggerFactory() });
             var inMemoryDataStore = new InMemoryDataStore(configuration, nonPersistentDatabase);
 
             var creator = new InMemoryDataStoreCreator(inMemoryDataStore);

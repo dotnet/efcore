@@ -5,7 +5,9 @@ using System;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Framework.DependencyInjection;
+using Microsoft.Framework.DependencyInjection.Advanced;
 using Microsoft.Framework.DependencyInjection.Fallback;
+using Microsoft.Framework.Logging;
 using Northwind;
 
 namespace Microsoft.Data.Entity.InMemory.FunctionalTests
@@ -22,6 +24,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 = new ServiceCollection()
                     .AddEntityFramework()
                     .AddInMemoryStore()
+                    .UseLoggerFactory<LoggerFactory>()
                     .ServiceCollection
                     .BuildServiceProvider();
 

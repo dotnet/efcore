@@ -3,7 +3,6 @@
 
 using System;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Services;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 
@@ -13,10 +12,13 @@ namespace Microsoft.Data.Entity.Storage
     {
         private readonly ILogger _logger;
 
+        /// <summary>
+        ///     This constructor is intended only for use when creating test doubles that will override members
+        ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
+        ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
+        /// </summary>
         protected DataStoreTransaction()
-            : this(NullLogger.Instance)
         {
-            _logger = NullLogger.Instance;
         }
 
         protected DataStoreTransaction([NotNull] ILogger logger)
@@ -28,7 +30,7 @@ namespace Microsoft.Data.Entity.Storage
 
         protected virtual ILogger Logger
         {
-            get { return _logger; } 
+            get { return _logger; }
         }
 
         public abstract void Commit();

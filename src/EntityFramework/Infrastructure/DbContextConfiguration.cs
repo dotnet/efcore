@@ -6,7 +6,6 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Services;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
@@ -57,7 +56,7 @@ namespace Microsoft.Data.Entity.Infrastructure
             _modelFromSource = new LazyRef<IModel>(() => _services.ModelSource.GetModel(_context, _dataStoreServices.Value.ModelBuilderFactory));
             _dataStore = new LazyRef<DataStore>(() => _dataStoreServices.Value.Store);
             _connection = new LazyRef<DataStoreConnection>(() => _dataStoreServices.Value.Connection);
-            _loggerFactory = new LazyRef<ILoggerFactory>(() => _externalProvider.TryGetService<ILoggerFactory>() ?? new NullLoggerFactory());
+            _loggerFactory = new LazyRef<ILoggerFactory>(() => _externalProvider.TryGetService<ILoggerFactory>() ?? new LoggerFactory());
             _database = new LazyRef<Database>(() => _dataStoreServices.Value.Database);
             _stateManager = new LazyRef<StateManager>(() => _services.StateManager);
 

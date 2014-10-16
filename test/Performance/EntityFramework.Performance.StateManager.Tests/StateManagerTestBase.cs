@@ -1,20 +1,19 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using System.Globalization;
+using System.Linq;
+using Microsoft.Data.Entity;
+using Microsoft.Framework.ConfigurationModel;
+using Microsoft.Framework.DependencyInjection;
+using Microsoft.Framework.DependencyInjection.Advanced;
+using Microsoft.Framework.DependencyInjection.Fallback;
+using Microsoft.Framework.Logging;
+using StateManager.Model;
+
 namespace StateManager
 {
-    using Microsoft.Data.Entity;
-    using Microsoft.Data.Entity.Services;
-    using Microsoft.Framework.ConfigurationModel;
-    using Microsoft.Framework.DependencyInjection;
-    using Microsoft.Framework.DependencyInjection.Advanced;
-    using Microsoft.Framework.DependencyInjection.Fallback;
-    using StateManager.Model;
-    using System;
-    using System.Globalization;
-    using System.Linq;
-
-
     public class StateManagerTestBase
     {
         public const string DefaultConnectionString =
@@ -27,7 +26,7 @@ namespace StateManager
         public static IServiceProvider CreateServiceProvider()
         {
             var services = new ServiceCollection();
-            services.AddEntityFramework().AddSqlServer().UseLoggerFactory<NullLoggerFactory>();
+            services.AddEntityFramework().AddSqlServer().UseLoggerFactory<LoggerFactory>();
             return services.BuildServiceProvider();
         }
 
@@ -119,7 +118,7 @@ namespace StateManager
                     RowGuid = runGuid,
                     ModifiedDate = DateTime.Now,
                     Model = productModel,
-                    SubCategory = productSubCategory  
+                    SubCategory = productSubCategory
                 };
                 context.Products.Add(product);
                 context.SaveChanges();

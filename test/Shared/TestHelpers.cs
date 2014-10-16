@@ -7,10 +7,10 @@ using System.Reflection;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Services;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Advanced;
 using Microsoft.Framework.DependencyInjection.Fallback;
+using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Tests
 {
@@ -31,7 +31,7 @@ namespace Microsoft.Data.Entity.Tests
             var services = new ServiceCollection();
             services
                 .AddEntityFramework()
-                .UseLoggerFactory<NullLoggerFactory>()
+                .UseLoggerFactory<LoggerFactory>()
                 .AddProviderServices();
             return services.BuildServiceProvider();
         }
@@ -76,7 +76,7 @@ namespace Microsoft.Data.Entity.Tests
 
             return entry;
         }
-        
+
         public static string GetCoreString(string stringName, params object[] parameters)
         {
             var strings = typeof(DbContext).GetTypeInfo().Assembly.GetType(typeof(DbContext).Namespace + ".Strings");

@@ -4,11 +4,10 @@
 using System;
 using System.Linq;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Services;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.DependencyInjection.Fallback;
 using Microsoft.Framework.DependencyInjection.Advanced;
+using Microsoft.Framework.DependencyInjection.Fallback;
 using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity
@@ -32,7 +31,7 @@ namespace Microsoft.Data.Entity
 
             if (services.All(s => s.ServiceType != typeof(ILoggerFactory)))
             {
-                builder.UseLoggerFactory<NullLoggerFactory>();
+                builder.UseLoggerFactory<LoggerFactory>();
             }
 
             foreach (var extension in options.Extensions)

@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Services;
 using Microsoft.Framework.Logging;
 using Moq;
 using Xunit;
@@ -20,7 +19,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         public void Uses_persistent_database_by_default()
         {
             var configuration = CreateConfiguration();
-            var persistentDatabase = new InMemoryDatabase(new[] { new NullLoggerFactory() });
+            var persistentDatabase = new InMemoryDatabase(new[] { new LoggerFactory() });
 
             var inMemoryDataStore = new InMemoryDataStore(configuration, persistentDatabase);
 
@@ -32,7 +31,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         {
             var configuration = CreateConfiguration(new DbContextOptions().UseInMemoryStore(persist: true));
 
-            var persistentDatabase = new InMemoryDatabase(new[] { new NullLoggerFactory() });
+            var persistentDatabase = new InMemoryDatabase(new[] { new LoggerFactory() });
 
             var inMemoryDataStore = new InMemoryDataStore(configuration, persistentDatabase);
 
@@ -44,7 +43,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         {
             var configuration = CreateConfiguration(new DbContextOptions().UseInMemoryStore(persist: false));
 
-            var persistentDatabase = new InMemoryDatabase(new[] { new NullLoggerFactory() });
+            var persistentDatabase = new InMemoryDatabase(new[] { new LoggerFactory() });
 
             var inMemoryDataStore = new InMemoryDataStore(configuration, persistentDatabase);
 
@@ -60,7 +59,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             var configuration = CreateConfiguration(new DbContextOptions().UseInMemoryStore(persist: true));
             var entityType = model.GetEntityType(typeof(Customer));
 
-            var persistentDatabase = new InMemoryDatabase(new[] { new NullLoggerFactory() });
+            var persistentDatabase = new InMemoryDatabase(new[] { new LoggerFactory() });
 
             var inMemoryDataStore = new InMemoryDataStore(configuration, persistentDatabase);
 
@@ -76,7 +75,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             var configuration = CreateConfiguration(new DbContextOptions().UseInMemoryStore(persist: false));
             var entityType = model.GetEntityType(typeof(Customer));
 
-            var nonPersistentDatabase = new InMemoryDatabase(new[] { new NullLoggerFactory() });
+            var nonPersistentDatabase = new InMemoryDatabase(new[] { new LoggerFactory() });
 
             var inMemoryDataStore = new InMemoryDataStore(configuration, nonPersistentDatabase);
 
@@ -96,7 +95,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             var entityEntry = new ClrStateEntry(configuration, entityType, customer);
             await entityEntry.SetEntityStateAsync(EntityState.Added);
 
-            var inMemoryDataStore = new InMemoryDataStore(configuration, new InMemoryDatabase(new[] { new NullLoggerFactory() }));
+            var inMemoryDataStore = new InMemoryDataStore(configuration, new InMemoryDatabase(new[] { new LoggerFactory() }));
 
             await inMemoryDataStore.SaveChangesAsync(new[] { entityEntry });
 
@@ -115,7 +114,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             var entityEntry = new ClrStateEntry(configuration, entityType, customer);
             await entityEntry.SetEntityStateAsync(EntityState.Added);
 
-            var inMemoryDataStore = new InMemoryDataStore(configuration, new InMemoryDatabase(new[] { new NullLoggerFactory() }));
+            var inMemoryDataStore = new InMemoryDataStore(configuration, new InMemoryDatabase(new[] { new LoggerFactory() }));
 
             await inMemoryDataStore.SaveChangesAsync(new[] { entityEntry });
 
@@ -139,7 +138,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             var entityEntry = new ClrStateEntry(configuration, entityType, customer);
             await entityEntry.SetEntityStateAsync(EntityState.Added);
 
-            var inMemoryDataStore = new InMemoryDataStore(configuration, new InMemoryDatabase(new[] { new NullLoggerFactory() }));
+            var inMemoryDataStore = new InMemoryDataStore(configuration, new InMemoryDatabase(new[] { new LoggerFactory() }));
 
             await inMemoryDataStore.SaveChangesAsync(new[] { entityEntry });
 

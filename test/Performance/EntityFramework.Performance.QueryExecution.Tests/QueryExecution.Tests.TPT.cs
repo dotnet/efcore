@@ -1,18 +1,17 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using Microsoft.Data.Entity;
+using Microsoft.Framework.ConfigurationModel;
+using Microsoft.Framework.DependencyInjection;
+using Microsoft.Framework.DependencyInjection.Advanced;
+using Microsoft.Framework.DependencyInjection.Fallback;
+using Microsoft.Framework.Logging;
+using QueryExecution.Model;
+
 namespace QueryExecution
 {
-    using Microsoft.Data.Entity;
-    using Microsoft.Data.Entity.Services;
-    using Microsoft.Framework.ConfigurationModel;
-    using Microsoft.Framework.DependencyInjection;
-    using Microsoft.Framework.DependencyInjection.Advanced;
-    using Microsoft.Framework.DependencyInjection.Fallback;
-    using QueryExecution.Model;
-    using System;
-
-
     public class QueryExecutionTestsTPT : QueryExecutionBase
     {
         QueryExecutionTPT _tptContext;
@@ -20,7 +19,7 @@ namespace QueryExecution
         public static IServiceProvider CreateServiceProvider()
         {
             var services = new ServiceCollection();
-            services.AddEntityFramework().AddSqlServer().UseLoggerFactory<NullLoggerFactory>();
+            services.AddEntityFramework().AddSqlServer().UseLoggerFactory<LoggerFactory>();
             return services.BuildServiceProvider();
         }
 
@@ -38,7 +37,7 @@ namespace QueryExecution
             {
                 Console.WriteLine("error reading config: " + e.Message);
             }
-            
+
             connectionString = connectionString ?? QueryExecutionBase.DefaultConnectionString;
             var serviceProvider = CreateServiceProvider();
             var options = new DbContextOptions();

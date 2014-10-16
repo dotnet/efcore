@@ -10,11 +10,11 @@ using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.FunctionalTests.TestModels;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Services;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Advanced;
 using Microsoft.Framework.DependencyInjection.Fallback;
+using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.SQLite.FunctionalTests
 {
@@ -31,7 +31,7 @@ namespace Microsoft.Data.Entity.SQLite.FunctionalTests
             var serviceCollection = new ServiceCollection()
                 .AddEntityFramework()
                 .AddSQLite()
-                .UseLoggerFactory<NullLoggerFactory>()
+                .UseLoggerFactory<LoggerFactory>()
                 .ServiceCollection;
 
             if (throwingStateManager)

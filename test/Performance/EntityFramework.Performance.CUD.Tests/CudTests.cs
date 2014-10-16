@@ -4,15 +4,15 @@
 using System;
 using System.Linq;
 using Cud.Model;
-#if K10
-using Cud.Utilities;
-#endif
 using Microsoft.Data.Entity;
-using Microsoft.Data.Entity.Services;
 using Microsoft.Framework.ConfigurationModel;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Advanced;
 using Microsoft.Framework.DependencyInjection.Fallback;
+using Microsoft.Framework.Logging;
+#if K10
+using Cud.Utilities;
+#endif
 
 namespace Cud
 {
@@ -25,7 +25,7 @@ namespace Cud
         public static IServiceProvider CreateServiceProvider(Configuration configuration)
         {
             var services = new ServiceCollection();
-            services.AddEntityFramework().AddSqlServer().UseLoggerFactory<NullLoggerFactory>();
+            services.AddEntityFramework().AddSqlServer().UseLoggerFactory<LoggerFactory>();
             services.AddInstance<IConfiguration>(configuration);
             return services.BuildServiceProvider();
         }
@@ -94,10 +94,10 @@ namespace Cud
             {
                 using (context.Database.AsRelational().Connection.BeginTransaction())
                 {
-                    var customer = new Customer {Name = "New Customer"};
-                    var order = new Order {Date = DateTime.Today};
-                    var orderLine = new OrderLine {Price = 123.45m, Quantity = 42};
-                    var product = new Product {Name = "New Product"};
+                    var customer = new Customer { Name = "New Customer" };
+                    var order = new Order { Date = DateTime.Today };
+                    var orderLine = new OrderLine { Price = 123.45m, Quantity = 42 };
+                    var product = new Product { Name = "New Product" };
 
                     customer.Orders.Add(order);
                     order.OrderLines.Add(orderLine);
@@ -148,8 +148,8 @@ namespace Cud
                             var orderLines = order.OrderLines.ToList();
                             foreach (var orderLine in orderLines)
                             {
-                                orderLine.Price = orderLine.Price*2;
-                                orderLine.Quantity = orderLine.Quantity*2;
+                                orderLine.Price = orderLine.Price * 2;
+                                orderLine.Quantity = orderLine.Quantity * 2;
                             }
                         }
                     }

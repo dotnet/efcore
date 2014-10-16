@@ -11,7 +11,6 @@ using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
-using Microsoft.Data.Entity.Services;
 using Microsoft.Framework.Logging;
 using Moq;
 using Xunit;
@@ -33,7 +32,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
             var configuration = new Mock<DbContextConfiguration>();
             configuration.SetupGet(s => s.Connection).Returns(_connection.Object);
             configuration.SetupGet(s => s.Model).Returns(CreateModel());
-            configuration.SetupGet(s => s.LoggerFactory).Returns(new NullLoggerFactory());
+            configuration.SetupGet(s => s.LoggerFactory).Returns(new LoggerFactory());
             configuration.SetupGet(s => s.StateManager).Returns(new Mock<StateManager>().Object);
             configuration.SetupGet(s => s.Services.EntityKeyFactorySource).Returns(new Mock<EntityKeyFactorySource>().Object);
             configuration.SetupGet(s => s.Services.StateEntryFactory).Returns(new Mock<StateEntryFactory>().Object);
@@ -53,8 +52,8 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
         {
             AssertQuery<Customer>(Times.Once(), cs =>
                 (from c in cs
-                orderby cs.Any(c2 => c2.CustomerID == c.CustomerID)
-                select c).AsNoTracking());
+                 orderby cs.Any(c2 => c2.CustomerID == c.CustomerID)
+                 select c).AsNoTracking());
         }
 
         private void AssertQuery<T>(Times times, Expression<Func<DbSet<T>, IQueryable>> expression) where T : class, new()

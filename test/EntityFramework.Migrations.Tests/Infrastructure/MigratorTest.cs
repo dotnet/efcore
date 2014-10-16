@@ -17,7 +17,6 @@ using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Migrations.Utilities;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Model;
-using Microsoft.Data.Entity.Services;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
@@ -1207,7 +1206,7 @@ new StringBuilder()
 
         private static Migrator MockMigrator(
             IReadOnlyList<MigrationInfo> databaseMigrations,
-            IReadOnlyList<MigrationInfo> localMigrations,            
+            IReadOnlyList<MigrationInfo> localMigrations,
             bool databaseExists,
             bool historyRepositoryExists,
             out Mock<RelationalDataStoreCreator> dbCreatorMock,
@@ -1218,7 +1217,7 @@ new StringBuilder()
         {
             if (loggerFactory == null)
             {
-                loggerFactory = new NullLoggerFactory();
+                loggerFactory = new LoggerFactory();
             }
 
             dbCreatorMock = new Mock<RelationalDataStoreCreator>();
@@ -1246,13 +1245,13 @@ new StringBuilder()
                     MockMigrationOperationSqlGeneratorFactory().Object,
                     new Mock<SqlGenerator>().Object,
                     sqlStatementExecutorMock.Object)
-                    {
-                        CallBase = true
-                    }
+                {
+                    CallBase = true
+                }
                     .Object;
         }
 
-        private static DbContextConfiguration CreateFakeContextConfiguration(RelationalDataStoreCreator dbCreator, 
+        private static DbContextConfiguration CreateFakeContextConfiguration(RelationalDataStoreCreator dbCreator,
             DbConnection dbConnection, ILoggerFactory loggerFactory)
         {
             var services = new ServiceCollection()

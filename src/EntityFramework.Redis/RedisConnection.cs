@@ -16,11 +16,12 @@ namespace Microsoft.Data.Entity.Redis
         /// <summary>
         ///     For testing. Improper usage may lead to NullReference exceptions
         /// </summary>
-        internal RedisConnection()
+        protected RedisConnection()
         {
         }
 
         public RedisConnection([NotNull] DbContextConfiguration configuration)
+            : base(configuration.LoggerFactory)
         {
             Check.NotNull(configuration, "configuration");
             var optionsExtension = RedisOptionsExtension.Extract(configuration);

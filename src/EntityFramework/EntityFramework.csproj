@@ -268,7 +268,6 @@
     <Compile Include="Query\QueryContext.cs" />
     <Compile Include="Query\QuerySourceScope.cs" />
     <Compile Include="Query\TaskResultAsyncEnumerable.cs" />
-    <Compile Include="Services\NullLoggerFactory.cs" />
     <Compile Include="Storage\DataStore.cs" />
     <Compile Include="Storage\DataStoreConnection.cs" />
     <Compile Include="Storage\DataStoreCreator.cs" />

@@ -26,11 +26,12 @@ namespace Microsoft.Data.Entity.AzureTableStorage
         /// <summary>
         ///     For testing. Improper usage may lead to NullReference exceptions
         /// </summary>
-        internal AtsConnection()
+        protected AtsConnection()
         {
         }
 
         public AtsConnection([NotNull] DbContextConfiguration configuration)
+            : base(configuration.LoggerFactory)
         {
             Check.NotNull(configuration, "configuration");
 
@@ -98,11 +99,11 @@ namespace Microsoft.Data.Entity.AzureTableStorage
             }
 
             return new RequestContext
-                {
-                    OperationContext = operationContext,
-                    TableClient = _tableClient.Value,
-                    TableRequestOptions = TableRequestOptions
-                };
+            {
+                OperationContext = operationContext,
+                TableClient = _tableClient.Value,
+                TableRequestOptions = TableRequestOptions
+            };
         }
     }
 }

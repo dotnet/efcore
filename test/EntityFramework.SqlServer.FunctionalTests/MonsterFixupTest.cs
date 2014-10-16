@@ -9,11 +9,11 @@ using System.Threading.Tasks;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.FunctionalTests.TestModels;
-using Microsoft.Data.Entity.Services;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Advanced;
 using Microsoft.Framework.DependencyInjection.Fallback;
+using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             var serviceCollection = new ServiceCollection()
                 .AddEntityFramework()
                 .AddSqlServer()
-                .UseLoggerFactory<NullLoggerFactory>()
+                .UseLoggerFactory<LoggerFactory>()
                 .ServiceCollection;
 
             if (throwingStateManager)
@@ -48,13 +48,13 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         private static string CreateConnectionString(string name)
         {
             return new SqlConnectionStringBuilder
-                {
-                    DataSource = @"(localdb)\v11.0",
-                    MultipleActiveResultSets = true,
-                    InitialCatalog = name,
-                    IntegratedSecurity = true,
-                    ConnectTimeout = 30
-                }.ConnectionString;
+            {
+                DataSource = @"(localdb)\v11.0",
+                MultipleActiveResultSets = true,
+                InitialCatalog = name,
+                IntegratedSecurity = true,
+                ConnectTimeout = 30
+            }.ConnectionString;
         }
 
         protected override async Task CreateAndSeedDatabase(string databaseName, Func<MonsterContext> createContext)

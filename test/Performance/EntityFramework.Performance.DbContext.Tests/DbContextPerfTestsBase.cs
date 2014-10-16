@@ -3,18 +3,18 @@
 
 namespace DbContextPerfTests
 {
-    using Microsoft.Data.Entity;
-    using Microsoft.Data.Entity.Services;
-    using Microsoft.Framework.ConfigurationModel;
-    using Microsoft.Framework.DependencyInjection;
-    using Microsoft.Framework.DependencyInjection.Advanced;
-    using Microsoft.Framework.DependencyInjection.Fallback;
-    using Model;
     using System;
     using System.Collections.Generic;
     using System.Data.SqlClient;
     using System.Diagnostics;
     using System.Linq;
+    using Microsoft.Data.Entity;
+    using Microsoft.Framework.ConfigurationModel;
+    using Microsoft.Framework.DependencyInjection;
+    using Microsoft.Framework.DependencyInjection.Advanced;
+    using Microsoft.Framework.DependencyInjection.Fallback;
+    using Microsoft.Framework.Logging;
+    using Model;
 
 
     public class DbContextPerfTestsBase
@@ -36,7 +36,7 @@ namespace DbContextPerfTests
         public static IServiceProvider CreateServiceProvider()
         {
             var services = new ServiceCollection();
-            services.AddEntityFramework().AddSqlServer().UseLoggerFactory<NullLoggerFactory>();
+            services.AddEntityFramework().AddSqlServer().UseLoggerFactory<LoggerFactory>();
             return services.BuildServiceProvider();
         }
 

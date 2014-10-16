@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.ConcurrencyModel;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.FunctionalTests;
-using Microsoft.Data.Entity.Services;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Advanced;
 using Microsoft.Framework.DependencyInjection.Fallback;
+using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             _serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddSqlServer()
-                .UseLoggerFactory<NullLoggerFactory>()
+                .UseLoggerFactory<LoggerFactory>()
                 .ServiceCollection
                 .BuildServiceProvider();
         }

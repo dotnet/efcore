@@ -7,7 +7,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Framework.DependencyInjection;
+using Microsoft.Framework.DependencyInjection.Advanced;
 using Microsoft.Framework.DependencyInjection.Fallback;
+using Microsoft.Framework.Logging;
 using Xunit;
 
 namespace Microsoft.Data.Entity.InMemory.FunctionalTests
@@ -20,6 +22,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddInMemoryStore()
+                .UseLoggerFactory<LoggerFactory>()
                 .ServiceCollection
                 .BuildServiceProvider();
 
@@ -63,6 +66,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddInMemoryStore()
+                .UseLoggerFactory<LoggerFactory>()
                 .ServiceCollection
                 .BuildServiceProvider();
 
@@ -120,6 +124,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddInMemoryStore()
+                .UseLoggerFactory<LoggerFactory>()
                 .ServiceCollection
                 .BuildServiceProvider();
 

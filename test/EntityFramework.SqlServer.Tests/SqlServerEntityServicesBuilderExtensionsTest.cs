@@ -2,17 +2,16 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
-using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Update;
-using Microsoft.Data.Entity.Services;
 using Microsoft.Data.Entity.SqlServer.Update;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Advanced;
 using Microsoft.Framework.DependencyInjection.Fallback;
+using Microsoft.Framework.Logging;
 using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.Tests
@@ -26,7 +25,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             services
                 .AddEntityFramework()
                 .AddSqlServer()
-                .UseLoggerFactory<NullLoggerFactory>();
+                .UseLoggerFactory<LoggerFactory>();
 
             // Relational
             Assert.True(services.Any(sd => sd.ServiceType == typeof(SqlServerDatabaseBuilder)));
@@ -62,7 +61,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             services
                 .AddEntityFramework()
                 .AddSqlServer()
-                .UseLoggerFactory<NullLoggerFactory>();
+                .UseLoggerFactory<LoggerFactory>();
             var serviceProvider = services.BuildServiceProvider();
 
             var context = new DbContext(

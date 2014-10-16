@@ -7,7 +7,9 @@ using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.FunctionalTests.TestModels;
 using Microsoft.Framework.DependencyInjection;
+using Microsoft.Framework.DependencyInjection.Advanced;
 using Microsoft.Framework.DependencyInjection.Fallback;
+using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 {
@@ -15,7 +17,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
     {
         protected override IServiceProvider CreateServiceProvider(bool throwingStateManager = false)
         {
-            var serviceCollection = new ServiceCollection().AddEntityFramework().AddInMemoryStore().ServiceCollection;
+            var serviceCollection = new ServiceCollection().AddEntityFramework().AddInMemoryStore().UseLoggerFactory<LoggerFactory>().ServiceCollection;
 
             if (throwingStateManager)
             {

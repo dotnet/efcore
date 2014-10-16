@@ -5,8 +5,8 @@ using System;
 using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational;
-using Microsoft.Data.Entity.Services;
 using Microsoft.Data.Entity.Tests;
+using Microsoft.Framework.Logging;
 using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.Tests
@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         [Fact]
         public void Returns_sequence_generator_when_explicitly_configured()
         {
-            var sequenceFactory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new NullLoggerFactory()));
+            var sequenceFactory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new LoggerFactory()));
 
             var selector = new SqlServerValueGeneratorSelector(
                 new SimpleValueGeneratorFactory<GuidValueGenerator>(),
@@ -44,7 +44,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         [Fact]
         public void Returns_sequence_generator_when_explicitly_configured_on_model()
         {
-            var sequenceFactory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new NullLoggerFactory()));
+            var sequenceFactory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new LoggerFactory()));
 
             var selector = new SqlServerValueGeneratorSelector(
                 new SimpleValueGeneratorFactory<GuidValueGenerator>(),
@@ -78,7 +78,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var selector = new SqlServerValueGeneratorSelector(
                 new SimpleValueGeneratorFactory<GuidValueGenerator>(),
                 tempFactory,
-                new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new NullLoggerFactory())),
+                new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new LoggerFactory())),
                 new SimpleValueGeneratorFactory<SequentialGuidValueGenerator>());
 
             Assert.Same(tempFactory, selector.Select(CreateIdentityProperty<long>()));
@@ -105,7 +105,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var selector = new SqlServerValueGeneratorSelector(
                 new SimpleValueGeneratorFactory<GuidValueGenerator>(),
                 tempFactory,
-                new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new NullLoggerFactory())),
+                new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new LoggerFactory())),
                 new SimpleValueGeneratorFactory<SequentialGuidValueGenerator>());
 
             Assert.Same(tempFactory, selector.Select(CreateModelIdentityProperty<long>()));
@@ -133,7 +133,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var selector = new SqlServerValueGeneratorSelector(
                 new SimpleValueGeneratorFactory<GuidValueGenerator>(),
                 tempFactory,
-                new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new NullLoggerFactory())),
+                new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new LoggerFactory())),
                 new SimpleValueGeneratorFactory<SequentialGuidValueGenerator>());
 
             Assert.Same(tempFactory, selector.Select(CreateDefaultValueGenProperty<long>()));
@@ -160,7 +160,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var selector = new SqlServerValueGeneratorSelector(
                 new SimpleValueGeneratorFactory<GuidValueGenerator>(),
                 new SimpleValueGeneratorFactory<TemporaryValueGenerator>(),
-                new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new NullLoggerFactory())),
+                new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new LoggerFactory())),
                 sequentialGuidFactory);
 
             Assert.Same(sequentialGuidFactory, selector.Select(CreateDefaultValueGenProperty<Guid>()));
@@ -172,7 +172,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var selector = new SqlServerValueGeneratorSelector(
                 new SimpleValueGeneratorFactory<GuidValueGenerator>(),
                 new SimpleValueGeneratorFactory<TemporaryValueGenerator>(),
-                new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new NullLoggerFactory())),
+                new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new LoggerFactory())),
                 new SimpleValueGeneratorFactory<SequentialGuidValueGenerator>());
 
             var property = new BasicModelBuilder()
@@ -197,7 +197,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var selector = new SqlServerValueGeneratorSelector(
                 new SimpleValueGeneratorFactory<GuidValueGenerator>(),
                 new SimpleValueGeneratorFactory<TemporaryValueGenerator>(),
-                new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new NullLoggerFactory())),
+                new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new LoggerFactory())),
                 new SimpleValueGeneratorFactory<SequentialGuidValueGenerator>());
 
             var property = new BasicModelBuilder()

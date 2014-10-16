@@ -9,7 +9,6 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Services;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 
@@ -25,7 +24,7 @@ namespace Microsoft.Data.Entity.InMemory
 
         public InMemoryDatabase([CanBeNull] IEnumerable<ILoggerFactory> loggerFactories)
         {
-            var factory = (loggerFactories == null ? null : loggerFactories.FirstOrDefault()) ?? new NullLoggerFactory();
+            var factory = (loggerFactories == null ? null : loggerFactories.FirstOrDefault()) ?? new LoggerFactory();
 
             _logger = factory.Create(typeof(InMemoryDatabase).Name);
         }
