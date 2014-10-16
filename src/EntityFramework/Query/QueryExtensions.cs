@@ -4,7 +4,7 @@
 using System;
 using JetBrains.Annotations;
 
-namespace Microsoft.Data.Entity
+namespace Microsoft.Data.Entity.Query
 {
     public static class QueryExtensions
     {
