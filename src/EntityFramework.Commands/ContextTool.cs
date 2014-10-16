@@ -8,6 +8,13 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Commands.Utilities;
+#if ASPNET50 || ASPNETCORE50
+using Microsoft.AspNet.Hosting;
+using Microsoft.Framework.DependencyInjection;
+using Microsoft.Framework.DependencyInjection.Fallback;
+using Microsoft.Framework.OptionsModel;
+using Microsoft.Framework.Runtime.Infrastructure;
+#endif
 
 namespace Microsoft.Data.Entity.Commands
 {
@@ -18,7 +25,36 @@ namespace Microsoft.Data.Entity.Commands
             Check.NotNull(type, "type");
 
             // TODO: Allow other construction patterns (See #639)
-            return (DbContext)Activator.CreateInstance(type);
+            return TryCreateContextFromStartup(type) ?? (DbContext)Activator.CreateInstance(type);
+        }
+
+        private static DbContext TryCreateContextFromStartup(Type type)
+        {
+#if ASPNET50 || ASPNETCORE50
+            try
+            {
+                // TODO: Let Hosting do this the right way (See aspnet/Hosting#85)
+                var hostingServices = new ServiceCollection()
+                    .Add(HostingServices.GetDefaultServices())
+                    .AddInstance<IHostingEnvironment>(new HostingEnvironment { EnvironmentName = "Development" })
+                    .BuildServiceProvider(CallContextServiceLocator.Locator.ServiceProvider);
+                var assembly = type.GetTypeInfo().Assembly;
+                var startupType = assembly.DefinedTypes.FirstOrDefault(t => t.Name.Equals("Startup", StringComparison.Ordinal));
+                var instance = ActivatorUtilities.GetServiceOrCreateInstance(hostingServices, startupType.AsType());
+                var servicesMethod = startupType.GetDeclaredMethod("ConfigureServices");
+                var services = new ServiceCollection()
+                    .Add(OptionsServices.GetDefaultServices());
+                servicesMethod.Invoke(instance, new[] { services });
+                var applicationServices = services.BuildServiceProvider(hostingServices);
+
+                return applicationServices.GetService(type) as DbContext;
+            }
+            catch
+            {
+            }
+#endif
+
+            return null;
         }
 
         public static IEnumerable<Type> GetContextTypes([NotNull] Assembly assembly)

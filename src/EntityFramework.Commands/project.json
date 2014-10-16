@@ -12,11 +12,13 @@
         "net451": { },
         "aspnet50": {
             "dependencies": {
+                "Microsoft.AspNet.Hosting": "1.0.0-*",
                 "Microsoft.Framework.CommandLineUtils": { "version": "1.0.0-*", "type": "build" }
             }
         },
         "aspnetcore50": {
             "dependencies": {
+                "Microsoft.AspNet.Hosting": "1.0.0-*",
                 "Microsoft.Framework.CommandLineUtils": { "version": "1.0.0-*", "type": "build" },
                 "System.Console": "4.0.0-beta-*",
                 "System.Reflection.TypeExtensions": "4.0.0-beta-*",
