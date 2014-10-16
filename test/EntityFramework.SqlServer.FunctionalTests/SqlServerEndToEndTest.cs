@@ -505,7 +505,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.Entity<TBlog>().ForRelational().Table("Blog", "dbo");
+                modelBuilder.Entity<TBlog>().ForSqlServer().Table("Blog", "dbo");
             }
 
             public DbSet<TBlog> Blogs { get; set; }

@@ -234,7 +234,7 @@ namespace Microsoft.Data.Entity.Relational
 
         protected virtual SchemaQualifiedName GetSchemaQualifiedName(IEntityType entityType)
         {
-            return new SchemaQualifiedName(entityType.Relational().Table, entityType.Relational().Schema);
+            return new SchemaQualifiedName(GetTableName(entityType), GetSchema(entityType));
         }
 
         private Table BuildTable(DatabaseModel database, IEntityType entityType)

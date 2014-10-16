@@ -15,12 +15,6 @@ namespace Microsoft.Data.Entity.Tests
 {
     public class ContextConfigurationTest
     {
-        private void RequiredServiceTest<TService>(Func<DbContextConfiguration, TService> test)
-        {
-            // TODO: Check for proper message/type once DI has this
-            Assert.Throws<Exception>(() => test(CreateEmptyConfiguration()));
-        }
-
         [Fact]
         public void Optional_multi_services_return_empty_list_when_not_registered()
         {

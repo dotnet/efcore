@@ -611,7 +611,7 @@ namespace Microsoft.Data.Entity.Migrations
             {
                 stringBuilder
                     .Append(" DEFAULT ")
-                    .Append(GenerateLiteral(column.DefaultValue));
+                    .Append(GenerateLiteral((dynamic)column.DefaultValue));
             }
         }
 

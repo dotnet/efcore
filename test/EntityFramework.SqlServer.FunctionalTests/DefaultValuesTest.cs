@@ -4,7 +4,6 @@
 using System;
 using System.Linq;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Relational;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Advanced;
 using Microsoft.Framework.DependencyInjection.Fallback;
@@ -29,15 +28,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 context.Database.EnsureDeleted();
                 context.Database.EnsureCreated();
-
-                // TODO: Integrate default values into Migrations
-                var storeConnection = context.Database.AsRelational().Connection;
-                new SqlStatementExecutor(new LoggerFactory()).ExecuteNonQuery(storeConnection.DbConnection, storeConnection.DbTransaction,
-                    new[]
-                        {
-                            new SqlStatement(
-                                "ALTER TABLE dbo.KettleChips ADD CONSTRAINT DF_KettleChips_BestBuyDate DEFAULT '20350925' FOR BestBuyDate")
-                        });
 
                 var honeyDijon = context.Add(new KettleChips { Name = "Honey Dijon" });
 
@@ -80,7 +70,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 modelBuilder.Entity<KettleChips>()
                     .Property(e => e.BestBuyDate)
-                    .UseStoreDefault();
+                    .UseStoreDefault()
+                    .ForRelational().DefaultValue(new DateTime(2035, 9, 25));
             }
         }
 

@@ -2,19 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 
 namespace Microsoft.Data.Entity.FunctionalTests.TestModels.ConcurrencyModel
 {
     public class Engine
     {
-        public Engine()
-        {
-            // TODO: Remove once collection navigation property initializers are available
-            Teams = new Collection<Team>();
-            Gearboxes = new Collection<Gearbox>();
-        }
-
         public int Id { get; set; }
 
         public string Name { get; set; }

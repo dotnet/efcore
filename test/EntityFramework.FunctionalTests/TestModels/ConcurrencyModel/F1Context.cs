@@ -102,25 +102,12 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.ConcurrencyModel
 
             modelBuilder.Entity<Team>(b =>
                 {
-                    // TODO: Remove once temporary keys can be overridden
-                    b.Property(t => t.Id).GenerateValuesOnAdd(false);
-                    b.Property(t => t.Constructor);
-                    b.Property(t => t.ConstructorsChampionships);
-                    b.Property(t => t.DriversChampionships);
                     b.Property<int>("EngineId").Required(false);
-                    b.Property(t => t.FastestLaps);
-                    b.Property(t => t.GearboxId);
-                    b.Property(t => t.Name);
-                    b.Property(t => t.Poles);
-                    b.Property(t => t.Principal);
-                    b.Property(t => t.Races);
-                    b.Property(t => t.Tire);
                     
                     b.Property(t => t.Version)
                         .StoreComputed()
                         .ConcurrencyToken();
 
-                    b.Property(t => t.Victories);
                     b.OneToMany(e => e.Drivers, e => e.Team);
                     b.OneToOne(e => e.Gearbox).ForeignKey<Team>(e => e.GearboxId);
                 });

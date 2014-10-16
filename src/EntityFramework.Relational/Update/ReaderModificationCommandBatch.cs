@@ -423,6 +423,7 @@ namespace Microsoft.Data.Entity.Relational.Update
                 var property = columnModification.Property;
 
                 var isKey = columnModification.IsKey
+                            || property.IsKey()
                             || property.IsForeignKey();
 
                 // TODO: It would be nice to just pass IProperty to the type mapper, but Migrations uses its own

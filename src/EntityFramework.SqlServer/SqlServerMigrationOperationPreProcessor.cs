@@ -120,6 +120,7 @@ namespace Microsoft.Data.Entity.SqlServer
             var isKey
                 = table.PrimaryKey != null
                   && table.PrimaryKey.Columns.Contains(column)
+                  || table.UniqueConstraints.SelectMany(k => k.Columns).Contains(column)
                   || table.ForeignKeys.SelectMany(k => k.Columns).Contains(column);
 
             dataType

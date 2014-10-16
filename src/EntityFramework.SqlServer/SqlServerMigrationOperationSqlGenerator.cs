@@ -100,7 +100,7 @@ namespace Microsoft.Data.Entity.SqlServer
                 .Append(DelimitIdentifier("DF_" + tableName + "_" + columnName))
                 .Append(" DEFAULT ");
 
-            stringBuilder.Append(addDefaultConstraintOperation.DefaultSql ?? GenerateLiteral(addDefaultConstraintOperation.DefaultValue));
+            stringBuilder.Append(addDefaultConstraintOperation.DefaultSql ?? GenerateLiteral((dynamic)addDefaultConstraintOperation.DefaultValue));
 
             stringBuilder
                 .Append(" FOR ")

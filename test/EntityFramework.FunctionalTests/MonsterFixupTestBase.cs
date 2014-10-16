@@ -1233,7 +1233,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                 var resolution = context.Resolutions.Single(e => e.Details.StartsWith("Destroyed"));
 
-                Assert.Equal(SupportsCandidateKeys ? complaint2.AlternateId : complaint2.ComplaintId, resolution.ResolutionId);
+                Assert.Equal(complaint2.AlternateId, resolution.ResolutionId);
 
                 var login1 = context.Logins.Single(e => e.Username == "MrsKoalie73");
                 var login2 = context.Logins.Single(e => e.Username == "MrsBossyPants");
@@ -1267,7 +1267,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                 var reset1 = context.PasswordResets.Single(e => e.EmailedTo == "trent@example.com");
 
-                Assert.Equal(SupportsCandidateKeys ? login3.AlternateUsername : login3.Username, reset1.Username);
+                Assert.Equal(login3.AlternateUsername, reset1.Username);
 
                 var pageView1 = context.PageViews.Single(e => e.PageUrl == "somePage1");
                 var pageView2 = context.PageViews.Single(e => e.PageUrl == "somePage1");
@@ -1388,6 +1388,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 var driver2 = context.Drivers.Single(e => e.Name == "Splash Bear");
 
                 // TODO: Quering for actual entity currently throws, so projecting to just FK instead
+                // Issue #906 
                 var licenseName1 = context.Licenses.Where(e => e.LicenseNumber == "10").Select(e => e.Name).Single();
                 var licenseName2 = context.Licenses.Where(e => e.LicenseNumber == "11").Select(e => e.Name).Single();
 
@@ -1668,6 +1669,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 var driver2 = context.Drivers.Single(e => e.Name == "Splash Bear");
 
                 // TODO: Currently these LINQ queries throw InvalidCastException
+                // Issue #906 
                 //var license1 = context.Licenses.Single(e => e.LicenseNumber == "10");
                 //var license2 = context.Licenses.Single(e => e.LicenseNumber == "11");
 
@@ -1685,31 +1687,19 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         protected abstract Task CreateAndSeedDatabase(string databaseName, Func<MonsterContext> createContext);
 
-        // TODO: Temporary means to disable use of candidate keys on SQL Server. See GitHub #537
-        protected abstract bool SupportsCandidateKeys { get; }
-
         private SnapshotMonsterContext CreateSnapshotMonsterContext(IServiceProvider serviceProvider, string databaseName = SnapshotDatabaseName)
         {
-            return new SnapshotMonsterContext(serviceProvider, CreateOptions(databaseName), OnModelCreating)
-            {
-                SupportsCandidateKeys = SupportsCandidateKeys
-            };
+            return new SnapshotMonsterContext(serviceProvider, CreateOptions(databaseName), OnModelCreating);
         }
 
         private ChangedChangingMonsterContext CreateChangedChangingMonsterContext(IServiceProvider serviceProvider, string databaseName = FullNotifyDatabaseName)
         {
-            return new ChangedChangingMonsterContext(serviceProvider, CreateOptions(databaseName), OnModelCreating)
-            {
-                SupportsCandidateKeys = SupportsCandidateKeys
-            };
+            return new ChangedChangingMonsterContext(serviceProvider, CreateOptions(databaseName), OnModelCreating);
         }
 
         private ChangedOnlyMonsterContext CreateChangedOnlyMonsterContext(IServiceProvider serviceProvider, string databaseName = ChangedOnlyDatabaseName)
         {
-            return new ChangedOnlyMonsterContext(serviceProvider, CreateOptions(databaseName), OnModelCreating)
-            {
-                SupportsCandidateKeys = SupportsCandidateKeys
-            };
+            return new ChangedOnlyMonsterContext(serviceProvider, CreateOptions(databaseName), OnModelCreating);
         }
 
         protected virtual void OnModelCreating(ModelBuilder builder)

@@ -17,6 +17,7 @@
         "aspnet50": { },
         "aspnetcore50": {
             "dependencies": {
+                "Microsoft.CSharp": "4.0.0-beta-*",
                 "System.Threading.Thread": "4.0.0-beta-*"
             }
         }

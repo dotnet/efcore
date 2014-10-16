@@ -59,6 +59,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             var modelBuilder = new ModelBuilder(new Model());
             AddStoreMetadata(modelBuilder);
+            modelBuilder.ForSqlServer().UseSequence();
 
             var options
                 = new DbContextOptions()
@@ -72,6 +73,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             var modelBuilder = new ModelBuilder(new Model());
             AddStoreMetadata(modelBuilder);
+            modelBuilder.ForSqlServer().UseSequence();
 
             var options
                 = new DbContextOptions()
