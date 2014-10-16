@@ -240,6 +240,8 @@ namespace Microsoft.Data.Entity.Query
             Expression navigationPropertyPath)
         {
             // template method
+
+            throw new NotImplementedException(Strings.IncludeNotImplemented);
         }
 
         protected virtual void TrackEntitiesInResults<TResult>(

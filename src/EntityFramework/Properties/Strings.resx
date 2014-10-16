@@ -354,4 +354,7 @@
   <data name="AnnotationNotFound" xml:space="preserve">
     <value>The annotation '{annotation}' was not found. Ensure that the annotation has been added.</value>
   </data>
+  <data name="IncludeNotImplemented" xml:space="preserve">
+    <value>The Include operator is not implemented by the current data store provider.</value>
+  </data>
 </root>
