@@ -9,7 +9,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.AzureTableStorage.Adapters;
-using Microsoft.Data.Entity.AzureTableStorage.Metadata;
 using Microsoft.Data.Entity.AzureTableStorage.Query;
 using Microsoft.Data.Entity.AzureTableStorage.Requests;
 using Microsoft.Data.Entity.AzureTableStorage.Utilities;
@@ -117,7 +116,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
             {
                 foreach (var tableGroup in tableGroups)
                 {
-                    var table = new AtsTable(tableGroup.Key.TableName());
+                    var table = new AtsTable(tableGroup.Key.AzureTableStorage().Table);
                     var results = tableGroup.Select(entry => CreateRequest(table, entry))
                         .Select(request => Connection.ExecuteRequest(request, Logger));
                     allResults.AddRange(results);
@@ -147,7 +146,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
             {
                 foreach (var tableGroup in tableGroups)
                 {
-                    var table = new AtsTable(tableGroup.Key.TableName());
+                    var table = new AtsTable(tableGroup.Key.AzureTableStorage().Table);
                     var tasks = tableGroup.Select(entry => CreateRequest(table, entry))
                         .TakeWhile(operation => !cancellationToken.IsCancellationRequested)
                         .Select(request => Connection.ExecuteRequestAsync(request, Logger, cancellationToken));
@@ -176,7 +175,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
 
         private int ExecuteBatchedChanges(IReadOnlyList<StateEntry> stateEntries)
         {
-            var tableGroups = stateEntries.GroupBy(s => s.EntityType.TableName());
+            var tableGroups = stateEntries.GroupBy(s => s.EntityType.AzureTableStorage().Table);
             var results = new List<IList<TableResult>>();
 
             try
@@ -227,7 +226,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
         private async Task<int> ExecuteBatchedChangesAsync(IReadOnlyList<StateEntry> stateEntries,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            var tableGroups = stateEntries.GroupBy(s => s.EntityType.TableName());
+            var tableGroups = stateEntries.GroupBy(s => s.EntityType.AzureTableStorage().Table);
             var allBatchTasks = new List<Task<IList<TableResult>>>();
             IList<TableResult>[] results;
 

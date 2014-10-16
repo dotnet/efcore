@@ -3,7 +3,6 @@
 
 using System;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.AzureTableStorage.Metadata;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.ConcurrencyModel;
@@ -72,84 +71,84 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
         {
             builder.Entity<Chassis>(
                 b =>
-                {
-                    b.PartitionAndRowKey(c => c.Name, c => c.TeamId);
-                    b.Key(c => c.TeamId);
-                    b.Property<string>("ETag");
-                    b.TableName("Chassis" + tableSuffix);
-                });
+                    {
+                        b.ForAzureTableStorage().PartitionAndRowKey(c => c.Name, c => c.TeamId);
+                        b.Key(c => c.TeamId);
+                        b.Property<string>("ETag");
+                        b.ForAzureTableStorage().Table("Chassis" + tableSuffix);
+                    });
 
             builder.Entity<Team>(
                 b =>
-                {
-                    b.PartitionAndRowKey(c => c.Name, c => c.Id);
-                    b.Key(c => c.Id);
-                    b.Property<string>("ETag");
-                    b.TableName("Teams" + tableSuffix);
-                });
+                    {
+                        b.ForAzureTableStorage().PartitionAndRowKey(c => c.Name, c => c.Id);
+                        b.Key(c => c.Id);
+                        b.Property<string>("ETag");
+                        b.ForAzureTableStorage().Table("Teams" + tableSuffix);
+                    });
 
             builder.Entity<Driver>(
                 b =>
-                {
-                    b.PartitionAndRowKey(c => c.Name, c => c.Id);
-                    b.Key(c => c.Id);
-                    b.Property<string>("ETag");
-                    b.TableName("Drivers" + tableSuffix);
-                });
+                    {
+                        b.ForAzureTableStorage().PartitionAndRowKey(c => c.Name, c => c.Id);
+                        b.Key(c => c.Id);
+                        b.Property<string>("ETag");
+                        b.ForAzureTableStorage().Table("Drivers" + tableSuffix);
+                    });
 
             builder.Entity<Engine>(
                 b =>
-                {
-                    b.PartitionAndRowKey(c => c.Name, c => c.Id);
-                    b.Key(c => c.Id);
-                    b.Property<string>("ETag");
-                    b.TableName("Engines" + tableSuffix);
-                });
+                    {
+                        b.ForAzureTableStorage().PartitionAndRowKey(c => c.Name, c => c.Id);
+                        b.Key(c => c.Id);
+                        b.Property<string>("ETag");
+                        b.ForAzureTableStorage().Table("Engines" + tableSuffix);
+                    });
 
             builder.Entity<EngineSupplier>(
                 b =>
-                {
-                    b.PartitionAndRowKey(c => c.Name, c => c.Id);
-                    b.Key(c => c.Id);
-                    b.Property<string>("ETag");
-                    b.TableName("EngineSuppliers" + tableSuffix);
-                });
+                    {
+                        b.ForAzureTableStorage().PartitionAndRowKey(c => c.Name, c => c.Id);
+                        b.Key(c => c.Id);
+                        b.Property<string>("ETag");
+                        b.ForAzureTableStorage().Table("EngineSuppliers" + tableSuffix);
+                    });
 
             builder.Entity<Gearbox>(
                 b =>
-                {
-                    b.PartitionAndRowKey(c => c.Name, c => c.Id);
-                    b.Key(c => c.Id);
-                    b.Property<string>("ETag");
-                    b.TableName("Gearboxes" + tableSuffix);
-                });
+                    {
+                        b.ForAzureTableStorage().PartitionAndRowKey(c => c.Name, c => c.Id);
+                        b.Key(c => c.Id);
+                        b.Property<string>("ETag");
+                        b.ForAzureTableStorage().Table("Gearboxes" + tableSuffix);
+                    });
 
             builder.Entity<Sponsor>(
                 b =>
-                {
-                    b.PartitionAndRowKey(c => c.Name, c => c.Id);
-                    b.Key(c => c.Id);
-                    b.Property<string>("ETag");
-                    b.TableName("Sponsors" + tableSuffix);
-                });
+                    {
+                        b.ForAzureTableStorage().PartitionAndRowKey(c => c.Name, c => c.Id);
+                        b.Key(c => c.Id);
+                        b.Property<string>("ETag");
+                        b.ForAzureTableStorage().Table("Sponsors" + tableSuffix);
+                    });
 
             builder.Entity<TestDriver>(
                 b =>
-                {
-                    b.PartitionAndRowKey(c => c.Name, c => c.Id);
-                    b.Key(c => c.Id);
-                    b.Property<string>("ETag");
-                    b.TableName("TestDrivers" + tableSuffix);
-                });
+                    {
+                        b.ForAzureTableStorage().PartitionAndRowKey(c => c.Name, c => c.Id);
+                        b.Key(c => c.Id);
+                        b.Property<string>("ETag");
+                        b.ForAzureTableStorage().Table("TestDrivers" + tableSuffix);
+                    });
 
             builder.Entity<TitleSponsor>(
                 b =>
-                {
-                    b.PartitionAndRowKey(c => c.Name, c => c.Id);
-                    b.Key(c => c.Id);
-                    b.Property<string>("ETag");
-                    b.TableName("TitleSponsors" + tableSuffix);
-                });
+                    {
+                        b.ForAzureTableStorage().PartitionAndRowKey(c => c.Name, c => c.Id);
+                        b.Key(c => c.Id);
+                        b.Property<string>("ETag");
+                        b.ForAzureTableStorage().Table("TitleSponsors" + tableSuffix);
+                    });
         }
 
         public class AtsTestStore : TestStore

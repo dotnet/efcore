@@ -48,8 +48,8 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Metadata
 
             var key = entityType.GetPrimaryKey();
             Assert.Equal(2, key.Properties.Count);
-            Assert.Contains("PartitionKey", key.Properties.Select(p => p.ColumnName()));
-            Assert.Contains("RowKey", key.Properties.Select(p => p.ColumnName()));
+            Assert.Contains("PartitionKey", key.Properties.Select(p => p.AzureTableStorage().Column));
+            Assert.Contains("RowKey", key.Properties.Select(p => p.AzureTableStorage().Column));
         }
     }
 }

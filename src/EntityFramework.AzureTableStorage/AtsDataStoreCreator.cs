@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.AzureTableStorage.Metadata;
 using Microsoft.Data.Entity.AzureTableStorage.Requests;
 using Microsoft.Data.Entity.AzureTableStorage.Utilities;
 using Microsoft.Data.Entity.Metadata;
@@ -31,7 +30,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
             var deleted = false;
             foreach (var type in model.EntityTypes)
             {
-                var request = new DeleteTableRequest(new AtsTable(type.TableName()));
+                var request = new DeleteTableRequest(new AtsTable(type.AzureTableStorage().Table));
                 deleted |= _connection.ExecuteRequest(request);
             }
             return deleted;
@@ -42,7 +41,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
             Check.NotNull(model, "model");
 
             var tasks = model.EntityTypes
-                .Select(type => new DeleteTableRequest(new AtsTable(type.TableName())))
+                .Select(type => new DeleteTableRequest(new AtsTable(type.AzureTableStorage().Table)))
                 .Select(request => _connection.ExecuteRequestAsync(request, cancellationToken: cancellationToken))
                 .ToList();
 
@@ -59,7 +58,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
             // ReSharper disable once LoopCanBeConvertedToQuery
             foreach (var type in model.EntityTypes)
             {
-                var request = new CreateTableRequest(new AtsTable(type.TableName()));
+                var request = new CreateTableRequest(new AtsTable(type.AzureTableStorage().Table));
                 created |= _connection.ExecuteRequest(request);
             }
             return created;
@@ -70,7 +69,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
             Check.NotNull(model, "model");
 
             var tasks = model.EntityTypes
-                .Select(type => new CreateTableRequest(new AtsTable(type.TableName())))
+                .Select(type => new CreateTableRequest(new AtsTable(type.AzureTableStorage().Table)))
                 .Select(request => _connection.ExecuteRequestAsync(request, cancellationToken: cancellationToken))
                 .ToList();
 

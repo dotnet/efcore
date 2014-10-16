@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using Microsoft.Data.Entity.AzureTableStorage.Metadata;
 using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
@@ -35,8 +34,11 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
                     b.Property(s => s.RowKey);
                     b.Property(s => s.Timestamp);
                     b.Property(s => s.ETag);
-                    b.PartitionAndRowKey(s => s.PartitionKey, s => s.RowKey);
-                    b.TableName(tableName);
+                    b.ForAzureTableStorage(ab =>
+                        {
+                            ab.PartitionAndRowKey(s => s.PartitionKey, s => s.RowKey);
+                            ab.Table(tableName);
+                        });
                 });
             return model;
         }

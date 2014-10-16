@@ -162,4 +162,7 @@
   <data name="TableNotFound" xml:space="preserve">
     <value>Table not found on server</value>
   </data>
+  <data name="BadTimestampType" xml:space="preserve">
+    <value>The property '{property}' on entity type '{entityType}' cannot be used as an Azure Table Storage timestamp because its type is '{propertyType}'. Only 'DateTimeOffset' properties can be used as timestamps.</value>
+  </data>
 </root>

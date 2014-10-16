@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.AzureTableStorage.Metadata;
 using Microsoft.Data.Entity.AzureTableStorage.Utilities;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
@@ -70,7 +69,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Adapters
 
             foreach (var property in _entry.EntityType.Properties)
             {
-                if (IsReservedStorageProperty(property.ColumnName()))
+                if (IsReservedStorageProperty(property.AzureTableStorage().Column))
                 {
                     continue;
                 }
@@ -79,7 +78,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Adapters
                 // property will be null if unknown type
                 if (newProperty != null)
                 {
-                    retVals.Add(property.ColumnName(), newProperty);
+                    retVals.Add(property.AzureTableStorage().Column, newProperty);
                 }
             }
             return retVals;

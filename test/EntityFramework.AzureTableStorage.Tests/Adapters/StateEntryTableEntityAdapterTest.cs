@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Data.Entity.AzureTableStorage.Adapters;
-using Microsoft.Data.Entity.AzureTableStorage.Metadata;
 using Microsoft.Data.Entity.AzureTableStorage.Query;
 using Microsoft.Data.Entity.AzureTableStorage.Tests.Helpers;
 using Microsoft.Data.Entity.AzureTableStorage.Utilities;
@@ -32,6 +31,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Adapters
             var builder = new BasicModelBuilder(model);
 
             builder.Entity<ClrPoco>()
+                .ForAzureTableStorage()
                 .PartitionAndRowKey(s => s.PartitionKey, s => s.RowKey)
                 .Timestamp(s => s.Timestamp);
 
@@ -45,15 +45,15 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Adapters
                 });
 
             builder.Entity<GuidKeysPoco>()
-                .PartitionAndRowKey(s => s.PartitionGuid, s => s.RowGuid)
+                .ForAzureTableStorage().PartitionAndRowKey(s => s.PartitionGuid, s => s.RowGuid)
                 .Timestamp("Timestamp", true);
 
             builder.Entity<IntKeysPoco>()
-                .PartitionAndRowKey(s => s.PartitionID, s => s.RowID);
+                .ForAzureTableStorage().PartitionAndRowKey(s => s.PartitionID, s => s.RowID);
 
             builder.Entity<ClrPocoWithProp>(pb =>
                 {
-                    pb.PartitionAndRowKey(s => s.PartitionKey, s => s.RowKey);
+                    pb.ForAzureTableStorage().PartitionAndRowKey(s => s.PartitionKey, s => s.RowKey);
                     pb.Property(s => s.Timestamp);
                     pb.Property(s => s.StringProp);
                     pb.Property(s => s.IntProp);

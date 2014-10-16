@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.Data.Entity.AzureTableStorage.Metadata;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.WindowsAzure.Storage.Table;
@@ -35,12 +34,12 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Helpers
 
         protected override object ReadPropertyValue(IPropertyBase property)
         {
-            return _propertyBag[property.ColumnName()];
+            return _propertyBag[((IProperty)property).AzureTableStorage().Column];
         }
 
         protected override void WritePropertyValue(IPropertyBase property, object value)
         {
-            _propertyBag[property.ColumnName()] = value;
+            _propertyBag[((IProperty)property).AzureTableStorage().Column] = value;
         }
 
         public override object this[IPropertyBase property]

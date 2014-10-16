@@ -100,7 +100,9 @@
     <Compile Include="Helpers\PocoTestType.cs" />
     <Compile Include="Helpers\TestStateEntry.cs" />
     <Compile Include="Helpers\TestTableResult.cs" />
+    <Compile Include="Metadata\AtsBuilderExtensionsTest.cs" />
     <Compile Include="Metadata\AtsConventionBuilderTests.cs" />
+    <Compile Include="Metadata\AtsMetadataExtensionsTest.cs" />
     <Compile Include="Metadata\AtsModelBuilderSelectorTest.cs" />
     <Compile Include="Metadata\ETagConventionTest.cs" />
     <Compile Include="Metadata\PartitionAndRowKeyConventionTests.cs" />

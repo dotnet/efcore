@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.Data.Entity.AzureTableStorage.Metadata;
 using Microsoft.Data.Entity.AzureTableStorage.Utilities;
 using Microsoft.Data.Entity.Metadata;
 using Xunit;
@@ -15,7 +14,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Utilities
         {
             var entityType = new Model().AddEntityType("Customer");
             var property = entityType.GetOrAddProperty("Name", typeof(string), shadowProperty: true);
-            property.SetColumnName("FirstName");
+            property.AzureTableStorage().Column = "FirstName";
             Assert.Equal(property, entityType.GetPropertyByColumnName("FirstName"));
             Assert.Equal(property, entityType.TryGetPropertyByColumnName("FirstName"));
         }

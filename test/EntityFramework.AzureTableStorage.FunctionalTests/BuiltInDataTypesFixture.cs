@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.Data.Entity.AzureTableStorage.Metadata;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Framework.DependencyInjection;
@@ -42,18 +41,26 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
             var model = (Model)base.CreateModel();
             var builder = new BasicModelBuilder(model);
             builder.Entity<BuiltInNonNullableDataTypes>(b =>
-            {
-                b.PartitionAndRowKey(dt => dt.Id0, dt => dt.Id1);
-                b.Timestamp("Timestamp", true);
-                b.Key(dt => dt.Id0); // See issue #632
-            });
+                {
+                    b.ForAzureTableStorage(ab =>
+                        {
+                            ab.PartitionAndRowKey(dt => dt.Id0, dt => dt.Id1);
+                            ab.Timestamp("Timestamp", true);
+                        });
+
+                    b.Key(dt => dt.Id0); // See issue #632
+                });
 
             builder.Entity<BuiltInNullableDataTypes>(b =>
-            {
-                b.PartitionAndRowKey(dt => dt.Id0, dt => dt.Id1);
-                b.Timestamp("Timestamp", true);
-                b.Key(dt => dt.Id0); // See issue #632
-            });
+                {
+                    b.ForAzureTableStorage(ab =>
+                        {
+                            ab.PartitionAndRowKey(dt => dt.Id0, dt => dt.Id1);
+                            ab.Timestamp("Timestamp", true);
+                        });
+
+                    b.Key(dt => dt.Id0); // See issue #632
+                });
 
             return builder.Model;
         }

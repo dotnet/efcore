@@ -250,6 +250,22 @@ namespace Microsoft.Data.Entity.AzureTableStorage
             return GetString("TableNotFound");
         }
 
+        /// <summary>
+        /// The property '{property}' on entity type '{entityType}' cannot be used as an Azure Table Storage timestamp because its type is '{propertyType}'. Only 'DateTimeOffset' properties can be used as timestamps.
+        /// </summary>
+        internal static string BadTimestampType
+        {
+            get { return GetString("BadTimestampType"); }
+        }
+
+        /// <summary>
+        /// The property '{property}' on entity type '{entityType}' cannot be used as an Azure Table Storage timestamp because its type is '{propertyType}'. Only 'DateTimeOffset' properties can be used as timestamps.
+        /// </summary>
+        internal static string FormatBadTimestampType(object property, object entityType, object propertyType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("BadTimestampType", "property", "entityType", "propertyType"), property, entityType, propertyType);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

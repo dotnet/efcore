@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.Data.Entity.AzureTableStorage.Metadata;
 using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Helpers
@@ -15,8 +14,8 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Helpers
         public static EntityType EntityType(Model model)
         {
             var entityType = model.AddEntityType(typeof(IntKeysPoco));
-            entityType.GetOrAddProperty("PartitionID", typeof(int)).SetColumnName("PartitionKey");
-            entityType.GetOrAddProperty("RowID", typeof(int)).SetColumnName("RowKey");
+            entityType.GetOrAddProperty("PartitionID", typeof(int)).AzureTableStorage().Column = "PartitionKey";
+            entityType.GetOrAddProperty("RowID", typeof(int)).AzureTableStorage().Column = "RowKey";
             return entityType;
         }
     }

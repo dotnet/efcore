@@ -3,7 +3,6 @@
 
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.AzureTableStorage.Metadata;
 using Microsoft.Data.Entity.AzureTableStorage.Utilities;
 using Microsoft.Data.Entity.Metadata;
 using Remotion.Linq.Clauses.Expressions;
@@ -18,7 +17,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query.Expressions
         {
             Check.NotNull(property, "property");
 
-            PropertyName = property.ColumnName();
+            PropertyName = property.AzureTableStorage().Column;
         }
 
         public virtual string PropertyName { get; private set; }

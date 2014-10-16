@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.AzureTableStorage.Metadata;
 using Microsoft.Data.Entity.AzureTableStorage.Utilities;
 using Microsoft.Data.Entity.Metadata;
 
@@ -18,7 +17,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
             var valueBuffer = new object[type.Properties.Count];
             foreach (var property in type.Properties)
             {
-                valueBuffer[property.Index] = source.TryGet(property.ColumnName());
+                valueBuffer[property.Index] = source.TryGet(property.AzureTableStorage().Column);
             }
             return new AtsObjectArrayValueReader(valueBuffer);
         }

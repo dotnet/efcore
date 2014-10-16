@@ -70,13 +70,14 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.tt</DependentUpon>
     </Compile>
-    <Compile Include="ApiExtensions.cs" />
+    <Compile Include="AtsBuilderExtensions.cs" />
     <Compile Include="AtsDatabase.cs" />
     <Compile Include="AtsConnection.cs" />
     <Compile Include="AtsDataStore.cs" />
     <Compile Include="AtsDataStoreCreator.cs" />
     <Compile Include="AtsDataStoreServices.cs" />
     <Compile Include="AtsDataStoreSource.cs" />
+    <Compile Include="AtsMetadataExtensions.cs" />
     <Compile Include="AtsOptionsExtension.cs" />
     <Compile Include="AtsValueGeneratorCache.cs" />
     <Compile Include="Extensions\AtsDatabaseExtensions.cs" />
@@ -87,10 +88,20 @@
     <Compile Include="Adapters\ITableEntityAdapter.cs" />
     <Compile Include="Adapters\StateEntryTableEntityAdapter.cs" />
     <Compile Include="Adapters\TableEntityAdapterFactory.cs" />
+    <Compile Include="Metadata\AtsAnnotationNames.cs" />
+    <Compile Include="Metadata\AtsEntityBuilder.cs" />
+    <Compile Include="Metadata\AtsEntityBuilder`.cs" />
+    <Compile Include="Metadata\AtsEntityTypeExtensions.cs" />
     <Compile Include="Metadata\AtsModelBuilder.cs" />
     <Compile Include="Metadata\AtsModelBuilderFactory.cs" />
+    <Compile Include="Metadata\AtsPropertyBuilder.cs" />
+    <Compile Include="Metadata\AtsPropertyExtensions.cs" />
     <Compile Include="Metadata\ETagConvention.cs" />
+    <Compile Include="Metadata\IAtsEntityTypeExtensions.cs" />
+    <Compile Include="Metadata\IAtsPropertyExtensions.cs" />
     <Compile Include="Metadata\PartitionKeyAndRowKeyConvention.cs" />
+    <Compile Include="Metadata\ReadOnlyAtsEntityTypeExtensions.cs" />
+    <Compile Include="Metadata\ReadOnlyAtsPropertyExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\InternalsVisibleTo.cs" />
     <Compile Include="Properties\Strings.Designer.cs">

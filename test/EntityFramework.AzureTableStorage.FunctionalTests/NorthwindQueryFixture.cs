@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq;
-using Microsoft.Data.Entity.AzureTableStorage.Metadata;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Framework.DependencyInjection;
@@ -38,35 +37,50 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
 
             var builder = new BasicModelBuilder(model);
             builder.Entity<Customer>()
-                .PartitionAndRowKey(s => s.City, s => s.CustomerID)
-                .Timestamp("Timestamp", true)
-                .TableName("Customer" + tableSuffix)
+                .ForAzureTableStorage(ab =>
+                    {
+                        ab.PartitionAndRowKey(s => s.City, s => s.CustomerID);
+                        ab.Timestamp("Timestamp", true);
+                        ab.Table("Customer" + tableSuffix);
+                    })
                 .Key(e => e.CustomerID); // See issue #632
             builder.Entity<Employee>()
-                .PartitionAndRowKey(s => s.City, s => s.EmployeeID)
-                .Timestamp("Timestamp", true)
-                .TableName("Employee" + tableSuffix)
+                .ForAzureTableStorage(ab =>
+                    {
+                        ab.PartitionAndRowKey(s => s.City, s => s.EmployeeID);
+                        ab.Timestamp("Timestamp", true);
+                        ab.Table("Employee" + tableSuffix);
+                    })
                 .Key(e => e.EmployeeID); // See issue #632
             builder.Entity<Order>()
-                .PartitionAndRowKey(s => s.CustomerID, s => s.OrderID)
-                .Timestamp("Timestamp", true)
-                .TableName("Order" + tableSuffix)
+                .ForAzureTableStorage(ab =>
+                    {
+                        ab.PartitionAndRowKey(s => s.CustomerID, s => s.OrderID);
+                        ab.Timestamp("Timestamp", true);
+                        ab.Table("Order" + tableSuffix);
+                    })
                 .Key(e => e.OrderID); // See issue #632
             builder.Entity<Product>()
-                .PartitionAndRowKey(s => s.SupplierID, s => s.ProductID)
-                .Timestamp("Timestamp", true)
-                .TableName("Product" + tableSuffix)
+                .ForAzureTableStorage(ab =>
+                    {
+                        ab.PartitionAndRowKey(s => s.SupplierID, s => s.ProductID);
+                        ab.Timestamp("Timestamp", true);
+                        ab.Table("Product" + tableSuffix);
+                    })
                 .Key(e => e.ProductID); // See issue #632
             builder.Entity<OrderDetail>()
-                .PartitionAndRowKey(s => s.OrderID, s => s.ProductID)
-                .Timestamp("Timestamp", true)
-                .TableName("OrderDetail" + tableSuffix);
+                .ForAzureTableStorage(ab =>
+                    {
+                        ab.PartitionAndRowKey(s => s.OrderID, s => s.ProductID);
+                        ab.Timestamp("Timestamp", true);
+                        ab.Table("OrderDetail" + tableSuffix);
+                    });
 
             var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder.Entity<OrderDetail>().ForeignKey<Product>(od => od.ProductID);
             modelBuilder.Entity<Order>().ForeignKey<Customer>(o => o.CustomerID);
-            
+
             var productIdFk = orderDetailType.ForeignKeys.Single();
             orderDetailType.AddNavigation("Product", productIdFk, pointsToPrincipal: true);
             productType.AddNavigation("OrderDetails", productIdFk, pointsToPrincipal: false);
@@ -74,7 +88,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
             var customerIdFk = orderType.ForeignKeys.Single();
             orderType.AddNavigation("Customer", customerIdFk, pointsToPrincipal: true);
             customerType.AddNavigation("Orders", customerIdFk, pointsToPrincipal: false);
-            
+
             return builder.Model;
         }
 
