@@ -14,10 +14,9 @@ namespace Microsoft.Data.Entity.Relational.Utilities
         [ContractAnnotation("value:null => halt")]
         public static T NotNull<T>([NoEnumeration] T value, [InvokerParameterName] [NotNull] string parameterName)
         {
-            NotEmpty(parameterName, "parameterName");
-
             if (ReferenceEquals(value, null))
             {
+                NotEmpty(parameterName, "parameterName");
                 throw new ArgumentNullException(parameterName);
             }
 
@@ -30,11 +29,10 @@ namespace Microsoft.Data.Entity.Relational.Utilities
             [InvokerParameterName] [NotNull] string parameterName,
             [NotNull] string propertyName)
         {
-            NotEmpty(parameterName, "parameterName");
-            NotEmpty(propertyName, "propertyName");
-
             if (ReferenceEquals(value, null))
             {
+                NotEmpty(parameterName, "parameterName");
+                NotEmpty(propertyName, "propertyName");
                 throw new ArgumentException(Strings.FormatArgumentPropertyNull(propertyName, parameterName));
             }
 
@@ -44,11 +42,11 @@ namespace Microsoft.Data.Entity.Relational.Utilities
         [ContractAnnotation("value:null => halt")]
         public static IReadOnlyList<T> NotEmpty<T>(IReadOnlyList<T> value, [InvokerParameterName] [NotNull] string parameterName)
         {
-            NotEmpty(parameterName, "parameterName");
             NotNull(value, parameterName);
 
             if (value.Count == 0)
             {
+                NotEmpty(parameterName, "parameterName");
                 throw new ArgumentException(Strings.FormatCollectionArgumentIsEmpty(parameterName));
             }
 
@@ -58,24 +56,20 @@ namespace Microsoft.Data.Entity.Relational.Utilities
         [ContractAnnotation("value:null => halt")]
         public static string NotEmpty(string value, [InvokerParameterName] [NotNull] string parameterName)
         {
-            if (ReferenceEquals(parameterName, null))
-            {
-                throw new ArgumentNullException("parameterName");
-            }
-
-            if (parameterName.Length == 0)
-            {
-                throw new ArgumentException(Strings.FormatArgumentIsEmpty("parameterName"));
-            }
-
+            Exception e = null;
             if (ReferenceEquals(value, null))
             {
-                throw new ArgumentNullException(parameterName);
+                e = new ArgumentNullException(parameterName);
+            }
+            else if (value.Trim().Length == 0)
+            {
+                e = new ArgumentException(Strings.FormatArgumentIsEmpty(parameterName));
             }
 
-            if (value.Length == 0)
+            if (e != null)
             {
-                throw new ArgumentException(Strings.FormatArgumentIsEmpty(parameterName));
+                NotEmpty(parameterName, "parameterName");
+                throw e;
             }
 
             return value;
@@ -83,19 +77,10 @@ namespace Microsoft.Data.Entity.Relational.Utilities
 
         public static string NullButNotEmpty(string value, [InvokerParameterName] [NotNull] string parameterName)
         {
-            if (ReferenceEquals(parameterName, null))
-            {
-                throw new ArgumentNullException("parameterName");
-            }
-
-            if (parameterName.Length == 0)
-            {
-                throw new ArgumentException(Strings.FormatArgumentIsEmpty("parameterName"));
-            }
-
             if (!ReferenceEquals(value, null)
                 && value.Length == 0)
             {
+                NotEmpty(parameterName, "parameterName");
                 throw new ArgumentException(Strings.FormatArgumentIsEmpty(parameterName));
             }
 
@@ -105,10 +90,9 @@ namespace Microsoft.Data.Entity.Relational.Utilities
         public static T IsDefined<T>(T value, [InvokerParameterName] [NotNull] string parameterName)
             where T : struct
         {
-            NotEmpty(parameterName, "parameterName");
-
             if (!Enum.IsDefined(typeof(T), value))
             {
+                NotEmpty(parameterName, "parameterName");
                 throw new ArgumentException(Strings.FormatInvalidEnumValue(parameterName, typeof(T)));
             }
 
