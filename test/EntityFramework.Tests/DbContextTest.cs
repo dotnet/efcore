@@ -1058,8 +1058,7 @@ namespace Microsoft.Data.Entity.Tests
 
             using (var context = serviceProvider.GetService<ContextWithDefaults>())
             {
-                Assert.NotNull(serviceProvider.GetService<FakeService>());
-                Assert.NotSame(serviceProvider, context.Configuration.Services.ServiceProvider);
+                Assert.NotNull(context.Configuration.Services.ServiceProvider.GetService<FakeService>());
                 Assert.Equal(1, context.Configuration.ContextOptions.Extensions.Count);
                 Assert.Same(contextOptionsExtension, context.Configuration.ContextOptions.Extensions[0]);
             }
@@ -1083,8 +1082,7 @@ namespace Microsoft.Data.Entity.Tests
 
             using (var context = serviceProvider.GetService<ContextWithServiceProvider>())
             {
-                Assert.NotNull(serviceProvider.GetService<FakeService>());
-                Assert.NotSame(serviceProvider, context.Configuration.Services.ServiceProvider);
+                Assert.NotNull(context.Configuration.Services.ServiceProvider.GetService<FakeService>());
                 Assert.Equal(1, context.Configuration.ContextOptions.Extensions.Count);
                 Assert.Same(contextOptionsExtension, context.Configuration.ContextOptions.Extensions[0]);
             }
@@ -1108,8 +1106,7 @@ namespace Microsoft.Data.Entity.Tests
 
             using (var context = serviceProvider.GetService<ContextWithOptions>())
             {
-                Assert.NotNull(serviceProvider.GetService<FakeService>());
-                Assert.NotSame(serviceProvider, context.Configuration.Services.ServiceProvider);
+                Assert.NotNull(context.Configuration.Services.ServiceProvider.GetService<FakeService>());
                 Assert.Equal(1, context.Configuration.ContextOptions.Extensions.Count);
                 Assert.Same(contextOptionsExtension, context.Configuration.ContextOptions.Extensions[0]);
             }

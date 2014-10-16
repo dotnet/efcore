@@ -40,9 +40,11 @@ namespace Microsoft.Data.Entity
         {
             Check.NotNull(serviceProvider, "serviceProvider");
 
-            InitializeSets(serviceProvider, null);
+            var options = GetOptions(serviceProvider);
+
+            InitializeSets(serviceProvider, options);
             _configuration = new LazyRef<DbContextConfiguration>(
-                () => Initialize(serviceProvider, GetOptions(serviceProvider)));
+                () => Initialize(serviceProvider, options));
 
             _logger = new LazyRef<ILogger>(() => _configuration.Value.LoggerFactory.Create("DbContext"));
         }
@@ -88,8 +90,10 @@ namespace Microsoft.Data.Entity
         {
             Check.NotNull(options, "options");
 
-            InitializeSets(null, options);
-            _configuration = new LazyRef<DbContextConfiguration>(() => Initialize(null, options));
+            var serviceProvider = DbContextActivator.ServiceProvider;
+
+            InitializeSets(serviceProvider, options);
+            _configuration = new LazyRef<DbContextConfiguration>(() => Initialize(serviceProvider, options));
             _logger = new LazyRef<ILogger>(() => _configuration.Value.LoggerFactory.Create("DbContext"));
         }
 
