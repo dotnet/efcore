@@ -1242,6 +1242,22 @@ namespace Microsoft.Data.Entity
             return string.Format(CultureInfo.CurrentCulture, GetString("UnsupportedAnnotationType", "type"), type);
         }
 
+        /// <summary>
+        /// The Include operator is not implemented by the current data store provider.
+        /// </summary>
+        internal static string IncludeNotImplemented
+        {
+            get { return GetString("IncludeNotImplemented"); }
+        }
+
+        /// <summary>
+        /// The Include operator is not implemented by the current data store provider.
+        /// </summary>
+        internal static string FormatIncludeNotImplemented()
+        {
+            return GetString("IncludeNotImplemented");
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

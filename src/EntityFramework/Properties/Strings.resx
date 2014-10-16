@@ -348,4 +348,7 @@
   <data name="UnsupportedAnnotationType" xml:space="preserve">
     <value>Annotations of type '{type}' are not supported. Only common simple .NET types are currently supported.</value>
   </data>
+  <data name="IncludeNotImplemented" xml:space="preserve">
+    <value>The Include operator is not implemented by the current data store provider.</value>
+  </data>
 </root>
