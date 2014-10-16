@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.Tests.Utilities
         [Fact]
         public void Not_null_throws_when_arg_name_empty()
         {
-            Assert.Throws<ArgumentException>(() => Check.NotNull(new object(), string.Empty));
+            Assert.Throws<ArgumentException>(() => Check.NotNull(null as object, string.Empty));
         }
 
         [Fact]
@@ -38,7 +38,7 @@ namespace Microsoft.Data.Entity.Tests.Utilities
         public void Not_empty_throws_when_parameter_name_null()
         {
             // ReSharper disable once AssignNullToNotNullAttribute
-            Assert.Throws<ArgumentNullException>(() => Check.NotEmpty("42", null));
+            Assert.Throws<ArgumentNullException>(() => Check.NotEmpty(null, null));
         }
 
         [Fact]
@@ -58,7 +58,7 @@ namespace Microsoft.Data.Entity.Tests.Utilities
         [Fact]
         public void Generic_Not_empty_throws_when_arg_name_empty()
         {
-            Assert.Throws<ArgumentException>(() => Check.NotEmpty(new[] { string.Empty }, string.Empty));
+            Assert.Throws<ArgumentException>(() => Check.NotEmpty(null, string.Empty));
         }
 
         [Fact]
