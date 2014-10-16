@@ -5,31 +5,32 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata.ModelConventions
 {
-    public class KeyConvention : IModelConvention
+    public class KeyConvention : IEntityTypeConvention
     {
         private const string KeySuffix = "Id";
 
-        public virtual void Apply(EntityType entityType)
+        public virtual void Apply(InternalEntityBuilder entityBuilder)
         {
-            Check.NotNull(entityType, "entityType");
+            Check.NotNull(entityBuilder, "entityBuilder");
+            var entityType = entityBuilder.Metadata;
 
-            var keyProperties = DiscoverKeyProperties(entityType).ToArray();
-            if (keyProperties.Length != 0)
+            var keyProperties = DiscoverKeyProperties(entityType);
+            if (keyProperties.Count != 0
+                && entityBuilder.Key(keyProperties.Select(p => p.Name).ToList(), ConfigurationSource.Convention) != null)
             {
                 foreach (var property in keyProperties)
                 {
-                    ConfigureKeyProperty(property);
+                    ConfigureKeyProperty(entityBuilder.Property(property.PropertyType, property.Name, ConfigurationSource.Convention));
                 }
-
-                entityType.GetOrSetPrimaryKey(keyProperties);
             }
         }
 
-        protected virtual IEnumerable<Property> DiscoverKeyProperties([NotNull] EntityType entityType)
+        protected virtual IReadOnlyList<Property> DiscoverKeyProperties([NotNull] EntityType entityType)
         {
             Check.NotNull(entityType, "entityType");
 
@@ -37,15 +38,16 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             // Issue #213
             var keyProperties = entityType.Properties
                 .Where(p => string.Equals(p.Name, KeySuffix, StringComparison.OrdinalIgnoreCase))
-                .ToArray();
+                .ToList();
 
-            if (keyProperties.Length == 0)
+            if (keyProperties.Count == 0)
             {
                 keyProperties = entityType.Properties.Where(
-                    p => string.Equals(p.Name, entityType.SimpleName + KeySuffix, StringComparison.OrdinalIgnoreCase)).ToArray();
+                    p => string.Equals(p.Name, entityType.SimpleName + KeySuffix, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
             }
 
-            if (keyProperties.Length > 1)
+            if (keyProperties.Count > 1)
             {
                 throw new InvalidOperationException(
                     Strings.FormatMultiplePropertiesMatchedAsKeys(keyProperties.First().Name, entityType.Name));
@@ -54,14 +56,15 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             return keyProperties;
         }
 
-        protected virtual void ConfigureKeyProperty([NotNull] Property property)
+        protected virtual void ConfigureKeyProperty([NotNull] InternalPropertyBuilder propertyBuilder)
         {
-            Check.NotNull(property, "property");
+            Check.NotNull(propertyBuilder, "propertyBuilder");
 
+            var property = propertyBuilder.Metadata;
             if (property.PropertyType == typeof(Guid)
                 || property.PropertyType.IsInteger())
             {
-                property.ValueGeneration = ValueGeneration.OnAdd;
+                propertyBuilder.GenerateValuesOnAdd(true, ConfigurationSource.Convention);
             }
 
             // TODO: Nullable, Sequence

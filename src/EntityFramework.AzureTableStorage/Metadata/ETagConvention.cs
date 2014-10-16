@@ -1,16 +1,18 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Metadata.ModelConventions;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.Metadata
 {
-    public class ETagConvention : IModelConvention
+    public class ETagConvention : IEntityTypeConvention
     {
-        public virtual void Apply(EntityType entityType)
+        public virtual void Apply(InternalEntityBuilder entityBuilder)
         {
-            entityType.GetOrAddProperty("ETag", typeof(string), shadowProperty: true).IsConcurrencyToken = true;
+            entityBuilder
+                .Property(typeof(string), "ETag", ConfigurationSource.Convention)
+                .ConcurrencyToken(true, ConfigurationSource.Convention);
         }
     }
 }

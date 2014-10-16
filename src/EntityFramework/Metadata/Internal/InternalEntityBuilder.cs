@@ -53,7 +53,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 () => Metadata.TryGetPrimaryKey(properties),
                 () => Metadata.TryGetPrimaryKey(),
                 () => Metadata.SetPrimaryKey(properties),
-                key => new InternalKeyBuilder(key, ModelBuilder),
+                (key, isNew) => new InternalKeyBuilder(key, ModelBuilder),
                 configurationSource);
         }
 
@@ -78,7 +78,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return _propertyBuilders.GetOrAdd(
                 () => Metadata.TryGetProperty(name),
                 () => Metadata.AddProperty(name, propertyType, shadowProperty),
-                property => new InternalPropertyBuilder(property, ModelBuilder, configurationSource),
+                (property, isNew) => new InternalPropertyBuilder(property, ModelBuilder, configurationSource),
                 configurationSource);
         }
 
@@ -118,7 +118,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return _foreignKeyBuilders.Value.GetOrAdd(
                 () => Metadata.TryGetForeignKey(dependentProperties),
                 () => Metadata.AddForeignKey(dependentProperties, principalType.GetPrimaryKey()),
-                foreignKey => new InternalForeignKeyBuilder(foreignKey, ModelBuilder),
+                (foreignKey, isNew) => new InternalForeignKeyBuilder(foreignKey, ModelBuilder),
                 configurationSource);
         }
 
@@ -141,7 +141,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return _indexBuilders.Value.GetOrAdd(
                 () => Metadata.TryGetIndex(properties),
                 () => Metadata.AddIndex(properties),
-                index => new InternalIndexBuilder(index, ModelBuilder),
+                (index, isNew) => new InternalIndexBuilder(index, ModelBuilder),
                 configurationSource);
         }
 
@@ -226,7 +226,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return owner._relationshipBuilders.Value.GetOrAdd(
                 () => newForeignKey == null ? foreignKey : null,
                 () => newForeignKey,
-                fk => new InternalRelationshipBuilder(
+                (fk, isNew) => new InternalRelationshipBuilder(
                     fk, ModelBuilder, principalEntityType, dependentEntityType, navToPrincipal, navToDependent),
                 configurationSource);
         }

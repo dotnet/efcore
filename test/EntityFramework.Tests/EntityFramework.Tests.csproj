@@ -139,7 +139,6 @@
     <Compile Include="Metadata\ClrCollectionAccessorSourceTest.cs" />
     <Compile Include="Metadata\ClrPropertyGetterSourceTest.cs" />
     <Compile Include="Metadata\ClrPropertySetterSourceTest.cs" />
-    <Compile Include="Metadata\ConventionalModelBuilderTest.cs" />
     <Compile Include="Metadata\EntityMaterializerSourceTest.cs" />
     <Compile Include="Metadata\EntityTypeTest.cs" />
     <Compile Include="Metadata\FieldMatcherTest.cs" />

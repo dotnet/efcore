@@ -5,11 +5,12 @@ using System;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata.ModelConventions
 {
-    public class PropertiesConvention : IModelConvention
+    public class PropertiesConvention : IEntityTypeConvention
     {
         private static readonly Type[] _propertyTypes =
             {
@@ -34,17 +35,19 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
                 typeof(ushort)
             };
 
-        public virtual void Apply(EntityType entityType)
+        public virtual void Apply(InternalEntityBuilder entityBuilder)
         {
-            Check.NotNull(entityType, "entityType");
+            Check.NotNull(entityBuilder, "entityBuilder");
+            var entityType = entityBuilder.Metadata;
 
             // TODO: Honor [NotMapped]
+            // Issue #107
             if (entityType.HasClrType)
             {
                 var primitiveProperties = entityType.Type.GetRuntimeProperties().Where(IsPrimitiveProperty);
                 foreach (var propertyInfo in primitiveProperties)
                 {
-                    entityType.GetOrAddProperty(propertyInfo);
+                    entityBuilder.Property(propertyInfo, ConfigurationSource.Convention);
                 }
             }
         }

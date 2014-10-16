@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Metadata.ModelConventions;
 using Xunit;
 
@@ -35,11 +36,11 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         [Fact]
         public void IsValidProperty_returns_false_when_invalid()
         {
-            var entityType = new Model().AddEntityType(typeof(EntityWithInvalidProperties));
+            var entityBuilder = CreateInternalEntityBuilder<EntityWithInvalidProperties>();
 
-            new PropertiesConvention().Apply(entityType);
+            new PropertiesConvention().Apply(entityBuilder);
 
-            Assert.Empty(entityType.Properties);
+            Assert.Empty(entityBuilder.Metadata.Properties);
         }
 
         private class EntityWithEveryPrimitive
@@ -92,13 +93,13 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         [Fact]
         public void IsPrimitiveProperty_returns_true_when_supported_type()
         {
-            var entityType = new Model().AddEntityType(typeof(EntityWithEveryPrimitive));
+            var entityBuilder = CreateInternalEntityBuilder<EntityWithEveryPrimitive>();
 
-            new PropertiesConvention().Apply(entityType);
+            new PropertiesConvention().Apply(entityBuilder);
 
             Assert.Equal(
                 typeof(EntityWithEveryPrimitive).GetProperties().Select(p => p.Name),
-                entityType.Properties.Select(p => p.Name));
+                entityBuilder.Metadata.Properties.Select(p => p.Name));
         }
 
         private class EntityWithNoPrimitives
@@ -109,11 +110,19 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         [Fact]
         public void IsPrimitiveProperty_returns_false_when_unsupported_type()
         {
-            var entityType = new Model().AddEntityType(typeof(EntityWithNoPrimitives));
+            var entityBuilder = CreateInternalEntityBuilder<EntityWithNoPrimitives>();
 
-            new PropertiesConvention().Apply(entityType);
+            new PropertiesConvention().Apply(entityBuilder);
 
-            Assert.Empty(entityType.Properties);
+            Assert.Empty(entityBuilder.Metadata.Properties);
+        }
+
+        private static InternalEntityBuilder CreateInternalEntityBuilder<T>()
+        {
+            var modelBuilder = new InternalModelBuilder(new Model(), null);
+            var entityBuilder = modelBuilder.Entity(typeof(T), ConfigurationSource.Convention);
+
+            return entityBuilder;
         }
     }
 }

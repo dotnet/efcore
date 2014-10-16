@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public virtual TValue GetOrAdd(
             [NotNull] Func<TKey> getKey,
             [NotNull] Func<TKey> createKey,
-            [NotNull] Func<TKey, TValue> createValue,
+            [NotNull] Func<TKey, bool, TValue> createValue,
             ConfigurationSource configurationSource)
         {
             return GetOrReplace(getKey, () => null, createKey, createValue, configurationSource);
@@ -28,13 +28,14 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             [NotNull] Func<TKey> getKey,
             [CanBeNull] Func<TKey> getKeyToReplace,
             [NotNull] Func<TKey> createKey,
-            [NotNull] Func<TKey, TValue> createValue,
+            [NotNull] Func<TKey, bool, TValue> createValue,
             ConfigurationSource configurationSource)
         {
             Check.NotNull(getKey, "getKey");
             Check.NotNull(createKey, "createKey");
             Check.NotNull(createValue, "createValue");
 
+            var isNewKey = false;
             TValue value;
             var key = getKey();
             if (key == null)
@@ -48,6 +49,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     return null;
                 }
                 key = createKey();
+                isNewKey = true;
             }
             else
             {
@@ -59,7 +61,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 configurationSource = ConfigurationSource.Explicit;
             }
 
-            value = createValue(key);
+            value = createValue(key, isNewKey);
             Add(key, value, configurationSource);
             return value;
         }

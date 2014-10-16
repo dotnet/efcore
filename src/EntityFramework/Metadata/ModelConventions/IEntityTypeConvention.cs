@@ -2,11 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Metadata.Internal;
 
 namespace Microsoft.Data.Entity.Metadata.ModelConventions
 {
-    public interface IModelConvention
+    public interface IEntityTypeConvention
     {
-        void Apply([NotNull] EntityType entityType);
+        void Apply([NotNull] InternalEntityBuilder entityBuilder);
     }
 }

@@ -3,6 +3,7 @@
 
 using Microsoft.Data.Entity.AzureTableStorage.Metadata;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Metadata.Internal;
 using Xunit;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Metadata
@@ -14,9 +15,11 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Metadata
         [Fact]
         public void It_adds_etag()
         {
-            var entityType = new Model().AddEntityType("TestType");
-            _convention.Apply(entityType);
-            var etagProp = (IProperty)entityType.GetProperty("ETag");
+            var entityBuilder = CreateInternalEntityBuilder();
+
+            _convention.Apply(entityBuilder);
+
+            var etagProp = (IProperty)entityBuilder.Metadata.GetProperty("ETag");
             Assert.NotNull(etagProp);
             Assert.True(etagProp.IsShadowProperty);
             Assert.True(etagProp.IsConcurrencyToken);
@@ -25,14 +28,21 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Metadata
         [Fact]
         public void It_does_not_overwrite_etag_prop()
         {
-            var entityType = new Model().AddEntityType("TestType");
-            entityType.GetOrAddProperty("ETag", typeof(int), shadowProperty: true);
+            var entityBuilder = CreateInternalEntityBuilder();
+            entityBuilder.Property(typeof(int), "ETag", ConfigurationSource.Convention);
 
-            _convention.Apply(entityType);
-            var etagProp = (IProperty)entityType.GetProperty("ETag");
+            _convention.Apply(entityBuilder);
+
+            var etagProp = (IProperty)entityBuilder.Metadata.GetProperty("ETag");
             Assert.NotNull(etagProp);
             Assert.True(etagProp.IsShadowProperty);
             Assert.True(etagProp.IsConcurrencyToken);
+        }
+
+        private InternalEntityBuilder CreateInternalEntityBuilder()
+        {
+            var modelBuilder = new InternalModelBuilder(new Model(), null);
+            return modelBuilder.Entity("TestType", ConfigurationSource.Convention);
         }
     }
 }

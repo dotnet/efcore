@@ -40,8 +40,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             return _entityBuilders.GetOrAdd(
                 () => Metadata.TryGetEntityType(name),
-                () => EntityTypeAdded(Metadata.AddEntityType(name)),
-                entityType => new InternalEntityBuilder(entityType, ModelBuilder),
+                () => Metadata.AddEntityType(name),
+                EntityTypeAdded,
                 configurationSource);
         }
 
@@ -56,8 +56,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             return _entityBuilders.GetOrAdd(
                 () => Metadata.TryGetEntityType(type),
-                () => EntityTypeAdded(Metadata.AddEntityType(type)),
-                entityType => new InternalEntityBuilder(entityType, ModelBuilder),
+                () => Metadata.AddEntityType(type),
+                EntityTypeAdded,
                 configurationSource);
         }
 
@@ -78,14 +78,16 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return true;
         }
 
-        private EntityType EntityTypeAdded(EntityType entityType)
+        private InternalEntityBuilder EntityTypeAdded(EntityType entityType, bool isNew)
         {
-            if (_modelChangeListener != null)
+            var builder = new InternalEntityBuilder(entityType, ModelBuilder);
+            if (isNew 
+                && _modelChangeListener != null)
             {
-                _modelChangeListener.OnEntityTypeAdded(entityType);
+                _modelChangeListener.OnEntityTypeAdded(builder);
             }
 
-            return entityType;
+            return builder;
         }
 
         public virtual bool IgnoreEntity([NotNull] string name, ConfigurationSource configurationSource)

@@ -15,9 +15,9 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Metadata
         {
         }
 
-        private static IList<IModelConvention> AtsConventions()
+        private static IList<IEntityTypeConvention> AtsConventions()
         {
-            return new List<IModelConvention>
+            return new List<IEntityTypeConvention>
                 {
                     new PropertiesConvention(),
                     new ETagConvention(),

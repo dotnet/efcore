@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.Metadata
         // Issue #213
         // TODO: Configure property facets, foreign keys & navigation properties
         // Issue #213
-        private readonly IList<IModelConvention> _conventions;
+        private readonly IList<IEntityTypeConvention> _entityTypeConventions;
 
         public ModelBuilder()
             : this(new Model())
@@ -31,20 +31,20 @@ namespace Microsoft.Data.Entity.Metadata
             Check.NotNull(model, "model");
 
             _builder = new InternalModelBuilder(model, this);
-            _conventions = new List<IModelConvention>
+            _entityTypeConventions = new List<IEntityTypeConvention>
                 {
                     new PropertiesConvention(),
                     new KeyConvention()
                 };
         }
 
-        protected ModelBuilder([NotNull] Model model, [NotNull] IList<IModelConvention> conventions)
+        protected ModelBuilder([NotNull] Model model, [NotNull] IList<IEntityTypeConvention> entityTypeConventions)
         {
             Check.NotNull(model, "model");
-            Check.NotNull(conventions, "conventions");
+            Check.NotNull(entityTypeConventions, "entityTypeConventions");
 
             _builder = new InternalModelBuilder(model, this);
-            _conventions = conventions;
+            _entityTypeConventions = entityTypeConventions;
         }
 
         protected internal ModelBuilder([NotNull] InternalModelBuilder internalBuilder)
@@ -74,9 +74,9 @@ namespace Microsoft.Data.Entity.Metadata
             get { return Metadata; }
         }
 
-        public virtual IList<IModelConvention> Conventions
+        public virtual IList<IEntityTypeConvention> EntityTypeConventions
         {
-            get { return _conventions; }
+            get { return _entityTypeConventions; }
         }
 
         public virtual ModelBuilder Annotation(string annotation, string value)
@@ -94,21 +94,19 @@ namespace Microsoft.Data.Entity.Metadata
             get { return _builder; }
         }
 
-        protected virtual void OnEntityTypeAdded([NotNull] EntityType entityType)
+        protected virtual void OnEntityTypeAdded([NotNull] InternalEntityBuilder entityBuilder)
         {
-            Check.NotNull(entityType, "entityType");
+            Check.NotNull(entityBuilder, "entityBuilder");
 
-            foreach (var convention in Conventions)
+            foreach (var entityTypeConvention in EntityTypeConventions)
             {
-                convention.Apply(entityType);
+                entityTypeConvention.Apply(entityBuilder);
             }
         }
 
-        void IModelChangeListener.OnEntityTypeAdded(EntityType entityType)
+        void IModelChangeListener.OnEntityTypeAdded(InternalEntityBuilder entityBuilder)
         {
-            Check.NotNull(entityType, "entityType");
-
-            OnEntityTypeAdded(entityType);
+            OnEntityTypeAdded(entityBuilder);
         }
 
         public virtual EntityBuilder<T> Entity<T>()

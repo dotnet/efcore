@@ -5,6 +5,9 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Metadata.Internal;
+using Microsoft.Data.Entity.Metadata.ModelConventions;
+using Moq;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Tests.Metadata
@@ -6281,6 +6284,20 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
         private static void AssertIsGenericManyToOne(ModelBuilder.EntityBuilder<Order>.ManyToOneBuilder<Customer> _)
         {
+        }
+        
+        [Fact]
+        public void OnEntityTypeAdded_calls_apply_on_conventions()
+        {
+            var model = new Model();
+            var builder = new ModelBuilder(model);
+            builder.EntityTypeConventions.Clear();
+            var convention = new Mock<IEntityTypeConvention>();
+            builder.EntityTypeConventions.Add(convention.Object);
+
+            builder.Entity<Order>();
+
+            convention.Verify(c => c.Apply(It.Is<InternalEntityBuilder>(t => t.Metadata.Type == typeof(Order))));
         }
     }
 }
