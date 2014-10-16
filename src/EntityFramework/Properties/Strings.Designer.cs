@@ -1290,6 +1290,22 @@ namespace Microsoft.Data.Entity
             return GetString("IncludeNotImplemented");
         }
 
+        /// <summary>
+        /// The expression '{expression}' passed to the Include operator could not be bound. Only single-level navigation expressions are supported. 
+        /// </summary>
+        internal static string IncludeNonBindableExpression
+        {
+            get { return GetString("IncludeNonBindableExpression"); }
+        }
+
+        /// <summary>
+        /// The expression '{expression}' passed to the Include operator could not be bound. Only single-level navigation expressions are supported. 
+        /// </summary>
+        internal static string FormatIncludeNonBindableExpression(object expression)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("IncludeNonBindableExpression", "expression"), expression);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

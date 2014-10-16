@@ -208,36 +208,49 @@ namespace Microsoft.Data.Entity.Query
 
                 if (includeResultOperator != null)
                 {
-                    var resultQuerySourceReferenceExpression
-                        = querySourceTracingExpressionTreeVisitor
-                            .FindResultQuerySourceReferenceExpression(
-                                queryModel.SelectClause.Selector,
-                                queryAnnotation.QuerySource);
+                    var navigation
+                        = BindNavigationMemberExpression(
+                            (MemberExpression)includeResultOperator.NavigationPropertyPath,
+                            (n, _) => n);
 
-                    if (resultQuerySourceReferenceExpression != null)
+                    if (navigation != null)
                     {
-                        var accessorLambda
-                            = AccessorFindingExpressionTreeVisitor
-                                .FindAccessorLambda(
-                                    resultQuerySourceReferenceExpression,
+                        var resultQuerySourceReferenceExpression
+                            = querySourceTracingExpressionTreeVisitor
+                                .FindResultQuerySourceReferenceExpression(
                                     queryModel.SelectClause.Selector,
-                                    Expression.Parameter(queryModel.SelectClause.Selector.Type));
+                                    queryAnnotation.QuerySource);
 
-                        IncludeNavigation(
-                            queryAnnotation.QuerySource,
-                            resultType,
-                            accessorLambda,
-                            includeResultOperator.NavigationPropertyPath);
+                        if (resultQuerySourceReferenceExpression != null)
+                        {
+                            var accessorLambda
+                                = AccessorFindingExpressionTreeVisitor
+                                    .FindAccessorLambda(
+                                        resultQuerySourceReferenceExpression,
+                                        queryModel.SelectClause.Selector,
+                                        Expression.Parameter(queryModel.SelectClause.Selector.Type));
+
+                            IncludeNavigation(
+                                queryAnnotation.QuerySource,
+                                resultType,
+                                accessorLambda,
+                                navigation);
+                        }
+                    }
+                    else
+                    { 
+                        throw new NotImplementedException(
+                            Strings.FormatIncludeNonBindableExpression(includeResultOperator.NavigationPropertyPath));
                     }
                 }
             }
         }
 
         protected virtual void IncludeNavigation(
-            IQuerySource querySource,
-            Type resultType,
-            LambdaExpression accessorLambda,
-            Expression navigationPropertyPath)
+            [NotNull] IQuerySource querySource,
+            [NotNull] Type resultType,
+            [NotNull] LambdaExpression accessorLambda,
+            [NotNull] INavigation navigation)
         {
             // template method
 

@@ -59,22 +59,25 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     e.Property(od => od.Quantity);
                     e.Property(od => od.Discount);
                     e.ForeignKey<Product>(od => od.ProductID);
+                    e.ForeignKey<Order>(od => od.OrderID);
                 });
 
             // TODO: Use FAPIS when avail.
             var productType = model.GetEntityType(typeof(Product));
-            var orderDetailType = model.GetEntityType(typeof(OrderDetail));
-            var productIdFk = orderDetailType.ForeignKeys.Single();
-
-            productType.AddNavigation("OrderDetails", productIdFk, pointsToPrincipal: false);
-            orderDetailType.AddNavigation("Product", productIdFk, pointsToPrincipal: true);
-
             var customerType = model.GetEntityType(typeof(Customer));
             var orderType = model.GetEntityType(typeof(Order));
-            var customerIdFk = orderType.ForeignKeys.Single();
+            var orderDetailType = model.GetEntityType(typeof(OrderDetail));
 
+            var customerIdFk = orderType.ForeignKeys.Single();
+            var productIdFk = orderDetailType.ForeignKeys.Single(fk => fk.ReferencedEntityType == productType);
+            var orderIdFk = orderDetailType.ForeignKeys.Single(fk => fk.ReferencedEntityType == orderType);
+
+            productType.AddNavigation("OrderDetails", productIdFk, pointsToPrincipal: false);
             customerType.AddNavigation("Orders", customerIdFk, pointsToPrincipal: false);
             orderType.AddNavigation("Customer", customerIdFk, pointsToPrincipal: true);
+            orderType.AddNavigation("OrderDetails", orderIdFk, pointsToPrincipal: false);
+            orderDetailType.AddNavigation("Product", productIdFk, pointsToPrincipal: true);
+            orderDetailType.AddNavigation("Order", orderIdFk, pointsToPrincipal: true);
 
             return model;
         }

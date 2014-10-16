@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using Microsoft.Data.Entity.Utilities;
 using Northwind;
@@ -25,6 +26,23 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 Assert.True(customers.Where(c => c.Orders != null).SelectMany(c => c.Orders).All(o => o.Customer != null));
                 Assert.Equal(91 + 830, context.ChangeTracker.Entries().Count());
             }
+        }
+
+        [Fact]
+        public virtual void Include_multi_level()
+        {
+            Assert.Throws<NotImplementedException>(() =>
+                {
+                    using (var context = CreateContext())
+                    {
+                        var orderDetails
+                            = context.Set<OrderDetail>()
+                                .Include(od => od.Order.Customer)
+                                .ToList();
+
+                        Assert.Equal(2155, orderDetails.Count);
+                    }
+                });
         }
 
         [Fact]
