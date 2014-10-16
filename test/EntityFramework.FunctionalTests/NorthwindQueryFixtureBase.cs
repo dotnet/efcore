@@ -9,10 +9,12 @@ namespace Microsoft.Data.Entity.FunctionalTests
 {
     public abstract class NorthwindQueryFixtureBase
     {
-        protected static Model CreateModel()
+        protected Model CreateModel()
         {
             var model = new Model();
             var modelBuilder = new BasicModelBuilder(model);
+
+            OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<Customer>(e =>
                 {
@@ -80,6 +82,10 @@ namespace Microsoft.Data.Entity.FunctionalTests
             orderDetailType.AddNavigation("Order", orderIdFk, pointsToPrincipal: true);
 
             return model;
+        }
+
+        protected virtual void OnModelCreating(BasicModelBuilder modelBuilder)
+        {
         }
     }
 }

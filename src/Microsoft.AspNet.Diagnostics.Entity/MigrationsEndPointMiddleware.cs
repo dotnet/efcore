@@ -89,7 +89,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity
                 return null;
             }
 
-            var db = (DbContext)context.ApplicationServices.GetServiceOrNull(contextType);
+            var db = (DbContext)context.ApplicationServices.GetService(contextType);
             if (db == null)
             {
                 var message = Strings.FormatMigrationsEndPointMiddleware_ContextNotRegistered(contextType.FullName);

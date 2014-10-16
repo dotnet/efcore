@@ -69,7 +69,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity
                         else
                         {
                             var dbContextType = _loggerProvider.Logger.LastError.ContextType;
-                            var dbContext = (DbContext)context.RequestServices.GetServiceOrNull(dbContextType);
+                            var dbContext = (DbContext)context.RequestServices.GetService(dbContextType);
                             if (dbContext == null)
                             {
                                 _logger.WriteError(Strings.FormatDatabaseErrorPageMiddleware_ContextNotRegistered(dbContextType.FullName));
