@@ -96,7 +96,7 @@ namespace Microsoft.Data.Entity.SqlServer
 
         protected override bool IsKeyClustered(IKey key)
         {
-            return key.SqlServer().IsClustered == true;
+            return key.SqlServer().IsClustered != false;
         }
 
         protected override bool IsIndexClustered(IIndex index)

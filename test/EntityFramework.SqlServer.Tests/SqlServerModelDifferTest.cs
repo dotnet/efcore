@@ -553,6 +553,45 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         }
 
         [Fact]
+        public void Indexes_are_not_not_clustered_by_default_but_can_be_made_clustered()
+        {
+            var sourceModelBuilder = new BasicModelBuilder();
+            sourceModelBuilder.Entity("A",
+                b =>
+                {
+                    b.Property<int>("Id");
+                    b.Property<string>("P1");
+                    b.Key("Id");
+                    b.Index("P1").ForSqlServer();
+                });
+
+            var targetModelBuilder = new BasicModelBuilder();
+            targetModelBuilder.Entity("A",
+                b =>
+                {
+                    b.Property<int>("Id");
+                    b.Property<string>("P1");
+                    b.Key("Id");
+                    b.Index("P1").ForSqlServer().Clustered();
+                });
+
+            var operations = new SqlServerModelDiffer(new SqlServerDatabaseBuilder(new SqlServerTypeMapper())).Diff(
+                sourceModelBuilder.Model, targetModelBuilder.Model);
+
+            Assert.Equal(2, operations.Count);
+
+            Assert.IsType<DropIndexOperation>(operations[0]);
+            Assert.IsType<CreateIndexOperation>(operations[1]);
+
+            var dropIndexOperation = (DropIndexOperation)operations[0];
+            var createIndexOperation = (CreateIndexOperation)operations[1];
+
+            Assert.Equal("IX_A_P1", dropIndexOperation.IndexName);
+            Assert.Equal("IX_A_P1", createIndexOperation.IndexName);
+            Assert.True(createIndexOperation.IsClustered);
+        }
+
+        [Fact]
         public void Primary_keys_are_not_matched_if_different_clustered_flag()
         {
             var sourceModelBuilder = new BasicModelBuilder();
@@ -561,6 +600,41 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 {
                     b.Property<int>("Id");
                     b.Key("Id").ForSqlServer().Clustered();
+                });
+
+            var targetModelBuilder = new BasicModelBuilder();
+            targetModelBuilder.Entity("A",
+                b =>
+                {
+                    b.Property<int>("Id");
+                    b.Key("Id").ForSqlServer().Clustered(false);
+                });
+
+            var operations = new SqlServerModelDiffer(new SqlServerDatabaseBuilder(new SqlServerTypeMapper())).Diff(
+                sourceModelBuilder.Model, targetModelBuilder.Model);
+
+            Assert.Equal(2, operations.Count);
+
+            Assert.IsType<DropPrimaryKeyOperation>(operations[0]);
+            Assert.IsType<AddPrimaryKeyOperation>(operations[1]);
+
+            var dropPrimaryKeyOperation = (DropPrimaryKeyOperation)operations[0];
+            var addPrimaryKeyOperation = (AddPrimaryKeyOperation)operations[1];
+
+            Assert.Equal("PK_A", dropPrimaryKeyOperation.PrimaryKeyName);
+            Assert.Equal("PK_A", addPrimaryKeyOperation.PrimaryKeyName);
+            Assert.False(addPrimaryKeyOperation.IsClustered);
+        }
+
+        [Fact]
+        public void Primary_keys_clustered_by_default_but_can_be_made_non_clustered_flag()
+        {
+            var sourceModelBuilder = new BasicModelBuilder();
+            sourceModelBuilder.Entity("A",
+                b =>
+                {
+                    b.Property<int>("Id");
+                    b.Key("Id").ForSqlServer();
                 });
 
             var targetModelBuilder = new BasicModelBuilder();
