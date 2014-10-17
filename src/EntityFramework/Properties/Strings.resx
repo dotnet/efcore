@@ -235,10 +235,10 @@
     <value>An error occured while running a data store operation. See InnerException for details.</value>
   </data>
   <data name="LogExceptionDuringQueryIteration" xml:space="preserve">
-    <value>An exception occurred in the data store while iterating the results of a query.</value>
+    <value>An exception occurred in the data store while iterating the results of a query.{newline}{error}</value>
   </data>
   <data name="LogExceptionDuringSaveChanges" xml:space="preserve">
-    <value>An exception occurred in the data store while saving changes.</value>
+    <value>An exception occurred in the data store while saving changes.{newline}{error}</value>
   </data>
   <data name="PropertyExtensionInvoked" xml:space="preserve">
     <value>The Property&amp;lt;T&amp;gt; extension method may only be used within LINQ queries.</value>
@@ -359,5 +359,8 @@
   </data>
   <data name="IncludeNonBindableExpression" xml:space="preserve">
     <value>The expression '{expression}' passed to the Include operator could not be bound. Only single-level navigation expressions are supported. </value>
+  </data>
+  <data name="LogCompilingQueryModel" xml:space="preserve">
+    <value>Compiling query model{newline}{newline}{queryModel}</value>
   </data>
 </root>

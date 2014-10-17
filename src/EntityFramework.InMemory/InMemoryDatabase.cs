@@ -92,11 +92,7 @@ namespace Microsoft.Data.Entity.InMemory
                     return ts;
                 });
 
-            _logger.WriteInformation(
-                string.Format(
-                    CultureInfo.InvariantCulture,
-                    "Saved {0} entities to in-memory database.",
-                    rowsAffected));
+            _logger.WriteInformation(() => Strings.FormatLogSavedChanges(rowsAffected));
 
             return rowsAffected;
         }

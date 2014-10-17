@@ -17,7 +17,7 @@ namespace Microsoft.Framework.Logging
             Check.NotNull(logger, "logger");
             Check.NotEmpty(sql, "sql");
 
-            logger.Write(TraceType.Verbose, RelationalLoggingEventIds.Sql, sql, null, (o, _) => (string)o);
+            logger.WriteVerbose(RelationalLoggingEventIds.Sql, sql);
         }
 
         public static void CreatingDatabase([NotNull] this ILogger logger, [NotNull] string databaseName)
@@ -25,8 +25,10 @@ namespace Microsoft.Framework.Logging
             Check.NotNull(logger, "logger");
             Check.NotEmpty(databaseName, "databaseName");
 
-            logger.Write(TraceType.Information, RelationalLoggingEventIds.CreatingDatabase, databaseName, null,
-                (o, _) => Strings.FormatRelationalLoggerCreatingDatabase(databaseName));
+            logger.WriteInformation(
+                RelationalLoggingEventIds.CreatingDatabase,
+                databaseName,
+                Strings.FormatRelationalLoggerCreatingDatabase);
         }
 
         public static void OpeningConnection([NotNull] this ILogger logger, [NotNull] string connectionString)
@@ -34,8 +36,10 @@ namespace Microsoft.Framework.Logging
             Check.NotNull(logger, "logger");
             Check.NotEmpty(connectionString, "connectionString");
 
-            logger.Write(TraceType.Verbose, RelationalLoggingEventIds.OpeningConnection, connectionString, null,
-                (o, _) => Strings.FormatRelationalLoggerOpeningConnection(o));
+            logger.WriteVerbose(
+                RelationalLoggingEventIds.OpeningConnection,
+                connectionString,
+                Strings.FormatRelationalLoggerOpeningConnection);
         }
 
         public static void ClosingConnection([NotNull] this ILogger logger, [NotNull] string connectionString)
@@ -43,32 +47,38 @@ namespace Microsoft.Framework.Logging
             Check.NotNull(logger, "logger");
             Check.NotEmpty(connectionString, "connectionString");
 
-            logger.Write(TraceType.Verbose, RelationalLoggingEventIds.ClosingConnection, connectionString, null,
-                (o, _) => Strings.FormatRelationalLoggerClosingConnection(o));
+            logger.WriteVerbose(
+                RelationalLoggingEventIds.ClosingConnection,
+                connectionString,
+                Strings.FormatRelationalLoggerClosingConnection);
         }
 
         public static void BeginningTransaction([NotNull] this ILogger logger, IsolationLevel isolationLevel)
         {
             Check.NotNull(logger, "logger");
 
-            logger.Write(TraceType.Verbose, RelationalLoggingEventIds.BeginningTransaction, isolationLevel.ToString("G"), null,
-                (o, _) => Strings.FormatRelationalLoggerBeginningTransaction(o));
+            logger.WriteVerbose(
+                RelationalLoggingEventIds.BeginningTransaction,
+                isolationLevel,
+                il => Strings.FormatRelationalLoggerBeginningTransaction(il.ToString("G")));
         }
 
         public static void CommittingTransaction([NotNull] this ILogger logger)
         {
             Check.NotNull(logger, "logger");
 
-            logger.Write(TraceType.Verbose, RelationalLoggingEventIds.CommittingTransaction, null, null,
-                (_, __) => Strings.RelationalLoggerCommittingTransaction);
+            logger.WriteVerbose(
+                RelationalLoggingEventIds.CommittingTransaction,
+                Strings.RelationalLoggerCommittingTransaction);
         }
 
         public static void RollingbackTransaction([NotNull] this ILogger logger)
         {
             Check.NotNull(logger, "logger");
 
-            logger.Write(TraceType.Verbose, RelationalLoggingEventIds.RollingbackTransaction, null, null,
-                (_, __) => Strings.RelationalLoggerRollingbackTransaction);
+            logger.WriteVerbose(
+                RelationalLoggingEventIds.RollingbackTransaction,
+                Strings.RelationalLoggerRollingbackTransaction);
         }
     }
 }

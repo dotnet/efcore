@@ -70,6 +70,9 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.tt</DependentUpon>
     </Compile>
+    <Compile Include="..\Shared\LoggingExtensions.cs">
+      <Link>LoggingExtensions.cs</Link>
+    </Compile>
     <Compile Include="AtsBuilderExtensions.cs" />
     <Compile Include="AtsDatabase.cs" />
     <Compile Include="AtsConnection.cs" />

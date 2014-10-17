@@ -13,16 +13,18 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
         {
             Check.NotNull(logger, "logger");
 
-            logger.Write(TraceType.Information, MigratorLoggerEventIds.CreatingHistoryTable, null, null,
-                (_, __) => Strings.MigratorLoggerCreatingHistoryTable);
+            logger.WriteInformation(
+                MigratorLoggerEventIds.CreatingHistoryTable,
+                Strings.FormatMigratorLoggerCreatingHistoryTable);
         }
 
         public static void DroppingHistoryTable([NotNull] this ILogger logger)
         {
             Check.NotNull(logger, "logger");
 
-            logger.Write(TraceType.Information, MigratorLoggerEventIds.DroppingHistoryTable, null, null,
-                (_, __) => Strings.MigratorLoggerDroppingHistoryTable);
+            logger.WriteInformation(
+                MigratorLoggerEventIds.DroppingHistoryTable,
+                Strings.FormatMigratorLoggerDroppingHistoryTable);
         }
 
         public static void ApplyingMigration([NotNull] this ILogger logger, [NotNull] string migrationId)
@@ -30,8 +32,9 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             Check.NotNull(logger, "logger");
             Check.NotEmpty(migrationId, "migrationId");
 
-            logger.Write(TraceType.Information, MigratorLoggerEventIds.ApplyingMigration, migrationId, null,
-                (o, _) => Strings.FormatMigratorLoggerApplyingMigration(o));
+            logger.WriteInformation(
+                MigratorLoggerEventIds.ApplyingMigration, migrationId,
+                Strings.FormatMigratorLoggerApplyingMigration);
         }
 
         public static void RevertingMigration([NotNull] this ILogger logger, [NotNull] string migrationId)
@@ -39,16 +42,18 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             Check.NotNull(logger, "logger");
             Check.NotEmpty(migrationId, "migrationId");
 
-            logger.Write(TraceType.Information, MigratorLoggerEventIds.RevertingMigration, migrationId, null,
-                (o, _) => Strings.FormatMigratorLoggerRevertingMigration(o));
+            logger.WriteInformation(
+                MigratorLoggerEventIds.RevertingMigration, migrationId,
+                Strings.FormatMigratorLoggerRevertingMigration);
         }
 
         public static void UpToDate([NotNull] this ILogger logger)
         {
             Check.NotNull(logger, "logger");
 
-            logger.Write(TraceType.Information, MigratorLoggerEventIds.UpToDate, null, null,
-                (_, __) => Strings.MigratorLoggerUpToDate);
+            logger.WriteInformation(
+                MigratorLoggerEventIds.UpToDate,
+                Strings.FormatMigratorLoggerUpToDate);
         }
     }
 }

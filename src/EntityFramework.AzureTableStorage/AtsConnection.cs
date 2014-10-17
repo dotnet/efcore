@@ -1,9 +1,7 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Linq;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -75,27 +73,26 @@ namespace Microsoft.Data.Entity.AzureTableStorage
         private RequestContext SetupRequestContext<TResult>(AtsRequest<TResult> request, ILogger logger = null)
         {
             var operationContext = new OperationContext();
+
             if (logger != null)
             {
-                operationContext.Retrying += (sender, args) => logger.WriteInformation(
-                    String.Format("Retrying request to '{0}'", args.Request.RequestUri.ToString()));
+                operationContext.Retrying += (sender, args)
+                    => logger.WriteInformation(
+                        args,
+                        a => Strings.FormatLogRequestRetry(a.Request.RequestUri));
 
-                operationContext.SendingRequest += (sender, args) =>
-                    logger.WriteVerbose(
-                        String.Format("Sending request to '{0}'", args.Request.RequestUri.ToString()));
-                operationContext.ResponseReceived += (sender, args) =>
-                    {
-                        var msg = String.Format("Response from '{0}' = {1} {2}", args.Request.RequestUri.ToString(), (int)args.Response.StatusCode, args.Response.StatusDescription);
-                        if (args.Response.StatusCode >= HttpStatusCode.BadRequest)
-                        {
-                            logger.WriteError(msg);
-                        }
-                        else
-                        {
-                            logger.WriteVerbose(msg);
-                        }
-                    };
-                logger.WriteInformation(String.Format("Executing request '{0}'", request.Name));
+                operationContext.SendingRequest += (sender, args)
+                    => logger.WriteVerbose(
+                        args,
+                        a => Strings.FormatLogSendingRequest(a.Request.RequestUri));
+
+                operationContext.ResponseReceived += (sender, args)
+                    => logger.WriteInformation(
+                        args,
+                        a => Strings.FormatLogResponseReceived(
+                            a.Request.RequestUri, a.Response.StatusCode, a.Response.StatusDescription));
+
+                logger.WriteInformation(request, r => Strings.FormatLogExecutingRequest(request.Name));
             }
 
             return new RequestContext

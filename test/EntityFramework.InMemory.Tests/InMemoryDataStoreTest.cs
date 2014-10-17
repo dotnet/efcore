@@ -165,6 +165,8 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             await entityEntry.SetEntityStateAsync(EntityState.Added);
 
             var mockLogger = new Mock<ILogger>();
+            mockLogger.Setup(l => l.IsEnabled(TraceType.Information)).Returns(true);
+
             var mockFactory = new Mock<ILoggerFactory>();
             mockFactory.Setup(m => m.Create(It.IsAny<string>())).Returns(mockLogger.Object);
 

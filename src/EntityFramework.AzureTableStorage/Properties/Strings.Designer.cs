@@ -266,6 +266,70 @@ namespace Microsoft.Data.Entity.AzureTableStorage
             return string.Format(CultureInfo.CurrentCulture, GetString("BadTimestampType", "property", "entityType", "propertyType"), property, entityType, propertyType);
         }
 
+        /// <summary>
+        /// Executing request '{name}'
+        /// </summary>
+        internal static string LogExecutingRequest
+        {
+            get { return GetString("LogExecutingRequest"); }
+        }
+
+        /// <summary>
+        /// Executing request '{name}'
+        /// </summary>
+        internal static string FormatLogExecutingRequest(object name)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("LogExecutingRequest", "name"), name);
+        }
+
+        /// <summary>
+        /// Retrying request to '{uri}'
+        /// </summary>
+        internal static string LogRequestRetry
+        {
+            get { return GetString("LogRequestRetry"); }
+        }
+
+        /// <summary>
+        /// Retrying request to '{uri}'
+        /// </summary>
+        internal static string FormatLogRequestRetry(object uri)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("LogRequestRetry", "uri"), uri);
+        }
+
+        /// <summary>
+        /// Response from '{uri}' = {statusCode} {description}
+        /// </summary>
+        internal static string LogResponseReceived
+        {
+            get { return GetString("LogResponseReceived"); }
+        }
+
+        /// <summary>
+        /// Response from '{uri}' = {statusCode} {description}
+        /// </summary>
+        internal static string FormatLogResponseReceived(object uri, object statusCode, object description)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("LogResponseReceived", "uri", "statusCode", "description"), uri, statusCode, description);
+        }
+
+        /// <summary>
+        /// Sending request to '{uri}'
+        /// </summary>
+        internal static string LogSendingRequest
+        {
+            get { return GetString("LogSendingRequest"); }
+        }
+
+        /// <summary>
+        /// Sending request to '{uri}'
+        /// </summary>
+        internal static string FormatLogSendingRequest(object uri)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("LogSendingRequest", "uri"), uri);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

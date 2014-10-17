@@ -73,12 +73,11 @@ namespace Microsoft.Data.Entity.Query
             }
             catch (Exception ex)
             {
-                _logger.Value.Write(
-                    TraceType.Error,
-                    0,
+                _logger.Value.WriteError(
                     new DataStoreErrorLogState(_context.GetType()),
                     ex,
-                    (state, exception) => string.Format("{0}" + Environment.NewLine + "{1}", Strings.LogExceptionDuringQueryIteration, exception.ToString()));
+                    (state, exception) =>
+                        Strings.FormatLogExceptionDuringQueryIteration(Environment.NewLine, exception));
 
                 throw;
             }
@@ -101,12 +100,11 @@ namespace Microsoft.Data.Entity.Query
             }
             catch (Exception ex)
             {
-                _logger.Value.Write(
-                    TraceType.Error,
-                    0,
+                _logger.Value.WriteError(
                     new DataStoreErrorLogState(_context.GetType()),
                     ex,
-                    (state, exception) => string.Format("{0}" + Environment.NewLine + "{1}", Strings.LogExceptionDuringQueryIteration, exception.ToString()));
+                    (state, exception) =>
+                        Strings.FormatLogExceptionDuringQueryIteration(Environment.NewLine, exception));
 
                 throw;
             }
@@ -114,10 +112,9 @@ namespace Microsoft.Data.Entity.Query
 
         private void LogQueryModel(QueryModel queryModel)
         {
-            if (_logger.Value.IsEnabled(TraceType.Information))
-            {
-                _logger.Value.WriteInformation(queryModel + Environment.NewLine);
-            }
+            _logger.Value.WriteInformation(
+                queryModel,
+                qm => Strings.FormatLogCompilingQueryModel(Environment.NewLine, qm));
         }
 
         private sealed class EnumerableExceptionInterceptor<T> : IEnumerable<T>
@@ -175,13 +172,11 @@ namespace Microsoft.Data.Entity.Query
                     }
                     catch (Exception ex)
                     {
-                        _logger.Value.Write(
-                            TraceType.Error,
-                            0,
+                        _logger.Value.WriteError(
                             new DataStoreErrorLogState(_context.GetType()),
                             ex,
-                            (state, exception) => string.Format("{0}" + Environment.NewLine
-                                                                + "{1}", Strings.LogExceptionDuringQueryIteration, exception.ToString()));
+                            (state, exception) =>
+                                Strings.FormatLogExceptionDuringQueryIteration(Environment.NewLine, exception));
 
                         throw;
                     }
@@ -245,12 +240,11 @@ namespace Microsoft.Data.Entity.Query
                     }
                     catch (Exception ex)
                     {
-                        _logger.Value.Write(
-                            TraceType.Error,
-                            0,
+                        _logger.Value.WriteError(
                             new DataStoreErrorLogState(_context.GetType()),
                             ex,
-                            (state, exception) => string.Format("{0}" + Environment.NewLine + "{1}", Strings.LogExceptionDuringQueryIteration, exception.ToString()));
+                            (state, exception) =>
+                                Strings.FormatLogExceptionDuringQueryIteration(Environment.NewLine, exception));
 
                         throw;
                     }

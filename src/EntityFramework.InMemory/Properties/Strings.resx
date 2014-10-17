@@ -123,4 +123,7 @@
   <data name="InvalidEnumValue" xml:space="preserve">
     <value>The value provided for argument '{argumentName}' must be a valid value of enum type '{enumType}'.</value>
   </data>
+  <data name="LogSavedChanges" xml:space="preserve">
+    <value>Saved {count} entities to in-memory store.</value>
+  </data>
 </root>

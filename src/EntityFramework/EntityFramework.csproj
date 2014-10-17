@@ -61,6 +61,9 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.tt</DependentUpon>
     </Compile>
+    <Compile Include="..\Shared\LoggingExtensions.cs">
+      <Link>LoggingExtensions.cs</Link>
+    </Compile>
     <Compile Include="ChangeTracking\ChangeDetector.cs" />
     <Compile Include="ChangeTracking\RelationshipsSnapshot.cs" />
     <Compile Include="ChangeTracking\RelationshipsSnapshotFactory.cs" />

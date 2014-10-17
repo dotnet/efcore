@@ -635,7 +635,7 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
-        /// An exception occurred in the data store while iterating the results of a query.
+        /// An exception occurred in the data store while iterating the results of a query.{newline}{error}
         /// </summary>
         internal static string LogExceptionDuringQueryIteration
         {
@@ -643,15 +643,15 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
-        /// An exception occurred in the data store while iterating the results of a query.
+        /// An exception occurred in the data store while iterating the results of a query.{newline}{error}
         /// </summary>
-        internal static string FormatLogExceptionDuringQueryIteration()
+        internal static string FormatLogExceptionDuringQueryIteration(object newline, object error)
         {
-            return GetString("LogExceptionDuringQueryIteration");
+            return string.Format(CultureInfo.CurrentCulture, GetString("LogExceptionDuringQueryIteration", "newline", "error"), newline, error);
         }
 
         /// <summary>
-        /// An exception occurred in the data store while saving changes.
+        /// An exception occurred in the data store while saving changes.{newline}{error}
         /// </summary>
         internal static string LogExceptionDuringSaveChanges
         {
@@ -659,11 +659,11 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
-        /// An exception occurred in the data store while saving changes.
+        /// An exception occurred in the data store while saving changes.{newline}{error}
         /// </summary>
-        internal static string FormatLogExceptionDuringSaveChanges()
+        internal static string FormatLogExceptionDuringSaveChanges(object newline, object error)
         {
-            return GetString("LogExceptionDuringSaveChanges");
+            return string.Format(CultureInfo.CurrentCulture, GetString("LogExceptionDuringSaveChanges", "newline", "error"), newline, error);
         }
 
         /// <summary>
@@ -1304,6 +1304,22 @@ namespace Microsoft.Data.Entity
         internal static string FormatIncludeNonBindableExpression(object expression)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("IncludeNonBindableExpression", "expression"), expression);
+        }
+
+        /// <summary>
+        /// Compiling query model{newline}{newline}{queryModel}
+        /// </summary>
+        internal static string LogCompilingQueryModel
+        {
+            get { return GetString("LogCompilingQueryModel"); }
+        }
+
+        /// <summary>
+        /// Compiling query model{newline}{newline}{queryModel}
+        /// </summary>
+        internal static string FormatLogCompilingQueryModel(object newline, object queryModel)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("LogCompilingQueryModel", "newline", "queryModel"), newline, queryModel);
         }
 
         private static string GetString(string name, params string[] formatterNames)

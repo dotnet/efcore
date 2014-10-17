@@ -49,6 +49,9 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.tt</DependentUpon>
     </Compile>
+    <Compile Include="..\Shared\LoggingExtensions.cs">
+      <Link>LoggingExtensions.cs</Link>
+    </Compile>
     <Compile Include="IMigrationOperationSqlGeneratorFactory.cs" />
     <Compile Include="Infrastructure\ContextTypeAttribute.cs" />
     <Compile Include="Infrastructure\HistoryRepository.cs" />

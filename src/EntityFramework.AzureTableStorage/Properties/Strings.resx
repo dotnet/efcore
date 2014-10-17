@@ -165,4 +165,16 @@
   <data name="BadTimestampType" xml:space="preserve">
     <value>The property '{property}' on entity type '{entityType}' cannot be used as an Azure Table Storage timestamp because its type is '{propertyType}'. Only 'DateTimeOffset' properties can be used as timestamps.</value>
   </data>
+  <data name="LogExecutingRequest" xml:space="preserve">
+    <value>Executing request '{name}'</value>
+  </data>
+  <data name="LogRequestRetry" xml:space="preserve">
+    <value>Retrying request to '{uri}'</value>
+  </data>
+  <data name="LogResponseReceived" xml:space="preserve">
+    <value>Response from '{uri}' = {statusCode} {description}</value>
+  </data>
+  <data name="LogSendingRequest" xml:space="preserve">
+    <value>Sending request to '{uri}'</value>
+  </data>
 </root>

@@ -167,12 +167,11 @@ namespace Microsoft.Data.Entity
             }
             catch (Exception ex)
             {
-                _logger.Value.Write(
-                    TraceType.Error,
-                    0,
+                _logger.Value.WriteError(
                     new DataStoreErrorLogState(GetType()),
                     ex,
-                    (state, exception) => string.Format("{0}" + Environment.NewLine + "{1}", Strings.LogExceptionDuringSaveChanges, exception.ToString()));
+                    (state, exception) =>
+                        Strings.FormatLogExceptionDuringSaveChanges(Environment.NewLine, exception));
 
                 throw;
             }
@@ -192,12 +191,11 @@ namespace Microsoft.Data.Entity
             }
             catch (Exception ex)
             {
-                _logger.Value.Write(
-                    TraceType.Error,
-                    0,
+                _logger.Value.WriteError(
                     new DataStoreErrorLogState(GetType()),
                     ex,
-                    (state, exception) => string.Format("{0}" + Environment.NewLine + "{1}", Strings.LogExceptionDuringSaveChanges, exception.ToString()));
+                    (state, exception) =>
+                        Strings.FormatLogExceptionDuringSaveChanges(Environment.NewLine, exception));
 
                 throw;
             }

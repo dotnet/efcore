@@ -42,6 +42,22 @@ namespace Microsoft.Data.Entity.InMemory
             return string.Format(CultureInfo.CurrentCulture, GetString("InvalidEnumValue", "argumentName", "enumType"), argumentName, enumType);
         }
 
+        /// <summary>
+        /// Saved {count} entities to in-memory store.
+        /// </summary>
+        internal static string LogSavedChanges
+        {
+            get { return GetString("LogSavedChanges"); }
+        }
+
+        /// <summary>
+        /// Saved {count} entities to in-memory store.
+        /// </summary>
+        internal static string FormatLogSavedChanges(object count)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("LogSavedChanges", "count"), count);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
