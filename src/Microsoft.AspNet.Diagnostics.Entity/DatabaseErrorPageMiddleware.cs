@@ -6,6 +6,7 @@ using Microsoft.AspNet.Builder;
 using Microsoft.AspNet.Diagnostics.Entity.Utilities;
 using Microsoft.AspNet.Diagnostics.Entity.Views;
 using Microsoft.AspNet.Http;
+using Microsoft.AspNet.RequestContainer;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
@@ -23,15 +24,19 @@ namespace Microsoft.AspNet.Diagnostics.Entity
     {
         private readonly RequestDelegate _next;
         private readonly DatabaseErrorPageOptions _options;
+        private readonly IServiceProvider _serviceProvider;
         private readonly ILogger _logger;
         private readonly DataStoreErrorLoggerProvider _loggerProvider;
 
-        public DatabaseErrorPageMiddleware([NotNull] RequestDelegate next, [NotNull] ILoggerFactory loggerFactory, [NotNull] DatabaseErrorPageOptions options)
+        public DatabaseErrorPageMiddleware([NotNull] RequestDelegate next, [NotNull] IServiceProvider serviceProvider, [NotNull] ILoggerFactory loggerFactory, [NotNull] DatabaseErrorPageOptions options)
         {
             Check.NotNull(next, "next");
+            Check.NotNull(serviceProvider, "serviceProvider");
+            Check.NotNull(loggerFactory, "loggerFactory");
             Check.NotNull(options, "options");
 
             _next = next;
+            _serviceProvider = serviceProvider;
             _options = options;
             _logger = loggerFactory.Create<DatabaseErrorPageMiddleware>();
 
@@ -62,11 +67,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity
                     if (_loggerProvider.Logger.LastError.IsErrorLogged
                         && _loggerProvider.Logger.LastError.Exception == ex)
                     {
-                        if (context.RequestServices == null)
-                        {
-                            _logger.WriteError(Strings.DatabaseErrorPageMiddleware_NoServices);
-                        }
-                        else
+                        using (RequestServicesContainer.EnsureRequestServices(context, _serviceProvider))
                         {
                             var dbContextType = _loggerProvider.Logger.LastError.ContextType;
                             var dbContext = (DbContext)context.RequestServices.GetService(dbContextType);

@@ -12,22 +12,26 @@ using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Framework.DependencyInjection;
 using System.Net;
 using Microsoft.Framework.Logging;
+using Microsoft.AspNet.RequestContainer;
 
 namespace Microsoft.AspNet.Diagnostics.Entity
 {
     public class MigrationsEndPointMiddleware
     {
         private readonly RequestDelegate _next;
+        private readonly IServiceProvider _serviceProvider;
         private readonly ILogger _logger;
         private readonly MigrationsEndPointOptions _options;
 
-        public MigrationsEndPointMiddleware([NotNull] RequestDelegate next, [NotNull] ILoggerFactory loggerFactory, [NotNull] MigrationsEndPointOptions options)
+        public MigrationsEndPointMiddleware([NotNull] RequestDelegate next, [NotNull] IServiceProvider serviceProvider, [NotNull] ILoggerFactory loggerFactory, [NotNull] MigrationsEndPointOptions options)
         {
             Check.NotNull(next, "next");
+            Check.NotNull(serviceProvider, "serviceProvider");
             Check.NotNull(loggerFactory, "loggerFactory");
             Check.NotNull(options, "options");
 
             _next = next;
+            _serviceProvider = serviceProvider;
             _logger = loggerFactory.Create<MigrationsEndPointMiddleware>();
             _options = options;
         }
@@ -40,26 +44,29 @@ namespace Microsoft.AspNet.Diagnostics.Entity
             {
                 _logger.WriteVerbose(Strings.FormatMigrationsEndPointMiddleware_RequestPathMatched(context.Request.Path));
 
-                var db = await GetDbContext(context, _logger).WithCurrentCulture();
-                if (db != null)
-                {
-                    try
+                using (RequestServicesContainer.EnsureRequestServices(context, _serviceProvider))
+                { 
+                    var db = await GetDbContext(context, _logger).WithCurrentCulture();
+                    if (db != null)
                     {
-                        _logger.WriteVerbose(Strings.FormatMigrationsEndPointMiddleware_ApplyingMigrations(db.GetType().FullName));
+                        try
+                        {
+                            _logger.WriteVerbose(Strings.FormatMigrationsEndPointMiddleware_ApplyingMigrations(db.GetType().FullName));
 
-                        db.Database.AsRelational().ApplyMigrations();
+                            db.Database.AsRelational().ApplyMigrations();
 
-                        context.Response.StatusCode = (int)HttpStatusCode.NoContent;
-                        context.Response.Headers.Add("Pragma", new[] { "no-cache" });
-                        context.Response.Headers.Add("Cache-Control", new[] { "no-cache" });
+                            context.Response.StatusCode = (int)HttpStatusCode.NoContent;
+                            context.Response.Headers.Add("Pragma", new[] { "no-cache" });
+                            context.Response.Headers.Add("Cache-Control", new[] { "no-cache" });
 
-                        _logger.WriteVerbose(Strings.FormatMigrationsEndPointMiddleware_Applied(db.GetType().FullName));
-                    }
-                    catch (Exception ex)
-                    {
-                        var message = Strings.FormatMigrationsEndPointMiddleware_Exception(db.GetType().FullName);
-                        _logger.WriteError(message);
-                        throw new InvalidOperationException(message, ex);
+                            _logger.WriteVerbose(Strings.FormatMigrationsEndPointMiddleware_Applied(db.GetType().FullName));
+                        }
+                        catch (Exception ex)
+                        {
+                            var message = Strings.FormatMigrationsEndPointMiddleware_Exception(db.GetType().FullName);
+                            _logger.WriteError(message);
+                            throw new InvalidOperationException(message, ex);
+                        }
                     }
                 }
             }
@@ -89,7 +96,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity
                 return null;
             }
 
-            var db = (DbContext)context.ApplicationServices.GetService(contextType);
+            var db = (DbContext)context.RequestServices.GetService(contextType);
             if (db == null)
             {
                 var message = Strings.FormatMigrationsEndPointMiddleware_ContextNotRegistered(contextType.FullName);

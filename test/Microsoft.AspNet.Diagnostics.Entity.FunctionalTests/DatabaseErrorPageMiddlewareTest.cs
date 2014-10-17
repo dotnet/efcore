@@ -252,41 +252,6 @@ namespace Microsoft.AspNet.Diagnostics.Entity.Tests
         }
 
         [Fact]
-        public async Task Pass_thru_when_request_services_not_present()
-        {
-            var database = await SqlServerTestDatabase.Scratch(createDatabase: false);
-            var logProvider = new TestLoggerProvider();
-
-            var server = TestServer.Create(app =>
-            {
-                // Because services are registered after the error page middleware
-                // is registered, context.RequestServices will be null
-                app.UseDatabaseErrorPage();
-
-                app.UseServices(services =>
-                {
-                    services.AddEntityFramework()
-                        .AddSqlServer();
-
-                    services.AddScoped<BloggingContextWithMigrations>();
-                    services.AddInstance<DbContextOptions>(
-                        new DbContextOptions()
-                            .UseSqlServer(database.Connection.ConnectionString));
-                });
-
-                app.UseMiddleware<PendingMigrationsMiddleware>();
-
-                app.ApplicationServices.GetService<ILoggerFactory>().AddProvider(logProvider);
-            });
-
-            var ex = await Assert.ThrowsAsync<SqlException>(async () =>
-                await server.CreateClient().GetAsync("http://localhost/"));
-
-            Assert.True(logProvider.Logger.Messages.Any(m =>
-                m.StartsWith(StringsHelpers.GetResourceString("FormatDatabaseErrorPageMiddleware_NoServices"))));
-        }
-
-        [Fact]
         public async Task Pass_thru_when_context_not_in_services()
         {
             var database = await SqlServerTestDatabase.Scratch(createDatabase: false);

@@ -75,22 +75,6 @@ namespace Microsoft.AspNet.Diagnostics.Entity
         }
 
         /// <summary>
-        /// There are no services available in the current request. This is usually due to calling UseDatabaseErrorPage() on IApplicationBuilder before calling UseServices(...), check the order of these in your application startup code. Skipping display of the database error page.
-        /// </summary>
-        internal static string DatabaseErrorPageMiddleware_NoServices
-        {
-            get { return GetString("DatabaseErrorPageMiddleware_NoServices"); }
-        }
-
-        /// <summary>
-        /// There are no services available in the current request. This is usually due to calling UseDatabaseErrorPage() on IApplicationBuilder before calling UseServices(...), check the order of these in your application startup code. Skipping display of the database error page.
-        /// </summary>
-        internal static string FormatDatabaseErrorPageMiddleware_NoServices()
-        {
-            return GetString("DatabaseErrorPageMiddleware_NoServices");
-        }
-
-        /// <summary>
         /// &gt; k ef migration add [migration name]
         /// </summary>
         internal static string DatabaseErrorPage_AddMigrationCommand

@@ -129,9 +129,6 @@
   <data name="DatabaseErrorPageMiddleware_Exception" xml:space="preserve">
     <value>An exception occured while calculating the database error page content. Skipping display of the database error page.</value>
   </data>
-  <data name="DatabaseErrorPageMiddleware_NoServices" xml:space="preserve">
-    <value>There are no services available in the current request. This is usually due to calling UseDatabaseErrorPage() on IApplicationBuilder before calling UseServices(...), check the order of these in your application startup code. Skipping display of the database error page.</value>
-  </data>
   <data name="DatabaseErrorPage_AddMigrationCommand" xml:space="preserve">
     <value>&gt; k ef migration add [migration name]</value>
   </data>
