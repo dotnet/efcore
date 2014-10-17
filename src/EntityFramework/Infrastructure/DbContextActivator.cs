@@ -17,8 +17,7 @@ namespace Microsoft.Data.Entity.Infrastructure
         {
             get { return _serviceProvider; }
 
-            [param: CanBeNull]
-            set { _serviceProvider = value; }
+            [param: CanBeNull] set { _serviceProvider = value; }
         }
 
         public static TContext CreateInstance<TContext>([NotNull] IServiceProvider serviceProvider)

@@ -40,7 +40,6 @@ namespace Microsoft.Data.Entity.SqlServer.Utilities
         [ContractAnnotation("value:null => halt")]
         public static string NotEmpty(string value, [InvokerParameterName] [NotNull] string parameterName)
         {
-
             Exception e = null;
             if (ReferenceEquals(value, null))
             {

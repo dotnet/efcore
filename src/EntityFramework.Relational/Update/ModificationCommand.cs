@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.Relational.Update
         }
 
         public ModificationCommand(
-            SchemaQualifiedName schemaQualifiedName, 
+            SchemaQualifiedName schemaQualifiedName,
             [NotNull] ParameterNameGenerator parameterNameGenerator,
             [NotNull] Func<IProperty, IRelationalPropertyExtensions> getPropertyExtensions)
         {

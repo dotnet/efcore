@@ -70,7 +70,7 @@ namespace Microsoft.Data.Entity.Relational
             [NotNull] ModificationCommand command)
         {
             Check.NotNull(command, "command");
-            
+
             var schemaQualifiedName = command.SchemaQualifiedName;
             var conditionOperations = command.ColumnModifications.Where(o => o.IsCondition).ToArray();
 

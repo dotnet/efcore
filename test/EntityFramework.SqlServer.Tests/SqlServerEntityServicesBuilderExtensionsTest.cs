@@ -91,7 +91,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var sqlServerDataStoreCreator = scopedProvider.GetService<SqlServerDataStoreCreator>();
             var migrationAssembly = scopedProvider.GetService<MigrationAssembly>();
             var historyRepository = scopedProvider.GetService<HistoryRepository>();
-            var sqlServerMigrator = scopedProvider.GetService<SqlServerMigrator>() as SqlServerMigrator;
+            var sqlServerMigrator = scopedProvider.GetService<SqlServerMigrator>();
 
             Assert.NotNull(databaseBuilder);
             Assert.NotNull(arrayReaderFactory);

@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity.Migrations.Model
 {
     public class CopyDataOperation : MigrationOperation
     {
-        private readonly SchemaQualifiedName _sourceTableName;        
+        private readonly SchemaQualifiedName _sourceTableName;
         private readonly IReadOnlyList<string> _sourceColumnNames;
         private readonly SchemaQualifiedName _targetTableName;
         private readonly IReadOnlyList<string> _targetColumnNames;
@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.Migrations.Model
             Check.NotNull(sourceColumnNames, "sourceColumnNames");
             Check.NotNull(targetColumnNames, "targetColumnNames");
 
-            _sourceTableName = sourceTableName;            
+            _sourceTableName = sourceTableName;
             _sourceColumnNames = sourceColumnNames;
             _targetTableName = targetTableName;
             _targetColumnNames = targetColumnNames;

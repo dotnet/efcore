@@ -30,10 +30,7 @@ namespace Microsoft.Data.Entity.Infrastructure
 
         DbContextConfiguration IDbContextConfigurationAdapter.Configuration
         {
-            get
-            {
-                return Configuration;
-            }
+            get { return Configuration; }
         }
 
         protected virtual ILogger Logger

@@ -477,7 +477,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             EntityKey result;
             if (!_principalKeys.TryGetValue(foreignKey, out result))
             {
-                _principalKeys.Add(foreignKey, 
+                _principalKeys.Add(foreignKey,
                     result = CreateKey(referencedEntityType, referencedProperties, this));
             }
 

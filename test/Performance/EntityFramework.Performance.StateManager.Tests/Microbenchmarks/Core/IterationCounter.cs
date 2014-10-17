@@ -7,6 +7,7 @@ namespace Microbenchmarks.Core
     {
         public long WorkingSet { get; set; }
     }
+
     public class IterationCounter : IterationCounterBase
     {
         public long ElapsedMillis { get; set; }

@@ -5,9 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Metadata;
-using Remotion.Linq.Clauses;
+using Microsoft.Data.Entity.Query;
 
 namespace Microsoft.Data.Entity.Redis.Query
 {
@@ -38,9 +37,8 @@ namespace Microsoft.Data.Entity.Redis.Query
             return redisQueryContext
                 .GetResultsEnumerable(redisQuery)
                 .Select(objectArray
-                        => (TEntity)redisQueryContext.QueryBuffer
-                            .GetEntity(redisQuery.EntityType, new ObjectArrayValueReader(objectArray)));
-
+                    => (TEntity)redisQueryContext.QueryBuffer
+                        .GetEntity(redisQuery.EntityType, new ObjectArrayValueReader(objectArray)));
         }
 
         private static readonly MethodInfo _executeProjectionQueryExpressionMethodInfo =

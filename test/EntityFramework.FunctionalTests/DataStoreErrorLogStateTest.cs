@@ -6,11 +6,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
-using Xunit;
 using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.Logging;
 using Microsoft.Framework.DependencyInjection.Advanced;
 using Microsoft.Framework.DependencyInjection.Fallback;
+using Microsoft.Framework.Logging;
+using Xunit;
 
 namespace Microsoft.Data.Entity.FunctionalTests
 {
@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             await SaveChanges_logs_DataStoreErrorLogState(async: true);
         }
-        
+
         public async Task SaveChanges_logs_DataStoreErrorLogState(bool async)
         {
             var loggerFactory = new TestLoggerFactory();
@@ -145,7 +145,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             public BloggingContext(IServiceProvider provider)
                 : base(provider)
-            { 
+            {
             }
 
             public DbSet<Blog> Blogs { get; set; }

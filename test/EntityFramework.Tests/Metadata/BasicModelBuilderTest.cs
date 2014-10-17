@@ -546,15 +546,15 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder.Entity<Quarks>(b =>
-            {
-                b.Property(e => e.Id).GenerateValuesOnAdd(false);
-                b.Property(e => e.Up).GenerateValuesOnAdd();
-                b.Property(e => e.Down).GenerateValuesOnAdd(true);
-                b.Property<int>("Charm").GenerateValuesOnAdd();
-                b.Property<string>("Strange").GenerateValuesOnAdd(false);
-                b.Property(typeof(int), "Top").GenerateValuesOnAdd();
-                b.Property(typeof(string), "Bottom").GenerateValuesOnAdd(false);
-            });
+                {
+                    b.Property(e => e.Id).GenerateValuesOnAdd(false);
+                    b.Property(e => e.Up).GenerateValuesOnAdd();
+                    b.Property(e => e.Down).GenerateValuesOnAdd(true);
+                    b.Property<int>("Charm").GenerateValuesOnAdd();
+                    b.Property<string>("Strange").GenerateValuesOnAdd(false);
+                    b.Property(typeof(int), "Top").GenerateValuesOnAdd();
+                    b.Property(typeof(string), "Bottom").GenerateValuesOnAdd(false);
+                });
 
             var entityType = model.GetEntityType(typeof(Quarks));
 
@@ -574,15 +574,15 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder.Entity<Quarks>(b =>
-            {
-                b.Property(e => e.Id);
-                b.Property(e => e.Up).StoreComputed();
-                b.Property(e => e.Down).StoreComputed(false);
-                b.Property<int>("Charm").StoreComputed();
-                b.Property<string>("Strange").StoreComputed(false);
-                b.Property(typeof(int), "Top").StoreComputed();
-                b.Property(typeof(string), "Bottom").StoreComputed(false);
-            });
+                {
+                    b.Property(e => e.Id);
+                    b.Property(e => e.Up).StoreComputed();
+                    b.Property(e => e.Down).StoreComputed(false);
+                    b.Property<int>("Charm").StoreComputed();
+                    b.Property<string>("Strange").StoreComputed(false);
+                    b.Property(typeof(int), "Top").StoreComputed();
+                    b.Property(typeof(string), "Bottom").StoreComputed(false);
+                });
 
             var entityType = (IEntityType)model.GetEntityType(typeof(Quarks));
 
@@ -602,15 +602,15 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder.Entity<Quarks>(b =>
-            {
-                b.Property(e => e.Id);
-                b.Property(e => e.Up).UseStoreDefault();
-                b.Property(e => e.Down).UseStoreDefault(false);
-                b.Property<int>("Charm").UseStoreDefault();
-                b.Property<string>("Strange").UseStoreDefault(false);
-                b.Property(typeof(int), "Top").UseStoreDefault();
-                b.Property(typeof(string), "Bottom").UseStoreDefault(false);
-            });
+                {
+                    b.Property(e => e.Id);
+                    b.Property(e => e.Up).UseStoreDefault();
+                    b.Property(e => e.Down).UseStoreDefault(false);
+                    b.Property<int>("Charm").UseStoreDefault();
+                    b.Property<string>("Strange").UseStoreDefault(false);
+                    b.Property(typeof(int), "Top").UseStoreDefault();
+                    b.Property(typeof(string), "Bottom").UseStoreDefault(false);
+                });
 
             var entityType = (IEntityType)model.GetEntityType(typeof(Quarks));
 
@@ -630,15 +630,15 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder.Entity<Quarks>(b =>
-            {
-                b.Property(e => e.Id);
-                b.Property(e => e.Up).MaxLength(0);
-                b.Property(e => e.Down).MaxLength(100);
-                b.Property<int>("Charm").MaxLength(0);
-                b.Property<string>("Strange").MaxLength(100);
-                b.Property(typeof(int), "Top").MaxLength(0);
-                b.Property(typeof(string), "Bottom").MaxLength(100);
-            });
+                {
+                    b.Property(e => e.Id);
+                    b.Property(e => e.Up).MaxLength(0);
+                    b.Property(e => e.Down).MaxLength(100);
+                    b.Property<int>("Charm").MaxLength(0);
+                    b.Property<string>("Strange").MaxLength(100);
+                    b.Property(typeof(int), "Top").MaxLength(0);
+                    b.Property(typeof(string), "Bottom").MaxLength(100);
+                });
 
             var entityType = (IEntityType)model.GetEntityType(typeof(Quarks));
 
@@ -748,7 +748,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Equal(1, entityType.ForeignKeys.Count());
         }
 
-        [Fact] 
+        [Fact]
         public void Can_add_multiple_foreign_keys()
         {
             var model = new Model();

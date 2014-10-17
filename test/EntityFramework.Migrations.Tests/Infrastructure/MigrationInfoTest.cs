@@ -32,7 +32,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             Assert.Equal(MigrationInfo.CurrentProductVersion, migration.ProductVersion);
             Assert.Same(targetModel, migration.TargetModel);
             Assert.Same(upgradeOperations, migration.UpgradeOperations);
-            Assert.Same(downgradeOperations, migration.DowngradeOperations);            
+            Assert.Same(downgradeOperations, migration.DowngradeOperations);
         }
 
         [Fact]
@@ -44,11 +44,11 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
 
             var migration
                 = new MigrationInfo("000000000000001_Name", "1.2.3.4")
-                {
-                    TargetModel = targetModel,
-                    UpgradeOperations = upgradeOperations,
-                    DowngradeOperations = downgradeOperations,
-                };
+                    {
+                        TargetModel = targetModel,
+                        UpgradeOperations = upgradeOperations,
+                        DowngradeOperations = downgradeOperations,
+                    };
 
             Assert.Equal("000000000000001_Name", migration.MigrationId);
             Assert.Equal("1.2.3.4", migration.ProductVersion);
@@ -103,7 +103,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
 
             public IModel TargetModel
             {
-                get { return new Metadata.Model { StorageName = "AModel" }; } 
+                get { return new Metadata.Model { StorageName = "AModel" }; }
             }
         }
 

@@ -185,10 +185,10 @@ namespace Microbenchmarks.Core
                     iterationStopwatch.Stop();
                     iterationCounters.Add(
                         new IterationCounter
-                        {
-                            ElapsedMillis = iterationStopwatch.ElapsedMilliseconds,
-                            WorkingSet = GC.GetTotalMemory(false)
-                        });
+                            {
+                                ElapsedMillis = iterationStopwatch.ElapsedMilliseconds,
+                                WorkingSet = GC.GetTotalMemory(false)
+                            });
                 }
             }
             catch (Exception e)
@@ -230,12 +230,12 @@ namespace Microbenchmarks.Core
             {
                 metrics.Add(
                     new PerformanceMetric
-                    {
-                        Scenario = runResult.TestName,
-                        Metric = "total",
-                        Unit = "Milliseconds",
-                        Value = runResult.ElapsedMillis
-                    });
+                        {
+                            Scenario = runResult.TestName,
+                            Metric = "total",
+                            Unit = "Milliseconds",
+                            Value = runResult.ElapsedMillis
+                        });
 
                 if (runResult.IterationCounters.Count > 1)
                 {
@@ -247,12 +247,12 @@ namespace Microbenchmarks.Core
 
                         metrics.Add(
                             new PerformanceMetric
-                            {
-                                Scenario = runResult.TestName,
-                                Metric = metric,
-                                Unit = "Milliseconds",
-                                Value = resultPercentile
-                            });
+                                {
+                                    Scenario = runResult.TestName,
+                                    Metric = metric,
+                                    Unit = "Milliseconds",
+                                    Value = resultPercentile
+                                });
                     }
                 }
             }

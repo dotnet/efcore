@@ -234,26 +234,26 @@ namespace Microsoft.Data.Entity.Migrations
 
             _operations.Set(HandleTransitiveRenames(
                 _operations.Get<RenameTableOperation>(),
-                op => null, 
-                op => op.TableName, 
-                op => new SchemaQualifiedName(op.NewTableName, op.TableName.Schema), 
-                op => new SchemaQualifiedName(temporaryNamePrefix + temporaryNameIndex++, op.TableName.Schema), 
+                op => null,
+                op => op.TableName,
+                op => new SchemaQualifiedName(op.NewTableName, op.TableName.Schema),
+                op => new SchemaQualifiedName(temporaryNamePrefix + temporaryNameIndex++, op.TableName.Schema),
                 (parentName, name, newName) => new RenameTableOperation(name, SchemaQualifiedName.Parse(newName).Name)));
 
             _operations.Set(HandleTransitiveRenames(
-                _operations.Get<RenameColumnOperation>(), 
-                op => op.TableName, 
-                op => op.ColumnName, 
-                op => op.NewColumnName, 
-                op => temporaryNamePrefix + temporaryNameIndex++, 
+                _operations.Get<RenameColumnOperation>(),
+                op => op.TableName,
+                op => op.ColumnName,
+                op => op.NewColumnName,
+                op => temporaryNamePrefix + temporaryNameIndex++,
                 (parentName, name, newName) => new RenameColumnOperation(parentName, name, newName)));
 
             _operations.Set(HandleTransitiveRenames(
-                _operations.Get<RenameIndexOperation>(), 
-                op => op.TableName, 
-                op => op.IndexName, 
-                op => op.NewIndexName, 
-                op => temporaryNamePrefix + temporaryNameIndex++, 
+                _operations.Get<RenameIndexOperation>(),
+                op => op.TableName,
+                op => op.IndexName,
+                op => op.NewIndexName,
+                op => temporaryNamePrefix + temporaryNameIndex++,
                 (parentName, name, newName) => new RenameIndexOperation(parentName, name, newName)));
         }
 
@@ -474,7 +474,8 @@ namespace Microsoft.Data.Entity.Migrations
                             pair.Item2,
                             isDestructiveChange: true));
                 }
-                else if (pair.Item1.DataType == null && pair.Item2.DataType == null)
+                else if (pair.Item1.DataType == null
+                         && pair.Item2.DataType == null)
                 {
                     var sourceProperty = _sourceMapping.GetModelObject<IProperty>(pair.Item1);
                     var targetProperty = _targetMapping.GetModelObject<IProperty>(pair.Item2);
@@ -560,9 +561,9 @@ namespace Microsoft.Data.Entity.Migrations
         {
             return
                 (from uc1 in table.Item1.UniqueConstraints
-                 from uc2 in table.Item2.UniqueConstraints
-                 where MatchUniqueConstraints(uc1, uc2, columnMap)
-                 select Tuple.Create(uc1, uc2))
+                    from uc2 in table.Item2.UniqueConstraints
+                    where MatchUniqueConstraints(uc1, uc2, columnMap)
+                    select Tuple.Create(uc1, uc2))
                     .ToArray();
         }
 
@@ -830,7 +831,7 @@ namespace Microsoft.Data.Entity.Migrations
             Check.NotNull(sourceSequence, "sourceSequence");
             Check.NotNull(targetSequence, "targetSequence");
 
-            return 
+            return
                 sourceSequence.IncrementBy == targetSequence.IncrementBy;
         }
 

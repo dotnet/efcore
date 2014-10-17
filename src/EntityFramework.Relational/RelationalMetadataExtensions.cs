@@ -7,6 +7,7 @@ using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Relational.Utilities;
 
 // ReSharper disable once CheckNamespace
+
 namespace Microsoft.Data.Entity
 {
     public static class RelationalMetadataExtensions

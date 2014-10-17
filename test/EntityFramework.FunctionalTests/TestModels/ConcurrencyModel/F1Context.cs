@@ -103,7 +103,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.ConcurrencyModel
             modelBuilder.Entity<Team>(b =>
                 {
                     b.Property<int>("EngineId").Required(false);
-                    
+
                     b.Property(t => t.Version)
                         .StoreComputed()
                         .ConcurrencyToken();

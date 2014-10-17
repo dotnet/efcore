@@ -4,6 +4,7 @@
 using System;
 using System.Reflection;
 using Microsoft.CodeAnalysis;
+
 #if ASPNET50
 using System.Linq;
 using Microsoft.Framework.DependencyInjection;
@@ -51,7 +52,7 @@ namespace Microsoft.Data.Entity.Commands.TestUtilities
                     copyLocal,
                     new Uri(assembly.CodeBase).LocalPath);
             }
-            else if (copyLocal)
+            if (copyLocal)
             {
                 throw new InvalidOperationException(
                     string.Format("In-memory assembly '{0}' cannot be copied locally.", name));

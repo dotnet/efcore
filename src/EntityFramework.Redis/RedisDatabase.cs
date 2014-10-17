@@ -348,7 +348,7 @@ namespace Microsoft.Data.Entity.Redis
 
             return results;
         }
-        
+
         // returns the object array representing all the properties
         // from an EntityType with a particular primary key
         private async Task<object[]> GetQueryObjectsFromDatabaseAsync(
@@ -630,9 +630,9 @@ namespace Microsoft.Data.Entity.Redis
                     }
 
                     _current = await _enumerable._redisDatabase.GetQueryObjectsFromDatabaseAsync(
-                                _entityKeysForQuery[_currentOffset],
-                                _enumerable._redisQuery,
-                                DecodeBytes);
+                        _entityKeysForQuery[_currentOffset],
+                        _enumerable._redisQuery,
+                        DecodeBytes);
 
                     return true;
                 }
@@ -650,7 +650,7 @@ namespace Microsoft.Data.Entity.Redis
 
                 public object[] Current
                 {
-                    get 
+                    get
                     {
                         if (_current == null)
                         {

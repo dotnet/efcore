@@ -1046,7 +1046,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 where o1.CustomerID == "ALFKI"
                 select new { c.ContactName, o1.OrderID });
         }
-        
+
         [Fact]
         public virtual void Join_customers_orders_with_subquery_predicate()
         {
@@ -1448,7 +1448,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             AssertQuery<Order>(os => os.Select(o => o.OrderID).Sum());
         }
-        
+
         [Fact]
         public virtual void Sum_with_no_arg_empty()
         {
@@ -1787,7 +1787,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             return "m";
         }
-        
+
         [Fact]
         public virtual void JoinInto_DefaultIfEmpty()
         {

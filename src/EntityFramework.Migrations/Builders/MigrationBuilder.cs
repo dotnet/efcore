@@ -251,7 +251,7 @@ namespace Microsoft.Data.Entity.Migrations.Builders
         {
             Check.NotNull(sourceColumnNames, "sourceColumnNames");
             Check.NotNull(targetColumnNames, "targetColumnNames");
-            
+
             AddOperation(new CopyDataOperation(sourceTableName, sourceColumnNames, targetTableName, targetColumnNames));
         }
 

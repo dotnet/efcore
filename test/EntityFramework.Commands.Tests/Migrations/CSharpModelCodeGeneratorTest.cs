@@ -619,10 +619,10 @@ return builder.Model;",
         {
             var builder = new BasicModelBuilder();
             builder.Entity<Customer>(b =>
-            {
-                b.Key(e => e.Id);
-                b.Property(e => e.Id).GenerateValuesOnAdd();
-            });
+                {
+                    b.Key(e => e.Id);
+                    b.Property(e => e.Id).GenerateValuesOnAdd();
+                });
 
             var stringBuilder = new IndentedStringBuilder();
             new CSharpModelCodeGenerator().Generate(builder.Model, stringBuilder);
@@ -704,7 +704,7 @@ namespace MyNamespace
                 new[] { modelSnapshotSource },
                 new[]
                     {
-                        "mscorlib", 
+                        "mscorlib",
                         "System.Runtime",
                         "EntityFramework",
                         "EntityFramework.Migrations"

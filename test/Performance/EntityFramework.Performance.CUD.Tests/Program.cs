@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microbenchmarks.Core;
@@ -21,7 +24,7 @@ namespace Cud
                 // test name
                 testName = args[1];
             }
-            
+
             if (args.Length > 0)
             {
                 // result directory
@@ -110,7 +113,7 @@ namespace Cud
 
             if (!string.IsNullOrEmpty(testName))
             {
-                var testDefinition = allTests.FirstOrDefault(t => t.TestName == testName); 
+                var testDefinition = allTests.FirstOrDefault(t => t.TestName == testName);
                 if (testDefinition != null)
                 {
                     runner.Register(testDefinition);
@@ -128,7 +131,6 @@ namespace Cud
                     Console.WriteLine(test.TestName);
                 }
             }
-
 
             runner.RunTests(resultDirectory);
         }

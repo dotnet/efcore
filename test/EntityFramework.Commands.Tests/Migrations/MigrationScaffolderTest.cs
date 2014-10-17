@@ -118,7 +118,7 @@ namespace MyNamespace
                 migrationClass);
 
             Assert.Equal(
-@"using Microsoft.Data.Entity;
+                @"using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Commands.Tests.Migrations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
@@ -221,7 +221,7 @@ namespace MyNamespace
                 migrationClass);
 
             Assert.Equal(
-@"using Microsoft.Data.Entity;
+                @"using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Commands.Tests.Migrations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
@@ -369,7 +369,7 @@ namespace MyNamespace
                 migrationClass);
 
             Assert.Equal(
-@"using Microsoft.Data.Entity;
+                @"using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Commands.Tests.Migrations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
@@ -580,7 +580,7 @@ namespace MyNamespace
                 migrationClass);
 
             Assert.Equal(
-@"using Microsoft.Data.Entity;
+                @"using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Commands.Tests.Migrations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Infrastructure;

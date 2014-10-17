@@ -1,10 +1,13 @@
-﻿namespace DbContextPerfTests.Model
-{
-    using System;
-    using System.Linq;
-    using Microsoft.Data.Entity;
-    using Microsoft.Data.Entity.Metadata;
+﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using System.Linq;
+using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.Metadata;
+
+namespace DbContextPerfTests.Model
+{
     public class AdvWorksDbContext : DbContext
     {
         private readonly string _connectionString;
@@ -30,29 +33,29 @@
             base.OnModelCreating(builder);
 
             builder.Entity<DbProduct>(b =>
-            {
-                b.Key(e => e.ProductID);
-                b.Property(e => e.ProductID).ForSqlServer().UseSequence();
-                b.ForRelational().Table("Product", "dbo");
-            });
+                {
+                    b.Key(e => e.ProductID);
+                    b.Property(e => e.ProductID).ForSqlServer().UseSequence();
+                    b.ForRelational().Table("Product", "dbo");
+                });
             builder.Entity<DbProductModel>(b =>
-            {
-                b.Key(e => e.ProductModelID);
-                b.Property(e => e.ProductModelID).ForSqlServer().UseSequence();
-                b.ForRelational().Table("ProductModel", "dbo");
-            });
+                {
+                    b.Key(e => e.ProductModelID);
+                    b.Property(e => e.ProductModelID).ForSqlServer().UseSequence();
+                    b.ForRelational().Table("ProductModel", "dbo");
+                });
             builder.Entity<DbWorkOrder>(b =>
-            {
-                b.Key(e => e.WorkOrderID);
-                b.Property(e => e.WorkOrderID).ForSqlServer().UseSequence();
-                b.ForRelational().Table("WorkOrder", "dbo");
-            });
+                {
+                    b.Key(e => e.WorkOrderID);
+                    b.Property(e => e.WorkOrderID).ForSqlServer().UseSequence();
+                    b.ForRelational().Table("WorkOrder", "dbo");
+                });
             builder.Entity<DbProductSubcategory>(b =>
-            {
-                b.Key(e => e.ProductSubcategoryID);
-                b.Property(e => e.ProductSubcategoryID).ForSqlServer().UseSequence();
-                b.ForRelational().Table("ProductSubcategory", "dbo");
-            });
+                {
+                    b.Key(e => e.ProductSubcategoryID);
+                    b.Property(e => e.ProductSubcategoryID).ForSqlServer().UseSequence();
+                    b.ForRelational().Table("ProductSubcategory", "dbo");
+                });
 
             //Foreign keys
             builder.Entity<DbProduct>().ForeignKey<DbProductSubcategory>(e => e.ProductSubcategoryID);
@@ -82,9 +85,9 @@
             model.GetEntityType(type)
                 .AddNavigation(
                     navigation,
-                        model.GetEntityType(type).ForeignKeys.Single(
-                            f => f.Properties.Count == 1 && f.Properties.Single().Name == fk),
-                        pointsToPrincipal: true);
+                    model.GetEntityType(type).ForeignKeys.Single(
+                        f => f.Properties.Count == 1 && f.Properties.Single().Name == fk),
+                    pointsToPrincipal: true);
         }
 
         private static void AddNavigationToDependent(Microsoft.Data.Entity.Metadata.Model model, Type type, string fk, string navigation)
@@ -114,8 +117,8 @@
                     navigation,
                     model.GetEntityType(dependentType).ForeignKeys.Single(
                         f => f.Properties.Count == 2
-                                && f.Properties.Any(p => p.Name == fk1)
-                                && f.Properties.Any(p => p.Name == fk2)),
+                             && f.Properties.Any(p => p.Name == fk1)
+                             && f.Properties.Any(p => p.Name == fk2)),
                     pointsToPrincipal: false);
         }
 
@@ -126,10 +129,9 @@
                     navigation,
                     model.GetEntityType(type).ForeignKeys.Single(
                         f => f.Properties.Count == 2
-                                && f.Properties.Any(p => p.Name == fk1)
-                                && f.Properties.Any(p => p.Name == fk2)),
+                             && f.Properties.Any(p => p.Name == fk1)
+                             && f.Properties.Any(p => p.Name == fk2)),
                     pointsToPrincipal: true);
         }
     }
-
 }

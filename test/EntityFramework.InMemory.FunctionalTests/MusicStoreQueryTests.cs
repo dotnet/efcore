@@ -44,9 +44,9 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             using (var db = new MusicStoreContext(serviceProvider, options))
             {
                 var q = from album in db.Albums
-                        join genre in db.Genres on album.GenreId equals genre.GenreId
-                        join artist in db.Artists on album.ArtistId equals artist.ArtistId
-                        select new Album
+                    join genre in db.Genres on album.GenreId equals genre.GenreId
+                    join artist in db.Artists on album.ArtistId equals artist.ArtistId
+                    select new Album
                         {
                             ArtistId = album.ArtistId,
                             AlbumArtUrl = album.AlbumArtUrl,
@@ -55,15 +55,15 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                             Price = album.Price,
                             Title = album.Title,
                             Artist = new Artist
-                            {
-                                ArtistId = album.ArtistId,
-                                Name = artist.Name
-                            },
+                                {
+                                    ArtistId = album.ArtistId,
+                                    Name = artist.Name
+                                },
                             Genre = new Genre
-                            {
-                                GenreId = album.GenreId,
-                                Name = genre.Name
-                            }
+                                {
+                                    GenreId = album.GenreId,
+                                    Name = genre.Name
+                                }
                         };
 
                 var albums = q.ToList();

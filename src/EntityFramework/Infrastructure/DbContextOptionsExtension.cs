@@ -9,7 +9,7 @@ namespace Microsoft.Data.Entity.Infrastructure
     public abstract class DbContextOptionsExtension
     {
         protected internal virtual void Configure([NotNull] IDictionary<string, string> rawOptions)
-        {            
+        {
         }
 
         protected internal abstract void ApplyServices([NotNull] EntityServicesBuilder builder);

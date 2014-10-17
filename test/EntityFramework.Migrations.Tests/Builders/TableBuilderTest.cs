@@ -42,12 +42,12 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Builders
             var migrationBuilder = new MigrationBuilder();
             migrationBuilder.CreateTable("dbo.MyTable",
                 c => new
-                {
-                    Foo = c.Int(),
-                    Bar = c.Int(),
-                    C1 = c.Int(),
-                    C2 = c.Int()
-                })
+                    {
+                        Foo = c.Int(),
+                        Bar = c.Int(),
+                        C1 = c.Int(),
+                        C2 = c.Int()
+                    })
                 .PrimaryKey("MyPK", t => t.Foo)
                 .UniqueConstraint("MyUC1", t => t.Bar)
                 .UniqueConstraint("MyUC2", t => new { t.C1, t.C2 });

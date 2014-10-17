@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Commands.Utilities;
+
 #if ASPNET50 || ASPNETCORE50
 using Microsoft.AspNet.Hosting;
 using Microsoft.Framework.DependencyInjection;
@@ -133,8 +134,8 @@ namespace Microsoft.Data.Entity.Commands
 
             return types.Where(
                 t => string.Equals(t.Name, name, comparisonType)
-                    || string.Equals(t.FullName, name, comparisonType)
-                    || string.Equals(t.AssemblyQualifiedName, name, comparisonType));
+                     || string.Equals(t.FullName, name, comparisonType)
+                     || string.Equals(t.AssemblyQualifiedName, name, comparisonType));
         }
     }
 }

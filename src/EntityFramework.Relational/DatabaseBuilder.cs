@@ -96,7 +96,7 @@ namespace Microsoft.Data.Entity.Relational
                 }
             }
 
-            return mapping;            
+            return mapping;
         }
 
         private IEnumerable<IProperty> OrderProperties(IEntityType entityType)

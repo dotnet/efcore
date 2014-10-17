@@ -110,14 +110,14 @@ namespace Microsoft.Data.Entity.Relational.Tests
             var modelBuilder = new BasicModelBuilder();
             modelBuilder.Entity("A",
                 b =>
-                {
-                    var id = b.Property<int>("Id").Metadata;
-                    var p1 = b.Property<long>("P1").ForRelational(rb => rb.Column("C1")).Metadata;
-                    var p2 = b.Property<string>("P2").Metadata;
-                    b.Key("Id").ForRelational().Name("PK");
-                    b.Metadata.AddKey(new[] { id, p1 }).Relational().Name = "UC1";
-                    b.Metadata.AddKey(new[] { p2 }).Relational().Name = "UC2";
-                });
+                    {
+                        var id = b.Property<int>("Id").Metadata;
+                        var p1 = b.Property<long>("P1").ForRelational(rb => rb.Column("C1")).Metadata;
+                        var p2 = b.Property<string>("P2").Metadata;
+                        b.Key("Id").ForRelational().Name("PK");
+                        b.Metadata.AddKey(new[] { id, p1 }).Relational().Name = "UC1";
+                        b.Metadata.AddKey(new[] { p2 }).Relational().Name = "UC2";
+                    });
 
             var database = new TestDatabaseBuilder().GetDatabase(modelBuilder.Model);
 
@@ -140,14 +140,14 @@ namespace Microsoft.Data.Entity.Relational.Tests
             var modelBuilder = new BasicModelBuilder();
             modelBuilder.Entity("A",
                 b =>
-                {
-                    var id = b.Property<int>("Id").Metadata;
-                    var p1 = b.Property<long>("P1").ForRelational(rb => rb.Column("C1")).Metadata;
-                    var p2 = b.Property<string>("P2").Metadata;
-                    b.Key("Id").ForRelational().Name("PK");
-                    b.Metadata.AddKey(new[] { id, p1 });
-                    b.Metadata.AddKey(new[] { p2 });
-                });
+                    {
+                        var id = b.Property<int>("Id").Metadata;
+                        var p1 = b.Property<long>("P1").ForRelational(rb => rb.Column("C1")).Metadata;
+                        var p2 = b.Property<string>("P2").Metadata;
+                        b.Key("Id").ForRelational().Name("PK");
+                        b.Metadata.AddKey(new[] { id, p1 });
+                        b.Metadata.AddKey(new[] { p2 });
+                    });
 
             var database = new TestDatabaseBuilder().GetDatabase(modelBuilder.Model);
             var table = database.Tables[0];

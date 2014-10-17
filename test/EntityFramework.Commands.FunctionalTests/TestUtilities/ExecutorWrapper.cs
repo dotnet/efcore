@@ -6,7 +6,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 
 namespace Microsoft.Data.Entity.Commands.TestUtilities
 {
@@ -34,15 +33,15 @@ namespace Microsoft.Data.Entity.Commands.TestUtilities
                 0,
                 null,
                 new[]
-                {
-                    new Hashtable
                     {
-                        { "targetDir", targetDir },
-                        { "targetFileName", targetFileName },
-                        { "projectDir", projectDir },
-                        { "rootNamespace", rootNamespace }
-                    }
-                },
+                        new Hashtable
+                            {
+                                { "targetDir", targetDir },
+                                { "targetFileName", targetFileName },
+                                { "projectDir", projectDir },
+                                { "rootNamespace", rootNamespace }
+                            }
+                    },
                 null,
                 null);
         }
@@ -75,12 +74,12 @@ namespace Microsoft.Data.Entity.Commands.TestUtilities
             return InvokeOperation<string>(
                 "ScriptMigration",
                 new Hashtable
-                {
-                    { "fromMigrationName", fromMigrationName },
-                    { "toMigrationName", toMigrationName },
-                    { "idempotent", idempotent },
-                    { "contextTypeName", contextTypeName }
-                });
+                    {
+                        { "fromMigrationName", fromMigrationName },
+                        { "toMigrationName", toMigrationName },
+                        { "idempotent", idempotent },
+                        { "contextTypeName", contextTypeName }
+                    });
         }
 
         public IEnumerable<IDictionary> GetContextTypes()
@@ -139,7 +138,8 @@ namespace Microsoft.Data.Entity.Commands.TestUtilities
             {
                 throw new CommandException(handler.ErrorMessage, handler.ErrorStackTrace, handler.ErrorType);
             }
-            if (!isVoid && !handler.HasResult)
+            if (!isVoid
+                && !handler.HasResult)
             {
                 throw new InvalidOperationException(
                     string.Format("A value was not returned for operation '{0}'.", operation));

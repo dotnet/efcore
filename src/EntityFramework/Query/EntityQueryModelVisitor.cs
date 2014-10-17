@@ -238,7 +238,7 @@ namespace Microsoft.Data.Entity.Query
                         }
                     }
                     else
-                    { 
+                    {
                         throw new NotImplementedException(
                             Strings.FormatIncludeNonBindableExpression(includeResultOperator.NavigationPropertyPath));
                     }

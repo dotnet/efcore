@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         {
             var migration = new AMigration();
             var migrationBuilder = new MigrationBuilder();
-            
+
             migration.Up(migrationBuilder);
 
             Assert.Equal(2, migrationBuilder.Operations.Count);

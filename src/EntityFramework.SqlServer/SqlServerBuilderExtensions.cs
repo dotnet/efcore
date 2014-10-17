@@ -210,8 +210,8 @@ namespace Microsoft.Data.Entity
         }
 
         public static SqlServerModelBuilder ForSqlServer<TModelBuilder>(
-        [NotNull] this IModelBuilder<TModelBuilder> modelBuilder)
-        where TModelBuilder : IModelBuilder<TModelBuilder>
+            [NotNull] this IModelBuilder<TModelBuilder> modelBuilder)
+            where TModelBuilder : IModelBuilder<TModelBuilder>
         {
             Check.NotNull(modelBuilder, "modelBuilder");
 

@@ -175,12 +175,14 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             var database = (RelationalDatabase)ContextConfiguration.Database;
             var statements = new List<SqlStatement>();
 
-            if (!simulate && !database.Exists())
+            if (!simulate
+                && !database.Exists())
             {
                 database.Create();
             }
 
-            if (upgradeIndexes.Any() && !historyTableExists)
+            if (upgradeIndexes.Any()
+                && !historyTableExists)
             {
                 statements.AddRange(CreateHistoryTable(simulate));
             }

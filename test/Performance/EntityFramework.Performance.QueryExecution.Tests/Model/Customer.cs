@@ -1,15 +1,15 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace QueryExecution.Model
 {
-    using System;
-    using System.Collections.Generic;
-    using System.ComponentModel.DataAnnotations;
-    using System.ComponentModel.DataAnnotations.Schema;
-
     [Table("DefaultContainerStore.Customer")]
-    public partial class Customer
+    public class Customer
     {
         public Customer()
         {
@@ -67,7 +67,7 @@ namespace QueryExecution.Model
         public int? HusbandId { get; set; }
 
         public virtual Customer Husband { get; set; }
-        
+
         public virtual Customer Wife { get; set; }
 
         public virtual ICollection<Complaint> Complaints { get; set; }

@@ -6,7 +6,7 @@ using System.Collections.Specialized;
 
 namespace Cud.Model
 {
-    public partial class Customer
+    public class Customer
     {
         #region Primitive Properties
 

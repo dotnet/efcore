@@ -275,7 +275,8 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 for (var stateEntryIterator = 0; stateEntryIterator < stateEntries.Count; ++stateEntryIterator)
                 {
                     var relatedEntry = stateEntries[stateEntryIterator];
-                    if (relatedEntry.EntityType != navigationEntityType || relatedEntry == entry)
+                    if (relatedEntry.EntityType != navigationEntityType
+                        || relatedEntry == entry)
                     {
                         continue;
                     }
@@ -287,7 +288,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                             NavigationCollectionChangedAction(
                                 relatedEntry,
                                 navigation,
-                                new[] {entry.Entity},
+                                new[] { entry.Entity },
                                 Enumerable.Empty<object>());
                         }
                     }

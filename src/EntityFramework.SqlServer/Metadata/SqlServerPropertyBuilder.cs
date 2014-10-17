@@ -71,7 +71,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
             _property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Sequence;
             _property.SqlServer().SequenceName = sequence.Name;
             _property.SqlServer().SequenceSchema = sequence.Schema;
-         
+
             return this;
         }
 

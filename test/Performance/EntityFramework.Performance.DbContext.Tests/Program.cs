@@ -1,13 +1,16 @@
-﻿using System;
+﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microbenchmarks.Core;
 
 namespace DbContextPerfTests
 {
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             var resultDirectory = string.Empty;
             var testName = string.Empty;
@@ -35,7 +38,7 @@ namespace DbContextPerfTests
             Console.WriteLine("resultDirectory = " + resultDirectory);
             Console.WriteLine("testName = " + testName);
 
-            allTests.Add(new TestDefinition()
+            allTests.Add(new TestDefinition
                 {
                     TestName = "DbContextDelete",
                     IterationCount = 1,
@@ -45,7 +48,7 @@ namespace DbContextPerfTests
                     Cleanup = tests.Cleanup
                 });
 
-            allTests.Add(new TestDefinition()
+            allTests.Add(new TestDefinition
                 {
                     TestName = "DbContextInsert",
                     IterationCount = 1,
@@ -55,7 +58,7 @@ namespace DbContextPerfTests
                     Cleanup = tests.Cleanup
                 });
 
-            allTests.Add(new TestDefinition()
+            allTests.Add(new TestDefinition
                 {
                     TestName = "DbContextQuery",
                     IterationCount = 1,
@@ -65,7 +68,7 @@ namespace DbContextPerfTests
                     Cleanup = tests.Cleanup
                 });
 
-            allTests.Add(new TestDefinition()
+            allTests.Add(new TestDefinition
                 {
                     TestName = "DbContextQueryNoTracking",
                     IterationCount = 1,
@@ -75,7 +78,7 @@ namespace DbContextPerfTests
                     Cleanup = tests.Cleanup
                 });
 
-            allTests.Add(new TestDefinition()
+            allTests.Add(new TestDefinition
                 {
                     TestName = "DbContextQueryWithThreadsNoTracking",
                     IterationCount = 1,
@@ -85,7 +88,7 @@ namespace DbContextPerfTests
                     Cleanup = tests.Cleanup
                 });
 
-            allTests.Add(new TestDefinition()
+            allTests.Add(new TestDefinition
                 {
                     TestName = "DbContextUpdate",
                     IterationCount = 1,
@@ -97,7 +100,7 @@ namespace DbContextPerfTests
 
             var existingDbContextTests = new DbContextPerfTestsWithExistingDbContext();
 
-            allTests.Add(new ThreadedTestDefinition()
+            allTests.Add(new ThreadedTestDefinition
                 {
                     TestName = "DbContextQueryOnExistingContextWithThreads",
                     ThreadCount = 64,
@@ -110,7 +113,7 @@ namespace DbContextPerfTests
                 });
 
             var associationTests = new DbContextAssociationPerfTests();
-            allTests.Add(new TestDefinition()
+            allTests.Add(new TestDefinition
                 {
                     TestName = "DbContextRelationshipFixup",
                     IterationCount = 100,
@@ -122,7 +125,7 @@ namespace DbContextPerfTests
 
             if (!string.IsNullOrEmpty(testName))
             {
-                var testDefinition = allTests.SingleOrDefault(t => t.TestName == testName); 
+                var testDefinition = allTests.SingleOrDefault(t => t.TestName == testName);
                 if (testDefinition != null)
                 {
                     runner.Register(testDefinition);

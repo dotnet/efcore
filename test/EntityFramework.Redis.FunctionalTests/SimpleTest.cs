@@ -32,10 +32,9 @@ namespace Microsoft.Data.Entity.Redis.FunctionalTests
                 context.Set<SimplePoco>().Remove(simplePoco);
                 changes = context.SaveChanges();
                 Assert.Equal(1, changes);
-                
             }
         }
-        
+
         [Fact]
         public async Task Add_modify_and_delete_simple_poco_async()
         {
@@ -43,10 +42,10 @@ namespace Microsoft.Data.Entity.Redis.FunctionalTests
             {
                 var simplePoco = context.Set<SimplePoco>().Add(
                     new SimplePoco
-                    {
-                        PocoKey = 100,
-                        Name = "A. Name",
-                    });
+                        {
+                            PocoKey = 100,
+                            Name = "A. Name",
+                        });
                 var changes = await context.SaveChangesAsync();
                 Assert.Equal(1, changes);
 
@@ -57,7 +56,6 @@ namespace Microsoft.Data.Entity.Redis.FunctionalTests
                 context.Set<SimplePoco>().Remove(simplePoco);
                 changes = await context.SaveChangesAsync();
                 Assert.Equal(1, changes);
-                
             }
         }
 
@@ -68,31 +66,30 @@ namespace Microsoft.Data.Entity.Redis.FunctionalTests
             {
                 var simplePoco = context.Set<SimplePoco>().Add(
                     new SimplePoco
-                    {
-                        PocoKey = 100,
-                        Name = "A. Name",
-                    });
+                        {
+                            PocoKey = 100,
+                            Name = "A. Name",
+                        });
                 var simplePoco2 = context.Set<SimplePoco>().Add(
                     new SimplePoco
-                    {
-                        PocoKey = 101,
-                        Name = "B. Name",
-                    });
+                        {
+                            PocoKey = 101,
+                            Name = "B. Name",
+                        });
                 var changes = context.SaveChanges();
                 Assert.Equal(2, changes);
 
                 context.Set<SimplePoco>().Add(
                     new SimplePoco
-                    {
-                        PocoKey = 102,
-                        Name = "C. Name",
-                    });
+                        {
+                            PocoKey = 102,
+                            Name = "C. Name",
+                        });
                 simplePoco.Name = "Updated Name";
 
                 context.Set<SimplePoco>().Remove(simplePoco2);
                 changes = context.SaveChanges();
                 Assert.Equal(3, changes);
-                
             }
         }
 
@@ -103,31 +100,30 @@ namespace Microsoft.Data.Entity.Redis.FunctionalTests
             {
                 var simplePoco = context.Set<SimplePoco>().Add(
                     new SimplePoco
-                    {
-                        PocoKey = 100,
-                        Name = "A. Name",
-                    });
+                        {
+                            PocoKey = 100,
+                            Name = "A. Name",
+                        });
                 var simplePoco2 = context.Set<SimplePoco>().Add(
                     new SimplePoco
-                    {
-                        PocoKey = 101,
-                        Name = "B. Name",
-                    });
+                        {
+                            PocoKey = 101,
+                            Name = "B. Name",
+                        });
                 var changes = await context.SaveChangesAsync();
                 Assert.Equal(2, changes);
 
                 context.Set<SimplePoco>().Add(
                     new SimplePoco
-                    {
-                        PocoKey = 102,
-                        Name = "C. Name",
-                    });
+                        {
+                            PocoKey = 102,
+                            Name = "C. Name",
+                        });
                 simplePoco.Name = "Updated Name";
 
                 context.Set<SimplePoco>().Remove(simplePoco2);
                 changes = await context.SaveChangesAsync();
                 Assert.Equal(3, changes);
-                
             }
         }
 
@@ -138,10 +134,10 @@ namespace Microsoft.Data.Entity.Redis.FunctionalTests
             {
                 context.Set<SimplePoco>().Add(
                     new SimplePoco
-                    {
-                        PocoKey = 200,
-                        Name = "B. Name",
-                    });
+                        {
+                            PocoKey = 200,
+                            Name = "B. Name",
+                        });
                 var changes = context.SaveChanges();
                 Assert.Equal(1, changes);
 
@@ -149,7 +145,6 @@ namespace Microsoft.Data.Entity.Redis.FunctionalTests
                     from c in context.Set<SimplePoco>()
                     select c;
                 Assert.Equal(1, simplePocos.Count(cust => cust.PocoKey == 200));
-                
             }
         }
 
@@ -160,16 +155,16 @@ namespace Microsoft.Data.Entity.Redis.FunctionalTests
             {
                 context.Set<SimplePoco>().Add(
                     new SimplePoco
-                    {
-                        PocoKey = 300,
-                        Name = "C. Name",
-                    });
+                        {
+                            PocoKey = 300,
+                            Name = "C. Name",
+                        });
                 context.Set<SimplePoco>().Add(
                     new SimplePoco
-                    {
-                        PocoKey = 301,
-                        Name = "C. Name the 2nd",
-                    });
+                        {
+                            PocoKey = 301,
+                            Name = "C. Name the 2nd",
+                        });
                 var changes = context.SaveChanges();
                 Assert.Equal(2, changes);
 
@@ -182,7 +177,6 @@ namespace Microsoft.Data.Entity.Redis.FunctionalTests
                 Assert.Equal(2, simplePocoNamesArray.Length);
                 Assert.Equal("C. Name", simplePocoNamesArray[0]);
                 Assert.Equal("C. Name the 2nd", simplePocoNamesArray[1]);
-                
             }
         }
 

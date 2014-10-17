@@ -1157,7 +1157,7 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Equal("MyConnectionString", contextOptions.RawOptions["ConnectionString"]);
                 Assert.Equal(1, context.Configuration.ContextOptions.Extensions.Count);
                 Assert.Same(contextOptionsExtension, context.Configuration.ContextOptions.Extensions[0]);
-            }            
+            }
         }
 
         [Fact]

@@ -56,7 +56,7 @@ namespace Microsoft.Data.Entity.SQLite
             Check.NotNull(context, "context");
 
             var handler = context.EnsureHandler(operation.TableName, supported: true);
-                
+
             handler.AddOperation(operation);
         }
 
@@ -323,7 +323,7 @@ namespace Microsoft.Data.Entity.SQLite
                 if (sourceTableName == targetTable.Name)
                 {
                     sourceTableName = new SchemaQualifiedName("__mig_tmp__" + sourceTableName.Name, sourceTableName.Schema);
-                    
+
                     yield return new RenameTableOperation(targetTable.Name, sourceTableName.Name);
                 }
 

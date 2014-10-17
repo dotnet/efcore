@@ -149,7 +149,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
 
             return newForeignKey;
         }
-        
+
         private IReadOnlyList<IReadOnlyList<Property>> GetCandidateForeignKeyProperties(
             EntityType principalType, EntityType dependentType, string navigationToPrincipal, bool isUnique)
         {

@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
 using System;
 using System.Linq;
 using Microsoft.Data.Entity;
@@ -19,7 +22,7 @@ namespace Cud.Model
         public virtual DbSet<Order> Orders { get; set; }
         public virtual DbSet<OrderLine> OrderLines { get; set; }
         public virtual DbSet<Product> Products { get; set; }
-        
+
         protected override void OnConfiguring(DbContextOptions builder)
         {
             builder.UseSqlServer(_connectionString);
@@ -30,31 +33,31 @@ namespace Cud.Model
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<Customer>(entityBuilder =>
-            {
-                entityBuilder.Key(c => c.Id);
-                entityBuilder.ForRelational().Table("Customers");
-                entityBuilder.OneToMany(c => c.Orders, o => o.Customer);
-            });
+                {
+                    entityBuilder.Key(c => c.Id);
+                    entityBuilder.ForRelational().Table("Customers");
+                    entityBuilder.OneToMany(c => c.Orders, o => o.Customer);
+                });
 
             modelBuilder.Entity<Order>(entityBuilder =>
-            {
-                entityBuilder.Key(o => o.Id);
-                entityBuilder.ForRelational().Table("Orders");
-                entityBuilder.OneToMany(o => o.OrderLines, ol => ol.Order);
-            });
+                {
+                    entityBuilder.Key(o => o.Id);
+                    entityBuilder.ForRelational().Table("Orders");
+                    entityBuilder.OneToMany(o => o.OrderLines, ol => ol.Order);
+                });
 
             modelBuilder.Entity<OrderLine>(entityBuilder =>
-            {
-                entityBuilder.Key(o => o.Id);
-                entityBuilder.ForRelational().Table("OrderLines");
-            });
+                {
+                    entityBuilder.Key(o => o.Id);
+                    entityBuilder.ForRelational().Table("OrderLines");
+                });
 
             modelBuilder.Entity<Product>(entityBuilder =>
-            {
-                entityBuilder.Key(o => o.Id);
-                entityBuilder.ForRelational().Table("Products");
-                entityBuilder.OneToMany(p => p.OrderLines, ol => ol.Product);
-            });
+                {
+                    entityBuilder.Key(o => o.Id);
+                    entityBuilder.ForRelational().Table("Products");
+                    entityBuilder.OneToMany(p => p.OrderLines, ol => ol.Product);
+                });
         }
 
         public static void SetupDatabase(CudContext context)
@@ -84,13 +87,13 @@ namespace Cud.Model
                     for (var k = 0; k < 1; k++)
                     {
                         var orderLine = new OrderLine
-                        {
-                            Price = 123.45m,
-                            Quantity = 42,
-                            Product = k % 2 == 0
-                                          ? new Product { Name = "Product" }
-                                          : new SpecialProduct { Name = "SpecialProduct", Style = "Cool" }
-                        };
+                            {
+                                Price = 123.45m,
+                                Quantity = 42,
+                                Product = k % 2 == 0
+                                    ? new Product { Name = "Product" }
+                                    : new SpecialProduct { Name = "SpecialProduct", Style = "Cool" }
+                            };
 
                         order.OrderLines.Add(orderLine);
                     }

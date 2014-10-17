@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity
         private readonly IConfiguration _configuration;
 
         public EntityServicesBuilder(
-            [NotNull] IServiceCollection serviceCollection, 
+            [NotNull] IServiceCollection serviceCollection,
             [CanBeNull] IConfiguration configuration = null)
         {
             Check.NotNull(serviceCollection, "serviceCollection");

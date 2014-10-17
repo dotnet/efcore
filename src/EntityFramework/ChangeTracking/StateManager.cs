@@ -241,12 +241,11 @@ namespace Microsoft.Data.Entity.ChangeTracking
             var referencedEntityType = foreignKey.ReferencedEntityType;
             var referencedProperties = foreignKey.ReferencedProperties;
 
-
             // TODO: Perf: Add additional indexes so that this isn't a linear lookup
             var principals = StateEntries.Where(
                 e => e.EntityType == referencedEntityType
-                && dependentKeyValue.Equals(
-                    e.GetPrincipalKey(foreignKey, referencedEntityType, referencedProperties))).ToList();
+                     && dependentKeyValue.Equals(
+                         e.GetPrincipalKey(foreignKey, referencedEntityType, referencedProperties))).ToList();
 
             if (principals.Count > 1)
             {

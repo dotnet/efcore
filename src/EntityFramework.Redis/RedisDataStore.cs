@@ -53,7 +53,7 @@ namespace Microsoft.Data.Entity.Redis
                     new ResultOperatorHandler(),
                     new QueryMethodProvider());
 
-            var queryExecutor 
+            var queryExecutor
                 = queryCompilationContext
                     .CreateQueryModelVisitor()
                     .CreateQueryExecutor<TResult>(queryModel);
@@ -90,9 +90,9 @@ namespace Microsoft.Data.Entity.Redis
                     Logger,
                     CreateQueryBuffer(),
                     _database.Value)
-                {
-                    CancellationToken = cancellationToken
-                };
+                    {
+                        CancellationToken = cancellationToken
+                    };
 
             return queryExecutor(queryContext);
         }

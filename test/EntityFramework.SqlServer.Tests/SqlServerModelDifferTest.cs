@@ -558,22 +558,22 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<string>("P1");
-                    b.Key("Id");
-                    b.Index("P1").ForSqlServer();
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<string>("P1");
+                        b.Key("Id");
+                        b.Index("P1").ForSqlServer();
+                    });
 
             var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<string>("P1");
-                    b.Key("Id");
-                    b.Index("P1").ForSqlServer().Clustered();
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<string>("P1");
+                        b.Key("Id");
+                        b.Index("P1").ForSqlServer().Clustered();
+                    });
 
             var operations = new SqlServerModelDiffer(new SqlServerDatabaseBuilder(new SqlServerTypeMapper())).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
@@ -597,18 +597,18 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Key("Id").ForSqlServer().Clustered();
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Key("Id").ForSqlServer().Clustered();
+                    });
 
             var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Key("Id").ForSqlServer().Clustered(false);
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Key("Id").ForSqlServer().Clustered(false);
+                    });
 
             var operations = new SqlServerModelDiffer(new SqlServerDatabaseBuilder(new SqlServerTypeMapper())).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
@@ -632,18 +632,18 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Key("Id").ForSqlServer();
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Key("Id").ForSqlServer();
+                    });
 
             var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Key("Id").ForSqlServer().Clustered(false);
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Key("Id").ForSqlServer().Clustered(false);
+                    });
 
             var operations = new SqlServerModelDiffer(new SqlServerDatabaseBuilder(new SqlServerTypeMapper())).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
@@ -670,21 +670,21 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             sourceModelBuilder
                 .Entity("A",
                     b =>
-                    {
-                        b.Property<int>("Id");
-                        b.Property<string>("P");
-                        b.Key("Id").ForRelational().Name("PK");
-                    });
+                        {
+                            b.Property<int>("Id");
+                            b.Property<string>("P");
+                            b.Key("Id").ForRelational().Name("PK");
+                        });
 
             var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder
                 .Entity("A",
                     b =>
-                    {
-                        b.Property<int>("Id");
-                        b.Property<string>("P");
-                        b.Key("Id", "P").ForRelational().Name("PK");
-                    });
+                        {
+                            b.Property<int>("Id");
+                            b.Property<string>("P");
+                            b.Key("Id", "P").ForRelational().Name("PK");
+                        });
 
             var operations = new SqlServerModelDiffer(new SqlServerDatabaseBuilder(new SqlServerTypeMapper())).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
@@ -707,21 +707,21 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             sourceModelBuilder
                 .Entity("A",
                     b =>
-                    {
-                        b.Property<int>("Id");
-                        b.Property<string>("P");
-                        b.Key("Id", "P").ForRelational().Name("PK");
-                    });
+                        {
+                            b.Property<int>("Id");
+                            b.Property<string>("P");
+                            b.Key("Id", "P").ForRelational().Name("PK");
+                        });
 
             var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder
                 .Entity("A",
                     b =>
-                    {
-                        b.Property<int>("Id");
-                        b.Property<string>("P");
-                        b.Key("Id").ForRelational().Name("PK");
-                    });
+                        {
+                            b.Property<int>("Id");
+                            b.Property<string>("P");
+                            b.Key("Id").ForRelational().Name("PK");
+                        });
 
             var operations = new SqlServerModelDiffer(new SqlServerDatabaseBuilder(new SqlServerTypeMapper())).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
@@ -744,25 +744,25 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             sourceModelBuilder
                 .Entity("A",
                     b =>
-                    {
-                        b.Property<int>("Id");
-                        var p1 = b.Property<int>("P1").Metadata;
-                        b.Property<string>("P2");
-                        b.Key("Id");
-                        b.Metadata.AddKey(new[] { p1 }).Relational().Name = "UC";
-                    });
+                        {
+                            b.Property<int>("Id");
+                            var p1 = b.Property<int>("P1").Metadata;
+                            b.Property<string>("P2");
+                            b.Key("Id");
+                            b.Metadata.AddKey(new[] { p1 }).Relational().Name = "UC";
+                        });
 
             var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder
                 .Entity("A",
                     b =>
-                    {
-                        b.Property<int>("Id");
-                        var p1 = b.Property<int>("P1").Metadata;
-                        var p2 = b.Property<string>("P2").Metadata;
-                        b.Key("Id");
-                        b.Metadata.AddKey(new[] { p1, p2 }).Relational().Name = "UC";
-                    });
+                        {
+                            b.Property<int>("Id");
+                            var p1 = b.Property<int>("P1").Metadata;
+                            var p2 = b.Property<string>("P2").Metadata;
+                            b.Key("Id");
+                            b.Metadata.AddKey(new[] { p1, p2 }).Relational().Name = "UC";
+                        });
 
             var operations = new SqlServerModelDiffer(new SqlServerDatabaseBuilder(new SqlServerTypeMapper())).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
@@ -785,25 +785,25 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             sourceModelBuilder
                 .Entity("A",
                     b =>
-                    {
-                        b.Property<int>("Id");
-                        var p1 = b.Property<int>("P1").Metadata;
-                        var p2 = b.Property<string>("P2").Metadata;
-                        b.Key("Id");
-                        b.Metadata.AddKey(new[] { p1, p2 }).Relational().Name = "UC";
-                    });
+                        {
+                            b.Property<int>("Id");
+                            var p1 = b.Property<int>("P1").Metadata;
+                            var p2 = b.Property<string>("P2").Metadata;
+                            b.Key("Id");
+                            b.Metadata.AddKey(new[] { p1, p2 }).Relational().Name = "UC";
+                        });
 
             var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder
                 .Entity("A",
                     b =>
-                    {
-                        b.Property<int>("Id");
-                        var p1 = b.Property<int>("P1").Metadata;
-                        b.Property<string>("P2");
-                        b.Key("Id");
-                        b.Metadata.AddKey(new[] { p1 }).Relational().Name = "UC";
-                    });
+                        {
+                            b.Property<int>("Id");
+                            var p1 = b.Property<int>("P1").Metadata;
+                            b.Property<string>("P2");
+                            b.Key("Id");
+                            b.Metadata.AddKey(new[] { p1 }).Relational().Name = "UC";
+                        });
 
             var operations = new SqlServerModelDiffer(new SqlServerDatabaseBuilder(new SqlServerTypeMapper())).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
@@ -826,39 +826,39 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             sourceModelBuilder
                 .Entity("A",
                     b =>
-                    {
-                        b.Property<int>("Id");
-                        b.Property<string>("P1");
-                        b.Key("Id");
-                    });
+                        {
+                            b.Property<int>("Id");
+                            b.Property<string>("P1");
+                            b.Key("Id");
+                        });
             sourceModelBuilder
                 .Entity("B",
                     b =>
-                    {
-                        b.Property<int>("Id");
-                        b.Property<string>("P2");
-                        b.Key("Id");
-                        b.ForeignKey("A", "Id");
-                    });
+                        {
+                            b.Property<int>("Id");
+                            b.Property<string>("P2");
+                            b.Key("Id");
+                            b.ForeignKey("A", "Id");
+                        });
 
             var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder
                 .Entity("A",
                     b =>
-                    {
-                        b.Property<int>("Id");
-                        b.Property<string>("P1");
-                        b.Key("Id", "P1");
-                    });
+                        {
+                            b.Property<int>("Id");
+                            b.Property<string>("P1");
+                            b.Key("Id", "P1");
+                        });
             targetModelBuilder
                 .Entity("B",
                     b =>
-                    {
-                        b.Property<int>("Id");
-                        b.Property<string>("P2");
-                        b.Key("Id");
-                        b.ForeignKey("A", "Id", "P2");
-                    });
+                        {
+                            b.Property<int>("Id");
+                            b.Property<string>("P2");
+                            b.Key("Id");
+                            b.ForeignKey("A", "Id", "P2");
+                        });
 
             var operations = new SqlServerModelDiffer(new SqlServerDatabaseBuilder(new SqlServerTypeMapper())).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
@@ -887,39 +887,39 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             sourceModelBuilder
                 .Entity("A",
                     b =>
-                    {
-                        b.Property<int>("Id");
-                        b.Property<string>("P1");
-                        b.Key("Id", "P1");
-                    });
+                        {
+                            b.Property<int>("Id");
+                            b.Property<string>("P1");
+                            b.Key("Id", "P1");
+                        });
             sourceModelBuilder
                 .Entity("B",
                     b =>
-                    {
-                        b.Property<int>("Id");
-                        b.Property<string>("P2");
-                        b.Key("Id");
-                        b.ForeignKey("A", "Id", "P2");
-                    });
+                        {
+                            b.Property<int>("Id");
+                            b.Property<string>("P2");
+                            b.Key("Id");
+                            b.ForeignKey("A", "Id", "P2");
+                        });
 
             var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder
                 .Entity("A",
                     b =>
-                    {
-                        b.Property<int>("Id");
-                        b.Property<string>("P1");
-                        b.Key("Id");
-                    });
+                        {
+                            b.Property<int>("Id");
+                            b.Property<string>("P1");
+                            b.Key("Id");
+                        });
             targetModelBuilder
                 .Entity("B",
                     b =>
-                    {
-                        b.Property<int>("Id");
-                        b.Property<string>("P2");
-                        b.Key("Id");
-                        b.ForeignKey("A", "Id");
-                    });
+                        {
+                            b.Property<int>("Id");
+                            b.Property<string>("P2");
+                            b.Key("Id");
+                            b.ForeignKey("A", "Id");
+                        });
 
             var operations = new SqlServerModelDiffer(new SqlServerDatabaseBuilder(new SqlServerTypeMapper())).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);

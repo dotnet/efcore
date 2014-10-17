@@ -1,10 +1,13 @@
+// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 
 namespace Cud.Model
 {
-    public partial class Order
+    public class Order
     {
         #region Primitive Properties
 
@@ -17,7 +20,8 @@ namespace Cud.Model
             {
                 if (_customerId != value)
                 {
-                    if (Customer != null && Customer.Id != value)
+                    if (Customer != null
+                        && Customer.Id != value)
                     {
                         Customer = null;
                     }
@@ -89,7 +93,8 @@ namespace Cud.Model
 
         private void FixupCustomer(Customer previousValue)
         {
-            if (previousValue != null && previousValue.Orders.Contains(this))
+            if (previousValue != null
+                && previousValue.Orders.Contains(this))
             {
                 previousValue.Orders.Remove(this);
             }

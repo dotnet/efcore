@@ -43,8 +43,8 @@ namespace Microsoft.Data.Entity.Metadata
             {
                 throw new ArgumentException(
                     Strings.FormatForeignKeyTypeMismatch(
-                    Property.Format(dependentProperties),
-                    dependentProperties[0].EntityType.Name, referencedKey.EntityType.Name));
+                        Property.Format(dependentProperties),
+                        dependentProperties[0].EntityType.Name, referencedKey.EntityType.Name));
             }
 
             _referencedKey = referencedKey;

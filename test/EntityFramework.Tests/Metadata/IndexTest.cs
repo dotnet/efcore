@@ -54,8 +54,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Constructor_validates_properties_from_same_entity()
         {
-            var property1 =  new Model().AddEntityType(typeof(Customer)).GetOrAddProperty(Customer.IdProperty);
-            var property2 =  new Model().AddEntityType(typeof(Order)).GetOrAddProperty(Order.IdProperty);
+            var property1 = new Model().AddEntityType(typeof(Customer)).GetOrAddProperty(Customer.IdProperty);
+            var property2 = new Model().AddEntityType(typeof(Order)).GetOrAddProperty(Order.IdProperty);
 
             Assert.Equal(Strings.FormatInconsistentEntityType("properties"),
                 Assert.Throws<ArgumentException>(

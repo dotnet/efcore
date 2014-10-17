@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Model;
-using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Model;
 using Xunit;
 using Index = Microsoft.Data.Entity.Relational.Model.Index;
@@ -86,12 +85,12 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var modelBuilder = new BasicModelBuilder();
             modelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    var p = b.Property<string>("P").Metadata;
-                    b.Key("Id");
-                    b.Metadata.AddKey(p);
-                });
+                    {
+                        b.Property<int>("Id");
+                        var p = b.Property<string>("P").Metadata;
+                        b.Key("Id");
+                        b.Metadata.AddKey(p);
+                    });
 
             var alterColumnOperation
                 = new AlterColumnOperation(

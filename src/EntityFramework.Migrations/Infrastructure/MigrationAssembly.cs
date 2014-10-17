@@ -51,10 +51,10 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             Check.NotNull(assembly, "assembly");
 
             return assembly.GetAccessibleTypes()
-                   .Where(t => t.GetTypeInfo().IsSubclassOf(typeof(Migration))
-                               && t.GetPublicConstructor() != null
-                               && !t.GetTypeInfo().IsAbstract
-                               && !t.GetTypeInfo().IsGenericType);
+                .Where(t => t.GetTypeInfo().IsSubclassOf(typeof(Migration))
+                            && t.GetPublicConstructor() != null
+                            && !t.GetTypeInfo().IsAbstract
+                            && !t.GetTypeInfo().IsGenericType);
         }
 
         public static IEnumerable<Migration> LoadMigrations(

@@ -1,20 +1,19 @@
-﻿using System.Globalization;
-using System.Linq.Expressions;
-using System.Reflection;
+﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
+using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using KPerf;
+using Newtonsoft.Json;
 
 namespace Microbenchmarks.Core
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.IO;
-    using System.Linq;
-    using Newtonsoft.Json;
-
     public class PerfTestRunner
     {
         public string PathToResultsFile { get; set; }
@@ -33,20 +32,20 @@ namespace Microbenchmarks.Core
         public void Register(string testName, Action testAction)
         {
             Register(
-                new TestDefinition()
-                {
-                    TestName = testName,
-                    Run = testAction
-                });
+                new TestDefinition
+                    {
+                        TestName = testName,
+                        Run = testAction
+                    });
         }
 
         public void Register(Action testAction)
         {
             Register(
-                new TestDefinition()
-                {
-                    Run = testAction
-                });
+                new TestDefinition
+                    {
+                        Run = testAction
+                    });
         }
 
         public void RunTests(string resultDirectory)
@@ -241,24 +240,26 @@ namespace Microbenchmarks.Core
             var testStopSignal = false;
 
             Action decoratedRunAction = () =>
-            {
-                var state = threadStateFactory();
-                do
                 {
-                    run(state);
-                    Interlocked.Increment(ref iterationCounter);
-                } while (!testStopSignal);
-            };
+                    var state = threadStateFactory();
+                    do
+                    {
+                        run(state);
+                        Interlocked.Increment(ref iterationCounter);
+                    }
+                    while (!testStopSignal);
+                };
 
             Action rpsCounterAction = () =>
-            {
-                do
                 {
-                    var current = Interlocked.Read(ref iterationCounter);
-                    iterationSnaps.Add(new Tuple<long, long>(current, GC.GetTotalMemory(false)));
-                    Thread.Sleep(1000);
-                } while (!testStopSignal);
-            };
+                    do
+                    {
+                        var current = Interlocked.Read(ref iterationCounter);
+                        iterationSnaps.Add(new Tuple<long, long>(current, GC.GetTotalMemory(false)));
+                        Thread.Sleep(1000);
+                    }
+                    while (!testStopSignal);
+                };
 
             var workers = new List<Thread>();
             //add worker tasks
@@ -282,7 +283,8 @@ namespace Microbenchmarks.Core
                 do
                 {
                     Thread.Sleep(1000);
-                } while (runStopWatch.ElapsedMilliseconds < warmupDuration);
+                }
+                while (runStopWatch.ElapsedMilliseconds < warmupDuration);
                 //add rps counter thread
                 Thread counter = null;
                 workers.Add(counter = new Thread(new ThreadStart(rpsCounterAction)));
@@ -292,7 +294,8 @@ namespace Microbenchmarks.Core
                 do
                 {
                     Thread.Sleep(1000);
-                } while (runStopWatch.ElapsedMilliseconds < testDuration);
+                }
+                while (runStopWatch.ElapsedMilliseconds < testDuration);
                 testStopSignal = true;
                 runStopWatch.Stop();
                 totalExecutionTime = runStopWatch.ElapsedMilliseconds / 1000;
@@ -307,14 +310,17 @@ namespace Microbenchmarks.Core
             var iterationCounters = new List<ThreadedIterationCounter>();
             foreach (var snap in iterationSnaps)
             {
-                if (snap.Item1 == 0) continue;
+                if (snap.Item1 == 0)
+                {
+                    continue;
+                }
 
                 var iterationRps = snap.Item1 - prevCummulativeValue;
-                iterationCounters.Add(new ThreadedIterationCounter()
-                {
-                    RequestsPerSecond = iterationRps,
-                    WorkingSet = snap.Item2
-                });
+                iterationCounters.Add(new ThreadedIterationCounter
+                    {
+                        RequestsPerSecond = iterationRps,
+                        WorkingSet = snap.Item2
+                    });
                 prevCummulativeValue += iterationRps;
             }
 
@@ -405,10 +411,10 @@ namespace Microbenchmarks.Core
                     iterationStopwatch.Stop();
                     iterationCounters.Add(
                         new IterationCounter
-                        {
-                            ElapsedMillis = iterationStopwatch.ElapsedMilliseconds,
-                            WorkingSet = GC.GetTotalMemory(false)
-                        });
+                            {
+                                ElapsedMillis = iterationStopwatch.ElapsedMilliseconds,
+                                WorkingSet = GC.GetTotalMemory(false)
+                            });
                 }
             }
             catch (Exception e)
@@ -442,12 +448,12 @@ namespace Microbenchmarks.Core
             {
                 metrics.Add(
                     new PerformanceMetric
-                    {
-                        Scenario = runResult.TestName,
-                        Metric = "total",
-                        Unit = "Milliseconds",
-                        Value = runResult.ElapsedMillis
-                    });
+                        {
+                            Scenario = runResult.TestName,
+                            Metric = "total",
+                            Unit = "Milliseconds",
+                            Value = runResult.ElapsedMillis
+                        });
 
                 if (runResult.IterationCounters.Count > 1)
                 {
@@ -455,27 +461,27 @@ namespace Microbenchmarks.Core
                     {
                         var percentile = (i * 100).ToString(CultureInfo.InvariantCulture);
                         long resultPercentile = 0;
-                        
+
                         if (runResult.IterationCounters.First() is ThreadedIterationCounter)
                         {
                             resultPercentile = GetPercentile(runResult, i,
-                                c => ((ThreadedIterationCounter) c).RequestsPerSecond, true);
+                                c => ((ThreadedIterationCounter)c).RequestsPerSecond, true);
                         }
                         else if (runResult.IterationCounters.First() is IterationCounter)
                         {
                             resultPercentile = GetPercentile(runResult, i,
-                                c => ((IterationCounter) c).ElapsedMillis, true);
+                                c => ((IterationCounter)c).ElapsedMillis, true);
                         }
                         var metric = string.Format("{0}th percentile", percentile);
 
                         metrics.Add(
                             new PerformanceMetric
-                            {
-                                Scenario = runResult.TestName,
-                                Metric = metric,
-                                Unit = "Milliseconds",
-                                Value = resultPercentile
-                            });
+                                {
+                                    Scenario = runResult.TestName,
+                                    Metric = metric,
+                                    Unit = "Milliseconds",
+                                    Value = resultPercentile
+                                });
                     }
                 }
             }

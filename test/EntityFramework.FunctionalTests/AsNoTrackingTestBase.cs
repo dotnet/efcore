@@ -64,10 +64,10 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 var customers
                     = (from c in context.Set<Customer>()
-                       join o in context.Set<Order>().AsNoTracking()
-                           on c.CustomerID equals o.CustomerID
-                       where c.CustomerID == "ALFKI"
-                       select new { c, o })
+                        join o in context.Set<Order>().AsNoTracking()
+                            on c.CustomerID equals o.CustomerID
+                        where c.CustomerID == "ALFKI"
+                        select new { c, o })
                         .AsNoTracking()
                         .ToList();
 

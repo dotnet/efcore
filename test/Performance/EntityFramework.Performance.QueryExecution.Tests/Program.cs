@@ -1,17 +1,16 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using System.Collections.Generic;
 using System.Linq;
+using Microbenchmarks.Core;
 
 namespace QueryExecution
 {
-    using System;
-    using System.Collections.Generic;
-    using Microbenchmarks.Core;
-
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             var resultDirectory = string.Empty;
             var testName = string.Empty;
@@ -39,7 +38,7 @@ namespace QueryExecution
             Console.WriteLine("resultDirectory = " + resultDirectory);
             Console.WriteLine("testName = " + testName);
 
-            allTests.Add(new TestDefinition()
+            allTests.Add(new TestDefinition
                 {
                     TestName = "Query_Execution_TPT_model_Filter_Where",
                     IterationCount = 500,
@@ -48,7 +47,7 @@ namespace QueryExecution
                     Setup = tests.Setup
                 });
 
-            allTests.Add(new TestDefinition()
+            allTests.Add(new TestDefinition
                 {
                     TestName = "Query_Execution_TPT_model_Projection_Select",
                     IterationCount = 500,
@@ -57,7 +56,7 @@ namespace QueryExecution
                     Setup = tests.Setup
                 });
 
-            allTests.Add(new TestDefinition()
+            allTests.Add(new TestDefinition
                 {
                     TestName = "Query_Execution_TPT_model_Projection_SelectMany",
                     IterationCount = 500,
@@ -66,7 +65,7 @@ namespace QueryExecution
                     Setup = tests.Setup
                 });
 
-            allTests.Add(new TestDefinition()
+            allTests.Add(new TestDefinition
                 {
                     TestName = "Query_Execution_TPT_model_Projection_Nested",
                     IterationCount = 500,
@@ -75,7 +74,7 @@ namespace QueryExecution
                     Setup = tests.Setup
                 });
 
-            allTests.Add(new TestDefinition()
+            allTests.Add(new TestDefinition
                 {
                     TestName = "Query_Execution_TPT_model_Ordering_OrderBy",
                     IterationCount = 500,
@@ -84,7 +83,7 @@ namespace QueryExecution
                     Setup = tests.Setup
                 });
 
-            allTests.Add(new TestDefinition()
+            allTests.Add(new TestDefinition
                 {
                     TestName = "Query_Execution_TPT_model_Aggregate_Count",
                     IterationCount = 500,
@@ -93,7 +92,7 @@ namespace QueryExecution
                     Setup = tests.Setup
                 });
 
-            allTests.Add(new TestDefinition()
+            allTests.Add(new TestDefinition
                 {
                     TestName = "Query_Execution_TPT_model_Partitioning_Skip",
                     IterationCount = 500,
@@ -102,7 +101,7 @@ namespace QueryExecution
                     Setup = tests.Setup
                 });
 
-            allTests.Add(new TestDefinition()
+            allTests.Add(new TestDefinition
                 {
                     TestName = "Query_Execution_TPT_model_Join_Join",
                     IterationCount = 500,
@@ -111,7 +110,7 @@ namespace QueryExecution
                     Setup = tests.Setup
                 });
 
-            allTests.Add(new TestDefinition()
+            allTests.Add(new TestDefinition
                 {
                     TestName = "Query_Execution_TPT_model_Grouping_Groupby",
                     IterationCount = 500,
@@ -120,7 +119,7 @@ namespace QueryExecution
                     Setup = tests.Setup
                 });
 
-            allTests.Add(new TestDefinition()
+            allTests.Add(new TestDefinition
                 {
                     TestName = "Query_Execution_TPT_model_Include",
                     IterationCount = 500,
@@ -129,7 +128,7 @@ namespace QueryExecution
                     Setup = tests.Setup
                 });
 
-            allTests.Add(new TestDefinition()
+            allTests.Add(new TestDefinition
                 {
                     TestName = "Query_Execution_TPT_model_OfType_Linq",
                     IterationCount = 500,
@@ -138,7 +137,7 @@ namespace QueryExecution
                     Setup = tests.Setup
                 });
 
-            allTests.Add(new TestDefinition()
+            allTests.Add(new TestDefinition
                 {
                     TestName = "Query_Execution_TPT_Filter_Not_PK_Parameter",
                     IterationCount = 500,
@@ -147,7 +146,7 @@ namespace QueryExecution
                     Setup = tests.Setup
                 });
 
-            allTests.Add(new TestDefinition()
+            allTests.Add(new TestDefinition
                 {
                     TestName = "Query_Execution_TPT_Filter_Not_NF_Parameter",
                     IterationCount = 500,
@@ -156,7 +155,7 @@ namespace QueryExecution
                     Setup = tests.Setup
                 });
 
-            allTests.Add(new TestDefinition()
+            allTests.Add(new TestDefinition
                 {
                     TestName = "Query_Execution_TPT_Filter_Not_NNF_Parameter",
                     IterationCount = 500,
@@ -165,7 +164,7 @@ namespace QueryExecution
                     Setup = tests.Setup
                 });
 
-            allTests.Add(new TestDefinition()
+            allTests.Add(new TestDefinition
                 {
                     TestName = "Query_Execution_TPT_model_Funcletization_Case1_WithMember",
                     IterationCount = 1,
@@ -174,7 +173,7 @@ namespace QueryExecution
                     Setup = tests.Setup
                 });
 
-            allTests.Add(new TestDefinition()
+            allTests.Add(new TestDefinition
                 {
                     TestName = "Query_Execution_TPT_model_Funcletization_Case2_WithMember",
                     IterationCount = 1,
@@ -183,7 +182,7 @@ namespace QueryExecution
                     Setup = tests.Setup
                 });
 
-            allTests.Add(new TestDefinition()
+            allTests.Add(new TestDefinition
                 {
                     TestName = "Query_Execution_TPT_model_Funcletization_Case1_WithProperty",
                     IterationCount = 1,
@@ -192,7 +191,7 @@ namespace QueryExecution
                     Setup = tests.Setup
                 });
 
-            allTests.Add(new TestDefinition()
+            allTests.Add(new TestDefinition
                 {
                     TestName = "Query_Execution_TPT_model_Funcletization_Case2_WithProperty",
                     IterationCount = 1,
@@ -212,7 +211,7 @@ namespace QueryExecution
                 else
                 {
                     Console.WriteLine("Specified test not found");
-                }           
+                }
             }
             else
             {

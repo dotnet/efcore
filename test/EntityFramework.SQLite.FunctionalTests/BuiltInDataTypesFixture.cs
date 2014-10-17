@@ -25,7 +25,6 @@ namespace Microsoft.Data.Entity.SQLite.FunctionalTests
                     .BuildServiceProvider();
         }
 
-
         public override DbContext CreateContext()
         {
             // do not use this method for SQLite tests

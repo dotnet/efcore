@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
             set
             {
                 Check.NullButNotEmpty(value, "value");
-                
+
                 ((EntityType)EntityType)[SqlServerSchemaAnnotation] = value;
             }
         }

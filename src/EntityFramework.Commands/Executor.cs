@@ -151,19 +151,19 @@ namespace Microsoft.Data.Entity.Commands
 
             return contextTypes.Select(
                 t =>
-                {
-                    var result = new Hashtable();
-                    result["AssemblyQualifiedName"] = t.AssemblyQualifiedName;
-                    result["FullName"] = t.FullName;
-                    result["Name"] = t.Name;
-                    result["SafeName"] = nameGroups.Count(g => g.Key == t.Name) == 1
-                        ? t.Name
-                        : fullNameGroups.Count(g => g.Key == t.FullName) == 1
-                            ? t.FullName
-                            : t.AssemblyQualifiedName;
+                    {
+                        var result = new Hashtable();
+                        result["AssemblyQualifiedName"] = t.AssemblyQualifiedName;
+                        result["FullName"] = t.FullName;
+                        result["Name"] = t.Name;
+                        result["SafeName"] = nameGroups.Count(g => g.Key == t.Name) == 1
+                            ? t.Name
+                            : fullNameGroups.Count(g => g.Key == t.FullName) == 1
+                                ? t.FullName
+                                : t.AssemblyQualifiedName;
 
-                    return result;
-                });
+                        return result;
+                    });
         }
 
         public class GetMigrations : OperationBase
@@ -188,16 +188,16 @@ namespace Microsoft.Data.Entity.Commands
 
             return migrations.Select(
                 m =>
-                {
-                    var migrationName = m.GetMigrationName();
+                    {
+                        var migrationName = m.GetMigrationName();
 
-                    var result = new Hashtable();
-                    result["MigrationId"] = m.GetMigrationId();
-                    result["MigrationName"] = migrationName;
-                    result["SafeName"] = groups.Count(g => g.Key == migrationName) == 1 ? migrationName : m.GetMigrationId();
+                        var result = new Hashtable();
+                        result["MigrationId"] = m.GetMigrationId();
+                        result["MigrationName"] = migrationName;
+                        result["SafeName"] = groups.Count(g => g.Key == migrationName) == 1 ? migrationName : m.GetMigrationId();
 
-                    return result;
-                });
+                        return result;
+                    });
         }
 
         public abstract class OperationBase : MarshalByRefObject

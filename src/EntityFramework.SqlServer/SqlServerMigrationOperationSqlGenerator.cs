@@ -45,9 +45,9 @@ namespace Microsoft.Data.Entity.SqlServer
             Check.NotNull(stringBuilder, "stringBuilder");
 
             GenerateRename(
-                renameSequenceOperation.SequenceName, 
-                renameSequenceOperation.NewSequenceName, 
-                "OBJECT", 
+                renameSequenceOperation.SequenceName,
+                renameSequenceOperation.NewSequenceName,
+                "OBJECT",
                 stringBuilder);
         }
 
@@ -68,9 +68,9 @@ namespace Microsoft.Data.Entity.SqlServer
             Check.NotNull(stringBuilder, "stringBuilder");
 
             GenerateRename(
-                renameTableOperation.TableName, 
-                renameTableOperation.NewTableName, 
-                "OBJECT", 
+                renameTableOperation.TableName,
+                renameTableOperation.NewTableName,
+                "OBJECT",
                 stringBuilder);
         }
 
@@ -141,7 +141,7 @@ namespace Microsoft.Data.Entity.SqlServer
 
             GenerateRename(
                 string.Concat(
-                    EscapeLiteral(renameColumnOperation.TableName), 
+                    EscapeLiteral(renameColumnOperation.TableName),
                     ".",
                     EscapeLiteral(renameColumnOperation.ColumnName)),
                 renameColumnOperation.NewColumnName,
@@ -215,7 +215,7 @@ namespace Microsoft.Data.Entity.SqlServer
                 .Append(DelimitIdentifier(dropIndexOperation.TableName));
         }
 
-        protected virtual void GenerateRename([NotNull] string name, [NotNull] string newName, 
+        protected virtual void GenerateRename([NotNull] string name, [NotNull] string newName,
             [NotNull] string objectType, [NotNull] IndentedStringBuilder stringBuilder)
         {
             Check.NotEmpty(name, "name");

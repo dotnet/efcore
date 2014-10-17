@@ -201,10 +201,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                         newForeignKey = fk;
                         break;
                     }
-                    else
-                    {
-                        originalForeignKeys.RemoveAt(index);
-                    }
+                    originalForeignKeys.RemoveAt(index);
                 }
             }
 

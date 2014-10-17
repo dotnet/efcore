@@ -7,6 +7,7 @@ using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Relational.Model;
 using Microsoft.Data.Entity.SqlServer.Metadata;
 using Microsoft.Data.Entity.SqlServer.Utilities;
+using Sequence = Microsoft.Data.Entity.Relational.Metadata.Sequence;
 
 namespace Microsoft.Data.Entity.SqlServer
 {
@@ -38,7 +39,7 @@ namespace Microsoft.Data.Entity.SqlServer
                          ?? column[SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.DefaultSequenceSchema];
 
             return name == null
-                ? Relational.Metadata.Sequence.DefaultName
+                ? Sequence.DefaultName
                 : (schema != null ? schema + "." : "") + name;
         }
     }

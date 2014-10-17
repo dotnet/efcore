@@ -66,7 +66,7 @@ namespace Microsoft.Data.Entity.Query
             LogQueryModel(queryModel);
 
             try
-            { 
+            {
                 var enumerable = _context.Configuration.DataStore.Query<T>(queryModel);
 
                 return new EnumerableExceptionInterceptor<T>(enumerable, _context, _logger);
@@ -180,8 +180,8 @@ namespace Microsoft.Data.Entity.Query
                             0,
                             new DataStoreErrorLogState(_context.GetType()),
                             ex,
-                            (state, exception) => string.Format("{0}" + Environment.NewLine 
-                                + "{1}", Strings.LogExceptionDuringQueryIteration, exception.ToString()));
+                            (state, exception) => string.Format("{0}" + Environment.NewLine
+                                                                + "{1}", Strings.LogExceptionDuringQueryIteration, exception.ToString()));
 
                         throw;
                     }

@@ -446,21 +446,21 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<short>("P");
-                    b.Key("Id");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<short>("P");
+                        b.Key("Id");
+                    });
 
             var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
-                {
-                    var id = b.Property<int>("Id").Metadata;
-                    var p = b.Property<short>("P").Metadata;
-                    b.Key("Id");
-                    b.Metadata.AddKey(new[] { id, p }).Relational().Name = "UC";
-                });
+                    {
+                        var id = b.Property<int>("Id").Metadata;
+                        var p = b.Property<short>("P").Metadata;
+                        b.Key("Id");
+                        b.Metadata.AddKey(new[] { id, p }).Relational().Name = "UC";
+                    });
 
             var operations = new TestModelDiffer(new TestDatabaseBuilder()).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
@@ -481,21 +481,21 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
-                {
-                    var id = b.Property<int>("Id").Metadata;
-                    var p = b.Property<short>("P").Metadata;
-                    b.Key("Id");
-                    b.Metadata.AddKey(new[] { id, p }).Relational().Name = "UC";
-                });
+                    {
+                        var id = b.Property<int>("Id").Metadata;
+                        var p = b.Property<short>("P").Metadata;
+                        b.Key("Id");
+                        b.Metadata.AddKey(new[] { id, p }).Relational().Name = "UC";
+                    });
 
             var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    b.Property<short>("P");
-                    b.Key("Id");
-                });
+                    {
+                        b.Property<int>("Id");
+                        b.Property<short>("P");
+                        b.Key("Id");
+                    });
 
             var operations = new TestModelDiffer(new TestDatabaseBuilder()).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
@@ -1414,22 +1414,22 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
-                {
-                    var id = b.Property<int>("Id").Metadata;
-                    var p = b.Property<int>("P").ForRelational(rb => rb.Column("C1")).Metadata;
-                    b.Key("Id");
-                    b.Metadata.AddKey(new[] { id, p }).Relational().Name = "UC";
-                });
+                    {
+                        var id = b.Property<int>("Id").Metadata;
+                        var p = b.Property<int>("P").ForRelational(rb => rb.Column("C1")).Metadata;
+                        b.Key("Id");
+                        b.Metadata.AddKey(new[] { id, p }).Relational().Name = "UC";
+                    });
 
             var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
-                {
-                    var id = b.Property<int>("Id").Metadata;
-                    var p = b.Property<string>("P").ForRelational(rb => rb.Column("C2")).Metadata;
-                    b.Key("Id");
-                    b.Metadata.AddKey(new[] { id, p }).Relational().Name = "UC";
-                });
+                    {
+                        var id = b.Property<int>("Id").Metadata;
+                        var p = b.Property<string>("P").ForRelational(rb => rb.Column("C2")).Metadata;
+                        b.Key("Id");
+                        b.Metadata.AddKey(new[] { id, p }).Relational().Name = "UC";
+                    });
 
             var operations = new TestModelDiffer(new TestDatabaseBuilder()).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
@@ -1446,22 +1446,22 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
-                {
-                    var id = b.Property<int>("Id").Metadata;
-                    var p = b.Property<int>("P1").ForRelational(rb => rb.Column("C")).Metadata;
-                    b.Key("Id");
-                    b.Metadata.AddKey(new[] { id, p }).Relational().Name = "UC";
-                });
+                    {
+                        var id = b.Property<int>("Id").Metadata;
+                        var p = b.Property<int>("P1").ForRelational(rb => rb.Column("C")).Metadata;
+                        b.Key("Id");
+                        b.Metadata.AddKey(new[] { id, p }).Relational().Name = "UC";
+                    });
 
             var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
-                {
-                    var id = b.Property<int>("Id").Metadata;
-                    var p = b.Property<string>("P2").ForRelational(rb => rb.Column("C")).Metadata;
-                    b.Key("Id");
-                    b.Metadata.AddKey(new[] { id, p }).Relational().Name = "UC";
-                });
+                    {
+                        var id = b.Property<int>("Id").Metadata;
+                        var p = b.Property<string>("P2").ForRelational(rb => rb.Column("C")).Metadata;
+                        b.Key("Id");
+                        b.Metadata.AddKey(new[] { id, p }).Relational().Name = "UC";
+                    });
 
             var operations = new TestModelDiffer(new TestDatabaseBuilder()).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
@@ -1477,22 +1477,22 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
-                {
-                    var id = b.Property<int>("Id").Metadata;
-                    var p = b.Property<string>("P").Metadata;
-                    b.Key("Id");
-                    b.Metadata.AddKey(new[] { id, p }).Relational().Name = "UC1";
-                });
+                    {
+                        var id = b.Property<int>("Id").Metadata;
+                        var p = b.Property<string>("P").Metadata;
+                        b.Key("Id");
+                        b.Metadata.AddKey(new[] { id, p }).Relational().Name = "UC1";
+                    });
 
             var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
-                {
-                    var id = b.Property<int>("Id").Metadata;
-                    var p = b.Property<string>("P").Metadata;
-                    b.Key("Id");
-                    b.Metadata.AddKey(new[] { id, p }).Relational().Name = "UC2";
-                });
+                    {
+                        var id = b.Property<int>("Id").Metadata;
+                        var p = b.Property<string>("P").Metadata;
+                        b.Key("Id");
+                        b.Metadata.AddKey(new[] { id, p }).Relational().Name = "UC2";
+                    });
 
             var operations = new TestModelDiffer(new TestDatabaseBuilder()).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
@@ -1515,22 +1515,22 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
-                {
-                    b.Property<int>("Id");
-                    var p = b.Property<string>("P").Metadata;
-                    b.Key("Id");
-                    b.Metadata.AddKey(new[] { p }).Relational().Name = "UC";
-                });
+                    {
+                        b.Property<int>("Id");
+                        var p = b.Property<string>("P").Metadata;
+                        b.Key("Id");
+                        b.Metadata.AddKey(new[] { p }).Relational().Name = "UC";
+                    });
 
             var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
-                {
-                    var id = b.Property<int>("Id").Metadata;
-                    var p = b.Property<string>("P").Metadata;
-                    b.Key("Id");
-                    b.Metadata.AddKey(new[] { p, id }).Relational().Name = "UC";
-                });
+                    {
+                        var id = b.Property<int>("Id").Metadata;
+                        var p = b.Property<string>("P").Metadata;
+                        b.Key("Id");
+                        b.Metadata.AddKey(new[] { p, id }).Relational().Name = "UC";
+                    });
 
             var operations = new TestModelDiffer(new TestDatabaseBuilder()).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);
@@ -1554,24 +1554,24 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             var sourceModelBuilder = new BasicModelBuilder();
             sourceModelBuilder.Entity("A",
                 b =>
-                {
-                    var id = b.Property<int>("Id").Metadata;
-                    var p1 = b.Property<int>("P1").Metadata;
-                    b.Property<int>("P2");
-                    b.Key("Id");
-                    b.Metadata.AddKey(new[] { id, p1 }).Relational().Name = "UC";
-                });
+                    {
+                        var id = b.Property<int>("Id").Metadata;
+                        var p1 = b.Property<int>("P1").Metadata;
+                        b.Property<int>("P2");
+                        b.Key("Id");
+                        b.Metadata.AddKey(new[] { id, p1 }).Relational().Name = "UC";
+                    });
 
             var targetModelBuilder = new BasicModelBuilder();
             targetModelBuilder.Entity("A",
                 b =>
-                {
-                    var id = b.Property<int>("Id").Metadata;
-                    b.Property<int>("P1");
-                    var p2 = b.Property<int>("P2").Metadata;
-                    b.Key("Id");
-                    b.Metadata.AddKey(new[] { id, p2 }).Relational().Name = "UC";
-                });
+                    {
+                        var id = b.Property<int>("Id").Metadata;
+                        b.Property<int>("P1");
+                        var p2 = b.Property<int>("P2").Metadata;
+                        b.Key("Id");
+                        b.Metadata.AddKey(new[] { id, p2 }).Relational().Name = "UC";
+                    });
 
             var operations = new TestModelDiffer(new TestDatabaseBuilder()).Diff(
                 sourceModelBuilder.Model, targetModelBuilder.Model);

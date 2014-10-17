@@ -12,9 +12,11 @@ using Microsoft.Data.Entity.Utilities;
 namespace Microsoft.Data.Entity.Identity
 {
     /// <summary>
-    /// Acts as a <see cref="IValueGenerator"> by requesting a block of values from the
-    /// underlying data store and returning them one by one. Will ask the underlying
-    /// data store for another block when the current block is exhausted.
+    ///     Acts as a
+    ///     <see cref="IValueGenerator">
+    ///         by requesting a block of values from the
+    ///         underlying data store and returning them one by one. Will ask the underlying
+    ///         data store for another block when the current block is exhausted.
     /// </summary>
     public abstract class BlockOfSequentialValuesGenerator : IValueGenerator
     {

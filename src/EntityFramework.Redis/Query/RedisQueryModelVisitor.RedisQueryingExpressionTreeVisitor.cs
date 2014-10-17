@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq.Expressions;
-using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Query.ExpressionTreeVisitors;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
@@ -43,7 +42,7 @@ namespace Microsoft.Data.Entity.Redis.Query
                 if (_parentVisitor.QuerySourceRequiresMaterialization(_querySource))
                 {
                     methodInfo = methodProvider.MaterializationQueryMethod
-                                    .MakeGenericMethod(elementType);
+                        .MakeGenericMethod(elementType);
                 }
 
                 return Expression.Call(

@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.InMemory
         }
 
         /// <summary>
-        /// Returns true just after the database has been created, false thereafter
+        ///     Returns true just after the database has been created, false thereafter
         /// </summary>
         /// <returns>
         ///     true if the database has just been created, false otherwise

@@ -144,7 +144,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
 
             public IModel TargetModel
             {
-                get { return new Metadata.Model(); } 
+                get { return new Metadata.Model(); }
             }
         }
 

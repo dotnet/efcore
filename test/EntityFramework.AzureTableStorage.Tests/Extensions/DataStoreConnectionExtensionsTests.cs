@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Extensions
         public void It_requires_ats()
         {
             var connection = Mock.Of<DataStoreConnection>();
-            
+
             Assert.Equal(
                 Strings.AtsConnectionNotInUse,
                 Assert.Throws<InvalidOperationException>(() => connection.AsAtsConnection()).Message
@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Extensions
             var connection = new Mock<AtsConnection>();
 
             connection.Object.UseBatching(true);
-            
+
             connection.VerifySet(s => s.Batching = true, Times.Once);
         }
 
@@ -41,9 +41,9 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Extensions
             connection.Object.UseRequestOptions(tableRequestOptions);
 
             connection.VerifySet(s => s.TableRequestOptions = tableRequestOptions, Times.Once);
-            
+
             connection.Object.ResetRequestOptions();
-            
+
             connection.VerifySet(s => s.TableRequestOptions = null, Times.Once);
         }
     }

@@ -392,11 +392,11 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                     b => { b.UseSequence(); })
                 .Entity("A",
                     b =>
-                    {
-                        b.Property<int>("Id").ForSqlServer().UseSequence("S0");
-                        b.Property<short>("P").ForSqlServer().UseSequence();
-                        b.Key("Id");
-                    });
+                        {
+                            b.Property<int>("Id").ForSqlServer().UseSequence("S0");
+                            b.Property<short>("P").ForSqlServer().UseSequence();
+                            b.Key("Id");
+                        });
 
             var databaseBuilder = new SqlServerDatabaseBuilder(new SqlServerTypeMapper());
             var database = databaseBuilder.GetDatabase(modelBuilder.Model);
@@ -426,28 +426,28 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             modelBuilder
                 .ForSqlServer(
                     b =>
-                    {
-                        b.Sequence("S0", "dbOh")
-                            .IncrementBy(3)
-                            .Start(1001)
-                            .Min(1000)
-                            .Max(2000)
-                            .Type<int>();
+                        {
+                            b.Sequence("S0", "dbOh")
+                                .IncrementBy(3)
+                                .Start(1001)
+                                .Min(1000)
+                                .Max(2000)
+                                .Type<int>();
 
-                        b.Sequence("S1", "dbOh")
-                            .IncrementBy(7)
-                            .Start(7001)
-                            .Min(7000)
-                            .Max(9000)
-                            .Type<short>();
-                    })
+                            b.Sequence("S1", "dbOh")
+                                .IncrementBy(7)
+                                .Start(7001)
+                                .Min(7000)
+                                .Max(9000)
+                                .Type<short>();
+                        })
                 .Entity("A",
                     b =>
-                    {
-                        b.Property<int>("Id").ForSqlServer().UseSequence("S0", "dbOh");
-                        b.Property<short>("P").ForSqlServer().UseSequence("S1", "dbOh");
-                        b.Key("Id");
-                    });
+                        {
+                            b.Property<int>("Id").ForSqlServer().UseSequence("S0", "dbOh");
+                            b.Property<short>("P").ForSqlServer().UseSequence("S1", "dbOh");
+                            b.Key("Id");
+                        });
 
             var databaseBuilder = new SqlServerDatabaseBuilder(new SqlServerTypeMapper());
             var database = databaseBuilder.GetDatabase(modelBuilder.Model);
@@ -477,11 +477,11 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             modelBuilder
                 .Entity("A",
                     b =>
-                    {
-                        b.Property<int>("Id").ForSqlServer().UseSequence("MySequence", "dbOh");
-                        b.Property<short>("P").ForSqlServer().UseSequence("MySequence", "dbOh");
-                        b.Key("Id");
-                    });
+                        {
+                            b.Property<int>("Id").ForSqlServer().UseSequence("MySequence", "dbOh");
+                            b.Property<short>("P").ForSqlServer().UseSequence("MySequence", "dbOh");
+                            b.Key("Id");
+                        });
 
             var databaseBuilder = new SqlServerDatabaseBuilder(new SqlServerTypeMapper());
             var database = databaseBuilder.GetDatabase(modelBuilder.Model);
@@ -506,11 +506,11 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                     b => { b.Sequence("MySequence", "dbOh").IncrementBy(7); })
                 .Entity("A",
                     b =>
-                    {
-                        b.Property<int>("Id").ForSqlServer().UseSequence("MySequence", "dbOh");
-                        b.Property<short>("P").ForSqlServer().UseSequence("MySequence", "dbOh");
-                        b.Key("Id");
-                    });
+                        {
+                            b.Property<int>("Id").ForSqlServer().UseSequence("MySequence", "dbOh");
+                            b.Property<short>("P").ForSqlServer().UseSequence("MySequence", "dbOh");
+                            b.Key("Id");
+                        });
 
             var databaseBuilder = new SqlServerDatabaseBuilder(new SqlServerTypeMapper());
             var database = databaseBuilder.GetDatabase(modelBuilder.Model);
@@ -530,21 +530,21 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         {
             var modelBuilder = new BasicModelBuilder();
             modelBuilder.ForSqlServer(b =>
-            {
-                b.Sequence("MySequence", "dbOh").IncrementBy(7);
-                b.UseSequence("MySequence", "dbOh");
-            });
+                {
+                    b.Sequence("MySequence", "dbOh").IncrementBy(7);
+                    b.UseSequence("MySequence", "dbOh");
+                });
 
             modelBuilder.Entity("A", b =>
-            {
-                b.Property<int>("Id").GenerateValuesOnAdd();
-                b.Key("Id");
-            });
+                {
+                    b.Property<int>("Id").GenerateValuesOnAdd();
+                    b.Key("Id");
+                });
             modelBuilder.Entity("B", b =>
-            {
-                b.Property<short>("Id").GenerateValuesOnAdd();
-                b.Key("Id");
-            });
+                {
+                    b.Property<short>("Id").GenerateValuesOnAdd();
+                    b.Key("Id");
+                });
 
             var databaseBuilder = new SqlServerDatabaseBuilder(new SqlServerTypeMapper());
             var database = databaseBuilder.GetDatabase(modelBuilder.Model);
@@ -566,15 +566,15 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             modelBuilder.ForSqlServer().UseSequence("MySequence", "dbOh");
 
             modelBuilder.Entity("A", b =>
-            {
-                b.Property<int>("Id").GenerateValuesOnAdd();
-                b.Key("Id");
-            });
+                {
+                    b.Property<int>("Id").GenerateValuesOnAdd();
+                    b.Key("Id");
+                });
             modelBuilder.Entity("B", b =>
-            {
-                b.Property<short>("Id").GenerateValuesOnAdd();
-                b.Key("Id");
-            });
+                {
+                    b.Property<short>("Id").GenerateValuesOnAdd();
+                    b.Key("Id");
+                });
 
             var databaseBuilder = new SqlServerDatabaseBuilder(new SqlServerTypeMapper());
             var database = databaseBuilder.GetDatabase(modelBuilder.Model);
@@ -597,18 +597,18 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             modelBuilder
                 .ForSqlServer(
                     b =>
-                    {
-                        b.Sequence("S0", "dbOh").IncrementBy(3);
-                        b.Sequence("S1", "dbToo").IncrementBy(7);
-                        b.UseSequence("S1", "dbToo");
-                    })
+                        {
+                            b.Sequence("S0", "dbOh").IncrementBy(3);
+                            b.Sequence("S1", "dbToo").IncrementBy(7);
+                            b.UseSequence("S1", "dbToo");
+                        })
                 .Entity("A",
                     b =>
-                    {
-                        b.Property<int>("Id").ForSqlServer().UseSequence("S0", "dbOh");
-                        b.Property<short>("P").ForSqlServer().UseSequence();
-                        b.Key("Id");
-                    });
+                        {
+                            b.Property<int>("Id").ForSqlServer().UseSequence("S0", "dbOh");
+                            b.Property<short>("P").ForSqlServer().UseSequence();
+                            b.Key("Id");
+                        });
 
             var databaseBuilder = new SqlServerDatabaseBuilder(new SqlServerTypeMapper());
             var database = databaseBuilder.GetDatabase(modelBuilder.Model);
@@ -638,17 +638,17 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             modelBuilder
                 .ForSqlServer(
                     b =>
-                    {
-                        b.Sequence("S0", "dbOh").IncrementBy(3);
-                        b.UseSequence("S1", "dbToo");
-                    })
+                        {
+                            b.Sequence("S0", "dbOh").IncrementBy(3);
+                            b.UseSequence("S1", "dbToo");
+                        })
                 .Entity("A",
                     b =>
-                    {
-                        b.Property<int>("Id").ForSqlServer().UseSequence("S0", "dbOh");
-                        b.Property<short>("P").ForSqlServer().UseSequence();
-                        b.Key("Id");
-                    });
+                        {
+                            b.Property<int>("Id").ForSqlServer().UseSequence("S0", "dbOh");
+                            b.Property<short>("P").ForSqlServer().UseSequence();
+                            b.Key("Id");
+                        });
 
             var databaseBuilder = new SqlServerDatabaseBuilder(new SqlServerTypeMapper());
             var database = databaseBuilder.GetDatabase(modelBuilder.Model);
@@ -680,11 +680,11 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                     b => { b.UseSequence("S1", "dbToo"); })
                 .Entity("A",
                     b =>
-                    {
-                        b.Property<int>("Id").ForSqlServer().UseSequence("S0", "dbOh");
-                        b.Property<short>("P").ForSqlServer().UseSequence();
-                        b.Key("Id");
-                    });
+                        {
+                            b.Property<int>("Id").ForSqlServer().UseSequence("S0", "dbOh");
+                            b.Property<short>("P").ForSqlServer().UseSequence();
+                            b.Key("Id");
+                        });
 
             var databaseBuilder = new SqlServerDatabaseBuilder(new SqlServerTypeMapper());
             var database = databaseBuilder.GetDatabase(modelBuilder.Model);
@@ -716,11 +716,11 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                     b => { b.UseSequence(); })
                 .Entity("A",
                     b =>
-                    {
-                        b.Property<int>("Id").ForSqlServer().UseSequence("S0", "dbOh");
-                        b.Property<short>("P").ForSqlServer().UseSequence();
-                        b.Key("Id");
-                    });
+                        {
+                            b.Property<int>("Id").ForSqlServer().UseSequence("S0", "dbOh");
+                            b.Property<short>("P").ForSqlServer().UseSequence();
+                            b.Key("Id");
+                        });
 
             var databaseBuilder = new SqlServerDatabaseBuilder(new SqlServerTypeMapper());
             var database = databaseBuilder.GetDatabase(modelBuilder.Model);

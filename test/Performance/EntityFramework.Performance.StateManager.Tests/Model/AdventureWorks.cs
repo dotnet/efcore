@@ -1,12 +1,12 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.Metadata;
+
 namespace StateManager.Model
 {
-    using System;
-    using Microsoft.Data.Entity;
-    using Microsoft.Data.Entity.Metadata;
-
     public class AdventureWorks : DbContext
     {
         private readonly string _connectionString;
@@ -32,25 +32,25 @@ namespace StateManager.Model
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<Product>(b =>
-            {
-                b.ForRelational().Table("Product", "dbo");
-                b.Key(e => e.ProductId);
-            });
+                {
+                    b.ForRelational().Table("Product", "dbo");
+                    b.Key(e => e.ProductId);
+                });
             modelBuilder.Entity<ProductModel>(b =>
-            {
-                b.ForRelational().Table("ProductModel", "dbo");
-                b.Key(e => e.ProductModelId);
-            });
+                {
+                    b.ForRelational().Table("ProductModel", "dbo");
+                    b.Key(e => e.ProductModelId);
+                });
             modelBuilder.Entity<ProductCategory>(b =>
-            {
-                b.ForRelational().Table("ProductCategory", "dbo");
-                b.Key(e => e.ProductCategoryId);
-            });
+                {
+                    b.ForRelational().Table("ProductCategory", "dbo");
+                    b.Key(e => e.ProductCategoryId);
+                });
             modelBuilder.Entity<ProductSubCategory>(b =>
-            {
-                b.ForRelational().Table("ProductSubCategory", "dbo");
-                b.Key(e => e.ProductSubcategoryId);
-            });
+                {
+                    b.ForRelational().Table("ProductSubCategory", "dbo");
+                    b.Key(e => e.ProductSubcategoryId);
+                });
 
             modelBuilder.Entity<ProductModel>(
                 b => b.OneToMany(e => e.Products, e => e.Model));

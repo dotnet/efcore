@@ -80,9 +80,9 @@ namespace Microsoft.Data.Entity.SQLite.Tests
             var c1 = new Column("C1", typeof(int));
             var c2 = new Column("C2", typeof(string));
             var table = new Table("T", new[] { c0, c1, c2 })
-            {
-                PrimaryKey = new PrimaryKey("PK", new[] { c0 })
-            };
+                {
+                    PrimaryKey = new PrimaryKey("PK", new[] { c0 })
+                };
 
             table.AddUniqueConstraint(new UniqueConstraint("UC0", new[] { c0, c1 }));
             table.AddUniqueConstraint(new UniqueConstraint("UC1", new[] { c2 }));
@@ -99,7 +99,7 @@ namespace Microsoft.Data.Entity.SQLite.Tests
     UNIQUE (""Id"", ""C1""),
     UNIQUE (""C2"")
 )",
-                sql);            
+                sql);
         }
 
         [Fact]
@@ -217,7 +217,7 @@ namespace Microsoft.Data.Entity.SQLite.Tests
             }
 
             Assert.Equal(
-@"ALTER TABLE ""A"" RENAME TO ""__mig_tmp__A""
+                @"ALTER TABLE ""A"" RENAME TO ""__mig_tmp__A""
 CREATE TABLE ""A"" (
     ""Id"" INT NOT NULL,
     CONSTRAINT ""PK"" PRIMARY KEY (""Id"")

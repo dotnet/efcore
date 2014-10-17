@@ -16,10 +16,10 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
         {
             modelBuilder
                 .Entity<Chassis>(b =>
-                {
-                    b.Key(c => c.TeamId);
-                    b.ForRelational().Table("Chassis");
-                });
+                    {
+                        b.Key(c => c.TeamId);
+                        b.ForRelational().Table("Chassis");
+                    });
 
             modelBuilder
                 .Entity<Team>(b =>

@@ -1,14 +1,14 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace QueryExecution.Model
 {
-    using System;
-    using System.ComponentModel.DataAnnotations;
-    using System.ComponentModel.DataAnnotations.Schema;
-
     [Table("DefaultContainerStore.PageView")]
-    public partial class PageView
+    public class PageView
     {
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int PageViewId { get; set; }

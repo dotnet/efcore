@@ -6,7 +6,6 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Migrations.Utilities;
 using Microsoft.Data.Entity.Relational;
-using Microsoft.Framework.DependencyInjection;
 
 namespace Microsoft.Data.Entity
 {

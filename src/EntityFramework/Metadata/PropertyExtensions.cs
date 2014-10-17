@@ -65,8 +65,8 @@ namespace Microsoft.Data.Entity.Metadata
 
             var valueString = property.FindAnnotationInHierarchy(name);
 
-            return valueString != null 
-                ? (T)Convert.ChangeType(valueString, typeof(T), CultureInfo.InvariantCulture) 
+            return valueString != null
+                ? (T)Convert.ChangeType(valueString, typeof(T), CultureInfo.InvariantCulture)
                 : defaultValue;
         }
     }

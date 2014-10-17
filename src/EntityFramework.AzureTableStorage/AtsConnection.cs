@@ -99,11 +99,11 @@ namespace Microsoft.Data.Entity.AzureTableStorage
             }
 
             return new RequestContext
-            {
-                OperationContext = operationContext,
-                TableClient = _tableClient.Value,
-                TableRequestOptions = TableRequestOptions
-            };
+                {
+                    OperationContext = operationContext,
+                    TableClient = _tableClient.Value,
+                    TableRequestOptions = TableRequestOptions
+                };
         }
     }
 }

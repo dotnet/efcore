@@ -43,8 +43,8 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
         {
             get
             {
-                return new TypedAnnotation(Property[SqlServerDefaultValueTypeAnnotation], Property[SqlServerDefaultValueAnnotation]).Value 
-                    ?? base.DefaultValue;
+                return new TypedAnnotation(Property[SqlServerDefaultValueTypeAnnotation], Property[SqlServerDefaultValueAnnotation]).Value
+                       ?? base.DefaultValue;
             }
         }
 

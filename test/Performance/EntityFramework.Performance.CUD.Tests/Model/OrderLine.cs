@@ -3,7 +3,7 @@
 
 namespace Cud.Model
 {
-    public partial class OrderLine
+    public class OrderLine
     {
         #region Primitive Properties
 
@@ -16,7 +16,8 @@ namespace Cud.Model
             {
                 if (_orderId != value)
                 {
-                    if (Order != null && Order.Id != value)
+                    if (Order != null
+                        && Order.Id != value)
                     {
                         Order = null;
                     }
@@ -34,7 +35,8 @@ namespace Cud.Model
             {
                 if (_productId != value)
                 {
-                    if (Product != null && Product.Id != value)
+                    if (Product != null
+                        && Product.Id != value)
                     {
                         Product = null;
                     }
@@ -91,7 +93,8 @@ namespace Cud.Model
 
         private void FixupOrder(Order previousValue)
         {
-            if (previousValue != null && previousValue.OrderLines.Contains(this))
+            if (previousValue != null
+                && previousValue.OrderLines.Contains(this))
             {
                 previousValue.OrderLines.Remove(this);
             }
@@ -111,7 +114,8 @@ namespace Cud.Model
 
         private void FixupProduct(Product previousValue)
         {
-            if (previousValue != null && previousValue.OrderLines.Contains(this))
+            if (previousValue != null
+                && previousValue.OrderLines.Contains(this))
             {
                 previousValue.OrderLines.Remove(this);
             }

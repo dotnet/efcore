@@ -8,7 +8,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata
     public interface IRelationalPropertyExtensions
     {
         string Column { get; }
-        
+
         [CanBeNull]
         string ColumnType { get; }
 

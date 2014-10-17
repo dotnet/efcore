@@ -37,7 +37,6 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
 
                 ((Model)Model)[SqlServerDefaultSequenceNameAnnotation] = value;
             }
-
         }
 
         public new virtual string DefaultSequenceSchema
@@ -50,7 +49,6 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
 
                 ((Model)Model)[SqlServerDefaultSequenceSchemaAnnotation] = value;
             }
-
         }
 
         public virtual Sequence AddOrReplaceSequence([NotNull] Sequence sequence)

@@ -212,9 +212,9 @@ namespace Microsoft.Data.Entity.Commands.Tests.Migrations
                         c1 = new Column("C1", typeof(string)),
                         c2 = new Column("C2", typeof(string))
                     })
-            {
-                PrimaryKey = new PrimaryKey("MyPK", new[] { foo })
-            };
+                {
+                    PrimaryKey = new PrimaryKey("MyPK", new[] { foo })
+                };
             table.AddUniqueConstraint(new UniqueConstraint("MyUC0", new[] { c1 }));
             table.AddUniqueConstraint(new UniqueConstraint("MyUC1", new[] { bar, c2 }));
 
@@ -630,7 +630,7 @@ namespace MyNamespace
             codeGenerator.GenerateMigrationMetadataClass("MyNamespace", "MyClass", migration, typeof(MyContext), stringBuilder);
 
             Assert.Equal(
-@"using Microsoft.Data.Entity;
+                @"using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Commands.Tests.Migrations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
@@ -677,7 +677,11 @@ namespace MyNamespace
                 stringBuilder.ToString());
         }
 
-        private enum BikeType : byte { Road, Mountain }
+        private enum BikeType : byte
+        {
+            Road,
+            Mountain
+        }
 
         public class MyContext : DbContext
         {

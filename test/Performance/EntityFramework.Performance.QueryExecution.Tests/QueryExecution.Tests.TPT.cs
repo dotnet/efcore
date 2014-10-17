@@ -14,7 +14,7 @@ namespace QueryExecution
 {
     public class QueryExecutionTestsTPT : QueryExecutionBase
     {
-        QueryExecutionTPT _tptContext;
+        private QueryExecutionTPT _tptContext;
 
         public static IServiceProvider CreateServiceProvider()
         {
@@ -38,7 +38,7 @@ namespace QueryExecution
                 Console.WriteLine("error reading config: " + e.Message);
             }
 
-            connectionString = connectionString ?? QueryExecutionBase.DefaultConnectionString;
+            connectionString = connectionString ?? DefaultConnectionString;
             var serviceProvider = CreateServiceProvider();
             var options = new DbContextOptions();
             base.SetupDatabase(() => new QueryExecutionTPT(connectionString, serviceProvider, options));
@@ -55,7 +55,6 @@ namespace QueryExecution
         {
             base.Filter_Where(_tptContext);
         }
-
 
         //[Test("Query_Execution_TPT_model_Projection_Select",
         //    Description = "Query Execution with TPT model that uses Select",

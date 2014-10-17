@@ -1,7 +1,10 @@
-﻿namespace DbContextPerfTests
-{
-    using Model;
+﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using DbContextPerfTests.Model;
+
+namespace DbContextPerfTests
+{
     public class DbContextPerfTests : DbContextPerfTestsBase
     {
         public void DbContextQuery()

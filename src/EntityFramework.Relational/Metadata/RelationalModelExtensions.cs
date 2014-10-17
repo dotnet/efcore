@@ -31,7 +31,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata
 
             name = name ?? Sequence.DefaultName;
 
-            return ((Entity.Metadata.Model)Model).Relational().TryGetSequence(name, schema) 
+            return ((Entity.Metadata.Model)Model).Relational().TryGetSequence(name, schema)
                    ?? AddOrReplaceSequence(new Sequence(name, schema));
         }
     }

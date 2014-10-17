@@ -70,56 +70,56 @@ namespace StateManager
             const int productCount = 1000;
             for (var productIterator = 0; productIterator < productCount; ++productIterator)
             {
-                var productModel = new ProductModel()
-                {
-                    CatalogDescription = "Product model " + productIterator,
-                    Instructions = "Enjoy",
-                    ModifiedDate = DateTime.Now,
-                    Name = "Some model",
-                    RowGuid = runGuid
-                };
+                var productModel = new ProductModel
+                    {
+                        CatalogDescription = "Product model " + productIterator,
+                        Instructions = "Enjoy",
+                        ModifiedDate = DateTime.Now,
+                        Name = "Some model",
+                        RowGuid = runGuid
+                    };
                 context.ProductModels.Add(productModel);
-                var productCategory = new ProductCategory()
-                {
-                    Name = "pc",
-                    RowGuid = runGuid,
-                    ModifiedDate = DateTime.Now
-                };
+                var productCategory = new ProductCategory
+                    {
+                        Name = "pc",
+                        RowGuid = runGuid,
+                        ModifiedDate = DateTime.Now
+                    };
                 context.ProductCategories.Add(productCategory);
-                var productSubCategory = new ProductSubCategory()
-                {
-                    Name = "psc",
-                    RowGuid = runGuid,
-                    ModifiedDate = DateTime.Now,
-                    Category = productCategory
-                };
+                var productSubCategory = new ProductSubCategory
+                    {
+                        Name = "psc",
+                        RowGuid = runGuid,
+                        ModifiedDate = DateTime.Now,
+                        Category = productCategory
+                    };
                 context.ProductSubCategories.Add(productSubCategory);
-                var product = new Product()
-                {
-                    Name = "Test product " + productIterator,
-                    ProductNumber = productIterator.ToString(CultureInfo.InvariantCulture),
-                    MakeFlag = false,
-                    FinishedGoodsFlag = true,
-                    Color = "Berengene",
-                    SafetyStockLevel = 5,
-                    ReorderPoint = 3,
-                    StandardCost = 100,
-                    ListPrice = (decimal)244.99,
-                    Size = "XXXL",
-                    SizeUnitMeasureCode = "US",
-                    Weight = null,
-                    DaysToManufacture = 13,
-                    ProductLine = "1",
-                    Class = "Test product",
-                    Style = "A lot of it",
-                    SellStartDate = DateTime.Now,
-                    SellEndDate = null,
-                    DiscontinuedDate = null,
-                    RowGuid = runGuid,
-                    ModifiedDate = DateTime.Now,
-                    Model = productModel,
-                    SubCategory = productSubCategory
-                };
+                var product = new Product
+                    {
+                        Name = "Test product " + productIterator,
+                        ProductNumber = productIterator.ToString(CultureInfo.InvariantCulture),
+                        MakeFlag = false,
+                        FinishedGoodsFlag = true,
+                        Color = "Berengene",
+                        SafetyStockLevel = 5,
+                        ReorderPoint = 3,
+                        StandardCost = 100,
+                        ListPrice = (decimal)244.99,
+                        Size = "XXXL",
+                        SizeUnitMeasureCode = "US",
+                        Weight = null,
+                        DaysToManufacture = 13,
+                        ProductLine = "1",
+                        Class = "Test product",
+                        Style = "A lot of it",
+                        SellStartDate = DateTime.Now,
+                        SellEndDate = null,
+                        DiscontinuedDate = null,
+                        RowGuid = runGuid,
+                        ModifiedDate = DateTime.Now,
+                        Model = productModel,
+                        SubCategory = productSubCategory
+                    };
                 context.Products.Add(product);
                 context.SaveChanges();
             }

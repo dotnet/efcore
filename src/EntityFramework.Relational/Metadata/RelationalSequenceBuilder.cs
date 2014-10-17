@@ -22,12 +22,12 @@ namespace Microsoft.Data.Entity.Relational.Metadata
             var model = (Entity.Metadata.Model)_sequence.Model;
 
             _sequence = new Sequence(
-                _sequence.Name, 
-                _sequence.Schema, 
-                _sequence.StartValue, 
-                increment, 
-                _sequence.MinValue, 
-                _sequence.MaxValue, 
+                _sequence.Name,
+                _sequence.Schema,
+                _sequence.StartValue,
+                increment,
+                _sequence.MinValue,
+                _sequence.MaxValue,
                 _sequence.Type);
 
             model.Relational().AddOrReplaceSequence(_sequence);

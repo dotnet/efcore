@@ -9,7 +9,6 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Query;
 using Remotion.Linq.Parsing;
 
@@ -189,7 +188,7 @@ namespace Northwind
 
         public Customer Customer { get; set; }
 
-        public virtual ICollection<OrderDetail> OrderDetails { get; set; } 
+        public virtual ICollection<OrderDetail> OrderDetails { get; set; }
 
         protected bool Equals(Order other)
         {

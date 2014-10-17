@@ -10,7 +10,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata
     public class ReadOnlyRelationalModelExtensions : IRelationalModelExtensions
     {
         protected const string RelationalSequenceAnnotation = RelationalAnnotationNames.Prefix + RelationalAnnotationNames.Sequence;
-        
+
         private readonly IModel _model;
 
         public ReadOnlyRelationalModelExtensions([NotNull] IModel model)

@@ -61,7 +61,6 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             Assert.False(await creator.EnsureCreatedAsync(model));
         }
 
-
         [Fact]
         public async Task EnsureCreatedAsync_returns_true_for_first_use_of_non_persistent_database_and_false_thereafter()
         {
@@ -161,10 +160,10 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder.Entity<Test>(b =>
-            {
-                b.Key(c => c.Id);
-                b.Property(c => c.Name);
-            });
+                {
+                    b.Key(c => c.Id);
+                    b.Property(c => c.Name);
+                });
 
             return model;
         }

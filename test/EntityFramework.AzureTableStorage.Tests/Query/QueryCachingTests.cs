@@ -52,8 +52,8 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
         {
             AssertQuery<Customer>(Times.Once(), cs =>
                 (from c in cs
-                 orderby cs.Any(c2 => c2.CustomerID == c.CustomerID)
-                 select c).AsNoTracking());
+                    orderby cs.Any(c2 => c2.CustomerID == c.CustomerID)
+                    select c).AsNoTracking());
         }
 
         private void AssertQuery<T>(Times times, Expression<Func<DbSet<T>, IQueryable>> expression) where T : class, new()

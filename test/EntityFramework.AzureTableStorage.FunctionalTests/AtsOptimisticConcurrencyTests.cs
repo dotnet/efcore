@@ -11,7 +11,6 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
-using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
 {

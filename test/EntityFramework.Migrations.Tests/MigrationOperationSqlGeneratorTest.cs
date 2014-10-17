@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Linq;
 using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Relational;
@@ -92,9 +91,9 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                         c1 = new Column("C1", "varchar"),
                         c2 = new Column("C2", "varchar")
                     })
-            {
-                PrimaryKey = new PrimaryKey("MyPK", new[] { foo }, isClustered: false)
-            };
+                {
+                    PrimaryKey = new PrimaryKey("MyPK", new[] { foo }, isClustered: false)
+                };
             table.AddUniqueConstraint(new UniqueConstraint("MyUC0", new[] { c1 }));
             table.AddUniqueConstraint(new UniqueConstraint("MyUC1", new[] { bar, c2 }));
 
@@ -284,7 +283,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         public void Generate_when_copy_data_operation()
         {
             Assert.Equal(
-@"INSERT INTO ""dbo"".""T2"" ( ""C"", ""D"" )
+                @"INSERT INTO ""dbo"".""T2"" ( ""C"", ""D"" )
     SELECT ""A"", ""B"" FROM ""dbo"".""T1""",
                 Generate(new CopyDataOperation("dbo.T1", new[] { "A", "B" }, "dbo.T2", new[] { "C", "D" })).Sql);
         }

@@ -190,7 +190,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
         {
             Assert.Equal(
                 "UPDATE " + OpenDelimeter + "dbo" + CloseDelimeter + "." + OpenDelimeter + "Ducks" + CloseDelimeter + " SET " + OpenDelimeter + "Name" + CloseDelimeter +
-                " = @p0, " + OpenDelimeter + "Quacks" + CloseDelimeter + " = @p1, " + OpenDelimeter + "ConcurrencyToken" + CloseDelimeter + " = @p2" + Environment.NewLine + 
+                " = @p0, " + OpenDelimeter + "Quacks" + CloseDelimeter + " = @p1, " + OpenDelimeter + "ConcurrencyToken" + CloseDelimeter + " = @p2" + Environment.NewLine +
                 "WHERE " + OpenDelimeter + "Id" + CloseDelimeter + " = @p3 AND " + OpenDelimeter + "ConcurrencyToken" + CloseDelimeter + " = @p4;" + Environment.NewLine +
                 "SELECT " + OpenDelimeter + "Computed" + CloseDelimeter + "" + Environment.NewLine +
                 "FROM " + OpenDelimeter + "dbo" + CloseDelimeter + "." + OpenDelimeter + "Ducks" + CloseDelimeter + "" + Environment.NewLine +

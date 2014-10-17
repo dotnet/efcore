@@ -47,7 +47,6 @@ namespace Microsoft.Data.Entity.SQLite.Utilities
         public static T IsDefined<T>(T value, [InvokerParameterName] [NotNull] string parameterName)
             where T : struct
         {
-
             if (!Enum.IsDefined(typeof(T), value))
             {
                 NotEmpty(parameterName, "parameterName");

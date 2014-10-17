@@ -12,7 +12,6 @@ using Microsoft.Data.Entity.Commands.Utilities;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Relational;
-using Microsoft.Framework.DependencyInjection;
 
 namespace Microsoft.Data.Entity.Commands
 {
@@ -155,8 +154,8 @@ namespace Microsoft.Data.Entity.Commands
             return ContextTool.GetContextTypes(_assembly)
                 .Concat(
                     GetMigrationTypes()
-                    .Select(MigrationAssembly.TryGetContextType)
-                    .Where(t => t != null))
+                        .Select(MigrationAssembly.TryGetContextType)
+                        .Where(t => t != null))
                 .Distinct();
         }
 

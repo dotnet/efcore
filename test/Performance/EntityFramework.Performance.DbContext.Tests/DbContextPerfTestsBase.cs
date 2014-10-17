@@ -1,22 +1,21 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using System.Collections.Generic;
+using System.Data.SqlClient;
+using System.Diagnostics;
+using System.Linq;
+using DbContextPerfTests.Model;
+using Microsoft.Data.Entity;
+using Microsoft.Framework.ConfigurationModel;
+using Microsoft.Framework.DependencyInjection;
+using Microsoft.Framework.DependencyInjection.Advanced;
+using Microsoft.Framework.DependencyInjection.Fallback;
+using Microsoft.Framework.Logging;
+
 namespace DbContextPerfTests
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Data.SqlClient;
-    using System.Diagnostics;
-    using System.Linq;
-    using Microsoft.Data.Entity;
-    using Microsoft.Framework.ConfigurationModel;
-    using Microsoft.Framework.DependencyInjection;
-    using Microsoft.Framework.DependencyInjection.Advanced;
-    using Microsoft.Framework.DependencyInjection.Fallback;
-    using Microsoft.Framework.Logging;
-    using Model;
-
-
     public class DbContextPerfTestsBase
     {
         protected const int OuterLoop = 10;
@@ -73,11 +72,11 @@ namespace DbContextPerfTests
                 {
                     for (var insertId = 1; insertId < productModelCount; ++insertId)
                     {
-                        var newProductModel = new DbProductModel()
-                        {
-                            Name = "TEST_INSERTS",
-                            ProductModelID = insertId
-                        };
+                        var newProductModel = new DbProductModel
+                            {
+                                Name = "TEST_INSERTS",
+                                ProductModelID = insertId
+                            };
                         advWorks.ProductModels.Add(newProductModel);
                     }
                     advWorks.SaveChanges();
@@ -91,11 +90,11 @@ namespace DbContextPerfTests
                     for (var insertId = 1; insertId < productCount; insertId++)
                     {
                         var product = new DbProduct
-                        {
-                            ProductID = insertId++,
-                            Name = "TEST_INSERTS",
-                            DaysToManufacture = 5
-                        };
+                            {
+                                ProductID = insertId++,
+                                Name = "TEST_INSERTS",
+                                DaysToManufacture = 5
+                            };
                         productModel.Products.Add(product);
 
                         productSet.Add(product);
@@ -130,11 +129,11 @@ namespace DbContextPerfTests
             for (var i = 0; i < numRows; i++)
             {
                 var product = new DbProduct
-                {
-                    ProductID = insertId++,
-                    Name = "TEST_INSERTS",
-                    DaysToManufacture = 5
-                };
+                    {
+                        ProductID = insertId++,
+                        Name = "TEST_INSERTS",
+                        DaysToManufacture = 5
+                    };
                 productModel.Products.Add(product);
 
                 productSet.Add(product);
@@ -196,11 +195,11 @@ namespace DbContextPerfTests
                     for (var j = 0; j < InnerLoopLarge; j++)
                     {
                         var product = new DbProduct
-                        {
-                            ProductID = insertId++,
-                            Name = "TEST_INSERTS",
-                            DaysToManufacture = 5
-                        };
+                            {
+                                ProductID = insertId++,
+                                Name = "TEST_INSERTS",
+                                DaysToManufacture = 5
+                            };
                         productModel.Products.Add(product);
                     }
 

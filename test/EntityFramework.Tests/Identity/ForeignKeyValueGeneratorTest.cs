@@ -198,10 +198,10 @@ namespace Microsoft.Data.Entity.Tests.Identity
             var builder = new ModelBuilder(model);
 
             builder.Entity<Product>(b =>
-            {
-                b.OneToMany(e => e.OrderLines, e => e.Product);
-                b.OneToOne(e => e.Detail, e => e.Product);
-            });
+                {
+                    b.OneToMany(e => e.OrderLines, e => e.Product);
+                    b.OneToOne(e => e.Detail, e => e.Product);
+                });
 
             builder.Entity<Category>().OneToMany(e => e.Products, e => e.Category);
 
@@ -212,10 +212,10 @@ namespace Microsoft.Data.Entity.Tests.Identity
             builder.Entity<OrderLineDetail>().Key(e => new { e.OrderId, e.ProductId });
 
             builder.Entity<OrderLine>(b =>
-            {
-                b.Key(e => new { e.OrderId, e.ProductId });
-                b.OneToOne(e => e.Detail, e => e.OrderLine);
-            });
+                {
+                    b.Key(e => new { e.OrderId, e.ProductId });
+                    b.OneToOne(e => e.Detail, e => e.OrderLine);
+                });
 
             return model;
         }

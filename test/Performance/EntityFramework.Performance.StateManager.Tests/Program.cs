@@ -1,14 +1,14 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using Microbenchmarks.Core;
+
 namespace StateManager
 {
-    using System;
-    using Microbenchmarks.Core;
-
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             var runner = new PerfTestRunner();
 
@@ -27,14 +27,14 @@ namespace StateManager
                 });*/
 
             runner.Register(
-                new TestDefinition()
-                {
-                    TestName = "RelationshipFixup",
-                    WarmupCount = 10,
-                    IterationCount = 100,
-                    Run = tests.RelationshipFixup,
-                    Setup = tests.Setup
-                });
+                new TestDefinition
+                    {
+                        TestName = "RelationshipFixup",
+                        WarmupCount = 10,
+                        IterationCount = 100,
+                        Run = tests.RelationshipFixup,
+                        Setup = tests.Setup
+                    });
 
             string resultDirectory;
 
@@ -45,7 +45,8 @@ namespace StateManager
             else
             {
                 resultDirectory = args[0];
-                if (args.Length == 0 || string.IsNullOrEmpty(resultDirectory))
+                if (args.Length == 0
+                    || string.IsNullOrEmpty(resultDirectory))
                 {
                     resultDirectory = ".";
                 }

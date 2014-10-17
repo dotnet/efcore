@@ -3,7 +3,6 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity;
-using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.SQLite;

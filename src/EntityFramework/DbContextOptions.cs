@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity
         private bool _locked;
         private IModel _model;
         private readonly List<DbContextOptionsExtension> _extensions = new List<DbContextOptionsExtension>();
-        private readonly IDictionary<string, string> _rawOptions = new Dictionary<string, string>(); 
+        private readonly IDictionary<string, string> _rawOptions = new Dictionary<string, string>();
 
         public virtual DbContextOptions UseModel([NotNull] IModel model)
         {
