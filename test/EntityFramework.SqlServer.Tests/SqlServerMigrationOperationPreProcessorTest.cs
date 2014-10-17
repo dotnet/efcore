@@ -394,6 +394,49 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             Assert.IsType<DropColumnOperation>(operations[1]);
         }
 
+        [Fact]
+        public void Visit_with_drop_table_operation_drops_foreign_keys_referencing_the_table()
+        {
+            var modelBuilder = new BasicModelBuilder();
+            modelBuilder.Entity("A",
+                b =>
+                {
+                    b.Property<int>("Id");
+                    b.Key("Id");
+                });
+            modelBuilder.Entity("B",
+                b =>
+                {
+                    b.Property<int>("Id");
+                    b.Key("Id");
+                });
+            modelBuilder.Entity("C",
+                b =>
+                {
+                    b.Property<int>("Id");
+                    b.Property<int>("P1");
+                    b.Property<int>("P2");
+                    b.Key("Id");
+                    b.ForeignKey("A", "P1").ForRelational().Name("FKA");
+                    b.ForeignKey("B", "P2").ForRelational().Name("FKB");
+                });
+
+            var dropTableOperation = new DropTableOperation("A");
+
+            var operations = PreProcess(modelBuilder, dropTableOperation);
+
+            Assert.Equal(2, operations.Count);
+
+            Assert.IsType<DropForeignKeyOperation>(operations[0]);
+            Assert.IsType<DropTableOperation>(operations[1]);
+
+            var dropForeignKeyOperation = (DropForeignKeyOperation)operations[0];
+
+            Assert.Equal("C", dropForeignKeyOperation.TableName);
+            Assert.Equal("FKA", dropForeignKeyOperation.ForeignKeyName);
+            Assert.Same(dropTableOperation, operations[1]);
+        }
+
         private static IReadOnlyList<MigrationOperation> PreProcess(BasicModelBuilder modelBuilder, params MigrationOperation[] operations)
         {
             return PreProcess(new SqlServerDatabaseBuilder(new SqlServerTypeMapper()).GetDatabase(modelBuilder.Model), operations);

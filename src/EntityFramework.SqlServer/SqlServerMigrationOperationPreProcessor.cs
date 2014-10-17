@@ -14,6 +14,27 @@ namespace Microsoft.Data.Entity.SqlServer
 {
     public class SqlServerMigrationOperationPreProcessor : MigrationOperationVisitor<SqlServerMigrationOperationPreProcessor.Context>
     {
+        public override void Visit(DropTableOperation dropTableOperation, Context context)
+        {
+            Check.NotNull(dropTableOperation, "dropTableOperation");
+            Check.NotNull(context, "context");
+
+            var compositeOperation = new CompositeOperation();
+
+            var database = context.Generator.Database;
+            var table = database.GetTable(dropTableOperation.TableName);
+
+            compositeOperation.AddOperations(
+                database.Tables
+                    .SelectMany(t => t.ForeignKeys)
+                    .Where(fk => ReferenceEquals(fk.ReferencedTable, table))
+                    .Select(fk => new DropForeignKeyOperation(fk.Table.Name, fk.Name)));
+
+            compositeOperation.AddOperation(dropTableOperation);
+
+            context.HandleCompositeOperation(compositeOperation);
+        }
+
         public override void Visit(DropColumnOperation dropColumnOperation, Context context)
         {
             Check.NotNull(dropColumnOperation, "dropColumnOperation");
@@ -206,6 +227,13 @@ namespace Microsoft.Data.Entity.SqlServer
                 Check.NotNull(operation, "operation");
 
                 _operations.Add(operation);
+            }
+
+            public virtual void AddOperations([NotNull] IEnumerable<MigrationOperation> operations)
+            {
+                Check.NotNull(operations, "operations");
+
+                _operations.AddRange(operations);
             }
         }
 

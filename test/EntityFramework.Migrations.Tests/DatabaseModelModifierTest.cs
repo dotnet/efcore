@@ -100,6 +100,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             var dependent = new Table("T1", new[] { column1, column2 });
 
             dependent.PrimaryKey = new PrimaryKey("PK", new[] { column1 }, isClustered: false);
+            dependent.AddUniqueConstraint(new UniqueConstraint("UC", new[] { column2 }));
             dependent.AddForeignKey(new ForeignKey("FK", new[] { column1 }, new[] { column0 }));
             dependent.AddIndex(new Index("IX", new[] { column2 }));
 
@@ -120,6 +121,10 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             Assert.Equal("PK", model.Tables[0].PrimaryKey.Name);
             Assert.Equal(new[] { "Id" }, model.Tables[0].PrimaryKey.Columns.Select(c => c.Name));
             Assert.False(model.Tables[0].PrimaryKey.IsClustered);
+
+            Assert.Equal(1, model.Tables[0].UniqueConstraints.Count);
+            Assert.Equal("UC", model.Tables[0].UniqueConstraints[0].Name);
+            Assert.Equal(new[] { "C" }, model.Tables[0].UniqueConstraints[0].Columns.Select(c => c.Name));
 
             Assert.Equal(0, model.Tables[0].ForeignKeys.Count);
             Assert.Equal(0, model.Tables[0].Indexes.Count);

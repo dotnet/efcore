@@ -84,6 +84,13 @@ namespace Microsoft.Data.Entity.Migrations
             Check.NotNull(createTableOperation, "createTableOperation");
             Check.NotNull(databaseModel, "databaseModel");
 
+            // TODO: Revisit, figure out a better place to put the cloning code below, 
+            // or find a solution that doesn't require it.
+            // Currently the table passed to CreateTable operation contains foreign keys
+            // and indexes. The foreign keys are need to be able to determine the correct
+            // data type of a column. However the differ creates separate operations for
+            // creating these foreign keys and indexes.
+
             var cloneContext = new CloneContext();
             var table
                 = new Table(
@@ -93,6 +100,11 @@ namespace Microsoft.Data.Entity.Migrations
             if (createTableOperation.Table.PrimaryKey != null)
             {
                 table.PrimaryKey = createTableOperation.Table.PrimaryKey.Clone(cloneContext);
+            }
+
+            foreach (var uniqueConstraint in createTableOperation.Table.UniqueConstraints)
+            {
+                table.AddUniqueConstraint(uniqueConstraint.Clone(cloneContext));
             }
 
             databaseModel.AddTable(table);
