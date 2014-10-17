@@ -67,7 +67,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity.Tests
 
             TestServer server = TestServer.Create(app =>
             {
-                app.UseServices(services =>
+                app.UsePerRequestServices(services =>
                     {
                         services.AddEntityFramework().AddSqlServer();
                         services.AddScoped<BloggingContextWithMigrations>();
@@ -152,7 +152,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity.Tests
         {
             var server = TestServer.Create(app =>
             {
-                app.UseServices(services =>
+                app.UsePerRequestServices(services =>
                 {
                     services.AddEntityFramework().AddSqlServer();
                 });
@@ -180,7 +180,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity.Tests
 
             TestServer server = TestServer.Create(app =>
             {
-                app.UseServices(services =>
+                app.UsePerRequestServices(services =>
                 {
                     services.AddEntityFramework().AddSqlServer();
                     services.AddScoped<BloggingContextWithSnapshotThatThrows>();
