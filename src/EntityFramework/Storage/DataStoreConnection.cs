@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.Storage
         {
             Check.NotNull(loggerFactory, "loggerFactory");
 
-            _logger = new LazyRef<ILogger>(() => loggerFactory.Create(GetType().Name));
+            _logger = new LazyRef<ILogger>(() => loggerFactory.Create<DataStoreConnection>());
         }
 
         protected virtual ILogger Logger

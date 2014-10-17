@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.InMemory
         {
             var factory = (loggerFactories == null ? null : loggerFactories.FirstOrDefault()) ?? new LoggerFactory();
 
-            _logger = factory.Create(typeof(InMemoryDatabase).Name);
+            _logger = factory.Create<InMemoryDatabase>();
         }
 
         /// <summary>

@@ -61,7 +61,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             _ddlSqlGeneratorFactory = ddlSqlGeneratorFactory;
             _dmlSqlGenerator = dmlSqlGenerator;
             _sqlExecutor = sqlExecutor;
-            _logger = new LazyRef<ILogger>(() => ContextConfiguration.LoggerFactory.Create(GetType().Name));
+            _logger = new LazyRef<ILogger>(() => ContextConfiguration.LoggerFactory.Create<Migrator>());
         }
 
         protected virtual DbContextConfiguration ContextConfiguration

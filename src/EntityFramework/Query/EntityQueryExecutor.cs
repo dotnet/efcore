@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.Query
             Check.NotNull(context, "context");
 
             _context = context;
-            _logger = new LazyRef<ILogger>(() => (_context.Configuration.LoggerFactory.Create("EntityQueryExecutor")));
+            _logger = new LazyRef<ILogger>(() => (_context.Configuration.LoggerFactory.Create<EntityQueryExecutor>()));
         }
 
         public virtual T ExecuteScalar<T>([NotNull] QueryModel queryModel)

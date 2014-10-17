@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Infrastructure
             Check.NotNull(configuration, "configuration");
 
             _configuration = configuration;
-            _logger = new LazyRef<ILogger>(() => Configuration.LoggerFactory.Create(GetType().Name));
+            _logger = new LazyRef<ILogger>(() => Configuration.LoggerFactory.Create<Database>());
         }
 
         protected virtual DbContextConfiguration Configuration

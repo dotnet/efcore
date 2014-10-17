@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.Storage
             Check.NotNull(configuration, "configuration");
 
             _configuration = configuration;
-            _logger = configuration.LoggerFactory.Create(GetType().Name);
+            _logger = configuration.LoggerFactory.Create<DataStore>();
         }
 
         public virtual ILogger Logger

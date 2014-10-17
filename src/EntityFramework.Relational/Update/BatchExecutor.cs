@@ -38,7 +38,7 @@ namespace Microsoft.Data.Entity.Relational.Update
 
             _typeMapper = typeMapper;
             _context = contextConfiguration.Context;
-            _logger = new LazyRef<ILogger>(() => (_context.Configuration.LoggerFactory.Create(GetType().Name)));
+            _logger = new LazyRef<ILogger>(() => (_context.Configuration.LoggerFactory.Create<BatchExecutor>()));
         }
 
         protected virtual ILogger Logger

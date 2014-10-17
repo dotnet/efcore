@@ -39,6 +39,7 @@
   <ItemGroup>
     <PackageReference Include="System.Data.Common" />
     <PackageReference Include="Microsoft.Framework.DependencyInjection" />
+    <PackageReference Include="Microsoft.Framework.Logging" />
     <PackageReference Include="Microsoft.Framework.Logging.Interfaces" />
   </ItemGroup>
   <ItemGroup>
