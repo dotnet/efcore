@@ -2,6 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
+using System.Reflection;
+using System.Runtime.ExceptionServices;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Utilities;
@@ -24,7 +26,19 @@ namespace Microsoft.Data.Entity.Storage
 
         public override DataStoreServices StoreServices
         {
-            get { return _configuration.Services.ServiceProvider.GetService<TStoreServices>(); }
+            get
+            {
+                try
+                {
+                    return _configuration.Services.ServiceProvider.GetService<TStoreServices>();
+                }
+                catch (TargetInvocationException ex)
+                {
+                    // See DependencyInjection Issue #127
+                    ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+                    return null;
+                }
+            }
         }
 
         public override bool IsConfigured
@@ -34,9 +48,12 @@ namespace Microsoft.Data.Entity.Storage
 
         public override bool IsAvailable
         {
-            // TODO: Consider finding connection string in config file by convention
-            // Issue #763
             get { return IsConfigured; }
+        }
+
+        public override DbContextOptions ContextOptions
+        {
+            get { return (DbContextOptions)_configuration.ContextOptions; }
         }
     }
 }

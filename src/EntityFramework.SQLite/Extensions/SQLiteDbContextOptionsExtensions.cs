@@ -29,8 +29,7 @@ namespace Microsoft.Data.Entity
             return (DbContextOptions<T>)UseSQLite((DbContextOptions)options, connectionString);
         }
 
-        // TODO: Use SQLiteConnection instead of DbConnection?
-        // Issue #772
+        // Note: Decision made to use DbConnection not SQLiteConnection: Issue #772
         public static DbContextOptions UseSQLite([NotNull] this DbContextOptions options, [NotNull] DbConnection connection)
         {
             Check.NotNull(options, "options");
@@ -42,8 +41,7 @@ namespace Microsoft.Data.Entity
             return options;
         }
 
-        // TODO: Use SQLiteConnection instead of DbConnection?
-        // Issue #772
+        // Note: Decision made to use DbConnection not SQLiteConnection: Issue #772
         public static DbContextOptions<T> UseSQLite<T>([NotNull] this DbContextOptions<T> options, [NotNull] DbConnection connection)
         {
             return (DbContextOptions<T>)UseSQLite((DbContextOptions)options, connection);

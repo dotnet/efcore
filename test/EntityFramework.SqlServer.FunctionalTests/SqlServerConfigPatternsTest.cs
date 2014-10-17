@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Relational;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Advanced;
 using Microsoft.Framework.DependencyInjection.Fallback;
@@ -174,7 +175,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     var serviceProvider = serviceCollection.BuildServiceProvider();
 
                     Assert.Equal(
-                        GetString("FormatNoDataStoreConfigured"),
+                        GetRelationalString("FormatNoConnectionOrConnectionString"),
                         Assert.Throws<InvalidOperationException>(() =>
                             {
                                 using (var context = new NorthwindContext(serviceProvider))
@@ -711,6 +712,12 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         private static string GetString(string stringName)
         {
             var strings = typeof(DbContext).GetTypeInfo().Assembly.GetType(typeof(DbContext).Namespace + ".Strings");
+            return (string)strings.GetTypeInfo().GetDeclaredMethods(stringName).Single().Invoke(null, null);
+        }
+
+        private static string GetRelationalString(string stringName)
+        {
+            var strings = typeof(RelationalConnection).GetTypeInfo().Assembly.GetType(typeof(RelationalConnection).Namespace + ".Strings");
             return (string)strings.GetTypeInfo().GetDeclaredMethods(stringName).Single().Invoke(null, null);
         }
     }

@@ -102,6 +102,7 @@ namespace Microsoft.Data.Entity.Tests.Storage
             sourceMock.Setup(m => m.IsAvailable).Returns(available);
             sourceMock.Setup(m => m.StoreServices).Returns(services);
             sourceMock.Setup(m => m.Name).Returns(name);
+            sourceMock.Setup(m => m.ContextOptions).Returns(new DbContextOptions());
 
             return sourceMock.Object;
         }

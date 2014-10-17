@@ -49,6 +49,9 @@
     <PackageReference Include="Microsoft.Framework.Logging">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
+    <PackageReference Include="Microsoft.Framework.OptionsModel">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
     <PackageReference Include="Microsoft.Framework.Logging.Interfaces">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
@@ -73,6 +76,7 @@
     <Compile Include="AsNoTrackingTest.cs" />
     <Compile Include="BuiltInDataTypesFixture.cs" />
     <Compile Include="BuiltInDataTypesTest.cs" />
+    <Compile Include="ConnectionSpecificationTest.cs" />
     <Compile Include="ConnectionStringTest.cs" />
     <Compile Include="CompositeKeyEndToEndTest.cs" />
     <Compile Include="DeadlockTest.cs" />

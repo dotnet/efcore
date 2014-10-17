@@ -39,8 +39,7 @@ namespace Microsoft.Data.Entity
             return (DbContextOptions<T>)UseSqlServer((DbContextOptions)options, connectionString);
         }
 
-        // TODO: Use SqlConnection instead of DbConnection?
-        // Issue #772
+        // Note: Decision made to use DbConnection not SqlConnection: Issue #772
         public static DbContextOptions UseSqlServer([NotNull] this DbContextOptions options, [NotNull] DbConnection connection)
         {
             Check.NotNull(options, "options");
@@ -52,8 +51,7 @@ namespace Microsoft.Data.Entity
             return options;
         }
 
-        // TODO: Use SqlConnection instead of DbConnection?
-        // Issue #772
+        // Note: Decision made to use DbConnection not SqlConnection: Issue #772
         public static DbContextOptions<T> UseSqlServer<T>([NotNull] this DbContextOptions<T> options, [NotNull] DbConnection connection)
         {
             return (DbContextOptions<T>)UseSqlServer((DbContextOptions)options, connection);

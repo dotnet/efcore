@@ -463,6 +463,7 @@ namespace Microsoft.Data.Entity.Tests
             sourceMock.Setup(m => m.IsAvailable).Returns(true);
             sourceMock.Setup(m => m.IsConfigured).Returns(true);
             sourceMock.Setup(m => m.StoreServices).Returns(servicesMock.Object);
+            sourceMock.Setup(m => m.ContextOptions).Returns(new DbContextOptions());
 
             var services = new ServiceCollection();
             services.AddEntityFramework();
@@ -503,6 +504,7 @@ namespace Microsoft.Data.Entity.Tests
             sourceMock.Setup(m => m.IsAvailable).Returns(true);
             sourceMock.Setup(m => m.IsConfigured).Returns(true);
             sourceMock.Setup(m => m.StoreServices).Returns(servicesMock.Object);
+            sourceMock.Setup(m => m.ContextOptions).Returns(new DbContextOptions());
 
             var services = new ServiceCollection();
             services.AddEntityFramework();
@@ -547,6 +549,7 @@ namespace Microsoft.Data.Entity.Tests
             sourceMock.Setup(m => m.IsAvailable).Returns(true);
             sourceMock.Setup(m => m.IsConfigured).Returns(true);
             sourceMock.Setup(m => m.StoreServices).Returns(servicesMock.Object);
+            sourceMock.Setup(m => m.ContextOptions).Returns(new DbContextOptions());
 
             var services = new ServiceCollection();
             services.AddEntityFramework();

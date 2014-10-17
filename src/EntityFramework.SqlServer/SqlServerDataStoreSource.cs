@@ -18,5 +18,10 @@ namespace Microsoft.Data.Entity.SqlServer
         {
             get { return typeof(SqlServerDataStore).Name; }
         }
+
+        public override void AutoConfigure()
+        {
+            ContextOptions.UseSqlServer();
+        }
     }
 }

@@ -115,7 +115,6 @@ namespace Microsoft.Data.Entity
             {
                 OnConfiguring(options);
             }
-            options.Lock();
 
             var providerSource = serviceProvider != null
                 ? DbContextConfiguration.ServiceProviderSource.Explicit

@@ -1,0 +1,706 @@
+// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using System;
+using System.Data.SqlClient;
+using System.Linq;
+using System.Reflection;
+using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Relational;
+using Microsoft.Framework.ConfigurationModel;
+using Microsoft.Framework.DependencyInjection;
+using Microsoft.Framework.DependencyInjection.Fallback;
+using Microsoft.Framework.Logging;
+using Microsoft.Framework.OptionsModel;
+using Xunit;
+
+namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
+{
+    public class ConnectionSpecificationTest
+    {
+        [Fact]
+        public async void Can_specify_connection_string_in_OnConfiguring()
+        {
+            var serviceCollection = new ServiceCollection();
+            serviceCollection
+                .AddSingleton<ITypeActivator, TypeActivator>()
+                .AddSingleton<ILoggerFactory, LoggerFactory>()
+                .Add(OptionsServices.GetDefaultServices())
+                .AddEntityFramework()
+                .AddSqlServer()
+                .AddDbContext<StringInOnConfiguringContext>();
+
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+
+            using (await SqlServerTestDatabase.Northwind())
+            {
+                using (var context = serviceProvider.GetService<StringInOnConfiguringContext>())
+                {
+                    Assert.True(context.Customers.Any());
+                }
+            }
+        }
+
+        [Fact]
+        public async void Can_specify_connection_string_in_OnConfiguring_with_default_service_provider()
+        {
+            using (await SqlServerTestDatabase.Northwind())
+            {
+                using (var context = new StringInOnConfiguringContext())
+                {
+                    Assert.True(context.Customers.Any());
+                }
+            }
+        }
+
+        private class StringInOnConfiguringContext : NorthwindContextBase
+        {
+            protected override void OnConfiguring(DbContextOptions options)
+            {
+                options.UseSqlServer(SqlServerTestDatabase.NorthwindConnectionString);
+            }
+        }
+
+        [Fact]
+        public async void Can_specify_connection_in_OnConfiguring()
+        {
+            var serviceCollection = new ServiceCollection();
+            serviceCollection
+                .AddSingleton<ITypeActivator, TypeActivator>()
+                .AddSingleton<ILoggerFactory, LoggerFactory>()
+                .Add(OptionsServices.GetDefaultServices())
+                .AddScoped<SqlConnection>(p => new SqlConnection(SqlServerTestDatabase.NorthwindConnectionString))
+                .AddEntityFramework()
+                .AddSqlServer()
+                .AddDbContext<ConnectionInOnConfiguringContext>();
+
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+
+            using (await SqlServerTestDatabase.Northwind())
+            {
+                using (var context = serviceProvider.GetService<ConnectionInOnConfiguringContext>())
+                {
+                    Assert.True(context.Customers.Any());
+                }
+            }
+        }
+
+        [Fact]
+        public async void Can_specify_connection_in_OnConfiguring_with_default_service_provider()
+        {
+            using (await SqlServerTestDatabase.Northwind())
+            {
+                using (var context = new ConnectionInOnConfiguringContext(new SqlConnection(SqlServerTestDatabase.NorthwindConnectionString)))
+                {
+                    Assert.True(context.Customers.Any());
+                }
+            }
+        }
+
+        private class ConnectionInOnConfiguringContext : NorthwindContextBase
+        {
+            private readonly SqlConnection _connection;
+
+            public ConnectionInOnConfiguringContext(SqlConnection connection)
+            {
+                _connection = connection;
+            }
+
+            protected override void OnConfiguring(DbContextOptions options)
+            {
+                options.UseSqlServer(_connection);
+            }
+
+            public override void Dispose()
+            {
+                _connection.Dispose();
+                base.Dispose();
+            }
+        }
+
+        [Fact]
+        public async void Can_specify_dereferenced_connection_string_in_config()
+        {
+            var configuration = new Configuration
+                {
+                    new MemoryConfigurationSource
+                        {
+                            {
+                                "Data:DefaultConnection:ConnectionString", SqlServerTestDatabase.NorthwindConnectionString
+                            },
+                            {
+                                "EntityFramework:" + typeof(StringInConfigContext).Name + ":ConnectionStringKey", "Data:DefaultConnection:ConnectionString"
+                            }
+                        }
+                };
+
+            var serviceCollection = new ServiceCollection();
+            serviceCollection
+                .AddSingleton<ITypeActivator, TypeActivator>()
+                .AddSingleton<ILoggerFactory, LoggerFactory>()
+                .Add(OptionsServices.GetDefaultServices())
+                .AddEntityFramework(configuration)
+                .AddSqlServer()
+                .AddDbContext<StringInConfigContext>();
+
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+
+            using (await SqlServerTestDatabase.Northwind())
+            {
+                using (var context = serviceProvider.GetService<StringInConfigContext>())
+                {
+                    Assert.True(context.Customers.Any());
+                }
+            }
+        }
+
+        [Fact]
+        public async void Can_specify_connection_string_in_config()
+        {
+            var configuration = new Configuration
+                {
+                    new MemoryConfigurationSource
+                        {
+                            {
+                                "EntityFramework:" + typeof(StringInConfigContext).Name + ":ConnectionString", SqlServerTestDatabase.NorthwindConnectionString
+                            }
+                        }
+                };
+
+            var serviceCollection = new ServiceCollection();
+            serviceCollection
+                .AddSingleton<ITypeActivator, TypeActivator>()
+                .AddSingleton<ILoggerFactory, LoggerFactory>()
+                .Add(OptionsServices.GetDefaultServices())
+                .AddEntityFramework(configuration)
+                .AddSqlServer()
+                .AddDbContext<StringInConfigContext>();
+
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+
+            using (await SqlServerTestDatabase.Northwind())
+            {
+                using (var context = serviceProvider.GetService<StringInConfigContext>())
+                {
+                    Assert.True(context.Customers.Any());
+                }
+            }
+        }
+
+        [Fact]
+        public void Throws_if_no_connection_found_in_config()
+        {
+            var configuration = new Configuration
+                {
+                    new MemoryConfigurationSource()
+                };
+
+            var serviceCollection = new ServiceCollection();
+            serviceCollection
+                .AddSingleton<ITypeActivator, TypeActivator>()
+                .AddSingleton<ILoggerFactory, LoggerFactory>()
+                .Add(OptionsServices.GetDefaultServices())
+                .AddEntityFramework(configuration)
+                .AddSqlServer()
+                .AddDbContext<StringInConfigContext>();
+
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+
+            using (var context = serviceProvider.GetService<StringInConfigContext>())
+            {
+                Assert.Equal(
+                    GetRelationalString("FormatNoConnectionOrConnectionString"),
+                    Assert.Throws<InvalidOperationException>(() => context.Customers.Any()).Message);
+            }
+        }
+
+        [Fact]
+        public void Throws_if_no_config()
+        {
+            var serviceCollection = new ServiceCollection();
+            serviceCollection
+                .AddSingleton<ITypeActivator, TypeActivator>()
+                .AddSingleton<ILoggerFactory, LoggerFactory>()
+                .Add(OptionsServices.GetDefaultServices())
+                .AddEntityFramework()
+                .AddSqlServer()
+                .AddDbContext<StringInConfigContext>();
+
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+
+            using (var context = serviceProvider.GetService<StringInConfigContext>())
+            {
+                Assert.Equal(
+                    GetRelationalString("FormatNoConnectionOrConnectionString"),
+                    Assert.Throws<InvalidOperationException>(() => context.Customers.Any()).Message);
+            }
+        }
+
+        [Fact]
+        public void Throws_if_no_config_with_default_service_provider()
+        {
+            using (var context = new StringInConfigContext())
+            {
+                Assert.Equal(
+                    GetRelationalString("FormatNoConnectionOrConnectionString"),
+                    Assert.Throws<InvalidOperationException>(() => context.Customers.Any()).Message);
+            }
+        }
+
+        private class StringInConfigContext : NorthwindContextBase
+        {
+            protected override void OnConfiguring(DbContextOptions options)
+            {
+                options.UseSqlServer();
+            }
+        }
+
+        [Fact]
+        public async void Can_specify_dereferenced_connection_string_in_config_without_UseSqlServer()
+        {
+            var configuration = new Configuration
+                {
+                    new MemoryConfigurationSource
+                        {
+                            {
+                                "Data:DefaultConnection:ConnectionString", SqlServerTestDatabase.NorthwindConnectionString
+                            },
+                            {
+                                "EntityFramework:" + typeof(NoUseSqlServerContext).Name + ":ConnectionStringKey", "Data:DefaultConnection:ConnectionString"
+                            }
+                        }
+                };
+
+            var serviceCollection = new ServiceCollection();
+            serviceCollection
+                .AddSingleton<ITypeActivator, TypeActivator>()
+                .AddSingleton<ILoggerFactory, LoggerFactory>()
+                .Add(OptionsServices.GetDefaultServices())
+                .AddEntityFramework(configuration)
+                .AddSqlServer()
+                .AddDbContext<NoUseSqlServerContext>();
+
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+
+            using (await SqlServerTestDatabase.Northwind())
+            {
+                using (var context = serviceProvider.GetService<NoUseSqlServerContext>())
+                {
+                    Assert.True(context.Customers.Any());
+                }
+            }
+        }
+
+        [Fact]
+        public async void Can_specify_connection_string_in_config_without_UseSqlServer()
+        {
+            var configuration = new Configuration
+                {
+                    new MemoryConfigurationSource
+                        {
+                            {
+                                "EntityFramework:" + typeof(NoUseSqlServerContext).Name + ":ConnectionString", SqlServerTestDatabase.NorthwindConnectionString
+                            }
+                        }
+                };
+
+            var serviceCollection = new ServiceCollection();
+            serviceCollection
+                .AddSingleton<ITypeActivator, TypeActivator>()
+                .AddSingleton<ILoggerFactory, LoggerFactory>()
+                .Add(OptionsServices.GetDefaultServices())
+                .AddEntityFramework(configuration)
+                .AddSqlServer()
+                .AddDbContext<NoUseSqlServerContext>();
+
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+
+            using (await SqlServerTestDatabase.Northwind())
+            {
+                using (var context = serviceProvider.GetService<NoUseSqlServerContext>())
+                {
+                    Assert.True(context.Customers.Any());
+                }
+            }
+        }
+
+        [Fact]
+        public void Throws_if_no_connection_found_in_config_without_UseSqlServer()
+        {
+            var configuration = new Configuration
+                {
+                    new MemoryConfigurationSource()
+                };
+
+            var serviceCollection = new ServiceCollection();
+            serviceCollection
+                .AddSingleton<ITypeActivator, TypeActivator>()
+                .AddSingleton<ILoggerFactory, LoggerFactory>()
+                .Add(OptionsServices.GetDefaultServices())
+                .AddEntityFramework(configuration)
+                .AddSqlServer()
+                .AddDbContext<NoUseSqlServerContext>();
+
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+
+            using (var context = serviceProvider.GetService<NoUseSqlServerContext>())
+            {
+                Assert.Equal(
+                    GetRelationalString("FormatNoConnectionOrConnectionString"),
+                    Assert.Throws<InvalidOperationException>(() => context.Customers.Any()).Message);
+            }
+        }
+
+        [Fact]
+        public void Throws_if_no_config_without_UseSqlServer()
+        {
+            var serviceCollection = new ServiceCollection();
+            serviceCollection
+                .AddSingleton<ITypeActivator, TypeActivator>()
+                .AddSingleton<ILoggerFactory, LoggerFactory>()
+                .Add(OptionsServices.GetDefaultServices())
+                .AddEntityFramework()
+                .AddSqlServer()
+                .AddDbContext<NoUseSqlServerContext>();
+
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+
+            using (var context = serviceProvider.GetService<NoUseSqlServerContext>())
+            {
+                Assert.Equal(
+                    GetRelationalString("FormatNoConnectionOrConnectionString"),
+                    Assert.Throws<InvalidOperationException>(() => context.Customers.Any()).Message);
+            }
+        }
+
+        private class NoUseSqlServerContext : NorthwindContextBase
+        {
+        }
+
+        [Fact]
+        public async void Can_select_appropriate_provider_when_multiple_registered()
+        {
+            var serviceCollection = new ServiceCollection();
+            serviceCollection
+                .AddSingleton<ITypeActivator, TypeActivator>()
+                .AddSingleton<ILoggerFactory, LoggerFactory>()
+                .Add(OptionsServices.GetDefaultServices())
+                .AddEntityFramework()
+                .AddSqlServer()
+                .AddInMemoryStore()
+                .AddDbContext<MultipleProvidersContext>();
+
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+
+            using (await SqlServerTestDatabase.Northwind())
+            {
+                MultipleProvidersContext context1;
+                MultipleProvidersContext context2;
+
+                using (var serviceScope = serviceProvider.GetService<IServiceScopeFactory>().CreateScope())
+                {
+                    using (context1 = serviceScope.ServiceProvider.GetService<MultipleProvidersContext>())
+                    {
+                        context1.UseSqlServer = true;
+
+                        Assert.True(context1.Customers.Any());
+                    }
+                }
+                using (var serviceScope = serviceProvider.GetService<IServiceScopeFactory>().CreateScope())
+                {
+                    using (context2 = serviceScope.ServiceProvider.GetService<MultipleProvidersContext>())
+                    {
+                        context2.UseSqlServer = false;
+
+                        // TODO: Still using SQL Server: See issue #932
+                        //Assert.False(context.Customers.Any());
+                        Assert.True(context2.Customers.Any());
+                    }
+                }
+
+                Assert.NotSame(context1, context2);
+            }
+        }
+
+        [Fact]
+        public async void Can_select_appropriate_provider_when_multiple_registered_with_default_service_provider()
+        {
+            using (await SqlServerTestDatabase.Northwind())
+            {
+                using (var context = new MultipleProvidersContext())
+                {
+                    context.UseSqlServer = true;
+
+                    Assert.True(context.Customers.Any());
+                }
+
+                using (var context = new MultipleProvidersContext())
+                {
+                    context.UseSqlServer = false;
+
+                    Assert.False(context.Customers.Any());
+                }
+            }
+        }
+
+        private class MultipleProvidersContext : NorthwindContextBase
+        {
+            public bool UseSqlServer { get; set; }
+
+            protected override void OnConfiguring(DbContextOptions options)
+            {
+                if (UseSqlServer)
+                {
+                    options.UseSqlServer(SqlServerTestDatabase.NorthwindConnectionString);
+                }
+                else
+                {
+                    options.UseInMemoryStore();
+                }
+            }
+        }
+
+        [Fact]
+        public async void Can_depend_on_DbContextOptions()
+        {
+            var serviceCollection = new ServiceCollection();
+            serviceCollection
+                .AddSingleton<ITypeActivator, TypeActivator>()
+                .AddSingleton<ILoggerFactory, LoggerFactory>()
+                .Add(OptionsServices.GetDefaultServices())
+                .AddScoped<SqlConnection>(p => new SqlConnection(SqlServerTestDatabase.NorthwindConnectionString))
+                .AddEntityFramework()
+                .AddSqlServer()
+                .AddDbContext<OptionsContext>();
+
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+
+            using (await SqlServerTestDatabase.Northwind())
+            {
+                using (var context = serviceProvider.GetService<OptionsContext>())
+                {
+                    Assert.True(context.Customers.Any());
+                }
+            }
+        }
+
+        [Fact]
+        public async void Can_depend_on_DbContextOptions_with_default_service_provider()
+        {
+            using (await SqlServerTestDatabase.Northwind())
+            {
+                using (var context = new OptionsContext(
+                    new DbContextOptions<OptionsContext>(),
+                    new SqlConnection(SqlServerTestDatabase.NorthwindConnectionString)))
+                {
+                    Assert.True(context.Customers.Any());
+                }
+            }
+        }
+
+        private class OptionsContext : NorthwindContextBase
+        {
+            private readonly SqlConnection _connection;
+            private readonly DbContextOptions<OptionsContext> _options;
+
+            public OptionsContext(DbContextOptions<OptionsContext> options, SqlConnection connection)
+                : base(options)
+            {
+                _options = options;
+                _connection = connection;
+            }
+
+            protected override void OnConfiguring(DbContextOptions options)
+            {
+                options.UseSqlServer(_connection);
+
+                Assert.Same(options, _options);
+            }
+
+            public override void Dispose()
+            {
+                _connection.Dispose();
+                base.Dispose();
+            }
+        }
+
+        [Fact]
+        public async void Can_register_multiple_context_types()
+        {
+            var serviceCollection = new ServiceCollection();
+            serviceCollection
+                .AddSingleton<ITypeActivator, TypeActivator>()
+                .AddSingleton<ILoggerFactory, LoggerFactory>()
+                .Add(OptionsServices.GetDefaultServices())
+                .AddEntityFramework()
+                .AddSqlServer()
+                .AddInMemoryStore()
+                .AddDbContext<MultipleContext1>()
+                .AddDbContext<MultipleContext2>();
+
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+
+            using (await SqlServerTestDatabase.Northwind())
+            {
+                using (var context = serviceProvider.GetService<MultipleContext1>())
+                {
+                    Assert.True(context.Customers.Any());
+                }
+
+                using (var context = serviceProvider.GetService<MultipleContext2>())
+                {
+                    Assert.False(context.Customers.Any());
+                }
+            }
+        }
+
+        [Fact]
+        public async void Can_register_multiple_context_types_with_default_service_provider()
+        {
+            using (await SqlServerTestDatabase.Northwind())
+            {
+                using (var context = new MultipleContext1(new DbContextOptions<MultipleContext1>()))
+                {
+                    Assert.True(context.Customers.Any());
+                }
+
+                using (var context = new MultipleContext2(new DbContextOptions<MultipleContext2>()))
+                {
+                    Assert.False(context.Customers.Any());
+                }
+            }
+        }
+
+        private class MultipleContext1 : NorthwindContextBase
+        {
+            private readonly DbContextOptions<MultipleContext1> _options;
+
+            public MultipleContext1(DbContextOptions<MultipleContext1> options)
+                : base(options)
+            {
+                _options = options;
+            }
+
+            protected override void OnConfiguring(DbContextOptions options)
+            {
+                options.UseSqlServer(SqlServerTestDatabase.NorthwindConnectionString);
+
+                Assert.Same(options, _options);
+            }
+        }
+
+        private class MultipleContext2 : NorthwindContextBase
+        {
+            private readonly DbContextOptions<MultipleContext2> _options;
+
+            public MultipleContext2(DbContextOptions<MultipleContext2> options)
+                : base(options)
+            {
+                _options = options;
+            }
+
+            protected override void OnConfiguring(DbContextOptions options)
+            {
+                options.UseInMemoryStore();
+
+                Assert.Same(options, _options);
+            }
+        }
+
+        [Fact]
+        public async void Can_depend_on_non_generic_options_when_only_one_context()
+        {
+            var serviceCollection = new ServiceCollection();
+            serviceCollection
+                .AddSingleton<ITypeActivator, TypeActivator>()
+                .AddSingleton<ILoggerFactory, LoggerFactory>()
+                .Add(OptionsServices.GetDefaultServices())
+                .AddEntityFramework()
+                .AddSqlServer()
+                .AddInMemoryStore()
+                .AddDbContext<NonGenericOptionsContext>();
+
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+
+            using (await SqlServerTestDatabase.Northwind())
+            {
+                // TODO: Make this work or provide better exception
+                // Issue #935
+                Assert.Throws<Exception>(()
+                    =>
+                    {
+                        using (var context = serviceProvider.GetService<NonGenericOptionsContext>())
+                        {
+                            Assert.True(context.Customers.Any());
+                        }
+                    });
+            }
+        }
+
+        [Fact]
+        public async void Can_depend_on_non_generic_options_when_only_one_context_with_default_service_provider()
+        {
+            using (await SqlServerTestDatabase.Northwind())
+            {
+                using (var context = new NonGenericOptionsContext(new DbContextOptions()))
+                {
+                    Assert.True(context.Customers.Any());
+                }
+            }
+        }
+
+        private class NonGenericOptionsContext : NorthwindContextBase
+        {
+            private readonly DbContextOptions _options;
+
+            public NonGenericOptionsContext(DbContextOptions options)
+                : base(options)
+            {
+                _options = options;
+            }
+
+            protected override void OnConfiguring(DbContextOptions options)
+            {
+                options.UseSqlServer(SqlServerTestDatabase.NorthwindConnectionString);
+
+                Assert.Same(options, _options);
+            }
+        }
+
+        private class NorthwindContextBase : DbContext
+        {
+            protected NorthwindContextBase()
+            {
+            }
+
+            protected NorthwindContextBase(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public DbSet<Customer> Customers { get; set; }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Customer>(b =>
+                    {
+                        b.Key(c => c.CustomerID);
+                        b.ForSqlServer().Table("Customers");
+                    });
+            }
+        }
+
+        private class Customer
+        {
+            public string CustomerID { get; set; }
+            public string CompanyName { get; set; }
+            public string Fax { get; set; }
+        }
+
+        private static string GetRelationalString(string stringName)
+        {
+            var strings = typeof(RelationalConnection).GetTypeInfo().Assembly.GetType(typeof(RelationalConnection).Namespace + ".Strings");
+            return (string)strings.GetTypeInfo().GetDeclaredMethods(stringName).Single().Invoke(null, null);
+        }
+    }
+}

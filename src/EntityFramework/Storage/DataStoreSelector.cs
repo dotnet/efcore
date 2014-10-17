@@ -33,6 +33,8 @@ namespace Microsoft.Data.Entity.Storage
 
             if (configured.Length == 1)
             {
+                configured[0].ContextOptions.Lock();
+
                 return configured[0].StoreServices;
             }
 
@@ -55,11 +57,14 @@ namespace Microsoft.Data.Entity.Storage
                 throw new InvalidOperationException(Strings.FormatMultipleDataStoresAvailable(BuildStoreNamesString(_sources)));
             }
 
+            _sources[0].AutoConfigure();
+
             if (!_sources[0].IsAvailable)
             {
                 throw new InvalidOperationException(Strings.NoDataStoreConfigured);
             }
 
+            _sources[0].ContextOptions.Lock();
             return _sources[0].StoreServices;
         }
 

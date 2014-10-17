@@ -9,5 +9,10 @@ namespace Microsoft.Data.Entity.Storage
         public abstract bool IsAvailable { get; }
         public abstract bool IsConfigured { get; }
         public abstract string Name { get; }
+        public abstract DbContextOptions ContextOptions { get; }
+
+        public virtual void AutoConfigure()
+        {
+        }
     }
 }

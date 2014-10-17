@@ -208,16 +208,16 @@
     <value>The data stores {storeNames}are configured. A context can only be configured to use a single data store.</value>
   </data>
   <data name="NoDataStoreConfigured" xml:space="preserve">
-    <value>No data stores are configured. Configure a data store using OnConfiguring or by creating an ImmutableDbContextOptions with a data store configured and passing it to the context.</value>
+    <value>No data stores are configured. Configure a data store by overriding OnConfiguring in your DbContext class or in the AddDbContext method when setting up services.</value>
   </data>
   <data name="NoDataStoreService" xml:space="preserve">
     <value>No data stores are available. Ensure that data store services are added inside the call to AddEntityFramework on your ServiceCollection.</value>
   </data>
   <data name="MultipleDataStoresAvailable" xml:space="preserve">
-    <value>The data stores {storeNames}are available. A context can only be configured to use a single data store. Configure a data store using OnConfiguring or by creating an ImmutableDbContextOptions with a data store configured and passing it to the context.</value>
+    <value>The data stores {storeNames}are available. A context can only be configured to use a single data store. Configure a data store by overriding OnConfiguring in your DbContext class or in the AddDbContext method when setting up services.</value>
   </data>
   <data name="EntityConfigurationLocked" xml:space="preserve">
-    <value>Cannot change the ImmutableDbContextOptions by calling '{memberName}' because it is locked. Use ImmutableDbContextOptionsBuilder to create ImmutableDbContextOptionss.</value>
+    <value>Attempt to modify DbContextOptions by calling '{memberName}' failed because it is locked.</value>
   </data>
   <data name="MultiplePropertiesMatchedAsKeys" xml:space="preserve">
     <value>Multiple potential primary key properties named '{property}' but differing only by case were found on entity type '{entityType}'. Configure the primary key explicitly using the SetKey fluent API.</value>
