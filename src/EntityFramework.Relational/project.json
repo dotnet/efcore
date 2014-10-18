@@ -11,11 +11,11 @@
     "frameworks": {
         "net451": { },
         "aspnet50": { },
-        "aspnetcore50": { 
-            "dependencies": {
-                "System.Text.RegularExpressions": "4.0.10-beta-*"
+        "aspnetcore50": { },
+        ".NETPortable,Version=v4.6,Profile=Profile151": {
+            "frameworkAssemblies": {
+                "System.Text.RegularExpressions": ""
             }
-        },
-        ".NETPortable,Version=v4.6,Profile=Profile151": { }
+        }
     }
 }

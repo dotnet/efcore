@@ -9,15 +9,10 @@
     },
     "code": [ "**\\*.cs", "..\\Shared\\*.cs" ],
     "frameworks": {
-        "net451": { 
-            "frameworkAssemblies": {
-                "System.Threading.Tasks": ""
-            }
-        },
+        "net451": { },
         "aspnet50": { },
         "aspnetcore50": {
             "dependencies": {
-                "Microsoft.CSharp": "4.0.0-beta-*",
                 "System.Threading.Thread": "4.0.0-beta-*"
             }
         }

@@ -7,11 +7,6 @@
         "test": "Xunit.KRunner"
     },
     "frameworks": {
-        "net45": {
-            "frameworkAssemblies": {
-                "WindowsBase": ""
-            }
-        },
         "aspnet50": { },
         "aspnetcore50": {
             "dependencies": {
