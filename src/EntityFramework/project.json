@@ -54,25 +54,12 @@
         },
         ".NETPortable,Version=v4.6,Profile=Profile151": {
             "frameworkAssemblies": {
-                "System.Collections": "",
-                "System.Collections.Concurrent": "",
                 "System.ComponentModel": "",
                 "System.Diagnostics.Contracts": "",
-                "System.Diagnostics.Debug": "",
-                "System.Diagnostics.Tools": "",
-                "System.Globalization": "",
-                "System.Linq": "",
                 "System.Linq.Expressions": "",
                 "System.Linq.Queryable": "",
                 "System.ObjectModel": "",
-                "System.Reflection": "",
-                "System.Reflection.Extensions": "",
-                "System.Resources.ResourceManager": "",
-                "System.Runtime": "",
-                "System.Runtime.Extensions": "",
-                "System.Runtime.InteropServices": "",
-                "System.Threading": "",
-                "System.Threading.Tasks": ""
+                "System.Reflection.Extensions": ""
             },
             "dependencies": {
                 "Microsoft.Bcl.Immutable": "1.1.22-beta"
