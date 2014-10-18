@@ -7,11 +7,12 @@
         "net451": { },
         "aspnet50": {
             "dependencies": {
-                "Microsoft.Framework.Runtime.Interfaces": { "version": "1.0.0-*", "type": "build" },
+                "Microsoft.Framework.Runtime.Interfaces": { "version": "1.0.0-*", "type": "build" }
             }
         },
         "aspnetcore50": {
             "dependencies": {
+                "Microsoft.Framework.Runtime.Interfaces": { "version": "1.0.0-*", "type": "build" },
                 "System.Collections": "4.0.10-beta-*",
                 "System.ComponentModel": "4.0.0-beta-*",
                 "System.Diagnostics.Debug": "4.0.10-beta-*",
@@ -25,8 +26,7 @@
                 "System.Runtime.Extensions": "4.0.10-beta-*",
                 "System.Runtime.Handles": "4.0.0-beta-*",
                 "System.Runtime.InteropServices": "4.0.20-beta-*",
-                "System.Text.Encoding": "4.0.10-beta-*",
-                "Microsoft.Framework.Runtime.Interfaces": { "version": "1.0.0-*", "type": "build" }
+                "System.Text.Encoding": "4.0.10-beta-*"
             }
         },
         ".NETPortable,Version=4.6,Profile=Profile151": {
