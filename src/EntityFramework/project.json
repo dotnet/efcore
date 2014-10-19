@@ -34,7 +34,7 @@
                 "System.Runtime": ""
             },
             "dependencies": {
-                "Microsoft.Bcl.Immutable": "1.1.18-beta-*"
+                "System.Collections.Immutable": "1.1.32-beta"
             }
         },
         "aspnetcore50": {
@@ -49,7 +49,7 @@
                 "System.Resources.ResourceManager": "4.0.0-beta-*",
                 "System.Runtime.Extensions": "4.0.10-beta-*",
                 "System.Threading": "4.0.0-beta-*",
-                "Microsoft.Bcl.Immutable": "1.1.18-beta-*"
+                "System.Collections.Immutable": "1.1.32-beta"
             }
         },
         ".NETPortable,Version=v4.6,Profile=Profile151": {
