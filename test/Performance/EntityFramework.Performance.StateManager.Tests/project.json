@@ -1,17 +1,18 @@
 {
-    "commands": {
-        "Start": "run"
+  "commands": {
+    "Start": "run"
+  },
+  "frameworks": {
+    "aspnetcore50": {
+      "dependencies": {
+        "System.Console": "4.0.0-beta-*"
+      }
     },
-    "frameworks": {
-        "aspnetcore50": {
-            "dependencies": {
-                "System.Console": "4.0.0-beta-*"
-            }
-        },
-        "aspnet50": { }
-    },
-    "dependencies": {
-        "EntityFramework.SqlServer": "7.0.0-*",
-        "Microsoft.Framework.ConfigurationModel.Json": "1.0.0-*"
-    }
+    "aspnet50": {}
+  },
+  "dependencies": {
+    "EntityFramework.SqlServer": "7.0.0-*",
+    "Microsoft.Framework.ConfigurationModel.Json": "1.0.0-*"
+  },
+  "webroot": null
 }
