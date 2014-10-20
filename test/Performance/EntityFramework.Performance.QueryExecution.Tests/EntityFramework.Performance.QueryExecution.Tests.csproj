@@ -44,9 +44,8 @@
       <TargetFramework>net45</TargetFramework>
       <Assemblies>System.Interactive.Async</Assemblies>
     </PackageReference>
-    <PackageReference Include="Microsoft.Bcl.Immutable">
-      <TargetFramework>portable-net45+win8+wpa81</TargetFramework>
-      <Assemblies>System.Collections.Immutable</Assemblies>
+    <PackageReference Include="System.Collections.Immutable">
+      <TargetFramework>portable-net45+win8+wp8+wpa81</TargetFramework>
     </PackageReference>
     <PackageReference Include="System.Data.Common">
       <TargetFramework>net451</TargetFramework>
@@ -148,7 +147,7 @@
     <None Include="Project.json" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>

@@ -41,9 +41,8 @@
       <TargetFramework>portable-windows8+net45+wp8+wpa81</TargetFramework>
       <Assemblies>System.Interactive.Async</Assemblies>
     </PackageReference>
-    <PackageReference Include="Microsoft.Bcl.Immutable">
-      <TargetFramework>portable-net45+win8+wpa81</TargetFramework>
-      <Assemblies>System.Collections.Immutable</Assemblies>
+    <PackageReference Include="System.Collections.Immutable">
+      <TargetFramework>portable-net45+win8+wp8+wpa81</TargetFramework>
     </PackageReference>
     <PackageReference Include="Microsoft.Framework.DependencyInjection" />
     <PackageReference Include="Microsoft.Framework.Logging" />
@@ -107,7 +106,7 @@
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>

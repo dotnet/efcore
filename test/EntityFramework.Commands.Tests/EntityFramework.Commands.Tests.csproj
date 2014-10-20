@@ -42,13 +42,11 @@
     <PackageReference Include="Microsoft.Framework.DependencyInjection">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
-    <PackageReference Include="Microsoft.Bcl.Metadata">
+    <PackageReference Include="System.Reflection.Metadata">
       <TargetFramework>portable-net45+win8</TargetFramework>
-      <Assemblies>System.Reflection.Metadata</Assemblies>
     </PackageReference>
-    <PackageReference Include="Microsoft.Bcl.Immutable">
-      <TargetFramework>portable-net45+win8+wpa81</TargetFramework>
-      <Assemblies>System.Collections.Immutable</Assemblies>
+    <PackageReference Include="System.Collections.Immutable">
+      <TargetFramework>portable-net45+win8+wp8+wpa81</TargetFramework>
     </PackageReference>
     <PackageReference Include="Microsoft.CodeAnalysis.Common">
       <TargetFramework>net45</TargetFramework>

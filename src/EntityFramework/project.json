@@ -9,7 +9,8 @@
         "Microsoft.Framework.DependencyInjection": "1.0.0-*",
         "Microsoft.Framework.Logging": "1.0.0-*",
         "Microsoft.Framework.OptionsModel": "1.0.0-*",
-        "Remotion.Linq": "1.15.15"
+        "Remotion.Linq": "1.15.15",
+        "System.Collections.Immutable": "1.1.32-beta"
     },
     "code": [ "**\\*.cs", "..\\Shared\\*.cs" ],
     "frameworks": {
@@ -20,9 +21,6 @@
                 "System.ObjectModel": "",
                 "System.Reflection": "",
                 "System.Runtime": ""
-            },
-            "dependencies": {
-                "Microsoft.Bcl.Immutable": "1.1.22-beta"
             }
         },
         "aspnet50": {
@@ -32,9 +30,6 @@
                 "System.ObjectModel": "",
                 "System.Reflection": "",
                 "System.Runtime": ""
-            },
-            "dependencies": {
-                "System.Collections.Immutable": "1.1.32-beta"
             }
         },
         "aspnetcore50": {
@@ -60,9 +55,6 @@
                 "System.Linq.Queryable": "",
                 "System.ObjectModel": "",
                 "System.Reflection.Extensions": ""
-            },
-            "dependencies": {
-                "Microsoft.Bcl.Immutable": "1.1.22-beta"
             }
         }
     }
