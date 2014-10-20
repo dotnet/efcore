@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using JetBrains.Annotations;
 
 namespace Microsoft.Data.Entity.Metadata.Compiled
 {
@@ -13,22 +12,22 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
     {
         private IEntityType[] _entityTypes;
 
-        public IEntityType TryGetEntityType([NotNull] Type type)
+        public IEntityType TryGetEntityType(Type type)
         {
             return EntityTypes.FirstOrDefault(e => e.Type == type);
         }
 
-        public IEntityType GetEntityType([NotNull] Type type)
+        public IEntityType GetEntityType(Type type)
         {
             return EntityTypes.First(e => e.Type == type);
         }
 
-        public IEntityType TryGetEntityType([NotNull] string name)
+        public IEntityType TryGetEntityType(string name)
         {
             return EntityTypes.FirstOrDefault(e => e.Name == name);
         }
 
-        public IEntityType GetEntityType([NotNull] string name)
+        public IEntityType GetEntityType(string name)
         {
             return EntityTypes.First(e => e.Name == name);
         }
@@ -40,13 +39,13 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
             get { return LazyInitializer.EnsureInitialized(ref _entityTypes, LoadEntityTypes); }
         }
 
-        public virtual IEnumerable<IForeignKey> GetReferencingForeignKeys([NotNull] IEntityType entityType)
+        public virtual IEnumerable<IForeignKey> GetReferencingForeignKeys(IEntityType entityType)
         {
             // TODO: Perf: Add additional indexes so that this isn't a linear lookup
             return EntityTypes.SelectMany(et => et.ForeignKeys).Where(fk => fk.ReferencedEntityType == entityType);
         }
 
-        public virtual IEnumerable<IForeignKey> GetReferencingForeignKeys([NotNull] IProperty property)
+        public virtual IEnumerable<IForeignKey> GetReferencingForeignKeys(IProperty property)
         {
             // TODO: Perf: Add additional indexes so that this isn't a linear lookup
             return EntityTypes.SelectMany(e => e.ForeignKeys.Where(f => f.ReferencedProperties.Contains(property))).ToArray();

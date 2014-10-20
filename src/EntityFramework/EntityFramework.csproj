@@ -145,7 +145,6 @@
     <Compile Include="Storage\DataStoreException.cs" />
     <Compile Include="Infrastructure\IDbContextOptionsExtensions.cs" />
     <Compile Include="INotifyPropertyChanging.cs" />
-    <Compile Include="Metadata\Compiled\CompiledIndex.cs" />
     <Compile Include="Metadata\EntityTypeExtensions.cs" />
     <Compile Include="Metadata\IIndex.cs" />
     <Compile Include="Metadata\IModelBuilderFactory.cs" />
@@ -240,17 +239,6 @@
     <Compile Include="Metadata\Navigation.cs" />
     <Compile Include="Metadata\ObjectArrayValueReader.cs" />
     <Compile Include="Metadata\Property.cs" />
-    <Compile Include="Metadata\Compiled\CompiledEntityType.cs" />
-    <Compile Include="Metadata\Compiled\CompiledForeignKey.cs" />
-    <Compile Include="Metadata\Compiled\CompiledKey.cs" />
-    <Compile Include="Metadata\Compiled\CompiledMetadataBase.cs" />
-    <Compile Include="Metadata\Compiled\CompiledModel.cs" />
-    <Compile Include="Metadata\Compiled\CompiledNavigation.cs" />
-    <Compile Include="Metadata\Compiled\CompiledProperty.cs" />
-    <Compile Include="Metadata\Compiled\CompiledPropertyNoAnnotations.cs" />
-    <Compile Include="Metadata\Compiled\CompiledSimpleForeignKey.cs" />
-    <Compile Include="Metadata\Compiled\Empty.cs" />
-    <Compile Include="Metadata\Compiled\NoAnnotations.cs" />
     <Compile Include="Metadata\ModelConventions\IModelConvention.cs" />
     <Compile Include="Metadata\ModelConventions\KeyConvention.cs" />
     <Compile Include="Metadata\ModelConventions\PropertiesConvention.cs" />

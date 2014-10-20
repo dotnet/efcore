@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using JetBrains.Annotations;
 
 namespace Microsoft.Data.Entity.Metadata.Compiled
 {
@@ -17,7 +16,7 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
             get { return LazyInitializer.EnsureInitialized(ref _annotations, LoadAnnotations); }
         }
 
-        public string this[[NotNull] string annotationName]
+        public string this[string annotationName]
         {
             get
             {
@@ -28,7 +27,7 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
 
         protected abstract IAnnotation[] LoadAnnotations();
 
-        protected static IEnumerable<IAnnotation> ZipAnnotations([NotNull] string[] names, [NotNull] string[] values)
+        protected static IEnumerable<IAnnotation> ZipAnnotations(string[] names, string[] values)
         {
             return names.Zip(values, (n, v) => new Annotation(n, v)).ToArray();
         }

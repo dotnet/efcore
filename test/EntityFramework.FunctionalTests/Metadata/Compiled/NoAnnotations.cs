@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata.Compiled
@@ -15,12 +14,10 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
             get { return ImmutableList<IAnnotation>.Empty; }
         }
 
-        public string this[[NotNull] string annotationName]
+        public string this[string annotationName]
         {
             get
             {
-                Check.NotEmpty(annotationName, "annotationName");
-
                 return null;
             }
         }

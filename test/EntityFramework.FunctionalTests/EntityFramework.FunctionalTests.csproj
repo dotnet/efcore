@@ -40,6 +40,9 @@
       <TargetFramework>net45</TargetFramework>
       <Assemblies>System.Interactive.Async</Assemblies>
     </PackageReference>
+    <PackageReference Include="System.Collections.Immutable">
+      <TargetFramework>portable-net45+win8+wp8+wpa81</TargetFramework>
+    </PackageReference>
     <PackageReference Include="Microsoft.Framework.ConfigurationModel">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
@@ -80,6 +83,18 @@
     <Compile Include="IncludeOneToOneTestBase.cs" />
     <Compile Include="IncludeNorthwindTestBase.cs" />
     <Compile Include="Metadata\CompiledModelTest.cs" />
+    <Compile Include="Metadata\Compiled\CompiledEntityType.cs" />
+    <Compile Include="Metadata\Compiled\CompiledForeignKey.cs" />
+    <Compile Include="Metadata\Compiled\CompiledIndex.cs" />
+    <Compile Include="Metadata\Compiled\CompiledKey.cs" />
+    <Compile Include="Metadata\Compiled\CompiledMetadataBase.cs" />
+    <Compile Include="Metadata\Compiled\CompiledModel.cs" />
+    <Compile Include="Metadata\Compiled\CompiledNavigation.cs" />
+    <Compile Include="Metadata\Compiled\CompiledProperty.cs" />
+    <Compile Include="Metadata\Compiled\CompiledPropertyNoAnnotations.cs" />
+    <Compile Include="Metadata\Compiled\CompiledSimpleForeignKey.cs" />
+    <Compile Include="Metadata\Compiled\Empty.cs" />
+    <Compile Include="Metadata\Compiled\NoAnnotations.cs" />
     <Compile Include="Metadata\KoolModel.cs" />
     <Compile Include="MonsterFixupTestBase.cs" />
     <Compile Include="OneToOneQueryFixtureBase.cs" />

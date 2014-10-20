@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using JetBrains.Annotations;
 
 namespace Microsoft.Data.Entity.Metadata.Compiled
 {
@@ -23,32 +22,32 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
             _model = model;
         }
 
-        public IProperty TryGetProperty([NotNull] string name)
+        public IProperty TryGetProperty(string name)
         {
             return Properties.FirstOrDefault(p => p.Name == name);
         }
 
-        public IProperty GetProperty([NotNull] string name)
+        public IProperty GetProperty(string name)
         {
             var property = TryGetProperty(name);
             if (property == null)
             {
-                throw new Exception(Strings.FormatPropertyNotFound(name, typeof(TEntity).Name));
+                throw new Exception(string.Format("The property '{0}' on entity type '{1}' could not be found. Ensure that the property exists and has been included in the model.",name, typeof(TEntity).Name));
             }
             return property;
         }
 
-        public INavigation TryGetNavigation([NotNull] string name)
+        public INavigation TryGetNavigation(string name)
         {
             return Navigations.FirstOrDefault(p => p.Name == name);
         }
 
-        public INavigation GetNavigation([NotNull] string name)
+        public INavigation GetNavigation(string name)
         {
             var navigation = TryGetNavigation(name);
             if (navigation == null)
             {
-                throw new Exception(Strings.FormatNavigationNotFound(name, typeof(TEntity).Name));
+                throw new Exception(string.Format("The navigation property '{0}' on entity type '{1}' could not be found. Ensure that the navigation property exists and has been included in the model.", name, typeof(TEntity).Name));
             }
             return navigation;
         }

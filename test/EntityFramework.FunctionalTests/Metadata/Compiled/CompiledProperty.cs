@@ -2,14 +2,15 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Reflection;
 
 namespace Microsoft.Data.Entity.Metadata.Compiled
 {
-    public class CompiledPropertyNoAnnotations<TProperty> : NoAnnotations
+    public abstract class CompiledProperty<TProperty> : CompiledMetadataBase
     {
         private readonly IEntityType _entityType;
 
-        protected CompiledPropertyNoAnnotations(IEntityType entityType)
+        protected CompiledProperty(IEntityType entityType)
         {
             _entityType = entityType;
         }
@@ -31,7 +32,10 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
 
         public bool IsNullable
         {
-            get { return typeof(TProperty).IsNullableType(); }
+            get {
+                var typeInfo = typeof(TProperty).GetTypeInfo();
+                return !typeInfo.IsValueType || (typeInfo.IsGenericType && typeInfo.GetGenericTypeDefinition() == typeof(Nullable<>));
+            }
         }
 
         public bool IsReadOnly
