@@ -34,22 +34,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <PackageReference Include="Remotion.Linq">
-      <TargetFramework>portable-net45+wp80+wpa81+win</TargetFramework>
-    </PackageReference>
-    <PackageReference Include="Ix-Async">
-      <TargetFramework>net45</TargetFramework>
-      <Assemblies>System.Interactive.Async</Assemblies>
-    </PackageReference>
-    <PackageReference Include="System.Collections.Immutable">
-      <TargetFramework>portable-net45+win8+wp8+wpa81</TargetFramework>
-    </PackageReference>
-    <PackageReference Include="System.Data.Common">
-      <TargetFramework>net451</TargetFramework>
-    </PackageReference>
-    <PackageReference Include="System.Data.SqlClient">
-      <TargetFramework>net45</TargetFramework>
-    </PackageReference>
     <PackageReference Include="Microsoft.Framework.ConfigurationModel">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
@@ -63,9 +47,6 @@
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
     <PackageReference Include="Microsoft.Framework.Logging.Interfaces">
-      <TargetFramework>net45</TargetFramework>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Framework.Runtime.Interfaces">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json">
@@ -91,10 +72,6 @@
     <ProjectReference Include="..\..\..\src\EntityFramework\EntityFramework.csproj">
       <Project>{71415cec-8111-4c73-8751-512d22f10602}</Project>
       <Name>EntityFramework</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\src\EntityFramework.Migrations\EntityFramework.Migrations.csproj">
-      <Project>{6E38B72F-31DA-4AEF-8F34-B8269572EC6B}</Project>
-      <Name>EntityFramework.Migrations</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\src\EntityFramework.Relational\EntityFramework.Relational.csproj">
       <Project>{75C5A774-A3F3-43EB-97D3-DBE0CF2825D8}</Project>

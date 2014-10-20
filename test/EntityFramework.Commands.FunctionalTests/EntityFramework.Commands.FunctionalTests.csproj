@@ -36,9 +36,6 @@
     <PackageReference Include="System.Data.Common">
       <TargetFramework>net451</TargetFramework>
     </PackageReference>
-    <PackageReference Include="System.Collections.Immutable">
-      <TargetFramework>portable-net45+win8+wp8+wpa81</TargetFramework>
-    </PackageReference>
     <PackageReference Include="System.Reflection.Metadata">
       <TargetFramework>portable-net45+win8</TargetFramework>
     </PackageReference>
@@ -49,6 +46,21 @@
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp">
       <TargetFramework>net45</TargetFramework>
       <Assemblies>Microsoft.CodeAnalysis.CSharp;Microsoft.CodeAnalysis.CSharp.Desktop</Assemblies>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Framework.ConfigurationModel">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Framework.DependencyInjection">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Framework.Logging">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Framework.Logging.Interfaces">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Framework.OptionsModel">
+      <TargetFramework>net45</TargetFramework>
     </PackageReference>
     <PackageReference Include="xunit.abstractions">
       <TargetFramework>net45</TargetFramework>
@@ -62,6 +74,10 @@
     </PackageReference>
     <PackageReference Include="xunit.execution">
       <TargetFramework>net45</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="Ix-Async">
+      <TargetFramework>net45</TargetFramework>
+      <Assemblies>System.Interactive.Async</Assemblies>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
@@ -82,14 +98,6 @@
     <ProjectReference Include="..\..\src\EntityFramework.Commands\EntityFramework.Commands.csproj">
       <Project>{10ca97eb-e724-4f08-86af-f301f2b0bfff}</Project>
       <Name>EntityFramework.Commands</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\src\EntityFramework.Migrations\EntityFramework.Migrations.csproj">
-      <Project>{6e38b72f-31da-4aef-8f34-b8269572ec6b}</Project>
-      <Name>EntityFramework.Migrations</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\src\EntityFramework.SQLite\EntityFramework.SQLite.csproj">
-      <Project>{4cc98896-fe91-4f16-ae60-d6ff9e905836}</Project>
-      <Name>EntityFramework.SQLite</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

@@ -33,12 +33,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
     <PackageReference Include="Ix-Async">
       <TargetFramework>net45</TargetFramework>
       <Assemblies>System.Interactive.Async</Assemblies>
@@ -49,9 +44,6 @@
     </PackageReference>
     <PackageReference Include="Remotion.Linq">
       <TargetFramework>portable-net45+wp80+wpa81+win</TargetFramework>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Framework.ConfigurationModel">
-      <TargetFramework>net45</TargetFramework>
     </PackageReference>
     <PackageReference Include="Microsoft.Framework.DependencyInjection">
       <TargetFramework>net45</TargetFramework>

@@ -31,7 +31,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System" />
     <Reference Include="System.Data" />
     <PackageReference Include="System.Data.Common">
       <TargetFramework>net451</TargetFramework>
@@ -40,6 +39,15 @@
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
     <PackageReference Include="Microsoft.Framework.DependencyInjection">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Framework.Logging">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Framework.Logging.Interfaces">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Framework.OptionsModel">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
     <PackageReference Include="System.Reflection.Metadata">
@@ -71,6 +79,10 @@
     <PackageReference Include="Moq">
       <TargetFramework>net40</TargetFramework>
     </PackageReference>
+    <PackageReference Include="Ix-Async">
+      <TargetFramework>net45</TargetFramework>
+      <Assemblies>System.Interactive.Async</Assemblies>
+    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\src\EntityFramework.Commands\tools\Handlers.cs">
@@ -99,10 +111,6 @@
     <ProjectReference Include="..\..\src\EntityFramework.Migrations\EntityFramework.Migrations.csproj">
       <Project>{6E38B72F-31DA-4AEF-8F34-B8269572EC6B}</Project>
       <Name>EntityFramework.Migrations</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\src\EntityFramework.SqlServer\EntityFramework.SqlServer.csproj">
-      <Project>{04e6620b-5b41-45fe-981a-f40eb7686b0e}</Project>
-      <Name>EntityFramework.SqlServer</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\src\EntityFramework\EntityFramework.csproj">
       <Project>{71415cec-8111-4c73-8751-512d22f10602}</Project>

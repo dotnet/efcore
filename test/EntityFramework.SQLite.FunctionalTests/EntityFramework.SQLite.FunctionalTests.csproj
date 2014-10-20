@@ -31,7 +31,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <PackageReference Include="Microsoft.Framework.Logging">
@@ -67,6 +66,9 @@
       <Assemblies>xunit.core;xunit.runner.tdnet</Assemblies>
     </PackageReference>
     <PackageReference Include="xunit.execution">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Framework.OptionsModel">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
   </ItemGroup>

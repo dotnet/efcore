@@ -89,7 +89,7 @@
   </UsingTask>
   <Target Name="CheckPackageReferences">
     <Error
-      Text="Package references not found. Run 'build initialize' before opening solution for first time."
+      Text="Package references not found. Run 'build initialize' before opening the solution for the first time."
       Condition="!Exists('$(PackagesTargetsFile)')" />
   </Target>
   <Target Name="WritePackageReferences">

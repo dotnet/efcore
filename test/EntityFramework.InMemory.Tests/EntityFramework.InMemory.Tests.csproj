@@ -43,6 +43,9 @@
     <PackageReference Include="Microsoft.Framework.Logging.Interfaces">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
+    <PackageReference Include="Microsoft.Framework.OptionsModel">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
     <PackageReference Include="xunit.abstractions">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
@@ -58,6 +61,10 @@
     </PackageReference>
     <PackageReference Include="Moq">
       <TargetFramework>net40</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="Ix-Async">
+      <TargetFramework>net45</TargetFramework>
+      <Assemblies>System.Interactive.Async</Assemblies>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
@@ -90,9 +97,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="System" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

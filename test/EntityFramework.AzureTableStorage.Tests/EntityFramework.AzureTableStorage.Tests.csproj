@@ -33,12 +33,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
     <PackageReference Include="Microsoft.Framework.ConfigurationModel">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
@@ -49,6 +43,9 @@
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
     <PackageReference Include="Microsoft.Framework.Logging.Interfaces">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Framework.OptionsModel">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
     <PackageReference Include="xunit.abstractions">
@@ -127,7 +124,6 @@
     <ProjectReference Include="..\..\src\EntityFramework.AzureTableStorage\EntityFramework.AzureTableStorage.csproj">
       <Project>{c059860c-039d-48c0-b381-987db950bb5d}</Project>
       <Name>Microsoft.Data.Entity.AzureTableStorage</Name>
-      <TargetFramework>net451</TargetFramework>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

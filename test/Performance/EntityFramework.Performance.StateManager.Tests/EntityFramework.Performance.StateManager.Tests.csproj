@@ -35,24 +35,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Data" />
-    <PackageReference Include="Remotion.Linq">
-      <TargetFramework>portable-net45+wp80+wpa81+win</TargetFramework>
-    </PackageReference>
-    <PackageReference Include="Ix-Async">
-      <TargetFramework>net45</TargetFramework>
-      <Assemblies>System.Interactive.Async</Assemblies>
-    </PackageReference>
-    <PackageReference Include="System.Collections.Immutable">
-      <TargetFramework>portable-net45+win8+wp8+wpa81</TargetFramework>
-    </PackageReference>
-    <PackageReference Include="System.Data.Common">
-      <TargetFramework>net451</TargetFramework>
-    </PackageReference>
-    <PackageReference Include="System.Data.SqlClient">
-      <TargetFramework>net45</TargetFramework>
-    </PackageReference>
     <PackageReference Include="Microsoft.Framework.ConfigurationModel">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
@@ -94,10 +77,6 @@
     <None Include="Project.json" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\EntityFramework.Migrations\EntityFramework.Migrations.csproj">
-      <Project>{6e38b72f-31da-4aef-8f34-b8269572ec6b}</Project>
-      <Name>EntityFramework.Migrations</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\..\src\EntityFramework.Relational\EntityFramework.Relational.csproj">
       <Project>{75c5a774-a3f3-43eb-97d3-dbe0cf2825d8}</Project>
       <Name>EntityFramework.Relational</Name>

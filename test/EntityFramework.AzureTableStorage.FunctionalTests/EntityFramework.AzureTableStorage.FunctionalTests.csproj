@@ -32,13 +32,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
     <PackageReference Include="Microsoft.Framework.ConfigurationModel">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
@@ -54,8 +47,8 @@
     <PackageReference Include="Microsoft.Framework.Logging.Interfaces">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
-    <PackageReference Include="Moq">
-      <TargetFramework>net40</TargetFramework>
+    <PackageReference Include="Microsoft.Framework.OptionsModel">
+      <TargetFramework>net45</TargetFramework>
     </PackageReference>
     <PackageReference Include="xunit.abstractions">
       <TargetFramework>net45</TargetFramework>
@@ -100,7 +93,6 @@
     <ProjectReference Include="..\..\src\EntityFramework.AzureTableStorage\EntityFramework.AzureTableStorage.csproj">
       <Project>{c059860c-039d-48c0-b381-987db950bb5d}</Project>
       <Name>Microsoft.Data.Entity.AzureTableStorage</Name>
-      <TargetFramework>net451</TargetFramework>
     </ProjectReference>
     <ProjectReference Include="..\EntityFramework.FunctionalTests\EntityFramework.FunctionalTests.csproj">
       <Project>{6ab933c7-de2a-45f2-bdc6-e71a01ef7756}</Project>

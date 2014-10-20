@@ -52,7 +52,7 @@
     <PackageReference Include="Microsoft.Framework.Logging.Interfaces">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
-    <PackageReference Include="xunit.abstractions">
+    <PackageReference Include="Microsoft.Framework.OptionsModel">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
     <PackageReference Include="xunit.assert">
