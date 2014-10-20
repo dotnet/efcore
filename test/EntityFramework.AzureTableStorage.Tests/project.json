@@ -9,10 +9,6 @@
     },
     "code": [ "**\\*.cs", "..\\Shared\\ApiConsistencyTestBase.cs" ],
     "frameworks": {
-        "aspnet50": {
-            "frameworkAssemblies": {
-                "System.Threading.Tasks": ""
-            }
-        }
+        "aspnet50": { }
     }
 }

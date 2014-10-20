@@ -8,16 +8,7 @@
         "test": "Xunit.KRunner"
     },
     "frameworks": {
-        "aspnet50": {
-            "frameworkAssemblies": { 
-                "System.Text.RegularExpressions": ""
-            }
-         },
-        "aspnetcore50": {
-            "dependencies": {
-                "System.Threading.ExecutionContext": "4.0.0-beta-*",
-                "System.Text.RegularExpressions": "4.0.10-beta-*"
-            }
-        }
+        "aspnet50": { },
+        "aspnetcore50": { }
     }
 }

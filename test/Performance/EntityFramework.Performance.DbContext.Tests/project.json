@@ -5,28 +5,13 @@
     "frameworks": {
         "aspnetcore50": {
             "dependencies": {
-                "System.Console": "4.0.0-beta-*",
-                "System.IO": "4.0.0-beta-*",
-                "System.Runtime": "4.0.20-beta-*",
-                "System.Runtime.Extensions": "4.0.10-beta-*",
-                "System.ComponentModel": "4.0.0-beta-*"
+                "System.Console": "4.0.0-beta-*"
             }
         },
-        "aspnet50": {
-            "dependencies": {
-            }
-        }
+        "aspnet50": { }
     },
     "dependencies": {
-        "EntityFramework": "7.0.0-*",
-        "EntityFramework.InMemory": "7.0.0-*",
-        "EntityFramework.Migrations": "7.0.0-*",
-        "EntityFramework.Relational": "7.0.0-*",
         "EntityFramework.SqlServer": "7.0.0-*",
-        "Microsoft.AspNet.Server.IIS": "1.0.0-*",
-        "Microsoft.Framework.ConfigurationModel": "1.0.0-*",
-        "Microsoft.Framework.ConfigurationModel.Json": "1.0.0-*",
-        "Newtonsoft.Json": "5.0.8",
-        "Microsoft.DataAnnotations": "1.0.0-*"
+        "Microsoft.Framework.ConfigurationModel.Json": "1.0.0-*"
     }
 }

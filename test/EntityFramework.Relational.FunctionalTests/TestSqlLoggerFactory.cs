@@ -2,18 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.CodeDom.Compiler;
 using System.Collections.Generic;
-using System.IO;
-using System.Text;
 using System.Threading;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
-#if ASPNETCORE50
-using System.Threading;
-#else
+#if !ASPNETCORE50
 using System.Runtime.Remoting.Messaging;
-
 #endif
 
 namespace Microsoft.Data.Entity.Relational.FunctionalTests
