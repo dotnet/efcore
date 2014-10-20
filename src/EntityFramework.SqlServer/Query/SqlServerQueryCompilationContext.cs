@@ -8,6 +8,7 @@ using Microsoft.Data.Entity.Relational.Query;
 using Microsoft.Data.Entity.Relational.Query.Methods;
 using Microsoft.Data.Entity.Relational.Query.Sql;
 using Microsoft.Data.Entity.SqlServer.Utilities;
+using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.SqlServer.Query
 {
@@ -15,12 +16,14 @@ namespace Microsoft.Data.Entity.SqlServer.Query
     {
         public SqlServerQueryCompilationContext(
             [NotNull] IModel model,
+            [NotNull] ILogger logger,
             [NotNull] ILinqOperatorProvider linqOperatorProvider,
             [NotNull] IResultOperatorHandler resultOperatorHandler,
             [NotNull] IQueryMethodProvider queryMethodProvider,
             [NotNull] IMethodCallTranslator methodCallTranslator)
             : base(
                 Check.NotNull(model, "model"),
+                Check.NotNull(logger, "logger"),
                 Check.NotNull(linqOperatorProvider, "linqOperatorProvider"),
                 Check.NotNull(resultOperatorHandler, "resultOperatorHandler"),
                 Check.NotNull(queryMethodProvider, "queryMethodProvider"),

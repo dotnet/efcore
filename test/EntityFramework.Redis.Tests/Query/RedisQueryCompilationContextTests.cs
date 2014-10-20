@@ -3,6 +3,7 @@
 
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Redis.Query;
+using Microsoft.Framework.Logging;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Redis.Tests.Query
@@ -10,38 +11,15 @@ namespace Microsoft.Data.Entity.Redis.Tests.Query
     public class RedisQueryCompilationContextTests
     {
         [Fact]
-        public void Can_construct_sync_RedisQueryCompilationContext()
-        {
-            var model = QueryTestType.Model();
-
-            var redisQueryCompilationContext =
-                new RedisQueryCompilationContext(
-                    model,
-                    new LinqOperatorProvider(),
-                    new ResultOperatorHandler(),
-                    new QueryMethodProvider());
-        }
-
-        [Fact]
-        public void Can_construct_async_RedisQueryCompilationContext()
-        {
-            var model = QueryTestType.Model();
-
-            var redisQueryCompilationContext =
-                new RedisQueryCompilationContext(
-                    model,
-                    new LinqOperatorProvider(),
-                    new ResultOperatorHandler(),
-                    new AsyncQueryMethodProvider());
-        }
-
-        [Fact]
         public void CreateQueryModelVisitor_returns_new_visitor()
         {
             var model = QueryTestType.Model();
+            var loggerFactory = new LoggerFactory();
+
             var redisQueryCompilationContext =
                 new RedisQueryCompilationContext(
                     model,
+                    loggerFactory.Create("Fake"),
                     new LinqOperatorProvider(),
                     new ResultOperatorHandler(),
                     new QueryMethodProvider());

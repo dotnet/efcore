@@ -2,8 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.CodeDom.Compiler;
 using System.Collections.Generic;
+using System.IO;
+using System.Text;
 using System.Threading;
+using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 #if ASPNETCORE50
 using System.Threading;
@@ -56,7 +60,9 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
 
         public class SqlLogger : ILogger
         {
-            public readonly List<string> SqlStatements = new List<string>();
+            private readonly List<string> _sqlStatements = new List<string>();
+
+            private readonly IndentedStringBuilder _log = new IndentedStringBuilder();
 
             private CancellationTokenSource _cancellationTokenSource;
 
@@ -67,6 +73,8 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
                 Exception exception,
                 Func<object, Exception, string> formatter)
             {
+                var format = formatter(state, exception);
+
                 if (eventId == RelationalLoggingEventIds.Sql)
                 {
                     if (_cancellationTokenSource != null)
@@ -75,9 +83,11 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
                         _cancellationTokenSource = null;
                     }
 
-                    var sql = formatter(state, exception);
-
-                    SqlStatements.Add(sql);
+                    _sqlStatements.Add(format);
+                }
+                else
+                {
+                    _log.AppendLine(format);
                 }
             }
 
@@ -91,24 +101,24 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
                 return (_cancellationTokenSource = new CancellationTokenSource()).Token;
             }
 
+            public List<string> SqlStatements
+            {
+                get { return _sqlStatements; }
+            }
+
             public string Sql
             {
-                get { return string.Join("\r\n\r\n", SqlStatements); }
+                get { return string.Join("\r\n\r\n", _sqlStatements); }
+            }
+
+            public string Log
+            {
+                get { return string.Join("\r\n", _log); }
             }
 
             public IDisposable BeginScope(object state)
             {
-                return NullScope.Instance;
-            }
-        }
-
-        public class NullScope : IDisposable
-        {
-            public static NullScope Instance = new NullScope();
-
-            public void Dispose()
-            {
-                // intentionally does nothing
+                return _log.Indent();
             }
         }
     }

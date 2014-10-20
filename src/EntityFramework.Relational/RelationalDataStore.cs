@@ -142,7 +142,7 @@ namespace Microsoft.Data.Entity.Relational
             Check.NotNull(methodCallTranslator, "methodCallTranslator");
 
             return new RelationalQueryCompilationContext(
-                Model, linqOperatorProvider, resultOperatorHandler, queryMethodProvider, methodCallTranslator);
+                Model, Logger, linqOperatorProvider, resultOperatorHandler, queryMethodProvider, methodCallTranslator);
         }
     }
 }

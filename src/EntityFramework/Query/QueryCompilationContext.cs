@@ -4,25 +4,30 @@
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
+using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Query
 {
     public abstract class QueryCompilationContext
     {
         private readonly IModel _model;
+        private readonly ILogger _logger;
         private readonly ILinqOperatorProvider _linqOperatorProvider;
         private readonly IResultOperatorHandler _resultOperatorHandler;
 
         protected QueryCompilationContext(
             [NotNull] IModel model,
+            [NotNull] ILogger logger,
             [NotNull] ILinqOperatorProvider linqOperatorProvider,
             [NotNull] IResultOperatorHandler resultOperatorHandler)
         {
             Check.NotNull(model, "model");
+            Check.NotNull(logger, "logger");
             Check.NotNull(linqOperatorProvider, "linqOperatorProvider");
             Check.NotNull(resultOperatorHandler, "resultOperatorHandler");
 
             _model = model;
+            _logger = logger;
             _linqOperatorProvider = linqOperatorProvider;
             _resultOperatorHandler = resultOperatorHandler;
         }
@@ -30,6 +35,11 @@ namespace Microsoft.Data.Entity.Query
         public virtual IModel Model
         {
             get { return _model; }
+        }
+
+        public virtual ILogger Logger
+        {
+            get { return _logger; }
         }
 
         public virtual ILinqOperatorProvider LinqOperatorProvider

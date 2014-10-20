@@ -361,6 +361,18 @@
     <value>The expression '{expression}' passed to the Include operator could not be bound. Only single-level navigation expressions are supported. </value>
   </data>
   <data name="LogCompilingQueryModel" xml:space="preserve">
-    <value>Compiling query model{newline}{newline}{queryModel}</value>
+    <value>Compiling query model: '{queryModel}'</value>
+  </data>
+  <data name="LogOptimizedQueryModel" xml:space="preserve">
+    <value>Optimized query model: '{queryModel}'</value>
+  </data>
+  <data name="LogCompiledQueryFunction" xml:space="preserve">
+    <value>Compiled query expression.</value>
+  </data>
+  <data name="LogIncludingNavigation" xml:space="preserve">
+    <value>Including navigation: '{navigation}'</value>
+  </data>
+  <data name="LogTrackingQuerySources" xml:space="preserve">
+    <value>Tracking query sources: [{querySources}]</value>
   </data>
 </root>

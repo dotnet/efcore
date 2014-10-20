@@ -6,6 +6,7 @@ using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.InMemory.Utilities;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
+using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.InMemory.Query
 {
@@ -16,9 +17,14 @@ namespace Microsoft.Data.Entity.InMemory.Query
 
         public InMemoryQueryCompilationContext(
             [NotNull] IModel model,
+            [NotNull] ILogger logger,
             [NotNull] EntityKeyFactorySource entityKeyFactorySource,
             [NotNull] InMemoryDatabase database)
-            : base(Check.NotNull(model, "model"), new LinqOperatorProvider(), new ResultOperatorHandler())
+            : base(
+                Check.NotNull(model, "model"),
+                Check.NotNull(logger, "logger"),
+                new LinqOperatorProvider(),
+                new ResultOperatorHandler())
         {
             Check.NotNull(entityKeyFactorySource, "entityKeyFactorySource");
             Check.NotNull(database, "database");

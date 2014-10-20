@@ -3,6 +3,7 @@
 
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Redis.Query;
+using Microsoft.Framework.Logging;
 using Moq;
 using Remotion.Linq.Clauses;
 using Xunit;
@@ -14,6 +15,7 @@ namespace Microsoft.Data.Entity.Redis.Tests.Query
         public RedisQueryModelVisitorTests()
             : base(new RedisQueryCompilationContext(
                 QueryTestType.Model(),
+                new LoggerFactory().Create("Fake"),
                 new LinqOperatorProvider(),
                 new ResultOperatorHandler(),
                 new QueryMethodProvider()))

@@ -8,6 +8,7 @@ using System.Linq.Expressions;
 using Microsoft.Data.Entity.AzureTableStorage.Query;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
+using Microsoft.Framework.Logging;
 using Moq;
 using Remotion.Linq;
 using Remotion.Linq.Clauses.Expressions;
@@ -89,7 +90,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
 
         public int CountQueryModel(QueryModel queryModel)
         {
-            var context = new AtsQueryCompilationContext(CreateModel());
+            var context = new AtsQueryCompilationContext(CreateModel(), new LoggerFactory().Create("Fake"));
             var visitor = context.CreateQueryModelVisitor();
             visitor.VisitQueryModel(queryModel);
 

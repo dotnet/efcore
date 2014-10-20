@@ -80,6 +80,7 @@ namespace Microsoft.Data.Entity.InMemory
             var queryCompilationContext
                 = new InMemoryQueryCompilationContext(
                     Model,
+                    Logger,
                     EntityKeyFactorySource,
                     _database.Value);
 

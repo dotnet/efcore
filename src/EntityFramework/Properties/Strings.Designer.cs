@@ -1307,7 +1307,7 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
-        /// Compiling query model{newline}{newline}{queryModel}
+        /// Compiling query model: '{queryModel}'
         /// </summary>
         internal static string LogCompilingQueryModel
         {
@@ -1315,11 +1315,75 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
-        /// Compiling query model{newline}{newline}{queryModel}
+        /// Compiling query model: '{queryModel}'
         /// </summary>
-        internal static string FormatLogCompilingQueryModel(object newline, object queryModel)
+        internal static string FormatLogCompilingQueryModel(object queryModel)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("LogCompilingQueryModel", "newline", "queryModel"), newline, queryModel);
+            return string.Format(CultureInfo.CurrentCulture, GetString("LogCompilingQueryModel", "queryModel"), queryModel);
+        }
+
+        /// <summary>
+        /// Optimized query model: '{queryModel}'
+        /// </summary>
+        internal static string LogOptimizedQueryModel
+        {
+            get { return GetString("LogOptimizedQueryModel"); }
+        }
+
+        /// <summary>
+        /// Optimized query model: '{queryModel}'
+        /// </summary>
+        internal static string FormatLogOptimizedQueryModel(object queryModel)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("LogOptimizedQueryModel", "queryModel"), queryModel);
+        }
+
+        /// <summary>
+        /// Compiled query expression.
+        /// </summary>
+        internal static string LogCompiledQueryFunction
+        {
+            get { return GetString("LogCompiledQueryFunction"); }
+        }
+
+        /// <summary>
+        /// Compiled query expression.
+        /// </summary>
+        internal static string FormatLogCompiledQueryFunction()
+        {
+            return GetString("LogCompiledQueryFunction");
+        }
+
+        /// <summary>
+        /// Including navigation: '{navigation}'
+        /// </summary>
+        internal static string LogIncludingNavigation
+        {
+            get { return GetString("LogIncludingNavigation"); }
+        }
+
+        /// <summary>
+        /// Including navigation: '{navigation}'
+        /// </summary>
+        internal static string FormatLogIncludingNavigation(object navigation)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("LogIncludingNavigation", "navigation"), navigation);
+        }
+
+        /// <summary>
+        /// Tracking query sources: [{querySources}]
+        /// </summary>
+        internal static string LogTrackingQuerySources
+        {
+            get { return GetString("LogTrackingQuerySources"); }
+        }
+
+        /// <summary>
+        /// Tracking query sources: [{querySources}]
+        /// </summary>
+        internal static string FormatLogTrackingQuerySources(object querySources)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("LogTrackingQuerySources", "querySources"), querySources);
         }
 
         private static string GetString(string name, params string[] formatterNames)

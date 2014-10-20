@@ -10,6 +10,7 @@ using Microsoft.Data.Entity.AzureTableStorage.Query.Expressions;
 using Microsoft.Data.Entity.AzureTableStorage.Tests.Helpers;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
+using Microsoft.Framework.Logging;
 using Moq;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
@@ -22,7 +23,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
         private readonly TableQueryGenerator _generator = new TableQueryGenerator();
 
         public QueryGenerationTests()
-            : base(new AtsQueryCompilationContext(SetupModel()))
+            : base(new AtsQueryCompilationContext(SetupModel(), new LoggerFactory().Create("Fake")))
         {
         }
 

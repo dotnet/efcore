@@ -41,6 +41,11 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             get { return TestSqlLoggerFactory.Logger.Sql; }
         }
 
+        public string Log
+        {
+            get { return TestSqlLoggerFactory.Logger.Log; }
+        }
+
         public void Dispose()
         {
             _testDatabase.Dispose();

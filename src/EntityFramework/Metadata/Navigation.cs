@@ -58,5 +58,10 @@ namespace Microsoft.Data.Entity.Metadata
         {
             get { return ForeignKey; }
         }
+
+        public override string ToString()
+        {
+            return EntityType + "." + Name;
+        }
     }
 }

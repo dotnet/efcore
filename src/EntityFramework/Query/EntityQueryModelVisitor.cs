@@ -12,6 +12,7 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query.ExpressionTreeVisitors;
 using Microsoft.Data.Entity.Query.ResultOperators;
 using Microsoft.Data.Entity.Utilities;
+using Microsoft.Framework.Logging;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
@@ -91,42 +92,48 @@ namespace Microsoft.Data.Entity.Query
         {
             Check.NotNull(queryModel, "queryModel");
 
-            _blockTaskExpressions = false;
+            using (QueryCompilationContext.Logger.BeginScope(this))
+            {
+                _blockTaskExpressions = false;
 
-            var queryAnnotations = ExtractQueryAnnotations(queryModel);
+                var queryAnnotations = ExtractQueryAnnotations(queryModel);
 
-            OptimizeQueryModel(queryModel, queryAnnotations);
+                OptimizeQueryModel(queryModel, queryAnnotations);
 
-            VisitQueryModel(queryModel);
+                VisitQueryModel(queryModel);
 
-            SingleResultToSequence(queryModel, typeof(TResult));
+                SingleResultToSequence(queryModel, typeof(TResult));
 
-            IncludeNavigations(queryModel, typeof(TResult), queryAnnotations);
+                IncludeNavigations(queryModel, typeof(TResult), queryAnnotations);
 
-            TrackEntitiesInResults<TResult>(queryModel, queryAnnotations);
+                TrackEntitiesInResults<TResult>(queryModel, queryAnnotations);
 
-            return CreateExecutorLambda<IEnumerable<TResult>>();
+                return CreateExecutorLambda<IEnumerable<TResult>>();
+            }
         }
 
         public virtual Func<QueryContext, IAsyncEnumerable<TResult>> CreateAsyncQueryExecutor<TResult>([NotNull] QueryModel queryModel)
         {
             Check.NotNull(queryModel, "queryModel");
 
-            _blockTaskExpressions = false;
+            using (QueryCompilationContext.Logger.BeginScope(this))
+            {
+                _blockTaskExpressions = false;
 
-            var queryAnnotations = ExtractQueryAnnotations(queryModel);
+                var queryAnnotations = ExtractQueryAnnotations(queryModel);
 
-            OptimizeQueryModel(queryModel, queryAnnotations);
+                OptimizeQueryModel(queryModel, queryAnnotations);
 
-            VisitQueryModel(queryModel);
+                VisitQueryModel(queryModel);
 
-            AsyncSingleResultToSequence(queryModel, typeof(TResult));
+                AsyncSingleResultToSequence(queryModel, typeof(TResult));
 
-            IncludeNavigations(queryModel, typeof(TResult), queryAnnotations);
+                IncludeNavigations(queryModel, typeof(TResult), queryAnnotations);
 
-            TrackEntitiesInResults<TResult>(queryModel, queryAnnotations);
+                TrackEntitiesInResults<TResult>(queryModel, queryAnnotations);
 
-            return CreateExecutorLambda<IAsyncEnumerable<TResult>>();
+                return CreateExecutorLambda<IAsyncEnumerable<TResult>>();
+            }
         }
 
         protected virtual ICollection<QueryAnnotation> ExtractQueryAnnotations([NotNull] QueryModel queryModel)
@@ -144,6 +151,9 @@ namespace Microsoft.Data.Entity.Query
             Check.NotNull(queryAnnotations, "queryAnnotations");
 
             new QueryOptimizer(queryAnnotations).VisitQueryModel(queryModel);
+
+            QueryCompilationContext.Logger
+                .WriteInformation(queryModel, Strings.FormatLogOptimizedQueryModel);
         }
 
         protected virtual void SingleResultToSequence(
@@ -230,6 +240,11 @@ namespace Microsoft.Data.Entity.Query
                                         queryModel.SelectClause.Selector,
                                         Expression.Parameter(queryModel.SelectClause.Selector.Type));
 
+                            QueryCompilationContext.Logger
+                                .WriteInformation(
+                                    navigation,
+                                    Strings.FormatLogIncludingNavigation);
+
                             IncludeNavigation(
                                 queryAnnotation.QuerySource,
                                 resultType,
@@ -280,6 +295,12 @@ namespace Microsoft.Data.Entity.Query
 
             if (querySourceReferenceExpressionsToTrack.Any())
             {
+                QueryCompilationContext.Logger
+                    .WriteInformation(
+                        querySourceReferenceExpressionsToTrack,
+                        qsres => Strings.FormatLogTrackingQuerySources(
+                            qsres.Select(qsre => qsre.ReferencedQuerySource.ItemName).Join()));
+
                 _expression
                     = Expression.Call(
                         LinqOperatorProvider.TrackEntities
@@ -329,6 +350,10 @@ namespace Microsoft.Data.Entity.Query
                     .Lambda<Func<QueryContext, QuerySourceScope, TResults>>(
                         _expression, QueryContextParameter, QuerySourceScopeParameter)
                     .Compile();
+
+            // TODO: Format expression in log (query plan)
+            QueryCompilationContext.Logger
+                .WriteInformation(_expression, _ => Strings.FormatLogCompiledQueryFunction());
 
             return qc => queryExecutor(qc, null);
         }

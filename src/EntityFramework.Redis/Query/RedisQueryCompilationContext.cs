@@ -5,6 +5,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Redis.Utilities;
+using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Redis.Query
 {
@@ -14,10 +15,15 @@ namespace Microsoft.Data.Entity.Redis.Query
 
         public RedisQueryCompilationContext(
             [NotNull] IModel model,
+            [NotNull] ILogger logger,
             [NotNull] ILinqOperatorProvider linqOperatorProvider,
             [NotNull] IResultOperatorHandler resultOperatorHandler,
             [NotNull] IQueryMethodProvider queryMethodProvider)
-            : base(model, linqOperatorProvider, resultOperatorHandler)
+            : base(
+                Check.NotNull(model, "model"),
+                Check.NotNull(logger, "logger"),
+                Check.NotNull(linqOperatorProvider, "linqOperatorProvider"),
+                Check.NotNull(resultOperatorHandler, "resultOperatorHandler"))
         {
             Check.NotNull(queryMethodProvider, "queryMethodProvider");
 

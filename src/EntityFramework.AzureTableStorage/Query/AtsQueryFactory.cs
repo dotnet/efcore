@@ -20,9 +20,13 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
             _valueReaderFactory = valueReaderFactory;
         }
 
-        public virtual AtsQueryCompilationContext MakeCompilationContext([NotNull] IModel model)
+        public virtual AtsQueryCompilationContext MakeCompilationContext(
+            [NotNull] IModel model, [NotNull] ILogger logger)
         {
-            return new AtsQueryCompilationContext(model);
+            Check.NotNull(model, "model");
+            Check.NotNull(logger, "logger");
+
+            return new AtsQueryCompilationContext(model, logger);
         }
 
         public virtual AtsQueryContext MakeQueryContext(

@@ -63,7 +63,7 @@ namespace Microsoft.Data.Entity.Query
         {
             Check.NotNull(queryModel, "queryModel");
 
-            LogQueryModel(queryModel);
+            _logger.Value.WriteInformation(queryModel, Strings.FormatLogCompilingQueryModel);
 
             try
             {
@@ -88,7 +88,7 @@ namespace Microsoft.Data.Entity.Query
         {
             Check.NotNull(queryModel, "queryModel");
 
-            LogQueryModel(queryModel);
+            _logger.Value.WriteInformation(queryModel, Strings.FormatLogCompilingQueryModel);
 
             try
             {
@@ -108,13 +108,6 @@ namespace Microsoft.Data.Entity.Query
 
                 throw;
             }
-        }
-
-        private void LogQueryModel(QueryModel queryModel)
-        {
-            _logger.Value.WriteInformation(
-                queryModel,
-                qm => Strings.FormatLogCompilingQueryModel(Environment.NewLine, qm));
         }
 
         private sealed class EnumerableExceptionInterceptor<T> : IEnumerable<T>

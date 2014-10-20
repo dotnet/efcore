@@ -107,7 +107,7 @@ namespace Microsoft.Data.Entity.Redis
             Check.NotNull(queryMethodProvider, "queryMethodProvider");
 
             return new RedisQueryCompilationContext(
-                Model, linqOperatorProvider, resultOperatorHandler, queryMethodProvider);
+                Model, Logger, linqOperatorProvider, resultOperatorHandler, queryMethodProvider);
         }
     }
 }

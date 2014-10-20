@@ -10,6 +10,7 @@ using Microsoft.Data.Entity.Relational.Query.Expressions;
 using Microsoft.Data.Entity.Relational.Query.Methods;
 using Microsoft.Data.Entity.Relational.Query.Sql;
 using Microsoft.Data.Entity.Relational.Utilities;
+using Microsoft.Framework.Logging;
 using Remotion.Linq.Clauses;
 
 namespace Microsoft.Data.Entity.Relational.Query
@@ -24,12 +25,14 @@ namespace Microsoft.Data.Entity.Relational.Query
 
         public RelationalQueryCompilationContext(
             [NotNull] IModel model,
-            [NotNull] ILinqOperatorProvider linqOperatorProvider,
+            [NotNull] ILogger logger,
+            [NotNull] ILinqOperatorProvider linqOperatorProvider, 
             [NotNull] IResultOperatorHandler resultOperatorHandler,
             [NotNull] IQueryMethodProvider queryMethodProvider,
             [NotNull] IMethodCallTranslator methodCallTranslator)
             : base(
                 Check.NotNull(model, "model"),
+                Check.NotNull(logger, "logger"),
                 Check.NotNull(linqOperatorProvider, "linqOperatorProvider"),
                 Check.NotNull(resultOperatorHandler, "resultOperatorHandler"))
         {
