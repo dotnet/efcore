@@ -84,6 +84,7 @@
     <Compile Include="NorthwindAsyncQueryTest.cs" />
     <Compile Include="NorthwindQueryLoggingTest.cs" />
     <Compile Include="NorthwindQueryTest.cs" />
+    <Compile Include="QueryBugsTest.cs" />
     <Compile Include="SqlServerOptimisticConcurrencyTest.cs" />
     <Compile Include="SequenceEndToEndTest.cs" />
     <Compile Include="SequentialGuidEndToEndTest.cs" />
