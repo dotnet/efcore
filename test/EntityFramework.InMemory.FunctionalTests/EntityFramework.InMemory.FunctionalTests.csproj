@@ -66,8 +66,8 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AsNoTrackingTest.cs" />
     <Compile Include="DeadlockTest.cs" />
+    <Compile Include="InMemoryAsNoTrackingTest.cs" />
     <Compile Include="InMemoryTestStore.cs" />
     <Compile Include="BuiltInDataTypesFixture.cs" />
     <Compile Include="BuiltInDataTypesTest.cs" />
@@ -75,15 +75,15 @@
     <Compile Include="MusicStoreQueryTests.cs" />
     <Compile Include="CompositeKeyEndToEndTest.cs" />
     <Compile Include="GuidValueGeneratorEndToEndTest.cs" />
-    <Compile Include="IncludeNorthwindTest.cs" />
+    <Compile Include="InMemoryIncludeTest.cs" />
     <Compile Include="InMemoryConfigPatternsTest.cs" />
     <Compile Include="InMemoryDataStoreTest.cs" />
     <Compile Include="InMemoryIntegerGeneratorEndToEndTest.cs" />
     <Compile Include="MonsterFixupTest.cs" />
     <Compile Include="OneToOneQueryFixture.cs" />
-    <Compile Include="NorthwindQueryFixture.cs" />
-    <Compile Include="NorthwindAsyncQueryTest.cs" />
-    <Compile Include="NorthwindQueryTest.cs" />
+    <Compile Include="InMemoryNorthwindQueryFixture.cs" />
+    <Compile Include="InMemoryAsyncQueryTest.cs" />
+    <Compile Include="InMemoryQueryTest.cs" />
     <Compile Include="ShadowStateUpdateTest.cs" />
     <Compile Include="SupplementalBuiltInDataTypesFixture.cs" />
     <Compile Include="SupplementalBuiltInDataTypesTest.cs" />

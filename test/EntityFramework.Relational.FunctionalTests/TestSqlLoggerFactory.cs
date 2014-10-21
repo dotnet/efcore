@@ -8,6 +8,7 @@ using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 #if !ASPNETCORE50
 using System.Runtime.Remoting.Messaging;
+
 #endif
 
 namespace Microsoft.Data.Entity.Relational.FunctionalTests
@@ -22,14 +23,14 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
 
         public ILogger Create(string name)
         {
-            return Logger ?? Init();
+            return Logger;
         }
 
         public void AddProvider(ILoggerProvider provider)
         {
         }
 
-        public SqlLogger Init()
+        private static SqlLogger Init()
         {
             var logger = new SqlLogger();
 #if ASPNETCORE50
@@ -40,19 +41,42 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
             return logger;
         }
 
-        public static SqlLogger Logger
+        private static SqlLogger Logger
         {
             get
             {
 #if ASPNETCORE50
-                return _logger.Value;
+                var logger = _logger.Value;
 #else
-                return (SqlLogger)CallContext.LogicalGetData(ContextName);
+                var logger = (SqlLogger)CallContext.LogicalGetData(ContextName);
 #endif
+                return logger ?? Init();
             }
         }
 
-        public class SqlLogger : ILogger
+        public static CancellationToken CancelQuery()
+        {
+            var cancellationTokenSource = new CancellationTokenSource();
+            Logger.CancellationTokenSource = cancellationTokenSource;
+            return cancellationTokenSource.Token;
+        }
+
+        public static string Log
+        {
+            get { return Logger.Log; }
+        }
+
+        public static string Sql
+        {
+            get { return Logger.Sql; }
+        }
+
+        public static List<string> SqlStatements
+        {
+            get { return Logger.SqlStatements; }
+        }
+
+        private class SqlLogger : ILogger
         {
             private readonly List<string> _sqlStatements = new List<string>();
 
@@ -90,9 +114,9 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
                 return true;
             }
 
-            public CancellationToken CancelQuery()
+            public CancellationTokenSource CancellationTokenSource
             {
-                return (_cancellationTokenSource = new CancellationTokenSource()).Token;
+                set { _cancellationTokenSource = value; }
             }
 
             public List<string> SqlStatements

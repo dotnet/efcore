@@ -73,7 +73,6 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AsNoTrackingTest.cs" />
     <Compile Include="BuiltInDataTypesFixture.cs" />
     <Compile Include="BuiltInDataTypesTest.cs" />
     <Compile Include="ConnectionSpecificationTest.cs" />
@@ -82,14 +81,15 @@
     <Compile Include="DeadlockTest.cs" />
     <Compile Include="DefaultValuesTest.cs" />
     <Compile Include="ExistingConnectionTest.cs" />
-    <Compile Include="IncludeNorthwindAsyncTest.cs" />
-    <Compile Include="IncludeNorthwindTest.cs" />
     <Compile Include="MappingQueryFixture.cs" />
     <Compile Include="MappingQueryTest.cs" />
-    <Compile Include="NorthwindQueryFixture.cs" />
-    <Compile Include="NorthwindAsyncQueryTest.cs" />
-    <Compile Include="NorthwindQueryLoggingTest.cs" />
-    <Compile Include="NorthwindQueryTest.cs" />
+    <Compile Include="SqlServerIncludeAsyncTest.cs" />
+    <Compile Include="SqlServerIncludeTest.cs" />
+    <Compile Include="SqlServerAsNoTrackingTest.cs" />
+    <Compile Include="SqlServerNorthwindQueryFixture.cs" />
+    <Compile Include="SqlServerAsyncQueryTest.cs" />
+    <Compile Include="SqlServerQueryLoggingTest.cs" />
+    <Compile Include="SqlServerQueryTest.cs" />
     <Compile Include="QueryBugsTest.cs" />
     <Compile Include="SqlServerOptimisticConcurrencyTest.cs" />
     <Compile Include="SequenceEndToEndTest.cs" />
@@ -101,8 +101,10 @@
     <Compile Include="SqlServerEndToEndTest.cs" />
     <Compile Include="SqlServerSimpleCommandExecutorTest.cs" />
     <Compile Include="MonsterFixupTest.cs" />
-    <Compile Include="SqlServerTestDatabase.cs" />
+    <Compile Include="SqlServerTestStore.cs" />
     <Compile Include="SqlServerTransactionTest.cs" />
+    <Compile Include="TestModels\SqlServerF1Context.cs" />
+    <Compile Include="TestModels\SqlServerNorthwindContext.cs" />
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>

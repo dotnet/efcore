@@ -2,20 +2,23 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
+using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
 using Microsoft.Data.Entity.Metadata;
-using Northwind;
 
 namespace Microsoft.Data.Entity.FunctionalTests
 {
     public abstract class NorthwindQueryFixtureBase
     {
-        protected virtual Model CreateModel()
+        public Model CreateModel()
         {
-            var model = new Model();
-            var modelBuilder = new BasicModelBuilder(model);
-
+            var modelBuilder = new BasicModelBuilder(new Model());
             OnModelCreating(modelBuilder);
+            return modelBuilder.Model;
+        }
 
+        // TODO: Use ModelBuilder and move to DbContext when ignore property is available
+        public virtual void OnModelCreating(BasicModelBuilder modelBuilder)
+        {
             modelBuilder.Entity<Customer>(e =>
                 {
                     e.Key(c => c.CustomerID);
@@ -65,6 +68,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 });
 
             // TODO: Use FAPIS when avail.
+            var model = modelBuilder.Model;
             var productType = model.GetEntityType(typeof(Product));
             var customerType = model.GetEntityType(typeof(Customer));
             var orderType = model.GetEntityType(typeof(Order));
@@ -80,12 +84,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
             orderType.AddNavigation("OrderDetails", orderIdFk, pointsToPrincipal: false);
             orderDetailType.AddNavigation("Product", productIdFk, pointsToPrincipal: true);
             orderDetailType.AddNavigation("Order", orderIdFk, pointsToPrincipal: true);
-
-            return model;
         }
 
-        protected virtual void OnModelCreating(BasicModelBuilder modelBuilder)
-        {
-        }
+        public abstract NorthwindContext CreateContext();
     }
 }

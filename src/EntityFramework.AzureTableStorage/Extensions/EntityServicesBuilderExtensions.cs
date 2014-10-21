@@ -31,8 +31,7 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddScoped<AtsDatabase>()
                 .AddScoped<AtsDataStore>()
                 .AddScoped<AtsConnection>()
-                .AddScoped<AtsDataStoreCreator>()
-                .AddScoped<AtsValueGeneratorCache>();
+                .AddScoped<AtsDataStoreCreator>();
 
             return builder;
         }

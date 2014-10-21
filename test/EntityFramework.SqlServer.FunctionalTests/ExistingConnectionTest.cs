@@ -7,6 +7,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.SqlServer.FunctionalTests.TestModels;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
 using Xunit;
@@ -39,13 +40,13 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
 
-            using (await SqlServerTestDatabase.Northwind())
+            using (var store = await SqlServerNorthwindContext.GetSharedStoreAsync())
             {
                 var openCount = 0;
                 var closeCount = 0;
                 var disposeCount = 0;
 
-                using (var connection = new SqlConnection(SqlServerTestDatabase.NorthwindConnectionString))
+                using (var connection = new SqlConnection(store.Connection.ConnectionString))
                 {
                     if (openConnection)
                     {

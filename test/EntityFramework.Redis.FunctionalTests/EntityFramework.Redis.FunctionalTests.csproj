@@ -72,13 +72,14 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AsNoTrackingTest.cs" />
+    <Compile Include="RedisAsNoTrackingTest.cs" />
     <Compile Include="BuiltInDataTypesFixture.cs" />
     <Compile Include="BuiltInDataTypesTest.cs" />
-    <Compile Include="NorthwindAsyncQueryTest.cs" />
-    <Compile Include="NorthwindQueryFixture.cs" />
-    <Compile Include="NorthwindQueryTest.cs" />
+    <Compile Include="RedisAsyncQueryTest.cs" />
+    <Compile Include="RedisNorthwindQueryFixture.cs" />
+    <Compile Include="RedisQueryTest.cs" />
     <Compile Include="RedisTestConfig.cs" />
+    <Compile Include="RedisTestStore.cs" />
     <Compile Include="RedisXunitTestFramework.cs" />
     <Compile Include="SimpleTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -73,17 +73,18 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AsNoTrackingTest.cs" />
     <Compile Include="BuiltInDataTypesFixture.cs" />
     <Compile Include="BuiltInDataTypesTest.cs" />
-    <Compile Include="IncludeNorthwindAsyncTest.cs" />
-    <Compile Include="IncludeNorthwindTest.cs" />
+    <Compile Include="SqLiteIncludeAsyncTest.cs" />
+    <Compile Include="SqLiteIncludeTest.cs" />
     <Compile Include="MonsterFixupTest.cs" />
-    <Compile Include="NorthwindAsyncQueryTest.cs" />
-    <Compile Include="NorthwindQueryFixture.cs" />
-    <Compile Include="NorthwindQueryTest.cs" />
-    <Compile Include="SQLiteTestDatabase.cs" />
+    <Compile Include="SqLiteAsNoTrackingTest.cs" />
+    <Compile Include="SqLiteAsyncQueryTest.cs" />
+    <Compile Include="SQLiteNorthwindQueryFixture.cs" />
+    <Compile Include="SqLiteQueryTest.cs" />
+    <Compile Include="SQLiteTestStore.cs" />
     <Compile Include="SQLiteTransactionTest.cs" />
+    <Compile Include="TestModels\SQLiteNorthwindContext.cs" />
     <None Include="northwind.db">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

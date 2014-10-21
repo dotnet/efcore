@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -10,7 +10,7 @@ using Microsoft.Framework.DependencyInjection.Fallback;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
-    public class SqlServerTransactionTest : TransactionTestBase<SqlServerTestDatabase>
+    public class SqlServerTransactionTest : TransactionTestBase<SqlServerTestStore>
     {
         private readonly IServiceProvider _serviceProvider;
 
@@ -28,9 +28,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             get { return true; }
         }
 
-        protected override async Task<SqlServerTestDatabase> CreateTestDatabaseAsync()
+        protected override async Task<SqlServerTestStore> CreateTestDatabaseAsync()
         {
-            var db = await SqlServerTestDatabase.Scratch();
+            var db = await SqlServerTestStore.CreateScratchAsync();
 
             using (var command = db.Connection.CreateCommand())
             {
@@ -52,12 +52,12 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             return db;
         }
 
-        protected override Task<DbContext> CreateContextAsync(SqlServerTestDatabase testDatabase)
+        protected override Task<DbContext> CreateContextAsync(SqlServerTestStore testStore)
         {
             var options
                 = new DbContextOptions()
                     .UseModel(CreateModel())
-                    .UseSqlServer(testDatabase.Connection.ConnectionString);
+                    .UseSqlServer(testStore.Connection.ConnectionString);
 
             return Task.FromResult(new DbContext(_serviceProvider, options));
         }

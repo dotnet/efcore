@@ -11,21 +11,21 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         public override void All_customers()
         {
             base.All_customers();
-            
+
             Assert.Equal(
                 @"SELECT [c].[CompanyName], [c].[CustomerID]
 FROM [dbo].[Customers] AS [c]",
-                _fixture.Sql);
+                Sql);
         }
-        
+
         public override void All_employees()
         {
             base.All_employees();
-            
+
             Assert.Equal(
                 @"SELECT [e].[City], [e].[EmployeeID]
 FROM [dbo].[Employees] AS [e]",
-                _fixture.Sql);
+                Sql);
         }
 
         public override void All_orders()
@@ -35,7 +35,7 @@ FROM [dbo].[Employees] AS [e]",
             Assert.Equal(
                 @"SELECT [o].[OrderID], [o].[ShipVia]
 FROM [dbo].[Orders] AS [o]",
-                _fixture.Sql);
+                Sql);
         }
 
         public override void Project_nullable_enum()
@@ -45,7 +45,7 @@ FROM [dbo].[Orders] AS [o]",
             Assert.Equal(
                 @"SELECT [o].[ShipVia]
 FROM [dbo].[Orders] AS [o]",
-                _fixture.Sql);
+                Sql);
         }
 
         private readonly MappingQueryFixture _fixture;
@@ -53,12 +53,16 @@ FROM [dbo].[Orders] AS [o]",
         public MappingQueryTest(MappingQueryFixture fixture)
         {
             _fixture = fixture;
-            _fixture.InitLogger();
         }
 
         protected override DbContext CreateContext()
         {
             return _fixture.CreateContext();
+        }
+
+        private static string Sql
+        {
+            get { return TestSqlLoggerFactory.Sql; }
         }
     }
 }

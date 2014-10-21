@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -28,9 +28,9 @@ namespace Microsoft.Data.Entity.SQLite.FunctionalTests
             throw new NotImplementedException();
         }
 
-        public SQLiteTestDatabase CreateSQLiteTestDatabase()
+        public SQLiteTestStore CreateSQLiteTestDatabase()
         {
-            var db = SQLiteTestDatabase.Scratch().Result;
+            var db = SQLiteTestStore.CreateScratchAsync().Result;
             using (var context = CreateSQLiteContext(db))
             {
                 context.Database.EnsureCreated();
@@ -39,12 +39,12 @@ namespace Microsoft.Data.Entity.SQLite.FunctionalTests
             return db;
         }
 
-        public DbContext CreateSQLiteContext(SQLiteTestDatabase testDatabase)
+        public DbContext CreateSQLiteContext(SQLiteTestStore testStore)
         {
             var options
                 = new DbContextOptions()
                     .UseModel(CreateModel())
-                    .UseSQLite(testDatabase.Connection.ConnectionString);
+                    .UseSQLite(testStore.Connection.ConnectionString);
 
             return new DbContext(_serviceProvider, options);
         }

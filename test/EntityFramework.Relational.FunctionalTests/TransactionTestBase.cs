@@ -9,7 +9,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Update;
-using Microsoft.Data.Entity.FunctionalTests.TestUtilities;
+using Microsoft.Data.Entity.FunctionalTests;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Relational.FunctionalTests
@@ -369,7 +369,7 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
 
         protected abstract Task<TTestStore> CreateTestDatabaseAsync();
 
-        protected abstract Task<DbContext> CreateContextAsync(TTestStore testDatabase);
+        protected abstract Task<DbContext> CreateContextAsync(TTestStore testStore);
 
         protected abstract Task<DbContext> CreateContextAsync(DbConnection connection);
 

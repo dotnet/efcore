@@ -1,50 +1,25 @@
-﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Threading.Tasks;
+using Microsoft.Data.Entity.AzureTableStorage.FunctionalTests.TestModels;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.ConcurrencyModel;
-using Microsoft.Data.Entity.Identity;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Storage;
-using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.DependencyInjection.Fallback;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
 {
     [RunIfConfigured]
-    public class AtsOptimisticConcurrencyTests : OptimisticConcurrencyTestBase<AtsOptimisticConcurrencyTests.AtsTestStore>, IDisposable
+    public class AtsOptimisticConcurrencyTests : OptimisticConcurrencyTestBase<AtsTestStore>
     {
-        private readonly IServiceProvider _serviceProvider;
-        private readonly IModel _model;
-
-        public AtsOptimisticConcurrencyTests()
+        public override Task<AtsTestStore> CreateTestStoreAsync()
         {
-            var tableSuffix = Guid.NewGuid().ToString().Replace("-", "");
-            var modelBuilder = new ModelBuilder(new Model());
-            ConfigureAtsModel(modelBuilder, tableSuffix);
-
-            _model = F1Context.CreateModel(modelBuilder).Model;
-
-            _serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddAzureTableStorage()
-                .ServiceCollection
-                .AddScoped<AtsValueGeneratorCache, TestValueGeneratorCache>()
-                .BuildServiceProvider();
+            return AtsF1Context.CreateMutableTestStoreAsync();
         }
 
-        protected override async Task<AtsTestStore> CreateTestDatabaseAsync()
+        public override F1Context CreateF1Context(AtsTestStore testStore)
         {
-            var db = new AtsTestStore();
-            using (var context = CreateF1Context(db))
-            {
-                await ConcurrencyModelInitializer.SeedAsync(context);
-            }
-
-            return db;
+            return AtsF1Context.Create(testStore);
         }
 
         protected override void ResolveConcurrencyTokens(StateEntry stateEntry)
@@ -52,147 +27,6 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
             var property = stateEntry.EntityType.GetProperty("ETag");
             stateEntry[property] = "*";
             //TODO use the actual ETag instead of force rewrite. This will require refactoring the test base to read shadow state properties
-        }
-
-        protected override F1Context CreateF1Context(AtsTestStore testStore)
-        {
-            var options = new DbContextOptions()
-                .UseModel(_model)
-                .UseAzureTableStorage(TestConfig.Instance.ConnectionString);
-            return new F1Context(_serviceProvider, options);
-        }
-
-        private static void ConfigureAtsModel(ModelBuilder builder, string tableSuffix)
-        {
-            builder.Entity<Chassis>(
-                b =>
-                    {
-                        b.ForAzureTableStorage().PartitionAndRowKey(c => c.Name, c => c.TeamId);
-                        b.Key(c => c.TeamId);
-                        b.Property<string>("ETag");
-                        b.ForAzureTableStorage().Table("Chassis" + tableSuffix);
-                    });
-
-            builder.Entity<Team>(
-                b =>
-                    {
-                        b.ForAzureTableStorage().PartitionAndRowKey(c => c.Name, c => c.Id);
-                        b.Key(c => c.Id);
-                        b.Property<string>("ETag");
-                        b.ForAzureTableStorage().Table("Teams" + tableSuffix);
-                    });
-
-            builder.Entity<Driver>(
-                b =>
-                    {
-                        b.ForAzureTableStorage().PartitionAndRowKey(c => c.Name, c => c.Id);
-                        b.Key(c => c.Id);
-                        b.Property<string>("ETag");
-                        b.ForAzureTableStorage().Table("Drivers" + tableSuffix);
-                    });
-
-            builder.Entity<Engine>(
-                b =>
-                    {
-                        b.ForAzureTableStorage().PartitionAndRowKey(c => c.Name, c => c.Id);
-                        b.Key(c => c.Id);
-                        b.Property<string>("ETag");
-                        b.ForAzureTableStorage().Table("Engines" + tableSuffix);
-                    });
-
-            builder.Entity<EngineSupplier>(
-                b =>
-                    {
-                        b.ForAzureTableStorage().PartitionAndRowKey(c => c.Name, c => c.Id);
-                        b.Key(c => c.Id);
-                        b.Property<string>("ETag");
-                        b.ForAzureTableStorage().Table("EngineSuppliers" + tableSuffix);
-                    });
-
-            builder.Entity<Gearbox>(
-                b =>
-                    {
-                        b.ForAzureTableStorage().PartitionAndRowKey(c => c.Name, c => c.Id);
-                        b.Key(c => c.Id);
-                        b.Property<string>("ETag");
-                        b.ForAzureTableStorage().Table("Gearboxes" + tableSuffix);
-                    });
-
-            builder.Entity<Sponsor>(
-                b =>
-                    {
-                        b.ForAzureTableStorage().PartitionAndRowKey(c => c.Name, c => c.Id);
-                        b.Key(c => c.Id);
-                        b.Property<string>("ETag");
-                        b.ForAzureTableStorage().Table("Sponsors" + tableSuffix);
-                    });
-
-            builder.Entity<TestDriver>(
-                b =>
-                    {
-                        b.ForAzureTableStorage().PartitionAndRowKey(c => c.Name, c => c.Id);
-                        b.Key(c => c.Id);
-                        b.Property<string>("ETag");
-                        b.ForAzureTableStorage().Table("TestDrivers" + tableSuffix);
-                    });
-
-            builder.Entity<TitleSponsor>(
-                b =>
-                    {
-                        b.ForAzureTableStorage().PartitionAndRowKey(c => c.Name, c => c.Id);
-                        b.Key(c => c.Id);
-                        b.Property<string>("ETag");
-                        b.ForAzureTableStorage().Table("TitleSponsors" + tableSuffix);
-                    });
-        }
-
-        public class AtsTestStore : TestStore
-        {
-            public override void Dispose()
-            {
-            }
-        }
-
-        public void Dispose()
-        {
-            using (var db = CreateF1Context(new AtsTestStore()))
-            {
-                db.Database.EnsureDeleted();
-            }
-        }
-
-        // Added as a hack to get these tests working correctly
-        //TODO consider adding this to the provider
-
-        internal class TestValueGeneratorCache : AtsValueGeneratorCache
-        {
-            private class IntGenerator : SimpleValueGenerator
-            {
-                public override void Next(StateEntry stateEntry, IProperty property)
-                {
-                    stateEntry[property] = Guid.NewGuid().GetHashCode();
-                }
-            }
-
-            public override IValueGenerator GetGenerator(IProperty property)
-            {
-                return new IntGenerator();
-            }
-        }
-
-        internal class AtsTransaction : DataStoreTransaction
-        {
-            public override void Commit()
-            {
-            }
-
-            public override void Rollback()
-            {
-            }
-
-            public override void Dispose()
-            {
-            }
         }
     }
 }

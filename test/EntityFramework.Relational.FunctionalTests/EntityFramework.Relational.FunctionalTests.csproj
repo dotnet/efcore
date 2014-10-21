@@ -72,9 +72,9 @@
   <ItemGroup>
     <Compile Include="MappingQueryTestBase.cs" />
     <Compile Include="MappingQueryFixtureBase.cs" />
-    <Compile Include="NorthwindQueryFixtureRelationalBase.cs" />
-    <Compile Include="OptimisticConcurrencyRelationalTestBase.cs" />
+    <Compile Include="RelationalNorthwindQueryFixture.cs" />
     <Compile Include="RelationalTestStore.cs" />
+    <Compile Include="TestModels\RelationalF1Context.cs" />
     <Compile Include="TestSqlLoggerFactory.cs" />
     <Compile Include="TransactionTestBase.cs" />
   </ItemGroup>

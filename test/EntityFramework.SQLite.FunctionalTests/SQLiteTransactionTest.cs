@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -11,7 +11,7 @@ using Microsoft.Framework.DependencyInjection.Fallback;
 
 namespace Microsoft.Data.Entity.SQLite.FunctionalTests
 {
-    public class SqlServerTransactionTest : TransactionTestBase<SQLiteTestDatabase>
+    public class SqlServerTransactionTest : TransactionTestBase<SQLiteTestStore>
     {
         private readonly IServiceProvider _serviceProvider;
 
@@ -30,9 +30,9 @@ namespace Microsoft.Data.Entity.SQLite.FunctionalTests
             get { return false; }
         }
 
-        protected override async Task<SQLiteTestDatabase> CreateTestDatabaseAsync()
+        protected override async Task<SQLiteTestStore> CreateTestDatabaseAsync()
         {
-            var db = await SQLiteTestDatabase.Scratch();
+            var db = await SQLiteTestStore.CreateScratchAsync();
             using (var context = await CreateContextAsync(db))
             {
                 await SeedAsync(context);
@@ -41,9 +41,9 @@ namespace Microsoft.Data.Entity.SQLite.FunctionalTests
             return db;
         }
 
-        protected override Task<DbContext> CreateContextAsync(SQLiteTestDatabase testDatabase)
+        protected override Task<DbContext> CreateContextAsync(SQLiteTestStore testStore)
         {
-            var sb = new SQLiteConnectionStringBuilder(testDatabase.Connection.ConnectionString);
+            var sb = new SQLiteConnectionStringBuilder(testStore.Connection.ConnectionString);
 
             var options
                 = new DbContextOptions()

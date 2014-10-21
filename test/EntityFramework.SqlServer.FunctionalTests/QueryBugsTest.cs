@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -71,7 +71,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             protected override void OnConfiguring(DbContextOptions options)
             {
-                options.UseSqlServer(SqlServerTestDatabase.CreateConnectionString("Repro603"));
+                options.UseSqlServer(SqlServerTestStore.CreateConnectionString("Repro603"));
             }
         }
 
@@ -111,7 +111,7 @@ INNER JOIN (
 ) AS [c] ON ([o].[CustomerId0] = [c].[FirstName] AND [o].[CustomerId1] = [c].[LastName])
 ORDER BY [c].[FirstName], [c].[LastName]";
 
-                Assert.Equal(expectedSql, TestSqlLoggerFactory.Logger.Sql);
+                Assert.Equal(expectedSql, TestSqlLoggerFactory.Sql);
             }
         }
 
@@ -146,7 +146,7 @@ ORDER BY [c].[FirstName], [c].[LastName]";
 FROM [Order] AS [o]
 LEFT JOIN [Customer] AS [c] ON ([c].[FirstName] = [o].[CustomerId0] AND [c].[LastName] = [o].[CustomerId1])";
 
-                Assert.Equal(expectedSql, TestSqlLoggerFactory.Logger.Sql);
+                Assert.Equal(expectedSql, TestSqlLoggerFactory.Sql);
             }
         }
 
@@ -202,7 +202,7 @@ LEFT JOIN [Customer] AS [c] ON ([c].[FirstName] = [o].[CustomerId0] AND [c].[Las
 
             protected override void OnConfiguring(DbContextOptions options)
             {
-                options.UseSqlServer(SqlServerTestDatabase.CreateConnectionString("Repro925"));
+                options.UseSqlServer(SqlServerTestStore.CreateConnectionString("Repro925"));
             }
 
             protected override void OnModelCreating(Entity.Metadata.ModelBuilder modelBuilder)

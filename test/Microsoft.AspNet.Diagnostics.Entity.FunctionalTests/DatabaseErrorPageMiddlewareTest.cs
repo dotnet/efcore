@@ -224,63 +224,65 @@ namespace Microsoft.AspNet.Diagnostics.Entity.Tests
         {
             var migrationsEndpoint = "/MyCustomEndPoints/ApplyMyMigrationsHere";
 
-            var database = await SqlServerTestDatabase.Scratch(createDatabase: false);
-
-            var server = TestServer.Create(app =>
+            using (var database = await SqlServerTestStore.CreateScratchAsync(createDatabase: false))
             {
-                app.UseServices(services =>
+                var server = TestServer.Create(app =>
                 {
-                    services.AddEntityFramework().AddSqlServer();
-                    services.AddScoped<BloggingContextWithMigrations>();
-                    services.AddInstance<DbContextOptions>(new DbContextOptions().UseSqlServer(database.Connection.ConnectionString));
+                    app.UseServices(services =>
+                    {
+                        services.AddEntityFramework().AddSqlServer();
+                        services.AddScoped<BloggingContextWithMigrations>();
+                        services.AddInstance<DbContextOptions>(new DbContextOptions().UseSqlServer(database.Connection.ConnectionString));
+                    });
+
+                    var options = DatabaseErrorPageOptions.ShowAll;
+                    options.MigrationsEndPointPath = new PathString(migrationsEndpoint);
+                    app.UseDatabaseErrorPage(options);
+
+                    app.UseMiddleware<PendingMigrationsMiddleware>();
                 });
 
-                var options = DatabaseErrorPageOptions.ShowAll;
-                options.MigrationsEndPointPath = new PathString(migrationsEndpoint);
-                app.UseDatabaseErrorPage(options);
+                HttpResponseMessage response = await server.CreateClient().GetAsync("http://localhost/");
 
-                app.UseMiddleware<PendingMigrationsMiddleware>();
-            });
+                Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
 
-
-            HttpResponseMessage response = await server.CreateClient().GetAsync("http://localhost/");
-
-            Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
-
-            var content = await response.Content.ReadAsStringAsync();
-            Assert.Contains("req.open(\"POST\", \"" + migrationsEndpoint + "\", true);", content);
+                var content = await response.Content.ReadAsStringAsync();
+                Assert.Contains("req.open(\"POST\", \"" + migrationsEndpoint + "\", true);", content);
+            }
         }
 
         [Fact]
         public async Task Pass_thru_when_context_not_in_services()
         {
-            var database = await SqlServerTestDatabase.Scratch(createDatabase: false);
-            var logProvider = new TestLoggerProvider();
-
-            var server = TestServer.Create(app =>
+            using (var database = await SqlServerTestStore.CreateScratchAsync(createDatabase: false))
             {
-                app.UseServices(services =>
-                {
-                    services.AddEntityFramework()
-                        .AddSqlServer();
+                var logProvider = new TestLoggerProvider();
 
-                    services.AddInstance<DbContextOptions>(
-                        new DbContextOptions()
-                            .UseSqlServer(database.Connection.ConnectionString));
+                var server = TestServer.Create(app =>
+                {
+                    app.UseServices(services =>
+                    {
+                        services.AddEntityFramework()
+                            .AddSqlServer();
+
+                        services.AddInstance<DbContextOptions>(
+                            new DbContextOptions()
+                                .UseSqlServer(database.Connection.ConnectionString));
+                    });
+
+                    app.UseDatabaseErrorPage();
+
+                    app.UseMiddleware<ContextNotRegisteredInServicesMiddleware>();
+
+                    app.ApplicationServices.GetService<ILoggerFactory>().AddProvider(logProvider);
                 });
 
-                app.UseDatabaseErrorPage();
+                var ex = await Assert.ThrowsAsync<SqlException>(async () =>
+                    await server.CreateClient().GetAsync("http://localhost/"));
 
-                app.UseMiddleware<ContextNotRegisteredInServicesMiddleware>();
-
-                app.ApplicationServices.GetService<ILoggerFactory>().AddProvider(logProvider);
-            });
-
-            var ex = await Assert.ThrowsAsync<SqlException>(async () =>
-                await server.CreateClient().GetAsync("http://localhost/"));
-
-            Assert.True(logProvider.Logger.Messages.Any(m =>
-                m.StartsWith(StringsHelpers.GetResourceString("FormatDatabaseErrorPageMiddleware_ContextNotRegistered", typeof(BloggingContext)))));
+                Assert.True(logProvider.Logger.Messages.Any(m =>
+                    m.StartsWith(StringsHelpers.GetResourceString("FormatDatabaseErrorPageMiddleware_ContextNotRegistered", typeof(BloggingContext)))));
+            }
         }
 
         class ContextNotRegisteredInServicesMiddleware
@@ -303,16 +305,18 @@ namespace Microsoft.AspNet.Diagnostics.Entity.Tests
         [Fact]
         public async Task Pass_thru_when_exception_in_logic()
         {
-            var database = await SqlServerTestDatabase.Scratch(createDatabase: false);
-            var logProvider = new TestLoggerProvider();
+            using (var database = await SqlServerTestStore.CreateScratchAsync(createDatabase: false))
+            {
+                var logProvider = new TestLoggerProvider();
 
-            var server = await SetupTestServer<BloggingContextWithSnapshotThatThrows, ExceptionInLogicMiddleware>(logProvider);
+                var server = await SetupTestServer<BloggingContextWithSnapshotThatThrows, ExceptionInLogicMiddleware>(logProvider);
 
-            var ex = await Assert.ThrowsAsync<SqlException>(async () =>
-                await server.CreateClient().GetAsync("http://localhost/"));
+                var ex = await Assert.ThrowsAsync<SqlException>(async () =>
+                    await server.CreateClient().GetAsync("http://localhost/"));
 
-            Assert.True(logProvider.Logger.Messages.Any(m =>
-                m.StartsWith(StringsHelpers.GetResourceString("FormatDatabaseErrorPageMiddleware_Exception"))));
+                Assert.True(logProvider.Logger.Messages.Any(m =>
+                    m.StartsWith(StringsHelpers.GetResourceString("FormatDatabaseErrorPageMiddleware_Exception"))));
+            }
         }
 
         class ExceptionInLogicMiddleware
@@ -334,30 +338,31 @@ namespace Microsoft.AspNet.Diagnostics.Entity.Tests
         private static async Task<TestServer> SetupTestServer<TContext, TMiddleware>(ILoggerProvider logProvider = null)
             where TContext : DbContext
         {
-            var database = await SqlServerTestDatabase.Scratch(createDatabase: false);
-
-            return TestServer.Create(app =>
+            using (var database = await SqlServerTestStore.CreateScratchAsync(createDatabase: false))
             {
-                app.UseServices(services =>
+                return TestServer.Create(app =>
                 {
-                    services.AddEntityFramework()
-                        .AddSqlServer();
+                    app.UseServices(services =>
+                    {
+                        services.AddEntityFramework()
+                            .AddSqlServer();
 
-                    services.AddScoped<TContext>();
-                    services.AddInstance<DbContextOptions>(
-                        new DbContextOptions()
-                            .UseSqlServer(database.Connection.ConnectionString));
+                        services.AddScoped<TContext>();
+                        services.AddInstance<DbContextOptions>(
+                            new DbContextOptions()
+                                .UseSqlServer(database.Connection.ConnectionString));
+                    });
+
+                    app.UseDatabaseErrorPage();
+
+                    app.UseMiddleware<TMiddleware>();
+
+                    if (logProvider != null)
+                    {
+                        app.ApplicationServices.GetService<ILoggerFactory>().AddProvider(logProvider);
+                    }
                 });
-
-                app.UseDatabaseErrorPage();
-
-                app.UseMiddleware<TMiddleware>();
-
-                if (logProvider != null)
-                {
-                    app.ApplicationServices.GetService<ILoggerFactory>().AddProvider(logProvider);
-                }
-            });
+            }
         }
     }
 }

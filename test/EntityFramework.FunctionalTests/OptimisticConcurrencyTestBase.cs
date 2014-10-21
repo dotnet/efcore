@@ -531,9 +531,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [Fact]
         public virtual async Task Calling_Reload_on_an_Added_entity_throws()
         {
-            using (var testDatabase = await CreateTestDatabaseAsync())
+            using (var testStore = await CreateTestStoreAsync())
             {
-                using (var context = CreateF1Context(testDatabase))
+                using (var context = CreateF1Context(testStore))
                 {
                     var entry =
                         context.ChangeTracker.Entry(
@@ -553,9 +553,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [Fact]
         public virtual async Task Calling_Reload_on_a_detached_entity_throws()
         {
-            using (var testDatabase = await CreateTestDatabaseAsync())
+            using (var testStore = await CreateTestStoreAsync())
             {
-                using (var context = CreateF1Context(testDatabase))
+                using (var context = CreateF1Context(testStore))
                 {
                     var entry =
                         context.ChangeTracker.Entry(
@@ -593,9 +593,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         private async Task TestReloadPositive(EntityState state)
         {
-            using (var testDatabase = await CreateTestDatabaseAsync())
+            using (var testStore = await CreateTestStoreAsync())
             {
-                using (var context = CreateF1Context(testDatabase))
+                using (var context = CreateF1Context(testStore))
                 {
                     var larry = context.Drivers.Single(d => d.Name == "Jenson Button");
                     var entry = context.ChangeTracker.Entry(larry);
@@ -617,9 +617,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [Fact]
         public virtual async Task Calling_ReloadAsync_on_an_Added_entity_throws()
         {
-            using (var testDatabase = await CreateTestDatabaseAsync())
+            using (var testStore = await CreateTestStoreAsync())
             {
-                using (var context = CreateF1Context(testDatabase))
+                using (var context = CreateF1Context(testStore))
                 {
                     var entry =
                         context.ChangeTracker.Entry(
@@ -639,9 +639,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [Fact]
         public virtual async Task Calling_ReloadAsync_on_a_detached_entity_throws()
         {
-            using (var testDatabase = await CreateTestDatabaseAsync())
+            using (var testStore = await CreateTestStoreAsync())
             {
-                using (var context = CreateF1Context(testDatabase))
+                using (var context = CreateF1Context(testStore))
                 {
                     var entry =
                         context.ChangeTracker.Entry(
@@ -679,9 +679,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         private async Task TestReloadAsyncPositive(EntityState state)
         {
-            using (var testDatabase = await CreateTestDatabaseAsync())
+            using (var testStore = await CreateTestStoreAsync())
             {
-                using (var context = CreateF1Context(testDatabase))
+                using (var context = CreateF1Context(testStore))
                 {
                     var larry = context.Drivers.Single(d => d.Name == "Jenson Button");
                     var entry = context.ChangeTracker.Entry(larry);
@@ -706,9 +706,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
             // default do nothing. Allow provider-specific entry reset
         }
 
-        protected abstract Task<TTestStore> CreateTestDatabaseAsync();
+        public abstract Task<TTestStore> CreateTestStoreAsync();
 
-        protected abstract F1Context CreateF1Context(TTestStore testStore);
+        public abstract F1Context CreateF1Context(TTestStore testStore);
 
         private Task ConcurrencyTestAsync(int expectedPodiums, Action<F1Context, DbUpdateConcurrencyException> resolver)
         {
@@ -751,13 +751,13 @@ namespace Microsoft.Data.Entity.FunctionalTests
             Action<F1Context> storeChange, Action<F1Context> clientChange,
             Action<F1Context, DbUpdateException> resolver, Action<F1Context> validator)
         {
-            using (var testDatabase = await CreateTestDatabaseAsync())
+            using (var testStore = await CreateTestStoreAsync())
             {
-                using (var context = CreateF1Context(testDatabase))
+                using (var context = CreateF1Context(testStore))
                 {
                     clientChange(context);
 
-                    using (var innerContext = CreateF1Context(testDatabase))
+                    using (var innerContext = CreateF1Context(testStore))
                     {
                         storeChange(innerContext);
                         await innerContext.SaveChangesAsync();
@@ -765,19 +765,19 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                     var updateException = await Assert.ThrowsAsync<DbUpdateConcurrencyException>(() => context.SaveChangesAsync());
 
-                    using (var resolverContext = CreateF1Context(testDatabase))
+                    using (var resolverContext = CreateF1Context(testStore))
                     {
-                        using (var validationContext = CreateF1Context(testDatabase))
+                        // TODO: pass in 'context' when no tracking queries are available
+                        resolver(resolverContext, updateException);
+                    }
+
+                    using (var validationContext = CreateF1Context(testStore))
+                    {
+                        if (validator != null)
                         {
-                            // TODO: pass in 'context' when no tracking queries are available
-                            resolver(resolverContext, updateException);
+                            await context.SaveChangesAsync();
 
-                            if (validator != null)
-                            {
-                                await context.SaveChangesAsync();
-
-                                validator(validationContext);
-                            }
+                            validator(validationContext);
                         }
                     }
                 }

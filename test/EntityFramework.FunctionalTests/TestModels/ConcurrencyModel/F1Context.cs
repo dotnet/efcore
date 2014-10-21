@@ -8,6 +8,11 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.ConcurrencyModel
 {
     public class F1Context : DbContext
     {
+        public F1Context(DbContextOptions options)
+            : base(options)
+        {
+        }
+
         public F1Context(IServiceProvider serviceProvider, DbContextOptions options)
             : base(serviceProvider, options)
         {
@@ -19,9 +24,10 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.ConcurrencyModel
         public DbSet<Engine> Engines { get; set; }
         public DbSet<EngineSupplier> EngineSuppliers { get; set; }
 
-        // TODO: convert to OnModelCreated
-        public static ModelBuilder CreateModel(ModelBuilder modelBuilder)
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+
             // TODO: Uncomment when complex types are supported
             //builder.ComplexType<Location>();
             modelBuilder.Entity<Chassis>(b =>
@@ -119,8 +125,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.ConcurrencyModel
             // .Property(t => t.Details);
 
             // TODO: Sponsor * <-> * Team
-
-            return modelBuilder;
         }
     }
 }

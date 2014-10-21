@@ -61,49 +61,51 @@ namespace Microsoft.AspNet.Diagnostics.Entity.Tests
 
         private async Task Migration_request(bool useCustomPath)
         {
-            var database = await SqlServerTestDatabase.Scratch(createDatabase: false);
-            var options = new DbContextOptions().UseSqlServer(database.Connection.ConnectionString);
-            var path = useCustomPath ? new PathString("/EndPoints/ApplyMyMigrations") : MigrationsEndPointOptions.DefaultPath;
-
-            TestServer server = TestServer.Create(app =>
+            using (var database = await SqlServerTestStore.CreateScratchAsync(createDatabase: false))
             {
-                app.UseServices(services =>
+                var options = new DbContextOptions().UseSqlServer(database.Connection.ConnectionString);
+                var path = useCustomPath ? new PathString("/EndPoints/ApplyMyMigrations") : MigrationsEndPointOptions.DefaultPath;
+
+                TestServer server = TestServer.Create(app =>
+                {
+                    app.UseServices(services =>
+                        {
+                            services.AddEntityFramework().AddSqlServer();
+                            services.AddScoped<BloggingContextWithMigrations>();
+                            services.AddInstance<DbContextOptions>(options);
+                        });
+
+                    if (useCustomPath)
                     {
-                        services.AddEntityFramework().AddSqlServer();
-                        services.AddScoped<BloggingContextWithMigrations>();
-                        services.AddInstance<DbContextOptions>(options);
-                    });
-
-                if (useCustomPath)
-                {
-                    app.UseMigrationsEndPoint(new MigrationsEndPointOptions { Path = path });
-                }
-                else
-                {
-                    app.UseMigrationsEndPoint();
-                }
-            });
-
-            using (var db = BloggingContextWithMigrations.CreateWithoutExternalServiceProvider(options))
-            {
-                Assert.False(db.Database.AsRelational().Exists());
-
-                var formData = new FormUrlEncodedContent(new List<KeyValuePair<string, string>>
-                {
-                    new KeyValuePair<string, string>("context", typeof(BloggingContextWithMigrations).AssemblyQualifiedName)
+                        app.UseMigrationsEndPoint(new MigrationsEndPointOptions { Path = path });
+                    }
+                    else
+                    {
+                        app.UseMigrationsEndPoint();
+                    }
                 });
 
-                HttpResponseMessage response = await server.CreateClient()
-                    .PostAsync("http://localhost" + path, formData);
+                using (var db = BloggingContextWithMigrations.CreateWithoutExternalServiceProvider(options))
+                {
+                    Assert.False(db.Database.AsRelational().Exists());
 
-                Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+                    var formData = new FormUrlEncodedContent(new List<KeyValuePair<string, string>>
+                    {
+                        new KeyValuePair<string, string>("context", typeof(BloggingContextWithMigrations).AssemblyQualifiedName)
+                    });
 
-                Assert.True(db.Database.AsRelational().Exists());
-                var services = (MigrationsDataStoreServices)db.Configuration.DataStoreServices;
-                var appliedMigrations = services.Migrator.GetDatabaseMigrations();
-                Assert.Equal(2, appliedMigrations.Count);
-                Assert.Equal("111111111111111_MigrationOne", appliedMigrations.ElementAt(0).GetMigrationId());
-                Assert.Equal("222222222222222_MigrationTwo", appliedMigrations.ElementAt(1).GetMigrationId());
+                    HttpResponseMessage response = await server.CreateClient()
+                        .PostAsync("http://localhost" + path, formData);
+
+                    Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+
+                    Assert.True(db.Database.AsRelational().Exists());
+                    var services = (MigrationsDataStoreServices)db.Configuration.DataStoreServices;
+                    var appliedMigrations = services.Migrator.GetDatabaseMigrations();
+                    Assert.Equal(2, appliedMigrations.Count);
+                    Assert.Equal("111111111111111_MigrationOne", appliedMigrations.ElementAt(0).GetMigrationId());
+                    Assert.Equal("222222222222222_MigrationTwo", appliedMigrations.ElementAt(1).GetMigrationId());
+                }
             }
         }
 
@@ -175,31 +177,33 @@ namespace Microsoft.AspNet.Diagnostics.Entity.Tests
         [Fact]
         public async Task Exception_while_applying_migrations()
         {
-            var database = await SqlServerTestDatabase.Scratch(createDatabase: false);
-            var options = new DbContextOptions().UseSqlServer(database.Connection.ConnectionString);
-
-            TestServer server = TestServer.Create(app =>
+            using (var database = await SqlServerTestStore.CreateScratchAsync(createDatabase: false))
             {
-                app.UseServices(services =>
+                var options = new DbContextOptions().UseSqlServer(database.Connection.ConnectionString);
+
+                TestServer server = TestServer.Create(app =>
                 {
-                    services.AddEntityFramework().AddSqlServer();
-                    services.AddScoped<BloggingContextWithSnapshotThatThrows>();
-                    services.AddInstance<DbContextOptions>(options);
+                    app.UseServices(services =>
+                    {
+                        services.AddEntityFramework().AddSqlServer();
+                        services.AddScoped<BloggingContextWithSnapshotThatThrows>();
+                        services.AddInstance<DbContextOptions>(options);
+                    });
+
+                    app.UseMigrationsEndPoint();
                 });
 
-                app.UseMigrationsEndPoint();
-            });
+                var formData = new FormUrlEncodedContent(new List<KeyValuePair<string, string>>
+                    {
+                        new KeyValuePair<string, string>("context", typeof(BloggingContextWithSnapshotThatThrows).AssemblyQualifiedName)
+                    });
 
-            var formData = new FormUrlEncodedContent(new List<KeyValuePair<string, string>>
-                {
-                    new KeyValuePair<string, string>("context", typeof(BloggingContextWithSnapshotThatThrows).AssemblyQualifiedName)
-                });
+                var ex = await Assert.ThrowsAsync<InvalidOperationException>(async () => 
+                    await server.CreateClient().PostAsync("http://localhost" + MigrationsEndPointOptions.DefaultPath, formData));
 
-            var ex = await Assert.ThrowsAsync<InvalidOperationException>(async () => 
-                await server.CreateClient().PostAsync("http://localhost" + MigrationsEndPointOptions.DefaultPath, formData));
-
-            Assert.Equal(StringsHelpers.GetResourceString("FormatMigrationsEndPointMiddleware_Exception", typeof(BloggingContextWithSnapshotThatThrows)), ex.Message);
-            Assert.Equal("Welcome to the invalid migration!", ex.InnerException.Message);
+                Assert.Equal(StringsHelpers.GetResourceString("FormatMigrationsEndPointMiddleware_Exception", typeof(BloggingContextWithSnapshotThatThrows)), ex.Message);
+                Assert.Equal("Welcome to the invalid migration!", ex.InnerException.Message);
+            }
         }
     }
 }

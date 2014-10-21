@@ -4,6 +4,7 @@
 using System;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.FunctionalTests;
+using Microsoft.Data.Entity.SqlServer.FunctionalTests.TestModels;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Advanced;
 using Microsoft.Framework.DependencyInjection.Fallback;
@@ -12,11 +13,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
     public class MappingQueryFixture : MappingQueryFixtureBase
     {
-        private readonly TestSqlLoggerFactory _loggingFactory = new TestSqlLoggerFactory();
-
         private readonly IServiceProvider _serviceProvider;
         private readonly DbContextOptions _options;
-        private readonly SqlServerTestDatabase _testDatabase;
+        private readonly SqlServerTestStore _testDatabase;
 
         public MappingQueryFixture()
         {
@@ -24,11 +23,11 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 = new ServiceCollection()
                     .AddEntityFramework()
                     .AddSqlServer()
-                    .UseLoggerFactory(_loggingFactory)
+                    .UseLoggerFactory(new TestSqlLoggerFactory())
                     .ServiceCollection
                     .BuildServiceProvider();
 
-            _testDatabase = SqlServerTestDatabase.Northwind().Result;
+            _testDatabase = SqlServerNorthwindContext.GetSharedStoreAsync().Result;
 
             _options = new DbContextOptions()
                 .UseModel(CreateModel())
@@ -40,19 +39,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             return new DbContext(_serviceProvider, _options);
         }
 
-        public string Sql
-        {
-            get { return TestSqlLoggerFactory.Logger.Sql; }
-        }
-
         public void Dispose()
         {
             _testDatabase.Dispose();
-        }
-
-        public void InitLogger()
-        {
-            _loggingFactory.Init();
         }
 
         protected override void OnModelCreating(BasicModelBuilder modelBuilder)

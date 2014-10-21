@@ -13,6 +13,7 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.FunctionalTests;
+using Microsoft.Data.Entity.SqlServer.FunctionalTests.TestModels;
 using Microsoft.Data.Entity.SqlServer.Update;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Advanced;
@@ -26,7 +27,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         [Fact]
         public async Task Can_run_linq_query_on_entity_set()
         {
-            using (await SqlServerTestDatabase.Northwind())
+            using (await SqlServerNorthwindContext.GetSharedStoreAsync())
             {
                 using (var db = new NorthwindContext())
                 {
@@ -52,7 +53,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         [Fact]
         public async Task Can_run_linq_query_on_entity_set_with_value_buffer_reader()
         {
-            using (await SqlServerTestDatabase.Northwind())
+            using (await SqlServerNorthwindContext.GetSharedStoreAsync())
             {
                 var serviceCollection = new ServiceCollection();
                 serviceCollection
@@ -105,7 +106,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         [Fact]
         public async Task Can_enumerate_entity_set()
         {
-            using (await SqlServerTestDatabase.Northwind())
+            using (await SqlServerNorthwindContext.GetSharedStoreAsync())
             {
                 using (var db = new NorthwindContext())
                 {
@@ -125,7 +126,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         [Fact]
         public async Task Can_save_changes()
         {
-            using (var testDatabase = await SqlServerTestDatabase.Scratch())
+            using (var testDatabase = await SqlServerTestStore.CreateScratchAsync())
             {
                 var options = new DbContextOptions().UseSqlServer(testDatabase.Connection.ConnectionString);
 
@@ -178,12 +179,12 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     Assert.Equal(EntityState.Unchanged, db.ChangeTracker.Entry(toAdd).State);
                     Assert.DoesNotContain(toDelete, db.ChangeTracker.Entries().Select(e => e.Entity));
 
-                    Assert.Equal(3, TestSqlLoggerFactory.Logger.SqlStatements.Count);
-                    Assert.True(TestSqlLoggerFactory.Logger.SqlStatements[0].Contains("SELECT"));
-                    Assert.True(TestSqlLoggerFactory.Logger.SqlStatements[1].Contains("SELECT"));
-                    Assert.True(TestSqlLoggerFactory.Logger.SqlStatements[2].Contains("DELETE"));
-                    Assert.True(TestSqlLoggerFactory.Logger.SqlStatements[2].Contains("UPDATE"));
-                    Assert.True(TestSqlLoggerFactory.Logger.SqlStatements[2].Contains("INSERT"));
+                    Assert.Equal(3, TestSqlLoggerFactory.SqlStatements.Count);
+                    Assert.True(TestSqlLoggerFactory.SqlStatements[0].Contains("SELECT"));
+                    Assert.True(TestSqlLoggerFactory.SqlStatements[1].Contains("SELECT"));
+                    Assert.True(TestSqlLoggerFactory.SqlStatements[2].Contains("DELETE"));
+                    Assert.True(TestSqlLoggerFactory.SqlStatements[2].Contains("UPDATE"));
+                    Assert.True(TestSqlLoggerFactory.SqlStatements[2].Contains("INSERT"));
 
                     var rows = await testDatabase.ExecuteScalarAsync<int>(
                         string.Format(@"SELECT Count(*) FROM [dbo].[Blog] WHERE Id = {0} AND Name = 'Blog is Updated'", updatedId),
@@ -209,7 +210,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         [Fact]
         public async Task Can_save_changes_in_tracked_entities()
         {
-            using (var testDatabase = await SqlServerTestDatabase.Scratch())
+            using (var testDatabase = await SqlServerTestStore.CreateScratchAsync())
             {
                 var options = new DbContextOptions().UseSqlServer(testDatabase.Connection.ConnectionString);
 
@@ -268,7 +269,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         [Fact]
         public async Task Tracking_entities_asynchronously_returns_tracked_entities_back()
         {
-            using (var testDatabase = await SqlServerTestDatabase.Northwind())
+            using (var testDatabase = await SqlServerNorthwindContext.GetSharedStoreAsync())
             {
                 using (var db = new NorthwindContext())
                 {
@@ -294,7 +295,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     .ServiceCollection
                     .BuildServiceProvider();
 
-            using (var testDatabase = await SqlServerTestDatabase.Scratch())
+            using (var testDatabase = await SqlServerTestStore.CreateScratchAsync())
             {
                 await testDatabase.ExecuteNonQueryAsync("CREATE SCHEMA Apple");
                 await testDatabase.ExecuteNonQueryAsync("CREATE TABLE Apple.Jack (MyKey int)");
@@ -375,7 +376,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         private async Task RoundTripChanges<TBlog>() where TBlog : class, IBlog, new()
         {
-            using (var testDatabase = await SqlServerTestDatabase.Scratch())
+            using (var testDatabase = await SqlServerTestStore.CreateScratchAsync())
             {
                 var options = new DbContextOptions().UseSqlServer(testDatabase.Connection.ConnectionString);
 
@@ -509,7 +510,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             protected override void OnConfiguring(DbContextOptions options)
             {
-                options.UseSqlServer(SqlServerTestDatabase.NorthwindConnectionString);
+                options.UseSqlServer(SqlServerNorthwindContext.ConnectionString);
             }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)

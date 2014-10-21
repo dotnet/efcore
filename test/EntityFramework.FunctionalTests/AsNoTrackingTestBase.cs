@@ -1,13 +1,14 @@
-﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
-using Northwind;
+using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
 using Xunit;
 
 namespace Microsoft.Data.Entity.FunctionalTests
 {
-    public abstract class AsNoTrackingTestBase
+    public abstract class AsNoTrackingTestBase<TFixture> : IClassFixture<TFixture>
+        where TFixture : NorthwindQueryFixtureBase, new()
     {
         [Fact]
         public virtual void Entity_not_added_to_state_manager()
@@ -75,7 +76,17 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 Assert.Equal(0, context.ChangeTracker.Entries().Count());
             }
         }
+        
+        protected NorthwindContext CreateContext()
+        {
+            return Fixture.CreateContext();
+        }
 
-        protected abstract DbContext CreateContext();
+        protected AsNoTrackingTestBase(TFixture fixture)
+        {
+            Fixture = fixture;
+        }
+
+        protected TFixture Fixture { get; private set; }
     }
 }

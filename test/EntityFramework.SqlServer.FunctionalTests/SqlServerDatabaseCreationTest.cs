@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         private static async Task Exists_returns_false_when_database_doesnt_exist_test(bool async)
         {
-            using (var testDatabase = await SqlServerTestDatabase.Scratch(createDatabase: false))
+            using (var testDatabase = await SqlServerTestStore.CreateScratchAsync(createDatabase: false))
             {
                 using (var context = new BloggingContext(testDatabase))
                 {
@@ -53,7 +53,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         private static async Task Exists_returns_true_when_database_exists_test(bool async)
         {
-            using (var testDatabase = await SqlServerTestDatabase.Scratch(createDatabase: true))
+            using (var testDatabase = await SqlServerTestStore.CreateScratchAsync(createDatabase: true))
             {
                 using (var context = new BloggingContext(testDatabase))
                 {
@@ -78,7 +78,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         private static async Task EnsureDeleted_will_delete_database_test(bool async)
         {
-            using (var testDatabase = await SqlServerTestDatabase.Scratch(createDatabase: true))
+            using (var testDatabase = await SqlServerTestStore.CreateScratchAsync(createDatabase: true))
             {
                 testDatabase.Connection.Close();
 
@@ -118,7 +118,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         private static async Task EnsuredDeleted_noop_when_database_doesnt_exist_test(bool async)
         {
-            using (var testDatabase = await SqlServerTestDatabase.Scratch(createDatabase: false))
+            using (var testDatabase = await SqlServerTestStore.CreateScratchAsync(createDatabase: false))
             {
                 using (var context = new BloggingContext(testDatabase))
                 {
@@ -156,7 +156,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         private static async Task EnsureCreated_can_create_schema_in_existing_database_test(bool async)
         {
-            using (var testDatabase = await SqlServerTestDatabase.Scratch())
+            using (var testDatabase = await SqlServerTestStore.CreateScratchAsync())
             {
                 await RunDatabaseCreationTest(testDatabase, async);
             }
@@ -176,15 +176,15 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         private static async Task EnsureCreated_can_create_physical_database_and_schema_test(bool async)
         {
-            using (var testDatabase = await SqlServerTestDatabase.Scratch(createDatabase: false))
+            using (var testDatabase = await SqlServerTestStore.CreateScratchAsync(createDatabase: false))
             {
                 await RunDatabaseCreationTest(testDatabase, async);
             }
         }
 
-        private static async Task RunDatabaseCreationTest(SqlServerTestDatabase testDatabase, bool async)
+        private static async Task RunDatabaseCreationTest(SqlServerTestStore testStore, bool async)
         {
-            using (var context = new BloggingContext(testDatabase))
+            using (var context = new BloggingContext(testStore))
             {
                 Assert.Equal(ConnectionState.Closed, context.Database.AsRelational().Connection.DbConnection.State);
 
@@ -199,16 +199,16 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                 Assert.Equal(ConnectionState.Closed, context.Database.AsRelational().Connection.DbConnection.State);
 
-                if (testDatabase.Connection.State != ConnectionState.Open)
+                if (testStore.Connection.State != ConnectionState.Open)
                 {
-                    await testDatabase.Connection.OpenAsync();
+                    await testStore.Connection.OpenAsync();
                 }
 
-                var tables = await testDatabase.QueryAsync<string>("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES");
+                var tables = await testStore.QueryAsync<string>("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES");
                 Assert.Equal(1, tables.Count());
                 Assert.Equal("Blog", tables.Single());
 
-                var columns = (await testDatabase.QueryAsync<string>(
+                var columns = (await testStore.QueryAsync<string>(
                     "SELECT TABLE_NAME + '.' + COLUMN_NAME + ' (' + DATA_TYPE + ')' FROM INFORMATION_SCHEMA.COLUMNS")).ToArray();
                 Assert.Equal(19, columns.Length);
 
@@ -253,7 +253,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         private static async Task EnsuredCreated_is_noop_when_database_exists_and_has_schema_test(bool async)
         {
-            using (var testDatabase = await SqlServerTestDatabase.Scratch(createDatabase: false))
+            using (var testDatabase = await SqlServerTestStore.CreateScratchAsync(createDatabase: false))
             {
                 using (var context = new BloggingContext(testDatabase))
                 {
@@ -285,17 +285,17 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         private class BloggingContext : DbContext
         {
-            private readonly SqlServerTestDatabase _testDatabase;
+            private readonly SqlServerTestStore _testStore;
 
-            public BloggingContext(SqlServerTestDatabase testDatabase)
+            public BloggingContext(SqlServerTestStore testStore)
                 : base(CreateServiceProvider())
             {
-                _testDatabase = testDatabase;
+                _testStore = testStore;
             }
 
             protected override void OnConfiguring(DbContextOptions options)
             {
-                options.UseSqlServer(_testDatabase.Connection.ConnectionString);
+                options.UseSqlServer(_testStore.Connection.ConnectionString);
             }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)

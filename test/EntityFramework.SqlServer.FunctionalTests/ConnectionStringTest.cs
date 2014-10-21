@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.SqlServer.FunctionalTests.TestModels;
 using Microsoft.Framework.ConfigurationModel;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Advanced;
@@ -25,7 +26,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     new MemoryConfigurationSource(
                         new Dictionary<string, string>
                             {
-                                { "Data:Northwind:ConnectionString", SqlServerTestDatabase.NorthwindConnectionString }
+                                { "Data:Northwind:ConnectionString", SqlServerNorthwindContext.ConnectionString }
                             })
                 };
 
@@ -37,9 +38,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
 
-            using (await SqlServerTestDatabase.Northwind())
+            using (await SqlServerNorthwindContext.GetSharedStoreAsync())
             {
-                using (var context = new NorthwindContext(serviceProvider, SqlServerTestDatabase.NorthwindConnectionString))
+                using (var context = new NorthwindContext(serviceProvider, SqlServerNorthwindContext.ConnectionString))
                 {
                     Assert.Equal(91, await context.Customers.CountAsync());
                 }
