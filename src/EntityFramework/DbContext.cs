@@ -145,11 +145,11 @@ namespace Microsoft.Data.Entity
             get { return _configuration.Value; }
         }
 
-        protected internal virtual void OnConfiguring([NotNull] DbContextOptions options)
+        protected internal virtual void OnConfiguring(DbContextOptions options)
         {
         }
 
-        protected internal virtual void OnModelCreating([NotNull] ModelBuilder modelBuilder)
+        protected internal virtual void OnModelCreating(ModelBuilder modelBuilder)
         {
         }
 
