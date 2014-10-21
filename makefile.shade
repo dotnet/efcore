@@ -23,7 +23,7 @@ k-standard-goals
 }
 
 var sqliteTestDir='test/EntityFramework.SQLite.FunctionalTests/bin/Debug'
-#copy-sqlite target='initialize' if='!File.Exists(sqliteTestDir + "/sqlite3.dll")'
+#copy-sqlite target='initialize' if='!IsMono && !File.Exists(sqliteTestDir + "/sqlite3.dll")'
     var sourceDir='${Directory.EnumerateDirectories(packagesDir, "Microsoft.Data.SQLite/*").OrderByDescending(d => d).First() + "/redist/x86"}'
     copy outputDir='${sqliteTestDir}'
 
