@@ -65,6 +65,9 @@
     <PackageReference Include="xunit.execution">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
+    <PackageReference Include="xunit.abstractions">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AsNoTrackingTestBase.cs" />
