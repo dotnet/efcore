@@ -1087,6 +1087,7 @@ namespace Microsoft.Data.Entity.Tests
 
             services
                 .AddSingleton<FakeService>()
+                .Add(OptionsServices.GetDefaultServices())
                 .AddEntityFramework()
                 .AddDbContext<ContextWithDefaults>();
 

@@ -122,12 +122,12 @@ namespace Microsoft.Data.Entity
             serviceProvider = serviceProvider ?? ServiceProviderCache.Instance.GetOrAdd(options);
 
             _scopedServiceProvider = serviceProvider
-                .GetService<IServiceScopeFactory>()
+                .GetRequiredServiceChecked<IServiceScopeFactory>()
                 .CreateScope()
                 .ServiceProvider;
 
             return _scopedServiceProvider
-                .GetService<DbContextConfiguration>()
+                .GetRequiredServiceChecked<DbContextConfiguration>()
                 .Initialize(serviceProvider, _scopedServiceProvider, options, this, providerSource);
         }
 
@@ -135,7 +135,7 @@ namespace Microsoft.Data.Entity
         {
             serviceProvider = serviceProvider ?? ServiceProviderCache.Instance.GetOrAdd(options);
 
-            serviceProvider.GetService<DbSetInitializer>().InitializeSets(this);
+            serviceProvider.GetRequiredServiceChecked<DbSetInitializer>().InitializeSets(this);
         }
 
         public virtual DbContextConfiguration Configuration

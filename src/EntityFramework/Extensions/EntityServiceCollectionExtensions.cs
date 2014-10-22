@@ -106,7 +106,7 @@ namespace Microsoft.Framework.DependencyInjection
             Check.NotNull(builder, "builder");
 
             builder.ServiceCollection.AddSingleton<DbContextOptions<TContext>>(
-                sp => sp.GetService<IOptions<DbContextOptions<TContext>>>().Options);
+                sp => sp.GetRequiredServiceChecked<IOptions<DbContextOptions<TContext>>>().Options);
 
             if (builder.Configuration != null)
             {

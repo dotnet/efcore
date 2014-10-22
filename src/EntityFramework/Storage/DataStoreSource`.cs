@@ -26,19 +26,7 @@ namespace Microsoft.Data.Entity.Storage
 
         public override DataStoreServices StoreServices
         {
-            get
-            {
-                try
-                {
-                    return _configuration.Services.ServiceProvider.GetService<TStoreServices>();
-                }
-                catch (TargetInvocationException ex)
-                {
-                    // See DependencyInjection Issue #127
-                    ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
-                    return null;
-                }
-            }
+            get { return _configuration.Services.ServiceProvider.GetRequiredServiceChecked<TStoreServices>(); }
         }
 
         public override bool IsConfigured

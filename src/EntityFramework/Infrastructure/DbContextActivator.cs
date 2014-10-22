@@ -24,8 +24,7 @@ namespace Microsoft.Data.Entity.Infrastructure
         {
             Check.NotNull(serviceProvider, "serviceProvider");
 
-            // TODO: Figure out what needs to be done if there is no ITypeActivator.
-            var typeActivator = serviceProvider.GetService<ITypeActivator>();
+            var typeActivator = serviceProvider.GetRequiredServiceChecked<ITypeActivator>();
 
             try
             {

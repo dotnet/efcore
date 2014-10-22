@@ -46,77 +46,77 @@ namespace Microsoft.Data.Entity.Infrastructure
 
         public virtual ClrPropertyGetterSource ClrPropertyGetterSource
         {
-            get { return _serviceProvider.GetService<ClrPropertyGetterSource>(); }
+            get { return _serviceProvider.GetRequiredServiceChecked<ClrPropertyGetterSource>(); }
         }
 
         public virtual ClrPropertySetterSource ClrPropertySetterSource
         {
-            get { return _serviceProvider.GetService<ClrPropertySetterSource>(); }
+            get { return _serviceProvider.GetRequiredServiceChecked<ClrPropertySetterSource>(); }
         }
 
         public virtual ClrCollectionAccessorSource ClrCollectionAccessorSource
         {
-            get { return _serviceProvider.GetService<ClrCollectionAccessorSource>(); }
+            get { return _serviceProvider.GetRequiredServiceChecked<ClrCollectionAccessorSource>(); }
         }
 
         public virtual ContextSets ContextSets
         {
-            get { return ServiceProvider.GetService<ContextSets>(); }
+            get { return ServiceProvider.GetRequiredServiceChecked<ContextSets>(); }
         }
 
         public virtual DataStoreSelector DataStoreSelector
         {
-            get { return _serviceProvider.GetService<DataStoreSelector>(); }
+            get { return _serviceProvider.GetRequiredServiceChecked<DataStoreSelector>(); }
         }
 
         public virtual EntityMaterializerSource EntityMaterializerSource
         {
-            get { return _serviceProvider.GetService<EntityMaterializerSource>(); }
+            get { return _serviceProvider.GetRequiredServiceChecked<EntityMaterializerSource>(); }
         }
 
         public virtual StateManager StateManager
         {
-            get { return ServiceProvider.GetService<StateManager>(); }
+            get { return ServiceProvider.GetRequiredServiceChecked<StateManager>(); }
         }
 
         public virtual EntityKeyFactorySource EntityKeyFactorySource
         {
-            get { return _serviceProvider.GetService<EntityKeyFactorySource>(); }
+            get { return _serviceProvider.GetRequiredServiceChecked<EntityKeyFactorySource>(); }
         }
 
         public virtual IModelSource ModelSource
         {
-            get { return _serviceProvider.GetService<IModelSource>(); }
+            get { return _serviceProvider.GetRequiredServiceChecked<IModelSource>(); }
         }
 
         public virtual OriginalValuesFactory OriginalValuesFactory
         {
-            get { return _serviceProvider.GetService<OriginalValuesFactory>(); }
+            get { return _serviceProvider.GetRequiredServiceChecked<OriginalValuesFactory>(); }
         }
 
         public virtual RelationshipsSnapshotFactory RelationshipsSnapshotFactory
         {
-            get { return _serviceProvider.GetService<RelationshipsSnapshotFactory>(); }
+            get { return _serviceProvider.GetRequiredServiceChecked<RelationshipsSnapshotFactory>(); }
         }
 
         public virtual StateEntryNotifier StateEntryNotifier
         {
-            get { return ServiceProvider.GetService<StateEntryNotifier>(); }
+            get { return ServiceProvider.GetRequiredServiceChecked<StateEntryNotifier>(); }
         }
 
         public virtual ChangeDetector ChangeDetector
         {
-            get { return ServiceProvider.GetService<ChangeDetector>(); }
+            get { return ServiceProvider.GetRequiredServiceChecked<ChangeDetector>(); }
         }
 
         public virtual StoreGeneratedValuesFactory StoreGeneratedValuesFactory
         {
-            get { return _serviceProvider.GetService<StoreGeneratedValuesFactory>(); }
+            get { return _serviceProvider.GetRequiredServiceChecked<StoreGeneratedValuesFactory>(); }
         }
 
         public virtual StateEntryFactory StateEntryFactory
         {
-            get { return ServiceProvider.GetService<StateEntryFactory>(); }
+            get { return ServiceProvider.GetRequiredServiceChecked<StateEntryFactory>(); }
         }
 
         public virtual IEnumerable<IEntityStateListener> EntityStateListeners
