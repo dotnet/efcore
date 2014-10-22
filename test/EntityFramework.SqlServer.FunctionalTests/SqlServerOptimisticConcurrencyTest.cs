@@ -40,21 +40,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 });
         }
 
-        protected override DataStoreTransaction BeginTransaction(F1Context context, SqlServerTestDatabase testDatabase, Action<F1Context> prepareStore)
-        {
-            var transaction = context.Database.AsRelational().Connection.BeginTransaction();
-
-            testDatabase.Transaction = (SqlTransaction)transaction.DbTransaction;
-
-            using (var innerContext = CreateF1Context(testDatabase))
-            {
-                prepareStore(innerContext);
-                innerContext.SaveChanges();
-            }
-
-            return transaction;
-        }
-
         public F1Context CreateF1Context(string connectionString)
         {
             var modelBuilder = new ModelBuilder(new Model());

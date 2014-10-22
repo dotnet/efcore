@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.ConcurrencyModel;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Update;
 using Xunit;
 
@@ -709,8 +708,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         protected abstract Task<TTestStore> CreateTestDatabaseAsync();
 
-        protected abstract DataStoreTransaction BeginTransaction(F1Context context, TTestStore testStore, Action<F1Context> prepareStore);
-
         protected abstract F1Context CreateF1Context(TTestStore testStore);
 
         private Task ConcurrencyTestAsync(int expectedPodiums, Action<F1Context, DbUpdateConcurrencyException> resolver)
@@ -768,22 +765,18 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                     var updateException = await Assert.ThrowsAsync<DbUpdateConcurrencyException>(() => context.SaveChangesAsync());
 
-                    using (var transaction = BeginTransaction(context, testDatabase, storeChange))
+                    using (var resolverContext = CreateF1Context(testDatabase))
                     {
-                        using (var resolverContext = CreateF1Context(testDatabase))
+                        using (var validationContext = CreateF1Context(testDatabase))
                         {
-                            using (var validationContext = CreateF1Context(testDatabase))
+                            // TODO: pass in 'context' when no tracking queries are available
+                            resolver(resolverContext, updateException);
+
+                            if (validator != null)
                             {
-                                // TODO: pass in 'context' when no tracking queries are available
-                                resolver(resolverContext, updateException);
+                                await context.SaveChangesAsync();
 
-                                if (validator != null)
-                                {
-                                    await context.SaveChangesAsync();
-
-                                    validator(validationContext);
-                                }
-                                transaction.Rollback();
+                                validator(validationContext);
                             }
                         }
                     }

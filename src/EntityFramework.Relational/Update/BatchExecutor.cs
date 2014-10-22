@@ -77,15 +77,6 @@ namespace Microsoft.Data.Entity.Relational.Update
                     startedTransaction.Commit();
                 }
             }
-            catch
-            {
-                if (connection.Transaction != null)
-                {
-                    connection.Transaction.Rollback();
-                }
-
-                throw;
-            }
             finally
             {
                 if (startedTransaction != null)
@@ -130,15 +121,6 @@ namespace Microsoft.Data.Entity.Relational.Update
                 {
                     startedTransaction.Commit();
                 }
-            }
-            catch
-            {
-                if (connection.Transaction != null)
-                {
-                    connection.Transaction.Rollback();
-                }
-
-                throw;
             }
             finally
             {

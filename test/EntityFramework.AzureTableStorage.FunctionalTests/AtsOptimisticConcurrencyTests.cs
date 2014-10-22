@@ -47,11 +47,6 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
             return db;
         }
 
-        protected override DataStoreTransaction BeginTransaction(F1Context context, AtsTestStore testStore, Action<F1Context> prepareStore)
-        {
-            return new AtsTransaction();
-        }
-
         protected override void ResolveConcurrencyTokens(StateEntry stateEntry)
         {
             var property = stateEntry.EntityType.GetProperty("ETag");

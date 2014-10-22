@@ -94,7 +94,33 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
         }
 
         [Fact]
-        public async Task SaveChangesAsync_uses_explicit_transaction_and_rollsback_on_failure()
+        public async Task SaveChanges_uses_explicit_transaction_and_does_not_rollback_on_failure()
+        {
+            using (var testDatabase = await CreateTestDatabaseAsync())
+            {
+                using (var context = await CreateContextAsync(testDatabase))
+                {
+                    using (var transaction = await context.Database.AsRelational().Connection.BeginTransactionAsync())
+                    {
+                        context.ChangeTracker.Entry(context.Set<Customer>().First()).State = EntityState.Deleted;
+                        context.ChangeTracker.Entry(context.Set<Customer>().Last()).State = EntityState.Added;
+
+                        try
+                        {
+                            context.SaveChanges();
+                        }
+                        catch (DbUpdateException)
+                        {
+                        }
+
+                        Assert.NotNull(transaction.DbTransaction.Connection);
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public async Task SaveChangesAsync_uses_explicit_transaction_and_does_not_rollback_on_failure()
         {
             using (var testDatabase = await CreateTestDatabaseAsync())
             {
@@ -113,7 +139,7 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
                         {
                         }
 
-                        Assert.Null(transaction.DbTransaction.Connection);
+                        Assert.NotNull(transaction.DbTransaction.Connection);
                     }
                 }
             }
