@@ -111,10 +111,9 @@ namespace Microsoft.Data.Entity
 
         private DbContextConfiguration Initialize(IServiceProvider serviceProvider, DbContextOptions options)
         {
-            if (!options.IsLocked)
-            {
-                OnConfiguring(options);
-            }
+            options = options.Clone();
+
+            OnConfiguring(options);
 
             var providerSource = serviceProvider != null
                 ? DbContextConfiguration.ServiceProviderSource.Explicit

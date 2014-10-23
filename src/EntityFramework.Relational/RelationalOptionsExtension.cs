@@ -60,7 +60,7 @@ namespace Microsoft.Data.Entity.Relational
             [param: NotNull] set { _migrationNamespace = Check.NotEmpty(value, "value"); }
         }
 
-        protected override void Configure(IDictionary<string, string> rawOptions)
+        protected override void Configure(IReadOnlyDictionary<string, string> rawOptions)
         {
             Check.NotNull(rawOptions, "rawOptions");
 

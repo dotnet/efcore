@@ -1202,8 +1202,9 @@ namespace Microsoft.Data.Entity.Tests
                 var contextOptions = context.Configuration.ContextOptions as DbContextOptions<ContextT>;
 
                 Assert.NotNull(contextOptions);
-                Assert.Equal(1, contextOptions.RawOptions.Count);
-                Assert.Equal("MyConnectionString", contextOptions.RawOptions["ConnectionString"]);
+                var rawOptions = ((IDbContextOptionsExtensions)contextOptions).RawOptions;
+                Assert.Equal(1, rawOptions.Count);
+                Assert.Equal("MyConnectionString", rawOptions["ConnectionString"]);
                 Assert.Equal(1, context.Configuration.ContextOptions.Extensions.Count);
                 Assert.Same(contextOptionsExtension, context.Configuration.ContextOptions.Extensions[0]);
             }
@@ -1232,8 +1233,9 @@ namespace Microsoft.Data.Entity.Tests
                 var contextOptions = context.Configuration.ContextOptions as DbContextOptions<ContextWithDefaults>;
 
                 Assert.NotNull(contextOptions);
-                Assert.Equal(1, contextOptions.RawOptions.Count);
-                Assert.Equal("MyConnectionString", contextOptions.RawOptions["ConnectionString"]);
+                var rawOptions = ((IDbContextOptionsExtensions)contextOptions).RawOptions;
+                Assert.Equal(1, rawOptions.Count);
+                Assert.Equal("MyConnectionString", rawOptions["ConnectionString"]);
             }
         }
 

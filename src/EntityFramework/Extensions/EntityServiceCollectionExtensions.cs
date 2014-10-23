@@ -110,8 +110,9 @@ namespace Microsoft.Framework.DependencyInjection
 
             if (builder.Configuration != null)
             {
+                // TODO: Allows parser to be obtained from service provider. Issue #947
                 builder.ServiceCollection.ConfigureOptions(
-                    new DbContextConfigureOptions<TContext>(builder.Configuration)
+                    new DbContextConfigureOptions<TContext>(builder.Configuration, new DbContextOptionsParser())
                         {
                             Order = ConfigurationOrder
                         });

@@ -1,11 +1,10 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
+using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Tests;
 using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.Tests
@@ -67,25 +66,10 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         }
 
         [Fact]
-        public void UseSqlServer_throws_if_options_are_locked()
-        {
-            var options = new DbContextOptions<DbContext>();
-            options.Lock();
-
-            Assert.Equal(
-                TestHelpers.GetCoreString("FormatEntityConfigurationLocked", "UseSqlServer"),
-                Assert.Throws<InvalidOperationException>(() => options.UseSqlServer("Database=DoubleDecker")).Message);
-
-            Assert.Equal(
-                TestHelpers.GetCoreString("FormatEntityConfigurationLocked", "UseSqlServer"),
-                Assert.Throws<InvalidOperationException>(() => options.UseSqlServer(new SqlConnection())).Message);
-        }
-
-        [Fact]
         public void UseSqlServer_uses_connection_string_from_raw_options()
         {
             var options = new DbContextOptions();
-            options.RawOptions.Add("ConnectionString", "Database=Crunchie");
+            ((IDbContextOptionsExtensions)options).RawOptions = new Dictionary<string, string> { { "ConnectionString", "Database=Crunchie" } };
 
             options = options.UseSqlServer();
 

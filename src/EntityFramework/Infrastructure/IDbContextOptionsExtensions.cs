@@ -3,18 +3,19 @@
 
 using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 
 namespace Microsoft.Data.Entity.Infrastructure
 {
     public interface IDbContextOptionsExtensions
     {
-        void AddOrUpdateExtension<TExtension>([NotNull] Action<TExtension> updater, [CanBeNull] [CallerMemberName] string memberName = "")
+        void AddOrUpdateExtension<TExtension>([NotNull] Action<TExtension> updater)
             where TExtension : DbContextOptionsExtension, new();
 
-        void AddExtension([NotNull] DbContextOptionsExtension extension, [CanBeNull] [CallerMemberName] string memberName = "");
+        void AddExtension([NotNull] DbContextOptionsExtension extension);
 
         IReadOnlyList<DbContextOptionsExtension> Extensions { get; }
+
+        IReadOnlyDictionary<string, string> RawOptions { get; [param: NotNull] set; }
     }
 }

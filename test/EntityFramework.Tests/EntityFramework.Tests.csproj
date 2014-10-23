@@ -76,6 +76,7 @@
     <Compile Include="ContextConfigurationTest.cs" />
     <Compile Include="ContextSetsTest.cs" />
     <Compile Include="DatabaseTest.cs" />
+    <Compile Include="DbContextOptionsParserTest.cs" />
     <Compile Include="DbContextTest.cs" />
     <Compile Include="DbSetInitializerTest.cs" />
     <Compile Include="DbSetTest.cs" />

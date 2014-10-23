@@ -5,13 +5,12 @@ using System;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Reflection;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Framework.ConfigurationModel;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
-using Microsoft.Framework.Logging;
-using Microsoft.Framework.OptionsModel;
 using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
@@ -352,6 +351,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             var serviceCollection = new ServiceCollection();
             serviceCollection
+                .AddScoped<SomeService>()
                 .AddEntityFramework()
                 .AddSqlServer()
                 .AddInMemoryStore()
@@ -372,6 +372,14 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                         Assert.True(context1.Customers.Any());
                     }
+
+                    using (var context1B = serviceScope.ServiceProvider.GetService<MultipleProvidersContext>())
+                    {
+                        Assert.Same(context1, context1B);
+                    }
+
+                    var someService = serviceScope.ServiceProvider.GetService<SomeService>();
+                    Assert.Same(context1, someService.Context);
                 }
                 using (var serviceScope = serviceProvider.GetService<IServiceScopeFactory>().CreateScope())
                 {
@@ -379,10 +387,16 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     {
                         context2.UseSqlServer = false;
 
-                        // TODO: Still using SQL Server: See issue #932
-                        //Assert.False(context.Customers.Any());
-                        Assert.True(context2.Customers.Any());
+                        Assert.False(context2.Customers.Any());
                     }
+
+                    using (var context2B = serviceScope.ServiceProvider.GetService<MultipleProvidersContext>())
+                    {
+                        Assert.Same(context2, context2B);
+                    }
+
+                    var someService = serviceScope.ServiceProvider.GetService<SomeService>();
+                    Assert.Same(context2, someService.Context);
                 }
 
                 Assert.NotSame(context1, context2);
@@ -425,6 +439,16 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     options.UseInMemoryStore();
                 }
             }
+        }
+
+        private class SomeService
+        {
+            public SomeService(MultipleProvidersContext context)
+            {
+                Context = context;
+            }
+
+            public MultipleProvidersContext Context { get; set; }
         }
 
         [Fact]
@@ -472,13 +496,18 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 _options = options;
                 _connection = connection;
+
+                ((IDbContextOptionsExtensions)_options).AddExtension(new FakeDbContextOptionsExtension());
             }
 
             protected override void OnConfiguring(DbContextOptions options)
             {
                 options.UseSqlServer(_connection);
 
-                Assert.Same(options, _options);
+                // Options was cloned
+                Assert.NotSame(options, _options);
+
+                Assert.Equal(1, ((IDbContextOptionsExtensions)options).Extensions.OfType<FakeDbContextOptionsExtension>().Count());
             }
 
             public override void Dispose()
@@ -546,7 +575,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 options.UseSqlServer(SqlServerTestDatabase.NorthwindConnectionString);
 
-                Assert.Same(options, _options);
+                // Options was cloned
+                Assert.NotSame(options, _options);
             }
         }
 
@@ -564,7 +594,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 options.UseInMemoryStore();
 
-                Assert.Same(options, _options);
+                // Options was cloned
+                Assert.NotSame(options, _options);
             }
         }
 
@@ -615,13 +646,18 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 : base(options)
             {
                 _options = options;
+
+                ((IDbContextOptionsExtensions)_options).AddExtension(new FakeDbContextOptionsExtension());
             }
 
             protected override void OnConfiguring(DbContextOptions options)
             {
                 options.UseSqlServer(SqlServerTestDatabase.NorthwindConnectionString);
 
-                Assert.Same(options, _options);
+                // Options was cloned
+                Assert.NotSame(options, _options);
+
+                Assert.Equal(1, ((IDbContextOptionsExtensions)options).Extensions.OfType<FakeDbContextOptionsExtension>().Count());
             }
         }
 
@@ -653,6 +689,13 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             public string CustomerID { get; set; }
             public string CompanyName { get; set; }
             public string Fax { get; set; }
+        }
+
+        private class FakeDbContextOptionsExtension : DbContextOptionsExtension
+        {
+            protected override void ApplyServices(EntityServicesBuilder builder)
+            {
+            }
         }
 
         private static string GetRelationalString(string stringName)

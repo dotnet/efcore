@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
@@ -69,27 +69,6 @@ namespace Microsoft.Data.Entity.Tests
         }
 
         [Fact]
-        public void Can_lock_options()
-        {
-            var options = new DbContextOptions();
-
-            Assert.False(options.IsLocked);
-
-            options.Lock();
-
-            Assert.True(options.IsLocked);
-
-            Assert.Equal(
-                Strings.FormatEntityConfigurationLocked("UseModel"),
-                Assert.Throws<InvalidOperationException>(() => options.UseModel(Mock.Of<IModel>())).Message);
-
-            Assert.Equal(
-                Strings.FormatEntityConfigurationLocked("Can_lock_options"),
-                Assert.Throws<InvalidOperationException>(
-                    () => ((IDbContextOptionsExtensions)options).AddOrUpdateExtension<FakeDbContextOptionsExtension1>(e => { })).Message);
-        }
-
-        [Fact]
         public void UseModel_on_generic_options_returns_generic_options()
         {
             var model = Mock.Of<IModel>();
@@ -106,6 +85,47 @@ namespace Microsoft.Data.Entity.Tests
 
         private class UnkoolContext : DbContext
         {
+        }
+
+        [Fact]
+        public void Cloning_copies_options_and_further_config_does_not_impact_original()
+        {
+            var model = Mock.Of<IModel>();
+
+            var options = new DbContextOptions<UnkoolContext>().UseModel(model);
+
+            var optionsAsExtensions = ((IDbContextOptionsExtensions)options);
+            optionsAsExtensions.AddOrUpdateExtension<FakeDbContextOptionsExtension1>(e => { });
+
+            optionsAsExtensions.RawOptions = new Dictionary<string, string> { { "ConnectionString", "Database=Crunchie" } };
+
+            var clone = options.Clone();
+
+            Assert.IsType<DbContextOptions<UnkoolContext>>(clone);
+            Assert.Same(model, clone.Model);
+
+            var cloneAsExtensions = ((IDbContextOptionsExtensions)clone);
+
+            Assert.Equal(1, cloneAsExtensions.Extensions.Count);
+            Assert.IsType<FakeDbContextOptionsExtension1>(cloneAsExtensions.Extensions[0]);
+
+            Assert.Equal("Database=Crunchie", cloneAsExtensions.RawOptions["ConnectionString"]);
+
+            var model2 = Mock.Of<IModel>();
+            clone.UseModel(model2);
+
+            cloneAsExtensions.AddOrUpdateExtension<FakeDbContextOptionsExtension2>(e => { });
+
+            Assert.Same(model2, clone.Model);
+
+            Assert.Equal(2, cloneAsExtensions.Extensions.Count);
+            Assert.IsType<FakeDbContextOptionsExtension1>(cloneAsExtensions.Extensions[0]);
+            Assert.IsType<FakeDbContextOptionsExtension2>(cloneAsExtensions.Extensions[1]);
+
+            Assert.Same(model, options.Model);
+
+            Assert.Equal(1, optionsAsExtensions.Extensions.Count);
+            Assert.IsType<FakeDbContextOptionsExtension1>(optionsAsExtensions.Extensions[0]);
         }
     }
 }

@@ -539,22 +539,6 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
-        /// Attempt to modify DbContextOptions by calling '{memberName}' failed because it is locked.
-        /// </summary>
-        internal static string EntityConfigurationLocked
-        {
-            get { return GetString("EntityConfigurationLocked"); }
-        }
-
-        /// <summary>
-        /// Attempt to modify DbContextOptions by calling '{memberName}' failed because it is locked.
-        /// </summary>
-        internal static string FormatEntityConfigurationLocked(object memberName)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("EntityConfigurationLocked", "memberName"), memberName);
-        }
-
-        /// <summary>
         /// Multiple potential primary key properties named '{property}' but differing only by case were found on entity type '{entityType}'. Configure the primary key explicitly using the SetKey fluent API.
         /// </summary>
         internal static string MultiplePropertiesMatchedAsKeys
