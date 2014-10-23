@@ -121,7 +121,10 @@ namespace Microsoft.Data.Entity.Relational.Query
 
             var columnExpressions
                 = targetEntityType.Properties
-                    .Select(p => new ColumnExpression(p, targetTableExpression));
+                    .Select(p => new ColumnExpression(
+                        QueryCompilationContext.GetColumnName(p),
+                        p,
+                        targetTableExpression));
 
             var innerJoinExpression
                 = navigation.ForeignKey.IsRequired
@@ -141,8 +144,14 @@ namespace Microsoft.Data.Entity.Relational.Query
 
                 var equalExpression
                     = Expression.Equal(
-                        new ColumnExpression(primaryKeyProperty, innerJoinExpression),
-                        new ColumnExpression(foreignKeyProperty, dependentTableExpression));
+                        new ColumnExpression(
+                            QueryCompilationContext.GetColumnName(primaryKeyProperty),
+                            primaryKeyProperty,
+                            innerJoinExpression),
+                        new ColumnExpression(
+                            QueryCompilationContext.GetColumnName(foreignKeyProperty),
+                            foreignKeyProperty,
+                            dependentTableExpression));
 
                 joinPredicateExpression
                     = joinPredicateExpression == null
@@ -190,7 +199,12 @@ namespace Microsoft.Data.Entity.Relational.Query
 
             foreach (var property in primaryKeyProperties)
             {
-                selectExpression.AddToOrderBy(property, querySource, OrderingDirection.Asc);
+                selectExpression
+                    .AddToOrderBy(
+                        QueryCompilationContext.GetColumnName(property),
+                        property,
+                        querySource,
+                        OrderingDirection.Asc);
             }
 
             var targetEntityType = navigation.GetTargetType();
@@ -209,7 +223,11 @@ namespace Microsoft.Data.Entity.Relational.Query
 
             foreach (var property in targetEntityType.Properties)
             {
-                targetSelectExpression.AddToProjection(property, querySource);
+                targetSelectExpression
+                    .AddToProjection(
+                        QueryCompilationContext.GetColumnName(property),
+                        property,
+                        querySource);
             }
 
             var innerJoinSelectExpression
@@ -243,8 +261,14 @@ namespace Microsoft.Data.Entity.Relational.Query
 
                 var equalExpression
                     = Expression.Equal(
-                        new ColumnExpression(foreignKeyProperty, targetTableExpression),
-                        new ColumnExpression(primaryKeyProperty, innerJoinExpression));
+                        new ColumnExpression(
+                            QueryCompilationContext.GetColumnName(foreignKeyProperty),
+                            foreignKeyProperty,
+                            targetTableExpression),
+                        new ColumnExpression(
+                            QueryCompilationContext.GetColumnName(primaryKeyProperty),
+                            primaryKeyProperty,
+                            innerJoinExpression));
 
                 joinPredicateExpression
                     = joinPredicateExpression == null
@@ -618,7 +642,11 @@ namespace Microsoft.Data.Entity.Relational.Query
 
             if (selectExpression != null)
             {
-                selectExpression.AddToProjection(property, querySource);
+                selectExpression
+                    .AddToProjection(
+                        QueryCompilationContext.GetColumnName(property),
+                        property,
+                        querySource);
             }
 
             return default(TResult);

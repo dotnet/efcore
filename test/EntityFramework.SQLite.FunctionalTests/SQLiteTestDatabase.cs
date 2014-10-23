@@ -48,9 +48,13 @@ namespace Microsoft.Data.Entity.SQLite.FunctionalTests
         {
             var scratchName = "Scratch_" + Interlocked.Increment(ref _scratchCount);
 
-            var connectionStringBuilder = new SQLiteConnectionStringBuilder();
-            connectionStringBuilder.Filename = "file:" + scratchName + "?mode=memory&cache=shared";
-            connectionStringBuilder.Uri = true;
+            var connectionStringBuilder
+                = new SQLiteConnectionStringBuilder
+                    {
+                        Filename = "file:" + scratchName + "?mode=memory&cache=shared",
+                        Uri = true
+                    };
+
             return new SQLiteTestDatabase(connectionStringBuilder.ConnectionString).CreateScratch();
         }
 

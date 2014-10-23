@@ -9,7 +9,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 {
     public abstract class NorthwindQueryFixtureBase
     {
-        protected Model CreateModel()
+        protected virtual Model CreateModel()
         {
             var model = new Model();
             var modelBuilder = new BasicModelBuilder(model);

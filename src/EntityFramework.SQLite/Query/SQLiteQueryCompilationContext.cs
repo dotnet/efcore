@@ -51,5 +51,13 @@ namespace Microsoft.Data.Entity.SQLite.Query
             // TODO: SQLite provider-specific APIs
             return entityType.Relational().Schema;
         }
+        
+        public override string GetColumnName(IProperty property)
+        {
+            Check.NotNull(property, "property");
+
+            // TODO: SQLite provider-specific APIs
+            return property.Relational().Column;
+        }
     }
 }

@@ -207,6 +207,8 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                             methodCallExpression,
                             (property, querySource, selectExpression)
                                 => new ColumnExpression(
+                                    _queryModelVisitor.QueryCompilationContext
+                                        .GetColumnName(property),
                                     property,
                                     selectExpression.FindTableForQuerySource(querySource)));
 
@@ -231,6 +233,8 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                         memberExpression,
                         (property, querySource, selectExpression)
                             => new ColumnExpression(
+                                 _queryModelVisitor.QueryCompilationContext
+                                        .GetColumnName(property),
                                 property,
                                 selectExpression.FindTableForQuerySource(querySource)));
 

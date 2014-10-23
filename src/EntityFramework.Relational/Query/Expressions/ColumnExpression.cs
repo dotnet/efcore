@@ -13,14 +13,20 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 {
     public class ColumnExpression : ExtensionExpression
     {
+        private readonly string _name;
         private readonly IProperty _property;
         private readonly TableExpressionBase _tableExpression;
 
-        public ColumnExpression([NotNull] IProperty property, [NotNull] TableExpressionBase tableExpression)
+        public ColumnExpression(
+            [NotNull] string name,
+            [NotNull] IProperty property,
+            [NotNull] TableExpressionBase tableExpression)
             : base(Check.NotNull(property, "property").PropertyType)
         {
+            Check.NotEmpty(name, "name");
             Check.NotNull(tableExpression, "tableExpression");
 
+            _name = name;
             _property = property;
             _tableExpression = tableExpression;
         }
@@ -44,9 +50,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         public virtual string Name
         {
-            // TODO: Get provider-specific name
-            // Issue #871 
-            get { return Property.Relational().Column; }
+            get { return _name; }
         }
 
         public virtual string Alias { get; [param: CanBeNull] set; }
@@ -57,12 +61,9 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
             var specificVisitor = visitor as ISqlExpressionVisitor;
 
-            if (specificVisitor != null)
-            {
-                return specificVisitor.VisitColumnExpression(this);
-            }
-
-            return base.Accept(visitor);
+            return specificVisitor != null
+                ? specificVisitor.VisitColumnExpression(this)
+                : base.Accept(visitor);
         }
 
         protected override Expression VisitChildren(ExpressionTreeVisitor visitor)
@@ -105,7 +106,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
         {
             // TODO: Get provider-specific name
             // Issue #871 
-            var s = _tableExpression.Alias + "." + _property.Relational().Column;
+            var s = _tableExpression.Alias + "." + Name;
 
             if (Alias != null)
             {

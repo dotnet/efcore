@@ -32,7 +32,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             _options
                 = new DbContextOptions()
-                    .UseModel(SetTableNames(CreateModel()))
+                    .UseModel(CreateModel())
                     .UseSqlServer(_testDatabase.Connection.ConnectionString);
         }
 
@@ -54,14 +54,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         public DbContext CreateContext()
         {
             return new DbContext(_serviceProvider, _options);
-        }
-
-        public DbContext CreateContext(SqlServerTestDatabase testDatabase)
-        {
-            var options = new DbContextOptions()
-                .UseModel(SetTableNames(CreateModel()))
-                .UseSqlServer(testDatabase.Connection.ConnectionString);
-            return new DbContext(_serviceProvider, options);
         }
 
         public void InitLogger()

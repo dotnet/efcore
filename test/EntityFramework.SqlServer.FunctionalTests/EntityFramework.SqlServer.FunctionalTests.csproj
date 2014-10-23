@@ -80,6 +80,8 @@
     <Compile Include="ExistingConnectionTest.cs" />
     <Compile Include="IncludeNorthwindAsyncTest.cs" />
     <Compile Include="IncludeNorthwindTest.cs" />
+    <Compile Include="MappingQueryFixture.cs" />
+    <Compile Include="MappingQueryTest.cs" />
     <Compile Include="NorthwindQueryFixture.cs" />
     <Compile Include="NorthwindAsyncQueryTest.cs" />
     <Compile Include="NorthwindQueryLoggingTest.cs" />

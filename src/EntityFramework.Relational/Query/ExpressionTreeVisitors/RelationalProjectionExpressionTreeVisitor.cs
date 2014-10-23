@@ -15,6 +15,11 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
         {
         }
 
+        private new RelationalQueryModelVisitor QueryModelVisitor
+        {
+            get { return (RelationalQueryModelVisitor)base.QueryModelVisitor; }
+        }
+
         protected override Expression VisitMemberExpression([NotNull] MemberExpression memberExpression)
         {
             Check.NotNull(memberExpression, "memberExpression");
@@ -23,7 +28,11 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 .BindMemberExpression(
                     memberExpression,
                     (property, querySource, selectExpression)
-                        => selectExpression.AddToProjection(property, querySource));
+                        => selectExpression.AddToProjection(
+                            QueryModelVisitor.QueryCompilationContext
+                                .GetColumnName(property),
+                            property,
+                            querySource));
 
             return base.VisitMemberExpression(memberExpression);
         }
@@ -36,7 +45,11 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 .BindMethodCallExpression(
                     methodCallExpression,
                     (property, querySource, selectExpression)
-                        => selectExpression.AddToProjection(property, querySource));
+                        => selectExpression.AddToProjection(
+                            QueryModelVisitor.QueryCompilationContext
+                                .GetColumnName(property),
+                            property,
+                            querySource));
 
             return base.VisitMethodCallExpression(methodCallExpression);
         }

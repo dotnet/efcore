@@ -95,5 +95,12 @@ namespace Microsoft.Data.Entity.Relational.Query
 
             return entityType.Relational().Schema;
         }
+        
+        public virtual string GetColumnName([NotNull] IProperty property)
+        {
+            Check.NotNull(property, "property");
+
+            return property.Relational().Column;
+        }
     }
 }

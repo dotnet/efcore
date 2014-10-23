@@ -148,9 +148,14 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
                     foreach (var ordering in subquery.OrderBy)
                     {
+                        var columnExpression = (ColumnExpression)ordering.Expression;
+
                         _orderBy.Add(
                             new Ordering(
-                                new ColumnExpression(((ColumnExpression)ordering.Expression).Property, subquery),
+                                new ColumnExpression(
+                                    columnExpression.Name,
+                                    columnExpression.Property,
+                                    subquery),
                                 ordering.OrderingDirection));
                     }
                 }
@@ -230,14 +235,19 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             get { return _projectionExpression; }
         }
 
-        public virtual void AddToProjection([NotNull] IProperty property, [NotNull] IQuerySource querySource)
+        public virtual void AddToProjection(
+            [NotNull] string column,
+            [NotNull] IProperty property, 
+            [NotNull] IQuerySource querySource)
         {
+            Check.NotEmpty(column, "column");
             Check.NotNull(property, "property");
             Check.NotNull(querySource, "querySource");
 
             if (GetProjectionIndex(property, querySource) == -1)
             {
-                _projection.Add(new ColumnExpression(property, FindTableForQuerySource(querySource)));
+                _projection.Add(
+                    new ColumnExpression(column, property, FindTableForQuerySource(querySource)));
             }
         }
 
@@ -313,15 +323,20 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
         }
 
         public virtual ColumnExpression AddToOrderBy(
+            [NotNull] string column,
             [NotNull] IProperty property,
             [NotNull] IQuerySource querySource,
             OrderingDirection orderingDirection)
         {
+            Check.NotEmpty(column, "column");
             Check.NotNull(property, "property");
             Check.NotNull(property, "querySource");
 
             var columnExpression
-                = new ColumnExpression(property, FindTableForQuerySource(querySource));
+                = new ColumnExpression(
+                    column,
+                    property, 
+                    FindTableForQuerySource(querySource));
 
             if (_orderBy.FindIndex(o => o.Expression.Equals(columnExpression)) == -1)
             {

@@ -70,6 +70,8 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MappingQueryTestBase.cs" />
+    <Compile Include="MappingQueryFixtureBase.cs" />
     <Compile Include="NorthwindQueryFixtureRelationalBase.cs" />
     <Compile Include="OptimisticConcurrencyRelationalTestBase.cs" />
     <Compile Include="RelationalTestStore.cs" />

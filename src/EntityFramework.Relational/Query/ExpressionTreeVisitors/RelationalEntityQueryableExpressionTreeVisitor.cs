@@ -45,7 +45,11 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 .BindMemberExpression(
                     memberExpression,
                     (property, querySource, selectExpression)
-                        => selectExpression.AddToProjection(property, querySource));
+                        => selectExpression.AddToProjection(
+                            QueryModelVisitor.QueryCompilationContext
+                                .GetColumnName(property),
+                            property,
+                            querySource));
 
             return base.VisitMemberExpression(memberExpression);
         }
@@ -58,7 +62,11 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 .BindMethodCallExpression(
                     methodCallExpression,
                     (property, querySource, selectExpression)
-                        => selectExpression.AddToProjection(property, querySource));
+                        => selectExpression.AddToProjection(
+                            QueryModelVisitor.QueryCompilationContext
+                                .GetColumnName(property),
+                            property,
+                            querySource));
 
             return base.VisitMethodCallExpression(methodCallExpression);
         }
@@ -98,7 +106,11 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             {
                 foreach (var property in entityType.Properties)
                 {
-                    selectExpression.AddToProjection(property, _querySource);
+                    selectExpression.AddToProjection(
+                        QueryModelVisitor.QueryCompilationContext
+                            .GetColumnName(property),
+                        property,
+                        _querySource);
                 }
 
                 queryMethodInfo = RelationalQueryModelVisitor.CreateEntityMethodInfo.MakeGenericMethod(elementType);

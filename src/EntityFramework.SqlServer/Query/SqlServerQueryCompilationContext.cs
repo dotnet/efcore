@@ -49,5 +49,12 @@ namespace Microsoft.Data.Entity.SqlServer.Query
 
             return entityType.SqlServer().Schema;
         }
+        
+        public override string GetColumnName(IProperty property)
+        {
+            Check.NotNull(property, "property");
+
+            return property.SqlServer().Column;
+        }
     }
 }

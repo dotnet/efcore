@@ -22,6 +22,11 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             _ordering = ordering;
         }
 
+        private new RelationalQueryModelVisitor QueryModelVisitor
+        {
+            get { return (RelationalQueryModelVisitor)base.QueryModelVisitor; }
+        }
+
         protected override Expression VisitMemberExpression([NotNull] MemberExpression memberExpression)
         {
             Check.NotNull(memberExpression, "memberExpression");
@@ -33,7 +38,11 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                         => selectExpression
                             .AddToProjection(
                                 selectExpression
-                                    .AddToOrderBy(property, querySource, _ordering.OrderingDirection)));
+                                    .AddToOrderBy(
+                                        QueryModelVisitor.QueryCompilationContext.GetColumnName(property),
+                                        property,
+                                        querySource,
+                                        _ordering.OrderingDirection)));
 
             return base.VisitMemberExpression(memberExpression);
         }
@@ -49,7 +58,11 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                         => selectExpression
                             .AddToProjection(
                                 selectExpression
-                                    .AddToOrderBy(property, querySource, _ordering.OrderingDirection)));
+                                    .AddToOrderBy(
+                                        QueryModelVisitor.QueryCompilationContext.GetColumnName(property),
+                                        property,
+                                        querySource,
+                                        _ordering.OrderingDirection)));
 
             return base.VisitMethodCallExpression(methodCallExpression);
         }
