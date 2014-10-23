@@ -147,7 +147,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                 joinPredicateExpression
                     = joinPredicateExpression == null
                         ? equalExpression
-                        : Expression.And(joinPredicateExpression, equalExpression);
+                        : Expression.AndAlso(joinPredicateExpression, equalExpression);
             }
 
             innerJoinExpression.Predicate = joinPredicateExpression;
@@ -243,13 +243,13 @@ namespace Microsoft.Data.Entity.Relational.Query
 
                 var equalExpression
                     = Expression.Equal(
-                        new ColumnExpression(primaryKeyProperty, targetTableExpression),
-                        new ColumnExpression(foreignKeyProperty, innerJoinExpression));
+                        new ColumnExpression(foreignKeyProperty, targetTableExpression),
+                        new ColumnExpression(primaryKeyProperty, innerJoinExpression));
 
                 joinPredicateExpression
                     = joinPredicateExpression == null
                         ? equalExpression
-                        : Expression.And(joinPredicateExpression, equalExpression);
+                        : Expression.AndAlso(joinPredicateExpression, equalExpression);
             }
 
             innerJoinExpression.Predicate = joinPredicateExpression;
