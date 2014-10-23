@@ -8,9 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.DependencyInjection.Advanced;
 using Microsoft.Framework.DependencyInjection.Fallback;
-using Microsoft.Framework.Logging;
 using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
@@ -89,8 +87,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     var serviceCollection = new ServiceCollection();
                     serviceCollection
                         .AddEntityFramework()
-                        .AddSqlServer()
-                        .UseLoggerFactory<LoggerFactory>();
+                        .AddSqlServer();
+
                     var serviceProvider = serviceCollection.BuildServiceProvider();
 
                     using (var context = new NorthwindContext(serviceProvider))
@@ -131,8 +129,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     var serviceCollection = new ServiceCollection();
                     serviceCollection
                         .AddEntityFramework()
-                        .AddSqlServer()
-                        .UseLoggerFactory<LoggerFactory>();
+                        .AddSqlServer();
+
                     var serviceProvider = serviceCollection.BuildServiceProvider();
 
                     var options = new DbContextOptions().UseSqlServer(SqlServerTestDatabase.NorthwindConnectionString);
@@ -170,8 +168,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     var serviceCollection = new ServiceCollection();
                     serviceCollection
                         .AddEntityFramework()
-                        .AddSqlServer()
-                        .UseLoggerFactory<LoggerFactory>();
+                        .AddSqlServer();
+
                     var serviceProvider = serviceCollection.BuildServiceProvider();
 
                     Assert.Equal(
@@ -241,8 +239,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 {
                     var serviceCollection = new ServiceCollection();
                     serviceCollection
-                        .AddEntityFramework()
-                        .UseLoggerFactory<LoggerFactory>();
+                        .AddEntityFramework();
+
                     var serviceProvider = serviceCollection.BuildServiceProvider();
 
                     Assert.Equal(
@@ -286,8 +284,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 var serviceCollection = new ServiceCollection();
                 serviceCollection
                     .AddEntityFramework()
-                    .AddSqlServer()
-                    .UseLoggerFactory<LoggerFactory>();
+                    .AddSqlServer();
+
                 var serviceProvider = serviceCollection
                     .AddTransient<NorthwindContext>()
                     .AddTransient<MyController>()
@@ -348,8 +346,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 var serviceCollection = new ServiceCollection();
                 serviceCollection
                     .AddEntityFramework()
-                    .AddSqlServer()
-                    .UseLoggerFactory<LoggerFactory>();
+                    .AddSqlServer();
+
                 serviceCollection
                     .AddTransient<MyController>()
                     .AddTransient<NorthwindContext>()
@@ -410,8 +408,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 var serviceCollection = new ServiceCollection();
                 serviceCollection
                     .AddEntityFramework()
-                    .AddSqlServer()
-                    .UseLoggerFactory<LoggerFactory>();
+                    .AddSqlServer();
+
                 serviceCollection
                     .AddTransient<NorthwindContext>()
                     .AddTransient<MyController>()
@@ -535,8 +533,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     var serviceCollection = new ServiceCollection();
                     serviceCollection
                         .AddEntityFramework()
-                        .AddSqlServer()
-                        .UseLoggerFactory<LoggerFactory>();
+                        .AddSqlServer();
+
                     var serviceProvider = serviceCollection.BuildServiceProvider();
 
                     using (var context1 = new NorthwindContext(serviceProvider))
@@ -592,8 +590,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     serviceCollection
                         .AddEntityFramework()
                         .AddSqlServer()
-                        .AddInMemoryStore()
-                        .UseLoggerFactory<LoggerFactory>();
+                        .AddInMemoryStore();
+
                     var serviceProvider = serviceCollection.BuildServiceProvider();
 
                     await NestedContextTest(() => new BlogContext(serviceProvider), () => new NorthwindContext(serviceProvider));

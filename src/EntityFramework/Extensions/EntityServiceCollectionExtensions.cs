@@ -2,6 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.ChangeTracking;
@@ -11,6 +13,7 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.ConfigurationModel;
+using Microsoft.Framework.Logging;
 using Microsoft.Framework.OptionsModel;
 
 // ReSharper disable once CheckNamespace
@@ -58,7 +61,41 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddScoped<ContextSets>()
                 .AddScoped<StateManager>();
 
+            EnsureLowLevelServices(serviceCollection);
+
             return new EntityServicesBuilder(serviceCollection, configuration);
+        }
+
+        private static void EnsureLowLevelServices(IServiceCollection serviceCollection)
+        {
+            var requiredServices = new List<Tuple<Type, Action<IServiceCollection>>>
+                {
+                    Tuple.Create<Type, Action<IServiceCollection>>(typeof(ILoggerFactory), c => c.AddSingleton<ILoggerFactory, LoggerFactory>()),
+                    Tuple.Create<Type, Action<IServiceCollection>>(typeof(ITypeActivator), c => c.AddSingleton<ITypeActivator, TypeActivator>()),
+                    Tuple.Create<Type, Action<IServiceCollection>>(typeof(IOptions<>), c => c.Add(OptionsServices.GetDefaultServices())),
+                };
+
+            foreach (var descriptor in serviceCollection)
+            {
+                foreach (var serviceTuple in requiredServices)
+                {
+                    if (serviceTuple.Item1 == descriptor.ServiceType)
+                    {
+                        requiredServices.Remove(serviceTuple);
+                        break;
+                    }
+                }
+
+                if (!requiredServices.Any())
+                {
+                    break;
+                }
+            }
+
+            foreach (var serviceTuple in requiredServices)
+            {
+                serviceTuple.Item2(serviceCollection);
+            }
         }
 
         public static EntityServicesBuilder AddDbContext<TContext>(

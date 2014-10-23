@@ -5,9 +5,7 @@ using System.Data.SqlClient;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.DependencyInjection.Advanced;
 using Microsoft.Framework.DependencyInjection.Fallback;
-using Microsoft.Framework.Logging;
 using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.Tests
@@ -40,8 +38,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var serviceCollection = new ServiceCollection();
             serviceCollection
                 .AddEntityFramework()
-                .AddSqlServer()
-                .UseLoggerFactory<LoggerFactory>();
+                .AddSqlServer();
+
             return new DbContext(serviceCollection.BuildServiceProvider(),
                 new DbContextOptions()
                     .UseSqlServer(@"Server=(localdb)\v11.0;Database=SqlServerConnectionTest;Trusted_Connection=True;"))

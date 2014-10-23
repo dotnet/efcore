@@ -7,9 +7,7 @@ using Cud.Model;
 using Microsoft.Data.Entity;
 using Microsoft.Framework.ConfigurationModel;
 using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.DependencyInjection.Advanced;
 using Microsoft.Framework.DependencyInjection.Fallback;
-using Microsoft.Framework.Logging;
 
 #if K10
 using Cud.Utilities;
@@ -26,7 +24,7 @@ namespace Cud
         public static IServiceProvider CreateServiceProvider(Configuration configuration)
         {
             var services = new ServiceCollection();
-            services.AddEntityFramework().AddSqlServer().UseLoggerFactory<LoggerFactory>();
+            services.AddEntityFramework().AddSqlServer();
             services.AddInstance<IConfiguration>(configuration);
             return services.BuildServiceProvider();
         }

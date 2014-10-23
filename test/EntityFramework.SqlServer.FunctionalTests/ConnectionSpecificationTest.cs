@@ -23,9 +23,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             var serviceCollection = new ServiceCollection();
             serviceCollection
-                .AddSingleton<ITypeActivator, TypeActivator>()
-                .AddSingleton<ILoggerFactory, LoggerFactory>()
-                .Add(OptionsServices.GetDefaultServices())
                 .AddEntityFramework()
                 .AddSqlServer()
                 .AddDbContext<StringInOnConfiguringContext>();
@@ -66,9 +63,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             var serviceCollection = new ServiceCollection();
             serviceCollection
-                .AddSingleton<ITypeActivator, TypeActivator>()
-                .AddSingleton<ILoggerFactory, LoggerFactory>()
-                .Add(OptionsServices.GetDefaultServices())
                 .AddScoped<SqlConnection>(p => new SqlConnection(SqlServerTestDatabase.NorthwindConnectionString))
                 .AddEntityFramework()
                 .AddSqlServer()
@@ -136,9 +130,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             var serviceCollection = new ServiceCollection();
             serviceCollection
-                .AddSingleton<ITypeActivator, TypeActivator>()
-                .AddSingleton<ILoggerFactory, LoggerFactory>()
-                .Add(OptionsServices.GetDefaultServices())
                 .AddEntityFramework(configuration)
                 .AddSqlServer()
                 .AddDbContext<StringInConfigContext>();
@@ -169,9 +160,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             var serviceCollection = new ServiceCollection();
             serviceCollection
-                .AddSingleton<ITypeActivator, TypeActivator>()
-                .AddSingleton<ILoggerFactory, LoggerFactory>()
-                .Add(OptionsServices.GetDefaultServices())
                 .AddEntityFramework(configuration)
                 .AddSqlServer()
                 .AddDbContext<StringInConfigContext>();
@@ -197,9 +185,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             var serviceCollection = new ServiceCollection();
             serviceCollection
-                .AddSingleton<ITypeActivator, TypeActivator>()
-                .AddSingleton<ILoggerFactory, LoggerFactory>()
-                .Add(OptionsServices.GetDefaultServices())
                 .AddEntityFramework(configuration)
                 .AddSqlServer()
                 .AddDbContext<StringInConfigContext>();
@@ -219,9 +204,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             var serviceCollection = new ServiceCollection();
             serviceCollection
-                .AddSingleton<ITypeActivator, TypeActivator>()
-                .AddSingleton<ILoggerFactory, LoggerFactory>()
-                .Add(OptionsServices.GetDefaultServices())
                 .AddEntityFramework()
                 .AddSqlServer()
                 .AddDbContext<StringInConfigContext>();
@@ -273,9 +255,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             var serviceCollection = new ServiceCollection();
             serviceCollection
-                .AddSingleton<ITypeActivator, TypeActivator>()
-                .AddSingleton<ILoggerFactory, LoggerFactory>()
-                .Add(OptionsServices.GetDefaultServices())
                 .AddEntityFramework(configuration)
                 .AddSqlServer()
                 .AddDbContext<NoUseSqlServerContext>();
@@ -306,9 +285,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             var serviceCollection = new ServiceCollection();
             serviceCollection
-                .AddSingleton<ITypeActivator, TypeActivator>()
-                .AddSingleton<ILoggerFactory, LoggerFactory>()
-                .Add(OptionsServices.GetDefaultServices())
                 .AddEntityFramework(configuration)
                 .AddSqlServer()
                 .AddDbContext<NoUseSqlServerContext>();
@@ -334,9 +310,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             var serviceCollection = new ServiceCollection();
             serviceCollection
-                .AddSingleton<ITypeActivator, TypeActivator>()
-                .AddSingleton<ILoggerFactory, LoggerFactory>()
-                .Add(OptionsServices.GetDefaultServices())
                 .AddEntityFramework(configuration)
                 .AddSqlServer()
                 .AddDbContext<NoUseSqlServerContext>();
@@ -356,9 +329,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             var serviceCollection = new ServiceCollection();
             serviceCollection
-                .AddSingleton<ITypeActivator, TypeActivator>()
-                .AddSingleton<ILoggerFactory, LoggerFactory>()
-                .Add(OptionsServices.GetDefaultServices())
                 .AddEntityFramework()
                 .AddSqlServer()
                 .AddDbContext<NoUseSqlServerContext>();
@@ -382,9 +352,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             var serviceCollection = new ServiceCollection();
             serviceCollection
-                .AddSingleton<ITypeActivator, TypeActivator>()
-                .AddSingleton<ILoggerFactory, LoggerFactory>()
-                .Add(OptionsServices.GetDefaultServices())
                 .AddEntityFramework()
                 .AddSqlServer()
                 .AddInMemoryStore()
@@ -465,9 +432,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             var serviceCollection = new ServiceCollection();
             serviceCollection
-                .AddSingleton<ITypeActivator, TypeActivator>()
-                .AddSingleton<ILoggerFactory, LoggerFactory>()
-                .Add(OptionsServices.GetDefaultServices())
                 .AddScoped<SqlConnection>(p => new SqlConnection(SqlServerTestDatabase.NorthwindConnectionString))
                 .AddEntityFramework()
                 .AddSqlServer()
@@ -529,9 +493,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             var serviceCollection = new ServiceCollection();
             serviceCollection
-                .AddSingleton<ITypeActivator, TypeActivator>()
-                .AddSingleton<ILoggerFactory, LoggerFactory>()
-                .Add(OptionsServices.GetDefaultServices())
                 .AddEntityFramework()
                 .AddSqlServer()
                 .AddInMemoryStore()
@@ -612,9 +573,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             var serviceCollection = new ServiceCollection();
             serviceCollection
-                .AddSingleton<ITypeActivator, TypeActivator>()
-                .AddSingleton<ILoggerFactory, LoggerFactory>()
-                .Add(OptionsServices.GetDefaultServices())
                 .AddEntityFramework()
                 .AddSqlServer()
                 .AddInMemoryStore()

@@ -62,8 +62,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             serviceCollection
                 .AddInstance<IConfiguration>(configuration)
                 .AddEntityFramework()
-                .AddSqlServer()
-                .UseLoggerFactory<LoggerFactory>();
+                .AddSqlServer();
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
 

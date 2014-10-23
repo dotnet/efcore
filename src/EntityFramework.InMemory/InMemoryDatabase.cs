@@ -4,10 +4,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Globalization;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.InMemory.Utilities;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
@@ -22,11 +22,11 @@ namespace Microsoft.Data.Entity.InMemory
             = new ThreadSafeLazyRef<ImmutableDictionary<IEntityType, InMemoryTable>>(
                 () => ImmutableDictionary<IEntityType, InMemoryTable>.Empty);
 
-        public InMemoryDatabase([CanBeNull] IEnumerable<ILoggerFactory> loggerFactories)
+        public InMemoryDatabase([NotNull] ILoggerFactory loggerFactory)
         {
-            var factory = (loggerFactories == null ? null : loggerFactories.FirstOrDefault()) ?? new LoggerFactory();
+            Check.NotNull(loggerFactory, "loggerFactory");
 
-            _logger = factory.Create<InMemoryDatabase>();
+            _logger = loggerFactory.Create<InMemoryDatabase>();
         }
 
         /// <summary>

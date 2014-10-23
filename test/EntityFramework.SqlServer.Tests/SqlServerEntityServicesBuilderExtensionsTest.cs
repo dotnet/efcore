@@ -9,9 +9,7 @@ using Microsoft.Data.Entity.SqlServer.Update;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.DependencyInjection.Advanced;
 using Microsoft.Framework.DependencyInjection.Fallback;
-using Microsoft.Framework.Logging;
 using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.Tests
@@ -24,8 +22,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var services = new ServiceCollection();
             services
                 .AddEntityFramework()
-                .AddSqlServer()
-                .UseLoggerFactory<LoggerFactory>();
+                .AddSqlServer();
 
             // Relational
             Assert.True(services.Any(sd => sd.ServiceType == typeof(SqlServerDatabaseBuilder)));
@@ -60,8 +57,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var services = new ServiceCollection();
             services
                 .AddEntityFramework()
-                .AddSqlServer()
-                .UseLoggerFactory<LoggerFactory>();
+                .AddSqlServer();
+
             var serviceProvider = services.BuildServiceProvider();
 
             var context = new DbContext(

@@ -5,9 +5,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.DependencyInjection.Advanced;
 using Microsoft.Framework.DependencyInjection.Fallback;
-using Microsoft.Framework.Logging;
 using Xunit;
 
 namespace Microsoft.Data.Entity.InMemory.FunctionalTests
@@ -84,7 +82,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             public void Can_save_and_query_with_explicit_services_and_OnConfiguring()
             {
                 var services = new ServiceCollection();
-                services.AddEntityFramework().AddInMemoryStore().UseLoggerFactory<LoggerFactory>();
+                services.AddEntityFramework().AddInMemoryStore();
                 var serviceProvider = services.BuildServiceProvider();
 
                 using (var context = new BlogContext(serviceProvider))
@@ -124,7 +122,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             public void Can_save_and_query_with_explicit_services_and_explicit_config()
             {
                 var services = new ServiceCollection();
-                services.AddEntityFramework().AddInMemoryStore().UseLoggerFactory<LoggerFactory>();
+                services.AddEntityFramework().AddInMemoryStore();
                 var serviceProvider = services.BuildServiceProvider();
 
                 var options = new DbContextOptions().UseInMemoryStore();
@@ -161,7 +159,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             public void Can_save_and_query_with_explicit_services_and_no_config()
             {
                 var services = new ServiceCollection();
-                services.AddEntityFramework().AddInMemoryStore().UseLoggerFactory<LoggerFactory>();
+                services.AddEntityFramework().AddInMemoryStore();
                 var serviceProvider = services.BuildServiceProvider();
 
                 using (var context = new BlogContext(serviceProvider))
@@ -259,8 +257,8 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 services.AddTransient<BlogContext>()
                     .AddTransient<MyController>()
                     .AddEntityFramework()
-                    .AddInMemoryStore()
-                    .UseLoggerFactory<LoggerFactory>();
+                    .AddInMemoryStore();
+
                 var serviceProvider = services.BuildServiceProvider();
 
                 serviceProvider.GetService<MyController>().Test();
@@ -313,8 +311,8 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                     .AddTransient<MyController>()
                     .AddInstance(options)
                     .AddEntityFramework()
-                    .AddInMemoryStore()
-                    .UseLoggerFactory<LoggerFactory>();
+                    .AddInMemoryStore();
+
                 var serviceProvider = services.BuildServiceProvider();
 
                 serviceProvider.GetService<MyController>().Test();
@@ -371,8 +369,8 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                     .AddTransient<MyController>()
                     .AddInstance(options)
                     .AddEntityFramework()
-                    .AddInMemoryStore()
-                    .UseLoggerFactory<LoggerFactory>();
+                    .AddInMemoryStore();
+
                 var serviceProvider = services.BuildServiceProvider();
 
                 serviceProvider.GetService<MyController>().Test();
@@ -429,8 +427,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                     .AddInstance(blogOptions)
                     .AddInstance(accountOptions)
                     .AddEntityFramework()
-                    .AddInMemoryStore()
-                    .UseLoggerFactory<LoggerFactory>();
+                    .AddInMemoryStore();
 
                 var serviceProvider = services.BuildServiceProvider();
 
@@ -535,8 +532,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                     .AddInstance(blogOptions)
                     .AddInstance(accountOptions)
                     .AddEntityFramework()
-                    .AddInMemoryStore()
-                    .UseLoggerFactory<LoggerFactory>();
+                    .AddInMemoryStore();
 
                 var serviceProvider = services.BuildServiceProvider();
 

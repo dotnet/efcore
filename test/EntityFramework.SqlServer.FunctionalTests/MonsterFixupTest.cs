@@ -11,9 +11,7 @@ using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.FunctionalTests.TestModels;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.DependencyInjection.Advanced;
 using Microsoft.Framework.DependencyInjection.Fallback;
-using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
@@ -29,7 +27,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             var serviceCollection = new ServiceCollection()
                 .AddEntityFramework()
                 .AddSqlServer()
-                .UseLoggerFactory<LoggerFactory>()
                 .ServiceCollection;
 
             if (throwingStateManager)
