@@ -1408,9 +1408,8 @@ new StringBuilder()
 
         private class FakeRelationalConnection : RelationalConnection
         {
-            public FakeRelationalConnection(
-                DbContextConfiguration configuration, ConnectionStringResolver connectionStringResolver)
-                : base(configuration, connectionStringResolver)
+            public FakeRelationalConnection(DbContextConfiguration configuration)
+                : base(configuration)
             {
             }
 

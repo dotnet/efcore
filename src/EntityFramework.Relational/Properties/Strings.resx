@@ -147,12 +147,6 @@
   <data name="UnsupportedType" xml:space="preserve">
     <value>The property '{propertyName}' cannot be mapped because it is of type '{propertyType}' which is currently not supported.</value>
   </data>
-  <data name="NoConfigForConnection" xml:space="preserve">
-    <value>The connection string '{connectionName}' could not be found because no IConfiguration object has been configured.</value>
-  </data>
-  <data name="ConnectionNotFound" xml:space="preserve">
-    <value>The connection string '{connectionName}' could not be found in the application's configuration.</value>
-  </data>
   <data name="RelationalNotInUse" xml:space="preserve">
     <value>Relational-specific methods can only be used when the context is using a relational data store.</value>
   </data>

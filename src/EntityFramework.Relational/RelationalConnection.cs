@@ -17,7 +17,6 @@ namespace Microsoft.Data.Entity.Relational
 {
     public abstract class RelationalConnection : DataStoreConnection, IDisposable
     {
-        private readonly ConnectionStringResolver _connectionStringResolver;
         private readonly string _connectionString;
         private readonly LazyRef<DbConnection> _connection;
         private readonly bool _connectionOwned;
@@ -32,15 +31,10 @@ namespace Microsoft.Data.Entity.Relational
         {
         }
 
-        protected RelationalConnection(
-            [NotNull] DbContextConfiguration configuration,
-            [NotNull] ConnectionStringResolver connectionStringResolver)
+        protected RelationalConnection([NotNull] DbContextConfiguration configuration)
             : base(configuration.LoggerFactory)
         {
             Check.NotNull(configuration, "configuration");
-            Check.NotNull(connectionStringResolver, "connectionStringResolver");
-
-            _connectionStringResolver = connectionStringResolver;
 
             var storeConfig = RelationalOptionsExtension.Extract(configuration);
 
@@ -57,7 +51,7 @@ namespace Microsoft.Data.Entity.Relational
             }
             else if (!string.IsNullOrWhiteSpace(storeConfig.ConnectionString))
             {
-                _connectionString = _connectionStringResolver.Resolve(storeConfig.ConnectionString);
+                _connectionString = storeConfig.ConnectionString;
                 _connection = new LazyRef<DbConnection>(CreateDbConnection);
                 _connectionOwned = true;
             }
