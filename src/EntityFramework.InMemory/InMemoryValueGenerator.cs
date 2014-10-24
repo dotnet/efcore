@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.InMemory
             Check.NotNull(stateEntry, "stateEntry");
             Check.NotNull(property, "property");
 
-            stateEntry[property] = Convert.ChangeType(Interlocked.Increment(ref _current), property.PropertyType);
+            stateEntry[property] = Convert.ChangeType(Interlocked.Increment(ref _current), property.PropertyType.UnwrapNullableType());
         }
     }
 }

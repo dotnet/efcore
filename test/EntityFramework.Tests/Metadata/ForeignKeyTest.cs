@@ -203,7 +203,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                     entityType.GetOrAddProperty("Id2", typeof(string), shadowProperty: true)
                 });
 
-            var dependentProp1 = entityType.GetOrAddProperty("P1", typeof(int), shadowProperty: true);
+            var dependentProp1 = entityType.GetOrAddProperty("P1", typeof(int?), shadowProperty: true);
             var dependentProp2 = entityType.GetOrAddProperty("P2", typeof(string), shadowProperty: true);
 
             var foreignKey = new ForeignKey(new[] { dependentProp1, dependentProp2 }, entityType.GetPrimaryKey()) { IsRequired = false };

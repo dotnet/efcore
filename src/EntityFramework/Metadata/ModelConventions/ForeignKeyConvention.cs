@@ -138,9 +138,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
 
                 foreignKeyProperties = principalKey.Properties.Select((p, i) => dependentType.GetOrAddProperty(
                     baseName + (isComposite ? i.ToString() : ""),
-                    // TODO: Make nullable
-                    // Issue #213
-                    principalKey.Properties[i].PropertyType,
+                    principalKey.Properties[i].PropertyType.MakeNullable(),
                     shadowProperty: true)).ToList();
             }
 

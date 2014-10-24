@@ -27,6 +27,10 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var longProperty = stateEntry.EntityType.GetProperty("Long");
             var shortProperty = stateEntry.EntityType.GetProperty("Short");
             var byteProperty = stateEntry.EntityType.GetProperty("Byte");
+            var nullableIntProperty = stateEntry.EntityType.GetProperty("NullableId");
+            var nullableLongProperty = stateEntry.EntityType.GetProperty("NullableLong");
+            var nullableShortProperty = stateEntry.EntityType.GetProperty("NullableShort");
+            var nullableByteProperty = stateEntry.EntityType.GetProperty("NullableByte");
 
             var executor = new FakeSqlStatementExecutor(10);
             var generator = new SqlServerSequenceValueGenerator(executor, "Foo", 10);
@@ -62,6 +66,38 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 Assert.Equal((byte)i, stateEntry[byteProperty]);
                 Assert.False(stateEntry.HasTemporaryValue(byteProperty));
             }
+
+            for (var i = 60; i < 75; i++)
+            {
+                generator.Next(stateEntry, nullableIntProperty);
+
+                Assert.Equal(i, stateEntry[nullableIntProperty]);
+                Assert.False(stateEntry.HasTemporaryValue(nullableIntProperty));
+            }
+
+            for (var i = 75; i < 90; i++)
+            {
+                generator.Next(stateEntry, nullableLongProperty);
+
+                Assert.Equal((long)i, stateEntry[nullableLongProperty]);
+                Assert.False(stateEntry.HasTemporaryValue(nullableLongProperty));
+            }
+
+            for (var i = 90; i < 105; i++)
+            {
+                generator.Next(stateEntry, nullableShortProperty);
+
+                Assert.Equal((short)i, stateEntry[nullableShortProperty]);
+                Assert.False(stateEntry.HasTemporaryValue(nullableShortProperty));
+            }
+
+            for (var i = 105; i < 120; i++)
+            {
+                generator.Next(stateEntry, nullableByteProperty);
+
+                Assert.Equal((byte)i, stateEntry[nullableByteProperty]);
+                Assert.False(stateEntry.HasTemporaryValue(nullableByteProperty));
+            }
         }
 
         [Fact]
@@ -72,6 +108,10 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var longProperty = stateEntry.EntityType.GetProperty("Long");
             var shortProperty = stateEntry.EntityType.GetProperty("Short");
             var byteProperty = stateEntry.EntityType.GetProperty("Byte");
+            var nullableIntProperty = stateEntry.EntityType.GetProperty("NullableId");
+            var nullableLongProperty = stateEntry.EntityType.GetProperty("NullableLong");
+            var nullableShortProperty = stateEntry.EntityType.GetProperty("NullableShort");
+            var nullableByteProperty = stateEntry.EntityType.GetProperty("NullableByte");
 
             var executor = new FakeSqlStatementExecutor(10);
             var generator = new SqlServerSequenceValueGenerator(executor, "Foo", 10);
@@ -106,6 +146,38 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
                 Assert.Equal((byte)i, stateEntry[byteProperty]);
                 Assert.False(stateEntry.HasTemporaryValue(byteProperty));
+            }
+
+            for (var i = 60; i < 75; i++)
+            {
+                await generator.NextAsync(stateEntry, nullableIntProperty);
+
+                Assert.Equal(i, stateEntry[nullableIntProperty]);
+                Assert.False(stateEntry.HasTemporaryValue(nullableIntProperty));
+            }
+
+            for (var i = 75; i < 90; i++)
+            {
+                await generator.NextAsync(stateEntry, nullableLongProperty);
+
+                Assert.Equal((long)i, stateEntry[nullableLongProperty]);
+                Assert.False(stateEntry.HasTemporaryValue(nullableLongProperty));
+            }
+
+            for (var i = 90; i < 105; i++)
+            {
+                await generator.NextAsync(stateEntry, nullableShortProperty);
+
+                Assert.Equal((short)i, stateEntry[nullableShortProperty]);
+                Assert.False(stateEntry.HasTemporaryValue(nullableShortProperty));
+            }
+
+            for (var i = 105; i < 120; i++)
+            {
+                await generator.NextAsync(stateEntry, nullableByteProperty);
+
+                Assert.Equal((byte)i, stateEntry[nullableByteProperty]);
+                Assert.False(stateEntry.HasTemporaryValue(nullableByteProperty));
             }
         }
 
@@ -236,6 +308,10 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             public long Long { get; set; }
             public short Short { get; set; }
             public byte Byte { get; set; }
+            public int? NullableId { get; set; }
+            public long? NullableLong { get; set; }
+            public short? NullableShort { get; set; }
+            public byte? NullableByte { get; set; }
         }
     }
 }

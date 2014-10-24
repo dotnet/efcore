@@ -1370,6 +1370,22 @@ namespace Microsoft.Data.Entity
             return string.Format(CultureInfo.CurrentCulture, GetString("LogTrackingQuerySources", "querySources"), querySources);
         }
 
+        /// <summary>
+        /// The property '{property}' on entity type '{entity}' cannot be marked as nullable/optional because the type of the property is '{propertyType}' which is not a nullable type. Any property can be marked as non-nullable/required, but only properties of nullable types can be marked as nullable/optional.
+        /// </summary>
+        internal static string CannotBeNullable
+        {
+            get { return GetString("CannotBeNullable"); }
+        }
+
+        /// <summary>
+        /// The property '{property}' on entity type '{entity}' cannot be marked as nullable/optional because the type of the property is '{propertyType}' which is not a nullable type. Any property can be marked as non-nullable/required, but only properties of nullable types can be marked as nullable/optional.
+        /// </summary>
+        internal static string FormatCannotBeNullable(object property, object entity, object propertyType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("CannotBeNullable", "property", "entity", "propertyType"), property, entity, propertyType);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

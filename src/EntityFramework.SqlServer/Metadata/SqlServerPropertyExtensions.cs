@@ -112,7 +112,8 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
 
                     if (value == SqlServerValueGenerationStrategy.Identity
                         && (!propertyType.IsInteger()
-                            || propertyType == typeof(byte)))
+                            || propertyType == typeof(byte)
+                            || propertyType == typeof(byte?)))
                     {
                         throw new ArgumentException(Strings.FormatIdentityBadType(
                             Property.Name, Property.EntityType.Name, propertyType.Name));

@@ -51,7 +51,8 @@ namespace Microsoft.Data.Entity.SqlServer
                 }
 
                 if (property.PropertyType.IsInteger()
-                    && property.PropertyType != typeof(byte))
+                    && property.PropertyType != typeof(byte)
+                    && property.PropertyType != typeof(byte?))
                 {
                     return _tempFactory;
                 }

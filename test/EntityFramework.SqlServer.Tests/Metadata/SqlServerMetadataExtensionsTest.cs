@@ -649,6 +649,34 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         }
 
         [Fact]
+        public void Can_get_and_set_value_generation_on_nullable_property()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            var property = modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.NullableInt)
+                .Metadata;
+
+            Assert.Null(property.SqlServer().ValueGenerationStrategy);
+            Assert.Null(((IProperty)property).SqlServer().ValueGenerationStrategy);
+            Assert.Null(property.ValueGeneration);
+            Assert.Equal(ValueGeneration.None, ((IProperty)property).ValueGeneration);
+
+            property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Sequence;
+
+            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.SqlServer().ValueGenerationStrategy);
+            Assert.Equal(SqlServerValueGenerationStrategy.Sequence, ((IProperty)property).SqlServer().ValueGenerationStrategy);
+            Assert.Equal(ValueGeneration.OnAdd, property.ValueGeneration);
+
+            property.SqlServer().ValueGenerationStrategy = null;
+
+            Assert.Null(property.SqlServer().ValueGenerationStrategy);
+            Assert.Null(((IProperty)property).SqlServer().ValueGenerationStrategy);
+            Assert.Equal(ValueGeneration.None, property.ValueGeneration);
+        }
+
+        [Fact]
         public void Throws_setting_sequence_generation_for_invalid_type()
         {
             var modelBuilder = new BasicModelBuilder();
@@ -692,6 +720,22 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             Assert.Equal(
                 Strings.FormatIdentityBadType("Byte", typeof(Customer).FullName, "Byte"),
+                Assert.Throws<ArgumentException>(
+                    () => property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Identity).Message);
+        }
+
+        [Fact]
+        public void Throws_setting_identity_generation_for_nullable_byte_property()
+        {
+            var modelBuilder = new BasicModelBuilder();
+
+            var property = modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.NullableByte)
+                .Metadata;
+
+            Assert.Equal(
+                Strings.FormatIdentityBadType("NullableByte", typeof(Customer).FullName, "Nullable`1"),
                 Assert.Throws<ArgumentException>(
                     () => property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Identity).Message);
         }
@@ -935,8 +979,10 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         private class Customer
         {
             public int Id { get; set; }
+            public int? NullableInt { get; set; }
             public string Name { get; set; }
             public byte Byte { get; set; }
+            public byte? NullableByte { get; set; }
         }
 
         private class Order

@@ -14,6 +14,7 @@ namespace Microsoft.Data.Entity.Metadata
     public class Property : PropertyBase, IProperty
     {
         private readonly Type _propertyType;
+        private readonly EntityType _entityType;
         private PropertyFlags _flags;
         private int _shadowIndex;
         private int _originalValueIndex = -1;
@@ -28,13 +29,18 @@ namespace Microsoft.Data.Entity.Metadata
             Check.NotNull(entityType, "entityType");
 
             _propertyType = propertyType;
-            EntityType = entityType;
+            _entityType = entityType;
             _shadowIndex = shadowProperty ? 0 : -1;
         }
 
         public virtual Type PropertyType
         {
             get { return _propertyType; }
+        }
+
+        public override EntityType EntityType
+        {
+            get { return _entityType; }
         }
 
         public virtual Type UnderlyingType
@@ -62,6 +68,11 @@ namespace Microsoft.Data.Entity.Metadata
                 }
                 else
                 {
+                    if (value.Value && !_propertyType.IsNullableType())
+                    {
+                        throw new InvalidOperationException(Strings.FormatCannotBeNullable(Name, EntityType.SimpleName, _propertyType.Name));
+                    }
+
                     _isNullableSet = true;
                     SetFlag(value.Value, PropertyFlags.IsNullable);
                 }
@@ -199,10 +210,7 @@ namespace Microsoft.Data.Entity.Metadata
                 {
                     _shadowIndex = value ? 0 : -1;
 
-                    if (EntityType != null)
-                    {
-                        EntityType.PropertyMetadataChanged(this);
-                    }
+                    EntityType.PropertyMetadataChanged(this);
                 }
             }
         }
@@ -232,10 +240,7 @@ namespace Microsoft.Data.Entity.Metadata
                     {
                         SetFlag(value.Value, PropertyFlags.IsConcurrencyToken);
 
-                        if (EntityType != null)
-                        {
-                            EntityType.PropertyMetadataChanged(this);
-                        }
+                        EntityType.PropertyMetadataChanged(this);
                     }
                 }
             }

@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -551,7 +552,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal("BigMakId", fkProperty.Name);
             Assert.True(fkProperty.IsShadowProperty);
-            Assert.Same(typeof(int), fkProperty.PropertyType);
+            Assert.Same(typeof(int?), fkProperty.PropertyType);
             Assert.Same(dependentType, fkProperty.EntityType);
 
             Assert.Equal("BigMak", dependentType.Navigations.Single().Name);
@@ -590,7 +591,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal("BigMakId", fkProperty.Name);
             Assert.True(fkProperty.IsShadowProperty);
-            Assert.Same(typeof(int), fkProperty.PropertyType);
+            Assert.Same(typeof(int?), fkProperty.PropertyType);
             Assert.Same(dependentType, fkProperty.EntityType);
 
             Assert.Empty(dependentType.Navigations);
@@ -628,7 +629,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal("BigMakId", fkProperty.Name);
             Assert.True(fkProperty.IsShadowProperty);
-            Assert.Same(typeof(int), fkProperty.PropertyType);
+            Assert.Same(typeof(int?), fkProperty.PropertyType);
             Assert.Same(dependentType, fkProperty.EntityType);
 
             Assert.Equal("BigMak", dependentType.Navigations.Single().Name);
@@ -666,7 +667,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal("BigMakId", fkProperty.Name);
             Assert.True(fkProperty.IsShadowProperty);
-            Assert.Same(typeof(int), fkProperty.PropertyType);
+            Assert.Same(typeof(int?), fkProperty.PropertyType);
             Assert.Same(dependentType, fkProperty.EntityType);
 
             Assert.Empty(dependentType.Navigations);
@@ -1687,7 +1688,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal("BigMakId", fkProperty.Name);
             Assert.True(fkProperty.IsShadowProperty);
-            Assert.Same(typeof(int), fkProperty.PropertyType);
+            Assert.Same(typeof(int?), fkProperty.PropertyType);
             Assert.Same(dependentType, fkProperty.EntityType);
 
             Assert.Equal("BigMak", dependentType.Navigations.Single().Name);
@@ -1726,7 +1727,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal("BigMakId", fkProperty.Name);
             Assert.True(fkProperty.IsShadowProperty);
-            Assert.Same(typeof(int), fkProperty.PropertyType);
+            Assert.Same(typeof(int?), fkProperty.PropertyType);
             Assert.Same(dependentType, fkProperty.EntityType);
 
             Assert.Empty(dependentType.Navigations);
@@ -1764,7 +1765,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal("BigMakId", fkProperty.Name);
             Assert.True(fkProperty.IsShadowProperty);
-            Assert.Same(typeof(int), fkProperty.PropertyType);
+            Assert.Same(typeof(int?), fkProperty.PropertyType);
             Assert.Same(dependentType, fkProperty.EntityType);
 
             Assert.Equal("BigMak", dependentType.Navigations.Single().Name);
@@ -1802,7 +1803,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal("BigMakId", fkProperty.Name);
             Assert.True(fkProperty.IsShadowProperty);
-            Assert.Same(typeof(int), fkProperty.PropertyType);
+            Assert.Same(typeof(int?), fkProperty.PropertyType);
             Assert.Same(dependentType, fkProperty.EntityType);
 
             Assert.Empty(dependentType.Navigations);
@@ -5149,21 +5150,23 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         }
 
         [Fact]
-        public void One_to_many_relationships_with_non_nullable_keys_can_be_made_optional()
+        public void One_to_many_relationships_with_non_nullable_keys_cannot_be_made_optional()
         {
             var modelBuilder = HobNobBuilder();
 
-            modelBuilder
-                .Entity(typeof(Nob).FullName)
-                .OneToMany(typeof(Hob).FullName, "Hobs", "Nob")
-                .ForeignKey("NobId1", "NobId2")
-                .Required(false);
+            Assert.Equal(
+                Strings.FormatCannotBeNullable("NobId1", "Hob", "Int32"),
+                Assert.Throws<InvalidOperationException>(() => modelBuilder
+                    .Entity(typeof(Nob).FullName)
+                    .OneToMany(typeof(Hob).FullName, "Hobs", "Nob")
+                    .ForeignKey("NobId1", "NobId2")
+                    .Required(false)).Message);
 
             var entityType = (IEntityType)modelBuilder.Model.GetEntityType(typeof(Hob).FullName);
 
-            Assert.True(entityType.GetProperty("NobId1").IsNullable);
-            Assert.True(entityType.GetProperty("NobId1").IsNullable);
-            Assert.False(entityType.ForeignKeys.Single().IsRequired);
+            Assert.False(entityType.GetProperty("NobId1").IsNullable);
+            Assert.False(entityType.GetProperty("NobId1").IsNullable);
+            Assert.True(entityType.ForeignKeys.Single().IsRequired);
         }
 
         [Fact]
@@ -5185,21 +5188,23 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         }
 
         [Fact]
-        public void Many_to_one_relationships_with_non_nullable_keys_can_be_made_optional()
+        public void Many_to_one_relationships_with_non_nullable_keys_cannot_be_made_optional()
         {
             var modelBuilder = HobNobBuilder();
 
-            modelBuilder
-                .Entity(typeof(Hob).FullName)
-                .ManyToOne(typeof(Nob).FullName, "Nob", "Hobs")
-                .ForeignKey("NobId1", "NobId2")
-                .Required(false);
+            Assert.Equal(
+                Strings.FormatCannotBeNullable("NobId1", "Hob", "Int32"),
+                Assert.Throws<InvalidOperationException>(() => modelBuilder
+                    .Entity(typeof(Hob).FullName)
+                    .ManyToOne(typeof(Nob).FullName, "Nob", "Hobs")
+                    .ForeignKey("NobId1", "NobId2")
+                    .Required(false)).Message);
 
             var entityType = (IEntityType)modelBuilder.Model.GetEntityType(typeof(Hob).FullName);
 
-            Assert.True(entityType.GetProperty("NobId1").IsNullable);
-            Assert.True(entityType.GetProperty("NobId1").IsNullable);
-            Assert.False(entityType.ForeignKeys.Single().IsRequired);
+            Assert.False(entityType.GetProperty("NobId1").IsNullable);
+            Assert.False(entityType.GetProperty("NobId1").IsNullable);
+            Assert.True(entityType.ForeignKeys.Single().IsRequired);
         }
 
         [Fact]
@@ -5221,21 +5226,23 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         }
 
         [Fact]
-        public void One_to_one_relationships_with_non_nullable_keys_can_be_made_optional()
+        public void One_to_one_relationships_with_non_nullable_keys_cannot_be_made_optional()
         {
             var modelBuilder = HobNobBuilder();
 
-            modelBuilder
-                .Entity(typeof(Nob).FullName)
-                .OneToOne(typeof(Hob).FullName, "Hob", "Nob")
-                .ForeignKey(typeof(Hob).FullName, "NobId1", "NobId2")
-                .Required(false);
+            Assert.Equal(
+                Strings.FormatCannotBeNullable("NobId1", "Hob", "Int32"),
+                Assert.Throws<InvalidOperationException>(() => modelBuilder
+                    .Entity(typeof(Nob).FullName)
+                    .OneToOne(typeof(Hob).FullName, "Hob", "Nob")
+                    .ForeignKey(typeof(Hob).FullName, "NobId1", "NobId2")
+                    .Required(false)).Message);
 
             var entityType = (IEntityType)modelBuilder.Model.GetEntityType(typeof(Hob).FullName);
 
-            Assert.True(entityType.GetProperty("NobId1").IsNullable);
-            Assert.True(entityType.GetProperty("NobId1").IsNullable);
-            Assert.False(entityType.ForeignKeys.Single().IsRequired);
+            Assert.False(entityType.GetProperty("NobId1").IsNullable);
+            Assert.False(entityType.GetProperty("NobId1").IsNullable);
+            Assert.True(entityType.ForeignKeys.Single().IsRequired);
         }
 
         private class Hob

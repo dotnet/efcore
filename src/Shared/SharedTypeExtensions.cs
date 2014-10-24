@@ -25,12 +25,26 @@ namespace System
                        && typeInfo.GetGenericTypeDefinition() == typeof(Nullable<>));
         }
 
+        public static Type MakeNullable(this Type type)
+        {
+            if (type.IsNullableType())
+            {
+                return type;
+            }
+
+            return typeof(Nullable<>).MakeGenericType(type);
+        }
+
         public static bool IsInteger(this Type type)
         {
             return type == typeof(int)
                    || type == typeof(long)
                    || type == typeof(short)
-                   || type == typeof(byte);
+                   || type == typeof(byte)
+                   || type == typeof(int?)
+                   || type == typeof(long?)
+                   || type == typeof(short?)
+                   || type == typeof(byte?);
         }
     }
 }

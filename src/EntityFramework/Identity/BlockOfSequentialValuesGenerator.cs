@@ -74,7 +74,7 @@ namespace Microsoft.Data.Entity.Identity
                 }
             }
 
-            stateEntry[property] = Convert.ChangeType(newValue.Current, property.PropertyType);
+            stateEntry[property] = Convert.ChangeType(newValue.Current, property.PropertyType.UnwrapNullableType());
         }
 
         public virtual async Task NextAsync(StateEntry stateEntry, IProperty property, CancellationToken cancellationToken = default(CancellationToken))
@@ -106,7 +106,7 @@ namespace Microsoft.Data.Entity.Identity
                 }
             }
 
-            stateEntry[property] = Convert.ChangeType(newValue.Current, property.PropertyType);
+            stateEntry[property] = Convert.ChangeType(newValue.Current, property.PropertyType.UnwrapNullableType());
         }
 
         public abstract long GetNewCurrentValue([NotNull] StateEntry stateEntry, [NotNull] IProperty property);

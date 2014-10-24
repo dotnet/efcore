@@ -255,5 +255,123 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             public int Identifier { get; set; }
             public string Name { get; set; }
         }
+
+        [Fact] // Issue #478
+        public void Can_use_sequence_with_nullable_key_end_to_end()
+        {
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFramework()
+                .AddSqlServer()
+                .ServiceCollection
+                .BuildServiceProvider();
+
+            using (var context = new NullableBronieContext(serviceProvider, "NullableBronies", useSequence: true))
+            {
+                context.Database.EnsureDeleted();
+                context.Database.EnsureCreated();
+            }
+
+            AddEntitiesNullable(serviceProvider, "NullableBronies", useSequence: true);
+            AddEntitiesNullable(serviceProvider, "NullableBronies", useSequence: true);
+            AddEntitiesNullable(serviceProvider, "NullableBronies", useSequence: true);
+
+            using (var context = new NullableBronieContext(serviceProvider, "NullableBronies", useSequence: true))
+            {
+                var pegasuses = context.Unicons.ToList();
+
+                for (var i = 0; i < 10; i++)
+                {
+                    Assert.Equal(3, pegasuses.Count(p => p.Name == "Twilight Sparkle " + i));
+                    Assert.Equal(3, pegasuses.Count(p => p.Name == "Rarity " + i));
+                }
+            }
+        }
+
+        [Fact] // Issue #478
+        public void Can_use_identity_with_nullable_key_end_to_end()
+        {
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFramework()
+                .AddSqlServer()
+                .ServiceCollection
+                .BuildServiceProvider();
+
+            using (var context = new NullableBronieContext(serviceProvider, "IdentityBronies", useSequence: false))
+            {
+                context.Database.EnsureDeleted();
+                context.Database.EnsureCreated();
+            }
+
+            AddEntitiesNullable(serviceProvider, "IdentityBronies", false);
+            AddEntitiesNullable(serviceProvider, "IdentityBronies", false);
+            AddEntitiesNullable(serviceProvider, "IdentityBronies", false);
+
+            using (var context = new NullableBronieContext(serviceProvider, "IdentityBronies", useSequence: false))
+            {
+                var pegasuses = context.Unicons.ToList();
+
+                for (var i = 0; i < 10; i++)
+                {
+                    Assert.Equal(3, pegasuses.Count(p => p.Name == "Twilight Sparkle " + i));
+                    Assert.Equal(3, pegasuses.Count(p => p.Name == "Rarity " + i));
+                }
+            }
+        }
+
+        private static void AddEntitiesNullable(IServiceProvider serviceProvider, string databaseName, bool useSequence)
+        {
+            using (var context = new NullableBronieContext(serviceProvider, databaseName, useSequence))
+            {
+                for (var i = 0; i < 10; i++)
+                {
+                    context.Add(new Unicon { Name = "Twilight Sparkle " + i });
+                    context.Add(new Unicon { Name = "Rarity " + i });
+                }
+
+                context.SaveChanges();
+            }
+        }
+
+        private class NullableBronieContext : DbContext
+        {
+            private readonly string _databaseName;
+            private readonly bool _useSequence;
+
+            public NullableBronieContext(IServiceProvider serviceProvider, string databaseName, bool useSequence)
+                : base(serviceProvider)
+            {
+                _databaseName = databaseName;
+                _useSequence = useSequence;
+            }
+
+            public DbSet<Unicon> Unicons { get; set; }
+
+            protected override void OnConfiguring(DbContextOptions options)
+            {
+                options.UseSqlServer(SqlServerTestDatabase.CreateConnectionString(_databaseName));
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Unicon>(b =>
+                {
+                    b.Key(e => e.Identifier);
+                    if (_useSequence)
+                    {
+                        b.Property(e => e.Identifier).ForSqlServer().UseSequence();
+                    }
+                    else
+                    {
+                        b.Property(e => e.Identifier).ForSqlServer().UseIdentity();
+                    }
+                });
+            }
+        }
+
+        private class Unicon
+        {
+            public int? Identifier { get; set; }
+            public string Name { get; set; }
+        }
     }
 }

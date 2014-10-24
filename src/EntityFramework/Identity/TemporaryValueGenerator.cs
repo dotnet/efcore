@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.Identity
             Check.NotNull(stateEntry, "stateEntry");
             Check.NotNull(property, "property");
 
-            stateEntry[property] = Convert.ChangeType(Interlocked.Decrement(ref _current), property.PropertyType);
+            stateEntry[property] = Convert.ChangeType(Interlocked.Decrement(ref _current), property.PropertyType.UnwrapNullableType());
             stateEntry.MarkAsTemporary(property);
         }
     }

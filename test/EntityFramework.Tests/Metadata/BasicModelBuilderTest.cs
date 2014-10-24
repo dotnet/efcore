@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -424,22 +425,44 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             modelBuilder.Entity<Quarks>(b =>
                 {
-                    b.Property(e => e.Up).Required(false);
                     b.Property(e => e.Down).Required(false);
-                    b.Property<int>("Charm").Required(false);
                     b.Property<string>("Strange").Required(false);
-                    b.Property(typeof(int), "Top").Required(false);
                     b.Property(typeof(string), "Bottom").Required(false);
                 });
 
             var entityType = (IEntityType)model.GetEntityType(typeof(Quarks));
 
-            Assert.True(entityType.GetProperty("Up").IsNullable);
             Assert.True(entityType.GetProperty("Down").IsNullable);
-            Assert.True(entityType.GetProperty("Charm").IsNullable);
             Assert.True(entityType.GetProperty("Strange").IsNullable);
-            Assert.True(entityType.GetProperty("Top").IsNullable);
             Assert.True(entityType.GetProperty("Bottom").IsNullable);
+        }
+
+        [Fact]
+        public void Non_nullable_properties_cannot_be_made_optional()
+        {
+            var model = new Model();
+            var modelBuilder = new BasicModelBuilder(model);
+
+            modelBuilder.Entity<Quarks>(b =>
+                {
+                    Assert.Equal(
+                        Strings.FormatCannotBeNullable("Up", "Quarks", "Int32"),
+                        Assert.Throws<InvalidOperationException>(() => b.Property(e => e.Up).Required(false)).Message);
+
+                    Assert.Equal(
+                        Strings.FormatCannotBeNullable("Charm", "Quarks", "Int32"),
+                        Assert.Throws<InvalidOperationException>(() => b.Property<int>("Charm").Required(false)).Message);
+
+                    Assert.Equal(
+                        Strings.FormatCannotBeNullable("Top", "Quarks", "Int32"),
+                        Assert.Throws<InvalidOperationException>(() => b.Property(typeof(int), "Top").Required(false)).Message);
+                });
+
+            var entityType = (IEntityType)model.GetEntityType(typeof(Quarks));
+
+            Assert.False(entityType.GetProperty("Up").IsNullable);
+            Assert.False(entityType.GetProperty("Charm").IsNullable);
+            Assert.False(entityType.GetProperty("Top").IsNullable);
         }
 
         [Fact]

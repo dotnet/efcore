@@ -28,6 +28,10 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             Assert.Same(sequenceFactory, selector.Select(CreateSequenceProperty<int>()));
             Assert.Same(sequenceFactory, selector.Select(CreateSequenceProperty<short>()));
             Assert.Same(sequenceFactory, selector.Select(CreateSequenceProperty<byte>()));
+            Assert.Same(sequenceFactory, selector.Select(CreateSequenceProperty<long?>()));
+            Assert.Same(sequenceFactory, selector.Select(CreateSequenceProperty<int?>()));
+            Assert.Same(sequenceFactory, selector.Select(CreateSequenceProperty<short?>()));
+            Assert.Same(sequenceFactory, selector.Select(CreateSequenceProperty<byte?>()));
         }
 
         private static Property CreateSequenceProperty<T>()
@@ -56,6 +60,10 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             Assert.Same(sequenceFactory, selector.Select(CreateModelSequenceProperty<int>()));
             Assert.Same(sequenceFactory, selector.Select(CreateModelSequenceProperty<short>()));
             Assert.Same(sequenceFactory, selector.Select(CreateModelSequenceProperty<byte>()));
+            Assert.Same(sequenceFactory, selector.Select(CreateModelSequenceProperty<long?>()));
+            Assert.Same(sequenceFactory, selector.Select(CreateModelSequenceProperty<int?>()));
+            Assert.Same(sequenceFactory, selector.Select(CreateModelSequenceProperty<short?>()));
+            Assert.Same(sequenceFactory, selector.Select(CreateModelSequenceProperty<byte?>()));
         }
 
         private static Property CreateModelSequenceProperty<T>()
@@ -84,6 +92,9 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             Assert.Same(tempFactory, selector.Select(CreateIdentityProperty<long>()));
             Assert.Same(tempFactory, selector.Select(CreateIdentityProperty<int>()));
             Assert.Same(tempFactory, selector.Select(CreateIdentityProperty<short>()));
+            Assert.Same(tempFactory, selector.Select(CreateIdentityProperty<long?>()));
+            Assert.Same(tempFactory, selector.Select(CreateIdentityProperty<int?>()));
+            Assert.Same(tempFactory, selector.Select(CreateIdentityProperty<short?>()));
         }
 
         private static Property CreateIdentityProperty<T>()
@@ -111,6 +122,9 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             Assert.Same(tempFactory, selector.Select(CreateModelIdentityProperty<long>()));
             Assert.Same(tempFactory, selector.Select(CreateModelIdentityProperty<int>()));
             Assert.Same(tempFactory, selector.Select(CreateModelIdentityProperty<short>()));
+            Assert.Same(tempFactory, selector.Select(CreateModelIdentityProperty<long?>()));
+            Assert.Same(tempFactory, selector.Select(CreateModelIdentityProperty<int?>()));
+            Assert.Same(tempFactory, selector.Select(CreateModelIdentityProperty<short?>()));
         }
 
         private static Property CreateModelIdentityProperty<T>()
@@ -139,6 +153,9 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             Assert.Same(tempFactory, selector.Select(CreateDefaultValueGenProperty<long>()));
             Assert.Same(tempFactory, selector.Select(CreateDefaultValueGenProperty<int>()));
             Assert.Same(tempFactory, selector.Select(CreateDefaultValueGenProperty<short>()));
+            Assert.Same(tempFactory, selector.Select(CreateDefaultValueGenProperty<long?>()));
+            Assert.Same(tempFactory, selector.Select(CreateDefaultValueGenProperty<int?>()));
+            Assert.Same(tempFactory, selector.Select(CreateDefaultValueGenProperty<short?>()));
         }
 
         private static Property CreateDefaultValueGenProperty<T>()

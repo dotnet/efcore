@@ -61,6 +61,9 @@ namespace Microsoft.Data.Entity.Tests.Identity
             var intProperty = stateEntry.EntityType.GetProperty("Id");
             var longProperty = stateEntry.EntityType.GetProperty("Long");
             var shortProperty = stateEntry.EntityType.GetProperty("Short");
+            var nullableIntProperty = stateEntry.EntityType.GetProperty("NullableId");
+            var nullableLongProperty = stateEntry.EntityType.GetProperty("NullableLong");
+            var nullableShortProperty = stateEntry.EntityType.GetProperty("NullableShort");
 
             await generator.NextAsync(stateEntry, longProperty);
 
@@ -91,6 +94,36 @@ namespace Microsoft.Data.Entity.Tests.Identity
 
             Assert.Equal((short)-6, stateEntry[shortProperty]);
             Assert.True(stateEntry.HasTemporaryValue(shortProperty));
+
+            await generator.NextAsync(stateEntry, nullableLongProperty);
+
+            Assert.Equal(-7L, stateEntry[nullableLongProperty]);
+            Assert.True(stateEntry.HasTemporaryValue(nullableLongProperty));
+
+            await generator.NextAsync(stateEntry, nullableIntProperty);
+
+            Assert.Equal(-8, stateEntry[nullableIntProperty]);
+            Assert.True(stateEntry.HasTemporaryValue(nullableIntProperty));
+
+            await generator.NextAsync(stateEntry, nullableShortProperty);
+
+            Assert.Equal((short)-9, stateEntry[nullableShortProperty]);
+            Assert.True(stateEntry.HasTemporaryValue(nullableShortProperty));
+
+            generator.Next(stateEntry, nullableLongProperty);
+
+            Assert.Equal(-10L, stateEntry[nullableLongProperty]);
+            Assert.True(stateEntry.HasTemporaryValue(nullableLongProperty));
+
+            generator.Next(stateEntry, nullableIntProperty);
+
+            Assert.Equal(-11, stateEntry[nullableIntProperty]);
+            Assert.True(stateEntry.HasTemporaryValue(nullableIntProperty));
+
+            generator.Next(stateEntry, nullableShortProperty);
+
+            Assert.Equal((short)-12, stateEntry[nullableShortProperty]);
+            Assert.True(stateEntry.HasTemporaryValue(nullableShortProperty));
         }
 
         [Fact]
@@ -99,9 +132,9 @@ namespace Microsoft.Data.Entity.Tests.Identity
             var generator = new TemporaryValueGenerator();
 
             var stateEntry = TestHelpers.CreateStateEntry<AnEntity>(_model);
-            var byteProperty = stateEntry.EntityType.GetProperty("Byte");
 
-            Assert.Throws<OverflowException>(() => generator.Next(stateEntry, byteProperty));
+            Assert.Throws<OverflowException>(() => generator.Next(stateEntry, stateEntry.EntityType.GetProperty("Byte")));
+            Assert.Throws<OverflowException>(() => generator.Next(stateEntry, stateEntry.EntityType.GetProperty("NullableByte")));
         }
 
         private class AnEntity
@@ -110,6 +143,10 @@ namespace Microsoft.Data.Entity.Tests.Identity
             public long Long { get; set; }
             public short Short { get; set; }
             public byte Byte { get; set; }
+            public int? NullableId { get; set; }
+            public long? NullableLong { get; set; }
+            public short? NullableShort { get; set; }
+            public byte? NullableByte { get; set; }
         }
     }
 }

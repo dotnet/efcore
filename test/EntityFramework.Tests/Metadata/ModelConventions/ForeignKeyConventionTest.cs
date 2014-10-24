@@ -285,12 +285,12 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             var fk = (IForeignKey)new ForeignKeyConvention().FindOrCreateForeignKey(PrincipalType, DependentType, "SomeNav", "SomeInverse", isUnqiue: false);
 
             Assert.Equal("SomeNavId", fk.Properties.Single().Name);
-            Assert.Equal(typeof(int), fk.Properties.Single().PropertyType);
+            Assert.Equal(typeof(int?), fk.Properties.Single().PropertyType);
             Assert.True(fk.Properties.Single().IsShadowProperty);
             Assert.False(fk.Properties.Single().IsConcurrencyToken);
             Assert.Same(PrimaryKey, fk.ReferencedProperties.Single());
             Assert.False(fk.IsUnique);
-            Assert.True(fk.IsRequired);
+            Assert.False(fk.IsRequired);
         }
 
         [Fact]
@@ -299,12 +299,12 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             var fk = (IForeignKey)new ForeignKeyConvention().FindOrCreateForeignKey(PrincipalType, DependentType, null, null, isUnqiue: false);
 
             Assert.Equal("PrincipalEntityId", fk.Properties.Single().Name);
-            Assert.Equal(typeof(int), fk.Properties.Single().PropertyType);
+            Assert.Equal(typeof(int?), fk.Properties.Single().PropertyType);
             Assert.True(fk.Properties.Single().IsShadowProperty);
             Assert.False(fk.Properties.Single().IsConcurrencyToken);
             Assert.Same(PrimaryKey, fk.ReferencedProperties.Single());
             Assert.False(fk.IsUnique);
-            Assert.True(fk.IsRequired);
+            Assert.False(fk.IsRequired);
         }
 
         [Fact]
@@ -321,7 +321,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             Assert.NotEqual(fkProperty, newFk.Properties.Single());
             Assert.Same(PrimaryKey, newFk.ReferencedProperties.Single());
             Assert.False(newFk.IsUnique);
-            Assert.True(newFk.IsRequired);
+            Assert.False(newFk.IsRequired);
         }
 
         [Fact]
@@ -338,7 +338,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             Assert.NotEqual(fkProperty, newFk.Properties.Single());
             Assert.Same(PrimaryKey, newFk.ReferencedProperties.Single());
             Assert.False(newFk.IsUnique);
-            Assert.True(newFk.IsRequired);
+            Assert.False(newFk.IsRequired);
         }
 
         [Fact]
@@ -355,7 +355,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             Assert.NotEqual(fkProperty, newFk.Properties.Single());
             Assert.Same(PrimaryKey, newFk.ReferencedProperties.Single());
             Assert.False(newFk.IsUnique);
-            Assert.True(newFk.IsRequired);
+            Assert.False(newFk.IsRequired);
         }
 
         [Fact]

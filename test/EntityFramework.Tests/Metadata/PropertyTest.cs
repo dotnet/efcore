@@ -40,9 +40,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var intProperty = new Property("Name", typeof(int), new Model().AddEntityType(typeof(object)));
 
             stringProperty.IsNullable = false;
-            intProperty.IsNullable = true;
             Assert.False(stringProperty.IsNullable.Value);
-            Assert.True(intProperty.IsNullable.Value);
+            Assert.Null(intProperty.IsNullable);
 
             stringProperty.IsNullable = true;
             intProperty.IsNullable = false;
@@ -53,6 +52,16 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             intProperty.IsNullable = null;
             Assert.Null(stringProperty.IsNullable);
             Assert.Null(intProperty.IsNullable);
+        }
+
+        [Fact]
+        public void Properties_with_non_nullable_types_cannot_be_made_nullable()
+        {
+            var intProperty = new Property("Name", typeof(int), new Model().AddEntityType(typeof(object)));
+
+            Assert.Equal(
+                Strings.FormatCannotBeNullable("Name", "Object", "Int32"),
+                Assert.Throws<InvalidOperationException>(() => intProperty.IsNullable = true).Message);
         }
 
         [Fact]
