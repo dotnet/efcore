@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data.Common;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -280,6 +281,78 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     db.Customers.Remove(customer);
                 }
             }
+        }
+
+        [Fact] // Issue #931
+        public async Task Can_save_and_query_with_schema()
+        {
+            var serviceProvider
+                = new ServiceCollection()
+                    .AddEntityFramework()
+                    .AddSqlServer()
+                    .AddDbContext<SchemaContext>()
+                    .ServiceCollection
+                    .BuildServiceProvider();
+
+            using (var testDatabase = await SqlServerTestDatabase.Scratch())
+            {
+                await testDatabase.ExecuteNonQueryAsync("CREATE SCHEMA Apple");
+                await testDatabase.ExecuteNonQueryAsync("CREATE TABLE Apple.Jack (MyKey int)");
+                await testDatabase.ExecuteNonQueryAsync("CREATE TABLE Apple.Black (MyKey int)");
+
+                using (var context = serviceProvider.GetService<SchemaContext>())
+                {
+                    context.Connection = testDatabase.Connection;
+
+                    context.Add(new Jack());
+                    context.Add(new Black());
+                    context.SaveChanges();
+                }
+
+                using (var context = serviceProvider.GetService<SchemaContext>())
+                {
+                    context.Connection = testDatabase.Connection;
+
+                    Assert.Equal(1, context.Jacks.Count());
+                    Assert.Equal(1, context.Blacks.Count());
+                }
+            }
+        }
+
+        private class SchemaContext : DbContext
+        {
+            public DbConnection Connection { get; set; }
+
+            public DbSet<Jack> Jacks { get; set; }
+            public DbSet<Black> Blacks { get; set; }
+
+            protected override void OnConfiguring(DbContextOptions options)
+            {
+                options.UseSqlServer(Connection);
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder
+                    .Entity<Jack>()
+                    .ForRelational(b => b.Table("Jack", "Apple"))
+                    .Key(e => e.MyKey);
+
+                modelBuilder
+                    .Entity<Black>()
+                    .ForSqlServer(b => b.Table("Black", "Apple"))
+                    .Key(e => e.MyKey);
+            }
+        }
+
+        private class Jack
+        {
+            public int MyKey { get; set; }
+        }
+
+        private class Black
+        {
+            public int MyKey { get; set; }
         }
 
         [Fact]

@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             
             Assert.Equal(
                 @"SELECT [c].[CompanyName], [c].[CustomerID]
-FROM [Customers] AS [c]",
+FROM [dbo].[Customers] AS [c]",
                 _fixture.Sql);
         }
         
@@ -24,7 +24,7 @@ FROM [Customers] AS [c]",
             
             Assert.Equal(
                 @"SELECT [e].[City], [e].[EmployeeID]
-FROM [Employees] AS [e]",
+FROM [dbo].[Employees] AS [e]",
                 _fixture.Sql);
         }
 
