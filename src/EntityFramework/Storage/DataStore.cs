@@ -53,12 +53,17 @@ namespace Microsoft.Data.Entity.Storage
             get { return _configuration.Services.EntityKeyFactorySource; }
         }
 
+        public virtual EntityMaterializerSource EntityMaterializerSource
+        {
+            get { return _configuration.Services.EntityMaterializerSource; }
+        }
+
         protected virtual IQueryBuffer CreateQueryBuffer()
         {
             return new QueryBuffer(
                 _configuration.StateManager,
-                _configuration.Services.EntityKeyFactorySource,
-                _configuration.Services.EntityMaterializerSource,
+                EntityKeyFactorySource,
+                EntityMaterializerSource,
                 _configuration.Services.ClrCollectionAccessorSource,
                 _configuration.Services.ClrPropertySetterSource);
         }

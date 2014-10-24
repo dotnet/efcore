@@ -59,6 +59,7 @@ namespace Microsoft.Data.Entity.Query
             return AsyncExecuteCollection<T>(queryModel, cancellationToken).First(cancellationToken);
         }
 
+        [DebuggerStepThrough]
         public virtual IEnumerable<T> ExecuteCollection<T>([NotNull] QueryModel queryModel)
         {
             Check.NotNull(queryModel, "queryModel");
@@ -83,6 +84,7 @@ namespace Microsoft.Data.Entity.Query
             }
         }
 
+        [DebuggerStepThrough]
         public virtual IAsyncEnumerable<T> AsyncExecuteCollection<T>(
             [NotNull] QueryModel queryModel, CancellationToken cancellationToken)
         {

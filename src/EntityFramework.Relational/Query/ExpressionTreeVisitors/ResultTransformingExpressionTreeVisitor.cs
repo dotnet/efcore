@@ -48,17 +48,6 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 return methodCallExpression.Arguments[3];
             }
 
-            if (methodCallExpression.Method.MethodIsClosedFormOf(
-                QuerySourceScope.GetResultMethodInfo)
-                && ((ConstantExpression)methodCallExpression.Arguments[0]).Value == _outerQuerySource)
-            {
-                return
-                    QuerySourceScope.GetResult(
-                        methodCallExpression.Object,
-                        _outerQuerySource,
-                        typeof(TResult));
-            }
-
             if (newArguments != methodCallExpression.Arguments)
             {
                 if (methodCallExpression.Method.MethodIsClosedFormOf(

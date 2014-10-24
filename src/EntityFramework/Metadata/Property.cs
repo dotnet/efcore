@@ -39,7 +39,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual Type UnderlyingType
         {
-            get { return Nullable.GetUnderlyingType(_propertyType) ?? _propertyType; }
+            get { return _propertyType.UnwrapNullableType(); }
         }
 
         // TODO: Remove this once the model is readonly

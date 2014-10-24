@@ -23,7 +23,10 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
         private readonly TableQueryGenerator _generator = new TableQueryGenerator();
 
         public QueryGenerationTests()
-            : base(new AtsQueryCompilationContext(SetupModel(), new LoggerFactory().Create("Fake")))
+            : base(
+                new AtsQueryCompilationContext(SetupModel(),
+                    new LoggerFactory().Create("Fake"),
+                    new EntityMaterializerSource(new MemberMapper(new FieldMatcher()))))
         {
         }
 

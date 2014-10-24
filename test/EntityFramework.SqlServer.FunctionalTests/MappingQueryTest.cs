@@ -28,6 +28,26 @@ FROM [dbo].[Employees] AS [e]",
                 _fixture.Sql);
         }
 
+        public override void All_orders()
+        {
+            base.All_orders();
+
+            Assert.Equal(
+                @"SELECT [o].[OrderID], [o].[ShipVia]
+FROM [dbo].[Orders] AS [o]",
+                _fixture.Sql);
+        }
+
+        public override void Project_nullable_enum()
+        {
+            base.Project_nullable_enum();
+
+            Assert.Equal(
+                @"SELECT [o].[ShipVia]
+FROM [dbo].[Orders] AS [o]",
+                _fixture.Sql);
+        }
+
         private readonly MappingQueryFixture _fixture;
 
         public MappingQueryTest(MappingQueryFixture fixture)

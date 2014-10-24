@@ -39,7 +39,13 @@ namespace Microsoft.Data.Entity.SQLite
             Check.NotNull(queryMethodProvider, "queryMethodProvider");
 
             return new SQLiteQueryCompilationContext(
-                Model, Logger, linqOperatorProvider, resultOperatorHandler, queryMethodProvider, methodCallTranslator);
+                Model, 
+                Logger, 
+                linqOperatorProvider, 
+                resultOperatorHandler, 
+                EntityMaterializerSource,
+                queryMethodProvider, 
+                methodCallTranslator);
         }
     }
 }

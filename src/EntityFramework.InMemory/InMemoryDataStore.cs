@@ -82,6 +82,7 @@ namespace Microsoft.Data.Entity.InMemory
                 = new InMemoryQueryCompilationContext(
                     Model,
                     Logger,
+                    EntityMaterializerSource,
                     EntityKeyFactorySource,
                     _database.Value);
 
