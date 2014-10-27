@@ -18,36 +18,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
     public class ConnectionStringTest
     {
         [Fact]
-        public async Task Can_use_connection_string_name_in_OnConfiguring()
-        {
-            await Can_use_connection_string_name_in_OnConfiguring_test("Northwind");
-        }
-
-        [Fact]
-        public async Task Can_use_k_path_for_connection_string_in_OnConfiguring()
-        {
-            await Can_use_connection_string_name_in_OnConfiguring_test("Data:Northwind:ConnectionString");
-        }
-
-        [Fact]
-        public async Task Can_use_name_equals_syntax_for_connection_string_name_in_OnConfiguring()
-        {
-            await Can_use_connection_string_name_in_OnConfiguring_test("name=Northwind");
-        }
-
-        [Fact]
-        public async Task Can_use_name_equals_syntax_for_k_path_in_OnConfiguring()
-        {
-            await Can_use_connection_string_name_in_OnConfiguring_test("name=Data:Northwind:ConnectionString");
-        }
-
-        [Fact]
         public async Task Can_use_actual_connection_string_in_OnConfiguring()
-        {
-            await Can_use_connection_string_name_in_OnConfiguring_test(SqlServerTestDatabase.NorthwindConnectionString);
-        }
-
-        private async Task Can_use_connection_string_name_in_OnConfiguring_test(string connectionName)
         {
             var configuration = new Configuration
                 {
@@ -68,7 +39,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             using (await SqlServerTestDatabase.Northwind())
             {
-                using (var context = new NorthwindContext(serviceProvider, connectionName))
+                using (var context = new NorthwindContext(serviceProvider, SqlServerTestDatabase.NorthwindConnectionString))
                 {
                     Assert.Equal(91, await context.Customers.CountAsync());
                 }

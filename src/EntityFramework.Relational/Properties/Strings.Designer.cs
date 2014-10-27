@@ -171,38 +171,6 @@ namespace Microsoft.Data.Entity.Relational
         }
 
         /// <summary>
-        /// The connection string '{connectionName}' could not be found because no IConfiguration object has been configured.
-        /// </summary>
-        internal static string NoConfigForConnection
-        {
-            get { return GetString("NoConfigForConnection"); }
-        }
-
-        /// <summary>
-        /// The connection string '{connectionName}' could not be found because no IConfiguration object has been configured.
-        /// </summary>
-        internal static string FormatNoConfigForConnection(object connectionName)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("NoConfigForConnection", "connectionName"), connectionName);
-        }
-
-        /// <summary>
-        /// The connection string '{connectionName}' could not be found in the application's configuration.
-        /// </summary>
-        internal static string ConnectionNotFound
-        {
-            get { return GetString("ConnectionNotFound"); }
-        }
-
-        /// <summary>
-        /// The connection string '{connectionName}' could not be found in the application's configuration.
-        /// </summary>
-        internal static string FormatConnectionNotFound(object connectionName)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("ConnectionNotFound", "connectionName"), connectionName);
-        }
-
-        /// <summary>
         /// Relational-specific methods can only be used when the context is using a relational data store.
         /// </summary>
         internal static string RelationalNotInUse

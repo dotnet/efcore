@@ -60,7 +60,6 @@
     <Compile Include="..\Shared\LoggingExtensions.cs">
       <Link>LoggingExtensions.cs</Link>
     </Compile>
-    <Compile Include="ConnectionStringResolver.cs" />
     <Compile Include="DatabaseBuilder.cs" />
     <Compile Include="IDbCommandExecutor.cs" />
     <Compile Include="Metadata\IRelationalEntityTypeExtensions.cs" />

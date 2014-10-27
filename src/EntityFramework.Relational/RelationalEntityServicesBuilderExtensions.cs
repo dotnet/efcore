@@ -24,10 +24,7 @@ namespace Microsoft.Data.Entity.Relational
                 .AddSingleton<ParameterNameGeneratorFactory>()
                 .AddSingleton<ModificationCommandComparer>()
                 .AddSingleton<GraphFactory, BidirectionalAdjacencyListGraphFactory>()
-                .AddScoped<RelationalDatabase>()
-                // TODO: Is singleton correct here? What is IConfiguration scoped as?
-                // Issue #192
-                .AddSingleton<ConnectionStringResolver>();
+                .AddScoped<RelationalDatabase>();
 
             return builder;
         }
