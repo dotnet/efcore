@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.Tests.Identity
 
             var selector = new ValueGeneratorSelector(guidFactory);
 
-            Assert.Same(guidFactory, selector.Select(CreateProperty(typeof(Guid), ValueGeneration.OnAdd)));
+            Assert.Same(guidFactory, selector.Select(CreateProperty(typeof(Guid))));
         }
 
         [Fact]
@@ -26,8 +26,7 @@ namespace Microsoft.Data.Entity.Tests.Identity
         {
             var selector = new ValueGeneratorSelector(new SimpleValueGeneratorFactory<GuidValueGenerator>());
 
-            Assert.Null(selector.Select(CreateProperty(typeof(int), ValueGeneration.None)));
-            Assert.Null(selector.Select(CreateProperty(typeof(int), ValueGeneration.OnAddAndUpdate)));
+            Assert.Null(selector.Select(CreateProperty(typeof(int), generateValues: false)));
         }
 
         [Fact]
@@ -39,18 +38,18 @@ namespace Microsoft.Data.Entity.Tests.Identity
             var typeMock = new Mock<IEntityType>();
             typeMock.Setup(m => m.Name).Returns("AnEntity");
 
-            var property = CreateProperty(typeof(Random), ValueGeneration.OnAdd);
+            var property = CreateProperty(typeof(Random));
 
             Assert.Equal(
                 Strings.FormatNoValueGenerator("MyProperty", "MyType", "Random"),
                 Assert.Throws<NotSupportedException>(() => selector.Select(property)).Message);
         }
 
-        private static Property CreateProperty(Type propertyType, ValueGeneration valueGeneration)
+        private static Property CreateProperty(Type propertyType, bool generateValues = true)
         {
             var entityType = new Model().AddEntityType("MyType");
             var property = entityType.GetOrAddProperty("MyProperty", propertyType, shadowProperty: true);
-            property.ValueGeneration = valueGeneration;
+            property.GenerateValueOnAdd = generateValues;
 
             return property;
         }

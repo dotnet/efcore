@@ -562,24 +562,24 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             modelBuilder.Entity<Quarks>(b =>
                 {
-                    b.Property(e => e.Id).GenerateValuesOnAdd(false);
-                    b.Property(e => e.Up).GenerateValuesOnAdd();
-                    b.Property(e => e.Down).GenerateValuesOnAdd(true);
-                    b.Property<int>("Charm").GenerateValuesOnAdd();
-                    b.Property<string>("Strange").GenerateValuesOnAdd(false);
-                    b.Property(typeof(int), "Top").GenerateValuesOnAdd();
-                    b.Property(typeof(string), "Bottom").GenerateValuesOnAdd(false);
+                    b.Property(e => e.Id).GenerateValueOnAdd(false);
+                    b.Property(e => e.Up).GenerateValueOnAdd();
+                    b.Property(e => e.Down).GenerateValueOnAdd(true);
+                    b.Property<int>("Charm").GenerateValueOnAdd();
+                    b.Property<string>("Strange").GenerateValueOnAdd(false);
+                    b.Property(typeof(int), "Top").GenerateValueOnAdd();
+                    b.Property(typeof(string), "Bottom").GenerateValueOnAdd(false);
                 });
 
             var entityType = model.GetEntityType(typeof(Quarks));
 
-            Assert.Equal(ValueGeneration.None, entityType.GetProperty("Id").ValueGeneration);
-            Assert.Equal(ValueGeneration.OnAdd, entityType.GetProperty("Up").ValueGeneration);
-            Assert.Equal(ValueGeneration.OnAdd, entityType.GetProperty("Down").ValueGeneration);
-            Assert.Equal(ValueGeneration.OnAdd, entityType.GetProperty("Charm").ValueGeneration);
-            Assert.Equal(ValueGeneration.None, entityType.GetProperty("Strange").ValueGeneration);
-            Assert.Equal(ValueGeneration.OnAdd, entityType.GetProperty("Top").ValueGeneration);
-            Assert.Equal(ValueGeneration.None, entityType.GetProperty("Bottom").ValueGeneration);
+            Assert.Equal(false, entityType.GetProperty("Id").GenerateValueOnAdd);
+            Assert.Equal(true, entityType.GetProperty("Up").GenerateValueOnAdd);
+            Assert.Equal(true, entityType.GetProperty("Down").GenerateValueOnAdd);
+            Assert.Equal(true, entityType.GetProperty("Charm").GenerateValueOnAdd);
+            Assert.Equal(false, entityType.GetProperty("Strange").GenerateValueOnAdd);
+            Assert.Equal(true, entityType.GetProperty("Top").GenerateValueOnAdd);
+            Assert.Equal(false, entityType.GetProperty("Bottom").GenerateValueOnAdd);
         }
 
         [Fact]
@@ -601,13 +601,13 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var entityType = model.GetEntityType(typeof(Quarks));
 
-            Assert.Equal(ValueGeneration.OnAdd, entityType.GetProperty("Id").ValueGeneration);
-            Assert.Equal(ValueGeneration.OnAddAndUpdate, entityType.GetProperty("Up").ValueGeneration);
-            Assert.Equal(ValueGeneration.None, entityType.GetProperty("Down").ValueGeneration);
-            Assert.Equal(ValueGeneration.OnAddAndUpdate, entityType.GetProperty("Charm").ValueGeneration);
-            Assert.Equal(ValueGeneration.None, entityType.GetProperty("Strange").ValueGeneration);
-            Assert.Equal(ValueGeneration.OnAddAndUpdate, entityType.GetProperty("Top").ValueGeneration);
-            Assert.Equal(ValueGeneration.None, entityType.GetProperty("Bottom").ValueGeneration);
+            Assert.Null(entityType.GetProperty("Id").IsStoreComputed);
+            Assert.Equal(true, entityType.GetProperty("Up").IsStoreComputed);
+            Assert.Equal(false, entityType.GetProperty("Down").IsStoreComputed);
+            Assert.Equal(true, entityType.GetProperty("Charm").IsStoreComputed);
+            Assert.Equal(false, entityType.GetProperty("Strange").IsStoreComputed);
+            Assert.Equal(true, entityType.GetProperty("Top").IsStoreComputed);
+            Assert.Equal(false, entityType.GetProperty("Bottom").IsStoreComputed);
         }
 
         [Fact]
@@ -677,7 +677,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .ConcurrencyToken()
                 .Shadow()
                 .StoreComputed()
-                .GenerateValuesOnAdd()
+                .GenerateValueOnAdd()
                 .UseStoreDefault()
                 .MaxLength(100)
                 .Required();
@@ -5847,7 +5847,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);
 
-            Assert.Same(model, ((BasicModelBuilder)modelBuilder).Model);
+            Assert.Same(model, new BasicModelBuilder(modelBuilder.Model).Model);
         }
 
         private class Whoopper

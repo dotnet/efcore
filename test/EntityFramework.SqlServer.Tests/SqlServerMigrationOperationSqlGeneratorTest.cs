@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Relational;
@@ -103,7 +102,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 "dbo.MyTable",
                 new[]
                     {
-                        foo = new Column("Foo", "int") { IsNullable = false, ClrType = typeof(int), ValueGenerationStrategy = ValueGeneration.OnAdd },
+                        foo = new Column("Foo", "int") { IsNullable = false, ClrType = typeof(int), GenerateValueOnAdd = true },
                         bar = new Column("Bar", "int") { IsNullable = true }
                     })
                 {

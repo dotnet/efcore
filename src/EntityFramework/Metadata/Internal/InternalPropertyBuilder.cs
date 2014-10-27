@@ -11,7 +11,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         private ConfigurationSource? _maxLengthConfigurationSource;
         private ConfigurationSource? _isConcurrencyTokenConfigurationSource;
         private ConfigurationSource _isShadowPropertyConfigurationSource;
-        private ConfigurationSource? _valueGenerationConfigurationSource;
+        private ConfigurationSource? _generateValueOnAddConfigurationSource;
+        private ConfigurationSource? _isStoreComputedConfigurationSource;
         private ConfigurationSource? _useStoreDefaultConfigurationSource;
 
         public InternalPropertyBuilder([NotNull] Property property, [NotNull] InternalModelBuilder modelBuilder, ConfigurationSource configurationSource)
@@ -68,12 +69,12 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return false;
         }
 
-        public virtual bool GenerateValuesOnAdd(bool generateValues, ConfigurationSource configurationSource)
+        public virtual bool GenerateValueOnAdd(bool generateValue, ConfigurationSource configurationSource)
         {
-            if (configurationSource.CanSet(_valueGenerationConfigurationSource, Metadata.ValueGeneration.HasValue))
+            if (configurationSource.CanSet(_generateValueOnAddConfigurationSource, Metadata.GenerateValueOnAdd.HasValue))
             {
-                _valueGenerationConfigurationSource = configurationSource;
-                Metadata.ValueGeneration = generateValues ? ValueGeneration.OnAdd : ValueGeneration.None;
+                _generateValueOnAddConfigurationSource = configurationSource;
+                Metadata.GenerateValueOnAdd = generateValue;
                 return true;
             }
 
@@ -82,10 +83,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual bool StoreComputed(bool storeComputed, ConfigurationSource configurationSource)
         {
-            if (configurationSource.CanSet(_valueGenerationConfigurationSource, Metadata.ValueGeneration.HasValue))
+            if (configurationSource.CanSet(_isStoreComputedConfigurationSource, Metadata.IsStoreComputed.HasValue))
             {
-                _valueGenerationConfigurationSource = configurationSource;
-                Metadata.ValueGeneration = storeComputed ? ValueGeneration.OnAddAndUpdate : ValueGeneration.None;
+                _isStoreComputedConfigurationSource = configurationSource;
+                Metadata.IsStoreComputed = storeComputed;
                 return true;
             }
 

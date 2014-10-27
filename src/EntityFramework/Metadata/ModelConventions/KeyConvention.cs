@@ -64,7 +64,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             if (property.PropertyType == typeof(Guid)
                 || property.PropertyType.IsInteger())
             {
-                propertyBuilder.GenerateValuesOnAdd(true, ConfigurationSource.Convention);
+                propertyBuilder.GenerateValueOnAdd(true, ConfigurationSource.Convention);
             }
 
             // TODO: Nullable, Sequence

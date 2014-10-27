@@ -21,10 +21,10 @@ namespace Microsoft.Data.Entity.InMemory.Tests
                 new SimpleValueGeneratorFactory<GuidValueGenerator>(),
                 inMemoryFactory);
 
-            Assert.Same(inMemoryFactory, selector.Select(CreateProperty(typeof(long), ValueGeneration.OnAdd)));
-            Assert.Same(inMemoryFactory, selector.Select(CreateProperty(typeof(int), ValueGeneration.OnAdd)));
-            Assert.Same(inMemoryFactory, selector.Select(CreateProperty(typeof(short), ValueGeneration.OnAdd)));
-            Assert.Same(inMemoryFactory, selector.Select(CreateProperty(typeof(byte), ValueGeneration.OnAdd)));
+            Assert.Same(inMemoryFactory, selector.Select(CreateProperty(typeof(long))));
+            Assert.Same(inMemoryFactory, selector.Select(CreateProperty(typeof(int))));
+            Assert.Same(inMemoryFactory, selector.Select(CreateProperty(typeof(short))));
+            Assert.Same(inMemoryFactory, selector.Select(CreateProperty(typeof(byte))));
         }
 
         [Fact]
@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
                 guidFactory,
                 new SimpleValueGeneratorFactory<InMemoryValueGenerator>());
 
-            Assert.Same(guidFactory, selector.Select(CreateProperty(typeof(Guid), ValueGeneration.OnAdd)));
+            Assert.Same(guidFactory, selector.Select(CreateProperty(typeof(Guid))));
         }
 
         [Fact]
@@ -46,8 +46,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
                 new SimpleValueGeneratorFactory<GuidValueGenerator>(),
                 new SimpleValueGeneratorFactory<InMemoryValueGenerator>());
 
-            Assert.Null(selector.Select(CreateProperty(typeof(int), ValueGeneration.None)));
-            Assert.Null(selector.Select(CreateProperty(typeof(int), ValueGeneration.OnAddAndUpdate)));
+            Assert.Null(selector.Select(CreateProperty(typeof(int), generateValues: false)));
         }
 
         [Fact]
@@ -60,18 +59,18 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             var typeMock = new Mock<IEntityType>();
             typeMock.Setup(m => m.Name).Returns("AnEntity");
 
-            var property = CreateProperty(typeof(double), ValueGeneration.OnAdd);
+            var property = CreateProperty(typeof(double));
 
             Assert.Equal(
                 TestHelpers.GetCoreString("FormatNoValueGenerator", "MyProperty", "MyType", "Double"),
                 Assert.Throws<NotSupportedException>(() => selector.Select(property)).Message);
         }
 
-        private static Property CreateProperty(Type propertyType, ValueGeneration valueGeneration)
+        private static Property CreateProperty(Type propertyType, bool generateValues = true)
         {
             var entityType = new Model().AddEntityType("MyType");
             var property = entityType.GetOrAddProperty("MyProperty", propertyType, shadowProperty: true);
-            property.ValueGeneration = valueGeneration;
+            property.GenerateValueOnAdd = generateValues;
 
             return property;
         }

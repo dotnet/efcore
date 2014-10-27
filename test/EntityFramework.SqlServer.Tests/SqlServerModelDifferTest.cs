@@ -110,8 +110,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             var alterColumnOperation = (AlterColumnOperation)operations[1];
 
-            Assert.Equal(ValueGeneration.None, sourceDbModel.GetTable(alterColumnOperation.TableName).GetColumn(alterColumnOperation.NewColumn.Name).ValueGenerationStrategy);
-            Assert.Equal(ValueGeneration.OnAdd, alterColumnOperation.NewColumn.ValueGenerationStrategy);
+            Assert.False(sourceDbModel.GetTable(alterColumnOperation.TableName).GetColumn(alterColumnOperation.NewColumn.Name).GenerateValueOnAdd);
+            Assert.True(alterColumnOperation.NewColumn.GenerateValueOnAdd);
         }
 
         [Fact]
@@ -151,8 +151,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             var alterColumnOperation = (AlterColumnOperation)operations[1];
 
-            Assert.Equal(ValueGeneration.OnAdd, sourceDbModel.GetTable(alterColumnOperation.TableName).GetColumn(alterColumnOperation.NewColumn.Name).ValueGenerationStrategy);
-            Assert.Equal(ValueGeneration.None, targetDbModel.GetTable(alterColumnOperation.TableName).GetColumn(alterColumnOperation.NewColumn.Name).ValueGenerationStrategy);
+            Assert.True(sourceDbModel.GetTable(alterColumnOperation.TableName).GetColumn(alterColumnOperation.NewColumn.Name).GenerateValueOnAdd);
+            Assert.False(targetDbModel.GetTable(alterColumnOperation.TableName).GetColumn(alterColumnOperation.NewColumn.Name).GenerateValueOnAdd);
         }
 
         [Fact]

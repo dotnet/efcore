@@ -495,67 +495,67 @@ namespace Microsoft.Data.Entity.Redis
 
             var underlyingType = property.UnderlyingType;
 
-            if (typeof(string) == underlyingType)
+            if (underlyingType == typeof(string))
             {
                 return value;
             }
-            if (typeof(Int32) == underlyingType)
+            if (underlyingType == typeof(Int32))
             {
                 return MaybeNullable(Convert.ToInt32(value), property);
             }
-            if (typeof(Int64) == underlyingType)
+            if (underlyingType == typeof(Int64))
             {
                 return MaybeNullable(Convert.ToInt64(value), property);
             }
-            if (typeof(Double) == underlyingType)
+            if (underlyingType == typeof(Double))
             {
                 return MaybeNullable(Convert.ToDouble(value), property);
             }
-            if (typeof(Decimal) == underlyingType)
+            if (underlyingType == typeof(Decimal))
             {
                 return MaybeNullable(Convert.ToDecimal(value), property);
             }
-            if (typeof(DateTime) == underlyingType)
+            if (underlyingType == typeof(DateTime))
             {
                 return MaybeNullable(DateTime.Parse(value), property);
             }
-            if (typeof(DateTimeOffset) == underlyingType)
+            if (underlyingType == typeof(DateTimeOffset))
             {
                 return MaybeNullable(DateTimeOffset.Parse(value), property);
             }
-            if (typeof(Single) == underlyingType)
+            if (underlyingType == typeof(Single))
             {
                 return MaybeNullable(Convert.ToSingle(value), property);
             }
-            if (typeof(Boolean) == underlyingType)
+            if (underlyingType == typeof(Boolean))
             {
                 return MaybeNullable(Convert.ToBoolean(value), property);
             }
-            if (typeof(Byte) == underlyingType)
+            if (underlyingType == typeof(Byte))
             {
                 return MaybeNullable(Convert.ToByte(value), property);
             }
-            if (typeof(UInt32) == underlyingType)
+            if (underlyingType == typeof(UInt32))
             {
                 return MaybeNullable(Convert.ToUInt32(value), property);
             }
-            if (typeof(UInt64) == underlyingType)
+            if (underlyingType == typeof(UInt64))
             {
                 return MaybeNullable(Convert.ToUInt64(value), property);
             }
-            if (typeof(Int16) == underlyingType)
+            if (underlyingType == typeof(Int16))
             {
                 return MaybeNullable(Convert.ToInt16(value), property);
             }
-            if (typeof(UInt16) == underlyingType)
+            if (underlyingType == typeof(UInt16))
             {
                 return MaybeNullable(Convert.ToUInt16(value), property);
             }
-            if (typeof(Char) == underlyingType)
+            if (underlyingType == typeof(Char))
             {
                 return MaybeNullable(Convert.ToChar(value), property);
             }
-            if (typeof(SByte) == underlyingType)
+            if (underlyingType == typeof(SByte))
             {
                 return MaybeNullable(Convert.ToSByte(value), property);
             }

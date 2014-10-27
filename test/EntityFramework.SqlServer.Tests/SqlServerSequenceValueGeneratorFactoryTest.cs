@@ -46,7 +46,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 .ForSqlServer(b => b.UseSequence())
                 .Entity<Robot>()
                 .Property(e => e.Id)
-                .GenerateValuesOnAdd()
+                .GenerateValueOnAdd()
                 .Metadata;
 
             var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new LoggerFactory()));
@@ -61,7 +61,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 .ForSqlServer(b => b.UseSequence("DaneelOlivaw"))
                 .Entity<Robot>()
                 .Property(e => e.Id)
-                .GenerateValuesOnAdd()
+                .GenerateValueOnAdd()
                 .Metadata;
 
             var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new LoggerFactory()));
@@ -110,7 +110,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                     })
                 .Entity<Robot>()
                 .Property(e => e.Id)
-                .GenerateValuesOnAdd()
+                .GenerateValueOnAdd()
                 .Metadata;
 
             var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new LoggerFactory()));
@@ -146,7 +146,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                     })
                 .Entity<Robot>()
                 .Property(e => e.Id)
-                .GenerateValuesOnAdd()
+                .GenerateValueOnAdd()
                 .Metadata;
 
             var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new LoggerFactory()));
@@ -189,7 +189,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 .ForSqlServer(b => b.UseSequence())
                 .Entity<Robot>()
                 .Property(e => e.Id)
-                .GenerateValuesOnAdd()
+                .GenerateValueOnAdd()
                 .Metadata;
 
             var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new LoggerFactory()));
@@ -204,7 +204,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 .ForSqlServer(b => b.UseSequence("DaneelOlivaw"))
                 .Entity<Robot>()
                 .Property(e => e.Id)
-                .GenerateValuesOnAdd()
+                .GenerateValueOnAdd()
                 .Metadata;
 
             var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new LoggerFactory()));
@@ -253,7 +253,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                     })
                 .Entity<Robot>()
                 .Property(e => e.Id)
-                .GenerateValuesOnAdd()
+                .GenerateValueOnAdd()
                 .Metadata;
 
             var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new LoggerFactory()));
@@ -272,7 +272,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                     })
                 .Entity<Robot>()
                 .Property(e => e.Id)
-                .GenerateValuesOnAdd()
+                .GenerateValueOnAdd()
                 .Metadata;
 
             var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new LoggerFactory()));
@@ -301,7 +301,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 .ForSqlServer(b => b.UseSequence("DaneelOlivaw", "R"))
                 .Entity<Robot>()
                 .Property(e => e.Id)
-                .GenerateValuesOnAdd()
+                .GenerateValueOnAdd()
                 .Metadata;
 
             var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new LoggerFactory()));
@@ -335,7 +335,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                     })
                 .Entity<Robot>()
                 .Property(e => e.Id)
-                .GenerateValuesOnAdd()
+                .GenerateValueOnAdd()
                 .Metadata;
 
             var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new LoggerFactory()));

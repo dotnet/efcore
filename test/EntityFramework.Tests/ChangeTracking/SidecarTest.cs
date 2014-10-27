@@ -385,7 +385,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var idProperty = entityType.GetOrAddProperty("Id", typeof(int));
             idProperty.IsConcurrencyToken = true;
-            idProperty.ValueGeneration = ValueGeneration.OnAdd;
+            idProperty.GenerateValueOnAdd = true;
             entityType.GetOrSetPrimaryKey(idProperty);
 
             entityType.GetOrAddProperty("Name", typeof(string));
@@ -402,7 +402,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var fk = entityType2.GetOrAddProperty("SomeEntityId", typeof(int));
             entityType2.GetOrAddForeignKey(new[] { fk }, entityType.GetPrimaryKey());
             var justAProperty = entityType2.GetOrAddProperty("JustAProperty", typeof(int));
-            justAProperty.ValueGeneration = ValueGeneration.OnAdd;
+            justAProperty.GenerateValueOnAdd = true;
 
             var entityType5 = model.AddEntityType(typeof(SomeMoreDependentEntity));
             var key5 = entityType5.GetOrAddProperty("Id", typeof(int));

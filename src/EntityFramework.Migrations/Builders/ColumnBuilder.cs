@@ -288,6 +288,7 @@ namespace Microsoft.Data.Entity.Migrations.Builders
                     {
                         DefaultValue = defaultValue,
                         DefaultSql = defaultSql,
+                        GenerateValueOnAdd =  identity,
                         IsTimestamp = timestamp,
                         MaxLength = maxLength,
                         Precision = precision,
@@ -299,11 +300,6 @@ namespace Microsoft.Data.Entity.Migrations.Builders
             if (nullable.HasValue)
             {
                 column.IsNullable = nullable.Value;
-            }
-
-            if (identity)
-            {
-                column.ValueGenerationStrategy = ValueGeneration.OnAdd;
             }
 
             return column;

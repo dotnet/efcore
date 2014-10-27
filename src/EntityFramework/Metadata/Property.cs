@@ -16,11 +16,12 @@ namespace Microsoft.Data.Entity.Metadata
         private readonly Type _propertyType;
         private readonly EntityType _entityType;
         private PropertyFlags _flags;
+        // TODO: Remove this once the model is readonly Issue #868
+        private PropertyFlags _setFlags;
         private int _shadowIndex;
         private int _originalValueIndex = -1;
         private int _index;
         private int _maxLength = -1;
-        private ValueGeneration? _valueGeneration;
 
         public Property([NotNull] string name, [NotNull] Type propertyType, [NotNull] EntityType entityType, bool shadowProperty = false)
             : base(name)
@@ -48,34 +49,19 @@ namespace Microsoft.Data.Entity.Metadata
             get { return _propertyType.UnwrapNullableType(); }
         }
 
-        // TODO: Remove this once the model is readonly
-        // Issue #868
-        private bool _isNullableSet;
-
         public virtual bool? IsNullable
         {
-            get
-            {
-                return _isNullableSet
-                    ? (bool?)GetFlag(PropertyFlags.IsNullable)
-                    : null;
-            }
+            get { return GetFlag(PropertyFlags.IsNullable); }
             set
             {
-                if (!value.HasValue)
+                if (value.HasValue
+                    && value.Value
+                    && !_propertyType.IsNullableType())
                 {
-                    _isNullableSet = false;
+                    throw new InvalidOperationException(Strings.FormatCannotBeNullable(Name, EntityType.SimpleName, _propertyType.Name));
                 }
-                else
-                {
-                    if (value.Value && !_propertyType.IsNullableType())
-                    {
-                        throw new InvalidOperationException(Strings.FormatCannotBeNullable(Name, EntityType.SimpleName, _propertyType.Name));
-                    }
 
-                    _isNullableSet = true;
-                    SetFlag(value.Value, PropertyFlags.IsNullable);
-                }
+                SetFlag(value, PropertyFlags.IsNullable);
             }
         }
 
@@ -84,30 +70,10 @@ namespace Microsoft.Data.Entity.Metadata
             get { return _propertyType.IsNullableType(); }
         }
 
-        // TODO: Remove this once the model is readonly
-        // Issue #868
-        private bool _useStoreDefaultSet;
-
         public virtual bool? UseStoreDefault
         {
-            get
-            {
-                return _useStoreDefaultSet
-                    ? (bool?)GetFlag(PropertyFlags.UseStoreDefault)
-                    : null;
-            }
-            set
-            {
-                if (!value.HasValue)
-                {
-                    _useStoreDefaultSet = false;
-                }
-                else
-                {
-                    _useStoreDefaultSet = true;
-                    SetFlag(value.Value, PropertyFlags.UseStoreDefault);
-                }
-            }
+            get { return GetFlag(PropertyFlags.UseStoreDefault); }
+            set { SetFlag(value, PropertyFlags.UseStoreDefault); }
         }
 
         protected virtual bool DefaultUseStoreDefault
@@ -146,34 +112,18 @@ namespace Microsoft.Data.Entity.Metadata
             get { return 0; }
         }
 
-        // TODO: Remove this once the model is readonly
-        // Issue #868
-        private bool _isReadOnlySet;
-
         public virtual bool? IsReadOnly
         {
-            get
-            {
-                return _isReadOnlySet
-                    ? (bool?)GetFlag(PropertyFlags.IsReadOnly)
-                    : null;
-            }
+            get { return GetFlag(PropertyFlags.IsReadOnly); }
             set
             {
-                if (!value.HasValue)
+                if (value.HasValue
+                    && !value.Value
+                    && this.IsKey())
                 {
-                    _isReadOnlySet = false;
+                    throw new NotSupportedException(Strings.FormatKeyPropertyMustBeReadOnly(Name, EntityType.Name));
                 }
-                else
-                {
-                    if (!value.Value
-                        && this.IsKey())
-                    {
-                        throw new NotSupportedException(Strings.FormatKeyPropertyMustBeReadOnly(Name, EntityType.Name));
-                    }
-                    _isReadOnlySet = true;
-                    SetFlag(value.Value, PropertyFlags.IsReadOnly);
-                }
+                SetFlag(value, PropertyFlags.IsReadOnly);
             }
         }
 
@@ -182,23 +132,26 @@ namespace Microsoft.Data.Entity.Metadata
             get { return this.IsKey(); }
         }
 
-        public virtual ValueGeneration? ValueGeneration
+        public virtual bool? IsStoreComputed
         {
-            get { return _valueGeneration; }
-            set
-            {
-                if (value.HasValue)
-                {
-                    Check.IsDefined(value.Value, "value");
-                }
-
-                _valueGeneration = value;
-            }
+            get { return GetFlag(PropertyFlags.IsStoreComputed); }
+            set { SetFlag(value, PropertyFlags.IsStoreComputed); }
         }
 
-        protected virtual ValueGeneration DefaultValueGeneration
+        protected virtual bool DefaultIsStoreComputed
         {
-            get { return Metadata.ValueGeneration.None; }
+            get { return false; }
+        }
+
+        public virtual bool? GenerateValueOnAdd
+        {
+            get { return GetFlag(PropertyFlags.GenerateValueOnAdd); }
+            set { SetFlag(value, PropertyFlags.GenerateValueOnAdd); }
+        }
+
+        protected virtual bool DefaultGenerateValueOnAdd
+        {
+            get { return false; }
         }
 
         public virtual bool IsShadowProperty
@@ -215,33 +168,16 @@ namespace Microsoft.Data.Entity.Metadata
             }
         }
 
-        // TODO: Remove this once the model is readonly
-        // Issue #868
-        private bool _isConcurrencyTokenSet;
-
         public virtual bool? IsConcurrencyToken
         {
-            get
-            {
-                return _isConcurrencyTokenSet ?
-                    (bool?)GetFlag(PropertyFlags.IsConcurrencyToken)
-                    : null;
-            }
+            get { return GetFlag(PropertyFlags.IsConcurrencyToken); }
             set
             {
-                if (!value.HasValue)
+                if (IsConcurrencyToken != value)
                 {
-                    _isConcurrencyTokenSet = false;
-                }
-                else
-                {
-                    _isConcurrencyTokenSet = true;
-                    if (IsConcurrencyToken != value)
-                    {
-                        SetFlag(value.Value, PropertyFlags.IsConcurrencyToken);
+                    SetFlag(value, PropertyFlags.IsConcurrencyToken);
 
-                        EntityType.PropertyMetadataChanged(this);
-                    }
+                    EntityType.PropertyMetadataChanged(this);
                 }
             }
         }
@@ -293,14 +229,15 @@ namespace Microsoft.Data.Entity.Metadata
             }
         }
 
-        private bool GetFlag(PropertyFlags flag)
+        private bool? GetFlag(PropertyFlags flag)
         {
-            return (_flags & flag) != 0;
+            return (_setFlags & flag) != 0 ? (_flags & flag) != 0 : (bool?)null;
         }
 
-        private void SetFlag(bool value, PropertyFlags flag)
+        private void SetFlag(bool? value, PropertyFlags flag)
         {
-            _flags = value ? (_flags | flag) : (_flags & ~flag);
+            _setFlags = value.HasValue ? (_setFlags | flag) : (_setFlags & ~flag);
+            _flags = value.HasValue && value.Value ? (_flags | flag) : (_flags & ~flag);
         }
 
         internal static string Format(IEnumerable<Property> properties)
@@ -328,9 +265,14 @@ namespace Microsoft.Data.Entity.Metadata
             get { return IsReadOnly ?? DefaultIsReadOnly; }
         }
 
-        ValueGeneration IProperty.ValueGeneration
+        bool IProperty.IsStoreComputed
         {
-            get { return ValueGeneration ?? DefaultValueGeneration; }
+            get { return IsStoreComputed ?? DefaultIsStoreComputed; }
+        }
+
+        bool IProperty.GenerateValueOnAdd
+        {
+            get { return GenerateValueOnAdd ?? DefaultGenerateValueOnAdd; }
         }
 
         bool IProperty.IsConcurrencyToken
@@ -339,12 +281,14 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         [Flags]
-        private enum PropertyFlags
+        private enum PropertyFlags : ushort
         {
             IsConcurrencyToken = 1,
             IsNullable = 2,
             IsReadOnly = 4,
-            UseStoreDefault = 8
+            UseStoreDefault = 8,
+            IsStoreComputed = 16,
+            GenerateValueOnAdd = 32
         }
     }
 }

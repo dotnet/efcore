@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Relational;
@@ -180,7 +179,7 @@ namespace Microsoft.Data.Entity.SqlServer
         protected override void GenerateColumnTraits(Column column, IndentedStringBuilder stringBuilder)
         {
             // TODO: This is essentially duplicated logic from the selector; combine if possible
-            if (column.ValueGenerationStrategy == ValueGeneration.OnAdd)
+            if (column.GenerateValueOnAdd)
             {
                 // TODO: This can't use the normal APIs because all the annotations have been
                 // copied from the core metadata into the relational model.

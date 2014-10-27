@@ -72,8 +72,10 @@ namespace Microsoft.Data.Entity.Relational.Model
 
         public virtual string DefaultSql { get; [param: CanBeNull] set; }
 
-        public virtual ValueGeneration ValueGenerationStrategy { get; set; }
+        public virtual bool GenerateValueOnAdd { get; set; }
 
+        public virtual bool IsComputed { get; set; }
+        
         public virtual bool HasDefault
         {
             get { return DefaultValue != null || DefaultSql != null; }
@@ -103,7 +105,8 @@ namespace Microsoft.Data.Entity.Relational.Model
             IsNullable = source.IsNullable;
             DefaultValue = source.DefaultValue;
             DefaultSql = source.DefaultSql;
-            ValueGenerationStrategy = source.ValueGenerationStrategy;
+            GenerateValueOnAdd = source.GenerateValueOnAdd;
+            IsComputed = source.IsComputed;
             IsTimestamp = source.IsTimestamp;
             MaxLength = source.MaxLength;
             Precision = source.Precision;

@@ -180,12 +180,12 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             modelBuilder.Entity("A", b =>
                 {
-                    b.Property<int>("Id").GenerateValuesOnAdd();
+                    b.Property<int>("Id").GenerateValueOnAdd();
                     b.Key("Id");
                 });
             modelBuilder.Entity("B", b =>
                 {
-                    b.Property<short>("Id").GenerateValuesOnAdd();
+                    b.Property<short>("Id").GenerateValueOnAdd();
                     b.Key("Id");
                 });
 
@@ -210,12 +210,12 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             modelBuilder.Entity("A", b =>
                 {
-                    b.Property<int>("Id").GenerateValuesOnAdd();
+                    b.Property<int>("Id").GenerateValueOnAdd();
                     b.Key("Id");
                 });
             modelBuilder.Entity("B", b =>
                 {
-                    b.Property<short>("Id").GenerateValuesOnAdd();
+                    b.Property<short>("Id").GenerateValueOnAdd();
                     b.Key("Id");
                 });
 
@@ -240,14 +240,14 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             modelBuilder.Entity("A", b =>
                 {
-                    b.Property<int>("Id").GenerateValuesOnAdd();
+                    b.Property<int>("Id").GenerateValueOnAdd();
                     b.Key("Id");
                     b.ForSqlServer().Table("T0", "dbo");
                 });
 
             modelBuilder.Entity("B", b =>
                 {
-                    b.Property<short>("Id").GenerateValuesOnAdd();
+                    b.Property<short>("Id").GenerateValueOnAdd();
                     b.Key("Id");
                     b.ForSqlServer().Table("T1", "dbo");
                 });
@@ -537,12 +537,12 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             modelBuilder.Entity("A", b =>
                 {
-                    b.Property<int>("Id").GenerateValuesOnAdd();
+                    b.Property<int>("Id").GenerateValueOnAdd();
                     b.Key("Id");
                 });
             modelBuilder.Entity("B", b =>
                 {
-                    b.Property<short>("Id").GenerateValuesOnAdd();
+                    b.Property<short>("Id").GenerateValueOnAdd();
                     b.Key("Id");
                 });
 
@@ -567,12 +567,12 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             modelBuilder.Entity("A", b =>
                 {
-                    b.Property<int>("Id").GenerateValuesOnAdd();
+                    b.Property<int>("Id").GenerateValueOnAdd();
                     b.Key("Id");
                 });
             modelBuilder.Entity("B", b =>
                 {
-                    b.Property<short>("Id").GenerateValuesOnAdd();
+                    b.Property<short>("Id").GenerateValueOnAdd();
                     b.Key("Id");
                 });
 

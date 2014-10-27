@@ -24,14 +24,14 @@ namespace Microsoft.Data.Entity.Redis.Tests
 
             var selector = new RedisValueGeneratorSelector(guidValueGenerator, redisValueGeneratorFactory);
 
-            Assert.Same(redisValueGeneratorFactory, selector.Select(CreateProperty(typeof(long), ValueGeneration.OnAdd)));
-            Assert.Same(redisValueGeneratorFactory, selector.Select(CreateProperty(typeof(int), ValueGeneration.OnAdd)));
-            Assert.Same(redisValueGeneratorFactory, selector.Select(CreateProperty(typeof(short), ValueGeneration.OnAdd)));
-            Assert.Same(redisValueGeneratorFactory, selector.Select(CreateProperty(typeof(byte), ValueGeneration.OnAdd)));
-            Assert.Same(redisValueGeneratorFactory, selector.Select(CreateProperty(typeof(ulong), ValueGeneration.OnAdd)));
-            Assert.Same(redisValueGeneratorFactory, selector.Select(CreateProperty(typeof(uint), ValueGeneration.OnAdd)));
-            Assert.Same(redisValueGeneratorFactory, selector.Select(CreateProperty(typeof(ushort), ValueGeneration.OnAdd)));
-            Assert.Same(redisValueGeneratorFactory, selector.Select(CreateProperty(typeof(sbyte), ValueGeneration.OnAdd)));
+            Assert.Same(redisValueGeneratorFactory, selector.Select(CreateProperty(typeof(long))));
+            Assert.Same(redisValueGeneratorFactory, selector.Select(CreateProperty(typeof(int))));
+            Assert.Same(redisValueGeneratorFactory, selector.Select(CreateProperty(typeof(short))));
+            Assert.Same(redisValueGeneratorFactory, selector.Select(CreateProperty(typeof(byte))));
+            Assert.Same(redisValueGeneratorFactory, selector.Select(CreateProperty(typeof(ulong))));
+            Assert.Same(redisValueGeneratorFactory, selector.Select(CreateProperty(typeof(uint))));
+            Assert.Same(redisValueGeneratorFactory, selector.Select(CreateProperty(typeof(ushort))));
+            Assert.Same(redisValueGeneratorFactory, selector.Select(CreateProperty(typeof(sbyte))));
         }
 
         [Fact]
@@ -44,7 +44,7 @@ namespace Microsoft.Data.Entity.Redis.Tests
 
             var selector = new RedisValueGeneratorSelector(guidValueGenerator, redisValueGeneratorFactory);
 
-            Assert.Same(guidValueGenerator, selector.Select(CreateProperty(typeof(Guid), ValueGeneration.OnAdd)));
+            Assert.Same(guidValueGenerator, selector.Select(CreateProperty(typeof(Guid))));
         }
 
         [Fact]
@@ -57,20 +57,20 @@ namespace Microsoft.Data.Entity.Redis.Tests
 
             var selector = new RedisValueGeneratorSelector(guidValueGenerator, redisValueGeneratorFactory);
 
-            Assert.Null(selector.Select(CreateProperty(typeof(long), ValueGeneration.None)));
-            Assert.Null(selector.Select(CreateProperty(typeof(int), ValueGeneration.None)));
-            Assert.Null(selector.Select(CreateProperty(typeof(short), ValueGeneration.None)));
-            Assert.Null(selector.Select(CreateProperty(typeof(byte), ValueGeneration.None)));
-            Assert.Null(selector.Select(CreateProperty(typeof(ulong), ValueGeneration.None)));
-            Assert.Null(selector.Select(CreateProperty(typeof(uint), ValueGeneration.None)));
-            Assert.Null(selector.Select(CreateProperty(typeof(ushort), ValueGeneration.None)));
-            Assert.Null(selector.Select(CreateProperty(typeof(sbyte), ValueGeneration.None)));
-            Assert.Null(selector.Select(CreateProperty(typeof(string), ValueGeneration.None)));
-            Assert.Null(selector.Select(CreateProperty(typeof(float), ValueGeneration.None)));
-            Assert.Null(selector.Select(CreateProperty(typeof(double), ValueGeneration.None)));
-            Assert.Null(selector.Select(CreateProperty(typeof(Guid), ValueGeneration.None)));
-            Assert.Null(selector.Select(CreateProperty(typeof(DateTime), ValueGeneration.None)));
-            Assert.Null(selector.Select(CreateProperty(typeof(DateTimeOffset), ValueGeneration.None)));
+            Assert.Null(selector.Select(CreateProperty(typeof(long), generateValues: false)));
+            Assert.Null(selector.Select(CreateProperty(typeof(int), generateValues: false)));
+            Assert.Null(selector.Select(CreateProperty(typeof(short), generateValues: false)));
+            Assert.Null(selector.Select(CreateProperty(typeof(byte), generateValues: false)));
+            Assert.Null(selector.Select(CreateProperty(typeof(ulong), generateValues: false)));
+            Assert.Null(selector.Select(CreateProperty(typeof(uint), generateValues: false)));
+            Assert.Null(selector.Select(CreateProperty(typeof(ushort), generateValues: false)));
+            Assert.Null(selector.Select(CreateProperty(typeof(sbyte), generateValues: false)));
+            Assert.Null(selector.Select(CreateProperty(typeof(string), generateValues: false)));
+            Assert.Null(selector.Select(CreateProperty(typeof(float), generateValues: false)));
+            Assert.Null(selector.Select(CreateProperty(typeof(double), generateValues: false)));
+            Assert.Null(selector.Select(CreateProperty(typeof(Guid), generateValues: false)));
+            Assert.Null(selector.Select(CreateProperty(typeof(DateTime), generateValues: false)));
+            Assert.Null(selector.Select(CreateProperty(typeof(DateTimeOffset), generateValues: false)));
         }
 
         [Fact]
@@ -88,26 +88,26 @@ namespace Microsoft.Data.Entity.Redis.Tests
 
             Assert.Equal(
                 GetString("FormatNoValueGenerator", "MyProperty", "MyType", "String"),
-                Assert.Throws<NotSupportedException>(() => selector.Select(CreateProperty(typeof(string), ValueGeneration.OnAdd))).Message);
+                Assert.Throws<NotSupportedException>(() => selector.Select(CreateProperty(typeof(string)))).Message);
             Assert.Equal(
                 GetString("FormatNoValueGenerator", "MyProperty", "MyType", "Single"),
-                Assert.Throws<NotSupportedException>(() => selector.Select(CreateProperty(typeof(float), ValueGeneration.OnAdd))).Message);
+                Assert.Throws<NotSupportedException>(() => selector.Select(CreateProperty(typeof(float)))).Message);
             Assert.Equal(
                 GetString("FormatNoValueGenerator", "MyProperty", "MyType", "Double"),
-                Assert.Throws<NotSupportedException>(() => selector.Select(CreateProperty(typeof(double), ValueGeneration.OnAdd))).Message);
+                Assert.Throws<NotSupportedException>(() => selector.Select(CreateProperty(typeof(double)))).Message);
             Assert.Equal(
                 GetString("FormatNoValueGenerator", "MyProperty", "MyType", "DateTime"),
-                Assert.Throws<NotSupportedException>(() => selector.Select(CreateProperty(typeof(DateTime), ValueGeneration.OnAdd))).Message);
+                Assert.Throws<NotSupportedException>(() => selector.Select(CreateProperty(typeof(DateTime)))).Message);
             Assert.Equal(
                 GetString("FormatNoValueGenerator", "MyProperty", "MyType", "DateTimeOffset"),
-                Assert.Throws<NotSupportedException>(() => selector.Select(CreateProperty(typeof(DateTimeOffset), ValueGeneration.OnAdd))).Message);
+                Assert.Throws<NotSupportedException>(() => selector.Select(CreateProperty(typeof(DateTimeOffset)))).Message);
         }
 
-        private static Property CreateProperty(Type propertyType, ValueGeneration valueGeneration)
+        private static Property CreateProperty(Type propertyType, bool generateValues = true)
         {
             var entityType = new Model().AddEntityType("MyType");
             var property = entityType.GetOrAddProperty("MyProperty", propertyType, shadowProperty: true);
-            property.ValueGeneration = valueGeneration;
+            property.GenerateValueOnAdd = generateValues;
 
             return property;
         }

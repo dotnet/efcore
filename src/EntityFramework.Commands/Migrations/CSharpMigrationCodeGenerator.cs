@@ -857,7 +857,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 args.Add("unicode: " + GenerateLiteral(column.IsUnicode.Value));
             }
 
-            if (column.ValueGenerationStrategy == ValueGeneration.OnAdd)
+            if (column.GenerateValueOnAdd)
             {
                 args.Add("identity: " + GenerateLiteral(true));
             }

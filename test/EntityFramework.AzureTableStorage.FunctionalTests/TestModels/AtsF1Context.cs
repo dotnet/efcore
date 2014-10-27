@@ -37,7 +37,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests.TestModels
                 b =>
                     {
                         b.ForAzureTableStorage().PartitionAndRowKey(c => c.Name, c => c.Id);
-                        b.Property(c => c.Id).GenerateValuesOnAdd();
+                        b.Property(c => c.Id).GenerateValueOnAdd();
                         b.Key(c => c.Id);
                         b.Property<string>("ETag");
                         b.ForAzureTableStorage().Table("Teams" + _tableSuffix);
@@ -47,7 +47,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests.TestModels
                 b =>
                     {
                         b.ForAzureTableStorage().PartitionAndRowKey(c => c.Name, c => c.Id);
-                        b.Property(c => c.Id).GenerateValuesOnAdd();
+                        b.Property(c => c.Id).GenerateValueOnAdd();
                         b.Key(c => c.Id);
                         b.Property<string>("ETag");
                         b.ForAzureTableStorage().Table("Drivers" + _tableSuffix);
@@ -57,7 +57,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests.TestModels
                 b =>
                     {
                         b.ForAzureTableStorage().PartitionAndRowKey(c => c.Name, c => c.Id);
-                        b.Property(c => c.Id).GenerateValuesOnAdd();
+                        b.Property(c => c.Id).GenerateValueOnAdd();
                         b.Key(c => c.Id);
                         b.Property<string>("ETag");
                         b.ForAzureTableStorage().Table("Engines" + _tableSuffix);
@@ -67,7 +67,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests.TestModels
                 b =>
                     {
                         b.ForAzureTableStorage().PartitionAndRowKey(c => c.Name, c => c.Id);
-                        b.Property(c => c.Id).GenerateValuesOnAdd();
+                        b.Property(c => c.Id).GenerateValueOnAdd();
                         b.Key(c => c.Id);
                         b.Property<string>("ETag");
                         b.ForAzureTableStorage().Table("EngineSuppliers" + _tableSuffix);
@@ -77,7 +77,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests.TestModels
                 b =>
                     {
                         b.ForAzureTableStorage().PartitionAndRowKey(c => c.Name, c => c.Id);
-                        b.Property(c => c.Id).GenerateValuesOnAdd();
+                        b.Property(c => c.Id).GenerateValueOnAdd();
                         b.Key(c => c.Id);
                         b.Property<string>("ETag");
                         b.ForAzureTableStorage().Table("Gearboxes" + _tableSuffix);
@@ -87,7 +87,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests.TestModels
                 b =>
                     {
                         b.ForAzureTableStorage().PartitionAndRowKey(c => c.Name, c => c.Id);
-                        b.Property(c => c.Id).GenerateValuesOnAdd();
+                        b.Property(c => c.Id).GenerateValueOnAdd();
                         b.Key(c => c.Id);
                         b.Property<string>("ETag");
                         b.ForAzureTableStorage().Table("Sponsors" + _tableSuffix);
@@ -98,7 +98,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests.TestModels
                     {
                         // TODO: Remove this configuration when inheritance is available
                         b.ForAzureTableStorage().PartitionAndRowKey(c => c.Name, c => c.Id);
-                        b.Property(c => c.Id).GenerateValuesOnAdd();
+                        b.Property(c => c.Id).GenerateValueOnAdd();
                         b.Key(c => c.Id);
                         b.Property<string>("ETag");
                         b.ForAzureTableStorage().Table("TestDrivers" + _tableSuffix);

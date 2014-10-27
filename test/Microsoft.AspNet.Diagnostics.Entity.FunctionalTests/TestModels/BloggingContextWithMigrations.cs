@@ -40,7 +40,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity.Tests
                     builder.Entity("Blogging.Models.Blog", b =>
                     {
                         b.Property<int>("BlogId");
-                        b.Property<int>("BlogId").Metadata.ValueGeneration = ValueGeneration.OnAdd;
+                        b.Property<int>("BlogId").GenerateValueOnAdd();
                         b.Property<string>("Name");
                         b.Key("BlogId");
                     });

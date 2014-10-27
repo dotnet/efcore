@@ -197,7 +197,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             _stateData.FlagAllProperties(_entityType.Properties.Count(), isFlagged: false);
 
             var generators = _entityType.Properties
-                .Where(p => (p.ValueGeneration == ValueGeneration.OnAdd || p.IsForeignKey()) && HasDefaultValue(p))
+                .Where(p => (p.GenerateValueOnAdd || p.IsForeignKey()) && HasDefaultValue(p))
                 .Select(p => Tuple.Create(p, _configuration.ValueGeneratorCache.GetGenerator(p)))
                 .Where(g => g.Item2 != null)
                 .ToList();
@@ -222,7 +222,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
                 foreach (var keyProperty in EntityType.Properties.Where(
                     p => p.IsReadOnly
-                         || p.ValueGeneration == ValueGeneration.OnAddAndUpdate))
+                         || p.IsStoreComputed))
                 {
                     _stateData.FlagProperty(keyProperty.Index, isFlagged: false);
                 }
@@ -308,7 +308,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                  && currentState != EntityState.Unchanged)
                 // TODO: Consider allowing computed properties to be forcibly marked as modified
                 // Issue #711
-                || property.ValueGeneration == ValueGeneration.OnAddAndUpdate)
+                || property.IsStoreComputed)
             {
                 return;
             }
@@ -564,7 +564,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             return HasTemporaryValue(property)
                    || (property.UseStoreDefault && HasDefaultValue(property))
-                   || (property.ValueGeneration == ValueGeneration.OnAddAndUpdate
+                   || (property.IsStoreComputed
                        && (EntityState == EntityState.Modified || EntityState == EntityState.Added)
                        && !IsPropertyModified(property));
         }

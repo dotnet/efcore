@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.SqlServer
         {
             Check.NotNull(property, "property");
 
-            if (property.ValueGeneration == ValueGeneration.OnAdd)
+            if (property.GenerateValueOnAdd)
             {
                 var strategy = property.SqlServer().ValueGenerationStrategy
                                ?? property.EntityType.Model.SqlServer().ValueGenerationStrategy;

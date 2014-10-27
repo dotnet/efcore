@@ -808,7 +808,8 @@ namespace Microsoft.Data.Entity.Migrations
                 && sourceColumn.DefaultValue == targetColumn.DefaultValue
                 && sourceColumn.DefaultSql == targetColumn.DefaultSql
                 && sourceColumn.IsNullable == targetColumn.IsNullable
-                && sourceColumn.ValueGenerationStrategy == targetColumn.ValueGenerationStrategy
+                && sourceColumn.GenerateValueOnAdd == targetColumn.GenerateValueOnAdd
+                && sourceColumn.IsComputed == targetColumn.IsComputed
                 && sourceColumn.IsTimestamp == targetColumn.IsTimestamp
                 && sourceColumn.MaxLength == targetColumn.MaxLength
                 && sourceColumn.Precision == targetColumn.Precision

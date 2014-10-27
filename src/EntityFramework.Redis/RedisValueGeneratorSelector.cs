@@ -27,12 +27,12 @@ namespace Microsoft.Data.Entity.Redis
         {
             Check.NotNull(property, "property");
 
-            if (ValueGeneration.OnAdd == property.ValueGeneration
+            if (property.GenerateValueOnAdd
                 && (property.PropertyType.IsInteger()
-                    || typeof(uint) == property.PropertyType
-                    || typeof(ulong) == property.PropertyType
-                    || typeof(ushort) == property.PropertyType
-                    || typeof(sbyte) == property.PropertyType))
+                    || property.PropertyType == typeof(uint)
+                    || property.PropertyType == typeof(ulong)
+                    || property.PropertyType == typeof(ushort)
+                    || property.PropertyType == typeof(sbyte)))
             {
                 return _redisValueGeneratorFactory;
             }

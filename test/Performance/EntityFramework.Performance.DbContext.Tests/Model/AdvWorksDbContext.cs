@@ -65,16 +65,16 @@ namespace DbContextPerfTests.Model
 
             // TODO: Key should get by-convention value generation even if key is not discovered by convention
             var productId = model.GetEntityType(typeof(DbProduct)).GetProperty("ProductID");
-            productId.ValueGeneration = ValueGeneration.OnAdd;
+            productId.GenerateValueOnAdd = true;
 
             var productModelId = model.GetEntityType(typeof(DbProductModel)).GetProperty("ProductModelID");
-            productModelId.ValueGeneration = ValueGeneration.OnAdd;
+            productModelId.GenerateValueOnAdd = true;
 
             var workOrderId = model.GetEntityType(typeof(DbWorkOrder)).GetProperty("WorkOrderID");
-            workOrderId.ValueGeneration = ValueGeneration.OnAdd;
+            workOrderId.GenerateValueOnAdd = true;
 
             var productSubcategoryId = model.GetEntityType(typeof(DbProductSubcategory)).GetProperty("ProductSubcategoryID");
-            productSubcategoryId.ValueGeneration = ValueGeneration.OnAdd;
+            productSubcategoryId.GenerateValueOnAdd = true;
 
             AddNavigationToPrincipal(model, typeof(DbProduct), "ProductSubcategoryID", "ProductSubcategory");
             AddNavigationToPrincipal(model, typeof(DbProduct), "ProductModelID", "Model");

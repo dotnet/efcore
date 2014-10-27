@@ -39,37 +39,33 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         }
 
         [Fact]
-        public void Can_only_override_lower_source_GenerateValuesOnAdd()
+        public void Can_only_override_lower_source_GenerateValueOnAdd()
         {
             var builder = CreateInternalPropertyBuilder();
             var metadata = builder.Metadata;
 
-            Assert.True(builder.GenerateValuesOnAdd(true, ConfigurationSource.Convention));
-            Assert.True(builder.GenerateValuesOnAdd(false, ConfigurationSource.DataAnnotation));
+            Assert.True(builder.GenerateValueOnAdd(true, ConfigurationSource.Convention));
+            Assert.True(builder.GenerateValueOnAdd(false, ConfigurationSource.DataAnnotation));
 
-            Assert.Equal(ValueGeneration.None, metadata.ValueGeneration.Value);
+            Assert.Equal(false, metadata.GenerateValueOnAdd);
 
-            Assert.False(builder.GenerateValuesOnAdd(true, ConfigurationSource.Convention));
-            Assert.Equal(ValueGeneration.None, metadata.ValueGeneration.Value);
-
-            Assert.False(builder.StoreComputed(true, ConfigurationSource.Convention));
-
-            Assert.Equal(ValueGeneration.None, metadata.ValueGeneration.Value);
+            Assert.False(builder.GenerateValueOnAdd(true, ConfigurationSource.Convention));
+            Assert.Equal(false, metadata.GenerateValueOnAdd);
         }
 
         [Fact]
-        public void Can_only_override_existing_GenerateValuesOnAdd_value_explicitly()
+        public void Can_only_override_existing_GenerateValueOnAdd_value_explicitly()
         {
             var builder = CreateInternalPropertyBuilder();
             var metadata = builder.Metadata;
-            metadata.ValueGeneration = ValueGeneration.OnAdd;
+            metadata.GenerateValueOnAdd = true;
 
-            Assert.False(builder.GenerateValuesOnAdd(false, ConfigurationSource.DataAnnotation));
+            Assert.False(builder.GenerateValueOnAdd(false, ConfigurationSource.DataAnnotation));
 
-            Assert.Equal(ValueGeneration.OnAdd, metadata.ValueGeneration.Value);
+            Assert.Equal(true, metadata.GenerateValueOnAdd);
 
-            Assert.True(builder.GenerateValuesOnAdd(false, ConfigurationSource.Explicit));
-            Assert.Equal(ValueGeneration.None, metadata.ValueGeneration.Value);
+            Assert.True(builder.GenerateValueOnAdd(false, ConfigurationSource.Explicit));
+            Assert.Equal(false, metadata.GenerateValueOnAdd);
         }
 
         [Fact]
@@ -81,14 +77,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Assert.True(builder.StoreComputed(true, ConfigurationSource.Convention));
             Assert.True(builder.StoreComputed(false, ConfigurationSource.DataAnnotation));
 
-            Assert.Equal(ValueGeneration.None, metadata.ValueGeneration.Value);
+            Assert.Equal(false, metadata.IsStoreComputed);
 
             Assert.False(builder.StoreComputed(true, ConfigurationSource.Convention));
-            Assert.Equal(ValueGeneration.None, metadata.ValueGeneration.Value);
-
-            Assert.False(builder.GenerateValuesOnAdd(true, ConfigurationSource.Convention));
-
-            Assert.Equal(ValueGeneration.None, metadata.ValueGeneration.Value);
+            Assert.Equal(false, metadata.IsStoreComputed);
         }
 
         [Fact]
@@ -96,14 +88,14 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         {
             var builder = CreateInternalPropertyBuilder();
             var metadata = builder.Metadata;
-            metadata.ValueGeneration = ValueGeneration.OnAddAndUpdate;
+            metadata.IsStoreComputed = true;
 
             Assert.False(builder.StoreComputed(false, ConfigurationSource.DataAnnotation));
 
-            Assert.Equal(ValueGeneration.OnAddAndUpdate, metadata.ValueGeneration.Value);
+            Assert.Equal(true, metadata.IsStoreComputed);
 
             Assert.True(builder.StoreComputed(false, ConfigurationSource.Explicit));
-            Assert.Equal(ValueGeneration.None, metadata.ValueGeneration.Value);
+            Assert.Equal(false, metadata.IsStoreComputed);
         }
 
         [Fact]

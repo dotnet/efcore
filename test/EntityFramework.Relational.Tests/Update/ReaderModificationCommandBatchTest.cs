@@ -96,7 +96,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         [Fact]
         public void UpdateCommandText_compiles_updates()
         {
-            var stateEntry = CreateStateEntry(EntityState.Modified, ValueGeneration.OnAdd);
+            var stateEntry = CreateStateEntry(EntityState.Modified, generateKeyValues: true);
 
             var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator(), p => p.Relational());
             command.AddStateEntry(stateEntry);
@@ -203,7 +203,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         [Fact]
         public async Task ExecuteAsync_saves_store_generated_values()
         {
-            var stateEntry = CreateStateEntry(EntityState.Added, ValueGeneration.OnAdd);
+            var stateEntry = CreateStateEntry(EntityState.Added, generateKeyValues: true);
             stateEntry.MarkAsTemporary(stateEntry.EntityType.GetPrimaryKey().Properties[0]);
 
             var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator(), p => p.Relational());
@@ -222,7 +222,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         public async Task ExecuteAsync_saves_store_generated_values_on_non_key_columns()
         {
             var stateEntry = CreateStateEntry(
-                EntityState.Added, ValueGeneration.OnAdd, ValueGeneration.OnAddAndUpdate);
+                EntityState.Added, generateKeyValues: true, computeNonKeyValue: true);
             stateEntry.MarkAsTemporary(stateEntry.EntityType.GetPrimaryKey().Properties[0]);
 
             var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator(), p => p.Relational());
@@ -241,7 +241,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         public async Task ExecuteAsync_saves_store_generated_values_when_updating()
         {
             var stateEntry = CreateStateEntry(
-                EntityState.Modified, ValueGeneration.OnAdd, ValueGeneration.OnAddAndUpdate);
+                EntityState.Modified, generateKeyValues: true, computeNonKeyValue: true);
 
             var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator(), p => p.Relational());
             command.AddStateEntry(stateEntry);
@@ -258,7 +258,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         [Fact]
         public async Task Exception_not_thrown_for_more_than_one_row_returned_for_single_command()
         {
-            var stateEntry = CreateStateEntry(EntityState.Added, ValueGeneration.OnAdd);
+            var stateEntry = CreateStateEntry(EntityState.Added, generateKeyValues: true);
             stateEntry.MarkAsTemporary(stateEntry.EntityType.GetPrimaryKey().Properties[0]);
 
             var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator(), p => p.Relational());
@@ -300,7 +300,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         [Fact]
         public async Task Exception_thrown_if_no_rows_returned_for_command_with_store_generated_values()
         {
-            var stateEntry = CreateStateEntry(EntityState.Added, ValueGeneration.OnAdd);
+            var stateEntry = CreateStateEntry(EntityState.Added, generateKeyValues: true);
             stateEntry.MarkAsTemporary(stateEntry.EntityType.GetPrimaryKey().Properties[0]);
 
             var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator(), p => p.Relational());
@@ -321,7 +321,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         [Fact]
         public void CreateStoreCommand_creates_parameters_for_each_ModificationCommand()
         {
-            var stateEntry = CreateStateEntry(EntityState.Added, ValueGeneration.OnAdd);
+            var stateEntry = CreateStateEntry(EntityState.Added, generateKeyValues: true);
             var property = stateEntry.EntityType.GetProperty("Id");
             stateEntry.MarkAsTemporary(property);
             var batch = new ModificationCommandBatchFake();
@@ -363,7 +363,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         [Fact]
         public void PopulateParameters_creates_parameter_for_write_ModificationCommand()
         {
-            var stateEntry = CreateStateEntry(EntityState.Added, ValueGeneration.OnAdd);
+            var stateEntry = CreateStateEntry(EntityState.Added, generateKeyValues: true);
             var property = stateEntry.EntityType.GetProperty("Id");
             stateEntry.MarkAsTemporary(property);
             var batch = new ModificationCommandBatchFake();
@@ -383,7 +383,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         [Fact]
         public void PopulateParameters_creates_parameter_for_condition_ModificationCommand()
         {
-            var stateEntry = CreateStateEntry(EntityState.Added, ValueGeneration.OnAdd);
+            var stateEntry = CreateStateEntry(EntityState.Added, generateKeyValues: true);
             var property = stateEntry.EntityType.GetProperty("Id");
             stateEntry.MarkAsTemporary(property);
             var batch = new ModificationCommandBatchFake();
@@ -403,7 +403,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         [Fact]
         public void PopulateParameters_creates_parameter_for_write_and_condition_ModificationCommand()
         {
-            var stateEntry = CreateStateEntry(EntityState.Added, ValueGeneration.OnAdd);
+            var stateEntry = CreateStateEntry(EntityState.Added, generateKeyValues: true);
             var property = stateEntry.EntityType.GetProperty("Id");
             stateEntry.MarkAsTemporary(property);
             var batch = new ModificationCommandBatchFake();
@@ -423,7 +423,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         [Fact]
         public void PopulateParameters_does_not_create_parameter_for_read_ModificationCommand()
         {
-            var stateEntry = CreateStateEntry(EntityState.Added, ValueGeneration.OnAdd);
+            var stateEntry = CreateStateEntry(EntityState.Added, generateKeyValues: true);
             var property = stateEntry.EntityType.GetProperty("Id");
             stateEntry.MarkAsTemporary(property);
             var batch = new ModificationCommandBatchFake();
@@ -561,20 +561,20 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             public string Name { get; set; }
         }
 
-        private static IModel BuildModel(ValueGeneration keyStrategy, ValueGeneration nonKeyStrategy)
+        private static IModel BuildModel(bool generateKeyValues, bool computeNonKeyValue)
         {
             var model = new Entity.Metadata.Model();
 
             var entityType = model.AddEntityType(typeof(T1));
 
             var key = entityType.GetOrAddProperty("Id", typeof(int));
-            key.ValueGeneration = keyStrategy;
+            key.GenerateValueOnAdd = generateKeyValues;
             key.Relational().Column = "Col1";
             entityType.GetOrSetPrimaryKey(key);
 
             var nonKey = entityType.GetOrAddProperty("Name", typeof(string));
             nonKey.Relational().Column = "Col2";
-            nonKey.ValueGeneration = nonKeyStrategy;
+            nonKey.IsStoreComputed = computeNonKeyValue;
 
             return model;
         }
@@ -592,10 +592,10 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
 
         private static StateEntry CreateStateEntry(
             EntityState entityState,
-            ValueGeneration keyStrategy = ValueGeneration.None,
-            ValueGeneration nonKeyStrategy = ValueGeneration.None)
+            bool generateKeyValues = false,
+            bool computeNonKeyValue = false)
         {
-            var model = BuildModel(keyStrategy, nonKeyStrategy);
+            var model = BuildModel(generateKeyValues, computeNonKeyValue);
             var stateEntry = CreateConfiguration(model).Services.StateEntryFactory.Create(
                 model.GetEntityType(typeof(T1).FullName), new T1 { Id = 1, Name = "Test" });
             stateEntry.EntityState = entityState;

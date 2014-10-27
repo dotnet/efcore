@@ -4925,15 +4925,6 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Same(dependentKey, dependentType.GetPrimaryKey());
         }
 
-        [Fact]
-        public void Can_convert_to_non_convention_builder()
-        {
-            var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
-
-            Assert.Same(model, ((BasicModelBuilder)modelBuilder).Model);
-        }
-
         private class Whoopper
         {
             public int Id1 { get; set; }

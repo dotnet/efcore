@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         [Fact]
         public void ModificationCommand_initialized_correctly_for_added_entities_with_temp_generated_key()
         {
-            var stateEntry = CreateStateEntry(EntityState.Added, ValueGeneration.OnAdd);
+            var stateEntry = CreateStateEntry(EntityState.Added, generateKeyValues: true);
             stateEntry.MarkAsTemporary(stateEntry.EntityType.GetPrimaryKey().Properties[0]);
 
             var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator(), p => p.Relational());
@@ -51,7 +51,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         [Fact]
         public void ModificationCommand_initialized_correctly_for_added_entities_with_non_temp_generated_key()
         {
-            var stateEntry = CreateStateEntry(EntityState.Added, ValueGeneration.OnAdd);
+            var stateEntry = CreateStateEntry(EntityState.Added, generateKeyValues: true);
             stateEntry.MarkAsTemporary(stateEntry.EntityType.GetPrimaryKey().Properties[0], isTemporary: false);
 
             var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator(), p => p.Relational());
@@ -118,7 +118,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         [Fact]
         public void ModificationCommand_initialized_correctly_for_modified_entities_with_identity_key()
         {
-            var stateEntry = CreateStateEntry(EntityState.Modified, ValueGeneration.OnAdd);
+            var stateEntry = CreateStateEntry(EntityState.Modified, generateKeyValues: true);
 
             var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator(), p => p.Relational());
             command.AddStateEntry(stateEntry);
@@ -184,7 +184,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         [Fact]
         public void ModificationCommand_initialized_correctly_for_modified_entities_with_concurrency_token()
         {
-            var stateEntry = CreateStateEntry(EntityState.Modified, nonKeyStrategy: ValueGeneration.OnAddAndUpdate);
+            var stateEntry = CreateStateEntry(EntityState.Modified, computeNonKeyValue: true);
 
             var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator(), p => p.Relational());
             command.AddStateEntry(stateEntry);
@@ -240,7 +240,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         [Fact]
         public void ModificationCommand_initialized_correctly_for_deleted_entities_with_concurrency_token()
         {
-            var stateEntry = CreateStateEntry(EntityState.Deleted, nonKeyStrategy: ValueGeneration.OnAddAndUpdate);
+            var stateEntry = CreateStateEntry(EntityState.Deleted, computeNonKeyValue: true);
 
             var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator(), p => p.Relational());
             command.AddStateEntry(stateEntry);
@@ -298,7 +298,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         public void RequiresResultPropagation_false_for_Delete_operation()
         {
             var stateEntry = CreateStateEntry(
-                EntityState.Deleted, ValueGeneration.OnAdd, ValueGeneration.OnAddAndUpdate);
+                EntityState.Deleted, generateKeyValues: true, computeNonKeyValue: true);
 
             var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator(), p => p.Relational());
             command.AddStateEntry(stateEntry);
@@ -310,7 +310,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         public void RequiresResultPropagation_true_for_Insert_operation_if_store_generated_columns_exist()
         {
             var stateEntry = CreateStateEntry(
-                EntityState.Added, ValueGeneration.OnAdd, ValueGeneration.OnAddAndUpdate);
+                EntityState.Added, generateKeyValues: true, computeNonKeyValue: true);
 
             var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator(), p => p.Relational());
             command.AddStateEntry(stateEntry);
@@ -333,7 +333,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         public void RequiresResultPropagation_true_for_Update_operation_if_non_key_store_generated_columns_exist()
         {
             var stateEntry = CreateStateEntry(
-                EntityState.Modified, ValueGeneration.OnAdd, ValueGeneration.OnAddAndUpdate);
+                EntityState.Modified, generateKeyValues: true, computeNonKeyValue: true);
 
             var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator(), p => p.Relational());
             command.AddStateEntry(stateEntry);
@@ -344,7 +344,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         [Fact]
         public void RequiresResultPropagation_false_for_Update_operation_if_no_non_key_store_generated_columns_exist()
         {
-            var stateEntry = CreateStateEntry(EntityState.Modified, ValueGeneration.OnAdd);
+            var stateEntry = CreateStateEntry(EntityState.Modified, generateKeyValues: true);
 
             var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator(), p => p.Relational());
             command.AddStateEntry(stateEntry);
@@ -358,21 +358,21 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             public string Name { get; set; }
         }
 
-        private static IModel BuildModel(ValueGeneration keyStrategy, ValueGeneration nonKeyStrategy)
+        private static IModel BuildModel(bool generateKeyValues, bool computeNonKeyValue)
         {
             var model = new Entity.Metadata.Model();
             var entityType = model.AddEntityType(typeof(T1));
 
             var key = entityType.GetOrAddProperty("Id", typeof(int));
-            key.ValueGeneration = keyStrategy;
+            key.GenerateValueOnAdd = generateKeyValues;
             key.Relational().Column = "Col1";
             entityType.GetOrSetPrimaryKey(key);
 
             var nonKey = entityType.GetOrAddProperty("Name", typeof(string));
-            nonKey.IsConcurrencyToken = nonKeyStrategy == ValueGeneration.OnAddAndUpdate;
+            nonKey.IsConcurrencyToken = computeNonKeyValue;
 
             nonKey.Relational().Column = "Col2";
-            nonKey.ValueGeneration = nonKeyStrategy;
+            nonKey.IsStoreComputed = computeNonKeyValue;
 
             return model;
         }
@@ -389,10 +389,10 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
 
         private static StateEntry CreateStateEntry(
             EntityState entityState,
-            ValueGeneration keyStrategy = ValueGeneration.None,
-            ValueGeneration nonKeyStrategy = ValueGeneration.None)
+            bool generateKeyValues = false,
+            bool computeNonKeyValue = false)
         {
-            var model = BuildModel(keyStrategy, nonKeyStrategy);
+            var model = BuildModel(generateKeyValues, computeNonKeyValue);
             var stateEntry = CreateConfiguration(model).Services.StateEntryFactory.Create(
                 model.GetEntityType(typeof(T1).FullName), new T1 { Id = 1, Name = "Test" });
             stateEntry.EntityState = entityState;

@@ -25,7 +25,8 @@ namespace Microsoft.Data.Entity.Relational.Tests
             Assert.Equal(1, table0.Columns.Count);
             Assert.Equal("Id", table0.Columns[0].Name);
             Assert.Equal("int", table0.Columns[0].DataType);
-            Assert.Equal(ValueGeneration.None, table0.Columns[0].ValueGenerationStrategy);
+            Assert.False(table0.Columns[0].GenerateValueOnAdd);
+            Assert.False(table0.Columns[0].IsComputed);
 
             Assert.NotNull(table1.PrimaryKey.Name);
             Assert.Equal("MyPK0", table0.PrimaryKey.Name);
@@ -36,7 +37,8 @@ namespace Microsoft.Data.Entity.Relational.Tests
             Assert.Equal(2, table1.Columns.Count);
             Assert.Equal("Id", table1.Columns[0].Name);
             Assert.Equal("int", table1.Columns[0].DataType);
-            Assert.Equal(ValueGeneration.OnAdd, table1.Columns[0].ValueGenerationStrategy);
+            Assert.True(table1.Columns[0].GenerateValueOnAdd);
+            Assert.False(table1.Columns[0].IsComputed);
             Assert.Null(table1.Columns[0].MaxLength);
 
             Assert.NotNull(table1.PrimaryKey.Name);
@@ -46,7 +48,8 @@ namespace Microsoft.Data.Entity.Relational.Tests
 
             Assert.Equal("Name", table1.Columns[1].Name);
             Assert.Null(table1.Columns[1].DataType);
-            Assert.Equal(ValueGeneration.None, table1.Columns[1].ValueGenerationStrategy);
+            Assert.False(table1.Columns[1].GenerateValueOnAdd);
+            Assert.False(table1.Columns[1].IsComputed);
             Assert.Equal(256, table1.Columns[1].MaxLength);
 
             var foreignKey = table0.ForeignKeys[0];
@@ -276,7 +279,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
 
             var dependentProperty = dependentEntityType.GetOrAddProperty("Id", typeof(int), shadowProperty: true);
             var principalProperty = principalEntityType.GetOrAddProperty("Id", typeof(int), shadowProperty: true);
-            principalProperty.ValueGeneration = ValueGeneration.OnAdd;
+            principalProperty.GenerateValueOnAdd = true;
 
             principalProperty.Relational().ColumnType = "int";
             dependentProperty.Relational().ColumnType = "int";

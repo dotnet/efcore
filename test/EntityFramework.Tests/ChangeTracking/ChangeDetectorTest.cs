@@ -266,7 +266,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var builder = new ModelBuilder(model);
 
             builder.Entity<Product>();
-            builder.Entity<Category>().Property(e => e.Id).GenerateValuesOnAdd(false);
+            builder.Entity<Category>().Property(e => e.Id).GenerateValueOnAdd(false);
 
             var productType = model.GetEntityType(typeof(Product));
             var categoryType = model.GetEntityType(typeof(Category));

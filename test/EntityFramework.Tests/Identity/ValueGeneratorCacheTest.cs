@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.Tests.Identity
         [Fact]
         public void Returns_null_if_selector_returns_null()
         {
-            var property = CreateProperty(ValueGeneration.None);
+            var property = CreateProperty(generateValues: false);
             var selector = new ValueGeneratorSelector(new SimpleValueGeneratorFactory<GuidValueGenerator>());
             var cache = new ValueGeneratorCache(selector, Mock.Of<ForeignKeyValueGenerator>());
 
@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.Tests.Identity
         [Fact]
         public void Uses_single_generator_per_cache_key_when_pool_size_is_one()
         {
-            var property = CreateProperty(ValueGeneration.OnAdd);
+            var property = CreateProperty();
 
             var factoryMock = new Mock<SimpleValueGeneratorFactory<GuidValueGenerator>>();
             factoryMock.Setup(m => m.Create(property)).Returns(CreateValueGeneratorCallback);
@@ -49,7 +49,7 @@ namespace Microsoft.Data.Entity.Tests.Identity
         [Fact]
         public void Uses_pool_per_cache_key_when_pool_size_is_greater_than_one()
         {
-            var property = CreateProperty(ValueGeneration.OnAdd);
+            var property = CreateProperty();
 
             var factoryMock = new Mock<SimpleValueGeneratorFactory<GuidValueGenerator>>();
             factoryMock.Setup(m => m.Create(property)).Returns(CreateValueGeneratorCallback);
@@ -87,11 +87,11 @@ namespace Microsoft.Data.Entity.Tests.Identity
             return new TemporaryValueGenerator();
         }
 
-        private static Property CreateProperty(ValueGeneration valueGeneration)
+        private static Property CreateProperty(bool generateValues = true)
         {
             var entityType = new Model().AddEntityType("Led");
             var property = entityType.GetOrAddProperty("Zeppelin", typeof(Guid), shadowProperty: true);
-            property.ValueGeneration = valueGeneration;
+            property.GenerateValueOnAdd = generateValues;
             return property;
         }
     }

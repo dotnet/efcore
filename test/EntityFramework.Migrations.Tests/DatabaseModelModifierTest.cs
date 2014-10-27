@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Relational.Model;
 using Xunit;
@@ -224,7 +223,8 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                             IsNullable = false,
                             DefaultValue = "V",
                             DefaultSql = "Sql",
-                            ValueGenerationStrategy = ValueGeneration.OnAddAndUpdate,
+                            GenerateValueOnAdd = true,
+                            IsComputed = true,
                             IsTimestamp = true,
                             MaxLength = 4,
                             Precision = 3,
@@ -243,7 +243,8 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             Assert.Equal("T", column.DataType);
             Assert.Equal("V", column.DefaultValue);
             Assert.Equal("Sql", column.DefaultSql);
-            Assert.Equal(ValueGeneration.OnAddAndUpdate, column.ValueGenerationStrategy);
+            Assert.True(column.GenerateValueOnAdd);
+            Assert.True(column.IsComputed);
             Assert.True(column.IsTimestamp);
             Assert.Equal(4, column.MaxLength.Value);
             Assert.Equal(3, column.Precision.Value);

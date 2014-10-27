@@ -245,19 +245,19 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                 modelBuilder.Entity<Product>(b =>
                     {
-                        b.Property(e => e.Id).GenerateValuesOnAdd(false);
+                        b.Property(e => e.Id).GenerateValueOnAdd(false);
                         b.OneToMany(e => e.SpecialOffers, e => e.Product);
                     });
 
                 modelBuilder.Entity<Category>(b =>
                     {
-                        b.Property(e => e.Id).GenerateValuesOnAdd(false);
+                        b.Property(e => e.Id).GenerateValueOnAdd(false);
                         b.OneToMany(e => e.Products, e => e.Category);
                     });
 
                 modelBuilder.Entity<SpecialOffer>()
                     .Property(e => e.Id)
-                    .GenerateValuesOnAdd(false);
+                    .GenerateValueOnAdd(false);
             }
 
             protected override void OnConfiguring(DbContextOptions options)

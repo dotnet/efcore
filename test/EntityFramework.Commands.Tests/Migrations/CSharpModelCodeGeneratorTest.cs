@@ -621,7 +621,7 @@ return builder.Model;",
             builder.Entity<Customer>(b =>
                 {
                     b.Key(e => e.Id);
-                    b.Property(e => e.Id).GenerateValuesOnAdd();
+                    b.Property(e => e.Id).GenerateValueOnAdd();
                 });
 
             var stringBuilder = new IndentedStringBuilder();
@@ -633,7 +633,7 @@ return builder.Model;",
 builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCodeGeneratorTest+Customer"", b =>
     {
         b.Property<int>(""Id"")
-            .GenerateValuesOnAdd();
+            .GenerateValueOnAdd();
         b.Key(""Id"");
     });
 

@@ -254,7 +254,8 @@ namespace Microsoft.Data.Entity.Relational
                         IsNullable = property.IsNullable,
                         DefaultValue = GetColumnDefaultValue(property),
                         DefaultSql = GetColumnDefaultSql(property),
-                        ValueGenerationStrategy = property.ValueGeneration,
+                        GenerateValueOnAdd =  property.GenerateValueOnAdd,
+                        IsComputed = property.IsStoreComputed,
                         IsTimestamp = property.PropertyType == typeof(byte[]) && property.IsConcurrencyToken,
                         MaxLength = property.MaxLength > 0 ? property.MaxLength : (int?)null
                     };

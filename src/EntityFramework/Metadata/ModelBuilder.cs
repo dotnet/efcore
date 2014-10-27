@@ -54,21 +54,11 @@ namespace Microsoft.Data.Entity.Metadata
             _builder = internalBuilder;
         }
 
-        // TODO: Consider whether these conversions are useful
-        // Issue #750
-        public static explicit operator BasicModelBuilder([NotNull] ModelBuilder builder)
-        {
-            Check.NotNull(builder, "builder");
-
-            return new BasicModelBuilder(builder.Builder);
-        }
-
         public virtual Model Metadata
         {
             get { return Builder.Metadata; }
         }
 
-        // TODO: Consider removing and just using the Metadata property
         public virtual Model Model
         {
             get { return Metadata; }
@@ -397,9 +387,9 @@ namespace Microsoft.Data.Entity.Metadata
                     return this;
                 }
 
-                public virtual PropertyBuilder GenerateValuesOnAdd(bool generateValues = true)
+                public virtual PropertyBuilder GenerateValueOnAdd(bool generateValue = true)
                 {
-                    Builder.GenerateValuesOnAdd(generateValues, ConfigurationSource.Explicit);
+                    Builder.GenerateValueOnAdd(generateValue, ConfigurationSource.Explicit);
 
                     return this;
                 }

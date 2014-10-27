@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity.Identity
         {
             Check.NotNull(property, "property");
 
-            if (property.ValueGeneration != ValueGeneration.OnAdd)
+            if (!property.GenerateValueOnAdd)
             {
                 return null;
             }

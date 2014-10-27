@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.SQLite.Tests
         {
             var entityType = new Model().AddEntityType("Entity");
             var property = entityType.GetOrAddProperty("Id", typeof(long), shadowProperty: true);
-            property.ValueGeneration = ValueGeneration.OnAdd;
+            property.GenerateValueOnAdd = true;
             entityType.GetOrSetPrimaryKey(property);
 
             var result = CreateSelector().Select(property);
@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.SQLite.Tests
         {
             var entityType = new Model().AddEntityType("Entity");
             var property = entityType.GetOrAddProperty("Id", typeof(int), shadowProperty: true);
-            property.ValueGeneration = ValueGeneration.OnAdd;
+            property.GenerateValueOnAdd = true;
             // TODO: SQLite-specific. Issue #875
             property.Relational().ColumnType = "INTEGER";
             entityType.GetOrSetPrimaryKey(property);
@@ -56,7 +56,7 @@ namespace Microsoft.Data.Entity.SQLite.Tests
             var selector = CreateSelector();
             var entityType = new Model().AddEntityType("Entity");
             var property = entityType.GetOrAddProperty("Id1", typeof(long), shadowProperty: true);
-            property.ValueGeneration = ValueGeneration.OnAdd;
+            property.GenerateValueOnAdd = true;
             entityType.GetOrSetPrimaryKey(new[] { property, entityType.GetOrAddProperty("Id2", typeof(long), shadowProperty: true) });
 
             Assert.Throws<NotSupportedException>(() => selector.Select(property));
@@ -68,7 +68,7 @@ namespace Microsoft.Data.Entity.SQLite.Tests
             var selector = CreateSelector();
             var entityType = new Model().AddEntityType("Entity");
             var property = entityType.GetOrAddProperty("Id", typeof(int), shadowProperty: true);
-            property.ValueGeneration = ValueGeneration.OnAdd;
+            property.GenerateValueOnAdd = true;
             entityType.GetOrSetPrimaryKey(property);
 
             Assert.Throws<NotSupportedException>(() => selector.Select(property));

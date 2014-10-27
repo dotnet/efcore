@@ -159,7 +159,6 @@
     <Compile Include="Query\QueryCompilationContext.cs" />
     <Compile Include="Query\QuerySourceScope`.cs" />
     <Compile Include="Query\ResultOperatorHandler.cs" />
-    <Compile Include="Metadata\ValueGeneration.cs" />
     <Compile Include="ServiceProviderCache.cs" />
     <Compile Include="ChangeTracking\ArraySidecar.cs" />
     <Compile Include="ChangeTracking\ChangeTracker.cs" />

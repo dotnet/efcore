@@ -119,7 +119,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var entityType1 = model.AddEntityType(typeof(SomeEntity));
             var key1 = entityType1.GetOrAddProperty("Id", typeof(int), shadowProperty: true);
-            key1.ValueGeneration = ValueGeneration.OnAdd;
+            key1.GenerateValueOnAdd = true;
             entityType1.GetOrSetPrimaryKey(key1);
             entityType1.GetOrAddProperty("Name", typeof(string));
 
@@ -130,7 +130,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var fk = entityType2.GetOrAddProperty("SomeEntityId", typeof(int), shadowProperty: true);
             entityType2.GetOrAddForeignKey(new[] { fk }, entityType1.GetPrimaryKey());
             var justAProperty = entityType2.GetOrAddProperty("JustAProperty", typeof(int));
-            justAProperty.ValueGeneration = ValueGeneration.OnAdd;
+            justAProperty.GenerateValueOnAdd = true;
 
             var entityType3 = model.AddEntityType(typeof(FullNotificationEntity));
             entityType3.GetOrSetPrimaryKey(entityType3.GetOrAddProperty("Id", typeof(int), shadowProperty: true));

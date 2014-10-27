@@ -117,7 +117,7 @@ namespace QueryExecution.Model
             modelBuilder.Entity<Order>(b =>
                 {
                     b.ForRelational().Table("Order", "dbo");
-                    b.Property(e => e.OrderId).GenerateValuesOnAdd(false);
+                    b.Property(e => e.OrderId).GenerateValueOnAdd(false);
                 });
             modelBuilder.Entity<OrderLine>(b =>
                 {
@@ -143,7 +143,7 @@ namespace QueryExecution.Model
             modelBuilder.Entity<Product>(b =>
                 {
                     b.ForRelational().Table("Product", "dbo");
-                    b.Property(e => e.ProductId).GenerateValuesOnAdd(false);
+                    b.Property(e => e.ProductId).GenerateValueOnAdd(false);
                 });
             modelBuilder.Entity<ProductDetail>(b =>
                 {
@@ -342,27 +342,27 @@ namespace QueryExecution.Model
 
             // TODO: Key should get by-convention value generation even if key is not discovered by convention
             var noteId = model.GetEntityType(typeof(OrderNote)).GetProperty("NoteId");
-            noteId.ValueGeneration = ValueGeneration.OnAdd;
+            noteId.GenerateValueOnAdd = true;
 
             var featureId = model.GetEntityType(typeof(ProductWebFeature)).GetProperty("FeatureId");
-            featureId.ValueGeneration = ValueGeneration.OnAdd;
+            featureId.GenerateValueOnAdd = true;
 
             // TODO: Should key get by-convention value generation even if part of composite key?
             var reviewId = model.GetEntityType(typeof(ProductReview)).GetProperty("ReviewId");
-            reviewId.ValueGeneration = ValueGeneration.OnAdd;
+            reviewId.GenerateValueOnAdd = true;
 
             var photoId = model.GetEntityType(typeof(ProductPhoto)).GetProperty("PhotoId");
-            photoId.ValueGeneration = ValueGeneration.OnAdd;
+            photoId.GenerateValueOnAdd = true;
 
             // TODO: Key should not get by-convention value generation if it is dependent of identifying relationship
             var detailId = model.GetEntityType(typeof(ComputerDetail)).GetProperty("ComputerDetailId");
-            detailId.ValueGeneration = ValueGeneration.None;
+            detailId.GenerateValueOnAdd = false;
 
             var resolutionId = model.GetEntityType(typeof(Resolution)).GetProperty("ResolutionId");
-            resolutionId.ValueGeneration = ValueGeneration.None;
+            resolutionId.GenerateValueOnAdd = false;
 
             var customerId = model.GetEntityType(typeof(CustomerInfo)).GetProperty("CustomerInfoId");
-            customerId.ValueGeneration = ValueGeneration.None;
+            customerId.GenerateValueOnAdd = false;
         }
     }
 }

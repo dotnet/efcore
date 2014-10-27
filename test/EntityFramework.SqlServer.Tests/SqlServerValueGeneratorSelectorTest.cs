@@ -72,7 +72,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 .ForSqlServer(b => b.UseSequence())
                 .Entity<Robot>()
                 .Property<T>(typeof(T).Name)
-                .GenerateValuesOnAdd()
+                .GenerateValueOnAdd()
                 .Metadata;
 
             return property;
@@ -133,7 +133,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 .ForSqlServer(b => b.UseIdentity())
                 .Entity<Robot>()
                 .Property<T>(typeof(T).Name)
-                .GenerateValuesOnAdd()
+                .GenerateValueOnAdd()
                 .Metadata;
 
             return property;
@@ -163,7 +163,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var property = new BasicModelBuilder()
                 .Entity<Robot>()
                 .Property<T>(typeof(T).Name)
-                .GenerateValuesOnAdd()
+                .GenerateValueOnAdd()
                 .Metadata;
 
             return property;
@@ -220,7 +220,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var property = new BasicModelBuilder()
                 .Entity<Robot>()
                 .Property(e => e.String)
-                .GenerateValuesOnAdd()
+                .GenerateValueOnAdd()
                 .Metadata;
 
             Assert.Equal(

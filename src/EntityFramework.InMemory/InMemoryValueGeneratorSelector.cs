@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity.InMemory
         {
             Check.NotNull(property, "property");
 
-            if (property.ValueGeneration == ValueGeneration.OnAdd
+            if (property.GenerateValueOnAdd
                 && property.PropertyType.IsInteger())
             {
                 return _inMemoryFactory;

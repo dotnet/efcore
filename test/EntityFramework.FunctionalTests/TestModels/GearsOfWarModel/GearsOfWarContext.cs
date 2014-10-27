@@ -23,20 +23,32 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.GearsOfWarModel
         {
             builder.Entity<City>().Key(c => c.Name);
 
-            builder.Entity<Gear>().Key(g => new { g.Nickname, g.SquadId });
-            builder.Entity<Gear>().ManyToOne(g => g.CityOfBirth).ForeignKey(g => g.CityOrBirthName);
-            builder.Entity<Gear>().OneToMany(g => g.Reports).ForeignKey(g => new { g.LeaderNickname, g.LeaderSquadId });
-            builder.Entity<Gear>().OneToOne(g => g.Tag, t => t.Gear).ForeignKey<CogTag>(t => new { t.GearNickName, t.GearSquadId });
+            builder.Entity<Gear>(b =>
+                {
+                    b.Key(g => new { g.Nickname, g.SquadId });
+                    b.ManyToOne(g => g.CityOfBirth).ForeignKey(g => g.CityOrBirthName);
+                    b.OneToMany(g => g.Reports).ForeignKey(g => new { g.LeaderNickname, g.LeaderSquadId });
+                    b.OneToOne(g => g.Tag, t => t.Gear).ForeignKey<CogTag>(t => new { t.GearNickName, t.GearSquadId });
+                });
 
-            builder.Entity<CogTag>().Key(t => t.Id);
-            builder.Model.GetEntityType(typeof(CogTag)).GetProperty("Id").ValueGeneration = ValueGeneration.OnAdd;
+            builder.Entity<CogTag>(b =>
+                {
+                    b.Key(t => t.Id);
+                    b.Property(t => t.Id).GenerateValueOnAdd();
+                });
 
-            builder.Entity<Squad>().Key(s => s.Id);
-            builder.Entity<Squad>().OneToMany(s => s.Members, g => g.Squad).ForeignKey(g => g.SquadId);
-            builder.Model.GetEntityType(typeof(Squad)).GetProperty("Id").ValueGeneration = ValueGeneration.OnAdd;
+            builder.Entity<Squad>(b =>
+                {
+                    b.Key(s => s.Id);
+                    b.OneToMany(s => s.Members, g => g.Squad).ForeignKey(g => g.SquadId);
+                    b.Property(t => t.Id).GenerateValueOnAdd();
+                });
 
-            builder.Entity<Weapon>().OneToOne(w => w.SynergyWith).ForeignKey<Weapon>(w => w.SynergyWithId);
-            builder.Entity<Weapon>().ManyToOne(w => w.Owner, g => g.Weapons).ForeignKey(w => new { w.OwnerNickname, w.OwnerSquadId });
+            builder.Entity<Weapon>(b =>
+                {
+                    b.OneToOne(w => w.SynergyWith).ForeignKey<Weapon>(w => w.SynergyWithId);
+                    b.ManyToOne(w => w.Owner, g => g.Weapons).ForeignKey(w => new { w.OwnerNickname, w.OwnerSquadId });
+                });
         }
     }
 }

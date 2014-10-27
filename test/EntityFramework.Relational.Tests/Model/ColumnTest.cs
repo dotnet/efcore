@@ -56,7 +56,8 @@ namespace Microsoft.Data.Entity.Relational.Tests.Model
                         IsNullable = false,
                         DefaultValue = "V",
                         DefaultSql = "Sql",
-                        ValueGenerationStrategy = ValueGeneration.OnAddAndUpdate,
+                        GenerateValueOnAdd = true,
+                        IsComputed = true,
                         IsTimestamp = true,
                         MaxLength = 4,
                         Precision = 3,
@@ -73,7 +74,8 @@ namespace Microsoft.Data.Entity.Relational.Tests.Model
             Assert.Equal("T", column2.DataType);
             Assert.Equal("V", column2.DefaultValue);
             Assert.Equal("Sql", column2.DefaultSql);
-            Assert.Equal(ValueGeneration.OnAddAndUpdate, column2.ValueGenerationStrategy);
+            Assert.True(column2.GenerateValueOnAdd);
+            Assert.True(column2.IsComputed);
             Assert.True(column2.IsTimestamp);
             Assert.Equal(4, column2.MaxLength.Value);
             Assert.Equal(3, column2.Precision.Value);
@@ -93,7 +95,8 @@ namespace Microsoft.Data.Entity.Relational.Tests.Model
                         IsNullable = false,
                         DefaultValue = "V",
                         DefaultSql = "Sql",
-                        ValueGenerationStrategy = ValueGeneration.OnAddAndUpdate,
+                        GenerateValueOnAdd = true,
+                        IsComputed = true,
                         IsTimestamp = true,
                         MaxLength = 4,
                         Precision = 3,
@@ -109,7 +112,8 @@ namespace Microsoft.Data.Entity.Relational.Tests.Model
             Assert.Equal("T", clone.DataType);
             Assert.Equal("V", clone.DefaultValue);
             Assert.Equal("Sql", clone.DefaultSql);
-            Assert.Equal(ValueGeneration.OnAddAndUpdate, clone.ValueGenerationStrategy);
+            Assert.True(clone.GenerateValueOnAdd);
+            Assert.True(clone.IsComputed);
             Assert.True(clone.IsTimestamp);
             Assert.Equal(4, clone.MaxLength.Value);
             Assert.Equal(3, clone.Precision.Value);

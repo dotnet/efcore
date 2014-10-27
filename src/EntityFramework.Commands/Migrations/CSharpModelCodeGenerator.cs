@@ -215,13 +215,13 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                         .Append(".ConcurrencyToken()");
                 }
 
-                if (property.ValueGeneration == ValueGeneration.OnAdd)
+                if (property.GenerateValueOnAdd)
                 {
                     stringBuilder
                         .AppendLine()
-                        .Append(".GenerateValuesOnAdd()");
+                        .Append(".GenerateValueOnAdd()");
                 }
-                else if (property.ValueGeneration == ValueGeneration.OnAddAndUpdate)
+                else if (property.IsStoreComputed)
                 {
                     stringBuilder
                         .AppendLine()

@@ -62,7 +62,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             var key = entityBuilder.Metadata.TryGetPrimaryKey();
             Assert.NotNull(key);
             Assert.Equal(new[] { "Id" }, key.Properties.Select(p => p.Name));
-            Assert.Equal(ValueGeneration.OnAdd, key.Properties.Single().ValueGeneration);
+            Assert.Equal(true, key.Properties.Single().GenerateValueOnAdd);
         }
 
         private class EntityWithTypeId
@@ -80,7 +80,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             var key = entityBuilder.Metadata.TryGetPrimaryKey();
             Assert.NotNull(key);
             Assert.Equal(new[] { "EntityWithTypeIdId" }, key.Properties.Select(p => p.Name));
-            Assert.Equal(ValueGeneration.OnAdd, key.Properties.Single().ValueGeneration);
+            Assert.Equal(true, key.Properties.Single().GenerateValueOnAdd);
         }
 
         private class EntityWithIdAndTypeId
@@ -99,7 +99,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             var key = entityBuilder.Metadata.TryGetPrimaryKey();
             Assert.NotNull(key);
             Assert.Equal(new[] { "Id" }, key.Properties.Select(p => p.Name));
-            Assert.Equal(ValueGeneration.OnAdd, key.Properties.Single().ValueGeneration);
+            Assert.Equal(true, key.Properties.Single().GenerateValueOnAdd);
         }
 
         private class EntityWithMultipleIds
@@ -135,7 +135,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
 
             var property = entityBuilder.Metadata.TryGetProperty("Id");
             Assert.NotNull(property);
-            Assert.Equal(ValueGeneration.OnAdd, property.ValueGeneration);
+            Assert.Equal(true, property.GenerateValueOnAdd);
         }
 
         [Fact]
@@ -143,11 +143,11 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         {
             var entityBuilder = CreateInternalEntityBuilder<EntityWithGuidKey>();
             var property = entityBuilder.Metadata.TryGetProperty("Id");
-            property.ValueGeneration = ValueGeneration.None;
+            property.GenerateValueOnAdd = false;
 
             new KeyConvention().Apply(entityBuilder);
 
-            Assert.Equal(ValueGeneration.None, property.ValueGeneration);
+            Assert.Equal(false, property.GenerateValueOnAdd);
         }
 
         private static InternalEntityBuilder CreateInternalEntityBuilder<T>()
