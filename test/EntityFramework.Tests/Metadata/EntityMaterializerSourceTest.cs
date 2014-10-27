@@ -37,36 +37,44 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void Can_create_materializer_for_entity_with_auto_properties()
         {
             var entityType = new Model().AddEntityType(typeof(SomeEntity));
-            entityType.GetOrAddProperty("Id", typeof(int));
+            entityType.GetOrAddProperty("Enum", typeof(SomeEnum));
             entityType.GetOrAddProperty("Foo", typeof(string));
             entityType.GetOrAddProperty("Goo", typeof(Guid?));
+            entityType.GetOrAddProperty("Id", typeof(int));
+            entityType.GetOrAddProperty("MaybeEnum", typeof(SomeEnum?));
 
             var factory = new EntityMaterializerSource(new MemberMapper(new FieldMatcher())).GetMaterializer(entityType);
 
             var gu = Guid.NewGuid();
-            var entity = (SomeEntity)factory(new ObjectArrayValueReader(new object[] { "Fu", gu, 77 }));
+            var entity = (SomeEntity)factory(new ObjectArrayValueReader(new object[] { 0, "Fu", gu, 77, 0 }));
 
             Assert.Equal(77, entity.Id);
             Assert.Equal("Fu", entity.Foo);
             Assert.Equal(gu, entity.Goo);
+            Assert.Equal(SomeEnum.EnumValue, entity.Enum);
+            Assert.Equal(SomeEnum.EnumValue, entity.MaybeEnum);
         }
 
         [Fact]
         public void Can_create_materializer_for_entity_with_fields()
         {
             var entityType = new Model().AddEntityType(typeof(SomeEntityWithFields));
-            entityType.GetOrAddProperty("Id", typeof(int));
+            entityType.GetOrAddProperty("Enum", typeof(SomeEnum));
             entityType.GetOrAddProperty("Foo", typeof(string));
             entityType.GetOrAddProperty("Goo", typeof(Guid?));
+            entityType.GetOrAddProperty("Id", typeof(int));
+            entityType.GetOrAddProperty("MaybeEnum", typeof(SomeEnum?));
 
             var factory = new EntityMaterializerSource(new MemberMapper(new FieldMatcher())).GetMaterializer(entityType);
 
             var gu = Guid.NewGuid();
-            var entity = (SomeEntityWithFields)factory(new ObjectArrayValueReader(new object[] { "Fu", gu, 77 }));
+            var entity = (SomeEntityWithFields)factory(new ObjectArrayValueReader(new object[] { 0, "Fu", gu, 77, null }));
 
             Assert.Equal(77, entity.Id);
             Assert.Equal("Fu", entity.Foo);
             Assert.Equal(gu, entity.Goo);
+            Assert.Equal(SomeEnum.EnumValue, entity.Enum);
+            Assert.Null(entity.MaybeEnum);
         }
 
         [Fact]
@@ -117,9 +125,13 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
         private class SomeEntity
         {
+            // ReSharper disable UnusedAutoPropertyAccessor.Local
             public int Id { get; set; }
             public string Foo { get; set; }
             public Guid? Goo { get; set; }
+            public SomeEnum Enum { get; set; }
+            public SomeEnum? MaybeEnum { get; set; }
+            // ReSharper restore UnusedAutoPropertyAccessor.Local
         }
 
         private class SomeEntityWithFields
@@ -128,6 +140,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             private int _id;
             private string _foo;
             private Guid? _goo;
+            private SomeEnum _enum;
+            private SomeEnum? _maybeEnum;
 #pragma warning restore 649
 
             public int Id
@@ -144,6 +158,21 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             {
                 get { return _goo; }
             }
+
+            public SomeEnum Enum
+            {
+                get { return _enum; }
+            }
+
+            public SomeEnum? MaybeEnum
+            {
+                get { return _maybeEnum; }
+            }
+        }
+
+        private enum SomeEnum
+        {
+            EnumValue
         }
     }
 }

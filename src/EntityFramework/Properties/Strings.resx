@@ -216,9 +216,6 @@
   <data name="MultipleDataStoresAvailable" xml:space="preserve">
     <value>The data stores {storeNames}are available. A context can only be configured to use a single data store. Configure a data store by overriding OnConfiguring in your DbContext class or in the AddDbContext method when setting up services.</value>
   </data>
-  <data name="EntityConfigurationLocked" xml:space="preserve">
-    <value>Attempt to modify DbContextOptions by calling '{memberName}' failed because it is locked.</value>
-  </data>
   <data name="MultiplePropertiesMatchedAsKeys" xml:space="preserve">
     <value>Multiple potential primary key properties named '{property}' but differing only by case were found on entity type '{entityType}'. Configure the primary key explicitly using the SetKey fluent API.</value>
   </data>

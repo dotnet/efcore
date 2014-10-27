@@ -22,7 +22,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddSqlServer()
-                .UseLoggerFactory<LoggerFactory>()
                 .ServiceCollection
                 .BuildServiceProvider();
 
@@ -68,7 +67,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddSqlServer()
-                .UseLoggerFactory<LoggerFactory>()
                 .ServiceCollection
                 .BuildServiceProvider();
 
@@ -130,7 +128,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddSqlServer()
-                .UseLoggerFactory<LoggerFactory>()
                 .ServiceCollection
                 .BuildServiceProvider();
 

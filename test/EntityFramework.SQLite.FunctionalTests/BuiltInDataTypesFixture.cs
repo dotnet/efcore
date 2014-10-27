@@ -4,9 +4,7 @@
 using System;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.DependencyInjection.Advanced;
 using Microsoft.Framework.DependencyInjection.Fallback;
-using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.SQLite.FunctionalTests
 {
@@ -20,7 +18,6 @@ namespace Microsoft.Data.Entity.SQLite.FunctionalTests
                 = new ServiceCollection()
                     .AddEntityFramework()
                     .AddSQLite()
-                    .UseLoggerFactory<LoggerFactory>()
                     .ServiceCollection
                     .BuildServiceProvider();
         }

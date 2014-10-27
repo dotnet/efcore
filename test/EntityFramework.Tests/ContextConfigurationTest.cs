@@ -63,7 +63,7 @@ namespace Microsoft.Data.Entity.Tests
         public void Scoped_data_store_services_can_be_obtained_from_configuration()
         {
             var services = new ServiceCollection();
-            services.AddEntityFramework().AddInMemoryStore().UseLoggerFactory<LoggerFactory>();
+            services.AddEntityFramework().AddInMemoryStore();
             var serviceProvider = services.BuildServiceProvider();
 
             DataStore store;

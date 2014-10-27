@@ -76,14 +76,14 @@ namespace Microsoft.Data.Entity.Query
             get { return _streamedSequenceInfo; }
         }
 
-        protected abstract ExpressionTreeVisitor CreateQueryingExpressionTreeVisitor([CanBeNull] IQuerySource querySource);
+        protected abstract ExpressionTreeVisitor CreateQueryingExpressionTreeVisitor([NotNull] IQuerySource querySource);
 
         protected virtual ExpressionTreeVisitor CreateProjectionExpressionTreeVisitor()
         {
             return new ProjectionExpressionTreeVisitor(this);
         }
 
-        protected virtual ExpressionTreeVisitor CreateOrderingExpressionTreeVisitor(Ordering ordering)
+        protected virtual ExpressionTreeVisitor CreateOrderingExpressionTreeVisitor([NotNull] Ordering ordering)
         {
             return new DefaultQueryExpressionTreeVisitor(this);
         }
@@ -823,15 +823,10 @@ namespace Microsoft.Data.Entity.Query
                     => BindReadValueMethod(memberExpression.Type, expression, property.Index));
         }
 
-        private static readonly MethodInfo _readValueMethodInfo
-            = typeof(IValueReader).GetTypeInfo().GetDeclaredMethod("ReadValue");
-
-        protected static MethodCallExpression BindReadValueMethod(Type memberType, Expression expression, int index)
+        protected Expression BindReadValueMethod(Type memberType, Expression expression, int index)
         {
-            return Expression.Call(
-                expression,
-                _readValueMethodInfo.MakeGenericMethod(memberType),
-                Expression.Constant(index));
+            return QueryCompilationContext.EntityMaterializerSource
+                .CreateReadValueExpression(expression, memberType, index);
         }
 
         public virtual TResult BindNavigationMemberExpression<TResult>(

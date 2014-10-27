@@ -1387,7 +1387,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 var driver1 = context.Drivers.Single(e => e.Name == "Eeky Bear");
                 var driver2 = context.Drivers.Single(e => e.Name == "Splash Bear");
 
-                // TODO: Quering for actual entity currently throws, so projecting to just FK instead
+                // TODO: Querying for actual entity currently throws, so projecting to just FK instead
                 // Issue #906 
                 var licenseName1 = context.Licenses.Where(e => e.LicenseNumber == "10").Select(e => e.Name).Single();
                 var licenseName2 = context.Licenses.Where(e => e.LicenseNumber == "11").Select(e => e.Name).Single();
@@ -1670,14 +1670,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                 // TODO: Currently these LINQ queries throw InvalidCastException
                 // Issue #906 
-                //var license1 = context.Licenses.Single(e => e.LicenseNumber == "10");
-                //var license2 = context.Licenses.Single(e => e.LicenseNumber == "11");
+                var license1 = context.Licenses.Single(e => e.LicenseNumber == "10");
+                var license2 = context.Licenses.Single(e => e.LicenseNumber == "11");
 
-                //Assert.Same(driver1, license1.Driver);
-                //Assert.Same(license1, driver1.License);
+                Assert.Same(driver1, license1.Driver);
+                Assert.Same(license1, driver1.License);
 
-                //Assert.Same(driver2, license2.Driver);
-                //Assert.Same(license2, driver2.License);
+                Assert.Same(driver2, license2.Driver);
+                Assert.Same(license2, driver2.License);
             }
         }
 

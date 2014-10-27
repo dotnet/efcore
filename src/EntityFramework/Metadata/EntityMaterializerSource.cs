@@ -22,6 +22,9 @@ namespace Microsoft.Data.Entity.Metadata
         private readonly ThreadSafeDictionaryCache<Type, Func<IValueReader, object>> _cache
             = new ThreadSafeDictionaryCache<Type, Func<IValueReader, object>>();
 
+        private static readonly ParameterExpression _readerParameter
+            = Expression.Parameter(typeof(IValueReader), "valueReader");
+
         private readonly MemberMapper _memberMapper;
 
         /// <summary>
@@ -58,60 +61,75 @@ namespace Microsoft.Data.Entity.Metadata
             return _cache.GetOrAdd(entityType.Type, k => BuildDelegate(entityType));
         }
 
-        private Func<IValueReader, object> BuildDelegate(IEntityType entityType)
+        public virtual Expression CreateReadValueExpression(
+            [NotNull] Expression valueReader, [NotNull] Type type, int index)
         {
-            var memberMappings = _memberMapper.MapPropertiesToMembers(entityType);
-            var clrType = entityType.Type;
+            Check.NotNull(valueReader, "valueReader");
+            Check.NotNull(type, "type");
 
-            var readerParameter = Expression.Parameter(typeof(IValueReader), "valueReader");
-            var instanceVariable = Expression.Variable(clrType, "instance");
+            var unwrappedTargetMemberType = type.UnwrapNullableType();
 
-            var blockExpressions = new List<Expression>
-                {
-                    Expression.Assign(instanceVariable, Expression.New(clrType.GetDeclaredConstructor(null)))
-                };
+            var underlyingTargetMemberType
+                = unwrappedTargetMemberType.GetTypeInfo().IsEnum
+                    ? Enum.GetUnderlyingType(unwrappedTargetMemberType)
+                    : type;
 
-            foreach (var mapping in memberMappings)
-            {
-                var propertyInfo = mapping.Item2 as PropertyInfo;
-                var fieldInfo = mapping.Item2 as FieldInfo;
+            var indexExpression = Expression.Constant(index);
 
-                var targetType = propertyInfo != null
-                    ? propertyInfo.PropertyType
-                    : fieldInfo.FieldType;
-
-                var indexExpression = Expression.Constant(mapping.Item1.Index);
-
-                Expression callReaderExpression = Expression.Call(
-                    readerParameter,
-                    _readValue.MakeGenericMethod(targetType),
+            Expression readValueExpression
+                = Expression.Call(
+                    valueReader,
+                    _readValue.MakeGenericMethod(underlyingTargetMemberType),
                     indexExpression);
 
-                if (targetType.IsNullableType())
-                {
-                    callReaderExpression = Expression.Condition(
-                        Expression.Call(readerParameter, _isNull, indexExpression),
-                        Expression.Constant(null, targetType),
-                        callReaderExpression);
-                }
-
-                if (propertyInfo != null)
-                {
-                    blockExpressions.Add(
-                        Expression.Assign(Expression.Property(instanceVariable, propertyInfo),
-                            callReaderExpression));
-                }
-                else
-                {
-                    blockExpressions.Add(
-                        Expression.Assign(Expression.Field(instanceVariable, fieldInfo),
-                            callReaderExpression));
-                }
+            if (underlyingTargetMemberType != type)
+            {
+                readValueExpression
+                    = Expression.Convert(readValueExpression, type);
             }
+
+            if (type.IsNullableType())
+            {
+                readValueExpression
+                    = Expression.Condition(
+                        Expression.Call(valueReader, _isNull, indexExpression),
+                        Expression.Constant(null, type),
+                        readValueExpression);
+            }
+
+            return readValueExpression;
+        }
+
+        private Func<IValueReader, object> BuildDelegate(IEntityType entityType)
+        {
+            var instanceVariable = Expression.Variable(entityType.Type, "instance");
+
+            var blockExpressions
+                = new List<Expression>
+                    {
+                        Expression.Assign(
+                            instanceVariable,
+                            Expression.New(entityType.Type.GetDeclaredConstructor(null)))
+                    };
+
+            blockExpressions.AddRange(
+                from mapping in _memberMapper.MapPropertiesToMembers(entityType)
+                let propertyInfo = mapping.Item2 as PropertyInfo
+                let targetMember
+                    = propertyInfo != null
+                        ? Expression.Property(instanceVariable, propertyInfo)
+                        : Expression.Field(instanceVariable, (FieldInfo)mapping.Item2)
+                select Expression.Assign(
+                    targetMember,
+                    CreateReadValueExpression(
+                        _readerParameter, targetMember.Type, mapping.Item1.Index)));
 
             blockExpressions.Add(instanceVariable);
 
-            return Expression.Lambda<Func<IValueReader, object>>(Expression.Block(new[] { instanceVariable }, blockExpressions), readerParameter).Compile();
+            return Expression.Lambda<Func<IValueReader, object>>(
+                Expression.Block(new[] { instanceVariable }, blockExpressions),
+                _readerParameter)
+                .Compile();
         }
     }
 }

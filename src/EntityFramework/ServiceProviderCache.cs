@@ -29,11 +29,6 @@ namespace Microsoft.Data.Entity
             var services = new ServiceCollection();
             var builder = services.AddEntityFramework();
 
-            if (services.All(s => s.ServiceType != typeof(ILoggerFactory)))
-            {
-                builder.UseLoggerFactory<LoggerFactory>();
-            }
-
             foreach (var extension in options.Extensions)
             {
                 extension.ApplyServices(builder);

@@ -104,6 +104,14 @@
     <Compile Include="OptimisticConcurrencyTestBase.cs" />
     <Compile Include="SupplementalBuiltInDataTypesFixtureBase.cs" />
     <Compile Include="SupplementalBuiltInDataTypesTestBase.cs" />
+    <Compile Include="TestModels\GearsOfWarModel\City.cs" />
+    <Compile Include="TestModels\GearsOfWarModel\CogTag.cs" />
+    <Compile Include="TestModels\GearsOfWarModel\Gear.cs" />
+    <Compile Include="TestModels\GearsOfWarModel\GearsOfWarContext.cs" />
+    <Compile Include="TestModels\GearsOfWarModel\GearsOfWarModelInitializer.cs" />
+    <Compile Include="TestModels\GearsOfWarModel\MilitaryRank.cs" />
+    <Compile Include="TestModels\GearsOfWarModel\Squad.cs" />
+    <Compile Include="TestModels\GearsOfWarModel\Weapon.cs" />
     <Compile Include="TestStore.cs" />
     <Compile Include="TestFileLogger.cs" />
     <Compile Include="TestModels\ChangedChangingMonsterContext.cs" />

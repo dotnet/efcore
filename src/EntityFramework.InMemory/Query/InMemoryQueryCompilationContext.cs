@@ -18,13 +18,15 @@ namespace Microsoft.Data.Entity.InMemory.Query
         public InMemoryQueryCompilationContext(
             [NotNull] IModel model,
             [NotNull] ILogger logger,
+            [NotNull] EntityMaterializerSource entityMaterializerSource,
             [NotNull] EntityKeyFactorySource entityKeyFactorySource,
             [NotNull] InMemoryDatabase database)
             : base(
                 Check.NotNull(model, "model"),
                 Check.NotNull(logger, "logger"),
                 new LinqOperatorProvider(),
-                new ResultOperatorHandler())
+                new ResultOperatorHandler(),
+                Check.NotNull(entityMaterializerSource, "entityMaterializerSource"))
         {
             Check.NotNull(entityKeyFactorySource, "entityKeyFactorySource");
             Check.NotNull(database, "database");

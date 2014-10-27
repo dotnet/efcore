@@ -22,7 +22,6 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 = new ServiceCollection()
                     .AddEntityFramework()
                     .AddInMemoryStore()
-                    .UseLoggerFactory<LoggerFactory>()
                     .ServiceCollection
                     .BuildServiceProvider();
 

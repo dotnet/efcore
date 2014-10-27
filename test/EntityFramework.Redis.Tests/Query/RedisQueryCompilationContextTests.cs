@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Redis.Query;
 using Microsoft.Framework.Logging;
@@ -22,6 +23,7 @@ namespace Microsoft.Data.Entity.Redis.Tests.Query
                     loggerFactory.Create("Fake"),
                     new LinqOperatorProvider(),
                     new ResultOperatorHandler(),
+                    new EntityMaterializerSource(new MemberMapper(new FieldMatcher())), 
                     new QueryMethodProvider());
 
             var parentVisitor = new RedisQueryModelVisitor(redisQueryCompilationContext);

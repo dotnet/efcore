@@ -41,7 +41,13 @@ namespace Microsoft.Data.Entity.SqlServer
             Check.NotNull(methodCallTranslator, "methodCallTranslator");
 
             return new SqlServerQueryCompilationContext(
-                Model, Logger, linqOperatorProvider, resultOperatorHandler, enumerableMethodProvider, methodCallTranslator);
+                Model, 
+                Logger, 
+                linqOperatorProvider, 
+                resultOperatorHandler, 
+                EntityMaterializerSource,
+                enumerableMethodProvider,
+                methodCallTranslator);
         }
     }
 }

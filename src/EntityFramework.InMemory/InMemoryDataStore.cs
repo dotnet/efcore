@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -48,7 +49,7 @@ namespace Microsoft.Data.Entity.InMemory
             _database = new ThreadSafeLazyRef<InMemoryDatabase>(
                 () => _persist
                     ? persistentDatabase
-                    : new InMemoryDatabase(new[] { configuration.LoggerFactory }));
+                    : new InMemoryDatabase(configuration.LoggerFactory));
         }
 
         public virtual InMemoryDatabase Database
@@ -81,6 +82,7 @@ namespace Microsoft.Data.Entity.InMemory
                 = new InMemoryQueryCompilationContext(
                     Model,
                     Logger,
+                    EntityMaterializerSource,
                     EntityKeyFactorySource,
                     _database.Value);
 

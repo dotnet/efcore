@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             var model = CreateModel();
             var configuration = CreateConfiguration(new DbContextOptions().UseInMemoryStore(persist: true));
             var entityType = model.GetEntityType(typeof(Test));
-            var persistentDatabase = new InMemoryDatabase(new[] { new LoggerFactory() });
+            var persistentDatabase = new InMemoryDatabase(new LoggerFactory());
 
             var inMemoryDataStore = new InMemoryDataStore(configuration, persistentDatabase);
 
@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             var model = CreateModel();
             var configuration = CreateConfiguration(new DbContextOptions().UseInMemoryStore(persist: false));
             var entityType = model.GetEntityType(typeof(Test));
-            var nonPersistentDatabase = new InMemoryDatabase(new[] { new LoggerFactory() });
+            var nonPersistentDatabase = new InMemoryDatabase(new LoggerFactory());
             var inMemoryDataStore = new InMemoryDataStore(configuration, nonPersistentDatabase);
 
             var creator = new InMemoryDataStoreCreator(inMemoryDataStore);
@@ -51,7 +51,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             var model = CreateModel();
             var configuration = CreateConfiguration(new DbContextOptions().UseInMemoryStore(persist: true));
             var entityType = model.GetEntityType(typeof(Test));
-            var persistentDatabase = new InMemoryDatabase(new[] { new LoggerFactory() });
+            var persistentDatabase = new InMemoryDatabase(new LoggerFactory());
             var inMemoryDataStore = new InMemoryDataStore(configuration, persistentDatabase);
 
             var creator = new InMemoryDataStoreCreator(inMemoryDataStore);
@@ -67,7 +67,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             var model = CreateModel();
             var configuration = CreateConfiguration(new DbContextOptions().UseInMemoryStore(persist: false));
             var entityType = model.GetEntityType(typeof(Test));
-            var nonPersistentDatabase = new InMemoryDatabase(new[] { new LoggerFactory() });
+            var nonPersistentDatabase = new InMemoryDatabase(new LoggerFactory());
             var inMemoryDataStore = new InMemoryDataStore(configuration, nonPersistentDatabase);
 
             var creator = new InMemoryDataStoreCreator(inMemoryDataStore);

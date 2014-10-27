@@ -11,9 +11,7 @@ using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.FunctionalTests.TestModels;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.DependencyInjection.Advanced;
 using Microsoft.Framework.DependencyInjection.Fallback;
-using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
@@ -24,12 +22,16 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         private static readonly ConcurrentDictionary<string, AsyncLock> _creationLocks
             = new ConcurrentDictionary<string, AsyncLock>();
 
+        public override Task Can_build_monster_model_with_changed_only_notification_entities_and_seed_data_using_FKs()
+        {
+            return base.Can_build_monster_model_with_changed_only_notification_entities_and_seed_data_using_FKs();
+        }
+
         protected override IServiceProvider CreateServiceProvider(bool throwingStateManager = false)
         {
             var serviceCollection = new ServiceCollection()
                 .AddEntityFramework()
                 .AddSqlServer()
-                .UseLoggerFactory<LoggerFactory>()
                 .ServiceCollection;
 
             if (throwingStateManager)

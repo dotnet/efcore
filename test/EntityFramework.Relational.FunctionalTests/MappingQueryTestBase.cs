@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using Northwind;
 using Xunit;
@@ -35,16 +36,56 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
             }
         }
 
+        [Fact]
+        public virtual void All_orders()
+        {
+            using (var context = CreateContext())
+            {
+                var orders
+                    = context.Set<MappedOrder>()
+                        .ToList();
+
+                Assert.Equal(830, orders.Count);
+            }
+        }
+        
+        [Fact]
+        public virtual void Project_nullable_enum()
+        {
+            using (var context = CreateContext())
+            {
+                var orders
+                    = context.Set<MappedOrder>()
+                        .Select(o => o.ShipVia2)
+                        .ToList();
+
+                Assert.Equal(830, orders.Count);
+            }
+        }
+
         protected abstract DbContext CreateContext();
 
         public class MappedCustomer : Customer
         {
             public string CompanyName2 { get; set; }
+
         }
 
         public class MappedEmployee : Employee
         {
             public string City2 { get; set; }
+        }
+
+        public class MappedOrder : Order
+        {
+            public ShipVia? ShipVia2 { get; set; }
+        }
+
+        public enum ShipVia
+        {
+            One = 1,
+            Two,
+            Three
         }
     }
 }

@@ -69,7 +69,6 @@
     <Compile Include="ChangeTracking\IPropertyBagEntry.cs" />
     <Compile Include="ChangeTracking\SimpleNullableEntityKeyFactory.cs" />
     <Compile Include="DbContext.cs" />
-    <Compile Include="DbContextConfigureOptions.cs" />
     <Compile Include="Infrastructure\DbContextActivator.cs" />
     <Compile Include="DbContextOptions.cs" />
     <Compile Include="DbContextOptions`.cs" />
@@ -93,6 +92,8 @@
     <Compile Include="Identity\ValueGeneratorCache.cs" />
     <Compile Include="Identity\ValueGeneratorPool.cs" />
     <Compile Include="Identity\ValueGeneratorSelector.cs" />
+    <Compile Include="Infrastructure\DbContextConfigureOptions.cs" />
+    <Compile Include="Infrastructure\DbContextOptionsParser.cs" />
     <Compile Include="Infrastructure\IDbContextConfigurationAdapter.cs" />
     <Compile Include="Metadata\BasicModelBuilder.cs" />
     <Compile Include="Metadata\CollectionTypeFactory.cs" />

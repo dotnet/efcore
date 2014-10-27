@@ -11,12 +11,16 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
 {
     public class AtsQueryCompilationContext : QueryCompilationContext
     {
-        public AtsQueryCompilationContext([NotNull] IModel model, [NotNull] ILogger logger)
+        public AtsQueryCompilationContext(
+            [NotNull] IModel model,
+            [NotNull] ILogger logger,
+            [NotNull] EntityMaterializerSource entityMaterializerSource)
             : base(
                 Check.NotNull(model, "model"),
                 Check.NotNull(logger, "logger"),
                 new LinqOperatorProvider(),
-                new ResultOperatorHandler())
+                new ResultOperatorHandler(),
+                Check.NotNull(entityMaterializerSource, "entityMaterializerSource"))
         {
         }
 

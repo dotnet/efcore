@@ -149,6 +149,12 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
         {
             Check.NotNull(tableExpression, "tableExpression");
 
+            if (tableExpression.Schema != null)
+            {
+                _sql.Append(DelimitIdentifier(tableExpression.Schema))
+                    .Append(".");
+            }
+
             _sql.Append(DelimitIdentifier(tableExpression.Table))
                 .Append(" AS ")
                 .Append(DelimitIdentifier(tableExpression.Alias));

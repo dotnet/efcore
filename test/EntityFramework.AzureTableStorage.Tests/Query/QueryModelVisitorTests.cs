@@ -90,7 +90,10 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
 
         public int CountQueryModel(QueryModel queryModel)
         {
-            var context = new AtsQueryCompilationContext(CreateModel(), new LoggerFactory().Create("Fake"));
+            var context = new AtsQueryCompilationContext(
+                CreateModel(), 
+                new LoggerFactory().Create("Fake"),
+                new EntityMaterializerSource(new MemberMapper(new FieldMatcher())));
             var visitor = context.CreateQueryModelVisitor();
             visitor.VisitQueryModel(queryModel);
 

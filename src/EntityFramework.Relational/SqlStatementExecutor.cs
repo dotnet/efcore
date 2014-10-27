@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.Relational
         {
             Check.NotNull(loggerFactory, "loggerFactory");
 
-            _logger = new LazyRef<ILogger>(() => loggerFactory.Create<SqlStatementExecutor>());
+            _logger = new LazyRef<ILogger>(loggerFactory.Create<SqlStatementExecutor>);
         }
 
         protected virtual ILogger Logger

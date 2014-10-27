@@ -644,6 +644,63 @@ namespace Microsoft.Data.Entity.Tests
         }
 
         [Fact]
+        public void Required_low_level_services_are_added_if_needed()
+        {
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddEntityFramework();
+
+            var provider = serviceCollection.BuildServiceProvider();
+
+            Assert.IsType<LoggerFactory>(provider.GetService<ILoggerFactory>());
+            Assert.IsType<TypeActivator>(provider.GetService<ITypeActivator>());
+            Assert.IsType<OptionsManager<DbContextOptions>>(provider.GetService<IOptions<DbContextOptions>>());
+        }
+
+        [Fact]
+        public void Required_low_level_services_are_not_added_if_already_present()
+        {
+            var serviceCollection = new ServiceCollection();
+
+            var loggerFactory = new FakeLoggerFactory();
+            var typeActivator = new TypeActivator();
+
+            serviceCollection
+                .AddInstance<ILoggerFactory>(loggerFactory)
+                .AddInstance<ITypeActivator>(typeActivator)
+                .Add(OptionsServices.GetDefaultServices())
+                .AddEntityFramework();
+
+            var provider = serviceCollection.BuildServiceProvider();
+
+            Assert.Same(loggerFactory, provider.GetService<ILoggerFactory>());
+            Assert.Same(typeActivator, provider.GetService<ITypeActivator>());
+            Assert.IsType<OptionsManager<DbContextOptions>>(provider.GetService<IOptions<DbContextOptions>>());
+        }
+
+        [Fact]
+        public void Low_level_services_can_be_replaced_after_being_added()
+        {
+            var serviceCollection = new ServiceCollection();
+
+            var loggerFactory = new FakeLoggerFactory();
+            var typeActivator = new TypeActivator();
+
+            serviceCollection
+                .AddEntityFramework();
+
+            serviceCollection
+                .AddInstance<ILoggerFactory>(loggerFactory)
+                .AddInstance<ITypeActivator>(typeActivator)
+                .Add(OptionsServices.GetDefaultServices());
+
+            var provider = serviceCollection.BuildServiceProvider();
+
+            Assert.Same(loggerFactory, provider.GetService<ILoggerFactory>());
+            Assert.Same(typeActivator, provider.GetService<ITypeActivator>());
+            Assert.IsType<OptionsManager<DbContextOptions>>(provider.GetService<IOptions<DbContextOptions>>());
+        }
+
+        [Fact]
         public void Can_replace_already_registered_service_with_new_service()
         {
             var factory = Mock.Of<OriginalValuesFactory>();
@@ -1029,7 +1086,6 @@ namespace Microsoft.Data.Entity.Tests
             var services = new ServiceCollection();
 
             services
-                .AddSingleton<ITypeActivator, TypeActivator>()
                 .AddSingleton<FakeService>()
                 .AddEntityFramework()
                 .AddDbContext<ContextWithDefaults>();
@@ -1051,9 +1107,7 @@ namespace Microsoft.Data.Entity.Tests
             var contextOptionsExtension = new FakeDbContextOptionsExtension();
 
             services
-                .AddSingleton<ITypeActivator, TypeActivator>()
                 .AddSingleton<FakeService>()
-                .Add(OptionsServices.GetDefaultServices())
                 .AddEntityFramework()
                 .AddDbContext<ContextWithDefaults>(options => ((IDbContextOptionsExtensions)options).AddExtension(contextOptionsExtension));
 
@@ -1075,9 +1129,6 @@ namespace Microsoft.Data.Entity.Tests
 
             services
                 .AddSingleton<FakeService>()
-                .AddSingleton<ITypeActivator, TypeActivator>()
-                .AddSingleton<FakeService>()
-                .Add(OptionsServices.GetDefaultServices())
                 .AddEntityFramework()
                 .AddDbContext<ContextWithServiceProvider>(options => ((IDbContextOptionsExtensions)options).AddExtension(contextOptionsExtension));
 
@@ -1099,9 +1150,6 @@ namespace Microsoft.Data.Entity.Tests
 
             services
                 .AddSingleton<FakeService>()
-                .AddSingleton<ITypeActivator, TypeActivator>()
-                .AddSingleton<FakeService>()
-                .Add(OptionsServices.GetDefaultServices())
                 .AddEntityFramework()
                 .AddDbContext<ContextWithOptions>(options => ((IDbContextOptionsExtensions)options).AddExtension(contextOptionsExtension));
 
@@ -1144,8 +1192,6 @@ namespace Microsoft.Data.Entity.Tests
             var contextOptionsExtension = new FakeDbContextOptionsExtension();
 
             services
-                .AddSingleton<ITypeActivator, TypeActivator>()
-                .Add(OptionsServices.GetDefaultServices())
                 .AddEntityFramework(config)
                 .AddDbContext<ContextT>(options => ((IDbContextOptionsExtensions)options).AddExtension(contextOptionsExtension));
 
@@ -1156,8 +1202,9 @@ namespace Microsoft.Data.Entity.Tests
                 var contextOptions = context.Configuration.ContextOptions as DbContextOptions<ContextT>;
 
                 Assert.NotNull(contextOptions);
-                Assert.Equal(1, contextOptions.RawOptions.Count);
-                Assert.Equal("MyConnectionString", contextOptions.RawOptions["ConnectionString"]);
+                var rawOptions = ((IDbContextOptionsExtensions)contextOptions).RawOptions;
+                Assert.Equal(1, rawOptions.Count);
+                Assert.Equal("MyConnectionString", rawOptions["ConnectionString"]);
                 Assert.Equal(1, context.Configuration.ContextOptions.Extensions.Count);
                 Assert.Same(contextOptionsExtension, context.Configuration.ContextOptions.Extensions[0]);
             }
@@ -1176,8 +1223,6 @@ namespace Microsoft.Data.Entity.Tests
             var services = new ServiceCollection();
 
             services
-                .AddSingleton<ITypeActivator, TypeActivator>()
-                .Add(OptionsServices.GetDefaultServices())
                 .AddEntityFramework(config)
                 .AddDbContext<ContextWithDefaults>();
 
@@ -1188,8 +1233,9 @@ namespace Microsoft.Data.Entity.Tests
                 var contextOptions = context.Configuration.ContextOptions as DbContextOptions<ContextWithDefaults>;
 
                 Assert.NotNull(contextOptions);
-                Assert.Equal(1, contextOptions.RawOptions.Count);
-                Assert.Equal("MyConnectionString", contextOptions.RawOptions["ConnectionString"]);
+                var rawOptions = ((IDbContextOptionsExtensions)contextOptions).RawOptions;
+                Assert.Equal(1, rawOptions.Count);
+                Assert.Equal("MyConnectionString", rawOptions["ConnectionString"]);
             }
         }
 

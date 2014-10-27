@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             
             Assert.Equal(
                 @"SELECT [c].[CompanyName], [c].[CustomerID]
-FROM [Customers] AS [c]",
+FROM [dbo].[Customers] AS [c]",
                 _fixture.Sql);
         }
         
@@ -24,7 +24,27 @@ FROM [Customers] AS [c]",
             
             Assert.Equal(
                 @"SELECT [e].[City], [e].[EmployeeID]
-FROM [Employees] AS [e]",
+FROM [dbo].[Employees] AS [e]",
+                _fixture.Sql);
+        }
+
+        public override void All_orders()
+        {
+            base.All_orders();
+
+            Assert.Equal(
+                @"SELECT [o].[OrderID], [o].[ShipVia]
+FROM [dbo].[Orders] AS [o]",
+                _fixture.Sql);
+        }
+
+        public override void Project_nullable_enum()
+        {
+            base.Project_nullable_enum();
+
+            Assert.Equal(
+                @"SELECT [o].[ShipVia]
+FROM [dbo].[Orders] AS [o]",
                 _fixture.Sql);
         }
 

@@ -10,9 +10,7 @@ using DbContextPerfTests.Model;
 using Microsoft.Data.Entity;
 using Microsoft.Framework.ConfigurationModel;
 using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.DependencyInjection.Advanced;
 using Microsoft.Framework.DependencyInjection.Fallback;
-using Microsoft.Framework.Logging;
 
 namespace DbContextPerfTests
 {
@@ -35,7 +33,7 @@ namespace DbContextPerfTests
         public static IServiceProvider CreateServiceProvider()
         {
             var services = new ServiceCollection();
-            services.AddEntityFramework().AddSqlServer().UseLoggerFactory<LoggerFactory>();
+            services.AddEntityFramework().AddSqlServer();
             return services.BuildServiceProvider();
         }
 

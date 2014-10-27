@@ -18,12 +18,14 @@ namespace Microsoft.Data.Entity.Redis.Query
             [NotNull] ILogger logger,
             [NotNull] ILinqOperatorProvider linqOperatorProvider,
             [NotNull] IResultOperatorHandler resultOperatorHandler,
+            [NotNull] EntityMaterializerSource entityMaterializerSource,
             [NotNull] IQueryMethodProvider queryMethodProvider)
             : base(
                 Check.NotNull(model, "model"),
                 Check.NotNull(logger, "logger"),
                 Check.NotNull(linqOperatorProvider, "linqOperatorProvider"),
-                Check.NotNull(resultOperatorHandler, "resultOperatorHandler"))
+                Check.NotNull(resultOperatorHandler, "resultOperatorHandler"),
+                Check.NotNull(entityMaterializerSource, "entityMaterializerSource"))
         {
             Check.NotNull(queryMethodProvider, "queryMethodProvider");
 

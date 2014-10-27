@@ -26,6 +26,13 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
                     e.ForRelational(t => t.Table("Employees", "dbo"));
                 });
 
+            modelBuilder.Entity<MappingQueryTestBase.MappedOrder>(e =>
+                {
+                    e.Key(o => o.OrderID);
+                    e.Property(em => em.ShipVia2).ForRelational(c => c.Column("ShipVia"));
+                    e.ForRelational(t => t.Table("Orders", "dbo"));
+                });
+
             OnModelCreating(modelBuilder);
 
             return model;

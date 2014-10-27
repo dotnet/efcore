@@ -7,9 +7,7 @@ using System.Linq;
 using Microsoft.Data.Entity;
 using Microsoft.Framework.ConfigurationModel;
 using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.DependencyInjection.Advanced;
 using Microsoft.Framework.DependencyInjection.Fallback;
-using Microsoft.Framework.Logging;
 using StateManager.Model;
 
 namespace StateManager
@@ -26,7 +24,7 @@ namespace StateManager
         public static IServiceProvider CreateServiceProvider()
         {
             var services = new ServiceCollection();
-            services.AddEntityFramework().AddSqlServer().UseLoggerFactory<LoggerFactory>();
+            services.AddEntityFramework().AddSqlServer();
             return services.BuildServiceProvider();
         }
 

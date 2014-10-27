@@ -69,6 +69,8 @@ namespace Microsoft.Data.Entity.Relational.Query
 
         protected override ExpressionTreeVisitor CreateQueryingExpressionTreeVisitor(IQuerySource querySource)
         {
+            Check.NotNull(querySource, "querySource");
+            
             return new RelationalEntityQueryableExpressionTreeVisitor(this, querySource);
         }
 
@@ -79,6 +81,8 @@ namespace Microsoft.Data.Entity.Relational.Query
 
         protected override ExpressionTreeVisitor CreateOrderingExpressionTreeVisitor(Ordering ordering)
         {
+            Check.NotNull(ordering, "ordering");
+
             return new RelationalOrderingExpressionTreeVisitor(this, ordering);
         }
 

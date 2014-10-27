@@ -7,9 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.DependencyInjection.Advanced;
 using Microsoft.Framework.DependencyInjection.Fallback;
-using Microsoft.Framework.Logging;
 using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
@@ -280,8 +278,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             var serviceCollection = new ServiceCollection();
             serviceCollection
                 .AddEntityFramework()
-                .AddSqlServer()
-                .UseLoggerFactory<LoggerFactory>();
+                .AddSqlServer();
+
             return serviceCollection.BuildServiceProvider();
         }
 
