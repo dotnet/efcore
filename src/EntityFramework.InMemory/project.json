@@ -1,5 +1,6 @@
 {
     "version": "7.0.0-*",
+    "description":  "In memory data store for Entity Framework (to be used for testing purposes).",
     "compilationOptions": {
         "warningsAsErrors": true
     },

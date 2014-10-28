@@ -1,5 +1,6 @@
 {
     "version": "7.0.0-*",
+    "description":  "Azure Table Storage data store for Entity Framework.",
     "compilationOptions": {
         "warningsAsErrors": true
     },

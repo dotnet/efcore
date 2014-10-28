@@ -1,5 +1,6 @@
 {
     "version": "7.0.0-*",
+    "description":  "Command line utilities for Entity Framework.",
     "compilationOptions": {
         "warningsAsErrors": true
     },
