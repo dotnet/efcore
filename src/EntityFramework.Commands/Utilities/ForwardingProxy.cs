@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity.Commands.Utilities
         ///     Intercepts method invocations on the object represented by the current instance
         ///     and forwards them to the target to finish processing.
         /// </summary>
-        public override IMessage Invoke(IMessage msg)
+        public override IMessage Invoke([NotNull] IMessage msg)
         {
             Check.NotNull(msg, "msg");
 

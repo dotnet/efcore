@@ -17,6 +17,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
         private readonly RelationalQueryModelVisitor _queryModelVisitor;
 
         private bool _requiresClientEval;
+        private bool _inBinaryEqualityExpression;
 
         public FilteringExpressionTreeVisitor([NotNull] RelationalQueryModelVisitor queryModelVisitor)
         {
@@ -39,7 +40,16 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 case ExpressionType.Equal:
                 case ExpressionType.NotEqual:
                 {
-                    return UnfoldStructuralComparison(binaryExpression.NodeType, ProcessComparisonExpression(binaryExpression));
+                    _inBinaryEqualityExpression = true;
+
+                    var structuralComparisonExpression
+                        = UnfoldStructuralComparison(
+                            binaryExpression.NodeType,
+                            ProcessComparisonExpression(binaryExpression));
+
+                    _inBinaryEqualityExpression = false;
+
+                    return structuralComparisonExpression;
                 }
                 case ExpressionType.GreaterThan:
                 case ExpressionType.GreaterThanOrEqual:
@@ -214,7 +224,10 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
                 if (columnExpression != null)
                 {
-                    return columnExpression;
+                    return !_inBinaryEqualityExpression
+                           && columnExpression.Type == typeof(bool)
+                        ? (Expression)Expression.Equal(columnExpression, Expression.Constant(true))
+                        : columnExpression;
                 }
             }
 
@@ -233,14 +246,34 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                         memberExpression,
                         (property, querySource, selectExpression)
                             => new ColumnExpression(
-                                 _queryModelVisitor.QueryCompilationContext
-                                        .GetColumnName(property),
+                                _queryModelVisitor.QueryCompilationContext
+                                    .GetColumnName(property),
                                 property,
                                 selectExpression.FindTableForQuerySource(querySource)));
 
             if (columnExpression != null)
             {
-                return columnExpression;
+                return !_inBinaryEqualityExpression
+                       && columnExpression.Type == typeof(bool)
+                    ? (Expression)Expression.Equal(columnExpression, Expression.Constant(true))
+                    : columnExpression;
+            }
+
+            _requiresClientEval = true;
+
+            return null;
+        }
+
+        protected override Expression VisitUnaryExpression(UnaryExpression expression)
+        {
+            if (expression.NodeType == ExpressionType.Not)
+            {
+                var operand = VisitExpression(expression.Operand);
+
+                if (operand != null)
+                {
+                    return Expression.Not(operand);
+                }
             }
 
             _requiresClientEval = true;

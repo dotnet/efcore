@@ -48,6 +48,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 {
                     e.Key(p => p.ProductID);
                     e.Property(p => p.ProductName);
+                    e.Property(p => p.Discontinued);
                 });
 
             modelBuilder.Entity<Order>(e =>

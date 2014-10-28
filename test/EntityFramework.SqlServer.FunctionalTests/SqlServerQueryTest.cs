@@ -977,6 +977,50 @@ WHERE 1 = 0",
 FROM [Employees] AS [e]",
                 Sql);
         }
+        
+        public override void Where_bool_member()
+        {
+            base.Where_bool_member();
+
+            Assert.Equal(
+                @"SELECT [p].[Discontinued], [p].[ProductID], [p].[ProductName]
+FROM [Products] AS [p]
+WHERE [p].[Discontinued] = @p0",
+                Sql);
+        }
+
+        public override void Where_bool_member_false()
+        {
+            base.Where_bool_member_false();
+
+            Assert.Equal(
+                @"SELECT [p].[Discontinued], [p].[ProductID], [p].[ProductName]
+FROM [Products] AS [p]
+WHERE NOT [p].[Discontinued] = @p0",
+                Sql);
+        }
+
+        public override void Where_bool_member_shadow()
+        {
+            base.Where_bool_member_shadow();
+
+            Assert.Equal(
+                @"SELECT [p].[Discontinued], [p].[ProductID], [p].[ProductName]
+FROM [Products] AS [p]
+WHERE [p].[Discontinued] = @p0",
+                Sql);
+        }
+
+        public override void Where_bool_member_false_shadow()
+        {
+            base.Where_bool_member_false_shadow();
+
+            Assert.Equal(
+                @"SELECT [p].[Discontinued], [p].[ProductID], [p].[ProductName]
+FROM [Products] AS [p]
+WHERE NOT [p].[Discontinued] = @p0",
+                Sql);
+        }
 
         public override void Where_true()
         {

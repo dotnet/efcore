@@ -405,6 +405,30 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 es =>
                     es.Select(e => e.EmployeeID).Take(9).Where(i => i == 5));
         }
+        
+        [Fact]
+        public virtual void Where_bool_member()
+        {
+            AssertQuery<Product>(ps => ps.Where(p => p.Discontinued), stateEntryCount: 8);
+        }
+        
+        [Fact]
+        public virtual void Where_bool_member_false()
+        {
+            AssertQuery<Product>(ps => ps.Where(p => !p.Discontinued), stateEntryCount: 69);
+        }
+        
+        [Fact]
+        public virtual void Where_bool_member_shadow()
+        {
+            AssertQuery<Product>(ps => ps.Where(p => p.Property<bool>("Discontinued")), stateEntryCount: 8);
+        }
+        
+        [Fact]
+        public virtual void Where_bool_member_false_shadow()
+        {
+            AssertQuery<Product>(ps => ps.Where(p => !p.Property<bool>("Discontinued")), stateEntryCount: 69);
+        }
 
         [Fact]
         public virtual void Where_true()
