@@ -1,5 +1,6 @@
 {
     "version": "1.0.0-*",
+    "description": "SQLite implementation of the DataCommon provider model.",
     "dependencies": {
         "System.Data.Common": "1.0.0-*"
     },
