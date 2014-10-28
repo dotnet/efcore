@@ -38,7 +38,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Requests
             get { return "TableBatchRequest"; }
         }
 
-        public override IList<TableResult> Execute([NotNull] RequestContext requestContext)
+        public override IList<TableResult> Execute(RequestContext requestContext)
         {
             Check.NotNull(requestContext, "requestContext");
 
@@ -48,7 +48,8 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Requests
                 .ExecuteBatch(_batch, null, requestContext.OperationContext);
         }
 
-        public override Task<IList<TableResult>> ExecuteAsync([NotNull] RequestContext requestContext, CancellationToken cancellationToken = default(CancellationToken))
+        public override Task<IList<TableResult>> ExecuteAsync(
+            RequestContext requestContext, CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(requestContext, "requestContext");
 

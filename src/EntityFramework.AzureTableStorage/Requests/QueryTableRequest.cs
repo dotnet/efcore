@@ -46,7 +46,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Requests
             get { return _table; }
         }
 
-        public override IEnumerable<TElement> Execute([NotNull] RequestContext requestContext)
+        public override IEnumerable<TElement> Execute(RequestContext requestContext)
         {
             Check.NotNull(requestContext, "requestContext");
 
