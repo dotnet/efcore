@@ -1275,5 +1275,73 @@ namespace Microsoft.Data.Entity.Tests
 
             public DbSet<Product> Products { get; set; }
         }
+
+        [Fact]
+        public void Context_cannot_be_used_in_OnModelCreating()
+        {
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFramework()
+                .AddInMemoryStore()
+                .AddDbContext<UseInOnModelCreatingContext>()
+                .ServiceCollection
+                .BuildServiceProvider();
+
+            using (var context = serviceProvider.GetService<UseInOnModelCreatingContext>())
+            {
+                Assert.Equal(
+                    Strings.RecursiveOnModelCreating,
+                    Assert.Throws<InvalidOperationException>(() => context.Products.ToList()).Message);
+            }
+        }
+
+        private class UseInOnModelCreatingContext : DbContext
+        {
+            public UseInOnModelCreatingContext(IServiceProvider serviceProvider)
+                : base(serviceProvider)
+            {
+            }
+
+            public DbSet<Product> Products { get; set; }
+
+            protected internal override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                Products.ToList();
+            }
+        }
+
+        [Fact]
+        public void Context_cannot_be_used_in_OnConfiguring()
+        {
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFramework()
+                .AddInMemoryStore()
+                .AddDbContext<UseInOnConfiguringContext>()
+                .ServiceCollection
+                .BuildServiceProvider();
+
+            using (var context = serviceProvider.GetService<UseInOnConfiguringContext>())
+            {
+                Assert.Equal(
+                    Strings.RecursiveOnConfiguring,
+                    Assert.Throws<InvalidOperationException>(() => context.Products.ToList()).Message);
+            }
+        }
+
+        private class UseInOnConfiguringContext : DbContext
+        {
+            public UseInOnConfiguringContext(IServiceProvider serviceProvider)
+                : base(serviceProvider)
+            {
+            }
+
+            public DbSet<Product> Products { get; set; }
+
+            protected internal override void OnConfiguring(DbContextOptions options)
+            {
+                Products.ToList();
+
+                base.OnConfiguring(options);
+            }
+        }
     }
 }

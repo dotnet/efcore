@@ -1386,6 +1386,38 @@ namespace Microsoft.Data.Entity
             return string.Format(CultureInfo.CurrentCulture, GetString("CannotBeNullable", "property", "entity", "propertyType"), property, entity, propertyType);
         }
 
+        /// <summary>
+        /// An attempt was made to use the model while it was being created. A DbContext instance cannot be used inside OnModelCreating in any way that makes use of the model that is being created.
+        /// </summary>
+        internal static string RecursiveOnModelCreating
+        {
+            get { return GetString("RecursiveOnModelCreating"); }
+        }
+
+        /// <summary>
+        /// An attempt was made to use the model while it was being created. A DbContext instance cannot be used inside OnModelCreating in any way that makes use of the model that is being created.
+        /// </summary>
+        internal static string FormatRecursiveOnModelCreating()
+        {
+            return GetString("RecursiveOnModelCreating");
+        }
+
+        /// <summary>
+        /// An attempt was made to use the context while it is being configured. A DbContext instance cannot be used inside OnConfiguring since it is still being configured at this point.
+        /// </summary>
+        internal static string RecursiveOnConfiguring
+        {
+            get { return GetString("RecursiveOnConfiguring"); }
+        }
+
+        /// <summary>
+        /// An attempt was made to use the context while it is being configured. A DbContext instance cannot be used inside OnConfiguring since it is still being configured at this point.
+        /// </summary>
+        internal static string FormatRecursiveOnConfiguring()
+        {
+            return GetString("RecursiveOnConfiguring");
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

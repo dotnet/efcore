@@ -33,6 +33,7 @@ namespace Microsoft.Data.Entity.Infrastructure
         private ServiceProviderSource _serviceProviderSource;
         private LazyRef<ILoggerFactory> _loggerFactory;
         private LazyRef<Database> _database;
+        private bool _inOnModelCreating;
 
         public virtual DbContextConfiguration Initialize(
             [NotNull] IServiceProvider externalProvider,
@@ -53,7 +54,7 @@ namespace Microsoft.Data.Entity.Infrastructure
             _contextOptions = contextOptions;
             _context = context;
             _dataStoreServices = new LazyRef<DataStoreServices>(() => _services.DataStoreSelector.SelectDataStore(this));
-            _modelFromSource = new LazyRef<IModel>(() => _services.ModelSource.GetModel(_context, _dataStoreServices.Value.ModelBuilderFactory));
+            _modelFromSource = new LazyRef<IModel>(CreateModel);
             _dataStore = new LazyRef<DataStore>(() => _dataStoreServices.Value.Store);
             _connection = new LazyRef<DataStoreConnection>(() => _dataStoreServices.Value.Connection);
             _loggerFactory = new LazyRef<ILoggerFactory>(() => _externalProvider.GetRequiredServiceChecked<ILoggerFactory>());
@@ -61,6 +62,24 @@ namespace Microsoft.Data.Entity.Infrastructure
             _stateManager = new LazyRef<StateManager>(() => _services.StateManager);
 
             return this;
+        }
+
+        private IModel CreateModel()
+        {
+            if (_inOnModelCreating)
+            {
+                throw new InvalidOperationException(Strings.RecursiveOnModelCreating);
+            }
+
+            try
+            {
+                _inOnModelCreating = true;
+                return _services.ModelSource.GetModel(_context, _dataStoreServices.Value.ModelBuilderFactory);
+            }
+            finally
+            {
+                _inOnModelCreating = false;
+            }
         }
 
         public virtual DbContext Context

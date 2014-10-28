@@ -25,6 +25,7 @@ namespace Microsoft.Data.Entity
         private readonly LazyRef<ILogger> _logger;
 
         private IServiceProvider _scopedServiceProvider;
+        private bool _initializing;
 
         protected DbContext()
         {
@@ -111,24 +112,38 @@ namespace Microsoft.Data.Entity
 
         private DbContextConfiguration Initialize(IServiceProvider serviceProvider, DbContextOptions options)
         {
-            options = options.Clone();
+            if (_initializing)
+            {
+                throw new InvalidOperationException(Strings.RecursiveOnConfiguring);
+            }
 
-            OnConfiguring(options);
+            try
+            {
+                _initializing = true;
 
-            var providerSource = serviceProvider != null
-                ? DbContextConfiguration.ServiceProviderSource.Explicit
-                : DbContextConfiguration.ServiceProviderSource.Implicit;
+                options = options.Clone();
 
-            serviceProvider = serviceProvider ?? ServiceProviderCache.Instance.GetOrAdd(options);
+                OnConfiguring(options);
 
-            _scopedServiceProvider = serviceProvider
-                .GetRequiredServiceChecked<IServiceScopeFactory>()
-                .CreateScope()
-                .ServiceProvider;
+                var providerSource = serviceProvider != null
+                    ? DbContextConfiguration.ServiceProviderSource.Explicit
+                    : DbContextConfiguration.ServiceProviderSource.Implicit;
 
-            return _scopedServiceProvider
-                .GetRequiredServiceChecked<DbContextConfiguration>()
-                .Initialize(serviceProvider, _scopedServiceProvider, options, this, providerSource);
+                serviceProvider = serviceProvider ?? ServiceProviderCache.Instance.GetOrAdd(options);
+
+                _scopedServiceProvider = serviceProvider
+                    .GetRequiredServiceChecked<IServiceScopeFactory>()
+                    .CreateScope()
+                    .ServiceProvider;
+
+                return _scopedServiceProvider
+                    .GetRequiredServiceChecked<DbContextConfiguration>()
+                    .Initialize(serviceProvider, _scopedServiceProvider, options, this, providerSource);
+            }
+            finally
+            {
+                _initializing = false;
+            }
         }
 
         private void InitializeSets(IServiceProvider serviceProvider, DbContextOptions options)

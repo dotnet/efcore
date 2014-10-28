@@ -39,7 +39,7 @@ namespace Microsoft.Data.Entity.Infrastructure
                 modelBuilder.Entity(setInfo.EntityType);
             }
 
-            context.OnModelCreating(modelBuilder);
+            ModelSourceHelpers.OnModelCreating(context, modelBuilder);
 
             return model;
         }

@@ -95,6 +95,7 @@
     <Compile Include="Infrastructure\DbContextConfigureOptions.cs" />
     <Compile Include="Infrastructure\DbContextOptionsParser.cs" />
     <Compile Include="Infrastructure\IDbContextConfigurationAdapter.cs" />
+    <Compile Include="Infrastructure\ModelSourceHelpers.cs" />
     <Compile Include="Metadata\BasicModelBuilder.cs" />
     <Compile Include="Metadata\CollectionTypeFactory.cs" />
     <Compile Include="Metadata\IEntityBuilder.cs" />

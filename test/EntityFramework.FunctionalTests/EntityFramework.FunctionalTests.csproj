@@ -96,6 +96,7 @@
     <Compile Include="Metadata\Compiled\Empty.cs" />
     <Compile Include="Metadata\Compiled\NoAnnotations.cs" />
     <Compile Include="Metadata\KoolModel.cs" />
+    <Compile Include="ModelSourceTest.cs" />
     <Compile Include="MonsterFixupTestBase.cs" />
     <Compile Include="OneToOneQueryFixtureBase.cs" />
     <Compile Include="NorthwindQueryFixtureBase.cs" />

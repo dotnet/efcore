@@ -375,4 +375,10 @@
   <data name="CannotBeNullable" xml:space="preserve">
     <value>The property '{property}' on entity type '{entity}' cannot be marked as nullable/optional because the type of the property is '{propertyType}' which is not a nullable type. Any property can be marked as non-nullable/required, but only properties of nullable types can be marked as nullable/optional.</value>
   </data>
+  <data name="RecursiveOnModelCreating" xml:space="preserve">
+    <value>An attempt was made to use the model while it was being created. A DbContext instance cannot be used inside OnModelCreating in any way that makes use of the model that is being created.</value>
+  </data>
+  <data name="RecursiveOnConfiguring" xml:space="preserve">
+    <value>An attempt was made to use the context while it is being configured. A DbContext instance cannot be used inside OnConfiguring since it is still being configured at this point.</value>
+  </data>
 </root>
