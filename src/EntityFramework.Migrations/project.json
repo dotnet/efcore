@@ -1,5 +1,6 @@
 {
     "version": "7.0.0-*",
+    "description":  "Shared Entity Framework migrations components for relational data stores.",
     "compilationOptions": {
         "warningsAsErrors": true
     },
