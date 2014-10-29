@@ -13,13 +13,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         public abstract F1Context CreateContext(TTestStore testStore);
 
-        public Model CreateModel()
-        {
-            var modelBuilder = new ModelBuilder(new Model());
-            OnModelCreating(modelBuilder);
-            return modelBuilder.Model;
-        }
-
         protected virtual void OnModelCreating(ModelBuilder modelBuilder)
         {
             // TODO: Uncomment when complex types are supported

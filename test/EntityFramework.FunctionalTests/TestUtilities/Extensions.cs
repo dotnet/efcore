@@ -5,6 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Metadata;
+using Microsoft.Framework.DependencyInjection;
 using Xunit;
 
 // ReSharper disable once CheckNamespace
@@ -26,6 +29,13 @@ namespace Microsoft.Data.Entity.FunctionalTests
         public static IEnumerable<T> NullChecked<T>(this IEnumerable<T> enumerable)
         {
             return enumerable ?? Enumerable.Empty<T>();
+        }
+
+        public static IServiceCollection AddTestModelSource(this IServiceCollection serviceCollection, Action<ModelBuilder> onModelCreating = null)
+        {
+            serviceCollection.AddSingleton(typeof(IModelSource), p => new TestModelSource(onModelCreating));
+
+            return serviceCollection;
         }
     }
 }

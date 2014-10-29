@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.ConcurrencyModel;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.FunctionalTests;
@@ -14,20 +15,25 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
     {
         public static readonly string DatabaseName = "OptimisticConcurrencyTest";
 
-        private readonly IServiceProvider _serviceProvider = new ServiceCollection()
-            .AddEntityFramework()
-            .AddSqlServer()
-            .ServiceCollection
-            .BuildServiceProvider();
+        private readonly IServiceProvider _serviceProvider;
 
         private readonly string _connectionString = SqlServerTestStore.CreateConnectionString(DatabaseName);
+
+        public SqlServerF1Fixture()
+        {
+            _serviceProvider = new ServiceCollection()
+                .AddEntityFramework()
+                .AddSqlServer()
+                .ServiceCollection
+                .AddTestModelSource(OnModelCreating)
+                .BuildServiceProvider();
+        }
 
         public override SqlServerTestStore CreateTestStore()
         {
             return SqlServerTestStore.GetOrCreateSharedAsync(DatabaseName, async () =>
                 {
                     var options = new DbContextOptions()
-                        .UseModel(CreateModel())
                         .UseSqlServer(_connectionString);
 
                     using (var context = new F1Context(_serviceProvider, options))
@@ -44,7 +50,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             var options
                 = new DbContextOptions()
-                    .UseModel(CreateModel())
                     .UseSqlServer(testStore.Connection);
 
             var context = new F1Context(_serviceProvider, options);

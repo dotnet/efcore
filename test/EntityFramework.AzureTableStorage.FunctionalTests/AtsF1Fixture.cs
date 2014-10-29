@@ -14,14 +14,20 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
 {
     public class AtsF1Fixture : F1FixtureBase<AtsTestStore>, IDisposable
     {
-        private readonly IServiceProvider _serviceProvider = new ServiceCollection()
-            .AddEntityFramework()
-            .AddAzureTableStorage()
-            .ServiceCollection
-            .AddSingleton<AtsValueGeneratorCache, TestValueGeneratorCache>()
-            .BuildServiceProvider();
+        private readonly IServiceProvider _serviceProvider;
 
         private readonly string _tableSuffix = Guid.NewGuid().ToString().Replace("-", "");
+
+        public AtsF1Fixture()
+        {
+            _serviceProvider = new ServiceCollection()
+                .AddEntityFramework()
+                .AddAzureTableStorage()
+                .ServiceCollection
+                .AddSingleton<AtsValueGeneratorCache, TestValueGeneratorCache>()
+                .AddTestModelSource(OnModelCreating)
+                .BuildServiceProvider();
+        }
 
         public override AtsTestStore CreateTestStore()
         {
@@ -49,7 +55,6 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
         public override F1Context CreateContext(AtsTestStore testStore)
         {
             var options = new DbContextOptions()
-                .UseModel(CreateModel())
                 .UseAzureTableStorage(testStore.ConnectionString);
 
             return new F1Context(_serviceProvider, options);

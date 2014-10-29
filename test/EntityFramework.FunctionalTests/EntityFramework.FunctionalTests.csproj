@@ -106,6 +106,7 @@
     <Compile Include="OptimisticConcurrencyTestBase.cs" />
     <Compile Include="SupplementalBuiltInDataTypesFixtureBase.cs" />
     <Compile Include="SupplementalBuiltInDataTypesTestBase.cs" />
+    <Compile Include="TestModelSource.cs" />
     <Compile Include="TestModels\Northwind\Customer.cs" />
     <Compile Include="TestModels\Northwind\Employee.cs" />
     <Compile Include="TestModels\Northwind\NorthwindContext.cs" />
