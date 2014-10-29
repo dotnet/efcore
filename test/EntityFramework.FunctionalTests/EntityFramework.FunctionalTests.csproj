@@ -101,6 +101,7 @@
     <Compile Include="OneToOneQueryFixtureBase.cs" />
     <Compile Include="NorthwindQueryFixtureBase.cs" />
     <Compile Include="AsyncQueryTestBase.cs" />
+    <Compile Include="F1FixtureBase.cs" />
     <Compile Include="QueryTestBase.cs" />
     <Compile Include="OptimisticConcurrencyTestBase.cs" />
     <Compile Include="SupplementalBuiltInDataTypesFixtureBase.cs" />

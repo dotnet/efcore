@@ -83,6 +83,7 @@
     <Compile Include="ExistingConnectionTest.cs" />
     <Compile Include="MappingQueryFixture.cs" />
     <Compile Include="MappingQueryTest.cs" />
+    <Compile Include="SqlServerF1Fixture.cs" />
     <Compile Include="SqlServerIncludeAsyncTest.cs" />
     <Compile Include="SqlServerIncludeTest.cs" />
     <Compile Include="SqlServerAsNoTrackingTest.cs" />
@@ -103,7 +104,6 @@
     <Compile Include="MonsterFixupTest.cs" />
     <Compile Include="SqlServerTestStore.cs" />
     <Compile Include="SqlServerTransactionTest.cs" />
-    <Compile Include="TestModels\SqlServerF1Context.cs" />
     <Compile Include="TestModels\SqlServerNorthwindContext.cs" />
     <None Include="project.json" />
   </ItemGroup>

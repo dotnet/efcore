@@ -126,8 +126,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
     }
 
-    public abstract class OptimisticConcurrencyTestBase<TTestStore>
+    public abstract class OptimisticConcurrencyTestBase<TTestStore, TFixture> : IClassFixture<TFixture>, IDisposable
         where TTestStore : TestStore
+        where TFixture : F1FixtureBase<TTestStore>, new()
     {
         #region Concurrency resolution with FK associations
 
@@ -307,9 +308,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
         #region Concurrency exceptions with shadow FK associations
 
         [Fact]
-        public virtual async Task Change_in_independent_association_results_in_independent_association_exception()
+        public virtual Task Change_in_independent_association_results_in_independent_association_exception()
         {
-            await ConcurrencyTestAsync(
+            return ConcurrencyTestAsync(
                 c => c.Teams.Single(t => t.Id == Team.Ferrari).Engine = c.Engines.Single(s => s.Name == "FO 108X"),
                 (c, ex) =>
                     {
@@ -321,10 +322,10 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public virtual async Task
+        public virtual Task
             Change_in_independent_association_after_change_in_different_concurrency_token_results_in_independent_association_exception()
         {
-            await ConcurrencyTestAsync(
+            return ConcurrencyTestAsync(
                 c => c.Teams.Single(t => t.Id == Team.Ferrari).FastestLaps = 0,
                 c =>
                     c.Teams.Single(t => t.Constructor == "Ferrari").Engine =
@@ -340,10 +341,10 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         // TODO: Many to Many
         //[Fact]
-        public virtual async Task
+        public virtual Task
             Attempting_to_delete_same_relationship_twice_for_many_to_many_results_in_independent_association_exception()
         {
-            await ConcurrencyTestAsync(
+            return ConcurrencyTestAsync(
                 c =>
                     c.Teams.Single(t => t.Id == Team.McLaren).Sponsors.Add(c.Sponsors.Single(s => s.Name.Contains("Shell"))),
                 (c, ex) =>
@@ -357,10 +358,10 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         // TODO: Many to Many
         //[Fact]
-        public virtual async Task
+        public virtual Task
             Attempting_to_add_same_relationship_twice_for_many_to_many_results_in_independent_association_exception()
         {
-            await ConcurrencyTestAsync(
+            return ConcurrencyTestAsync(
                 c =>
                     c.Teams.Single(t => t.Id == Team.McLaren).Sponsors.Remove(c.Sponsors.Single(s => s.Name.Contains("FIA"))),
                 (c, ex) =>
@@ -378,9 +379,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         // TODO: Complex types
         //[Fact]
-        public virtual void Concurrency_issue_where_a_complex_type_nested_member_is_the_concurrency_token_can_be_handled()
+        public virtual Task Concurrency_issue_where_a_complex_type_nested_member_is_the_concurrency_token_can_be_handled()
         {
-            ConcurrencyTestAsync(
+            return ConcurrencyTestAsync(
                 c => c.Engines.Single(s => s.Name == "CA2010").StorageLocation.Latitude = 47.642576,
                 (c, ex) =>
                     {
@@ -399,9 +400,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
         #region Tests for update exceptions involving adding and deleting entities
 
         [Fact]
-        public virtual void Adding_the_same_entity_twice_results_in_DbUpdateException()
+        public virtual Task Adding_the_same_entity_twice_results_in_DbUpdateException()
         {
-            ConcurrencyTestAsync(
+            return ConcurrencyTestAsync(
                 c =>
                     c.Teams.Add(
                         new Team
@@ -414,14 +415,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
                                         Name = "Wubbsy"
                                     }
                             }),
-                (c, ex) => { Assert.IsType<DbUpdateException>(ex); },
+                (c, ex) => Assert.IsType<DbUpdateException>(ex),
                 null);
         }
 
         [Fact]
-        public virtual void Deleting_the_same_entity_twice_results_in_DbUpdateConcurrencyException()
+        public virtual Task Deleting_the_same_entity_twice_results_in_DbUpdateConcurrencyException()
         {
-            ConcurrencyTestAsync(
+            return ConcurrencyTestAsync(
                 c => c.Drivers.Remove(c.Drivers.Single(d => d.Name == "Fernando Alonso")),
                 (c, ex) =>
                     {
@@ -432,21 +433,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         entry.Reload(c);
                     },
                 c => Assert.Null(c.Drivers.SingleOrDefault(d => d.Name == "Fernando Alonso")));
-        }
-
-        [Fact]
-        public virtual void
-            Deleting_the_same_entity_twice_when_entity_has_independent_association_results_in_DbIndependentAssociationUpdateException()
-        {
-            ConcurrencyTestAsync(
-                c => c.Teams.Remove(c.Teams.Single(t => t.Id == Team.Hispania)),
-                (c, ex) =>
-                    {
-                        Assert.IsType<DbUpdateConcurrencyException>(ex);
-                        var entry = ex.StateEntries.Single();
-                        Assert.IsAssignableFrom<Team>(entry.Entity);
-                    },
-                null);
         }
 
         [Fact]
@@ -529,82 +515,73 @@ namespace Microsoft.Data.Entity.FunctionalTests
         #region Tests for calling Reload on an entity in various states
 
         [Fact]
-        public virtual async Task Calling_Reload_on_an_Added_entity_throws()
+        public virtual void Calling_Reload_on_an_Added_entity_throws()
         {
-            using (var testStore = await CreateTestStoreAsync())
+            using (var context = CreateF1Context(TestStore))
             {
-                using (var context = CreateF1Context(testStore))
-                {
-                    var entry =
-                        context.ChangeTracker.Entry(
-                            context.Drivers.Add(
-                                new Driver
-                                    {
-                                        Name = "Larry David",
-                                        TeamId = Team.Ferrari
-                                    }));
+                var entry =
+                    context.ChangeTracker.Entry(
+                        context.Drivers.Add(
+                            new Driver
+                                {
+                                    Name = "Larry David",
+                                    TeamId = Team.Ferrari
+                                }));
 
-                    Assert.Equal("Can't reload an added entity",
-                        Assert.Throws<InvalidOperationException>(() => entry.Reload(context)).Message);
-                }
+                Assert.Equal("Can't reload an added entity",
+                    Assert.Throws<InvalidOperationException>(() => entry.Reload(context)).Message);
             }
         }
 
         [Fact]
-        public virtual async Task Calling_Reload_on_a_detached_entity_throws()
+        public virtual void Calling_Reload_on_a_detached_entity_throws()
         {
-            using (var testStore = await CreateTestStoreAsync())
+            using (var context = CreateF1Context(TestStore))
             {
-                using (var context = CreateF1Context(testStore))
-                {
-                    var entry =
-                        context.ChangeTracker.Entry(
-                            context.Drivers.Add(
-                                new Driver
-                                    {
-                                        Name = "Larry David",
-                                        TeamId = Team.Ferrari
-                                    }));
-                    entry.State = EntityState.Unknown;
+                var entry =
+                    context.ChangeTracker.Entry(
+                        context.Drivers.Add(
+                            new Driver
+                                {
+                                    Name = "Larry David",
+                                    TeamId = Team.Ferrari
+                                }));
+                entry.State = EntityState.Unknown;
 
-                    Assert.Equal("Can't reload an unknown entity",
-                        Assert.Throws<InvalidOperationException>(() => entry.Reload(context)).Message);
-                }
+                Assert.Equal("Can't reload an unknown entity",
+                    Assert.Throws<InvalidOperationException>(() => entry.Reload(context)).Message);
             }
         }
 
         [Fact]
-        public virtual Task Calling_Reload_on_a_Unchanged_entity_makes_the_entity_unchanged()
+        public virtual void Calling_Reload_on_a_Unchanged_entity_makes_the_entity_unchanged()
         {
-            return TestReloadPositive(EntityState.Unchanged);
+            TestReloadPositive(EntityState.Unchanged);
         }
 
         [Fact]
-        public virtual Task Calling_Reload_on_a_Modified_entity_makes_the_entity_unchanged()
+        public virtual void Calling_Reload_on_a_Modified_entity_makes_the_entity_unchanged()
         {
-            return TestReloadPositive(EntityState.Modified);
+            TestReloadPositive(EntityState.Modified);
         }
 
         [Fact]
-        public virtual Task Calling_Reload_on_a_Deleted_entity_makes_the_entity_unchanged()
+        public virtual void Calling_Reload_on_a_Deleted_entity_makes_the_entity_unchanged()
         {
-            return TestReloadPositive(EntityState.Deleted);
+            TestReloadPositive(EntityState.Deleted);
         }
 
-        private async Task TestReloadPositive(EntityState state)
+        private void TestReloadPositive(EntityState state)
         {
-            using (var testStore = await CreateTestStoreAsync())
+            using (var context = CreateF1Context(TestStore))
             {
-                using (var context = CreateF1Context(testStore))
-                {
-                    var larry = context.Drivers.Single(d => d.Name == "Jenson Button");
-                    var entry = context.ChangeTracker.Entry(larry);
-                    entry.State = state;
+                var larry = context.Drivers.Single(d => d.Name == "Jenson Button");
+                var entry = context.ChangeTracker.Entry(larry);
+                entry.State = state;
 
-                    entry.Reload(context);
+                entry.Reload(context);
 
-                    Assert.Equal(EntityState.Unchanged, entry.State);
-                }
+                Assert.Equal(EntityState.Unchanged, entry.State);
             }
         }
 
@@ -617,45 +594,39 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [Fact]
         public virtual async Task Calling_ReloadAsync_on_an_Added_entity_throws()
         {
-            using (var testStore = await CreateTestStoreAsync())
+            using (var context = CreateF1Context(TestStore))
             {
-                using (var context = CreateF1Context(testStore))
-                {
-                    var entry =
-                        context.ChangeTracker.Entry(
-                            context.Drivers.Add(
-                                new Driver
-                                    {
-                                        Name = "Larry David",
-                                        TeamId = Team.Ferrari
-                                    }));
+                var entry =
+                    context.ChangeTracker.Entry(
+                        context.Drivers.Add(
+                            new Driver
+                                {
+                                    Name = "Larry David",
+                                    TeamId = Team.Ferrari
+                                }));
 
-                    Assert.Equal("Can't reload an added entity",
-                        (await Assert.ThrowsAsync<InvalidOperationException>(() => entry.ReloadAsync(context))).Message);
-                }
+                Assert.Equal("Can't reload an added entity",
+                    (await Assert.ThrowsAsync<InvalidOperationException>(() => entry.ReloadAsync(context))).Message);
             }
         }
 
         [Fact]
         public virtual async Task Calling_ReloadAsync_on_a_detached_entity_throws()
         {
-            using (var testStore = await CreateTestStoreAsync())
+            using (var context = CreateF1Context(TestStore))
             {
-                using (var context = CreateF1Context(testStore))
-                {
-                    var entry =
-                        context.ChangeTracker.Entry(
-                            context.Drivers.Add(
-                                new Driver
-                                    {
-                                        Name = "Larry David",
-                                        TeamId = Team.Ferrari
-                                    }));
-                    entry.State = EntityState.Unknown;
+                var entry =
+                    context.ChangeTracker.Entry(
+                        context.Drivers.Add(
+                            new Driver
+                                {
+                                    Name = "Larry David",
+                                    TeamId = Team.Ferrari
+                                }));
+                entry.State = EntityState.Unknown;
 
-                    Assert.Equal("Can't reload an unknown entity",
-                        (await Assert.ThrowsAsync<InvalidOperationException>(() => entry.ReloadAsync(context))).Message);
-                }
+                Assert.Equal("Can't reload an unknown entity",
+                    (await Assert.ThrowsAsync<InvalidOperationException>(() => entry.ReloadAsync(context))).Message);
             }
         }
 
@@ -679,18 +650,15 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         private async Task TestReloadAsyncPositive(EntityState state)
         {
-            using (var testStore = await CreateTestStoreAsync())
+            using (var context = CreateF1Context(TestStore))
             {
-                using (var context = CreateF1Context(testStore))
-                {
-                    var larry = context.Drivers.Single(d => d.Name == "Jenson Button");
-                    var entry = context.ChangeTracker.Entry(larry);
-                    entry.State = state;
+                var larry = context.Drivers.Single(d => d.Name == "Jenson Button");
+                var entry = context.ChangeTracker.Entry(larry);
+                entry.State = state;
 
-                    await entry.ReloadAsync(context);
+                await entry.ReloadAsync(context);
 
-                    Assert.Equal(EntityState.Unchanged, entry.State);
-                }
+                Assert.Equal(EntityState.Unchanged, entry.State);
             }
         }
 
@@ -706,9 +674,31 @@ namespace Microsoft.Data.Entity.FunctionalTests
             // default do nothing. Allow provider-specific entry reset
         }
 
-        public abstract Task<TTestStore> CreateTestStoreAsync();
+        public TTestStore CreateTestStore()
+        {
+            return Fixture.CreateTestStore();
+        }
 
-        public abstract F1Context CreateF1Context(TTestStore testStore);
+        protected F1Context CreateF1Context(TTestStore testStore)
+        {
+            return Fixture.CreateContext(testStore);
+        }
+
+        protected OptimisticConcurrencyTestBase(TFixture fixture)
+        {
+            Fixture = fixture;
+
+            TestStore = CreateTestStore();
+        }
+
+        public void Dispose()
+        {
+            TestStore.Dispose();
+        }
+
+        protected TFixture Fixture { get; private set; }
+
+        protected TTestStore TestStore { get; private set; }
 
         private Task ConcurrencyTestAsync(int expectedPodiums, Action<F1Context, DbUpdateConcurrencyException> resolver)
         {
@@ -751,27 +741,27 @@ namespace Microsoft.Data.Entity.FunctionalTests
             Action<F1Context> storeChange, Action<F1Context> clientChange,
             Action<F1Context, DbUpdateException> resolver, Action<F1Context> validator)
         {
-            using (var testStore = await CreateTestStoreAsync())
+            using (TestStore)
             {
-                using (var context = CreateF1Context(testStore))
+                using (var context = CreateF1Context(TestStore))
                 {
                     clientChange(context);
 
-                    using (var innerContext = CreateF1Context(testStore))
+                    using (var innerContext = CreateF1Context(TestStore))
                     {
                         storeChange(innerContext);
                         await innerContext.SaveChangesAsync();
                     }
 
-                    var updateException = await Assert.ThrowsAsync<DbUpdateConcurrencyException>(() => context.SaveChangesAsync());
+                    var updateException = await Assert.ThrowsAnyAsync<DbUpdateException>(() => context.SaveChangesAsync());
 
-                    using (var resolverContext = CreateF1Context(testStore))
+                    using (var resolverContext = CreateF1Context(TestStore))
                     {
                         // TODO: pass in 'context' when no tracking queries are available
                         resolver(resolverContext, updateException);
                     }
 
-                    using (var validationContext = CreateF1Context(testStore))
+                    using (var validationContext = CreateF1Context(TestStore))
                     {
                         if (validator != null)
                         {

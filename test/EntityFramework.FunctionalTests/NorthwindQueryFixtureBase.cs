@@ -16,7 +16,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
             return modelBuilder.Model;
         }
 
-        // TODO: Use ModelBuilder and move to DbContext when ignore property is available
         public virtual void OnModelCreating(BasicModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Customer>(e =>

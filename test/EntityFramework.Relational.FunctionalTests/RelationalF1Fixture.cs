@@ -1,26 +1,15 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
+using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.ConcurrencyModel;
 using Microsoft.Data.Entity.Metadata;
 
-namespace Microsoft.Data.Entity.Relational.FunctionalTests.TestModels
+namespace Microsoft.Data.Entity.Relational.FunctionalTests
 {
-    public class RelationalF1Context : F1Context
+    public abstract class RelationalF1Fixture<TTestStore> : F1FixtureBase<TTestStore>
+        where TTestStore : TestStore
     {
-        public static readonly string DatabaseName = "OptimisticConcurrencyTest";
-
-        public RelationalF1Context(DbContextOptions options)
-            : base(options)
-        {
-        }
-
-        public RelationalF1Context(IServiceProvider serviceProvider, DbContextOptions options)
-            : base(serviceProvider, options)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

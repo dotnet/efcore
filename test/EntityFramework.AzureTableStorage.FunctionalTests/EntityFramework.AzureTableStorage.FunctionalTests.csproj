@@ -70,6 +70,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AtsAsNoTrackingTest.cs" />
+    <Compile Include="AtsF1Fixture.cs" />
     <Compile Include="AtsTestFramework.cs" />
     <Compile Include="AtsTestStore.cs" />
     <Compile Include="BatchTests.cs" />
@@ -85,7 +86,6 @@
     <Compile Include="TestConfig.cs" />
     <Compile Include="AtsQueryTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TestModels\AtsF1Context.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\EntityFramework\EntityFramework.csproj">
@@ -107,6 +107,9 @@
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

@@ -11,11 +11,6 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
     {
         private readonly string _tableSuffix;
 
-        public AtsTestStore()
-            : this(Guid.NewGuid().ToString().Replace("-", ""))
-        {
-        }
-
         public AtsTestStore(string tableSuffix)
         {
             _tableSuffix = tableSuffix;
@@ -33,7 +28,12 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
             return this;
         }
 
-        public DbContext ContextForDeletion { get; set; }
+        public string ConnectionString
+        {
+            get { return TestConfig.Instance.ConnectionString; }
+        }
+
+        public Action CleanupAction { get; set; }
 
         public string TableSuffix
         {
@@ -42,13 +42,12 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
 
         public override void Dispose()
         {
-            if (ContextForDeletion != null)
+            if (CleanupAction != null)
             {
                 try
                 {
-                    ContextForDeletion.Database.EnsureDeleted();
-                    ContextForDeletion.Dispose();
-                    ContextForDeletion = null;
+                    CleanupAction();
+                    CleanupAction = null;
                 }
                 catch (Exception)
                 {

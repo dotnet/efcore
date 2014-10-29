@@ -33,6 +33,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
                 var request = new DeleteTableRequest(new AtsTable(type.AzureTableStorage().Table));
                 deleted |= _connection.ExecuteRequest(request);
             }
+
             return deleted;
         }
 
@@ -47,7 +48,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
 
             var deleted = await Task.WhenAll(tasks).WithCurrentCulture();
 
-            return deleted.Any();
+            return deleted.Any(d => d);
         }
 
         public override bool EnsureCreated(IModel model)
@@ -61,6 +62,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
                 var request = new CreateTableRequest(new AtsTable(type.AzureTableStorage().Table));
                 created |= _connection.ExecuteRequest(request);
             }
+
             return created;
         }
 
@@ -75,7 +77,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
 
             var created = await Task.WhenAll(tasks).WithCurrentCulture();
 
-            return created.Any();
+            return created.Any(c => c);
         }
     }
 }
