@@ -38,7 +38,7 @@
     </style>
 </head>
 <body>
-    <h1>A database operartion failed while processing the request.</h1>
+    <h1>@Strings.DatabaseErrorPage_Title</h1>
     @if (Model.Options.ShowExceptionDetails)
     {
         <p>
@@ -57,7 +57,8 @@
         <p>@Strings.DatabaseErrorPage_NoDbOrMigrationsInfo</p>
         <code> @Strings.DatabaseErrorPage_AddMigrationCommand </code>
         <br />
-        <code> @Strings.DatabaseErrorPage_UpdateDatabaseCommand </code>
+        <code> @Strings.DatabaseErrorPage_ApplyMigrationsCommand </code>
+        <p><strong>@Strings.DatabaseErrorPage_EnableMigrationsCommandsInfo</strong></p>
         <hr />
     }
     else if (Model.PendingMigrations.Any())
@@ -99,7 +100,7 @@
                         req.onload = function (e) {
                             if (req.status == 204) {
                                 applyMigrations.innerHTML = "@Strings.DatabaseErrorPage_ApplyMigrationsButtonDone";
-                                applyMigrationsSuccess.innerHTML = "<a href='.'>@Strings.DatabaseErrorPage_MigrationsAppliedRefresh</a>";
+                                applyMigrationsSuccess.innerHTML = "@Strings.DatabaseErrorPage_MigrationsAppliedRefresh";
                             } else {
                                 ErrorApplyingMigrations();
                             }
@@ -121,7 +122,8 @@
             }
 
             <p>@Strings.DatabaseErrorPage_HowToApplyFromCmd</p>
-            <code>@Strings.DatabaseErrorPage_UpdateDatabaseCommand</code>
+            <code>@Strings.DatabaseErrorPage_ApplyMigrationsCommand</code>
+            <p><strong>@Strings.DatabaseErrorPage_EnableMigrationsCommandsInfo</strong></p>
             <hr />
         </div>
     }
@@ -132,7 +134,8 @@
             <p>@Strings.DatabaseErrorPage_PendingChangesInfo</p>
             <code>@Strings.DatabaseErrorPage_AddMigrationCommand</code>
             <br />
-            <code>@Strings.DatabaseErrorPage_UpdateDatabaseCommand</code>
+            <code>@Strings.DatabaseErrorPage_ApplyMigrationsCommand</code>
+            <p><strong>@Strings.DatabaseErrorPage_EnableMigrationsCommandsInfo</strong></p>
             <hr />
         </div>
     }

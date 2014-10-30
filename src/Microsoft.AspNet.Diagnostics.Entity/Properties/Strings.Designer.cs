@@ -155,6 +155,22 @@ namespace Microsoft.AspNet.Diagnostics.Entity
         }
 
         /// <summary>
+        /// To use migrations from a command prompt you will need to <a href='http://go.microsoft.com/fwlink/?LinkId=518242'>install K Version Manager (KVM)</a>. Once installed, you can run migration commands from a standard command prompt in the project directory.
+        /// </summary>
+        internal static string DatabaseErrorPage_EnableMigrationsCommandsInfo
+        {
+            get { return GetString("DatabaseErrorPage_EnableMigrationsCommandsInfo"); }
+        }
+
+        /// <summary>
+        /// To use migrations from a command prompt you will need to <a href='http://go.microsoft.com/fwlink/?LinkId=518242'>install K Version Manager (KVM)</a>. Once installed, you can run migration commands from a standard command prompt in the project directory.
+        /// </summary>
+        internal static string FormatDatabaseErrorPage_EnableMigrationsCommandsInfo()
+        {
+            return GetString("DatabaseErrorPage_EnableMigrationsCommandsInfo");
+        }
+
+        /// <summary>
         /// You can also apply migrations from the command line
         /// </summary>
         internal static string DatabaseErrorPage_HowToApplyFromCmd
@@ -280,6 +296,22 @@ namespace Microsoft.AspNet.Diagnostics.Entity
         internal static string FormatDatabaseErrorPage_PendingMigrationsTitle(object p0)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("DatabaseErrorPage_PendingMigrationsTitle"), p0);
+        }
+
+        /// <summary>
+        /// A database operartion failed while processing the request.
+        /// </summary>
+        internal static string DatabaseErrorPage_Title
+        {
+            get { return GetString("DatabaseErrorPage_Title"); }
+        }
+
+        /// <summary>
+        /// A database operartion failed while processing the request.
+        /// </summary>
+        internal static string FormatDatabaseErrorPage_Title()
+        {
+            return GetString("DatabaseErrorPage_Title");
         }
 
         /// <summary>

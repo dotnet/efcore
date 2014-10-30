@@ -127,7 +127,7 @@
     <value>The context type '{0}' was not found in services. This usually means the context was not registered in services during startup. You probably want to call AddScoped&lt;{0}&gt;() inside the UseServices(...) call in your application startup code. Skipping display of the database error page.</value>
   </data>
   <data name="DatabaseErrorPageMiddleware_Exception" xml:space="preserve">
-    <value>An exception occured while calculating the database error page content. Skipping display of the database error page.</value>
+    <value>An exception occurred while calculating the database error page content. Skipping display of the database error page.</value>
   </data>
   <data name="DatabaseErrorPage_AddMigrationCommand" xml:space="preserve">
     <value>&gt; k ef migration add [migration name]</value>
@@ -142,22 +142,22 @@
     <value>Applying Migrations...</value>
   </data>
   <data name="DatabaseErrorPage_ApplyMigrationsFailed" xml:space="preserve">
-    <value>An error occured applying migrations, try applying them from the command line</value>
+    <value>An error occurred applying migrations, try applying them from the command line</value>
   </data>
   <data name="DatabaseErrorPage_HowToApplyFromCmd" xml:space="preserve">
-    <value>You can also apply migrations from the command line</value>
+    <value>You can also apply migrations from the command line:</value>
   </data>
   <data name="DatabaseErrorPage_MigrationsAppliedRefresh" xml:space="preserve">
     <value>Try refreshing the page</value>
   </data>
   <data name="DatabaseErrorPage_NoDbOrMigrationsInfo" xml:space="preserve">
-    <value>From the command line, scaffold a new migration and apply it to the database</value>
+    <value>From the command line, scaffold a new migration and apply it to the database:</value>
   </data>
   <data name="DatabaseErrorPage_NoDbOrMigrationsTitle" xml:space="preserve">
     <value>Use migrations to create the database for {0}</value>
   </data>
   <data name="DatabaseErrorPage_PendingChangesInfo" xml:space="preserve">
-    <value>Scaffold a new migration for these changes and apply them to the database from the command line</value>
+    <value>Scaffold a new migration for these changes and apply them to the database from the command line:</value>
   </data>
   <data name="DatabaseErrorPage_PendingChangesTitle" xml:space="preserve">
     <value>There are pending model changes for {0}</value>
@@ -184,7 +184,7 @@
     <value>The context type '{0}' was not found in services. This usually means the context was not registered in services during startup. You probably want to call AddScoped&lt;{0}&gt;() inside the UseServices(...) call in your application startup code.</value>
   </data>
   <data name="MigrationsEndPointMiddleware_Exception" xml:space="preserve">
-    <value>An error occured while applying the migrations for '{0}'. See InnerException for details.</value>
+    <value>An error occurred while applying the migrations for '{0}'. See InnerException for details.</value>
   </data>
   <data name="MigrationsEndPointMiddleware_InvalidContextType" xml:space="preserve">
     <value>The context type '{0}' could not be loaded. Ensure this is the correct type name for the context you are trying to apply migrations for.</value>
@@ -194,5 +194,11 @@
   </data>
   <data name="MigrationsEndPointMiddleware_RequestPathMatched" xml:space="preserve">
     <value>Request path matched the path configured for this migrations endpoint ({0}). Attempting to process the migrations request.</value>
+  </data>
+  <data name="DatabaseErrorPage_Title" xml:space="preserve">
+    <value>A database operation failed while processing the request.</value>
+  </data>
+  <data name="DatabaseErrorPage_EnableMigrationsCommandsInfo" xml:space="preserve">
+    <value>To use migrations from a command prompt you will need to &lt;a href='http://go.microsoft.com/fwlink/?LinkId=518242'&gt;install K Version Manager (KVM)&lt;/a&gt;. Once installed, you can run migration commands from a standard command prompt in the project directory.</value>
   </data>
 </root>
