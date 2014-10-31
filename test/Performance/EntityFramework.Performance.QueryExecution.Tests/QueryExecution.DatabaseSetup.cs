@@ -118,6 +118,8 @@ namespace QueryExecution
                         order.OrderLines.Add(backOrderLine);
                     }
                 }
+                // we're calling savechanges on each iteration because of #974
+                // this should be reverted once it's fixed
                 context.SaveChanges();
             }
         }
