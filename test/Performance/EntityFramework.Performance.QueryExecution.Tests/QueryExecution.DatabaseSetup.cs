@@ -36,7 +36,7 @@ namespace QueryExecution
 
             for (var i = 0; i < customerCount; ++i)
             {
-                var customer = new Customer()
+                var customer = new Customer
                 {
                     Name = (i % customerNameCount).ToString(),
                     ContactInfo_Email = "email@domain.com",
@@ -48,7 +48,7 @@ namespace QueryExecution
                     Auditing_ModifiedDate = System.DateTime.Now,
                 };
                 context.Set<Customer>().Add(customer);
-                var login = new Login()
+                var login = new Login
                 {
                     Customer = customer,
                     CustomerId = customer.CustomerId,
