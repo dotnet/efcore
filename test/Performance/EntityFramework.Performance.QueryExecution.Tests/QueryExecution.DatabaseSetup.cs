@@ -37,24 +37,23 @@ namespace QueryExecution
             for (var i = 0; i < customerCount; ++i)
             {
                 var customer = new Customer
-                    {
-                        CustomerId = i,
-                        Name = (i % customerNameCount).ToString(),
-                        ContactInfo_Email = "email@domain.com",
-                        ContactInfo_HomePhone_PhoneNumber = "425-999-9999",
-                        ContactInfo_WorkPhone_PhoneNumber = "425-888-8888",
-                        ContactInfo_MobilePhone_PhoneNumber = "425-777-7777",
-                        Auditing_ModifiedBy = i.ToString(),
-                        Auditing_Concurrency_Token = i.ToString(),
-                        Auditing_ModifiedDate = DateTime.Now,
-                    };
+                {
+                    Name = (i % customerNameCount).ToString(),
+                    ContactInfo_Email = "email@domain.com",
+                    ContactInfo_HomePhone_PhoneNumber = "425-999-9999",
+                    ContactInfo_WorkPhone_PhoneNumber = "425-888-8888",
+                    ContactInfo_MobilePhone_PhoneNumber = "425-777-7777",
+                    Auditing_ModifiedBy = i.ToString(),
+                    Auditing_Concurrency_Token = i.ToString(),
+                    Auditing_ModifiedDate = System.DateTime.Now,
+                };
                 context.Set<Customer>().Add(customer);
                 var login = new Login
-                    {
-                        Customer = customer,
-                        CustomerId = customer.CustomerId,
-                        Username = customer.Name + customer.CustomerId,
-                    };
+                {
+                    Customer = customer,
+                    CustomerId = customer.CustomerId,
+                    Username = customer.Name + customer.CustomerId,
+                };
                 customer.Logins.Add(login);
                 for (var j = 0; j < productPerCustomerCount; ++j)
                 {
@@ -119,8 +118,10 @@ namespace QueryExecution
                         order.OrderLines.Add(backOrderLine);
                     }
                 }
+                // we're calling savechanges on each iteration because of #974
+                // this should be reverted once it's fixed
+                context.SaveChanges();
             }
-            context.SaveChanges();
         }
     }
 }
