@@ -17,8 +17,9 @@ namespace Microsoft.Data.Entity.SqlServer.Update
         private const int DefaultNetworkPacketSizeBytes = 4096;
         private const int MaxScriptLength = 65536 * DefaultNetworkPacketSizeBytes / 2;
         private const int MaxParameterCount = 2100;
-        private int _parameterCount;
-        private readonly int? _maxBatchSize;
+        private const int MaxRowCount = 1000;
+        private int _parameterCount = 1; // Implicit parameter for the command text
+        private readonly int _maxBatchSize;
         private readonly List<ModificationCommand> _bulkInsertCommands = new List<ModificationCommand>();
         private int _commandsLeftToLengthCheck = 50;
 
@@ -40,13 +41,12 @@ namespace Microsoft.Data.Entity.SqlServer.Update
                 throw new ArgumentOutOfRangeException("maxBatchSize", Strings.FormatMaxBatchSizeMustBePositive());
             }
 
-            _maxBatchSize = maxBatchSize;
+            _maxBatchSize = Math.Min(maxBatchSize ?? Int32.MaxValue, MaxRowCount);
         }
 
         protected override bool CanAddCommand(ModificationCommand modificationCommand)
         {
-            if (_maxBatchSize.HasValue
-                && _maxBatchSize.Value <= ModificationCommands.Count)
+            if (_maxBatchSize <= ModificationCommands.Count)
             {
                 return false;
             }
