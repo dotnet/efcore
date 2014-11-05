@@ -42,7 +42,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         public void Write(
-            TraceType eventType, int eventId, object state, Exception exception, Func<object, Exception, string> formatter)
+            LogLevel logLevel, int eventId, object state, Exception exception, Func<object, Exception, string> formatter)
         {
             if (formatter != null)
             {
@@ -58,7 +58,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        public bool IsEnabled(TraceType eventType)
+        public bool IsEnabled(LogLevel logLevel)
         {
             return true;
         }

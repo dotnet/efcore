@@ -48,7 +48,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity
 #endif
         }
 
-        public virtual void Write(TraceType eventType, int eventId, [CanBeNull] object state, [CanBeNull] Exception exception, [CanBeNull] Func<object, Exception, string> formatter)
+        public virtual void Write(LogLevel logLevel, int eventId, [CanBeNull] object state, [CanBeNull] Exception exception, [CanBeNull] Func<object, Exception, string> formatter)
         {
             var errorState = state as DataStoreErrorLogState;
             if (errorState != null && exception != null && LastError != null)
@@ -57,7 +57,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity
             }
         }
 
-        public virtual bool IsEnabled(TraceType eventType)
+        public virtual bool IsEnabled(LogLevel logLevel)
         {
             return true;
         }

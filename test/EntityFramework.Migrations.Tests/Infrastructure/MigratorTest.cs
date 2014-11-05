@@ -1534,17 +1534,17 @@ new StringBuilder()
                 _builder = builder;
             }
 
-            public void Write(TraceType eventType, int eventId, object state, Exception exception, Func<object, Exception, string> formatter)
+            public void Write(LogLevel logLevel, int eventId, object state, Exception exception, Func<object, Exception, string> formatter)
             {
                 _builder
                     .Append(_name)
                     .Append(" ")
-                    .Append(eventType.ToString("G"))
+                    .Append(logLevel.ToString("G"))
                     .Append(" ")
                     .AppendLine(formatter(state, exception));
             }
 
-            public bool IsEnabled(TraceType eventType)
+            public bool IsEnabled(LogLevel logLevel)
             {
                 return true;
             }

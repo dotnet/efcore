@@ -27,27 +27,27 @@ namespace Microsoft.Framework.Logging
         public static void WriteInformation<TState>(
             this ILogger logger, int eventId, TState state, Func<TState, string> formatter)
         {
-            if (logger.IsEnabled(TraceType.Information))
+            if (logger.IsEnabled(LogLevel.Information))
             {
-                logger.Write(TraceType.Information, eventId, state, null, (s, _) => formatter((TState)s));
+                logger.Write(LogLevel.Information, eventId, state, null, (s, _) => formatter((TState)s));
             }
         }
 
         public static void WriteError<TState>(
             this ILogger logger, Exception exception, Func<TState, Exception, string> formatter)
         {
-            if (logger.IsEnabled(TraceType.Error))
+            if (logger.IsEnabled(LogLevel.Error))
             {
-                logger.Write(TraceType.Error, 0, null, exception, (s, e) => formatter((TState)s, e));
+                logger.Write(LogLevel.Error, 0, null, exception, (s, e) => formatter((TState)s, e));
             }
         }
 
         public static void WriteError<TState>(
             this ILogger logger, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
-            if (logger.IsEnabled(TraceType.Error))
+            if (logger.IsEnabled(LogLevel.Error))
             {
-                logger.Write(TraceType.Error, 0, state, exception, (s, e) => formatter((TState)s, e));
+                logger.Write(LogLevel.Error, 0, state, exception, (s, e) => formatter((TState)s, e));
             }
         }
 
@@ -59,18 +59,18 @@ namespace Microsoft.Framework.Logging
         public static void WriteVerbose<TState>(
             this ILogger logger, TState state, Func<TState, string> formatter)
         {
-            if (logger.IsEnabled(TraceType.Verbose))
+            if (logger.IsEnabled(LogLevel.Verbose))
             {
-                logger.Write(TraceType.Verbose, 0, state, null, (s, _) => formatter((TState)s));
+                logger.Write(LogLevel.Verbose, 0, state, null, (s, _) => formatter((TState)s));
             }
         }
 
         public static void WriteVerbose<TState>(
             this ILogger logger, int eventId, TState state, Func<TState, string> formatter)
         {
-            if (logger.IsEnabled(TraceType.Verbose))
+            if (logger.IsEnabled(LogLevel.Verbose))
             {
-                logger.Write(TraceType.Verbose, eventId, state, null, (s, _) => formatter((TState)s));
+                logger.Write(LogLevel.Verbose, eventId, state, null, (s, _) => formatter((TState)s));
             }
         }
     }
