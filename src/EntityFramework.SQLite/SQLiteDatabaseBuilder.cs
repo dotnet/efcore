@@ -15,6 +15,11 @@ namespace Microsoft.Data.Entity.SQLite
         {
         }
 
+        public virtual new SQLiteTypeMapper TypeMapper
+        {
+            get { return (SQLiteTypeMapper)base.TypeMapper; }
+        }
+
         protected override Sequence BuildSequence(IProperty property)
         {
             return null;

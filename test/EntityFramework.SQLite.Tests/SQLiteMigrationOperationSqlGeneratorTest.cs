@@ -190,45 +190,6 @@ namespace Microsoft.Data.Entity.SQLite.Tests
             Assert.Equal("\"my.Pony\"", sql);
         }
 
-        [Fact]
-        public void Generate_uses_preprocessor()
-        {
-            var database = new DatabaseModel();
-            var column = new Column("Id", typeof(string)) { IsNullable = false };
-            var newColumn = new Column("Id", typeof(int)) { IsNullable = false };
-            var table
-                = new Table("A", new[] { column })
-                    {
-                        PrimaryKey = new PrimaryKey("PK", new[] { column })
-                    };
-
-            database.AddTable(table);
-
-            var operations
-                = new MigrationOperation[]
-                    {
-                        new AlterColumnOperation(table.Name, newColumn, isDestructiveChange: true)
-                    };
-
-            var stringBuilder = new StringBuilder();
-            foreach (var statement in CreateGenerator(database).Generate(operations))
-            {
-                stringBuilder.AppendLine(statement.Sql);
-            }
-
-            Assert.Equal(
-                @"ALTER TABLE ""A"" RENAME TO ""__mig_tmp__A""
-CREATE TABLE ""A"" (
-    ""Id"" INT NOT NULL,
-    CONSTRAINT ""PK"" PRIMARY KEY (""Id"")
-)
-INSERT INTO ""A"" ( ""Id"" )
-    SELECT ""Id"" FROM ""__mig_tmp__A""
-DROP TABLE ""__mig_tmp__A""
-",
-                stringBuilder.ToString());
-        }
-
         private static string Generate(MigrationOperation operation, DatabaseModel database = null)
         {
             return CreateGenerator().Generate(operation).Sql;
@@ -239,7 +200,6 @@ DROP TABLE ""__mig_tmp__A""
             return new SQLiteMigrationOperationSqlGenerator(new SQLiteTypeMapper())
                 {
                     Database = database ?? new DatabaseModel(),
-                    DatabaseModelModifier = new DatabaseModelModifier()
                 };
         }
     }

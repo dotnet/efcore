@@ -35,6 +35,16 @@ namespace Microsoft.Data.Entity.Migrations
             get { return _databaseBuilder; }
         }
 
+        protected virtual ModelDatabaseMapping SourceMapping
+        {
+            get { return _sourceMapping; }
+        }
+
+        protected virtual ModelDatabaseMapping TargetMapping
+        {
+            get { return _targetMapping; }
+        }
+
         public virtual IReadOnlyList<MigrationOperation> CreateSchema([NotNull] IModel model)
         {
             Check.NotNull(model, "model");
@@ -127,30 +137,7 @@ namespace Microsoft.Data.Entity.Migrations
 
             HandleTransitiveRenames();
 
-            return
-                ((IEnumerable<MigrationOperation>)_operations.Get<DropSequenceOperation>())
-                    .Concat(_operations.Get<MoveSequenceOperation>())
-                    .Concat(_operations.Get<RenameSequenceOperation>())
-                    .Concat(_operations.Get<AlterSequenceOperation>())
-                    .Concat(_operations.Get<CreateSequenceOperation>())
-                    .Concat(_operations.Get<DropIndexOperation>())
-                    .Concat(_operations.Get<DropForeignKeyOperation>())
-                    .Concat(_operations.Get<DropUniqueConstraintOperation>())
-                    .Concat(_operations.Get<DropPrimaryKeyOperation>())
-                    .Concat(_operations.Get<DropColumnOperation>())
-                    .Concat(_operations.Get<DropTableOperation>())
-                    .Concat(_operations.Get<MoveTableOperation>())
-                    .Concat(_operations.Get<RenameTableOperation>())
-                    .Concat(_operations.Get<RenameColumnOperation>())
-                    .Concat(_operations.Get<RenameIndexOperation>())
-                    .Concat(_operations.Get<AlterColumnOperation>())
-                    .Concat(_operations.Get<CreateTableOperation>())
-                    .Concat(_operations.Get<AddColumnOperation>())
-                    .Concat(_operations.Get<AddPrimaryKeyOperation>())
-                    .Concat(_operations.Get<AddUniqueConstraintOperation>())
-                    .Concat(_operations.Get<AddForeignKeyOperation>())
-                    .Concat(_operations.Get<CreateIndexOperation>())
-                    .ToArray();
+            return _operations.GetAll();
         }
 
         private void DiffTables(out Dictionary<Column, Column> columnMap)
@@ -932,57 +919,5 @@ namespace Microsoft.Data.Entity.Migrations
         }
 
         protected abstract string GetSequenceName([NotNull] Column column);
-
-        protected class MigrationOperationCollection
-        {
-            private readonly Dictionary<Type, List<MigrationOperation>> _allOperations
-                = new Dictionary<Type, List<MigrationOperation>>();
-
-            public void Add(MigrationOperation newOperation)
-            {
-                List<MigrationOperation> operations;
-
-                if (_allOperations.TryGetValue(newOperation.GetType(), out operations))
-                {
-                    operations.Add(newOperation);
-                }
-                else
-                {
-                    _allOperations.Add(newOperation.GetType(), new List<MigrationOperation> { newOperation });
-                }
-            }
-
-            public void AddRange<T>(IEnumerable<T> newOperations)
-                where T : MigrationOperation
-            {
-                List<MigrationOperation> operations;
-
-                if (_allOperations.TryGetValue(typeof(T), out operations))
-                {
-                    operations.AddRange(newOperations);
-                }
-                else
-                {
-                    _allOperations.Add(typeof(T), new List<MigrationOperation>(newOperations));
-                }
-            }
-
-            public void Set<T>(IEnumerable<T> operations)
-                where T : MigrationOperation
-            {
-                _allOperations[typeof(T)] = new List<MigrationOperation>(operations);
-            }
-
-            public IReadOnlyList<T> Get<T>()
-                where T : MigrationOperation
-            {
-                List<MigrationOperation> operations;
-
-                return
-                    _allOperations.TryGetValue(typeof(T), out operations)
-                        ? operations.Cast<T>().ToArray()
-                        : Enumerable.Empty<T>().ToArray();
-            }
-        }
     }
 }

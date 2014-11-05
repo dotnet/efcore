@@ -494,43 +494,6 @@ EXECUTE('ALTER TABLE [dbo].[MyTable] DROP CONSTRAINT ""' + @var0 + '""')",
             Assert.Equal("foo''bar", sqlGenerator.EscapeLiteral("foo'bar"));
         }
 
-        [Fact]
-        public void Generate_uses_preprocessor()
-        {
-            var database = new DatabaseModel();
-            var column = new Column("Id", typeof(string)) { IsNullable = false };
-            var newColumn = new Column("Id", typeof(int)) { IsNullable = false };
-            var table
-                = new Table("A", new[] { column })
-                    {
-                        PrimaryKey = new PrimaryKey("PK", new[] { column })
-                    };
-
-            var operations
-                = new MigrationOperation[]
-                    {
-                        new CreateTableOperation(table),
-                        new AlterColumnOperation(table.Name, newColumn, isDestructiveChange: true)
-                    };
-
-            var stringBuilder = new StringBuilder();
-            foreach (var statement in CreateSqlGenerator(database).Generate(operations))
-            {
-                stringBuilder.AppendLine(statement.Sql);
-            }
-
-            Assert.Equal(
-                @"CREATE TABLE [A] (
-    [Id] nvarchar(128) NOT NULL,
-    CONSTRAINT [PK] PRIMARY KEY ([Id])
-)
-ALTER TABLE [A] DROP CONSTRAINT [PK]
-ALTER TABLE [A] ALTER COLUMN [Id] int NOT NULL
-ALTER TABLE [A] ADD CONSTRAINT [PK] PRIMARY KEY ([Id])
-",
-                stringBuilder.ToString());
-        }
-
         private static SqlStatement Generate(MigrationOperation migrationOperation, DatabaseModel database = null)
         {
             return CreateSqlGenerator(database).Generate(migrationOperation);
@@ -541,8 +504,7 @@ ALTER TABLE [A] ADD CONSTRAINT [PK] PRIMARY KEY ([Id])
             return
                 new SqlServerMigrationOperationSqlGenerator(new SqlServerTypeMapper())
                     {
-                        Database = database ?? new DatabaseModel(),
-                        DatabaseModelModifier = new DatabaseModelModifier()
+                        Database = database ?? new DatabaseModel()
                     };
         }
     }
