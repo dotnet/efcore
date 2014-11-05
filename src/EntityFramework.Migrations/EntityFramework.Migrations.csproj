@@ -107,7 +107,6 @@
     <Compile Include="Properties\Strings.Designer.cs">
       <DependentUpon>Strings.resx</DependentUpon>
     </Compile>
-    <Compile Include="DatabaseModelModifier.cs" />
     <Compile Include="RelationalDatabaseMigrationsExtensions.cs" />
     <Compile Include="Utilities\AssemblyExtensions.cs" />
     <Compile Include="Utilities\Check.cs" />

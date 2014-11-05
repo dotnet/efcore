@@ -35,6 +35,16 @@ namespace Microsoft.Data.Entity.Migrations
             get { return _databaseBuilder; }
         }
 
+        protected virtual ModelDatabaseMapping SourceMapping
+        {
+            get { return _sourceMapping; }
+        }
+
+        protected virtual ModelDatabaseMapping TargetMapping
+        {
+            get { return _targetMapping; }
+        }
+
         public virtual IReadOnlyList<MigrationOperation> CreateSchema([NotNull] IModel model)
         {
             Check.NotNull(model, "model");
@@ -150,7 +160,7 @@ namespace Microsoft.Data.Entity.Migrations
                     .Concat(_operations.Get<AddUniqueConstraintOperation>())
                     .Concat(_operations.Get<AddForeignKeyOperation>())
                     .Concat(_operations.Get<CreateIndexOperation>())
-                    .ToArray();
+                    .ToList();
         }
 
         private void DiffTables(out Dictionary<Column, Column> columnMap)

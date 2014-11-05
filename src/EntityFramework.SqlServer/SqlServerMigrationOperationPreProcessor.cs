@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Migrations.Model;
-using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Model;
 using Microsoft.Data.Entity.SqlServer.Utilities;
 
@@ -14,6 +13,39 @@ namespace Microsoft.Data.Entity.SqlServer
 {
     public class SqlServerMigrationOperationPreProcessor : MigrationOperationVisitor<SqlServerMigrationOperationPreProcessor.Context>
     {
+        private readonly SqlServerTypeMapper _typeMapper;
+
+        public SqlServerMigrationOperationPreProcessor([NotNull] SqlServerTypeMapper typeMapper)
+        {
+            Check.NotNull(typeMapper, "typeMapper");
+
+            _typeMapper = typeMapper;
+        }
+
+        public virtual SqlServerTypeMapper TypeMapper
+        {
+            get { return _typeMapper; }
+        }
+
+        public virtual IEnumerable<MigrationOperation> Process(            
+            [NotNull] IEnumerable<MigrationOperation> operations,
+            [NotNull] DatabaseModel sourceDatabase,
+            [NotNull] DatabaseModel targetDatabase)
+        {
+            Check.NotNull(operations, "operations");
+            Check.NotNull(sourceDatabase, "sourceDatabase");
+            Check.NotNull(targetDatabase, "targetDatabase");
+
+            var context = new Context(sourceDatabase, targetDatabase);
+
+            foreach (var operation in operations)
+            {
+                operation.Accept(this, context);
+            }
+
+            return context.Operations;
+        }
+
         public override void Visit(DropTableOperation dropTableOperation, Context context)
         {
             Check.NotNull(dropTableOperation, "dropTableOperation");
@@ -21,7 +53,7 @@ namespace Microsoft.Data.Entity.SqlServer
 
             var compositeOperation = new CompositeOperation();
 
-            var database = context.Generator.Database;
+            var database = context.SourceDatabase;
             var table = database.GetTable(dropTableOperation.TableName);
 
             compositeOperation.AddOperations(
@@ -42,7 +74,7 @@ namespace Microsoft.Data.Entity.SqlServer
 
             var compositeOperation = new CompositeOperation();
 
-            var database = context.Generator.Database;
+            var database = context.SourceDatabase;
             var table = database.GetTable(dropColumnOperation.TableName);
             var column = table.GetColumn(dropColumnOperation.ColumnName);
 
@@ -65,7 +97,7 @@ namespace Microsoft.Data.Entity.SqlServer
                 = context.CompositeOperation as CompositeAlterColumnOperation
                   ?? new CompositeAlterColumnOperation();
 
-            var database = context.Generator.Database;
+            var database = context.SourceDatabase;
             var table = database.GetTable(alterColumnOperation.TableName);
             var column = table.GetColumn(alterColumnOperation.NewColumn.Name);
             var newColumn = alterColumnOperation.NewColumn;
@@ -145,39 +177,47 @@ namespace Microsoft.Data.Entity.SqlServer
                   || table.ForeignKeys.SelectMany(k => k.Columns).Contains(column);
 
             dataType
-                = context.Generator.TypeMapper.GetTypeMapping(
+                = TypeMapper.GetTypeMapping(
                     column.DataType, column.Name, column.ClrType, isKey, column.IsTimestamp)
                     .StoreTypeName;
             newDataType
-                = context.Generator.TypeMapper.GetTypeMapping(
+                = TypeMapper.GetTypeMapping(
                     newColumn.DataType, newColumn.Name, newColumn.ClrType, isKey, newColumn.IsTimestamp)
                     .StoreTypeName;
         }
 
         public class Context
         {
-            private readonly SqlServerMigrationOperationSqlGenerator _generator;
-            private readonly List<SqlStatement> _statements = new List<SqlStatement>();
+            private readonly DatabaseModel _sourceDatabase;
+            private readonly DatabaseModel _targetDatabase;
+            private readonly List<MigrationOperation> _operations = new List<MigrationOperation>();
 
-            public Context([NotNull] SqlServerMigrationOperationSqlGenerator generator)
+            public Context([NotNull] DatabaseModel sourceDatabase, [NotNull] DatabaseModel targetDatabase)
             {
-                Check.NotNull(generator, "generator");
+                Check.NotNull(sourceDatabase, "sourceDatabase");
+                Check.NotNull(targetDatabase, "targetDatabase");
 
-                _generator = generator;
+                _sourceDatabase = sourceDatabase;
+                _targetDatabase = targetDatabase;
             }
 
-            public virtual SqlServerMigrationOperationSqlGenerator Generator
+            public virtual DatabaseModel SourceDatabase
             {
-                get { return _generator; }
+                get { return _sourceDatabase; }
             }
 
-            public virtual IReadOnlyList<SqlStatement> Statements
+            public virtual DatabaseModel TargetDatabase
+            {
+                get { return _targetDatabase; }
+            }
+
+            public virtual IReadOnlyList<MigrationOperation> Operations
             {
                 get
                 {
                     HandleCompositeOperation(null);
 
-                    return _statements;
+                    return _operations;
                 }
             }
 
@@ -189,8 +229,7 @@ namespace Microsoft.Data.Entity.SqlServer
 
                 HandleCompositeOperation(null);
 
-                _statements.Add(_generator.Generate(operation));
-                _generator.DatabaseModelModifier.Modify(_generator.Database, operation);
+                _operations.Add(operation);
             }
 
             public virtual void HandleCompositeOperation([CanBeNull] CompositeOperation compositeOperation)
@@ -204,8 +243,7 @@ namespace Microsoft.Data.Entity.SqlServer
                 {
                     foreach (var operation in CompositeOperation.Operations)
                     {
-                        _statements.Add(_generator.Generate(operation));
-                        _generator.DatabaseModelModifier.Modify(_generator.Database, operation);
+                        _operations.Add(operation);
                     }
                 }
 

@@ -18,6 +18,11 @@ namespace Microsoft.Data.Entity.SqlServer
         {
         }
 
+        public virtual new SqlServerTypeMapper TypeMapper
+        {
+            get { return (SqlServerTypeMapper)base.TypeMapper; }
+        }
+
         protected override Sequence BuildSequence(IProperty property)
         {
             Check.NotNull(property, "property");

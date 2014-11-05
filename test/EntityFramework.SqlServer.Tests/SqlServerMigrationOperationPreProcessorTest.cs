@@ -436,22 +436,14 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             Assert.Same(dropTableOperation, operations[1]);
         }
 
-        private static IReadOnlyList<MigrationOperation> PreProcess(BasicModelBuilder modelBuilder, params MigrationOperation[] operations)
+        private static IReadOnlyList<MigrationOperation> PreProcess(BasicModelBuilder sourceModelBuilder, params MigrationOperation[] operations)
         {
-            return PreProcess(new SqlServerDatabaseBuilder(new SqlServerTypeMapper()).GetDatabase(modelBuilder.Model), operations);
+            return PreProcess(new SqlServerDatabaseBuilder(new SqlServerTypeMapper()).GetDatabase(sourceModelBuilder.Model), operations);
         }
 
-        private static IReadOnlyList<MigrationOperation> PreProcess(DatabaseModel database, params MigrationOperation[] operations)
+        private static IReadOnlyList<MigrationOperation> PreProcess(DatabaseModel sourceDatabase, params MigrationOperation[] operations)
         {
-            var context = new SqlServerMigrationOperationPreProcessor.Context(
-                new SqlServerMigrationOperationSqlGeneratorFactory().Create(database));
-
-            foreach (var operation in operations)
-            {
-                operation.Accept(new SqlServerMigrationOperationPreProcessor(), context);
-            }
-
-            return context.CompositeOperation.Operations.ToArray();
+            return new SqlServerMigrationOperationPreProcessor(new SqlServerTypeMapper()).Process(operations, sourceDatabase, new DatabaseModel()).ToList();
         }
     }
 }

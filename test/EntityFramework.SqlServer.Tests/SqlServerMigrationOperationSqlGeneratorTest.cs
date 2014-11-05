@@ -541,8 +541,7 @@ ALTER TABLE [A] ADD CONSTRAINT [PK] PRIMARY KEY ([Id])
             return
                 new SqlServerMigrationOperationSqlGenerator(new SqlServerTypeMapper())
                     {
-                        Database = database ?? new DatabaseModel(),
-                        DatabaseModelModifier = new DatabaseModelModifier()
+                        Database = database ?? new DatabaseModel()
                     };
         }
     }
