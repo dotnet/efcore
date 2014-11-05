@@ -23,7 +23,6 @@ namespace Microsoft.Data.Entity.SQLite
                 new SQLiteMigrationOperationSqlGenerator(new SQLiteTypeMapper())
                     {
                         Database = database,
-                        DatabaseModelModifier = new DatabaseModelModifier()
                     };
         }
 

@@ -239,7 +239,6 @@ DROP TABLE ""__mig_tmp__A""
             return new SQLiteMigrationOperationSqlGenerator(new SQLiteTypeMapper())
                 {
                     Database = database ?? new DatabaseModel(),
-                    DatabaseModelModifier = new DatabaseModelModifier()
                 };
         }
     }
