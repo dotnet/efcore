@@ -85,7 +85,7 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
             private CancellationTokenSource _cancellationTokenSource;
 
             public void Write(
-                TraceType eventType,
+                LogLevel logLevel,
                 int eventId,
                 object state,
                 Exception exception,
@@ -109,7 +109,7 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
                 }
             }
 
-            public bool IsEnabled(TraceType eventType)
+            public bool IsEnabled(LogLevel logLevel)
             {
                 return true;
             }

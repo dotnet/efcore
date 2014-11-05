@@ -17,9 +17,9 @@ namespace Microsoft.Data.Entity.Commands.Utilities
             _verbose = verbose;
         }
 
-        public override bool IsEnabled(TraceType eventType)
+        public override bool IsEnabled(LogLevel logLevel)
         {
-            return base.IsEnabled(eventType) && (eventType != TraceType.Verbose || _verbose);
+            return base.IsEnabled(logLevel) && (logLevel != LogLevel.Verbose || _verbose);
         }
 
         protected override void WriteWarning(string message)

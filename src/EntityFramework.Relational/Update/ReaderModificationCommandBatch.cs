@@ -153,7 +153,7 @@ namespace Microsoft.Data.Entity.Relational.Update
             Check.NotNull(logger, "logger");
 
             var commandText = GetCommandText();
-            if (logger.IsEnabled(TraceType.Verbose))
+            if (logger.IsEnabled(LogLevel.Verbose))
             {
                 // TODO: Write parameter values
                 logger.WriteSql(commandText);
@@ -218,7 +218,7 @@ namespace Microsoft.Data.Entity.Relational.Update
             Check.NotNull(logger, "logger");
 
             var commandText = GetCommandText();
-            if (logger.IsEnabled(TraceType.Verbose))
+            if (logger.IsEnabled(LogLevel.Verbose))
             {
                 // TODO: Write parameter values
                 logger.WriteSql(commandText);

@@ -195,7 +195,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     return NullScope.Instance;
                 }
 
-                public void Write(TraceType eventType, int eventId, object state, Exception exception, Func<object, Exception, string> formatter)
+                public void Write(LogLevel logLevel, int eventId, object state, Exception exception, Func<object, Exception, string> formatter)
                 {
                     var error = state as DataStoreErrorLogState;
                     if (error != null)
@@ -206,7 +206,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     }
                 }
 
-                public bool IsEnabled(TraceType eventType)
+                public bool IsEnabled(LogLevel logLevel)
                 {
                     return true;
                 }

@@ -165,7 +165,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             await entityEntry.SetEntityStateAsync(EntityState.Added);
 
             var mockLogger = new Mock<ILogger>();
-            mockLogger.Setup(l => l.IsEnabled(TraceType.Information)).Returns(true);
+            mockLogger.Setup(l => l.IsEnabled(LogLevel.Information)).Returns(true);
 
             var mockFactory = new Mock<ILoggerFactory>();
             mockFactory.Setup(m => m.Create(It.IsAny<string>())).Returns(mockLogger.Object);
@@ -176,7 +176,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
 
             mockLogger.Verify(
                 l => l.Write(
-                    TraceType.Information,
+                    LogLevel.Information,
                     0,
                     It.IsAny<string>(),
                     null,

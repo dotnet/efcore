@@ -30,14 +30,14 @@ namespace Microsoft.Data.Entity.Commands.Utilities
             _enabledByName = _includedNames.Contains(name);
         }
 
-        public virtual bool IsEnabled(TraceType eventType)
+        public virtual bool IsEnabled(LogLevel logLevel)
         {
             return _enabledByName;
         }
 
-        public virtual void Write(TraceType eventType, int eventId, object state, Exception exception, Func<object, Exception, string> formatter)
+        public virtual void Write(LogLevel logLevel, int eventId, object state, Exception exception, Func<object, Exception, string> formatter)
         {
-            if (!IsEnabled(eventType))
+            if (!IsEnabled(logLevel))
             {
                 return;
             }
@@ -58,15 +58,15 @@ namespace Microsoft.Data.Entity.Commands.Utilities
                 }
             }
 
-            switch (eventType)
+            switch (logLevel)
             {
-                case TraceType.Warning:
+                case LogLevel.Warning:
                     WriteWarning(message.ToString());
                     break;
-                case TraceType.Information:
+                case LogLevel.Information:
                     WriteInformation(message.ToString());
                     break;
-                case TraceType.Verbose:
+                case LogLevel.Verbose:
                     WriteVerbose(message.ToString());
                     break;
                 default:
