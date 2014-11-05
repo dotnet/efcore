@@ -64,6 +64,29 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind
             context.SaveChanges();
         }
 
+        public static void Cleanup(NorthwindContext context)
+        {
+            RemoveAllEntities(context);
+
+            context.SaveChanges();
+        }
+
+        public static Task CleanupAsync(NorthwindContext context)
+        {
+            RemoveAllEntities(context);
+
+            return context.SaveChangesAsync();
+        }
+
+        private static void RemoveAllEntities(NorthwindContext context)
+        {
+            context.Set<OrderDetail>().RemoveRange(context.Set<OrderDetail>());
+            context.Set<Product>().RemoveRange(context.Set<Product>());
+            context.Set<Order>().RemoveRange(context.Set<Order>());
+            context.Set<Employee>().RemoveRange(context.Set<Employee>());
+            context.Set<Customer>().RemoveRange(context.Set<Customer>());
+        }
+
         private class AsyncEnumerable<T> : EnumerableQuery<T>, IAsyncQueryProvider
         {
             public AsyncEnumerable(IEnumerable<T> enumerable)

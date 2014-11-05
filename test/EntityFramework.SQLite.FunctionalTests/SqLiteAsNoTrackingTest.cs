@@ -5,9 +5,9 @@ using Microsoft.Data.Entity.FunctionalTests;
 
 namespace Microsoft.Data.Entity.SQLite.FunctionalTests
 {
-    public class SqLiteAsNoTrackingTest : AsNoTrackingTestBase<SQLiteNorthwindQueryFixture>
+    public class SqLiteAsNoTrackingTest : AsNoTrackingTestBase<SqLiteNorthwindQueryFixture>
     {
-        public SqLiteAsNoTrackingTest(SQLiteNorthwindQueryFixture fixture)
+        public SqLiteAsNoTrackingTest(SqLiteNorthwindQueryFixture fixture)
             : base(fixture)
         {
         }

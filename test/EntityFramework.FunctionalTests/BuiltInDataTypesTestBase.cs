@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -7,164 +7,198 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.FunctionalTests
 {
-    /// <summary>
-    ///     See also <see cref="SupplementalBuiltInDataTypesTestBase" />.
-    ///     Not all built-in data types are supported on all providers yet.
-    ///     At the same time, not all conventions (e.g. Ignore) are available yet.
-    ///     So this class provides a base test class for those data types which are
-    ///     supported on all current providers.
-    ///     Over time, the aim is to transfer as many tests as possible into
-    ///     this class and ultimately to delete <see cref="SupplementalBuiltInDataTypesTestBase" />.
-    /// </summary>
-    public abstract class BuiltInDataTypesTestBase
+    public abstract class BuiltInDataTypesTestBase<TTestStore, TFixture> : IClassFixture<TFixture>, IDisposable
+        where TTestStore : TestStore
+        where TFixture : BuiltInDataTypesFixtureBase<TTestStore>, new()
     {
-        protected BuiltInDataTypesFixtureBase _fixture;
-
         [Fact]
         public virtual void Can_insert_and_read_back_all_non_nullable_data_types()
         {
-            using (var context = _fixture.CreateContext())
+            using (var context = CreateContext())
             {
-                Test_insert_and_read_back_all_non_nullable_data_types(context);
+                context.Set<BuiltInNonNullableDataTypes>().Add(
+                    new BuiltInNonNullableDataTypes
+                        {
+                            Id0 = 0,
+                            Id1 = 0,
+                            TestInt16 = -1234,
+                            TestInt32 = -123456789,
+                            TestInt64 = -1234567890123456789L,
+                            TestDouble = -1.23456789,
+                            // TODO: SQL Server default precision is 18 (use max precision, 38,
+                            // when available but no way to define that in the model at the moment)
+                            TestDecimal = -1234567890.01M,
+                            TestDateTime = DateTime.Parse("01/01/2000 12:34:56"),
+                            TestDateTimeOffset = new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0)),
+                            TestSingle = -1.234F,
+                            TestBoolean = true,
+                            TestByte = 255,
+                            TestUnsignedInt16 = 1234,
+                            TestUnsignedInt32 = 1234565789U,
+                            TestUnsignedInt64 = 1234567890123456789UL,
+                            TestCharacter = 'a',
+                            TestSignedByte = -128,
+                        });
+
+                var changes = context.SaveChanges();
+                Assert.Equal(1, changes);
             }
-        }
 
-        public void Test_insert_and_read_back_all_non_nullable_data_types(DbContext context)
-        {
-            var allDataTypes = context.Set<BuiltInNonNullableDataTypes>().Add(
-                new BuiltInNonNullableDataTypes
-                    {
-                        Id0 = 0,
-                        Id1 = 0,
-                        TestInt32 = -123456789,
-                        TestInt64 = -1234567890123456789L,
-                        TestDouble = -1.23456789,
-                        // TODO: SQL Server default precision is 18 (use max precision, 38,
-                        // when available but no way to define that in the model at the moment)
-                        TestDecimal = -1234567890.012345678M,
-                        TestDateTime = DateTime.Parse("01/01/2000 12:34:56"),
-                        TestDateTimeOffset = new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0)),
-                        TestSingle = -1.234F,
-                        TestBoolean = true,
-                        TestByte = 255,
-                        TestUnsignedInt32 = 1234565789U,
-                        TestUnsignedInt64 = 1234565789UL,
-                        TestInt16 = -1234,
-                    });
+            using (var context = CreateContext())
+            {
+                var dt = context.Set<BuiltInNonNullableDataTypes>().Single(nndt => nndt.Id0 == 0);
 
-            var changes = context.SaveChanges();
-            Assert.Equal(1, changes);
-
-            var dt = context.Set<BuiltInNonNullableDataTypes>().Where(nndt => nndt.Id0 == 0).Single();
-
-            Assert.Equal(-123456789, dt.TestInt32);
-            Assert.Equal(-1234567890123456789L, dt.TestInt64);
-            Assert.Equal(-1.23456789, dt.TestDouble);
-            Assert.Equal(-1234567890.012345678M, dt.TestDecimal);
-            Assert.Equal(DateTime.Parse("01/01/2000 12:34:56"), dt.TestDateTime);
-            Assert.Equal(new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0)), dt.TestDateTimeOffset);
-            Assert.Equal(-1.234F, dt.TestSingle);
-            Assert.Equal(true, dt.TestBoolean);
-            Assert.Equal(255, dt.TestByte);
-            Assert.Equal(1234565789U, dt.TestUnsignedInt32);
-            Assert.Equal(1234565789UL, dt.TestUnsignedInt64);
-            Assert.Equal(-1234, dt.TestInt16);
+                var entityType = context.Model.GetEntityType(typeof(BuiltInNonNullableDataTypes));
+                Assert.Equal(-1234, dt.TestInt16);
+                Assert.Equal(-123456789, dt.TestInt32);
+                Assert.Equal(-1234567890123456789L, dt.TestInt64);
+                Assert.Equal(-1.23456789, dt.TestDouble);
+                Assert.Equal(-1234567890.01M, dt.TestDecimal);
+                Assert.Equal(DateTime.Parse("01/01/2000 12:34:56"), dt.TestDateTime);
+                Assert.Equal(new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0)), dt.TestDateTimeOffset);
+                Assert.Equal(-1.234F, dt.TestSingle);
+                Assert.Equal(true, dt.TestBoolean);
+                Assert.Equal(255, dt.TestByte);
+                if (entityType.TryGetProperty("TestUnsignedInt16") != null) Assert.Equal(1234, dt.TestUnsignedInt16);
+                if (entityType.TryGetProperty("TestUnsignedInt32") != null) Assert.Equal(1234565789U, dt.TestUnsignedInt32);
+                if (entityType.TryGetProperty("TestUnsignedInt64") != null) Assert.Equal(1234567890123456789UL, dt.TestUnsignedInt64);
+                if (entityType.TryGetProperty("TestCharacter") != null) Assert.Equal('a', dt.TestCharacter);
+                if (entityType.TryGetProperty("TestSignedByte") != null) Assert.Equal(-128, dt.TestSignedByte);
+            }
         }
 
         [Fact]
         public virtual void Can_insert_and_read_back_all_nullable_data_types_with_values_set_to_null()
         {
-            using (var context = _fixture.CreateContext())
+            using (var context = CreateContext())
             {
-                Test_insert_and_read_back_all_nullable_data_types_with_values_set_to_null(context);
+                context.Set<BuiltInNullableDataTypes>().Add(
+                    new BuiltInNullableDataTypes
+                        {
+                            Id0 = 100,
+                            Id1 = 100,
+                            TestString = null,
+                            TestNullableInt16 = null,
+                            TestNullableInt32 = null,
+                            TestNullableInt64 = null,
+                            TestNullableDouble = null,
+                            TestNullableDecimal = null,
+                            TestNullableDateTime = null,
+                            TestNullableDateTimeOffset = null,
+                            TestNullableSingle = null,
+                            TestNullableBoolean = null,
+                            TestNullableByte = null,
+                            TestNullableUnsignedInt16 = null,
+                            TestNullableUnsignedInt32 = null,
+                            TestNullableUnsignedInt64 = null,
+                            TestNullableCharacter = null,
+                            TestNullableSignedByte = null,
+                        });
+
+                var changes = context.SaveChanges();
+                Assert.Equal(1, changes);
             }
-        }
 
-        public void Test_insert_and_read_back_all_nullable_data_types_with_values_set_to_null(DbContext context)
-        {
-            var allDataTypes = context.Set<BuiltInNullableDataTypes>().Add(
-                new BuiltInNullableDataTypes
-                    {
-                        Id0 = 100,
-                        Id1 = 100,
-                        TestNullableInt32 = null,
-                        TestString = null,
-                        TestNullableInt64 = null,
-                        TestNullableDouble = null,
-                        TestNullableDecimal = null,
-                        TestNullableDateTime = null,
-                        TestNullableDateTimeOffset = null,
-                        TestNullableSingle = null,
-                        TestNullableBoolean = null,
-                        TestNullableByte = null,
-                        TestNullableInt16 = null,
-                    });
+            using (var context = CreateContext())
+            {
+                var dt = context.Set<BuiltInNullableDataTypes>().Single(ndt => ndt.Id0 == 100);
 
-            var changes = context.SaveChanges();
-            Assert.Equal(1, changes);
-
-            var dt = context.Set<BuiltInNullableDataTypes>().Where(ndt => ndt.Id0 == 100).Single();
-
-            Assert.Null(dt.TestNullableInt32);
-            Assert.Null(dt.TestString);
-            Assert.Null(dt.TestNullableInt64);
-            Assert.Null(dt.TestNullableDouble);
-            Assert.Null(dt.TestNullableDecimal);
-            Assert.Null(dt.TestNullableDateTime);
-            Assert.Null(dt.TestNullableDateTimeOffset);
-            Assert.Null(dt.TestNullableSingle);
-            Assert.Null(dt.TestNullableBoolean);
-            Assert.Null(dt.TestNullableByte);
-            Assert.Null(dt.TestNullableInt16);
+                Assert.Null(dt.TestString);
+                Assert.Null(dt.TestNullableInt16);
+                Assert.Null(dt.TestNullableInt32);
+                Assert.Null(dt.TestNullableInt64);
+                Assert.Null(dt.TestNullableDouble);
+                Assert.Null(dt.TestNullableDecimal);
+                Assert.Null(dt.TestNullableDateTime);
+                Assert.Null(dt.TestNullableDateTimeOffset);
+                Assert.Null(dt.TestNullableSingle);
+                Assert.Null(dt.TestNullableBoolean);
+                Assert.Null(dt.TestNullableByte);
+                Assert.Null(dt.TestNullableUnsignedInt16);
+                Assert.Null(dt.TestNullableUnsignedInt32);
+                Assert.Null(dt.TestNullableUnsignedInt64);
+                Assert.Null(dt.TestNullableCharacter);
+                Assert.Null(dt.TestNullableSignedByte);
+            }
         }
 
         [Fact]
         public virtual void Can_insert_and_read_back_all_nullable_data_types_with_values_set_to_non_null()
         {
-            using (var context = _fixture.CreateContext())
+            using (var context = CreateContext())
             {
-                Test_insert_and_read_back_all_nullable_data_types_with_values_set_to_non_null(context);
+                context.Set<BuiltInNullableDataTypes>().Add(
+                    new BuiltInNullableDataTypes
+                        {
+                            Id0 = 101,
+                            Id1 = 101,
+                            TestString = "TestString",
+                            TestNullableInt16 = -1234,
+                            TestNullableInt32 = -123456789,
+                            TestNullableInt64 = -1234567890123456789L,
+                            TestNullableDouble = -1.23456789,
+                            // TODO: SQL Server default precision is 18 (use max precision, 38, 
+                            // when available but no way to define that in the model at the moment)
+                            TestNullableDecimal = -1234567890.01M,
+                            TestNullableDateTime = DateTime.Parse("01/01/2000 12:34:56"),
+                            TestNullableDateTimeOffset = new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0)),
+                            TestNullableSingle = -1.234F,
+                            TestNullableBoolean = false,
+                            TestNullableByte = 255,
+                            TestNullableUnsignedInt16 = 1234,
+                            TestNullableUnsignedInt32 = 1234565789U,
+                            TestNullableUnsignedInt64 = 1234567890123456789UL,
+                            TestNullableCharacter = 'a',
+                            TestNullableSignedByte = -128
+                        });
+
+                var changes = context.SaveChanges();
+                Assert.Equal(1, changes);
+            }
+
+            using (var context = CreateContext())
+            {
+                var dt = context.Set<BuiltInNullableDataTypes>().Single(ndt => ndt.Id0 == 101);
+
+                var entityType = context.Model.GetEntityType(typeof(BuiltInNonNullableDataTypes));
+                Assert.Equal("TestString", dt.TestString);
+                Assert.Equal((short)-1234, dt.TestNullableInt16);
+                Assert.Equal(-123456789, dt.TestNullableInt32);
+                Assert.Equal(-1234567890123456789L, dt.TestNullableInt64);
+                Assert.Equal(-1.23456789, dt.TestNullableDouble);
+                Assert.Equal(-1234567890.01M, dt.TestNullableDecimal);
+                Assert.Equal(DateTime.Parse("01/01/2000 12:34:56"), dt.TestNullableDateTime);
+                Assert.Equal(new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0)), dt.TestNullableDateTimeOffset);
+                Assert.Equal(-1.234F, dt.TestNullableSingle);
+                Assert.Equal(false, dt.TestNullableBoolean);
+                Assert.Equal((byte)255, dt.TestNullableByte);
+                if (entityType.TryGetProperty("TestNullableUnsignedInt16") != null) Assert.Equal((ushort)1234, dt.TestNullableUnsignedInt16);
+                if (entityType.TryGetProperty("TestNullableUnsignedInt32") != null) Assert.Equal(1234565789U, dt.TestNullableUnsignedInt32);
+                if (entityType.TryGetProperty("TestNullableUnsignedInt64") != null) Assert.Equal(1234567890123456789UL, dt.TestNullableUnsignedInt64);
+                if (entityType.TryGetProperty("TestNullableCharacter") != null) Assert.Equal('a', dt.TestNullableCharacter);
+                if (entityType.TryGetProperty("TestNullableSignedByte") != null) Assert.Equal((sbyte)-128, dt.TestNullableSignedByte);
             }
         }
 
-        public void Test_insert_and_read_back_all_nullable_data_types_with_values_set_to_non_null(DbContext context)
+        protected BuiltInDataTypesTestBase(TFixture fixture)
         {
-            var allDataTypes = context.Set<BuiltInNullableDataTypes>().Add(
-                new BuiltInNullableDataTypes
-                    {
-                        Id0 = 101,
-                        Id1 = 101,
-                        TestNullableInt32 = -123456789,
-                        TestString = "TestString",
-                        TestNullableInt64 = -1234567890123456789L,
-                        TestNullableDouble = -1.23456789,
-                        // TODO: SQL Server default precision is 18 (use max precision, 38, 
-                        // when available but no way to define that in the model at the moment)
-                        TestNullableDecimal = -1234567890.012345678M,
-                        TestNullableDateTime = DateTime.Parse("01/01/2000 12:34:56"),
-                        TestNullableDateTimeOffset = new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0)),
-                        TestNullableSingle = -1.234F,
-                        TestNullableBoolean = false,
-                        TestNullableByte = 255,
-                        TestNullableInt16 = -1234,
-                    });
+            Fixture = fixture;
 
-            var changes = context.SaveChanges();
-            Assert.Equal(1, changes);
+            TestStore = Fixture.CreateTestStore();
+        }
 
-            var dt = context.Set<BuiltInNullableDataTypes>().Where(ndt => ndt.Id0 == 101).Single();
+        protected TFixture Fixture { get; private set; }
 
-            Assert.Equal(-123456789, dt.TestNullableInt32);
-            Assert.Equal("TestString", dt.TestString);
-            Assert.Equal(-1234567890123456789L, dt.TestNullableInt64);
-            Assert.Equal(-1.23456789, dt.TestNullableDouble);
-            Assert.Equal(-1234567890.012345678M, dt.TestNullableDecimal);
-            Assert.Equal(DateTime.Parse("01/01/2000 12:34:56"), dt.TestNullableDateTime);
-            Assert.Equal(new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0)), dt.TestNullableDateTimeOffset);
-            Assert.Equal(-1.234F, dt.TestNullableSingle);
-            Assert.Equal(false, dt.TestNullableBoolean);
-            Assert.Equal((byte)255, dt.TestNullableByte);
-            Assert.Equal((short)-1234, dt.TestNullableInt16);
+        protected TTestStore TestStore { get; private set; }
+
+        public void Dispose()
+        {
+            TestStore.Dispose();
+        }
+
+        protected DbContext CreateContext()
+        {
+            return Fixture.CreateContext(TestStore);
         }
     }
 }

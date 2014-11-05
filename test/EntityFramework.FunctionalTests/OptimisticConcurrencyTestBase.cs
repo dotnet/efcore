@@ -517,7 +517,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [Fact]
         public virtual void Calling_Reload_on_an_Added_entity_throws()
         {
-            using (var context = CreateF1Context(TestStore))
+            using (var context = CreateF1Context())
             {
                 var entry =
                     context.ChangeTracker.Entry(
@@ -536,7 +536,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [Fact]
         public virtual void Calling_Reload_on_a_detached_entity_throws()
         {
-            using (var context = CreateF1Context(TestStore))
+            using (var context = CreateF1Context())
             {
                 var entry =
                     context.ChangeTracker.Entry(
@@ -573,7 +573,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         private void TestReloadPositive(EntityState state)
         {
-            using (var context = CreateF1Context(TestStore))
+            using (var context = CreateF1Context())
             {
                 var larry = context.Drivers.Single(d => d.Name == "Jenson Button");
                 var entry = context.ChangeTracker.Entry(larry);
@@ -594,7 +594,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [Fact]
         public virtual async Task Calling_ReloadAsync_on_an_Added_entity_throws()
         {
-            using (var context = CreateF1Context(TestStore))
+            using (var context = CreateF1Context())
             {
                 var entry =
                     context.ChangeTracker.Entry(
@@ -613,7 +613,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [Fact]
         public virtual async Task Calling_ReloadAsync_on_a_detached_entity_throws()
         {
-            using (var context = CreateF1Context(TestStore))
+            using (var context = CreateF1Context())
             {
                 var entry =
                     context.ChangeTracker.Entry(
@@ -650,7 +650,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         private async Task TestReloadAsyncPositive(EntityState state)
         {
-            using (var context = CreateF1Context(TestStore))
+            using (var context = CreateF1Context())
             {
                 var larry = context.Drivers.Single(d => d.Name == "Jenson Button");
                 var entry = context.ChangeTracker.Entry(larry);
@@ -674,21 +674,16 @@ namespace Microsoft.Data.Entity.FunctionalTests
             // default do nothing. Allow provider-specific entry reset
         }
 
-        public TTestStore CreateTestStore()
+        protected F1Context CreateF1Context()
         {
-            return Fixture.CreateTestStore();
-        }
-
-        protected F1Context CreateF1Context(TTestStore testStore)
-        {
-            return Fixture.CreateContext(testStore);
+            return Fixture.CreateContext(TestStore);
         }
 
         protected OptimisticConcurrencyTestBase(TFixture fixture)
         {
             Fixture = fixture;
 
-            TestStore = CreateTestStore();
+            TestStore = Fixture.CreateTestStore();
         }
 
         public void Dispose()
@@ -743,11 +738,11 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (TestStore)
             {
-                using (var context = CreateF1Context(TestStore))
+                using (var context = CreateF1Context())
                 {
                     clientChange(context);
 
-                    using (var innerContext = CreateF1Context(TestStore))
+                    using (var innerContext = CreateF1Context())
                     {
                         storeChange(innerContext);
                         await innerContext.SaveChangesAsync();
@@ -755,13 +750,13 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                     var updateException = await Assert.ThrowsAnyAsync<DbUpdateException>(() => context.SaveChangesAsync());
 
-                    using (var resolverContext = CreateF1Context(TestStore))
+                    using (var resolverContext = CreateF1Context())
                     {
                         // TODO: pass in 'context' when no tracking queries are available
                         resolver(resolverContext, updateException);
                     }
 
-                    using (var validationContext = CreateF1Context(TestStore))
+                    using (var validationContext = CreateF1Context())
                     {
                         if (validator != null)
                         {

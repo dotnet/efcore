@@ -2,15 +2,14 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.Data.Entity.FunctionalTests;
-using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
-    public class BuiltInDataTypesTest : BuiltInDataTypesTestBase, IClassFixture<BuiltInDataTypesFixture>
+    public class SqlServerBuiltInDataTypesTest : BuiltInDataTypesTestBase<SqlServerTestStore, SqlServerBuiltInDataTypesFixture>
     {
-        public BuiltInDataTypesTest(BuiltInDataTypesFixture fixture)
+        public SqlServerBuiltInDataTypesTest(SqlServerBuiltInDataTypesFixture fixture)
+            : base(fixture)
         {
-            _fixture = fixture;
         }
     }
 }

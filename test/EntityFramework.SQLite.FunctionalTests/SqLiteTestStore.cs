@@ -9,13 +9,13 @@ using Microsoft.Data.SQLite;
 
 namespace Microsoft.Data.Entity.SQLite.FunctionalTests
 {
-    public class SQLiteTestStore : RelationalTestStore
+    public class SqLiteTestStore : RelationalTestStore
     {
         private readonly Data.SQLite.SQLiteConnection _connection;
         private SQLiteTransaction _transaction;
         private static int _scratchCount;
 
-        public SQLiteTestStore(string connectionString)
+        public SqLiteTestStore(string connectionString)
         {
             _connection = new Data.SQLite.SQLiteConnection(connectionString);
         }
@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.SQLite.FunctionalTests
             get { return _transaction; }
         }
 
-        private Task<SQLiteTestStore> CreateTransactionalAsync()
+        private Task<SqLiteTestStore> CreateTransactionalAsync()
         {
             _connection.Open();
             _transaction = _connection.BeginTransaction();
@@ -38,7 +38,7 @@ namespace Microsoft.Data.Entity.SQLite.FunctionalTests
             return Task.FromResult(this);
         }
 
-        private Task<SQLiteTestStore> CreateTransientAsync()
+        private Task<SqLiteTestStore> CreateTransientAsync()
         {
             _connection.Open();
 
@@ -49,7 +49,7 @@ namespace Microsoft.Data.Entity.SQLite.FunctionalTests
         ///     A non-transactional, transient, isolated test database. Use this in the case
         ///     where transactions are not appropriate.
         /// </summary>
-        public static Task<SQLiteTestStore> CreateScratchAsync()
+        public static Task<SqLiteTestStore> CreateScratchAsync()
         {
             var scratchName = "Scratch_" + Interlocked.Increment(ref _scratchCount);
 
@@ -60,12 +60,12 @@ namespace Microsoft.Data.Entity.SQLite.FunctionalTests
                         Uri = true
                     };
 
-            return new SQLiteTestStore(connectionStringBuilder.ConnectionString).CreateTransientAsync();
+            return new SqLiteTestStore(connectionStringBuilder.ConnectionString).CreateTransientAsync();
         }
 
-        public static Task<SQLiteTestStore> GetOrCreateSharedAsync(string connectionString)
+        public static Task<SqLiteTestStore> GetOrCreateSharedAsync(string connectionString)
         {
-            return new SQLiteTestStore(connectionString).CreateTransactionalAsync();
+            return new SqLiteTestStore(connectionString).CreateTransactionalAsync();
         }
 
         public override void Dispose()

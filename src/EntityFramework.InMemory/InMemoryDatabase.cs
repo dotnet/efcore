@@ -7,6 +7,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.InMemory.Metadata;
 using Microsoft.Data.Entity.InMemory.Utilities;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
@@ -20,7 +21,7 @@ namespace Microsoft.Data.Entity.InMemory
 
         private readonly ThreadSafeLazyRef<ImmutableDictionary<IEntityType, InMemoryTable>> _tables
             = new ThreadSafeLazyRef<ImmutableDictionary<IEntityType, InMemoryTable>>(
-                () => ImmutableDictionary<IEntityType, InMemoryTable>.Empty);
+                () => ImmutableDictionary<IEntityType, InMemoryTable>.Empty.WithComparers(new EntityTypeNameEqualityComparer()));
 
         public InMemoryDatabase([NotNull] ILoggerFactory loggerFactory)
         {

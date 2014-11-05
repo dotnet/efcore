@@ -5,9 +5,9 @@ using Microsoft.Data.Entity.FunctionalTests;
 
 namespace Microsoft.Data.Entity.SQLite.FunctionalTests
 {
-    public class SqLiteAsyncQueryTest : AsyncQueryTestBase<SqLiteNorthwindQueryFixture>
+    public class SqLiteBuiltInDataTypesTest : BuiltInDataTypesTestBase<SqLiteTestStore, SqLiteBuiltInDataTypesFixture>
     {
-        public SqLiteAsyncQueryTest(SqLiteNorthwindQueryFixture fixture)
+        public SqLiteBuiltInDataTypesTest(SqLiteBuiltInDataTypesFixture fixture)
             : base(fixture)
         {
         }

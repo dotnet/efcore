@@ -7,7 +7,7 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.SQLite.FunctionalTests
 {
-    public class SqLiteIncludeTest : IncludeTestBase<SQLiteNorthwindQueryFixture>
+    public class SqLiteIncludeTest : IncludeTestBase<SqLiteNorthwindQueryFixture>
     {
         public override void Include_collection()
         {
@@ -656,7 +656,7 @@ ORDER BY ""c"".""CustomerID""",
                 TestSqlLoggerFactory.Sql);
         }
 
-        public SqLiteIncludeTest(SQLiteNorthwindQueryFixture fixture)
+        public SqLiteIncludeTest(SqLiteNorthwindQueryFixture fixture)
             : base(fixture)
         {
         }

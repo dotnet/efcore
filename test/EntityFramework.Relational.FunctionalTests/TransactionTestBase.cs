@@ -2,47 +2,116 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Update;
 using Microsoft.Data.Entity.FunctionalTests;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Relational.FunctionalTests
 {
-    public abstract class TransactionTestBase<TTestStore>
+    public abstract class TransactionTestBase<TTestStore, TFixture> : IClassFixture<TFixture>, IDisposable
         where TTestStore : RelationalTestStore
+        where TFixture : TransactionFixtureBase<TTestStore>, new()
     {
         [Fact]
-        public async Task SaveChanges_implicitly_starts_transaction()
+        public void SaveChanges_implicitly_starts_transaction()
         {
-            using (var testDatabase = await CreateTestDatabaseAsync())
+            using (var context = CreateContext())
             {
-                using (var context = await CreateContextAsync(testDatabase))
-                {
-                    context.ChangeTracker.Entry(context.Set<Customer>().First()).State = EntityState.Deleted;
-                    context.ChangeTracker.Entry(context.Set<Customer>().Last()).State = EntityState.Added;
+                context.ChangeTracker.Entry(context.Set<TransactionCustomer>().First()).State = EntityState.Deleted;
+                context.ChangeTracker.Entry(context.Set<TransactionCustomer>().Last()).State = EntityState.Added;
 
-                    Assert.Throws<DbUpdateException>(() => context.SaveChanges());
-                }
-
-                await AssertStoreInitialStateAsync(testDatabase);
+                Assert.Throws<DbUpdateException>(() => context.SaveChanges());
             }
+
+            AssertStoreInitialState();
         }
 
         [Fact]
         public async Task SaveChangesAsync_implicitly_starts_transaction()
         {
-            using (var testDatabase = await CreateTestDatabaseAsync())
+            using (var context = CreateContext())
             {
-                using (var context = await CreateContextAsync(testDatabase))
+                context.ChangeTracker.Entry(context.Set<TransactionCustomer>().First()).State = EntityState.Deleted;
+                context.ChangeTracker.Entry(context.Set<TransactionCustomer>().Last()).State = EntityState.Added;
+
+                try
                 {
-                    context.ChangeTracker.Entry(context.Set<Customer>().First()).State = EntityState.Deleted;
-                    context.ChangeTracker.Entry(context.Set<Customer>().Last()).State = EntityState.Added;
+                    await context.SaveChangesAsync();
+                }
+                catch (DbUpdateException)
+                {
+                }
+            }
+
+            AssertStoreInitialState();
+        }
+
+        [Fact]
+        public void SaveChanges_uses_explicit_transaction_without_committing()
+        {
+            using (var context = CreateContext())
+            {
+                using (context.Database.AsRelational().Connection.BeginTransaction())
+                {
+                    context.ChangeTracker.Entry(context.Set<TransactionCustomer>().First()).State = EntityState.Deleted;
+                    context.SaveChanges();
+                }
+            }
+
+            AssertStoreInitialState();
+        }
+
+        [Fact]
+        public async Task SaveChangesAsync_uses_explicit_transaction_without_committing()
+        {
+            using (var context = CreateContext())
+            {
+                using (await context.Database.AsRelational().Connection.BeginTransactionAsync())
+                {
+                    context.ChangeTracker.Entry(context.Set<TransactionCustomer>().First()).State = EntityState.Deleted;
+                    await context.SaveChangesAsync();
+                }
+            }
+
+            AssertStoreInitialState();
+        }
+
+        [Fact]
+        public void SaveChanges_uses_explicit_transaction_and_does_not_rollback_on_failure()
+        {
+            using (var context = CreateContext())
+            {
+                using (var transaction = context.Database.AsRelational().Connection.BeginTransaction())
+                {
+                    context.ChangeTracker.Entry(context.Set<TransactionCustomer>().First()).State = EntityState.Deleted;
+                    context.ChangeTracker.Entry(context.Set<TransactionCustomer>().Last()).State = EntityState.Added;
+
+                    try
+                    {
+                        context.SaveChanges();
+                    }
+                    catch (DbUpdateException)
+                    {
+                    }
+
+                    Assert.NotNull(transaction.DbTransaction.Connection);
+                }
+            }
+        }
+
+        [Fact]
+        public async Task SaveChangesAsync_uses_explicit_transaction_and_does_not_rollback_on_failure()
+        {
+            using (var context = CreateContext())
+            {
+                using (var transaction = await context.Database.AsRelational().Connection.BeginTransactionAsync())
+                {
+                    context.ChangeTracker.Entry(context.Set<TransactionCustomer>().First()).State = EntityState.Deleted;
+                    context.ChangeTracker.Entry(context.Set<TransactionCustomer>().Last()).State = EntityState.Added;
 
                     try
                     {
@@ -51,96 +120,8 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
                     catch (DbUpdateException)
                     {
                     }
-                }
 
-                await AssertStoreInitialStateAsync(testDatabase);
-            }
-        }
-
-        [Fact]
-        public async Task SaveChanges_uses_explicit_transaction_without_committing()
-        {
-            using (var testDatabase = await CreateTestDatabaseAsync())
-            {
-                using (var context = await CreateContextAsync(testDatabase))
-                {
-                    using (context.Database.AsRelational().Connection.BeginTransaction())
-                    {
-                        context.ChangeTracker.Entry(context.Set<Customer>().First()).State = EntityState.Deleted;
-                        context.SaveChanges();
-                    }
-                }
-
-                await AssertStoreInitialStateAsync(testDatabase);
-            }
-        }
-
-        [Fact]
-        public async Task SaveChangesAsync_uses_explicit_transaction_without_committing()
-        {
-            using (var testDatabase = await CreateTestDatabaseAsync())
-            {
-                using (var context = await CreateContextAsync(testDatabase))
-                {
-                    using (await context.Database.AsRelational().Connection.BeginTransactionAsync())
-                    {
-                        context.ChangeTracker.Entry(context.Set<Customer>().First()).State = EntityState.Deleted;
-                        await context.SaveChangesAsync();
-                    }
-                }
-
-                await AssertStoreInitialStateAsync(testDatabase);
-            }
-        }
-
-        [Fact]
-        public async Task SaveChanges_uses_explicit_transaction_and_does_not_rollback_on_failure()
-        {
-            using (var testDatabase = await CreateTestDatabaseAsync())
-            {
-                using (var context = await CreateContextAsync(testDatabase))
-                {
-                    using (var transaction = await context.Database.AsRelational().Connection.BeginTransactionAsync())
-                    {
-                        context.ChangeTracker.Entry(context.Set<Customer>().First()).State = EntityState.Deleted;
-                        context.ChangeTracker.Entry(context.Set<Customer>().Last()).State = EntityState.Added;
-
-                        try
-                        {
-                            context.SaveChanges();
-                        }
-                        catch (DbUpdateException)
-                        {
-                        }
-
-                        Assert.NotNull(transaction.DbTransaction.Connection);
-                    }
-                }
-            }
-        }
-
-        [Fact]
-        public async Task SaveChangesAsync_uses_explicit_transaction_and_does_not_rollback_on_failure()
-        {
-            using (var testDatabase = await CreateTestDatabaseAsync())
-            {
-                using (var context = await CreateContextAsync(testDatabase))
-                {
-                    using (var transaction = await context.Database.AsRelational().Connection.BeginTransactionAsync())
-                    {
-                        context.ChangeTracker.Entry(context.Set<Customer>().First()).State = EntityState.Deleted;
-                        context.ChangeTracker.Entry(context.Set<Customer>().Last()).State = EntityState.Added;
-
-                        try
-                        {
-                            await context.SaveChangesAsync();
-                        }
-                        catch (DbUpdateException)
-                        {
-                        }
-
-                        Assert.NotNull(transaction.DbTransaction.Connection);
-                    }
+                    Assert.NotNull(transaction.DbTransaction.Connection);
                 }
             }
         }
@@ -148,77 +129,68 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
         [Fact]
         public async Task RelationalTransaction_can_be_commited()
         {
-            using (var testDatabase = await CreateTestDatabaseAsync())
+            using (var context = CreateContext())
             {
-                using (var context = await CreateContextAsync(testDatabase))
+                using (var transaction = await context.Database.AsRelational().Connection.BeginTransactionAsync())
                 {
-                    using (var transaction = await context.Database.AsRelational().Connection.BeginTransactionAsync())
-                    {
-                        context.ChangeTracker.Entry(context.Set<Customer>().First()).State = EntityState.Deleted;
-                        await context.SaveChangesAsync();
-                        transaction.Commit();
-                    }
+                    context.ChangeTracker.Entry(context.Set<TransactionCustomer>().First()).State = EntityState.Deleted;
+                    await context.SaveChangesAsync();
+                    transaction.Commit();
                 }
+            }
 
-                using (var context = await CreateContextAsync(testDatabase))
-                {
-                    Assert.Equal(Customers.Count - 1, context.Set<Customer>().Count());
-                }
+            using (var context = CreateContext())
+            {
+                Assert.Equal(Fixture.Customers.Count - 1, context.Set<TransactionCustomer>().Count());
             }
         }
 
         [Fact]
         public async Task RelationalTransaction_can_be_rolled_back()
         {
-            using (var testDatabase = await CreateTestDatabaseAsync())
+            using (var context = CreateContext())
             {
-                using (var context = await CreateContextAsync(testDatabase))
+                using (var transaction = await context.Database.AsRelational().Connection.BeginTransactionAsync())
                 {
-                    using (var transaction = await context.Database.AsRelational().Connection.BeginTransactionAsync())
-                    {
-                        context.ChangeTracker.Entry(context.Set<Customer>().First()).State = EntityState.Deleted;
-                        await context.SaveChangesAsync();
-                        transaction.Rollback();
+                    context.ChangeTracker.Entry(context.Set<TransactionCustomer>().First()).State = EntityState.Deleted;
+                    await context.SaveChangesAsync();
+                    transaction.Rollback();
 
-                        await AssertStoreInitialStateAsync(testDatabase);
-                    }
+                    AssertStoreInitialState();
                 }
             }
         }
 
         [Fact]
-        public async Task Query_uses_explicit_transaction()
+        public void Query_uses_explicit_transaction()
         {
-            using (var testDatabase = await CreateTestDatabaseAsync())
+            using (var context = CreateContext())
             {
-                using (var context = await CreateContextAsync(testDatabase))
+                using (var transaction = context.Database.AsRelational().Connection.BeginTransaction())
                 {
-                    using (var transaction = context.Database.AsRelational().Connection.BeginTransaction())
+                    context.ChangeTracker.Entry(context.Set<TransactionCustomer>().First()).State = EntityState.Deleted;
+                    context.SaveChanges();
+
+                    using (var innerContext = CreateContext())
                     {
-                        context.ChangeTracker.Entry(context.Set<Customer>().First()).State = EntityState.Deleted;
-                        await context.SaveChangesAsync();
-
-                        using (var innerContext = await CreateContextAsync(testDatabase))
+                        using (innerContext.Database.AsRelational().Connection.BeginTransaction(IsolationLevel.ReadUncommitted))
                         {
-                            using (innerContext.Database.AsRelational().Connection.BeginTransaction(IsolationLevel.ReadUncommitted))
-                            {
-                                Assert.Equal(Customers.Count - 1, innerContext.Set<Customer>().Count());
-                            }
-
-                            if (SnapshotSupported)
-                            {
-                                using (innerContext.Database.AsRelational().Connection.BeginTransaction(IsolationLevel.Snapshot))
-                                {
-                                    Assert.Equal(Customers, innerContext.Set<Customer>().OrderBy(c => c.Id).ToList());
-                                }
-                            }
+                            Assert.Equal(Fixture.Customers.Count - 1, innerContext.Set<TransactionCustomer>().Count());
                         }
 
-                        using (var innerContext = await CreateContextAsync(context.Database.AsRelational().Connection.DbConnection))
+                        if (SnapshotSupported)
                         {
-                            innerContext.Database.AsRelational().Connection.UseTransaction(transaction.DbTransaction);
-                            Assert.Equal(Customers.Count - 1, innerContext.Set<Customer>().Count());
+                            using (innerContext.Database.AsRelational().Connection.BeginTransaction(IsolationLevel.Snapshot))
+                            {
+                                Assert.Equal(Fixture.Customers, innerContext.Set<TransactionCustomer>().OrderBy(c => c.Id).ToList());
+                            }
                         }
+                    }
+
+                    using (var innerContext = CreateContext((DbConnection)context.Database.AsRelational().Connection.DbConnection))
+                    {
+                        innerContext.Database.AsRelational().Connection.UseTransaction(transaction.DbTransaction);
+                        Assert.Equal(Fixture.Customers.Count - 1, innerContext.Set<TransactionCustomer>().Count());
                     }
                 }
             }
@@ -227,36 +199,33 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
         [Fact]
         public async Task QueryAsync_uses_explicit_transaction()
         {
-            using (var testDatabase = await CreateTestDatabaseAsync())
+            using (var context = CreateContext())
             {
-                using (var context = await CreateContextAsync(testDatabase))
+                using (var transaction = await context.Database.AsRelational().Connection.BeginTransactionAsync())
                 {
-                    using (var transaction = await context.Database.AsRelational().Connection.BeginTransactionAsync())
+                    context.ChangeTracker.Entry(context.Set<TransactionCustomer>().First()).State = EntityState.Deleted;
+                    await context.SaveChangesAsync();
+
+                    using (var innerContext = CreateContext())
                     {
-                        context.ChangeTracker.Entry(context.Set<Customer>().First()).State = EntityState.Deleted;
-                        await context.SaveChangesAsync();
-
-                        using (var innerContext = await CreateContextAsync(testDatabase))
+                        using (await innerContext.Database.AsRelational().Connection.BeginTransactionAsync(IsolationLevel.ReadUncommitted))
                         {
-                            using (await innerContext.Database.AsRelational().Connection.BeginTransactionAsync(IsolationLevel.ReadUncommitted))
-                            {
-                                Assert.Equal(Customers.Count - 1, await innerContext.Set<Customer>().CountAsync());
-                            }
-
-                            if (SnapshotSupported)
-                            {
-                                using (await innerContext.Database.AsRelational().Connection.BeginTransactionAsync(IsolationLevel.Snapshot))
-                                {
-                                    Assert.Equal(Customers, await innerContext.Set<Customer>().OrderBy(c => c.Id).ToListAsync());
-                                }
-                            }
+                            Assert.Equal(Fixture.Customers.Count - 1, await innerContext.Set<TransactionCustomer>().CountAsync());
                         }
 
-                        using (var innerContext = await CreateContextAsync(context.Database.AsRelational().Connection.DbConnection))
+                        if (SnapshotSupported)
                         {
-                            innerContext.Database.AsRelational().Connection.UseTransaction(transaction.DbTransaction);
-                            Assert.Equal(Customers.Count - 1, await innerContext.Set<Customer>().CountAsync());
+                            using (await innerContext.Database.AsRelational().Connection.BeginTransactionAsync(IsolationLevel.Snapshot))
+                            {
+                                Assert.Equal(Fixture.Customers, await innerContext.Set<TransactionCustomer>().OrderBy(c => c.Id).ToListAsync());
+                            }
                         }
+                    }
+
+                    using (var innerContext = CreateContext((DbConnection)context.Database.AsRelational().Connection.DbConnection))
+                    {
+                        innerContext.Database.AsRelational().Connection.UseTransaction(transaction.DbTransaction);
+                        Assert.Equal(Fixture.Customers.Count - 1, await innerContext.Set<TransactionCustomer>().CountAsync());
                     }
                 }
             }
@@ -265,166 +234,101 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
         [Fact]
         public async Task Can_use_open_connection_with_started_transaction()
         {
-            using (var testDatabase = await CreateTestDatabaseAsync())
+            using (var transaction = TestDatabase.Connection.BeginTransaction())
             {
-                using (var transaction = testDatabase.Connection.BeginTransaction())
+                using (var context = CreateContext(TestDatabase.Connection))
                 {
-                    using (var context = await CreateContextAsync(testDatabase.Connection))
-                    {
-                        context.Database.AsRelational().Connection.UseTransaction(transaction);
+                    context.Database.AsRelational().Connection.UseTransaction(transaction);
 
-                        context.ChangeTracker.Entry(context.Set<Customer>().First()).State = EntityState.Deleted;
-                        await context.SaveChangesAsync();
-                    }
+                    context.ChangeTracker.Entry(context.Set<TransactionCustomer>().First()).State = EntityState.Deleted;
+                    await context.SaveChangesAsync();
                 }
+            }
 
-                await AssertStoreInitialStateAsync(testDatabase);
+            AssertStoreInitialState();
+        }
+
+        [Fact]
+        public void UseTransaction_throws_if_mismatched_connection()
+        {
+            using (var transaction = TestDatabase.Connection.BeginTransaction())
+            {
+                using (var context = CreateContext())
+                {
+                    Assert.Throws<InvalidOperationException>(() =>
+                        context.Database.AsRelational().Connection.UseTransaction(transaction))
+                        .ValidateMessage(typeof(RelationalConnection), "FormatTransactionAssociatedWithDifferentConnection");
+                }
             }
         }
 
         [Fact]
-        public async Task UseTransaction_throws_if_mismatched_connection()
+        public void UseTransaction_throws_if_another_transaction_started()
         {
-            using (var testDatabase = await CreateTestDatabaseAsync())
+            using (var transaction = TestDatabase.Connection.BeginTransaction())
             {
-                using (var transaction = testDatabase.Connection.BeginTransaction())
+                using (var context = CreateContext())
                 {
-                    using (var context = await CreateContextAsync(testDatabase))
+                    using (context.Database.AsRelational().Connection.BeginTransaction())
                     {
                         Assert.Throws<InvalidOperationException>(() =>
                             context.Database.AsRelational().Connection.UseTransaction(transaction))
-                            .ValidateMessage(typeof(RelationalConnection), "FormatTransactionAssociatedWithDifferentConnection");
+                            .ValidateMessage(typeof(RelationalConnection), "FormatTransactionAlreadyStarted");
                     }
                 }
             }
         }
 
         [Fact]
-        public async Task UseTransaction_throws_if_another_transaction_started()
+        public void UseTransaction_will_not_dispose_external_transaction()
         {
-            using (var testDatabase = await CreateTestDatabaseAsync())
+            using (var transaction = TestDatabase.Connection.BeginTransaction())
             {
-                using (var transaction = testDatabase.Connection.BeginTransaction())
+                using (var context = CreateContext(TestDatabase.Connection))
                 {
-                    using (var context = await CreateContextAsync(testDatabase))
-                    {
-                        using (context.Database.AsRelational().Connection.BeginTransaction())
-                        {
-                            Assert.Throws<InvalidOperationException>(() =>
-                                context.Database.AsRelational().Connection.UseTransaction(transaction))
-                                .ValidateMessage(typeof(RelationalConnection), "FormatTransactionAlreadyStarted");
-                        }
-                    }
+                    context.Database.AsRelational().Connection.UseTransaction(transaction);
+
+                    context.Database.AsRelational().Connection.Dispose();
+
+                    Assert.NotNull(transaction.Connection);
                 }
             }
         }
 
-        [Fact]
-        public async Task UseTransaction_will_not_dispose_external_transaction()
+        protected virtual void AssertStoreInitialState()
         {
-            using (var testDatabase = await CreateTestDatabaseAsync())
+            using (var context = CreateContext())
             {
-                using (var transaction = testDatabase.Connection.BeginTransaction())
-                {
-                    using (var context = await CreateContextAsync(testDatabase.Connection))
-                    {
-                        context.Database.AsRelational().Connection.UseTransaction(transaction);
-
-                        context.Database.AsRelational().Connection.Dispose();
-
-                        Assert.NotNull(transaction.Connection);
-                    }
-                }
-            }
-        }
-
-        protected virtual async Task AssertStoreInitialStateAsync(TTestStore testDatabase)
-        {
-            using (var context = await CreateContextAsync(testDatabase))
-            {
-                Assert.Equal(Customers, context.Set<Customer>().OrderBy(c => c.Id));
+                Assert.Equal(Fixture.Customers, context.Set<TransactionCustomer>().OrderBy(c => c.Id));
             }
         }
 
         #region Helpers
 
-        protected Entity.Metadata.Model CreateModel()
+        protected TransactionTestBase(TFixture fixture)
         {
-            var model = new Entity.Metadata.Model();
-            var modelBuilder = new BasicModelBuilder(model);
+            Fixture = fixture;
+            TestDatabase = Fixture.CreateTestStore();
+        }
 
-            // TODO: Uncomment when complex types are supported
-            //builder.ComplexType<Location>();
-            modelBuilder.Entity<Customer>(ps =>
-                {
-                    ps.Property(c => c.Name);
-                    ps.Key(c => c.Id);
-                    ps.ForRelational().Table("Customers");
-                });
+        protected TTestStore TestDatabase { get; set; }
+        protected TFixture Fixture { get; set; }
 
-            return model;
+        public void Dispose()
+        {
+            TestDatabase.Dispose();
         }
 
         protected abstract bool SnapshotSupported { get; }
-
-        protected abstract Task<TTestStore> CreateTestDatabaseAsync();
-
-        protected abstract Task<DbContext> CreateContextAsync(TTestStore testStore);
-
-        protected abstract Task<DbContext> CreateContextAsync(DbConnection connection);
-
-        protected async Task SeedAsync(DbContext context)
+        
+        protected DbContext CreateContext()
         {
-            await context.Database.EnsureCreatedAsync();
-
-            foreach (var customer in Customers)
-            {
-                context.Add(customer);
-            }
-
-            await context.SaveChangesAsync();
+            return Fixture.CreateContext(TestDatabase);
         }
 
-        protected static readonly IReadOnlyList<Customer> Customers = new List<Customer>
-            {
-                new Customer
-                    {
-                        Id = 1,
-                        Name = "Bob"
-                    },
-                new Customer
-                    {
-                        Id = 2,
-                        Name = "Dave"
-                    }
-            };
-
-        public class Customer
+        protected DbContext CreateContext(DbConnection connection)
         {
-            public int Id { get; set; }
-            public string Name { get; set; }
-
-            public override bool Equals(object obj)
-            {
-                var otherCustomer = obj as Customer;
-                if (otherCustomer == null)
-                {
-                    return false;
-                }
-
-                return Id == otherCustomer.Id
-                       && Name == otherCustomer.Name;
-            }
-
-            public override string ToString()
-            {
-                return "Id = " + Id + ", Name = " + Name;
-            }
-
-            public override int GetHashCode()
-            {
-                return base.GetHashCode();
-            }
+            return Fixture.CreateContext(connection);
         }
 
         #endregion

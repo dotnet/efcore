@@ -76,6 +76,7 @@
     <Compile Include="RelationalNorthwindQueryFixture.cs" />
     <Compile Include="RelationalTestStore.cs" />
     <Compile Include="TestSqlLoggerFactory.cs" />
+    <Compile Include="TransactionFixtureBase.cs" />
     <Compile Include="TransactionTestBase.cs" />
   </ItemGroup>
   <ItemGroup>

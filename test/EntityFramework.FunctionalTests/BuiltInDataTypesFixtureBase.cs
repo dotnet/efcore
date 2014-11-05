@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -6,29 +6,30 @@ using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.FunctionalTests
 {
-    /// <summary>
-    ///     See also <see cref="SupplementalBuiltInDataTypesFixtureBase" />.
-    ///     Not all built-in data types are supported on all providers yet.
-    ///     At the same time, not all conventions (e.g. Ignore) are available yet.
-    ///     So this class provides a base fixture for those data types which are
-    ///     supported on all current providers.
-    ///     Over time, the aim is to transfer as many data types as possible into
-    ///     this class and ultimately to delete <see cref="SupplementalBuiltInDataTypesFixtureBase" />.
-    /// </summary>
-    public abstract class BuiltInDataTypesFixtureBase
+    public abstract class BuiltInDataTypesFixtureBase<TTestStore>
+        where TTestStore : TestStore
     {
-        public abstract DbContext CreateContext();
+        public abstract TTestStore CreateTestStore();
 
-        public virtual IModel CreateModel()
+        public abstract DbContext CreateContext(TTestStore testStore);
+
+        public Model CreateModel()
         {
-            var model = new Model();
-            var builder = new BasicModelBuilder(model);
-            builder.Entity<BuiltInNonNullableDataTypes>(b =>
+            var modelBuilder = new BasicModelBuilder(new Model());
+            OnModelCreating(modelBuilder);
+            return modelBuilder.Model;
+        }
+
+        // TODO: Use ModelBuilder when Ignore is available
+        public virtual void OnModelCreating(BasicModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<BuiltInNonNullableDataTypes>(b =>
                 {
                     b.Key(dt => dt.Id0);
                     // having 2 non-null properies is needed for Azure Table Storage (and should be supported by all other providers)
                     b.Property(dt => dt.Id0);
                     b.Property(dt => dt.Id1);
+                    b.Property(dt => dt.TestInt16);
                     b.Property(dt => dt.TestInt32);
                     b.Property(dt => dt.TestInt64);
                     b.Property(dt => dt.TestDouble);
@@ -38,17 +39,17 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     b.Property(dt => dt.TestSingle);
                     b.Property(dt => dt.TestBoolean);
                     b.Property(dt => dt.TestByte);
-                    b.Property(dt => dt.TestInt16);
                 });
 
-            builder.Entity<BuiltInNullableDataTypes>(b =>
+            modelBuilder.Entity<BuiltInNullableDataTypes>(b =>
                 {
                     b.Key(dt => dt.Id0);
                     // having 2 non-null properies is needed for Azure Table Storage (and should be supported by all other providers)
                     b.Property(dt => dt.Id0);
                     b.Property(dt => dt.Id1);
-                    b.Property(dt => dt.TestNullableInt32);
                     b.Property(dt => dt.TestString);
+                    b.Property(dt => dt.TestNullableInt16);
+                    b.Property(dt => dt.TestNullableInt32);
                     b.Property(dt => dt.TestNullableInt64);
                     b.Property(dt => dt.TestNullableDouble);
                     b.Property(dt => dt.TestNullableDecimal);
@@ -57,10 +58,15 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     b.Property(dt => dt.TestNullableSingle);
                     b.Property(dt => dt.TestNullableBoolean);
                     b.Property(dt => dt.TestNullableByte);
-                    b.Property(dt => dt.TestNullableInt16);
                 });
+        }
 
-            return model;
+        public virtual void Cleanup(DbContext context)
+        {
+            context.Set<BuiltInNonNullableDataTypes>().RemoveRange(context.Set<BuiltInNonNullableDataTypes>());
+            context.Set<BuiltInNullableDataTypes>().RemoveRange(context.Set<BuiltInNullableDataTypes>());
+
+            context.SaveChanges();
         }
     }
 
@@ -68,6 +74,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
     {
         public int Id0 { get; set; }
         public int Id1 { get; set; }
+        public short TestInt16 { get; set; }
         public int TestInt32 { get; set; }
         public long TestInt64 { get; set; }
         public double TestDouble { get; set; }
@@ -77,46 +84,20 @@ namespace Microsoft.Data.Entity.FunctionalTests
         public float TestSingle { get; set; }
         public bool TestBoolean { get; set; }
         public byte TestByte { get; set; }
+        public ushort TestUnsignedInt16 { get; set; }
         public uint TestUnsignedInt32 { get; set; }
         public ulong TestUnsignedInt64 { get; set; }
-        public short TestInt16 { get; set; }
-
-        public override bool Equals(object other)
-        {
-            var otherAsThisType = other as BuiltInNonNullableDataTypes;
-            return otherAsThisType != null && Equals(this, otherAsThisType);
-        }
-
-        protected bool Equals(BuiltInNonNullableDataTypes other)
-        {
-            return Id0 == other.Id0 && Id1 == other.Id1;
-        }
-
-        public static bool operator ==(BuiltInNonNullableDataTypes left, BuiltInNonNullableDataTypes right)
-        {
-            return Equals(left, right);
-        }
-
-        public static bool operator !=(BuiltInNonNullableDataTypes left, BuiltInNonNullableDataTypes right)
-        {
-            return !Equals(left, right);
-        }
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                return Id0.GetHashCode() * 397 ^ (Id1.GetHashCode());
-            }
-        }
+        public char TestCharacter { get; set; }
+        public sbyte TestSignedByte { get; set; }
     }
 
     public class BuiltInNullableDataTypes
     {
         public int Id0 { get; set; }
         public int Id1 { get; set; }
-        public int? TestNullableInt32 { get; set; }
         public string TestString { get; set; }
+        public short? TestNullableInt16 { get; set; }
+        public int? TestNullableInt32 { get; set; }
         public long? TestNullableInt64 { get; set; }
         public double? TestNullableDouble { get; set; }
         public decimal? TestNullableDecimal { get; set; }
@@ -125,35 +106,10 @@ namespace Microsoft.Data.Entity.FunctionalTests
         public float? TestNullableSingle { get; set; }
         public bool? TestNullableBoolean { get; set; }
         public byte? TestNullableByte { get; set; }
-        public short? TestNullableInt16 { get; set; }
-
-        public override bool Equals(object other)
-        {
-            var otherAsThisType = other as BuiltInNullableDataTypes;
-            return otherAsThisType != null && Equals(otherAsThisType);
-        }
-
-        protected bool Equals(BuiltInNullableDataTypes other)
-        {
-            return Id0 == other.Id0 && Id1 == other.Id1;
-        }
-
-        public static bool operator ==(BuiltInNullableDataTypes left, BuiltInNullableDataTypes right)
-        {
-            return Equals(left, right);
-        }
-
-        public static bool operator !=(BuiltInNullableDataTypes left, BuiltInNullableDataTypes right)
-        {
-            return !Equals(left, right);
-        }
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                return Id0.GetHashCode() * 397 ^ (Id1.GetHashCode());
-            }
-        }
+        public ushort? TestNullableUnsignedInt16 { get; set; }
+        public uint? TestNullableUnsignedInt32 { get; set; }
+        public ulong? TestNullableUnsignedInt64 { get; set; }
+        public char? TestNullableCharacter { get; set; }
+        public sbyte? TestNullableSignedByte { get; set; }
     }
 }

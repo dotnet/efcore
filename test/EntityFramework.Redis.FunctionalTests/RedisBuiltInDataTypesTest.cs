@@ -3,11 +3,11 @@
 
 using Microsoft.Data.Entity.FunctionalTests;
 
-namespace Microsoft.Data.Entity.SQLite.FunctionalTests
+namespace Microsoft.Data.Entity.Redis.FunctionalTests
 {
-    public class SqLiteAsyncQueryTest : AsyncQueryTestBase<SqLiteNorthwindQueryFixture>
+    public class RedisBuiltInDataTypesTest : BuiltInDataTypesTestBase<RedisTestStore, RedisBuiltInDataTypesFixture>
     {
-        public SqLiteAsyncQueryTest(SqLiteNorthwindQueryFixture fixture)
+        public RedisBuiltInDataTypesTest(RedisBuiltInDataTypesFixture fixture)
             : base(fixture)
         {
         }

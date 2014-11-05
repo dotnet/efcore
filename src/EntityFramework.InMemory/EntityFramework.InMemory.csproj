@@ -68,6 +68,7 @@
     <Compile Include="InMemoryDataStore.cs" />
     <Compile Include="InMemoryDataStoreCreator.cs" />
     <Compile Include="InMemoryDataStoreSource.cs" />
+    <Compile Include="Metadata\EntityTypeNameEqualityComparer.cs" />
     <Compile Include="Query\InMemoryQueryCompilationContext.cs" />
     <Compile Include="Query\InMemoryQueryContext.cs" />
     <Compile Include="Extensions\InMemoryDbContextOptionsExtensions.cs" />

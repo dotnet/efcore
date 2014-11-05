@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
 using Microsoft.Data.Entity.Redis.Extensions;
@@ -34,9 +33,6 @@ namespace Microsoft.Data.Entity.Redis.FunctionalTests
             {
                 if (!TestDataExists(context))
                 {
-                    // delete any pre-existing data from last run
-                    DeleteExistingTestData(context);
-
                     // recreate data for this run
                     NorthwindData.Seed(context);
                 }
@@ -51,17 +47,6 @@ namespace Microsoft.Data.Entity.Redis.FunctionalTests
         private static bool TestDataExists(DbContext context)
         {
             return context.Set<Customer>().Any();
-        }
-
-        private static void DeleteExistingTestData(DbContext context)
-        {
-            context.Set<OrderDetail>().RemoveRange(context.Set<OrderDetail>());
-            context.Set<Product>().RemoveRange(context.Set<Product>());
-            context.Set<Order>().RemoveRange(context.Set<Order>());
-            context.Set<Employee>().RemoveRange(context.Set<Employee>());
-            context.Set<Customer>().RemoveRange(context.Set<Customer>());
-
-            context.SaveChanges();
         }
     }
 }

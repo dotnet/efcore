@@ -69,8 +69,8 @@
     <Compile Include="DeadlockTest.cs" />
     <Compile Include="InMemoryAsNoTrackingTest.cs" />
     <Compile Include="InMemoryTestStore.cs" />
-    <Compile Include="BuiltInDataTypesFixture.cs" />
-    <Compile Include="BuiltInDataTypesTest.cs" />
+    <Compile Include="InMemoryBuiltInDataTypesFixture.cs" />
+    <Compile Include="InMemoryBuiltInDataTypesTest.cs" />
     <Compile Include="IncludeOneToOneTest.cs" />
     <Compile Include="MusicStoreQueryTests.cs" />
     <Compile Include="CompositeKeyEndToEndTest.cs" />
@@ -85,8 +85,6 @@
     <Compile Include="InMemoryAsyncQueryTest.cs" />
     <Compile Include="InMemoryQueryTest.cs" />
     <Compile Include="ShadowStateUpdateTest.cs" />
-    <Compile Include="SupplementalBuiltInDataTypesFixture.cs" />
-    <Compile Include="SupplementalBuiltInDataTypesTest.cs" />
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>

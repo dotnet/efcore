@@ -11,13 +11,13 @@ using Microsoft.Framework.DependencyInjection.Fallback;
 
 namespace Microsoft.Data.Entity.SQLite.FunctionalTests
 {
-    public class SQLiteNorthwindQueryFixture : RelationalNorthwindQueryFixture, IDisposable
+    public class SqLiteNorthwindQueryFixture : RelationalNorthwindQueryFixture, IDisposable
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly DbContextOptions _options;
-        private readonly SQLiteTestStore _testStore;
+        private readonly SqLiteTestStore _testStore;
 
-        public SQLiteNorthwindQueryFixture()
+        public SqLiteNorthwindQueryFixture()
         {
             _testStore = SQLiteNorthwindContext.GetSharedStoreAsync().Result;
 

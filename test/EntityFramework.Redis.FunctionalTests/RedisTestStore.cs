@@ -9,6 +9,23 @@ namespace Microsoft.Data.Entity.Redis.FunctionalTests
 {
     public class RedisTestStore : TestStore
     {
+        public Action CleanupAction { get; set; }
+
+        public override void Dispose()
+        {
+            if (CleanupAction != null)
+            {
+                try
+                {
+                    CleanupAction();
+                    CleanupAction = null;
+                }
+                catch (Exception)
+                {
+                }
+            }
+        }
+
         public static Task<RedisTestStore> GetOrCreateSharedAsync(string name, Func<Task> initializeDatabase)
         {
             return new RedisTestStore().CreateSharedAsync(name, initializeDatabase);

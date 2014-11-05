@@ -12,611 +12,594 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 {
     public class InMemoryConfigPatternsTest
     {
-        public class ImplicitServicesAndConfig
+        [Fact]
+        public void Can_save_and_query_with_implicit_services_and_OnConfiguring()
         {
-            [Fact]
-            public void Can_save_and_query_with_implicit_services_and_OnConfiguring()
+            using (var context = new ImplicitServicesAndConfigBlogContext())
             {
-                using (var context = new BlogContext())
-                {
-                    context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
-                    context.SaveChanges();
-                }
-
-                using (var context = new BlogContext())
-                {
-                    var blog = context.Blogs.SingleOrDefault();
-
-                    Assert.NotEqual(0, blog.Id);
-                    Assert.Equal("The Waffle Cart", blog.Name);
-                }
+                context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
+                context.SaveChanges();
             }
 
-            private class BlogContext : DbContext
+            using (var context = new ImplicitServicesAndConfigBlogContext())
             {
-                public DbSet<Blog> Blogs { get; set; }
+                var blog = context.Blogs.SingleOrDefault();
 
-                protected override void OnConfiguring(DbContextOptions options)
-                {
-                    options.UseInMemoryStore();
-                }
+                Assert.NotEqual(0, blog.Id);
+                Assert.Equal("The Waffle Cart", blog.Name);
+
+                context.Blogs.RemoveRange(context.Blogs);
+                context.SaveChanges();
+
+                Assert.Empty(context.Blogs);
             }
         }
 
-        public class ImplicitServicesExplicitConfig
+        private class ImplicitServicesAndConfigBlogContext : DbContext
         {
-            [Fact]
-            public void Can_save_and_query_with_implicit_services_and_explicit_config()
+            public DbSet<Blog> Blogs { get; set; }
+
+            protected override void OnConfiguring(DbContextOptions options)
             {
-                var options = new DbContextOptions().UseInMemoryStore();
-
-                using (var context = new BlogContext(options))
-                {
-                    context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
-                    context.SaveChanges();
-                }
-
-                using (var context = new BlogContext(options))
-                {
-                    var blog = context.Blogs.SingleOrDefault();
-
-                    Assert.NotEqual(0, blog.Id);
-                    Assert.Equal("The Waffle Cart", blog.Name);
-                }
-            }
-
-            private class BlogContext : DbContext
-            {
-                public BlogContext(DbContextOptions options)
-                    : base(options)
-                {
-                }
-
-                public DbSet<Blog> Blogs { get; set; }
+                options.UseInMemoryStore();
             }
         }
 
-        public class ExplicitServicesImplicitConfig
+        [Fact]
+        public void Can_save_and_query_with_implicit_services_and_explicit_config()
         {
-            [Fact]
-            public void Can_save_and_query_with_explicit_services_and_OnConfiguring()
+            var options = new DbContextOptions().UseInMemoryStore();
+
+            using (var context = new ImplicitServicesExplicitConfigBlogContext(options))
             {
-                var services = new ServiceCollection();
-                services.AddEntityFramework().AddInMemoryStore();
-                var serviceProvider = services.BuildServiceProvider();
-
-                using (var context = new BlogContext(serviceProvider))
-                {
-                    context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
-                    context.SaveChanges();
-                }
-
-                using (var context = new BlogContext(serviceProvider))
-                {
-                    var blog = context.Blogs.SingleOrDefault();
-
-                    Assert.NotEqual(0, blog.Id);
-                    Assert.Equal("The Waffle Cart", blog.Name);
-                }
+                context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
+                context.SaveChanges();
             }
 
-            private class BlogContext : DbContext
+            using (var context = new ImplicitServicesExplicitConfigBlogContext(options))
             {
-                public BlogContext(IServiceProvider serviceProvider)
-                    : base(serviceProvider)
-                {
-                }
+                var blog = context.Blogs.SingleOrDefault();
 
-                public DbSet<Blog> Blogs { get; set; }
+                Assert.NotEqual(0, blog.Id);
+                Assert.Equal("The Waffle Cart", blog.Name);
 
-                protected override void OnConfiguring(DbContextOptions options)
-                {
-                    options.UseInMemoryStore();
-                }
+                context.Blogs.RemoveRange(context.Blogs);
+                context.SaveChanges();
+
+                Assert.Empty(context.Blogs);
             }
         }
 
-        public class ExplicitServicesAndConfig
+        private class ImplicitServicesExplicitConfigBlogContext : DbContext
         {
-            [Fact]
-            public void Can_save_and_query_with_explicit_services_and_explicit_config()
+            public ImplicitServicesExplicitConfigBlogContext(DbContextOptions options)
+                : base(options)
             {
-                var services = new ServiceCollection();
-                services.AddEntityFramework().AddInMemoryStore();
-                var serviceProvider = services.BuildServiceProvider();
-
-                var options = new DbContextOptions().UseInMemoryStore();
-
-                using (var context = new BlogContext(serviceProvider, options))
-                {
-                    context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
-                    context.SaveChanges();
-                }
-
-                using (var context = new BlogContext(serviceProvider, options))
-                {
-                    var blog = context.Blogs.SingleOrDefault();
-
-                    Assert.NotEqual(0, blog.Id);
-                    Assert.Equal("The Waffle Cart", blog.Name);
-                }
             }
 
-            private class BlogContext : DbContext
-            {
-                public BlogContext(IServiceProvider serviceProvider, DbContextOptions options)
-                    : base(serviceProvider, options)
-                {
-                }
+            public DbSet<Blog> Blogs { get; set; }
+        }
 
-                public DbSet<Blog> Blogs { get; set; }
+        [Fact]
+        public void Can_save_and_query_with_explicit_services_and_OnConfiguring()
+        {
+            var services = new ServiceCollection();
+            services.AddEntityFramework().AddInMemoryStore();
+            var serviceProvider = services.BuildServiceProvider();
+
+            using (var context = new ExplicitServicesImplicitConfigBlogContext(serviceProvider))
+            {
+                context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
+                context.SaveChanges();
+            }
+
+            using (var context = new ExplicitServicesImplicitConfigBlogContext(serviceProvider))
+            {
+                var blog = context.Blogs.SingleOrDefault();
+
+                Assert.NotEqual(0, blog.Id);
+                Assert.Equal("The Waffle Cart", blog.Name);
+
+                context.Blogs.RemoveRange(context.Blogs);
+                context.SaveChanges();
+
+                Assert.Empty(context.Blogs);
             }
         }
 
-        public class ExplicitServicesAndNoConfig
+        private class ExplicitServicesImplicitConfigBlogContext : DbContext
         {
-            [Fact]
-            public void Can_save_and_query_with_explicit_services_and_no_config()
+            public ExplicitServicesImplicitConfigBlogContext(IServiceProvider serviceProvider)
+                : base(serviceProvider)
             {
-                var services = new ServiceCollection();
-                services.AddEntityFramework().AddInMemoryStore();
-                var serviceProvider = services.BuildServiceProvider();
-
-                using (var context = new BlogContext(serviceProvider))
-                {
-                    context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
-                    context.SaveChanges();
-                }
-
-                using (var context = new BlogContext(serviceProvider))
-                {
-                    var blog = context.Blogs.SingleOrDefault();
-
-                    Assert.NotEqual(0, blog.Id);
-                    Assert.Equal("The Waffle Cart", blog.Name);
-                }
             }
 
-            private class BlogContext : DbContext
-            {
-                public BlogContext(IServiceProvider serviceProvider)
-                    : base(serviceProvider)
-                {
-                }
+            public DbSet<Blog> Blogs { get; set; }
 
-                public DbSet<Blog> Blogs { get; set; }
+            protected override void OnConfiguring(DbContextOptions options)
+            {
+                options.UseInMemoryStore();
             }
         }
 
-        public class NoServicesAndNoConfig
+        [Fact]
+        public void Can_save_and_query_with_explicit_services_and_explicit_config()
         {
-            [Fact]
-            public void Throws_on_attempt_to_use_context_with_no_store()
+            var services = new ServiceCollection();
+            services.AddEntityFramework().AddInMemoryStore();
+            var serviceProvider = services.BuildServiceProvider();
+
+            var options = new DbContextOptions().UseInMemoryStore();
+
+            using (var context = new ExplicitServicesAndConfigBlogContext(serviceProvider, options))
             {
-                Assert.Equal(
-                    GetString("FormatNoDataStoreConfigured"),
-                    Assert.Throws<InvalidOperationException>(() =>
+                context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
+                context.SaveChanges();
+            }
+
+            using (var context = new ExplicitServicesAndConfigBlogContext(serviceProvider, options))
+            {
+                var blog = context.Blogs.SingleOrDefault();
+
+                Assert.NotEqual(0, blog.Id);
+                Assert.Equal("The Waffle Cart", blog.Name);
+
+                context.Blogs.RemoveRange(context.Blogs);
+                context.SaveChanges();
+
+                Assert.Empty(context.Blogs);
+            }
+        }
+
+        private class ExplicitServicesAndConfigBlogContext : DbContext
+        {
+            public ExplicitServicesAndConfigBlogContext(IServiceProvider serviceProvider, DbContextOptions options)
+                : base(serviceProvider, options)
+            {
+            }
+
+            public DbSet<Blog> Blogs { get; set; }
+        }
+
+        [Fact]
+        public void Can_save_and_query_with_explicit_services_and_no_config()
+        {
+            var services = new ServiceCollection();
+            services.AddEntityFramework().AddInMemoryStore();
+            var serviceProvider = services.BuildServiceProvider();
+
+            using (var context = new ExplicitServicesAndNoConfigBlogContext(serviceProvider))
+            {
+                context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
+                context.SaveChanges();
+            }
+
+            using (var context = new ExplicitServicesAndNoConfigBlogContext(serviceProvider))
+            {
+                var blog = context.Blogs.SingleOrDefault();
+
+                Assert.NotEqual(0, blog.Id);
+                Assert.Equal("The Waffle Cart", blog.Name);
+
+                context.Blogs.RemoveRange(context.Blogs);
+                context.SaveChanges();
+
+                Assert.Empty(context.Blogs);
+            }
+        }
+
+        private class ExplicitServicesAndNoConfigBlogContext : DbContext
+        {
+            public ExplicitServicesAndNoConfigBlogContext(IServiceProvider serviceProvider)
+                : base(serviceProvider)
+            {
+            }
+
+            public DbSet<Blog> Blogs { get; set; }
+        }
+
+        [Fact]
+        public void Throws_on_attempt_to_use_context_with_no_store()
+        {
+            Assert.Equal(
+                GetString("FormatNoDataStoreConfigured"),
+                Assert.Throws<InvalidOperationException>(() =>
+                    {
+                        using (var context = new NoServicesAndNoConfigBlogContext())
                         {
-                            using (var context = new BlogContext())
-                            {
-                                context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
-                                context.SaveChanges();
-                            }
-                        }).Message);
-            }
-
-            private class BlogContext : DbContext
-            {
-                public DbSet<Blog> Blogs { get; set; }
-            }
+                            context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
+                            context.SaveChanges();
+                        }
+                    }).Message);
         }
 
-        public class ImplicitConfigButNoServices
+        private class NoServicesAndNoConfigBlogContext : DbContext
         {
-            [Fact]
-            public void Throws_on_attempt_to_use_store_with_no_store_services()
-            {
-                var serviceCollection = new ServiceCollection();
-                serviceCollection.AddEntityFramework();
-                var serviceProvider = serviceCollection.BuildServiceProvider();
+            public DbSet<Blog> Blogs { get; set; }
+        }
 
-                Assert.Equal(
-                    GetString("FormatNoDataStoreService"),
-                    Assert.Throws<InvalidOperationException>(() =>
+        [Fact]
+        public void Throws_on_attempt_to_use_store_with_no_store_services()
+        {
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddEntityFramework();
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+
+            Assert.Equal(
+                GetString("FormatNoDataStoreService"),
+                Assert.Throws<InvalidOperationException>(() =>
+                    {
+                        using (var context = new ImplicitConfigButNoServicesBlogContext(serviceProvider))
                         {
-                            using (var context = new BlogContext(serviceProvider))
-                            {
-                                context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
-                                context.SaveChanges();
-                            }
-                        }).Message);
+                            context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
+                            context.SaveChanges();
+                        }
+                    }).Message);
+        }
+
+        private class ImplicitConfigButNoServicesBlogContext : DbContext
+        {
+            public ImplicitConfigButNoServicesBlogContext(IServiceProvider serviceProvider)
+                : base(serviceProvider)
+            {
             }
 
-            private class BlogContext : DbContext
+            public DbSet<Blog> Blogs { get; set; }
+
+            protected override void OnConfiguring(DbContextOptions options)
             {
-                public BlogContext(IServiceProvider serviceProvider)
-                    : base(serviceProvider)
-                {
-                }
-
-                public DbSet<Blog> Blogs { get; set; }
-
-                protected override void OnConfiguring(DbContextOptions options)
-                {
-                    options.UseInMemoryStore();
-                }
+                options.UseInMemoryStore();
             }
         }
 
-        public class InjectContext
+        [Fact]
+        public void Can_register_context_with_DI_container_and_have_it_injected()
         {
-            [Fact]
-            public void Can_register_context_with_DI_container_and_have_it_injected()
+            var services = new ServiceCollection();
+            services.AddTransient<InjectContextBlogContext>()
+                .AddTransient<InjectContextController>()
+                .AddEntityFramework()
+                .AddInMemoryStore();
+
+            var serviceProvider = services.BuildServiceProvider();
+
+            serviceProvider.GetService<InjectContextController>().Test();
+        }
+
+        private class InjectContextController
+        {
+            private readonly InjectContextBlogContext _context;
+
+            public InjectContextController(InjectContextBlogContext context)
             {
-                var services = new ServiceCollection();
-                services.AddTransient<BlogContext>()
-                    .AddTransient<MyController>()
-                    .AddEntityFramework()
-                    .AddInMemoryStore();
+                Assert.NotNull(context);
 
-                var serviceProvider = services.BuildServiceProvider();
-
-                serviceProvider.GetService<MyController>().Test();
+                _context = context;
             }
 
-            private class MyController
+            public void Test()
             {
-                private readonly BlogContext _context;
+                _context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
+                _context.SaveChanges();
 
-                public MyController(BlogContext context)
-                {
-                    Assert.NotNull(context);
+                var blog = _context.Blogs.SingleOrDefault();
 
-                    _context = context;
-                }
-
-                public void Test()
-                {
-                    _context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
-                    _context.SaveChanges();
-
-                    var blog = _context.Blogs.SingleOrDefault();
-
-                    Assert.NotEqual(0, blog.Id);
-                    Assert.Equal("The Waffle Cart", blog.Name);
-                }
-            }
-
-            private class BlogContext : DbContext
-            {
-                public BlogContext(IServiceProvider serviceProvider)
-                    : base(serviceProvider)
-                {
-                    Assert.NotNull(serviceProvider);
-                }
-
-                public DbSet<Blog> Blogs { get; set; }
+                Assert.NotEqual(0, blog.Id);
+                Assert.Equal("The Waffle Cart", blog.Name);
             }
         }
 
-        public class InjectContextAndConfiguration
+        private class InjectContextBlogContext : DbContext
         {
-            [Fact]
-            public void Can_register_context_and_configuration_with_DI_container_and_have_both_injected()
+            public InjectContextBlogContext(IServiceProvider serviceProvider)
+                : base(serviceProvider)
             {
-                var options = new DbContextOptions().UseInMemoryStore();
-
-                var services = new ServiceCollection();
-                services.AddTransient<BlogContext>()
-                    .AddTransient<MyController>()
-                    .AddInstance(options)
-                    .AddEntityFramework()
-                    .AddInMemoryStore();
-
-                var serviceProvider = services.BuildServiceProvider();
-
-                serviceProvider.GetService<MyController>().Test();
+                Assert.NotNull(serviceProvider);
             }
 
-            private class MyController
+            public DbSet<Blog> Blogs { get; set; }
+        }
+
+        [Fact]
+        public void Can_register_context_and_configuration_with_DI_container_and_have_both_injected()
+        {
+            var options = new DbContextOptions().UseInMemoryStore();
+
+            var services = new ServiceCollection();
+            services.AddTransient<InjectContextAndConfigurationBlogContext>()
+                .AddTransient<InjectContextAndConfigurationController>()
+                .AddInstance(options)
+                .AddEntityFramework()
+                .AddInMemoryStore();
+
+            var serviceProvider = services.BuildServiceProvider();
+
+            serviceProvider.GetService<InjectContextAndConfigurationController>().Test();
+        }
+
+        private class InjectContextAndConfigurationController
+        {
+            private readonly InjectContextAndConfigurationBlogContext _context;
+
+            public InjectContextAndConfigurationController(InjectContextAndConfigurationBlogContext context)
             {
-                private readonly BlogContext _context;
+                Assert.NotNull(context);
 
-                public MyController(BlogContext context)
-                {
-                    Assert.NotNull(context);
-
-                    _context = context;
-                }
-
-                public void Test()
-                {
-                    _context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
-                    _context.SaveChanges();
-
-                    var blog = _context.Blogs.SingleOrDefault();
-
-                    Assert.NotEqual(0, blog.Id);
-                    Assert.Equal("The Waffle Cart", blog.Name);
-                }
+                _context = context;
             }
 
-            private class BlogContext : DbContext
+            public void Test()
             {
-                public BlogContext(IServiceProvider serviceProvider, DbContextOptions options)
-                    : base(serviceProvider, options)
-                {
-                    Assert.NotNull(serviceProvider);
-                    Assert.NotNull(options);
-                }
+                _context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
+                _context.SaveChanges();
 
-                public DbSet<Blog> Blogs { get; set; }
+                var blog = _context.Blogs.SingleOrDefault();
+
+                Assert.NotEqual(0, blog.Id);
+                Assert.Equal("The Waffle Cart", blog.Name);
             }
         }
 
-        public class InjectConfiguration
+        private class InjectContextAndConfigurationBlogContext : DbContext
         {
-            // This one is a bit strange because the context gets the configuration from the service provider
-            // but doesn't get the service provider and so creates a new one for use internally. This works fine
-            // although it would be much more common to inject both when using DI explicitly.
-            [Fact]
-            public void Can_register_configuration_with_DI_container_and_have_it_injected()
+            public InjectContextAndConfigurationBlogContext(IServiceProvider serviceProvider, DbContextOptions options)
+                : base(serviceProvider, options)
             {
-                var options = new DbContextOptions().UseInMemoryStore();
-
-                var services = new ServiceCollection();
-                services.AddTransient<BlogContext>()
-                    .AddTransient<MyController>()
-                    .AddInstance(options)
-                    .AddEntityFramework()
-                    .AddInMemoryStore();
-
-                var serviceProvider = services.BuildServiceProvider();
-
-                serviceProvider.GetService<MyController>().Test();
+                Assert.NotNull(serviceProvider);
+                Assert.NotNull(options);
             }
 
-            private class MyController
+            public DbSet<Blog> Blogs { get; set; }
+        }
+
+        // This one is a bit strange because the context gets the configuration from the service provider
+        // but doesn't get the service provider and so creates a new one for use internally. This works fine
+        // although it would be much more common to inject both when using DI explicitly.
+        [Fact]
+        public void Can_register_configuration_with_DI_container_and_have_it_injected()
+        {
+            var options = new DbContextOptions().UseInMemoryStore(persist: false);
+
+            var services = new ServiceCollection();
+            services.AddTransient<InjectConfigurationBlogContext>()
+                .AddTransient<InjectConfigurationController>()
+                .AddInstance(options)
+                .AddEntityFramework()
+                .AddInMemoryStore();
+
+            var serviceProvider = services.BuildServiceProvider();
+
+            serviceProvider.GetService<InjectConfigurationController>().Test();
+        }
+
+        private class InjectConfigurationController
+        {
+            private readonly InjectConfigurationBlogContext _context;
+
+            public InjectConfigurationController(InjectConfigurationBlogContext context)
             {
-                private readonly BlogContext _context;
+                Assert.NotNull(context);
 
-                public MyController(BlogContext context)
-                {
-                    Assert.NotNull(context);
-
-                    _context = context;
-                }
-
-                public void Test()
-                {
-                    _context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
-                    _context.SaveChanges();
-
-                    var blog = _context.Blogs.SingleOrDefault();
-
-                    Assert.NotEqual(0, blog.Id);
-                    Assert.Equal("The Waffle Cart", blog.Name);
-                }
+                _context = context;
             }
 
-            private class BlogContext : DbContext
+            public void Test()
             {
-                public BlogContext(DbContextOptions options)
-                    : base(options)
-                {
-                    Assert.NotNull(options);
-                }
+                _context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
+                _context.SaveChanges();
 
-                public DbSet<Blog> Blogs { get; set; }
+                var blog = _context.Blogs.SingleOrDefault();
+
+                Assert.NotEqual(0, blog.Id);
+                Assert.Equal("The Waffle Cart", blog.Name);
             }
         }
 
-        public class InjectDifferentConfigurations
+        private class InjectConfigurationBlogContext : DbContext
         {
-            [Fact]
-            public void Can_inject_different_configurations_into_different_contexts()
+            public InjectConfigurationBlogContext(DbContextOptions options)
+                : base(options)
             {
-                var blogOptions = new DbContextOptions<BlogContext>().UseInMemoryStore();
-                var accountOptions = new DbContextOptions<AccountContext>().UseInMemoryStore();
-
-                var services = new ServiceCollection();
-                services.AddTransient<BlogContext>()
-                    .AddTransient<AccountContext>()
-                    .AddTransient<MyBlogController>()
-                    .AddTransient<MyAccountController>()
-                    .AddInstance(blogOptions)
-                    .AddInstance(accountOptions)
-                    .AddEntityFramework()
-                    .AddInMemoryStore();
-
-                var serviceProvider = services.BuildServiceProvider();
-
-                serviceProvider.GetService<MyBlogController>().Test();
-                serviceProvider.GetService<MyAccountController>().Test();
+                Assert.NotNull(options);
             }
 
-            private class MyBlogController
+            public DbSet<Blog> Blogs { get; set; }
+        }
+
+        [Fact]
+        public void Can_inject_different_configurations_into_different_contexts()
+        {
+            var blogOptions = new DbContextOptions<InjectDifferentConfigurationsBlogContext>().UseInMemoryStore();
+            var accountOptions = new DbContextOptions<InjectDifferentConfigurationsAccountContext>().UseInMemoryStore();
+
+            var services = new ServiceCollection();
+            services.AddTransient<InjectDifferentConfigurationsBlogContext>()
+                .AddTransient<InjectDifferentConfigurationsAccountContext>()
+                .AddTransient<InjectDifferentConfigurationsBlogController>()
+                .AddTransient<InjectDifferentConfigurationsAccountController>()
+                .AddInstance(blogOptions)
+                .AddInstance(accountOptions)
+                .AddEntityFramework()
+                .AddInMemoryStore();
+
+            var serviceProvider = services.BuildServiceProvider();
+
+            serviceProvider.GetService<InjectDifferentConfigurationsBlogController>().Test();
+            serviceProvider.GetService<InjectDifferentConfigurationsAccountController>().Test();
+        }
+
+        private class InjectDifferentConfigurationsBlogController
+        {
+            private readonly InjectDifferentConfigurationsBlogContext _context;
+
+            public InjectDifferentConfigurationsBlogController(InjectDifferentConfigurationsBlogContext context)
             {
-                private readonly BlogContext _context;
+                Assert.NotNull(context);
 
-                public MyBlogController(BlogContext context)
-                {
-                    Assert.NotNull(context);
-
-                    _context = context;
-                }
-
-                public void Test()
-                {
-                    Assert.IsType<DbContextOptions<BlogContext>>(_context.Configuration.ContextOptions);
-
-                    _context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
-                    _context.SaveChanges();
-
-                    var blog = _context.Blogs.SingleOrDefault();
-
-                    Assert.NotEqual(0, blog.Id);
-                    Assert.Equal("The Waffle Cart", blog.Name);
-                }
+                _context = context;
             }
 
-            private class MyAccountController
+            public void Test()
             {
-                private readonly AccountContext _context;
+                Assert.IsType<DbContextOptions<InjectDifferentConfigurationsBlogContext>>(_context.Configuration.ContextOptions);
 
-                public MyAccountController(AccountContext context)
-                {
-                    Assert.NotNull(context);
+                _context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
+                _context.SaveChanges();
 
-                    _context = context;
-                }
+                var blog = _context.Blogs.SingleOrDefault();
 
-                public void Test()
-                {
-                    Assert.IsType<DbContextOptions<AccountContext>>(_context.Configuration.ContextOptions);
-
-                    _context.Accounts.Add(new Account { Name = "Eeky Bear" });
-                    _context.SaveChanges();
-
-                    var account = _context.Accounts.SingleOrDefault();
-
-                    Assert.Equal(1, account.Id);
-                    Assert.Equal("Eeky Bear", account.Name);
-                }
-            }
-
-            private class BlogContext : DbContext
-            {
-                public BlogContext(IServiceProvider serviceProvider, DbContextOptions<BlogContext> options)
-                    : base(serviceProvider, options)
-                {
-                    Assert.NotNull(serviceProvider);
-                    Assert.NotNull(options);
-                }
-
-                public DbSet<Blog> Blogs { get; set; }
-            }
-
-            private class AccountContext : DbContext
-            {
-                public AccountContext(IServiceProvider serviceProvider, DbContextOptions<AccountContext> options)
-                    : base(serviceProvider, options)
-                {
-                    Assert.NotNull(serviceProvider);
-                    Assert.NotNull(options);
-                }
-
-                public DbSet<Account> Accounts { get; set; }
-            }
-
-            private class Account
-            {
-                public int Id { get; set; }
-                public string Name { get; set; }
+                Assert.NotEqual(0, blog.Id);
+                Assert.Equal("The Waffle Cart", blog.Name);
             }
         }
 
-        public class InjectDifferentConfigurationsNoConstructor
+        private class InjectDifferentConfigurationsAccountController
         {
-            [Fact]
-            public void Can_inject_different_configurations_into_different_contexts_without_declaring_in_constructor()
+            private readonly InjectDifferentConfigurationsAccountContext _context;
+
+            public InjectDifferentConfigurationsAccountController(InjectDifferentConfigurationsAccountContext context)
             {
-                var blogOptions = new DbContextOptions<BlogContext>().UseInMemoryStore();
-                var accountOptions = new DbContextOptions<AccountContext>().UseInMemoryStore();
+                Assert.NotNull(context);
 
-                var services = new ServiceCollection();
-                services.AddTransient<BlogContext>()
-                    .AddTransient<AccountContext>()
-                    .AddTransient<MyBlogController>()
-                    .AddTransient<MyAccountController>()
-                    .AddInstance(blogOptions)
-                    .AddInstance(accountOptions)
-                    .AddEntityFramework()
-                    .AddInMemoryStore();
-
-                var serviceProvider = services.BuildServiceProvider();
-
-                serviceProvider.GetService<MyBlogController>().Test();
-                serviceProvider.GetService<MyAccountController>().Test();
+                _context = context;
             }
 
-            private class MyBlogController
+            public void Test()
             {
-                private readonly BlogContext _context;
+                Assert.IsType<DbContextOptions<InjectDifferentConfigurationsAccountContext>>(_context.Configuration.ContextOptions);
 
-                public MyBlogController(BlogContext context)
-                {
-                    Assert.NotNull(context);
+                _context.Accounts.Add(new Account { Name = "Eeky Bear" });
+                _context.SaveChanges();
 
-                    _context = context;
-                }
+                var account = _context.Accounts.SingleOrDefault();
 
-                public void Test()
-                {
-                    Assert.IsType<DbContextOptions<BlogContext>>(_context.Configuration.ContextOptions);
+                Assert.Equal(1, account.Id);
+                Assert.Equal("Eeky Bear", account.Name);
+            }
+        }
 
-                    _context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
-                    _context.SaveChanges();
-
-                    var blog = _context.Blogs.SingleOrDefault();
-
-                    Assert.NotEqual(0, blog.Id);
-                    Assert.Equal("The Waffle Cart", blog.Name);
-                }
+        private class InjectDifferentConfigurationsBlogContext : DbContext
+        {
+            public InjectDifferentConfigurationsBlogContext(IServiceProvider serviceProvider, DbContextOptions<InjectDifferentConfigurationsBlogContext> options)
+                : base(serviceProvider, options)
+            {
+                Assert.NotNull(serviceProvider);
+                Assert.NotNull(options);
             }
 
-            private class MyAccountController
+            public DbSet<Blog> Blogs { get; set; }
+        }
+
+        private class InjectDifferentConfigurationsAccountContext : DbContext
+        {
+            public InjectDifferentConfigurationsAccountContext(IServiceProvider serviceProvider, DbContextOptions<InjectDifferentConfigurationsAccountContext> options)
+                : base(serviceProvider, options)
             {
-                private readonly AccountContext _context;
-
-                public MyAccountController(AccountContext context)
-                {
-                    Assert.NotNull(context);
-
-                    _context = context;
-                }
-
-                public void Test()
-                {
-                    Assert.IsType<DbContextOptions<AccountContext>>(_context.Configuration.ContextOptions);
-
-                    _context.Accounts.Add(new Account { Name = "Eeky Bear" });
-                    _context.SaveChanges();
-
-                    var account = _context.Accounts.SingleOrDefault();
-
-                    Assert.Equal(1, account.Id);
-                    Assert.Equal("Eeky Bear", account.Name);
-                }
+                Assert.NotNull(serviceProvider);
+                Assert.NotNull(options);
             }
 
-            private class BlogContext : DbContext
-            {
-                public BlogContext(IServiceProvider serviceProvider)
-                    : base(serviceProvider)
-                {
-                    Assert.NotNull(serviceProvider);
-                }
+            public DbSet<Account> Accounts { get; set; }
+        }
 
-                public DbSet<Blog> Blogs { get; set; }
+        [Fact]
+        public void Can_inject_different_configurations_into_different_contexts_without_declaring_in_constructor()
+        {
+            var blogOptions = new DbContextOptions<InjectDifferentConfigurationsNoConstructorBlogContext>().UseInMemoryStore();
+            var accountOptions = new DbContextOptions<InjectDifferentConfigurationsNoConstructorAccountContext>().UseInMemoryStore();
+
+            var services = new ServiceCollection();
+            services.AddTransient<InjectDifferentConfigurationsNoConstructorBlogContext>()
+                .AddTransient<InjectDifferentConfigurationsNoConstructorAccountContext>()
+                .AddTransient<InjectDifferentConfigurationsNoConstructorBlogController>()
+                .AddTransient<InjectDifferentConfigurationsNoConstructorAccountController>()
+                .AddInstance(blogOptions)
+                .AddInstance(accountOptions)
+                .AddEntityFramework()
+                .AddInMemoryStore();
+
+            var serviceProvider = services.BuildServiceProvider();
+
+            serviceProvider.GetService<InjectDifferentConfigurationsNoConstructorBlogController>().Test();
+            serviceProvider.GetService<InjectDifferentConfigurationsNoConstructorAccountController>().Test();
+        }
+
+        private class InjectDifferentConfigurationsNoConstructorBlogController
+        {
+            private readonly InjectDifferentConfigurationsNoConstructorBlogContext _context;
+
+            public InjectDifferentConfigurationsNoConstructorBlogController(InjectDifferentConfigurationsNoConstructorBlogContext context)
+            {
+                Assert.NotNull(context);
+
+                _context = context;
             }
 
-            private class AccountContext : DbContext
+            public void Test()
             {
-                public AccountContext(IServiceProvider serviceProvider)
-                    : base(serviceProvider)
-                {
-                    Assert.NotNull(serviceProvider);
-                }
+                Assert.IsType<DbContextOptions<InjectDifferentConfigurationsNoConstructorBlogContext>>(_context.Configuration.ContextOptions);
 
-                public DbSet<Account> Accounts { get; set; }
+                _context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
+                _context.SaveChanges();
+
+                var blog = _context.Blogs.SingleOrDefault();
+
+                Assert.NotEqual(0, blog.Id);
+                Assert.Equal("The Waffle Cart", blog.Name);
+            }
+        }
+
+        private class InjectDifferentConfigurationsNoConstructorAccountController
+        {
+            private readonly InjectDifferentConfigurationsNoConstructorAccountContext _context;
+
+            public InjectDifferentConfigurationsNoConstructorAccountController(InjectDifferentConfigurationsNoConstructorAccountContext context)
+            {
+                Assert.NotNull(context);
+
+                _context = context;
             }
 
-            private class Account
+            public void Test()
             {
-                public int Id { get; set; }
-                public string Name { get; set; }
+                Assert.IsType<DbContextOptions<InjectDifferentConfigurationsNoConstructorAccountContext>>(_context.Configuration.ContextOptions);
+
+                _context.Accounts.Add(new Account { Name = "Eeky Bear" });
+                _context.SaveChanges();
+
+                var account = _context.Accounts.SingleOrDefault();
+
+                Assert.Equal(1, account.Id);
+                Assert.Equal("Eeky Bear", account.Name);
             }
+        }
+
+        private class InjectDifferentConfigurationsNoConstructorBlogContext : DbContext
+        {
+            public InjectDifferentConfigurationsNoConstructorBlogContext(IServiceProvider serviceProvider)
+                : base(serviceProvider)
+            {
+                Assert.NotNull(serviceProvider);
+            }
+
+            public DbSet<Blog> Blogs { get; set; }
+        }
+
+        private class InjectDifferentConfigurationsNoConstructorAccountContext : DbContext
+        {
+            public InjectDifferentConfigurationsNoConstructorAccountContext(IServiceProvider serviceProvider)
+                : base(serviceProvider)
+            {
+                Assert.NotNull(serviceProvider);
+            }
+
+            public DbSet<Account> Accounts { get; set; }
+        }
+
+        private class Account
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
         }
 
         private class Blog

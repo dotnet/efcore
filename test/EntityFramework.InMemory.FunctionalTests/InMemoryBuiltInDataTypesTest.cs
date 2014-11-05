@@ -3,11 +3,11 @@
 
 using Microsoft.Data.Entity.FunctionalTests;
 
-namespace Microsoft.Data.Entity.SQLite.FunctionalTests
+namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 {
-    public class SqLiteAsyncQueryTest : AsyncQueryTestBase<SqLiteNorthwindQueryFixture>
+    public class InMemoryBuiltInDataTypesTest : BuiltInDataTypesTestBase<InMemoryTestStore, InMemoryBuiltInDataTypesFixture>
     {
-        public SqLiteAsyncQueryTest(SqLiteNorthwindQueryFixture fixture)
+        public InMemoryBuiltInDataTypesTest(InMemoryBuiltInDataTypesFixture fixture)
             : base(fixture)
         {
         }

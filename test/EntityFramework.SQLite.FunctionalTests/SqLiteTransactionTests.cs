@@ -3,18 +3,18 @@
 
 using Microsoft.Data.Entity.Relational.FunctionalTests;
 
-namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
+namespace Microsoft.Data.Entity.SQLite.FunctionalTests
 {
-    public class SqlServerTransactionTest : TransactionTestBase<SqlServerTestStore, SqlServerTransactionFixture>
+    public class SqLiteTransactionTest : TransactionTestBase<SqLiteTestStore, SqLiteTransactionFixture>
     {
-        public SqlServerTransactionTest(SqlServerTransactionFixture fixture)
+        public SqLiteTransactionTest(SqLiteTransactionFixture fixture)
             : base(fixture)
         {
         }
 
         protected override bool SnapshotSupported
         {
-            get { return true; }
+            get { return false; }
         }
     }
 }

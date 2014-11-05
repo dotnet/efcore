@@ -19,9 +19,9 @@ namespace Microsoft.Data.Entity.SQLite.FunctionalTests.TestModels
         /// <summary>
         ///     A transactional test database, pre-populated with Northwind schema/data
         /// </summary>
-        public static Task<SQLiteTestStore> GetSharedStoreAsync()
+        public static Task<SqLiteTestStore> GetSharedStoreAsync()
         {
-            return SQLiteTestStore.GetOrCreateSharedAsync("Filename=northwind.db");
+            return SqLiteTestStore.GetOrCreateSharedAsync("Filename=northwind.db");
         }
     }
 }

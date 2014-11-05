@@ -9,7 +9,7 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.SQLite.FunctionalTests
 {
-    public class SqLiteQueryTest : QueryTestBase<SQLiteNorthwindQueryFixture>
+    public class SqLiteQueryTest : QueryTestBase<SqLiteNorthwindQueryFixture>
     {
         public override void Take_with_single()
         {
@@ -94,7 +94,7 @@ LIMIT 10 OFFSET 5",
                 TestSqlLoggerFactory.Sql);
         }
 
-        public SqLiteQueryTest(SQLiteNorthwindQueryFixture fixture)
+        public SqLiteQueryTest(SqLiteNorthwindQueryFixture fixture)
             : base(fixture)
         {
         }
