@@ -23,7 +23,6 @@ namespace Microsoft.Data.Entity.SqlServer
                 new SqlServerMigrationOperationSqlGenerator(new SqlServerTypeMapper())
                     {
                         Database = database,
-                        DatabaseModelModifier = new DatabaseModelModifier()
                     };
         }
 

@@ -68,6 +68,7 @@
     <Compile Include="Infrastructure\ModelSnapshot.cs" />
     <Compile Include="Migration.cs" />
     <Compile Include="MigrationCodeGenerator.cs" />
+    <Compile Include="MigrationOperationCollection.cs" />
     <Compile Include="MigrationOperationSqlGenerator.cs" />
     <Compile Include="MigrationsDatabaseExtensions.cs" />
     <Compile Include="MigrationsEnabledDatabase.cs" />
@@ -112,7 +113,6 @@
     <Compile Include="Properties\Strings.Designer.cs">
       <DependentUpon>Strings.resx</DependentUpon>
     </Compile>
-    <Compile Include="DatabaseModelModifier.cs" />
     <Compile Include="Utilities\AssemblyExtensions.cs" />
     <Compile Include="Utilities\Check.cs" />
     <Compile Include="Utilities\DbContextConfigurationExtensions.cs" />

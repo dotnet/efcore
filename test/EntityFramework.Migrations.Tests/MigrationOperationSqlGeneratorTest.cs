@@ -356,53 +356,10 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             Assert.Equal("foo''bar", sqlGenerator.Object.EscapeLiteral("foo'bar"));
         }
 
-        [Fact]
-        public void Database_setter_clones_value()
-        {
-            var sqlGenerator = (new Mock<MigrationOperationSqlGenerator>(new RelationalTypeMapper()) { CallBase = true }).Object;
-            var database = new DatabaseModel();
-            var table = new Table("dbo.MyTable");
-
-            database.AddTable(table);
-            sqlGenerator.Database = database;
-
-            Assert.NotSame(database, sqlGenerator.Database);
-            Assert.Equal(1, sqlGenerator.Database.Tables.Count);
-            Assert.NotSame(table, sqlGenerator.Database.Tables[0]);
-            Assert.Equal("dbo.MyTable", sqlGenerator.Database.Tables[0].Name);
-        }
-
-        [Fact]
-        public void Generate_updates_database_model()
-        {
-            var sqlGenerator = (new Mock<MigrationOperationSqlGenerator>(new RelationalTypeMapper()) { CallBase = true }).Object;
-            var database = new DatabaseModel();
-            var table = new Table("dbo.MyTable");
-            var column = new Column("Foo", typeof(int));
-
-            sqlGenerator.Database = database;
-            sqlGenerator.DatabaseModelModifier = new DatabaseModelModifier();
-
-            var statementCount = sqlGenerator.Generate(
-                new MigrationOperation[]
-                    {
-                        new CreateTableOperation(table),
-                        new AddColumnOperation(table.Name, column)
-                    })
-                .Count();
-
-            Assert.Equal(2, statementCount);
-            Assert.Equal(1, sqlGenerator.Database.Tables.Count);
-            Assert.NotSame(table, sqlGenerator.Database.Tables[0]);
-            Assert.Equal(1, sqlGenerator.Database.Tables[0].Columns.Count);
-            Assert.NotSame(column, sqlGenerator.Database.Tables[0].Columns[0]);
-        }
-
         private static MigrationOperationSqlGenerator CreateSqlGenerator(DatabaseModel database = null)
         {
             var sqlGenerator = new Mock<MigrationOperationSqlGenerator>(new RelationalTypeMapper()) { CallBase = true }.Object;
             sqlGenerator.Database = database ?? new DatabaseModel();
-            sqlGenerator.DatabaseModelModifier = new DatabaseModelModifier();
             return sqlGenerator;
         }
 

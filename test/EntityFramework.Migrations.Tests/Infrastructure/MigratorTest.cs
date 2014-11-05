@@ -668,12 +668,13 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             var databaseMigrations = new MigrationInfo[0];
             var localMigrations
                 = new[]
-                    {
-                        new MigrationInfo("000000000000001_Migration1")
-                            {
-                                UpgradeOperations = new[] { new SqlOperation("SomeSql") }
-                            }
-                    };
+                      {
+                          new MigrationInfo("000000000000001_Migration1")
+                              {
+                                  UpgradeOperations = new[] { new SqlOperation("SomeSql") },
+                                  TargetModel = new Metadata.Model()
+                              }
+                      };
 
             Mock<RelationalDataStoreCreator> dbCreatorMock;
             Mock<DbConnection> dbConnectionMock;
@@ -726,12 +727,13 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             var databaseMigrations = new MigrationInfo[0];
             var localMigrations
                 = new[]
-                    {
-                        new MigrationInfo("000000000000001_Migration1")
-                            {
-                                UpgradeOperations = new[] { new SqlOperation("SomeSql") }
-                            }
-                    };
+                      {
+                          new MigrationInfo("000000000000001_Migration1")
+                              {
+                                  UpgradeOperations = new[] { new SqlOperation("SomeSql") },
+                                  TargetModel = new Metadata.Model()
+                              }
+                      };
 
             Mock<RelationalDataStoreCreator> dbCreatorMock;
             Mock<DbConnection> dbConnectionMock;
@@ -784,12 +786,13 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             var databaseMigrations = new MigrationInfo[0];
             var localMigrations
                 = new[]
-                    {
-                        new MigrationInfo("000000000000001_Migration1")
-                            {
-                                UpgradeOperations = new[] { new SqlOperation("SomeSql") }
-                            }
-                    };
+                      {
+                          new MigrationInfo("000000000000001_Migration1")
+                              {
+                                  UpgradeOperations = new[] { new SqlOperation("SomeSql") },
+                                  TargetModel = new Metadata.Model()
+                              }
+                      };
 
             Mock<RelationalDataStoreCreator> dbCreatorMock;
             Mock<DbConnection> dbConnectionMock;
@@ -833,14 +836,16 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                     };
             var localMigrations
                 = new[]
-                    {
-                        new MigrationInfo("000000000000001_Migration1"),
-                        new MigrationInfo("000000000000001_Migration2")
-                            {
-                                DowngradeOperations = new[] { new SqlOperation("SomeSql") },
-                                TargetModel = new Metadata.Model()
-                            }
-                    };
+                      {
+                          new MigrationInfo("000000000000001_Migration1")
+                              {
+                                  TargetModel = new Metadata.Model()
+                              },
+                          new MigrationInfo("000000000000001_Migration2")
+                              {
+                                  DowngradeOperations = new[] { new SqlOperation("SomeSql") },
+                              }
+                      };
 
             Mock<RelationalDataStoreCreator> dbCreatorMock;
             Mock<DbConnection> dbConnectionMock;
@@ -883,13 +888,12 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                     };
             var localMigrations
                 = new[]
-                    {
-                        new MigrationInfo("000000000000001_Migration1")
-                            {
-                                DowngradeOperations = new[] { new SqlOperation("SomeSql") },
-                                TargetModel = new Metadata.Model()
-                            }
-                    };
+                      {
+                          new MigrationInfo("000000000000001_Migration1")
+                              {
+                                  DowngradeOperations = new[] { new SqlOperation("SomeSql") },
+                              }
+                      };
 
             Mock<RelationalDataStoreCreator> dbCreatorMock;
             Mock<DbConnection> dbConnectionMock;
@@ -974,22 +978,23 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             var databaseMigrations = new MigrationInfo[0];
             var localMigrations
                 = new[]
-                    {
-                        new MigrationInfo("000000000000001_Migration1")
-                            {
-                                UpgradeOperations
-                                    = new[]
-                                        {
-                                            new SqlOperation("1") { SuppressTransaction = true },
-                                            new SqlOperation("2"),
-                                            new SqlOperation("3"),
-                                            new SqlOperation("4") { SuppressTransaction = true },
-                                            new SqlOperation("5"),
-                                            new SqlOperation("6"),
-                                            new SqlOperation("7") { SuppressTransaction = true }
-                                        }
-                            }
-                    };
+                      {
+                          new MigrationInfo("000000000000001_Migration1")
+                              {
+                                  UpgradeOperations
+                                      = new[]
+                                            {
+                                                new SqlOperation("1") { SuppressTransaction = true },
+                                                new SqlOperation("2"),
+                                                new SqlOperation("3"),
+                                                new SqlOperation("4") { SuppressTransaction = true },
+                                                new SqlOperation("5"),
+                                                new SqlOperation("6"),
+                                                new SqlOperation("7") { SuppressTransaction = true }
+                                            },
+                                  TargetModel = new Metadata.Model()
+                              }
+                      };
 
             Mock<RelationalDataStoreCreator> dbCreatorMock;
             Mock<DbConnection> dbConnectionMock;
@@ -1059,12 +1064,13 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             var databaseMigrations = new MigrationInfo[0];
             var localMigrations
                 = new[]
-                    {
-                        new MigrationInfo("000000000000001_Migration1")
-                            {
-                                UpgradeOperations = new[] { new SqlOperation("SomeSql") }
-                            }
-                    };
+                      {
+                          new MigrationInfo("000000000000001_Migration1")
+                              {
+                                  UpgradeOperations = new[] { new SqlOperation("SomeSql") },
+                                  TargetModel = new Metadata.Model()
+                              }
+                      };
 
             var loggerFactory = new TestLoggerFactory();
             var migrator
@@ -1116,13 +1122,12 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                     };
             var localMigrations
                 = new[]
-                    {
-                        new MigrationInfo("000000000000001_Migration1")
-                            {
-                                DowngradeOperations = new[] { new SqlOperation("SomeSql") },
-                                TargetModel = new Metadata.Model()
-                            }
-                    };
+                      {
+                          new MigrationInfo("000000000000001_Migration1")
+                              {
+                                  DowngradeOperations = new[] { new SqlOperation("SomeSql") },
+                              }
+                      };
 
             var loggerFactory = new TestLoggerFactory();
             var migrator

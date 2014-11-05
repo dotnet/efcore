@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Relational.Model;
 using Xunit;
@@ -31,7 +32,10 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                     "A",
                     new Column("Id", typeof(byte[])), true);
 
-            var operations = PreProcess(database, alterColumnOperation);
+            var operationCollection = new MigrationOperationCollection();
+            operationCollection.Add(alterColumnOperation);
+
+            var operations = PreProcess(database, operationCollection);
 
             Assert.Equal(2, operations.Count);
 
@@ -63,7 +67,10 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                     new Column("Id", typeof(int)) { IsNullable = false },
                     true);
 
-            var operations = PreProcess(modelBuilder, alterColumnOperation);
+            var operationCollection = new MigrationOperationCollection();
+            operationCollection.Add(alterColumnOperation);
+
+            var operations = PreProcess(modelBuilder, operationCollection);
 
             Assert.Equal(3, operations.Count);
 
@@ -97,7 +104,10 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                     "A",
                     new Column("P", typeof(int)), true);
 
-            var operations = PreProcess(modelBuilder, alterColumnOperation);
+            var operationCollection = new MigrationOperationCollection();
+            operationCollection.Add(alterColumnOperation);
+
+            var operations = PreProcess(modelBuilder, operationCollection);
 
             Assert.Equal(3, operations.Count);
 
@@ -137,7 +147,10 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                     "B",
                     new Column("P", typeof(int)), true);
 
-            var operations = PreProcess(modelBuilder, alterColumnOperation);
+            var operationCollection = new MigrationOperationCollection();
+            operationCollection.Add(alterColumnOperation);
+
+            var operations = PreProcess(modelBuilder, operationCollection);
 
             Assert.Equal(3, operations.Count);
 
@@ -178,7 +191,10 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                     "A",
                     new Column("Id", typeof(int)) { IsNullable = false }, true);
 
-            var operations = PreProcess(modelBuilder, alterColumnOperation);
+            var operationCollection = new MigrationOperationCollection();
+            operationCollection.Add(alterColumnOperation);
+
+            var operations = PreProcess(modelBuilder, operationCollection);
 
             Assert.Equal(5, operations.Count);
 
@@ -215,7 +231,10 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                     "A",
                     new Column("P", typeof(int)), true);
 
-            var operations = PreProcess(modelBuilder, alterColumnOperation);
+            var operationCollection = new MigrationOperationCollection();
+            operationCollection.Add(alterColumnOperation);
+
+            var operations = PreProcess(modelBuilder, operationCollection);
 
             Assert.Equal(3, operations.Count);
 
@@ -253,7 +272,10 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                             MaxLength = 9
                         }, true);
 
-            var operations = PreProcess(database, alterColumnOperation);
+            var operationCollection = new MigrationOperationCollection();
+            operationCollection.Add(alterColumnOperation);
+
+            var operations = PreProcess(database, operationCollection);
 
             Assert.Equal(1, operations.Count);
 
@@ -277,7 +299,10 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                     "A",
                     new Column("P", typeof(int)), true);
 
-            var operations = PreProcess(modelBuilder, alterColumnOperation);
+            var operationCollection = new MigrationOperationCollection();
+            operationCollection.Add(alterColumnOperation);
+
+            var operations = PreProcess(modelBuilder, operationCollection);
 
             Assert.Equal(2, operations.Count);
 
@@ -317,7 +342,11 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                     "A",
                     new Column("Id", typeof(int)) { IsNullable = false }, true);
 
-            var operations = PreProcess(modelBuilder, alterColumnOperation0, alterColumnOperation1);
+            var operationCollection = new MigrationOperationCollection();
+            operationCollection.Add(alterColumnOperation0);
+            operationCollection.Add(alterColumnOperation1);
+
+            var operations = PreProcess(modelBuilder, operationCollection);
 
             Assert.Equal(14, operations.Count);
 
@@ -385,7 +414,10 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             var dropColumnOperation = new DropColumnOperation("A", "P");
 
-            var operations = PreProcess(modelBuilder, dropColumnOperation);
+            var operationCollection = new MigrationOperationCollection();
+            operationCollection.Add(dropColumnOperation);
+
+            var operations = PreProcess(modelBuilder, operationCollection);
 
             Assert.Equal(2, operations.Count);
 
@@ -422,7 +454,10 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             var dropTableOperation = new DropTableOperation("A");
 
-            var operations = PreProcess(modelBuilder, dropTableOperation);
+            var operationCollection = new MigrationOperationCollection();
+            operationCollection.Add(dropTableOperation);
+
+            var operations = PreProcess(modelBuilder, operationCollection);
 
             Assert.Equal(2, operations.Count);
 
@@ -436,22 +471,14 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             Assert.Same(dropTableOperation, operations[1]);
         }
 
-        private static IReadOnlyList<MigrationOperation> PreProcess(BasicModelBuilder modelBuilder, params MigrationOperation[] operations)
+        private static IReadOnlyList<MigrationOperation> PreProcess(BasicModelBuilder sourceModelBuilder, MigrationOperationCollection operations)
         {
-            return PreProcess(new SqlServerDatabaseBuilder(new SqlServerTypeMapper()).GetDatabase(modelBuilder.Model), operations);
+            return PreProcess(new SqlServerDatabaseBuilder(new SqlServerTypeMapper()).GetDatabase(sourceModelBuilder.Model), operations);
         }
 
-        private static IReadOnlyList<MigrationOperation> PreProcess(DatabaseModel database, params MigrationOperation[] operations)
+        private static IReadOnlyList<MigrationOperation> PreProcess(DatabaseModel sourceDatabase, MigrationOperationCollection operations)
         {
-            var context = new SqlServerMigrationOperationPreProcessor.Context(
-                new SqlServerMigrationOperationSqlGeneratorFactory().Create(database));
-
-            foreach (var operation in operations)
-            {
-                operation.Accept(new SqlServerMigrationOperationPreProcessor(), context);
-            }
-
-            return context.CompositeOperation.Operations.ToArray();
+            return new SqlServerMigrationOperationPreProcessor(new SqlServerTypeMapper()).Process(operations, sourceDatabase, new DatabaseModel()).ToList();
         }
     }
 }

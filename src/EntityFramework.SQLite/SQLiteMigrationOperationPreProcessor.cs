@@ -1,9 +1,11 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Model;
@@ -13,6 +15,39 @@ namespace Microsoft.Data.Entity.SQLite
 {
     public class SQLiteMigrationOperationPreProcessor : MigrationOperationVisitor<SQLiteMigrationOperationPreProcessor.Context>
     {
+        private readonly SQLiteTypeMapper _typeMapper;
+
+        public SQLiteMigrationOperationPreProcessor([NotNull] SQLiteTypeMapper typeMapper)
+        {
+            Check.NotNull(typeMapper, "typeMapper");
+
+            _typeMapper = typeMapper;
+        }
+
+        public virtual SQLiteTypeMapper TypeMapper
+        {
+            get { return _typeMapper; }
+        }
+
+        public virtual IReadOnlyList<MigrationOperation> Process(            
+            [NotNull] MigrationOperationCollection operations,
+            [NotNull] DatabaseModel sourceDatabase,
+            [NotNull] DatabaseModel targetDatabase)
+        {            
+            Check.NotNull(operations, "operations");
+            Check.NotNull(sourceDatabase, "sourceDatabase");
+            Check.NotNull(targetDatabase, "targetDatabase");
+
+            var context = new Context(sourceDatabase, targetDatabase);
+
+            foreach (var operation in operations.GetAll())
+            {
+                operation.Accept(this, context);
+            }
+
+            return context.Operations;
+        }
+
         public override void Visit(CreateTableOperation operation, Context context)
         {
             Check.NotNull(operation, "operation");
@@ -159,7 +194,7 @@ namespace Microsoft.Data.Entity.SQLite
 
             context.HandlePendingOperations();
 
-            var table = context.Database.GetTable(operation.TableName);
+            var table = context.SourceDatabase.GetTable(operation.TableName);
             var index = table.GetIndex(operation.IndexName);
 
             context.HandleOperation(new DropIndexOperation(operation.TableName, operation.IndexName));
@@ -260,18 +295,36 @@ namespace Microsoft.Data.Entity.SQLite
                     Check.NotNull(operation, "operation").Table.Name,
                     operation.Table.Columns.Select(c => c.Name))
             {
-                AddOperation(operation);
+                base.AddOperation(operation);
+            }
+
+            public override void AddOperation(MigrationOperation operation)
+            {
+                // TODO: Currently the ModelDiffer outputs instances of AddForeignKeyOperation for each foreign key of 
+                // a table to be created. These operations need to be ignored because the SQLite SQL generator includes 
+                // the foreign key definitions within the CREATE TABLE statement. Figure out if there is a cleaner solution.
+
+                var table = ((CreateTableOperation)Operations[0]).Table;
+
+                var addForeignKeyOperation = operation as AddForeignKeyOperation;
+                if (addForeignKeyOperation != null)
+                {
+                    if (table.ForeignKeys.All(fk => fk.Name != addForeignKeyOperation.ForeignKeyName))
+                    {
+                        throw new InvalidOperationException();
+                    }
+
+                    return;
+                }
+
+                throw new InvalidOperationException();
             }
 
             public override IEnumerable<MigrationOperation> HandleOperations(Context context)
             {
                 Check.NotNull(context, "context");
 
-                context.Generator.DatabaseModelModifier.Modify(context.Database, Operations);
-
-                var table = context.Database.GetTable(TableName);
-
-                yield return new CreateTableOperation(table);
+                yield return Operations[0];
             }
         }
 
@@ -306,9 +359,7 @@ namespace Microsoft.Data.Entity.SQLite
             {
                 Check.NotNull(context, "context");
 
-                context.Generator.DatabaseModelModifier.Modify(context.Database, Operations);
-
-                var targetTable = context.Database.GetTable(TableName);
+                var targetTable = context.TargetDatabase.GetTable(TableName);
                 var sourceTableName = InitialTableName;
                 var targetColumnNames
                     = targetTable.Columns
@@ -338,31 +389,38 @@ namespace Microsoft.Data.Entity.SQLite
 
         public class Context
         {
-            private readonly SQLiteMigrationOperationSqlGenerator _generator;
-            private readonly List<SqlStatement> _statements = new List<SqlStatement>();
+            private readonly DatabaseModel _sourceDatabase;
+            private readonly DatabaseModel _targetDatabase;
+            private readonly List<MigrationOperation> _operations = new List<MigrationOperation>();
             private readonly List<TableOperationHandler> _handlers = new List<TableOperationHandler>();
             private readonly List<MigrationOperation> _deferredOperations = new List<MigrationOperation>();
-            private DatabaseModel _database;
 
-            public Context([NotNull] SQLiteMigrationOperationSqlGenerator generator)
+            public Context([NotNull] DatabaseModel sourceDatabase, [NotNull] DatabaseModel targetDatabase)
             {
-                Check.NotNull(generator, "generator");
+                Check.NotNull(sourceDatabase, "sourceDatabase");
+                Check.NotNull(targetDatabase, "targetDatabase");
 
-                _generator = generator;
+                _sourceDatabase = sourceDatabase;
+                _targetDatabase = targetDatabase;
             }
 
-            public virtual SQLiteMigrationOperationSqlGenerator Generator
+            public virtual DatabaseModel SourceDatabase
             {
-                get { return _generator; }
+                get { return _sourceDatabase; }
             }
 
-            public virtual IReadOnlyList<SqlStatement> Statements
+            public virtual DatabaseModel TargetDatabase
+            {
+                get { return _targetDatabase; }
+            }
+
+            public virtual IReadOnlyList<MigrationOperation> Operations
             {
                 get
                 {
                     HandlePendingOperations();
 
-                    return _statements;
+                    return _operations;
                 }
             }
 
@@ -374,13 +432,6 @@ namespace Microsoft.Data.Entity.SQLite
             public virtual IReadOnlyList<MigrationOperation> DeferredOperations
             {
                 get { return _deferredOperations; }
-            }
-
-            public virtual DatabaseModel Database
-            {
-                get { return _database; }
-
-                [param: NotNull] protected internal set { _database = value; }
             }
 
             public virtual TableOperationHandler GetHandler(SchemaQualifiedName tableName)
@@ -410,7 +461,7 @@ namespace Microsoft.Data.Entity.SQLite
 
                 if (handler == null)
                 {
-                    var table = _generator.Database.TryGetTable(tableName);
+                    var table = _sourceDatabase.TryGetTable(tableName);
                     var columnNames = table != null ? table.Columns.Select(c => c.Name) : Enumerable.Empty<string>();
 
                     SetHandler(handler
@@ -442,21 +493,17 @@ namespace Microsoft.Data.Entity.SQLite
             {
                 Check.NotNull(operation, "operation");
 
-                _statements.Add(_generator.Generate(operation));
-                _generator.DatabaseModelModifier.Modify(_generator.Database, operation);
+                _operations.Add(operation);
             }
 
             public virtual void HandlePendingOperations()
             {
-                _database = _generator.Database.Clone();
-
                 foreach (var operation in 
                     _handlers
                         .SelectMany(h => h.HandleOperations(this))
                         .Concat(_deferredOperations))
                 {
-                    _statements.Add(_generator.Generate(operation));
-                    _generator.DatabaseModelModifier.Modify(_generator.Database, operation);
+                    _operations.Add(operation);
                 }
 
                 _handlers.Clear();

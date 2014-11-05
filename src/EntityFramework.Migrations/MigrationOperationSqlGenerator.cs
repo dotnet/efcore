@@ -28,7 +28,6 @@ namespace Microsoft.Data.Entity.Migrations
 
         private readonly RelationalTypeMapper _typeMapper;
         private DatabaseModel _database;
-        private DatabaseModelModifier _databaseModelModifier;
 
         protected MigrationOperationSqlGenerator([NotNull] RelationalTypeMapper typeMapper)
         {
@@ -51,21 +50,7 @@ namespace Microsoft.Data.Entity.Migrations
             {
                 Check.NotNull(value, "value");
 
-                _database = value.Clone();
-            }
-        }
-
-        // TODO: Inject this via constructor?
-        public virtual DatabaseModelModifier DatabaseModelModifier
-        {
-            get { return _databaseModelModifier; }
-
-            [param: NotNull]
-            set
-            {
-                Check.NotNull(value, "value");
-
-                _databaseModelModifier = value;
+                _database = value;
             }
         }
 
@@ -73,14 +58,7 @@ namespace Microsoft.Data.Entity.Migrations
         {
             Check.NotNull(migrationOperations, "migrationOperations");
 
-            foreach (var operation in migrationOperations)
-            {
-                var statement = Generate(operation);
-
-                _databaseModelModifier.Modify(_database, operation);
-
-                yield return statement;
-            }
+            return migrationOperations.Select(Generate);
         }
 
         public virtual SqlStatement Generate([NotNull] MigrationOperation operation)

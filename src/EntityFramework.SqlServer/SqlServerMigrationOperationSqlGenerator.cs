@@ -23,21 +23,6 @@ namespace Microsoft.Data.Entity.SqlServer
         {
         }
 
-        public override IEnumerable<SqlStatement> Generate(IEnumerable<MigrationOperation> migrationOperations)
-        {
-            Check.NotNull(migrationOperations, "migrationOperations");
-
-            var preProcessor = new SqlServerMigrationOperationPreProcessor();
-            var preProcessorContext = new SqlServerMigrationOperationPreProcessor.Context(this);
-
-            foreach (var operation in migrationOperations)
-            {
-                operation.Accept(preProcessor, preProcessorContext);
-            }
-
-            return preProcessorContext.Statements;
-        }
-
         public override void Generate(RenameSequenceOperation renameSequenceOperation, IndentedStringBuilder stringBuilder)
         {
             Check.NotNull(renameSequenceOperation, "renameSequenceOperation");

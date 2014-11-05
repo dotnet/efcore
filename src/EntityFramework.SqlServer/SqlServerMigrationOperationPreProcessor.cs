@@ -5,8 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Model;
-using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Model;
 using Microsoft.Data.Entity.SqlServer.Utilities;
 
@@ -14,25 +14,64 @@ namespace Microsoft.Data.Entity.SqlServer
 {
     public class SqlServerMigrationOperationPreProcessor : MigrationOperationVisitor<SqlServerMigrationOperationPreProcessor.Context>
     {
+        private readonly SqlServerTypeMapper _typeMapper;
+
+        public SqlServerMigrationOperationPreProcessor([NotNull] SqlServerTypeMapper typeMapper)
+        {
+            Check.NotNull(typeMapper, "typeMapper");
+
+            _typeMapper = typeMapper;
+        }
+
+        public virtual SqlServerTypeMapper TypeMapper
+        {
+            get { return _typeMapper; }
+        }
+
+        public virtual IReadOnlyList<MigrationOperation> Process(            
+            [NotNull] MigrationOperationCollection operations,
+            [NotNull] DatabaseModel sourceDatabase,
+            [NotNull] DatabaseModel targetDatabase)
+        {
+            Check.NotNull(operations, "operations");
+            Check.NotNull(sourceDatabase, "sourceDatabase");
+            Check.NotNull(targetDatabase, "targetDatabase");
+
+            var context = new Context(operations, sourceDatabase, targetDatabase);
+
+            foreach (var operation in operations.Get<DropTableOperation>())
+            {
+                Visit(operation, context);
+            }
+
+            foreach (var operation in operations.Get<DropColumnOperation>())
+            {
+                Visit(operation, context);
+            }
+
+            foreach (var operation in operations.Get<AlterColumnOperation>())
+            {
+                Visit(operation, context);
+            }
+
+            return context.Operations.GetAll();
+        }
+
         public override void Visit(DropTableOperation dropTableOperation, Context context)
         {
             Check.NotNull(dropTableOperation, "dropTableOperation");
             Check.NotNull(context, "context");
 
-            var compositeOperation = new CompositeOperation();
-
-            var database = context.Generator.Database;
+            var database = context.SourceDatabase;
             var table = database.GetTable(dropTableOperation.TableName);
 
-            compositeOperation.AddOperations(
-                database.Tables
+            foreach (var foreignKey in database.Tables
                     .SelectMany(t => t.ForeignKeys)
-                    .Where(fk => ReferenceEquals(fk.ReferencedTable, table))
-                    .Select(fk => new DropForeignKeyOperation(fk.Table.Name, fk.Name)));
-
-            compositeOperation.AddOperation(dropTableOperation);
-
-            context.HandleCompositeOperation(compositeOperation);
+                    .Where(fk => ReferenceEquals(fk.ReferencedTable, table)))
+            {
+                context.Operations.Add(new DropForeignKeyOperation(foreignKey.Table.Name, foreignKey.Name),
+                    (x, y) => x.TableName == y.TableName && x.ForeignKeyName == y.ForeignKeyName);
+            }
         }
 
         public override void Visit(DropColumnOperation dropColumnOperation, Context context)
@@ -40,20 +79,14 @@ namespace Microsoft.Data.Entity.SqlServer
             Check.NotNull(dropColumnOperation, "dropColumnOperation");
             Check.NotNull(context, "context");
 
-            var compositeOperation = new CompositeOperation();
-
-            var database = context.Generator.Database;
+            var database = context.SourceDatabase;
             var table = database.GetTable(dropColumnOperation.TableName);
             var column = table.GetColumn(dropColumnOperation.ColumnName);
 
             if (column.HasDefault)
             {
-                compositeOperation.AddOperation(new DropDefaultConstraintOperation(table.Name, column.Name));
+                context.Operations.Add(new DropDefaultConstraintOperation(table.Name, column.Name));
             }
-
-            compositeOperation.AddOperation(dropColumnOperation);
-
-            context.HandleCompositeOperation(compositeOperation);
         }
 
         public override void Visit(AlterColumnOperation alterColumnOperation, Context context)
@@ -61,11 +94,7 @@ namespace Microsoft.Data.Entity.SqlServer
             Check.NotNull(alterColumnOperation, "alterColumnOperation");
             Check.NotNull(context, "context");
 
-            var compositeOperation
-                = context.CompositeOperation as CompositeAlterColumnOperation
-                  ?? new CompositeAlterColumnOperation();
-
-            var database = context.Generator.Database;
+            var database = context.SourceDatabase;
             var table = database.GetTable(alterColumnOperation.TableName);
             var column = table.GetColumn(alterColumnOperation.NewColumn.Name);
             var newColumn = alterColumnOperation.NewColumn;
@@ -73,24 +102,40 @@ namespace Microsoft.Data.Entity.SqlServer
             string dataType, newDataType;
             GetDataTypes(table, column, newColumn, context, out dataType, out newDataType);
 
-            if (table.PrimaryKey != null
-                && table.PrimaryKey.Columns.Any(c => ReferenceEquals(c, column)))
+            var primaryKey = table.PrimaryKey;
+            if (primaryKey != null
+                && primaryKey.Columns.Any(c => ReferenceEquals(c, column)))
             {
-                compositeOperation.AddPrimaryKey(table.PrimaryKey);
+                if (context.Operations.Add(new DropPrimaryKeyOperation(primaryKey.Table.Name, primaryKey.Name),
+                    (x, y) => x.TableName == y.TableName && x.PrimaryKeyName == y.PrimaryKeyName))
+                {
+                    context.Operations.Add(new AddPrimaryKeyOperation(primaryKey));
+                }
             }
 
             // TODO: Changing the length of a variable-length column used in a UNIQUE constraint is allowed.
-            compositeOperation.AddUniqueConstraints(
-                table.UniqueConstraints
-                    .Where(uc => uc.Columns.Any(c => ReferenceEquals(c, column))));
+            foreach (var uniqueConstraint in table.UniqueConstraints
+                .Where(uc => uc.Columns.Any(c => ReferenceEquals(c, column))))
+            {
+                if (context.Operations.Add(new DropUniqueConstraintOperation(uniqueConstraint.Table.Name, uniqueConstraint.Name),
+                    (x, y) => x.TableName == y.TableName && x.UniqueConstraintName == y.UniqueConstraintName))
+                {
+                    context.Operations.Add(new AddUniqueConstraintOperation(uniqueConstraint));
+                }
+            }
 
-            compositeOperation.AddForeignKeys(
-                table.ForeignKeys
-                    .Where(fk => fk.Columns.Any(c => ReferenceEquals(c, column))));
-            compositeOperation.AddForeignKeys(
-                database.Tables
+            foreach (var foreignKey in table.ForeignKeys
+                .Where(fk => fk.Columns.Any(c => ReferenceEquals(c, column)))
+                .Concat(database.Tables
                     .SelectMany(t => t.ForeignKeys)
-                    .Where(fk => fk.ReferencedColumns.Any(c => ReferenceEquals(c, column))));
+                    .Where(fk => fk.ReferencedColumns.Any(c => ReferenceEquals(c, column)))))
+            {
+                if (context.Operations.Add(new DropForeignKeyOperation(foreignKey.Table.Name, foreignKey.Name),
+                    (x, y) => x.TableName == y.TableName && x.ForeignKeyName == y.ForeignKeyName))
+                {
+                    context.Operations.Add(new AddForeignKeyOperation(foreignKey));
+                }
+            }
 
             if (dataType != newDataType
                 || ((string.Equals(dataType, "varchar", StringComparison.OrdinalIgnoreCase)
@@ -98,35 +143,28 @@ namespace Microsoft.Data.Entity.SqlServer
                      || string.Equals(dataType, "varbinary", StringComparison.OrdinalIgnoreCase))
                     && newColumn.MaxLength > column.MaxLength))
             {
-                compositeOperation.AddIndexes(
-                    table.Indexes
-                        .Where(ix => ix.Columns.Any(c => ReferenceEquals(c, column))));
+                foreach (var index in table.Indexes
+                    .Where(ix => ix.Columns.Any(c => ReferenceEquals(c, column))))
+                {
+                    if (context.Operations.Add(new DropIndexOperation(index.Table.Name, index.Name),
+                        (x, y) => x.TableName == y.TableName && x.IndexName == y.IndexName))
+                    {
+                        context.Operations.Add(new CreateIndexOperation(index));
+                    }
+                }
             }
 
             if (column.HasDefault)
             {
-                compositeOperation.AddOperation(new DropDefaultConstraintOperation(table.Name, column.Name));
+                context.Operations.Add(new DropDefaultConstraintOperation(table.Name, column.Name));
             }
 
             if (column.IsTimestamp)
             {
-                compositeOperation.AddOperation(new DropColumnOperation(table.Name, column.Name));
-                compositeOperation.AddOperation(new AddColumnOperation(table.Name, newColumn));
+                context.Operations.Remove(alterColumnOperation);
+                context.Operations.Add(new DropColumnOperation(table.Name, column.Name));
+                context.Operations.Add(new AddColumnOperation(table.Name, newColumn));
             }
-            else
-            {
-                compositeOperation.AddOperation(alterColumnOperation);
-            }
-
-            context.HandleCompositeOperation(compositeOperation);
-        }
-
-        protected override void VisitDefault(MigrationOperation operation, Context context)
-        {
-            Check.NotNull(operation, "operation");
-            Check.NotNull(context, "context");
-
-            context.HandleOperation(operation);
         }
 
         protected virtual void GetDataTypes(
@@ -145,151 +183,48 @@ namespace Microsoft.Data.Entity.SqlServer
                   || table.ForeignKeys.SelectMany(k => k.Columns).Contains(column);
 
             dataType
-                = context.Generator.TypeMapper.GetTypeMapping(
+                = TypeMapper.GetTypeMapping(
                     column.DataType, column.Name, column.ClrType, isKey, column.IsTimestamp)
                     .StoreTypeName;
             newDataType
-                = context.Generator.TypeMapper.GetTypeMapping(
+                = TypeMapper.GetTypeMapping(
                     newColumn.DataType, newColumn.Name, newColumn.ClrType, isKey, newColumn.IsTimestamp)
                     .StoreTypeName;
         }
 
         public class Context
         {
-            private readonly SqlServerMigrationOperationSqlGenerator _generator;
-            private readonly List<SqlStatement> _statements = new List<SqlStatement>();
+            private readonly DatabaseModel _sourceDatabase;
+            private readonly DatabaseModel _targetDatabase;
+            private readonly MigrationOperationCollection _operations;
 
-            public Context([NotNull] SqlServerMigrationOperationSqlGenerator generator)
-            {
-                Check.NotNull(generator, "generator");
-
-                _generator = generator;
-            }
-
-            public virtual SqlServerMigrationOperationSqlGenerator Generator
-            {
-                get { return _generator; }
-            }
-
-            public virtual IReadOnlyList<SqlStatement> Statements
-            {
-                get
-                {
-                    HandleCompositeOperation(null);
-
-                    return _statements;
-                }
-            }
-
-            protected internal virtual CompositeOperation CompositeOperation { get; [param: CanBeNull] set; }
-
-            public virtual void HandleOperation([NotNull] MigrationOperation operation)
-            {
-                Check.NotNull(operation, "operation");
-
-                HandleCompositeOperation(null);
-
-                _statements.Add(_generator.Generate(operation));
-                _generator.DatabaseModelModifier.Modify(_generator.Database, operation);
-            }
-
-            public virtual void HandleCompositeOperation([CanBeNull] CompositeOperation compositeOperation)
-            {
-                if (ReferenceEquals(compositeOperation, CompositeOperation))
-                {
-                    return;
-                }
-
-                if (CompositeOperation != null)
-                {
-                    foreach (var operation in CompositeOperation.Operations)
-                    {
-                        _statements.Add(_generator.Generate(operation));
-                        _generator.DatabaseModelModifier.Modify(_generator.Database, operation);
-                    }
-                }
-
-                CompositeOperation = compositeOperation;
-            }
-        }
-
-        public class CompositeOperation
-        {
-            private readonly List<MigrationOperation> _operations = new List<MigrationOperation>();
-
-            public virtual IEnumerable<MigrationOperation> Operations
-            {
-                get { return _operations; }
-            }
-
-            public virtual void AddOperation([NotNull] MigrationOperation operation)
-            {
-                Check.NotNull(operation, "operation");
-
-                _operations.Add(operation);
-            }
-
-            public virtual void AddOperations([NotNull] IEnumerable<MigrationOperation> operations)
+            public Context(
+                [NotNull] MigrationOperationCollection operations,
+                [NotNull] DatabaseModel sourceDatabase,
+                [NotNull] DatabaseModel targetDatabase)
             {
                 Check.NotNull(operations, "operations");
+                Check.NotNull(sourceDatabase, "sourceDatabase");
+                Check.NotNull(targetDatabase, "targetDatabase");
 
-                _operations.AddRange(operations);
-            }
-        }
-
-        public class CompositeAlterColumnOperation : CompositeOperation
-        {
-            private readonly List<PrimaryKey> _primaryKeys = new List<PrimaryKey>();
-            private readonly List<UniqueConstraint> _uniqueConstraints = new List<UniqueConstraint>();
-            private readonly List<ForeignKey> _foreignKeys = new List<ForeignKey>();
-            private readonly List<Index> _indexes = new List<Index>();
-
-            public override IEnumerable<MigrationOperation> Operations
-            {
-                get
-                {
-                    return
-                        ((IEnumerable<MigrationOperation>)_indexes.Select(ix => new DropIndexOperation(ix.Table.Name, ix.Name)))
-                            .Concat(_foreignKeys.Select(fk => new DropForeignKeyOperation(fk.Table.Name, fk.Name)))
-                            .Concat(_uniqueConstraints.Select(uc => new DropUniqueConstraintOperation(uc.Table.Name, uc.Name)))
-                            .Concat(_primaryKeys.Select(pk => new DropPrimaryKeyOperation(pk.Table.Name, pk.Name)))
-                            .Concat(base.Operations)
-                            .Concat(_primaryKeys.Select(pk => new AddPrimaryKeyOperation(pk)))
-                            .Concat(_uniqueConstraints.Select(uc => new AddUniqueConstraintOperation(uc)))
-                            .Concat(_foreignKeys.Select(fk => new AddForeignKeyOperation(fk)))
-                            .Concat(_indexes.Select(ix => new CreateIndexOperation(ix)));
-                }
+                _sourceDatabase = sourceDatabase;
+                _targetDatabase = targetDatabase;
+                _operations = operations;
             }
 
-            public virtual void AddPrimaryKey([NotNull] PrimaryKey primaryKey)
+            public virtual DatabaseModel SourceDatabase
             {
-                Check.NotNull(primaryKey, "primaryKey");
-
-                if (!_primaryKeys.Contains(primaryKey))
-                {
-                    _primaryKeys.Add(primaryKey);
-                }
+                get { return _sourceDatabase; }
             }
 
-            public virtual void AddUniqueConstraints([NotNull] IEnumerable<UniqueConstraint> uniqueConstraints)
+            public virtual DatabaseModel TargetDatabase
             {
-                Check.NotNull(uniqueConstraints, "uniqueConstraints");
-
-                _uniqueConstraints.AddRange(uniqueConstraints.Where(uc => !_uniqueConstraints.Contains(uc)));
+                get { return _targetDatabase; }
             }
 
-            public virtual void AddForeignKeys([NotNull] IEnumerable<ForeignKey> foreignKeys)
+            public virtual MigrationOperationCollection Operations
             {
-                Check.NotNull(foreignKeys, "foreignKeys");
-
-                _foreignKeys.AddRange(foreignKeys.Where(fk => !_foreignKeys.Contains(fk)));
-            }
-
-            public virtual void AddIndexes([NotNull] IEnumerable<Index> indexes)
-            {
-                Check.NotNull(indexes, "indexes");
-
-                _indexes.AddRange(indexes.Where(ix => !_indexes.Contains(ix)));
+                get { return _operations; }
             }
         }
     }

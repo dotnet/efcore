@@ -74,7 +74,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApiConsistencyTest.cs" />
-    <Compile Include="DatabaseModelModifierTest.cs" />
     <Compile Include="Infrastructure\ContextTypeAttributeTest.cs" />
     <Compile Include="Infrastructure\HistoryRepositoryTest.cs" />
     <Compile Include="Infrastructure\MigrationAssemblyTest.cs" />
