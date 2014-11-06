@@ -7,17 +7,17 @@ using Microsoft.Framework.Logging;
 using Moq;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Relational.Tests
+namespace Microsoft.Data.Entity.Migrations.Tests
 {
-    public class RelationalDatabaseExtensionsTest
+    public class MigrationsDatabaseExtensionsTest
     {
         [Fact]
         public void Returns_typed_database_object()
         {
             var configurationMock = new Mock<DbContextConfiguration>();
-            var database = new ConcreteRelationalDatabase(configurationMock.Object, new LoggerFactory());
+            var database = new ConcreteMigrationsEnabledDatabase(configurationMock.Object, new LoggerFactory());
 
-            Assert.Same(database, database.AsRelational());
+            Assert.Same(database, database.AsMigrationsEnabled());
         }
 
         [Fact]
@@ -27,8 +27,8 @@ namespace Microsoft.Data.Entity.Relational.Tests
             var database = new ConcreteDatabase(configurationMock.Object, new LoggerFactory());
 
             Assert.Equal(
-                Strings.RelationalNotInUse,
-                Assert.Throws<InvalidOperationException>(() => database.AsRelational()).Message);
+                Strings.MigrationsNotInUse,
+                Assert.Throws<InvalidOperationException>(() => database.AsMigrationsEnabled()).Message);
         }
 
         private class ConcreteDatabase : Database
@@ -39,9 +39,9 @@ namespace Microsoft.Data.Entity.Relational.Tests
             }
         }
 
-        private class ConcreteRelationalDatabase : RelationalDatabase
+        private class ConcreteMigrationsEnabledDatabase : MigrationsEnabledDatabase
         {
-            public ConcreteRelationalDatabase(DbContextConfiguration configuration, ILoggerFactory loggerFactory)
+            public ConcreteMigrationsEnabledDatabase(DbContextConfiguration configuration, ILoggerFactory loggerFactory)
                 : base(configuration, loggerFactory)
             {
             }

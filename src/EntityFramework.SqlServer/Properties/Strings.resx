@@ -141,4 +141,7 @@
   <data name="SequenceBadType" xml:space="preserve">
     <value>SQL Server sequences cannot be used to generate values for the property '{property}' on entity type '{entityType}' because the property type is '{propertyType}'. Sequences can only be used with integer properties.</value>
   </data>
+  <data name="SqlServerNotInUse" xml:space="preserve">
+    <value>SQL Server-specific methods can only be used when the context is using a SQL Server data store.</value>
+  </data>
 </root>

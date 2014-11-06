@@ -61,6 +61,8 @@
     <Compile Include="..\Shared\LoggingExtensions.cs">
       <Link>LoggingExtensions.cs</Link>
     </Compile>
+    <Compile Include="InMemoryDatabaseExtensions.cs" />
+    <Compile Include="InMemoryDatabaseFacade.cs" />
     <Compile Include="InMemoryDataStoreServices.cs" />
     <Compile Include="InMemoryOptionsExtension.cs" />
     <Compile Include="InMemoryConnection.cs" />
@@ -88,6 +90,7 @@
     <Compile Include="..\Shared\SharedTypeExtensions.cs" />
     <EmbeddedResource Include="Properties\Strings.resx">
       <LogicalName>EntityFramework.InMemory.Strings.resources</LogicalName>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <None Include="..\..\packages\KoreBuild\build\Resources.tt">
       <Link>Properties\Resources.tt</Link>

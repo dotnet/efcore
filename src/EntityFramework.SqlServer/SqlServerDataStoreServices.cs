@@ -6,7 +6,6 @@ using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
-using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.SqlServer.Utilities;
 using Microsoft.Data.Entity.Storage;
 
@@ -18,7 +17,7 @@ namespace Microsoft.Data.Entity.SqlServer
         private readonly SqlServerDataStoreCreator _creator;
         private readonly SqlServerConnection _connection;
         private readonly SqlServerValueGeneratorCache _valueGeneratorCache;
-        private readonly RelationalDatabase _database;
+        private readonly SqlServerDatabase _database;
         private readonly ModelBuilderFactory _modelBuilderFactory;
         private readonly SqlServerMigrator _migrator;
 
@@ -27,7 +26,7 @@ namespace Microsoft.Data.Entity.SqlServer
             [NotNull] SqlServerDataStoreCreator creator,
             [NotNull] SqlServerConnection connection,
             [NotNull] SqlServerValueGeneratorCache valueGeneratorCache,
-            [NotNull] RelationalDatabase database,
+            [NotNull] SqlServerDatabase database,
             [NotNull] ModelBuilderFactory modelBuilderFactory,
             [NotNull] SqlServerMigrator migrator)
         {

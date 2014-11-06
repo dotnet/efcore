@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.Tests
             configurationMock.Setup(m => m.Model).Returns(model);
             configurationMock.Setup(m => m.Connection).Returns(connection);
 
-            var database = new Database(configurationMock.Object, new LoggerFactory());
+            var database = new ConcreteDatabase(configurationMock.Object, new LoggerFactory());
 
             Assert.True(database.EnsureCreated());
             creatorMock.Verify(m => m.EnsureCreated(model), Times.Once);
@@ -53,13 +53,21 @@ namespace Microsoft.Data.Entity.Tests
             configurationMock.Setup(m => m.DataStoreCreator).Returns(creatorMock.Object);
             configurationMock.Setup(m => m.Model).Returns(model);
 
-            var database = new Database(configurationMock.Object, new LoggerFactory());
+            var database = new ConcreteDatabase(configurationMock.Object, new LoggerFactory());
 
             Assert.True(await database.EnsureCreatedAsync(cancellationToken));
             creatorMock.Verify(m => m.EnsureCreatedAsync(model, cancellationToken), Times.Once);
 
             Assert.True(await database.EnsureDeletedAsync(cancellationToken));
             creatorMock.Verify(m => m.EnsureDeletedAsync(model, cancellationToken), Times.Once);
+        }
+
+        private class ConcreteDatabase : Database
+        {
+            public ConcreteDatabase(DbContextConfiguration configuration, ILoggerFactory loggerFactory)
+                : base(configuration, loggerFactory)
+            {
+            }
         }
     }
 }

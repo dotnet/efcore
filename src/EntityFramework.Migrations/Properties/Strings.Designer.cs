@@ -202,6 +202,22 @@ namespace Microsoft.Data.Entity.Migrations
             return GetString("MigratorLoggerUpToDate");
         }
 
+        /// <summary>
+        /// Migrations-specific methods can only be used when the context is using a migrations-enabled data store.
+        /// </summary>
+        internal static string MigrationsNotInUse
+        {
+            get { return GetString("MigrationsNotInUse"); }
+        }
+
+        /// <summary>
+        /// Migrations-specific methods can only be used when the context is using a migrations-enabled data store.
+        /// </summary>
+        internal static string FormatMigrationsNotInUse()
+        {
+            return GetString("MigrationsNotInUse");
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

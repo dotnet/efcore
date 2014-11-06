@@ -1257,11 +1257,12 @@ new StringBuilder()
         {
             var services = new ServiceCollection()
                 .AddEntityFramework()
-                .AddRelational()
+                .AddMigrations()
                 .ServiceCollection
                 .AddScoped<DataStoreSource, FakeDataStoreSource>()
                 .AddScoped<DataStoreSelector>()
                 .AddScoped<FakeRelationalDataStoreServices>()
+                .AddScoped<FakeDatabase>()
                 .AddScoped<FakeRelationalOptionsExtension>()
                 .AddScoped<FakeRelationalConnection>()
                 .AddInstance(dbCreator)
@@ -1358,10 +1359,10 @@ new StringBuilder()
         {
             private readonly RelationalDataStoreCreator _creator;
             private readonly FakeRelationalConnection _connection;
-            private readonly RelationalDatabase _database;
+            private readonly FakeDatabase _database;
 
             public FakeRelationalDataStoreServices(RelationalDataStoreCreator creator,
-                FakeRelationalConnection connection, RelationalDatabase database)
+                FakeRelationalConnection connection, FakeDatabase database)
             {
                 _creator = creator;
                 _connection = connection;
@@ -1396,6 +1397,14 @@ new StringBuilder()
             public override IModelBuilderFactory ModelBuilderFactory
             {
                 get { throw new NotImplementedException(); }
+            }
+        }
+
+        private class FakeDatabase : MigrationsEnabledDatabase
+        {
+            public FakeDatabase(DbContextConfiguration configuration, ILoggerFactory loggerFactory)
+                : base(configuration, loggerFactory)
+            {
             }
         }
 

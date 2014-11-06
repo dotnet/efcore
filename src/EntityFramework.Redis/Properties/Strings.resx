@@ -135,4 +135,7 @@
   <data name="UnableToUpdate" xml:space="preserve">
     <value>Cannot update entity of type '{0}' with key '{1}' because the key does not exist in the Primary Key Index for that entity.</value>
   </data>
+  <data name="RedisNotInUse" xml:space="preserve">
+    <value>Redis-specific methods can only be used when the context is using a Redis data store.</value>
+  </data>
 </root>

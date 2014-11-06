@@ -4,39 +4,25 @@
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Infrastructure
 {
-    public class Database : IDbContextConfigurationAdapter
+    public abstract class Database : IDatabaseInternals
     {
         private readonly DbContextConfiguration _configuration;
         private readonly LazyRef<ILogger> _logger;
 
-        public Database([NotNull] DbContextConfiguration configuration, [NotNull] ILoggerFactory loggerFactory)
+        protected Database([NotNull] DbContextConfiguration configuration, [NotNull] ILoggerFactory loggerFactory)
         {
             Check.NotNull(configuration, "configuration");
             Check.NotNull(loggerFactory, "loggerFactory");
 
             _configuration = configuration;
             _logger = new LazyRef<ILogger>(loggerFactory.Create<Database>);
-        }
-
-        protected virtual DbContextConfiguration Configuration
-        {
-            get { return _configuration; }
-        }
-
-        DbContextConfiguration IDbContextConfigurationAdapter.Configuration
-        {
-            get { return Configuration; }
-        }
-
-        protected virtual ILogger Logger
-        {
-            get { return _logger.Value; }
         }
 
         public virtual DataStoreConnection Connection
@@ -66,6 +52,36 @@ namespace Microsoft.Data.Entity.Infrastructure
         public virtual Task<bool> EnsureDeletedAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             return _configuration.DataStoreCreator.EnsureDeletedAsync(_configuration.Model, cancellationToken);
+        }
+
+        protected virtual DataStoreCreator DataStoreCreator
+        {
+            get { return _configuration.DataStoreCreator; }
+        }
+
+        protected virtual ILogger Logger
+        {
+            get { return _logger.Value; }
+        }
+
+        protected virtual IModel Model
+        {
+            get { return _configuration.Model; }
+        }
+        
+        DataStoreCreator IDatabaseInternals.DataStoreCreator
+        {
+            get { return DataStoreCreator; }
+        }
+
+        ILogger IDatabaseInternals.Logger
+        {
+            get { return Logger; }
+        }
+
+        IModel IDatabaseInternals.Model
+        {
+            get { return Model; }
         }
     }
 }

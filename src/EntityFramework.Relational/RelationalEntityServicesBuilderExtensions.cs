@@ -23,8 +23,7 @@ namespace Microsoft.Data.Entity.Relational
                 .AddSingleton<RelationalTypedValueReaderFactory>()
                 .AddSingleton<ParameterNameGeneratorFactory>()
                 .AddSingleton<ModificationCommandComparer>()
-                .AddSingleton<GraphFactory, BidirectionalAdjacencyListGraphFactory>()
-                .AddScoped<RelationalDatabase>();
+                .AddSingleton<GraphFactory, BidirectionalAdjacencyListGraphFactory>();
 
             return builder;
         }

@@ -126,4 +126,7 @@
   <data name="MigrationOperationNotSupported" xml:space="preserve">
     <value>'{generatorType}' does not support migration operations of type '{operationType}'.</value>
   </data>
+  <data name="SQLiteNotInUse" xml:space="preserve">
+    <value>SQLite-specific methods can only be used when the context is using a SQLite data store.</value>
+  </data>
 </root>

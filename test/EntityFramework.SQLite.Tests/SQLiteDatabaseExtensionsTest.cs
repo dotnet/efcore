@@ -7,17 +7,17 @@ using Microsoft.Framework.Logging;
 using Moq;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Relational.Tests
+namespace Microsoft.Data.Entity.SQLite.Tests
 {
-    public class RelationalDatabaseExtensionsTest
+    public class SQLiteDatabaseExtensionsTest
     {
         [Fact]
         public void Returns_typed_database_object()
         {
             var configurationMock = new Mock<DbContextConfiguration>();
-            var database = new ConcreteRelationalDatabase(configurationMock.Object, new LoggerFactory());
+            var database = new SQLiteDatabase(configurationMock.Object, new LoggerFactory());
 
-            Assert.Same(database, database.AsRelational());
+            Assert.Same(database, database.AsSQLite());
         }
 
         [Fact]
@@ -27,21 +27,13 @@ namespace Microsoft.Data.Entity.Relational.Tests
             var database = new ConcreteDatabase(configurationMock.Object, new LoggerFactory());
 
             Assert.Equal(
-                Strings.RelationalNotInUse,
-                Assert.Throws<InvalidOperationException>(() => database.AsRelational()).Message);
+                Strings.SQLiteNotInUse,
+                Assert.Throws<InvalidOperationException>(() => database.AsSQLite()).Message);
         }
 
         private class ConcreteDatabase : Database
         {
             public ConcreteDatabase(DbContextConfiguration configuration, ILoggerFactory loggerFactory)
-                : base(configuration, loggerFactory)
-            {
-            }
-        }
-
-        private class ConcreteRelationalDatabase : RelationalDatabase
-        {
-            public ConcreteRelationalDatabase(DbContextConfiguration configuration, ILoggerFactory loggerFactory)
                 : base(configuration, loggerFactory)
             {
             }

@@ -106,6 +106,22 @@ namespace Microsoft.Data.Entity.Redis
             return string.Format(CultureInfo.CurrentCulture, GetString("UnableToUpdate"), p0, p1);
         }
 
+        /// <summary>
+        /// Redis-specific methods can only be used when the context is using a Redis data store.
+        /// </summary>
+        internal static string RedisNotInUse
+        {
+            get { return GetString("RedisNotInUse"); }
+        }
+
+        /// <summary>
+        /// Redis-specific methods can only be used when the context is using a Redis data store.
+        /// </summary>
+        internal static string FormatRedisNotInUse()
+        {
+            return GetString("RedisNotInUse");
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

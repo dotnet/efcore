@@ -94,7 +94,7 @@
     <Compile Include="Identity\ValueGeneratorSelector.cs" />
     <Compile Include="Infrastructure\DbContextConfigureOptions.cs" />
     <Compile Include="Infrastructure\DbContextOptionsParser.cs" />
-    <Compile Include="Infrastructure\IDbContextConfigurationAdapter.cs" />
+    <Compile Include="Infrastructure\IDatabaseInternals.cs" />
     <Compile Include="Infrastructure\ModelSourceHelpers.cs" />
     <Compile Include="Metadata\BasicModelBuilder.cs" />
     <Compile Include="Metadata\CollectionTypeFactory.cs" />

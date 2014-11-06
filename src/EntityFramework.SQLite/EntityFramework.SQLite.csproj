@@ -59,6 +59,8 @@
     <Compile Include="Query\SQLiteSqlQueryGenerator.cs" />
     <Compile Include="SQLiteBatchExecutor.cs" />
     <Compile Include="SQLiteCommandBatchPreparer.cs" />
+    <Compile Include="SQLiteDatabase.cs" />
+    <Compile Include="SQLiteDatabaseExtensions.cs" />
     <Compile Include="SQLiteDataStoreServices.cs" />
     <Compile Include="SQLiteMigrationOperationPreProcessor.cs" />
     <Compile Include="SQLiteMigrationOperationSqlGeneratorFactory.cs" />
@@ -90,6 +92,7 @@
     <Compile Include="Utilities\EnumerableExtensions.cs" />
     <EmbeddedResource Include="Properties\Strings.resx">
       <LogicalName>EntityFramework.SQLite.Strings.resources</LogicalName>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <None Include="..\..\packages\KoreBuild\build\Resources.tt">
       <Link>Properties\Resources.tt</Link>

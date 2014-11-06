@@ -3,6 +3,7 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.SQLite;
@@ -19,7 +20,8 @@ namespace Microsoft.Framework.DependencyInjection
         {
             Check.NotNull(builder, "builder");
 
-            builder.AddRelational().ServiceCollection
+            builder
+                .AddMigrations().ServiceCollection
                 .AddSingleton<SQLiteDatabaseBuilder>()
                 .AddSingleton<SQLiteValueGeneratorCache>()
                 .AddSingleton<SQLiteValueGeneratorSelector>()
@@ -36,6 +38,7 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddScoped<SQLiteMigrationOperationSqlGeneratorFactory>()
                 .AddScoped<SQLiteDataStoreCreator>()
                 .AddScoped<SQLiteMigrator>()
+                .AddScoped<SQLiteDatabase>()
                 // TODO: Move to an AddMigrations extension method?
                 // Issue #556
                 .AddScoped<SQLiteModelDiffer>()

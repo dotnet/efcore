@@ -138,6 +138,22 @@ namespace Microsoft.Data.Entity.SqlServer
             return string.Format(CultureInfo.CurrentCulture, GetString("SequenceBadType", "property", "entityType", "propertyType"), property, entityType, propertyType);
         }
 
+        /// <summary>
+        /// SQL Server-specific methods can only be used when the context is using a SQL Server data store.
+        /// </summary>
+        internal static string SqlServerNotInUse
+        {
+            get { return GetString("SqlServerNotInUse"); }
+        }
+
+        /// <summary>
+        /// SQL Server-specific methods can only be used when the context is using a SQL Server data store.
+        /// </summary>
+        internal static string FormatSqlServerNotInUse()
+        {
+            return GetString("SqlServerNotInUse");
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

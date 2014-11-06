@@ -58,6 +58,22 @@ namespace Microsoft.Data.Entity.InMemory
             return string.Format(CultureInfo.CurrentCulture, GetString("LogSavedChanges", "count"), count);
         }
 
+        /// <summary>
+        /// In-Memory-specific methods can only be used when the context is using an In-Memory data store.
+        /// </summary>
+        internal static string InMemoryNotInUse
+        {
+            get { return GetString("InMemoryNotInUse"); }
+        }
+
+        /// <summary>
+        /// In-Memory-specific methods can only be used when the context is using an In-Memory data store.
+        /// </summary>
+        internal static string FormatInMemoryNotInUse()
+        {
+            return GetString("InMemoryNotInUse");
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

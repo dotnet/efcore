@@ -3,26 +3,28 @@
 
 using System;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.AzureTableStorage;
-using Microsoft.Data.Entity.AzureTableStorage.Utilities;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.SQLite;
+using Microsoft.Data.Entity.SQLite.Utilities;
 
 // ReSharper disable once CheckNamespace
 
 namespace Microsoft.Data.Entity
 {
-    public static class AtsDatabaseExtensions
+    public static class SQLiteDatabaseExtensions
     {
-        public static AtsDatabase AsAzureTableStorage([NotNull] this Database database)
+        public static SQLiteDatabase AsSQLite([NotNull] this Database database)
         {
             Check.NotNull(database, "database");
 
-            var atsdb = database as AtsDatabase;
-            if (atsdb == null)
+            var sqliteDatabase = database as SQLiteDatabase;
+
+            if (sqliteDatabase == null)
             {
-                throw new InvalidOperationException(Strings.AtsDatabaseNotInUse);
+                throw new InvalidOperationException(Strings.SQLiteNotInUse);
             }
-            return atsdb;
+
+            return sqliteDatabase;
         }
     }
 }

@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
             connectionMock.SetupGet(m => m.DbConnection).Returns(dbConnectionMock.Object);
             dbConnectionMock.SetupGet(m => m.Database).Returns("MyDb");
 
-            var database = new RelationalDatabase(configurationMock.Object, new LoggerFactory());
+            var database = new ConcreteRelationalDatabase(configurationMock.Object, new LoggerFactory());
 
             Assert.True(database.Exists());
             creatorMock.Verify(m => m.Exists(), Times.Once);
@@ -80,7 +80,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
             connectionMock.SetupGet(m => m.DbConnection).Returns(dbConnectionMock.Object);
             dbConnectionMock.SetupGet(m => m.Database).Returns("MyDb");
 
-            var database = new RelationalDatabase(configurationMock.Object, new LoggerFactory());
+            var database = new ConcreteRelationalDatabase(configurationMock.Object, new LoggerFactory());
 
             Assert.True(await database.ExistsAsync(cancellationToken));
             creatorMock.Verify(m => m.ExistsAsync(cancellationToken), Times.Once);
@@ -102,6 +102,14 @@ namespace Microsoft.Data.Entity.Relational.Tests
 
             Assert.True(await database.EnsureDeletedAsync(cancellationToken));
             creatorMock.Verify(m => m.EnsureDeletedAsync(model, cancellationToken), Times.Once);
+        }
+
+        private class ConcreteRelationalDatabase : RelationalDatabase
+        {
+            public ConcreteRelationalDatabase(DbContextConfiguration configuration, ILoggerFactory loggerFactory)
+                : base(configuration, loggerFactory)
+            {
+            }
         }
     }
 }
