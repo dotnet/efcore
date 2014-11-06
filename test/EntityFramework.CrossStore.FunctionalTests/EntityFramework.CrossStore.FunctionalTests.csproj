@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <Import Project="..\..\tools\EntityFramework.props" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{A3DE8824-240C-4313-8C36-264BCCEF8B54}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Microsoft.Data.Entity.FunctionalTests</RootNamespace>
+    <AssemblyName>EntityFramework.CrossStore.FunctionalTests</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <PackageReference Include="Microsoft.Framework.ConfigurationModel">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Framework.ConfigurationModel.Xml">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Framework.DependencyInjection">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Framework.Logging">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Framework.Logging.Interfaces">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Framework.OptionsModel">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="System.Data.Common">
+      <TargetFramework>net451</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Data.SQLite">
+      <TargetFramework>net451</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="xunit.abstractions">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="xunit.assert">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="xunit.core">
+      <TargetFramework>net45</TargetFramework>
+      <Assemblies>xunit.core;xunit.runner.tdnet</Assemblies>
+    </PackageReference>
+    <PackageReference Include="xunit.execution">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="StackExchange.Redis">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="Ix-Async">
+      <Assemblies>System.Interactive.Async</Assemblies>
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\EntityFramework.Relational\EntityFramework.Relational.csproj">
+      <Project>{75c5a774-a3f3-43eb-97d3-dbe0cf2825d8}</Project>
+      <Name>EntityFramework.Relational</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\EntityFramework\EntityFramework.csproj">
+      <Project>{71415CEC-8111-4C73-8751-512D22F10602}</Project>
+      <Name>Microsoft.Data.Entity</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\EntityFramework.AzureTableStorage\EntityFramework.AzureTableStorage.csproj">
+      <Project>{c059860c-039d-48c0-b381-987db950bb5d}</Project>
+      <Name>Microsoft.Data.Entity.AzureTableStorage</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\EntityFramework.InMemory\EntityFramework.InMemory.csproj">
+      <Project>{BA3F5DBC-EC16-4D5A-8298-8226E6C5ACCC}</Project>
+      <Name>EntityFramework.InMemory</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\EntityFramework.Redis\EntityFramework.Redis.csproj">
+      <Project>{4f810e8d-864a-4a3d-a653-0ccd3d3a29dd}</Project>
+      <Name>EntityFramework.Redis</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\EntityFramework.SQLite\EntityFramework.SQLite.csproj">
+      <Project>{4cc98896-fe91-4f16-ae60-d6ff9e905836}</Project>
+      <Name>EntityFramework.SQLite</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\EntityFramework.SqlServer\EntityFramework.SqlServer.csproj">
+      <Project>{04E6620B-5B41-45FE-981A-F40EB7686B0E}</Project>
+      <Name>EntityFramework.SqlServer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EntityFramework.AzureTableStorage.FunctionalTests\EntityFramework.AzureTableStorage.FunctionalTests.csproj">
+      <Project>{1d821ee4-8260-4b37-a11a-17327822774a}</Project>
+      <Name>EntityFramework.AzureTableStorage.FunctionalTests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EntityFramework.FunctionalTests\EntityFramework.FunctionalTests.csproj">
+      <Project>{6ab933c7-de2a-45f2-bdc6-e71a01ef7756}</Project>
+      <Name>EntityFramework.FunctionalTests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EntityFramework.InMemory.FunctionalTests\EntityFramework.InMemory.FunctionalTests.csproj">
+      <Project>{7e1a1a1b-6d0b-4c66-8026-326efc0b4625}</Project>
+      <Name>EntityFramework.InMemory.FunctionalTests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EntityFramework.Redis.FunctionalTests\EntityFramework.Redis.FunctionalTests.csproj">
+      <Project>{d1f26be2-6569-4c18-b322-1b717267194d}</Project>
+      <Name>EntityFramework.Redis.FunctionalTests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EntityFramework.Relational.FunctionalTests\EntityFramework.Relational.FunctionalTests.csproj">
+      <Project>{82fad20c-28c6-4b48-b7e4-971ac821e27a}</Project>
+      <Name>EntityFramework.Relational.FunctionalTests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EntityFramework.SQLite.FunctionalTests\EntityFramework.SQLite.FunctionalTests.csproj">
+      <Project>{a4604758-4d80-4c71-a972-5655fff38089}</Project>
+      <Name>EntityFramework.SQLite.FunctionalTests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EntityFramework.SqlServer.FunctionalTests\EntityFramework.SqlServer.FunctionalTests.csproj">
+      <Project>{fa789ed6-2aac-4baa-a4fb-b600be2da956}</Project>
+      <Name>EntityFramework.SqlServer.FunctionalTests</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="project.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AtsCrossStoreFixture.cs" />
+    <Compile Include="CrossStoreFixture.cs" />
+    <Compile Include="CrossStoreXunitTestFramework.cs" />
+    <Compile Include="EndToEndTest.cs" />
+    <Compile Include="InMemoryCrossStoreFixture.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RedisCrossStoreFixture.cs" />
+    <Compile Include="SqLiteCrossStoreFixture.cs" />
+    <Compile Include="SqlServerCrossStoreFixture.cs" />
+    <Compile Include="TestModels\CrossStoreContext.cs" />
+    <Compile Include="TestModels\SimpleEntity.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
