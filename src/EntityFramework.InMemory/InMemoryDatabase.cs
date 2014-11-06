@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity.InMemory
         /// <returns>
         ///     true if the database has just been created, false otherwise
         /// </returns>
-        public virtual bool IsCreated([NotNull] IModel model)
+        public virtual bool EnsureCreated([NotNull] IModel model)
         {
             var returnValue = !_tables.HasValue;
             var _ = _tables.Value;

@@ -98,9 +98,9 @@ namespace Microsoft.Data.Entity.InMemory
             return Query<TResult>(queryModel).ToAsyncEnumerable();
         }
 
-        public virtual bool IsDatabaseCreated([NotNull] IModel model)
+        public virtual bool EnsureDatabaseCreated([NotNull] IModel model)
         {
-            return _database.Value.IsCreated(model);
+            return _database.Value.EnsureCreated(model);
         }
     }
 }

@@ -53,35 +53,33 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         }
 
         [Fact]
-        public void IsDatabaseCreated_returns_true_for_first_use_of_persistent_database_and_false_thereafter()
+        public void EnsureDatabaseCreated_returns_true_for_first_use_of_persistent_database_and_false_thereafter()
         {
             var model = CreateModel();
             var configuration = CreateConfiguration(new DbContextOptions().UseInMemoryStore(persist: true));
-            var entityType = model.GetEntityType(typeof(Customer));
 
             var persistentDatabase = new InMemoryDatabase(new LoggerFactory());
 
             var inMemoryDataStore = new InMemoryDataStore(configuration, persistentDatabase);
 
-            Assert.True(inMemoryDataStore.IsDatabaseCreated(model));
-            Assert.False(inMemoryDataStore.IsDatabaseCreated(model));
-            Assert.False(inMemoryDataStore.IsDatabaseCreated(model));
+            Assert.True(inMemoryDataStore.EnsureDatabaseCreated(model));
+            Assert.False(inMemoryDataStore.EnsureDatabaseCreated(model));
+            Assert.False(inMemoryDataStore.EnsureDatabaseCreated(model));
         }
 
         [Fact]
-        public void IsDatabaseCreated_returns_true_for_first_use_of_non_persistent_database_and_false_thereafter()
+        public void EnsureDatabaseCreated_returns_true_for_first_use_of_non_persistent_database_and_false_thereafter()
         {
             var model = CreateModel();
             var configuration = CreateConfiguration(new DbContextOptions().UseInMemoryStore(persist: false));
-            var entityType = model.GetEntityType(typeof(Customer));
 
             var nonPersistentDatabase = new InMemoryDatabase(new LoggerFactory());
 
             var inMemoryDataStore = new InMemoryDataStore(configuration, nonPersistentDatabase);
 
-            Assert.True(inMemoryDataStore.IsDatabaseCreated(model));
-            Assert.False(inMemoryDataStore.IsDatabaseCreated(model));
-            Assert.False(inMemoryDataStore.IsDatabaseCreated(model));
+            Assert.True(inMemoryDataStore.EnsureDatabaseCreated(model));
+            Assert.False(inMemoryDataStore.EnsureDatabaseCreated(model));
+            Assert.False(inMemoryDataStore.EnsureDatabaseCreated(model));
         }
 
         [Fact]
