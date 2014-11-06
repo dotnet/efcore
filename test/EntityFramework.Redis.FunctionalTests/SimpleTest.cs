@@ -1,15 +1,18 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Redis.Extensions;
+using Microsoft.Framework.DependencyInjection;
+using Microsoft.Framework.DependencyInjection.Fallback;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Redis.FunctionalTests
 {
-    public class SimpleTest
+    public class SimpleTest : IClassFixture<RedisFixture>, IDisposable
     {
         [Fact]
         public void Add_modify_and_delete_simple_poco()
@@ -180,13 +183,29 @@ namespace Microsoft.Data.Entity.Redis.FunctionalTests
             }
         }
 
+        private readonly RedisFixture _fixture;
+
+        public SimpleTest(RedisFixture fixture)
+        {
+            _fixture = fixture;
+        }
+
+        public void Dispose()
+        {
+            using (var context = CreateContext())
+            {
+                context.Set<SimplePoco>().RemoveRange(context.Set<SimplePoco>());
+                context.SaveChanges();
+            }
+        }
+
         private DbContext CreateContext()
         {
             var options = new DbContextOptions()
                 .UseModel(CreateModel())
                 .UseRedis("127.0.0.1", RedisTestConfig.RedisPort);
 
-            return new DbContext(options);
+            return new DbContext(_fixture.ServiceProvider, options);
         }
 
         private IModel CreateModel()

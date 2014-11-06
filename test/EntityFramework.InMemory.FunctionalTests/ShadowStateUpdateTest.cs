@@ -1,14 +1,17 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Framework.DependencyInjection;
+using Microsoft.Framework.DependencyInjection.Fallback;
 using Xunit;
 
 namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 {
-    public class ShadowStateUpdateTest
+    public class ShadowStateUpdateTest : IClassFixture<InMemoryFixture>
     {
         [Fact]
         public async Task Can_add_update_delete_end_to_end_using_only_shadow_state()
@@ -23,7 +26,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 .UseModel(model)
                 .UseInMemoryStore();
 
-            using (var context = new DbContext(options))
+            using (var context = new DbContext(_fixture.ServiceProvider, options))
             {
                 // TODO: Better API for shadow state access
                 var customerEntry = context.ChangeTracker.StateManager.CreateNewEntry(customerType);
@@ -42,7 +45,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             //
             // Assert.Equal(new object[] { 42, "Daenerys" }, customerFromStore);
 
-            using (var context = new DbContext(options))
+            using (var context = new DbContext(_fixture.ServiceProvider, options))
             {
                 var customerEntry = context.ChangeTracker.StateManager.CreateNewEntry(customerType);
                 customerEntry[customerType.GetProperty("Id")] = 42;
@@ -58,7 +61,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             // 
             // Assert.Equal(new object[] { 42, "Daenerys Targaryen" }, customerFromStore);
 
-            using (var context = new DbContext(options))
+            using (var context = new DbContext(_fixture.ServiceProvider, options))
             {
                 var customerEntry = context.ChangeTracker.StateManager.CreateNewEntry(customerType);
                 customerEntry[customerType.GetProperty("Id")] = 42;
@@ -87,7 +90,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
             var customer = new Customer { Id = 42 };
 
-            using (var context = new DbContext(options))
+            using (var context = new DbContext(_fixture.ServiceProvider, options))
             {
                 context.Add(customer);
 
@@ -100,7 +103,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 customerEntry[customerType.GetProperty("Name")] = "Changed!";
             }
 
-            using (var context = new DbContext(options))
+            using (var context = new DbContext(_fixture.ServiceProvider, options))
             {
                 var customerFromStore = context.Set<Customer>().Single();
 
@@ -110,7 +113,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                     (string)context.ChangeTracker.Entry(customerFromStore).Property("Name").CurrentValue);
             }
 
-            using (var context = new DbContext(options))
+            using (var context = new DbContext(_fixture.ServiceProvider, options))
             {
                 var customerEntry = context.ChangeTracker.Entry(customer).StateEntry;
                 customerEntry[customerType.GetProperty("Name")] = "Daenerys Targaryen";
@@ -120,7 +123,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 await context.SaveChangesAsync();
             }
 
-            using (var context = new DbContext(options))
+            using (var context = new DbContext(_fixture.ServiceProvider, options))
             {
                 var customerFromStore = context.Set<Customer>().Single();
 
@@ -130,17 +133,24 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                     (string)context.ChangeTracker.Entry(customerFromStore).Property("Name").CurrentValue);
             }
 
-            using (var context = new DbContext(options))
+            using (var context = new DbContext(_fixture.ServiceProvider, options))
             {
                 context.Delete(customer);
 
                 await context.SaveChangesAsync();
             }
 
-            using (var context = new DbContext(options))
+            using (var context = new DbContext(_fixture.ServiceProvider, options))
             {
                 Assert.Equal(0, context.Set<Customer>().Count());
             }
+        }
+
+        private readonly InMemoryFixture _fixture;
+
+        public ShadowStateUpdateTest(InMemoryFixture fixture)
+        {
+            _fixture = fixture;
         }
 
         private class Customer

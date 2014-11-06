@@ -76,6 +76,7 @@
     <Compile Include="RedisBuiltInDataTypesFixture.cs" />
     <Compile Include="RedisBuiltInDataTypesTest.cs" />
     <Compile Include="RedisAsyncQueryTest.cs" />
+    <Compile Include="RedisFixture.cs" />
     <Compile Include="RedisNorthwindQueryFixture.cs" />
     <Compile Include="RedisQueryTest.cs" />
     <Compile Include="RedisTestConfig.cs" />

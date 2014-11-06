@@ -22,14 +22,14 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
-    public class SqlServerEndToEndTest
+    public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
     {
         [Fact]
         public async Task Can_run_linq_query_on_entity_set()
         {
             using (await SqlServerNorthwindContext.GetSharedStoreAsync())
             {
-                using (var db = new NorthwindContext())
+                using (var db = new NorthwindContext(_fixture.ServiceProvider))
                 {
                     var results = db.Customers
                         .Where(c => c.CompanyName.StartsWith("A"))
@@ -108,7 +108,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             using (await SqlServerNorthwindContext.GetSharedStoreAsync())
             {
-                using (var db = new NorthwindContext())
+                using (var db = new NorthwindContext(_fixture.ServiceProvider))
                 {
                     var results = new List<Customer>();
                     foreach (var item in db.Customers)
@@ -130,7 +130,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 var options = new DbContextOptions().UseSqlServer(testDatabase.Connection.ConnectionString);
 
-                using (var db = new BloggingContext(options))
+                using (var db = new BloggingContext(_fixture.ServiceProvider, options))
                 {
                     await CreateBlogDatabaseAsync<Blog>(db);
                 }
@@ -217,7 +217,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 int updatedId;
                 int deletedId;
                 int addedId;
-                using (var db = new BloggingContext(options))
+                using (var db = new BloggingContext(_fixture.ServiceProvider, options))
                 {
                     var toAdd = db.Blogs.Add(new Blog
                         {
@@ -256,7 +256,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     Assert.DoesNotContain(toDelete, db.ChangeTracker.Entries().Select(e => e.Entity));
                 }
 
-                using (var db = new BloggingContext(options))
+                using (var db = new BloggingContext(_fixture.ServiceProvider, options))
                 {
                     var toUpdate = db.Blogs.Single(b => b.Id == updatedId);
                     Assert.Equal("Blog is Updated", toUpdate.Name);
@@ -271,7 +271,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             using (var testDatabase = await SqlServerNorthwindContext.GetSharedStoreAsync())
             {
-                using (var db = new NorthwindContext())
+                using (var db = new NorthwindContext(_fixture.ServiceProvider))
                 {
                     var customer = await db.Customers.FirstOrDefaultAsync();
 
@@ -322,6 +322,11 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         private class SchemaContext : DbContext
         {
+            public SchemaContext(IServiceProvider serviceProvider)
+                : base(serviceProvider)
+            {
+            }
+
             public DbConnection Connection { get; set; }
 
             public DbSet<Jack> Jacks { get; set; }
@@ -384,7 +389,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 int blog2Id;
                 int blog3Id;
 
-                using (var context = new BloggingContext<TBlog>(options))
+                using (var context = new BloggingContext<TBlog>(_fixture.ServiceProvider, options))
                 {
                     var blogs = await CreateBlogDatabaseAsync<TBlog>(context);
                     blog1Id = blogs[0].Id;
@@ -395,7 +400,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     Assert.NotEqual(blog1Id, blog2Id);
                 }
 
-                using (var context = new BloggingContext<TBlog>(options))
+                using (var context = new BloggingContext<TBlog>(_fixture.ServiceProvider, options))
                 {
                     var blogs = context.Blogs.ToList();
                     Assert.Equal(2, blogs.Count);
@@ -431,7 +436,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     Assert.NotEqual(0, blog3Id);
                 }
 
-                using (var context = new BloggingContext<TBlog>(options))
+                using (var context = new BloggingContext<TBlog>(_fixture.ServiceProvider, options))
                 {
                     var blogs = context.Blogs.ToList();
                     Assert.Equal(3, blogs.Count);
@@ -495,12 +500,14 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             return new[] { blog1, blog2 };
         }
 
+        private readonly SqlServerFixture _fixture;
+        public SqlServerEndToEndTest(SqlServerFixture fixture)
+        {
+            _fixture = fixture;
+        }
+
         private class NorthwindContext : DbContext
         {
-            public NorthwindContext()
-            {
-            }
-
             public NorthwindContext(IServiceProvider serviceProvider)
                 : base(serviceProvider)
             {
@@ -532,11 +539,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         private class BloggingContext : BloggingContext<Blog>
         {
-            public BloggingContext(DbContextOptions options)
-                : base(options)
-            {
-            }
-
             public BloggingContext(IServiceProvider serviceProvider, DbContextOptions options)
                 : base(serviceProvider, options)
             {
@@ -566,11 +568,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         private class BloggingContext<TBlog> : DbContext
             where TBlog : class, IBlog
         {
-            public BloggingContext(DbContextOptions options)
-                : base(options)
-            {
-            }
-
             public BloggingContext(IServiceProvider serviceProvider, DbContextOptions options)
                 : base(serviceProvider, options)
             {

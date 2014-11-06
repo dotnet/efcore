@@ -9,11 +9,8 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
 {
-    public abstract class TestBase
+    public abstract class TestBase : IClassFixture<TestFixture>, IDisposable
     {
-        protected DbContext Context;
-        protected string TestPartition;
-
         [Fact]
         public void It_adds_entity()
         {
@@ -76,6 +73,23 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
 
             entity.ETag = originalEtag;
             Assert.Throws<DbUpdateConcurrencyException>(() => Context.SaveChanges());
+        }
+
+        protected readonly DbContext Context;
+        protected readonly AtsTestStore TestStore;
+        protected readonly string TestPartition;
+
+        protected TestBase(TestFixture fixture)
+        {
+            TestPartition = DateTime.UtcNow.ToBinary().ToString();
+            TestStore = fixture.CreateTestStore(TestPartition);
+            Context = fixture.CreateContext(TestStore);
+        }
+
+        public void Dispose()
+        {
+            Context.Dispose();
+            TestStore.Dispose();
         }
     }
 }

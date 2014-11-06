@@ -68,6 +68,7 @@
   <ItemGroup>
     <Compile Include="DeadlockTest.cs" />
     <Compile Include="InMemoryAsNoTrackingTest.cs" />
+    <Compile Include="InMemoryFixture.cs" />
     <Compile Include="InMemoryTestStore.cs" />
     <Compile Include="InMemoryBuiltInDataTypesFixture.cs" />
     <Compile Include="InMemoryBuiltInDataTypesTest.cs" />

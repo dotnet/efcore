@@ -1,24 +1,14 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using Xunit;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
 {
+    // TODO: Enable when #965 is fixed
     [RunIfConfigured]
-    public class BatchTests : TestBase, IClassFixture<TestFixture>, IDisposable
+    internal class BatchTests : TestBase
     {
-        public BatchTests(TestFixture fixture)
-        {
-            TestPartition = "batchunitest" + DateTime.UtcNow.ToBinary();
-            Context = fixture.CreateContext(TestPartition);
-            Context.Database.EnsureCreated();
-            Context.Set<Purchase>().AddRange(TestFixture.SampleData(TestPartition));
-            Context.SaveChanges();
-            Context.Configuration.Connection.AsAtsConnection().UseBatching(true);
-        }
-
         [Theory]
         [InlineData(99)]
         [InlineData(100)]
@@ -47,9 +37,10 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
             Assert.Equal(2, changes);
         }
 
-        public void Dispose()
+        public BatchTests(TestFixture fixture)
+            : base(fixture)
         {
-            Context.Database.EnsureDeleted();
+            Context.Configuration.Connection.AsAtsConnection().UseBatching(true);
         }
     }
 }

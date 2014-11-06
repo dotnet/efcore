@@ -14,12 +14,12 @@ using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
-    public class QueryBugsTest
+    public class QueryBugsTest : IClassFixture<SqlServerFixture>
     {
         [Fact]
         public async Task First_ix_async_bug_603()
         {
-            using (var context = new MyContext())
+            using (var context = new MyContext(_fixture.ServiceProvider))
             {
                 await context.Database.EnsureDeletedAsync();
                 await context.Database.EnsureCreatedAsync();
@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 context.SaveChanges();
             }
 
-            using (var ctx = new MyContext())
+            using (var ctx = new MyContext(_fixture.ServiceProvider))
             {
                 var product = await ctx.Products.FirstAsync();
 
@@ -41,7 +41,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         [Fact]
         public async Task First_or_default_ix_async_bug_603()
         {
-            using (var context = new MyContext())
+            using (var context = new MyContext(_fixture.ServiceProvider))
             {
                 await context.Database.EnsureDeletedAsync();
                 await context.Database.EnsureCreatedAsync();
@@ -50,7 +50,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 context.SaveChanges();
             }
 
-            using (var ctx = new MyContext())
+            using (var ctx = new MyContext(_fixture.ServiceProvider))
             {
                 var product = await ctx.Products.FirstOrDefaultAsync();
 
@@ -68,6 +68,11 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         private class MyContext : DbContext
         {
+            public MyContext(IServiceProvider provider)
+                : base(provider)
+            {
+            }
+
             public DbSet<Product> Products { get; set; }
 
             protected override void OnConfiguring(DbContextOptions options)
@@ -153,7 +158,7 @@ LEFT JOIN [Customer] AS [c] ON ([c].[FirstName] = [o].[CustomerId0] AND [c].[Las
 
         private void CreateDatabase925()
         {
-            using (var context = new MyContext925())
+            using (var context = new MyContext925(_fixture.ServiceProvider))
             {
                 context.Database.EnsureDeleted();
                 context.Database.EnsureCreated();
@@ -189,10 +194,6 @@ LEFT JOIN [Customer] AS [c] ON ([c].[FirstName] = [o].[CustomerId0] AND [c].[Las
 
         public class MyContext925 : DbContext
         {
-            public MyContext925()
-            {
-            }
-
             public MyContext925(IServiceProvider serviceProvider)
                 : base(serviceProvider)
             {
@@ -221,7 +222,7 @@ LEFT JOIN [Customer] AS [c] ON ([c].[FirstName] = [o].[CustomerId0] AND [c].[Las
         {
             CreateDatabase963();
 
-            using (var ctx = new MyContext963())
+            using (var ctx = new MyContext963(_fixture.ServiceProvider))
             {
                 ctx.Targaryens.Include(t => t.Dragons).ToList();
             }
@@ -232,7 +233,7 @@ LEFT JOIN [Customer] AS [c] ON ([c].[FirstName] = [o].[CustomerId0] AND [c].[Las
         {
             CreateDatabase963();
 
-            using (var ctx = new MyContext963())
+            using (var ctx = new MyContext963(_fixture.ServiceProvider))
             {
                 ctx.Dragons.Include(d => d.Mother).ToList();
             }
@@ -243,7 +244,7 @@ LEFT JOIN [Customer] AS [c] ON ([c].[FirstName] = [o].[CustomerId0] AND [c].[Las
         {
             CreateDatabase963();
 
-            using (var ctx = new MyContext963())
+            using (var ctx = new MyContext963(_fixture.ServiceProvider))
             {
                 ctx.Targaryens.Include(t => t.Details).ToList();
             }
@@ -254,7 +255,7 @@ LEFT JOIN [Customer] AS [c] ON ([c].[FirstName] = [o].[CustomerId0] AND [c].[Las
         {
             CreateDatabase963();
 
-            using (var ctx = new MyContext963())
+            using (var ctx = new MyContext963(_fixture.ServiceProvider))
             {
                 ctx.Details.Include(d => d.Targaryen).ToList();
             }
@@ -262,7 +263,7 @@ LEFT JOIN [Customer] AS [c] ON ([c].[FirstName] = [o].[CustomerId0] AND [c].[Las
 
         private void CreateDatabase963()
         {
-            using (var context = new MyContext963())
+            using (var context = new MyContext963(_fixture.ServiceProvider))
             {
                 context.Database.EnsureDeleted();
                 context.Database.EnsureCreated();
@@ -316,6 +317,11 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
         // TODO: replace with GearsOfWar context when it's refactored properly
         public class MyContext963 : DbContext
         {
+            public MyContext963(IServiceProvider provider)
+                : base(provider)
+            {
+            }
+
             public DbSet<Targaryen> Targaryens { get; set; }
             public DbSet<Details> Details { get; set; }
             public DbSet<Dragon> Dragons { get; set; }
@@ -334,6 +340,12 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
                     m.OneToOne(t => t.Details, d => d.Targaryen).ForeignKey<Details>(d => d.TargaryenId);
                 });
             }
+        }
+        
+        private readonly SqlServerFixture _fixture;
+        public QueryBugsTest(SqlServerFixture fixture)
+        {
+            _fixture = fixture;
         }
     }
 }

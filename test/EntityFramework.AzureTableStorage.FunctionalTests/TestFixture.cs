@@ -4,25 +4,60 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
+using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Framework.DependencyInjection;
+using Microsoft.Framework.DependencyInjection.Fallback;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
 {
-    public class TestFixture
+    public class TestFixture : IDisposable
     {
-        public DbContext CreateContext(string tableName)
+        private readonly IServiceProvider _serviceProvider;
+        private readonly string _tableSuffix = Guid.NewGuid().ToString().Replace("-", "");
+
+        public TestFixture()
         {
-            var options = new DbContextOptions()
-                .UseModel(CreateModel(tableName))
-                .UseAzureTableStorage(TestConfig.Instance.ConnectionString);
-            return new DbContext(options);
+            _serviceProvider = new ServiceCollection()
+                .AddEntityFramework()
+                .AddAzureTableStorage()
+                .ServiceCollection
+                .AddTestModelSource(OnModelCreating)
+                .BuildServiceProvider();
         }
 
-        public IModel CreateModel(string tableName)
+        public AtsTestStore CreateTestStore(string testPartition)
         {
-            var model = new Model();
-            var builder = new BasicModelBuilder(model);
-            builder.Entity<Purchase>(b =>
+            var store = new AtsTestStore(_tableSuffix);
+            using (var context = CreateContext(store))
+            {
+                context.Database.EnsureCreated();
+                Seed(context, testPartition);
+            }
+
+            store.CleanupAction = () =>
+            {
+                using (var context = CreateContext(store))
+                {
+                    Cleanup(context, testPartition);
+                }
+            };
+
+            return store;
+        }
+
+        public DbContext CreateContext(AtsTestStore testStore)
+        {
+            var options = new DbContextOptions()
+                .UseAzureTableStorage(testStore.ConnectionString);
+
+            return new DbContext(_serviceProvider, options);
+        }
+
+        public void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Purchase>(b =>
                 {
                     b.Property(s => s.Awesomeness);
                     b.Property(s => s.Cost);
@@ -37,10 +72,32 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
                     b.ForAzureTableStorage(ab =>
                         {
                             ab.PartitionAndRowKey(s => s.PartitionKey, s => s.RowKey);
-                            ab.Table(tableName);
+                            ab.Table("Purchase" + _tableSuffix);
                         });
                 });
-            return model;
+        }
+
+        public void Dispose()
+        {
+            using (var testStore = CreateTestStore(""))
+            {
+                using (var context = CreateContext(testStore))
+                {
+                    context.Database.EnsureDeleted();
+                }
+            }
+        }
+
+        public void Seed(DbContext context, string testPartition)
+        {
+            context.Set<Purchase>().AddRange(SampleData(testPartition));
+            context.SaveChanges();
+        }
+
+        public void Cleanup(DbContext context, string testPartition)
+        {
+            context.Set<Purchase>().RemoveRange(context.Set<Purchase>().Where(p => p.PartitionKey == testPartition));
+            context.SaveChanges();
         }
 
         public static IEnumerable<Purchase> SampleData(string testPartition)
