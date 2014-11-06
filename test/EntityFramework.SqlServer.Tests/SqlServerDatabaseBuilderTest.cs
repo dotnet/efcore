@@ -47,14 +47,14 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var sequence0 = database.Sequences[0];
 
             Assert.Equal("S0", sequence0.Name);
-            Assert.Equal("int", sequence0.DataType);
+            Assert.Equal(typeof(int), sequence0.Type);
             Assert.Equal(1001, sequence0.StartWith);
             Assert.Equal(3, sequence0.IncrementBy);
 
             var sequence1 = database.Sequences[1];
 
             Assert.Equal("S1", sequence1.Name);
-            Assert.Equal("smallint", sequence1.DataType);
+            Assert.Equal(typeof(short), sequence1.Type);
             Assert.Equal(7001, sequence1.StartWith);
             Assert.Equal(7, sequence1.IncrementBy);
         }
@@ -80,7 +80,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var sequence = database.Sequences[0];
 
             Assert.Equal("EntityFrameworkDefaultSequence", sequence.Name);
-            Assert.Equal("bigint", sequence.DataType);
+            Assert.Equal(typeof(long), sequence.Type);
             Assert.Equal(1, sequence.StartWith);
             Assert.Equal(10, sequence.IncrementBy);
         }
@@ -107,7 +107,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var sequence = database.Sequences[0];
 
             Assert.Equal("MySequence", sequence.Name);
-            Assert.Equal("bigint", sequence.DataType);
+            Assert.Equal(typeof(long), sequence.Type);
             Assert.Equal(1, sequence.StartWith);
             Assert.Equal(10, sequence.IncrementBy);
         }
@@ -136,7 +136,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var sequence = database.Sequences[0];
 
             Assert.Equal("MySequence", sequence.Name);
-            Assert.Equal("bigint", sequence.DataType);
+            Assert.Equal(typeof(long), sequence.Type);
             Assert.Equal(1, sequence.StartWith);
             Assert.Equal(7, sequence.IncrementBy);
         }
@@ -163,7 +163,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var sequence = database.Sequences[0];
 
             Assert.Equal("EntityFrameworkDefaultSequence", sequence.Name);
-            Assert.Equal("bigint", sequence.DataType);
+            Assert.Equal(typeof(long), sequence.Type);
             Assert.Equal(1, sequence.StartWith);
             Assert.Equal(10, sequence.IncrementBy);
         }
@@ -197,7 +197,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var sequence = database.Sequences[0];
 
             Assert.Equal("MySequence", sequence.Name);
-            Assert.Equal("bigint", sequence.DataType);
+            Assert.Equal(typeof(long), sequence.Type);
             Assert.Equal(1, sequence.StartWith);
             Assert.Equal(7, sequence.IncrementBy);
         }
@@ -227,7 +227,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var sequence = database.Sequences[0];
 
             Assert.Equal("MySequence", sequence.Name);
-            Assert.Equal("bigint", sequence.DataType);
+            Assert.Equal(typeof(long), sequence.Type);
             Assert.Equal(1, sequence.StartWith);
             Assert.Equal(10, sequence.IncrementBy);
         }
@@ -260,7 +260,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var sequence = database.Sequences[0];
 
             Assert.Equal("EntityFrameworkDefaultSequence", sequence.Name);
-            Assert.Equal("bigint", sequence.DataType);
+            Assert.Equal(typeof(long), sequence.Type);
             Assert.Equal(1, sequence.StartWith);
             Assert.Equal(10, sequence.IncrementBy);
         }
@@ -294,14 +294,14 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var sequence0 = database.Sequences[0];
 
             Assert.Equal("S0", sequence0.Name);
-            Assert.Equal("bigint", sequence0.DataType);
+            Assert.Equal(typeof(long), sequence0.Type);
             Assert.Equal(1, sequence0.StartWith);
             Assert.Equal(3, sequence0.IncrementBy);
 
             var sequence1 = database.Sequences[1];
 
             Assert.Equal("S1", sequence1.Name);
-            Assert.Equal("bigint", sequence0.DataType);
+            Assert.Equal(typeof(long), sequence0.Type);
             Assert.Equal(1, sequence0.StartWith);
             Assert.Equal(7, sequence1.IncrementBy);
         }
@@ -334,14 +334,14 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var sequence0 = database.Sequences[0];
 
             Assert.Equal("S0", sequence0.Name);
-            Assert.Equal("bigint", sequence0.DataType);
+            Assert.Equal(typeof(long), sequence0.Type);
             Assert.Equal(1, sequence0.StartWith);
             Assert.Equal(3, sequence0.IncrementBy);
 
             var sequence1 = database.Sequences[1];
 
             Assert.Equal("S1", sequence1.Name);
-            Assert.Equal("bigint", sequence0.DataType);
+            Assert.Equal(typeof(long), sequence0.Type);
             Assert.Equal(1, sequence0.StartWith);
             Assert.Equal(10, sequence1.IncrementBy);
         }
@@ -370,14 +370,14 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var sequence0 = database.Sequences[0];
 
             Assert.Equal("S0", sequence0.Name);
-            Assert.Equal("bigint", sequence0.DataType);
+            Assert.Equal(typeof(long), sequence0.Type);
             Assert.Equal(1, sequence0.StartWith);
             Assert.Equal(10, sequence0.IncrementBy);
 
             var sequence1 = database.Sequences[1];
 
             Assert.Equal("S1", sequence1.Name);
-            Assert.Equal("bigint", sequence0.DataType);
+            Assert.Equal(typeof(long), sequence0.Type);
             Assert.Equal(1, sequence0.StartWith);
             Assert.Equal(10, sequence1.IncrementBy);
         }
@@ -406,14 +406,14 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var sequence0 = database.Sequences[0];
 
             Assert.Equal("S0", sequence0.Name);
-            Assert.Equal("bigint", sequence0.DataType);
+            Assert.Equal(typeof(long), sequence0.Type);
             Assert.Equal(1, sequence0.StartWith);
             Assert.Equal(10, sequence0.IncrementBy);
 
             var sequence1 = database.Sequences[1];
 
             Assert.Equal("EntityFrameworkDefaultSequence", sequence1.Name);
-            Assert.Equal("bigint", sequence0.DataType);
+            Assert.Equal(typeof(long), sequence0.Type);
             Assert.Equal(1, sequence0.StartWith);
             Assert.Equal(10, sequence1.IncrementBy);
         }
@@ -457,14 +457,14 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var sequence0 = database.Sequences[0];
 
             Assert.Equal("dbOh.S0", sequence0.Name);
-            Assert.Equal("int", sequence0.DataType);
+            Assert.Equal(typeof(int), sequence0.Type);
             Assert.Equal(1001, sequence0.StartWith);
             Assert.Equal(3, sequence0.IncrementBy);
 
             var sequence1 = database.Sequences[1];
 
             Assert.Equal("dbOh.S1", sequence1.Name);
-            Assert.Equal("smallint", sequence1.DataType);
+            Assert.Equal(typeof(short), sequence1.Type);
             Assert.Equal(7001, sequence1.StartWith);
             Assert.Equal(7, sequence1.IncrementBy);
         }
@@ -491,7 +491,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var sequence = database.Sequences[0];
 
             Assert.Equal("dbOh.MySequence", sequence.Name);
-            Assert.Equal("bigint", sequence.DataType);
+            Assert.Equal(typeof(long), sequence.Type);
             Assert.Equal(1, sequence.StartWith);
             Assert.Equal(10, sequence.IncrementBy);
         }
@@ -520,7 +520,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var sequence = database.Sequences[0];
 
             Assert.Equal("dbOh.MySequence", sequence.Name);
-            Assert.Equal("bigint", sequence.DataType);
+            Assert.Equal(typeof(long), sequence.Type);
             Assert.Equal(1, sequence.StartWith);
             Assert.Equal(7, sequence.IncrementBy);
         }
@@ -554,7 +554,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var sequence = database.Sequences[0];
 
             Assert.Equal("dbOh.MySequence", sequence.Name);
-            Assert.Equal("bigint", sequence.DataType);
+            Assert.Equal(typeof(long), sequence.Type);
             Assert.Equal(1, sequence.StartWith);
             Assert.Equal(7, sequence.IncrementBy);
         }
@@ -584,7 +584,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var sequence = database.Sequences[0];
 
             Assert.Equal("dbOh.MySequence", sequence.Name);
-            Assert.Equal("bigint", sequence.DataType);
+            Assert.Equal(typeof(long), sequence.Type);
             Assert.Equal(1, sequence.StartWith);
             Assert.Equal(10, sequence.IncrementBy);
         }
@@ -618,14 +618,14 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var sequence0 = database.Sequences[0];
 
             Assert.Equal("dbOh.S0", sequence0.Name);
-            Assert.Equal("bigint", sequence0.DataType);
+            Assert.Equal(typeof(long), sequence0.Type);
             Assert.Equal(1, sequence0.StartWith);
             Assert.Equal(3, sequence0.IncrementBy);
 
             var sequence1 = database.Sequences[1];
 
             Assert.Equal("dbToo.S1", sequence1.Name);
-            Assert.Equal("bigint", sequence0.DataType);
+            Assert.Equal(typeof(long), sequence0.Type);
             Assert.Equal(1, sequence0.StartWith);
             Assert.Equal(7, sequence1.IncrementBy);
         }
@@ -658,14 +658,14 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var sequence0 = database.Sequences[0];
 
             Assert.Equal("dbOh.S0", sequence0.Name);
-            Assert.Equal("bigint", sequence0.DataType);
+            Assert.Equal(typeof(long), sequence0.Type);
             Assert.Equal(1, sequence0.StartWith);
             Assert.Equal(3, sequence0.IncrementBy);
 
             var sequence1 = database.Sequences[1];
 
             Assert.Equal("dbToo.S1", sequence1.Name);
-            Assert.Equal("bigint", sequence0.DataType);
+            Assert.Equal(typeof(long), sequence0.Type);
             Assert.Equal(1, sequence0.StartWith);
             Assert.Equal(10, sequence1.IncrementBy);
         }
@@ -694,14 +694,14 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var sequence0 = database.Sequences[0];
 
             Assert.Equal("dbOh.S0", sequence0.Name);
-            Assert.Equal("bigint", sequence0.DataType);
+            Assert.Equal(typeof(long), sequence0.Type);
             Assert.Equal(1, sequence0.StartWith);
             Assert.Equal(10, sequence0.IncrementBy);
 
             var sequence1 = database.Sequences[1];
 
             Assert.Equal("dbToo.S1", sequence1.Name);
-            Assert.Equal("bigint", sequence0.DataType);
+            Assert.Equal(typeof(long), sequence0.Type);
             Assert.Equal(1, sequence0.StartWith);
             Assert.Equal(10, sequence1.IncrementBy);
         }
@@ -730,14 +730,14 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var sequence0 = database.Sequences[0];
 
             Assert.Equal("dbOh.S0", sequence0.Name);
-            Assert.Equal("bigint", sequence0.DataType);
+            Assert.Equal(typeof(long), sequence0.Type);
             Assert.Equal(1, sequence0.StartWith);
             Assert.Equal(10, sequence0.IncrementBy);
 
             var sequence1 = database.Sequences[1];
 
             Assert.Equal("EntityFrameworkDefaultSequence", sequence1.Name);
-            Assert.Equal("bigint", sequence0.DataType);
+            Assert.Equal(typeof(long), sequence0.Type);
             Assert.Equal(1, sequence0.StartWith);
             Assert.Equal(10, sequence1.IncrementBy);
         }

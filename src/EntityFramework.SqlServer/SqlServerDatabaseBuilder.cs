@@ -33,25 +33,9 @@ namespace Microsoft.Data.Entity.SqlServer
                 ? null
                 : new Sequence(
                     new SchemaQualifiedName(sequence.Name, sequence.Schema),
-                    GetSqlDataType(sequence.Type),
+                    sequence.Type,
                     sequence.StartValue,
                     sequence.IncrementBy);
-        }
-
-        private static string GetSqlDataType(Type sequenceType)
-        {
-            Contract.Assert(sequenceType == typeof(long)
-                            || sequenceType == typeof(int)
-                            || sequenceType == typeof(short)
-                            || sequenceType == typeof(byte));
-
-            return sequenceType == typeof(long)
-                ? "bigint"
-                : sequenceType == typeof(int)
-                    ? "int"
-                    : sequenceType == typeof(short)
-                        ? "smallint"
-                        : "tinyint";
         }
 
         protected override string GetSchema(IEntityType entityType)

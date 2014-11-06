@@ -1468,7 +1468,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
 
             public override void Visit(CreateTableOperation operation, IndentedStringBuilder builder)
             {
-                builder.Append("Create").Append(operation.Table.Name).Append("Sql");
+                builder.Append("Create").Append(operation.TableName).Append("Sql");
             }
 
             public override void Visit(DropTableOperation operation, IndentedStringBuilder builder)

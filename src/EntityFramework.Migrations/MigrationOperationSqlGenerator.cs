@@ -101,17 +101,19 @@ namespace Microsoft.Data.Entity.Migrations
             Check.NotNull(createSequenceOperation, "createSequenceOperation");
             Check.NotNull(stringBuilder, "stringBuilder");
 
-            var sequence = createSequenceOperation.Sequence;
+            var dataType = _typeMapper.GetTypeMapping(
+                null, createSequenceOperation.SequenceName, createSequenceOperation.Type, 
+                isKey: false, isConcurrencyToken: false).StoreTypeName;
 
             stringBuilder
                 .Append("CREATE SEQUENCE ")
-                .Append(DelimitIdentifier(sequence.Name))
+                .Append(DelimitIdentifier(createSequenceOperation.SequenceName))
                 .Append(" AS ")
-                .Append(sequence.DataType)
+                .Append(dataType)
                 .Append(" START WITH ")
-                .Append(sequence.StartWith)
+                .Append(createSequenceOperation.StartValue)
                 .Append(" INCREMENT BY ")
-                .Append(sequence.IncrementBy);
+                .Append(createSequenceOperation.IncrementBy);
         }
 
         public virtual void Generate([NotNull] DropSequenceOperation dropSequenceOperation, [NotNull] IndentedStringBuilder stringBuilder)
@@ -145,7 +147,7 @@ namespace Microsoft.Data.Entity.Migrations
             Check.NotNull(createTableOperation, "createTableOperation");
             Check.NotNull(stringBuilder, "stringBuilder");
 
-            var table = createTableOperation.Table;
+            var table = Database.GetTable(createTableOperation.TableName);
 
             stringBuilder
                 .Append("CREATE TABLE ")

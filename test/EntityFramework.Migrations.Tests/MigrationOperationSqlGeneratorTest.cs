@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             Assert.Equal(
                 @"CREATE SEQUENCE ""dbo"".""MySequence"" AS bigint START WITH 0 INCREMENT BY 1",
                 Generate(
-                    new CreateSequenceOperation(new Sequence("dbo.MySequence", "bigint", 0, 1))).Sql);
+                    new CreateSequenceOperation(new Sequence("dbo.MySequence", typeof(long), 0, 1))).Sql);
         }
 
         [Fact]
@@ -67,6 +67,8 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                 {
                     PrimaryKey = new PrimaryKey("MyPK", new[] { foo, bar }, isClustered: false)
                 };
+            var database = new DatabaseModel();
+            database.AddTable(table);
 
             Assert.Equal(
                 @"CREATE TABLE ""dbo"".""MyTable"" (
@@ -74,8 +76,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
     ""Bar"" int,
     CONSTRAINT ""MyPK"" PRIMARY KEY (""Foo"", ""Bar"")
 )",
-                Generate(
-                    new CreateTableOperation(table)).Sql);
+                Generate(new CreateTableOperation(table), database).Sql);
         }
 
         [Fact]
@@ -96,6 +97,8 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                 };
             table.AddUniqueConstraint(new UniqueConstraint("MyUC0", new[] { c1 }));
             table.AddUniqueConstraint(new UniqueConstraint("MyUC1", new[] { bar, c2 }));
+            var database = new DatabaseModel();
+            database.AddTable(table);
 
             Assert.Equal(
                 @"CREATE TABLE ""dbo"".""MyTable"" (
@@ -107,7 +110,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
     CONSTRAINT ""MyUC0"" UNIQUE (""C1""),
     CONSTRAINT ""MyUC1"" UNIQUE (""Bar"", ""C2"")
 )",
-                Generate(new CreateTableOperation(table)).Sql);
+                Generate(new CreateTableOperation(table), database).Sql);
         }
 
         [Fact]

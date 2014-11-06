@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Relational.Utilities;
 
@@ -10,16 +11,16 @@ namespace Microsoft.Data.Entity.Relational.Model
     public class Sequence
     {
         private SchemaQualifiedName _name;
-        private string _dataType;
+        private Type _type;
         private long _startWith;
         private int _incrementBy;
 
-        public Sequence(SchemaQualifiedName name, [NotNull] string dataType, long startWith, int incrementBy)
+        public Sequence(SchemaQualifiedName name, [NotNull] Type type, long startWith, int incrementBy)
         {
-            Check.NotEmpty(dataType, "dataType");
+            Check.NotNull(type, "type");
 
             _name = name;
-            _dataType = dataType;
+            _type = type;
             _startWith = startWith;
             _incrementBy = incrementBy;
         }
@@ -42,16 +43,16 @@ namespace Microsoft.Data.Entity.Relational.Model
             set { _incrementBy = value; }
         }
 
-        public virtual string DataType
+        public virtual Type Type
         {
-            get { return _dataType; }
+            get { return _type; }
 
             [param: NotNull]
             set
             {
-                Check.NotEmpty(value, "value");
+                Check.NotNull(value, "value");
 
-                _dataType = value;
+                _type = value;
             }
         }
 
@@ -59,7 +60,7 @@ namespace Microsoft.Data.Entity.Relational.Model
         {
             Check.NotNull(cloneContext, "cloneContext");
 
-            return new Sequence(Name, DataType, StartWith, IncrementBy);
+            return new Sequence(Name, Type, StartWith, IncrementBy);
         }
     }
 }

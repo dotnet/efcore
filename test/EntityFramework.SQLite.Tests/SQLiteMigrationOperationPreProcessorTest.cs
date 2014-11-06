@@ -22,12 +22,8 @@ namespace Microsoft.Data.Entity.SQLite.Tests
         public void Visit_with_create_table_operation()
         {
             var modelBuilder = new BasicModelBuilder();
-            var operation
-                = new CreateTableOperation(
-                    new Table("T", new[]
-                        {
-                            new Column("Id", typeof(int))
-                        }));
+            var operation = new CreateTableOperation("T");
+            operation.Columns.Add(new Column("Id", typeof(int)));
 
             var operationCollection = new MigrationOperationCollection();
             operationCollection.Add(operation);
@@ -38,9 +34,9 @@ namespace Microsoft.Data.Entity.SQLite.Tests
             Assert.IsType<CreateTableOperation>(operations[0]);
 
             var createTableOperation = (CreateTableOperation)operations[0];
-            Assert.Equal("T", createTableOperation.Table.Name);
-            Assert.Equal(new[] { "Id" }, createTableOperation.Table.Columns.Select(c => c.Name));
-            Assert.Equal(new[] { typeof(int) }, createTableOperation.Table.Columns.Select(c => c.ClrType));
+            Assert.Equal("T", createTableOperation.TableName);
+            Assert.Equal(new[] { "Id" }, createTableOperation.Columns.Select(c => c.Name));
+            Assert.Equal(new[] { typeof(int) }, createTableOperation.Columns.Select(c => c.ClrType));
         }
 
         [Fact]
@@ -64,8 +60,7 @@ namespace Microsoft.Data.Entity.SQLite.Tests
 
             var table = new SQLiteDatabaseBuilder(new SQLiteTypeMapper()).GetDatabase(modelBuilder.Model).GetTable("T2");
             var createTableOperation = new CreateTableOperation(table);
-            var addForeignKeyOperation
-                = new AddForeignKeyOperation("T2", "FK", new[] { "C" }, "T1", new[] { "Id" }, cascadeDelete: true);
+            var addForeignKeyOperation = createTableOperation.ForeignKeys[0];
 
             var operationCollection = new MigrationOperationCollection();
             operationCollection.Add(createTableOperation);
@@ -198,14 +193,14 @@ namespace Microsoft.Data.Entity.SQLite.Tests
 
             var createTableOperation = (CreateTableOperation)operations[1];
 
-            Assert.Equal("T2", createTableOperation.Table.Name);
-            Assert.Equal(new[] { "Id", "C" }, createTableOperation.Table.Columns.Select(c => c.Name));
-            Assert.Equal(new[] { typeof(int), typeof(int) }, createTableOperation.Table.Columns.Select(c => c.ClrType));
-            Assert.Equal(1, createTableOperation.Table.ForeignKeys.Count);
-            Assert.Equal("FK", createTableOperation.Table.ForeignKeys[0].Name);
-            Assert.Equal("T1", createTableOperation.Table.ForeignKeys[0].ReferencedTable.Name);
-            Assert.Equal(new[] { "C" }, createTableOperation.Table.ForeignKeys[0].Columns.Select(c => c.Name));
-            Assert.Equal(new[] { "Id" }, createTableOperation.Table.ForeignKeys[0].ReferencedColumns.Select(c => c.Name));
+            Assert.Equal("T2", createTableOperation.TableName);
+            Assert.Equal(new[] { "Id", "C" }, createTableOperation.Columns.Select(c => c.Name));
+            Assert.Equal(new[] { typeof(int), typeof(int) }, createTableOperation.Columns.Select(c => c.ClrType));
+            Assert.Equal(1, createTableOperation.ForeignKeys.Count);
+            Assert.Equal("FK", createTableOperation.ForeignKeys[0].ForeignKeyName);
+            Assert.Equal("T1", createTableOperation.ForeignKeys[0].ReferencedTableName);
+            Assert.Equal(new[] { "C" }, createTableOperation.ForeignKeys[0].ColumnNames);
+            Assert.Equal(new[] { "Id" }, createTableOperation.ForeignKeys[0].ReferencedColumnNames);
 
             var copyDataOperation = (CopyDataOperation)operations[2];
 
@@ -258,14 +253,14 @@ namespace Microsoft.Data.Entity.SQLite.Tests
 
             var createTableOperation = (CreateTableOperation)operations[0];
 
-            Assert.Equal("dbo2.T2", createTableOperation.Table.Name);
-            Assert.Equal(new[] { "Id", "C" }, createTableOperation.Table.Columns.Select(c => c.Name));
-            Assert.Equal(new[] { typeof(int), typeof(int) }, createTableOperation.Table.Columns.Select(c => c.ClrType));
-            Assert.Equal(1, createTableOperation.Table.ForeignKeys.Count);
-            Assert.Equal("FK", createTableOperation.Table.ForeignKeys[0].Name);
-            Assert.Equal("T1", createTableOperation.Table.ForeignKeys[0].ReferencedTable.Name);
-            Assert.Equal(new[] { "C" }, createTableOperation.Table.ForeignKeys[0].Columns.Select(c => c.Name));
-            Assert.Equal(new[] { "Id" }, createTableOperation.Table.ForeignKeys[0].ReferencedColumns.Select(c => c.Name));
+            Assert.Equal("dbo2.T2", createTableOperation.TableName);
+            Assert.Equal(new[] { "Id", "C" }, createTableOperation.Columns.Select(c => c.Name));
+            Assert.Equal(new[] { typeof(int), typeof(int) }, createTableOperation.Columns.Select(c => c.ClrType));
+            Assert.Equal(1, createTableOperation.ForeignKeys.Count);
+            Assert.Equal("FK", createTableOperation.ForeignKeys[0].ForeignKeyName);
+            Assert.Equal("T1", createTableOperation.ForeignKeys[0].ReferencedTableName);
+            Assert.Equal(new[] { "C" }, createTableOperation.ForeignKeys[0].ColumnNames);
+            Assert.Equal(new[] { "Id" }, createTableOperation.ForeignKeys[0].ReferencedColumnNames);
 
             var copyDataOperation = (CopyDataOperation)operations[1];
 
@@ -340,8 +335,30 @@ namespace Microsoft.Data.Entity.SQLite.Tests
 
             public override void Visit(CreateTableOperation operation, DatabaseModel databaseModel)
             {
-                var table = operation.Table.Clone(new CloneContext());
+                var cloneContext = new CloneContext();
+                var table = new Table(operation.TableName, operation.Columns.Select(c => c.Clone(cloneContext)));
+
                 databaseModel.AddTable(table);
+
+                if (operation.PrimaryKey != null)
+                {
+                    Visit(operation.PrimaryKey, databaseModel);
+                }
+
+                foreach (var addUniqueConstraintOp in operation.UniqueConstraints)
+                {
+                    Visit(addUniqueConstraintOp, databaseModel);
+                }
+
+                foreach (var addForeignKeyOp in operation.ForeignKeys)
+                {
+                    Visit(addForeignKeyOp, databaseModel);
+                }
+
+                foreach (var createIndexOp in operation.Indexes)
+                {
+                    Visit(createIndexOp, databaseModel);
+                }
             }
 
             public override void Visit(DropTableOperation operation, DatabaseModel databaseModel)

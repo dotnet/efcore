@@ -16,20 +16,16 @@ namespace Microsoft.Data.Entity.Migrations.Builders
     public class TableBuilder<TColumns>
     {
         private readonly CreateTableOperation _createTableOperation;
-        private readonly MigrationBuilder _migrationBuilder;
         private readonly IDictionary<PropertyInfo, Column> _propertyInfoToColumnMap;
 
         public TableBuilder(
             [NotNull] CreateTableOperation createTableOperation,
-            [NotNull] MigrationBuilder migrationBuilder,
             [NotNull] IDictionary<PropertyInfo, Column> propertyInfoToColumnMap)
         {
             Check.NotNull(createTableOperation, "createTableOperation");
-            Check.NotNull(migrationBuilder, "migrationBuilder");
             Check.NotNull(propertyInfoToColumnMap, "propertyInfoToColumnMap");
 
             _createTableOperation = createTableOperation;
-            _migrationBuilder = migrationBuilder;
             _propertyInfoToColumnMap = propertyInfoToColumnMap;
         }
 
@@ -41,11 +37,12 @@ namespace Microsoft.Data.Entity.Migrations.Builders
             Check.NotEmpty(name, "name");
             Check.NotNull(primaryKeyExpression, "primaryKeyExpression");
 
-            var columns = primaryKeyExpression.GetPropertyAccessList()
-                .Select(p => _propertyInfoToColumnMap[p])
+            var columnNames = primaryKeyExpression.GetPropertyAccessList()
+                .Select(p => _propertyInfoToColumnMap[p].Name)
                 .ToArray();
 
-            _createTableOperation.Table.PrimaryKey = new PrimaryKey(name, columns, clustered);
+            _createTableOperation.PrimaryKey = new AddPrimaryKeyOperation(
+                _createTableOperation.TableName, name, columnNames, clustered);
 
             return this;
         }
@@ -57,11 +54,12 @@ namespace Microsoft.Data.Entity.Migrations.Builders
             Check.NotEmpty(name, "name");
             Check.NotNull(uniqueConstraintExpression, "uniqueConstraintExpression");
 
-            var columns = uniqueConstraintExpression.GetPropertyAccessList()
-                .Select(p => _propertyInfoToColumnMap[p])
+            var columnNames = uniqueConstraintExpression.GetPropertyAccessList()
+                .Select(p => _propertyInfoToColumnMap[p].Name)
                 .ToArray();
 
-            _createTableOperation.Table.AddUniqueConstraint(new UniqueConstraint(name, columns));
+            _createTableOperation.UniqueConstraints.Add(new AddUniqueConstraintOperation(
+                _createTableOperation.TableName, name, columnNames));
 
             return this;
         }
@@ -78,14 +76,12 @@ namespace Microsoft.Data.Entity.Migrations.Builders
             Check.NotEmpty(referencedTableName, "referencedTableName");
             Check.NotNull(referencedColumnNames, "referencedColumnNames");
 
-            var table = _createTableOperation.Table;
             var columnNames = foreignKeyExpression.GetPropertyAccessList()
                 .Select(p => _propertyInfoToColumnMap[p].Name)
                 .ToArray();
-            var addForeignKeyOperation = new AddForeignKeyOperation(table.Name, name,
-                columnNames, referencedTableName, referencedColumnNames, cascadeDelete);
 
-            _migrationBuilder.AddOperation(addForeignKeyOperation);
+            _createTableOperation.ForeignKeys.Add(new AddForeignKeyOperation(
+                _createTableOperation.TableName, name, columnNames, referencedTableName, referencedColumnNames, cascadeDelete));
 
             return this;
         }
@@ -99,14 +95,12 @@ namespace Microsoft.Data.Entity.Migrations.Builders
             Check.NotEmpty(name, "name");
             Check.NotNull(indexExpression, "indexExpression");
 
-            var table = _createTableOperation.Table;
             var columnNames = indexExpression.GetPropertyAccessList()
                 .Select(p => _propertyInfoToColumnMap[p].Name)
                 .ToArray();
-            var createIndexOperation = new CreateIndexOperation(table.Name, name,
-                columnNames, unique, clustered);
 
-            _migrationBuilder.AddOperation(createIndexOperation);
+            _createTableOperation.Indexes.Add(new CreateIndexOperation(
+                _createTableOperation.TableName, name, columnNames, unique, clustered));
 
             return this;
         }

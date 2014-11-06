@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Builders
     public class TableBuilderTest
     {
         [Fact]
-        public void PrimaryKey_sets_primary_key_on_table()
+        public void PrimaryKey_sets_AddPrimaryKeyOperation()
         {
             var migrationBuilder = new MigrationBuilder();
             migrationBuilder.CreateTable("dbo.MyTable",
@@ -29,15 +29,15 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Builders
             Assert.Equal(1, migrationBuilder.Operations.Count);
 
             var createTableOperation = (CreateTableOperation)migrationBuilder.Operations[0];
-            var primaryKey = createTableOperation.Table.PrimaryKey;
+            var primaryKeyOp = createTableOperation.PrimaryKey;
 
-            Assert.NotNull(primaryKey);
-            Assert.Equal("MyPK", primaryKey.Name);
-            Assert.Equal(new[] { "Foo", "Bar" }, primaryKey.Columns.Select(c => c.Name));
+            Assert.NotNull(primaryKeyOp);
+            Assert.Equal("MyPK", primaryKeyOp.PrimaryKeyName);
+            Assert.Equal(new[] { "Foo", "Bar" }, primaryKeyOp.ColumnNames);
         }
 
         [Fact]
-        public void UniqueConstraint_adds_unique_constraint_to_table()
+        public void UniqueConstraint_appends_AddUniqueConstraintOperation()
         {
             var migrationBuilder = new MigrationBuilder();
             migrationBuilder.CreateTable("dbo.MyTable",
@@ -55,17 +55,16 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Builders
             Assert.Equal(1, migrationBuilder.Operations.Count);
 
             var createTableOperation = (CreateTableOperation)migrationBuilder.Operations[0];
-            var table = createTableOperation.Table;
 
-            Assert.Equal(2, table.UniqueConstraints.Count);
-            Assert.Equal("MyUC1", table.UniqueConstraints[0].Name);
-            Assert.Equal(new[] { "Bar" }, table.UniqueConstraints[0].Columns.Select(c => c.Name));
-            Assert.Equal("MyUC2", table.UniqueConstraints[1].Name);
-            Assert.Equal(new[] { "C1", "C2" }, table.UniqueConstraints[1].Columns.Select(c => c.Name));
+            Assert.Equal(2, createTableOperation.UniqueConstraints.Count);
+            Assert.Equal("MyUC1", createTableOperation.UniqueConstraints[0].UniqueConstraintName);
+            Assert.Equal(new[] { "Bar" }, createTableOperation.UniqueConstraints[0].ColumnNames);
+            Assert.Equal("MyUC2", createTableOperation.UniqueConstraints[1].UniqueConstraintName);
+            Assert.Equal(new[] { "C1", "C2" }, createTableOperation.UniqueConstraints[1].ColumnNames);
         }
 
         [Fact]
-        public void ForeignKey_appends_add_primary_key_operation()
+        public void ForeignKey_appends_AddForeignKeyOperation()
         {
             var migrationBuilder = new MigrationBuilder();
             migrationBuilder.CreateTable("dbo.MyTable",
@@ -80,10 +79,13 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Builders
                     new[] { "Foo2", "Bar2" },
                     cascadeDelete: true);
 
-            Assert.Equal(2, migrationBuilder.Operations.Count);
-            Assert.IsType<AddForeignKeyOperation>(migrationBuilder.Operations[1]);
+            Assert.Equal(1, migrationBuilder.Operations.Count);
 
-            var addForeignKeyOperation = (AddForeignKeyOperation)migrationBuilder.Operations[1];
+            var createTableOperation = (CreateTableOperation)migrationBuilder.Operations[0];
+
+            Assert.Equal(1, createTableOperation.ForeignKeys.Count);
+
+            var addForeignKeyOperation = createTableOperation.ForeignKeys[0];
 
             Assert.Equal("MyFK", addForeignKeyOperation.ForeignKeyName);
             Assert.Equal("dbo.MyTable", addForeignKeyOperation.TableName);
@@ -94,7 +96,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Builders
         }
 
         [Fact]
-        public void Index_appends_create_index_operation()
+        public void Index_appends_CreateIndexOperation()
         {
             var migrationBuilder = new MigrationBuilder();
             migrationBuilder.CreateTable("dbo.MyTable",
@@ -108,10 +110,13 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Builders
                     unique: true,
                     clustered: true);
 
-            Assert.Equal(2, migrationBuilder.Operations.Count);
-            Assert.IsType<CreateIndexOperation>(migrationBuilder.Operations[1]);
+            Assert.Equal(1, migrationBuilder.Operations.Count);
 
-            var createIndexOperation = (CreateIndexOperation)migrationBuilder.Operations[1];
+            var createTableOperation = (CreateTableOperation)migrationBuilder.Operations[0];
+
+            Assert.Equal(1, createTableOperation.Indexes.Count);
+
+            var createIndexOperation = (CreateIndexOperation)createTableOperation.Indexes[0];
 
             Assert.Equal("MyIdx", createIndexOperation.IndexName);
             Assert.Equal("dbo.MyTable", createIndexOperation.TableName);

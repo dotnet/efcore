@@ -97,8 +97,9 @@ namespace Microsoft.Data.Entity.SqlServer
 
         private IEnumerable<SqlStatement> CreateSchemaCommands(IModel model)
         {
-            var sqlGenerator = _sqlGeneratorFactory.Create();
-            return sqlGenerator.Generate(_modelDiffer.CreateSchema(model));
+            var database = _modelDiffer.DatabaseBuilder.GetDatabase(model);
+            var sqlGenerator = _sqlGeneratorFactory.Create(database);
+            return sqlGenerator.Generate(_modelDiffer.CreateSchema(database));
         }
 
         private SqlStatement CreateHasTablesCommand()

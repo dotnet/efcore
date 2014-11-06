@@ -17,7 +17,8 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Model
             var table = new Table("dbo.MyTable", new[] { new Column("Id", "int") });
             var createTableOperation = new CreateTableOperation(table);
 
-            Assert.Same(table, createTableOperation.Table);
+            Assert.Equal(table.Name, createTableOperation.TableName);
+            Assert.Equal(table.Columns, createTableOperation.Columns);
             Assert.False(createTableOperation.IsDestructiveChange);
         }
 

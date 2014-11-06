@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity.SQLite.Tests
         [Fact]
         public void Generate_with_create_sequence_not_supported()
         {
-            var operation = new CreateSequenceOperation(new Sequence("EpisodeSequence", "bigint", 0, 1));
+            var operation = new CreateSequenceOperation(new Sequence("EpisodeSequence", typeof(long), 0, 1));
 
             Assert.Equal(
                 Strings.MigrationOperationNotSupported(typeof(SQLiteMigrationOperationSqlGenerator), operation.GetType()),
@@ -87,8 +87,11 @@ namespace Microsoft.Data.Entity.SQLite.Tests
             table.AddUniqueConstraint(new UniqueConstraint("UC0", new[] { c0, c1 }));
             table.AddUniqueConstraint(new UniqueConstraint("UC1", new[] { c2 }));
 
+            var database = new DatabaseModel();
+            database.AddTable(table);
+
             var operation = new CreateTableOperation(table);
-            var sql = Generate(operation);
+            var sql = Generate(operation, database);
 
             Assert.Equal(
                 @"CREATE TABLE ""T"" (
@@ -106,7 +109,7 @@ namespace Microsoft.Data.Entity.SQLite.Tests
         public void Generate_with_create_table_generates_fks()
         {
             var pegasusId = new Column("Id", typeof(long));
-            new Table("Pegasus", new[] { pegasusId });
+            var pegasus = new Table("Pegasus", new[] { pegasusId });
             var friend1Id = new Column("Friend1Id", typeof(long));
             var friend2Id = new Column("Friend2Id", typeof(long));
             var friendship = new Table("Friendship", new[] { friend1Id, friend2Id })
@@ -115,9 +118,13 @@ namespace Microsoft.Data.Entity.SQLite.Tests
                 };
             friendship.AddForeignKey(new ForeignKey("FriendshipFK1", new[] { friend1Id }, new[] { pegasusId }));
             friendship.AddForeignKey(new ForeignKey("FriendshipFK2", new[] { friend2Id }, new[] { pegasusId }));
+            var database = new DatabaseModel();
+            database.AddTable(pegasus);
+            database.AddTable(friendship);
+
             var operation = new CreateTableOperation(friendship);
 
-            var sql = Generate(operation);
+            var sql = Generate(operation, database);
 
             Assert.Equal(
                 @"CREATE TABLE ""Friendship"" (
@@ -192,7 +199,7 @@ namespace Microsoft.Data.Entity.SQLite.Tests
 
         private static string Generate(MigrationOperation operation, DatabaseModel database = null)
         {
-            return CreateGenerator().Generate(operation).Sql;
+            return CreateGenerator(database).Generate(operation).Sql;
         }
 
         private static SQLiteMigrationOperationSqlGenerator CreateGenerator(DatabaseModel database = null)

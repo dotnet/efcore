@@ -66,8 +66,9 @@ namespace Microsoft.Data.Entity.SQLite
         {
             Check.NotNull(model, "model");
 
-            var generator = _generatorFactory.Create();
-            var operations = _modelDiffer.CreateSchema(model);
+            var database = _modelDiffer.DatabaseBuilder.GetDatabase(model);
+            var generator = _generatorFactory.Create(database);
+            var operations = _modelDiffer.CreateSchema(database);
             var statements = generator.Generate(operations);
 
             // TODO: Delete database on error
