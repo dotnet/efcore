@@ -9,12 +9,13 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Commands.Utilities;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Migrations.Model;
+using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Relational.Model;
 using Microsoft.Data.Entity.Utilities;
+using Sequence = Microsoft.Data.Entity.Relational.Metadata.Sequence;
 
 namespace Microsoft.Data.Entity.Commands.Migrations
 {
@@ -260,18 +261,75 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             Check.NotNull(createSequenceOperation, "createSequenceOperation");
             Check.NotNull(stringBuilder, "stringBuilder");
 
-            var sequence = createSequenceOperation.Sequence;
-
             stringBuilder
                 .Append("CreateSequence(")
-                .Append(GenerateLiteral(sequence.Name))
-                .Append(", ")
-                .Append(GenerateLiteral(sequence.DataType))
-                .Append(", ")
-                .Append(sequence.StartWith)
-                .Append(", ")
-                .Append(sequence.IncrementBy)
-                .Append(")");
+                .Append(GenerateLiteral(createSequenceOperation.SequenceName));
+
+            int paramCount;
+
+            if (createSequenceOperation.Type != Sequence.DefaultType)
+            {
+                paramCount = 5;
+            }
+            else if (createSequenceOperation.MaxValue.HasValue)
+            {
+                paramCount = 4;
+            }
+            else if (createSequenceOperation.MinValue.HasValue)
+            {
+                paramCount = 3;
+            }
+            else if (createSequenceOperation.IncrementBy != Sequence.DefaultIncrement)
+            {
+                paramCount = 2;
+            }
+            else if (createSequenceOperation.StartValue != Sequence.DefaultStartValue)
+            {
+                paramCount = 1;
+            }
+            else
+            {
+                paramCount = 0;
+            }
+
+            if (paramCount > 0)
+            {
+                stringBuilder
+                    .Append(", ")
+                    .Append(GenerateLiteral(createSequenceOperation.StartValue));
+
+                if (paramCount > 1)
+                {
+                    stringBuilder
+                        .Append(", ")
+                        .Append(GenerateLiteral(createSequenceOperation.IncrementBy));
+
+                    if (paramCount > 2)
+                    {
+                        stringBuilder
+                            .Append(", ")
+                            .Append(createSequenceOperation.MinValue.HasValue ? GenerateLiteral(createSequenceOperation.MinValue) : "null");
+
+                        if (paramCount > 3)
+                        {
+                            stringBuilder
+                                .Append(", ")
+                                .Append(createSequenceOperation.MaxValue.HasValue ? GenerateLiteral(createSequenceOperation.MaxValue) : "null");
+
+                            if (paramCount > 4)
+                            {
+                                stringBuilder
+                                    .Append(", typeof(")
+                                    .Append(createSequenceOperation.Type.GetTypeName())
+                                    .Append(")");
+                            }
+
+                        }
+                    }
+                }
+            }
+
+            stringBuilder.Append(")");
         }
 
         public override void Generate(DropSequenceOperation dropSequenceOperation, IndentedStringBuilder stringBuilder)
@@ -329,42 +387,40 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             Check.NotNull(createTableOperation, "createTableOperation");
             Check.NotNull(stringBuilder, "stringBuilder");
 
-            var table = createTableOperation.Table;
-
             stringBuilder
                 .Append("CreateTable(")
-                .Append(GenerateLiteral(createTableOperation.Table.Name))
+                .Append(GenerateLiteral(createTableOperation.TableName))
                 .AppendLine(",");
 
             using (stringBuilder.Indent())
             {
-                GenerateColumns(table.Columns, stringBuilder);
+                GenerateColumns(createTableOperation.Columns, stringBuilder);
 
                 stringBuilder.Append(")");
 
-                var primaryKey = table.PrimaryKey;
-                if (primaryKey != null)
+                var addPrimaryKeyOperation = createTableOperation.PrimaryKey;
+                if (addPrimaryKeyOperation != null)
                 {
                     stringBuilder
                         .AppendLine()
                         .Append(".PrimaryKey(")
-                        .Append(GenerateLiteral(primaryKey.Name))
+                        .Append(GenerateLiteral(addPrimaryKeyOperation.PrimaryKeyName))
                         .Append(", ");
 
-                    GenerateColumnReferences(primaryKey.Columns, stringBuilder);
+                    GenerateColumnReferences(addPrimaryKeyOperation.ColumnNames, stringBuilder);
 
                     stringBuilder.Append(")");
                 }
 
-                foreach (var uniqueConstraint in table.UniqueConstraints)
+                foreach (var uniqueConstraintOperation in createTableOperation.UniqueConstraints)
                 {
                     stringBuilder
                         .AppendLine()
                         .Append(".UniqueConstraint(")
-                        .Append(GenerateLiteral(uniqueConstraint.Name))
+                        .Append(GenerateLiteral(uniqueConstraintOperation.UniqueConstraintName))
                         .Append(", ");
 
-                    GenerateColumnReferences(uniqueConstraint.Columns, stringBuilder);
+                    GenerateColumnReferences(uniqueConstraintOperation.ColumnNames, stringBuilder);
 
                     stringBuilder.Append(")");
                 }
@@ -883,23 +939,23 @@ namespace Microsoft.Data.Entity.Commands.Migrations
         }
 
         protected virtual void GenerateColumnReferences(
-            [NotNull] IReadOnlyList<Column> columns, [NotNull] IndentedStringBuilder stringBuilder)
+            [NotNull] IReadOnlyList<string> columnNames, [NotNull] IndentedStringBuilder stringBuilder)
         {
-            Check.NotNull(columns, "columns");
+            Check.NotNull(columnNames, "columnNames");
             Check.NotNull(stringBuilder, "stringBuilder");
 
-            if (columns.Count == 1)
+            if (columnNames.Count == 1)
             {
                 stringBuilder
                     .Append("t => t.")
-                    .Append(GenerateColumnIdentifier(columns[0].Name));
+                    .Append(GenerateColumnIdentifier(columnNames[0]));
 
                 return;
             }
 
             stringBuilder
                 .Append("t => new { ")
-                .Append(columns.Select(c => "t." + GenerateColumnIdentifier(c.Name)).Join())
+                .Append(columnNames.Select(n => "t." + GenerateColumnIdentifier(n)).Join())
                 .Append(" }");
         }
 

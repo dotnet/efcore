@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         {
             Assert.Equal(
                 @"CREATE SEQUENCE [dbo].[MySequence] AS bigint START WITH 0 INCREMENT BY 1",
-                Generate(new CreateSequenceOperation(new Sequence("dbo.MySequence", "bigint", 0, 1))).Sql);
+                Generate(new CreateSequenceOperation(new Sequence("dbo.MySequence", typeof(long), 0, 1))).Sql);
         }
 
         [Fact]
@@ -83,6 +83,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 {
                     PrimaryKey = new PrimaryKey("MyPK", new[] { foo, bar }, isClustered: false)
                 };
+            var database = new DatabaseModel();
+            database.AddTable(table);
 
             Assert.Equal(
                 @"CREATE TABLE [dbo].[MyTable] (
@@ -90,8 +92,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
     [Bar] int,
     CONSTRAINT [MyPK] PRIMARY KEY NONCLUSTERED ([Foo], [Bar])
 )",
-                Generate(
-                    new CreateTableOperation(table)).Sql);
+                Generate(new CreateTableOperation(table), database).Sql);
         }
 
         [Fact]
@@ -108,6 +109,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 {
                     PrimaryKey = new PrimaryKey("MyPK", new[] { foo }, isClustered: false)
                 };
+            var database = new DatabaseModel();
+            database.AddTable(table);
 
             Assert.Equal(
                 @"CREATE TABLE [dbo].[MyTable] (
@@ -115,8 +118,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
     [Bar] int,
     CONSTRAINT [MyPK] PRIMARY KEY NONCLUSTERED ([Foo])
 )",
-                Generate(
-                    new CreateTableOperation(table)).Sql);
+                Generate(new CreateTableOperation(table), database).Sql);
         }
 
         [Fact]

@@ -61,17 +61,19 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Builders
         {
             var builder = new MigrationBuilder();
 
-            builder.CreateSequence("dbo.MySequence", "bigint", 10, 5);
+            builder.CreateSequence("dbo.MySequence", 13, 7, 3, 103, typeof(int));
 
             Assert.Equal(1, builder.Operations.Count);
             Assert.IsType<CreateSequenceOperation>(builder.Operations[0]);
 
             var operation = (CreateSequenceOperation)builder.Operations[0];
 
-            Assert.Equal("dbo.MySequence", operation.Sequence.Name);
-            Assert.Equal("bigint", operation.Sequence.DataType);
-            Assert.Equal(10, operation.Sequence.StartWith);
-            Assert.Equal(5, operation.Sequence.IncrementBy);
+            Assert.Equal("dbo.MySequence", operation.SequenceName);
+            Assert.Equal(13, operation.StartValue);
+            Assert.Equal(7, operation.IncrementBy);
+            Assert.Equal(3, operation.MinValue);
+            Assert.Equal(103, operation.MaxValue);
+            Assert.Equal(typeof(int), operation.Type);
         }
 
         [Fact]
@@ -155,9 +157,9 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Builders
 
             var operation = (CreateTableOperation)builder.Operations[0];
 
-            Assert.Equal("dbo.MyTable", operation.Table.Name);
-            Assert.Equal(2, operation.Table.Columns.Count);
-            Assert.Equal(new[] { "Foo", "Bar" }, operation.Table.Columns.Select(c => c.Name));
+            Assert.Equal("dbo.MyTable", operation.TableName);
+            Assert.Equal(2, operation.Columns.Count);
+            Assert.Equal(new[] { "Foo", "Bar" }, operation.Columns.Select(c => c.Name));
         }
 
         [Fact]

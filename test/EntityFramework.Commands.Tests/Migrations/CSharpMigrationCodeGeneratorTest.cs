@@ -11,6 +11,7 @@ using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Relational.Model;
 using Microsoft.Data.Entity.Utilities;
 using Xunit;
+using Sequence = Microsoft.Data.Entity.Relational.Metadata.Sequence;
 
 namespace Microsoft.Data.Entity.Commands.Tests.Migrations
 {
@@ -43,10 +44,34 @@ namespace Microsoft.Data.Entity.Commands.Tests.Migrations
         [Fact]
         public void Generate_when_create_sequence_operation()
         {
-            var operation = new CreateSequenceOperation(new Sequence("dbo.MySequence", "BIGINT", 10, 5));
+            var operation = new CreateSequenceOperation("dbo.MySequence", 10, 5, 1, 100, typeof(int));
 
             Assert.Equal(
-                @"CreateSequence(""dbo.MySequence"", ""BIGINT"", 10, 5)",
+                @"CreateSequence(""dbo.MySequence"", 10, 5, 1, 100, typeof(int))",
+                CSharpMigrationCodeGenerator.Generate(operation));
+
+            GenerateAndValidateCode(operation);
+        }
+
+        [Fact]
+        public void Generate_when_create_sequence_operation_with_some_defaults()
+        {
+            var operation = new CreateSequenceOperation("dbo.MySequence", Sequence.DefaultStartValue, 7);
+
+            Assert.Equal(
+                @"CreateSequence(""dbo.MySequence"", 1, 7)",
+                CSharpMigrationCodeGenerator.Generate(operation));
+
+            GenerateAndValidateCode(operation);
+        }
+
+        [Fact]
+        public void Generate_when_create_sequence_operation_with_all_defaults()
+        {
+            var operation = new CreateSequenceOperation("dbo.MySequence");
+
+            Assert.Equal(
+                @"CreateSequence(""dbo.MySequence"")",
                 CSharpMigrationCodeGenerator.Generate(operation));
 
             GenerateAndValidateCode(operation);

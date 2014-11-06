@@ -8,7 +8,9 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Migrations.Utilities;
 using Microsoft.Data.Entity.Relational;
+using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Relational.Model;
+using Sequence = Microsoft.Data.Entity.Relational.Metadata.Sequence;
 
 namespace Microsoft.Data.Entity.Migrations.Builders
 {
@@ -42,14 +44,15 @@ namespace Microsoft.Data.Entity.Migrations.Builders
             AddOperation(new DropDatabaseOperation(databaseName));
         }
 
-        public virtual void CreateSequence(SchemaQualifiedName sequenceName,
-            [NotNull] string dataType, int startWith, int incrementBy)
+        public virtual void CreateSequence(
+            SchemaQualifiedName sequenceName,
+            long startValue = Sequence.DefaultStartValue,
+            int incrementBy = Sequence.DefaultIncrement,
+            [CanBeNull] long? minValue = null,
+            [CanBeNull] long? maxValue = null,
+            [CanBeNull] Type type = null)
         {
-            Check.NotEmpty(dataType, "dataType");
-
-            var sequence = new Sequence(sequenceName, dataType, startWith, incrementBy);
-
-            AddOperation(new CreateSequenceOperation(sequence));
+            AddOperation(new CreateSequenceOperation(sequenceName, startValue, incrementBy, minValue, maxValue, type));
         }
 
         public virtual void DropSequence(SchemaQualifiedName sequenceName)
@@ -88,7 +91,7 @@ namespace Microsoft.Data.Entity.Migrations.Builders
 
             AddOperation(createTableOperation);
 
-            return new TableBuilder<TColumns>(createTableOperation, this, propertyInfoToColumnMap);
+            return new TableBuilder<TColumns>(createTableOperation, propertyInfoToColumnMap);
         }
 
         public virtual void DropTable(SchemaQualifiedName tableName)

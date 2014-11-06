@@ -52,7 +52,7 @@ namespace Microsoft.Data.Entity.SQLite
             Check.NotNull(operation, "operation");
             Check.NotNull(context, "context");
 
-            var handler = context.GetHandler(operation.Table.Name);
+            var handler = context.GetHandler(operation.TableName);
 
             if (handler != null)
             {
@@ -291,8 +291,8 @@ namespace Microsoft.Data.Entity.SQLite
         {
             public CreateTableHandler([NotNull] CreateTableOperation operation)
                 : base(
-                    Check.NotNull(operation, "operation").Table.Name,
-                    operation.Table.Columns.Select(c => c.Name))
+                    Check.NotNull(operation, "operation").TableName,
+                    operation.Columns.Select(c => c.Name))
             {
                 base.AddOperation(operation);
             }
@@ -303,12 +303,12 @@ namespace Microsoft.Data.Entity.SQLite
                 // a table to be created. These operations need to be ignored because the SQLite SQL generator includes 
                 // the foreign key definitions within the CREATE TABLE statement. Figure out if there is a cleaner solution.
 
-                var table = ((CreateTableOperation)Operations[0]).Table;
+                var createTableOperation = (CreateTableOperation)Operations[0];
 
                 var addForeignKeyOperation = operation as AddForeignKeyOperation;
                 if (addForeignKeyOperation != null)
                 {
-                    if (table.ForeignKeys.All(fk => fk.Name != addForeignKeyOperation.ForeignKeyName))
+                    if (createTableOperation.ForeignKeys.All(addFkOp => addFkOp != addForeignKeyOperation))
                     {
                         throw new InvalidOperationException();
                     }

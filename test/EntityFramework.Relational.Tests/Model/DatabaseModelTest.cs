@@ -21,8 +21,8 @@ namespace Microsoft.Data.Entity.Relational.Tests.Model
         public void Sequences_gets_read_only_list_of_sequences()
         {
             var database = new DatabaseModel();
-            var sequence0 = new Sequence("dbo.MySequence0", "bigint", 0, 1);
-            var sequence1 = new Sequence("dbo.MySequence1", "bigint", 0, 1);
+            var sequence0 = new Sequence("dbo.MySequence0", typeof(long), 0, 1);
+            var sequence1 = new Sequence("dbo.MySequence1", typeof(long), 0, 1);
 
             database.AddSequence(sequence0);
             database.AddSequence(sequence1);
@@ -40,7 +40,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Model
 
             Assert.Equal(0, database.Sequences.Count);
 
-            var sequence = new Sequence("dbo.MySequence", "bigint", 0, 1);
+            var sequence = new Sequence("dbo.MySequence", typeof(long), 0, 1);
             database.AddSequence(sequence);
 
             Assert.Equal(1, database.Sequences.Count);
@@ -51,8 +51,8 @@ namespace Microsoft.Data.Entity.Relational.Tests.Model
         public void RemoveSequence_removes_specified_sequence()
         {
             var database = new DatabaseModel();
-            var sequence0 = new Sequence("dbo.MySequence0", "bigint", 0, 1);
-            var sequence1 = new Sequence("dbo.MySequence1", "bigint", 0, 1);
+            var sequence0 = new Sequence("dbo.MySequence0", typeof(long), 0, 1);
+            var sequence1 = new Sequence("dbo.MySequence1", typeof(long), 0, 1);
 
             database.AddSequence(sequence0);
             database.AddSequence(sequence1);
@@ -69,8 +69,8 @@ namespace Microsoft.Data.Entity.Relational.Tests.Model
         public void GetSequence_finds_sequence_by_name()
         {
             var database = new DatabaseModel();
-            var sequence0 = new Sequence("dbo.MySequence0", "bigint", 0, 1);
-            var sequence1 = new Sequence("dbo.MySequence1", "bigint", 0, 1);
+            var sequence0 = new Sequence("dbo.MySequence0", typeof(long), 0, 1);
+            var sequence1 = new Sequence("dbo.MySequence1", typeof(long), 0, 1);
 
             database.AddSequence(sequence0);
             database.AddSequence(sequence1);
@@ -172,8 +172,8 @@ namespace Microsoft.Data.Entity.Relational.Tests.Model
         public void Clone_replicates_tables()
         {
             var databaseModel = new DatabaseModel();
-            var sequence0 = new Sequence("dbo.S0", "bigint", 0, 1);
-            var sequence1 = new Sequence("dbo.S1", "bigint", 0, 1);
+            var sequence0 = new Sequence("dbo.S0", typeof(long), 0, 1);
+            var sequence1 = new Sequence("dbo.S1", typeof(long), 0, 1);
             var table0 = new Table("dbo.T0");
             var table1 = new Table("dbo.T1");
 

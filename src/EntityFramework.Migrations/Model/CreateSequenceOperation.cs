@@ -1,27 +1,80 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Migrations.Utilities;
-using Microsoft.Data.Entity.Relational.Model;
+using Microsoft.Data.Entity.Relational;
+using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Migrations.Model
 {
     public class CreateSequenceOperation : MigrationOperation
     {
-        private readonly Sequence _sequence;
+        private readonly SchemaQualifiedName _sequenceName;
+        private readonly long _startValue;
+        private readonly long _incrementBy;
+        private readonly long? _minValue;
+        private readonly long? _maxValue;
+        private readonly Type _type;
 
-        public CreateSequenceOperation([NotNull] Sequence sequence)
+        public CreateSequenceOperation(
+            SchemaQualifiedName sequenceName,
+            long startValue = Sequence.DefaultStartValue,
+            int incrementBy = Sequence.DefaultIncrement,
+            [CanBeNull] long? minValue = null,
+            [CanBeNull] long? maxValue = null,
+            [CanBeNull] Type type = null)
+        {
+            // TODO: Consider duplicating the validation performed by Relational.Metadata.Sequence.
+
+            _sequenceName = sequenceName;
+            _startValue = startValue;
+            _incrementBy = incrementBy;
+            _minValue = minValue;
+            _maxValue = maxValue;
+            _type = type ?? Sequence.DefaultType;
+        }
+
+        public CreateSequenceOperation([NotNull] Relational.Model.Sequence sequence)
         {
             Check.NotNull(sequence, "sequence");
 
-            _sequence = sequence;
+            _sequenceName = sequence.Name;
+            _startValue = sequence.StartWith;
+            _incrementBy = sequence.IncrementBy;
+            _type = sequence.Type;
         }
 
-        public virtual Sequence Sequence
+        public virtual SchemaQualifiedName SequenceName
         {
-            get { return _sequence; }
+            get { return _sequenceName; }
+        }
+
+        public virtual long StartValue
+        {
+            get { return _startValue; }
+        }
+
+        public virtual long IncrementBy
+        {
+            get { return _incrementBy; }
+        }
+
+        public virtual long? MinValue
+        {
+            get { return _minValue; }
+        }
+
+        public virtual long? MaxValue
+        {
+            get { return _maxValue; }
+        }
+
+        public virtual Type Type
+        {
+            get { return _type; }
         }
 
         public override void Accept<TVisitor, TContext>(TVisitor visitor, TContext context)

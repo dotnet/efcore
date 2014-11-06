@@ -12,10 +12,10 @@ namespace Microsoft.Data.Entity.Relational.Tests.Model
         [Fact]
         public void Create_and_initialize_sequence()
         {
-            var sequence = new Sequence("dbo.MySequence2", "int", 5, 2);
+            var sequence = new Sequence("dbo.MySequence2", typeof(int), 5, 2);
 
             Assert.Equal("dbo.MySequence2", sequence.Name);
-            Assert.Equal("int", sequence.DataType);
+            Assert.Equal(typeof(int), sequence.Type);
             Assert.Equal(5, sequence.StartWith);
             Assert.Equal(2, sequence.IncrementBy);
         }
@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Model
         [Fact]
         public void Can_set_name()
         {
-            var sequence = new Sequence("dbo.Sequence", "bigint", 0, 1);
+            var sequence = new Sequence("dbo.Sequence", typeof(long), 0, 1);
 
             Assert.Equal("dbo.Sequence", sequence.Name);
 
@@ -35,12 +35,12 @@ namespace Microsoft.Data.Entity.Relational.Tests.Model
         [Fact]
         public void Clone_replicates_instance()
         {
-            var sequence = new Sequence("dbo.MySequence", "int", 5, 2);
+            var sequence = new Sequence("dbo.MySequence", typeof(int), 5, 2);
             var clone = sequence.Clone(new CloneContext());
 
             Assert.NotSame(sequence, clone);
             Assert.Equal("dbo.MySequence", clone.Name);
-            Assert.Equal("int", clone.DataType);
+            Assert.Equal(typeof(int), clone.Type);
             Assert.Equal(5, clone.StartWith);
             Assert.Equal(2, clone.IncrementBy);
         }

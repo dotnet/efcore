@@ -811,7 +811,7 @@ namespace Microsoft.Data.Entity.Migrations
             Check.NotNull(targetSequence, "targetSequence");
 
             return
-                sourceSequence.DataType == targetSequence.DataType;
+                sourceSequence.Type == targetSequence.Type;
         }
 
         protected virtual bool EquivalentSequences([NotNull] Sequence sourceSequence, [NotNull] Sequence targetSequence)

@@ -364,7 +364,7 @@ namespace Microsoft.Data.Entity.Relational
                 return;
             }
 
-            if (!string.Equals(sequence.DataType, existingSequence.DataType, StringComparison.OrdinalIgnoreCase)
+            if (sequence.Type != existingSequence.Type
                 || sequence.StartWith != existingSequence.StartWith
                 || sequence.IncrementBy != existingSequence.IncrementBy)
             {

@@ -48,8 +48,10 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             var createTableOperation0 = (CreateTableOperation)operations[0];
             var createTableOperation1 = (CreateTableOperation)operations[1];
 
-            Assert.Same(dbModel.Tables[0], createTableOperation0.Table);
-            Assert.Same(dbModel.Tables[1], createTableOperation1.Table);
+            Assert.Equal(dbModel.Tables[0].Name, createTableOperation0.TableName);
+            Assert.Equal(dbModel.Tables[1].Name, createTableOperation1.TableName);
+            Assert.Equal(dbModel.Tables[0].Columns, createTableOperation0.Columns);
+            Assert.Equal(dbModel.Tables[1].Columns, createTableOperation1.Columns);
 
             var addForeignKeyOperation = (AddForeignKeyOperation)operations[2];
 
@@ -212,7 +214,8 @@ namespace Microsoft.Data.Entity.Migrations.Tests
 
             var createTableOperation = (CreateTableOperation)operations[0];
 
-            Assert.Same(targetDbModel.Tables[1], createTableOperation.Table);
+            Assert.Equal(targetDbModel.Tables[1].Name, createTableOperation.TableName);
+            Assert.Equal(targetDbModel.Tables[1].Columns, createTableOperation.Columns);
 
             var addForeignKeyOperation = (AddForeignKeyOperation)operations[1];
 
@@ -947,8 +950,8 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             var createTableOperation = (CreateTableOperation)operations[1];
 
             Assert.Equal("A", dropTableOperation.TableName);
-            Assert.Equal("B", createTableOperation.Table.Name);
-            Assert.Equal(new[] { "Id", "P1", "P3" }, createTableOperation.Table.Columns.Select(c => c.Name));
+            Assert.Equal("B", createTableOperation.TableName);
+            Assert.Equal(new[] { "Id", "P1", "P3" }, createTableOperation.Columns.Select(c => c.Name));
         }
 
         #endregion
