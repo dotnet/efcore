@@ -3,6 +3,7 @@
 
 using System;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Framework.Logging;
 using Moq;
 using Xunit;
 
@@ -14,7 +15,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
         public void Returns_typed_database_object()
         {
             var configurationMock = new Mock<DbContextConfiguration>();
-            var database = new RelationalDatabase(configurationMock.Object);
+            var database = new RelationalDatabase(configurationMock.Object, new LoggerFactory());
 
             Assert.Same(database, database.AsRelational());
         }
@@ -23,7 +24,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
         public void Throws_when_non_relational_provider_is_in_use()
         {
             var configurationMock = new Mock<DbContextConfiguration>();
-            var database = new Database(configurationMock.Object);
+            var database = new Database(configurationMock.Object, new LoggerFactory());
 
             Assert.Equal(
                 Strings.RelationalNotInUse,

@@ -16,6 +16,7 @@ using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Update;
+using Microsoft.Framework.Logging;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
 using Remotion.Linq;
@@ -33,7 +34,11 @@ namespace Microsoft.Data.Entity.AzureTableStorage
         /// <summary>
         ///     Provided only for testing purposes. Do not use.
         /// </summary>
-        protected AtsDataStore(DbContextConfiguration configuration, AtsConnection connection, TableEntityAdapterFactory entityFactory)
+        protected AtsDataStore(
+            DbContextConfiguration configuration, 
+            AtsConnection connection, 
+            TableEntityAdapterFactory entityFactory)
+            : base(configuration, new LoggerFactory())
         {
             _configuration = configuration;
             Connection = connection;
@@ -43,8 +48,9 @@ namespace Microsoft.Data.Entity.AzureTableStorage
         public AtsDataStore([NotNull] DbContextConfiguration configuration,
             [NotNull] AtsConnection connection,
             [NotNull] AtsQueryFactory queryFactory,
-            [NotNull] TableEntityAdapterFactory tableEntityFactory)
-            : base(configuration)
+            [NotNull] TableEntityAdapterFactory tableEntityFactory, 
+            [NotNull] ILoggerFactory loggerFactory)
+            : base(configuration, loggerFactory)
         {
             Check.NotNull(connection, "connection");
             Check.NotNull(queryFactory, "queryFactory");

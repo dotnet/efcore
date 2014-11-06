@@ -175,7 +175,9 @@ namespace Microsoft.Data.Entity.Commands
         {
             var context = ContextTool.CreateContext(type);
 
-            context.Configuration.LoggerFactory.AddProvider(_loggerProvider);
+            // TODO: Decouple from DbContextConfiguration (Issue #641)
+            var loggerFactory = (ILoggerFactory)context.Configuration.Services.ServiceProvider.GetService(typeof(ILoggerFactory));
+            loggerFactory.AddProvider(_loggerProvider);
 
             var extension = RelationalOptionsExtension.Extract(context.Configuration);
             if (extension.MigrationAssembly == null)

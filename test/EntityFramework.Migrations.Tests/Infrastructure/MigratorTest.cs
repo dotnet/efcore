@@ -1244,7 +1244,8 @@ new StringBuilder()
                     new TestModelDiffer(),
                     MockMigrationOperationSqlGeneratorFactory().Object,
                     new Mock<SqlGenerator>().Object,
-                    sqlStatementExecutorMock.Object)
+                    sqlStatementExecutorMock.Object,
+                    loggerFactory)
                 {
                     CallBase = true
                 }
@@ -1408,8 +1409,8 @@ new StringBuilder()
 
         private class FakeRelationalConnection : RelationalConnection
         {
-            public FakeRelationalConnection(DbContextConfiguration configuration)
-                : base(configuration)
+            public FakeRelationalConnection(DbContextConfiguration configuration, ILoggerFactory loggerFactory)
+                : base(configuration, loggerFactory)
             {
             }
 

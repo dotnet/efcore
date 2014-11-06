@@ -4,6 +4,7 @@
 using System.Threading;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Framework.Logging;
 using Moq;
 using Xunit;
 
@@ -36,7 +37,7 @@ namespace Microsoft.Data.Entity.Redis.Tests
         {
             var model = Mock.Of<IModel>();
             var configurationMock = new Mock<DbContextConfiguration>();
-            var databaseMock = new Mock<RedisDatabase>(configurationMock.Object);
+            var databaseMock = new Mock<RedisDatabase>(configurationMock.Object, new LoggerFactory());
             configurationMock.SetupGet(m => m.Database).Returns(databaseMock.Object);
 
             var creator = new RedisDataStoreCreator(configurationMock.Object);
@@ -49,7 +50,7 @@ namespace Microsoft.Data.Entity.Redis.Tests
         {
             var model = Mock.Of<IModel>();
             var configurationMock = new Mock<DbContextConfiguration>();
-            var databaseMock = new Mock<RedisDatabase>(configurationMock.Object);
+            var databaseMock = new Mock<RedisDatabase>(configurationMock.Object, new LoggerFactory());
             configurationMock.SetupGet(m => m.Database).Returns(databaseMock.Object);
 
             var creator = new RedisDataStoreCreator(configurationMock.Object);

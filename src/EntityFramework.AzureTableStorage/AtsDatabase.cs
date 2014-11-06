@@ -3,13 +3,14 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.AzureTableStorage
 {
     public class AtsDatabase : Database
     {
-        public AtsDatabase([NotNull] DbContextConfiguration configuration)
-            : base(configuration)
+        public AtsDatabase([NotNull] DbContextConfiguration configuration, [NotNull] ILoggerFactory loggerFactory)
+            : base(configuration, loggerFactory)
         {
         }
 

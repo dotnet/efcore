@@ -5,6 +5,7 @@ using System;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Relational.Update;
+using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.SQLite
 {
@@ -21,8 +22,9 @@ namespace Microsoft.Data.Entity.SQLite
 
         public SQLiteBatchExecutor(
             [NotNull] SQLiteTypeMapper typeMapper,
-            [NotNull] DbContextConfiguration contextConfiguration)
-            : base(typeMapper, contextConfiguration)
+            [NotNull] DbContextConfiguration contextConfiguration, 
+            [NotNull] ILoggerFactory loggerFactory)
+            : base(typeMapper, contextConfiguration, loggerFactory)
         {
         }
     }

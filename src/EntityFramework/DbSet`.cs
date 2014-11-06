@@ -11,6 +11,8 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Utilities;
+using Microsoft.Framework.DependencyInjection;
+using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity
 {
@@ -31,8 +33,11 @@ namespace Microsoft.Data.Entity
         public DbSet([NotNull] DbContext context)
             : base(Check.NotNull(context, "context"))
         {
+            // TODO: Decouple from DbContextConfiguration (Issue #641)
             _entityQueryable
-                = new EntityQueryable<TEntity>(new EntityQueryExecutor(context));
+                = new EntityQueryable<TEntity>(new EntityQueryExecutor(
+                    context, 
+                    new LazyRef<ILoggerFactory>(() => context.Configuration.Services.ServiceProvider.GetRequiredServiceChecked<ILoggerFactory>())));
         }
 
         public virtual TEntity Add([NotNull] TEntity entity)

@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.Storage
     public abstract class DataStore
     {
         private readonly DbContextConfiguration _configuration;
-        private readonly ILogger _logger;
+        private readonly LazyRef<ILogger> _logger;
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
@@ -30,17 +30,18 @@ namespace Microsoft.Data.Entity.Storage
         {
         }
 
-        protected DataStore([NotNull] DbContextConfiguration configuration)
+        protected DataStore([NotNull] DbContextConfiguration configuration, [NotNull] ILoggerFactory loggerFactory)
         {
             Check.NotNull(configuration, "configuration");
+            Check.NotNull(loggerFactory, "loggerFactory");
 
             _configuration = configuration;
-            _logger = configuration.LoggerFactory.Create<DataStore>();
+            _logger = new LazyRef<ILogger>(loggerFactory.Create<DataStore>());
         }
 
         public virtual ILogger Logger
         {
-            get { return _logger; }
+            get { return _logger.Value; }
         }
 
         public virtual IModel Model

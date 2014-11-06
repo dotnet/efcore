@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity
 
             InitializeSets(serviceProvider, options);
             _configuration = new LazyRef<DbContextConfiguration>(() => Initialize(serviceProvider, options));
-            _logger = new LazyRef<ILogger>(() => _configuration.Value.LoggerFactory.Create<DbContext>());
+            _logger = new LazyRef<ILogger>(CreateLogger);
         }
 
         public DbContext([NotNull] IServiceProvider serviceProvider)
@@ -47,7 +47,7 @@ namespace Microsoft.Data.Entity
             _configuration = new LazyRef<DbContextConfiguration>(
                 () => Initialize(serviceProvider, options));
 
-            _logger = new LazyRef<ILogger>(() => _configuration.Value.LoggerFactory.Create<DbContext>());
+            _logger = new LazyRef<ILogger>(CreateLogger);
         }
 
         private DbContextOptions GetOptions(IServiceProvider serviceProvider)
@@ -95,7 +95,7 @@ namespace Microsoft.Data.Entity
 
             InitializeSets(serviceProvider, options);
             _configuration = new LazyRef<DbContextConfiguration>(() => Initialize(serviceProvider, options));
-            _logger = new LazyRef<ILogger>(() => _configuration.Value.LoggerFactory.Create<DbContext>());
+            _logger = new LazyRef<ILogger>(CreateLogger);
         }
 
         // TODO: Consider removing this constructor if DbContextOptions should be obtained from serviceProvider
@@ -107,7 +107,12 @@ namespace Microsoft.Data.Entity
 
             InitializeSets(serviceProvider, options);
             _configuration = new LazyRef<DbContextConfiguration>(() => Initialize(serviceProvider, options));
-            _logger = new LazyRef<ILogger>(() => _configuration.Value.LoggerFactory.Create<DbContext>());
+            _logger = new LazyRef<ILogger>(CreateLogger);
+        }
+
+        private ILogger CreateLogger()
+        {
+            return _configuration.Value.Services.ServiceProvider.GetRequiredServiceChecked<ILoggerFactory>().Create<DbContext>();
         }
 
         private DbContextConfiguration Initialize(IServiceProvider serviceProvider, DbContextOptions options)

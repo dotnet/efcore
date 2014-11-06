@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
+using Microsoft.Framework.Logging;
 using Moq;
 using Xunit;
 
@@ -27,7 +28,7 @@ namespace Microsoft.Data.Entity.Tests
             configurationMock.Setup(m => m.Model).Returns(model);
             configurationMock.Setup(m => m.Connection).Returns(connection);
 
-            var database = new Database(configurationMock.Object);
+            var database = new Database(configurationMock.Object, new LoggerFactory());
 
             Assert.True(database.EnsureCreated());
             creatorMock.Verify(m => m.EnsureCreated(model), Times.Once);
@@ -52,7 +53,7 @@ namespace Microsoft.Data.Entity.Tests
             configurationMock.Setup(m => m.DataStoreCreator).Returns(creatorMock.Object);
             configurationMock.Setup(m => m.Model).Returns(model);
 
-            var database = new Database(configurationMock.Object);
+            var database = new Database(configurationMock.Object, new LoggerFactory());
 
             Assert.True(await database.EnsureCreatedAsync(cancellationToken));
             creatorMock.Verify(m => m.EnsureCreatedAsync(model, cancellationToken), Times.Once);

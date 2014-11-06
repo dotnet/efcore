@@ -15,6 +15,7 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Redis.Query;
 using Microsoft.Data.Entity.Redis.Utilities;
+using Microsoft.Framework.Logging;
 using StackExchange.Redis;
 
 namespace Microsoft.Data.Entity.Redis
@@ -51,8 +52,8 @@ namespace Microsoft.Data.Entity.Redis
         private static readonly ConcurrentDictionary<string, ConnectionMultiplexer> _connectionMultiplexers
             = new ConcurrentDictionary<string, ConnectionMultiplexer>(); // key = ConfigurationOptions.ToString()
 
-        public RedisDatabase([NotNull] DbContextConfiguration configuration)
-            : base(configuration)
+        public RedisDatabase([NotNull] DbContextConfiguration configuration, [NotNull] ILoggerFactory loggerFactory)
+            : base(configuration, loggerFactory)
         {
         }
 

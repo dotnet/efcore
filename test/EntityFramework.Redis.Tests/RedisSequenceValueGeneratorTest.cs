@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Tests;
+using Microsoft.Framework.Logging;
 using Moq;
 using Xunit;
 
@@ -27,7 +28,7 @@ namespace Microsoft.Data.Entity.Redis.Tests
             var blockSize = 1;
             var incrementingValue = 0L;
             var dbConfigurationMock = new Mock<DbContextConfiguration>();
-            var redisDatabaseMock = new Mock<RedisDatabase>(dbConfigurationMock.Object);
+            var redisDatabaseMock = new Mock<RedisDatabase>(dbConfigurationMock.Object, new LoggerFactory());
             redisDatabaseMock
                 .Setup(db => db.GetNextGeneratedValue(It.IsAny<IProperty>(), It.IsAny<long>(), It.IsAny<string>()))
                 .Returns<IProperty, long, string>((p, l, s) =>
@@ -122,7 +123,7 @@ namespace Microsoft.Data.Entity.Redis.Tests
             var blockSize = 1;
             var incrementingValue = 0L;
             var dbConfigurationMock = new Mock<DbContextConfiguration>();
-            var redisDatabaseMock = new Mock<RedisDatabase>(dbConfigurationMock.Object);
+            var redisDatabaseMock = new Mock<RedisDatabase>(dbConfigurationMock.Object, new LoggerFactory());
             redisDatabaseMock
                 .Setup(db => db.GetNextGeneratedValueAsync(
                     It.IsAny<IProperty>(), It.IsAny<long>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
@@ -214,7 +215,7 @@ namespace Microsoft.Data.Entity.Redis.Tests
         {
             var incrementingValue = 0L;
             var dbConfigurationMock = new Mock<DbContextConfiguration>();
-            var redisDatabaseMock = new Mock<RedisDatabase>(dbConfigurationMock.Object);
+            var redisDatabaseMock = new Mock<RedisDatabase>(dbConfigurationMock.Object, new LoggerFactory());
             redisDatabaseMock
                 .Setup(db => db.GetNextGeneratedValue(It.IsAny<IProperty>(), It.IsAny<long>(), It.IsAny<string>()))
                 .Returns<IProperty, long, string>((p, l, s) =>
@@ -271,7 +272,7 @@ namespace Microsoft.Data.Entity.Redis.Tests
         {
             var incrementingValue = 0L;
             var dbConfigurationMock = new Mock<DbContextConfiguration>();
-            var redisDatabaseMock = new Mock<RedisDatabase>(dbConfigurationMock.Object);
+            var redisDatabaseMock = new Mock<RedisDatabase>(dbConfigurationMock.Object, new LoggerFactory());
             redisDatabaseMock
                 .Setup(db => db.GetNextGeneratedValueAsync(
                     It.IsAny<IProperty>(), It.IsAny<long>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
@@ -335,7 +336,7 @@ namespace Microsoft.Data.Entity.Redis.Tests
             var blockSize = 10;
             var incrementingValue = 0L;
             var dbConfigurationMock = new Mock<DbContextConfiguration>();
-            var redisDatabaseMock = new Mock<RedisDatabase>(dbConfigurationMock.Object);
+            var redisDatabaseMock = new Mock<RedisDatabase>(dbConfigurationMock.Object, new LoggerFactory());
             redisDatabaseMock
                 .Setup(db => db.GetNextGeneratedValue(It.IsAny<IProperty>(), It.IsAny<long>(), It.IsAny<string>()))
                 .Returns<IProperty, long, string>((p, l, s) =>
@@ -364,7 +365,7 @@ namespace Microsoft.Data.Entity.Redis.Tests
         {
             var incrementingValue = 256L;
             var dbConfigurationMock = new Mock<DbContextConfiguration>();
-            var redisDatabaseMock = new Mock<RedisDatabase>(dbConfigurationMock.Object);
+            var redisDatabaseMock = new Mock<RedisDatabase>(dbConfigurationMock.Object, new LoggerFactory());
             redisDatabaseMock
                 .Setup(db => db.GetNextGeneratedValue(It.IsAny<IProperty>(), It.IsAny<long>(), It.IsAny<string>()))
                 .Returns<IProperty, long, string>((p, l, s) => incrementingValue);

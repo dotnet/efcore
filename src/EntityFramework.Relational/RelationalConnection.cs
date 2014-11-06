@@ -31,8 +31,8 @@ namespace Microsoft.Data.Entity.Relational
         {
         }
 
-        protected RelationalConnection([NotNull] DbContextConfiguration configuration)
-            : base(configuration.LoggerFactory)
+        protected RelationalConnection([NotNull] DbContextConfiguration configuration, [NotNull] ILoggerFactory loggerFactory)
+            : base(loggerFactory)
         {
             Check.NotNull(configuration, "configuration");
 

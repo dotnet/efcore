@@ -5,6 +5,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Relational;
+using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.SQLite
 {
@@ -17,7 +18,8 @@ namespace Microsoft.Data.Entity.SQLite
             [NotNull] SQLiteModelDiffer modelDiffer,
             [NotNull] SQLiteMigrationOperationSqlGeneratorFactory ddlSqlGeneratorFactory,
             [NotNull] SQLiteSqlGenerator dmlSqlGenerator,
-            [NotNull] SqlStatementExecutor sqlExecutor)
+            [NotNull] SqlStatementExecutor sqlExecutor,
+            [NotNull] ILoggerFactory loggerFactory)
             : base(
                 contextConfiguration,
                 historyRepository,
@@ -25,7 +27,8 @@ namespace Microsoft.Data.Entity.SQLite
                 modelDiffer,
                 ddlSqlGeneratorFactory,
                 dmlSqlGenerator,
-                sqlExecutor)
+                sqlExecutor,
+                loggerFactory)
         {
         }
     }

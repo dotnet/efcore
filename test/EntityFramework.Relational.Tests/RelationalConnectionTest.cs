@@ -341,7 +341,6 @@ namespace Microsoft.Data.Entity.Relational.Tests
 
             var contextConfigurationMock = new Mock<DbContextConfiguration>();
             contextConfigurationMock.Setup(m => m.ContextOptions).Returns(contextOptions);
-            contextConfigurationMock.Setup(m => m.LoggerFactory).Returns(new LoggerFactory());
 
             return contextConfigurationMock.Object;
         }
@@ -349,7 +348,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
         private class FakeConnection : RelationalConnection
         {
             public FakeConnection(DbContextConfiguration configuration)
-                : base(configuration)
+                : base(configuration, new LoggerFactory())
             {
             }
 

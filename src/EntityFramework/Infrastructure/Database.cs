@@ -15,12 +15,13 @@ namespace Microsoft.Data.Entity.Infrastructure
         private readonly DbContextConfiguration _configuration;
         private readonly LazyRef<ILogger> _logger;
 
-        public Database([NotNull] DbContextConfiguration configuration)
+        public Database([NotNull] DbContextConfiguration configuration, [NotNull] ILoggerFactory loggerFactory)
         {
             Check.NotNull(configuration, "configuration");
+            Check.NotNull(loggerFactory, "loggerFactory");
 
             _configuration = configuration;
-            _logger = new LazyRef<ILogger>(() => Configuration.LoggerFactory.Create<Database>());
+            _logger = new LazyRef<ILogger>(loggerFactory.Create<Database>);
         }
 
         protected virtual DbContextConfiguration Configuration

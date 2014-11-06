@@ -44,7 +44,8 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             [NotNull] ModelDiffer modelDiffer,
             [NotNull] IMigrationOperationSqlGeneratorFactory ddlSqlGeneratorFactory,
             [NotNull] SqlGenerator dmlSqlGenerator,
-            [NotNull] SqlStatementExecutor sqlExecutor)
+            [NotNull] SqlStatementExecutor sqlExecutor,
+            [NotNull] ILoggerFactory loggerFactory)
         {
             Check.NotNull(contextConfiguration, "contextConfiguration");
             Check.NotNull(historyRepository, "historyRepository");
@@ -53,6 +54,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             Check.NotNull(ddlSqlGeneratorFactory, "ddlSqlGeneratorFactory");
             Check.NotNull(dmlSqlGenerator, "dmlSqlGenerator");
             Check.NotNull(sqlExecutor, "sqlExecutor");
+            Check.NotNull(loggerFactory, "loggerFactory");
 
             _contextConfiguration = contextConfiguration;
             _historyRepository = historyRepository;
@@ -61,7 +63,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             _ddlSqlGeneratorFactory = ddlSqlGeneratorFactory;
             _dmlSqlGenerator = dmlSqlGenerator;
             _sqlExecutor = sqlExecutor;
-            _logger = new LazyRef<ILogger>(() => ContextConfiguration.LoggerFactory.Create<Migrator>());
+            _logger = new LazyRef<ILogger>(loggerFactory.Create<Migrator>);
         }
 
         protected virtual DbContextConfiguration ContextConfiguration

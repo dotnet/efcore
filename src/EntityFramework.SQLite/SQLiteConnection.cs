@@ -6,13 +6,14 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.SQLite;
+using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.SQLite
 {
     public class SQLiteConnection : RelationalConnection
     {
-        public SQLiteConnection([NotNull] DbContextConfiguration configuration)
-            : base(configuration)
+        public SQLiteConnection([NotNull] DbContextConfiguration configuration, [NotNull] ILoggerFactory loggerFactory)
+            : base(configuration, loggerFactory)
         {
         }
 

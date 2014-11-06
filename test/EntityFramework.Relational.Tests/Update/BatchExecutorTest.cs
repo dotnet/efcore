@@ -75,7 +75,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         private class BatchExecutorForTest : BatchExecutor
         {
             public BatchExecutorForTest(RelationalTypeMapper typeMapper, DbContextConfiguration context)
-                : base(typeMapper, context)
+                : base(typeMapper, context, new LoggerFactory())
             {
             }
 

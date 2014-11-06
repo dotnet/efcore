@@ -5,6 +5,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Relational;
+using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.SqlServer
 {
@@ -20,7 +21,8 @@ namespace Microsoft.Data.Entity.SqlServer
             [NotNull] SqlServerModelDiffer modelDiffer,
             [NotNull] SqlServerMigrationOperationSqlGeneratorFactory sqlGeneratorFactory,
             [NotNull] SqlServerSqlGenerator sqlGenerator,
-            [NotNull] SqlStatementExecutor sqlStatementExecutor)
+            [NotNull] SqlStatementExecutor sqlStatementExecutor,
+            [NotNull] ILoggerFactory loggerFactory)
             : base(
                 contextConfiguration,
                 historyRepository,
@@ -28,7 +30,8 @@ namespace Microsoft.Data.Entity.SqlServer
                 modelDiffer,
                 sqlGeneratorFactory,
                 sqlGenerator,
-                sqlStatementExecutor)
+                sqlStatementExecutor,
+                loggerFactory)
         {
         }
     }

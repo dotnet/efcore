@@ -10,6 +10,7 @@ using Microsoft.Data.Entity.Relational.Query.Methods;
 using Microsoft.Data.Entity.SqlServer.Query;
 using Microsoft.Data.Entity.SqlServer.Update;
 using Microsoft.Data.Entity.SqlServer.Utilities;
+using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.SqlServer
 {
@@ -19,8 +20,9 @@ namespace Microsoft.Data.Entity.SqlServer
             [NotNull] DbContextConfiguration configuration,
             [NotNull] SqlServerConnection connection,
             [NotNull] SqlServerCommandBatchPreparer batchPreparer,
-            [NotNull] SqlServerBatchExecutor batchExecutor)
-            : base(configuration, connection, batchPreparer, batchExecutor)
+            [NotNull] SqlServerBatchExecutor batchExecutor, 
+            [NotNull] ILoggerFactory loggerFactory)
+            : base(configuration, connection, batchPreparer, batchExecutor, loggerFactory)
         {
         }
 

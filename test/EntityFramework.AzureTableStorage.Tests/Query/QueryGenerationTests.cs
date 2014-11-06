@@ -10,6 +10,7 @@ using Microsoft.Data.Entity.AzureTableStorage.Query.Expressions;
 using Microsoft.Data.Entity.AzureTableStorage.Tests.Helpers;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
+using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 using Moq;
 using Remotion.Linq;
@@ -157,12 +158,12 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
         private static QueryModel Query<T>(Expression<Func<DbSet<T>, IQueryable>> expression) where T : class
         {
             var query = expression.Compile()(new DbSet<T>(Mock.Of<DbContext>()));
-            return new EntityQueryProvider(new EntityQueryExecutor(Mock.Of<DbContext>())).GenerateQueryModel(query.Expression);
+            return new EntityQueryProvider(new EntityQueryExecutor(Mock.Of<DbContext>(), new LazyRef<ILoggerFactory>(new LoggerFactory()))).GenerateQueryModel(query.Expression);
         }
 
         private MainFromClause CreateWithEntityQueryable<T>()
         {
-            var queryable = new EntityQueryable<T>(new EntityQueryExecutor(Mock.Of<DbContext>()));
+            var queryable = new EntityQueryable<T>(new EntityQueryExecutor(Mock.Of<DbContext>(), new LazyRef<ILoggerFactory>(new LoggerFactory())));
             return new MainFromClause("s", typeof(T), Expression.Constant(queryable));
         }
     }

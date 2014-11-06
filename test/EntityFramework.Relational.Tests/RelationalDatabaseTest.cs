@@ -30,11 +30,10 @@ namespace Microsoft.Data.Entity.Relational.Tests
             configurationMock.Setup(m => m.DataStoreCreator).Returns(creatorMock.Object);
             configurationMock.Setup(m => m.Model).Returns(model);
             configurationMock.Setup(m => m.Connection).Returns(connectionMock.Object);
-            configurationMock.Setup(m => m.LoggerFactory).Returns(new LoggerFactory());
             connectionMock.SetupGet(m => m.DbConnection).Returns(dbConnectionMock.Object);
             dbConnectionMock.SetupGet(m => m.Database).Returns("MyDb");
 
-            var database = new RelationalDatabase(configurationMock.Object);
+            var database = new RelationalDatabase(configurationMock.Object, new LoggerFactory());
 
             Assert.True(database.Exists());
             creatorMock.Verify(m => m.Exists(), Times.Once);
@@ -78,11 +77,10 @@ namespace Microsoft.Data.Entity.Relational.Tests
             configurationMock.Setup(m => m.DataStoreCreator).Returns(creatorMock.Object);
             configurationMock.Setup(m => m.Model).Returns(model);
             configurationMock.Setup(m => m.Connection).Returns(connectionMock.Object);
-            configurationMock.Setup(m => m.LoggerFactory).Returns(new LoggerFactory());
             connectionMock.SetupGet(m => m.DbConnection).Returns(dbConnectionMock.Object);
             dbConnectionMock.SetupGet(m => m.Database).Returns("MyDb");
 
-            var database = new RelationalDatabase(configurationMock.Object);
+            var database = new RelationalDatabase(configurationMock.Object, new LoggerFactory());
 
             Assert.True(await database.ExistsAsync(cancellationToken));
             creatorMock.Verify(m => m.ExistsAsync(cancellationToken), Times.Once);

@@ -11,8 +11,8 @@ namespace Microsoft.Data.Entity.Relational
 {
     public class RelationalDatabase : Database
     {
-        public RelationalDatabase([NotNull] DbContextConfiguration configuration)
-            : base(configuration)
+        public RelationalDatabase([NotNull] DbContextConfiguration configuration, [NotNull] ILoggerFactory loggerFactory)
+            : base(configuration, loggerFactory)
         {
         }
 

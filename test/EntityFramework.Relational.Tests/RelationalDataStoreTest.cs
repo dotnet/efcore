@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,61 +16,6 @@ namespace Microsoft.Data.Entity.Relational.Tests
     public class RelationalDataStoreTest
     {
         [Fact]
-        public void Constructor_check_arguments()
-        {
-            Assert.Equal(
-                "configuration",
-                // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() =>
-                    (RelationalDataStore)new FakeRelationalDataStore(null,
-                        new Mock<RelationalConnection>().Object,
-                        new Mock<CommandBatchPreparer>().Object,
-                        new Mock<BatchExecutor>().Object)).ParamName);
-
-            Assert.Equal(
-                "connection",
-                // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() =>
-                    (RelationalDataStore)new FakeRelationalDataStore(CreateDbContextConfiguration(),
-                        null,
-                        new Mock<CommandBatchPreparer>().Object,
-                        new Mock<BatchExecutor>().Object)).ParamName);
-
-            Assert.Equal(
-                "batchPreparer",
-                // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() =>
-                    (RelationalDataStore)new FakeRelationalDataStore(CreateDbContextConfiguration(),
-                        new Mock<RelationalConnection>().Object,
-                        null,
-                        new Mock<BatchExecutor>().Object)).ParamName);
-
-            Assert.Equal(
-                "batchExecutor",
-                // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() =>
-                    (RelationalDataStore)new FakeRelationalDataStore(CreateDbContextConfiguration(),
-                        new Mock<RelationalConnection>().Object,
-                        new Mock<CommandBatchPreparer>().Object,
-                        null)).ParamName);
-        }
-
-        [Fact]
-        public void SaveChangesAsync_checks_arguments()
-        {
-            var relationalDataStore = (RelationalDataStore)new FakeRelationalDataStore(CreateDbContextConfiguration(),
-                new Mock<RelationalConnection>().Object,
-                new Mock<CommandBatchPreparer>().Object,
-                new Mock<BatchExecutor>().Object);
-
-            Assert.Equal(
-                "stateEntries",
-                // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() =>
-                    relationalDataStore.SaveChangesAsync(null).Wait()).ParamName);
-        }
-
-        [Fact]
         public async Task SaveChangesAsync_delegates()
         {
             var relationalConnectionMock = new Mock<RelationalConnection>();
@@ -80,7 +24,8 @@ namespace Microsoft.Data.Entity.Relational.Tests
             var relationalDataStore = (RelationalDataStore)new FakeRelationalDataStore(CreateDbContextConfiguration(),
                 relationalConnectionMock.Object,
                 commandBatchPreparerMock.Object,
-                batchExecutorMock.Object);
+                batchExecutorMock.Object,
+                new LoggerFactory());
 
             var stateEntries = new List<StateEntry>();
             var cancellationToken = new CancellationTokenSource().Token;
@@ -93,11 +38,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
 
         private DbContextConfiguration CreateDbContextConfiguration()
         {
-            var mockDbContextConfiguration = new Mock<DbContextConfiguration>();
-
-            mockDbContextConfiguration.Setup(m => m.LoggerFactory).Returns(new Mock<ILoggerFactory>().Object);
-
-            return mockDbContextConfiguration.Object;
+            return new Mock<DbContextConfiguration>().Object;
         }
 
         private class FakeRelationalDataStore : RelationalDataStore
@@ -106,8 +47,9 @@ namespace Microsoft.Data.Entity.Relational.Tests
                 DbContextConfiguration configuration,
                 RelationalConnection connection,
                 CommandBatchPreparer batchPreparer,
-                BatchExecutor batchExecutor)
-                : base(configuration, connection, batchPreparer, batchExecutor)
+                BatchExecutor batchExecutor,
+                ILoggerFactory loggerFactory)
+                : base(configuration, connection, batchPreparer, batchExecutor, loggerFactory)
             {
             }
         }

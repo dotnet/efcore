@@ -6,13 +6,14 @@ using System.Data.SqlClient;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Relational;
+using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.SqlServer
 {
     public class SqlServerConnection : RelationalConnection
     {
-        public SqlServerConnection([NotNull] DbContextConfiguration configuration)
-            : base(configuration)
+        public SqlServerConnection([NotNull] DbContextConfiguration configuration, [NotNull] ILoggerFactory loggerFactory)
+            : base(configuration, loggerFactory)
         {
         }
 

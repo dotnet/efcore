@@ -3,6 +3,7 @@
 
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Framework.Logging;
 using Moq;
 using Xunit;
 
@@ -24,7 +25,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
             configurationMock.Setup(m => m.Model).Returns(model);
             configurationMock.Setup(m => m.Connection).Returns(connection);
 
-            var database = new AtsDatabase(configurationMock.Object);
+            var database = new AtsDatabase(configurationMock.Object, new LoggerFactory());
 
             Assert.True(database.EnsureCreated());
             creatorMock.Verify(m => m.EnsureCreated(model), Times.Once);

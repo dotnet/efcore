@@ -9,6 +9,7 @@ using Microsoft.Data.Entity.Relational.Query;
 using Microsoft.Data.Entity.Relational.Query.Methods;
 using Microsoft.Data.Entity.SQLite.Query;
 using Microsoft.Data.Entity.SQLite.Utilities;
+using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.SQLite
 {
@@ -18,8 +19,9 @@ namespace Microsoft.Data.Entity.SQLite
             [NotNull] DbContextConfiguration configuration,
             [NotNull] SQLiteConnection connection,
             [NotNull] SQLiteCommandBatchPreparer batchPreparer,
-            [NotNull] SQLiteBatchExecutor batchExecutor)
-            : base(configuration, connection, batchPreparer, batchExecutor)
+            [NotNull] SQLiteBatchExecutor batchExecutor, 
+            [NotNull] ILoggerFactory loggerFactory)
+            : base(configuration, connection, batchPreparer, batchExecutor, loggerFactory)
         {
         }
 

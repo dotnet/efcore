@@ -28,8 +28,8 @@ namespace Microsoft.Data.Entity.AzureTableStorage
         {
         }
 
-        public AtsConnection([NotNull] DbContextConfiguration configuration)
-            : base(configuration.LoggerFactory)
+        public AtsConnection([NotNull] DbContextConfiguration configuration, [NotNull] ILoggerFactory loggerFactory)
+            : base(loggerFactory)
         {
             Check.NotNull(configuration, "configuration");
 

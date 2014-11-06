@@ -11,6 +11,7 @@ using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
+using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 using Moq;
 using Xunit;
@@ -32,7 +33,6 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
             var configuration = new Mock<DbContextConfiguration>();
             configuration.SetupGet(s => s.Connection).Returns(_connection.Object);
             configuration.SetupGet(s => s.Model).Returns(CreateModel());
-            configuration.SetupGet(s => s.LoggerFactory).Returns(new LoggerFactory());
             configuration.SetupGet(s => s.StateManager).Returns(new Mock<StateManager>().Object);
             configuration.SetupGet(s => s.Services.EntityKeyFactorySource).Returns(new Mock<EntityKeyFactorySource>().Object);
             configuration.SetupGet(s => s.Services.StateEntryFactory).Returns(new Mock<StateEntryFactory>().Object);
@@ -44,7 +44,8 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
                 configuration.Object,
                 _connection.Object,
                 new AtsQueryFactory(new AtsValueReaderFactory()),
-                new TableEntityAdapterFactory());
+                new TableEntityAdapterFactory(),
+                new LoggerFactory());
         }
 
         [Fact]
@@ -59,7 +60,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
         private void AssertQuery<T>(Times times, Expression<Func<DbSet<T>, IQueryable>> expression) where T : class, new()
         {
             var query = expression.Compile()(new DbSet<T>(Mock.Of<DbContext>()));
-            var queryModel = new EntityQueryProvider(new EntityQueryExecutor(Mock.Of<DbContext>())).GenerateQueryModel(query.Expression);
+            var queryModel = new EntityQueryProvider(new EntityQueryExecutor(Mock.Of<DbContext>(), new LazyRef<ILoggerFactory>(new LoggerFactory()))).GenerateQueryModel(query.Expression);
 
             _connection.Setup(s => s.ExecuteRequest(
                 It.IsAny<QueryTableRequest<T>>(),

@@ -22,7 +22,6 @@ namespace Microsoft.Data.Entity.Infrastructure
         }
 
         private ContextServices _services;
-        private IServiceProvider _externalProvider;
         private DbContextOptions _contextOptions;
         private DbContext _context;
         private LazyRef<IModel> _modelFromSource;
@@ -31,7 +30,6 @@ namespace Microsoft.Data.Entity.Infrastructure
         private LazyRef<DataStoreConnection> _connection;
         private LazyRef<StateManager> _stateManager;
         private ServiceProviderSource _serviceProviderSource;
-        private LazyRef<ILoggerFactory> _loggerFactory;
         private LazyRef<Database> _database;
         private bool _inOnModelCreating;
 
@@ -48,7 +46,6 @@ namespace Microsoft.Data.Entity.Infrastructure
             Check.NotNull(context, "context");
             Check.IsDefined(serviceProviderSource, "serviceProviderSource");
 
-            _externalProvider = externalProvider;
             _services = new ContextServices(scopedProvider);
             _serviceProviderSource = serviceProviderSource;
             _contextOptions = contextOptions;
@@ -57,7 +54,6 @@ namespace Microsoft.Data.Entity.Infrastructure
             _modelFromSource = new LazyRef<IModel>(CreateModel);
             _dataStore = new LazyRef<DataStore>(() => _dataStoreServices.Value.Store);
             _connection = new LazyRef<DataStoreConnection>(() => _dataStoreServices.Value.Connection);
-            _loggerFactory = new LazyRef<ILoggerFactory>(() => _externalProvider.GetRequiredServiceChecked<ILoggerFactory>());
             _database = new LazyRef<Database>(() => _dataStoreServices.Value.Database);
             _stateManager = new LazyRef<StateManager>(() => _services.StateManager);
 
@@ -135,11 +131,6 @@ namespace Microsoft.Data.Entity.Infrastructure
         public virtual ServiceProviderSource ProviderSource
         {
             get { return _serviceProviderSource; }
-        }
-
-        public virtual ILoggerFactory LoggerFactory
-        {
-            get { return _loggerFactory.Value; }
         }
 
         public virtual StateManager StateManager

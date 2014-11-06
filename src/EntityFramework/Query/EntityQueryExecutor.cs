@@ -21,12 +21,14 @@ namespace Microsoft.Data.Entity.Query
         private readonly DbContext _context;
         private readonly LazyRef<ILogger> _logger;
 
-        public EntityQueryExecutor([NotNull] DbContext context)
+        // TODO: Currently using a LazyRef here while other parts of the fix for Issue #641 are in progress.
+        public EntityQueryExecutor([NotNull] DbContext context, [NotNull] LazyRef<ILoggerFactory> loggerFactory)
         {
             Check.NotNull(context, "context");
+            Check.NotNull(loggerFactory, "loggerFactory");
 
             _context = context;
-            _logger = new LazyRef<ILogger>(() => (_context.Configuration.LoggerFactory.Create<EntityQueryExecutor>()));
+            _logger = new LazyRef<ILogger>(() => loggerFactory.Value.Create<EntityQueryExecutor>());
         }
 
         public virtual T ExecuteScalar<T>([NotNull] QueryModel queryModel)

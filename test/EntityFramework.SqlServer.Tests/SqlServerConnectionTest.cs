@@ -5,6 +5,7 @@ using System.Data.SqlClient;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
+using Microsoft.Framework.Logging;
 using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.Tests
@@ -14,7 +15,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         [Fact]
         public void Creates_SQL_Server_connection_string()
         {
-            using (var connection = new SqlServerConnection(CreateConfiguration()))
+            using (var connection = new SqlServerConnection(CreateConfiguration(), new LoggerFactory()))
             {
                 Assert.IsType<SqlConnection>(connection.DbConnection);
             }
@@ -23,7 +24,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         [Fact]
         public void Can_create_master_connection_string()
         {
-            using (var connection = new SqlServerConnection(CreateConfiguration()))
+            using (var connection = new SqlServerConnection(CreateConfiguration(), new LoggerFactory()))
             {
                 using (var master = connection.CreateMasterConnection())
                 {

@@ -8,6 +8,7 @@ using System.Linq.Expressions;
 using Microsoft.Data.Entity.AzureTableStorage.Query;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
+using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 using Moq;
 using Remotion.Linq;
@@ -83,7 +84,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
 
         private int CountQuery(IQueryable query)
         {
-            var queryModel = new EntityQueryProvider(new EntityQueryExecutor(Mock.Of<DbContext>())).GenerateQueryModel(query.Expression);
+            var queryModel = new EntityQueryProvider(new EntityQueryExecutor(Mock.Of<DbContext>(), new LazyRef<ILoggerFactory>(new LoggerFactory()))).GenerateQueryModel(query.Expression);
 
             return CountQueryModel(queryModel);
         }

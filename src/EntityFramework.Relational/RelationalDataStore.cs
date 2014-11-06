@@ -14,6 +14,7 @@ using Microsoft.Data.Entity.Relational.Query.Methods;
 using Microsoft.Data.Entity.Relational.Update;
 using Microsoft.Data.Entity.Relational.Utilities;
 using Microsoft.Data.Entity.Storage;
+using Microsoft.Framework.Logging;
 using Remotion.Linq;
 
 namespace Microsoft.Data.Entity.Relational
@@ -37,8 +38,9 @@ namespace Microsoft.Data.Entity.Relational
             [NotNull] DbContextConfiguration configuration,
             [NotNull] RelationalConnection connection,
             [NotNull] CommandBatchPreparer batchPreparer,
-            [NotNull] BatchExecutor batchExecutor)
-            : base(configuration)
+            [NotNull] BatchExecutor batchExecutor,
+            [NotNull] ILoggerFactory loggerFactory)
+            : base(configuration, loggerFactory)
         {
             Check.NotNull(connection, "connection");
             Check.NotNull(batchPreparer, "batchPreparer");

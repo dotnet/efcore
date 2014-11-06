@@ -14,6 +14,7 @@ using Microsoft.Data.Entity.InMemory.Utilities;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
+using Microsoft.Framework.Logging;
 using Remotion.Linq;
 
 namespace Microsoft.Data.Entity.InMemory
@@ -34,8 +35,9 @@ namespace Microsoft.Data.Entity.InMemory
 
         public InMemoryDataStore(
             [NotNull] DbContextConfiguration configuration,
-            [NotNull] InMemoryDatabase persistentDatabase)
-            : base(configuration)
+            [NotNull] InMemoryDatabase persistentDatabase,
+            [NotNull] ILoggerFactory loggerFactory)
+            : base(configuration, loggerFactory)
         {
             Check.NotNull(configuration, "configuration");
             Check.NotNull(persistentDatabase, "persistentDatabase");
@@ -49,7 +51,7 @@ namespace Microsoft.Data.Entity.InMemory
             _database = new ThreadSafeLazyRef<InMemoryDatabase>(
                 () => _persist
                     ? persistentDatabase
-                    : new InMemoryDatabase(configuration.LoggerFactory));
+                    : new InMemoryDatabase(loggerFactory));
         }
 
         public virtual InMemoryDatabase Database

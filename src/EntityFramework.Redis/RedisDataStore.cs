@@ -12,6 +12,7 @@ using Microsoft.Data.Entity.Redis.Query;
 using Microsoft.Data.Entity.Redis.Utilities;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
+using Microsoft.Framework.Logging;
 using Remotion.Linq;
 
 namespace Microsoft.Data.Entity.Redis
@@ -20,8 +21,10 @@ namespace Microsoft.Data.Entity.Redis
     {
         private readonly LazyRef<RedisDatabase> _database;
 
-        public RedisDataStore([NotNull] DbContextConfiguration configuration)
-            : base(configuration)
+        public RedisDataStore(
+            [NotNull] DbContextConfiguration configuration,
+            [NotNull] ILoggerFactory loggerFactory)
+            : base(configuration, loggerFactory)
         {
             _database = new LazyRef<RedisDatabase>(() => (RedisDatabase)configuration.Database);
         }

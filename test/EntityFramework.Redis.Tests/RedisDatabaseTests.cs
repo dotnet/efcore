@@ -3,6 +3,7 @@
 
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Framework.Logging;
 using Moq;
 using Xunit;
 
@@ -24,7 +25,7 @@ namespace Microsoft.Data.Entity.Redis.Tests
             creatorMock.Setup(m => m.EnsureDeleted(model)).Returns(true);
             configurationMock.Setup(m => m.DataStoreCreator).Returns(creatorMock.Object);
 
-            var database = new RedisDatabase(configurationMock.Object);
+            var database = new RedisDatabase(configurationMock.Object, new LoggerFactory());
 
             Assert.True(database.EnsureCreated());
             creatorMock.Verify(m => m.EnsureCreated(model), Times.Once);

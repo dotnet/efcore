@@ -18,6 +18,7 @@ using Microsoft.Data.Entity.SqlServer.Update;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Advanced;
 using Microsoft.Framework.DependencyInjection.Fallback;
+using Microsoft.Framework.Logging;
 using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
@@ -92,8 +93,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 DbContextConfiguration configuration,
                 SqlServerConnection connection,
                 SqlServerCommandBatchPreparer batchPreparer,
-                SqlServerBatchExecutor batchExecutor)
-                : base(configuration, connection, batchPreparer, batchExecutor)
+                SqlServerBatchExecutor batchExecutor,
+                ILoggerFactory loggerFactory)
+                : base(configuration, connection, batchPreparer, batchExecutor, loggerFactory)
             {
             }
 
