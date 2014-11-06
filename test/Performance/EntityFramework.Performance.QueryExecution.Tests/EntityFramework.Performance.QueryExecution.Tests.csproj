@@ -12,10 +12,8 @@
     <AssemblyName>EntityFramework.Performance.QueryExecution.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -25,7 +23,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -37,6 +34,13 @@
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Data" />
+    <PackageReference Include="Ix-Async">
+      <TargetFramework>net45</TargetFramework>
+      <Assemblies>System.Interactive.Async</Assemblies>
+    </PackageReference>
+    <PackageReference Include="System.Data.Common">
+      <TargetFramework>net451</TargetFramework>
+    </PackageReference>
     <PackageReference Include="Microsoft.Framework.ConfigurationModel">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
@@ -50,6 +54,9 @@
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
     <PackageReference Include="Microsoft.Framework.Logging.Interfaces">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Framework.OptionsModel">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json">
@@ -111,6 +118,10 @@
     <ProjectReference Include="..\..\..\src\EntityFramework.Relational\EntityFramework.Relational.csproj">
       <Project>{75C5A774-A3F3-43EB-97D3-DBE0CF2825D8}</Project>
       <Name>EntityFramework.Relational</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\src\EntityFramework.Migrations\EntityFramework.Migrations.csproj">
+      <Project>{6E38B72F-31DA-4AEF-8F34-B8269572EC6B}</Project>
+      <Name>EntityFramework.Migrations</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\src\EntityFramework.SqlServer\EntityFramework.SqlServer.csproj">
       <Project>{04E6620B-5B41-45FE-981A-F40EB7686B0E}</Project>

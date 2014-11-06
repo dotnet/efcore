@@ -12,10 +12,8 @@
     <AssemblyName>EntityFramework.Performance.StateManager.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -25,7 +23,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -35,7 +32,15 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Data" />
+    <PackageReference Include="Ix-Async">
+      <TargetFramework>net45</TargetFramework>
+      <Assemblies>System.Interactive.Async</Assemblies>
+    </PackageReference>
+    <PackageReference Include="System.Data.Common">
+      <TargetFramework>net451</TargetFramework>
+    </PackageReference>
     <PackageReference Include="Microsoft.Framework.ConfigurationModel">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
@@ -49,6 +54,9 @@
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
     <PackageReference Include="Microsoft.Framework.Logging.Interfaces">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Framework.OptionsModel">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json">
@@ -77,17 +85,21 @@
     <None Include="Project.json" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\src\EntityFramework\EntityFramework.csproj">
+      <Project>{71415cec-8111-4c73-8751-512d22f10602}</Project>
+      <Name>EntityFramework</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\src\EntityFramework.Relational\EntityFramework.Relational.csproj">
       <Project>{75c5a774-a3f3-43eb-97d3-dbe0cf2825d8}</Project>
       <Name>EntityFramework.Relational</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\src\EntityFramework.Migrations\EntityFramework.Migrations.csproj">
+      <Project>{6E38B72F-31DA-4AEF-8F34-B8269572EC6B}</Project>
+      <Name>EntityFramework.Migrations</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\src\EntityFramework.SqlServer\EntityFramework.SqlServer.csproj">
       <Project>{04e6620b-5b41-45fe-981a-f40eb7686b0e}</Project>
       <Name>EntityFramework.SqlServer</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\src\EntityFramework\EntityFramework.csproj">
-      <Project>{71415cec-8111-4c73-8751-512d22f10602}</Project>
-      <Name>EntityFramework</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

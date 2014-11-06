@@ -5,10 +5,15 @@
   "frameworks": {
     "aspnetcore50": {
       "dependencies": {
+        "System.ComponentModel.Annotations": "4.0.10-beta-*",
         "System.Console": "4.0.0-beta-*"
       }
     },
-    "aspnet50": {}
+    "aspnet50": {
+      "frameworkAssemblies": {
+        "System.ComponentModel.DataAnnotations": ""
+      }
+    }
   },
   "dependencies": {
     "EntityFramework.SqlServer": "7.0.0-*",
