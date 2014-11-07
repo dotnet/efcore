@@ -6,8 +6,8 @@ using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
 using Microsoft.Data.Entity.Relational.FunctionalTests;
 using Microsoft.Data.Entity.SQLite.FunctionalTests.TestModels;
 using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.DependencyInjection.Advanced;
 using Microsoft.Framework.DependencyInjection.Fallback;
+using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.SQLite.FunctionalTests
 {
@@ -21,13 +21,11 @@ namespace Microsoft.Data.Entity.SQLite.FunctionalTests
         {
             _testStore = SQLiteNorthwindContext.GetSharedStoreAsync().Result;
 
-            _serviceProvider
-                = new ServiceCollection()
-                    .AddEntityFramework()
-                    .AddSQLite()
-                    .UseLoggerFactory(new TestSqlLoggerFactory())
-                    .ServiceCollection
-                    .BuildServiceProvider();
+            _serviceProvider = new ServiceCollection()
+                .AddEntityFramework()
+                .AddSQLite().ServiceCollection
+                .AddInstance<ILoggerFactory>(new TestSqlLoggerFactory())
+                .BuildServiceProvider();
 
             _options
                 = new DbContextOptions()

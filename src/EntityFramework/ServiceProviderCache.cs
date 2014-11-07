@@ -6,9 +6,7 @@ using System.Linq;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.DependencyInjection.Advanced;
 using Microsoft.Framework.DependencyInjection.Fallback;
-using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity
 {
