@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.DependencyInjection.Advanced;
 using Microsoft.Framework.DependencyInjection.Fallback;
 using Microsoft.Framework.Logging;
 using Xunit;
@@ -31,9 +30,11 @@ namespace Microsoft.Data.Entity.FunctionalTests
         public async Task SaveChanges_logs_DataStoreErrorLogState(bool async)
         {
             var loggerFactory = new TestLoggerFactory();
-            var services = new ServiceCollection();
-            services.AddEntityFramework().AddInMemoryStore().UseLoggerFactory(loggerFactory);
-            var serviceProvider = services.BuildServiceProvider();
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFramework()
+                .AddInMemoryStore().ServiceCollection
+                .AddInstance<ILoggerFactory>(loggerFactory)
+                .BuildServiceProvider();
 
             using (var context = new BloggingContext(serviceProvider))
             {
@@ -117,9 +118,11 @@ namespace Microsoft.Data.Entity.FunctionalTests
         public void Query_logs_DataStoreErrorLogState(Action<BloggingContext> test)
         {
             var loggerFactory = new TestLoggerFactory();
-            var services = new ServiceCollection();
-            services.AddEntityFramework().AddInMemoryStore().UseLoggerFactory(loggerFactory);
-            var serviceProvider = services.BuildServiceProvider();
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFramework()
+                .AddInMemoryStore().ServiceCollection
+                .AddInstance<ILoggerFactory>(loggerFactory)
+                .BuildServiceProvider();
 
             using (var context = new BloggingContext(serviceProvider))
             {

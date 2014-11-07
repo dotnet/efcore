@@ -9,9 +9,7 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.SqlServer.FunctionalTests.TestModels;
 using Microsoft.Framework.ConfigurationModel;
 using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.DependencyInjection.Advanced;
 using Microsoft.Framework.DependencyInjection.Fallback;
-using Microsoft.Framework.Logging;
 using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests

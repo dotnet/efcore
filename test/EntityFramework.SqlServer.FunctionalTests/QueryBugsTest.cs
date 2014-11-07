@@ -6,9 +6,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.DependencyInjection.Advanced;
-using Microsoft.Framework.DependencyInjection.Fallback;
 using Microsoft.Data.Entity.Relational.FunctionalTests;
+using Microsoft.Framework.DependencyInjection.Fallback;
+using Microsoft.Framework.Logging;
 using Xunit;
 using Microsoft.Data.Entity.Metadata;
 
@@ -87,13 +87,11 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             CreateDatabase925();
 
             var loggingFactory = new TestSqlLoggerFactory();
-            var serviceProvider
-                = new ServiceCollection()
-                    .AddEntityFramework()
-                    .AddSqlServer()
-                    .UseLoggerFactory(loggingFactory)
-                    .ServiceCollection
-                    .BuildServiceProvider();
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFramework()
+                .AddSqlServer().ServiceCollection
+                .AddInstance<ILoggerFactory>(loggingFactory)
+                .BuildServiceProvider();
 
             using (var ctx = new MyContext925(serviceProvider))
             {
@@ -127,13 +125,11 @@ ORDER BY [c].[FirstName], [c].[LastName]";
             CreateDatabase925();
 
             var loggingFactory = new TestSqlLoggerFactory();
-            var serviceProvider
-                = new ServiceCollection()
-                    .AddEntityFramework()
-                    .AddSqlServer()
-                    .UseLoggerFactory(loggingFactory)
-                    .ServiceCollection
-                    .BuildServiceProvider();
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFramework()
+                .AddSqlServer().ServiceCollection
+                .AddInstance<ILoggerFactory>(loggingFactory)
+                .BuildServiceProvider();
 
             using (var ctx = new MyContext925(serviceProvider))
             {

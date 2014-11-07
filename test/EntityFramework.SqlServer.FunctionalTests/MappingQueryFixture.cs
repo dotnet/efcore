@@ -6,8 +6,8 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.FunctionalTests;
 using Microsoft.Data.Entity.SqlServer.FunctionalTests.TestModels;
 using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.DependencyInjection.Advanced;
 using Microsoft.Framework.DependencyInjection.Fallback;
+using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
@@ -19,13 +19,11 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         public MappingQueryFixture()
         {
-            _serviceProvider
-                = new ServiceCollection()
-                    .AddEntityFramework()
-                    .AddSqlServer()
-                    .UseLoggerFactory(new TestSqlLoggerFactory())
-                    .ServiceCollection
-                    .BuildServiceProvider();
+            _serviceProvider = new ServiceCollection()
+                .AddEntityFramework()
+                .AddSqlServer().ServiceCollection
+                .AddInstance<ILoggerFactory>(new TestSqlLoggerFactory())
+                .BuildServiceProvider();
 
             _testDatabase = SqlServerNorthwindContext.GetSharedStoreAsync().Result;
 

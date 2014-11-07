@@ -191,7 +191,6 @@
     <Compile Include="ChangeTracking\StateManager.cs" />
     <Compile Include="ChangeTracking\StoreGeneratedValues.cs" />
     <Compile Include="ChangeTracking\StoreGeneratedValuesFactory.cs" />
-    <Compile Include="Extensions\AdvancedEntityServicesBuilderExtensions.cs" />
     <Compile Include="Extensions\EntityServiceCollectionExtensions.cs" />
     <Compile Include="Extensions\QueryableExtensions.cs" />
     <Compile Include="Infrastructure\ContextServices.cs" />
