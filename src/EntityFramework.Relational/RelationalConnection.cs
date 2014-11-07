@@ -31,12 +31,12 @@ namespace Microsoft.Data.Entity.Relational
         {
         }
 
-        protected RelationalConnection([NotNull] DbContextConfiguration configuration, [NotNull] ILoggerFactory loggerFactory)
+        protected RelationalConnection([NotNull] LazyRef<IDbContextOptions> options, [NotNull] ILoggerFactory loggerFactory)
             : base(loggerFactory)
         {
-            Check.NotNull(configuration, "configuration");
+            Check.NotNull(options, "options");
 
-            var storeConfig = RelationalOptionsExtension.Extract(configuration);
+            var storeConfig = RelationalOptionsExtension.Extract(options.Value);
 
             if (storeConfig.Connection != null)
             {

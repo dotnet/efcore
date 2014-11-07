@@ -74,7 +74,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Extensions
 
         private static AtsOptionsExtension GetAtsExtension(DbContextOptions options)
         {
-            var result = ((IDbContextOptionsExtensions)options).Extensions
+            var result = ((IDbContextOptions)options).Extensions
                 .First(s => s.GetType() == typeof(AtsOptionsExtension)) as AtsOptionsExtension;
             return result;
         }

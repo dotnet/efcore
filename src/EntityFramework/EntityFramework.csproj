@@ -145,7 +145,7 @@
     <Compile Include="Query\ExpressionTreeVisitors\TaskBlockingExpressionTreeVisitor.cs" />
     <Compile Include="Storage\DataStoreErrorLogState.cs" />
     <Compile Include="Storage\DataStoreException.cs" />
-    <Compile Include="Infrastructure\IDbContextOptionsExtensions.cs" />
+    <Compile Include="Infrastructure\IDbContextOptions.cs" />
     <Compile Include="INotifyPropertyChanging.cs" />
     <Compile Include="Metadata\EntityTypeExtensions.cs" />
     <Compile Include="Metadata\IIndex.cs" />

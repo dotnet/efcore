@@ -11,20 +11,20 @@ using Microsoft.Data.Entity.SqlServer.Utilities;
 
 namespace Microsoft.Data.Entity
 {
-    public static class SqlServerDatabaseDatabaseExtensions
+    public static class SqlServerDatabaseExtensions
     {
         public static SqlServerDatabase AsSqlServer([NotNull] this Database database)
         {
             Check.NotNull(database, "database");
 
-            var sqliteDatabase = database as SqlServerDatabase;
+            var sqlServerDatabase = database as SqlServerDatabase;
 
-            if (sqliteDatabase == null)
+            if (sqlServerDatabase == null)
             {
                 throw new InvalidOperationException(Strings.SqlServerNotInUse);
             }
 
-            return sqliteDatabase;
+            return sqlServerDatabase;
         }
     }
 }

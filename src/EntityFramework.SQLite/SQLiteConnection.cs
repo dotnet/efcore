@@ -6,6 +6,7 @@ using System.Data.Common;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Relational;
+using Microsoft.Data.Entity.Utilities;
 using Microsoft.Data.SQLite;
 using Microsoft.Framework.Logging;
 
@@ -22,8 +23,8 @@ namespace Microsoft.Data.Entity.SQLite
         {
         }
 
-        public SQLiteConnection([NotNull] DbContextConfiguration configuration, [NotNull] ILoggerFactory loggerFactory)
-            : base(configuration, loggerFactory)
+        public SQLiteConnection([NotNull] LazyRef<IDbContextOptions> options, [NotNull] ILoggerFactory loggerFactory)
+            : base(options, loggerFactory)
         {
         }
 

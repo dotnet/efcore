@@ -91,7 +91,7 @@
     <Compile Include="SequentialGuidValueGenerator.cs" />
     <Compile Include="SqlServerBuilderExtensions.cs" />
     <Compile Include="SqlServerDatabase.cs" />
-    <Compile Include="SqlServerDatabaseDatabaseExtensions.cs" />
+    <Compile Include="SqlServerDatabaseExtensions.cs" />
     <Compile Include="SqlServerMetadataExtensions.cs" />
     <Compile Include="SqlServerDatabaseBuilder.cs" />
     <Compile Include="SqlServerModelDiffer.cs" />
