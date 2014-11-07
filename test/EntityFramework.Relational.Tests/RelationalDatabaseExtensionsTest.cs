@@ -3,6 +3,9 @@
 
 using System;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 using Moq;
 using Xunit;
@@ -14,8 +17,11 @@ namespace Microsoft.Data.Entity.Relational.Tests
         [Fact]
         public void Returns_typed_database_object()
         {
-            var configurationMock = new Mock<DbContextConfiguration>();
-            var database = new ConcreteRelationalDatabase(configurationMock.Object, new LoggerFactory());
+            var database = new ConcreteRelationalDatabase(
+                new LazyRef<IModel>(() => null),
+                Mock.Of<DataStoreCreator>(),
+                Mock.Of<DataStoreConnection>(),
+                new LoggerFactory());
 
             Assert.Same(database, database.AsRelational());
         }
@@ -23,8 +29,11 @@ namespace Microsoft.Data.Entity.Relational.Tests
         [Fact]
         public void Throws_when_non_relational_provider_is_in_use()
         {
-            var configurationMock = new Mock<DbContextConfiguration>();
-            var database = new ConcreteDatabase(configurationMock.Object, new LoggerFactory());
+            var database = new ConcreteDatabase(
+                new LazyRef<IModel>(() => null),
+                Mock.Of<DataStoreCreator>(),
+                Mock.Of<DataStoreConnection>(),
+                new LoggerFactory());
 
             Assert.Equal(
                 Strings.RelationalNotInUse,
@@ -33,16 +42,24 @@ namespace Microsoft.Data.Entity.Relational.Tests
 
         private class ConcreteDatabase : Database
         {
-            public ConcreteDatabase(DbContextConfiguration configuration, ILoggerFactory loggerFactory)
-                : base(configuration, loggerFactory)
+            public ConcreteDatabase(
+                LazyRef<IModel> model,
+                DataStoreCreator dataStoreCreator,
+                DataStoreConnection connection,
+                ILoggerFactory loggerFactory)
+                : base(model, dataStoreCreator, connection, loggerFactory)
             {
             }
         }
 
         private class ConcreteRelationalDatabase : RelationalDatabase
         {
-            public ConcreteRelationalDatabase(DbContextConfiguration configuration, ILoggerFactory loggerFactory)
-                : base(configuration, loggerFactory)
+            public ConcreteRelationalDatabase(
+                LazyRef<IModel> model,
+                DataStoreCreator dataStoreCreator,
+                DataStoreConnection connection,
+                ILoggerFactory loggerFactory)
+                : base(model, dataStoreCreator, connection, loggerFactory)
             {
             }
         }

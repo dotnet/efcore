@@ -93,9 +93,9 @@ namespace Microsoft.Data.Entity.Redis
                     Logger,
                     CreateQueryBuffer(),
                     _database.Value)
-                    {
-                        CancellationToken = cancellationToken
-                    };
+                {
+                    CancellationToken = cancellationToken
+                };
 
             return queryExecutor(queryContext);
         }

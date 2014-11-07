@@ -5,14 +5,16 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Redis.Utilities;
 using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Redis
 {
     public class RedisConnection : DataStoreConnection
     {
-        private readonly string _connectionString;
-        private readonly int _database = -1;
+        private readonly LazyRef<string> _connectionString;
+        private readonly LazyRef<int> _database;
+        private readonly LazyRef<RedisOptionsExtension> _options;
 
         /// <summary>
         ///     For testing. Improper usage may lead to NullReference exceptions
@@ -26,20 +28,20 @@ namespace Microsoft.Data.Entity.Redis
         {
             Check.NotNull(configuration, "configuration");
 
-            var optionsExtension = RedisOptionsExtension.Extract(configuration);
-
-            _connectionString = optionsExtension.HostName + ":" + optionsExtension.Port;
-            _database = optionsExtension.Database;
+            // TODO: Decouple from DbContextConfiguration (Issue #641)
+            _options = new LazyRef<RedisOptionsExtension>(() => RedisOptionsExtension.Extract(configuration));
+            _connectionString = new LazyRef<string>(() => _options.Value.HostName + ":" + _options.Value.Port);
+            _database = new LazyRef<int>(() => _options.Value.Database);
         }
 
         public virtual string ConnectionString
         {
-            get { return _connectionString; }
+            get { return _connectionString.Value; }
         }
 
         public virtual int Database
         {
-            get { return _database; }
+            get { return _database.Value; }
         }
     }
 }

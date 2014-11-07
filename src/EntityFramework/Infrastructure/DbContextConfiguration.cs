@@ -9,7 +9,6 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Infrastructure
 {
@@ -21,16 +20,15 @@ namespace Microsoft.Data.Entity.Infrastructure
             Implicit,
         }
 
+        // TODO: Remove this (Issue #641)
         private ContextServices _services;
+
+        private IServiceProvider _scopedProvider;
         private DbContextOptions _contextOptions;
         private DbContext _context;
         private LazyRef<IModel> _modelFromSource;
         private LazyRef<DataStoreServices> _dataStoreServices;
-        private LazyRef<DataStore> _dataStore;
-        private LazyRef<DataStoreConnection> _connection;
-        private LazyRef<StateManager> _stateManager;
         private ServiceProviderSource _serviceProviderSource;
-        private LazyRef<Database> _database;
         private bool _inOnModelCreating;
 
         public virtual DbContextConfiguration Initialize(
@@ -47,15 +45,16 @@ namespace Microsoft.Data.Entity.Infrastructure
             Check.IsDefined(serviceProviderSource, "serviceProviderSource");
 
             _services = new ContextServices(scopedProvider);
+
+            _scopedProvider = scopedProvider;
             _serviceProviderSource = serviceProviderSource;
             _contextOptions = contextOptions;
             _context = context;
-            _dataStoreServices = new LazyRef<DataStoreServices>(() => _services.DataStoreSelector.SelectDataStore(this));
+
+            _dataStoreServices = new LazyRef<DataStoreServices>(() =>
+                _scopedProvider.GetRequiredServiceChecked<DataStoreSelector>().SelectDataStore(this));
+
             _modelFromSource = new LazyRef<IModel>(CreateModel);
-            _dataStore = new LazyRef<DataStore>(() => _dataStoreServices.Value.Store);
-            _connection = new LazyRef<DataStoreConnection>(() => _dataStoreServices.Value.Connection);
-            _database = new LazyRef<Database>(() => _dataStoreServices.Value.Database);
-            _stateManager = new LazyRef<StateManager>(() => _services.StateManager);
 
             return this;
         }
@@ -70,7 +69,9 @@ namespace Microsoft.Data.Entity.Infrastructure
             try
             {
                 _inOnModelCreating = true;
-                return _services.ModelSource.GetModel(_context, _dataStoreServices.Value.ModelBuilderFactory);
+                return _scopedProvider
+                    .GetRequiredServiceChecked<IModelSource>()
+                    .GetModel(_context, _dataStoreServices.Value.ModelBuilderFactory);
             }
             finally
             {
@@ -88,14 +89,9 @@ namespace Microsoft.Data.Entity.Infrastructure
             get { return _contextOptions.Model ?? _modelFromSource.Value; }
         }
 
-        public virtual DataStore DataStore
+        public virtual IDbContextOptionsExtensions ContextOptions
         {
-            get { return _dataStore.Value; }
-        }
-
-        public virtual Database Database
-        {
-            get { return _database.Value; }
+            get { return _contextOptions; }
         }
 
         public virtual DataStoreServices DataStoreServices
@@ -103,29 +99,19 @@ namespace Microsoft.Data.Entity.Infrastructure
             get { return _dataStoreServices.Value; }
         }
 
-        public virtual DataStoreCreator DataStoreCreator
+        public static Func<IServiceProvider, LazyRef<DbContext>> ContextFactory
         {
-            get { return _dataStoreServices.Value.Creator; }
+            get { return p => new LazyRef<DbContext>(() => p.GetRequiredServiceChecked<DbContextConfiguration>().Context); }
         }
 
-        public virtual ValueGeneratorCache ValueGeneratorCache
+        public static Func<IServiceProvider, LazyRef<IModel>> ModelFactory
         {
-            get { return _dataStoreServices.Value.ValueGeneratorCache; }
+            get { return p => new LazyRef<IModel>(() => p.GetRequiredServiceChecked<DbContextConfiguration>().Model); }
         }
 
-        public virtual DataStoreConnection Connection
+        public static Func<IServiceProvider, LazyRef<DbContextOptions>> ContextOptionsFactory
         {
-            get { return _connection.Value; }
-        }
-
-        public virtual ContextServices Services
-        {
-            get { return _services; }
-        }
-
-        public virtual IDbContextOptionsExtensions ContextOptions
-        {
-            get { return _contextOptions; }
+            get { return p => new LazyRef<DbContextOptions>(() => (DbContextOptions)p.GetRequiredServiceChecked<DbContextConfiguration>().ContextOptions); }
         }
 
         public virtual ServiceProviderSource ProviderSource
@@ -133,9 +119,50 @@ namespace Microsoft.Data.Entity.Infrastructure
             get { return _serviceProviderSource; }
         }
 
+        public virtual IServiceProvider ScopedServiceProvider
+        {
+            get { return _scopedProvider; }
+        }
+
+        // TODO: Remove this (Issue #641)
+        public virtual DataStore DataStore
+        {
+            get { return _dataStoreServices.Value.Store; }
+        }
+
+        // TODO: Remove this (Issue #641)
+        public virtual Database Database
+        {
+            get { return _dataStoreServices.Value.Database; }
+        }
+        
+        // TODO: Remove this (Issue #641)
+        public virtual DataStoreCreator DataStoreCreator
+        {
+            get { return _dataStoreServices.Value.Creator; }
+        }
+
+        // TODO: Remove this (Issue #641)
+        public virtual ValueGeneratorCache ValueGeneratorCache
+        {
+            get { return _dataStoreServices.Value.ValueGeneratorCache; }
+        }
+
+        // TODO: Remove this (Issue #641)
+        public virtual DataStoreConnection Connection
+        {
+            get { return _dataStoreServices.Value.Connection; }
+        }
+
+        // TODO: Remove this (Issue #641)
         public virtual StateManager StateManager
         {
-            get { return _stateManager.Value; }
+            get { return Services.StateManager; }
+        }
+
+        public virtual ContextServices Services
+        {
+            get { return _services; }
         }
     }
 }

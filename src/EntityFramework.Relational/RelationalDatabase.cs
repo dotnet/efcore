@@ -5,17 +5,23 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Relational
 {
     public abstract class RelationalDatabase : Database
     {
-        protected RelationalDatabase([NotNull] DbContextConfiguration configuration, [NotNull] ILoggerFactory loggerFactory)
-            : base(configuration, loggerFactory)
+        protected RelationalDatabase(
+                   [NotNull] LazyRef<IModel> model,
+                   [NotNull] DataStoreCreator dataStoreCreator,
+                   [NotNull] DataStoreConnection connection,
+                   [NotNull] ILoggerFactory loggerFactory)
+            : base(model, dataStoreCreator, connection, loggerFactory)
         {
         }
-
         public new virtual RelationalConnection Connection
         {
             get { return (RelationalConnection)base.Connection; }

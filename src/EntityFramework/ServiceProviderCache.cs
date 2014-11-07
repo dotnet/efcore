@@ -47,7 +47,9 @@ namespace Microsoft.Data.Entity
         {
             return ((((long)descriptor.Lifecycle * 397)
                      ^ descriptor.ServiceType.GetHashCode()) * 397)
-                   ^ (descriptor.ImplementationInstance ?? descriptor.ImplementationType).GetHashCode();
+                   ^ (descriptor.ImplementationInstance
+                      ?? descriptor.ImplementationType
+                      ?? (object)descriptor.ImplementationFactory).GetHashCode();
         }
     }
 }

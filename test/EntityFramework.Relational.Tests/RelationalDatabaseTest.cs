@@ -4,8 +4,9 @@
 using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 using Moq;
 using Xunit;
@@ -24,16 +25,16 @@ namespace Microsoft.Data.Entity.Relational.Tests
             creatorMock.Setup(m => m.EnsureCreated(model)).Returns(true);
             creatorMock.Setup(m => m.EnsureDeleted(model)).Returns(true);
 
-            var configurationMock = new Mock<DbContextConfiguration>();
             var connectionMock = new Mock<RelationalConnection>();
             var dbConnectionMock = new Mock<DbConnection>();
-            configurationMock.Setup(m => m.DataStoreCreator).Returns(creatorMock.Object);
-            configurationMock.Setup(m => m.Model).Returns(model);
-            configurationMock.Setup(m => m.Connection).Returns(connectionMock.Object);
             connectionMock.SetupGet(m => m.DbConnection).Returns(dbConnectionMock.Object);
             dbConnectionMock.SetupGet(m => m.Database).Returns("MyDb");
 
-            var database = new ConcreteRelationalDatabase(configurationMock.Object, new LoggerFactory());
+            var database = new ConcreteRelationalDatabase(
+                new LazyRef<IModel>(model),
+                creatorMock.Object,
+                connectionMock.Object,
+                new LoggerFactory());
 
             Assert.True(database.Exists());
             creatorMock.Verify(m => m.Exists(), Times.Once);
@@ -71,16 +72,16 @@ namespace Microsoft.Data.Entity.Relational.Tests
             creatorMock.Setup(m => m.EnsureCreatedAsync(model, cancellationToken)).Returns(Task.FromResult(true));
             creatorMock.Setup(m => m.EnsureDeletedAsync(model, cancellationToken)).Returns(Task.FromResult(true));
 
-            var configurationMock = new Mock<DbContextConfiguration>();
             var connectionMock = new Mock<RelationalConnection>();
             var dbConnectionMock = new Mock<DbConnection>();
-            configurationMock.Setup(m => m.DataStoreCreator).Returns(creatorMock.Object);
-            configurationMock.Setup(m => m.Model).Returns(model);
-            configurationMock.Setup(m => m.Connection).Returns(connectionMock.Object);
             connectionMock.SetupGet(m => m.DbConnection).Returns(dbConnectionMock.Object);
             dbConnectionMock.SetupGet(m => m.Database).Returns("MyDb");
 
-            var database = new ConcreteRelationalDatabase(configurationMock.Object, new LoggerFactory());
+            var database = new ConcreteRelationalDatabase(
+                new LazyRef<IModel>(model),
+                creatorMock.Object,
+                connectionMock.Object,
+                new LoggerFactory());
 
             Assert.True(await database.ExistsAsync(cancellationToken));
             creatorMock.Verify(m => m.ExistsAsync(cancellationToken), Times.Once);
@@ -106,8 +107,12 @@ namespace Microsoft.Data.Entity.Relational.Tests
 
         private class ConcreteRelationalDatabase : RelationalDatabase
         {
-            public ConcreteRelationalDatabase(DbContextConfiguration configuration, ILoggerFactory loggerFactory)
-                : base(configuration, loggerFactory)
+            public ConcreteRelationalDatabase(
+                LazyRef<IModel> model,
+                DataStoreCreator dataStoreCreator,
+                DataStoreConnection connection,
+                ILoggerFactory loggerFactory)
+                : base(model, dataStoreCreator, connection, loggerFactory)
             {
             }
         }
