@@ -15,6 +15,7 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Redis.Query;
 using Microsoft.Data.Entity.Redis.Utilities;
+using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 using StackExchange.Redis;
 
@@ -52,8 +53,21 @@ namespace Microsoft.Data.Entity.Redis
         private static readonly ConcurrentDictionary<string, ConnectionMultiplexer> _connectionMultiplexers
             = new ConcurrentDictionary<string, ConnectionMultiplexer>(); // key = ConfigurationOptions.ToString()
 
-        public RedisDatabase([NotNull] DbContextConfiguration configuration, [NotNull] ILoggerFactory loggerFactory)
-            : base(configuration, loggerFactory)
+        /// <summary>
+        ///     This constructor is intended only for use when creating test doubles that will override members
+        ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
+        ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
+        /// </summary>
+        protected RedisDatabase()
+        {
+        }
+
+        public RedisDatabase(
+            [NotNull] LazyRef<IModel> model,
+            [NotNull] RedisDataStoreCreator dataStoreCreator,
+            [NotNull] RedisConnection connection,
+            [NotNull] ILoggerFactory loggerFactory)
+            : base(model, dataStoreCreator, connection, loggerFactory)
         {
         }
 
@@ -87,7 +101,7 @@ namespace Microsoft.Data.Entity.Redis
         {
             get { return (RedisConnection)base.Connection; }
         }
-        
+
         public virtual IDatabase GetUnderlyingDatabase()
         {
             return ConnectionMultiplexer

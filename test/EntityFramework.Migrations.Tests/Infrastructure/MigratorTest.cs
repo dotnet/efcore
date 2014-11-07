@@ -1265,6 +1265,7 @@ new StringBuilder()
                 .AddScoped<FakeDatabase>()
                 .AddScoped<FakeRelationalOptionsExtension>()
                 .AddScoped<FakeRelationalConnection>()
+                .AddScoped<FakeMigrator>()
                 .AddInstance(dbCreator)
                 .AddInstance(loggerFactory);
 
@@ -1402,8 +1403,13 @@ new StringBuilder()
 
         private class FakeDatabase : MigrationsEnabledDatabase
         {
-            public FakeDatabase(DbContextConfiguration configuration, ILoggerFactory loggerFactory)
-                : base(configuration, loggerFactory)
+            public FakeDatabase(
+                LazyRef<IModel> model,
+                RelationalDataStoreCreator dataStoreCreator,
+                FakeRelationalConnection connection,
+                FakeMigrator migrator,
+                ILoggerFactory loggerFactory)
+                : base(model, dataStoreCreator, connection, migrator, loggerFactory)
             {
             }
         }
@@ -1427,6 +1433,10 @@ new StringBuilder()
             {
                 throw new NotImplementedException();
             }
+        }
+
+        private class FakeMigrator : Migrator
+        {
         }
 
         private class FakeSqlGenerator : MigrationOperationVisitor<IndentedStringBuilder>

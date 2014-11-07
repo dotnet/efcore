@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 using Moq;
 using Xunit;
@@ -23,12 +24,12 @@ namespace Microsoft.Data.Entity.Tests
             creatorMock.Setup(m => m.EnsureDeleted(model)).Returns(true);
 
             var connection = Mock.Of<DataStoreConnection>();
-            var configurationMock = new Mock<DbContextConfiguration>();
-            configurationMock.Setup(m => m.DataStoreCreator).Returns(creatorMock.Object);
-            configurationMock.Setup(m => m.Model).Returns(model);
-            configurationMock.Setup(m => m.Connection).Returns(connection);
 
-            var database = new ConcreteDatabase(configurationMock.Object, new LoggerFactory());
+            var database = new ConcreteDatabase(
+                    new LazyRef<IModel>(() => model),
+                    creatorMock.Object,
+                    connection,
+                    new LoggerFactory());
 
             Assert.True(database.EnsureCreated());
             creatorMock.Verify(m => m.EnsureCreated(model), Times.Once);
@@ -49,11 +50,11 @@ namespace Microsoft.Data.Entity.Tests
             creatorMock.Setup(m => m.EnsureCreatedAsync(model, cancellationToken)).Returns(Task.FromResult(true));
             creatorMock.Setup(m => m.EnsureDeletedAsync(model, cancellationToken)).Returns(Task.FromResult(true));
 
-            var configurationMock = new Mock<DbContextConfiguration>();
-            configurationMock.Setup(m => m.DataStoreCreator).Returns(creatorMock.Object);
-            configurationMock.Setup(m => m.Model).Returns(model);
-
-            var database = new ConcreteDatabase(configurationMock.Object, new LoggerFactory());
+            var database = new ConcreteDatabase(
+                    new LazyRef<IModel>(() => model),
+                    creatorMock.Object,
+                    Mock.Of<DataStoreConnection>(),
+                    new LoggerFactory());
 
             Assert.True(await database.EnsureCreatedAsync(cancellationToken));
             creatorMock.Verify(m => m.EnsureCreatedAsync(model, cancellationToken), Times.Once);
@@ -64,8 +65,12 @@ namespace Microsoft.Data.Entity.Tests
 
         private class ConcreteDatabase : Database
         {
-            public ConcreteDatabase(DbContextConfiguration configuration, ILoggerFactory loggerFactory)
-                : base(configuration, loggerFactory)
+            public ConcreteDatabase(
+                LazyRef<IModel> model,
+                DataStoreCreator dataStoreCreator,
+                DataStoreConnection connection,
+                ILoggerFactory loggerFactory)
+                : base(model, dataStoreCreator, connection, loggerFactory)
             {
             }
         }

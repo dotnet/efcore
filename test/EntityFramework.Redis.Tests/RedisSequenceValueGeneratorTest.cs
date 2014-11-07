@@ -25,10 +25,9 @@ namespace Microsoft.Data.Entity.Redis.Tests
             var stateEntry = TestHelpers.CreateStateEntry<AnEntity>(_model);
             var property = stateEntry.EntityType.GetProperty("Id");
             var sequenceName = RedisDatabase.ConstructRedisValueGeneratorKeyName(property);
-            var blockSize = 1;
+            const int blockSize = 1;
             var incrementingValue = 0L;
-            var dbConfigurationMock = new Mock<DbContextConfiguration>();
-            var redisDatabaseMock = new Mock<RedisDatabase>(dbConfigurationMock.Object, new LoggerFactory());
+            var redisDatabaseMock = new Mock<RedisDatabase>();
             redisDatabaseMock
                 .Setup(db => db.GetNextGeneratedValue(It.IsAny<IProperty>(), It.IsAny<long>(), It.IsAny<string>()))
                 .Returns<IProperty, long, string>((p, l, s) =>
@@ -120,10 +119,9 @@ namespace Microsoft.Data.Entity.Redis.Tests
             var stateEntry = TestHelpers.CreateStateEntry<AnEntity>(_model);
             var property = stateEntry.EntityType.GetProperty("Id");
             var sequenceName = RedisDatabase.ConstructRedisValueGeneratorKeyName(property);
-            var blockSize = 1;
+            const int blockSize = 1;
             var incrementingValue = 0L;
-            var dbConfigurationMock = new Mock<DbContextConfiguration>();
-            var redisDatabaseMock = new Mock<RedisDatabase>(dbConfigurationMock.Object, new LoggerFactory());
+            var redisDatabaseMock = new Mock<RedisDatabase>();
             redisDatabaseMock
                 .Setup(db => db.GetNextGeneratedValueAsync(
                     It.IsAny<IProperty>(), It.IsAny<long>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
@@ -214,8 +212,7 @@ namespace Microsoft.Data.Entity.Redis.Tests
         public void Multiple_threads_can_use_the_same_generator()
         {
             var incrementingValue = 0L;
-            var dbConfigurationMock = new Mock<DbContextConfiguration>();
-            var redisDatabaseMock = new Mock<RedisDatabase>(dbConfigurationMock.Object, new LoggerFactory());
+            var redisDatabaseMock = new Mock<RedisDatabase>();
             redisDatabaseMock
                 .Setup(db => db.GetNextGeneratedValue(It.IsAny<IProperty>(), It.IsAny<long>(), It.IsAny<string>()))
                 .Returns<IProperty, long, string>((p, l, s) =>
@@ -271,8 +268,7 @@ namespace Microsoft.Data.Entity.Redis.Tests
         public async Task Multiple_threads_can_use_the_same_generator_async()
         {
             var incrementingValue = 0L;
-            var dbConfigurationMock = new Mock<DbContextConfiguration>();
-            var redisDatabaseMock = new Mock<RedisDatabase>(dbConfigurationMock.Object, new LoggerFactory());
+            var redisDatabaseMock = new Mock<RedisDatabase>();
             redisDatabaseMock
                 .Setup(db => db.GetNextGeneratedValueAsync(
                     It.IsAny<IProperty>(), It.IsAny<long>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
@@ -333,10 +329,9 @@ namespace Microsoft.Data.Entity.Redis.Tests
         [Fact]
         public void Generates_sequential_values_with_larger_block_size()
         {
-            var blockSize = 10;
+            const int blockSize = 10;
             var incrementingValue = 0L;
-            var dbConfigurationMock = new Mock<DbContextConfiguration>();
-            var redisDatabaseMock = new Mock<RedisDatabase>(dbConfigurationMock.Object, new LoggerFactory());
+            var redisDatabaseMock = new Mock<RedisDatabase>();
             redisDatabaseMock
                 .Setup(db => db.GetNextGeneratedValue(It.IsAny<IProperty>(), It.IsAny<long>(), It.IsAny<string>()))
                 .Returns<IProperty, long, string>((p, l, s) =>
@@ -363,9 +358,8 @@ namespace Microsoft.Data.Entity.Redis.Tests
         [Fact]
         public void Throws_when_type_conversion_would_overflow()
         {
-            var incrementingValue = 256L;
-            var dbConfigurationMock = new Mock<DbContextConfiguration>();
-            var redisDatabaseMock = new Mock<RedisDatabase>(dbConfigurationMock.Object, new LoggerFactory());
+            const long incrementingValue = 256L;
+            var redisDatabaseMock = new Mock<RedisDatabase>();
             redisDatabaseMock
                 .Setup(db => db.GetNextGeneratedValue(It.IsAny<IProperty>(), It.IsAny<long>(), It.IsAny<string>()))
                 .Returns<IProperty, long, string>((p, l, s) => incrementingValue);
