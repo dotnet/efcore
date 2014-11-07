@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity
             get { return _instance; }
         }
 
-        public virtual IServiceProvider GetOrAdd(IDbContextOptionsExtensions options)
+        public virtual IServiceProvider GetOrAdd(IDbContextOptions options)
         {
             var services = new ServiceCollection();
             var builder = services.AddEntityFramework();

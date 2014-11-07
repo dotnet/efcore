@@ -498,7 +498,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 _options = options;
                 _connection = connection;
 
-                ((IDbContextOptionsExtensions)_options).AddExtension(new FakeDbContextOptionsExtension());
+                ((IDbContextOptions)_options).AddExtension(new FakeDbContextOptionsExtension());
             }
 
             protected override void OnConfiguring(DbContextOptions options)
@@ -508,7 +508,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 // Options was cloned
                 Assert.NotSame(options, _options);
 
-                Assert.Equal(1, ((IDbContextOptionsExtensions)options).Extensions.OfType<FakeDbContextOptionsExtension>().Count());
+                Assert.Equal(1, ((IDbContextOptions)options).Extensions.OfType<FakeDbContextOptionsExtension>().Count());
             }
 
             public override void Dispose()
@@ -648,7 +648,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 _options = options;
 
-                ((IDbContextOptionsExtensions)_options).AddExtension(new FakeDbContextOptionsExtension());
+                ((IDbContextOptions)_options).AddExtension(new FakeDbContextOptionsExtension());
             }
 
             protected override void OnConfiguring(DbContextOptions options)
@@ -658,7 +658,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 // Options was cloned
                 Assert.NotSame(options, _options);
 
-                Assert.Equal(1, ((IDbContextOptionsExtensions)options).Extensions.OfType<FakeDbContextOptionsExtension>().Count());
+                Assert.Equal(1, ((IDbContextOptions)options).Extensions.OfType<FakeDbContextOptionsExtension>().Count());
             }
         }
 

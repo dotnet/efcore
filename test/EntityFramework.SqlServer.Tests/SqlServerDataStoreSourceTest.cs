@@ -18,8 +18,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         [Fact]
         public void Is_configured_when_configuration_contains_associated_extension()
         {
-            var options = new DbContextOptions();
-            ((IDbContextOptionsExtensions)options).AddOrUpdateExtension<SqlServerOptionsExtension>(e => { });
+            IDbContextOptions options = new DbContextOptions();
+            options.AddOrUpdateExtension<SqlServerOptionsExtension>(e => { });
 
             var configurationMock = new Mock<DbContextConfiguration>();
             configurationMock.Setup(m => m.ContextOptions).Returns(options);
@@ -41,8 +41,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         [Fact]
         public void Is_available_when_configured()
         {
-            var options = new DbContextOptions();
-            ((IDbContextOptionsExtensions)options).AddOrUpdateExtension<SqlServerOptionsExtension>(e => { });
+            IDbContextOptions options = new DbContextOptions();
+            options.AddOrUpdateExtension<SqlServerOptionsExtension>(e => { });
 
             var configurationMock = new Mock<DbContextConfiguration>();
             configurationMock.Setup(m => m.ContextOptions).Returns(options);

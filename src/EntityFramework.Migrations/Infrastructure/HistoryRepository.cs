@@ -170,18 +170,17 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
 
         protected virtual DbContextOptions CreateHistoryContextOptions()
         {
-            var contextOptions = new DbContextOptions().UseModel(HistoryModel);
-            var contextOptionsExtensions = (IDbContextOptionsExtensions)contextOptions;
+            IDbContextOptions contextOptions = new DbContextOptions().UseModel(HistoryModel);
 
             // TODO: Figure out whether it is ok to reuse all the extensions
             // from the user context configuration for the history context.
             foreach (var item in ContextConfiguration.ContextOptions.Extensions)
             {
                 var extension = item;
-                contextOptionsExtensions.AddExtension(extension);
+                contextOptions.AddExtension(extension);
             }
 
-            return contextOptions;
+            return (DbContextOptions)contextOptions;
         }
 
         protected virtual string GetContextKey()

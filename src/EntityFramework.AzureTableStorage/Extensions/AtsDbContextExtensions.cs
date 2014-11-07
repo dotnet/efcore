@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity
             Check.NotNull(options, "options");
             Check.NotEmpty(connectionString, "connectionString");
 
-            ((IDbContextOptionsExtensions)options).AddOrUpdateExtension<AtsOptionsExtension>(
+            ((IDbContextOptions)options).AddOrUpdateExtension<AtsOptionsExtension>(
                 e =>
                     {
                         e.ConnectionString = connectionString;

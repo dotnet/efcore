@@ -1273,7 +1273,7 @@ new StringBuilder()
 
             var contextOptions = new DbContextOptions();
 
-            ((IDbContextOptionsExtensions)contextOptions)
+            ((IDbContextOptions)contextOptions)
                 .AddOrUpdateExtension<FakeRelationalOptionsExtension>(
                     x => { x.Connection = dbConnection; });
 
@@ -1424,8 +1424,8 @@ new StringBuilder()
 
         private class FakeRelationalConnection : RelationalConnection
         {
-            public FakeRelationalConnection(DbContextConfiguration configuration, ILoggerFactory loggerFactory)
-                : base(configuration, loggerFactory)
+            public FakeRelationalConnection(LazyRef<IDbContextOptions> options, ILoggerFactory loggerFactory)
+                : base(options, loggerFactory)
             {
             }
 

@@ -31,13 +31,12 @@ namespace Microsoft.Data.Entity.AzureTableStorage
         {
         }
 
-        public AtsConnection([NotNull] DbContextConfiguration configuration, [NotNull] ILoggerFactory loggerFactory)
+        public AtsConnection([NotNull] LazyRef<IDbContextOptions> options, [NotNull] ILoggerFactory loggerFactory)
             : base(loggerFactory)
         {
-            Check.NotNull(configuration, "configuration");
+            Check.NotNull(options, "options");
 
-            var storeConfig = configuration
-                .ContextOptions
+            var storeConfig = options.Value
                 .Extensions
                 .OfType<AtsOptionsExtension>()
                 .Single();

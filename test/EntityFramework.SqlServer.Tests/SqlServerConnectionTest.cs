@@ -3,8 +3,7 @@
 
 using System.Data.SqlClient;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.DependencyInjection.Fallback;
+using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 using Xunit;
 
@@ -15,7 +14,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         [Fact]
         public void Creates_SQL_Server_connection_string()
         {
-            using (var connection = new SqlServerConnection(CreateConfiguration(), new LoggerFactory()))
+            using (var connection = new SqlServerConnection(CreateOptions(), new LoggerFactory()))
             {
                 Assert.IsType<SqlConnection>(connection.DbConnection);
             }
@@ -24,7 +23,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         [Fact]
         public void Can_create_master_connection_string()
         {
-            using (var connection = new SqlServerConnection(CreateConfiguration(), new LoggerFactory()))
+            using (var connection = new SqlServerConnection(CreateOptions(), new LoggerFactory()))
             {
                 using (var master = connection.CreateMasterConnection())
                 {
@@ -33,17 +32,10 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             }
         }
 
-        public static DbContextConfiguration CreateConfiguration()
+        public static LazyRef<IDbContextOptions> CreateOptions()
         {
-            var serviceCollection = new ServiceCollection();
-            serviceCollection
-                .AddEntityFramework()
-                .AddSqlServer();
-
-            return new DbContext(serviceCollection.BuildServiceProvider(),
-                new DbContextOptions()
-                    .UseSqlServer(@"Server=(localdb)\v11.0;Database=SqlServerConnectionTest;Trusted_Connection=True;"))
-                .Configuration;
+            return new LazyRef<IDbContextOptions>(() => new DbContextOptions()
+                .UseSqlServer(@"Server=(localdb)\v11.0;Database=SqlServerConnectionTest;Trusted_Connection=True;"));
         }
     }
 }

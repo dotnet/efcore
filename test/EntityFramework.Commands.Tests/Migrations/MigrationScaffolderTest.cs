@@ -858,7 +858,7 @@ namespace MyNamespace
 
             protected override void OnConfiguring(DbContextOptions builder)
             {
-                var contextOptionsExtensions = (IDbContextOptionsExtensions)builder;
+                var contextOptionsExtensions = (IDbContextOptions)builder;
 
                 builder.UseModel(_model);
                 contextOptionsExtensions.AddOrUpdateExtension<MyRelationalOptionsExtension>(x => x.ConnectionString = "ConnectionString");
