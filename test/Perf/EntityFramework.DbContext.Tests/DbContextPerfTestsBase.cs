@@ -6,13 +6,13 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Linq;
-using DbContextPerfTests.Model;
 using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.Performance.DbContextTests.Model;
 using Microsoft.Framework.ConfigurationModel;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
 
-namespace DbContextPerfTests
+namespace Microsoft.Data.Entity.Performance.DbContextTests
 {
     public class DbContextPerfTestsBase
     {

@@ -6,7 +6,7 @@ using System.Linq;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Metadata;
 
-namespace DbContextPerfTests.Model
+namespace Microsoft.Data.Entity.Performance.DbContextTests.Model
 {
     public class AdvWorksDbContext : DbContext
     {

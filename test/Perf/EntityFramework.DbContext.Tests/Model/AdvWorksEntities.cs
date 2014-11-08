@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace DbContextPerfTests.Model
+namespace Microsoft.Data.Entity.Performance.DbContextTests.Model
 {
     public class DbProduct
     {

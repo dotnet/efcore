@@ -3,10 +3,9 @@
 
 using System;
 using System.Linq;
-using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Metadata;
 
-namespace Cud.Model
+namespace Microsoft.Data.Entity.Performance.CUD.Tests.Model
 {
     public class CudContext : DbContext
     {

@@ -57,15 +57,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.Redis.Funct
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.Redis.Tests", "test\EntityFramework.Redis.Tests\EntityFramework.Redis.Tests.csproj", "{7B30247D-BF61-46F3-ABC0-091F97842AA7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.Performance.DbContext.Tests", "test\Performance\EntityFramework.Performance.DbContext.Tests\EntityFramework.Performance.DbContext.Tests.csproj", "{21B0C556-99B1-4A80-8CB8-45C56F17F785}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.DbContext.Tests", "test\Perf\EntityFramework.DbContext.Tests\EntityFramework.DbContext.Tests.csproj", "{21B0C556-99B1-4A80-8CB8-45C56F17F785}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.Performance.CUD.Tests", "test\Performance\EntityFramework.Performance.CUD.Tests\EntityFramework.Performance.CUD.Tests.csproj", "{0DC8A4B7-05A2-465E-9203-F41102B1A69F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.CUD.Tests", "test\Perf\EntityFramework.CUD.Tests\EntityFramework.CUD.Tests.csproj", "{0DC8A4B7-05A2-465E-9203-F41102B1A69F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.Performance.QueryExecution.Tests", "test\Performance\EntityFramework.Performance.QueryExecution.Tests\EntityFramework.Performance.QueryExecution.Tests.csproj", "{9216D88D-CE9E-456F-9B77-1C43171633CB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.QueryExecution.Tests", "test\Perf\EntityFramework.QueryExecution.Tests\EntityFramework.QueryExecution.Tests.csproj", "{9216D88D-CE9E-456F-9B77-1C43171633CB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.Performance.StateManager.Tests", "test\Performance\EntityFramework.Performance.StateManager.Tests\EntityFramework.Performance.StateManager.Tests.csproj", "{A01D56A2-5385-4049-A4B8-EC4D09228114}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.StateManager.Tests", "test\Perf\EntityFramework.StateManager.Tests\EntityFramework.StateManager.Tests.csproj", "{A01D56A2-5385-4049-A4B8-EC4D09228114}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Performance", "Performance", "{FBEBCED5-F50F-4F2F-954F-5F2E65777672}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Perf", "Perf", "{FBEBCED5-F50F-4F2F-954F-5F2E65777672}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.Commands.FunctionalTests", "test\EntityFramework.Commands.FunctionalTests\EntityFramework.Commands.FunctionalTests.csproj", "{43FC8426-D120-44F7-B6D7-6F256D78B5BE}"
 EndProject

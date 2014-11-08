@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microbenchmarks.Core;
 
-namespace Cud
+namespace Microsoft.Data.Entity.Performance.CUD.Tests
 {
     public class Program
     {

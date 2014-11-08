@@ -3,8 +3,7 @@
 
 using System;
 using System.Linq;
-using Cud.Model;
-using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.Performance.CUD.Tests.Model;
 using Microsoft.Framework.ConfigurationModel;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
@@ -13,7 +12,7 @@ using Microsoft.Framework.DependencyInjection.Fallback;
 using Cud.Utilities;
 #endif
 
-namespace Cud
+namespace Microsoft.Data.Entity.Performance.CUD.Tests
 {
     public sealed class PocoCudTests
     {

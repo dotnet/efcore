@@ -2,9 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
-using DbContextPerfTests.Model;
+using Microsoft.Data.Entity.Performance.DbContextTests.Model;
 
-namespace DbContextPerfTests
+namespace Microsoft.Data.Entity.Performance.DbContextTests
 {
     public class DbContextAssociationPerfTests : DbContextPerfTestsBase
     {

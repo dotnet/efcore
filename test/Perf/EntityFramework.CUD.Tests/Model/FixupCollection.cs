@@ -7,7 +7,7 @@ using Cud.Utilities;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
-namespace Cud.Model
+namespace Microsoft.Data.Entity.Performance.CUD.Tests.Model
 {
     // An System.Collections.ObjectModel.ObservableCollection that raises
     // individual item removal notifications on clear and prevents adding duplicates.

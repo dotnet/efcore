@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microbenchmarks.Core;
 
-namespace DbContextPerfTests
+namespace Microsoft.Data.Entity.Performance.DbContextTests
 {
     internal class Program
     {

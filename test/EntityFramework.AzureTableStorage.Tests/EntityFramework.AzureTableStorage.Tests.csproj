@@ -119,11 +119,11 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\EntityFramework\EntityFramework.csproj">
       <Project>{71415CEC-8111-4C73-8751-512D22F10602}</Project>
-      <Name>Microsoft.Data.Entity</Name>
+      <Name>EntityFramework</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\src\EntityFramework.AzureTableStorage\EntityFramework.AzureTableStorage.csproj">
       <Project>{c059860c-039d-48c0-b381-987db950bb5d}</Project>
-      <Name>Microsoft.Data.Entity.AzureTableStorage</Name>
+      <Name>EntityFramework.AzureTableStorage</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

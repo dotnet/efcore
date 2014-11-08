@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 
-namespace Cud.Model
+namespace Microsoft.Data.Entity.Performance.CUD.Tests.Model
 {
     public class Customer
     {
