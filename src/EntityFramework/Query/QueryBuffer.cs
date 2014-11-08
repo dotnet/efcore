@@ -142,9 +142,13 @@ namespace Microsoft.Data.Entity.Query
             INavigation navigation,
             Func<EntityKey, Func<IValueReader, EntityKey>, IEnumerable<IValueReader>> relatedValueReaders)
         {
-            Check.NotNull(entity, "entity");
             Check.NotNull(navigation, "navigation");
             Check.NotNull(relatedValueReaders, "relatedValueReaders");
+
+            if (entity == null)
+            { 
+                return;
+            }
 
             EntityKey primaryKey;
             List<BufferedEntity> bufferedEntities;
@@ -167,9 +171,13 @@ namespace Microsoft.Data.Entity.Query
             Func<EntityKey, Func<IValueReader, EntityKey>, IAsyncEnumerable<IValueReader>> relatedValueReaders,
             CancellationToken cancellationToken)
         {
-            Check.NotNull(entity, "entity");
             Check.NotNull(navigation, "navigation");
             Check.NotNull(relatedValueReaders, "relatedValueReaders");
+
+            if (entity == null)
+            { 
+                return;
+            }
 
             EntityKey primaryKey;
             List<BufferedEntity> bufferedEntities;

@@ -121,6 +121,20 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual async Task Include_reference_single_or_default_when_no_result()
+        {
+            using (var context = CreateContext())
+            {
+                var order
+                    = await context.Set<Order>()
+                        .Include(o => o.Customer)
+                        .SingleOrDefaultAsync(o => o.OrderID == -1);
+
+                Assert.Null(order);
+            }
+        }
+
+        [Fact]
         public virtual async Task Include_reference_as_no_tracking()
         {
             using (var context = CreateContext())
@@ -157,6 +171,20 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 Assert.Equal(6, customer2.Orders.Count);
                 Assert.True(customer2.Orders.All(o => o.Customer != null));
                 Assert.Equal(1 + 6, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [Fact]
+        public virtual async Task Include_collection_single_or_default_no_result()
+        {
+            using (var context = CreateContext())
+            {
+                var customer
+                    = await context.Set<Customer>()
+                        .Include(c => c.Orders)
+                        .SingleOrDefaultAsync(c => c.CustomerID == "ALFKI ?");
+
+                Assert.Null(customer);
             }
         }
 
