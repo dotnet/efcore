@@ -40,18 +40,6 @@ namespace Microsoft.Data.Entity.Migrations.Model
             _cascadeDelete = cascadeDelete;
         }
 
-        public AddForeignKeyOperation([NotNull] ForeignKey foreignKey)
-        {
-            Check.NotNull(foreignKey, "foreignKey");
-
-            _tableName = foreignKey.Table.Name;
-            _foreignKeyName = foreignKey.Name;
-            _referencedTableName = foreignKey.ReferencedTable.Name;
-            _columnNames = foreignKey.Columns.Select(c => c.Name).ToArray();
-            _referencedColumnNames = foreignKey.ReferencedColumns.Select(c => c.Name).ToArray();
-            _cascadeDelete = foreignKey.CascadeDelete;
-        }
-
         public virtual string ForeignKeyName
         {
             get { return _foreignKeyName; }

@@ -55,6 +55,8 @@
     <Compile Include="..\Shared\SharedTypeExtensions.cs">
       <Link>Extensions\SharedTypeExtensions.cs</Link>
     </Compile>
+    <Compile Include="Metadata\SQLiteMetadataExtensionProvider.cs" />
+    <Compile Include="SQLiteMigrationOperationFactory.cs" />
     <Compile Include="Query\SQLiteQueryCompilationContext.cs" />
     <Compile Include="Query\SQLiteSqlQueryGenerator.cs" />
     <Compile Include="SQLiteBatchExecutor.cs" />
@@ -62,7 +64,7 @@
     <Compile Include="SQLiteDatabase.cs" />
     <Compile Include="SQLiteDatabaseExtensions.cs" />
     <Compile Include="SQLiteDataStoreServices.cs" />
-    <Compile Include="SQLiteMigrationOperationPreProcessor.cs" />
+    <Compile Include="SQLiteMigrationOperationProcessor.cs" />
     <Compile Include="SQLiteMigrationOperationSqlGeneratorFactory.cs" />
     <Compile Include="SQLiteMigrator.cs" />
     <Compile Include="SQLiteModificationCommandBatchFactory.cs" />
@@ -84,7 +86,6 @@
     </Compile>
     <Compile Include="SQLiteValueGeneratorCache.cs" />
     <Compile Include="SQLiteValueGeneratorSelector.cs" />
-    <Compile Include="SQLiteDatabaseBuilder.cs" />
     <Compile Include="SQLiteModelDiffer.cs" />
     <Compile Include="Utilities\Check.cs" />
     <Compile Include="..\Shared\CodeAnnotations.cs" />

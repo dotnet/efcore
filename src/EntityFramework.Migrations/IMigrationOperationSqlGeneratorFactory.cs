@@ -2,13 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Relational.Model;
+using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.Migrations
 {
     public interface IMigrationOperationSqlGeneratorFactory
     {
         MigrationOperationSqlGenerator Create();
-        MigrationOperationSqlGenerator Create([NotNull] DatabaseModel database);
+        MigrationOperationSqlGenerator Create([NotNull] IModel targetModel);
     }
 }

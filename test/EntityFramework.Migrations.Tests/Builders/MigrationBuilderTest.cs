@@ -4,7 +4,6 @@
 using System.Linq;
 using Microsoft.Data.Entity.Migrations.Builders;
 using Microsoft.Data.Entity.Migrations.Model;
-using Microsoft.Data.Entity.Relational.Model;
 using Microsoft.Data.Entity.Utilities;
 using Xunit;
 
@@ -277,11 +276,11 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Builders
         }
 
         [Fact]
-        public void AddDefaultConstraint_adds_operation()
+        public void AddDefaultValue_adds_operation()
         {
             var builder = new MigrationBuilder();
 
-            builder.AddDefaultConstraint("dbo.MyTable", "Foo", DefaultConstraint.Value(5));
+            builder.AddDefaultValue("dbo.MyTable", "Foo", 5);
 
             Assert.Equal(1, builder.Operations.Count);
             Assert.IsType<AddDefaultConstraintOperation>(builder.Operations[0]);
@@ -291,6 +290,25 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Builders
             Assert.Equal("dbo.MyTable", operation.TableName);
             Assert.Equal("Foo", operation.ColumnName);
             Assert.Equal(5, operation.DefaultValue);
+            Assert.Null(operation.DefaultSql);
+        }
+
+        [Fact]
+        public void AddDefaultExpression_adds_operation()
+        {
+            var builder = new MigrationBuilder();
+
+            builder.AddDefaultExpression("dbo.MyTable", "Foo", "SqlExpression");
+
+            Assert.Equal(1, builder.Operations.Count);
+            Assert.IsType<AddDefaultConstraintOperation>(builder.Operations[0]);
+
+            var operation = (AddDefaultConstraintOperation)builder.Operations[0];
+
+            Assert.Equal("dbo.MyTable", operation.TableName);
+            Assert.Equal("Foo", operation.ColumnName);
+            Assert.Null(operation.DefaultValue);
+            Assert.Equal("SqlExpression", operation.DefaultSql);
         }
 
         [Fact]

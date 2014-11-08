@@ -6,6 +6,7 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Update;
+using Microsoft.Data.Entity.SqlServer.Metadata;
 using Microsoft.Data.Entity.SqlServer.Update;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Tests;
@@ -26,7 +27,6 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 .AddSqlServer();
 
             // Relational
-            Assert.True(services.Any(sd => sd.ServiceType == typeof(SqlServerDatabaseBuilder)));
             Assert.True(services.Any(sd => sd.ServiceType == typeof(RelationalObjectArrayValueReaderFactory)));
             Assert.True(services.Any(sd => sd.ServiceType == typeof(RelationalTypedValueReaderFactory)));
             Assert.True(services.Any(sd => sd.ServiceType == typeof(ModificationCommandComparer)));
@@ -40,10 +40,13 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             Assert.True(services.Any(sd => sd.ServiceType == typeof(SqlServerBatchExecutor)));
             Assert.True(services.Any(sd => sd.ServiceType == typeof(SqlServerModificationCommandBatchFactory)));
             Assert.True(services.Any(sd => sd.ServiceType == typeof(SqlServerCommandBatchPreparer)));
+            Assert.True(services.Any(sd => sd.ServiceType == typeof(SqlServerMetadataExtensionProvider)));
+            Assert.True(services.Any(sd => sd.ServiceType == typeof(SqlServerMigrationOperationFactory)));
 
             // SQL Server scoped
             Assert.True(services.Any(sd => sd.ServiceType == typeof(SqlServerDataStore)));
             Assert.True(services.Any(sd => sd.ServiceType == typeof(SqlServerConnection)));
+            Assert.True(services.Any(sd => sd.ServiceType == typeof(SqlServerMigrationOperationProcessor)));
             Assert.True(services.Any(sd => sd.ServiceType == typeof(SqlServerModelDiffer)));
             Assert.True(services.Any(sd => sd.ServiceType == typeof(SqlServerMigrationOperationSqlGeneratorFactory)));
             Assert.True(services.Any(sd => sd.ServiceType == typeof(SqlServerDataStoreCreator)));
@@ -59,12 +62,11 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var context = TestHelpers.CreateContext(serviceProvider);
             var scopedProvider = ((IDbContextServices)context).ScopedServiceProvider;
 
-            var databaseBuilder = scopedProvider.GetRequiredService<SqlServerDatabaseBuilder>();
-            var arrayReaderFactory = scopedProvider.GetRequiredService<RelationalObjectArrayValueReaderFactory>();
-            var typedReaderFactory = scopedProvider.GetRequiredService<RelationalTypedValueReaderFactory>();
-            var batchPreparer = scopedProvider.GetRequiredService<SqlServerCommandBatchPreparer>();
-            var modificationCommandComparer = scopedProvider.GetRequiredService<ModificationCommandComparer>();
-            var graphFactory = scopedProvider.GetRequiredService<GraphFactory>();
+            var arrayReaderFactory = scopedProvider.GetService<RelationalObjectArrayValueReaderFactory>();
+            var typedReaderFactory = scopedProvider.GetService<RelationalTypedValueReaderFactory>();
+            var batchPreparer = scopedProvider.GetService<SqlServerCommandBatchPreparer>();
+            var modificationCommandComparer = scopedProvider.GetService<ModificationCommandComparer>();
+            var graphFactory = scopedProvider.GetService<GraphFactory>();
 
             var sqlServerDataStoreSource = scopedProvider.GetRequiredService<DataStoreSource>() as SqlServerDataStoreSource;
             var sqlServerSqlGenerator = scopedProvider.GetRequiredService<SqlServerSqlGenerator>();
@@ -72,17 +74,19 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var sqlTypeMapper = scopedProvider.GetRequiredService<SqlServerTypeMapper>();
             var sqlServerBatchExecutor = scopedProvider.GetRequiredService<SqlServerBatchExecutor>();
             var sqlServerModificationCommandBatchFactory = scopedProvider.GetRequiredService<SqlServerModificationCommandBatchFactory>();
+            var sqlServerMetadataExtensionProvider = scopedProvider.GetService<SqlServerMetadataExtensionProvider>();
+            var sqlServerMigrationOperationFactory = scopedProvider.GetService<SqlServerMigrationOperationFactory>();
 
-            var sqlServerDataStore = scopedProvider.GetRequiredService<SqlServerDataStore>();
-            var sqlServerConnection = scopedProvider.GetRequiredService<SqlServerConnection>();
-            var modelDiffer = scopedProvider.GetRequiredService<SqlServerModelDiffer>();
-            var serverMigrationOperationSqlGeneratorFactory = scopedProvider.GetRequiredService<SqlServerMigrationOperationSqlGeneratorFactory>();
-            var sqlServerDataStoreCreator = scopedProvider.GetRequiredService<SqlServerDataStoreCreator>();
-            var migrationAssembly = scopedProvider.GetRequiredService<MigrationAssembly>();
-            var historyRepository = scopedProvider.GetRequiredService<HistoryRepository>();
-            var sqlServerMigrator = scopedProvider.GetRequiredService<SqlServerMigrator>();
+            var sqlServerDataStore = scopedProvider.GetService<SqlServerDataStore>();
+            var sqlServerConnection = scopedProvider.GetService<SqlServerConnection>();
+            var sqlServerMigrationOperationProcessor = scopedProvider.GetService<SqlServerMigrationOperationProcessor>();
+            var modelDiffer = scopedProvider.GetService<SqlServerModelDiffer>();
+            var serverMigrationOperationSqlGeneratorFactory = scopedProvider.GetService<SqlServerMigrationOperationSqlGeneratorFactory>();
+            var sqlServerDataStoreCreator = scopedProvider.GetService<SqlServerDataStoreCreator>();
+            var migrationAssembly = scopedProvider.GetService<MigrationAssembly>();
+            var historyRepository = scopedProvider.GetService<HistoryRepository>();
+            var sqlServerMigrator = scopedProvider.GetService<SqlServerMigrator>();
 
-            Assert.NotNull(databaseBuilder);
             Assert.NotNull(arrayReaderFactory);
             Assert.NotNull(typedReaderFactory);
             Assert.NotNull(batchPreparer);
@@ -95,9 +99,12 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             Assert.NotNull(sqlTypeMapper);
             Assert.NotNull(sqlServerBatchExecutor);
             Assert.NotNull(sqlServerModificationCommandBatchFactory);
+            Assert.NotNull(sqlServerMetadataExtensionProvider);
+            Assert.NotNull(sqlServerMigrationOperationFactory);
 
             Assert.NotNull(sqlServerDataStore);
             Assert.NotNull(sqlServerConnection);
+            Assert.NotNull(sqlServerMigrationOperationProcessor);
             Assert.NotNull(modelDiffer);
             Assert.NotNull(serverMigrationOperationSqlGeneratorFactory);
             Assert.NotNull(sqlServerDataStoreCreator);
@@ -111,29 +118,31 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             scopedProvider = ((IDbContextServices)context).ScopedServiceProvider;
 
             // Dingletons
-            Assert.Same(databaseBuilder, scopedProvider.GetRequiredService<SqlServerDatabaseBuilder>());
-            Assert.Same(arrayReaderFactory, scopedProvider.GetRequiredService<RelationalObjectArrayValueReaderFactory>());
-            Assert.Same(typedReaderFactory, scopedProvider.GetRequiredService<RelationalTypedValueReaderFactory>());
-            Assert.Same(modificationCommandComparer, scopedProvider.GetRequiredService<ModificationCommandComparer>());
-            Assert.Same(graphFactory, scopedProvider.GetRequiredService<GraphFactory>());
+            Assert.Same(arrayReaderFactory, scopedProvider.GetService<RelationalObjectArrayValueReaderFactory>());
+            Assert.Same(typedReaderFactory, scopedProvider.GetService<RelationalTypedValueReaderFactory>());
+            Assert.Same(modificationCommandComparer, scopedProvider.GetService<ModificationCommandComparer>());
+            Assert.Same(graphFactory, scopedProvider.GetService<GraphFactory>());
 
             Assert.Same(sqlServerSqlGenerator, scopedProvider.GetRequiredService<SqlServerSqlGenerator>());
             Assert.Same(sqlStatementExecutor, scopedProvider.GetRequiredService<SqlStatementExecutor>());
             Assert.Same(sqlTypeMapper, scopedProvider.GetRequiredService<SqlServerTypeMapper>());
             Assert.Same(batchPreparer, scopedProvider.GetRequiredService<SqlServerCommandBatchPreparer>());
             Assert.Same(sqlServerModificationCommandBatchFactory, scopedProvider.GetRequiredService<SqlServerModificationCommandBatchFactory>());
+            Assert.Same(sqlServerMetadataExtensionProvider, scopedProvider.GetService<SqlServerMetadataExtensionProvider>());
+            Assert.Same(sqlServerMigrationOperationFactory, scopedProvider.GetService<SqlServerMigrationOperationFactory>());
 
             // Scoped
-            Assert.NotSame(sqlServerBatchExecutor, scopedProvider.GetRequiredService<SqlServerBatchExecutor>());
-            Assert.NotSame(sqlServerDataStoreSource, scopedProvider.GetRequiredService<DataStoreSource>());
-            Assert.NotSame(sqlServerDataStore, scopedProvider.GetRequiredService<SqlServerDataStore>());
-            Assert.NotSame(sqlServerConnection, scopedProvider.GetRequiredService<SqlServerConnection>());
-            Assert.NotSame(modelDiffer, scopedProvider.GetRequiredService<SqlServerModelDiffer>());
-            Assert.NotSame(serverMigrationOperationSqlGeneratorFactory, scopedProvider.GetRequiredService<SqlServerMigrationOperationSqlGeneratorFactory>());
-            Assert.NotSame(sqlServerDataStoreCreator, scopedProvider.GetRequiredService<SqlServerDataStoreCreator>());
-            Assert.NotSame(migrationAssembly, scopedProvider.GetRequiredService<MigrationAssembly>());
-            Assert.NotSame(historyRepository, scopedProvider.GetRequiredService<HistoryRepository>());
-            Assert.NotSame(sqlServerMigrator, scopedProvider.GetRequiredService<SqlServerMigrator>());
+            Assert.NotSame(sqlServerBatchExecutor, scopedProvider.GetService<SqlServerBatchExecutor>());
+            Assert.NotSame(sqlServerDataStoreSource, scopedProvider.GetService<DataStoreSource>());
+            Assert.NotSame(sqlServerDataStore, scopedProvider.GetService<SqlServerDataStore>());
+            Assert.NotSame(sqlServerConnection, scopedProvider.GetService<SqlServerConnection>());
+            Assert.NotSame(sqlServerMigrationOperationProcessor, scopedProvider.GetService<SqlServerMigrationOperationProcessor>());
+            Assert.NotSame(modelDiffer, scopedProvider.GetService<SqlServerModelDiffer>());
+            Assert.NotSame(serverMigrationOperationSqlGeneratorFactory, scopedProvider.GetService<SqlServerMigrationOperationSqlGeneratorFactory>());
+            Assert.NotSame(sqlServerDataStoreCreator, scopedProvider.GetService<SqlServerDataStoreCreator>());
+            Assert.NotSame(migrationAssembly, scopedProvider.GetService<MigrationAssembly>());
+            Assert.NotSame(historyRepository, scopedProvider.GetService<HistoryRepository>());
+            Assert.NotSame(sqlServerMigrator, scopedProvider.GetService<SqlServerMigrator>());
 
             context.Dispose();
         }

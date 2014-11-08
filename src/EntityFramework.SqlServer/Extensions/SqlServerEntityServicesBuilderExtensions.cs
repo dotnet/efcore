@@ -7,6 +7,7 @@ using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.SqlServer;
+using Microsoft.Data.Entity.SqlServer.Metadata;
 using Microsoft.Data.Entity.SqlServer.Update;
 using Microsoft.Data.Entity.SqlServer.Utilities;
 using Microsoft.Data.Entity.Storage;
@@ -22,7 +23,6 @@ namespace Microsoft.Framework.DependencyInjection
             Check.NotNull(builder, "builder");
 
             builder.AddRelational().ServiceCollection
-                .AddSingleton<SqlServerDatabaseBuilder>()
                 .AddSingleton<SqlServerValueGeneratorCache>()
                 .AddSingleton<SqlServerValueGeneratorSelector>()
                 .AddSingleton<SimpleValueGeneratorFactory<SequentialGuidValueGenerator>>()
@@ -32,11 +32,14 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddSingleton<SqlServerTypeMapper>()
                 .AddSingleton<SqlServerModificationCommandBatchFactory>()
                 .AddSingleton<SqlServerCommandBatchPreparer>()
+                .AddSingleton<SqlServerMetadataExtensionProvider>()
+                .AddSingleton<SqlServerMigrationOperationFactory>()
                 .AddScoped<SqlServerBatchExecutor>()
                 .AddScoped<DataStoreSource, SqlServerDataStoreSource>()
                 .AddScoped<SqlServerDataStoreServices>()
                 .AddScoped<SqlServerDataStore>()
-                .AddScoped<SqlServerConnection>()
+                .AddScoped<SqlServerConnection>()                
+                .AddScoped<SqlServerMigrationOperationProcessor>()
                 .AddScoped<SqlServerModelDiffer>()
                 .AddScoped<SqlServerDatabase>()
                 .AddScoped<SqlServerMigrationOperationSqlGeneratorFactory>()

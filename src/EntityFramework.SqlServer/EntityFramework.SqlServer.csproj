@@ -71,6 +71,7 @@
     <Compile Include="Metadata\ReadOnlySqlServerKeyExtensions.cs" />
     <Compile Include="Metadata\ReadOnlySqlServerModelExtensions.cs" />
     <Compile Include="Metadata\ReadOnlySqlServerPropertyExtensions.cs" />
+    <Compile Include="Metadata\SqlServerMetadataExtensionProvider.cs" />
     <Compile Include="Metadata\SqlServerAnnotationNames.cs" />
     <Compile Include="Metadata\SqlServerEntityBuilder.cs" />
     <Compile Include="Metadata\SqlServerEntityTypeExtensions.cs" />
@@ -86,6 +87,7 @@
     <Compile Include="Metadata\SqlServerPropertyBuilder.cs" />
     <Compile Include="Metadata\SqlServerSequenceBuilder.cs" />
     <Compile Include="Metadata\SqlServerValueGenerationStrategy.cs" />
+    <Compile Include="SqlServerMigrationOperationFactory.cs" />
     <Compile Include="Query\SqlServerQueryCompilationContext.cs" />
     <Compile Include="Query\SqlServerQueryGenerator.cs" />
     <Compile Include="SequentialGuidValueGenerator.cs" />
@@ -93,11 +95,10 @@
     <Compile Include="SqlServerDatabase.cs" />
     <Compile Include="SqlServerDatabaseExtensions.cs" />
     <Compile Include="SqlServerMetadataExtensions.cs" />
-    <Compile Include="SqlServerDatabaseBuilder.cs" />
     <Compile Include="SqlServerModelDiffer.cs" />
     <Compile Include="Update\SqlServerBatchExecutor.cs" />
     <Compile Include="SqlServerDataStoreServices.cs" />
-    <Compile Include="SqlServerMigrationOperationPreProcessor.cs" />
+    <Compile Include="SqlServerMigrationOperationProcessor.cs" />
     <Compile Include="SqlServerMigrationOperationSqlGeneratorFactory.cs" />
     <Compile Include="SqlServerMigrator.cs" />
     <Compile Include="Update\SqlServerCommandBatchPreparer.cs" />

@@ -15,7 +15,6 @@ using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Relational.Model;
 using Microsoft.Data.Entity.Utilities;
-using Sequence = Microsoft.Data.Entity.Relational.Metadata.Sequence;
 
 namespace Microsoft.Data.Entity.Commands.Migrations
 {
@@ -531,27 +530,28 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             Check.NotNull(addDefaultConstraintOperation, "addDefaultConstraintOperation");
             Check.NotNull(stringBuilder, "stringBuilder");
 
-            stringBuilder
-                .Append("AddDefaultConstraint(")
-                .Append(GenerateLiteral(addDefaultConstraintOperation.TableName))
-                .Append(", ")
-                .Append(GenerateLiteral(addDefaultConstraintOperation.ColumnName))
-                .Append(", DefaultConstraint.");
-
             if (addDefaultConstraintOperation.DefaultValue != null)
             {
                 stringBuilder
-                    .Append("Value(")
+                    .Append("AddDefaultValue(")
+                    .Append(GenerateLiteral(addDefaultConstraintOperation.TableName))
+                    .Append(", ")
+                    .Append(GenerateLiteral(addDefaultConstraintOperation.ColumnName))
+                    .Append(", ")
                     .Append(GenerateLiteral((dynamic)addDefaultConstraintOperation.DefaultValue));
             }
             else
             {
                 stringBuilder
-                    .Append("Sql(")
+                    .Append("AddDefaultExpression(")
+                    .Append(GenerateLiteral(addDefaultConstraintOperation.TableName))
+                    .Append(", ")
+                    .Append(GenerateLiteral(addDefaultConstraintOperation.ColumnName))
+                    .Append(", ")
                     .Append(GenerateLiteral(addDefaultConstraintOperation.DefaultSql));
             }
 
-            stringBuilder.Append("))");
+            stringBuilder.Append(")");
         }
 
         public override void Generate(DropDefaultConstraintOperation dropDefaultConstraintOperation, IndentedStringBuilder stringBuilder)
@@ -982,6 +982,12 @@ namespace Microsoft.Data.Entity.Commands.Migrations
         protected virtual string TranslateColumnType([NotNull] Type clrType)
         {
             Check.NotNull(clrType, "clrType");
+
+            var underlyingType = Nullable.GetUnderlyingType(clrType);
+            if (underlyingType != null)
+            {
+                clrType = underlyingType;
+            }
 
             if (clrType.GetTypeInfo().IsEnum)
             {

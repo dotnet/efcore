@@ -79,6 +79,7 @@
     <Compile Include="Infrastructure\MigrationAssemblyTest.cs" />
     <Compile Include="Infrastructure\MigrationInfoTest.cs" />
     <Compile Include="Infrastructure\MigratorTest.cs" />
+    <Compile Include="MigrationOperationFactoryTest.cs" />
     <Compile Include="MigrationOperationSqlGeneratorTest.cs" />
     <Compile Include="MigrationsDatabaseExtensionsTest.cs" />
     <Compile Include="MigrationTest.cs" />

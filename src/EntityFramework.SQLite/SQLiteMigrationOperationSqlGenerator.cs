@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -10,7 +9,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Relational;
-using Microsoft.Data.Entity.Relational.Model;
+using Microsoft.Data.Entity.SQLite.Metadata;
 using Microsoft.Data.Entity.SQLite.Utilities;
 using Microsoft.Data.Entity.Utilities;
 
@@ -18,9 +17,16 @@ namespace Microsoft.Data.Entity.SQLite
 {
     public class SQLiteMigrationOperationSqlGenerator : MigrationOperationSqlGenerator
     {
-        public SQLiteMigrationOperationSqlGenerator([NotNull] SQLiteTypeMapper typeMapper)
-            : base(typeMapper)
+        public SQLiteMigrationOperationSqlGenerator(
+            [NotNull] SQLiteMetadataExtensionProvider extensionProvider,
+            [NotNull] SQLiteTypeMapper typeMapper)
+            : base(extensionProvider, typeMapper)
         {
+        }
+
+        public virtual new SQLiteMetadataExtensionProvider ExtensionProvider
+        {
+            get { return (SQLiteMetadataExtensionProvider)base.ExtensionProvider; }
         }
 
         public override void Generate(
@@ -80,26 +86,18 @@ namespace Microsoft.Data.Entity.SQLite
         }
 
         protected override void GenerateTableConstraints(
-            Table table,
+            CreateTableOperation createTableOperation,
             IndentedStringBuilder stringBuilder)
         {
-            Check.NotNull(table, "table");
+            Check.NotNull(createTableOperation, "createTableOperation");
             Check.NotNull(stringBuilder, "stringBuilder");
 
-            base.GenerateTableConstraints(table, stringBuilder);
+            base.GenerateTableConstraints(createTableOperation, stringBuilder);
 
-            foreach (var foreignKey in table.ForeignKeys)
+            foreach (var addForeignKeyOperation in createTableOperation.ForeignKeys)
             {
                 stringBuilder.AppendLine(",");
-                GenerateForeignKey(
-                    new AddForeignKeyOperation(
-                        foreignKey.Table.Name,
-                        foreignKey.Name,
-                        foreignKey.Columns.Select(c => c.Name).ToArray(),
-                        foreignKey.ReferencedTable.Name,
-                        foreignKey.ReferencedColumns.Select(c => c.Name).ToArray(),
-                        foreignKey.CascadeDelete),
-                    stringBuilder);
+                GenerateForeignKey(addForeignKeyOperation, stringBuilder);
             }
         }
 

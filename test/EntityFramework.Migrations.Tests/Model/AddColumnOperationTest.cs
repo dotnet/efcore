@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.Data.Entity.Migrations.Model;
+using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Relational.Model;
 using Microsoft.Data.Entity.Utilities;
 using Moq;
@@ -14,7 +15,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Model
         [Fact]
         public void Create_and_initialize_operation()
         {
-            var column = new Column("Foo", "int");
+            var column = new Column("Foo", typeof(int));
             var addColumnOperation = new AddColumnOperation("dbo.MyTable", column);
 
             Assert.Equal("dbo.MyTable", addColumnOperation.TableName);
@@ -25,8 +26,8 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Model
         [Fact]
         public void Dispatches_visitor()
         {
-            var addColumnOperation = new AddColumnOperation("dbo.MyTable", new Column("Foo", "int"));
-            var mockVisitor = new Mock<MigrationOperationSqlGenerator>(new RelationalTypeMapper());
+            var addColumnOperation = new AddColumnOperation("dbo.MyTable", new Column("Foo", typeof(int)));
+            var mockVisitor = new Mock<MigrationOperationSqlGenerator>(new RelationalMetadataExtensionProvider(), new RelationalTypeMapper());
             var builder = new Mock<IndentedStringBuilder>();
             addColumnOperation.GenerateSql(mockVisitor.Object, builder.Object);
 

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.Data.Entity.Migrations.Model;
+using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Relational.Model;
 using Microsoft.Data.Entity.Utilities;
 using Moq;
@@ -28,7 +29,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Model
         {
             var addPrimaryKeyOperation = new AddPrimaryKeyOperation(
                 "dbo.MyTable", "MyPK", new[] { "Foo", "Bar" }, isClustered: true);
-            var mockVisitor = new Mock<MigrationOperationSqlGenerator>(new RelationalTypeMapper());
+            var mockVisitor = new Mock<MigrationOperationSqlGenerator>(new RelationalMetadataExtensionProvider(), new RelationalTypeMapper());
             var builder = new Mock<IndentedStringBuilder>();
             addPrimaryKeyOperation.GenerateSql(mockVisitor.Object, builder.Object);
 

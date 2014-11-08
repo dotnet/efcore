@@ -81,6 +81,16 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
             return Empty.Indexes;
         }
 
+        public IKey TryGetPrimaryKey()
+        {
+            if (_key == null)
+            {
+                Interlocked.CompareExchange(ref _key, LoadKey(), null);
+            }
+
+            return _key;
+        }
+
         public IKey GetPrimaryKey()
         {
             return LazyInitializer.EnsureInitialized(ref _key, LoadKey);

@@ -60,12 +60,12 @@
     <Compile Include="..\Shared\LoggingExtensions.cs">
       <Link>LoggingExtensions.cs</Link>
     </Compile>
-    <Compile Include="DatabaseBuilder.cs" />
     <Compile Include="IDbCommandExecutor.cs" />
     <Compile Include="Metadata\IRelationalEntityTypeExtensions.cs" />
     <Compile Include="Metadata\IRelationalForeignKeyExtensions.cs" />
     <Compile Include="Metadata\IRelationalIndexExtensions.cs" />
     <Compile Include="Metadata\IRelationalKeyExtensions.cs" />
+    <Compile Include="Metadata\IRelationalMetadataExtensionProvider.cs" />
     <Compile Include="Metadata\IRelationalModelExtensions.cs" />
     <Compile Include="Metadata\IRelationalPropertyExtensions.cs" />
     <Compile Include="Metadata\ISequence.cs" />
@@ -84,14 +84,13 @@
     <Compile Include="Metadata\RelationalIndexBuilder.cs" />
     <Compile Include="Metadata\RelationalKeyExtensions.cs" />
     <Compile Include="Metadata\RelationalKeyBuilder.cs" />
+    <Compile Include="Metadata\RelationalMetadataExtensionProvider.cs" />
     <Compile Include="Metadata\RelationalModelBuilder.cs" />
     <Compile Include="Metadata\RelationalModelExtensions.cs" />
     <Compile Include="Metadata\RelationalPropertyExtensions.cs" />
     <Compile Include="Metadata\RelationalPropertyBuilder.cs" />
     <Compile Include="Metadata\RelationalSequenceBuilder.cs" />
     <Compile Include="Metadata\Sequence.cs" />
-    <Compile Include="ModelDatabaseMapping.cs" />
-    <Compile Include="Model\UniqueConstraint.cs" />
     <Compile Include="Query\AsyncQueryingEnumerable.cs" />
     <Compile Include="Query\AsyncQueryMethodProvider.cs" />
     <Compile Include="Query\CommandBuilder.cs" />
@@ -163,17 +162,10 @@
     <Compile Include="SqlStatement.cs" />
     <Compile Include="SqlStatementExecutor.cs" />
     <Compile Include="Model\Column.cs" />
-    <Compile Include="Model\DatabaseModel.cs" />
-    <Compile Include="Model\DefaultConstraint.cs" />
-    <Compile Include="Model\ForeignKey.cs" />
-    <Compile Include="Model\Index.cs" />
-    <Compile Include="Model\PrimaryKey.cs" />
     <Compile Include="Model\RelationalDecimalTypeMapping.cs" />
     <Compile Include="Model\RelationalSizedTypeMapping.cs" />
     <Compile Include="Model\RelationalTypeMapper.cs" />
     <Compile Include="Model\RelationalTypeMapping.cs" />
-    <Compile Include="Model\Sequence.cs" />
-    <Compile Include="Model\Table.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\InternalsVisibleTo.cs" />
     <Compile Include="Properties\Strings.Designer.cs">
@@ -194,9 +186,9 @@
     <Compile Include="..\Shared\CodeAnnotations.cs" />
     <Compile Include="..\Shared\StringBuilderExtensions.cs" />
     <Compile Include="..\Shared\SharedTypeExtensions.cs" />
-    <Compile Include="Utilities\CloneContext.cs" />
     <Compile Include="Utilities\ExpressionExtensions.cs" />
     <Compile Include="Utilities\MethodInfoExtensions.cs" />
+    <Compile Include="Metadata\RelationalNameBuilder.cs" />
     <EmbeddedResource Include="Properties\Strings.resx">
       <LogicalName>EntityFramework.Relational.Strings.resources</LogicalName>
       <SubType>Designer</SubType>

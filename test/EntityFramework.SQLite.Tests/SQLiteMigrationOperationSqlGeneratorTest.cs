@@ -2,11 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Text;
-using Microsoft.Data.Entity.Migrations;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Relational;
-using Microsoft.Data.Entity.Relational.Model;
+using Microsoft.Data.Entity.SQLite.Metadata;
+using Microsoft.Data.Entity.SQLite.Migrations;
 using Xunit;
 
 namespace Microsoft.Data.Entity.SQLite.Tests
@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity.SQLite.Tests
         [Fact]
         public void Generate_with_create_sequence_not_supported()
         {
-            var operation = new CreateSequenceOperation(new Sequence("EpisodeSequence", typeof(long), 0, 1));
+            var operation = new CreateSequenceOperation("EpisodeSequence", 0, 1);
 
             Assert.Equal(
                 Strings.MigrationOperationNotSupported(typeof(SQLiteMigrationOperationSqlGenerator), operation.GetType()),
@@ -76,26 +76,24 @@ namespace Microsoft.Data.Entity.SQLite.Tests
         [Fact]
         public void Generate_with_create_table_with_unique_constraints()
         {
-            var c0 = new Column("Id", typeof(long));
-            var c1 = new Column("C1", typeof(int));
-            var c2 = new Column("C2", typeof(string));
-            var table = new Table("T", new[] { c0, c1, c2 })
-                {
-                    PrimaryKey = new PrimaryKey("PK", new[] { c0 })
-                };
+            var targetModelBuilder = new BasicModelBuilder();
+            targetModelBuilder.Entity("T",
+                b =>
+                    {
+                        var id = b.Property<long>("Id").Metadata;
+                        var c1 = b.Property<int?>("C1").Metadata;
+                        var c2 = b.Property<string>("C2").Metadata;
+                        b.Key("Id").ForRelational().Name("PK");
+                        b.Metadata.AddKey(new[] { id, c1 }).Relational().Name = "UC0";
+                        b.Metadata.AddKey(c2).Relational().Name = "UC1";
+                    });
 
-            table.AddUniqueConstraint(new UniqueConstraint("UC0", new[] { c0, c1 }));
-            table.AddUniqueConstraint(new UniqueConstraint("UC1", new[] { c2 }));
-
-            var database = new DatabaseModel();
-            database.AddTable(table);
-
-            var operation = new CreateTableOperation(table);
-            var sql = Generate(operation, database);
+            var operation = OperationFactory().CreateTableOperation(targetModelBuilder.Model.GetEntityType("T"));
+            var sql = Generate(operation, targetModelBuilder.Model);
 
             Assert.Equal(
                 @"CREATE TABLE ""T"" (
-    ""Id"" INTEGER,
+    ""Id"" INTEGER NOT NULL,
     ""C1"" INT,
     ""C2"" CHAR,
     CONSTRAINT ""PK"" PRIMARY KEY (""Id""),
@@ -108,28 +106,32 @@ namespace Microsoft.Data.Entity.SQLite.Tests
         [Fact]
         public void Generate_with_create_table_generates_fks()
         {
-            var pegasusId = new Column("Id", typeof(long));
-            var pegasus = new Table("Pegasus", new[] { pegasusId });
-            var friend1Id = new Column("Friend1Id", typeof(long));
-            var friend2Id = new Column("Friend2Id", typeof(long));
-            var friendship = new Table("Friendship", new[] { friend1Id, friend2Id })
+            var targetModel = new Model();
+            var targetModelBuilder = new BasicModelBuilder(targetModel);
+            targetModelBuilder.Entity("Pegasus",
+                b =>
                 {
-                    PrimaryKey = new PrimaryKey("PegasusPK", new[] { friend1Id, friend2Id })
-                };
-            friendship.AddForeignKey(new ForeignKey("FriendshipFK1", new[] { friend1Id }, new[] { pegasusId }));
-            friendship.AddForeignKey(new ForeignKey("FriendshipFK2", new[] { friend2Id }, new[] { pegasusId }));
-            var database = new DatabaseModel();
-            database.AddTable(pegasus);
-            database.AddTable(friendship);
+                    b.Property<long>("Id");
+                    b.Key("Id");
+                });
+            targetModelBuilder.Entity("Friendship",
+                b =>
+                {
+                    b.Property<long>("Friend1Id");
+                    b.Property<long>("Friend2Id");
+                    b.Key("Friend1Id", "Friend2Id").ForRelational().Name("PegasusPK");
+                    b.ForeignKey("Pegasus", "Friend1Id").ForRelational().Name("FriendshipFK1");
+                    b.ForeignKey("Pegasus", "Friend2Id").ForRelational().Name("FriendshipFK2");
+                });
 
-            var operation = new CreateTableOperation(friendship);
+            var operation = OperationFactory().CreateTableOperation(targetModel.GetEntityType("Friendship"));
 
-            var sql = Generate(operation, database);
+            var sql = Generate(operation, targetModel);
 
             Assert.Equal(
                 @"CREATE TABLE ""Friendship"" (
-    ""Friend1Id"" INTEGER,
-    ""Friend2Id"" INTEGER,
+    ""Friend1Id"" INTEGER NOT NULL,
+    ""Friend2Id"" INTEGER NOT NULL,
     CONSTRAINT ""PegasusPK"" PRIMARY KEY (""Friend1Id"", ""Friend2Id""),
     CONSTRAINT ""FriendshipFK1"" FOREIGN KEY (""Friend1Id"") REFERENCES ""Pegasus"" (""Id""),
     CONSTRAINT ""FriendshipFK2"" FOREIGN KEY (""Friend2Id"") REFERENCES ""Pegasus"" (""Id"")
@@ -172,7 +174,7 @@ namespace Microsoft.Data.Entity.SQLite.Tests
         {
             var bros = new byte[] { 0xB2, 0x05 };
 
-            var sql = CreateGenerator().GenerateLiteral(bros);
+            var sql = SqlGenerator().GenerateLiteral(bros);
 
             Assert.Equal("X'B205'", sql);
         }
@@ -182,7 +184,7 @@ namespace Microsoft.Data.Entity.SQLite.Tests
         {
             var name = new SchemaQualifiedName("Pony");
 
-            var sql = CreateGenerator().DelimitIdentifier(name);
+            var sql = SqlGenerator().DelimitIdentifier(name);
 
             Assert.Equal("\"Pony\"", sql);
         }
@@ -192,22 +194,30 @@ namespace Microsoft.Data.Entity.SQLite.Tests
         {
             var name = new SchemaQualifiedName("Pony", "my");
 
-            var sql = CreateGenerator().DelimitIdentifier(name);
+            var sql = SqlGenerator().DelimitIdentifier(name);
 
             Assert.Equal("\"my.Pony\"", sql);
         }
 
-        private static string Generate(MigrationOperation operation, DatabaseModel database = null)
+        private static string Generate(MigrationOperation operation, IModel targetModel = null)
         {
-            return CreateGenerator(database).Generate(operation).Sql;
+            return SqlGenerator(targetModel).Generate(operation).Sql;
         }
 
-        private static SQLiteMigrationOperationSqlGenerator CreateGenerator(DatabaseModel database = null)
+        private static SQLiteMigrationOperationSqlGenerator SqlGenerator(IModel targetModel = null)
         {
-            return new SQLiteMigrationOperationSqlGenerator(new SQLiteTypeMapper())
-                {
-                    Database = database ?? new DatabaseModel(),
-                };
+            return
+                new SQLiteMigrationOperationSqlGenerator(
+                    new SQLiteMetadataExtensionProvider(),
+                    new SQLiteTypeMapper())
+                    {
+                        TargetModel = targetModel ?? new Model(),
+                    };
+        }
+
+        private static SQLiteMigrationOperationFactory OperationFactory()
+        {
+            return new SQLiteMigrationOperationFactory(new SQLiteMetadataExtensionProvider());
         }
     }
 }

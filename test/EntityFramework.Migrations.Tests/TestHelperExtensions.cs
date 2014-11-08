@@ -26,7 +26,6 @@ using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
-using Sequence = Microsoft.Data.Entity.Relational.Model.Sequence;
 
 // ReSharper disable once CheckNamespace
 
@@ -39,18 +38,20 @@ namespace Microsoft.Data.Entity.Tests
             entityServicesBuilder
                 .AddRelational().ServiceCollection
                 .AddSingleton<ILoggerFactory, RecordingLoggerFactory>()
-                .AddSingleton<FakeDatabaseBuilder>()
                 .AddSingleton<FakeValueGeneratorCache>()
                 .AddSingleton<FakeSqlGenerator>()
                 .AddSingleton<SqlStatementExecutor, RecordingSqlStatementExecutor>()
                 .AddSingleton<FakeTypeMapper>()
                 .AddSingleton<ModificationCommandBatchFactory>()
                 .AddSingleton<FakeCommandBatchPreparer>()
+                .AddSingleton<FakeRelationalMetadataExtensionProvider>()
+                .AddSingleton<FakeMigrationOperationFactory>()
                 .AddScoped<BatchExecutor>()
                 .AddScoped<DataStoreSource, FakeDataStoreSource>()
                 .AddScoped<FakeDataStoreServices>()
                 .AddScoped<FakeDataStore>()
                 .AddScoped<FakeRelationalConnection>()
+                .AddScoped<FakeMigrationOperationProcessor>()
                 .AddScoped<FakeModelDiffer>()
                 .AddScoped<FakeDatabase>()
                 .AddScoped<FakeMigrationOperationSqlGeneratorFactory>()
@@ -96,36 +97,40 @@ namespace Microsoft.Data.Entity.Tests
         }
     }
 
-    public class FakeDatabaseBuilder : DatabaseBuilder
+    public class FakeRelationalMetadataExtensionProvider : RelationalMetadataExtensionProvider
     {
-        public FakeDatabaseBuilder([NotNull] FakeTypeMapper typeMapper)
-            : base(typeMapper)
-        {
-        }
-
-        protected override Sequence BuildSequence(IProperty property)
-        {
-            return null;
-        }
-    }
-
-    public class FakeModelDiffer : ModelDiffer
-    {
-        public FakeModelDiffer(FakeDatabaseBuilder databaseBuilder)
-            : base(databaseBuilder)
-        {
-        }
-
-        protected override string GetSequenceName(Column column)
-        {
-            Check.NotNull(column, "column");
-
-            return null;
-        }
     }
 
     public class FakeTypeMapper : RelationalTypeMapper
     {
+    }
+
+    public class FakeMigrationOperationFactory : MigrationOperationFactory
+    {
+        public FakeMigrationOperationFactory(FakeRelationalMetadataExtensionProvider extensionProvider)
+            : base(extensionProvider)
+        {
+        }
+    }
+
+    public class FakeMigrationOperationProcessor : MigrationOperationProcessor
+    {     
+    }
+
+    public class FakeModelDiffer : ModelDiffer
+    {
+        public FakeModelDiffer(
+            FakeRelationalMetadataExtensionProvider extensionProvider,
+            FakeTypeMapper typeMapper,
+            FakeMigrationOperationFactory operationFactory,
+            FakeMigrationOperationProcessor operationProcessor)
+            : base(
+                extensionProvider,
+                typeMapper,
+                operationFactory,
+                operationProcessor)
+        {
+        }
     }
 
     public class FakeSqlGenerator : SqlGenerator
@@ -150,7 +155,7 @@ namespace Microsoft.Data.Entity.Tests
             return new FakeMigrationOperationSqlGenerator();
         }
 
-        public virtual MigrationOperationSqlGenerator Create(DatabaseModel database)
+        public virtual MigrationOperationSqlGenerator Create(IModel targetModel)
         {
             return new FakeMigrationOperationSqlGenerator();
         }

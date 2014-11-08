@@ -2,11 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Migrations.Utilities;
 using Microsoft.Data.Entity.Relational;
-using Microsoft.Data.Entity.Relational.Model;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Migrations.Model
@@ -16,7 +14,7 @@ namespace Microsoft.Data.Entity.Migrations.Model
         private readonly SchemaQualifiedName _tableName;
         private readonly string _primaryKeyName;
         private readonly IReadOnlyList<string> _columnNames;
-        private readonly bool _isClustered = true;
+        private bool _isClustered = true;
 
         public AddPrimaryKeyOperation(
             SchemaQualifiedName tableName,
@@ -31,16 +29,6 @@ namespace Microsoft.Data.Entity.Migrations.Model
             _primaryKeyName = primaryKeyName;
             _columnNames = columnNames;
             _isClustered = isClustered;
-        }
-
-        public AddPrimaryKeyOperation([NotNull] PrimaryKey primaryKey)
-        {
-            Check.NotNull(primaryKey, "primaryKey");
-
-            _tableName = primaryKey.Table.Name;
-            _primaryKeyName = primaryKey.Name;
-            _columnNames = primaryKey.Columns.Select(c => c.Name).ToArray();
-            _isClustered = primaryKey.IsClustered;
         }
 
         public virtual SchemaQualifiedName TableName
@@ -61,6 +49,7 @@ namespace Microsoft.Data.Entity.Migrations.Model
         public virtual bool IsClustered
         {
             get { return _isClustered; }
+            set { _isClustered = value; }
         }
 
         public override void Accept<TVisitor, TContext>(TVisitor visitor, TContext context)

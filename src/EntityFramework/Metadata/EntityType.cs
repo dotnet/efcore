@@ -918,6 +918,11 @@ namespace Microsoft.Data.Entity.Metadata
             get { return Model; }
         }
 
+        IKey IEntityType.TryGetPrimaryKey()
+        {
+            return TryGetPrimaryKey();
+        }
+
         IKey IEntityType.GetPrimaryKey()
         {
             return GetPrimaryKey();

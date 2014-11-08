@@ -7,43 +7,44 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Relational.Model;
+using Microsoft.Data.Entity.SqlServer.Metadata;
 using Xunit;
-using Index = Microsoft.Data.Entity.Relational.Model.Index;
 
 namespace Microsoft.Data.Entity.SqlServer.Tests
 {
     public class SqlServerMigrationOperationPreProcessorTest
     {
         [Fact]
-        public void Visit_with_alter_column_operation_and_timestamp_column()
+        public void Process_with_alter_column_operation_and_timestamp_column()
         {
-            var database = new DatabaseModel();
-            var column0
-                = new Column("Id", typeof(byte[]))
+            var sourceModel = new Model();
+            var sourceModelBuilder = new BasicModelBuilder(sourceModel);
+
+            sourceModelBuilder.Entity("A",
+                b =>
                     {
-                        IsTimestamp = true
-                    };
-            var column1 = new Column("P", typeof(string));
-            var table = new Table("A", new[] { column0, column1 });
-            database.AddTable(table);
+                        b.Property<byte[]>("Id").ConcurrencyToken();
+                        b.Property<string>("P");
+                        b.Key("Id");
+                    });
 
-            var alterColumnOperation
-                = new AlterColumnOperation(
-                    "A",
-                    new Column("Id", typeof(byte[])), true);
+            var inOperations = new MigrationOperationCollection();
+            inOperations.Add(
+                new AlterColumnOperation(
+                    "A", 
+                    new Column("Id", typeof(byte[])), 
+                    isDestructiveChange: true));
 
-            var operationCollection = new MigrationOperationCollection();
-            operationCollection.Add(alterColumnOperation);
+            var operations = Process(inOperations, sourceModel);
 
-            var operations = PreProcess(database, operationCollection);
-
-            Assert.Equal(2, operations.Count);
-
-            Assert.IsType<DropColumnOperation>(operations[0]);
-            Assert.IsType<AddColumnOperation>(operations[1]);
-
-            var dropColumnOperation = (DropColumnOperation)operations[0];
-            var addColumnOperation = (AddColumnOperation)operations[1];
+            Assert.Equal(4, operations.Count);
+            Assert.IsType<DropPrimaryKeyOperation>(operations[0]);
+            Assert.IsType<DropColumnOperation>(operations[1]);
+            Assert.IsType<AddColumnOperation>(operations[2]);
+            Assert.IsType<AddPrimaryKeyOperation>(operations[3]);
+            
+            var dropColumnOperation = (DropColumnOperation)operations[1];
+            var addColumnOperation = (AddColumnOperation)operations[2];
 
             Assert.Equal("Id", dropColumnOperation.ColumnName);
             Assert.Equal("Id", addColumnOperation.Column.Name);
@@ -51,26 +52,29 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         }
 
         [Fact]
-        public void Visit_with_alter_column_operation_resets_primary_key()
+        public void Process_with_alter_column_operation_resets_primary_key()
         {
-            var modelBuilder = new BasicModelBuilder();
-            modelBuilder.Entity("A",
+            var sourceModel = new Model();
+            var sourceModelBuilder = new BasicModelBuilder(sourceModel);
+
+            sourceModelBuilder.Entity("A",
                 b =>
                     {
                         b.Property<string>("Id");
                         b.Key("Id");
                     });
 
+
+            var inOperations = new MigrationOperationCollection();
             var alterColumnOperation
                 = new AlterColumnOperation(
                     "A",
                     new Column("Id", typeof(int)) { IsNullable = false },
-                    true);
+                    isDestructiveChange: false);
 
-            var operationCollection = new MigrationOperationCollection();
-            operationCollection.Add(alterColumnOperation);
+            inOperations.Add(alterColumnOperation);
 
-            var operations = PreProcess(modelBuilder, operationCollection);
+            var operations = Process(inOperations, sourceModel);
 
             Assert.Equal(3, operations.Count);
 
@@ -83,14 +87,16 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             Assert.Equal("PK_A", dropPrimaryKeyOperation.PrimaryKeyName);
             Assert.Equal("PK_A", addPrimaryKeyOperation.PrimaryKeyName);
-            Assert.Equal(new[] { "Id" }, addPrimaryKeyOperation.ColumnNames);
+            Assert.Equal(new[] { "Id" }, addPrimaryKeyOperation.ColumnNames.AsEnumerable());
         }
 
         [Fact]
-        public void Visit_with_alter_column_operation_resets_unique_constraints_on_column()
+        public void Process_with_alter_column_operation_resets_unique_constraints_on_column()
         {
-            var modelBuilder = new BasicModelBuilder();
-            modelBuilder.Entity("A",
+            var sourceModel = new Model();
+            var sourceModelBuilder = new BasicModelBuilder(sourceModel);
+
+            sourceModelBuilder.Entity("A",
                 b =>
                     {
                         b.Property<int>("Id");
@@ -99,15 +105,16 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                         b.Metadata.AddKey(p);
                     });
 
+            var inOperations = new MigrationOperationCollection();
             var alterColumnOperation
                 = new AlterColumnOperation(
                     "A",
-                    new Column("P", typeof(int)), true);
+                    new Column("P", typeof(int)), 
+                    isDestructiveChange: false);
 
-            var operationCollection = new MigrationOperationCollection();
-            operationCollection.Add(alterColumnOperation);
+            inOperations.Add(alterColumnOperation);
 
-            var operations = PreProcess(modelBuilder, operationCollection);
+            var operations = Process(inOperations, sourceModel);
 
             Assert.Equal(3, operations.Count);
 
@@ -120,20 +127,22 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             Assert.Equal("UC_A_P", dropUniqueConstraintOperation.UniqueConstraintName);
             Assert.Equal("UC_A_P", addUniqueConstraintOperation.UniqueConstraintName);
-            Assert.Equal(new[] { "P" }, addUniqueConstraintOperation.ColumnNames);
+            Assert.Equal(new[] { "P" }, addUniqueConstraintOperation.ColumnNames.AsEnumerable());
         }
 
         [Fact]
-        public void Visit_with_alter_column_operation_resets_foreign_keys_on_the_column()
+        public void Process_with_alter_column_operation_resets_foreign_keys_on_the_column()
         {
-            var modelBuilder = new BasicModelBuilder();
-            modelBuilder.Entity("A",
+            var sourceModel = new Model();
+            var sourceModelBuilder = new BasicModelBuilder(sourceModel);
+
+            sourceModelBuilder.Entity("A",
                 b =>
                     {
                         b.Property<string>("Id");
                         b.Key("Id");
                     });
-            modelBuilder.Entity("B",
+            sourceModelBuilder.Entity("B",
                 b =>
                     {
                         b.Property<string>("Id");
@@ -142,15 +151,15 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                         b.ForeignKey("A", "P");
                     });
 
+            var inOperations = new MigrationOperationCollection();
             var alterColumnOperation
                 = new AlterColumnOperation(
                     "B",
-                    new Column("P", typeof(int)), true);
+                    new Column("P", typeof(int)), 
+                    isDestructiveChange: false);
+            inOperations.Add(alterColumnOperation);
 
-            var operationCollection = new MigrationOperationCollection();
-            operationCollection.Add(alterColumnOperation);
-
-            var operations = PreProcess(modelBuilder, operationCollection);
+            var operations = Process(inOperations, sourceModel);
 
             Assert.Equal(3, operations.Count);
 
@@ -163,21 +172,23 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             Assert.Equal("FK_B_A_P", dropForeignKeyOperation.ForeignKeyName);
             Assert.Equal("FK_B_A_P", addForeignKeyOperation.ForeignKeyName);
-            Assert.Equal(new[] { "P" }, addForeignKeyOperation.ColumnNames);
-            Assert.Equal(new[] { "Id" }, addForeignKeyOperation.ReferencedColumnNames);
+            Assert.Equal(new[] { "P" }, addForeignKeyOperation.ColumnNames.AsEnumerable());
+            Assert.Equal(new[] { "Id" }, addForeignKeyOperation.ReferencedColumnNames.AsEnumerable());
         }
 
         [Fact]
-        public void Visit_with_alter_column_operation_resets_foreign_keys_referencing_the_column()
+        public void Process_with_alter_column_operation_resets_foreign_keys_referencing_the_column()
         {
-            var modelBuilder = new BasicModelBuilder();
-            modelBuilder.Entity("A",
+            var sourceModel = new Model();
+            var sourceModelBuilder = new BasicModelBuilder(sourceModel);
+
+            sourceModelBuilder.Entity("A",
                 b =>
                     {
                         b.Property<string>("Id");
                         b.Key("Id");
                     });
-            modelBuilder.Entity("B",
+            sourceModelBuilder.Entity("B",
                 b =>
                     {
                         b.Property<string>("Id");
@@ -186,15 +197,16 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                         b.ForeignKey("A", "P");
                     });
 
+            var inOperations = new MigrationOperationCollection();
             var alterColumnOperation
                 = new AlterColumnOperation(
                     "A",
-                    new Column("Id", typeof(int)) { IsNullable = false }, true);
+                    new Column("Id", typeof(int)) { IsNullable = false }, 
+                    isDestructiveChange: false);
 
-            var operationCollection = new MigrationOperationCollection();
-            operationCollection.Add(alterColumnOperation);
+            inOperations.Add(alterColumnOperation);
 
-            var operations = PreProcess(modelBuilder, operationCollection);
+            var operations = Process(inOperations, sourceModel);
 
             Assert.Equal(5, operations.Count);
 
@@ -209,15 +221,17 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             Assert.Equal("FK_B_A_P", dropForeignKeyOperation.ForeignKeyName);
             Assert.Equal("FK_B_A_P", addForeignKeyOperation.ForeignKeyName);
-            Assert.Equal(new[] { "P" }, addForeignKeyOperation.ColumnNames);
-            Assert.Equal(new[] { "Id" }, addForeignKeyOperation.ReferencedColumnNames);
+            Assert.Equal(new[] { "P" }, addForeignKeyOperation.ColumnNames.AsEnumerable());
+            Assert.Equal(new[] { "Id" }, addForeignKeyOperation.ReferencedColumnNames.AsEnumerable());
         }
 
         [Fact]
-        public void Visit_with_alter_column_operation_resets_indexes()
+        public void Process_with_alter_column_operation_resets_indexes()
         {
-            var modelBuilder = new BasicModelBuilder();
-            modelBuilder.Entity("A",
+            var sourceModel = new Model();
+            var sourceModelBuilder = new BasicModelBuilder(sourceModel);
+
+            sourceModelBuilder.Entity("A",
                 b =>
                     {
                         b.Property<int>("Id");
@@ -226,15 +240,16 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                         b.Index("P");
                     });
 
+            var inOperations = new MigrationOperationCollection();
             var alterColumnOperation
                 = new AlterColumnOperation(
                     "A",
-                    new Column("P", typeof(int)), true);
+                    new Column("P", typeof(int)), 
+                    isDestructiveChange: false);
 
-            var operationCollection = new MigrationOperationCollection();
-            operationCollection.Add(alterColumnOperation);
+            inOperations.Add(alterColumnOperation);
 
-            var operations = PreProcess(modelBuilder, operationCollection);
+            var operations = Process(inOperations, sourceModel);
 
             Assert.Equal(3, operations.Count);
 
@@ -247,46 +262,48 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             Assert.Equal("IX_A_P", dropIndexOperation.IndexName);
             Assert.Equal("IX_A_P", createIndexOperation.IndexName);
-            Assert.Equal(new[] { "P" }, createIndexOperation.ColumnNames);
+            Assert.Equal(new[] { "P" }, createIndexOperation.ColumnNames.AsEnumerable());
         }
 
         [Fact]
-        public void Visit_with_alter_column_does_not_reset_indexes_if_same_type_but_smaller_max_length()
+        public void Process_with_alter_column_does_not_reset_indexes_if_same_type_but_smaller_max_length()
         {
-            var database = new DatabaseModel();
-            var column
-                = new Column("Id", typeof(string))
-                    {
-                        MaxLength = 10
-                    };
-            var table = new Table("A", new[] { column });
-            var index = new Index("IX", new[] { column });
-            database.AddTable(table);
-            table.AddIndex(index);
+            var sourceModel = new Model();
+            var sourceModelBuilder = new BasicModelBuilder(sourceModel);
 
+            sourceModelBuilder.Entity("A",
+                b =>
+                {
+                    b.Property<string>("Id").MaxLength(10);
+                    b.Key("Id");
+                    b.Index("Id").ForSqlServer().Name("IX");
+                });
+
+            var inOperations = new MigrationOperationCollection();
             var alterColumnOperation
                 = new AlterColumnOperation(
                     "A",
-                    new Column("Id", typeof(string))
-                        {
-                            MaxLength = 9
-                        }, true);
+                    new Column("Id", typeof(string)) { MaxLength = 9 }, 
+                    isDestructiveChange: false);
 
-            var operationCollection = new MigrationOperationCollection();
-            operationCollection.Add(alterColumnOperation);
+            inOperations.Add(alterColumnOperation);
 
-            var operations = PreProcess(database, operationCollection);
+            var operations = Process(inOperations, sourceModel);
 
-            Assert.Equal(1, operations.Count);
+            Assert.Equal(3, operations.Count);
 
-            Assert.Same(alterColumnOperation, operations[0]);
+            Assert.IsType<DropPrimaryKeyOperation>(operations[0]);
+            Assert.Same(alterColumnOperation, operations[1]);
+            Assert.IsType<AddPrimaryKeyOperation>(operations[2]);
         }
 
         [Fact]
-        public void Visit_with_alter_column_operation_drops_default_constraint()
+        public void Process_with_alter_column_operation_drops_default_constraint()
         {
-            var modelBuilder = new BasicModelBuilder();
-            modelBuilder.Entity("A",
+            var sourceModel = new Model();
+            var sourceModelBuilder = new BasicModelBuilder(sourceModel);
+
+            sourceModelBuilder.Entity("A",
                 b =>
                     {
                         b.Property<int>("Id");
@@ -294,15 +311,16 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                         b.Key("Id");
                     });
 
+            var inOperations = new MigrationOperationCollection();
             var alterColumnOperation
                 = new AlterColumnOperation(
                     "A",
-                    new Column("P", typeof(int)), true);
+                    new Column("P", typeof(int)),
+                    isDestructiveChange: false);
 
-            var operationCollection = new MigrationOperationCollection();
-            operationCollection.Add(alterColumnOperation);
+            inOperations.Add(alterColumnOperation);
 
-            var operations = PreProcess(modelBuilder, operationCollection);
+            var operations = Process(inOperations, sourceModel);
 
             Assert.Equal(2, operations.Count);
 
@@ -315,38 +333,42 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         }
 
         [Fact]
-        public void Visit_with_consecutive_alter_column_operations()
+        public void Process_with_consecutive_alter_column_operations()
         {
-            var modelBuilder = new BasicModelBuilder();
-            modelBuilder.Entity("A", b =>
+            var sourceModel = new Model();
+            var sourceModelBuilder = new BasicModelBuilder(sourceModel);
+
+            sourceModelBuilder.Entity("A", b =>
                 {
                     b.Property<string>("Id");
                     b.Key("Id");
                     b.Index("Id").ForSqlServer().Clustered(false);
                 });
-            modelBuilder.Entity("B", b =>
+            sourceModelBuilder.Entity("B", b =>
                 {
                     b.Property<string>("Id");
                     b.Key("Id");
                     b.ForeignKey("A", "Id");
                     b.Index("Id").ForSqlServer().Clustered(false);
                 });
-            modelBuilder.Entity("A", b => b.ForeignKey("B", "Id"));
+            sourceModelBuilder.Entity("A", b => b.ForeignKey("B", "Id"));
 
+            var inOperations = new MigrationOperationCollection();
             var alterColumnOperation0
                 = new AlterColumnOperation(
                     "B",
-                    new Column("Id", typeof(int)) { IsNullable = false }, true);
+                    new Column("Id", typeof(int)) { IsNullable = false }, 
+                    isDestructiveChange: false);
             var alterColumnOperation1
                 = new AlterColumnOperation(
                     "A",
-                    new Column("Id", typeof(int)) { IsNullable = false }, true);
+                    new Column("Id", typeof(int)) { IsNullable = false }, 
+                    isDestructiveChange: false);
 
-            var operationCollection = new MigrationOperationCollection();
-            operationCollection.Add(alterColumnOperation0);
-            operationCollection.Add(alterColumnOperation1);
+            inOperations.Add(alterColumnOperation0);
+            inOperations.Add(alterColumnOperation1);
 
-            var operations = PreProcess(modelBuilder, operationCollection);
+            var operations = Process(inOperations, sourceModel);
 
             Assert.Equal(14, operations.Count);
 
@@ -385,26 +407,28 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             Assert.Equal("PK_B", dropPrimaryKeyOperation0.PrimaryKeyName);
             Assert.Equal("PK_A", dropPrimaryKeyOperation1.PrimaryKeyName);
             Assert.Equal("PK_B", addPrimaryKeyOperation0.PrimaryKeyName);
-            Assert.Equal(new[] { "Id" }, addPrimaryKeyOperation0.ColumnNames);
+            Assert.Equal(new[] { "Id" }, addPrimaryKeyOperation0.ColumnNames.AsEnumerable());
             Assert.Equal("PK_A", addPrimaryKeyOperation1.PrimaryKeyName);
-            Assert.Equal(new[] { "Id" }, addPrimaryKeyOperation1.ColumnNames);
+            Assert.Equal(new[] { "Id" }, addPrimaryKeyOperation1.ColumnNames.AsEnumerable());
             Assert.Equal("FK_B_A_Id", addForeignKeyOperation0.ForeignKeyName);
-            Assert.Equal(new[] { "Id" }, addForeignKeyOperation0.ColumnNames);
-            Assert.Equal(new[] { "Id" }, addForeignKeyOperation0.ReferencedColumnNames);
+            Assert.Equal(new[] { "Id" }, addForeignKeyOperation0.ColumnNames.AsEnumerable());
+            Assert.Equal(new[] { "Id" }, addForeignKeyOperation0.ReferencedColumnNames.AsEnumerable());
             Assert.Equal("FK_A_B_Id", addForeignKeyOperation1.ForeignKeyName);
-            Assert.Equal(new[] { "Id" }, addForeignKeyOperation1.ColumnNames);
-            Assert.Equal(new[] { "Id" }, addForeignKeyOperation1.ReferencedColumnNames);
+            Assert.Equal(new[] { "Id" }, addForeignKeyOperation1.ColumnNames.AsEnumerable());
+            Assert.Equal(new[] { "Id" }, addForeignKeyOperation1.ReferencedColumnNames.AsEnumerable());
             Assert.Equal("IX_B_Id", createIndexOperation0.IndexName);
-            Assert.Equal(new[] { "Id" }, createIndexOperation0.ColumnNames);
+            Assert.Equal(new[] { "Id" }, createIndexOperation0.ColumnNames.AsEnumerable());
             Assert.Equal("IX_A_Id", createIndexOperation1.IndexName);
-            Assert.Equal(new[] { "Id" }, createIndexOperation1.ColumnNames);
+            Assert.Equal(new[] { "Id" }, createIndexOperation1.ColumnNames.AsEnumerable());
         }
 
         [Fact]
-        public void Visit_with_drop_column_operation_drops_default_constraint()
+        public void Process_with_drop_column_operation_drops_default_constraint()
         {
-            var modelBuilder = new BasicModelBuilder();
-            modelBuilder.Entity("A",
+            var sourceModel = new Model();
+            var sourceModelBuilder = new BasicModelBuilder(sourceModel);
+
+            sourceModelBuilder.Entity("A",
                 b =>
                     {
                         b.Property<int>("Id");
@@ -412,36 +436,42 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                         b.Key("Id");
                     });
 
+            var inOperations = new MigrationOperationCollection();
             var dropColumnOperation = new DropColumnOperation("A", "P");
 
-            var operationCollection = new MigrationOperationCollection();
-            operationCollection.Add(dropColumnOperation);
+            inOperations.Add(dropColumnOperation);
 
-            var operations = PreProcess(modelBuilder, operationCollection);
+            var operations = Process(inOperations, sourceModel);
 
             Assert.Equal(2, operations.Count);
 
             Assert.IsType<DropDefaultConstraintOperation>(operations[0]);
-            Assert.IsType<DropColumnOperation>(operations[1]);
+            Assert.Same(dropColumnOperation, operations[1]);
+
+            var dropDefaultConstraintOperation = (DropDefaultConstraintOperation)operations[0];
+
+            Assert.Equal("P", dropDefaultConstraintOperation.ColumnName);
         }
 
         [Fact]
-        public void Visit_with_drop_table_operation_drops_foreign_keys_referencing_the_table()
+        public void Process_with_drop_table_operation_drops_foreign_keys_referencing_the_table()
         {
-            var modelBuilder = new BasicModelBuilder();
-            modelBuilder.Entity("A",
+            var sourceModel = new Model();
+            var sourceModelBuilder = new BasicModelBuilder(sourceModel);
+
+            sourceModelBuilder.Entity("A",
                 b =>
                 {
                     b.Property<int>("Id");
                     b.Key("Id");
                 });
-            modelBuilder.Entity("B",
+            sourceModelBuilder.Entity("B",
                 b =>
                 {
                     b.Property<int>("Id");
                     b.Key("Id");
                 });
-            modelBuilder.Entity("C",
+            sourceModelBuilder.Entity("C",
                 b =>
                 {
                     b.Property<int>("Id");
@@ -452,17 +482,16 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                     b.ForeignKey("B", "P2").ForRelational().Name("FKB");
                 });
 
+            var inOperations = new MigrationOperationCollection();
             var dropTableOperation = new DropTableOperation("A");
 
-            var operationCollection = new MigrationOperationCollection();
-            operationCollection.Add(dropTableOperation);
+            inOperations.Add(dropTableOperation);
 
-            var operations = PreProcess(modelBuilder, operationCollection);
+            var operations = Process(inOperations, sourceModel);
 
             Assert.Equal(2, operations.Count);
-
             Assert.IsType<DropForeignKeyOperation>(operations[0]);
-            Assert.IsType<DropTableOperation>(operations[1]);
+            Assert.Same(dropTableOperation, operations[1]);
 
             var dropForeignKeyOperation = (DropForeignKeyOperation)operations[0];
 
@@ -471,14 +500,16 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             Assert.Same(dropTableOperation, operations[1]);
         }
 
-        private static IReadOnlyList<MigrationOperation> PreProcess(BasicModelBuilder sourceModelBuilder, MigrationOperationCollection operations)
+        private static IReadOnlyList<MigrationOperation> Process(
+            MigrationOperationCollection operations, IModel sourceModel, IModel targetModel = null)
         {
-            return PreProcess(new SqlServerDatabaseBuilder(new SqlServerTypeMapper()).GetDatabase(sourceModelBuilder.Model), operations);
-        }
+            var extensionProvider = new SqlServerMetadataExtensionProvider();
+            var typeMapper = new SqlServerTypeMapper();
+            var operationFactory = new SqlServerMigrationOperationFactory(extensionProvider);
+            var operationProcessor = new SqlServerMigrationOperationProcessor(
+                extensionProvider, typeMapper, operationFactory);
 
-        private static IReadOnlyList<MigrationOperation> PreProcess(DatabaseModel sourceDatabase, MigrationOperationCollection operations)
-        {
-            return new SqlServerMigrationOperationPreProcessor(new SqlServerTypeMapper()).Process(operations, sourceDatabase, new DatabaseModel()).ToList();
+            return operationProcessor.Process(operations, sourceModel, targetModel ?? new Model());
         }
     }
 }
