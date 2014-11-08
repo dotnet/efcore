@@ -19,12 +19,12 @@ namespace Microsoft.Data.Entity.Query
         void StartTracking([NotNull] object entity);
 
         void Include(
-            [NotNull] object entity,
+            [CanBeNull] object entity,
             [NotNull] INavigation navigation,
             [NotNull] Func<EntityKey, Func<IValueReader, EntityKey>, IEnumerable<IValueReader>> relatedValueReaders);
 
         Task IncludeAsync(
-            [NotNull] object entity,
+            [CanBeNull] object entity,
             [NotNull] INavigation navigation,
             [NotNull] Func<EntityKey, Func<IValueReader, EntityKey>, IAsyncEnumerable<IValueReader>> relatedValueReaders,
             CancellationToken cancellationToken);
