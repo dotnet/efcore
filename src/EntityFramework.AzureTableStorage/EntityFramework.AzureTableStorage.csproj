@@ -148,7 +148,7 @@
   <ItemGroup>
     <ProjectReference Include="..\EntityFramework\EntityFramework.csproj">
       <Project>{71415CEC-8111-4C73-8751-512D22F10602}</Project>
-      <Name>Microsoft.Data.Entity</Name>
+      <Name>EntityFramework</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
