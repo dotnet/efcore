@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity.SQLite.Tests
         [Fact]
         public void Generate_with_create_sequence_not_supported()
         {
-            var operation = new CreateSequenceOperation(new Sequence("EpisodeSequence", "bigint", 0, 1));
+            var operation = new CreateSequenceOperation(new Sequence("EpisodeSequence", typeof(long), 0, 1));
 
             Assert.Equal(
                 Strings.FormatMigrationOperationNotSupported(typeof(SQLiteMigrationOperationSqlGenerator), operation.GetType()),
@@ -87,8 +87,11 @@ namespace Microsoft.Data.Entity.SQLite.Tests
             table.AddUniqueConstraint(new UniqueConstraint("UC0", new[] { c0, c1 }));
             table.AddUniqueConstraint(new UniqueConstraint("UC1", new[] { c2 }));
 
+            var database = new DatabaseModel();
+            database.AddTable(table);
+
             var operation = new CreateTableOperation(table);
-            var sql = Generate(operation);
+            var sql = Generate(operation, database);
 
             Assert.Equal(
                 @"CREATE TABLE ""T"" (
@@ -106,7 +109,7 @@ namespace Microsoft.Data.Entity.SQLite.Tests
         public void Generate_with_create_table_generates_fks()
         {
             var pegasusId = new Column("Id", typeof(long));
-            new Table("Pegasus", new[] { pegasusId });
+            var pegasus = new Table("Pegasus", new[] { pegasusId });
             var friend1Id = new Column("Friend1Id", typeof(long));
             var friend2Id = new Column("Friend2Id", typeof(long));
             var friendship = new Table("Friendship", new[] { friend1Id, friend2Id })
@@ -115,9 +118,13 @@ namespace Microsoft.Data.Entity.SQLite.Tests
                 };
             friendship.AddForeignKey(new ForeignKey("FriendshipFK1", new[] { friend1Id }, new[] { pegasusId }));
             friendship.AddForeignKey(new ForeignKey("FriendshipFK2", new[] { friend2Id }, new[] { pegasusId }));
+            var database = new DatabaseModel();
+            database.AddTable(pegasus);
+            database.AddTable(friendship);
+
             var operation = new CreateTableOperation(friendship);
 
-            var sql = Generate(operation);
+            var sql = Generate(operation, database);
 
             Assert.Equal(
                 @"CREATE TABLE ""Friendship"" (
@@ -190,48 +197,9 @@ namespace Microsoft.Data.Entity.SQLite.Tests
             Assert.Equal("\"my.Pony\"", sql);
         }
 
-        [Fact]
-        public void Generate_uses_preprocessor()
-        {
-            var database = new DatabaseModel();
-            var column = new Column("Id", typeof(string)) { IsNullable = false };
-            var newColumn = new Column("Id", typeof(int)) { IsNullable = false };
-            var table
-                = new Table("A", new[] { column })
-                    {
-                        PrimaryKey = new PrimaryKey("PK", new[] { column })
-                    };
-
-            database.AddTable(table);
-
-            var operations
-                = new MigrationOperation[]
-                    {
-                        new AlterColumnOperation(table.Name, newColumn, isDestructiveChange: true)
-                    };
-
-            var stringBuilder = new StringBuilder();
-            foreach (var statement in CreateGenerator(database).Generate(operations))
-            {
-                stringBuilder.AppendLine(statement.Sql);
-            }
-
-            Assert.Equal(
-                @"ALTER TABLE ""A"" RENAME TO ""__mig_tmp__A""
-CREATE TABLE ""A"" (
-    ""Id"" INT NOT NULL,
-    CONSTRAINT ""PK"" PRIMARY KEY (""Id"")
-)
-INSERT INTO ""A"" ( ""Id"" )
-    SELECT ""Id"" FROM ""__mig_tmp__A""
-DROP TABLE ""__mig_tmp__A""
-",
-                stringBuilder.ToString());
-        }
-
         private static string Generate(MigrationOperation operation, DatabaseModel database = null)
         {
-            return CreateGenerator().Generate(operation).Sql;
+            return CreateGenerator(database).Generate(operation).Sql;
         }
 
         private static SQLiteMigrationOperationSqlGenerator CreateGenerator(DatabaseModel database = null)
@@ -239,7 +207,6 @@ DROP TABLE ""__mig_tmp__A""
             return new SQLiteMigrationOperationSqlGenerator(new SQLiteTypeMapper())
                 {
                     Database = database ?? new DatabaseModel(),
-                    DatabaseModelModifier = new DatabaseModelModifier()
                 };
         }
     }

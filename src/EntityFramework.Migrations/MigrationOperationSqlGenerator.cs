@@ -28,7 +28,6 @@ namespace Microsoft.Data.Entity.Migrations
 
         private readonly RelationalTypeMapper _typeMapper;
         private DatabaseModel _database;
-        private DatabaseModelModifier _databaseModelModifier;
 
         protected MigrationOperationSqlGenerator([NotNull] RelationalTypeMapper typeMapper)
         {
@@ -51,21 +50,7 @@ namespace Microsoft.Data.Entity.Migrations
             {
                 Check.NotNull(value, "value");
 
-                _database = value.Clone();
-            }
-        }
-
-        // TODO: Inject this via constructor?
-        public virtual DatabaseModelModifier DatabaseModelModifier
-        {
-            get { return _databaseModelModifier; }
-
-            [param: NotNull]
-            set
-            {
-                Check.NotNull(value, "value");
-
-                _databaseModelModifier = value;
+                _database = value;
             }
         }
 
@@ -73,14 +58,7 @@ namespace Microsoft.Data.Entity.Migrations
         {
             Check.NotNull(migrationOperations, "migrationOperations");
 
-            foreach (var operation in migrationOperations)
-            {
-                var statement = Generate(operation);
-
-                _databaseModelModifier.Modify(_database, operation);
-
-                yield return statement;
-            }
+            return migrationOperations.Select(Generate);
         }
 
         public virtual SqlStatement Generate([NotNull] MigrationOperation operation)
@@ -123,17 +101,19 @@ namespace Microsoft.Data.Entity.Migrations
             Check.NotNull(createSequenceOperation, "createSequenceOperation");
             Check.NotNull(stringBuilder, "stringBuilder");
 
-            var sequence = createSequenceOperation.Sequence;
+            var dataType = _typeMapper.GetTypeMapping(
+                null, createSequenceOperation.SequenceName, createSequenceOperation.Type, 
+                isKey: false, isConcurrencyToken: false).StoreTypeName;
 
             stringBuilder
                 .Append("CREATE SEQUENCE ")
-                .Append(DelimitIdentifier(sequence.Name))
+                .Append(DelimitIdentifier(createSequenceOperation.SequenceName))
                 .Append(" AS ")
-                .Append(sequence.DataType)
+                .Append(dataType)
                 .Append(" START WITH ")
-                .Append(sequence.StartWith)
+                .Append(createSequenceOperation.StartValue)
                 .Append(" INCREMENT BY ")
-                .Append(sequence.IncrementBy);
+                .Append(createSequenceOperation.IncrementBy);
         }
 
         public virtual void Generate([NotNull] DropSequenceOperation dropSequenceOperation, [NotNull] IndentedStringBuilder stringBuilder)
@@ -167,7 +147,7 @@ namespace Microsoft.Data.Entity.Migrations
             Check.NotNull(createTableOperation, "createTableOperation");
             Check.NotNull(stringBuilder, "stringBuilder");
 
-            var table = createTableOperation.Table;
+            var table = Database.GetTable(createTableOperation.TableName);
 
             stringBuilder
                 .Append("CREATE TABLE ")

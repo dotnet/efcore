@@ -671,7 +671,8 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                       {
                           new MigrationInfo("000000000000001_Migration1")
                               {
-                                  UpgradeOperations = new[] { new SqlOperation("SomeSql") }
+                                  UpgradeOperations = new[] { new SqlOperation("SomeSql") },
+                                  TargetModel = new Metadata.Model()
                               }
                       };
 
@@ -730,7 +731,8 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                       {
                           new MigrationInfo("000000000000001_Migration1")
                               {
-                                  UpgradeOperations = new[] { new SqlOperation("SomeSql") }
+                                  UpgradeOperations = new[] { new SqlOperation("SomeSql") },
+                                  TargetModel = new Metadata.Model()
                               }
                       };
 
@@ -789,7 +791,8 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                       {
                           new MigrationInfo("000000000000001_Migration1")
                               {
-                                  UpgradeOperations = new[] { new SqlOperation("SomeSql") }
+                                  UpgradeOperations = new[] { new SqlOperation("SomeSql") },
+                                  TargetModel = new Metadata.Model()
                               }
                       };
 
@@ -837,11 +840,13 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             var localMigrations
                 = new[]
                       {
-                          new MigrationInfo("000000000000001_Migration1"),
+                          new MigrationInfo("000000000000001_Migration1")
+                              {
+                                  TargetModel = new Metadata.Model()
+                              },
                           new MigrationInfo("000000000000001_Migration2")
                               {
                                   DowngradeOperations = new[] { new SqlOperation("SomeSql") },
-                                  TargetModel = new Metadata.Model()
                               }
                       };
 
@@ -891,7 +896,6 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                           new MigrationInfo("000000000000001_Migration1")
                               {
                                   DowngradeOperations = new[] { new SqlOperation("SomeSql") },
-                                  TargetModel = new Metadata.Model()
                               }
                       };
 
@@ -992,7 +996,8 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                                                 new SqlOperation("5"),
                                                 new SqlOperation("6"),
                                                 new SqlOperation("7") { SuppressTransaction = true }
-                                            }
+                                            },
+                                  TargetModel = new Metadata.Model()
                               }
                       };
 
@@ -1067,7 +1072,8 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                       {
                           new MigrationInfo("000000000000001_Migration1")
                               {
-                                  UpgradeOperations = new[] { new SqlOperation("SomeSql") }
+                                  UpgradeOperations = new[] { new SqlOperation("SomeSql") },
+                                  TargetModel = new Metadata.Model()
                               }
                       };
 
@@ -1128,7 +1134,6 @@ new StringBuilder()
                           new MigrationInfo("000000000000001_Migration1")
                               {
                                   DowngradeOperations = new[] { new SqlOperation("SomeSql") },
-                                  TargetModel = new Metadata.Model()
                               }
                       };
 
@@ -1444,7 +1449,7 @@ new StringBuilder()
 
             public override void Visit(CreateTableOperation operation, IndentedStringBuilder builder)
             {
-                builder.Append("Create").Append(operation.Table.Name).Append("Sql");
+                builder.Append("Create").Append(operation.TableName).Append("Sql");
             }
 
             public override void Visit(DropTableOperation operation, IndentedStringBuilder builder)

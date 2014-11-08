@@ -106,7 +106,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             var createSequenceOperation = (CreateSequenceOperation)operations[0];
 
-            Assert.Same(targetDbModel.Sequences[1], createSequenceOperation.Sequence);
+            Assert.Equal(targetDbModel.Sequences[1].Name, createSequenceOperation.SequenceName);
 
             var alterColumnOperation = (AlterColumnOperation)operations[1];
 

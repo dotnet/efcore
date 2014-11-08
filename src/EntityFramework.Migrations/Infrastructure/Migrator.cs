@@ -209,7 +209,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
         protected virtual IReadOnlyList<SqlStatement> CreateHistoryTable(bool simulate)
         {
             var targetDatabase = ModelDiffer.DatabaseBuilder.GetDatabase(HistoryRepository.HistoryModel);
-            var ddlSqlGenerator = DdlSqlGeneratorFactory.Create();
+            var ddlSqlGenerator = DdlSqlGeneratorFactory.Create(targetDatabase);
 
             var statements = ddlSqlGenerator.Generate(ModelDiffer.CreateSchema(targetDatabase)).ToArray();
 
@@ -228,7 +228,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
         protected virtual IReadOnlyList<SqlStatement> DropHistoryTable(bool simulate)
         {
             var sourceDatabase = ModelDiffer.DatabaseBuilder.GetDatabase(HistoryRepository.HistoryModel);
-            var ddlSqlGenerator = DdlSqlGeneratorFactory.Create(sourceDatabase);
+            var ddlSqlGenerator = DdlSqlGeneratorFactory.Create();
 
             var statements = ddlSqlGenerator.Generate(ModelDiffer.DropSchema(sourceDatabase)).ToArray();
 
@@ -247,8 +247,8 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
         protected virtual IReadOnlyList<SqlStatement> ApplyMigration(int index, bool simulate)
         {
             var migration = MigrationAssembly.Migrations[index];
-            var sourceDatabase = ModelDiffer.DatabaseBuilder.GetDatabase(GetSourceModel(index));
-            var ddlSqlGenerator = DdlSqlGeneratorFactory.Create(sourceDatabase);
+            var targetDatabase = ModelDiffer.DatabaseBuilder.GetDatabase(migration.GetTargetModel());
+            var ddlSqlGenerator = DdlSqlGeneratorFactory.Create(targetDatabase);
 
             var statements = ddlSqlGenerator.Generate(migration.GetUpgradeOperations())
                 .Concat(HistoryRepository.GenerateInsertMigrationSql(migration.GetMetadata(), DmlSqlGenerator))
@@ -269,8 +269,8 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
         protected virtual IReadOnlyList<SqlStatement> RevertMigration(int index, bool simulate)
         {
             var migration = MigrationAssembly.Migrations[index];
-            var sourceDatabase = ModelDiffer.DatabaseBuilder.GetDatabase(migration.GetTargetModel());
-            var ddlSqlGenerator = DdlSqlGeneratorFactory.Create(sourceDatabase);
+            var targetDatabase = ModelDiffer.DatabaseBuilder.GetDatabase(GetSourceModel(index));
+            var ddlSqlGenerator = DdlSqlGeneratorFactory.Create(targetDatabase);
 
             var statements = ddlSqlGenerator.Generate(migration.GetDowngradeOperations())
                 .Concat(HistoryRepository.GenerateDeleteMigrationSql(migration.GetMetadata(), DmlSqlGenerator))
