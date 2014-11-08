@@ -89,7 +89,7 @@ namespace Microsoft.Data.Entity.Infrastructure
             get { return _contextOptions.Model ?? _modelFromSource.Value; }
         }
 
-        public virtual IDbContextOptionsExtensions ContextOptions
+        public virtual IDbContextOptions ContextOptions
         {
             get { return _contextOptions; }
         }
@@ -109,9 +109,9 @@ namespace Microsoft.Data.Entity.Infrastructure
             get { return p => new LazyRef<IModel>(() => p.GetRequiredServiceChecked<DbContextConfiguration>().Model); }
         }
 
-        public static Func<IServiceProvider, LazyRef<DbContextOptions>> ContextOptionsFactory
+        public static Func<IServiceProvider, LazyRef<IDbContextOptions>> ContextOptionsFactory
         {
-            get { return p => new LazyRef<DbContextOptions>(() => (DbContextOptions)p.GetRequiredServiceChecked<DbContextConfiguration>().ContextOptions); }
+            get { return p => new LazyRef<IDbContextOptions>(() => p.GetRequiredServiceChecked<DbContextConfiguration>().ContextOptions); }
         }
 
         public virtual ServiceProviderSource ProviderSource

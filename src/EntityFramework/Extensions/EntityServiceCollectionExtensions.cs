@@ -62,7 +62,7 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddScoped<StateManager>()
                 .AddScoped<LazyRef<IModel>>(DbContextConfiguration.ModelFactory)
                 .AddScoped<LazyRef<DbContext>>(DbContextConfiguration.ContextFactory)
-                .AddScoped<LazyRef<DbContextOptions>>(DbContextConfiguration.ContextOptionsFactory)
+                .AddScoped<LazyRef<IDbContextOptions>>(DbContextConfiguration.ContextOptionsFactory)
                 .AddScoped<LazyRef<DataStore>>(DataStoreServices.DataStoreFactory)
                 .AddScoped<LazyRef<DataStoreConnection>>(DataStoreServices.ConnectionFactory)
                 .AddScoped<LazyRef<Database>>(DataStoreServices.DatabaseFactory)

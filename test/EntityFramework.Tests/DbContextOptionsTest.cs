@@ -31,7 +31,7 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Extensions_can_be_added_to_options()
         {
-            IDbContextOptionsExtensions options = new DbContextOptions();
+            IDbContextOptions options = new DbContextOptions();
 
             options.AddOrUpdateExtension<FakeDbContextOptionsExtension1>(e => { });
             options.AddOrUpdateExtension<FakeDbContextOptionsExtension2>(e => { });
@@ -44,7 +44,7 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Can_update_an_existing_extension()
         {
-            IDbContextOptionsExtensions options = new DbContextOptions();
+            IDbContextOptions options = new DbContextOptions();
 
             options.AddOrUpdateExtension<FakeDbContextOptionsExtension1>(e => e.Something += "One");
             options.AddOrUpdateExtension<FakeDbContextOptionsExtension1>(e => e.Something += "Two");
@@ -92,19 +92,18 @@ namespace Microsoft.Data.Entity.Tests
         {
             var model = Mock.Of<IModel>();
 
-            var options = new DbContextOptions<UnkoolContext>().UseModel(model);
+            IDbContextOptions options = new DbContextOptions<UnkoolContext>().UseModel(model);
 
-            var optionsAsExtensions = ((IDbContextOptionsExtensions)options);
-            optionsAsExtensions.AddOrUpdateExtension<FakeDbContextOptionsExtension1>(e => { });
+            options.AddOrUpdateExtension<FakeDbContextOptionsExtension1>(e => { });
 
-            optionsAsExtensions.RawOptions = new Dictionary<string, string> { { "ConnectionString", "Database=Crunchie" } };
+            options.RawOptions = new Dictionary<string, string> { { "ConnectionString", "Database=Crunchie" } };
 
             var clone = options.Clone();
 
             Assert.IsType<DbContextOptions<UnkoolContext>>(clone);
             Assert.Same(model, clone.Model);
 
-            var cloneAsExtensions = ((IDbContextOptionsExtensions)clone);
+            var cloneAsExtensions = ((IDbContextOptions)clone);
 
             Assert.Equal(1, cloneAsExtensions.Extensions.Count);
             Assert.IsType<FakeDbContextOptionsExtension1>(cloneAsExtensions.Extensions[0]);
@@ -124,8 +123,8 @@ namespace Microsoft.Data.Entity.Tests
 
             Assert.Same(model, options.Model);
 
-            Assert.Equal(1, optionsAsExtensions.Extensions.Count);
-            Assert.IsType<FakeDbContextOptionsExtension1>(optionsAsExtensions.Extensions[0]);
+            Assert.Equal(1, options.Extensions.Count);
+            Assert.IsType<FakeDbContextOptionsExtension1>(options.Extensions[0]);
         }
     }
 }

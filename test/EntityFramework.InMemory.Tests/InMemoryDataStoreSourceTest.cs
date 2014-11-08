@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         [Fact]
         public void Is_configured_when_configuration_contains_associated_extension()
         {
-            IDbContextOptionsExtensions options = new DbContextOptions();
+            IDbContextOptions options = new DbContextOptions();
             options.AddOrUpdateExtension<InMemoryOptionsExtension>(e => { });
 
             var configurationMock = new Mock<DbContextConfiguration>();
@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         [Fact]
         public void Is_not_configured_when_configuration_does_not_contain_associated_extension()
         {
-            IDbContextOptionsExtensions options = new DbContextOptions();
+            IDbContextOptions options = new DbContextOptions();
 
             var configurationMock = new Mock<DbContextConfiguration>();
             configurationMock.Setup(m => m.ContextOptions).Returns(options);

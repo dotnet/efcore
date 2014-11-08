@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.Redis.Extensions
         {
             Check.NotNull(options, "options");
 
-            ((IDbContextOptionsExtensions)options).AddOrUpdateExtension<RedisOptionsExtension>(
+            ((IDbContextOptions)options).AddOrUpdateExtension<RedisOptionsExtension>(
                 optionsExtension =>
                     {
                         optionsExtension.HostName = hostName;

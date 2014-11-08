@@ -81,7 +81,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
 
             protected override void OnConfiguring(DbContextOptions builder)
             {
-                var contextOptionsExtensions = (IDbContextOptionsExtensions)builder;
+                var contextOptionsExtensions = (IDbContextOptions)builder;
 
                 contextOptionsExtensions.AddOrUpdateExtension<MyRelationalOptionsExtension>(x => x.ConnectionString = "ConnectionString");
 

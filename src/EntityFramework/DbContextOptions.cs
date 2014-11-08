@@ -13,7 +13,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity
 {
-    public class DbContextOptions : IDbContextOptionsExtensions
+    public class DbContextOptions : IDbContextOptions
     {
         private IModel _model;
         private readonly List<DbContextOptionsExtension> _extensions;
@@ -39,7 +39,7 @@ namespace Microsoft.Data.Entity
             return new DbContextOptions(this);
         }
 
-        public virtual DbContextOptions UseModel([NotNull] IModel model)
+        public virtual DbContextOptions UseModel(IModel model)
         {
             Check.NotNull(model, "model");
 
@@ -48,13 +48,12 @@ namespace Microsoft.Data.Entity
             return this;
         }
 
-        [CanBeNull]
         public virtual IModel Model
         {
             get { return _model; }
         }
 
-        void IDbContextOptionsExtensions.AddOrUpdateExtension<TExtension>(Action<TExtension> updater)
+        void IDbContextOptions.AddOrUpdateExtension<TExtension>(Action<TExtension> updater)
         {
             Check.NotNull(updater, "updater");
 
@@ -70,7 +69,7 @@ namespace Microsoft.Data.Entity
             updater(extension);
         }
 
-        void IDbContextOptionsExtensions.AddExtension(DbContextOptionsExtension extension)
+        void IDbContextOptions.AddExtension(DbContextOptionsExtension extension)
         {
             Check.NotNull(extension, "extension");
 
@@ -80,12 +79,12 @@ namespace Microsoft.Data.Entity
             _extensions.Add(extension);
         }
 
-        IReadOnlyList<DbContextOptionsExtension> IDbContextOptionsExtensions.Extensions
+        IReadOnlyList<DbContextOptionsExtension> IDbContextOptions.Extensions
         {
             get { return _extensions; }
         }
 
-        IReadOnlyDictionary<string, string> IDbContextOptionsExtensions.RawOptions
+        IReadOnlyDictionary<string, string> IDbContextOptions.RawOptions
         {
             get { return _rawOptions; }
             set

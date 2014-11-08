@@ -919,7 +919,7 @@ namespace Microsoft.Data.Entity.Tests
             {
                 Assert.NotNull(serviceProvider.GetService<FakeService>());
                 Assert.NotSame(serviceProvider, context.Configuration.Services.ServiceProvider);
-                Assert.Equal(0, context.Configuration.ContextOptions.Extensions.Count);
+                Assert.Equal(0, ((IDbContextOptions)context.Configuration.ContextOptions).Extensions.Count);
             }
         }
 
@@ -932,7 +932,7 @@ namespace Microsoft.Data.Entity.Tests
             services
                 .AddSingleton<FakeService>()
                 .AddEntityFramework()
-                .AddDbContext<ContextWithDefaults>(options => ((IDbContextOptionsExtensions)options).AddExtension(contextOptionsExtension));
+                .AddDbContext<ContextWithDefaults>(options => ((IDbContextOptions)options).AddExtension(contextOptionsExtension));
 
             var serviceProvider = services.BuildServiceProvider();
 
@@ -953,7 +953,7 @@ namespace Microsoft.Data.Entity.Tests
             services
                 .AddSingleton<FakeService>()
                 .AddEntityFramework()
-                .AddDbContext<ContextWithServiceProvider>(options => ((IDbContextOptionsExtensions)options).AddExtension(contextOptionsExtension));
+                .AddDbContext<ContextWithServiceProvider>(options => ((IDbContextOptions)options).AddExtension(contextOptionsExtension));
 
             var serviceProvider = services.BuildServiceProvider();
 
@@ -974,7 +974,7 @@ namespace Microsoft.Data.Entity.Tests
             services
                 .AddSingleton<FakeService>()
                 .AddEntityFramework()
-                .AddDbContext<ContextWithOptions>(options => ((IDbContextOptionsExtensions)options).AddExtension(contextOptionsExtension));
+                .AddDbContext<ContextWithOptions>(options => ((IDbContextOptions)options).AddExtension(contextOptionsExtension));
 
             var serviceProvider = services.BuildServiceProvider();
 
@@ -1016,7 +1016,7 @@ namespace Microsoft.Data.Entity.Tests
 
             services
                 .AddEntityFramework(config)
-                .AddDbContext<ContextT>(options => ((IDbContextOptionsExtensions)options).AddExtension(contextOptionsExtension));
+                .AddDbContext<ContextT>(options => ((IDbContextOptions)options).AddExtension(contextOptionsExtension));
 
             var serviceProvider = services.BuildServiceProvider();
 
@@ -1025,7 +1025,7 @@ namespace Microsoft.Data.Entity.Tests
                 var contextOptions = context.Configuration.ContextOptions as DbContextOptions<ContextT>;
 
                 Assert.NotNull(contextOptions);
-                var rawOptions = ((IDbContextOptionsExtensions)contextOptions).RawOptions;
+                var rawOptions = ((IDbContextOptions)contextOptions).RawOptions;
                 Assert.Equal(1, rawOptions.Count);
                 Assert.Equal("MyConnectionString", rawOptions["ConnectionString"]);
                 Assert.Equal(1, context.Configuration.ContextOptions.Extensions.Count);
@@ -1056,7 +1056,7 @@ namespace Microsoft.Data.Entity.Tests
                 var contextOptions = context.Configuration.ContextOptions as DbContextOptions<ContextWithDefaults>;
 
                 Assert.NotNull(contextOptions);
-                var rawOptions = ((IDbContextOptionsExtensions)contextOptions).RawOptions;
+                var rawOptions = ((IDbContextOptions)contextOptions).RawOptions;
                 Assert.Equal(1, rawOptions.Count);
                 Assert.Equal("MyConnectionString", rawOptions["ConnectionString"]);
             }

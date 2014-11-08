@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity
         {
             Check.NotNull(options, "options");
 
-            ((IDbContextOptionsExtensions)options)
+            ((IDbContextOptions)options)
                 .AddOrUpdateExtension<SqlServerOptionsExtension>(x => { });
 
             return options;
@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity
             Check.NotNull(options, "options");
             Check.NotEmpty(connectionString, "connectionString");
 
-            ((IDbContextOptionsExtensions)options)
+            ((IDbContextOptions)options)
                 .AddOrUpdateExtension<SqlServerOptionsExtension>(x => x.ConnectionString = connectionString);
 
             return options;
@@ -45,7 +45,7 @@ namespace Microsoft.Data.Entity
             Check.NotNull(options, "options");
             Check.NotNull(connection, "connection");
 
-            ((IDbContextOptionsExtensions)options)
+            ((IDbContextOptions)options)
                 .AddOrUpdateExtension<SqlServerOptionsExtension>(x => x.Connection = connection);
 
             return options;

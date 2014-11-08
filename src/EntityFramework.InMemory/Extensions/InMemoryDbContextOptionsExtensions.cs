@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity
         {
             Check.NotNull(options, "options");
 
-            ((IDbContextOptionsExtensions)options)
+            ((IDbContextOptions)options)
                 .AddOrUpdateExtension<InMemoryOptionsExtension>(x => x.Persist = persist);
 
             return options;

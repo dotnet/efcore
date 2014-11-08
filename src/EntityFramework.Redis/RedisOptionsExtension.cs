@@ -18,11 +18,11 @@ namespace Microsoft.Data.Entity.Redis
 
         public virtual int Database { get; internal set; }
 
-        public static RedisOptionsExtension Extract([NotNull] DbContextConfiguration configuration)
+        public static RedisOptionsExtension Extract([NotNull] IDbContextOptions options)
         {
-            Check.NotNull(configuration, "configuration");
+            Check.NotNull(options, "options");
 
-            var redisOptionsExtensions = configuration.ContextOptions.Extensions
+            var redisOptionsExtensions = options.Extensions
                 .OfType<RedisOptionsExtension>()
                 .ToArray();
 

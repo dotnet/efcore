@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
 
             options = options.UseInMemoryStore(persist: false);
 
-            var extension = ((IDbContextOptionsExtensions)options).Extensions.OfType<InMemoryOptionsExtension>().Single();
+            var extension = ((IDbContextOptions)options).Extensions.OfType<InMemoryOptionsExtension>().Single();
 
             Assert.False(extension.Persist);
         }
@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
 
             options = options.UseInMemoryStore(persist: false);
 
-            var extension = ((IDbContextOptionsExtensions)options).Extensions.OfType<InMemoryOptionsExtension>().Single();
+            var extension = ((IDbContextOptions)options).Extensions.OfType<InMemoryOptionsExtension>().Single();
 
             Assert.False(extension.Persist);
         }
@@ -40,7 +40,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
 
             options = options.UseInMemoryStore(persist: true);
 
-            var extension = ((IDbContextOptionsExtensions)options).Extensions.OfType<InMemoryOptionsExtension>().Single();
+            var extension = ((IDbContextOptions)options).Extensions.OfType<InMemoryOptionsExtension>().Single();
 
             Assert.True(extension.Persist);
         }

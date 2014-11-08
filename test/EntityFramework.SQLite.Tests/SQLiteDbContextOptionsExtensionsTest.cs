@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.SQLite.Tests
 
             options = options.UseSQLite("Database=Crunchie");
 
-            var extension = ((IDbContextOptionsExtensions)options).Extensions.OfType<SQLiteOptionsExtension>().Single();
+            var extension = ((IDbContextOptions)options).Extensions.OfType<SQLiteOptionsExtension>().Single();
 
             Assert.Equal("Database=Crunchie", extension.ConnectionString);
         }
@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.SQLite.Tests
 
             options = options.UseSQLite("Database=Whisper");
 
-            var extension = ((IDbContextOptionsExtensions)options).Extensions.OfType<SQLiteOptionsExtension>().Single();
+            var extension = ((IDbContextOptions)options).Extensions.OfType<SQLiteOptionsExtension>().Single();
 
             Assert.Equal("Database=Whisper", extension.ConnectionString);
         }

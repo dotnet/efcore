@@ -6,11 +6,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Redis.Extensions;
 using Microsoft.Data.Entity.Tests;
+using Microsoft.Data.Entity.Utilities;
+using Microsoft.Framework.DependencyInjection;
+using Microsoft.Framework.DependencyInjection.Fallback;
 using Microsoft.Framework.Logging;
-using Moq;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Redis.Tests
@@ -22,20 +25,11 @@ namespace Microsoft.Data.Entity.Redis.Tests
         [Fact]
         public void Generates_sequential_values()
         {
-            var stateEntry = TestHelpers.CreateStateEntry<AnEntity>(_model);
+            var stateEntry = CreateStateEntry();
+
             var property = stateEntry.EntityType.GetProperty("Id");
             var sequenceName = RedisDatabase.ConstructRedisValueGeneratorKeyName(property);
             const int blockSize = 1;
-            var incrementingValue = 0L;
-            var redisDatabaseMock = new Mock<RedisDatabase>();
-            redisDatabaseMock
-                .Setup(db => db.GetNextGeneratedValue(It.IsAny<IProperty>(), It.IsAny<long>(), It.IsAny<string>()))
-                .Returns<IProperty, long, string>((p, l, s) =>
-                    {
-                        var originalValue = incrementingValue;
-                        incrementingValue += l;
-                        return originalValue;
-                    });
 
             var intProperty = stateEntry.EntityType.GetProperty("Id");
             var longProperty = stateEntry.EntityType.GetProperty("Long");
@@ -46,7 +40,7 @@ namespace Microsoft.Data.Entity.Redis.Tests
             var ushortProperty = stateEntry.EntityType.GetProperty("UnsignedShort");
             var sbyteProperty = stateEntry.EntityType.GetProperty("SignedByte");
 
-            var generator = new RedisSequenceValueGenerator(redisDatabaseMock.Object, sequenceName, blockSize);
+            var generator = new RedisSequenceValueGenerator(sequenceName, blockSize);
 
             for (var i = 0; i < 15; i++)
             {
@@ -116,21 +110,10 @@ namespace Microsoft.Data.Entity.Redis.Tests
         [Fact]
         public async Task Generates_sequential_values_async()
         {
-            var stateEntry = TestHelpers.CreateStateEntry<AnEntity>(_model);
+            var stateEntry = CreateStateEntry();
             var property = stateEntry.EntityType.GetProperty("Id");
             var sequenceName = RedisDatabase.ConstructRedisValueGeneratorKeyName(property);
             const int blockSize = 1;
-            var incrementingValue = 0L;
-            var redisDatabaseMock = new Mock<RedisDatabase>();
-            redisDatabaseMock
-                .Setup(db => db.GetNextGeneratedValueAsync(
-                    It.IsAny<IProperty>(), It.IsAny<long>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
-                .Returns<IProperty, long, string, CancellationToken>((p, l, s, c) =>
-                    {
-                        var originalValue = incrementingValue;
-                        incrementingValue += l;
-                        return Task.FromResult(originalValue);
-                    });
 
             var intProperty = stateEntry.EntityType.GetProperty("Id");
             var longProperty = stateEntry.EntityType.GetProperty("Long");
@@ -141,7 +124,7 @@ namespace Microsoft.Data.Entity.Redis.Tests
             var ushortProperty = stateEntry.EntityType.GetProperty("UnsignedShort");
             var sbyteProperty = stateEntry.EntityType.GetProperty("SignedByte");
 
-            var generator = new RedisSequenceValueGenerator(redisDatabaseMock.Object, sequenceName, blockSize);
+            var generator = new RedisSequenceValueGenerator(sequenceName, blockSize);
 
             for (var i = 0; i < 15; i++)
             {
@@ -211,18 +194,14 @@ namespace Microsoft.Data.Entity.Redis.Tests
         [Fact]
         public void Multiple_threads_can_use_the_same_generator()
         {
-            var incrementingValue = 0L;
-            var redisDatabaseMock = new Mock<RedisDatabase>();
-            redisDatabaseMock
-                .Setup(db => db.GetNextGeneratedValue(It.IsAny<IProperty>(), It.IsAny<long>(), It.IsAny<string>()))
-                .Returns<IProperty, long, string>((p, l, s) =>
-                    {
-                        var originalValue = incrementingValue;
-                        incrementingValue += l;
-                        return originalValue;
-                    });
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFramework()
+                .AddRedis().ServiceCollection
+                .AddScoped<RedisDatabase, FakeRedisDatabase>()
+                .AddInstance(new FakeRedisSequence())
+                .BuildServiceProvider();
 
-            var generator = new RedisSequenceValueGenerator(redisDatabaseMock.Object, "TestSequenceName", 1);
+            var generator = new RedisSequenceValueGenerator("TestSequenceName", 1);
 
             var property = _model.GetEntityType(typeof(AnEntity)).GetProperty("Long");
 
@@ -237,7 +216,7 @@ namespace Microsoft.Data.Entity.Redis.Tests
                 generatedValues[testNumber] = new List<long>();
                 tests[testNumber] = () =>
                     {
-                        var stateEntry = TestHelpers.CreateStateEntry<AnEntity>(_model);
+                        var stateEntry = CreateStateEntry(serviceProvider);
 
                         for (var j = 0; j < valueCount; j++)
                         {
@@ -267,19 +246,14 @@ namespace Microsoft.Data.Entity.Redis.Tests
         [Fact]
         public async Task Multiple_threads_can_use_the_same_generator_async()
         {
-            var incrementingValue = 0L;
-            var redisDatabaseMock = new Mock<RedisDatabase>();
-            redisDatabaseMock
-                .Setup(db => db.GetNextGeneratedValueAsync(
-                    It.IsAny<IProperty>(), It.IsAny<long>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
-                .Returns<IProperty, long, string, CancellationToken>((p, l, s, c) =>
-                    {
-                        var originalValue = incrementingValue;
-                        incrementingValue += l;
-                        return Task.FromResult(originalValue);
-                    });
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFramework()
+                .AddRedis().ServiceCollection
+                .AddScoped<RedisDatabase, FakeRedisDatabase>()
+                .AddInstance(new FakeRedisSequence())
+                .BuildServiceProvider();
 
-            var generator = new RedisSequenceValueGenerator(redisDatabaseMock.Object, "TestSequenceName", 1);
+            var generator = new RedisSequenceValueGenerator("TestSequenceName", 1);
 
             var property = _model.GetEntityType(typeof(AnEntity)).GetProperty("Long");
 
@@ -294,7 +268,7 @@ namespace Microsoft.Data.Entity.Redis.Tests
                 generatedValues[testNumber] = new List<long>();
                 tests[testNumber] = async () =>
                     {
-                        var stateEntry = TestHelpers.CreateStateEntry<AnEntity>(_model);
+                        var stateEntry = CreateStateEntry(serviceProvider);
 
                         for (var j = 0; j < valueCount; j++)
                         {
@@ -330,19 +304,9 @@ namespace Microsoft.Data.Entity.Redis.Tests
         public void Generates_sequential_values_with_larger_block_size()
         {
             const int blockSize = 10;
-            var incrementingValue = 0L;
-            var redisDatabaseMock = new Mock<RedisDatabase>();
-            redisDatabaseMock
-                .Setup(db => db.GetNextGeneratedValue(It.IsAny<IProperty>(), It.IsAny<long>(), It.IsAny<string>()))
-                .Returns<IProperty, long, string>((p, l, s) =>
-                    {
-                        var originalValue = incrementingValue;
-                        incrementingValue += l;
-                        return originalValue;
-                    });
 
-            var generator = new RedisSequenceValueGenerator(redisDatabaseMock.Object, "TestSequenceName", blockSize);
-            var stateEntry = TestHelpers.CreateStateEntry<AnEntity>(_model);
+            var generator = new RedisSequenceValueGenerator("TestSequenceName", blockSize);
+            var stateEntry = CreateStateEntry();
 
             var property = _model.GetEntityType(typeof(AnEntity)).GetProperty("Long");
 
@@ -355,23 +319,6 @@ namespace Microsoft.Data.Entity.Redis.Tests
             }
         }
 
-        [Fact]
-        public void Throws_when_type_conversion_would_overflow()
-        {
-            const long incrementingValue = 256L;
-            var redisDatabaseMock = new Mock<RedisDatabase>();
-            redisDatabaseMock
-                .Setup(db => db.GetNextGeneratedValue(It.IsAny<IProperty>(), It.IsAny<long>(), It.IsAny<string>()))
-                .Returns<IProperty, long, string>((p, l, s) => incrementingValue);
-
-            var generator = new RedisSequenceValueGenerator(redisDatabaseMock.Object, "MyTestSequenceName", 1);
-
-            var stateEntry = TestHelpers.CreateStateEntry<AnEntity>(_model);
-            var byteProperty = stateEntry.EntityType.GetProperty("Byte");
-
-            Assert.Throws<OverflowException>(() => generator.Next(stateEntry, byteProperty));
-        }
-
         private class AnEntity
         {
             public int Id { get; set; }
@@ -382,6 +329,61 @@ namespace Microsoft.Data.Entity.Redis.Tests
             public ulong UnsignedLong { get; set; }
             public ushort UnsignedShort { get; set; }
             public sbyte SignedByte { get; set; }
+        }
+
+        private StateEntry CreateStateEntry(IServiceProvider serviceProvider = null)
+        {
+            serviceProvider = serviceProvider ?? new ServiceCollection()
+                .AddEntityFramework()
+                .AddRedis().ServiceCollection
+                .AddScoped<RedisDatabase, FakeRedisDatabase>()
+                .AddInstance(new FakeRedisSequence())
+                .BuildServiceProvider();
+
+            var configuration = new DbContext(
+                serviceProvider,
+                new DbContextOptions()
+                    .UseModel(_model)
+                    .UseRedis("127.0.0.1", 6375)).Configuration;
+
+            return configuration
+                .Services
+                .StateEntryFactory
+                .Create(_model.GetEntityType(typeof(AnEntity)), new AnEntity());
+        }
+
+        private class FakeRedisSequence
+        {
+            public long Value { get; set; }
+        }
+
+        private class FakeRedisDatabase : RedisDatabase
+        {
+            private readonly FakeRedisSequence _redisSequence;
+
+            public FakeRedisDatabase(
+                LazyRef<IModel> model,
+                RedisDataStoreCreator dataStoreCreator,
+                RedisConnection connection,
+                FakeRedisSequence redisSequence,
+                ILoggerFactory loggerFactory)
+                : base(model, dataStoreCreator, connection, loggerFactory)
+            {
+                _redisSequence = redisSequence;
+            }
+
+            public override long GetNextGeneratedValue(IProperty property, long incrementBy, string sequenceName)
+            {
+                var current = _redisSequence.Value;
+                _redisSequence.Value += incrementBy;
+                return current;
+            }
+
+            public override Task<long> GetNextGeneratedValueAsync(
+                IProperty property, long incrementBy, string sequenceName, CancellationToken cancellationToken)
+            {
+                return Task.FromResult(GetNextGeneratedValue(property, incrementBy, sequenceName));
+            }
         }
     }
 }

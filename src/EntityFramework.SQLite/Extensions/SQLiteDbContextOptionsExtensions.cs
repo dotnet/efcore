@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity
             Check.NotNull(options, "options");
             Check.NotEmpty(connectionString, "connectionString");
 
-            ((IDbContextOptionsExtensions)options)
+            ((IDbContextOptions)options)
                 .AddOrUpdateExtension<SQLiteOptionsExtension>(x => x.ConnectionString = connectionString);
 
             return options;
@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity
             Check.NotNull(options, "options");
             Check.NotNull(connection, "connection");
 
-            ((IDbContextOptionsExtensions)options)
+            ((IDbContextOptions)options)
                 .AddOrUpdateExtension<SQLiteOptionsExtension>(x => x.Connection = connection);
 
             return options;
