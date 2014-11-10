@@ -4,9 +4,12 @@
 using System;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Utilities;
 
-namespace Microsoft.Data.Entity.Migrations
+// ReSharper disable once CheckNamespace
+
+namespace Microsoft.Data.Entity
 {
     public static class MigrationsDatabaseExtensions
     {

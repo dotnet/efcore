@@ -4,9 +4,12 @@
 using System;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Redis;
 using Microsoft.Data.Entity.Redis.Utilities;
 
-namespace Microsoft.Data.Entity.Redis
+// ReSharper disable once CheckNamespace
+
+namespace Microsoft.Data.Entity
 {
     public static class RedisDatabaseExtensions
     {

@@ -53,7 +53,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity
                         {
                             _logger.WriteVerbose(Strings.FormatMigrationsEndPointMiddleware_ApplyingMigrations(db.GetType().FullName));
 
-                            db.Database.AsRelational().ApplyMigrations();
+                            db.Database.AsMigrationsEnabled().ApplyMigrations();
 
                             context.Response.StatusCode = (int)HttpStatusCode.NoContent;
                             context.Response.Headers.Add("Pragma", new[] { "no-cache" });
