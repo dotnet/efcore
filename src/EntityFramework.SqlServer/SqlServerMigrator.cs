@@ -3,16 +3,12 @@
 
 using System;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.SqlServer
 {
-    // TODO: Figure out what needs to be done to avoid having provider specific migrators.
-    // From Arthur: Another option is to create one Migrator type that depends on DbContextConfiguration 
-    // and then uses the DataStoreSource/DataStoreSelector to get provider-specific Migrations services.
     public class SqlServerMigrator : Migrator
     {
         /// <summary>
@@ -25,22 +21,24 @@ namespace Microsoft.Data.Entity.SqlServer
         }
 
         public SqlServerMigrator(
-            [NotNull] DbContextConfiguration contextConfiguration,
             [NotNull] HistoryRepository historyRepository,
             [NotNull] MigrationAssembly migrationAssembly,
             [NotNull] SqlServerModelDiffer modelDiffer,
             [NotNull] SqlServerMigrationOperationSqlGeneratorFactory sqlGeneratorFactory,
             [NotNull] SqlServerSqlGenerator sqlGenerator,
             [NotNull] SqlStatementExecutor sqlStatementExecutor,
+            [NotNull] SqlServerDataStoreCreator storeCreator,
+            [NotNull] SqlServerConnection connection,
             [NotNull] ILoggerFactory loggerFactory)
             : base(
-                contextConfiguration,
                 historyRepository,
                 migrationAssembly,
                 modelDiffer,
                 sqlGeneratorFactory,
                 sqlGenerator,
                 sqlStatementExecutor,
+                storeCreator,
+                connection,
                 loggerFactory)
         {
         }

@@ -3,7 +3,6 @@
 
 using System;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Framework.Logging;
@@ -22,22 +21,24 @@ namespace Microsoft.Data.Entity.SQLite
         }
 
         public SQLiteMigrator(
-            [NotNull] DbContextConfiguration contextConfiguration,
             [NotNull] HistoryRepository historyRepository,
             [NotNull] MigrationAssembly migrationAssembly,
             [NotNull] SQLiteModelDiffer modelDiffer,
             [NotNull] SQLiteMigrationOperationSqlGeneratorFactory ddlSqlGeneratorFactory,
             [NotNull] SQLiteSqlGenerator dmlSqlGenerator,
             [NotNull] SqlStatementExecutor sqlExecutor,
+            [NotNull] SQLiteDataStoreCreator storeCreator,
+            [NotNull] SQLiteConnection connection,
             [NotNull] ILoggerFactory loggerFactory)
             : base(
-                contextConfiguration,
                 historyRepository,
                 migrationAssembly,
                 modelDiffer,
                 ddlSqlGeneratorFactory,
                 dmlSqlGenerator,
                 sqlExecutor,
+                storeCreator,
+                connection,
                 loggerFactory)
         {
         }

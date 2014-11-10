@@ -5,9 +5,13 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Update;
+using Microsoft.Data.Entity.Utilities;
+using Microsoft.Framework.DependencyInjection;
+using Microsoft.Framework.DependencyInjection.Fallback;
 using Moq;
 using Moq.Protected;
 using Xunit;
@@ -19,9 +23,14 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         [Fact]
         public void Get_table_name()
         {
-            using (var context = new Context())
+            var serviceProvider = CreateServiceProvider();
+
+            using (var context = new Context(serviceProvider))
             {
-                var historyRepository = new HistoryRepository(context.Configuration);
+                var historyRepository = new HistoryRepository(
+                    serviceProvider,
+                    new LazyRef<IDbContextOptions>(new DbContextOptions()),
+                    new LazyRef<DbContext>(context));
 
                 Assert.Equal("__MigrationHistory", historyRepository.TableName);
             }
@@ -30,9 +39,14 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         [Fact]
         public void Create_and_cache_history_model()
         {
-            using (var context = new Context())
+            var serviceProvider = CreateServiceProvider();
+
+            using (var context = new Context(serviceProvider))
             {
-                var historyRepository = new HistoryRepository(context.Configuration);
+                var historyRepository = new HistoryRepository(
+                    serviceProvider,
+                    new LazyRef<IDbContextOptions>(new DbContextOptions()),
+                    new LazyRef<DbContext>(context));
 
                 var historyModel1 = historyRepository.HistoryModel;
                 var historyModel2 = historyRepository.HistoryModel;
@@ -54,9 +68,14 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         [Fact]
         public void Create_history_context_from_user_context()
         {
-            using (var context = new Context())
+            var serviceProvider = CreateServiceProvider();
+
+            using (var context = new Context(serviceProvider))
             {
-                var historyRepository = new HistoryRepository(context.Configuration);
+                var historyRepository = new HistoryRepository(
+                    serviceProvider,
+                    new LazyRef<IDbContextOptions>(new DbContextOptions()),
+                    new LazyRef<DbContext>(context));
 
                 using (var historyContext = historyRepository.CreateHistoryContext())
                 {
@@ -78,9 +97,14 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         [Fact]
         public void Get_migrations_query()
         {
-            using (var context = new Context())
+            var serviceProvider = CreateServiceProvider();
+
+            using (var context = new Context(serviceProvider))
             {
-                var historyRepository = new HistoryRepository(context.Configuration);
+                var historyRepository = new HistoryRepository(
+                    serviceProvider,
+                    new LazyRef<IDbContextOptions>(new DbContextOptions()),
+                    new LazyRef<DbContext>(context));
 
                 using (var historyContext = historyRepository.CreateHistoryContext())
                 {
@@ -111,9 +135,14 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         [Fact]
         public void Get_migrations()
         {
-            using (var context = new Context())
+            var serviceProvider = CreateServiceProvider();
+
+            using (var context = new Context(serviceProvider))
             {
-                var historyRepositoryMock = new Mock<HistoryRepository>(context.Configuration) { CallBase = true };
+                var historyRepositoryMock = new Mock<HistoryRepository>(
+                    serviceProvider,
+                    new LazyRef<IDbContextOptions>(new DbContextOptions()),
+                    new LazyRef<DbContext>(context)) { CallBase = true };
 
                 historyRepositoryMock
                     .Setup(o => o.GetMigrationsQuery(It.IsAny<DbContext>()))
@@ -124,6 +153,16 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                 Assert.Equal("000000000000001_Migration1", historyRows[0].MigrationId);
                 Assert.Equal("000000000000002_Migration2", historyRows[1].MigrationId);
             }
+        }
+
+        private static IServiceProvider CreateServiceProvider()
+        {
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFramework()
+                .AddMigrations()
+                .ServiceCollection
+                .BuildServiceProvider();
+            return serviceProvider;
         }
 
         private static IQueryable<HistoryRow> MigrationQueryableCallback()
@@ -139,9 +178,14 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         [Fact]
         public void Generate_insert_migration_sql()
         {
-            using (var context = new Context())
+            var serviceProvider = CreateServiceProvider();
+
+            using (var context = new Context(serviceProvider))
             {
-                var historyRepository = new HistoryRepository(context.Configuration);
+                var historyRepository = new HistoryRepository(
+                    serviceProvider,
+                    new LazyRef<IDbContextOptions>(new DbContextOptions()),
+                    new LazyRef<DbContext>(context));
 
                 var sqlStatements = historyRepository.GenerateInsertMigrationSql(
                     new MigrationInfo("000000000000001_Foo"), new DmlSqlGenerator());
@@ -156,9 +200,14 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         [Fact]
         public void Generate_insert_migration_sql_with_custom_context_key()
         {
-            using (var context = new Context())
+            var serviceProvider = CreateServiceProvider();
+
+            using (var context = new Context(serviceProvider))
             {
-                var historyRepository = new Mock<HistoryRepository>(context.Configuration) { CallBase = true };
+                var historyRepository = new Mock<HistoryRepository>(
+                    serviceProvider,
+                    new LazyRef<IDbContextOptions>(new DbContextOptions()),
+                    new LazyRef<DbContext>(context)) { CallBase = true };
 
                 historyRepository.Protected().Setup<string>("GetContextKey").Returns("SomeContextKey");
 
@@ -175,9 +224,14 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         [Fact]
         public void Generate_delete_migration_sql()
         {
-            using (var context = new Context())
+            var serviceProvider = CreateServiceProvider();
+
+            using (var context = new Context(serviceProvider))
             {
-                var historyRepository = new HistoryRepository(context.Configuration);
+                var historyRepository = new HistoryRepository(
+                    serviceProvider,
+                    new LazyRef<IDbContextOptions>(new DbContextOptions()),
+                    new LazyRef<DbContext>(context));
 
                 var sqlStatements = historyRepository.GenerateDeleteMigrationSql(
                     new MigrationInfo("000000000000001_Foo"), new DmlSqlGenerator());
@@ -193,6 +247,10 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
 
         public class Context : DbContext
         {
+            public Context(IServiceProvider serviceProvider)
+                : base(serviceProvider)
+            {
+            }
         }
 
         public class DmlSqlGenerator : SqlGenerator

@@ -3,9 +3,9 @@
 
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Relational.Model;
 using Microsoft.Data.Entity.Relational.Update;
+using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 using Moq;
 using Xunit;
@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var cancellationToken = new CancellationTokenSource().Token;
 
             var relationalTypeMapper = new RelationalTypeMapper();
-            var batchExecutor = new BatchExecutorForTest(relationalTypeMapper, new Mock<DbContextConfiguration>().Object);
+            var batchExecutor = new BatchExecutorForTest(relationalTypeMapper);
 
             await batchExecutor.ExecuteAsync(new[] { mockModificationCommandBatch.Object }, mockRelationalConnection.Object, cancellationToken);
 
@@ -56,7 +56,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var cancellationToken = new CancellationTokenSource().Token;
 
             var relationalTypeMapper = new RelationalTypeMapper();
-            var batchExecutor = new BatchExecutorForTest(relationalTypeMapper, new Mock<DbContextConfiguration>().Object);
+            var batchExecutor = new BatchExecutorForTest(relationalTypeMapper);
 
             await batchExecutor.ExecuteAsync(new[] { mockModificationCommandBatch.Object }, mockRelationalConnection.Object, cancellationToken);
 
@@ -74,8 +74,8 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
 
         private class BatchExecutorForTest : BatchExecutor
         {
-            public BatchExecutorForTest(RelationalTypeMapper typeMapper, DbContextConfiguration context)
-                : base(typeMapper, context, new LoggerFactory())
+            public BatchExecutorForTest(RelationalTypeMapper typeMapper)
+                : base(typeMapper, new LazyRef<DbContext>(() => null), new LoggerFactory())
             {
             }
 

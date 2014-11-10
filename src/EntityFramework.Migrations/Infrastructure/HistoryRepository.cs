@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
@@ -10,20 +11,37 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Utilities;
 using Microsoft.Data.Entity.Relational;
+using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Migrations.Infrastructure
 {
     public class HistoryRepository
     {
-        private readonly DbContextConfiguration _contextConfiguration;
+        private readonly IServiceProvider _serviceProvider;
+        private readonly LazyRef<IDbContextOptions> _options;
+        private readonly LazyRef<DbContext> _context;
         private IModel _historyModel;
         private DbContextOptions _contextOptions;
 
-        public HistoryRepository([NotNull] DbContextConfiguration contextConfiguration)
+        /// <summary>
+        ///     This constructor is intended only for use when creating test doubles that will override members
+        ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
+        ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
+        /// </summary>
+        protected HistoryRepository()
         {
-            Check.NotNull(contextConfiguration, "contextConfiguration");
+        }
 
-            _contextConfiguration = contextConfiguration;
+        public HistoryRepository(
+            [NotNull] IServiceProvider serviceProvider,
+            [NotNull] LazyRef<IDbContextOptions> options,
+            [NotNull] LazyRef<DbContext> context)
+        {
+            Check.NotNull(serviceProvider, "serviceProvider");
+
+            _serviceProvider = serviceProvider;
+            _options = options;
+            _context = context;
         }
 
         public virtual SchemaQualifiedName TableName
@@ -72,11 +90,6 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             }
         }
 
-        protected virtual DbContextConfiguration ContextConfiguration
-        {
-            get { return _contextConfiguration; }
-        }
-
         protected virtual DbContextOptions HistoryContextOptions
         {
             get { return _contextOptions ?? (_contextOptions = CreateHistoryContextOptions()); }
@@ -84,7 +97,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
 
         public virtual DbContext CreateHistoryContext()
         {
-            return new DbContext(ContextConfiguration.Services.ServiceProvider, HistoryContextOptions);
+            return new DbContext(_serviceProvider, HistoryContextOptions);
         }
 
         public virtual IQueryable<HistoryRow> GetMigrationsQuery([NotNull] DbContext historyContext)
@@ -174,7 +187,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
 
             // TODO: Figure out whether it is ok to reuse all the extensions
             // from the user context configuration for the history context.
-            foreach (var item in ContextConfiguration.ContextOptions.Extensions)
+            foreach (var item in _options.Value.Extensions)
             {
                 var extension = item;
                 contextOptions.AddExtension(extension);
@@ -185,7 +198,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
 
         protected virtual string GetContextKey()
         {
-            return ContextConfiguration.Context.GetType().FullName;
+            return _context.Value.GetType().FullName;
         }
     }
 }

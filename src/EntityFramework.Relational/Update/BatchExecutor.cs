@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Relational.Model;
 using Microsoft.Data.Entity.Relational.Utilities;
 using Microsoft.Data.Entity.Utilities;
@@ -17,7 +16,7 @@ namespace Microsoft.Data.Entity.Relational.Update
     public class BatchExecutor
     {
         private readonly RelationalTypeMapper _typeMapper;
-        private readonly DbContext _context;
+        private readonly LazyRef<DbContext> _context;
         private readonly LazyRef<ILogger> _logger;
 
         /// <summary>
@@ -31,15 +30,15 @@ namespace Microsoft.Data.Entity.Relational.Update
 
         public BatchExecutor(
             [NotNull] RelationalTypeMapper typeMapper,
-            [NotNull] DbContextConfiguration contextConfiguration,
+            [NotNull] LazyRef<DbContext> context,
             [NotNull] ILoggerFactory loggerFactory)
         {
             Check.NotNull(typeMapper, "typeMapper");
-            Check.NotNull(contextConfiguration, "contextConfiguration");
+            Check.NotNull(context, "context");
             Check.NotNull(loggerFactory, "loggerFactory");
 
             _typeMapper = typeMapper;
-            _context = contextConfiguration.Context;
+            _context = context;
             _logger = new LazyRef<ILogger>(() => (loggerFactory.Create<BatchExecutor>()));
         }
 
@@ -70,7 +69,7 @@ namespace Microsoft.Data.Entity.Relational.Update
                     rowsAffected += commandbatch.Execute(
                         connection.Transaction,
                         _typeMapper,
-                        _context,
+                        _context.Value,
                         Logger);
                 }
 
@@ -114,7 +113,7 @@ namespace Microsoft.Data.Entity.Relational.Update
                     rowsAffected += await commandbatch.ExecuteAsync(
                         connection.Transaction,
                         _typeMapper,
-                        _context,
+                        _context.Value,
                         Logger, cancellationToken)
                         .WithCurrentCulture();
                 }

@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Utilities;
 using Microsoft.Data.Entity.Relational;
@@ -19,13 +18,14 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
     {
         public const string InitialDatabase = "0";
 
-        private readonly DbContextConfiguration _contextConfiguration;
         private readonly HistoryRepository _historyRepository;
         private readonly MigrationAssembly _migrationAssembly;
         private readonly ModelDiffer _modelDiffer;
         private readonly IMigrationOperationSqlGeneratorFactory _ddlSqlGeneratorFactory;
         private readonly SqlGenerator _dmlSqlGenerator;
         private readonly SqlStatementExecutor _sqlExecutor;
+        private readonly RelationalDataStoreCreator _storeCreator;
+        private readonly RelationalConnection _connection;
         private readonly LazyRef<ILogger> _logger;
 
         /// <summary>
@@ -38,37 +38,35 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
         }
 
         public Migrator(
-            [NotNull] DbContextConfiguration contextConfiguration,
             [NotNull] HistoryRepository historyRepository,
             [NotNull] MigrationAssembly migrationAssembly,
             [NotNull] ModelDiffer modelDiffer,
             [NotNull] IMigrationOperationSqlGeneratorFactory ddlSqlGeneratorFactory,
             [NotNull] SqlGenerator dmlSqlGenerator,
             [NotNull] SqlStatementExecutor sqlExecutor,
+            [NotNull] RelationalDataStoreCreator storeCreator,
+            [NotNull] RelationalConnection connection,
             [NotNull] ILoggerFactory loggerFactory)
         {
-            Check.NotNull(contextConfiguration, "contextConfiguration");
             Check.NotNull(historyRepository, "historyRepository");
             Check.NotNull(migrationAssembly, "migrationAssembly");
             Check.NotNull(modelDiffer, "modelDiffer");
             Check.NotNull(ddlSqlGeneratorFactory, "ddlSqlGeneratorFactory");
             Check.NotNull(dmlSqlGenerator, "dmlSqlGenerator");
             Check.NotNull(sqlExecutor, "sqlExecutor");
+            Check.NotNull(storeCreator, "storeCreator");
+            Check.NotNull(connection, "connection");
             Check.NotNull(loggerFactory, "loggerFactory");
 
-            _contextConfiguration = contextConfiguration;
             _historyRepository = historyRepository;
             _migrationAssembly = migrationAssembly;
             _modelDiffer = modelDiffer;
             _ddlSqlGeneratorFactory = ddlSqlGeneratorFactory;
             _dmlSqlGenerator = dmlSqlGenerator;
             _sqlExecutor = sqlExecutor;
+            _storeCreator = storeCreator;
+            _connection = connection;
             _logger = new LazyRef<ILogger>(loggerFactory.Create<Migrator>);
-        }
-
-        protected virtual DbContextConfiguration ContextConfiguration
-        {
-            get { return _contextConfiguration; }
         }
 
         public virtual HistoryRepository HistoryRepository
@@ -174,15 +172,14 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                     .Take(targetMigrationIndex + 1)
                     .Where(i => migrationPairs[i].HistoryRow == null)
                     .ToArray();
-            
-            var database = ContextConfiguration.Database.AsMigrationsEnabled();
-            var statements = new List<SqlStatement>();
 
             if (!simulate
-                && !database.Exists())
+                && !_storeCreator.Exists())
             {
-                database.Create();
+                _storeCreator.Create();
             }
+
+            var statements = new List<SqlStatement>();
 
             if (upgradeIndexes.Any()
                 && !historyTableExists)
@@ -365,7 +362,6 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
         {
             Check.NotNull(sqlStatements, "sqlStatements");
 
-            var connection = ContextConfiguration.Database.AsMigrationsEnabled().Connection;
             var pendingStatements = new List<SqlStatement>();
 
             foreach (var statement in sqlStatements.Where(s => !string.IsNullOrEmpty(s.Sql)))
@@ -379,17 +375,17 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
 
                 if (pendingStatements.Any())
                 {
-                    ExecuteStatementsWithinTransaction(pendingStatements, connection);
+                    ExecuteStatementsWithinTransaction(pendingStatements, _connection);
 
                     pendingStatements.Clear();
                 }
 
-                ExecuteStatementsWithoutTransaction(new[] { statement }, connection);
+                ExecuteStatementsWithoutTransaction(new[] { statement }, _connection);
             }
 
             if (pendingStatements.Any())
             {
-                ExecuteStatementsWithinTransaction(pendingStatements, connection);
+                ExecuteStatementsWithinTransaction(pendingStatements, _connection);
             }
         }
 

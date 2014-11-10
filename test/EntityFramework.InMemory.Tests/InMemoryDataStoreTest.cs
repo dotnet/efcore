@@ -49,7 +49,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         }
 
         [Fact]
-        public void EnsureCreated_returns_false_for_first_use_of_persistent_database_and_true_thereafter()
+        public void EnsureDatabaseCreated_returns_true_for_first_use_of_persistent_database_and_false_thereafter()
         {
             var serviceProvider = TestHelpers.CreateServiceProvider();
             var model = CreateModel();
@@ -65,7 +65,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         }
 
         [Fact]
-        public void EnsureCreated_returns_true_for_first_use_of_non_persistent_database_and_false_thereafter()
+        public void EnsureDatabaseCreated_returns_true_for_first_use_of_non_persistent_database_and_false_thereafter()
         {
             var serviceProvider = TestHelpers.CreateServiceProvider();
             var model = CreateModel();

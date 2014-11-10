@@ -110,7 +110,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                     {
                         new MigrationInfo("000000000000001_Migration1")
                             {
-                                TargetModel = new Entity.Metadata.Model(),
+                                TargetModel = new Metadata.Model(),
                                 UpgradeOperations
                                     = new MigrationOperation[]
                                         {
@@ -136,7 +136,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                     {
                         new MigrationInfo("000000000000001_Migration1")
                             {
-                                TargetModel = new Entity.Metadata.Model(),
+                                TargetModel = new Metadata.Model(),
                                 UpgradeOperations
                                     = new MigrationOperation[]
                                         {
@@ -145,7 +145,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                             },
                         new MigrationInfo("000000000000002_Migration2")
                             {
-                                TargetModel = new Entity.Metadata.Model(),
+                                TargetModel = new Metadata.Model(),
                                 UpgradeOperations
                                     = new MigrationOperation[]
                                         {
@@ -178,11 +178,11 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                     {
                         new MigrationInfo("000000000000001_Migration1")
                             {
-                                TargetModel = new Entity.Metadata.Model()
+                                TargetModel = new Metadata.Model()
                             },
                         new MigrationInfo("000000000000002_Migration2")
                             {
-                                TargetModel = new Entity.Metadata.Model(),
+                                TargetModel = new Metadata.Model(),
                                 UpgradeOperations
                                     = new MigrationOperation[]
                                         {
@@ -214,15 +214,15 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                     {
                         new MigrationInfo("000000000000001_Migration1")
                             {
-                                TargetModel = new Entity.Metadata.Model()
+                                TargetModel = new Metadata.Model()
                             },
                         new MigrationInfo("000000000000002_Migration2")
                             {
-                                TargetModel = new Entity.Metadata.Model()
+                                TargetModel = new Metadata.Model()
                             },
                         new MigrationInfo("000000000000003_Migration3")
                             {
-                                TargetModel = new Entity.Metadata.Model(),
+                                TargetModel = new Metadata.Model(),
                                 UpgradeOperations
                                     = new MigrationOperation[]
                                         {
@@ -232,7 +232,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                             },
                         new MigrationInfo("000000000000004_Migration4")
                             {
-                                TargetModel = new Entity.Metadata.Model(),
+                                TargetModel = new Metadata.Model(),
                                 UpgradeOperations
                                     = new MigrationOperation[]
                                         {
@@ -265,15 +265,15 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                     {
                         new MigrationInfo("000000000000001_Migration1")
                             {
-                                TargetModel = new Entity.Metadata.Model()
+                                TargetModel = new Metadata.Model()
                             },
                         new MigrationInfo("000000000000002_Migration2")
                             {
-                                TargetModel = new Entity.Metadata.Model()
+                                TargetModel = new Metadata.Model()
                             },
                         new MigrationInfo("000000000000003_Migration3")
                             {
-                                TargetModel = new Entity.Metadata.Model(),
+                                TargetModel = new Metadata.Model(),
                                 UpgradeOperations
                                     = new MigrationOperation[]
                                         {
@@ -283,7 +283,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                             },
                         new MigrationInfo("000000000000004_Migration4")
                             {
-                                TargetModel = new Entity.Metadata.Model(),
+                                TargetModel = new Metadata.Model(),
                                 UpgradeOperations
                                     = new MigrationOperation[]
                                         {
@@ -316,15 +316,15 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                     {
                         new MigrationInfo("000000000000001_Migration1")
                             {
-                                TargetModel = new Entity.Metadata.Model()
+                                TargetModel = new Metadata.Model()
                             },
                         new MigrationInfo("000000000000002_Migration2")
                             {
-                                TargetModel = new Entity.Metadata.Model()
+                                TargetModel = new Metadata.Model()
                             },
                         new MigrationInfo("000000000000003_Migration3")
                             {
-                                TargetModel = new Entity.Metadata.Model(),
+                                TargetModel = new Metadata.Model(),
                                 UpgradeOperations
                                     = new MigrationOperation[]
                                         {
@@ -334,7 +334,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                             },
                         new MigrationInfo("000000000000004_Migration4")
                             {
-                                TargetModel = new Entity.Metadata.Model(),
+                                TargetModel = new Metadata.Model(),
                                 UpgradeOperations
                                     = new MigrationOperation[]
                                         {
@@ -391,15 +391,15 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                     {
                         new MigrationInfo("000000000000001_Migration1")
                             {
-                                TargetModel = new Entity.Metadata.Model()
+                                TargetModel = new Metadata.Model()
                             },
                         new MigrationInfo("000000000000002_Migration2")
                             {
-                                TargetModel = new Entity.Metadata.Model()
+                                TargetModel = new Metadata.Model()
                             },
                         new MigrationInfo("000000000000003_Migration3")
                             {
-                                TargetModel = new Entity.Metadata.Model(),
+                                TargetModel = new Metadata.Model(),
                                 DowngradeOperations
                                     = new MigrationOperation[]
                                         {
@@ -409,7 +409,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                             },
                         new MigrationInfo("000000000000004_Migration4")
                             {
-                                TargetModel = new Entity.Metadata.Model(),
+                                TargetModel = new Metadata.Model(),
                                 DowngradeOperations
                                     = new MigrationOperation[]
                                         {
@@ -444,15 +444,15 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                     {
                         new MigrationInfo("000000000000001_Migration1")
                             {
-                                TargetModel = new Entity.Metadata.Model()
+                                TargetModel = new Metadata.Model()
                             },
                         new MigrationInfo("000000000000002_Migration2")
                             {
-                                TargetModel = new Entity.Metadata.Model()
+                                TargetModel = new Metadata.Model()
                             },
                         new MigrationInfo("000000000000003_Migration3")
                             {
-                                TargetModel = new Entity.Metadata.Model(),
+                                TargetModel = new Metadata.Model(),
                                 UpgradeOperations
                                     = new MigrationOperation[]
                                         {
@@ -486,15 +486,15 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                     {
                         new MigrationInfo("000000000000001_Migration1")
                             {
-                                TargetModel = new Entity.Metadata.Model()
+                                TargetModel = new Metadata.Model()
                             },
                         new MigrationInfo("000000000000002_Migration2")
                             {
-                                TargetModel = new Entity.Metadata.Model()
+                                TargetModel = new Metadata.Model()
                             },
                         new MigrationInfo("000000000000003_Migration3")
                             {
-                                TargetModel = new Entity.Metadata.Model(),
+                                TargetModel = new Metadata.Model(),
                                 UpgradeOperations
                                     = new MigrationOperation[]
                                         {
@@ -504,7 +504,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                             },
                         new MigrationInfo("000000000000004_Migration4")
                             {
-                                TargetModel = new Entity.Metadata.Model(),
+                                TargetModel = new Metadata.Model(),
                                 DowngradeOperations
                                     = new MigrationOperation[]
                                         {
@@ -538,7 +538,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                     {
                         new MigrationInfo("000000000000001_Migration1")
                             {
-                                TargetModel = new Entity.Metadata.Model(),
+                                TargetModel = new Metadata.Model(),
                                 DowngradeOperations
                                     = new MigrationOperation[]
                                         {
@@ -547,7 +547,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                             },
                         new MigrationInfo("000000000000002_Migration2")
                             {
-                                TargetModel = new Entity.Metadata.Model(),
+                                TargetModel = new Metadata.Model(),
                                 DowngradeOperations
                                     = new MigrationOperation[]
                                         {
@@ -579,7 +579,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                     {
                         new MigrationInfo("000000000000001_Migration1")
                             {
-                                TargetModel = new Entity.Metadata.Model(),
+                                TargetModel = new Metadata.Model(),
                                 UpgradeOperations
                                     = new MigrationOperation[]
                                         {
@@ -668,13 +668,12 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             var databaseMigrations = new MigrationInfo[0];
             var localMigrations
                 = new[]
-                      {
-                          new MigrationInfo("000000000000001_Migration1")
-                              {
-                                  UpgradeOperations = new[] { new SqlOperation("SomeSql") }
-                              }
-                      };
-
+                    {
+                        new MigrationInfo("000000000000001_Migration1")
+                            {
+                                UpgradeOperations = new[] { new SqlOperation("SomeSql") }
+                            }
+                    };
 
             Mock<RelationalDataStoreCreator> dbCreatorMock;
             Mock<DbConnection> dbConnectionMock;
@@ -727,13 +726,12 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             var databaseMigrations = new MigrationInfo[0];
             var localMigrations
                 = new[]
-                      {
-                          new MigrationInfo("000000000000001_Migration1")
-                              {
-                                  UpgradeOperations = new[] { new SqlOperation("SomeSql") }
-                              }
-                      };
-
+                    {
+                        new MigrationInfo("000000000000001_Migration1")
+                            {
+                                UpgradeOperations = new[] { new SqlOperation("SomeSql") }
+                            }
+                    };
 
             Mock<RelationalDataStoreCreator> dbCreatorMock;
             Mock<DbConnection> dbConnectionMock;
@@ -756,20 +754,20 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             sqlStatementExecutorMock.Setup(m => m.ExecuteNonQuery(It.IsAny<DbConnection>(), It.IsAny<DbTransaction>(), It.IsAny<IEnumerable<SqlStatement>>()))
                 .Callback<DbConnection, DbTransaction, IEnumerable<SqlStatement>>(
                     (_, __, statements) =>
-                    {
-                        switch (++callCount)
                         {
-                            case 1:
-                                Assert.Equal(new[] { "Create__MigrationHistorySql" }, statements.Select(s => s.Sql));
-                                break;
-                            case 2:
-                                Assert.Equal(new[] { "SomeSql", "Migration1InsertSql" }, statements.Select(s => s.Sql));
-                                break;
-                            default:
-                                Assert.False(true, "Unexpected call count.");
-                                break;
-                        }
-                    });
+                            switch (++callCount)
+                            {
+                                case 1:
+                                    Assert.Equal(new[] { "Create__MigrationHistorySql" }, statements.Select(s => s.Sql));
+                                    break;
+                                case 2:
+                                    Assert.Equal(new[] { "SomeSql", "Migration1InsertSql" }, statements.Select(s => s.Sql));
+                                    break;
+                                default:
+                                    Assert.False(true, "Unexpected call count.");
+                                    break;
+                            }
+                        });
 
             migrator.ApplyMigrations();
 
@@ -786,13 +784,12 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             var databaseMigrations = new MigrationInfo[0];
             var localMigrations
                 = new[]
-                      {
-                          new MigrationInfo("000000000000001_Migration1")
-                              {
-                                  UpgradeOperations = new[] { new SqlOperation("SomeSql") }
-                              }
-                      };
-
+                    {
+                        new MigrationInfo("000000000000001_Migration1")
+                            {
+                                UpgradeOperations = new[] { new SqlOperation("SomeSql") }
+                            }
+                    };
 
             Mock<RelationalDataStoreCreator> dbCreatorMock;
             Mock<DbConnection> dbConnectionMock;
@@ -830,21 +827,20 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         {
             var databaseMigrations
                 = new[]
-                      {
-                          new MigrationInfo("000000000000001_Migration1"),
-                          new MigrationInfo("000000000000001_Migration2")
-                      };
+                    {
+                        new MigrationInfo("000000000000001_Migration1"),
+                        new MigrationInfo("000000000000001_Migration2")
+                    };
             var localMigrations
                 = new[]
-                      {
-                          new MigrationInfo("000000000000001_Migration1"),
-                          new MigrationInfo("000000000000001_Migration2")
-                              {
-                                  DowngradeOperations = new[] { new SqlOperation("SomeSql") },
-                                  TargetModel = new Metadata.Model()
-                              }
-                      };
-
+                    {
+                        new MigrationInfo("000000000000001_Migration1"),
+                        new MigrationInfo("000000000000001_Migration2")
+                            {
+                                DowngradeOperations = new[] { new SqlOperation("SomeSql") },
+                                TargetModel = new Metadata.Model()
+                            }
+                    };
 
             Mock<RelationalDataStoreCreator> dbCreatorMock;
             Mock<DbConnection> dbConnectionMock;
@@ -882,19 +878,18 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         {
             var databaseMigrations
                 = new[]
-                      {
-                          new MigrationInfo("000000000000001_Migration1"),
-                      };
+                    {
+                        new MigrationInfo("000000000000001_Migration1")
+                    };
             var localMigrations
                 = new[]
-                      {
-                          new MigrationInfo("000000000000001_Migration1")
-                              {
-                                  DowngradeOperations = new[] { new SqlOperation("SomeSql") },
-                                  TargetModel = new Metadata.Model()
-                              }
-                      };
-
+                    {
+                        new MigrationInfo("000000000000001_Migration1")
+                            {
+                                DowngradeOperations = new[] { new SqlOperation("SomeSql") },
+                                TargetModel = new Metadata.Model()
+                            }
+                    };
 
             Mock<RelationalDataStoreCreator> dbCreatorMock;
             Mock<DbConnection> dbConnectionMock;
@@ -917,20 +912,20 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             sqlStatementExecutorMock.Setup(m => m.ExecuteNonQuery(It.IsAny<DbConnection>(), It.IsAny<DbTransaction>(), It.IsAny<IEnumerable<SqlStatement>>()))
                 .Callback<DbConnection, DbTransaction, IEnumerable<SqlStatement>>(
                     (_, __, statements) =>
-                    {
-                        switch (++callCount)
                         {
-                            case 1:
-                                Assert.Equal(new[] { "SomeSql", "Migration1DeleteSql" }, statements.Select(s => s.Sql));
-                                break;
-                            case 2:
-                                Assert.Equal(new[] { "Drop__MigrationHistorySql" }, statements.Select(s => s.Sql));
-                                break;
-                            default:
-                                Assert.False(true, "Unexpected call count.");
-                                break;
-                        }
-                    });
+                            switch (++callCount)
+                            {
+                                case 1:
+                                    Assert.Equal(new[] { "SomeSql", "Migration1DeleteSql" }, statements.Select(s => s.Sql));
+                                    break;
+                                case 2:
+                                    Assert.Equal(new[] { "Drop__MigrationHistorySql" }, statements.Select(s => s.Sql));
+                                    break;
+                                default:
+                                    Assert.False(true, "Unexpected call count.");
+                                    break;
+                            }
+                        });
 
             migrator.ApplyMigrations(Migrator.InitialDatabase);
 
@@ -979,22 +974,22 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             var databaseMigrations = new MigrationInfo[0];
             var localMigrations
                 = new[]
-                      {
-                          new MigrationInfo("000000000000001_Migration1")
-                              {
-                                  UpgradeOperations
-                                      = new[]
-                                            {
-                                                new SqlOperation("1") { SuppressTransaction = true },
-                                                new SqlOperation("2"),
-                                                new SqlOperation("3"),
-                                                new SqlOperation("4") { SuppressTransaction = true },
-                                                new SqlOperation("5"),
-                                                new SqlOperation("6"),
-                                                new SqlOperation("7") { SuppressTransaction = true }
-                                            }
-                              }
-                      };
+                    {
+                        new MigrationInfo("000000000000001_Migration1")
+                            {
+                                UpgradeOperations
+                                    = new[]
+                                        {
+                                            new SqlOperation("1") { SuppressTransaction = true },
+                                            new SqlOperation("2"),
+                                            new SqlOperation("3"),
+                                            new SqlOperation("4") { SuppressTransaction = true },
+                                            new SqlOperation("5"),
+                                            new SqlOperation("6"),
+                                            new SqlOperation("7") { SuppressTransaction = true }
+                                        }
+                            }
+                    };
 
             Mock<RelationalDataStoreCreator> dbCreatorMock;
             Mock<DbConnection> dbConnectionMock;
@@ -1017,37 +1012,37 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             sqlStatementExecutorMock.Setup(m => m.ExecuteNonQuery(It.IsAny<DbConnection>(), It.IsAny<DbTransaction>(), It.IsAny<IEnumerable<SqlStatement>>()))
                 .Callback<DbConnection, DbTransaction, IEnumerable<SqlStatement>>(
                     (connection, transaction, statements) =>
-                    {
-                        switch (++callCount)
                         {
-                            case 1:
-                                Assert.Null(transaction);
-                                Assert.Equal(new[] { "1" }, statements.Select(s => s.Sql));
-                                break;
-                            case 2:
-                                Assert.Equal(new[] { "2", "3" }, statements.Select(s => s.Sql));
-                                break;
-                            case 3:
-                                Assert.Null(transaction);
-                                Assert.Equal(new[] { "4" }, statements.Select(s => s.Sql));
-                                break;
-                            case 4:
-                                Assert.NotNull(transaction);
-                                Assert.Equal(new[] { "5", "6" }, statements.Select(s => s.Sql));
-                                break;
-                            case 5:
-                                Assert.Null(transaction);
-                                Assert.Equal(new[] { "7" }, statements.Select(s => s.Sql));
-                                break;
-                            case 6:
-                                Assert.NotNull(transaction);
-                                Assert.Equal(new[] { "Migration1InsertSql" }, statements.Select(s => s.Sql));
-                                break;
-                            default:
-                                Assert.False(true, "Unexpected call count.");
-                                break;
-                        }
-                    });
+                            switch (++callCount)
+                            {
+                                case 1:
+                                    Assert.Null(transaction);
+                                    Assert.Equal(new[] { "1" }, statements.Select(s => s.Sql));
+                                    break;
+                                case 2:
+                                    Assert.Equal(new[] { "2", "3" }, statements.Select(s => s.Sql));
+                                    break;
+                                case 3:
+                                    Assert.Null(transaction);
+                                    Assert.Equal(new[] { "4" }, statements.Select(s => s.Sql));
+                                    break;
+                                case 4:
+                                    Assert.NotNull(transaction);
+                                    Assert.Equal(new[] { "5", "6" }, statements.Select(s => s.Sql));
+                                    break;
+                                case 5:
+                                    Assert.Null(transaction);
+                                    Assert.Equal(new[] { "7" }, statements.Select(s => s.Sql));
+                                    break;
+                                case 6:
+                                    Assert.NotNull(transaction);
+                                    Assert.Equal(new[] { "Migration1InsertSql" }, statements.Select(s => s.Sql));
+                                    break;
+                                default:
+                                    Assert.False(true, "Unexpected call count.");
+                                    break;
+                            }
+                        });
 
             migrator.ApplyMigrations();
 
@@ -1064,13 +1059,12 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             var databaseMigrations = new MigrationInfo[0];
             var localMigrations
                 = new[]
-                      {
-                          new MigrationInfo("000000000000001_Migration1")
-                              {
-                                  UpgradeOperations = new[] { new SqlOperation("SomeSql") }
-                              }
-                      };
-
+                    {
+                        new MigrationInfo("000000000000001_Migration1")
+                            {
+                                UpgradeOperations = new[] { new SqlOperation("SomeSql") }
+                            }
+                    };
 
             var loggerFactory = new TestLoggerFactory();
             var migrator
@@ -1084,33 +1078,31 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             migrator.ApplyMigrations();
 
             Assert.Equal(
-new StringBuilder()
-    .Append(typeof(Database).FullName).Append(" Information ")
-    .AppendLine(GetString("RelationalLoggerCreatingDatabase", "MyDatabase"))
-    .Append(typeof(Migrator).FullName).Append(" Information ")
-    .AppendLine(Strings.MigratorLoggerCreatingHistoryTable)
-    .Append(typeof(DataStoreConnection).FullName).Append(" Verbose ")
-    .AppendLine(GetString("RelationalLoggerBeginningTransaction", "Serializable"))
-    .Append(typeof(SqlStatementExecutor).FullName).Append(" Verbose ")
-    .AppendLine(GetString("RelationalLoggerOpeningConnection", "MyConnectionString"))
-    .Append(typeof(SqlStatementExecutor).FullName).AppendLine(" Verbose Create__MigrationHistorySql")
-    .Append(typeof(SqlStatementExecutor).FullName).Append(" Verbose ")
-    .AppendLine(GetString("RelationalLoggerClosingConnection", "MyConnectionString"))
-    .Append(typeof(DataStoreConnection).FullName).Append(" Verbose ")
-    .AppendLine(GetString("RelationalLoggerCommittingTransaction"))
-    .Append(typeof(Migrator).FullName).Append(" Information ")
-    .AppendLine(Strings.MigratorLoggerApplyingMigration("000000000000001_Migration1"))
-    .Append(typeof(DataStoreConnection).FullName).Append(" Verbose ")
-    .AppendLine(GetString("RelationalLoggerBeginningTransaction", "Serializable"))
-    .Append(typeof(SqlStatementExecutor).FullName).Append(" Verbose ")
-    .AppendLine(GetString("RelationalLoggerOpeningConnection", "MyConnectionString"))
-    .Append(typeof(SqlStatementExecutor).FullName).AppendLine(" Verbose SomeSql")
-    .Append(typeof(SqlStatementExecutor).FullName).AppendLine(" Verbose Migration1InsertSql")
-    .Append(typeof(SqlStatementExecutor).FullName).Append(" Verbose ")
-    .AppendLine(GetString("RelationalLoggerClosingConnection", "MyConnectionString"))
-    .Append(typeof(DataStoreConnection).FullName).Append(" Verbose ")
-    .AppendLine(GetString("RelationalLoggerCommittingTransaction"))
-    .ToString(),
+                new StringBuilder()
+                    .Append(typeof(Migrator).FullName).Append(" Information ")
+                    .AppendLine(Strings.MigratorLoggerCreatingHistoryTable)
+                    .Append(typeof(DataStoreConnection).FullName).Append(" Verbose ")
+                    .AppendLine(GetString("RelationalLoggerBeginningTransaction", "Serializable"))
+                    .Append(typeof(SqlStatementExecutor).FullName).Append(" Verbose ")
+                    .AppendLine(GetString("RelationalLoggerOpeningConnection", "MyConnectionString"))
+                    .Append(typeof(SqlStatementExecutor).FullName).AppendLine(" Verbose Create__MigrationHistorySql")
+                    .Append(typeof(SqlStatementExecutor).FullName).Append(" Verbose ")
+                    .AppendLine(GetString("RelationalLoggerClosingConnection", "MyConnectionString"))
+                    .Append(typeof(DataStoreConnection).FullName).Append(" Verbose ")
+                    .AppendLine(GetString("RelationalLoggerCommittingTransaction"))
+                    .Append(typeof(Migrator).FullName).Append(" Information ")
+                    .AppendLine(Strings.MigratorLoggerApplyingMigration("000000000000001_Migration1"))
+                    .Append(typeof(DataStoreConnection).FullName).Append(" Verbose ")
+                    .AppendLine(GetString("RelationalLoggerBeginningTransaction", "Serializable"))
+                    .Append(typeof(SqlStatementExecutor).FullName).Append(" Verbose ")
+                    .AppendLine(GetString("RelationalLoggerOpeningConnection", "MyConnectionString"))
+                    .Append(typeof(SqlStatementExecutor).FullName).AppendLine(" Verbose SomeSql")
+                    .Append(typeof(SqlStatementExecutor).FullName).AppendLine(" Verbose Migration1InsertSql")
+                    .Append(typeof(SqlStatementExecutor).FullName).Append(" Verbose ")
+                    .AppendLine(GetString("RelationalLoggerClosingConnection", "MyConnectionString"))
+                    .Append(typeof(DataStoreConnection).FullName).Append(" Verbose ")
+                    .AppendLine(GetString("RelationalLoggerCommittingTransaction"))
+                    .ToString(),
                 loggerFactory.LogContent);
         }
 
@@ -1119,18 +1111,18 @@ new StringBuilder()
         {
             var databaseMigrations
                 = new[]
-                      {
-                          new MigrationInfo("000000000000001_Migration1"),
-                      };
+                    {
+                        new MigrationInfo("000000000000001_Migration1")
+                    };
             var localMigrations
                 = new[]
-                      {
-                          new MigrationInfo("000000000000001_Migration1")
-                              {
-                                  DowngradeOperations = new[] { new SqlOperation("SomeSql") },
-                                  TargetModel = new Metadata.Model()
-                              }
-                      };
+                    {
+                        new MigrationInfo("000000000000001_Migration1")
+                            {
+                                DowngradeOperations = new[] { new SqlOperation("SomeSql") },
+                                TargetModel = new Metadata.Model()
+                            }
+                    };
 
             var loggerFactory = new TestLoggerFactory();
             var migrator
@@ -1144,31 +1136,31 @@ new StringBuilder()
             migrator.ApplyMigrations(Migrator.InitialDatabase);
 
             Assert.Equal(
-new StringBuilder()
-    .Append(typeof(Migrator).FullName).Append(" Information ")
-    .AppendLine(Strings.MigratorLoggerRevertingMigration("000000000000001_Migration1"))
-    .Append(typeof(DataStoreConnection).FullName).Append(" Verbose ")
-    .AppendLine(GetString("RelationalLoggerBeginningTransaction", "Serializable"))
-    .Append(typeof(SqlStatementExecutor).FullName).Append(" Verbose ")
-    .AppendLine(GetString("RelationalLoggerOpeningConnection", "MyConnectionString"))
-    .Append(typeof(SqlStatementExecutor).FullName).AppendLine(" Verbose SomeSql")
-    .Append(typeof(SqlStatementExecutor).FullName).AppendLine(" Verbose Migration1DeleteSql")
-    .Append(typeof(SqlStatementExecutor).FullName).Append(" Verbose ")
-    .AppendLine(GetString("RelationalLoggerClosingConnection", "MyConnectionString"))
-    .Append(typeof(DataStoreConnection).FullName).Append(" Verbose ")
-    .AppendLine(GetString("RelationalLoggerCommittingTransaction"))
-    .Append(typeof(Migrator).FullName).Append(" Information ")
-    .AppendLine(Strings.MigratorLoggerDroppingHistoryTable)
-    .Append(typeof(DataStoreConnection).FullName).Append(" Verbose ")
-    .AppendLine(GetString("RelationalLoggerBeginningTransaction", "Serializable"))
-    .Append(typeof(SqlStatementExecutor).FullName).Append(" Verbose ")
-    .AppendLine(GetString("RelationalLoggerOpeningConnection", "MyConnectionString"))
-    .Append(typeof(SqlStatementExecutor).FullName).AppendLine(" Verbose Drop__MigrationHistorySql")
-    .Append(typeof(SqlStatementExecutor).FullName).Append(" Verbose ")
-    .AppendLine(GetString("RelationalLoggerClosingConnection", "MyConnectionString"))
-    .Append(typeof(DataStoreConnection).FullName).Append(" Verbose ")
-    .AppendLine(GetString("RelationalLoggerCommittingTransaction"))
-    .ToString(),
+                new StringBuilder()
+                    .Append(typeof(Migrator).FullName).Append(" Information ")
+                    .AppendLine(Strings.MigratorLoggerRevertingMigration("000000000000001_Migration1"))
+                    .Append(typeof(DataStoreConnection).FullName).Append(" Verbose ")
+                    .AppendLine(GetString("RelationalLoggerBeginningTransaction", "Serializable"))
+                    .Append(typeof(SqlStatementExecutor).FullName).Append(" Verbose ")
+                    .AppendLine(GetString("RelationalLoggerOpeningConnection", "MyConnectionString"))
+                    .Append(typeof(SqlStatementExecutor).FullName).AppendLine(" Verbose SomeSql")
+                    .Append(typeof(SqlStatementExecutor).FullName).AppendLine(" Verbose Migration1DeleteSql")
+                    .Append(typeof(SqlStatementExecutor).FullName).Append(" Verbose ")
+                    .AppendLine(GetString("RelationalLoggerClosingConnection", "MyConnectionString"))
+                    .Append(typeof(DataStoreConnection).FullName).Append(" Verbose ")
+                    .AppendLine(GetString("RelationalLoggerCommittingTransaction"))
+                    .Append(typeof(Migrator).FullName).Append(" Information ")
+                    .AppendLine(Strings.MigratorLoggerDroppingHistoryTable)
+                    .Append(typeof(DataStoreConnection).FullName).Append(" Verbose ")
+                    .AppendLine(GetString("RelationalLoggerBeginningTransaction", "Serializable"))
+                    .Append(typeof(SqlStatementExecutor).FullName).Append(" Verbose ")
+                    .AppendLine(GetString("RelationalLoggerOpeningConnection", "MyConnectionString"))
+                    .Append(typeof(SqlStatementExecutor).FullName).AppendLine(" Verbose Drop__MigrationHistorySql")
+                    .Append(typeof(SqlStatementExecutor).FullName).Append(" Verbose ")
+                    .AppendLine(GetString("RelationalLoggerClosingConnection", "MyConnectionString"))
+                    .Append(typeof(DataStoreConnection).FullName).Append(" Verbose ")
+                    .AppendLine(GetString("RelationalLoggerCommittingTransaction"))
+                    .ToString(),
                 loggerFactory.LogContent);
         }
 
@@ -1242,17 +1234,18 @@ new StringBuilder()
 
             return
                 new Mock<Migrator>(
-                    contextConfiguration,
                     MockHistoryRepository(contextConfiguration, databaseMigrations, historyRepositoryExists).Object,
                     MockMigrationAssembly(contextConfiguration, localMigrations).Object,
                     new TestModelDiffer(),
                     MockMigrationOperationSqlGeneratorFactory().Object,
                     new Mock<SqlGenerator>().Object,
                     sqlStatementExecutorMock.Object,
+                    dbCreatorMock.Object,
+                    contextConfiguration.ScopedServiceProvider.GetRequiredService<FakeRelationalConnection>(),
                     loggerFactory)
-                {
-                    CallBase = true
-                }
+                    {
+                        CallBase = true
+                    }
                     .Object;
         }
 
@@ -1290,7 +1283,10 @@ new StringBuilder()
             DbContextConfiguration contextConfiguration, IReadOnlyList<MigrationInfo> migrations,
             bool historyRepositoryExists = true)
         {
-            var mock = new Mock<HistoryRepository>(contextConfiguration) { CallBase = true };
+            var mock = new Mock<HistoryRepository>(
+                        contextConfiguration.ScopedServiceProvider,
+                        new LazyRef<IDbContextOptions>(new DbContextOptions()),
+                        new LazyRef<DbContext>(() => null)) { CallBase = true };
 
             if (historyRepositoryExists)
             {
@@ -1451,18 +1447,18 @@ new StringBuilder()
             {
                 return operations.Select(
                     o =>
-                    {
-                        var sqlOperation = o as SqlOperation;
-                        var builder = new IndentedStringBuilder();
+                        {
+                            var sqlOperation = o as SqlOperation;
+                            var builder = new IndentedStringBuilder();
 
-                        o.Accept(this, builder);
+                            o.Accept(this, builder);
 
-                        return
-                            new SqlStatement(builder.ToString())
-                            {
-                                SuppressTransaction = sqlOperation != null && sqlOperation.SuppressTransaction
-                            };
-                    });
+                            return
+                                new SqlStatement(builder.ToString())
+                                    {
+                                        SuppressTransaction = sqlOperation != null && sqlOperation.SuppressTransaction
+                                    };
+                        });
             }
 
             public override void Visit(CreateTableOperation operation, IndentedStringBuilder builder)
@@ -1604,6 +1600,7 @@ new StringBuilder()
                 return null;
             }
         }
+
         #endregion
     }
 }
