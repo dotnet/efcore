@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Redis.Query;
 using Microsoft.Data.Entity.Redis.Utilities;
@@ -22,11 +23,18 @@ namespace Microsoft.Data.Entity.Redis
         private readonly LazyRef<RedisDatabase> _database;
 
         public RedisDataStore(
-            [NotNull] DbContextConfiguration configuration,
-            [NotNull] ILoggerFactory loggerFactory)
-            : base(configuration, loggerFactory)
+             [NotNull] StateManager stateManager,
+             [NotNull] LazyRef<IModel> model,
+             [NotNull] EntityKeyFactorySource entityKeyFactorySource,
+             [NotNull] EntityMaterializerSource entityMaterializerSource,
+             [NotNull] ClrCollectionAccessorSource collectionAccessorSource,
+             [NotNull] ClrPropertySetterSource propertySetterSource,
+             [NotNull] LazyRef<Database> database,
+             [NotNull] ILoggerFactory loggerFactory)
+            : base(stateManager, model, entityKeyFactorySource, entityMaterializerSource,
+                collectionAccessorSource, propertySetterSource, loggerFactory)
         {
-            _database = new LazyRef<RedisDatabase>(() => (RedisDatabase)configuration.Database);
+            _database = new LazyRef<RedisDatabase>(() => (RedisDatabase)database.Value);
         }
 
         public override int SaveChanges(

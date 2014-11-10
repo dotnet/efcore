@@ -34,15 +34,21 @@ namespace Microsoft.Data.Entity.InMemory
         }
 
         public InMemoryDataStore(
-            [NotNull] DbContextConfiguration configuration,
-            [NotNull] InMemoryDatabase persistentDatabase,
-            [NotNull] ILoggerFactory loggerFactory)
-            : base(configuration, loggerFactory)
+             [NotNull] StateManager stateManager,
+             [NotNull] LazyRef<IModel> model,
+             [NotNull] EntityKeyFactorySource entityKeyFactorySource,
+             [NotNull] EntityMaterializerSource entityMaterializerSource,
+             [NotNull] ClrCollectionAccessorSource collectionAccessorSource,
+             [NotNull] ClrPropertySetterSource propertySetterSource,
+             [NotNull] InMemoryDatabase persistentDatabase,
+             [NotNull] LazyRef<IDbContextOptions> options,
+             [NotNull] ILoggerFactory loggerFactory)
+            : base(stateManager, model, entityKeyFactorySource, entityMaterializerSource,
+                collectionAccessorSource, propertySetterSource, loggerFactory)
         {
-            Check.NotNull(configuration, "configuration");
             Check.NotNull(persistentDatabase, "persistentDatabase");
 
-            var storeConfig = configuration.ContextOptions.Extensions
+            var storeConfig = options.Value.Extensions
                 .OfType<InMemoryOptionsExtension>()
                 .FirstOrDefault();
 

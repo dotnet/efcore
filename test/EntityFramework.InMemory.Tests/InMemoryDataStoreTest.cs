@@ -5,8 +5,10 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.ChangeTracking;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Tests;
+using Microsoft.Framework.DependencyInjection;
+using Microsoft.Framework.DependencyInjection.Fallback;
 using Microsoft.Framework.Logging;
 using Moq;
 using Xunit;
@@ -18,83 +20,87 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         [Fact]
         public void Uses_persistent_database_by_default()
         {
-            var configuration = CreateConfiguration();
-            var persistentDatabase = new InMemoryDatabase(new LoggerFactory());
+            var serviceProvider = TestHelpers.CreateServiceProvider();
 
-            var inMemoryDataStore = new InMemoryDataStore(configuration, persistentDatabase, new LoggerFactory());
+            var store1 = CreateScopedServices(serviceProvider).GetRequiredService<InMemoryDataStore>();
+            var store2 = CreateScopedServices(serviceProvider).GetRequiredService<InMemoryDataStore>();
 
-            Assert.Same(persistentDatabase, inMemoryDataStore.Database);
+            Assert.Same(store1.Database, store2.Database);
         }
 
         [Fact]
         public void Uses_persistent_database_if_configured_as_persistent()
         {
-            var configuration = CreateConfiguration(new DbContextOptions().UseInMemoryStore(persist: true));
+            var serviceProvider = TestHelpers.CreateServiceProvider();
 
-            var persistentDatabase = new InMemoryDatabase(new LoggerFactory());
-
-            var inMemoryDataStore = new InMemoryDataStore(configuration, persistentDatabase, new LoggerFactory());
-
-            Assert.Same(persistentDatabase, inMemoryDataStore.Database);
+            Assert.Same(
+                CreateStore(serviceProvider, persist: true).Database,
+                CreateStore(serviceProvider, persist: true).Database);
         }
 
         [Fact]
         public void Uses_transient_database_if_not_configured_as_persistent()
         {
-            var configuration = CreateConfiguration(new DbContextOptions().UseInMemoryStore(persist: false));
+            var serviceProvider = TestHelpers.CreateServiceProvider();
 
-            var persistentDatabase = new InMemoryDatabase(new LoggerFactory());
-
-            var inMemoryDataStore = new InMemoryDataStore(configuration, persistentDatabase, new LoggerFactory());
-
-            Assert.NotNull(inMemoryDataStore.Database);
-            Assert.NotSame(persistentDatabase, inMemoryDataStore.Database);
-            Assert.Same(inMemoryDataStore.Database, inMemoryDataStore.Database);
+            Assert.NotSame(
+                CreateStore(serviceProvider, persist: false).Database,
+                CreateStore(serviceProvider, persist: false).Database);
         }
 
         [Fact]
-        public void EnsureDatabaseCreated_returns_true_for_first_use_of_persistent_database_and_false_thereafter()
+        public void EnsureCreated_returns_false_for_first_use_of_persistent_database_and_true_thereafter()
         {
+            var serviceProvider = TestHelpers.CreateServiceProvider();
             var model = CreateModel();
-            var configuration = CreateConfiguration(new DbContextOptions().UseInMemoryStore(persist: true));
+            var store = CreateStore(serviceProvider, persist: true);
 
-            var persistentDatabase = new InMemoryDatabase(new LoggerFactory());
+            Assert.True(store.EnsureDatabaseCreated(model));
+            Assert.False(store.EnsureDatabaseCreated(model));
+            Assert.False(store.EnsureDatabaseCreated(model));
 
-            var inMemoryDataStore = new InMemoryDataStore(configuration, persistentDatabase, new LoggerFactory());
+            store = CreateStore(serviceProvider, persist: true);
 
-            Assert.True(inMemoryDataStore.EnsureDatabaseCreated(model));
-            Assert.False(inMemoryDataStore.EnsureDatabaseCreated(model));
-            Assert.False(inMemoryDataStore.EnsureDatabaseCreated(model));
+            Assert.False(store.EnsureDatabaseCreated(model));
         }
 
         [Fact]
-        public void EnsureDatabaseCreated_returns_true_for_first_use_of_non_persistent_database_and_false_thereafter()
+        public void EnsureCreated_returns_true_for_first_use_of_non_persistent_database_and_false_thereafter()
         {
+            var serviceProvider = TestHelpers.CreateServiceProvider();
             var model = CreateModel();
-            var configuration = CreateConfiguration(new DbContextOptions().UseInMemoryStore(persist: false));
+            var store = CreateStore(serviceProvider, persist: false);
 
-            var nonPersistentDatabase = new InMemoryDatabase(new LoggerFactory());
+            Assert.True(store.EnsureDatabaseCreated(model));
+            Assert.False(store.EnsureDatabaseCreated(model));
+            Assert.False(store.EnsureDatabaseCreated(model));
 
-            var inMemoryDataStore = new InMemoryDataStore(configuration, nonPersistentDatabase, new LoggerFactory());
+            store = CreateStore(serviceProvider, persist: false);
 
-            Assert.True(inMemoryDataStore.EnsureDatabaseCreated(model));
-            Assert.False(inMemoryDataStore.EnsureDatabaseCreated(model));
-            Assert.False(inMemoryDataStore.EnsureDatabaseCreated(model));
+            Assert.True(store.EnsureDatabaseCreated(model));
+            Assert.False(store.EnsureDatabaseCreated(model));
+            Assert.False(store.EnsureDatabaseCreated(model));
+        }
+
+        private static InMemoryDataStore CreateStore(IServiceProvider serviceProvider, bool persist)
+        {
+            var configuration = new DbContext(serviceProvider, new DbContextOptions().UseInMemoryStore(persist: persist)).Configuration;
+
+            return configuration.ScopedServiceProvider.GetRequiredService<InMemoryDataStore>();
         }
 
         [Fact]
         public async Task Save_changes_adds_new_objects_to_store()
         {
+            var serviceProvider = CreateScopedServices();
             var model = CreateModel();
-            var configuration = CreateConfiguration();
             var entityType = model.GetEntityType(typeof(Customer));
 
             var customer = new Customer { Id = 42, Name = "Unikorn" };
-            var entityEntry = new ClrStateEntry(configuration, entityType, customer);
+            var entityEntry = serviceProvider.GetRequiredService<StateEntryFactory>().Create(entityType, customer);
             await entityEntry.SetEntityStateAsync(EntityState.Added);
 
-            var loggerFactory = new LoggerFactory();
-            var inMemoryDataStore = new InMemoryDataStore(configuration, new InMemoryDatabase(loggerFactory), loggerFactory);
+            var inMemoryDataStore = serviceProvider.GetRequiredService<InMemoryDataStore>();
 
             await inMemoryDataStore.SaveChangesAsync(new[] { entityEntry });
 
@@ -105,16 +111,15 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         [Fact]
         public async Task Save_changes_updates_changed_objects_in_store()
         {
+            var serviceProvider = CreateScopedServices();
             var model = CreateModel();
-            var configuration = CreateConfiguration();
             var entityType = model.GetEntityType(typeof(Customer));
 
             var customer = new Customer { Id = 42, Name = "Unikorn" };
-            var entityEntry = new ClrStateEntry(configuration, entityType, customer);
+            var entityEntry = serviceProvider.GetRequiredService<StateEntryFactory>().Create(entityType, customer);
             await entityEntry.SetEntityStateAsync(EntityState.Added);
 
-            var loggerFactory = new LoggerFactory();
-            var inMemoryDataStore = new InMemoryDataStore(configuration, new InMemoryDatabase(loggerFactory), loggerFactory);
+            var inMemoryDataStore = serviceProvider.GetRequiredService<InMemoryDataStore>();
 
             await inMemoryDataStore.SaveChangesAsync(new[] { entityEntry });
 
@@ -130,16 +135,15 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         [Fact]
         public async Task Save_changes_removes_deleted_objects_from_store()
         {
+            var serviceProvider = CreateScopedServices();
             var model = CreateModel();
-            var configuration = CreateConfiguration();
             var entityType = model.GetEntityType(typeof(Customer));
 
             var customer = new Customer { Id = 42, Name = "Unikorn" };
-            var entityEntry = new ClrStateEntry(configuration, entityType, customer);
+            var entityEntry = serviceProvider.GetRequiredService<StateEntryFactory>().Create(entityType, customer);
             await entityEntry.SetEntityStateAsync(EntityState.Added);
 
-            var loggerFactory = new LoggerFactory();
-            var inMemoryDataStore = new InMemoryDataStore(configuration, new InMemoryDatabase(loggerFactory), loggerFactory);
+            var inMemoryDataStore = serviceProvider.GetRequiredService<InMemoryDataStore>();
 
             await inMemoryDataStore.SaveChangesAsync(new[] { entityEntry });
 
@@ -154,24 +158,38 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             Assert.Equal(0, inMemoryDataStore.Database.SelectMany(t => t).Count());
         }
 
+        private static IServiceProvider CreateScopedServices(IServiceProvider serviceProvider = null)
+        {
+            return new DbContext(
+                serviceProvider ?? TestHelpers.CreateServiceProvider(),
+                new DbContextOptions().UseInMemoryStore()).Configuration.ScopedServiceProvider;
+        }
+
         [Fact]
         public async Task Should_log_writes()
         {
-            var model = CreateModel();
-            var configuration = CreateConfiguration();
-            var entityType = model.GetEntityType(typeof(Customer));
-
-            var customer = new Customer { Id = 42, Name = "Unikorn" };
-            var entityEntry = new ClrStateEntry(configuration, entityType, customer);
-            await entityEntry.SetEntityStateAsync(EntityState.Added);
-
             var mockLogger = new Mock<ILogger>();
             mockLogger.Setup(l => l.IsEnabled(LogLevel.Information)).Returns(true);
 
             var mockFactory = new Mock<ILoggerFactory>();
             mockFactory.Setup(m => m.Create(It.IsAny<string>())).Returns(mockLogger.Object);
 
-            var inMemoryDataStore = new InMemoryDataStore(configuration, new InMemoryDatabase(mockFactory.Object), mockFactory.Object);
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFramework()
+                .AddInMemoryStore()
+                .ServiceCollection
+                .AddInstance(mockFactory.Object)
+                .BuildServiceProvider();
+
+            var scopedServices = CreateScopedServices(serviceProvider);
+            var model = CreateModel();
+            var entityType = model.GetEntityType(typeof(Customer));
+
+            var customer = new Customer { Id = 42, Name = "Unikorn" };
+            var entityEntry = scopedServices.GetRequiredService<StateEntryFactory>().Create(entityType, customer);
+            await entityEntry.SetEntityStateAsync(EntityState.Added);
+
+            var inMemoryDataStore = scopedServices.GetRequiredService<InMemoryDataStore>();
 
             await inMemoryDataStore.SaveChangesAsync(new[] { entityEntry });
 
@@ -197,16 +215,6 @@ namespace Microsoft.Data.Entity.InMemory.Tests
                 });
 
             return model;
-        }
-
-        private static DbContextConfiguration CreateConfiguration()
-        {
-            return CreateConfiguration(new DbContextOptions().UseInMemoryStore());
-        }
-
-        private static DbContextConfiguration CreateConfiguration(DbContextOptions options)
-        {
-            return new DbContext(options).Configuration;
         }
 
         private class Customer

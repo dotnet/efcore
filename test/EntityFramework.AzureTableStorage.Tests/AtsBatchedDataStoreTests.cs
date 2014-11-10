@@ -8,11 +8,14 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.AzureTableStorage.Adapters;
+using Microsoft.Data.Entity.AzureTableStorage.Query;
 using Microsoft.Data.Entity.AzureTableStorage.Requests;
 using Microsoft.Data.Entity.AzureTableStorage.Tests.Helpers;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Update;
+using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
@@ -23,13 +26,12 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
 {
     using ResultTaskList = IList<TableResult>;
 
-    public class AtsBatchedDataStoreTests : AtsDataStore, IClassFixture<Mock<AtsConnection>>
+    public class AtsBatchedDataStoreTests : IClassFixture<Mock<AtsConnection>>
     {
         private readonly Mock<AtsConnection> _connection;
         private readonly Queue<IList<TableResult>> _queue;
 
         public AtsBatchedDataStoreTests(Mock<AtsConnection> connection)
-            : base(BuildConfig(), connection.Object, new TableEntityAdapterFactory())
         {
             _connection = connection;
             _connection.SetupGet(s => s.Batching).Returns(true);
@@ -81,7 +83,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
                     TestStateEntry.Mock().WithState(EntityState.Modified).WithProperty("PartitionKey", "B"),
                     TestStateEntry.Mock().WithState(EntityState.Deleted).WithProperty("PartitionKey", "B"),
                 };
-            Assert.Equal(6, SaveChangesAsync(entries).Result);
+            Assert.Equal(6, CreateStore().SaveChangesAsync(entries).Result);
         }
 
         [Fact]
@@ -94,7 +96,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
                 };
             Assert.Equal(
                 Strings.SaveChangesFailed,
-                Assert.ThrowsAsync<DbUpdateException>(() => SaveChangesAsync(entries)).Result.Message);
+                Assert.ThrowsAsync<DbUpdateException>(() => CreateStore().SaveChangesAsync(entries)).Result.Message);
         }
 
         [Fact]
@@ -107,7 +109,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
                 };
             Assert.Equal(
                 Strings.ETagPreconditionFailed,
-                Assert.ThrowsAsync<DbUpdateConcurrencyException>(() => SaveChangesAsync(entries)).Result.Message);
+                Assert.ThrowsAsync<DbUpdateConcurrencyException>(() => CreateStore().SaveChangesAsync(entries)).Result.Message);
         }
 
         [Theory]
@@ -138,8 +140,25 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
                 QueueResult(responses);
             }
 
-            var actualChanges = SaveChangesAsync(entries).Result;
+            var actualChanges = CreateStore().SaveChangesAsync(entries).Result;
             Assert.Equal(expectedChanges, actualChanges);
+        }
+
+        private AtsDataStore CreateStore()
+        {
+            var store = new AtsDataStore(
+                Mock.Of<StateManager>(),
+                new LazyRef<IModel>(() => null),
+                Mock.Of<EntityKeyFactorySource>(),
+                Mock.Of<EntityMaterializerSource>(),
+                Mock.Of<ClrCollectionAccessorSource>(),
+                Mock.Of<ClrPropertySetterSource>(),
+                _connection.Object,
+                new AtsQueryFactory(new AtsValueReaderFactory()),
+                new TableEntityAdapterFactory(),
+                new LazyRef<DbContext>(Mock.Of<DbContext>()),
+                new LoggerFactory());
+            return store;
         }
     }
 }
