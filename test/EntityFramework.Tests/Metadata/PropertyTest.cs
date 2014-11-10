@@ -60,7 +60,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var intProperty = new Property("Name", typeof(int), new Model().AddEntityType(typeof(object)));
 
             Assert.Equal(
-                Strings.FormatCannotBeNullable("Name", "Object", "Int32"),
+                Strings.CannotBeNullable("Name", "Object", "Int32"),
                 Assert.Throws<InvalidOperationException>(() => intProperty.IsNullable = true).Message);
         }
 

@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.SqlServer
 
             if (incrementBy <= 0)
             {
-                throw new NotSupportedException(Strings.FormatSequenceBadBlockSize(incrementBy, GetSequenceName(property)));
+                throw new NotSupportedException(Strings.SequenceBadBlockSize(incrementBy, GetSequenceName(property)));
             }
 
             return incrementBy;

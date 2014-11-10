@@ -220,7 +220,7 @@ namespace Microsoft.Data.Entity.Tests.Utilities
             graph.Populate(entityTypeA);
 
             Assert.Equal(
-                Strings.FormatCircularDependency(typeof(A).FullName + " -> " + typeof(A).FullName),
+                Strings.CircularDependency(typeof(A).FullName + " -> " + typeof(A).FullName),
                 Assert.Throws<InvalidOperationException>(() => graph.TopologicalSort()).Message);
         }
 
@@ -246,7 +246,7 @@ namespace Microsoft.Data.Entity.Tests.Utilities
             graph.Populate(entityTypeC, entityTypeA, entityTypeB);
 
             Assert.Equal(
-                Strings.FormatCircularDependency(typeof(A).FullName + " -> " + typeof(B).FullName + " -> " + typeof(A).FullName),
+                Strings.CircularDependency(typeof(A).FullName + " -> " + typeof(B).FullName + " -> " + typeof(A).FullName),
                 Assert.Throws<InvalidOperationException>(() => graph.TopologicalSort()).Message);
         }
 
@@ -273,7 +273,7 @@ namespace Microsoft.Data.Entity.Tests.Utilities
             graph.Populate(entityTypeA, entityTypeB, entityTypeC);
 
             Assert.Equal(
-                Strings.FormatCircularDependency(typeof(A).FullName + " -> " + typeof(C).FullName + " -> " + typeof(B).FullName + " -> " + typeof(A).FullName),
+                Strings.CircularDependency(typeof(A).FullName + " -> " + typeof(C).FullName + " -> " + typeof(B).FullName + " -> " + typeof(A).FullName),
                 Assert.Throws<InvalidOperationException>(() => graph.TopologicalSort()).Message);
         }
 
@@ -311,7 +311,7 @@ namespace Microsoft.Data.Entity.Tests.Utilities
             graph.Populate(entityTypeA, entityTypeB, entityTypeC, entityTypeD, entityTypeE);
 
             Assert.Equal(
-                Strings.FormatCircularDependency(typeof(A).FullName + " -> " + typeof(C).FullName + " -> " + typeof(B).FullName + " -> " + typeof(A).FullName),
+                Strings.CircularDependency(typeof(A).FullName + " -> " + typeof(C).FullName + " -> " + typeof(B).FullName + " -> " + typeof(A).FullName),
                 Assert.Throws<InvalidOperationException>(() => graph.TopologicalSort()).Message);
         }
 
@@ -338,7 +338,7 @@ namespace Microsoft.Data.Entity.Tests.Utilities
             graph.Populate(entityTypeA, entityTypeB, entityTypeC);
 
             Assert.Equal(
-                Strings.FormatCircularDependency(typeof(C).FullName + " -> " + typeof(B).FullName + " -> " + typeof(C).FullName + " -> " + typeof(A).FullName),
+                Strings.CircularDependency(typeof(C).FullName + " -> " + typeof(B).FullName + " -> " + typeof(C).FullName + " -> " + typeof(A).FullName),
                 Assert.Throws<InvalidOperationException>(() => graph.TopologicalSort()).Message);
         }
     }

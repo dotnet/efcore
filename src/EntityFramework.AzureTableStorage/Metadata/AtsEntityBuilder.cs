@@ -62,7 +62,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Metadata
             if (property.PropertyType != typeof(DateTimeOffset))
             {
                 throw new InvalidOperationException(
-                    Strings.FormatBadTimestampType(property.Name, _entityType.SimpleName, property.PropertyType.Name));
+                    Strings.BadTimestampType(property.Name, _entityType.SimpleName, property.PropertyType.Name));
             }
 
             property.AzureTableStorage().Column = "Timestamp";

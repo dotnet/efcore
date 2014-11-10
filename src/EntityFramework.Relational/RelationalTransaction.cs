@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity.Relational
 
             if (connection.DbConnection != dbTransaction.Connection)
             {
-                throw new InvalidOperationException(Strings.FormatTransactionAssociatedWithDifferentConnection());
+                throw new InvalidOperationException(Strings.TransactionAssociatedWithDifferentConnection);
             }
 
             _connection = connection;

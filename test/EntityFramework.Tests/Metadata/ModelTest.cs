@@ -64,7 +64,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             model.AddEntityType(typeof(Customer));
 
             Assert.Equal(
-                Strings.FormatDuplicateEntityType(typeof(Customer).FullName),
+                Strings.DuplicateEntityType(typeof(Customer).FullName),
                 Assert.Throws<InvalidOperationException>(() => model.AddEntityType(typeof(Customer))).Message);
         }
 
@@ -77,7 +77,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             model.AddEntityType(typeof(Customer));
 
             Assert.Equal(
-                Strings.FormatDuplicateEntityType(typeof(Customer).FullName),
+                Strings.DuplicateEntityType(typeof(Customer).FullName),
                 Assert.Throws<InvalidOperationException>(() => model.AddEntityType(typeof(Customer).FullName)).Message);
         }
 
@@ -92,7 +92,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Null(model.TryGetEntityType(typeof(string)));
 
             Assert.Equal(
-                Strings.FormatEntityTypeNotFound("String"),
+                Strings.EntityTypeNotFound("String"),
                 Assert.Throws<ModelItemNotFoundException>(() => model.GetEntityType(typeof(string))).Message);
         }
 
@@ -107,7 +107,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Null(model.TryGetEntityType(typeof(string)));
 
             Assert.Equal(
-                Strings.FormatEntityTypeNotFound("String"),
+                Strings.EntityTypeNotFound("String"),
                 Assert.Throws<ModelItemNotFoundException>(() => model.GetEntityType("String")).Message);
         }
 

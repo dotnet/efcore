@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 // ReSharper disable once AssignNullToNotNullAttribute
                 Assert.Throws<ArgumentNullException>(() => new Navigation("Handlebars", null, pointsToPrincipal: true)).ParamName);
             Assert.Equal(
-                Strings.FormatArgumentIsEmpty("name"),
+                Strings.ArgumentIsEmpty("name"),
                 Assert.Throws<ArgumentException>(() => new Navigation("", new Mock<ForeignKey>().Object, pointsToPrincipal: true)).Message);
         }
 

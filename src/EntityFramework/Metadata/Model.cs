@@ -38,7 +38,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             if (previousLength == _entities.Count)
             {
-                throw new InvalidOperationException(Strings.FormatDuplicateEntityType(entityType.Name));
+                throw new InvalidOperationException(Strings.DuplicateEntityType(entityType.Name));
             }
 
             return entityType;
@@ -84,7 +84,7 @@ namespace Microsoft.Data.Entity.Metadata
             var entityType = TryGetEntityType(type);
             if (entityType == null)
             {
-                throw new ModelItemNotFoundException(Strings.FormatEntityTypeNotFound(type.Name));
+                throw new ModelItemNotFoundException(Strings.EntityTypeNotFound(type.Name));
             }
 
             return entityType;
@@ -97,7 +97,7 @@ namespace Microsoft.Data.Entity.Metadata
             var entityType = TryGetEntityType(name);
             if (entityType == null)
             {
-                throw new ModelItemNotFoundException(Strings.FormatEntityTypeNotFound(name));
+                throw new ModelItemNotFoundException(Strings.EntityTypeNotFound(name));
             }
 
             return entityType;

@@ -5146,7 +5146,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var modelBuilder = HobNobBuilder();
 
             Assert.Equal(
-                Strings.FormatCannotBeNullable("NobId1", "Hob", "Int32"),
+                Strings.CannotBeNullable("NobId1", "Hob", "Int32"),
                 Assert.Throws<InvalidOperationException>(() => modelBuilder
                     .Entity(typeof(Nob).FullName)
                     .OneToMany(typeof(Hob).FullName, "Hobs", "Nob")
@@ -5184,7 +5184,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var modelBuilder = HobNobBuilder();
 
             Assert.Equal(
-                Strings.FormatCannotBeNullable("NobId1", "Hob", "Int32"),
+                Strings.CannotBeNullable("NobId1", "Hob", "Int32"),
                 Assert.Throws<InvalidOperationException>(() => modelBuilder
                     .Entity(typeof(Hob).FullName)
                     .ManyToOne(typeof(Nob).FullName, "Nob", "Hobs")
@@ -5222,7 +5222,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var modelBuilder = HobNobBuilder();
 
             Assert.Equal(
-                Strings.FormatCannotBeNullable("NobId1", "Hob", "Int32"),
+                Strings.CannotBeNullable("NobId1", "Hob", "Int32"),
                 Assert.Throws<InvalidOperationException>(() => modelBuilder
                     .Entity(typeof(Nob).FullName)
                     .OneToOne(typeof(Hob).FullName, "Hob", "Nob")

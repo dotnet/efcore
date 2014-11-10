@@ -144,7 +144,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             stateManager.StartTracking(stateEntry2);
 
             Assert.Equal(
-                Strings.FormatMultipleStateEntries(typeof(Category).FullName),
+                Strings.MultipleStateEntries(typeof(Category).FullName),
                 Assert.Throws<InvalidOperationException>(() => stateManager.StartTracking(stateEntry)).Message);
         }
 
@@ -161,7 +161,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             stateManager.StartTracking(stateEntry1);
 
             Assert.Equal(
-                Strings.FormatIdentityConflict(typeof(Category).FullName),
+                Strings.IdentityConflict(typeof(Category).FullName),
                 Assert.Throws<InvalidOperationException>(() => stateManager.StartTracking(stateEntry2)).Message);
         }
 
@@ -174,7 +174,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var stateEntry = stateManager.GetOrCreateEntry(entity);
 
             Assert.Equal(
-                Strings.FormatNullPrimaryKey(typeof(Dogegory).FullName),
+                Strings.NullPrimaryKey(typeof(Dogegory).FullName),
                 Assert.Throws<InvalidOperationException>(() => stateManager.StartTracking(stateEntry)).Message);
         }
 
@@ -188,7 +188,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var stateEntry = stateManager.GetOrCreateEntry(new Category());
 
             Assert.Equal(
-                Strings.FormatWrongStateManager(typeof(Category).FullName),
+                Strings.WrongStateManager(typeof(Category).FullName),
                 Assert.Throws<InvalidOperationException>(() => stateManager2.StartTracking(stateEntry)).Message);
         }
 

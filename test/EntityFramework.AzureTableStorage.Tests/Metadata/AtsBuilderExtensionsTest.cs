@@ -551,7 +551,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Metadata
             var modelBuilder = new BasicModelBuilder();
 
             Assert.Equal(
-                Strings.FormatBadTimestampType("Name", "Customer", "String"),
+                Strings.BadTimestampType("Name", "Customer", "String"),
                 Assert.Throws<InvalidOperationException>(
                     () => modelBuilder
                         .Entity<Customer>()

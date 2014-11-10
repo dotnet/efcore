@@ -174,7 +174,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     var serviceProvider = serviceCollection.BuildServiceProvider();
 
                     Assert.Equal(
-                        GetRelationalString("FormatNoConnectionOrConnectionString"),
+                        GetRelationalString("NoConnectionOrConnectionString"),
                         Assert.Throws<InvalidOperationException>(() =>
                             {
                                 using (var context = new NorthwindContext(serviceProvider))
@@ -209,7 +209,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 using (await SqlServerNorthwindContext.GetSharedStoreAsync())
                 {
                     Assert.Equal(
-                        GetString("FormatNoDataStoreConfigured"),
+                        GetString("NoDataStoreConfigured"),
                         Assert.Throws<InvalidOperationException>(() =>
                             {
                                 using (var context = new NorthwindContext())
@@ -245,7 +245,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     var serviceProvider = serviceCollection.BuildServiceProvider();
 
                     Assert.Equal(
-                        GetString("FormatNoDataStoreService"),
+                        GetString("NoDataStoreService"),
                         Assert.Throws<InvalidOperationException>(() =>
                             {
                                 using (var context = new NorthwindContext(serviceProvider))
@@ -711,13 +711,13 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         private static string GetString(string stringName)
         {
             var strings = typeof(DbContext).GetTypeInfo().Assembly.GetType(typeof(DbContext).Namespace + ".Strings");
-            return (string)strings.GetTypeInfo().GetDeclaredMethods(stringName).Single().Invoke(null, null);
+            return (string)strings.GetTypeInfo().GetDeclaredProperty(stringName).GetGetMethod().Invoke(null, null);
         }
 
         private static string GetRelationalString(string stringName)
         {
             var strings = typeof(RelationalConnection).GetTypeInfo().Assembly.GetType(typeof(RelationalConnection).Namespace + ".Strings");
-            return (string)strings.GetTypeInfo().GetDeclaredMethods(stringName).Single().Invoke(null, null);
+            return (string)strings.GetTypeInfo().GetDeclaredProperty(stringName).GetGetMethod().Invoke(null, null);
         }
     }
 }

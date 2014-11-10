@@ -32,7 +32,7 @@ namespace Microsoft.Data.Entity.Metadata
             if (principalProperties.Count != dependentProperties.Count)
             {
                 throw new ArgumentException(
-                    Strings.FormatForeignKeyCountMismatch(
+                    Strings.ForeignKeyCountMismatch(
                         Property.Format(dependentProperties),
                         dependentProperties[0].EntityType.Name,
                         Property.Format(principalProperties),
@@ -42,7 +42,7 @@ namespace Microsoft.Data.Entity.Metadata
             if (!principalProperties.Select(p => p.UnderlyingType).SequenceEqual(dependentProperties.Select(p => p.UnderlyingType)))
             {
                 throw new ArgumentException(
-                    Strings.FormatForeignKeyTypeMismatch(
+                    Strings.ForeignKeyTypeMismatch(
                         Property.Format(dependentProperties),
                         dependentProperties[0].EntityType.Name, referencedKey.EntityType.Name));
             }

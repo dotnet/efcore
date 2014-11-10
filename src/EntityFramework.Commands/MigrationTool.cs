@@ -156,7 +156,7 @@ namespace Microsoft.Data.Entity.Commands
         public virtual Type GetContextType([CanBeNull] string name)
         {
             var contextType = ContextTool.SelectType(GetContextTypes(), name);
-            _logger.Value.WriteVerbose(Strings.FormatLogUseContext(contextType.Name));
+            _logger.Value.WriteVerbose(Strings.LogUseContext(contextType.Name));
 
             return contextType;
         }

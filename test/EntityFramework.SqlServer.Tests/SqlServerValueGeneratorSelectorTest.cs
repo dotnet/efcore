@@ -224,7 +224,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 .Metadata;
 
             Assert.Equal(
-                TestHelpers.GetCoreString("FormatNoValueGenerator", "String", typeof(Robot).FullName, "String"),
+                TestHelpers.GetCoreString("NoValueGenerator", "String", typeof(Robot).FullName, "String"),
                 Assert.Throws<NotSupportedException>(() => selector.Select(property)).Message);
         }
 

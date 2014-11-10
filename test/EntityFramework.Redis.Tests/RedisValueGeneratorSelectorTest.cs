@@ -78,19 +78,19 @@ namespace Microsoft.Data.Entity.Redis.Tests
             typeMock.Setup(m => m.Name).Returns("AnEntity");
 
             Assert.Equal(
-                GetString("FormatNoValueGenerator", "MyProperty", "MyType", "String"),
+                GetString("NoValueGenerator", "MyProperty", "MyType", "String"),
                 Assert.Throws<NotSupportedException>(() => selector.Select(CreateProperty(typeof(string)))).Message);
             Assert.Equal(
-                GetString("FormatNoValueGenerator", "MyProperty", "MyType", "Single"),
+                GetString("NoValueGenerator", "MyProperty", "MyType", "Single"),
                 Assert.Throws<NotSupportedException>(() => selector.Select(CreateProperty(typeof(float)))).Message);
             Assert.Equal(
-                GetString("FormatNoValueGenerator", "MyProperty", "MyType", "Double"),
+                GetString("NoValueGenerator", "MyProperty", "MyType", "Double"),
                 Assert.Throws<NotSupportedException>(() => selector.Select(CreateProperty(typeof(double)))).Message);
             Assert.Equal(
-                GetString("FormatNoValueGenerator", "MyProperty", "MyType", "DateTime"),
+                GetString("NoValueGenerator", "MyProperty", "MyType", "DateTime"),
                 Assert.Throws<NotSupportedException>(() => selector.Select(CreateProperty(typeof(DateTime)))).Message);
             Assert.Equal(
-                GetString("FormatNoValueGenerator", "MyProperty", "MyType", "DateTimeOffset"),
+                GetString("NoValueGenerator", "MyProperty", "MyType", "DateTimeOffset"),
                 Assert.Throws<NotSupportedException>(() => selector.Select(CreateProperty(typeof(DateTimeOffset)))).Message);
         }
 
@@ -105,8 +105,11 @@ namespace Microsoft.Data.Entity.Redis.Tests
 
         private static string GetString(string stringName, params object[] parameters)
         {
-            var strings = typeof(DbContext).GetTypeInfo().Assembly.GetType(typeof(DbContext).Namespace + ".Strings");
-            return (string)strings.GetTypeInfo().GetDeclaredMethods(stringName).Single().Invoke(null, parameters);
+            var strings = typeof(DbContext).GetTypeInfo().Assembly.GetType(typeof(DbContext).Namespace + ".Strings").GetTypeInfo();
+            var method = parameters.Length == 0
+                ? strings.GetDeclaredProperty(stringName).GetGetMethod()
+                : strings.GetDeclaredMethods(stringName).Single();
+            return (string)method.Invoke(null, parameters);
         }
     }
 }

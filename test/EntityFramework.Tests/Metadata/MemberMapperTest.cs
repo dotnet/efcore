@@ -32,7 +32,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             property["BackingField"] = "_speakToMe";
 
             Assert.Equal(
-                Strings.FormatMissingBackingField(typeof(TheDarkSide).FullName, "SpeakToMe", "_speakToMe"),
+                Strings.MissingBackingField(typeof(TheDarkSide).FullName, "SpeakToMe", "_speakToMe"),
                 Assert.Throws<InvalidOperationException>(
                     () => new MemberMapper(new FieldMatcher()).MapPropertiesToMembers(entityType)).Message);
         }
@@ -45,7 +45,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             property["BackingField"] = "_badFieldForSpeak";
 
             Assert.Equal(
-                Strings.FormatBadBackingFieldType("_badFieldForSpeak", typeof(string).Name, typeof(TheDarkSide).FullName, "SpeakToMe", typeof(int).Name),
+                Strings.BadBackingFieldType("_badFieldForSpeak", typeof(string).Name, typeof(TheDarkSide).FullName, "SpeakToMe", typeof(int).Name),
                 Assert.Throws<InvalidOperationException>(
                     () => new MemberMapper(new FieldMatcher()).MapPropertiesToMembers(entityType)).Message);
         }
@@ -83,7 +83,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             entityType.GetOrAddProperty("Time", typeof(int));
 
             Assert.Equal(
-                Strings.FormatNoFieldOrSetter(typeof(TheDarkSide).FullName, "Time"),
+                Strings.NoFieldOrSetter(typeof(TheDarkSide).FullName, "Time"),
                 Assert.Throws<InvalidOperationException>(
                     () => new MemberMapper(new FieldMatcher()).MapPropertiesToMembers(entityType)).Message);
         }

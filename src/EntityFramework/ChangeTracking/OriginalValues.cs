@@ -37,7 +37,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
             Check.NotNull(property, "property");
 
-            throw new InvalidOperationException(Strings.FormatOriginalValueNotTracked(property.Name, StateEntry.EntityType.Name));
+            throw new InvalidOperationException(Strings.OriginalValueNotTracked(property.Name, StateEntry.EntityType.Name));
         }
 
         public override string Name

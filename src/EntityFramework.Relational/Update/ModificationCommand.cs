@@ -94,7 +94,7 @@ namespace Microsoft.Data.Entity.Relational.Update
 
             if (!stateEntry.EntityState.IsDirty())
             {
-                throw new NotSupportedException(Strings.FormatModificationFunctionInvalidEntityState(stateEntry.EntityState));
+                throw new NotSupportedException(Strings.ModificationFunctionInvalidEntityState(stateEntry.EntityState));
             }
 
             var firstEntry = _stateEntries.FirstOrDefault();

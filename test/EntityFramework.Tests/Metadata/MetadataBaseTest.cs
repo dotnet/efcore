@@ -52,7 +52,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             metadataBase.AddAnnotation("Foo", "Bar");
 
             Assert.Equal(
-                Strings.FormatDuplicateAnnotation("Foo"),
+                Strings.DuplicateAnnotation("Foo"),
                 Assert.Throws<InvalidOperationException>(() => metadataBase.AddAnnotation("Foo", "Bar")).Message);
         }
 
@@ -78,7 +78,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Empty(metadataBase.Annotations);
 
             Assert.Equal(
-                Strings.FormatAnnotationNotFound("Foo"),
+                Strings.AnnotationNotFound("Foo"),
                 Assert.Throws<ModelItemNotFoundException>(() => metadataBase.GetAnnotation("Foo")).Message);
         }
 

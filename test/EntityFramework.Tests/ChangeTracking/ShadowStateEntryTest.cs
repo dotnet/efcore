@@ -31,11 +31,11 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entry = CreateStateEntry(configuration, entityType, new ObjectArrayValueReader(new object[] { 1, "Kool" }));
 
             Assert.Equal(
-                Strings.FormatOriginalValueNotTracked("Id", typeof(SomeEntity).FullName),
+                Strings.OriginalValueNotTracked("Id", typeof(SomeEntity).FullName),
                 Assert.Throws<InvalidOperationException>(() => entry.OriginalValues[idProperty] = 1).Message);
 
             Assert.Equal(
-                Strings.FormatOriginalValueNotTracked("Id", typeof(SomeEntity).FullName),
+                Strings.OriginalValueNotTracked("Id", typeof(SomeEntity).FullName),
                 Assert.Throws<InvalidOperationException>(() => entry.OriginalValues[idProperty]).Message);
         }
 

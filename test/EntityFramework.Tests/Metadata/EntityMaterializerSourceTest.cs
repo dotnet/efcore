@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var entityType = new Model().AddEntityType("SomeEntity");
 
             Assert.Equal(
-                Strings.FormatNoClrType("SomeEntity"),
+                Strings.NoClrType("SomeEntity"),
                 Assert.Throws<InvalidOperationException>(
                     () => new EntityMaterializerSource(new MemberMapper(new FieldMatcher())).GetMaterializer(entityType)).Message);
         }

@@ -153,7 +153,7 @@ namespace Microsoft.Data.Entity.Query
             new QueryOptimizer(queryAnnotations).VisitQueryModel(queryModel);
 
             QueryCompilationContext.Logger
-                .WriteInformation(queryModel, Strings.FormatLogOptimizedQueryModel);
+                .WriteInformation(queryModel, Strings.LogOptimizedQueryModel);
         }
 
         protected virtual void SingleResultToSequence(
@@ -243,7 +243,7 @@ namespace Microsoft.Data.Entity.Query
                             QueryCompilationContext.Logger
                                 .WriteInformation(
                                     navigation,
-                                    Strings.FormatLogIncludingNavigation);
+                                    Strings.LogIncludingNavigation);
 
                             IncludeNavigation(
                                 queryAnnotation.QuerySource,
@@ -255,7 +255,7 @@ namespace Microsoft.Data.Entity.Query
                     else
                     {
                         throw new NotImplementedException(
-                            Strings.FormatIncludeNonBindableExpression(includeResultOperator.NavigationPropertyPath));
+                            Strings.IncludeNonBindableExpression(includeResultOperator.NavigationPropertyPath));
                     }
                 }
             }
@@ -298,7 +298,7 @@ namespace Microsoft.Data.Entity.Query
                 QueryCompilationContext.Logger
                     .WriteInformation(
                         querySourceReferenceExpressionsToTrack,
-                        qsres => Strings.FormatLogTrackingQuerySources(
+                        qsres => Strings.LogTrackingQuerySources(
                             qsres.Select(qsre => qsre.ReferencedQuerySource.ItemName).Join()));
 
                 _expression
@@ -353,7 +353,7 @@ namespace Microsoft.Data.Entity.Query
 
             // TODO: Format expression in log (query plan)
             QueryCompilationContext.Logger
-                .WriteInformation(_expression, _ => Strings.FormatLogCompiledQueryFunction());
+                .WriteInformation(_expression, _ => Strings.LogCompiledQueryFunction);
 
             return qc => queryExecutor(qc, null);
         }

@@ -281,7 +281,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 return _principalType;
             }
 
-            throw new ArgumentException(Strings.FormatEntityTypeNotInRelationship(type.FullName, _dependentType.Name, _principalType.Name));
+            throw new ArgumentException(Strings.EntityTypeNotInRelationship(type.FullName, _dependentType.Name, _principalType.Name));
         }
 
         private EntityType ResolveType(string name)
@@ -296,7 +296,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 return _principalType;
             }
 
-            throw new ArgumentException(Strings.FormatEntityTypeNotInRelationship(name, _dependentType.Name, _principalType.Name));
+            throw new ArgumentException(Strings.EntityTypeNotInRelationship(name, _dependentType.Name, _principalType.Name));
         }
     }
 }

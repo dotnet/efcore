@@ -189,7 +189,7 @@ namespace Microsoft.Data.Entity
                     new DataStoreErrorLogState(GetType()),
                     ex,
                     (state, exception) =>
-                        Strings.FormatLogExceptionDuringSaveChanges(Environment.NewLine, exception));
+                        Strings.LogExceptionDuringSaveChanges(Environment.NewLine, exception));
 
                 throw;
             }
@@ -213,7 +213,7 @@ namespace Microsoft.Data.Entity
                     new DataStoreErrorLogState(GetType()),
                     ex,
                     (state, exception) =>
-                        Strings.FormatLogExceptionDuringSaveChanges(Environment.NewLine, exception));
+                        Strings.LogExceptionDuringSaveChanges(Environment.NewLine, exception));
 
                 throw;
             }

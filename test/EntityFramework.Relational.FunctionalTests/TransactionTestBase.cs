@@ -257,7 +257,7 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
                 {
                     Assert.Throws<InvalidOperationException>(() =>
                         context.Database.AsRelational().Connection.UseTransaction(transaction))
-                        .ValidateMessage(typeof(RelationalConnection), "FormatTransactionAssociatedWithDifferentConnection");
+                        .ValidateMessage(typeof(RelationalConnection), "TransactionAssociatedWithDifferentConnection");
                 }
             }
         }
@@ -273,7 +273,7 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
                     {
                         Assert.Throws<InvalidOperationException>(() =>
                             context.Database.AsRelational().Connection.UseTransaction(transaction))
-                            .ValidateMessage(typeof(RelationalConnection), "FormatTransactionAlreadyStarted");
+                            .ValidateMessage(typeof(RelationalConnection), "TransactionAlreadyStarted");
                     }
                 }
             }

@@ -38,7 +38,7 @@ namespace Microsoft.Data.Entity.Storage
 
             if (configured.Length > 1)
             {
-                throw new InvalidOperationException(Strings.FormatMultipleDataStoresConfigured(BuildStoreNamesString(configured)));
+                throw new InvalidOperationException(Strings.MultipleDataStoresConfigured(BuildStoreNamesString(configured)));
             }
 
             if (_sources.Length == 0)
@@ -52,7 +52,7 @@ namespace Microsoft.Data.Entity.Storage
 
             if (_sources.Length > 1)
             {
-                throw new InvalidOperationException(Strings.FormatMultipleDataStoresAvailable(BuildStoreNamesString(_sources)));
+                throw new InvalidOperationException(Strings.MultipleDataStoresAvailable(BuildStoreNamesString(_sources)));
             }
 
             _sources[0].AutoConfigure();

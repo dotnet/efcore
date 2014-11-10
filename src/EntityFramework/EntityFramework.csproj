@@ -54,7 +54,7 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\packages\KoreBuild\build\Resources.cs">
+    <Compile Include="..\..\tools\Resources.cs">
       <Link>Properties\Resources.cs</Link>
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -293,12 +293,11 @@
       <LogicalName>EntityFramework.Strings.resources</LogicalName>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <None Include="..\..\packages\KoreBuild\build\Resources.tt">
+    <Content Include="..\..\tools\Resources.tt">
       <Link>Properties\Resources.tt</Link>
       <Generator>TextTemplatingFileGenerator</Generator>
-      <CustomToolNamespace>Microsoft.Data.Entity</CustomToolNamespace>
       <LastGenOutput>Resources.cs</LastGenOutput>
-    </None>
+    </Content>
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>

@@ -50,7 +50,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             if (keyProperties.Count > 1)
             {
                 throw new InvalidOperationException(
-                    Strings.FormatMultiplePropertiesMatchedAsKeys(keyProperties.First().Name, entityType.Name));
+                    Strings.MultiplePropertiesMatchedAsKeys(keyProperties.First().Name, entityType.Name));
             }
 
             return keyProperties;

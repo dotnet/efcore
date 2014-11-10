@@ -93,7 +93,7 @@ namespace Microsoft.Data.Entity.InMemory
                     return ts;
                 });
 
-            _logger.WriteInformation(() => Strings.FormatLogSavedChanges(rowsAffected));
+            _logger.WriteInformation(() => Strings.LogSavedChanges(rowsAffected));
 
             return rowsAffected;
         }

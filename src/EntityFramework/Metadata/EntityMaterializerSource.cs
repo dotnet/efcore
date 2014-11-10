@@ -55,7 +55,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             if (!entityType.HasClrType)
             {
-                throw new InvalidOperationException(Strings.FormatNoClrType(entityType.Name));
+                throw new InvalidOperationException(Strings.NoClrType(entityType.Name));
             }
 
             return _cache.GetOrAdd(entityType.Type, k => BuildDelegate(entityType));

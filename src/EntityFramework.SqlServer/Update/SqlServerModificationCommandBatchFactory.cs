@@ -39,7 +39,7 @@ namespace Microsoft.Data.Entity.SqlServer.Update
                 int maxBatchSize;
                 if (!Int32.TryParse(maxBatchSizeString, out maxBatchSize))
                 {
-                    throw new InvalidOperationException(Strings.FormatIntegerConfigurationValueFormatError(MaxBatchSizeConfigurationKey, maxBatchSizeString));
+                    throw new InvalidOperationException(Strings.IntegerConfigurationValueFormatError(MaxBatchSizeConfigurationKey, maxBatchSizeString));
                 }
                 _maxBatchSize = maxBatchSize;
             }

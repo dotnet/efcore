@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.Relational
 
             if (!match.Success)
             {
-                throw new ArgumentException(Strings.FormatInvalidSchemaQualifiedName(name));
+                throw new ArgumentException(Strings.InvalidSchemaQualifiedName(name));
             }
 
             var part1 = match.Groups["part1"].Value.Replace("]]", "]");

@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
 
             if (!MigrationMetadataExtensions.IsValidMigrationId(migrationId))
             {
-                throw new ArgumentException(Strings.FormatInvalidMigrationId(migrationId));
+                throw new ArgumentException(Strings.InvalidMigrationId(migrationId));
             }
 
             _migrationId = migrationId;

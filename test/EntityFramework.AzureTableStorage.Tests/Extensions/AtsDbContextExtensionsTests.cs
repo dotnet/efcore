@@ -56,7 +56,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Extensions
             var options = new DbContextOptions();
 
             Assert.Equal(
-                Strings.FormatArgumentIsEmpty(paramName),
+                Strings.ArgumentIsEmpty(paramName),
                 Assert.Throws<ArgumentException>(() => options.UseAzureTableStorage(name, key)).Message
                 );
         }
@@ -67,7 +67,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Extensions
             var options = new DbContextOptions();
 
             Assert.Equal(
-                Strings.FormatArgumentIsEmpty("connectionString"),
+                Strings.ArgumentIsEmpty("connectionString"),
                 Assert.Throws<ArgumentException>(() => options.UseAzureTableStorage("")).Message
                 );
         }

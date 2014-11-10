@@ -131,11 +131,11 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.False(entry.IsPropertyModified(nonKeyProperty));
 
             Assert.Equal(
-                Strings.FormatPropertyReadOnly("Name", typeof(SomeEntity).FullName),
+                Strings.PropertyReadOnly("Name", typeof(SomeEntity).FullName),
                 Assert.Throws<NotSupportedException>(() => entry.SetPropertyModified(nonKeyProperty)).Message);
 
             Assert.Equal(
-                Strings.FormatPropertyReadOnly("Id", typeof(SomeEntity).FullName),
+                Strings.PropertyReadOnly("Id", typeof(SomeEntity).FullName),
                 Assert.Throws<NotSupportedException>(() => entry.SetPropertyModified(keyProperty)).Message);
 
             Assert.Equal(EntityState.Unchanged, entry.EntityState);
@@ -143,11 +143,11 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.False(entry.IsPropertyModified(nonKeyProperty));
 
             Assert.Equal(
-                Strings.FormatPropertyReadOnly("Id", typeof(SomeEntity).FullName),
+                Strings.PropertyReadOnly("Id", typeof(SomeEntity).FullName),
                 Assert.Throws<NotSupportedException>(() => entry[keyProperty] = 2).Message);
 
             Assert.Equal(
-                Strings.FormatPropertyReadOnly("Name", typeof(SomeEntity).FullName),
+                Strings.PropertyReadOnly("Name", typeof(SomeEntity).FullName),
                 Assert.Throws<NotSupportedException>(() => entry[nonKeyProperty] = "Beanjilly").Message);
 
             Assert.Equal(EntityState.Unchanged, entry.EntityState);

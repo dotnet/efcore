@@ -115,14 +115,14 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
                             || propertyType == typeof(byte)
                             || propertyType == typeof(byte?)))
                     {
-                        throw new ArgumentException(Strings.FormatIdentityBadType(
+                        throw new ArgumentException(Strings.IdentityBadType(
                             Property.Name, Property.EntityType.Name, propertyType.Name));
                     }
 
                     if (value == SqlServerValueGenerationStrategy.Sequence
                         && !propertyType.IsInteger())
                     {
-                        throw new ArgumentException(Strings.FormatSequenceBadType(
+                        throw new ArgumentException(Strings.SequenceBadType(
                             Property.Name, Property.EntityType.Name, propertyType.Name));
                     }
 

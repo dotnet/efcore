@@ -167,7 +167,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             if (entry.Configuration.StateManager != this)
             {
-                throw new InvalidOperationException(Strings.FormatWrongStateManager(entityType.Name));
+                throw new InvalidOperationException(Strings.WrongStateManager(entityType.Name));
             }
 
             StateEntry existingEntry;
@@ -179,7 +179,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 }
                 else if (existingEntry != entry)
                 {
-                    throw new InvalidOperationException(Strings.FormatMultipleStateEntries(entityType.Name));
+                    throw new InvalidOperationException(Strings.MultipleStateEntries(entityType.Name));
                 }
             }
 
@@ -191,7 +191,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 {
                     // TODO: Consider specialized exception types
                     // Issue #611
-                    throw new InvalidOperationException(Strings.FormatIdentityConflict(entityType.Name));
+                    throw new InvalidOperationException(Strings.IdentityConflict(entityType.Name));
                 }
             }
             else
@@ -278,7 +278,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             if (_identityMap.TryGetValue(newKey, out existingEntry)
                 && existingEntry != entry)
             {
-                throw new InvalidOperationException(Strings.FormatIdentityConflict(entry.EntityType.Name));
+                throw new InvalidOperationException(Strings.IdentityConflict(entry.EntityType.Name));
             }
 
             _identityMap.Remove(oldKey);
@@ -291,7 +291,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             if (keyValue == EntityKey.NullEntityKey)
             {
-                throw new InvalidOperationException(Strings.FormatNullPrimaryKey(entry.EntityType.Name));
+                throw new InvalidOperationException(Strings.NullPrimaryKey(entry.EntityType.Name));
             }
 
             return keyValue;

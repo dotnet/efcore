@@ -41,7 +41,7 @@ namespace Microsoft.Data.Entity.Tests.Identity
             var property = CreateProperty(typeof(Random));
 
             Assert.Equal(
-                Strings.FormatNoValueGenerator("MyProperty", "MyType", "Random"),
+                Strings.NoValueGenerator("MyProperty", "MyType", "Random"),
                 Assert.Throws<NotSupportedException>(() => selector.Select(property)).Message);
         }
 

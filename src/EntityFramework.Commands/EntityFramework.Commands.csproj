@@ -43,7 +43,7 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\packages\KoreBuild\build\Resources.cs">
+    <Compile Include="..\..\tools\Resources.cs">
       <Link>Properties\Resources.cs</Link>
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -81,13 +81,11 @@
       <LogicalName>EntityFramework.Commands.Strings.resources</LogicalName>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <None Include="..\..\packages\KoreBuild\build\Resources.tt">
+    <Content Include="..\..\tools\Resources.tt">
       <Link>Properties\Resources.tt</Link>
       <Generator>TextTemplatingFileGenerator</Generator>
-      <CustomToolNamespace>Microsoft.Data.Entity.Commands</CustomToolNamespace>
       <LastGenOutput>Resources.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </None>
+    </Content>
     <None Include="project.json" />
     <None Include="tools\EntityFramework.psd1" />
     <None Include="tools\EntityFramework.psm1" />

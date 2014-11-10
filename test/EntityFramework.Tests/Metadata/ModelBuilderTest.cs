@@ -440,15 +440,15 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             modelBuilder.Entity<Quarks>(b =>
             {
                 Assert.Equal(
-                    Strings.FormatCannotBeNullable("Up", "Quarks", "Int32"),
+                    Strings.CannotBeNullable("Up", "Quarks", "Int32"),
                     Assert.Throws<InvalidOperationException>(() => b.Property(e => e.Up).Required(false)).Message);
 
                 Assert.Equal(
-                    Strings.FormatCannotBeNullable("Charm", "Quarks", "Int32"),
+                    Strings.CannotBeNullable("Charm", "Quarks", "Int32"),
                     Assert.Throws<InvalidOperationException>(() => b.Property<int>("Charm").Required(false)).Message);
 
                 Assert.Equal(
-                    Strings.FormatCannotBeNullable("Top", "Quarks", "Int32"),
+                    Strings.CannotBeNullable("Top", "Quarks", "Int32"),
                     Assert.Throws<InvalidOperationException>(() => b.Property(typeof(int), "Top").Required(false)).Message);
             });
 
@@ -6071,7 +6071,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var modelBuilder = HobNobBuilder();
 
             Assert.Equal(
-                Strings.FormatCannotBeNullable("NobId1", "Hob", "Int32"),
+                Strings.CannotBeNullable("NobId1", "Hob", "Int32"),
                 Assert.Throws<InvalidOperationException>(() => modelBuilder
                     .Entity<Nob>()
                     .OneToMany(e => e.Hobs, e => e.Nob)
@@ -6109,7 +6109,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var modelBuilder = HobNobBuilder();
 
             Assert.Equal(
-                Strings.FormatCannotBeNullable("NobId1", "Hob", "Int32"),
+                Strings.CannotBeNullable("NobId1", "Hob", "Int32"),
                 Assert.Throws<InvalidOperationException>(() => modelBuilder
                     .Entity<Hob>()
                     .ManyToOne(e => e.Nob, e => e.Hobs)
@@ -6147,7 +6147,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var modelBuilder = HobNobBuilder();
 
             Assert.Equal(
-                Strings.FormatCannotBeNullable("NobId1", "Hob", "Int32"),
+                Strings.CannotBeNullable("NobId1", "Hob", "Int32"),
                 Assert.Throws<InvalidOperationException>(() => modelBuilder
                     .Entity<Nob>()
                     .OneToOne(e => e.Hob, e => e.Nob)

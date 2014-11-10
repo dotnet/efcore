@@ -71,7 +71,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
 
             if (MigrationAssembly.Migrations.Any(m => m.GetMigrationName() == migrationName))
             {
-                throw new InvalidOperationException(Strings.FormatDuplicateMigrationName(migrationName));
+                throw new InvalidOperationException(Strings.DuplicateMigrationName(migrationName));
             }
 
             var migration = CreateMigration(migrationName);

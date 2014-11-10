@@ -202,7 +202,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
         public void Throws_on_attempt_to_use_context_with_no_store()
         {
             Assert.Equal(
-                GetString("FormatNoDataStoreConfigured"),
+                GetString("NoDataStoreConfigured"),
                 Assert.Throws<InvalidOperationException>(() =>
                     {
                         using (var context = new NoServicesAndNoConfigBlogContext())
@@ -226,7 +226,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             var serviceProvider = serviceCollection.BuildServiceProvider();
 
             Assert.Equal(
-                GetString("FormatNoDataStoreService"),
+                GetString("NoDataStoreService"),
                 Assert.Throws<InvalidOperationException>(() =>
                     {
                         using (var context = new ImplicitConfigButNoServicesBlogContext(serviceProvider))
@@ -611,7 +611,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
         private static string GetString(string stringName)
         {
             var strings = typeof(DbContext).GetTypeInfo().Assembly.GetType(typeof(DbContext).Namespace + ".Strings");
-            return (string)strings.GetTypeInfo().GetDeclaredMethods(stringName).Single().Invoke(null, null);
+            return (string)strings.GetTypeInfo().GetDeclaredProperty(stringName).GetGetMethod().Invoke(null, null);
         }
     }
 }

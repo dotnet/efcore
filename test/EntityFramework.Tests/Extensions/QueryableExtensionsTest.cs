@@ -307,7 +307,7 @@ namespace Microsoft.Data.Entity.Tests
             await SourceNonAsyncEnumerableTest<int>(() => Source().ToListAsync());
 
             Assert.Equal(
-                Strings.FormatIQueryableNotAsync(typeof(int)),
+                Strings.IQueryableNotAsync(typeof(int)),
                 Assert.Throws<InvalidOperationException>(() => Source().AsAsyncEnumerable()).Message);
         }
 
@@ -324,14 +324,14 @@ namespace Microsoft.Data.Entity.Tests
         private static async Task SourceNonAsyncQueryableTest(Func<Task> test)
         {
             Assert.Equal(
-                Strings.FormatIQueryableProviderNotAsync(),
+                Strings.IQueryableProviderNotAsync,
                 (await Assert.ThrowsAsync<InvalidOperationException>(test)).Message);
         }
 
         private static async Task SourceNonAsyncEnumerableTest<T>(Func<Task> test)
         {
             Assert.Equal(
-                Strings.FormatIQueryableNotAsync(typeof(T)),
+                Strings.IQueryableNotAsync(typeof(T)),
                 (await Assert.ThrowsAsync<InvalidOperationException>(test)).Message);
         }
 

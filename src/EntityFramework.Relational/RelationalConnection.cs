@@ -42,7 +42,7 @@ namespace Microsoft.Data.Entity.Relational
             {
                 if (!string.IsNullOrWhiteSpace(storeConfig.ConnectionString))
                 {
-                    throw new InvalidOperationException(Strings.FormatConnectionAndConnectionString());
+                    throw new InvalidOperationException(Strings.ConnectionAndConnectionString);
                 }
 
                 _connection = new LazyRef<DbConnection>(() => storeConfig.Connection);
@@ -57,7 +57,7 @@ namespace Microsoft.Data.Entity.Relational
             }
             else
             {
-                throw new InvalidOperationException(Strings.FormatNoConnectionOrConnectionString());
+                throw new InvalidOperationException(Strings.NoConnectionOrConnectionString);
             }
         }
 
@@ -102,7 +102,7 @@ namespace Microsoft.Data.Entity.Relational
         {
             if (Transaction != null)
             {
-                throw new InvalidOperationException(Strings.FormatTransactionAlreadyStarted());
+                throw new InvalidOperationException(Strings.TransactionAlreadyStarted);
             }
 
             Open();
@@ -117,7 +117,7 @@ namespace Microsoft.Data.Entity.Relational
         {
             if (Transaction != null)
             {
-                throw new InvalidOperationException(Strings.FormatTransactionAlreadyStarted());
+                throw new InvalidOperationException(Strings.TransactionAlreadyStarted);
             }
 
             await OpenAsync(cancellationToken).WithCurrentCulture();
@@ -149,7 +149,7 @@ namespace Microsoft.Data.Entity.Relational
             {
                 if (Transaction != null)
                 {
-                    throw new InvalidOperationException(Strings.FormatTransactionAlreadyStarted());
+                    throw new InvalidOperationException(Strings.TransactionAlreadyStarted);
                 }
 
                 Open();

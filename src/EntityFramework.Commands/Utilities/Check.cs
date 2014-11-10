@@ -31,7 +31,7 @@ namespace Microsoft.Data.Entity.Commands.Utilities
             if (value.Count == 0)
             {
                 NotEmpty(parameterName, "parameterName");
-                throw new ArgumentException(Strings.FormatCollectionArgumentIsEmpty(parameterName));
+                throw new ArgumentException(Strings.CollectionArgumentIsEmpty(parameterName));
             }
 
             return value;
@@ -47,7 +47,7 @@ namespace Microsoft.Data.Entity.Commands.Utilities
             }
             else if (value.Trim().Length == 0)
             {
-                e = new ArgumentException(Strings.FormatArgumentIsEmpty(parameterName));
+                e = new ArgumentException(Strings.ArgumentIsEmpty(parameterName));
             }
 
             if (e != null)
@@ -65,7 +65,7 @@ namespace Microsoft.Data.Entity.Commands.Utilities
             if (!Enum.IsDefined(typeof(T), value))
             {
                 NotEmpty(parameterName, "parameterName");
-                throw new ArgumentException(Strings.FormatInvalidEnumValue(parameterName, typeof(T)));
+                throw new ArgumentException(Strings.InvalidEnumValue(parameterName, typeof(T)));
             }
 
             return value;

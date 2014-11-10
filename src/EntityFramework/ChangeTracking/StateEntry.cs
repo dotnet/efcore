@@ -315,7 +315,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             if (isModified && property.IsReadOnly)
             {
-                throw new NotSupportedException(Strings.FormatPropertyReadOnly(property.Name, EntityType.Name));
+                throw new NotSupportedException(Strings.PropertyReadOnly(property.Name, EntityType.Name));
             }
 
             _stateData.FlagProperty(property.Index, isModified);

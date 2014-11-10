@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             if (previousLength == _annotations.Value.Count)
             {
-                throw new InvalidOperationException(Strings.FormatDuplicateAnnotation(annotationName));
+                throw new InvalidOperationException(Strings.DuplicateAnnotation(annotationName));
             }
 
             return annotation;
@@ -57,7 +57,7 @@ namespace Microsoft.Data.Entity.Metadata
             var annotation = TryGetAnnotation(annotationName);
             if (annotation == null)
             {
-                throw new ModelItemNotFoundException(Strings.FormatAnnotationNotFound(annotationName));
+                throw new ModelItemNotFoundException(Strings.AnnotationNotFound(annotationName));
             }
 
             return annotation;

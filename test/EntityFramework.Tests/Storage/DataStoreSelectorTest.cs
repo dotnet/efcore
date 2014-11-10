@@ -32,7 +32,7 @@ namespace Microsoft.Data.Entity.Tests.Storage
 
             var selector = new DataStoreSelector(new[] { source1, source2, source3, source4 });
 
-            Assert.Equal(Strings.FormatMultipleDataStoresConfigured("'DataStore1' 'DataStore2' 'DataStore4' "),
+            Assert.Equal(Strings.MultipleDataStoresConfigured("'DataStore1' 'DataStore2' 'DataStore4' "),
                 Assert.Throws<InvalidOperationException>(() => selector.SelectDataStore(new DbContextConfiguration())).Message);
         }
 
@@ -44,7 +44,7 @@ namespace Microsoft.Data.Entity.Tests.Storage
 
             var selector = new DataStoreSelector(null);
 
-            Assert.Equal(Strings.FormatNoDataStoreService(),
+            Assert.Equal(Strings.NoDataStoreService,
                 Assert.Throws<InvalidOperationException>(() => selector.SelectDataStore(configurationMock.Object)).Message);
         }
 
@@ -56,7 +56,7 @@ namespace Microsoft.Data.Entity.Tests.Storage
 
             var selector = new DataStoreSelector(null);
 
-            Assert.Equal(Strings.FormatNoDataStoreConfigured(),
+            Assert.Equal(Strings.NoDataStoreConfigured,
                 Assert.Throws<InvalidOperationException>(() => selector.SelectDataStore(configurationMock.Object)).Message);
         }
 
@@ -69,7 +69,7 @@ namespace Microsoft.Data.Entity.Tests.Storage
 
             var selector = new DataStoreSelector(new[] { source1, source2, source3 });
 
-            Assert.Equal(Strings.FormatMultipleDataStoresAvailable("'DataStore1' 'DataStore2' 'DataStore3' "),
+            Assert.Equal(Strings.MultipleDataStoresAvailable("'DataStore1' 'DataStore2' 'DataStore3' "),
                 Assert.Throws<InvalidOperationException>(() => selector.SelectDataStore(new DbContextConfiguration())).Message);
         }
 
@@ -80,7 +80,7 @@ namespace Microsoft.Data.Entity.Tests.Storage
 
             var selector = new DataStoreSelector(new[] { source });
 
-            Assert.Equal(Strings.FormatNoDataStoreConfigured(),
+            Assert.Equal(Strings.NoDataStoreConfigured,
                 Assert.Throws<InvalidOperationException>(() => selector.SelectDataStore(new DbContextConfiguration())).Message);
         }
 

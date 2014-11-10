@@ -72,7 +72,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Empty(entityType.Keys);
 
             Assert.Equal(
-                Strings.FormatEntityRequiresKey(typeof(Customer).FullName),
+                Strings.EntityRequiresKey(typeof(Customer).FullName),
                 Assert.Throws<ModelItemNotFoundException>(() => entityType.GetPrimaryKey()).Message);
         }
 
@@ -84,7 +84,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var idProperty = entityType2.GetOrAddProperty(Customer.IdProperty);
 
             Assert.Equal(
-                Strings.FormatKeyPropertiesWrongEntity("'" + Customer.IdProperty.Name + "'", typeof(Customer).FullName),
+                Strings.KeyPropertiesWrongEntity("'" + Customer.IdProperty.Name + "'", typeof(Customer).FullName),
                 Assert.Throws<ArgumentException>(() => entityType1.SetPrimaryKey(idProperty)).Message);
         }
 
@@ -123,7 +123,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Empty(entityType.Keys);
 
             Assert.Equal(
-                Strings.FormatEntityRequiresKey(typeof(Customer).FullName),
+                Strings.EntityRequiresKey(typeof(Customer).FullName),
                 Assert.Throws<ModelItemNotFoundException>(() => entityType.GetPrimaryKey()).Message);
         }
 
@@ -139,7 +139,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             orderType.GetOrAddForeignKey(customerFk, customerPk);
 
             Assert.Equal(
-                Strings.FormatKeyInUse("'" + Customer.IdProperty.Name + "'", typeof(Customer).FullName, typeof(Order).FullName),
+                Strings.KeyInUse("'" + Customer.IdProperty.Name + "'", typeof(Customer).FullName, typeof(Order).FullName),
                 Assert.Throws<InvalidOperationException>(() => customerType.SetPrimaryKey((Property)null)).Message);
         }
 
@@ -156,7 +156,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             orderType.GetOrAddForeignKey(customerFk, customerPk);
 
             Assert.Equal(
-                Strings.FormatKeyInUse("'" + Customer.IdProperty.Name + "'", typeof(Customer).FullName, typeof(Order).FullName),
+                Strings.KeyInUse("'" + Customer.IdProperty.Name + "'", typeof(Customer).FullName, typeof(Order).FullName),
                 Assert.Throws<InvalidOperationException>(
                     () => customerType.SetPrimaryKey(customerType.GetOrAddProperty(Customer.NameProperty))).Message);
         }
@@ -189,7 +189,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var idProperty = entityType2.GetOrAddProperty(Customer.IdProperty);
 
             Assert.Equal(
-                Strings.FormatKeyPropertiesWrongEntity("'" + Customer.IdProperty.Name + "'", typeof(Customer).FullName),
+                Strings.KeyPropertiesWrongEntity("'" + Customer.IdProperty.Name + "'", typeof(Customer).FullName),
                 Assert.Throws<ArgumentException>(() => entityType1.AddKey(idProperty)).Message);
         }
 
@@ -202,7 +202,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             entityType.GetOrAddKey(new[] { idProperty, nameProperty });
 
             Assert.Equal(
-                Strings.FormatDuplicateKey("'" + Customer.IdProperty.Name + "', '" + Customer.NameProperty.Name + "'", typeof(Customer).FullName),
+                Strings.DuplicateKey("'" + Customer.IdProperty.Name + "', '" + Customer.NameProperty.Name + "'", typeof(Customer).FullName),
                 Assert.Throws<InvalidOperationException>(() => entityType.AddKey(new[] { idProperty, nameProperty })).Message);
         }
 
@@ -215,7 +215,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             entityType.GetOrSetPrimaryKey(new[] { idProperty, nameProperty });
 
             Assert.Equal(
-                Strings.FormatDuplicateKey("'" + Customer.IdProperty.Name + "', '" + Customer.NameProperty.Name + "'", typeof(Customer).FullName),
+                Strings.DuplicateKey("'" + Customer.IdProperty.Name + "', '" + Customer.NameProperty.Name + "'", typeof(Customer).FullName),
                 Assert.Throws<InvalidOperationException>(() => entityType.AddKey(new[] { idProperty, nameProperty })).Message);
         }
 
@@ -227,7 +227,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var nameProperty = entityType.GetOrAddProperty(Customer.NameProperty);
 
             Assert.Equal(
-                Strings.FormatKeyNotFound("'" + idProperty.Name + "', '" + nameProperty.Name + "'", typeof(Customer).FullName),
+                Strings.KeyNotFound("'" + idProperty.Name + "', '" + nameProperty.Name + "'", typeof(Customer).FullName),
                 Assert.Throws<ModelItemNotFoundException>(() => entityType.GetKey(new[] { idProperty, nameProperty })).Message);
             Assert.Null(entityType.RemoveKey(new Key(new[] { idProperty })));
 
@@ -240,7 +240,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Null(entityType.RemoveKey(key1));
 
             Assert.Equal(
-                Strings.FormatKeyNotFound("'" + idProperty.Name + "', '" + nameProperty.Name + "'", typeof(Customer).FullName),
+                Strings.KeyNotFound("'" + idProperty.Name + "', '" + nameProperty.Name + "'", typeof(Customer).FullName),
                 Assert.Throws<ModelItemNotFoundException>(() => entityType.GetKey(new[] { idProperty, nameProperty })).Message);
 
             Assert.Equal(new[] { key2 }, entityType.Keys.ToArray());
@@ -263,7 +263,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             orderType.GetOrAddForeignKey(customerFk, customerKey);
 
             Assert.Equal(
-                Strings.FormatKeyInUse("'" + Customer.IdProperty.Name + "'", typeof(Customer).FullName, typeof(Order).FullName),
+                Strings.KeyInUse("'" + Customer.IdProperty.Name + "'", typeof(Customer).FullName, typeof(Order).FullName),
                 Assert.Throws<InvalidOperationException>(() => customerType.RemoveKey(customerKey)).Message);
         }
 
@@ -285,7 +285,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             nameProperty.IsReadOnly = true;
 
             Assert.Equal(
-                Strings.FormatKeyPropertyMustBeReadOnly(Customer.NameProperty.Name, typeof(Customer).FullName),
+                Strings.KeyPropertyMustBeReadOnly(Customer.NameProperty.Name, typeof(Customer).FullName),
                 Assert.Throws<NotSupportedException>(() => nameProperty.IsReadOnly = false).Message);
 
             Assert.True(((IProperty)idProperty).IsReadOnly);
@@ -327,7 +327,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             orderType.AddForeignKey(customerFk1, customerKey);
 
             Assert.Equal(
-                Strings.FormatDuplicateForeignKey("'" + Order.CustomerIdProperty.Name + "'", typeof(Order).FullName),
+                Strings.DuplicateForeignKey("'" + Order.CustomerIdProperty.Name + "'", typeof(Order).FullName),
                 Assert.Throws<InvalidOperationException>(() => orderType.AddForeignKey(customerFk1, customerKey)).Message);
         }
 
@@ -339,7 +339,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var idProperty = entityType2.GetOrAddProperty(Customer.IdProperty);
 
             Assert.Equal(
-                Strings.FormatForeignKeyPropertiesWrongEntity("'" + Customer.IdProperty.Name + "'", typeof(Customer).FullName),
+                Strings.ForeignKeyPropertiesWrongEntity("'" + Customer.IdProperty.Name + "'", typeof(Customer).FullName),
                 Assert.Throws<ArgumentException>(() => entityType1.AddForeignKey(new[] { idProperty }, entityType2.GetOrAddKey(idProperty))).Message);
         }
 
@@ -376,7 +376,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var customerFk2 = orderType.GetOrAddProperty("IdAgain", typeof(int), shadowProperty: true);
 
             Assert.Equal(
-                Strings.FormatForeignKeyNotFound("'" + Order.CustomerIdProperty.Name + "'", typeof(Order).FullName),
+                Strings.ForeignKeyNotFound("'" + Order.CustomerIdProperty.Name + "'", typeof(Order).FullName),
                 Assert.Throws<ModelItemNotFoundException>(() => orderType.GetForeignKey(customerFk1)).Message);
             Assert.Null(orderType.RemoveForeignKey(new ForeignKey(new[] { customerFk2 }, customerKey)));
 
@@ -389,7 +389,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Null(orderType.RemoveForeignKey(fk1));
 
             Assert.Equal(
-                Strings.FormatForeignKeyNotFound("'" + Order.CustomerIdProperty.Name + "'", typeof(Order).FullName),
+                Strings.ForeignKeyNotFound("'" + Order.CustomerIdProperty.Name + "'", typeof(Order).FullName),
                 Assert.Throws<ModelItemNotFoundException>(() => orderType.GetForeignKey(customerFk1)).Message);
             Assert.Equal(new[] { fk2 }, orderType.ForeignKeys.ToArray());
 
@@ -413,13 +413,13 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             orderType.AddNavigation("Customer", fk, pointsToPrincipal: true);
 
             Assert.Equal(
-                Strings.FormatForeignKeyInUse("'" + Order.CustomerIdProperty.Name + "'", typeof(Order).FullName, "Customer", typeof(Order).FullName),
+                Strings.ForeignKeyInUse("'" + Order.CustomerIdProperty.Name + "'", typeof(Order).FullName, "Customer", typeof(Order).FullName),
                 Assert.Throws<InvalidOperationException>(() => orderType.RemoveForeignKey(fk)).Message);
 
             customerType.AddNavigation("Orders", fk, pointsToPrincipal: false);
 
             Assert.Equal(
-                Strings.FormatForeignKeyInUse("'" + Order.CustomerIdProperty.Name + "'", typeof(Order).FullName, "Orders", typeof(Customer).FullName),
+                Strings.ForeignKeyInUse("'" + Order.CustomerIdProperty.Name + "'", typeof(Order).FullName, "Orders", typeof(Customer).FullName),
                 Assert.Throws<InvalidOperationException>(() => orderType.RemoveForeignKey(fk)).Message);
         }
 
@@ -503,7 +503,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Null(orderType.TryGetNavigation("Nose"));
 
             Assert.Equal(
-                Strings.FormatNavigationNotFound("Nose", typeof(Order).FullName),
+                Strings.NavigationNotFound("Nose", typeof(Order).FullName),
                 Assert.Throws<ModelItemNotFoundException>(() => orderType.GetNavigation("Nose")).Message);
         }
 
@@ -520,7 +520,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             orderType.AddNavigation("Customer", customerForeignKey, pointsToPrincipal: true);
 
             Assert.Equal(
-                Strings.FormatDuplicateNavigation("Customer", typeof(Order).FullName),
+                Strings.DuplicateNavigation("Customer", typeof(Order).FullName),
                 Assert.Throws<InvalidOperationException>(
                     () => orderType.AddNavigation("Customer", customerForeignKey, pointsToPrincipal: true)).Message);
         }
@@ -536,7 +536,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var customerForeignKey = orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey);
 
             Assert.Equal(
-                Strings.FormatNavigationAlreadyOwned("Customer", typeof(Customer).FullName, typeof(Order).FullName),
+                Strings.NavigationAlreadyOwned("Customer", typeof(Customer).FullName, typeof(Order).FullName),
                 Assert.Throws<InvalidOperationException>(() => customerType.AddNavigation("Customer", customerForeignKey, pointsToPrincipal: true)).Message);
         }
 
@@ -551,7 +551,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var customerForeignKey = orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey);
 
             Assert.Equal(
-                Strings.FormatNavigationOnShadowEntity("Customer", "Order"),
+                Strings.NavigationOnShadowEntity("Customer", "Order"),
                 Assert.Throws<InvalidOperationException>(
                     () => orderType.AddNavigation("Customer", customerForeignKey, pointsToPrincipal: true)).Message);
         }
@@ -567,7 +567,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var customerForeignKey = orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey);
 
             Assert.Equal(
-                Strings.FormatNavigationToShadowEntity("Customer", typeof(Order).FullName, "Customer"),
+                Strings.NavigationToShadowEntity("Customer", typeof(Order).FullName, "Customer"),
                 Assert.Throws<InvalidOperationException>(
                     () => orderType.AddNavigation("Customer", customerForeignKey, pointsToPrincipal: true)).Message);
         }
@@ -583,7 +583,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var customerForeignKey = orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey);
 
             Assert.Equal(
-                Strings.FormatNoClrNavigation("Snook", typeof(Order).FullName),
+                Strings.NoClrNavigation("Snook", typeof(Order).FullName),
                 Assert.Throws<InvalidOperationException>(
                     () => orderType.AddNavigation("Snook", customerForeignKey, pointsToPrincipal: true)).Message);
         }
@@ -599,12 +599,12 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var customerForeignKey = orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey);
 
             Assert.Equal(
-                Strings.FormatWrongClrCollectionNavigationType("NotCollectionOrders", typeof(Customer).FullName, typeof(Order).FullName, typeof(Order).FullName),
+                Strings.WrongClrCollectionNavigationType("NotCollectionOrders", typeof(Customer).FullName, typeof(Order).FullName, typeof(Order).FullName),
                 Assert.Throws<InvalidOperationException>(
                     () => customerType.AddNavigation("NotCollectionOrders", customerForeignKey, pointsToPrincipal: false)).Message);
 
             Assert.Equal(
-                Strings.FormatWrongClrCollectionNavigationType("DerivedOrders", typeof(Customer).FullName, typeof(IEnumerable<SpecialOrder>).FullName, typeof(Order).FullName),
+                Strings.WrongClrCollectionNavigationType("DerivedOrders", typeof(Customer).FullName, typeof(IEnumerable<SpecialOrder>).FullName, typeof(Order).FullName),
                 Assert.Throws<InvalidOperationException>(
                     () => customerType.AddNavigation("DerivedOrders", customerForeignKey, pointsToPrincipal: false)).Message);
         }
@@ -620,12 +620,12 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var customerForeignKey = orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey);
 
             Assert.Equal(
-                Strings.FormatWrongClrSingleNavigationType("OrderCustomer", typeof(Order).FullName, typeof(Order).FullName, typeof(Customer).FullName),
+                Strings.WrongClrSingleNavigationType("OrderCustomer", typeof(Order).FullName, typeof(Order).FullName, typeof(Customer).FullName),
                 Assert.Throws<InvalidOperationException>(
                     () => orderType.AddNavigation("OrderCustomer", customerForeignKey, pointsToPrincipal: true)).Message);
 
             Assert.Equal(
-                Strings.FormatWrongClrSingleNavigationType("DerivedCustomer", typeof(Order).FullName, typeof(SpecialCustomer).FullName, typeof(Customer).FullName),
+                Strings.WrongClrSingleNavigationType("DerivedCustomer", typeof(Order).FullName, typeof(SpecialCustomer).FullName, typeof(Customer).FullName),
                 Assert.Throws<InvalidOperationException>(
                     () => orderType.AddNavigation("DerivedCustomer", customerForeignKey, pointsToPrincipal: true)).Message);
         }
@@ -643,7 +643,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             customerType.AddNavigation("EnumerableOrders", customerForeignKey, pointsToPrincipal: false);
 
             Assert.Equal(
-                Strings.FormatMultipleNavigations("Orders", "EnumerableOrders", typeof(Customer).FullName),
+                Strings.MultipleNavigations("Orders", "EnumerableOrders", typeof(Customer).FullName),
                 Assert.Throws<InvalidOperationException>(
                     () => customerType.AddNavigation("Orders", customerForeignKey, pointsToPrincipal: false)).Message);
         }
@@ -696,7 +696,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var property1 = entityType1.GetOrAddProperty(Customer.IdProperty);
             var property2 = entityType1.GetOrAddProperty(Customer.NameProperty);
 
-            Assert.Equal(Strings.FormatIndexPropertiesWrongEntity("'" + Customer.IdProperty.Name + "', '" + Customer.NameProperty.Name + "'", typeof(Order).FullName),
+            Assert.Equal(Strings.IndexPropertiesWrongEntity("'" + Customer.IdProperty.Name + "', '" + Customer.NameProperty.Name + "'", typeof(Order).FullName),
                 Assert.Throws<ArgumentException>(
                     () => entityType2.AddIndex(new[] { property1, property2 })).Message);
         }
@@ -709,7 +709,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var property2 = entityType.GetOrAddProperty(Customer.NameProperty);
             entityType.AddIndex(new[] { property1, property2 });
 
-            Assert.Equal(Strings.FormatDuplicateIndex("'" + Customer.IdProperty.Name + "', '" + Customer.NameProperty.Name + "'", typeof(Customer).FullName),
+            Assert.Equal(Strings.DuplicateIndex("'" + Customer.IdProperty.Name + "', '" + Customer.NameProperty.Name + "'", typeof(Customer).FullName),
                 Assert.Throws<InvalidOperationException>(
                     () => entityType.AddIndex(new[] { property1, property2 })).Message);
         }
@@ -721,13 +721,13 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var property1 = entityType.GetOrAddProperty(Customer.IdProperty);
             var property2 = entityType.GetOrAddProperty(Customer.NameProperty);
 
-            Assert.Equal(Strings.FormatIndexNotFound("'" + Customer.IdProperty.Name + "', '" + Customer.NameProperty.Name + "'", typeof(Customer).FullName),
+            Assert.Equal(Strings.IndexNotFound("'" + Customer.IdProperty.Name + "', '" + Customer.NameProperty.Name + "'", typeof(Customer).FullName),
                 Assert.Throws<ModelItemNotFoundException>(
                     () => entityType.GetIndex(new[] { property1, property2 })).Message);
 
             entityType.AddIndex(property1);
 
-            Assert.Equal(Strings.FormatIndexNotFound("'" + Customer.IdProperty.Name + "', '" + Customer.NameProperty.Name + "'", typeof(Customer).FullName),
+            Assert.Equal(Strings.IndexNotFound("'" + Customer.IdProperty.Name + "', '" + Customer.NameProperty.Name + "'", typeof(Customer).FullName),
                 Assert.Throws<ModelItemNotFoundException>(
                     () => entityType.GetIndex(new[] { property1, property2 })).Message);
         }
@@ -801,7 +801,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             entityType.GetOrSetPrimaryKey(property);
 
             Assert.Equal(
-                Strings.FormatPropertyInUse("Id", typeof(Customer).FullName),
+                Strings.PropertyInUse("Id", typeof(Customer).FullName),
                 Assert.Throws<InvalidOperationException>(() => entityType.RemoveProperty(property)).Message);
         }
 
@@ -814,7 +814,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             entityType.GetOrAddKey(property);
 
             Assert.Equal(
-                Strings.FormatPropertyInUse("Id", typeof(Customer).FullName),
+                Strings.PropertyInUse("Id", typeof(Customer).FullName),
                 Assert.Throws<InvalidOperationException>(() => entityType.RemoveProperty(property)).Message);
         }
 
@@ -829,7 +829,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             orderType.GetOrAddForeignKey(customerFk, customerPk);
 
             Assert.Equal(
-                Strings.FormatPropertyInUse("CustomerId", typeof(Order).FullName),
+                Strings.PropertyInUse("CustomerId", typeof(Order).FullName),
                 Assert.Throws<InvalidOperationException>(() => orderType.RemoveProperty(customerFk)).Message);
         }
 
@@ -842,7 +842,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             entityType.GetOrAddIndex(property);
 
             Assert.Equal(
-                Strings.FormatPropertyInUse("Id", typeof(Customer).FullName),
+                Strings.PropertyInUse("Id", typeof(Customer).FullName),
                 Assert.Throws<InvalidOperationException>(() => entityType.RemoveProperty(property)).Message);
         }
 
@@ -877,7 +877,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Null(entityType.TryGetProperty("Nose"));
 
             Assert.Equal(
-                Strings.FormatPropertyNotFound("Nose", typeof(Customer).FullName),
+                Strings.PropertyNotFound("Nose", typeof(Customer).FullName),
                 Assert.Throws<ModelItemNotFoundException>(() => entityType.GetProperty("Nose")).Message);
         }
 
@@ -903,7 +903,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             entityType.AddProperty("Id", typeof(int));
 
             Assert.Equal(
-                Strings.FormatDuplicateProperty("Id", typeof(Customer).FullName),
+                Strings.DuplicateProperty("Id", typeof(Customer).FullName),
                 Assert.Throws<InvalidOperationException>(() => entityType.AddProperty("Id", typeof(int))).Message);
         }
 
@@ -913,7 +913,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var entityType = new EntityType("Hello", new Model());
 
             Assert.Equal(
-                Strings.FormatClrPropertyOnShadowEntity("Kitty", "Hello"),
+                Strings.ClrPropertyOnShadowEntity("Kitty", "Hello"),
                 Assert.Throws<InvalidOperationException>(() => entityType.AddProperty("Kitty", typeof(int))).Message);
         }
 
@@ -923,7 +923,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var entityType = new EntityType(typeof(Customer), new Model());
 
             Assert.Equal(
-                Strings.FormatNoClrProperty("Snook", typeof(Customer).FullName),
+                Strings.NoClrProperty("Snook", typeof(Customer).FullName),
                 Assert.Throws<InvalidOperationException>(() => entityType.AddProperty("Snook", typeof(int))).Message);
         }
 
@@ -933,7 +933,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var entityType = new EntityType(typeof(Customer), new Model());
 
             Assert.Equal(
-                Strings.FormatWrongClrPropertyType("Id", typeof(Customer).FullName),
+                Strings.WrongClrPropertyType("Id", typeof(Customer).FullName),
                 Assert.Throws<InvalidOperationException>(() => entityType.AddProperty("Id", typeof(string))).Message);
         }
 
@@ -946,11 +946,11 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var property2 = entityType.AddProperty("Id", typeof(string), shadowProperty: true);
 
             Assert.Equal(
-                Strings.FormatNoClrProperty("Snook", typeof(Customer).FullName),
+                Strings.NoClrProperty("Snook", typeof(Customer).FullName),
                 Assert.Throws<InvalidOperationException>(() => property1.IsShadowProperty = false).Message);
 
             Assert.Equal(
-                Strings.FormatWrongClrPropertyType("Id", typeof(Customer).FullName),
+                Strings.WrongClrPropertyType("Id", typeof(Customer).FullName),
                 Assert.Throws<InvalidOperationException>(() => property2.IsShadowProperty = false).Message);
         }
 
@@ -1099,7 +1099,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.True(entityType.UseLazyOriginalValues);
 
             Assert.Equal(
-                Strings.FormatEagerOriginalValuesRequired(typeof(ChangedOnlyEntity).FullName),
+                Strings.EagerOriginalValuesRequired(typeof(ChangedOnlyEntity).FullName),
                 Assert.Throws<InvalidOperationException>(() => new EntityType(typeof(ChangedOnlyEntity), new Model()) { UseLazyOriginalValues = true }).Message);
         }
 

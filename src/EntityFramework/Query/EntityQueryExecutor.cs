@@ -66,7 +66,7 @@ namespace Microsoft.Data.Entity.Query
         {
             Check.NotNull(queryModel, "queryModel");
 
-            _logger.Value.WriteInformation(queryModel, Strings.FormatLogCompilingQueryModel);
+            _logger.Value.WriteInformation(queryModel, Strings.LogCompilingQueryModel);
 
             try
             {
@@ -80,7 +80,7 @@ namespace Microsoft.Data.Entity.Query
                     new DataStoreErrorLogState(_context.GetType()),
                     ex,
                     (state, exception) =>
-                        Strings.FormatLogExceptionDuringQueryIteration(Environment.NewLine, exception));
+                        Strings.LogExceptionDuringQueryIteration(Environment.NewLine, exception));
 
                 throw;
             }
@@ -92,7 +92,7 @@ namespace Microsoft.Data.Entity.Query
         {
             Check.NotNull(queryModel, "queryModel");
 
-            _logger.Value.WriteInformation(queryModel, Strings.FormatLogCompilingQueryModel);
+            _logger.Value.WriteInformation(queryModel, Strings.LogCompilingQueryModel);
 
             try
             {
@@ -108,7 +108,7 @@ namespace Microsoft.Data.Entity.Query
                     new DataStoreErrorLogState(_context.GetType()),
                     ex,
                     (state, exception) =>
-                        Strings.FormatLogExceptionDuringQueryIteration(Environment.NewLine, exception));
+                        Strings.LogExceptionDuringQueryIteration(Environment.NewLine, exception));
 
                 throw;
             }
@@ -173,7 +173,7 @@ namespace Microsoft.Data.Entity.Query
                             new DataStoreErrorLogState(_context.GetType()),
                             ex,
                             (state, exception) =>
-                                Strings.FormatLogExceptionDuringQueryIteration(Environment.NewLine, exception));
+                                Strings.LogExceptionDuringQueryIteration(Environment.NewLine, exception));
 
                         throw;
                     }
@@ -241,7 +241,7 @@ namespace Microsoft.Data.Entity.Query
                             new DataStoreErrorLogState(_context.GetType()),
                             ex,
                             (state, exception) =>
-                                Strings.FormatLogExceptionDuringQueryIteration(Environment.NewLine, exception));
+                                Strings.LogExceptionDuringQueryIteration(Environment.NewLine, exception));
 
                         throw;
                     }

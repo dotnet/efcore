@@ -44,7 +44,7 @@ namespace Microsoft.Data.Entity.Identity
             }
 
             throw new NotSupportedException(
-                Strings.FormatNoValueGenerator(property.Name, property.EntityType.Name, property.PropertyType.Name));
+                Strings.NoValueGenerator(property.Name, property.EntityType.Name, property.PropertyType.Name));
         }
 
         public virtual SimpleValueGeneratorFactory<GuidValueGenerator> GuidFactory

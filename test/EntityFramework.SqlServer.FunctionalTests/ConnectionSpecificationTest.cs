@@ -194,7 +194,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             using (var context = serviceProvider.GetService<StringInConfigContext>())
             {
                 Assert.Equal(
-                    GetRelationalString("FormatNoConnectionOrConnectionString"),
+                    GetRelationalString("NoConnectionOrConnectionString"),
                     Assert.Throws<InvalidOperationException>(() => context.Customers.Any()).Message);
             }
         }
@@ -213,7 +213,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             using (var context = serviceProvider.GetService<StringInConfigContext>())
             {
                 Assert.Equal(
-                    GetRelationalString("FormatNoConnectionOrConnectionString"),
+                    GetRelationalString("NoConnectionOrConnectionString"),
                     Assert.Throws<InvalidOperationException>(() => context.Customers.Any()).Message);
             }
         }
@@ -224,7 +224,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             using (var context = new StringInConfigContext())
             {
                 Assert.Equal(
-                    GetRelationalString("FormatNoConnectionOrConnectionString"),
+                    GetRelationalString("NoConnectionOrConnectionString"),
                     Assert.Throws<InvalidOperationException>(() => context.Customers.Any()).Message);
             }
         }
@@ -319,7 +319,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             using (var context = serviceProvider.GetService<NoUseSqlServerContext>())
             {
                 Assert.Equal(
-                    GetRelationalString("FormatNoConnectionOrConnectionString"),
+                    GetRelationalString("NoConnectionOrConnectionString"),
                     Assert.Throws<InvalidOperationException>(() => context.Customers.Any()).Message);
             }
         }
@@ -338,7 +338,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             using (var context = serviceProvider.GetService<NoUseSqlServerContext>())
             {
                 Assert.Equal(
-                    GetRelationalString("FormatNoConnectionOrConnectionString"),
+                    GetRelationalString("NoConnectionOrConnectionString"),
                     Assert.Throws<InvalidOperationException>(() => context.Customers.Any()).Message);
             }
         }
@@ -702,7 +702,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         private static string GetRelationalString(string stringName)
         {
             var strings = typeof(RelationalConnection).GetTypeInfo().Assembly.GetType(typeof(RelationalConnection).Namespace + ".Strings");
-            return (string)strings.GetTypeInfo().GetDeclaredMethods(stringName).Single().Invoke(null, null);
+            return (string)strings.GetTypeInfo().GetDeclaredProperty(stringName).GetGetMethod().Invoke(null, null);
         }
     }
 }

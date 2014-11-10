@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Migrations.Utilities
             var metadata = migration as IMigrationMetadata;
             if (metadata == null)
             {
-                throw new InvalidCastException(Strings.FormatMissingMigrationMetadata(migration.GetType()));
+                throw new InvalidCastException(Strings.MissingMigrationMetadata(migration.GetType()));
             }
 
             return metadata;

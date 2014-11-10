@@ -42,7 +42,7 @@ namespace Microsoft.Data.Entity.SQLite
             CreateDatabaseOperation createDatabaseOperation,
             IndentedStringBuilder stringBuilder)
         {
-            throw new NotSupportedException(Strings.FormatMigrationOperationNotSupported(
+            throw new NotSupportedException(Strings.MigrationOperationNotSupported(
                 GetType(), createDatabaseOperation.GetType()));
         }
 
@@ -50,7 +50,7 @@ namespace Microsoft.Data.Entity.SQLite
             DropDatabaseOperation dropDatabaseOperation,
             IndentedStringBuilder stringBuilder)
         {
-            throw new NotSupportedException(Strings.FormatMigrationOperationNotSupported(
+            throw new NotSupportedException(Strings.MigrationOperationNotSupported(
                 GetType(), dropDatabaseOperation.GetType()));
         }
 
@@ -58,7 +58,7 @@ namespace Microsoft.Data.Entity.SQLite
             CreateSequenceOperation createSequenceOperation,
             IndentedStringBuilder stringBuilder)
         {
-            throw new NotSupportedException(Strings.FormatMigrationOperationNotSupported(
+            throw new NotSupportedException(Strings.MigrationOperationNotSupported(
                 GetType(), createSequenceOperation.GetType()));
         }
 
@@ -66,7 +66,7 @@ namespace Microsoft.Data.Entity.SQLite
             DropSequenceOperation dropSequenceOperation,
             IndentedStringBuilder stringBuilder)
         {
-            throw new NotSupportedException(Strings.FormatMigrationOperationNotSupported(
+            throw new NotSupportedException(Strings.MigrationOperationNotSupported(
                 GetType(), dropSequenceOperation.GetType()));
         }
 
@@ -74,7 +74,7 @@ namespace Microsoft.Data.Entity.SQLite
             MoveSequenceOperation moveSequenceOperation,
             IndentedStringBuilder stringBuilder)
         {
-            throw new NotSupportedException(Strings.FormatMigrationOperationNotSupported(
+            throw new NotSupportedException(Strings.MigrationOperationNotSupported(
                 GetType(), moveSequenceOperation.GetType()));
         }
 
@@ -82,7 +82,7 @@ namespace Microsoft.Data.Entity.SQLite
             RenameSequenceOperation renameSequenceOperation,
             IndentedStringBuilder stringBuilder)
         {
-            throw new NotSupportedException(Strings.FormatMigrationOperationNotSupported(
+            throw new NotSupportedException(Strings.MigrationOperationNotSupported(
                 GetType(), renameSequenceOperation.GetType()));
         }
 
@@ -90,7 +90,7 @@ namespace Microsoft.Data.Entity.SQLite
             AlterSequenceOperation alterSequenceOperation,
             IndentedStringBuilder stringBuilder)
         {
-            throw new NotSupportedException(Strings.FormatMigrationOperationNotSupported(
+            throw new NotSupportedException(Strings.MigrationOperationNotSupported(
                 GetType(), alterSequenceOperation.GetType()));
         }
 

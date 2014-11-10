@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Utilities
                     if (properties[i].EntityType != entityType)
                     {
                         throw new ArgumentException(
-                            Strings.FormatInconsistentEntityType(argumentName));
+                            Strings.InconsistentEntityType(argumentName));
                     }
                 }
             }

@@ -18,8 +18,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Extensions
 
             Assert.Equal(
                 Strings.AtsConnectionNotInUse,
-                Assert.Throws<InvalidOperationException>(() => connection.AsAtsConnection()).Message
-                );
+                Assert.Throws<InvalidOperationException>(() => connection.AsAtsConnection()).Message);
         }
 
         [Fact]

@@ -79,7 +79,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Update
                             })
                 };
 
-            Assert.Equal(Strings.FormatIntegerConfigurationValueFormatError("Data:SqlServer:MaxBatchSize", "one"),
+            Assert.Equal(Strings.IntegerConfigurationValueFormatError("Data:SqlServer:MaxBatchSize", "one"),
                 Assert.Throws<InvalidOperationException>(() => new SqlServerModificationCommandBatchFactory(new SqlServerSqlGenerator(), new[] { configuration })).Message);
         }
     }

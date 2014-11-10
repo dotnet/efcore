@@ -290,7 +290,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
         public void Throws_if_no_relational_store_configured()
         {
             Assert.Equal(
-                Strings.FormatNoDataStoreConfigured(),
+                Strings.NoDataStoreConfigured,
                 Assert.Throws<InvalidOperationException>(() => new FakeConnection(CreateOptions(null))).Message);
         }
 
@@ -298,7 +298,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
         public void Throws_if_multiple_relational_stores_configured()
         {
             Assert.Equal(
-                Strings.FormatMultipleDataStoresConfigured(),
+                Strings.MultipleDataStoresConfigured,
                 Assert.Throws<InvalidOperationException>(() => new FakeConnection(CreateOptions(e => { }, e => { }))).Message);
         }
 
@@ -306,7 +306,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
         public void Throws_if_no_connection_or_connection_string_is_specified()
         {
             Assert.Equal(
-                Strings.FormatNoConnectionOrConnectionString(),
+                Strings.NoConnectionOrConnectionString,
                 Assert.Throws<InvalidOperationException>(() => new FakeConnection(CreateOptions(e => { }))).Message);
         }
 
@@ -314,7 +314,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
         public void Throws_if_both_connection_and_connection_string_are_specified()
         {
             Assert.Equal(
-                Strings.FormatConnectionAndConnectionString(),
+                Strings.ConnectionAndConnectionString,
                 Assert.Throws<InvalidOperationException>(() => new FakeConnection(
                     CreateOptions(
                         e =>

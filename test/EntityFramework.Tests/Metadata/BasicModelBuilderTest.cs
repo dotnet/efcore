@@ -446,15 +446,15 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             modelBuilder.Entity<Quarks>(b =>
                 {
                     Assert.Equal(
-                        Strings.FormatCannotBeNullable("Up", "Quarks", "Int32"),
+                        Strings.CannotBeNullable("Up", "Quarks", "Int32"),
                         Assert.Throws<InvalidOperationException>(() => b.Property(e => e.Up).Required(false)).Message);
 
                     Assert.Equal(
-                        Strings.FormatCannotBeNullable("Charm", "Quarks", "Int32"),
+                        Strings.CannotBeNullable("Charm", "Quarks", "Int32"),
                         Assert.Throws<InvalidOperationException>(() => b.Property<int>("Charm").Required(false)).Message);
 
                     Assert.Equal(
-                        Strings.FormatCannotBeNullable("Top", "Quarks", "Int32"),
+                        Strings.CannotBeNullable("Top", "Quarks", "Int32"),
                         Assert.Throws<InvalidOperationException>(() => b.Property(typeof(int), "Top").Required(false)).Message);
                 });
 

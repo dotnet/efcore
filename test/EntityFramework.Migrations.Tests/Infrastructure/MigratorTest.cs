@@ -614,10 +614,10 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                 );
 
             Assert.Equal(
-                Strings.FormatLocalMigrationNotFound("000000000000002_Migration2"),
+                Strings.LocalMigrationNotFound("000000000000002_Migration2"),
                 Assert.Throws<InvalidOperationException>(() => migrator.ScriptMigrations()).Message);
             Assert.Equal(
-                Strings.FormatLocalMigrationNotFound("000000000000002_Migration2"),
+                Strings.LocalMigrationNotFound("000000000000002_Migration2"),
                 Assert.Throws<InvalidOperationException>(() => migrator.ScriptMigrations("Migration1")).Message);
 
             migrator = MockMigrator(
@@ -635,10 +635,10 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                 );
 
             Assert.Equal(
-                Strings.FormatLocalMigrationNotFound("000000000000002_Migration2"),
+                Strings.LocalMigrationNotFound("000000000000002_Migration2"),
                 Assert.Throws<InvalidOperationException>(() => migrator.ScriptMigrations()).Message);
             Assert.Equal(
-                Strings.FormatLocalMigrationNotFound("000000000000002_Migration2"),
+                Strings.LocalMigrationNotFound("000000000000002_Migration2"),
                 Assert.Throws<InvalidOperationException>(() => migrator.ScriptMigrations("Migration1")).Message);
         }
 
@@ -658,7 +658,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                 );
 
             Assert.Equal(
-                Strings.FormatTargetMigrationNotFound("Foo"),
+                Strings.TargetMigrationNotFound("Foo"),
                 Assert.Throws<InvalidOperationException>(() => migrator.ScriptMigrations("Foo")).Message);
         }
 
@@ -1086,30 +1086,30 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             Assert.Equal(
 new StringBuilder()
     .Append(typeof(Database).FullName).Append(" Information ")
-    .AppendLine(GetString("FormatRelationalLoggerCreatingDatabase", "MyDatabase"))
+    .AppendLine(GetString("RelationalLoggerCreatingDatabase", "MyDatabase"))
     .Append(typeof(Migrator).FullName).Append(" Information ")
     .AppendLine(Strings.MigratorLoggerCreatingHistoryTable)
     .Append(typeof(DataStoreConnection).FullName).Append(" Verbose ")
-    .AppendLine(GetString("FormatRelationalLoggerBeginningTransaction", "Serializable"))
+    .AppendLine(GetString("RelationalLoggerBeginningTransaction", "Serializable"))
     .Append(typeof(SqlStatementExecutor).FullName).Append(" Verbose ")
-    .AppendLine(GetString("FormatRelationalLoggerOpeningConnection", "MyConnectionString"))
+    .AppendLine(GetString("RelationalLoggerOpeningConnection", "MyConnectionString"))
     .Append(typeof(SqlStatementExecutor).FullName).AppendLine(" Verbose Create__MigrationHistorySql")
     .Append(typeof(SqlStatementExecutor).FullName).Append(" Verbose ")
-    .AppendLine(GetString("FormatRelationalLoggerClosingConnection", "MyConnectionString"))
+    .AppendLine(GetString("RelationalLoggerClosingConnection", "MyConnectionString"))
     .Append(typeof(DataStoreConnection).FullName).Append(" Verbose ")
-    .AppendLine(GetString("FormatRelationalLoggerCommittingTransaction"))
+    .AppendLine(GetString("RelationalLoggerCommittingTransaction"))
     .Append(typeof(Migrator).FullName).Append(" Information ")
-    .AppendLine(Strings.FormatMigratorLoggerApplyingMigration("000000000000001_Migration1"))
+    .AppendLine(Strings.MigratorLoggerApplyingMigration("000000000000001_Migration1"))
     .Append(typeof(DataStoreConnection).FullName).Append(" Verbose ")
-    .AppendLine(GetString("FormatRelationalLoggerBeginningTransaction", "Serializable"))
+    .AppendLine(GetString("RelationalLoggerBeginningTransaction", "Serializable"))
     .Append(typeof(SqlStatementExecutor).FullName).Append(" Verbose ")
-    .AppendLine(GetString("FormatRelationalLoggerOpeningConnection", "MyConnectionString"))
+    .AppendLine(GetString("RelationalLoggerOpeningConnection", "MyConnectionString"))
     .Append(typeof(SqlStatementExecutor).FullName).AppendLine(" Verbose SomeSql")
     .Append(typeof(SqlStatementExecutor).FullName).AppendLine(" Verbose Migration1InsertSql")
     .Append(typeof(SqlStatementExecutor).FullName).Append(" Verbose ")
-    .AppendLine(GetString("FormatRelationalLoggerClosingConnection", "MyConnectionString"))
+    .AppendLine(GetString("RelationalLoggerClosingConnection", "MyConnectionString"))
     .Append(typeof(DataStoreConnection).FullName).Append(" Verbose ")
-    .AppendLine(GetString("FormatRelationalLoggerCommittingTransaction"))
+    .AppendLine(GetString("RelationalLoggerCommittingTransaction"))
     .ToString(),
                 loggerFactory.LogContent);
         }
@@ -1146,36 +1146,40 @@ new StringBuilder()
             Assert.Equal(
 new StringBuilder()
     .Append(typeof(Migrator).FullName).Append(" Information ")
-    .AppendLine(Strings.FormatMigratorLoggerRevertingMigration("000000000000001_Migration1"))
+    .AppendLine(Strings.MigratorLoggerRevertingMigration("000000000000001_Migration1"))
     .Append(typeof(DataStoreConnection).FullName).Append(" Verbose ")
-    .AppendLine(GetString("FormatRelationalLoggerBeginningTransaction", "Serializable"))
+    .AppendLine(GetString("RelationalLoggerBeginningTransaction", "Serializable"))
     .Append(typeof(SqlStatementExecutor).FullName).Append(" Verbose ")
-    .AppendLine(GetString("FormatRelationalLoggerOpeningConnection", "MyConnectionString"))
+    .AppendLine(GetString("RelationalLoggerOpeningConnection", "MyConnectionString"))
     .Append(typeof(SqlStatementExecutor).FullName).AppendLine(" Verbose SomeSql")
     .Append(typeof(SqlStatementExecutor).FullName).AppendLine(" Verbose Migration1DeleteSql")
     .Append(typeof(SqlStatementExecutor).FullName).Append(" Verbose ")
-    .AppendLine(GetString("FormatRelationalLoggerClosingConnection", "MyConnectionString"))
+    .AppendLine(GetString("RelationalLoggerClosingConnection", "MyConnectionString"))
     .Append(typeof(DataStoreConnection).FullName).Append(" Verbose ")
-    .AppendLine(GetString("FormatRelationalLoggerCommittingTransaction"))
+    .AppendLine(GetString("RelationalLoggerCommittingTransaction"))
     .Append(typeof(Migrator).FullName).Append(" Information ")
     .AppendLine(Strings.MigratorLoggerDroppingHistoryTable)
     .Append(typeof(DataStoreConnection).FullName).Append(" Verbose ")
-    .AppendLine(GetString("FormatRelationalLoggerBeginningTransaction", "Serializable"))
+    .AppendLine(GetString("RelationalLoggerBeginningTransaction", "Serializable"))
     .Append(typeof(SqlStatementExecutor).FullName).Append(" Verbose ")
-    .AppendLine(GetString("FormatRelationalLoggerOpeningConnection", "MyConnectionString"))
+    .AppendLine(GetString("RelationalLoggerOpeningConnection", "MyConnectionString"))
     .Append(typeof(SqlStatementExecutor).FullName).AppendLine(" Verbose Drop__MigrationHistorySql")
     .Append(typeof(SqlStatementExecutor).FullName).Append(" Verbose ")
-    .AppendLine(GetString("FormatRelationalLoggerClosingConnection", "MyConnectionString"))
+    .AppendLine(GetString("RelationalLoggerClosingConnection", "MyConnectionString"))
     .Append(typeof(DataStoreConnection).FullName).Append(" Verbose ")
-    .AppendLine(GetString("FormatRelationalLoggerCommittingTransaction"))
+    .AppendLine(GetString("RelationalLoggerCommittingTransaction"))
     .ToString(),
                 loggerFactory.LogContent);
         }
 
         private static string GetString(string stringName, params object[] parameters)
         {
-            var strings = typeof(SqlStatement).GetTypeInfo().Assembly.GetType(typeof(SqlStatement).Namespace + ".Strings");
-            return (string)strings.GetTypeInfo().GetDeclaredMethods(stringName).Single().Invoke(null, parameters);
+            var strings = typeof(SqlStatement).GetTypeInfo().Assembly.GetType(typeof(SqlStatement).Namespace + ".Strings").GetTypeInfo();
+            var method = parameters.Length == 0
+                ? strings.GetDeclaredProperty(stringName).GetGetMethod()
+                : strings.GetDeclaredMethods(stringName).Single();
+
+            return (string)method.Invoke(null, parameters);
         }
 
         #region Fixture

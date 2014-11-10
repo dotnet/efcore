@@ -119,7 +119,7 @@ namespace Microsoft.Data.Entity.Metadata
                 if (key.EntityType != this)
                 {
                     throw new ArgumentException(
-                        Strings.FormatKeyPropertiesWrongEntity(Property.Format(key.Properties), Name));
+                        Strings.KeyPropertiesWrongEntity(Property.Format(key.Properties), Name));
                 }
             }
 
@@ -154,7 +154,7 @@ namespace Microsoft.Data.Entity.Metadata
         {
             if (_primaryKey == null)
             {
-                throw new ModelItemNotFoundException(Strings.FormatEntityRequiresKey(Name));
+                throw new ModelItemNotFoundException(Strings.EntityRequiresKey(Name));
             }
 
             return _primaryKey;
@@ -192,14 +192,14 @@ namespace Microsoft.Data.Entity.Metadata
             var key = TryGetKey(properties);
             if (key != null)
             {
-                throw new InvalidOperationException(Strings.FormatDuplicateKey(Property.Format(properties), Name));
+                throw new InvalidOperationException(Strings.DuplicateKey(Property.Format(properties), Name));
             }
 
             key = new Key(properties);
             if (key.EntityType != this)
             {
                 throw new ArgumentException(
-                    Strings.FormatKeyPropertiesWrongEntity(Property.Format(properties), Name));
+                    Strings.KeyPropertiesWrongEntity(Property.Format(properties), Name));
             }
 
             _keys.Value.Add(key);
@@ -248,7 +248,7 @@ namespace Microsoft.Data.Entity.Metadata
             var key = TryGetKey(properties);
             if (key == null)
             {
-                throw new ModelItemNotFoundException(Strings.FormatKeyNotFound(Property.Format(properties), Name));
+                throw new ModelItemNotFoundException(Strings.KeyNotFound(Property.Format(properties), Name));
             }
             return key;
         }
@@ -288,7 +288,7 @@ namespace Microsoft.Data.Entity.Metadata
 
                 if (foreignKey != null)
                 {
-                    throw new InvalidOperationException(Strings.FormatKeyInUse(Property.Format(key.Properties), Name, foreignKey.EntityType.Name));
+                    throw new InvalidOperationException(Strings.KeyInUse(Property.Format(key.Properties), Name, foreignKey.EntityType.Name));
                 }
             }
         }
@@ -332,13 +332,13 @@ namespace Microsoft.Data.Entity.Metadata
             var foreignKey = TryGetForeignKey(properties);
             if (foreignKey != null)
             {
-                throw new InvalidOperationException(Strings.FormatDuplicateForeignKey(Property.Format(foreignKey.Properties), Name));
+                throw new InvalidOperationException(Strings.DuplicateForeignKey(Property.Format(foreignKey.Properties), Name));
             }
 
             foreignKey = new ForeignKey(properties, referencedKey);
             if (foreignKey.EntityType != this)
             {
-                throw new ArgumentException(Strings.FormatForeignKeyPropertiesWrongEntity(Property.Format(properties), Name));
+                throw new ArgumentException(Strings.ForeignKeyPropertiesWrongEntity(Property.Format(properties), Name));
             }
 
             _foreignKeys.Value.Add(foreignKey);
@@ -388,7 +388,7 @@ namespace Microsoft.Data.Entity.Metadata
             var foreignKey = TryGetForeignKey(properties);
             if (foreignKey == null)
             {
-                throw new ModelItemNotFoundException(Strings.FormatForeignKeyNotFound(Property.Format(properties), Name));
+                throw new ModelItemNotFoundException(Strings.ForeignKeyNotFound(Property.Format(properties), Name));
             }
 
             return foreignKey;
@@ -427,7 +427,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             if (navigation != null)
             {
-                throw new InvalidOperationException(Strings.FormatForeignKeyInUse(Property.Format(foreignKey.Properties), Name, navigation.Name, navigation.EntityType.Name));
+                throw new InvalidOperationException(Strings.ForeignKeyInUse(Property.Format(foreignKey.Properties), Name, navigation.Name, navigation.EntityType.Name));
             }
         }
 
@@ -455,29 +455,29 @@ namespace Microsoft.Data.Entity.Metadata
             if (navigation.EntityType != null
                 && navigation.EntityType != this)
             {
-                throw new InvalidOperationException(Strings.FormatNavigationAlreadyOwned(navigation.Name, Name, navigation.EntityType.Name));
+                throw new InvalidOperationException(Strings.NavigationAlreadyOwned(navigation.Name, Name, navigation.EntityType.Name));
             }
 
             if (TryGetNavigation(name) != null)
             {
-                throw new InvalidOperationException(Strings.FormatDuplicateNavigation(navigation.Name, Name));
+                throw new InvalidOperationException(Strings.DuplicateNavigation(navigation.Name, Name));
             }
 
             if (!HasClrType)
             {
-                throw new InvalidOperationException(Strings.FormatNavigationOnShadowEntity(navigation.Name, Name));
+                throw new InvalidOperationException(Strings.NavigationOnShadowEntity(navigation.Name, Name));
             }
 
             var clrProperty = Type.GetPropertiesInHierarchy(navigation.Name).FirstOrDefault();
             if (clrProperty == null)
             {
-                throw new InvalidOperationException(Strings.FormatNoClrNavigation(navigation.Name, Name));
+                throw new InvalidOperationException(Strings.NoClrNavigation(navigation.Name, Name));
             }
 
             var targetType = navigation.GetTargetType();
             if (!targetType.HasClrType)
             {
-                throw new InvalidOperationException(Strings.FormatNavigationToShadowEntity(navigation.Name, Name, targetType.Name));
+                throw new InvalidOperationException(Strings.NavigationToShadowEntity(navigation.Name, Name, targetType.Name));
             }
 
             var targetClrType = targetType.Type;
@@ -489,13 +489,13 @@ namespace Microsoft.Data.Entity.Metadata
                 if (elementType == null
                     || !elementType.GetTypeInfo().IsAssignableFrom(targetClrType.GetTypeInfo()))
                 {
-                    throw new InvalidOperationException(Strings.FormatWrongClrCollectionNavigationType(
+                    throw new InvalidOperationException(Strings.WrongClrCollectionNavigationType(
                         navigation.Name, Name, clrProperty.PropertyType.FullName, targetClrType.FullName));
                 }
             }
             else if (!clrProperty.PropertyType.GetTypeInfo().IsAssignableFrom(targetClrType.GetTypeInfo()))
             {
-                throw new InvalidOperationException(Strings.FormatWrongClrSingleNavigationType(
+                throw new InvalidOperationException(Strings.WrongClrSingleNavigationType(
                     navigation.Name, Name, clrProperty.PropertyType.FullName, targetClrType.FullName));
             }
 
@@ -503,7 +503,7 @@ namespace Microsoft.Data.Entity.Metadata
                                                                          && navigation.PointsToPrincipal == n.PointsToPrincipal);
             if (otherNavigation != null)
             {
-                throw new InvalidOperationException(Strings.FormatMultipleNavigations(navigation.Name, otherNavigation.Name, Name));
+                throw new InvalidOperationException(Strings.MultipleNavigations(navigation.Name, otherNavigation.Name, Name));
             }
 
             _navigations.Value.Add(navigation);
@@ -529,7 +529,7 @@ namespace Microsoft.Data.Entity.Metadata
             var navigation = TryGetNavigation(name);
             if (navigation == null)
             {
-                throw new ModelItemNotFoundException(Strings.FormatNavigationNotFound(name, Name));
+                throw new ModelItemNotFoundException(Strings.NavigationNotFound(name, Name));
             }
             return navigation;
         }
@@ -583,14 +583,14 @@ namespace Microsoft.Data.Entity.Metadata
             var index = TryGetIndex(properties);
             if (index != null)
             {
-                throw new InvalidOperationException(Strings.FormatDuplicateIndex(Property.Format(index.Properties), Name));
+                throw new InvalidOperationException(Strings.DuplicateIndex(Property.Format(index.Properties), Name));
             }
 
             index = new Index(properties);
             if (index.EntityType != this)
             {
                 throw new ArgumentException(
-                    Strings.FormatIndexPropertiesWrongEntity(Property.Format(properties), Name));
+                    Strings.IndexPropertiesWrongEntity(Property.Format(properties), Name));
             }
 
             _indexes.Value.Add(index);
@@ -632,7 +632,7 @@ namespace Microsoft.Data.Entity.Metadata
             var index = TryGetIndex(properties);
             if (index == null)
             {
-                throw new ModelItemNotFoundException(Strings.FormatIndexNotFound(Property.Format(properties), Name));
+                throw new ModelItemNotFoundException(Strings.IndexNotFound(Property.Format(properties), Name));
             }
             return index;
         }
@@ -692,7 +692,7 @@ namespace Microsoft.Data.Entity.Metadata
             var currentIndex = _properties.BinarySearch(property, PropertyComparer.Instance);
             if (currentIndex >= 0)
             {
-                throw new InvalidOperationException(Strings.FormatDuplicateProperty(property.Name, Name));
+                throw new InvalidOperationException(Strings.DuplicateProperty(property.Name, Name));
             }
 
             ValidateAgainstClrProperty(property);
@@ -715,17 +715,17 @@ namespace Microsoft.Data.Entity.Metadata
 
                     if (clrProperty == null)
                     {
-                        throw new InvalidOperationException(Strings.FormatNoClrProperty(property.Name, Name));
+                        throw new InvalidOperationException(Strings.NoClrProperty(property.Name, Name));
                     }
 
                     if (property.PropertyType != clrProperty.PropertyType)
                     {
-                        throw new InvalidOperationException(Strings.FormatWrongClrPropertyType(property.Name, Name));
+                        throw new InvalidOperationException(Strings.WrongClrPropertyType(property.Name, Name));
                     }
                 }
                 else
                 {
-                    throw new InvalidOperationException(Strings.FormatClrPropertyOnShadowEntity(property.Name, Name));
+                    throw new InvalidOperationException(Strings.ClrPropertyOnShadowEntity(property.Name, Name));
                 }
             }
         }
@@ -832,7 +832,7 @@ namespace Microsoft.Data.Entity.Metadata
             var property = TryGetProperty(name);
             if (property == null)
             {
-                throw new ModelItemNotFoundException(Strings.FormatPropertyNotFound(name, Name));
+                throw new ModelItemNotFoundException(Strings.PropertyNotFound(name, Name));
             }
             return property;
         }
@@ -848,7 +848,7 @@ namespace Microsoft.Data.Entity.Metadata
                     || ForeignKeys.Any(k => k.Properties.Contains(property))
                     || Indexes.Any(i => i.Properties.Contains(property)))
                 {
-                    throw new InvalidOperationException(Strings.FormatPropertyInUse(property.Name, Name));
+                    throw new InvalidOperationException(Strings.PropertyInUse(property.Name, Name));
                 }
 
                 var removedProperty = _properties[currentIndex];
@@ -888,7 +888,7 @@ namespace Microsoft.Data.Entity.Metadata
             {
                 if (value && !CanUseLazyOriginalValues())
                 {
-                    throw new InvalidOperationException(Strings.FormatEagerOriginalValuesRequired(Name));
+                    throw new InvalidOperationException(Strings.EagerOriginalValuesRequired(Name));
                 }
 
                 _useLazyOriginalValues = value;

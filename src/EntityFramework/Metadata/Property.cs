@@ -58,7 +58,7 @@ namespace Microsoft.Data.Entity.Metadata
                     && value.Value
                     && !_propertyType.IsNullableType())
                 {
-                    throw new InvalidOperationException(Strings.FormatCannotBeNullable(Name, EntityType.SimpleName, _propertyType.Name));
+                    throw new InvalidOperationException(Strings.CannotBeNullable(Name, EntityType.SimpleName, _propertyType.Name));
                 }
 
                 SetFlag(value, PropertyFlags.IsNullable);
@@ -121,7 +121,7 @@ namespace Microsoft.Data.Entity.Metadata
                     && !value.Value
                     && this.IsKey())
                 {
-                    throw new NotSupportedException(Strings.FormatKeyPropertyMustBeReadOnly(Name, EntityType.Name));
+                    throw new NotSupportedException(Strings.KeyPropertyMustBeReadOnly(Name, EntityType.Name));
                 }
                 SetFlag(value, PropertyFlags.IsReadOnly);
             }

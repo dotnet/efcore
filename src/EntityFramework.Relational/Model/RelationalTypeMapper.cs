@@ -97,7 +97,7 @@ namespace Microsoft.Data.Entity.Relational.Model
             // TODO: Consider TimeSpan mapping
             // Issue #770
 
-            throw new NotSupportedException(Strings.FormatUnsupportedType(storageName, propertyType.Name));
+            throw new NotSupportedException(Strings.UnsupportedType(storageName, propertyType.Name));
         }
     }
 }

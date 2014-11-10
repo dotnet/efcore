@@ -28,7 +28,7 @@ namespace System.Linq.Expressions
             if (propertyInfo == null)
             {
                 throw new ArgumentException(
-                    Strings.FormatInvalidPropertyExpression(propertyAccessExpression),
+                    Strings.InvalidPropertyExpression(propertyAccessExpression),
                     "propertyAccessExpression");
             }
 
@@ -45,7 +45,7 @@ namespace System.Linq.Expressions
             if (propertyPaths == null)
             {
                 throw new ArgumentException(
-                    Strings.FormatInvalidPropertiesExpression(propertyAccessExpression),
+                    Strings.InvalidPropertiesExpression(propertyAccessExpression),
                     "propertyAccessExpression");
             }
 

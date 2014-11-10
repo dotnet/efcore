@@ -44,7 +44,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Query
                     return (T)parsed;
                 }
             }
-            throw new TypeAccessException(Strings.FormatInvalidReadType(typeof(T).Name, index));
+            throw new TypeAccessException(Strings.InvalidReadType(typeof(T).Name, index));
         }
 
         public virtual int Count

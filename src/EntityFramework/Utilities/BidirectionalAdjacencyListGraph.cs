@@ -129,7 +129,7 @@ namespace Microsoft.Data.Entity.Utilities
                 cycle.Reverse();
 
                 throw new InvalidOperationException(
-                    Strings.FormatCircularDependency(
+                    Strings.CircularDependency(
                         cycle.Select(vertex => vertex.ToString()).Join(" -> ")));
             }
 

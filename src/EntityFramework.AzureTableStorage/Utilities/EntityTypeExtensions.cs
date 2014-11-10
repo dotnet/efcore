@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Utilities
             var property = TryGetPropertyByColumnName(entityType, name);
             if (property == null)
             {
-                throw new ModelItemNotFoundException(Strings.FormatPropertyWithStorageNameNotFound(name, entityType.Name));
+                throw new ModelItemNotFoundException(Strings.PropertyWithStorageNameNotFound(name, entityType.Name));
             }
             return property;
         }

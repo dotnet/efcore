@@ -288,7 +288,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var batch = new ModificationCommandBatchFake(CreateDataReaderMock(new[] { "Col1" }, new List<object[]> { new object[] { 42 } }).Object);
             batch.AddCommand(command);
 
-            Assert.Equal(Strings.FormatUpdateConcurrencyException(1, 42),
+            Assert.Equal(Strings.UpdateConcurrencyException(1, 42),
                 (await Assert.ThrowsAsync<DbUpdateConcurrencyException>(
                     async () => await batch.ExecuteAsync(
                         new Mock<RelationalTransaction>().Object,
@@ -309,7 +309,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var batch = new ModificationCommandBatchFake(CreateDataReaderMock(new[] { "Col1" }, new List<object[]>()).Object);
             batch.AddCommand(command);
 
-            Assert.Equal(Strings.FormatUpdateConcurrencyException(1, 0),
+            Assert.Equal(Strings.UpdateConcurrencyException(1, 0),
                 (await Assert.ThrowsAsync<DbUpdateConcurrencyException>(
                     async () => await batch.ExecuteAsync(
                         new Mock<RelationalTransaction>().Object,

@@ -75,7 +75,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
         {
             var reader = new AtsObjectArrayValueReader(new object[] { "value" });
             Assert.Equal(
-                Strings.FormatInvalidReadType("Boolean", 0),
+                Strings.InvalidReadType("Boolean", 0),
                 Assert.Throws<TypeAccessException>(() => reader.ReadValue<bool>(0)).Message);
         }
 

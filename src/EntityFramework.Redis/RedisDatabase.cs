@@ -502,11 +502,7 @@ namespace Microsoft.Data.Entity.Redis
 
             if (value == null)
             {
-                throw new ArgumentException(
-                    string.Format(
-                        CultureInfo.InvariantCulture,
-                        Strings.InvalidDatabaseValue,
-                        "[" + string.Join(",", bytes.AsEnumerable()) + "]"));
+                throw new ArgumentException(Strings.InvalidDatabaseValue("[" + string.Join(",", bytes) + "]"));
             }
 
             var underlyingType = property.UnderlyingType;
@@ -576,10 +572,9 @@ namespace Microsoft.Data.Entity.Redis
                 return MaybeNullable(Convert.ToSByte(value), property);
             }
 
-            throw new ArgumentOutOfRangeException("property",
-                string.Format(
-                    CultureInfo.InvariantCulture,
-                    Strings.UnableToDecodeProperty,
+            throw new ArgumentOutOfRangeException(
+                "property",
+                Strings.UnableToDecodeProperty(
                     property.Name,
                     property.PropertyType.FullName,
                     property.EntityType.Name));

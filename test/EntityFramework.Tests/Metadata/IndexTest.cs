@@ -47,7 +47,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 Assert.Throws<ArgumentNullException>(() => new Index(null)).ParamName);
 
             Assert.Equal(
-                Strings.FormatCollectionArgumentIsEmpty("properties"),
+                Strings.CollectionArgumentIsEmpty("properties"),
                 Assert.Throws<ArgumentException>(() => new Index(new Property[0])).Message);
         }
 
@@ -57,7 +57,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var property1 = new Model().AddEntityType(typeof(Customer)).GetOrAddProperty(Customer.IdProperty);
             var property2 = new Model().AddEntityType(typeof(Order)).GetOrAddProperty(Order.IdProperty);
 
-            Assert.Equal(Strings.FormatInconsistentEntityType("properties"),
+            Assert.Equal(Strings.InconsistentEntityType("properties"),
                 Assert.Throws<ArgumentException>(
                     () => new Index(new[] { property1, property2 })).Message);
         }

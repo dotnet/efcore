@@ -131,7 +131,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new LoggerFactory()));
 
             Assert.Equal(
-                Strings.FormatSequenceBadBlockSize(-1, "DaneelOlivaw"),
+                Strings.SequenceBadBlockSize(-1, "DaneelOlivaw"),
                 Assert.Throws<NotSupportedException>(() => factory.GetBlockSize(property)).Message);
         }
 

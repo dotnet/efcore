@@ -142,7 +142,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var navigation = CreateNavigation("WithNoGetter");
 
             Assert.Equal(
-                Strings.FormatNavigationNoGetter("WithNoGetter", typeof(MyEntity).FullName),
+                Strings.NavigationNoGetter("WithNoGetter", typeof(MyEntity).FullName),
                 Assert.Throws<NotSupportedException>(() => new ClrCollectionAccessorSource(new CollectionTypeFactory()).GetAccessor(navigation)).Message);
         }
 
@@ -152,7 +152,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var navigation = CreateNavigation("AsIEnumerable");
 
             Assert.Equal(
-                Strings.FormatNavigationBadType(
+                Strings.NavigationBadType(
                     "AsIEnumerable", typeof(MyEntity).FullName, typeof(IEnumerable<MyOtherEntity>).FullName, typeof(MyOtherEntity).FullName),
                 Assert.Throws<NotSupportedException>(() => new ClrCollectionAccessorSource(new CollectionTypeFactory()).GetAccessor(navigation)).Message);
         }
@@ -163,7 +163,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var navigation = CreateNavigation("AsArray");
 
             Assert.Equal(
-                Strings.FormatNavigationArray("AsArray", typeof(MyEntity).FullName, typeof(MyOtherEntity[]).FullName),
+                Strings.NavigationArray("AsArray", typeof(MyEntity).FullName, typeof(MyOtherEntity[]).FullName),
                 Assert.Throws<NotSupportedException>(() => new ClrCollectionAccessorSource(new CollectionTypeFactory()).GetAccessor(navigation)).Message);
         }
 
@@ -173,7 +173,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var accessor = new ClrCollectionAccessorSource(new CollectionTypeFactory()).GetAccessor(CreateNavigation("WithNoSetter"));
 
             Assert.Equal(
-                Strings.FormatNavigationNoSetter("WithNoSetter", typeof(MyEntity).FullName),
+                Strings.NavigationNoSetter("WithNoSetter", typeof(MyEntity).FullName),
                 Assert.Throws<InvalidOperationException>(() => accessor.Add(new MyEntity(), new MyOtherEntity())).Message);
         }
 
@@ -183,7 +183,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var accessor = new ClrCollectionAccessorSource(new CollectionTypeFactory()).GetAccessor(CreateNavigation("AsMyPrivateCollection"));
 
             Assert.Equal(
-                Strings.FormatNavigationCannotCreateType("AsMyPrivateCollection", typeof(MyEntity).FullName, typeof(MyPrivateCollection).FullName),
+                Strings.NavigationCannotCreateType("AsMyPrivateCollection", typeof(MyEntity).FullName, typeof(MyPrivateCollection).FullName),
                 Assert.Throws<InvalidOperationException>(() => accessor.Add(new MyEntity(), new MyOtherEntity())).Message);
         }
 
@@ -193,7 +193,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var accessor = new ClrCollectionAccessorSource(new CollectionTypeFactory()).GetAccessor(CreateNavigation("AsMyInternalCollection"));
 
             Assert.Equal(
-                Strings.FormatNavigationCannotCreateType("AsMyInternalCollection", typeof(MyEntity).FullName, typeof(MyInternalCollection).FullName),
+                Strings.NavigationCannotCreateType("AsMyInternalCollection", typeof(MyEntity).FullName, typeof(MyInternalCollection).FullName),
                 Assert.Throws<InvalidOperationException>(() => accessor.Add(new MyEntity(), new MyOtherEntity())).Message);
         }
 
@@ -203,7 +203,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var accessor = new ClrCollectionAccessorSource(new CollectionTypeFactory()).GetAccessor(CreateNavigation("AsMyUnavailableCollection"));
 
             Assert.Equal(
-                Strings.FormatNavigationCannotCreateType("AsMyUnavailableCollection", typeof(MyEntity).FullName, typeof(MyUnavailableCollection).FullName),
+                Strings.NavigationCannotCreateType("AsMyUnavailableCollection", typeof(MyEntity).FullName, typeof(MyUnavailableCollection).FullName),
                 Assert.Throws<InvalidOperationException>(() => accessor.Add(new MyEntity(), new MyOtherEntity())).Message);
         }
 

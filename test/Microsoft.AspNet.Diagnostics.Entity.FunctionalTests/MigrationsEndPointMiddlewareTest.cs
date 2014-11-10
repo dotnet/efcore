@@ -123,7 +123,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity.Tests
             var content = await response.Content.ReadAsStringAsync();
 
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-            Assert.StartsWith(StringsHelpers.GetResourceString("FormatMigrationsEndPointMiddleware_NoContextType"), content);
+            Assert.StartsWith(StringsHelpers.GetResourceString("MigrationsEndPointMiddleware_NoContextType"), content);
             Assert.True(content.Length > 512);
         }
 
@@ -145,7 +145,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity.Tests
             var content = await response.Content.ReadAsStringAsync();
 
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-            Assert.StartsWith(StringsHelpers.GetResourceString("FormatMigrationsEndPointMiddleware_InvalidContextType", typeName), content);
+            Assert.StartsWith(StringsHelpers.GetResourceString("MigrationsEndPointMiddleware_InvalidContextType", typeName), content);
             Assert.True(content.Length > 512);
         }
 
@@ -170,7 +170,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity.Tests
             var content = await response.Content.ReadAsStringAsync();
 
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-            Assert.StartsWith(StringsHelpers.GetResourceString("FormatMigrationsEndPointMiddleware_ContextNotRegistered", typeof(BloggingContext)), content);
+            Assert.StartsWith(StringsHelpers.GetResourceString("MigrationsEndPointMiddleware_ContextNotRegistered", typeof(BloggingContext)), content);
             Assert.True(content.Length > 512);
         }
 
@@ -201,7 +201,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity.Tests
                 var ex = await Assert.ThrowsAsync<InvalidOperationException>(async () => 
                     await server.CreateClient().PostAsync("http://localhost" + MigrationsEndPointOptions.DefaultPath, formData));
 
-                Assert.Equal(StringsHelpers.GetResourceString("FormatMigrationsEndPointMiddleware_Exception", typeof(BloggingContextWithSnapshotThatThrows)), ex.Message);
+                Assert.Equal(StringsHelpers.GetResourceString("MigrationsEndPointMiddleware_Exception", typeof(BloggingContextWithSnapshotThatThrows)), ex.Message);
                 Assert.Equal("Welcome to the invalid migration!", ex.InnerException.Message);
             }
         }

@@ -73,7 +73,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         public void Create_migration_info_from_migration_without_metadatata_throws()
         {
             Assert.Equal(
-                Strings.FormatMissingMigrationMetadata(typeof(TestMigrationNoMetadata)),
+                Strings.MissingMigrationMetadata(typeof(TestMigrationNoMetadata)),
                 Assert.Throws<InvalidCastException>(() => new MigrationInfo(new TestMigrationNoMetadata())).Message);
         }
 

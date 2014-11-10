@@ -81,20 +81,20 @@ namespace Microsoft.Data.Entity.AzureTableStorage
                 operationContext.Retrying += (sender, args)
                     => logger.WriteInformation(
                         args,
-                        a => Strings.FormatLogRequestRetry(a.Request.RequestUri));
+                        a => Strings.LogRequestRetry(a.Request.RequestUri));
 
                 operationContext.SendingRequest += (sender, args)
                     => logger.WriteVerbose(
                         args,
-                        a => Strings.FormatLogSendingRequest(a.Request.RequestUri));
+                        a => Strings.LogSendingRequest(a.Request.RequestUri));
 
                 operationContext.ResponseReceived += (sender, args)
                     => logger.WriteInformation(
                         args,
-                        a => Strings.FormatLogResponseReceived(
+                        a => Strings.LogResponseReceived(
                             a.Request.RequestUri, a.Response.StatusCode, a.Response.StatusDescription));
 
-                logger.WriteInformation(request, r => Strings.FormatLogExecutingRequest(request.Name));
+                logger.WriteInformation(request, r => Strings.LogExecutingRequest(request.Name));
             }
 
             return new RequestContext

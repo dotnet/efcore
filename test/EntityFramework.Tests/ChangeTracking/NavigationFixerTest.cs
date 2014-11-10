@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 // ReSharper disable once AssignNullToNotNullAttribute
                 Assert.Throws<ArgumentNullException>(() => fixer.StateChanged(null, EntityState.Unknown)).ParamName);
             Assert.Equal(
-                Strings.FormatInvalidEnumValue("oldState", typeof(EntityState)),
+                Strings.InvalidEnumValue("oldState", typeof(EntityState)),
                 Assert.Throws<ArgumentException>(() => fixer.StateChanged(new Mock<StateEntry>().Object, (EntityState)77)).Message);
         }
 

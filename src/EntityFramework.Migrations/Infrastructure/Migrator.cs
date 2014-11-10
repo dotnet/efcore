@@ -322,7 +322,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
 
             if (j < historyRows.Count)
             {
-                throw new InvalidOperationException(Strings.FormatLocalMigrationNotFound(
+                throw new InvalidOperationException(Strings.LocalMigrationNotFound(
                     historyRows[j].MigrationId));
             }
 
@@ -349,7 +349,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                 index = MigrationAssembly.Migrations.IndexOf(m => m.GetMigrationName() == name);
                 if (index < 0)
                 {
-                    throw new InvalidOperationException(Strings.FormatTargetMigrationNotFound(name));
+                    throw new InvalidOperationException(Strings.TargetMigrationNotFound(name));
                 }
             }
 

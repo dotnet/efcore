@@ -687,7 +687,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .Metadata;
 
             Assert.Equal(
-                Strings.FormatSequenceBadType("Name", typeof(Customer).FullName, "String"),
+                Strings.SequenceBadType("Name", typeof(Customer).FullName, "String"),
                 Assert.Throws<ArgumentException>(
                     () => property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Sequence).Message);
         }
@@ -703,7 +703,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .Metadata;
 
             Assert.Equal(
-                Strings.FormatIdentityBadType("Name", typeof(Customer).FullName, "String"),
+                Strings.IdentityBadType("Name", typeof(Customer).FullName, "String"),
                 Assert.Throws<ArgumentException>(
                     () => property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Identity).Message);
         }
@@ -719,7 +719,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .Metadata;
 
             Assert.Equal(
-                Strings.FormatIdentityBadType("Byte", typeof(Customer).FullName, "Byte"),
+                Strings.IdentityBadType("Byte", typeof(Customer).FullName, "Byte"),
                 Assert.Throws<ArgumentException>(
                     () => property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Identity).Message);
         }
@@ -735,7 +735,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .Metadata;
 
             Assert.Equal(
-                Strings.FormatIdentityBadType("NullableByte", typeof(Customer).FullName, "Nullable`1"),
+                Strings.IdentityBadType("NullableByte", typeof(Customer).FullName, "Nullable`1"),
                 Assert.Throws<ArgumentException>(
                     () => property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Identity).Message);
         }

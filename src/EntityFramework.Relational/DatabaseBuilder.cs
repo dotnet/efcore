@@ -368,7 +368,7 @@ namespace Microsoft.Data.Entity.Relational
                 || sequence.StartWith != existingSequence.StartWith
                 || sequence.IncrementBy != existingSequence.IncrementBy)
             {
-                throw new InvalidOperationException(Strings.FormatSequenceDefinitionMismatch(sequence.Name));
+                throw new InvalidOperationException(Strings.SequenceDefinitionMismatch(sequence.Name));
             }
         }
 

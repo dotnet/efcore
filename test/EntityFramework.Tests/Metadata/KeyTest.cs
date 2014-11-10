@@ -31,7 +31,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var property1 = entityType1.GetOrAddProperty(Customer.IdProperty);
             var property2 = entityType2.GetOrAddProperty(Order.NameProperty);
 
-            Assert.Equal(Strings.FormatInconsistentEntityType("properties"),
+            Assert.Equal(Strings.InconsistentEntityType("properties"),
                 Assert.Throws<ArgumentException>(
                     () => new Key(new[] { property1, property2 })).Message);
         }

@@ -13,11 +13,11 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void Members_check_arguments()
         {
             Assert.Equal(
-                Strings.FormatArgumentIsEmpty("name"),
+                Strings.ArgumentIsEmpty("name"),
                 Assert.Throws<ArgumentException>(() => new Annotation("", "Kake")).Message);
 
             Assert.Equal(
-                Strings.FormatArgumentIsEmpty("value"),
+                Strings.ArgumentIsEmpty("value"),
                 Assert.Throws<ArgumentException>(() => new Annotation("Lie", "")).Message);
         }
 

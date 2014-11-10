@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
 
             logger.WriteInformation(
                 MigratorLoggerEventIds.CreatingHistoryTable,
-                Strings.FormatMigratorLoggerCreatingHistoryTable);
+                () => Strings.MigratorLoggerCreatingHistoryTable);
         }
 
         public static void DroppingHistoryTable([NotNull] this ILogger logger)
@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
 
             logger.WriteInformation(
                 MigratorLoggerEventIds.DroppingHistoryTable,
-                Strings.FormatMigratorLoggerDroppingHistoryTable);
+                () => Strings.MigratorLoggerDroppingHistoryTable);
         }
 
         public static void ApplyingMigration([NotNull] this ILogger logger, [NotNull] string migrationId)
@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
 
             logger.WriteInformation(
                 MigratorLoggerEventIds.ApplyingMigration, migrationId,
-                Strings.FormatMigratorLoggerApplyingMigration);
+                Strings.MigratorLoggerApplyingMigration);
         }
 
         public static void RevertingMigration([NotNull] this ILogger logger, [NotNull] string migrationId)
@@ -44,7 +44,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
 
             logger.WriteInformation(
                 MigratorLoggerEventIds.RevertingMigration, migrationId,
-                Strings.FormatMigratorLoggerRevertingMigration);
+                Strings.MigratorLoggerRevertingMigration);
         }
 
         public static void UpToDate([NotNull] this ILogger logger)
@@ -53,7 +53,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
 
             logger.WriteInformation(
                 MigratorLoggerEventIds.UpToDate,
-                Strings.FormatMigratorLoggerUpToDate);
+                () => Strings.MigratorLoggerUpToDate);
         }
     }
 }

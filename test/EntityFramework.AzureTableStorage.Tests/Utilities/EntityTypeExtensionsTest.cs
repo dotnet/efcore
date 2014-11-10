@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Utilities
             entityType.GetOrAddProperty("Name", typeof(string), shadowProperty: true);
 
             Assert.Equal(
-                Strings.FormatPropertyWithStorageNameNotFound("FirstName", "Customer"),
+                Strings.PropertyWithStorageNameNotFound("FirstName", "Customer"),
                 Assert.Throws<ModelItemNotFoundException>(() => entityType.GetPropertyByColumnName("FirstName")).Message);
             Assert.Null(entityType.TryGetPropertyByColumnName("FirstName"));
         }

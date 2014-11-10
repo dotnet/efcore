@@ -82,12 +82,12 @@ namespace Microsoft.Data.Entity.Relational
 
             if (storeConfigs.Length == 0)
             {
-                throw new InvalidOperationException(Strings.FormatNoDataStoreConfigured());
+                throw new InvalidOperationException(Strings.NoDataStoreConfigured);
             }
 
             if (storeConfigs.Length > 1)
             {
-                throw new InvalidOperationException(Strings.FormatMultipleDataStoresConfigured());
+                throw new InvalidOperationException(Strings.MultipleDataStoresConfigured);
             }
 
             return storeConfigs[0];

@@ -278,7 +278,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator(), p => p.Relational());
 
             Assert.Equal(
-                Strings.FormatModificationFunctionInvalidEntityState(EntityState.Unchanged),
+                Strings.ModificationFunctionInvalidEntityState(EntityState.Unchanged),
                 Assert.Throws<NotSupportedException>(() => command.AddStateEntry(stateEntry)).Message);
         }
 
@@ -290,7 +290,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var command = new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator(), p => p.Relational());
 
             Assert.Equal(
-                Strings.FormatModificationFunctionInvalidEntityState(EntityState.Unknown),
+                Strings.ModificationFunctionInvalidEntityState(EntityState.Unknown),
                 Assert.Throws<NotSupportedException>(() => command.AddStateEntry(stateEntry)).Message);
         }
 

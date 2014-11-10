@@ -11,8 +11,11 @@ namespace Microsoft.AspNet.Diagnostics.Entity.Tests.Helpers
     {
         public static string GetResourceString(string stringName, params object[] parameters)
         {
-            var strings = typeof(DatabaseErrorPageMiddleware).GetTypeInfo().Assembly.GetType(typeof(DatabaseErrorPageMiddleware).Namespace + ".Strings");
-            return (string)strings.GetTypeInfo().GetDeclaredMethods(stringName).Single().Invoke(null, parameters);
+            var strings = typeof(DatabaseErrorPageMiddleware).GetTypeInfo().Assembly.GetType(typeof(DatabaseErrorPageMiddleware).Namespace + ".Strings").GetTypeInfo();
+            var method = parameters.Length == 0
+                ? strings.GetDeclaredProperty(stringName).GetGetMethod()
+                : strings.GetDeclaredMethods(stringName).Single();
+            return (string)method.Invoke(null, parameters);
         }
     }
 }

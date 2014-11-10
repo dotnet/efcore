@@ -62,7 +62,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             var property = CreateProperty(typeof(double));
 
             Assert.Equal(
-                TestHelpers.GetCoreString("FormatNoValueGenerator", "MyProperty", "MyType", "Double"),
+                TestHelpers.GetCoreString("NoValueGenerator", "MyProperty", "MyType", "Double"),
                 Assert.Throws<NotSupportedException>(() => selector.Select(property)).Message);
         }
 

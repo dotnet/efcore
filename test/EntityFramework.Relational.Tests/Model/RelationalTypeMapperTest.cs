@@ -143,7 +143,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Model
         public void Throws_for_type_that_has_no_default_mapping()
         {
             Assert.Equal(
-                Strings.FormatUnsupportedType("MyColumn", "Byte[]"),
+                Strings.UnsupportedType("MyColumn", "Byte[]"),
                 Assert.Throws<NotSupportedException>(() => GetTypeMapping(typeof(byte[]))).Message);
         }
 

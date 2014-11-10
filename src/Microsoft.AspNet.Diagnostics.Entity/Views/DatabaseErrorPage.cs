@@ -154,7 +154,7 @@ using Microsoft.AspNet.Diagnostics.Entity.Views
 
             WriteLiteral("        <h2>");
 #line 56 "DatabaseErrorPage.cshtml"
-       Write(Strings.FormatDatabaseErrorPage_NoDbOrMigrationsTitle(Model.ContextType.Name));
+       Write(Strings.DatabaseErrorPage_NoDbOrMigrationsTitle(Model.ContextType.Name));
 
 #line default
 #line hidden
@@ -187,13 +187,13 @@ using Microsoft.AspNet.Diagnostics.Entity.Views
 
             WriteLiteral("        <div>\r\n            <h2>");
 #line 66 "DatabaseErrorPage.cshtml"
-           Write(Strings.FormatDatabaseErrorPage_PendingMigrationsTitle(Model.ContextType.Name));
+           Write(Strings.DatabaseErrorPage_PendingMigrationsTitle(Model.ContextType.Name));
 
 #line default
 #line hidden
             WriteLiteral("</h2>\r\n            <p>");
 #line 67 "DatabaseErrorPage.cshtml"
-          Write(Strings.FormatDatabaseErrorPage_PendingMigrationsInfo(Model.ContextType.Name));
+          Write(Strings.DatabaseErrorPage_PendingMigrationsInfo(Model.ContextType.Name));
 
 #line default
 #line hidden
@@ -371,7 +371,7 @@ using Microsoft.AspNet.Diagnostics.Entity.Views
 
             WriteLiteral("        <div>\r\n            <h2>");
 #line 131 "DatabaseErrorPage.cshtml"
-           Write(Strings.FormatDatabaseErrorPage_PendingChangesTitle(Model.ContextType.Name));
+           Write(Strings.DatabaseErrorPage_PendingChangesTitle(Model.ContextType.Name));
 
 #line default
 #line hidden

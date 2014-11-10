@@ -56,7 +56,7 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\packages\KoreBuild\build\Resources.cs">
+    <Compile Include="..\..\tools\Resources.cs">
       <Link>Properties\Resources.cs</Link>
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -137,12 +137,11 @@
     <EmbeddedResource Include="Properties\Strings.resx">
       <LogicalName>EntityFramework.AzureTableStorage.Strings.resources</LogicalName>
     </EmbeddedResource>
-    <None Include="..\..\packages\KoreBuild\build\Resources.tt">
+    <Content Include="..\..\tools\Resources.tt">
       <Link>Properties\Resources.tt</Link>
       <Generator>TextTemplatingFileGenerator</Generator>
-      <CustomToolNamespace>Microsoft.Data.Entity.AzureTableStorage</CustomToolNamespace>
       <LastGenOutput>Resources.cs</LastGenOutput>
-    </None>
+    </Content>
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>

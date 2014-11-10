@@ -21,8 +21,11 @@ namespace Microsoft.Data.Entity.FunctionalTests
             string expectedResourceMethod,
             params object[] parameters)
         {
-            var strings = resourceAssemblyType.GetTypeInfo().Assembly.GetType(resourceAssemblyType.Namespace + ".Strings");
-            var expectedMessage = (string)strings.GetTypeInfo().GetDeclaredMethods(expectedResourceMethod).Single().Invoke(null, parameters);
+            var strings = resourceAssemblyType.GetTypeInfo().Assembly.GetType(resourceAssemblyType.Namespace + ".Strings").GetTypeInfo();
+            var method = parameters.Length == 0
+                ? strings.GetDeclaredProperty(expectedResourceMethod).GetGetMethod()
+                : strings.GetDeclaredMethods(expectedResourceMethod).Single();
+            var expectedMessage = (string)method.Invoke(null, parameters);
             Assert.Equal(expectedMessage, exception.Message);
         }
 

@@ -65,7 +65,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
         public void Parse_throws_when_too_many_parts()
         {
             Assert.Equal(
-                Strings.FormatInvalidSchemaQualifiedName("S1.S2.A"),
+                Strings.InvalidSchemaQualifiedName("S1.S2.A"),
                 Assert.Throws<ArgumentException>(() => SchemaQualifiedName.Parse("S1.S2.A")).Message);
         }
 
@@ -73,7 +73,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
         public void Parse_throws_for_empty_table()
         {
             Assert.Equal(
-                Strings.FormatInvalidSchemaQualifiedName("A."),
+                Strings.InvalidSchemaQualifiedName("A."),
                 Assert.Throws<ArgumentException>(() => SchemaQualifiedName.Parse("A.")).Message);
         }
 
@@ -81,7 +81,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
         public void Parse_throws_for_empty_schema()
         {
             Assert.Equal(
-                Strings.FormatInvalidSchemaQualifiedName(".A"),
+                Strings.InvalidSchemaQualifiedName(".A"),
                 Assert.Throws<ArgumentException>(() => SchemaQualifiedName.Parse(".A")).Message);
         }
 
@@ -89,7 +89,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
         public void Parse_throws_for_empty_table_and_schema()
         {
             Assert.Equal(
-                Strings.FormatInvalidSchemaQualifiedName("."),
+                Strings.InvalidSchemaQualifiedName("."),
                 Assert.Throws<ArgumentException>(() => SchemaQualifiedName.Parse(".")).Message);
         }
 

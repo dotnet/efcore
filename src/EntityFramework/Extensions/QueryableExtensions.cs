@@ -1336,7 +1336,7 @@ namespace System.Linq
                 return entityQueryableAccessor.AsyncEnumerable;
             }
 
-            throw new InvalidOperationException(Strings.FormatIQueryableNotAsync(typeof(TSource)));
+            throw new InvalidOperationException(Strings.IQueryableNotAsync(typeof(TSource)));
         }
 
         #endregion
@@ -1546,7 +1546,7 @@ namespace System.Linq
                     cancellationToken);
             }
 
-            throw new InvalidOperationException(Strings.FormatIQueryableProviderNotAsync());
+            throw new InvalidOperationException(Strings.IQueryableProviderNotAsync);
         }
 
         private static Task<TResult> ExecuteAsync<TSource, TResult>(
@@ -1582,7 +1582,7 @@ namespace System.Linq
                     cancellationToken);
             }
 
-            throw new InvalidOperationException(Strings.FormatIQueryableProviderNotAsync());
+            throw new InvalidOperationException(Strings.IQueryableProviderNotAsync);
         }
 
         private static MethodInfo GetMethod<TResult>(

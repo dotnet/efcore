@@ -65,19 +65,19 @@ namespace Microsoft.Data.Entity.Metadata
             if (elementType == null)
             {
                 throw new NotSupportedException(
-                    Strings.FormatNavigationBadType(
+                    Strings.NavigationBadType(
                         navigation.Name, navigation.EntityType.Name, property.PropertyType.FullName, navigation.GetTargetType().Name));
             }
 
             if (property.PropertyType.IsArray)
             {
                 throw new NotSupportedException(
-                    Strings.FormatNavigationArray(navigation.Name, navigation.EntityType.Name, property.PropertyType.FullName));
+                    Strings.NavigationArray(navigation.Name, navigation.EntityType.Name, property.PropertyType.FullName));
             }
 
             if (property.GetMethod == null)
             {
-                throw new NotSupportedException(Strings.FormatNavigationNoGetter(navigation.Name, navigation.EntityType.Name));
+                throw new NotSupportedException(Strings.NavigationNoGetter(navigation.Name, navigation.EntityType.Name));
             }
 
             var boundMethod = _genericCreate.MakeGenericMethod(

@@ -28,7 +28,7 @@ namespace Microsoft.Framework.Logging
             logger.WriteInformation(
                 RelationalLoggingEventIds.CreatingDatabase,
                 databaseName,
-                Strings.FormatRelationalLoggerCreatingDatabase);
+                Strings.RelationalLoggerCreatingDatabase);
         }
 
         public static void OpeningConnection([NotNull] this ILogger logger, [NotNull] string connectionString)
@@ -39,7 +39,7 @@ namespace Microsoft.Framework.Logging
             logger.WriteVerbose(
                 RelationalLoggingEventIds.OpeningConnection,
                 connectionString,
-                Strings.FormatRelationalLoggerOpeningConnection);
+                Strings.RelationalLoggerOpeningConnection);
         }
 
         public static void ClosingConnection([NotNull] this ILogger logger, [NotNull] string connectionString)
@@ -50,7 +50,7 @@ namespace Microsoft.Framework.Logging
             logger.WriteVerbose(
                 RelationalLoggingEventIds.ClosingConnection,
                 connectionString,
-                Strings.FormatRelationalLoggerClosingConnection);
+                Strings.RelationalLoggerClosingConnection);
         }
 
         public static void BeginningTransaction([NotNull] this ILogger logger, IsolationLevel isolationLevel)
@@ -60,7 +60,7 @@ namespace Microsoft.Framework.Logging
             logger.WriteVerbose(
                 RelationalLoggingEventIds.BeginningTransaction,
                 isolationLevel,
-                il => Strings.FormatRelationalLoggerBeginningTransaction(il.ToString("G")));
+                il => Strings.RelationalLoggerBeginningTransaction(il.ToString("G")));
         }
 
         public static void CommittingTransaction([NotNull] this ILogger logger)
