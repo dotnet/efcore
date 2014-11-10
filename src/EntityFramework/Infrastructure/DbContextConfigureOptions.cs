@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.Infrastructure
         public DbContextConfigureOptions([NotNull] IConfiguration configuration, [NotNull] DbContextOptionsParser parser)
             : base(o =>
                 {
-                    var extensions = ((IDbContextOptionsExtensions)o);
+                    var extensions = ((IDbContextOptions)o);
                     extensions.RawOptions = parser.ReadRawOptions<TContext>(configuration, extensions.RawOptions);
                 })
         {

@@ -72,11 +72,11 @@ namespace Microsoft.Data.Entity.Relational
             // TODO: Read other options.
         }
 
-        public static RelationalOptionsExtension Extract([NotNull] DbContextConfiguration configuration)
+        public static RelationalOptionsExtension Extract([NotNull] IDbContextOptions options)
         {
-            Check.NotNull(configuration, "configuration");
+            Check.NotNull(options, "options");
 
-            var storeConfigs = configuration.ContextOptions.Extensions
+            var storeConfigs = options.Extensions
                 .OfType<RelationalOptionsExtension>()
                 .ToArray();
 

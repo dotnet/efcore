@@ -49,7 +49,7 @@ namespace Microsoft.Data.Entity.Commands
             {
                 var configuration = context.Configuration;
 
-                var extension = RelationalOptionsExtension.Extract(configuration);
+                var extension = RelationalOptionsExtension.Extract(configuration.ContextOptions);
                 if (extension.MigrationNamespace == null)
                 {
                     extension.MigrationNamespace = rootNamespace + ".Migrations";
@@ -179,7 +179,7 @@ namespace Microsoft.Data.Entity.Commands
             var loggerFactory = (ILoggerFactory)context.Configuration.Services.ServiceProvider.GetService(typeof(ILoggerFactory));
             loggerFactory.AddProvider(_loggerProvider);
 
-            var extension = RelationalOptionsExtension.Extract(context.Configuration);
+            var extension = RelationalOptionsExtension.Extract(context.Configuration.ContextOptions);
             if (extension.MigrationAssembly == null)
             {
                 extension.MigrationAssembly = _assembly;

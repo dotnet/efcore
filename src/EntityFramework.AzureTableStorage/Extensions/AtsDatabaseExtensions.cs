@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity
 {
     public static class AtsDatabaseExtensions
     {
-        public static AtsDatabase AsAzureTableStorageDatabase([NotNull] this Database database)
+        public static AtsDatabase AsAzureTableStorage([NotNull] this Database database)
         {
             Check.NotNull(database, "database");
 

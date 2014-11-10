@@ -126,4 +126,7 @@
   <data name="LogSavedChanges" xml:space="preserve">
     <value>Saved {count} entities to in-memory store.</value>
   </data>
+  <data name="InMemoryNotInUse" xml:space="preserve">
+    <value>In-Memory-specific methods can only be used when the context is using an In-Memory data store.</value>
+  </data>
 </root>

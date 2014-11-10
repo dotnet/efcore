@@ -131,7 +131,7 @@ namespace Microsoft.Data.Entity.Tests
 
         private static DbContextOptions CreateOptions(Action<EntityServicesBuilder> builderAction)
         {
-            IDbContextOptionsExtensions options = new DbContextOptions();
+            IDbContextOptions options = new DbContextOptions();
             options.AddOrUpdateExtension<FakeDbContextOptionsExtension>(e => e.BuilderActions.Add(builderAction));
             return (DbContextOptions)options;
         }

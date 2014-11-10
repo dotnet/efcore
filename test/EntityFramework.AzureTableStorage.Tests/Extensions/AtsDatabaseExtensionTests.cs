@@ -3,6 +3,9 @@
 
 using System;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 using Moq;
 using Xunit;
@@ -14,21 +17,39 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Extensions
         [Fact]
         public void Returns_typed_database_object()
         {
-            var configurationMock = new Mock<DbContextConfiguration>();
-            var database = new AtsDatabase(configurationMock.Object, new LoggerFactory());
+            var database = new AtsDatabase(
+                new LazyRef<IModel>(() => null),
+                Mock.Of<AtsDataStoreCreator>(),
+                Mock.Of<AtsConnection>(),
+                new LoggerFactory());
 
-            Assert.Same(database, database.AsAzureTableStorageDatabase());
+            Assert.Same(database, database.AsAzureTableStorage());
         }
 
         [Fact]
         public void Throws_when_non_ats_provider_is_in_use()
         {
-            var configurationMock = new Mock<DbContextConfiguration>();
-            var database = new Database(configurationMock.Object, new LoggerFactory());
+            var database = new ConcreteDatabase(
+                new LazyRef<IModel>(() => null),
+                Mock.Of<DataStoreCreator>(),
+                Mock.Of<DataStoreConnection>(),
+                new LoggerFactory());
 
             Assert.Equal(
                 Strings.AtsDatabaseNotInUse,
-                Assert.Throws<InvalidOperationException>(() => database.AsAzureTableStorageDatabase()).Message);
+                Assert.Throws<InvalidOperationException>(() => database.AsAzureTableStorage()).Message);
+        }
+
+        private class ConcreteDatabase : Database
+        {
+            public ConcreteDatabase(
+                LazyRef<IModel> model,
+                DataStoreCreator dataStoreCreator,
+                DataStoreConnection connection,
+                ILoggerFactory loggerFactory)
+                : base(model, dataStoreCreator, connection, loggerFactory)
+            {
+            }
         }
     }
 }

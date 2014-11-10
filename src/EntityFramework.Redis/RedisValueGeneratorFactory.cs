@@ -12,18 +12,9 @@ namespace Microsoft.Data.Entity.Redis
     {
         public const int DefaultBlockSize = 10;
 
-        private readonly RedisDatabase _redisDatabase;
-
-        public RedisValueGeneratorFactory([NotNull] RedisDatabase redisDatabase)
-        {
-            Check.NotNull(redisDatabase, "redisDatabase");
-
-            _redisDatabase = redisDatabase;
-        }
-
         IValueGenerator IValueGeneratorFactory.Create(IProperty property)
         {
-            return new RedisSequenceValueGenerator(_redisDatabase, GetSequenceName(property), GetBlockSize(property));
+            return new RedisSequenceValueGenerator(GetSequenceName(property), GetBlockSize(property));
         }
 
         // TODO: investigate how to make pool size configurable

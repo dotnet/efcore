@@ -58,6 +58,22 @@ namespace Microsoft.Data.Entity.SQLite
             return string.Format(CultureInfo.CurrentCulture, GetString("MigrationOperationNotSupported", "generatorType", "operationType"), generatorType, operationType);
         }
 
+        /// <summary>
+        /// SQLite-specific methods can only be used when the context is using a SQLite data store.
+        /// </summary>
+        internal static string SQLiteNotInUse
+        {
+            get { return GetString("SQLiteNotInUse"); }
+        }
+
+        /// <summary>
+        /// SQLite-specific methods can only be used when the context is using a SQLite data store.
+        /// </summary>
+        internal static string FormatSQLiteNotInUse()
+        {
+            return GetString("SQLiteNotInUse");
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

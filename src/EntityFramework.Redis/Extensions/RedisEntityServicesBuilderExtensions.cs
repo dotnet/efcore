@@ -18,14 +18,14 @@ namespace Microsoft.Framework.DependencyInjection
             builder.ServiceCollection
                 .AddSingleton<RedisValueGeneratorSelector>()
                 .AddSingleton<RedisValueGeneratorCache>()
+                .AddSingleton<RedisValueGeneratorFactory>()
                 .AddScoped<DataStoreSource, RedisDataStoreSource>()
                 .AddScoped<RedisOptionsExtension>()
                 .AddScoped<RedisDataStore>()
                 .AddScoped<RedisDataStoreServices>()
                 .AddScoped<RedisConnection>()
                 .AddScoped<RedisDataStoreCreator>()
-                .AddScoped<RedisDatabase>()
-                .AddScoped<RedisValueGeneratorFactory>();
+                .AddScoped<RedisDatabase>();
 
             return builder;
         }

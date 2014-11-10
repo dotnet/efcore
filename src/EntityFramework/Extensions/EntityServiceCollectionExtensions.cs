@@ -59,7 +59,15 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddScoped<StateEntrySubscriber>()
                 .AddScoped<DbContextConfiguration>()
                 .AddScoped<ContextSets>()
-                .AddScoped<StateManager>();
+                .AddScoped<StateManager>()
+                .AddScoped<LazyRef<IModel>>(DbContextConfiguration.ModelFactory)
+                .AddScoped<LazyRef<DbContext>>(DbContextConfiguration.ContextFactory)
+                .AddScoped<LazyRef<IDbContextOptions>>(DbContextConfiguration.ContextOptionsFactory)
+                .AddScoped<LazyRef<DataStore>>(DataStoreServices.DataStoreFactory)
+                .AddScoped<LazyRef<DataStoreConnection>>(DataStoreServices.ConnectionFactory)
+                .AddScoped<LazyRef<Database>>(DataStoreServices.DatabaseFactory)
+                .AddScoped<LazyRef<ValueGeneratorCache>>(DataStoreServices.ValueGeneratorCacheFactory)
+                .AddScoped<LazyRef<DataStoreCreator>>(DataStoreServices.DataStoreCreatorFactory);
 
             EnsureLowLevelServices(serviceCollection);
 

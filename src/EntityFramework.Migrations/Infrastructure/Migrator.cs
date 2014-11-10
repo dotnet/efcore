@@ -174,7 +174,8 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                     .Take(targetMigrationIndex + 1)
                     .Where(i => migrationPairs[i].HistoryRow == null)
                     .ToArray();
-            var database = (RelationalDatabase)ContextConfiguration.Database;
+            
+            var database = ContextConfiguration.Database.AsMigrationsEnabled();
             var statements = new List<SqlStatement>();
 
             if (!simulate
@@ -364,7 +365,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
         {
             Check.NotNull(sqlStatements, "sqlStatements");
 
-            var connection = ((RelationalDatabase)ContextConfiguration.Database).Connection;
+            var connection = ContextConfiguration.Database.AsMigrationsEnabled().Connection;
             var pendingStatements = new List<SqlStatement>();
 
             foreach (var statement in sqlStatements.Where(s => !string.IsNullOrEmpty(s.Sql)))

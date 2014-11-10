@@ -5,9 +5,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Data.Entity.Identity;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Framework.Logging;
 using Moq;
 using Xunit;
 
@@ -18,10 +16,8 @@ namespace Microsoft.Data.Entity.Redis.Tests
         [Fact]
         public void Select_returns_RedisValueGeneratorFactory_for_all_integer_types_with_ValueGeneration_set_to_OnAdd()
         {
-            var dbConfigurationMock = new Mock<DbContextConfiguration>();
-            var redisDatabaseMock = new Mock<RedisDatabase>(dbConfigurationMock.Object, new LoggerFactory());
             var guidValueGenerator = new SimpleValueGeneratorFactory<GuidValueGenerator>();
-            var redisValueGeneratorFactory = new RedisValueGeneratorFactory(redisDatabaseMock.Object);
+            var redisValueGeneratorFactory = new RedisValueGeneratorFactory();
 
             var selector = new RedisValueGeneratorSelector(guidValueGenerator, redisValueGeneratorFactory);
 
@@ -38,10 +34,8 @@ namespace Microsoft.Data.Entity.Redis.Tests
         [Fact]
         public void Select_returns_GuidValueGenerator_for_Guid_type_with_ValueGeneration_set_to_OnAdd()
         {
-            var dbConfigurationMock = new Mock<DbContextConfiguration>();
-            var redisDatabaseMock = new Mock<RedisDatabase>(dbConfigurationMock.Object, new LoggerFactory());
             var guidValueGenerator = new SimpleValueGeneratorFactory<GuidValueGenerator>();
-            var redisValueGeneratorFactory = new RedisValueGeneratorFactory(redisDatabaseMock.Object);
+            var redisValueGeneratorFactory = new RedisValueGeneratorFactory();
 
             var selector = new RedisValueGeneratorSelector(guidValueGenerator, redisValueGeneratorFactory);
 
@@ -51,10 +45,8 @@ namespace Microsoft.Data.Entity.Redis.Tests
         [Fact]
         public void Select_returns_null_for_all_types_with_ValueGeneration_set_to_None()
         {
-            var dbConfigurationMock = new Mock<DbContextConfiguration>();
-            var redisDatabaseMock = new Mock<RedisDatabase>(dbConfigurationMock.Object, new LoggerFactory());
             var guidValueGenerator = new SimpleValueGeneratorFactory<GuidValueGenerator>();
-            var redisValueGeneratorFactory = new RedisValueGeneratorFactory(redisDatabaseMock.Object);
+            var redisValueGeneratorFactory = new RedisValueGeneratorFactory();
 
             var selector = new RedisValueGeneratorSelector(guidValueGenerator, redisValueGeneratorFactory);
 
@@ -77,10 +69,8 @@ namespace Microsoft.Data.Entity.Redis.Tests
         [Fact]
         public void Select_throws_for_unsupported_combinations()
         {
-            var dbConfigurationMock = new Mock<DbContextConfiguration>();
-            var redisDatabaseMock = new Mock<RedisDatabase>(dbConfigurationMock.Object, new LoggerFactory());
             var guidValueGenerator = new SimpleValueGeneratorFactory<GuidValueGenerator>();
-            var redisValueGeneratorFactory = new RedisValueGeneratorFactory(redisDatabaseMock.Object);
+            var redisValueGeneratorFactory = new RedisValueGeneratorFactory();
 
             var selector = new RedisValueGeneratorSelector(guidValueGenerator, redisValueGeneratorFactory);
 

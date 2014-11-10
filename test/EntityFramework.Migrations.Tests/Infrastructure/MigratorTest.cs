@@ -1257,13 +1257,15 @@ new StringBuilder()
         {
             var services = new ServiceCollection()
                 .AddEntityFramework()
-                .AddRelational()
+                .AddMigrations()
                 .ServiceCollection
                 .AddScoped<DataStoreSource, FakeDataStoreSource>()
                 .AddScoped<DataStoreSelector>()
                 .AddScoped<FakeRelationalDataStoreServices>()
+                .AddScoped<FakeDatabase>()
                 .AddScoped<FakeRelationalOptionsExtension>()
                 .AddScoped<FakeRelationalConnection>()
+                .AddScoped<FakeMigrator>()
                 .AddInstance(dbCreator)
                 .AddInstance(loggerFactory);
 
@@ -1271,7 +1273,7 @@ new StringBuilder()
 
             var contextOptions = new DbContextOptions();
 
-            ((IDbContextOptionsExtensions)contextOptions)
+            ((IDbContextOptions)contextOptions)
                 .AddOrUpdateExtension<FakeRelationalOptionsExtension>(
                     x => { x.Connection = dbConnection; });
 
@@ -1358,10 +1360,10 @@ new StringBuilder()
         {
             private readonly RelationalDataStoreCreator _creator;
             private readonly FakeRelationalConnection _connection;
-            private readonly RelationalDatabase _database;
+            private readonly FakeDatabase _database;
 
             public FakeRelationalDataStoreServices(RelationalDataStoreCreator creator,
-                FakeRelationalConnection connection, RelationalDatabase database)
+                FakeRelationalConnection connection, FakeDatabase database)
             {
                 _creator = creator;
                 _connection = connection;
@@ -1399,6 +1401,19 @@ new StringBuilder()
             }
         }
 
+        private class FakeDatabase : MigrationsEnabledDatabase
+        {
+            public FakeDatabase(
+                LazyRef<IModel> model,
+                RelationalDataStoreCreator dataStoreCreator,
+                FakeRelationalConnection connection,
+                FakeMigrator migrator,
+                ILoggerFactory loggerFactory)
+                : base(model, dataStoreCreator, connection, migrator, loggerFactory)
+            {
+            }
+        }
+
         private class FakeRelationalOptionsExtension : RelationalOptionsExtension
         {
             protected override void ApplyServices(EntityServicesBuilder builder)
@@ -1409,8 +1424,8 @@ new StringBuilder()
 
         private class FakeRelationalConnection : RelationalConnection
         {
-            public FakeRelationalConnection(DbContextConfiguration configuration, ILoggerFactory loggerFactory)
-                : base(configuration, loggerFactory)
+            public FakeRelationalConnection(LazyRef<IDbContextOptions> options, ILoggerFactory loggerFactory)
+                : base(options, loggerFactory)
             {
             }
 
@@ -1418,6 +1433,10 @@ new StringBuilder()
             {
                 throw new NotImplementedException();
             }
+        }
+
+        private class FakeMigrator : Migrator
+        {
         }
 
         private class FakeSqlGenerator : MigrationOperationVisitor<IndentedStringBuilder>

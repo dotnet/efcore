@@ -90,6 +90,8 @@
     <Compile Include="Query\SqlServerQueryGenerator.cs" />
     <Compile Include="SequentialGuidValueGenerator.cs" />
     <Compile Include="SqlServerBuilderExtensions.cs" />
+    <Compile Include="SqlServerDatabase.cs" />
+    <Compile Include="SqlServerDatabaseExtensions.cs" />
     <Compile Include="SqlServerMetadataExtensions.cs" />
     <Compile Include="SqlServerDatabaseBuilder.cs" />
     <Compile Include="SqlServerModelDiffer.cs" />
@@ -128,6 +130,7 @@
     <Compile Include="..\Shared\SharedTypeExtensions.cs" />
     <EmbeddedResource Include="Properties\Strings.resx">
       <LogicalName>EntityFramework.SqlServer.Strings.resources</LogicalName>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <None Include="..\..\packages\KoreBuild\build\Resources.tt">
       <Link>Properties\Resources.tt</Link>

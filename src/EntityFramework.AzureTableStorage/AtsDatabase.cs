@@ -3,25 +3,21 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.AzureTableStorage
 {
     public class AtsDatabase : Database
     {
-        public AtsDatabase([NotNull] DbContextConfiguration configuration, [NotNull] ILoggerFactory loggerFactory)
-            : base(configuration, loggerFactory)
+        public AtsDatabase(
+            [NotNull] LazyRef<IModel> model,
+            [NotNull] AtsDataStoreCreator dataStoreCreator,
+            [NotNull] AtsConnection connection,
+            [NotNull] ILoggerFactory loggerFactory)
+            : base(model, dataStoreCreator, connection, loggerFactory)
         {
-        }
-
-        public virtual bool CreateTables()
-        {
-            return EnsureCreated();
-        }
-
-        public virtual bool DeleteTables()
-        {
-            return EnsureDeleted();
         }
     }
 }

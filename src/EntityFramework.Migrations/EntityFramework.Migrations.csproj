@@ -38,6 +38,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="System.Data.Common" />
+    <PackageReference Include="Microsoft.Framework.DependencyInjection" />
     <PackageReference Include="Microsoft.Framework.Logging" />
     <PackageReference Include="Microsoft.Framework.Logging.Interfaces" />
   </ItemGroup>
@@ -52,6 +53,7 @@
       <Link>LoggingExtensions.cs</Link>
     </Compile>
     <Compile Include="IMigrationOperationSqlGeneratorFactory.cs" />
+    <Compile Include="IMigrationsEnabledDatabaseInternals.cs" />
     <Compile Include="Infrastructure\ContextTypeAttribute.cs" />
     <Compile Include="Infrastructure\HistoryRepository.cs" />
     <Compile Include="Infrastructure\HistoryRow.cs" />
@@ -67,6 +69,9 @@
     <Compile Include="Migration.cs" />
     <Compile Include="MigrationCodeGenerator.cs" />
     <Compile Include="MigrationOperationSqlGenerator.cs" />
+    <Compile Include="MigrationsDatabaseExtensions.cs" />
+    <Compile Include="MigrationsEnabledDatabase.cs" />
+    <Compile Include="MigrationsEntityServicesBuilderExtensions.cs" />
     <Compile Include="ModelCodeGenerator.cs" />
     <Compile Include="ModelDiffer.cs" />
     <Compile Include="Builders\ColumnBuilder.cs" />
@@ -108,7 +113,6 @@
       <DependentUpon>Strings.resx</DependentUpon>
     </Compile>
     <Compile Include="DatabaseModelModifier.cs" />
-    <Compile Include="RelationalDatabaseMigrationsExtensions.cs" />
     <Compile Include="Utilities\AssemblyExtensions.cs" />
     <Compile Include="Utilities\Check.cs" />
     <Compile Include="Utilities\DbContextConfigurationExtensions.cs" />

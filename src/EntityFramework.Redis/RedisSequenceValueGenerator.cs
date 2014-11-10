@@ -13,22 +13,16 @@ namespace Microsoft.Data.Entity.Redis
 {
     public class RedisSequenceValueGenerator : BlockOfSequentialValuesGenerator
     {
-        private readonly RedisDatabase _redisDatabase;
-
-        public RedisSequenceValueGenerator(
-            [NotNull] RedisDatabase redisDatabase,
-            [NotNull] string sequenceName,
-            int blockSize)
+        public RedisSequenceValueGenerator([NotNull] string sequenceName, int blockSize)
             : base(sequenceName, blockSize)
         {
-            Check.NotNull(redisDatabase, "redisDatabase");
-
-            _redisDatabase = redisDatabase;
         }
 
         public override long GetNewCurrentValue(StateEntry stateEntry, IProperty property)
         {
-            return _redisDatabase.GetNextGeneratedValue(property, BlockSize, SequenceName);
+            // TODO: Decouple from DbContextConfiguration (Issue #641)
+            var database = (RedisDatabase)stateEntry.Configuration.Database;
+            return database.GetNextGeneratedValue(property, BlockSize, SequenceName);
         }
 
         public override async Task<long> GetNewCurrentValueAsync(
@@ -39,8 +33,11 @@ namespace Microsoft.Data.Entity.Redis
 
             cancellationToken.ThrowIfCancellationRequested();
 
+            // TODO: Decouple from DbContextConfiguration (Issue #641)
+            var database = (RedisDatabase)stateEntry.Configuration.Database;
+
             return
-                await _redisDatabase.GetNextGeneratedValueAsync(
+                await database.GetNextGeneratedValueAsync(
                     property, BlockSize, SequenceName, cancellationToken)
                     .WithCurrentCulture();
         }

@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.SqlServer
             [NotNull] DbContextConfiguration configuration,
             [NotNull] SqlServerConnection connection,
             [NotNull] SqlServerCommandBatchPreparer batchPreparer,
-            [NotNull] SqlServerBatchExecutor batchExecutor, 
+            [NotNull] SqlServerBatchExecutor batchExecutor,
             [NotNull] ILoggerFactory loggerFactory)
             : base(configuration, connection, batchPreparer, batchExecutor, loggerFactory)
         {
@@ -43,10 +43,10 @@ namespace Microsoft.Data.Entity.SqlServer
             Check.NotNull(methodCallTranslator, "methodCallTranslator");
 
             return new SqlServerQueryCompilationContext(
-                Model, 
-                Logger, 
-                linqOperatorProvider, 
-                resultOperatorHandler, 
+                Model,
+                Logger,
+                linqOperatorProvider,
+                resultOperatorHandler,
                 EntityMaterializerSource,
                 enumerableMethodProvider,
                 methodCallTranslator);

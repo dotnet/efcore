@@ -16,7 +16,6 @@ using Microsoft.Data.Entity.Relational.FunctionalTests;
 using Microsoft.Data.Entity.SqlServer.FunctionalTests.TestModels;
 using Microsoft.Data.Entity.SqlServer.Update;
 using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.DependencyInjection.Advanced;
 using Microsoft.Framework.DependencyInjection.Fallback;
 using Microsoft.Framework.Logging;
 using Xunit;
@@ -138,14 +137,11 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 }
 
                 var loggingFactory = new TestSqlLoggerFactory();
-
-                var serviceProvider
-                    = new ServiceCollection()
-                        .AddEntityFramework()
-                        .AddSqlServer()
-                        .UseLoggerFactory(loggingFactory)
-                        .ServiceCollection
-                        .BuildServiceProvider();
+                var serviceProvider = new ServiceCollection()
+                    .AddEntityFramework()
+                    .AddSqlServer().ServiceCollection
+                    .AddInstance<ILoggerFactory>(loggingFactory)
+                    .BuildServiceProvider();
 
                 using (var db = new BloggingContext(serviceProvider, options))
                 {

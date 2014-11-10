@@ -38,6 +38,7 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddScoped<SqlServerDataStore>()
                 .AddScoped<SqlServerConnection>()
                 .AddScoped<SqlServerModelDiffer>()
+                .AddScoped<SqlServerDatabase>()
                 .AddScoped<SqlServerMigrationOperationSqlGeneratorFactory>()
                 .AddScoped<SqlServerDataStoreCreator>()
                 .AddScoped<MigrationAssembly>()

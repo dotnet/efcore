@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.InMemory
         private readonly InMemoryDataStoreCreator _creator;
         private readonly InMemoryConnection _connection;
         private readonly InMemoryValueGeneratorCache _valueGeneratorCache;
-        private readonly Database _database;
+        private readonly InMemoryDatabaseFacade _database;
         private readonly ModelBuilderFactory _modelBuilderFactory;
 
         public InMemoryDataStoreServices(
@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.InMemory
             [NotNull] InMemoryDataStoreCreator creator,
             [NotNull] InMemoryConnection connection,
             [NotNull] InMemoryValueGeneratorCache valueGeneratorCache,
-            [NotNull] Database database,
+            [NotNull] InMemoryDatabaseFacade database,
             [NotNull] ModelBuilderFactory modelBuilderFactory)
         {
             Check.NotNull(store, "store");

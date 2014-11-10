@@ -15,6 +15,7 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Redis.Query;
 using Microsoft.Data.Entity.Redis.Utilities;
+using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 using StackExchange.Redis;
 
@@ -52,8 +53,21 @@ namespace Microsoft.Data.Entity.Redis
         private static readonly ConcurrentDictionary<string, ConnectionMultiplexer> _connectionMultiplexers
             = new ConcurrentDictionary<string, ConnectionMultiplexer>(); // key = ConfigurationOptions.ToString()
 
-        public RedisDatabase([NotNull] DbContextConfiguration configuration, [NotNull] ILoggerFactory loggerFactory)
-            : base(configuration, loggerFactory)
+        /// <summary>
+        ///     This constructor is intended only for use when creating test doubles that will override members
+        ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
+        ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
+        /// </summary>
+        protected RedisDatabase()
+        {
+        }
+
+        public RedisDatabase(
+            [NotNull] LazyRef<IModel> model,
+            [NotNull] RedisDataStoreCreator dataStoreCreator,
+            [NotNull] RedisConnection connection,
+            [NotNull] ILoggerFactory loggerFactory)
+            : base(model, dataStoreCreator, connection, loggerFactory)
         {
         }
 
@@ -61,8 +75,7 @@ namespace Microsoft.Data.Entity.Redis
         {
             get
             {
-                var connection = (RedisConnection)Configuration.Connection;
-                var configurationOptions = ConfigurationOptions.Parse(connection.ConnectionString);
+                var configurationOptions = ConfigurationOptions.Parse(Connection.ConnectionString);
 
                 configurationOptions.AllowAdmin = true; // require Admin access for Server commands
 
@@ -84,16 +97,21 @@ namespace Microsoft.Data.Entity.Redis
             }
         }
 
+        public new virtual RedisConnection Connection
+        {
+            get { return (RedisConnection)base.Connection; }
+        }
+
         public virtual IDatabase GetUnderlyingDatabase()
         {
             return ConnectionMultiplexer
-                .GetDatabase(((RedisConnection)Configuration.Connection).Database);
+                .GetDatabase(Connection.Database);
         }
 
         public virtual IServer GetUnderlyingServer()
         {
             return ConnectionMultiplexer
-                .GetServer(((RedisConnection)Configuration.Connection).ConnectionString);
+                .GetServer(Connection.ConnectionString);
         }
 
         public virtual int SaveChanges(
@@ -202,8 +220,7 @@ namespace Microsoft.Data.Entity.Redis
         /// </summary>
         public virtual void FlushDatabase()
         {
-            var connection = (RedisConnection)Configuration.Connection;
-            GetUnderlyingServer().FlushDatabase(connection.Database);
+            GetUnderlyingServer().FlushDatabase(Connection.Database);
         }
 
         /// <summary>
@@ -214,9 +231,7 @@ namespace Microsoft.Data.Entity.Redis
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var connection = (RedisConnection)Configuration.Connection;
-
-            await GetUnderlyingServer().FlushDatabaseAsync(connection.Database).WithCurrentCulture();
+            await GetUnderlyingServer().FlushDatabaseAsync(Connection.Database).WithCurrentCulture();
         }
 
         private void AddInsertEntryCommands(ITransaction transaction, StateEntry stateEntry)

@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.Migrations.Utilities
         {
             Check.NotNull(configuration, "configuration");
 
-            return RelationalOptionsExtension.Extract(configuration).MigrationAssembly
+            return RelationalOptionsExtension.Extract(configuration.ContextOptions).MigrationAssembly
                    ?? configuration.Context.GetType().GetTypeInfo().Assembly;
         }
 
@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.Migrations.Utilities
         {
             Check.NotNull(configuration, "configuration");
 
-            return RelationalOptionsExtension.Extract(configuration).MigrationNamespace;
+            return RelationalOptionsExtension.Extract(configuration.ContextOptions).MigrationNamespace;
         }
     }
 }

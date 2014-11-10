@@ -6,7 +6,6 @@ using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
-using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.SQLite.Utilities;
 using Microsoft.Data.Entity.Storage;
 
@@ -18,7 +17,7 @@ namespace Microsoft.Data.Entity.SQLite
         private readonly SQLiteDataStoreCreator _creator;
         private readonly SQLiteConnection _connection;
         private readonly SQLiteValueGeneratorCache _valueGeneratorCache;
-        private readonly RelationalDatabase _database;
+        private readonly SQLiteDatabase _database;
         private readonly ModelBuilderFactory _modelBuilderFactory;
         private readonly SQLiteMigrator _migrator;
 
@@ -27,7 +26,7 @@ namespace Microsoft.Data.Entity.SQLite
             [NotNull] SQLiteDataStoreCreator creator,
             [NotNull] SQLiteConnection connection,
             [NotNull] SQLiteValueGeneratorCache valueGeneratorCache,
-            [NotNull] RelationalDatabase database,
+            [NotNull] SQLiteDatabase database,
             [NotNull] ModelBuilderFactory modelBuilderFactory,
             [NotNull] SQLiteMigrator migrator)
         {

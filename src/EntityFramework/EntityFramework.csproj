@@ -94,7 +94,7 @@
     <Compile Include="Identity\ValueGeneratorSelector.cs" />
     <Compile Include="Infrastructure\DbContextConfigureOptions.cs" />
     <Compile Include="Infrastructure\DbContextOptionsParser.cs" />
-    <Compile Include="Infrastructure\IDbContextConfigurationAdapter.cs" />
+    <Compile Include="Infrastructure\IDatabaseInternals.cs" />
     <Compile Include="Infrastructure\ModelSourceHelpers.cs" />
     <Compile Include="Metadata\BasicModelBuilder.cs" />
     <Compile Include="Metadata\CollectionTypeFactory.cs" />
@@ -145,7 +145,7 @@
     <Compile Include="Query\ExpressionTreeVisitors\TaskBlockingExpressionTreeVisitor.cs" />
     <Compile Include="Storage\DataStoreErrorLogState.cs" />
     <Compile Include="Storage\DataStoreException.cs" />
-    <Compile Include="Infrastructure\IDbContextOptionsExtensions.cs" />
+    <Compile Include="Infrastructure\IDbContextOptions.cs" />
     <Compile Include="INotifyPropertyChanging.cs" />
     <Compile Include="Metadata\EntityTypeExtensions.cs" />
     <Compile Include="Metadata\IIndex.cs" />
@@ -191,7 +191,6 @@
     <Compile Include="ChangeTracking\StateManager.cs" />
     <Compile Include="ChangeTracking\StoreGeneratedValues.cs" />
     <Compile Include="ChangeTracking\StoreGeneratedValuesFactory.cs" />
-    <Compile Include="Extensions\AdvancedEntityServicesBuilderExtensions.cs" />
     <Compile Include="Extensions\EntityServiceCollectionExtensions.cs" />
     <Compile Include="Extensions\QueryableExtensions.cs" />
     <Compile Include="Infrastructure\ContextServices.cs" />

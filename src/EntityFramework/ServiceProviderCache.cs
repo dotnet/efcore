@@ -6,9 +6,7 @@ using System.Linq;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.DependencyInjection.Advanced;
 using Microsoft.Framework.DependencyInjection.Fallback;
-using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity
 {
@@ -24,7 +22,7 @@ namespace Microsoft.Data.Entity
             get { return _instance; }
         }
 
-        public virtual IServiceProvider GetOrAdd(IDbContextOptionsExtensions options)
+        public virtual IServiceProvider GetOrAdd(IDbContextOptions options)
         {
             var services = new ServiceCollection();
             var builder = services.AddEntityFramework();
@@ -49,7 +47,9 @@ namespace Microsoft.Data.Entity
         {
             return ((((long)descriptor.Lifecycle * 397)
                      ^ descriptor.ServiceType.GetHashCode()) * 397)
-                   ^ (descriptor.ImplementationInstance ?? descriptor.ImplementationType).GetHashCode();
+                   ^ (descriptor.ImplementationInstance
+                      ?? descriptor.ImplementationType
+                      ?? (object)descriptor.ImplementationFactory).GetHashCode();
         }
     }
 }

@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             options = options.UseSqlServer("Database=Crunchie");
 
-            var extension = ((IDbContextOptionsExtensions)options).Extensions.OfType<SqlServerOptionsExtension>().Single();
+            var extension = ((IDbContextOptions)options).Extensions.OfType<SqlServerOptionsExtension>().Single();
 
             Assert.Equal("Database=Crunchie", extension.ConnectionString);
             Assert.Null(extension.Connection);
@@ -31,7 +31,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             options = options.UseSqlServer("Database=Whisper");
 
-            var extension = ((IDbContextOptionsExtensions)options).Extensions.OfType<SqlServerOptionsExtension>().Single();
+            var extension = ((IDbContextOptions)options).Extensions.OfType<SqlServerOptionsExtension>().Single();
 
             Assert.Equal("Database=Whisper", extension.ConnectionString);
             Assert.Null(extension.Connection);
@@ -45,7 +45,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             options = options.UseSqlServer(connection);
 
-            var extension = ((IDbContextOptionsExtensions)options).Extensions.OfType<SqlServerOptionsExtension>().Single();
+            var extension = ((IDbContextOptions)options).Extensions.OfType<SqlServerOptionsExtension>().Single();
 
             Assert.Same(connection, extension.Connection);
             Assert.Null(extension.ConnectionString);
@@ -59,7 +59,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             options = options.UseSqlServer(connection);
 
-            var extension = ((IDbContextOptionsExtensions)options).Extensions.OfType<SqlServerOptionsExtension>().Single();
+            var extension = ((IDbContextOptions)options).Extensions.OfType<SqlServerOptionsExtension>().Single();
 
             Assert.Same(connection, extension.Connection);
             Assert.Null(extension.ConnectionString);
@@ -69,11 +69,11 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         public void UseSqlServer_uses_connection_string_from_raw_options()
         {
             var options = new DbContextOptions();
-            ((IDbContextOptionsExtensions)options).RawOptions = new Dictionary<string, string> { { "ConnectionString", "Database=Crunchie" } };
+            ((IDbContextOptions)options).RawOptions = new Dictionary<string, string> { { "ConnectionString", "Database=Crunchie" } };
 
             options = options.UseSqlServer();
 
-            var extension = ((IDbContextOptionsExtensions)options).Extensions.OfType<SqlServerOptionsExtension>().Single();
+            var extension = ((IDbContextOptions)options).Extensions.OfType<SqlServerOptionsExtension>().Single();
 
             Assert.Equal("Database=Crunchie", extension.ConnectionString);
             Assert.Null(extension.Connection);

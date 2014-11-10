@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,19 +23,20 @@ namespace Microsoft.Data.Entity.AzureTableStorage
         private readonly ThreadSafeLazyRef<CloudTableClient> _tableClient;
 
         /// <summary>
-        ///     For testing. Improper usage may lead to NullReference exceptions
+        ///     This constructor is intended only for use when creating test doubles that will override members
+        ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
+        ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
         /// </summary>
         protected AtsConnection()
         {
         }
 
-        public AtsConnection([NotNull] DbContextConfiguration configuration, [NotNull] ILoggerFactory loggerFactory)
+        public AtsConnection([NotNull] LazyRef<IDbContextOptions> options, [NotNull] ILoggerFactory loggerFactory)
             : base(loggerFactory)
         {
-            Check.NotNull(configuration, "configuration");
+            Check.NotNull(options, "options");
 
-            var storeConfig = configuration
-                .ContextOptions
+            var storeConfig = options.Value
                 .Extensions
                 .OfType<AtsOptionsExtension>()
                 .Single();

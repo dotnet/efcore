@@ -84,6 +84,7 @@
     <Compile Include="Query\RedisQueryModelVisitorTests.cs" />
     <Compile Include="Query\RedisQueryTests.cs" />
     <Compile Include="RedisApiConsistencyTest.cs" />
+    <Compile Include="RedisDatabaseExtensionsTest.cs" />
     <Compile Include="RedisDatabaseTests.cs" />
     <Compile Include="RedisDataStoreCreatorTests.cs" />
     <Compile Include="RedisDataStoreSourceTests.cs" />
