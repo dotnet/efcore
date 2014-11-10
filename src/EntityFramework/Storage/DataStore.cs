@@ -7,7 +7,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Utilities;
@@ -18,7 +17,12 @@ namespace Microsoft.Data.Entity.Storage
 {
     public abstract class DataStore
     {
-        private readonly DbContextConfiguration _configuration;
+        private readonly StateManager _stateManager;
+        private readonly LazyRef<IModel> _model;
+        private readonly EntityKeyFactorySource _entityKeyFactorySource;
+        private readonly EntityMaterializerSource _entityMaterializerSource;
+        private readonly ClrCollectionAccessorSource _collectionAccessorSource;
+        private readonly ClrPropertySetterSource _propertySetterSource;
         private readonly LazyRef<ILogger> _logger;
 
         /// <summary>
@@ -30,13 +34,30 @@ namespace Microsoft.Data.Entity.Storage
         {
         }
 
-        protected DataStore([NotNull] DbContextConfiguration configuration, [NotNull] ILoggerFactory loggerFactory)
+        protected DataStore(
+            [NotNull] StateManager stateManager,
+            [NotNull] LazyRef<IModel> model,
+            [NotNull] EntityKeyFactorySource entityKeyFactorySource,
+            [NotNull] EntityMaterializerSource entityMaterializerSource,
+            [NotNull] ClrCollectionAccessorSource collectionAccessorSource,
+            [NotNull] ClrPropertySetterSource propertySetterSource,
+            [NotNull] ILoggerFactory loggerFactory)
         {
-            Check.NotNull(configuration, "configuration");
+            Check.NotNull(stateManager, "stateManager");
+            Check.NotNull(model, "model");
+            Check.NotNull(entityKeyFactorySource, "entityKeyFactorySource");
+            Check.NotNull(entityMaterializerSource, "entityMaterializerSource");
+            Check.NotNull(collectionAccessorSource, "collectionAccessorSource");
+            Check.NotNull(propertySetterSource, "propertySetterSource");
             Check.NotNull(loggerFactory, "loggerFactory");
 
-            _configuration = configuration;
-            _logger = new LazyRef<ILogger>(loggerFactory.Create<DataStore>());
+            _stateManager = stateManager;
+            _model = model;
+            _entityKeyFactorySource = entityKeyFactorySource;
+            _entityMaterializerSource = entityMaterializerSource;
+            _collectionAccessorSource = collectionAccessorSource;
+            _propertySetterSource = propertySetterSource;
+            _logger = new LazyRef<ILogger>(loggerFactory.Create<DataStore>);
         }
 
         public virtual ILogger Logger
@@ -46,27 +67,27 @@ namespace Microsoft.Data.Entity.Storage
 
         public virtual IModel Model
         {
-            get { return _configuration.Model; }
+            get { return _model.Value; }
         }
 
         public virtual EntityKeyFactorySource EntityKeyFactorySource
         {
-            get { return _configuration.Services.EntityKeyFactorySource; }
+            get { return _entityKeyFactorySource; }
         }
 
         public virtual EntityMaterializerSource EntityMaterializerSource
         {
-            get { return _configuration.Services.EntityMaterializerSource; }
+            get { return _entityMaterializerSource; }
         }
 
         protected virtual IQueryBuffer CreateQueryBuffer()
         {
             return new QueryBuffer(
-                _configuration.StateManager,
+                _stateManager,
                 EntityKeyFactorySource,
                 EntityMaterializerSource,
-                _configuration.Services.ClrCollectionAccessorSource,
-                _configuration.Services.ClrPropertySetterSource);
+                _collectionAccessorSource,
+                _propertySetterSource);
         }
 
         public abstract int SaveChanges(

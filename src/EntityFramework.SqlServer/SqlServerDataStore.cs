@@ -2,7 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Query;
@@ -10,6 +11,7 @@ using Microsoft.Data.Entity.Relational.Query.Methods;
 using Microsoft.Data.Entity.SqlServer.Query;
 using Microsoft.Data.Entity.SqlServer.Update;
 using Microsoft.Data.Entity.SqlServer.Utilities;
+using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.SqlServer
@@ -17,12 +19,18 @@ namespace Microsoft.Data.Entity.SqlServer
     public class SqlServerDataStore : RelationalDataStore
     {
         public SqlServerDataStore(
-            [NotNull] DbContextConfiguration configuration,
+            [NotNull] StateManager stateManager,
+            [NotNull] LazyRef<IModel> model,
+            [NotNull] EntityKeyFactorySource entityKeyFactorySource,
+            [NotNull] EntityMaterializerSource entityMaterializerSource,
+            [NotNull] ClrCollectionAccessorSource collectionAccessorSource,
+            [NotNull] ClrPropertySetterSource propertySetterSource,
             [NotNull] SqlServerConnection connection,
             [NotNull] SqlServerCommandBatchPreparer batchPreparer,
             [NotNull] SqlServerBatchExecutor batchExecutor,
             [NotNull] ILoggerFactory loggerFactory)
-            : base(configuration, connection, batchPreparer, batchExecutor, loggerFactory)
+            : base(stateManager, model, entityKeyFactorySource, entityMaterializerSource,
+                collectionAccessorSource, propertySetterSource, connection, batchPreparer, batchExecutor, loggerFactory)
         {
         }
 

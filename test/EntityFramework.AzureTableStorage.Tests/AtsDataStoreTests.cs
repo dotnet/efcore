@@ -8,11 +8,14 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.AzureTableStorage.Adapters;
+using Microsoft.Data.Entity.AzureTableStorage.Query;
 using Microsoft.Data.Entity.AzureTableStorage.Requests;
 using Microsoft.Data.Entity.AzureTableStorage.Tests.Helpers;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Update;
+using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
@@ -21,13 +24,12 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.Tests
 {
-    public class AtsDataStoreTests : AtsDataStore, IClassFixture<Mock<AtsConnection>>
+    public class AtsDataStoreTests : IClassFixture<Mock<AtsConnection>>
     {
         private readonly Mock<AtsConnection> _connection;
         private Queue<TableResult> _queue;
 
         public AtsDataStoreTests(Mock<AtsConnection> connection)
-            : base(BuildConfig(), connection.Object, new TableEntityAdapterFactory())
         {
             _connection = connection;
         }
@@ -75,7 +77,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
                     TestStateEntry.Mock().WithState(EntityState.Modified).WithType("Test1"),
                     TestStateEntry.Mock().WithState(EntityState.Deleted).WithType("Test1"),
                 };
-            var succeeded = SaveChangesAsync(entries).Result;
+            var succeeded = CreateStore().SaveChangesAsync(entries).Result;
             Assert.Equal(3, succeeded);
         }
 
@@ -87,7 +89,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
 
             Assert.Equal(
                 Strings.ETagPreconditionFailed,
-                Assert.ThrowsAsync<DbUpdateConcurrencyException>(() => SaveChangesAsync(entries)).Result.Message);
+                Assert.ThrowsAsync<DbUpdateConcurrencyException>(() => CreateStore().SaveChangesAsync(entries)).Result.Message);
         }
 
         [Fact]
@@ -97,7 +99,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
             var entries = new List<StateEntry> { TestStateEntry.Mock().WithState(EntityState.Modified).WithType("Test1") };
             Assert.Equal(
                 Strings.SaveChangesFailed,
-                Assert.ThrowsAsync<DbUpdateException>(() => SaveChangesAsync(entries)).Result.Message
+                Assert.ThrowsAsync<DbUpdateException>(() => CreateStore().SaveChangesAsync(entries)).Result.Message
                 );
         }
 
@@ -110,7 +112,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
         public void It_maps_entity_state_to_table_operations(EntityState entityState, TableOperationType operationType)
         {
             var entry = TestStateEntry.Mock().WithState(entityState);
-            var request = CreateRequest(new AtsTable("Test"), entry);
+            var request = CreateStore().CreateRequest(new AtsTable("Test"), entry);
 
             if (request == null)
             {
@@ -122,6 +124,23 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
                 var type = (TableOperationType)propInfo.GetValue(request.Operation);
                 Assert.Equal(operationType, type);
             }
+        }
+
+        private AtsDataStore CreateStore()
+        {
+            var store = new AtsDataStore(
+                Mock.Of<StateManager>(),
+                new LazyRef<IModel>(() => null),
+                Mock.Of<EntityKeyFactorySource>(),
+                Mock.Of<EntityMaterializerSource>(),
+                Mock.Of<ClrCollectionAccessorSource>(),
+                Mock.Of<ClrPropertySetterSource>(),
+                _connection.Object,
+                new AtsQueryFactory(new AtsValueReaderFactory()),
+                new TableEntityAdapterFactory(),
+                new LazyRef<DbContext>(Mock.Of<DbContext>()),
+                new LoggerFactory());
+            return store;
         }
     }
 }

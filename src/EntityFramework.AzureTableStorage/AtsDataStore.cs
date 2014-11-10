@@ -13,9 +13,10 @@ using Microsoft.Data.Entity.AzureTableStorage.Query;
 using Microsoft.Data.Entity.AzureTableStorage.Requests;
 using Microsoft.Data.Entity.AzureTableStorage.Utilities;
 using Microsoft.Data.Entity.ChangeTracking;
-using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Update;
+using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
@@ -26,41 +27,44 @@ namespace Microsoft.Data.Entity.AzureTableStorage
     public class AtsDataStore : DataStore
     {
         private readonly AtsQueryFactory _queryFactory;
-        private readonly DbContextConfiguration _configuration;
+        private readonly LazyRef<DbContext> _context;
         protected readonly AtsConnection Connection;
         internal TableEntityAdapterFactory EntityFactory;
         private const int MaxBatchOperations = 100;
 
         /// <summary>
-        ///     Provided only for testing purposes. Do not use.
+        ///     This constructor is intended only for use when creating test doubles that will override members
+        ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
+        ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
         /// </summary>
-        protected AtsDataStore(
-            DbContextConfiguration configuration, 
-            AtsConnection connection, 
-            TableEntityAdapterFactory entityFactory)
-            : base(configuration, new LoggerFactory())
+        protected AtsDataStore()
         {
-            _configuration = configuration;
-            Connection = connection;
-            EntityFactory = entityFactory;
         }
 
-        public AtsDataStore([NotNull] DbContextConfiguration configuration,
+        public AtsDataStore(
+            [NotNull] StateManager stateManager,
+            [NotNull] LazyRef<IModel> model,
+            [NotNull] EntityKeyFactorySource entityKeyFactorySource,
+            [NotNull] EntityMaterializerSource entityMaterializerSource,
+            [NotNull] ClrCollectionAccessorSource collectionAccessorSource,
+            [NotNull] ClrPropertySetterSource propertySetterSource,
             [NotNull] AtsConnection connection,
             [NotNull] AtsQueryFactory queryFactory,
-            [NotNull] TableEntityAdapterFactory tableEntityFactory, 
+            [NotNull] TableEntityAdapterFactory tableEntityFactory,
+            [NotNull] LazyRef<DbContext> context,
             [NotNull] ILoggerFactory loggerFactory)
-            : base(configuration, loggerFactory)
+            : base(stateManager, model, entityKeyFactorySource, entityMaterializerSource,
+                collectionAccessorSource, propertySetterSource, loggerFactory)
         {
             Check.NotNull(connection, "connection");
             Check.NotNull(queryFactory, "queryFactory");
-            Check.NotNull(configuration, "configuration");
             Check.NotNull(tableEntityFactory, "tableEntityFactory");
+            Check.NotNull(context, "context");
 
             _queryFactory = queryFactory;
-            _configuration = configuration;
             EntityFactory = tableEntityFactory;
             Connection = connection;
+            _context = context;
         }
 
         public override int SaveChanges(IReadOnlyList<StateEntry> stateEntries)
@@ -283,30 +287,36 @@ namespace Microsoft.Data.Entity.AzureTableStorage
             return results.Sum(r => r == null ? 0 : r.Count(t => t.HttpStatusCode < (int)HttpStatusCode.BadRequest));
         }
 
-        protected Exception HandleStorageException(StorageException exception, IReadOnlyList<StateEntry> stateEntries)
+        protected virtual Exception HandleStorageException([NotNull] StorageException exception, [NotNull] IReadOnlyList<StateEntry> stateEntries)
         {
+            Check.NotNull(exception, "exception");
+            Check.NotNull(stateEntries, "stateEntries");
+
             var statusCode = exception.RequestInformation.HttpStatusCode;
             if (statusCode == (int)HttpStatusCode.PreconditionFailed)
             {
-                return new DbUpdateConcurrencyException(Strings.ETagPreconditionFailed, _configuration.Context, stateEntries);
+                return new DbUpdateConcurrencyException(Strings.ETagPreconditionFailed, _context.Value, stateEntries);
             }
             if (statusCode == (int)HttpStatusCode.NotFound)
             {
                 var extendedErrorCode = exception.RequestInformation.ExtendedErrorInformation.ErrorCode;
                 if (extendedErrorCode == StorageErrorCodes.ResourceNotFound)
                 {
-                    return new DbUpdateConcurrencyException(Strings.ResourceNotFound, _configuration.Context, stateEntries);
+                    return new DbUpdateConcurrencyException(Strings.ResourceNotFound, _context.Value, stateEntries);
                 }
                 if (extendedErrorCode == StorageErrorCodes.TableNotFoundError)
                 {
-                    return new DbUpdateException(Strings.TableNotFound, _configuration.Context, stateEntries);
+                    return new DbUpdateException(Strings.TableNotFound, _context.Value, stateEntries);
                 }
             }
-            return new DbUpdateException(Strings.SaveChangesFailed, _configuration.Context, exception, stateEntries);
+            return new DbUpdateException(Strings.SaveChangesFailed, _context.Value, exception, stateEntries);
         }
 
-        protected TableOperationRequest CreateRequest(AtsTable table, StateEntry entry)
+        public virtual TableOperationRequest CreateRequest([NotNull] AtsTable table, [NotNull] StateEntry entry)
         {
+            Check.NotNull(table, "table");
+            Check.NotNull(entry, "entry");
+
             var entity = EntityFactory.CreateFromStateEntry(entry);
             switch (entry.EntityState)
             {

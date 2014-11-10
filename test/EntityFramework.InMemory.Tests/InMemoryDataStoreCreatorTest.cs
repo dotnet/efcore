@@ -1,10 +1,13 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Tests;
+using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
 using Xunit;
 
@@ -15,30 +18,31 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         [Fact]
         public void EnsureCreated_returns_true_for_first_use_of_persistent_database_and_false_thereafter()
         {
+            var serviceProvider = TestHelpers.CreateServiceProvider();
             var model = CreateModel();
-            var configuration = CreateConfiguration(new DbContextOptions().UseInMemoryStore(persist: true));
-            var entityType = model.GetEntityType(typeof(Test));
-            var persistentDatabase = new InMemoryDatabase(new LoggerFactory());
-
-            var inMemoryDataStore = new InMemoryDataStore(configuration, persistentDatabase, new LoggerFactory());
-
-            var creator = new InMemoryDataStoreCreator(inMemoryDataStore);
+            var creator = new InMemoryDataStoreCreator(CreateStore(serviceProvider, persist: true));
 
             Assert.True(creator.EnsureCreated(model));
             Assert.False(creator.EnsureCreated(model));
+            Assert.False(creator.EnsureCreated(model));
+
+            creator = new InMemoryDataStoreCreator(CreateStore(serviceProvider, persist: true));
+
             Assert.False(creator.EnsureCreated(model));
         }
 
         [Fact]
         public void EnsureCreated_returns_true_for_first_use_of_non_persistent_database_and_false_thereafter()
         {
+            var serviceProvider = TestHelpers.CreateServiceProvider();
             var model = CreateModel();
-            var configuration = CreateConfiguration(new DbContextOptions().UseInMemoryStore(persist: false));
-            var entityType = model.GetEntityType(typeof(Test));
-            var nonPersistentDatabase = new InMemoryDatabase(new LoggerFactory());
-            var inMemoryDataStore = new InMemoryDataStore(configuration, nonPersistentDatabase, new LoggerFactory());
+            var creator = new InMemoryDataStoreCreator(CreateStore(serviceProvider, persist: false));
 
-            var creator = new InMemoryDataStoreCreator(inMemoryDataStore);
+            Assert.True(creator.EnsureCreated(model));
+            Assert.False(creator.EnsureCreated(model));
+            Assert.False(creator.EnsureCreated(model));
+
+            creator = new InMemoryDataStoreCreator(CreateStore(serviceProvider, persist: false));
 
             Assert.True(creator.EnsureCreated(model));
             Assert.False(creator.EnsureCreated(model));
@@ -48,33 +52,42 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         [Fact]
         public async Task EnsureCreatedAsync_returns_true_for_first_use_of_persistent_database_and_false_thereafter()
         {
+            var serviceProvider = TestHelpers.CreateServiceProvider();
             var model = CreateModel();
-            var configuration = CreateConfiguration(new DbContextOptions().UseInMemoryStore(persist: true));
-            var entityType = model.GetEntityType(typeof(Test));
-            var persistentDatabase = new InMemoryDatabase(new LoggerFactory());
-            var inMemoryDataStore = new InMemoryDataStore(configuration, persistentDatabase, new LoggerFactory());
-
-            var creator = new InMemoryDataStoreCreator(inMemoryDataStore);
+            var creator = new InMemoryDataStoreCreator(CreateStore(serviceProvider, persist: true));
 
             Assert.True(await creator.EnsureCreatedAsync(model));
             Assert.False(await creator.EnsureCreatedAsync(model));
+            Assert.False(await creator.EnsureCreatedAsync(model));
+
+            creator = new InMemoryDataStoreCreator(CreateStore(serviceProvider, persist: true));
+
             Assert.False(await creator.EnsureCreatedAsync(model));
         }
 
         [Fact]
         public async Task EnsureCreatedAsync_returns_true_for_first_use_of_non_persistent_database_and_false_thereafter()
         {
+            var serviceProvider = TestHelpers.CreateServiceProvider();
             var model = CreateModel();
-            var configuration = CreateConfiguration(new DbContextOptions().UseInMemoryStore(persist: false));
-            var entityType = model.GetEntityType(typeof(Test));
-            var nonPersistentDatabase = new InMemoryDatabase(new LoggerFactory());
-            var inMemoryDataStore = new InMemoryDataStore(configuration, nonPersistentDatabase, new LoggerFactory());
-
-            var creator = new InMemoryDataStoreCreator(inMemoryDataStore);
+            var creator = new InMemoryDataStoreCreator(CreateStore(serviceProvider, persist: false));
 
             Assert.True(await creator.EnsureCreatedAsync(model));
             Assert.False(await creator.EnsureCreatedAsync(model));
             Assert.False(await creator.EnsureCreatedAsync(model));
+
+            creator = new InMemoryDataStoreCreator(CreateStore(serviceProvider, persist: false));
+
+            Assert.True(await creator.EnsureCreatedAsync(model));
+            Assert.False(await creator.EnsureCreatedAsync(model));
+            Assert.False(await creator.EnsureCreatedAsync(model));
+        }
+
+        private static InMemoryDataStore CreateStore(IServiceProvider serviceProvider, bool persist)
+        {
+            var configuration = new DbContext(serviceProvider, new DbContextOptions().UseInMemoryStore(persist: persist)).Configuration;
+
+            return configuration.ScopedServiceProvider.GetRequiredService<InMemoryDataStore>();
         }
 
         [Fact]

@@ -9,12 +9,13 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.FunctionalTests;
 using Microsoft.Data.Entity.SqlServer.FunctionalTests.TestModels;
 using Microsoft.Data.Entity.SqlServer.Update;
+using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
 using Microsoft.Framework.Logging;
@@ -89,12 +90,18 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         private class SqlStoreWithBufferReader : SqlServerDataStore
         {
             public SqlStoreWithBufferReader(
-                DbContextConfiguration configuration,
+                StateManager stateManager,
+                LazyRef<IModel> model,
+                EntityKeyFactorySource entityKeyFactorySource,
+                EntityMaterializerSource entityMaterializerSource,
+                ClrCollectionAccessorSource collectionAccessorSource,
+                ClrPropertySetterSource propertySetterSource,
                 SqlServerConnection connection,
                 SqlServerCommandBatchPreparer batchPreparer,
                 SqlServerBatchExecutor batchExecutor,
                 ILoggerFactory loggerFactory)
-                : base(configuration, connection, batchPreparer, batchExecutor, loggerFactory)
+                : base(stateManager, model, entityKeyFactorySource, entityMaterializerSource,
+                    collectionAccessorSource, propertySetterSource, connection, batchPreparer, batchExecutor, loggerFactory)
             {
             }
 
@@ -499,6 +506,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         }
 
         private readonly SqlServerFixture _fixture;
+
         public SqlServerEndToEndTest(SqlServerFixture fixture)
         {
             _fixture = fixture;

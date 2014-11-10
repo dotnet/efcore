@@ -2,13 +2,15 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Query;
 using Microsoft.Data.Entity.Relational.Query.Methods;
 using Microsoft.Data.Entity.SQLite.Query;
 using Microsoft.Data.Entity.SQLite.Utilities;
+using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.SQLite
@@ -16,12 +18,18 @@ namespace Microsoft.Data.Entity.SQLite
     public class SQLiteDataStore : RelationalDataStore
     {
         public SQLiteDataStore(
-            [NotNull] DbContextConfiguration configuration,
+            [NotNull] StateManager stateManager,
+            [NotNull] LazyRef<IModel> model,
+            [NotNull] EntityKeyFactorySource entityKeyFactorySource,
+            [NotNull] EntityMaterializerSource entityMaterializerSource,
+            [NotNull] ClrCollectionAccessorSource collectionAccessorSource,
+            [NotNull] ClrPropertySetterSource propertySetterSource,
             [NotNull] SQLiteConnection connection,
             [NotNull] SQLiteCommandBatchPreparer batchPreparer,
-            [NotNull] SQLiteBatchExecutor batchExecutor, 
+            [NotNull] SQLiteBatchExecutor batchExecutor,
             [NotNull] ILoggerFactory loggerFactory)
-            : base(configuration, connection, batchPreparer, batchExecutor, loggerFactory)
+            : base(stateManager, model, entityKeyFactorySource, entityMaterializerSource,
+                collectionAccessorSource, propertySetterSource, connection, batchPreparer, batchExecutor, loggerFactory)
         {
         }
 
@@ -41,12 +49,12 @@ namespace Microsoft.Data.Entity.SQLite
             Check.NotNull(queryMethodProvider, "queryMethodProvider");
 
             return new SQLiteQueryCompilationContext(
-                Model, 
-                Logger, 
-                linqOperatorProvider, 
-                resultOperatorHandler, 
+                Model,
+                Logger,
+                linqOperatorProvider,
+                resultOperatorHandler,
                 EntityMaterializerSource,
-                queryMethodProvider, 
+                queryMethodProvider,
                 methodCallTranslator);
         }
     }

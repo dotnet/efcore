@@ -41,10 +41,16 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
             configuration.SetupGet(s => s.Services.ClrPropertySetterSource).Returns(new Mock<ClrPropertySetterSource>().Object);
 
             _dataStore = new AtsDataStore(
-                configuration.Object,
+                Mock.Of<StateManager>(),
+                new LazyRef<IModel>(CreateModel),
+                Mock.Of<EntityKeyFactorySource>(),
+                Mock.Of<EntityMaterializerSource>(),
+                Mock.Of<ClrCollectionAccessorSource>(),
+                Mock.Of<ClrPropertySetterSource>(),
                 _connection.Object,
                 new AtsQueryFactory(new AtsValueReaderFactory()),
                 new TableEntityAdapterFactory(),
+                new LazyRef<DbContext>(() => null),
                 new LoggerFactory());
         }
 
