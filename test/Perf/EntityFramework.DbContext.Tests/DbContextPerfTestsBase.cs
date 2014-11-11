@@ -210,6 +210,7 @@ namespace Microsoft.Data.Entity.Performance.DbContextTests
 
         protected void DbContextUpdateSetup(Func<AdvWorksDbContext> getContext)
         {
+            Setup();
             using (var advWorks = getContext())
             {
                 _dbContextUpdateProducts = Populate(advWorks, 2000);

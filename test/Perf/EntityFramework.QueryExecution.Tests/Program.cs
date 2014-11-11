@@ -83,6 +83,7 @@ namespace QueryExecution
                     Setup = tests.Setup
                 });
 
+            // This test currently fails, trowing an exception from relinq 
             allTests.Add(new TestDefinition
                 {
                     TestName = "Query_Execution_TPT_model_Aggregate_Count",
@@ -128,6 +129,7 @@ namespace QueryExecution
                     Setup = tests.Setup
                 });
 
+            // This test currently fails, trowing an exception from relinq 
             allTests.Add(new TestDefinition
                 {
                     TestName = "Query_Execution_TPT_model_OfType_Linq",
