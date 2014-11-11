@@ -64,10 +64,12 @@
       <Link>LoggingExtensions.cs</Link>
     </Compile>
     <Compile Include="ChangeTracking\ChangeDetector.cs" />
+    <Compile Include="ChangeTracking\PropertyBagEntryExtensions.cs" />
     <Compile Include="ChangeTracking\RelationshipsSnapshot.cs" />
     <Compile Include="ChangeTracking\RelationshipsSnapshotFactory.cs" />
     <Compile Include="ChangeTracking\IPropertyBagEntry.cs" />
     <Compile Include="ChangeTracking\SimpleNullableEntityKeyFactory.cs" />
+    <Compile Include="ChangeTracking\StateEntryMetadataServices.cs" />
     <Compile Include="DbContext.cs" />
     <Compile Include="Infrastructure\DbContextActivator.cs" />
     <Compile Include="DbContextOptions.cs" />

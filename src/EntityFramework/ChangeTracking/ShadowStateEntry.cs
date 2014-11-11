@@ -30,8 +30,9 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         public ShadowStateEntry(
             [NotNull] DbContextConfiguration configuration,
-            [NotNull] IEntityType entityType)
-            : base(configuration, entityType)
+            [NotNull] IEntityType entityType,
+            [NotNull] StateEntryMetadataServices metadataServices)
+            : base(configuration, entityType, metadataServices)
         {
             _propertyValues = new object[entityType.ShadowPropertyCount];
         }
@@ -39,8 +40,9 @@ namespace Microsoft.Data.Entity.ChangeTracking
         public ShadowStateEntry(
             [NotNull] DbContextConfiguration configuration,
             [NotNull] IEntityType entityType,
+            [NotNull] StateEntryMetadataServices metadataServices,
             [NotNull] IValueReader valueReader)
-            : base(configuration, entityType)
+            : base(configuration, entityType, metadataServices)
         {
             Check.NotNull(valueReader, "valueReader");
 

@@ -21,6 +21,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
     {
         private readonly DbContextConfiguration _configuration;
         private readonly IEntityType _entityType;
+        private readonly StateEntryMetadataServices _metadataServices;
         private StateData _stateData;
         private Sidecar[] _sidecars;
 
@@ -37,14 +38,17 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         protected StateEntry(
             [NotNull] DbContextConfiguration configuration,
-            [NotNull] IEntityType entityType)
+            [NotNull] IEntityType entityType,
+            [NotNull] StateEntryMetadataServices metadataServices)
         {
             Check.NotNull(configuration, "configuration");
             Check.NotNull(entityType, "entityType");
+            Check.NotNull(metadataServices, "metadataServices");
 
             _configuration = configuration;
+            _metadataServices = metadataServices;
             _entityType = entityType;
-            _stateData = new StateData(entityType.Properties.Count);
+            _stateData = new StateData(_entityType.Properties.Count);
         }
 
         [CanBeNull]
@@ -65,7 +69,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             get
             {
                 return TryGetSidecar(Sidecar.WellKnownNames.OriginalValues)
-                       ?? AddSidecar(_configuration.Services.OriginalValuesFactory.Create(this));
+                       ?? AddSidecar(_metadataServices.CreateOriginalValues(this));
             }
         }
 
@@ -74,7 +78,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             get
             {
                 return TryGetSidecar(Sidecar.WellKnownNames.RelationshipsSnapshot)
-                       ?? AddSidecar(_configuration.Services.RelationshipsSnapshotFactory.Create(this));
+                       ?? AddSidecar(_metadataServices.CreateRelationshipSnapshot(this));
             }
         }
 
@@ -194,10 +198,10 @@ namespace Microsoft.Data.Entity.ChangeTracking
             // can happen without constraints on changing read-only values kicking in
             _stateData.EntityState = EntityState.Unknown;
 
-            _stateData.FlagAllProperties(_entityType.Properties.Count(), isFlagged: false);
+            _stateData.FlagAllProperties(EntityType.Properties.Count(), isFlagged: false);
 
-            var generators = _entityType.Properties
-                .Where(p => (p.GenerateValueOnAdd || p.IsForeignKey()) && HasDefaultValue(p))
+            var generators = EntityType.Properties
+                .Where(p => (p.GenerateValueOnAdd || p.IsForeignKey()) && this.HasDefaultValue(p))
                 .Select(p => Tuple.Create(p, _configuration.ValueGeneratorCache.GetGenerator(p)))
                 .Where(g => g.Item2 != null)
                 .ToList();
@@ -206,19 +210,13 @@ namespace Microsoft.Data.Entity.ChangeTracking
             return generators.Count > 0 ? generators : null;
         }
 
-        private bool HasDefaultValue(IProperty p)
-        {
-            var value = this[p];
-            return value == null || value.Equals(p.PropertyType.GetDefaultValue());
-        }
-
         private void SetEntityState(EntityState oldState, EntityState newState)
         {
             // The entity state can be Modified even if some properties are not modified so always
             // set all properties to modified if the entity state is explicitly set to Modified.
             if (newState == EntityState.Modified)
             {
-                _stateData.FlagAllProperties(_entityType.Properties.Count(), isFlagged: true);
+                _stateData.FlagAllProperties(EntityType.Properties.Count(), isFlagged: true);
 
                 foreach (var keyProperty in EntityType.Properties.Where(
                     p => p.IsReadOnly
@@ -243,7 +241,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             if (newState == EntityState.Unchanged)
             {
-                _stateData.FlagAllProperties(_entityType.Properties.Count(), isFlagged: false);
+                _stateData.FlagAllProperties(EntityType.Properties.Count(), isFlagged: false);
             }
 
             _configuration.Services.StateEntryNotifier.StateChanging(this, newState);
@@ -258,7 +256,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             {
                 if (oldState == EntityState.Added)
                 {
-                    foreach (var property in _entityType.Properties.Where(p => _stateData.IsPropertyFlagged(p.Index)))
+                    foreach (var property in EntityType.Properties.Where(p => _stateData.IsPropertyFlagged(p.Index)))
                     {
                         this[property] = property.PropertyType.GetDefaultValue();
                     }
@@ -370,7 +368,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             Contract.Assert(!(propertyBase is IProperty) || !((IProperty)propertyBase).IsShadowProperty);
 
-            return _configuration.Services.ClrPropertyGetterSource.GetAccessor(propertyBase).GetClrValue(Entity);
+            return _metadataServices.ReadValue(Entity, propertyBase);
         }
 
         protected virtual void WritePropertyValue([NotNull] IPropertyBase propertyBase, [CanBeNull] object value)
@@ -379,7 +377,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             Contract.Assert(!(propertyBase is IProperty) || !((IProperty)propertyBase).IsShadowProperty);
 
-            _configuration.Services.ClrPropertySetterSource.GetAccessor(propertyBase).SetClrValue(Entity, value);
+            _metadataServices.WriteValue(Entity, propertyBase, value);
         }
 
         public virtual object this[IPropertyBase property]
@@ -454,18 +452,14 @@ namespace Microsoft.Data.Entity.ChangeTracking
             Check.NotEmpty(properties, "properties");
             Check.NotNull(propertyBagEntry, "propertyBagEntry");
 
-            return _configuration.Services.EntityKeyFactorySource
-                .GetKeyFactory(properties)
-                .Create(entityType, properties, propertyBagEntry);
+            return _metadataServices.CreateKey(entityType, properties, propertyBagEntry);
         }
 
         public virtual EntityKey GetDependentKeySnapshot([NotNull] IForeignKey foreignKey)
         {
             Check.NotNull(foreignKey, "foreignKey");
 
-            return _configuration.Services.EntityKeyFactorySource
-                .GetKeyFactory(foreignKey.Properties)
-                .Create(foreignKey.ReferencedEntityType, foreignKey.Properties, RelationshipsSnapshot);
+            return CreateKey(foreignKey.ReferencedEntityType, foreignKey.Properties, RelationshipsSnapshot);
         }
 
         public virtual EntityKey GetPrincipalKey([NotNull] IForeignKey foreignKey, [NotNull] IEntityType referencedEntityType, [NotNull] IReadOnlyList<IProperty> referencedProperties)
@@ -486,7 +480,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         public virtual object[] GetValueBuffer()
         {
-            return _entityType.Properties.Select(p => this[p]).ToArray();
+            return EntityType.Properties.Select(p => this[p]).ToArray();
         }
 
         public virtual bool DetectChanges()
@@ -536,9 +530,9 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         public virtual StateEntry PrepareToSave()
         {
-            if (_entityType.Properties.Any(NeedsStoreValue))
+            if (EntityType.Properties.Any(NeedsStoreValue))
             {
-                AddSidecar(_configuration.Services.StoreGeneratedValuesFactory.Create(this));
+                AddSidecar(_metadataServices.CreateStoreGeneratedValues(this));
             }
 
             return this;
@@ -563,7 +557,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             Check.NotNull(property, "property");
 
             return HasTemporaryValue(property)
-                   || (property.UseStoreDefault && HasDefaultValue(property))
+                   || (property.UseStoreDefault && this.HasDefaultValue(property))
                    || (property.IsStoreComputed
                        && (EntityState == EntityState.Modified || EntityState == EntityState.Added)
                        && !IsPropertyModified(property));

@@ -10,6 +10,7 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Relational.Update;
 using Microsoft.Data.Entity.Utilities;
+using Microsoft.Framework.DependencyInjection;
 using Moq;
 using Xunit;
 
@@ -64,8 +65,9 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         [Fact]
         public async Task BatchCommands_creates_valid_batch_for_added_entities()
         {
-            var stateEntry = new MixedStateEntry(
-                CreateConfiguration(),
+            var factory = CreateConfiguration().ScopedServiceProvider.GetRequiredService<StateEntryFactory>();
+
+            var stateEntry = factory.Create(
                 CreateSimpleFKModel().GetEntityType(typeof(FakeEntity)), new FakeEntity { Id = 42, Value = "Test" });
 
             await stateEntry.SetEntityStateAsync(EntityState.Added);
@@ -102,8 +104,9 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         [Fact]
         public async Task BatchCommands_creates_valid_batch_for_modified_entities()
         {
-            var stateEntry = new MixedStateEntry(
-                CreateConfiguration(),
+            var factory = CreateConfiguration().ScopedServiceProvider.GetRequiredService<StateEntryFactory>();
+
+            var stateEntry = factory.Create(
                 CreateSimpleFKModel().GetEntityType(typeof(FakeEntity)), new FakeEntity { Id = 42, Value = "Test" });
 
             await stateEntry.SetEntityStateAsync(EntityState.Modified);
@@ -141,8 +144,9 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         [Fact]
         public async Task BatchCommands_creates_valid_batch_for_deleted_entities()
         {
-            var stateEntry = new MixedStateEntry(
-                CreateConfiguration(),
+            var factory = CreateConfiguration().ScopedServiceProvider.GetRequiredService<StateEntryFactory>();
+
+            var stateEntry = factory.Create(
                 CreateSimpleFKModel().GetEntityType(typeof(FakeEntity)), new FakeEntity { Id = 42, Value = "Test" });
 
             await stateEntry.SetEntityStateAsync(EntityState.Deleted);
@@ -171,14 +175,13 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         {
             var configuration = CreateConfiguration();
             var model = CreateSimpleFKModel();
+            var factory = configuration.ScopedServiceProvider.GetRequiredService<StateEntryFactory>();
 
-            var stateEntry = new MixedStateEntry(
-                configuration,
+            var stateEntry = factory.Create(
                 model.GetEntityType(typeof(FakeEntity)), new FakeEntity { Id = 42, Value = "Test" });
             await stateEntry.SetEntityStateAsync(EntityState.Added);
 
-            var relatedStateEntry = new MixedStateEntry(
-                configuration,
+            var relatedStateEntry = factory.Create(
                 model.GetEntityType(typeof(RelatedFakeEntity)), new RelatedFakeEntity { Id = 42 });
             await relatedStateEntry.SetEntityStateAsync(EntityState.Added);
 
@@ -194,14 +197,13 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         {
             var configuration = CreateConfiguration();
             var model = CreateSimpleFKModel();
+            var factory = configuration.ScopedServiceProvider.GetRequiredService<StateEntryFactory>();
 
-            var stateEntry = new MixedStateEntry(
-                configuration,
+            var stateEntry = factory.Create(
                 model.GetEntityType(typeof(FakeEntity)), new FakeEntity { Id = 42, Value = "Test" });
             await stateEntry.SetEntityStateAsync(EntityState.Added);
 
-            var relatedStateEntry = new MixedStateEntry(
-                configuration,
+            var relatedStateEntry = factory.Create(
                 model.GetEntityType(typeof(RelatedFakeEntity)), new RelatedFakeEntity { Id = 42 });
             await relatedStateEntry.SetEntityStateAsync(EntityState.Modified);
 
@@ -217,14 +219,13 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         {
             var configuration = CreateConfiguration();
             var model = CreateSimpleFKModel();
+            var factory = configuration.ScopedServiceProvider.GetRequiredService<StateEntryFactory>();
 
-            var firstStateEntry = new MixedStateEntry(
-                configuration,
+            var firstStateEntry = factory.Create(
                 model.GetEntityType(typeof(FakeEntity)), new FakeEntity { Id = 42, Value = "Test" });
             await firstStateEntry.SetEntityStateAsync(EntityState.Added);
 
-            var secondStateEntry = new MixedStateEntry(
-                configuration,
+            var secondStateEntry = factory.Create(
                 model.GetEntityType(typeof(RelatedFakeEntity)), new RelatedFakeEntity { Id = 1 });
             await secondStateEntry.SetEntityStateAsync(EntityState.Added);
 
@@ -240,19 +241,17 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         {
             var configuration = CreateConfiguration();
             var model = CreateCyclicFKModel();
+            var factory = configuration.ScopedServiceProvider.GetRequiredService<StateEntryFactory>();
 
-            var previousParent = new MixedStateEntry(
-                configuration,
+            var previousParent = factory.Create(
                 model.GetEntityType(typeof(FakeEntity)), new FakeEntity { Id = 42, Value = "Test" });
             await previousParent.SetEntityStateAsync(EntityState.Deleted);
 
-            var newParent = new MixedStateEntry(
-                configuration,
+            var newParent = factory.Create(
                 model.GetEntityType(typeof(FakeEntity)), new FakeEntity { Id = 3, Value = "Test" });
             await newParent.SetEntityStateAsync(EntityState.Added);
 
-            var relatedStateEntry = new MixedStateEntry(
-                configuration,
+            var relatedStateEntry = factory.Create(
                 model.GetEntityType(typeof(RelatedFakeEntity)), new RelatedFakeEntity { Id = 1, RelatedId = 3 });
             await relatedStateEntry.SetEntityStateAsync(EntityState.Modified);
             relatedStateEntry.OriginalValues[relatedStateEntry.EntityType.GetProperty("RelatedId")] = 42;
@@ -270,15 +269,14 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         {
             var configuration = CreateConfiguration();
             var model = CreateSimpleFKModel();
+            var factory = configuration.ScopedServiceProvider.GetRequiredService<StateEntryFactory>();
 
             var fakeEntity = new FakeEntity { Id = 42, Value = "Test" };
-            var stateEntry = new MixedStateEntry(
-                configuration,
+            var stateEntry = factory.Create(
                 model.GetEntityType(typeof(FakeEntity)), fakeEntity);
             await stateEntry.SetEntityStateAsync(EntityState.Added);
 
-            var relatedStateEntry = new MixedStateEntry(
-                configuration,
+            var relatedStateEntry = factory.Create(
                 model.GetEntityType(typeof(RelatedFakeEntity)), new RelatedFakeEntity { Id = 42 });
             await relatedStateEntry.SetEntityStateAsync(EntityState.Added);
 

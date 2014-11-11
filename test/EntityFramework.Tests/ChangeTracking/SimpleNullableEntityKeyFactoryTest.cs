@@ -3,6 +3,7 @@
 
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Framework.DependencyInjection;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Tests.ChangeTracking
@@ -14,9 +15,10 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var model = BuildModel();
             var type = model.GetEntityType(typeof(Banana));
+            var factory = TestHelpers.CreateContextConfiguration(model).ScopedServiceProvider.GetRequiredService<StateEntryFactory>();
 
             var entity = new Banana { P1 = 7 };
-            var entry = new ClrStateEntry(TestHelpers.CreateContextConfiguration(model), type, entity);
+            var entry = factory.Create(type, entity);
 
             var key = (SimpleEntityKey<int>)new SimpleNullableEntityKeyFactory<int, int?>().Create(type, type.GetPrimaryKey().Properties, entry);
 
@@ -28,9 +30,10 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var model = BuildModel();
             var type = model.GetEntityType(typeof(Banana));
+            var factory = TestHelpers.CreateContextConfiguration(model).ScopedServiceProvider.GetRequiredService<StateEntryFactory>();
 
             var entity = new Banana { P1 = 7, P2 = null };
-            var entry = new ClrStateEntry(TestHelpers.CreateContextConfiguration(model), type, entity);
+            var entry = factory.Create(type, entity);
 
             Assert.Equal(EntityKey.NullEntityKey, new SimpleNullableEntityKeyFactory<int, int?>().Create(type, new[] { type.GetProperty("P2") }, entry));
         }
@@ -62,9 +65,10 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var model = BuildModel();
             var type = model.GetEntityType(typeof(Banana));
+            var factory = TestHelpers.CreateContextConfiguration(model).ScopedServiceProvider.GetRequiredService<StateEntryFactory>();
 
             var entity = new Banana { P1 = 7, P2 = 77 };
-            var entry = new ClrStateEntry(TestHelpers.CreateContextConfiguration(model), type, entity);
+            var entry = factory.Create(type, entity);
 
             var sidecar = new RelationshipsSnapshot(entry);
             sidecar[type.GetProperty("P2")] = 78;
@@ -80,9 +84,10 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var model = BuildModel();
             var type = model.GetEntityType(typeof(Banana));
+            var factory = TestHelpers.CreateContextConfiguration(model).ScopedServiceProvider.GetRequiredService<StateEntryFactory>();
 
             var entity = new Banana { P1 = 7, P2 = 77 };
-            var entry = new ClrStateEntry(TestHelpers.CreateContextConfiguration(model), type, entity);
+            var entry = factory.Create(type, entity);
 
             var sidecar = new RelationshipsSnapshot(entry);
 

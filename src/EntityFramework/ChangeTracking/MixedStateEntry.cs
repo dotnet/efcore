@@ -26,8 +26,9 @@ namespace Microsoft.Data.Entity.ChangeTracking
         public MixedStateEntry(
             [NotNull] DbContextConfiguration configuration,
             [NotNull] IEntityType entityType,
+            [NotNull] StateEntryMetadataServices metadataServices,
             [NotNull] object entity)
-            : base(configuration, entityType)
+            : base(configuration, entityType, metadataServices)
         {
             Check.NotNull(entity, "entity");
 
@@ -38,9 +39,10 @@ namespace Microsoft.Data.Entity.ChangeTracking
         public MixedStateEntry(
             [NotNull] DbContextConfiguration configuration,
             [NotNull] IEntityType entityType,
+            [NotNull] StateEntryMetadataServices metadataServices,
             [NotNull] object entity,
             [NotNull] IValueReader valueReader)
-            : base(configuration, entityType)
+            : base(configuration, entityType, metadataServices)
         {
             Check.NotNull(entity, "entity");
             Check.NotNull(valueReader, "valueReader");

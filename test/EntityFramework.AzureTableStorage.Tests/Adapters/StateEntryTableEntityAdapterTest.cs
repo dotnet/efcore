@@ -10,6 +10,8 @@ using Microsoft.Data.Entity.AzureTableStorage.Utilities;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Framework.DependencyInjection;
+using Microsoft.Framework.DependencyInjection.Fallback;
 using Microsoft.WindowsAzure.Storage.Table;
 using Xunit;
 
@@ -17,15 +19,20 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Adapters
 {
     public class StateEntryTableEntityAdapterTest
     {
-        private readonly StateEntryFactory _factory
-            = new StateEntryFactory(CreateConfiguration(), new EntityMaterializerSource(new MemberMapper(new FieldMatcher())));
-
-        private static DbContextConfiguration CreateConfiguration()
+        private static DbContextConfiguration CreateConfiguration(IModel model)
         {
-            return new DbContext(new DbContextOptions().UseAzureTableStorage("Moria", "mellon")).Configuration;
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFramework()
+                .AddAzureTableStorage()
+                .ServiceCollection
+                .BuildServiceProvider();
+
+            return new DbContext(serviceProvider, new DbContextOptions()
+                .UseModel(model)
+                .UseAzureTableStorage("Moria", "mellon")).Configuration;
         }
 
-        private IModel CreateModel()
+        private static IModel CreateModel()
         {
             var model = new Model();
             var builder = new BasicModelBuilder(model);
@@ -65,9 +72,12 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Adapters
         [Fact]
         public void It_wraps_poco_in_adapter()
         {
+            var model = CreateModel();
+            var factory = CreateConfiguration(model).ScopedServiceProvider.GetRequiredService<StateEntryFactory>();
+
             var obj = new ClrPoco();
-            var entityType = CreateModel().GetEntityType(typeof(ClrPoco));
-            var entry = _factory.Create(entityType, obj);
+            var entityType = model.GetEntityType(typeof(ClrPoco));
+            var entry = factory.Create(entityType, obj);
             var adapter = new StateEntryTableEntityAdapter<ClrPoco>(entry);
             Assert.Same(obj, adapter.Entity);
         }
@@ -75,9 +85,12 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Adapters
         [Fact]
         public void It_writes_to_clr_properties()
         {
+            var model = CreateModel();
+            var factory = CreateConfiguration(model).ScopedServiceProvider.GetRequiredService<StateEntryFactory>();
+
             var obj = new ClrPoco();
-            var entityType = CreateModel().GetEntityType(typeof(ClrPoco));
-            var entry = _factory.Create(entityType, obj);
+            var entityType = model.GetEntityType(typeof(ClrPoco));
+            var entry = factory.Create(entityType, obj);
             var adapter = new StateEntryTableEntityAdapter<ClrPoco>(entry);
 
             adapter.PartitionKey = "PartitionKey";
@@ -93,8 +106,11 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Adapters
         [Fact]
         public void It_writes_to_shadow_state_properties()
         {
-            var entityType = CreateModel().GetEntityType("ShadowEntity");
-            var entry = _factory.Create(entityType, new AtsObjectArrayValueReader(new object[4]));
+            var model = CreateModel();
+            var factory = CreateConfiguration(model).ScopedServiceProvider.GetRequiredService<StateEntryFactory>();
+
+            var entityType = model.GetEntityType("ShadowEntity");
+            var entry = factory.Create(entityType, new AtsObjectArrayValueReader(new object[4]));
             var adapter = new StateEntryTableEntityAdapter<object>(entry);
             var pkProp = entry.EntityType.GetPropertyByColumnName("PartitionKey");
             var rkProp = entry.EntityType.GetPropertyByColumnName("RowKey");
@@ -119,8 +135,11 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Adapters
         [Fact]
         public void It_reads_from_shadow_state_properties()
         {
-            var entityType = CreateModel().GetEntityType("ShadowEntity");
-            var entry = _factory.Create(entityType, new AtsObjectArrayValueReader(new object[4]));
+            var model = CreateModel();
+            var factory = CreateConfiguration(model).ScopedServiceProvider.GetRequiredService<StateEntryFactory>();
+
+            var entityType = model.GetEntityType("ShadowEntity");
+            var entry = factory.Create(entityType, new AtsObjectArrayValueReader(new object[4]));
             var adapter = new StateEntryTableEntityAdapter<object>(entry);
             var pkProp = entry.EntityType.GetPropertyByColumnName("PartitionKey");
             var rkProp = entry.EntityType.GetPropertyByColumnName("RowKey");
@@ -144,9 +163,12 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Adapters
         [Fact]
         public void It_casts_to_int_keys()
         {
+            var model = CreateModel();
+            var factory = CreateConfiguration(model).ScopedServiceProvider.GetRequiredService<StateEntryFactory>();
+
             var data = new object[] { "42", "1980", "11/11/2011 11:11:11 PM" };
-            var entityType = CreateModel().GetEntityType(typeof(IntKeysPoco));
-            var entry = _factory.Create(entityType, new AtsObjectArrayValueReader(data));
+            var entityType = model.GetEntityType(typeof(IntKeysPoco));
+            var entry = factory.Create(entityType, new AtsObjectArrayValueReader(data));
             var adapter = new StateEntryTableEntityAdapter<IntKeysPoco>(entry);
 
             var entity = adapter.Entity;
@@ -157,9 +179,12 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Adapters
         [Fact]
         public void It_casts_from_int_keys()
         {
+            var model = CreateModel();
+            var factory = CreateConfiguration(model).ScopedServiceProvider.GetRequiredService<StateEntryFactory>();
+
             var obj = new IntKeysPoco { PartitionID = 42, RowID = 1980 };
-            var entityType = CreateModel().GetEntityType(typeof(IntKeysPoco));
-            var entry = _factory.Create(entityType, obj);
+            var entityType = model.GetEntityType(typeof(IntKeysPoco));
+            var entry = factory.Create(entityType, obj);
             var adapter = new StateEntryTableEntityAdapter<IntKeysPoco>(entry);
 
             Assert.Equal("42", adapter.PartitionKey);
@@ -169,9 +194,12 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Adapters
         [Fact]
         public void It_interprets_guid_keys()
         {
+            var model = CreateModel();
+            var factory = CreateConfiguration(model).ScopedServiceProvider.GetRequiredService<StateEntryFactory>();
+
             var data = new object[] { "80d401da-ef77-4bc6-a2b0-300025098a0e", "4b240e4f-b886-4d23-a63c-017a3d79885a", "timestamp" };
-            var entityType = CreateModel().GetEntityType(typeof(GuidKeysPoco));
-            var entry = _factory.Create(entityType, new AtsObjectArrayValueReader(data));
+            var entityType = model.GetEntityType(typeof(GuidKeysPoco));
+            var entry = factory.Create(entityType, new AtsObjectArrayValueReader(data));
             var adapter = new StateEntryTableEntityAdapter<GuidKeysPoco>(entry);
 
             Assert.Equal(new Guid("80d401da-ef77-4bc6-a2b0-300025098a0e"), adapter.Entity.PartitionGuid);
@@ -181,6 +209,9 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Adapters
         [Fact]
         public void It_reads_from_dictionary()
         {
+            var model = CreateModel();
+            var factory = CreateConfiguration(model).ScopedServiceProvider.GetRequiredService<StateEntryFactory>();
+
             var data = new Dictionary<string, EntityProperty>
                 {
                     { "StringProp", new EntityProperty("StringVal") },
@@ -188,8 +219,8 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Adapters
                 };
             var instance = new ClrPocoWithProp();
 
-            var entityType = CreateModel().GetEntityType(typeof(ClrPocoWithProp));
-            var entry = _factory.Create(entityType, instance);
+            var entityType = model.GetEntityType(typeof(ClrPocoWithProp));
+            var entry = factory.Create(entityType, instance);
             var adapter = new StateEntryTableEntityAdapter<ClrPocoWithProp>(entry);
 
             adapter.ReadEntity(data, null);
@@ -201,6 +232,9 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Adapters
         [Fact]
         public void It_skips_mismatched_types()
         {
+            var model = CreateModel();
+            var factory = CreateConfiguration(model).ScopedServiceProvider.GetRequiredService<StateEntryFactory>();
+
             var data = new Dictionary<string, EntityProperty>
                 {
                     { "StringProp", new EntityProperty(5) },
@@ -208,8 +242,8 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Adapters
                 };
             var instance = new ClrPocoWithProp();
 
-            var entityType = CreateModel().GetEntityType(typeof(ClrPocoWithProp));
-            var entry = _factory.Create(entityType, instance);
+            var entityType = model.GetEntityType(typeof(ClrPocoWithProp));
+            var entry = factory.Create(entityType, instance);
             var adapter = new StateEntryTableEntityAdapter<ClrPocoWithProp>(entry);
 
             adapter.ReadEntity(data, null);
@@ -221,6 +255,9 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Adapters
         [Fact]
         public void It_writes_to_dictionary()
         {
+            var model = CreateModel();
+            var factory = CreateConfiguration(model).ScopedServiceProvider.GetRequiredService<StateEntryFactory>();
+
             var instance = new ClrPocoWithProp
                 {
                     PartitionKey = "A",
@@ -229,7 +266,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Adapters
                     IntProp = 5,
                     Timestamp = DateTimeOffset.UtcNow,
                 };
-            var entry = _factory.Create(CreateModel().GetEntityType(typeof(ClrPocoWithProp)), instance);
+            var entry = factory.Create(model.GetEntityType(typeof(ClrPocoWithProp)), instance);
             var adapter = new StateEntryTableEntityAdapter<ClrPocoWithProp>(entry);
 
             var expected = new Dictionary<string, EntityProperty>

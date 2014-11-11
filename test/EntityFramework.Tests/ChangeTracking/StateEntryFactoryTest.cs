@@ -3,9 +3,8 @@
 
 using System;
 using Microsoft.Data.Entity.ChangeTracking;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
-using Moq;
+using Microsoft.Framework.DependencyInjection;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Tests.ChangeTracking
@@ -15,22 +14,20 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Creates_shadow_state_only_entry_when_entity_is_fully_shadow_state()
         {
-            var entityType = new Model().AddEntityType("RedHook");
+            var model = new Model();
+            var entityType = model.AddEntityType("RedHook");
             entityType.GetOrAddProperty("Long", typeof(int), shadowProperty: true);
             entityType.GetOrAddProperty("Hammer", typeof(string), shadowProperty: true);
 
-            var servicesMock = new Mock<ContextServices>();
-            servicesMock.Setup(m => m.ClrPropertyGetterSource).Returns(new ClrPropertyGetterSource());
-            var configurationMock = new Mock<DbContextConfiguration>();
-            configurationMock.Setup(m => m.Services).Returns(servicesMock.Object);
+            var configuration = TestHelpers.CreateContextConfiguration(model);
 
-            var entry = new StateEntryFactory(
-                configurationMock.Object,
-                new EntityMaterializerSource(new MemberMapper(new FieldMatcher()))).Create(entityType, new Random());
+            var factory = configuration.ScopedServiceProvider.GetRequiredService<StateEntryFactory>();
+
+            var entry = factory.Create(entityType, new Random());
 
             Assert.IsType<ShadowStateEntry>(entry);
 
-            Assert.Same(configurationMock.Object, entry.Configuration);
+            Assert.Same(configuration, entry.Configuration);
             Assert.Same(entityType, entry.EntityType);
             Assert.Null(entry.Entity);
         }
@@ -38,23 +35,21 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Creates_CLR_only_entry_when_entity_has_no_shadow_properties()
         {
-            var entityType = new Model().AddEntityType(typeof(RedHook));
+            var model = new Model();
+            var entityType = model.AddEntityType(typeof(RedHook));
             entityType.GetOrAddProperty("Long", typeof(int));
             entityType.GetOrAddProperty("Hammer", typeof(string));
 
-            var servicesMock = new Mock<ContextServices>();
-            servicesMock.Setup(m => m.ClrPropertyGetterSource).Returns(new ClrPropertyGetterSource());
-            var configurationMock = new Mock<DbContextConfiguration>();
-            configurationMock.Setup(m => m.Services).Returns(servicesMock.Object);
+            var configuration = TestHelpers.CreateContextConfiguration(model);
+
+            var factory = configuration.ScopedServiceProvider.GetRequiredService<StateEntryFactory>();
 
             var entity = new RedHook();
-            var entry = new StateEntryFactory(
-                configurationMock.Object,
-                new EntityMaterializerSource(new MemberMapper(new FieldMatcher()))).Create(entityType, entity);
+            var entry = factory.Create(entityType, entity);
 
             Assert.IsType<ClrStateEntry>(entry);
 
-            Assert.Same(configurationMock.Object, entry.Configuration);
+            Assert.Same(configuration, entry.Configuration);
             Assert.Same(entityType, entry.EntityType);
             Assert.Same(entity, entry.Entity);
         }
@@ -62,23 +57,21 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Creates_mixed_entry_when_entity_CLR_entity_type_and_shadow_properties()
         {
-            var entityType = new Model().AddEntityType(typeof(RedHook));
+            var model = new Model();
+            var entityType = model.AddEntityType(typeof(RedHook));
             entityType.GetOrAddProperty("Long", typeof(int));
             entityType.GetOrAddProperty("Hammer", typeof(string), shadowProperty: true);
 
-            var servicesMock = new Mock<ContextServices>();
-            servicesMock.Setup(m => m.ClrPropertyGetterSource).Returns(new ClrPropertyGetterSource());
-            var configurationMock = new Mock<DbContextConfiguration>();
-            configurationMock.Setup(m => m.Services).Returns(servicesMock.Object);
+            var configuration = TestHelpers.CreateContextConfiguration(model);
+
+            var factory = configuration.ScopedServiceProvider.GetRequiredService<StateEntryFactory>();
 
             var entity = new RedHook();
-            var entry = new StateEntryFactory(
-                configurationMock.Object,
-                new EntityMaterializerSource(new MemberMapper(new FieldMatcher()))).Create(entityType, entity);
+            var entry = factory.Create(entityType, entity);
 
             Assert.IsType<MixedStateEntry>(entry);
 
-            Assert.Same(configurationMock.Object, entry.Configuration);
+            Assert.Same(configuration, entry.Configuration);
             Assert.Same(entityType, entry.EntityType);
             Assert.Same(entity, entry.Entity);
         }
@@ -86,21 +79,19 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Creates_shadow_state_only_entry_from_value_buffer_when_entity_is_fully_shadow_state()
         {
-            var entityType = new Model().AddEntityType("RedHook");
+            var model = new Model();
+            var entityType = model.AddEntityType("RedHook");
             var property1 = entityType.GetOrAddProperty("Long", typeof(int), shadowProperty: true);
             var property2 = entityType.GetOrAddProperty("Hammer", typeof(string), shadowProperty: true);
 
-            var servicesMock = new Mock<ContextServices>();
-            servicesMock.Setup(m => m.ClrPropertyGetterSource).Returns(new ClrPropertyGetterSource());
-            var configurationMock = new Mock<DbContextConfiguration>();
-            configurationMock.Setup(m => m.Services).Returns(servicesMock.Object);
+            var configuration = TestHelpers.CreateContextConfiguration(model);
 
-            var entry = new StateEntryFactory(configurationMock.Object, new EntityMaterializerSource(new MemberMapper(new FieldMatcher())))
-                .Create(entityType, new ObjectArrayValueReader(new object[] { "Green", 77 }));
+            var factory = configuration.ScopedServiceProvider.GetRequiredService<StateEntryFactory>();
+            var entry = factory.Create(entityType, new ObjectArrayValueReader(new object[] { "Green", 77 }));
 
             Assert.IsType<ShadowStateEntry>(entry);
 
-            Assert.Same(configurationMock.Object, entry.Configuration);
+            Assert.Same(configuration, entry.Configuration);
             Assert.Same(entityType, entry.EntityType);
             Assert.Equal(77, entry[property1]);
             Assert.Equal("Green", entry[property2]);
@@ -110,21 +101,20 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Creates_CLR_only_entry_from_value_buffer_when_entity_has_no_shadow_properties()
         {
-            var entityType = new Model().AddEntityType(typeof(RedHook));
+            var model = new Model();
+            var entityType = model.AddEntityType(typeof(RedHook));
             var property1 = entityType.GetOrAddProperty("Long", typeof(int));
             var property2 = entityType.GetOrAddProperty("Hammer", typeof(string));
 
-            var servicesMock = new Mock<ContextServices>();
-            servicesMock.Setup(m => m.ClrPropertyGetterSource).Returns(new ClrPropertyGetterSource());
-            var configurationMock = new Mock<DbContextConfiguration>();
-            configurationMock.Setup(m => m.Services).Returns(servicesMock.Object);
+            var configuration = TestHelpers.CreateContextConfiguration(model);
 
-            var entry = new StateEntryFactory(configurationMock.Object, new EntityMaterializerSource(new MemberMapper(new FieldMatcher())))
-                .Create(entityType, new ObjectArrayValueReader(new object[] { "Green", 77 }));
+            var factory = configuration.ScopedServiceProvider.GetRequiredService<StateEntryFactory>();
+
+            var entry = factory.Create(entityType, new ObjectArrayValueReader(new object[] { "Green", 77 }));
 
             Assert.IsType<ClrStateEntry>(entry);
 
-            Assert.Same(configurationMock.Object, entry.Configuration);
+            Assert.Same(configuration, entry.Configuration);
             Assert.Same(entityType, entry.EntityType);
             Assert.Equal(77, entry[property1]);
             Assert.Equal("Green", entry[property2]);
@@ -137,21 +127,20 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Creates_mixed_entry_from_value_buffer_when_entity_CLR_entity_type_and_shadow_properties()
         {
-            var entityType = new Model().AddEntityType(typeof(RedHook));
+            var model = new Model();
+            var entityType = model.AddEntityType(typeof(RedHook));
             var property1 = entityType.GetOrAddProperty("Long", typeof(int));
             var property2 = entityType.GetOrAddProperty("Hammer", typeof(string), shadowProperty: true);
 
-            var servicesMock = new Mock<ContextServices>();
-            servicesMock.Setup(m => m.ClrPropertyGetterSource).Returns(new ClrPropertyGetterSource());
-            var configurationMock = new Mock<DbContextConfiguration>();
-            configurationMock.Setup(m => m.Services).Returns(servicesMock.Object);
+            var configuration = TestHelpers.CreateContextConfiguration(model);
 
-            var entry = new StateEntryFactory(configurationMock.Object, new EntityMaterializerSource(new MemberMapper(new FieldMatcher())))
-                .Create(entityType, new ObjectArrayValueReader(new object[] { "Green", 77 }));
+            var factory = configuration.ScopedServiceProvider.GetRequiredService<StateEntryFactory>();
+
+            var entry = factory.Create(entityType, new ObjectArrayValueReader(new object[] { "Green", 77 }));
 
             Assert.IsType<MixedStateEntry>(entry);
 
-            Assert.Same(configurationMock.Object, entry.Configuration);
+            Assert.Same(configuration, entry.Configuration);
             Assert.Same(entityType, entry.EntityType);
             Assert.Equal(77, entry[property1]);
             Assert.Equal("Green", entry[property2]);

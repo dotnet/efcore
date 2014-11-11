@@ -25,8 +25,9 @@ namespace Microsoft.Data.Entity.ChangeTracking
         public ClrStateEntry(
             [NotNull] DbContextConfiguration configuration,
             [NotNull] IEntityType entityType,
+            [NotNull] StateEntryMetadataServices metadataServices,
             [NotNull] object entity)
-            : base(configuration, entityType)
+            : base(configuration, entityType, metadataServices)
         {
             Check.NotNull(entity, "entity");
 

@@ -51,6 +51,7 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddSingleton<RelationshipsSnapshotFactory>()
                 .AddSingleton<StoreGeneratedValuesFactory>()
                 .AddSingleton<ValueGeneratorSelector>()
+                .AddSingleton<StateEntryMetadataServices>()
                 .AddScoped<DataStoreSelector>()
                 .AddScoped<StateEntryFactory>()
                 .AddScoped<IEntityStateListener, NavigationFixer>()

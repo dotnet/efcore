@@ -13,6 +13,8 @@ namespace Microsoft.Data.Entity.ChangeTracking
     {
         private readonly DbContextConfiguration _configuration;
         private readonly EntityMaterializerSource _materializerSource;
+        private readonly StateEntryMetadataServices _metadataServices;
+
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
@@ -25,13 +27,16 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         public StateEntryFactory(
             [NotNull] DbContextConfiguration configuration,
-            [NotNull] EntityMaterializerSource materializerSource)
+            [NotNull] EntityMaterializerSource materializerSource,
+            [NotNull] StateEntryMetadataServices metadataServices)
         {
             Check.NotNull(configuration, "configuration");
             Check.NotNull(materializerSource, "materializerSource");
+            Check.NotNull(metadataServices, "metadataServices");
 
             _configuration = configuration;
             _materializerSource = materializerSource;
+            _metadataServices = metadataServices;
         }
 
         public virtual StateEntry Create([NotNull] IEntityType entityType, [CanBeNull] object entity)
@@ -63,40 +68,40 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
             if (!entityType.HasClrType)
             {
-                return new ShadowStateEntry(_configuration, entityType);
+                return new ShadowStateEntry(_configuration, entityType, _metadataServices);
             }
 
             Check.NotNull(entity, "entity");
 
             return entityType.ShadowPropertyCount > 0
-                ? (StateEntry)new MixedStateEntry(_configuration, entityType, entity)
-                : new ClrStateEntry(_configuration, entityType, entity);
+                ? (StateEntry)new MixedStateEntry(_configuration, entityType, _metadataServices, entity)
+                : new ClrStateEntry(_configuration, entityType, _metadataServices, entity);
         }
 
         private StateEntry NewStateEntry(IEntityType entityType, IValueReader valueReader)
         {
             if (!entityType.HasClrType)
             {
-                return new ShadowStateEntry(_configuration, entityType, valueReader);
+                return new ShadowStateEntry(_configuration, entityType, _metadataServices, valueReader);
             }
 
             var entity = _materializerSource.GetMaterializer(entityType)(valueReader);
 
             return entityType.ShadowPropertyCount > 0
-                ? (StateEntry)new MixedStateEntry(_configuration, entityType, entity, valueReader)
-                : new ClrStateEntry(_configuration, entityType, entity);
+                ? (StateEntry)new MixedStateEntry(_configuration, entityType, _metadataServices, entity, valueReader)
+                : new ClrStateEntry(_configuration, entityType, _metadataServices, entity);
         }
 
         private StateEntry NewStateEntry(IEntityType entityType, object entity, IValueReader valueReader)
         {
             if (!entityType.HasClrType)
             {
-                return new ShadowStateEntry(_configuration, entityType, valueReader);
+                return new ShadowStateEntry(_configuration, entityType, _metadataServices, valueReader);
             }
 
             return entityType.ShadowPropertyCount > 0
-                ? (StateEntry)new MixedStateEntry(_configuration, entityType, entity, valueReader)
-                : new ClrStateEntry(_configuration, entityType, entity);
+                ? (StateEntry)new MixedStateEntry(_configuration, entityType, _metadataServices, entity, valueReader)
+                : new ClrStateEntry(_configuration, entityType, _metadataServices, entity);
         }
     }
 }

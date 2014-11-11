@@ -1144,7 +1144,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             return configuration.Services.ServiceProvider.GetService<StateEntrySubscriber>().SnapshotAndSubscribe(
                 new StateEntryFactory(
                     configuration,
-                    configuration.Services.ServiceProvider.GetService<EntityMaterializerSource>())
+                    configuration.Services.ServiceProvider.GetService<EntityMaterializerSource>(),
+                    configuration.Services.ServiceProvider.GetService<StateEntryMetadataServices>())
                     .Create(entityType, entity));
         }
 
@@ -1153,7 +1154,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             return configuration.Services.ServiceProvider.GetService<StateEntrySubscriber>().SnapshotAndSubscribe(
                 new StateEntryFactory(
                     configuration,
-                    configuration.Services.ServiceProvider.GetService<EntityMaterializerSource>())
+                    configuration.Services.ServiceProvider.GetService<EntityMaterializerSource>(),
+                    configuration.Services.ServiceProvider.GetService<StateEntryMetadataServices>())
                     .Create(entityType, valueReader));
         }
 
