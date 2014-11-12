@@ -205,6 +205,13 @@ namespace Microsoft.Data.Entity.Metadata
                 return new PropertyBuilder(Builder.Property(propertyType, name, ConfigurationSource.Explicit));
             }
 
+            public virtual bool Ignore([NotNull] string name)
+            {
+                Check.NotEmpty(name, "name");
+
+                return Builder.Ignore(name, ConfigurationSource.Explicit);
+            }
+
             public virtual ForeignKeyBuilder ForeignKey([NotNull] string referencedEntityTypeName, [NotNull] params string[] propertyNames)
             {
                 Check.NotNull(referencedEntityTypeName, "referencedEntityTypeName");
@@ -746,6 +753,13 @@ namespace Microsoft.Data.Entity.Metadata
                 Check.NotNull(propertyExpression, "propertyExpression");
 
                 return new PropertyBuilder(Builder.Property(propertyExpression.GetPropertyAccess(), ConfigurationSource.Explicit));
+            }
+
+            public virtual bool Ignore([NotNull] Expression<Func<TEntity, object>> propertyExpression)
+            {
+                Check.NotNull(propertyExpression, "propertyExpression");
+
+                return Builder.Ignore(propertyExpression.GetPropertyAccess().Name, ConfigurationSource.Explicit);
             }
 
             public virtual ForeignKeyBuilder ForeignKey<TReferencedEntityType>([NotNull] Expression<Func<TEntity, object>> foreignKeyExpression)

@@ -386,6 +386,32 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         }
 
         [Fact]
+        public void Properties_can_be_ignored()
+        {
+            var model = new Model();
+            var modelBuilder = new ModelBuilder(model);
+
+            modelBuilder.Entity<Quarks>().Property<int>("Shadow");
+
+            var entityType = (IEntityType)model.GetEntityType(typeof(Quarks));
+
+            Assert.Equal(8, entityType.Properties.Count);
+
+            modelBuilder.Entity<Quarks>(b =>
+                {
+                    b.Ignore(e => e.Up);
+                    b.Ignore(e => e.Down);
+                    b.Ignore("Charm");
+                    b.Ignore("Strange");
+                    b.Ignore("Top");
+                    b.Ignore("Bottom");
+                    b.Ignore("Shadow");
+                });
+
+            Assert.Equal("Id", entityType.Properties.Single().Name);
+        }
+
+        [Fact]
         public void Properties_can_be_made_required()
         {
             var model = new Model();

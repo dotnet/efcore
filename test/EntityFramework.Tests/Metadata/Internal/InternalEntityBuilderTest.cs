@@ -222,6 +222,52 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         }
 
         [Fact]
+        public void Can_ignore_lower_source_property()
+        {
+            var entityType = new Model().AddEntityType(typeof(Order));
+            var entityBuilder = new InternalEntityBuilder(entityType, new InternalModelBuilder(new Model(), null));
+
+            Assert.True(entityBuilder.Ignore(Order.IdProperty.Name, ConfigurationSource.Explicit));
+
+            Assert.Null(entityType.TryGetProperty(Order.IdProperty.Name));
+            Assert.True(entityBuilder.Ignore(Order.IdProperty.Name, ConfigurationSource.Explicit));
+            Assert.Null(entityBuilder.Property(typeof(Order), Order.IdProperty.Name, ConfigurationSource.DataAnnotation));
+            Assert.NotNull(entityBuilder.Property(typeof(Order), Order.IdProperty.Name, ConfigurationSource.Explicit));
+        }
+
+        [Fact]
+        public void Cannot_ignore_higher_source_property()
+        {
+            var entityType = new Model().AddEntityType(typeof(Order));
+            var entityBuilder = new InternalEntityBuilder(entityType, new InternalModelBuilder(new Model(), null));
+
+            Assert.True(entityBuilder.Ignore(Order.IdProperty.Name, ConfigurationSource.Convention));
+            Assert.NotNull(entityBuilder.Property(typeof(Order), Order.IdProperty.Name, ConfigurationSource.Convention));
+            Assert.NotNull(entityBuilder.Property(typeof(Order), Order.IdProperty.Name, ConfigurationSource.DataAnnotation));
+
+            Assert.False(entityBuilder.Ignore(Order.IdProperty.Name, ConfigurationSource.Convention));
+
+            Assert.NotNull(entityType.TryGetProperty(Order.IdProperty.Name));
+        }
+
+        [Fact]
+        public void Can_only_ignore_existing_property_explicitly()
+        {
+            var entityType = new Model().AddEntityType(typeof(Order));
+            var property = entityType.AddProperty(Order.IdProperty.Name, typeof(int));
+            var entityBuilder = new InternalEntityBuilder(entityType, new InternalModelBuilder(new Model(), null));
+            Assert.Same(property, entityBuilder.Property(typeof(Order), Order.IdProperty.Name, ConfigurationSource.Convention).Metadata);
+
+            Assert.False(entityBuilder.Ignore(Order.IdProperty.Name, ConfigurationSource.DataAnnotation));
+
+            Assert.Same(property, entityBuilder.Property(typeof(Order), Order.IdProperty.Name, ConfigurationSource.Convention).Metadata);
+            Assert.False(entityBuilder.Ignore(Order.IdProperty.Name, ConfigurationSource.DataAnnotation));
+            Assert.NotNull(entityType.TryGetProperty(Order.IdProperty.Name));
+
+            Assert.True(entityBuilder.Ignore(Order.IdProperty.Name, ConfigurationSource.Explicit));
+        }
+
+        [Fact]
         public void BuildRelationship_returns_same_instance_for_clr_types()
         {
             var modelBuilder = new InternalModelBuilder(new Model(), null);

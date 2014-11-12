@@ -23,6 +23,9 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         private readonly MetadataDictionary<Key, InternalKeyBuilder> _keyBuilders = new MetadataDictionary<Key, InternalKeyBuilder>();
         private readonly MetadataDictionary<Property, InternalPropertyBuilder> _propertyBuilders = new MetadataDictionary<Property, InternalPropertyBuilder>();
 
+        private readonly LazyRef<Dictionary<string, ConfigurationSource>> _ignoredProperties =
+            new LazyRef<Dictionary<string, ConfigurationSource>>(() => new Dictionary<string, ConfigurationSource>());
+
         private readonly LazyRef<MetadataDictionary<ForeignKey, InternalRelationshipBuilder>> _relationshipBuilders =
             new LazyRef<MetadataDictionary<ForeignKey, InternalRelationshipBuilder>>(() => new MetadataDictionary<ForeignKey, InternalRelationshipBuilder>());
 
@@ -75,11 +78,63 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         private InternalPropertyBuilder InternalProperty(Type propertyType, string name, bool shadowProperty, ConfigurationSource configurationSource)
         {
+            if (!CanAdd(name, configurationSource))
+            {
+                return null;
+            }
+
             return _propertyBuilders.GetOrAdd(
                 () => Metadata.TryGetProperty(name),
                 () => Metadata.AddProperty(name, propertyType, shadowProperty),
                 (property, isNew) => new InternalPropertyBuilder(property, ModelBuilder, configurationSource),
                 configurationSource);
+        }
+
+        private bool CanAdd(string name, ConfigurationSource configurationSource)
+        {
+            ConfigurationSource ignoredConfigurationSource;
+            if (_ignoredProperties.HasValue
+                && _ignoredProperties.Value.TryGetValue(name, out ignoredConfigurationSource))
+            {
+                if (!configurationSource.Overrides(ignoredConfigurationSource))
+                {
+                    return false;
+                }
+
+                _ignoredProperties.Value.Remove(name);
+            }
+
+            return true;
+        }
+
+        public virtual bool Ignore([NotNull] string name, ConfigurationSource configurationSource)
+        {
+            Check.NotEmpty(name, "name");
+
+            ConfigurationSource ignoredConfigurationSource;
+            if (_ignoredProperties.Value.TryGetValue(name, out ignoredConfigurationSource))
+            {
+                if (!configurationSource.Overrides(ignoredConfigurationSource)
+                    || configurationSource == ignoredConfigurationSource)
+                {
+                    return true;
+                }
+            }
+
+            var property = Metadata.TryGetProperty(name);
+            if (property != null)
+            {
+                if (!_propertyBuilders.Remove(property, configurationSource))
+                {
+                    return false;
+                }
+
+                Metadata.RemoveProperty(property);
+            }
+
+            _ignoredProperties.Value[name] = configurationSource;
+
+            return true;
         }
 
         public virtual InternalForeignKeyBuilder ForeignKey(
