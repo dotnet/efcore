@@ -202,7 +202,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity.Tests
                     await server.CreateClient().PostAsync("http://localhost" + MigrationsEndPointOptions.DefaultPath, formData));
 
                 Assert.Equal(StringsHelpers.GetResourceString("MigrationsEndPointMiddleware_Exception", typeof(BloggingContextWithSnapshotThatThrows)), ex.Message);
-                Assert.Equal("Welcome to the invalid migration!", ex.InnerException.Message);
+                Assert.Equal("Welcome to the invalid snapshot!", ex.InnerException.Message);
             }
         }
     }
