@@ -5,7 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Tests;
+using Microsoft.Data.Entity.Utilities;
 using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.Tests
@@ -30,24 +32,18 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         {
             var sequentialGuidIdentityGenerator = new SequentialGuidValueGenerator();
 
-            var stateEntry = TestHelpers.CreateStateEntry<WithGuid>(_model);
-            var property = stateEntry.EntityType.GetProperty("Id");
+            var property = _model.GetEntityType(typeof(WithGuid)).GetProperty("Id");
 
             var values = new HashSet<Guid>();
             for (var i = 0; i < 100; i++)
             {
-                if (async)
-                {
-                    await sequentialGuidIdentityGenerator.NextAsync(stateEntry, property);
-                }
-                else
-                {
-                    sequentialGuidIdentityGenerator.Next(stateEntry, property);
-                }
+                var generatedValue = async
+                    ? await sequentialGuidIdentityGenerator.NextAsync(property, new LazyRef<DataStoreServices>(() => null))
+                    : sequentialGuidIdentityGenerator.Next(property, new LazyRef<DataStoreServices>(() => null));
 
-                Assert.False(stateEntry.HasTemporaryValue(property));
+                Assert.False(generatedValue.IsTemporary);
 
-                values.Add((Guid)stateEntry[property]);
+                values.Add((Guid)generatedValue.Value);
             }
 
             // Check all generated values are different--functional test checks ordering on SQL Server

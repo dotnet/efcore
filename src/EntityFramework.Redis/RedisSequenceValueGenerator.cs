@@ -4,10 +4,11 @@
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Redis.Utilities;
+using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Redis
 {
@@ -18,23 +19,24 @@ namespace Microsoft.Data.Entity.Redis
         {
         }
 
-        public override long GetNewCurrentValue(StateEntry stateEntry, IProperty property)
+        protected override long GetNewCurrentValue(IProperty property, LazyRef<DataStoreServices> dataStoreServices)
         {
-            // TODO: Decouple from DbContextConfiguration (Issue #641)
-            var database = (RedisDatabase)stateEntry.Configuration.Database;
+            Check.NotNull(property, "property");
+            Check.NotNull(dataStoreServices, "dataStoreServices");
+
+            var database = (RedisDatabase)dataStoreServices.Value.Database;
             return database.GetNextGeneratedValue(property, BlockSize, SequenceName);
         }
 
-        public override async Task<long> GetNewCurrentValueAsync(
-            StateEntry stateEntry, IProperty property, CancellationToken cancellationToken)
+        protected override async Task<long> GetNewCurrentValueAsync(
+            IProperty property, LazyRef<DataStoreServices> dataStoreServices, CancellationToken cancellationToken)
         {
-            Check.NotNull(stateEntry, "stateEntry");
             Check.NotNull(property, "property");
+            Check.NotNull(dataStoreServices, "dataStoreServices");
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            // TODO: Decouple from DbContextConfiguration (Issue #641)
-            var database = (RedisDatabase)stateEntry.Configuration.Database;
+            var database = (RedisDatabase)dataStoreServices.Value.Database;
 
             return
                 await database.GetNextGeneratedValueAsync(

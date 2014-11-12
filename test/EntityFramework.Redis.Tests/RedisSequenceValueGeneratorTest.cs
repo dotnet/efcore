@@ -6,9 +6,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Redis.Extensions;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Tests;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
@@ -25,169 +25,170 @@ namespace Microsoft.Data.Entity.Redis.Tests
         [Fact]
         public void Generates_sequential_values()
         {
-            var stateEntry = CreateStateEntry();
-
-            var property = stateEntry.EntityType.GetProperty("Id");
+            var storeServices = CreateStoreServices();
+            var entityType = _model.GetEntityType(typeof(AnEntity));
+            var property = entityType.GetProperty("Id");
             var sequenceName = RedisDatabase.ConstructRedisValueGeneratorKeyName(property);
             const int blockSize = 1;
 
-            var intProperty = stateEntry.EntityType.GetProperty("Id");
-            var longProperty = stateEntry.EntityType.GetProperty("Long");
-            var shortProperty = stateEntry.EntityType.GetProperty("Short");
-            var byteProperty = stateEntry.EntityType.GetProperty("Byte");
-            var uintProperty = stateEntry.EntityType.GetProperty("UnsignedInt");
-            var ulongProperty = stateEntry.EntityType.GetProperty("UnsignedLong");
-            var ushortProperty = stateEntry.EntityType.GetProperty("UnsignedShort");
-            var sbyteProperty = stateEntry.EntityType.GetProperty("SignedByte");
+            var intProperty = entityType.GetProperty("Id");
+            var longProperty = entityType.GetProperty("Long");
+            var shortProperty = entityType.GetProperty("Short");
+            var byteProperty = entityType.GetProperty("Byte");
+            var uintProperty = entityType.GetProperty("UnsignedInt");
+            var ulongProperty = entityType.GetProperty("UnsignedLong");
+            var ushortProperty = entityType.GetProperty("UnsignedShort");
+            var sbyteProperty = entityType.GetProperty("SignedByte");
 
             var generator = new RedisSequenceValueGenerator(sequenceName, blockSize);
 
             for (var i = 0; i < 15; i++)
             {
-                generator.Next(stateEntry, intProperty);
+                var generatedValue = generator.Next(intProperty, storeServices);
 
-                Assert.Equal(i, stateEntry[intProperty]);
-                Assert.False(stateEntry.HasTemporaryValue(intProperty));
+                Assert.Equal(i, generatedValue.Value);
+                Assert.False(generatedValue.IsTemporary);
             }
 
             for (var i = 15; i < 30; i++)
             {
-                generator.Next(stateEntry, longProperty);
+                var generatedValue = generator.Next(longProperty, storeServices);
 
-                Assert.Equal((long)i, stateEntry[longProperty]);
-                Assert.False(stateEntry.HasTemporaryValue(longProperty));
+                Assert.Equal((long)i, generatedValue.Value);
+                Assert.False(generatedValue.IsTemporary);
             }
 
             for (var i = 30; i < 45; i++)
             {
-                generator.Next(stateEntry, shortProperty);
+                var generatedValue = generator.Next(shortProperty, storeServices);
 
-                Assert.Equal((short)i, stateEntry[shortProperty]);
-                Assert.False(stateEntry.HasTemporaryValue(shortProperty));
+                Assert.Equal((short)i, generatedValue.Value);
+                Assert.False(generatedValue.IsTemporary);
             }
 
             for (var i = 45; i < 60; i++)
             {
-                generator.Next(stateEntry, byteProperty);
+                var generatedValue = generator.Next(byteProperty, storeServices);
 
-                Assert.Equal((byte)i, stateEntry[byteProperty]);
-                Assert.False(stateEntry.HasTemporaryValue(byteProperty));
+                Assert.Equal((byte)i, generatedValue.Value);
+                Assert.False(generatedValue.IsTemporary);
             }
 
             for (var i = 60; i < 75; i++)
             {
-                generator.Next(stateEntry, uintProperty);
+                var generatedValue = generator.Next(uintProperty, storeServices);
 
-                Assert.Equal((uint)i, stateEntry[uintProperty]);
-                Assert.False(stateEntry.HasTemporaryValue(uintProperty));
+                Assert.Equal((uint)i, generatedValue.Value);
+                Assert.False(generatedValue.IsTemporary);
             }
 
             for (var i = 75; i < 90; i++)
             {
-                generator.Next(stateEntry, ulongProperty);
+                var generatedValue = generator.Next(ulongProperty, storeServices);
 
-                Assert.Equal((ulong)i, stateEntry[ulongProperty]);
-                Assert.False(stateEntry.HasTemporaryValue(ulongProperty));
+                Assert.Equal((ulong)i, generatedValue.Value);
+                Assert.False(generatedValue.IsTemporary);
             }
 
             for (var i = 90; i < 105; i++)
             {
-                generator.Next(stateEntry, ushortProperty);
+                var generatedValue = generator.Next(ushortProperty, storeServices);
 
-                Assert.Equal((ushort)i, stateEntry[ushortProperty]);
-                Assert.False(stateEntry.HasTemporaryValue(ushortProperty));
+                Assert.Equal((ushort)i, generatedValue.Value);
+                Assert.False(generatedValue.IsTemporary);
             }
 
             for (var i = 105; i < 120; i++)
             {
-                generator.Next(stateEntry, sbyteProperty);
+                var generatedValue = generator.Next(sbyteProperty, storeServices);
 
-                Assert.Equal((sbyte)i, stateEntry[sbyteProperty]);
-                Assert.False(stateEntry.HasTemporaryValue(sbyteProperty));
+                Assert.Equal((sbyte)i, generatedValue.Value);
+                Assert.False(generatedValue.IsTemporary);
             }
         }
 
         [Fact]
         public async Task Generates_sequential_values_async()
         {
-            var stateEntry = CreateStateEntry();
-            var property = stateEntry.EntityType.GetProperty("Id");
+            var storeServices = CreateStoreServices();
+            var entityType = _model.GetEntityType(typeof(AnEntity));
+            var property = entityType.GetProperty("Id");
             var sequenceName = RedisDatabase.ConstructRedisValueGeneratorKeyName(property);
             const int blockSize = 1;
 
-            var intProperty = stateEntry.EntityType.GetProperty("Id");
-            var longProperty = stateEntry.EntityType.GetProperty("Long");
-            var shortProperty = stateEntry.EntityType.GetProperty("Short");
-            var byteProperty = stateEntry.EntityType.GetProperty("Byte");
-            var uintProperty = stateEntry.EntityType.GetProperty("UnsignedInt");
-            var ulongProperty = stateEntry.EntityType.GetProperty("UnsignedLong");
-            var ushortProperty = stateEntry.EntityType.GetProperty("UnsignedShort");
-            var sbyteProperty = stateEntry.EntityType.GetProperty("SignedByte");
+            var intProperty = entityType.GetProperty("Id");
+            var longProperty = entityType.GetProperty("Long");
+            var shortProperty = entityType.GetProperty("Short");
+            var byteProperty = entityType.GetProperty("Byte");
+            var uintProperty = entityType.GetProperty("UnsignedInt");
+            var ulongProperty = entityType.GetProperty("UnsignedLong");
+            var ushortProperty = entityType.GetProperty("UnsignedShort");
+            var sbyteProperty = entityType.GetProperty("SignedByte");
 
             var generator = new RedisSequenceValueGenerator(sequenceName, blockSize);
 
             for (var i = 0; i < 15; i++)
             {
-                await generator.NextAsync(stateEntry, intProperty);
+                var generatedValue = await generator.NextAsync(intProperty, storeServices);
 
-                Assert.Equal(i, stateEntry[intProperty]);
-                Assert.False(stateEntry.HasTemporaryValue(intProperty));
+                Assert.Equal(i, generatedValue.Value);
+                Assert.False(generatedValue.IsTemporary);
             }
 
             for (var i = 15; i < 30; i++)
             {
-                await generator.NextAsync(stateEntry, longProperty);
+                var generatedValue = await generator.NextAsync(longProperty, storeServices);
 
-                Assert.Equal((long)i, stateEntry[longProperty]);
-                Assert.False(stateEntry.HasTemporaryValue(longProperty));
+                Assert.Equal((long)i, generatedValue.Value);
+                Assert.False(generatedValue.IsTemporary);
             }
 
             for (var i = 30; i < 45; i++)
             {
-                await generator.NextAsync(stateEntry, shortProperty);
+                var generatedValue = await generator.NextAsync(shortProperty, storeServices);
 
-                Assert.Equal((short)i, stateEntry[shortProperty]);
-                Assert.False(stateEntry.HasTemporaryValue(shortProperty));
+                Assert.Equal((short)i, generatedValue.Value);
+                Assert.False(generatedValue.IsTemporary);
             }
 
             for (var i = 45; i < 60; i++)
             {
-                await generator.NextAsync(stateEntry, byteProperty);
+                var generatedValue = await generator.NextAsync(byteProperty, storeServices);
 
-                Assert.Equal((byte)i, stateEntry[byteProperty]);
-                Assert.False(stateEntry.HasTemporaryValue(byteProperty));
+                Assert.Equal((byte)i, generatedValue.Value);
+                Assert.False(generatedValue.IsTemporary);
             }
 
             for (var i = 60; i < 75; i++)
             {
-                await generator.NextAsync(stateEntry, uintProperty);
+                var generatedValue = await generator.NextAsync(uintProperty, storeServices);
 
-                Assert.Equal((uint)i, stateEntry[uintProperty]);
-                Assert.False(stateEntry.HasTemporaryValue(uintProperty));
+                Assert.Equal((uint)i, generatedValue.Value);
+                Assert.False(generatedValue.IsTemporary);
             }
 
             for (var i = 75; i < 90; i++)
             {
-                await generator.NextAsync(stateEntry, ulongProperty);
+                var generatedValue = await generator.NextAsync(ulongProperty, storeServices);
 
-                Assert.Equal((ulong)i, stateEntry[ulongProperty]);
-                Assert.False(stateEntry.HasTemporaryValue(ulongProperty));
+                Assert.Equal((ulong)i, generatedValue.Value);
+                Assert.False(generatedValue.IsTemporary);
             }
 
             for (var i = 90; i < 105; i++)
             {
-                await generator.NextAsync(stateEntry, ushortProperty);
+                var generatedValue = await generator.NextAsync(ushortProperty, storeServices);
 
-                Assert.Equal((ushort)i, stateEntry[ushortProperty]);
-                Assert.False(stateEntry.HasTemporaryValue(ushortProperty));
+                Assert.Equal((ushort)i, generatedValue.Value);
+                Assert.False(generatedValue.IsTemporary);
             }
 
             for (var i = 105; i < 120; i++)
             {
-                await generator.NextAsync(stateEntry, sbyteProperty);
+                var generatedValue = await generator.NextAsync(sbyteProperty, storeServices);
 
-                Assert.Equal((sbyte)i, stateEntry[sbyteProperty]);
-                Assert.False(stateEntry.HasTemporaryValue(sbyteProperty));
+                Assert.Equal((sbyte)i, generatedValue.Value);
+                Assert.False(generatedValue.IsTemporary);
             }
         }
 
@@ -216,13 +217,13 @@ namespace Microsoft.Data.Entity.Redis.Tests
                 generatedValues[testNumber] = new List<long>();
                 tests[testNumber] = () =>
                     {
-                        var stateEntry = CreateStateEntry(serviceProvider);
+                        var storeServices = CreateStoreServices(serviceProvider);
 
                         for (var j = 0; j < valueCount; j++)
                         {
-                            generator.Next(stateEntry, property);
+                            var generatedValue = generator.Next(property, storeServices);
 
-                            generatedValues[testNumber].Add((long)stateEntry[property]);
+                            generatedValues[testNumber].Add((long)generatedValue.Value);
                         }
                     };
             }
@@ -268,13 +269,13 @@ namespace Microsoft.Data.Entity.Redis.Tests
                 generatedValues[testNumber] = new List<long>();
                 tests[testNumber] = async () =>
                     {
-                        var stateEntry = CreateStateEntry(serviceProvider);
+                        var storeServices = CreateStoreServices(serviceProvider);
 
                         for (var j = 0; j < valueCount; j++)
                         {
-                            await generator.NextAsync(stateEntry, property);
+                            var generatedValue = await generator.NextAsync(property, storeServices);
 
-                            generatedValues[testNumber].Add((long)stateEntry[property]);
+                            generatedValues[testNumber].Add((long)generatedValue.Value);
                         }
                     };
             }
@@ -306,16 +307,16 @@ namespace Microsoft.Data.Entity.Redis.Tests
             const int blockSize = 10;
 
             var generator = new RedisSequenceValueGenerator("TestSequenceName", blockSize);
-            var stateEntry = CreateStateEntry();
+            var storeServices = CreateStoreServices();
 
             var property = _model.GetEntityType(typeof(AnEntity)).GetProperty("Long");
 
             for (var l = 0L; l < 100L; l++)
             {
-                generator.Next(stateEntry, property);
+                var generatedValue = generator.Next(property, storeServices);
 
-                Assert.Equal(l, stateEntry[property]);
-                Assert.False(stateEntry.HasTemporaryValue(property));
+                Assert.Equal(l, generatedValue.Value);
+                Assert.False(generatedValue.IsTemporary);
             }
         }
 
@@ -331,7 +332,7 @@ namespace Microsoft.Data.Entity.Redis.Tests
             public sbyte SignedByte { get; set; }
         }
 
-        private StateEntry CreateStateEntry(IServiceProvider serviceProvider = null)
+        private LazyRef<DataStoreServices> CreateStoreServices(IServiceProvider serviceProvider = null)
         {
             serviceProvider = serviceProvider ?? new ServiceCollection()
                 .AddEntityFramework()
@@ -346,10 +347,7 @@ namespace Microsoft.Data.Entity.Redis.Tests
                     .UseModel(_model)
                     .UseRedis("127.0.0.1", 6375)).Configuration;
 
-            return configuration
-                .Services
-                .StateEntryFactory
-                .Create(_model.GetEntityType(typeof(AnEntity)), new AnEntity());
+            return configuration.ScopedServiceProvider.GetService<LazyRef<DataStoreServices>>();
         }
 
         private class FakeRedisSequence

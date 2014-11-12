@@ -3,7 +3,6 @@
 
 using System;
 using System.Threading;
-using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.SqlServer.Utilities;
@@ -14,9 +13,8 @@ namespace Microsoft.Data.Entity.SqlServer
     {
         private long _counter = DateTime.UtcNow.Ticks;
 
-        public override void Next(StateEntry stateEntry, IProperty property)
+        public override GeneratedValue Next(IProperty property)
         {
-            Check.NotNull(stateEntry, "stateEntry");
             Check.NotNull(property, "property");
 
             var guidBytes = Guid.NewGuid().ToByteArray();
@@ -36,7 +34,7 @@ namespace Microsoft.Data.Entity.SqlServer
             guidBytes[14] = counterBytes[3];
             guidBytes[15] = counterBytes[2];
 
-            stateEntry[property] = new Guid(guidBytes);
+            return new GeneratedValue(new Guid(guidBytes));
         }
     }
 }

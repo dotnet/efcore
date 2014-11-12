@@ -4,18 +4,21 @@
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Identity
 {
     public interface IValueGenerator
     {
-        void Next([NotNull] StateEntry stateEntry, [NotNull] IProperty property);
-
-        Task NextAsync(
-            [NotNull] StateEntry stateEntry,
+        GeneratedValue Next(
             [NotNull] IProperty property,
+            [NotNull] LazyRef<DataStoreServices> dataStoreServices);
+
+        Task<GeneratedValue> NextAsync(
+            [NotNull] IProperty property,
+            [NotNull] LazyRef<DataStoreServices> dataStoreServices,
             CancellationToken cancellationToken = default(CancellationToken));
     }
 }

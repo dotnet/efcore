@@ -11,7 +11,6 @@ namespace Microsoft.Data.Entity.Identity
     public class ValueGeneratorCache
     {
         private readonly ValueGeneratorSelector _selector;
-        private readonly ForeignKeyValueGenerator _foreignKeyValueGenerator;
 
         private readonly ThreadSafeDictionaryCache<string, IValueGeneratorPool> _cache
             = new ThreadSafeDictionaryCache<string, IValueGeneratorPool>();
@@ -25,25 +24,16 @@ namespace Microsoft.Data.Entity.Identity
         {
         }
 
-        public ValueGeneratorCache(
-            [NotNull] ValueGeneratorSelector selector,
-            [NotNull] ForeignKeyValueGenerator foreignKeyValueGenerator)
+        public ValueGeneratorCache([NotNull] ValueGeneratorSelector selector)
         {
             Check.NotNull(selector, "selector");
-            Check.NotNull(foreignKeyValueGenerator, "foreignKeyValueGenerator");
 
             _selector = selector;
-            _foreignKeyValueGenerator = foreignKeyValueGenerator;
         }
 
         public virtual IValueGenerator GetGenerator([NotNull] IProperty property)
         {
             Check.NotNull(property, "property");
-
-            if (property.IsForeignKey())
-            {
-                return _foreignKeyValueGenerator;
-            }
 
             var factory = _selector.Select(property);
 

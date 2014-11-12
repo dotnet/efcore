@@ -70,7 +70,9 @@
     <Compile Include="ChangeTracking\IPropertyBagEntry.cs" />
     <Compile Include="ChangeTracking\SimpleNullableEntityKeyFactory.cs" />
     <Compile Include="ChangeTracking\StateEntryMetadataServices.cs" />
+    <Compile Include="ChangeTracking\ValueGenerationManager.cs" />
     <Compile Include="DbContext.cs" />
+    <Compile Include="Identity\GeneratedValue.cs" />
     <Compile Include="Infrastructure\DbContextActivator.cs" />
     <Compile Include="DbContextOptions.cs" />
     <Compile Include="DbContextOptions`.cs" />
@@ -82,7 +84,7 @@
     <Compile Include="ChangeTracking\PropertyBagExtensions.cs" />
     <Compile Include="Extensions\TaskExtensions.cs" />
     <Compile Include="Identity\BlockOfSequentialValuesGenerator.cs" />
-    <Compile Include="Identity\ForeignKeyValueGenerator.cs" />
+    <Compile Include="Identity\ForeignKeyValuePropagator.cs" />
     <Compile Include="Identity\GuidValueGenerator.cs" />
     <Compile Include="Identity\IValueGenerator.cs" />
     <Compile Include="Identity\IValueGeneratorFactory.cs" />

@@ -16,8 +16,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
             DbContextConfiguration configuration,
             StateEntryFactory factory,
             EntityKeyFactorySource entityKeyFactorySource,
-            StateEntrySubscriber subscriber)
-            : base(configuration, factory, entityKeyFactorySource, subscriber)
+            StateEntrySubscriber subscriber,
+            ValueGenerationManager valueGeneration)
+            : base(configuration, factory, entityKeyFactorySource, subscriber, valueGeneration)
         {
         }
 

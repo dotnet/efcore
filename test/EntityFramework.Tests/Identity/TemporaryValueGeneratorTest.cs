@@ -5,6 +5,8 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Utilities;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Tests.Identity
@@ -16,125 +18,125 @@ namespace Microsoft.Data.Entity.Tests.Identity
         [Fact]
         public async Task Creates_negative_values()
         {
+            var property = _model.GetEntityType(typeof(AnEntity)).GetProperty("Id");
+
             var generator = new TemporaryValueGenerator();
 
-            var stateEntry = TestHelpers.CreateStateEntry<AnEntity>(_model);
-            var property = stateEntry.EntityType.GetProperty("Id");
+            var generatedValue = await generator.NextAsync(property, new LazyRef<DataStoreServices>(() => null));
 
-            await generator.NextAsync(stateEntry, property);
+            Assert.Equal(-1, generatedValue.Value);
+            Assert.True(generatedValue.IsTemporary);
 
-            Assert.Equal(-1, stateEntry[property]);
-            Assert.True(stateEntry.HasTemporaryValue(property));
+            generatedValue = await generator.NextAsync(property, new LazyRef<DataStoreServices>(() => null));
 
-            await generator.NextAsync(stateEntry, property);
+            Assert.Equal(-2, generatedValue.Value);
+            Assert.True(generatedValue.IsTemporary);
 
-            Assert.Equal(-2, stateEntry[property]);
-            Assert.True(stateEntry.HasTemporaryValue(property));
+            generatedValue = await generator.NextAsync(property, new LazyRef<DataStoreServices>(() => null));
 
-            await generator.NextAsync(stateEntry, property);
+            Assert.Equal(-3, generatedValue.Value);
+            Assert.True(generatedValue.IsTemporary);
 
-            Assert.Equal(-3, stateEntry[property]);
-            Assert.True(stateEntry.HasTemporaryValue(property));
+            generatedValue = generator.Next(property, new LazyRef<DataStoreServices>(() => null));
 
-            generator.Next(stateEntry, property);
+            Assert.Equal(-4, generatedValue.Value);
+            Assert.True(generatedValue.IsTemporary);
 
-            Assert.Equal(-4, stateEntry[property]);
-            Assert.True(stateEntry.HasTemporaryValue(property));
+            generatedValue = generator.Next(property, new LazyRef<DataStoreServices>(() => null));
 
-            generator.Next(stateEntry, property);
+            Assert.Equal(-5, generatedValue.Value);
+            Assert.True(generatedValue.IsTemporary);
 
-            Assert.Equal(-5, stateEntry[property]);
-            Assert.True(stateEntry.HasTemporaryValue(property));
+            generatedValue = generator.Next(property, new LazyRef<DataStoreServices>(() => null));
 
-            generator.Next(stateEntry, property);
-
-            Assert.Equal(-6, stateEntry[property]);
-            Assert.True(stateEntry.HasTemporaryValue(property));
+            Assert.Equal(-6, generatedValue.Value);
+            Assert.True(generatedValue.IsTemporary);
         }
 
         [Fact]
         public async Task Can_create_values_for_all_integer_types_except_byte()
         {
+            var entityType = _model.GetEntityType(typeof(AnEntity));
+
+            var intProperty = entityType.GetProperty("Id");
+            var longProperty = entityType.GetProperty("Long");
+            var shortProperty = entityType.GetProperty("Short");
+            var nullableIntProperty = entityType.GetProperty("NullableId");
+            var nullableLongProperty = entityType.GetProperty("NullableLong");
+            var nullableShortProperty = entityType.GetProperty("NullableShort");
+
             var generator = new TemporaryValueGenerator();
+            
+            var generatedValue = await generator.NextAsync(longProperty, new LazyRef<DataStoreServices>(() => null));
 
-            var stateEntry = TestHelpers.CreateStateEntry<AnEntity>(_model);
-            var intProperty = stateEntry.EntityType.GetProperty("Id");
-            var longProperty = stateEntry.EntityType.GetProperty("Long");
-            var shortProperty = stateEntry.EntityType.GetProperty("Short");
-            var nullableIntProperty = stateEntry.EntityType.GetProperty("NullableId");
-            var nullableLongProperty = stateEntry.EntityType.GetProperty("NullableLong");
-            var nullableShortProperty = stateEntry.EntityType.GetProperty("NullableShort");
+            Assert.Equal(-1L, generatedValue.Value);
+            Assert.True(generatedValue.IsTemporary);
 
-            await generator.NextAsync(stateEntry, longProperty);
+            generatedValue = await generator.NextAsync(intProperty, new LazyRef<DataStoreServices>(() => null));
 
-            Assert.Equal(-1L, stateEntry[longProperty]);
-            Assert.True(stateEntry.HasTemporaryValue(longProperty));
+            Assert.Equal(-2, generatedValue.Value);
+            Assert.True(generatedValue.IsTemporary);
 
-            await generator.NextAsync(stateEntry, intProperty);
+            generatedValue = await generator.NextAsync(shortProperty, new LazyRef<DataStoreServices>(() => null));
 
-            Assert.Equal(-2, stateEntry[intProperty]);
-            Assert.True(stateEntry.HasTemporaryValue(intProperty));
+            Assert.Equal((short)-3, generatedValue.Value);
+            Assert.True(generatedValue.IsTemporary);
 
-            await generator.NextAsync(stateEntry, shortProperty);
+            generatedValue = generator.Next(longProperty, new LazyRef<DataStoreServices>(() => null));
 
-            Assert.Equal((short)-3, stateEntry[shortProperty]);
-            Assert.True(stateEntry.HasTemporaryValue(shortProperty));
+            Assert.Equal(-4L, generatedValue.Value);
+            Assert.True(generatedValue.IsTemporary);
 
-            generator.Next(stateEntry, longProperty);
+            generatedValue = generator.Next(intProperty, new LazyRef<DataStoreServices>(() => null));
 
-            Assert.Equal(-4L, stateEntry[longProperty]);
-            Assert.True(stateEntry.HasTemporaryValue(longProperty));
+            Assert.Equal(-5, generatedValue.Value);
+            Assert.True(generatedValue.IsTemporary);
 
-            generator.Next(stateEntry, intProperty);
+            generatedValue = generator.Next(shortProperty, new LazyRef<DataStoreServices>(() => null));
 
-            Assert.Equal(-5, stateEntry[intProperty]);
-            Assert.True(stateEntry.HasTemporaryValue(intProperty));
+            Assert.Equal((short)-6, generatedValue.Value);
+            Assert.True(generatedValue.IsTemporary);
 
-            generator.Next(stateEntry, shortProperty);
+            generatedValue = await generator.NextAsync(nullableLongProperty, new LazyRef<DataStoreServices>(() => null));
 
-            Assert.Equal((short)-6, stateEntry[shortProperty]);
-            Assert.True(stateEntry.HasTemporaryValue(shortProperty));
+            Assert.Equal(-7L, generatedValue.Value);
+            Assert.True(generatedValue.IsTemporary);
 
-            await generator.NextAsync(stateEntry, nullableLongProperty);
+            generatedValue = await generator.NextAsync(nullableIntProperty, new LazyRef<DataStoreServices>(() => null));
 
-            Assert.Equal(-7L, stateEntry[nullableLongProperty]);
-            Assert.True(stateEntry.HasTemporaryValue(nullableLongProperty));
+            Assert.Equal(-8, generatedValue.Value);
+            Assert.True(generatedValue.IsTemporary);
 
-            await generator.NextAsync(stateEntry, nullableIntProperty);
+            generatedValue = await generator.NextAsync(nullableShortProperty, new LazyRef<DataStoreServices>(() => null));
 
-            Assert.Equal(-8, stateEntry[nullableIntProperty]);
-            Assert.True(stateEntry.HasTemporaryValue(nullableIntProperty));
+            Assert.Equal((short)-9, generatedValue.Value);
+            Assert.True(generatedValue.IsTemporary);
 
-            await generator.NextAsync(stateEntry, nullableShortProperty);
+            generatedValue = generator.Next(nullableLongProperty, new LazyRef<DataStoreServices>(() => null));
 
-            Assert.Equal((short)-9, stateEntry[nullableShortProperty]);
-            Assert.True(stateEntry.HasTemporaryValue(nullableShortProperty));
+            Assert.Equal(-10L, generatedValue.Value);
+            Assert.True(generatedValue.IsTemporary);
 
-            generator.Next(stateEntry, nullableLongProperty);
+            generatedValue = generator.Next(nullableIntProperty, new LazyRef<DataStoreServices>(() => null));
 
-            Assert.Equal(-10L, stateEntry[nullableLongProperty]);
-            Assert.True(stateEntry.HasTemporaryValue(nullableLongProperty));
+            Assert.Equal(-11, generatedValue.Value);
+            Assert.True(generatedValue.IsTemporary);
 
-            generator.Next(stateEntry, nullableIntProperty);
+            generatedValue = generator.Next(nullableShortProperty, new LazyRef<DataStoreServices>(() => null));
 
-            Assert.Equal(-11, stateEntry[nullableIntProperty]);
-            Assert.True(stateEntry.HasTemporaryValue(nullableIntProperty));
-
-            generator.Next(stateEntry, nullableShortProperty);
-
-            Assert.Equal((short)-12, stateEntry[nullableShortProperty]);
-            Assert.True(stateEntry.HasTemporaryValue(nullableShortProperty));
+            Assert.Equal((short)-12, generatedValue.Value);
+            Assert.True(generatedValue.IsTemporary);
         }
 
         [Fact]
         public void Throws_when_type_conversion_would_overflow()
         {
+            var entityType = _model.GetEntityType(typeof(AnEntity));
+
             var generator = new TemporaryValueGenerator();
 
-            var stateEntry = TestHelpers.CreateStateEntry<AnEntity>(_model);
-
-            Assert.Throws<OverflowException>(() => generator.Next(stateEntry, stateEntry.EntityType.GetProperty("Byte")));
-            Assert.Throws<OverflowException>(() => generator.Next(stateEntry, stateEntry.EntityType.GetProperty("NullableByte")));
+            Assert.Throws<OverflowException>(() => generator.Next(entityType.GetProperty("Byte")));
+            Assert.Throws<OverflowException>(() => generator.Next(entityType.GetProperty("NullableByte")));
         }
 
         private class AnEntity

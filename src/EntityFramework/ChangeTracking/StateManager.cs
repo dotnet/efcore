@@ -23,6 +23,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         private readonly EntityKeyFactorySource _keyFactorySource;
         private readonly StateEntryFactory _factory;
         private readonly StateEntrySubscriber _subscriber;
+        private readonly ValueGenerationManager _valueGeneration;
         private readonly DbContextConfiguration _configuration;
 
         /// <summary>
@@ -38,17 +39,25 @@ namespace Microsoft.Data.Entity.ChangeTracking
             [NotNull] DbContextConfiguration configuration,
             [NotNull] StateEntryFactory factory,
             [NotNull] EntityKeyFactorySource entityKeyFactorySource,
-            [NotNull] StateEntrySubscriber subscriber)
+            [NotNull] StateEntrySubscriber subscriber,
+            [NotNull] ValueGenerationManager valueGeneration)
         {
             Check.NotNull(configuration, "configuration");
             Check.NotNull(factory, "factory");
             Check.NotNull(entityKeyFactorySource, "entityKeyFactorySource");
             Check.NotNull(subscriber, "subscriber");
+            Check.NotNull(valueGeneration, "valueGeneration");
 
             _configuration = configuration;
             _keyFactorySource = entityKeyFactorySource;
             _factory = factory;
             _subscriber = subscriber;
+            _valueGeneration = valueGeneration;
+        }
+
+        public virtual ValueGenerationManager ValueGeneration
+        {
+            get { return _valueGeneration; }
         }
 
         public virtual StateEntry CreateNewEntry([NotNull] IEntityType entityType)

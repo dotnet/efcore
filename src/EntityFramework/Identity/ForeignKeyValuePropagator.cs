@@ -11,7 +11,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Identity
 {
-    public class ForeignKeyValueGenerator : SimpleValueGenerator
+    public class ForeignKeyValuePropagator
     {
         private readonly ClrPropertyGetterSource _getterSource;
         private readonly ClrCollectionAccessorSource _collectionAccessorSource;
@@ -21,11 +21,11 @@ namespace Microsoft.Data.Entity.Identity
         ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
         ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
         /// </summary>
-        protected ForeignKeyValueGenerator()
+        protected ForeignKeyValuePropagator()
         {
         }
 
-        public ForeignKeyValueGenerator(
+        public ForeignKeyValuePropagator(
             [NotNull] ClrPropertyGetterSource getterSource,
             [NotNull] ClrCollectionAccessorSource collectionAccessorSource)
         {
@@ -36,8 +36,9 @@ namespace Microsoft.Data.Entity.Identity
             _collectionAccessorSource = collectionAccessorSource;
         }
 
-        public override void Next(StateEntry stateEntry, IProperty property)
+        public virtual void PropagateValue([NotNull] StateEntry stateEntry, [NotNull] IProperty property)
         {
+            Check.NotNull(stateEntry, "stateEntry");
             Check.NotNull(property, "property");
 
             Contract.Assert(property.IsForeignKey());

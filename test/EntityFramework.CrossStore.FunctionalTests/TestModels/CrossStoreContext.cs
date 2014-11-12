@@ -39,7 +39,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
                                 });
 
                         eb.Property(typeof(string), SimpleEntity.ShadowPropertyName);
-                        eb.Property(e => e.Id).GenerateValueOnAdd();
+                        eb.Property(e => e.Id).GenerateValueOnAdd(false);
                         eb.Key(e => e.Id);
                     });
         }

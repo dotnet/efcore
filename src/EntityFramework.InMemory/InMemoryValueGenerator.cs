@@ -3,7 +3,6 @@
 
 using System;
 using System.Threading;
-using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.InMemory.Utilities;
 using Microsoft.Data.Entity.Metadata;
@@ -14,12 +13,11 @@ namespace Microsoft.Data.Entity.InMemory
     {
         private long _current;
 
-        public override void Next(StateEntry stateEntry, IProperty property)
+        public override GeneratedValue Next(IProperty property)
         {
-            Check.NotNull(stateEntry, "stateEntry");
             Check.NotNull(property, "property");
 
-            stateEntry[property] = Convert.ChangeType(Interlocked.Increment(ref _current), property.PropertyType.UnwrapNullableType());
+            return new GeneratedValue(Convert.ChangeType(Interlocked.Increment(ref _current), property.PropertyType.UnwrapNullableType()));
         }
     }
 }

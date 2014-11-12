@@ -136,11 +136,10 @@ namespace Microsoft.Data.Entity.ChangeTracking
         private void SetEntityState(EntityState entityState)
         {
             var oldState = _stateData.EntityState;
-            var valueGenerators = PrepareForAdd(entityState);
 
-            if (valueGenerators != null)
+            if (PrepareForAdd(entityState))
             {
-                GenerateValues(valueGenerators);
+                _configuration.StateManager.ValueGeneration.Generate(this);
             }
 
             SetEntityState(oldState, entityState);
@@ -152,46 +151,21 @@ namespace Microsoft.Data.Entity.ChangeTracking
             Check.IsDefined(entityState, "entityState");
 
             var oldState = _stateData.EntityState;
-            var valueGenerators = PrepareForAdd(entityState);
 
-            if (valueGenerators != null)
+            if (PrepareForAdd(entityState))
             {
-                await GenerateValuesAsync(valueGenerators, cancellationToken).WithCurrentCulture();
+                await _configuration.StateManager.ValueGeneration.GenerateAsync(this, cancellationToken).WithCurrentCulture();
             }
 
             SetEntityState(oldState, entityState);
         }
 
-        private void GenerateValues(IEnumerable<Tuple<IProperty, IValueGenerator>> generators)
-        {
-            Contract.Assert(generators != null);
-
-            foreach (var generator in generators)
-            {
-                var property = generator.Item1;
-                generator.Item2.Next(this, property);
-            }
-        }
-
-        private async Task GenerateValuesAsync(
-            IEnumerable<Tuple<IProperty, IValueGenerator>> generators, CancellationToken cancellationToken)
-        {
-            Contract.Assert(generators != null);
-
-            foreach (var generator in generators)
-            {
-                var property = generator.Item1;
-                await generator.Item2.NextAsync(this, property, cancellationToken)
-                    .WithCurrentCulture();
-            }
-        }
-
-        private IEnumerable<Tuple<IProperty, IValueGenerator>> PrepareForAdd(EntityState newState)
+        private bool PrepareForAdd(EntityState newState)
         {
             if (newState != EntityState.Added
                 || EntityState == EntityState.Added)
             {
-                return null;
+                return false;
             }
 
             // Temporarily change the internal state to unknown so that key generation, including setting key values
@@ -200,14 +174,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             _stateData.FlagAllProperties(EntityType.Properties.Count(), isFlagged: false);
 
-            var generators = EntityType.Properties
-                .Where(p => (p.GenerateValueOnAdd || p.IsForeignKey()) && this.HasDefaultValue(p))
-                .Select(p => Tuple.Create(p, _configuration.ValueGeneratorCache.GetGenerator(p)))
-                .Where(g => g.Item2 != null)
-                .ToList();
-
-            // Return null if there are no generators to avoid subsequent async method overhead
-            return generators.Count > 0 ? generators : null;
+            return true;
         }
 
         private void SetEntityState(EntityState oldState, EntityState newState)

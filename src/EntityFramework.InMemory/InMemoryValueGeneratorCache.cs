@@ -8,10 +8,8 @@ namespace Microsoft.Data.Entity.InMemory
 {
     public class InMemoryValueGeneratorCache : ValueGeneratorCache
     {
-        public InMemoryValueGeneratorCache(
-            [NotNull] InMemoryValueGeneratorSelector selector,
-            [NotNull] ForeignKeyValueGenerator foreignKeyValueGenerator)
-            : base(selector, foreignKeyValueGenerator)
+        public InMemoryValueGeneratorCache([NotNull] InMemoryValueGeneratorSelector selector)
+            : base(selector)
         {
         }
     }

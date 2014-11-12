@@ -9,7 +9,7 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.Tests.Identity
 {
-    public class ForeignKeyValueGeneratorTest
+    public class ForeignKeyValuePropagatorTest
     {
         [Fact]
         public void Foreign_key_value_is_obtained_from_reference_to_principal()
@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.Tests.Identity
             var dependentEntry = CreateContextConfiguration(model).StateManager.GetOrCreateEntry(dependent);
             var property = model.GetEntityType(typeof(Product)).GetProperty("CategoryId");
 
-            CreateValueGenerator().Next(dependentEntry, property);
+            CreateValueGenerator().PropagateValue(dependentEntry, property);
 
             Assert.Equal(11, dependentEntry[property]);
         }
@@ -41,7 +41,7 @@ namespace Microsoft.Data.Entity.Tests.Identity
             var dependentEntry = manager.GetOrCreateEntry(dependent);
             var property = model.GetEntityType(typeof(Product)).GetProperty("CategoryId");
 
-            CreateValueGenerator().Next(dependentEntry, property);
+            CreateValueGenerator().PropagateValue(dependentEntry, property);
 
             Assert.Equal(11, dependentEntry[property]);
         }
@@ -57,7 +57,7 @@ namespace Microsoft.Data.Entity.Tests.Identity
             var dependentEntry = CreateContextConfiguration(model).StateManager.GetOrCreateEntry(dependent);
             var property = model.GetEntityType(typeof(ProductDetail)).GetProperty("Id");
 
-            CreateValueGenerator().Next(dependentEntry, property);
+            CreateValueGenerator().PropagateValue(dependentEntry, property);
 
             Assert.Equal(21, dependentEntry[property]);
         }
@@ -75,7 +75,7 @@ namespace Microsoft.Data.Entity.Tests.Identity
             var dependentEntry = manager.GetOrCreateEntry(dependent);
             var property = model.GetEntityType(typeof(ProductDetail)).GetProperty("Id");
 
-            CreateValueGenerator().Next(dependentEntry, property);
+            CreateValueGenerator().PropagateValue(dependentEntry, property);
 
             Assert.Equal(21, dependentEntry[property]);
         }
@@ -92,8 +92,8 @@ namespace Microsoft.Data.Entity.Tests.Identity
             var property1 = model.GetEntityType(typeof(OrderLineDetail)).GetProperty("OrderId");
             var property2 = model.GetEntityType(typeof(OrderLineDetail)).GetProperty("ProductId");
 
-            CreateValueGenerator().Next(dependentEntry, property1);
-            CreateValueGenerator().Next(dependentEntry, property2);
+            CreateValueGenerator().PropagateValue(dependentEntry, property1);
+            CreateValueGenerator().PropagateValue(dependentEntry, property2);
 
             Assert.Equal(11, dependentEntry[property1]);
             Assert.Equal(21, dependentEntry[property2]);
@@ -113,8 +113,8 @@ namespace Microsoft.Data.Entity.Tests.Identity
             var property1 = model.GetEntityType(typeof(OrderLineDetail)).GetProperty("OrderId");
             var property2 = model.GetEntityType(typeof(OrderLineDetail)).GetProperty("ProductId");
 
-            CreateValueGenerator().Next(dependentEntry, property1);
-            CreateValueGenerator().Next(dependentEntry, property2);
+            CreateValueGenerator().PropagateValue(dependentEntry, property1);
+            CreateValueGenerator().PropagateValue(dependentEntry, property2);
 
             Assert.Equal(11, dependentEntry[property1]);
             Assert.Equal(21, dependentEntry[property2]);
@@ -220,9 +220,9 @@ namespace Microsoft.Data.Entity.Tests.Identity
             return model;
         }
 
-        private static ForeignKeyValueGenerator CreateValueGenerator()
+        private static ForeignKeyValuePropagator CreateValueGenerator()
         {
-            return new ForeignKeyValueGenerator(new ClrPropertyGetterSource(), new ClrCollectionAccessorSource(new CollectionTypeFactory()));
+            return new ForeignKeyValuePropagator(new ClrPropertyGetterSource(), new ClrCollectionAccessorSource(new CollectionTypeFactory()));
         }
     }
 }

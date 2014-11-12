@@ -3,27 +3,32 @@
 
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.ChangeTracking;
+using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Identity
 {
     public abstract class SimpleValueGenerator : IValueGenerator
     {
-        public abstract void Next(StateEntry stateEntry, IProperty property);
+        public abstract GeneratedValue Next([NotNull] IProperty property);
 
-        public virtual Task NextAsync(
-            StateEntry stateEntry,
-            IProperty property,
-            CancellationToken cancellationToken = default(CancellationToken))
+        public virtual GeneratedValue Next(IProperty property, LazyRef<DataStoreServices> dataStoreServices)
         {
-            Check.NotNull(stateEntry, "stateEntry");
             Check.NotNull(property, "property");
 
-            Next(stateEntry, property);
+            return Next(property);
+        }
 
-            return Task.FromResult(true);
+        public virtual Task<GeneratedValue> NextAsync(
+            IProperty property,
+            LazyRef<DataStoreServices> dataStoreServices,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Check.NotNull(property, "property");
+
+            return Task.FromResult(Next(property));
         }
     }
 }

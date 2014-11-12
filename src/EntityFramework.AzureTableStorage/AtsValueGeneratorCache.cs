@@ -4,7 +4,6 @@
 using System;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Identity;
-using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.AzureTableStorage
 {
@@ -19,16 +18,9 @@ namespace Microsoft.Data.Entity.AzureTableStorage
         {
         }
 
-        public AtsValueGeneratorCache(
-            [NotNull] ValueGeneratorSelector selector, [NotNull] ForeignKeyValueGenerator foreignKeyValueGenerator)
-            : base(selector, foreignKeyValueGenerator)
+        public AtsValueGeneratorCache([NotNull] ValueGeneratorSelector selector)
+            : base(selector)
         {
-        }
-
-        public override IValueGenerator GetGenerator(IProperty property)
-        {
-            //TODO Timestamp? ETag?
-            return null;
         }
     }
 }

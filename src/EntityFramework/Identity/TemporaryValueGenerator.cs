@@ -3,7 +3,6 @@
 
 using System;
 using System.Threading;
-using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
@@ -13,13 +12,13 @@ namespace Microsoft.Data.Entity.Identity
     {
         private long _current;
 
-        public override void Next(StateEntry stateEntry, IProperty property)
+        public override GeneratedValue Next(IProperty property)
         {
-            Check.NotNull(stateEntry, "stateEntry");
             Check.NotNull(property, "property");
 
-            stateEntry[property] = Convert.ChangeType(Interlocked.Decrement(ref _current), property.PropertyType.UnwrapNullableType());
-            stateEntry.MarkAsTemporary(property);
+            return new GeneratedValue(
+                Convert.ChangeType(Interlocked.Decrement(ref _current), property.PropertyType.UnwrapNullableType()),
+                isTemporary: true);
         }
     }
 }

@@ -20,6 +20,11 @@ namespace Microsoft.Data.Entity.Storage
         public abstract Database Database { get; }
         public abstract IModelBuilderFactory ModelBuilderFactory { get; }
 
+        public static Func<IServiceProvider, LazyRef<DataStoreServices>> DataStoreServicesFactory
+        {
+            get { return p => new LazyRef<DataStoreServices>(() => GetStoreServices(p)); }
+        }
+
         public static Func<IServiceProvider, LazyRef<DataStore>> DataStoreFactory
         {
             get { return p => new LazyRef<DataStore>(() => GetStoreServices(p).Store); }

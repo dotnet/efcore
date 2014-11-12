@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.ConcurrencyModel;
 using Microsoft.Data.Entity.Identity;
@@ -73,92 +72,92 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
         {
             modelBuilder.Entity<Chassis>(
                 b =>
-                {
-                    b.ForAzureTableStorage().PartitionAndRowKey(c => c.Name, c => c.TeamId);
-                    b.Key(c => c.TeamId);
-                    b.Property<string>("ETag");
-                    b.ForAzureTableStorage().Table("Chassis" + _tableSuffix);
-                });
+                    {
+                        b.ForAzureTableStorage().PartitionAndRowKey(c => c.Name, c => c.TeamId);
+                        b.Key(c => c.TeamId);
+                        b.Property<string>("ETag");
+                        b.ForAzureTableStorage().Table("Chassis" + _tableSuffix);
+                    });
 
             modelBuilder.Entity<Team>(
                 b =>
-                {
-                    b.ForAzureTableStorage().PartitionAndRowKey(c => c.Name, c => c.Id);
-                    b.Property(c => c.Id).GenerateValueOnAdd();
-                    b.Key(c => c.Id);
-                    b.Property<string>("ETag");
-                    b.ForAzureTableStorage().Table("Teams" + _tableSuffix);
-                });
+                    {
+                        b.ForAzureTableStorage().PartitionAndRowKey(c => c.Name, c => c.Id);
+                        b.Property(c => c.Id).GenerateValueOnAdd();
+                        b.Key(c => c.Id);
+                        b.Property<string>("ETag");
+                        b.ForAzureTableStorage().Table("Teams" + _tableSuffix);
+                    });
 
             modelBuilder.Entity<Driver>(
                 b =>
-                {
-                    b.ForAzureTableStorage().PartitionAndRowKey(c => c.Name, c => c.Id);
-                    b.Property(c => c.Id).GenerateValueOnAdd();
-                    b.Key(c => c.Id);
-                    b.Property<string>("ETag");
-                    b.ForAzureTableStorage().Table("Drivers" + _tableSuffix);
-                });
+                    {
+                        b.ForAzureTableStorage().PartitionAndRowKey(c => c.Name, c => c.Id);
+                        b.Property(c => c.Id).GenerateValueOnAdd();
+                        b.Key(c => c.Id);
+                        b.Property<string>("ETag");
+                        b.ForAzureTableStorage().Table("Drivers" + _tableSuffix);
+                    });
 
             modelBuilder.Entity<Engine>(
                 b =>
-                {
-                    b.ForAzureTableStorage().PartitionAndRowKey(c => c.Name, c => c.Id);
-                    b.Property(c => c.Id).GenerateValueOnAdd();
-                    b.Key(c => c.Id);
-                    b.Property<string>("ETag");
-                    b.ForAzureTableStorage().Table("Engines" + _tableSuffix);
-                });
+                    {
+                        b.ForAzureTableStorage().PartitionAndRowKey(c => c.Name, c => c.Id);
+                        b.Property(c => c.Id).GenerateValueOnAdd();
+                        b.Key(c => c.Id);
+                        b.Property<string>("ETag");
+                        b.ForAzureTableStorage().Table("Engines" + _tableSuffix);
+                    });
 
             modelBuilder.Entity<EngineSupplier>(
                 b =>
-                {
-                    b.ForAzureTableStorage().PartitionAndRowKey(c => c.Name, c => c.Id);
-                    b.Property(c => c.Id).GenerateValueOnAdd();
-                    b.Key(c => c.Id);
-                    b.Property<string>("ETag");
-                    b.ForAzureTableStorage().Table("EngineSuppliers" + _tableSuffix);
-                });
+                    {
+                        b.ForAzureTableStorage().PartitionAndRowKey(c => c.Name, c => c.Id);
+                        b.Property(c => c.Id).GenerateValueOnAdd();
+                        b.Key(c => c.Id);
+                        b.Property<string>("ETag");
+                        b.ForAzureTableStorage().Table("EngineSuppliers" + _tableSuffix);
+                    });
 
             modelBuilder.Entity<Gearbox>(
                 b =>
-                {
-                    b.ForAzureTableStorage().PartitionAndRowKey(c => c.Name, c => c.Id);
-                    b.Property(c => c.Id).GenerateValueOnAdd();
-                    b.Key(c => c.Id);
-                    b.Property<string>("ETag");
-                    b.ForAzureTableStorage().Table("Gearboxes" + _tableSuffix);
-                });
+                    {
+                        b.ForAzureTableStorage().PartitionAndRowKey(c => c.Name, c => c.Id);
+                        b.Property(c => c.Id).GenerateValueOnAdd();
+                        b.Key(c => c.Id);
+                        b.Property<string>("ETag");
+                        b.ForAzureTableStorage().Table("Gearboxes" + _tableSuffix);
+                    });
 
             modelBuilder.Entity<Sponsor>(
                 b =>
-                {
-                    b.ForAzureTableStorage().PartitionAndRowKey(c => c.Name, c => c.Id);
-                    b.Property(c => c.Id).GenerateValueOnAdd();
-                    b.Key(c => c.Id);
-                    b.Property<string>("ETag");
-                    b.ForAzureTableStorage().Table("Sponsors" + _tableSuffix);
-                });
+                    {
+                        b.ForAzureTableStorage().PartitionAndRowKey(c => c.Name, c => c.Id);
+                        b.Property(c => c.Id).GenerateValueOnAdd();
+                        b.Key(c => c.Id);
+                        b.Property<string>("ETag");
+                        b.ForAzureTableStorage().Table("Sponsors" + _tableSuffix);
+                    });
 
             modelBuilder.Entity<TestDriver>(
                 b =>
-                {
-                    // TODO: Remove this configuration when inheritance is available
-                    b.ForAzureTableStorage().PartitionAndRowKey(c => c.Name, c => c.Id);
-                    b.Property(c => c.Id).GenerateValueOnAdd();
-                    b.Key(c => c.Id);
-                    b.Property<string>("ETag");
-                    b.ForAzureTableStorage().Table("TestDrivers" + _tableSuffix);
-                });
+                    {
+                        // TODO: Remove this configuration when inheritance is available
+                        b.ForAzureTableStorage().PartitionAndRowKey(c => c.Name, c => c.Id);
+                        b.Property(c => c.Id).GenerateValueOnAdd();
+                        b.Key(c => c.Id);
+                        b.Property<string>("ETag");
+                        b.ForAzureTableStorage().Table("TestDrivers" + _tableSuffix);
+                    });
 
             modelBuilder.Entity<TitleSponsor>(
                 b =>
-                {
-                    b.ForAzureTableStorage().PartitionAndRowKey(c => c.Name, c => c.Id);
-                    b.Key(c => c.Id);
-                    b.Property<string>("ETag");
-                    b.ForAzureTableStorage().Table("TitleSponsors" + _tableSuffix);
-                });
+                    {
+                        b.ForAzureTableStorage().PartitionAndRowKey(c => c.Name, c => c.Id);
+                        b.Key(c => c.Id);
+                        b.Property<string>("ETag");
+                        b.ForAzureTableStorage().Table("TitleSponsors" + _tableSuffix);
+                    });
 
             base.OnModelCreating(modelBuilder);
         }
@@ -170,9 +169,9 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
         {
             private class IntGenerator : SimpleValueGenerator
             {
-                public override void Next(StateEntry stateEntry, IProperty property)
+                public override GeneratedValue Next(IProperty property)
                 {
-                    stateEntry[property] = Guid.NewGuid().GetHashCode();
+                    return new GeneratedValue(Guid.NewGuid().GetHashCode());
                 }
             }
 

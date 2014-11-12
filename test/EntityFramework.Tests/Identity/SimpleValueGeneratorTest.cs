@@ -2,9 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Utilities;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Tests.Identity
@@ -12,28 +13,44 @@ namespace Microsoft.Data.Entity.Tests.Identity
     public class SimpleValueGeneratorTest
     {
         [Fact]
-        public async Task NextAsync_delegates_to_sync_method()
+        public void Next_with_services_delegates_to_non_services_method()
         {
-            var stateEntry = TestHelpers.CreateStateEntry<AnEntity>(TestHelpers.BuildModelFor<AnEntity>());
-            var property = stateEntry.EntityType.GetProperty("Id");
+            var property = TestHelpers.BuildModelFor<AnEntity>().GetEntityType(typeof(AnEntity)).GetProperty("Id");
 
             var generator = new TestValueGenerator();
 
-            await generator.NextAsync(stateEntry, property);
+            var generatedValue = generator.Next(property, new LazyRef<DataStoreServices>(() => null));
 
-            Assert.Same(generator.StateEntry, stateEntry);
             Assert.Same(generator.Property, property);
+
+            Assert.Equal(1, generatedValue.Value);
+            Assert.True(generatedValue.IsTemporary);
+        }
+
+        [Fact]
+        public async Task NextAsync_delegates_to_sync_method()
+        {
+            var property = TestHelpers.BuildModelFor<AnEntity>().GetEntityType(typeof(AnEntity)).GetProperty("Id");
+
+            var generator = new TestValueGenerator();
+
+            var generatedValue = await generator.NextAsync(property, new LazyRef<DataStoreServices>(() => null));
+
+            Assert.Same(generator.Property, property);
+
+            Assert.Equal(1, generatedValue.Value);
+            Assert.True(generatedValue.IsTemporary);
         }
 
         private class TestValueGenerator : SimpleValueGenerator
         {
-            public StateEntry StateEntry { get; set; }
             public IProperty Property { get; set; }
 
-            public override void Next(StateEntry stateEntry, IProperty property)
+            public override GeneratedValue Next(IProperty property)
             {
-                StateEntry = stateEntry;
                 Property = property;
+
+                return new GeneratedValue(1, isTemporary: true);
             }
         }
 

@@ -10,8 +10,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
 {
     public class AtsValueGeneratorCacheTest
     {
-        private readonly AtsValueGeneratorCache _cache
-            = new AtsValueGeneratorCache(Mock.Of<ValueGeneratorSelector>(), Mock.Of<ForeignKeyValueGenerator>());
+        private readonly AtsValueGeneratorCache _cache = new AtsValueGeneratorCache(Mock.Of<ValueGeneratorSelector>());
 
         [Fact]
         public void It_returns_null()

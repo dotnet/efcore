@@ -8,10 +8,8 @@ namespace Microsoft.Data.Entity.Redis
 {
     public class RedisValueGeneratorCache : ValueGeneratorCache
     {
-        public RedisValueGeneratorCache(
-            [NotNull] RedisValueGeneratorSelector selector,
-            [NotNull] ForeignKeyValueGenerator foreignKeyValueGenerator)
-            : base(selector, foreignKeyValueGenerator)
+        public RedisValueGeneratorCache([NotNull] RedisValueGeneratorSelector selector)
+            : base(selector)
         {
         }
     }

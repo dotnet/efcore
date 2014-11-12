@@ -5,18 +5,16 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Identity
 {
     /// <summary>
-    ///     Acts as a
-    ///     <see cref="IValueGenerator">
-    ///         by requesting a block of values from the
-    ///         underlying data store and returning them one by one. Will ask the underlying
-    ///         data store for another block when the current block is exhausted.
+    ///     Acts as a <see cref="IValueGenerator" />  by requesting a block of values from the
+    ///     underlying data store and returning them one by one. Will ask the underlying
+    ///     data store for another block when the current block is exhausted.
     /// </summary>
     public abstract class BlockOfSequentialValuesGenerator : IValueGenerator
     {
@@ -45,10 +43,10 @@ namespace Microsoft.Data.Entity.Identity
             get { return _blockSize; }
         }
 
-        public virtual void Next(StateEntry stateEntry, IProperty property)
+        public virtual GeneratedValue Next(IProperty property, LazyRef<DataStoreServices> dataStoreServices)
         {
-            Check.NotNull(stateEntry, "stateEntry");
             Check.NotNull(property, "property");
+            Check.NotNull(dataStoreServices, "dataStoreServices");
 
             var newValue = GetNextValue();
 
@@ -63,7 +61,7 @@ namespace Microsoft.Data.Entity.Identity
                     // case just get a value out of the new block instead of requesting one.
                     if (newValue.Max == _currentValue.Max)
                     {
-                        var newCurrent = GetNewCurrentValue(stateEntry, property);
+                        var newCurrent = GetNewCurrentValue(property, dataStoreServices);
                         newValue = new SequenceValue(newCurrent, newCurrent + _blockSize);
                         _currentValue = newValue;
                     }
@@ -74,13 +72,16 @@ namespace Microsoft.Data.Entity.Identity
                 }
             }
 
-            stateEntry[property] = Convert.ChangeType(newValue.Current, property.PropertyType.UnwrapNullableType());
+            return new GeneratedValue(Convert.ChangeType(newValue.Current, property.PropertyType.UnwrapNullableType()));
         }
 
-        public virtual async Task NextAsync(StateEntry stateEntry, IProperty property, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual async Task<GeneratedValue> NextAsync(
+            IProperty property,
+            LazyRef<DataStoreServices> dataStoreServices,
+            CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(stateEntry, "stateEntry");
             Check.NotNull(property, "property");
+            Check.NotNull(dataStoreServices, "dataStoreServices");
 
             var newValue = GetNextValue();
 
@@ -95,7 +96,7 @@ namespace Microsoft.Data.Entity.Identity
                 {
                     if (newValue.Max == _currentValue.Max)
                     {
-                        var newCurrent = await GetNewCurrentValueAsync(stateEntry, property, cancellationToken);
+                        var newCurrent = await GetNewCurrentValueAsync(property, dataStoreServices, cancellationToken);
                         newValue = new SequenceValue(newCurrent, newCurrent + _blockSize);
                         _currentValue = newValue;
                     }
@@ -106,13 +107,17 @@ namespace Microsoft.Data.Entity.Identity
                 }
             }
 
-            stateEntry[property] = Convert.ChangeType(newValue.Current, property.PropertyType.UnwrapNullableType());
+            return new GeneratedValue(Convert.ChangeType(newValue.Current, property.PropertyType.UnwrapNullableType()));
         }
 
-        public abstract long GetNewCurrentValue([NotNull] StateEntry stateEntry, [NotNull] IProperty property);
+        protected abstract long GetNewCurrentValue(
+            [NotNull] IProperty property,
+            [NotNull] LazyRef<DataStoreServices> dataStoreServices);
 
-        public abstract Task<long> GetNewCurrentValueAsync(
-            [NotNull] StateEntry stateEntry, [NotNull] IProperty property, CancellationToken cancellationToken);
+        protected abstract Task<long> GetNewCurrentValueAsync(
+            [NotNull] IProperty property,
+            [NotNull] LazyRef<DataStoreServices> dataStoreServices,
+            CancellationToken cancellationToken);
 
         private SequenceValue GetNextValue()
         {

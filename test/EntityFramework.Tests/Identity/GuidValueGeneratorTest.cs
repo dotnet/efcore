@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Utilities;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Tests.Identity
@@ -36,18 +38,13 @@ namespace Microsoft.Data.Entity.Tests.Identity
             var values = new HashSet<Guid>();
             for (var i = 0; i < 100; i++)
             {
-                if (async)
-                {
-                    await sequentialGuidIdentityGenerator.NextAsync(stateEntry, property);
-                }
-                else
-                {
-                    sequentialGuidIdentityGenerator.Next(stateEntry, property);
-                }
+                var generatedValue = async 
+                    ? await sequentialGuidIdentityGenerator.NextAsync(property, new LazyRef<DataStoreServices>(() => null))
+                    : sequentialGuidIdentityGenerator.Next(property, new LazyRef<DataStoreServices>(() => null));
 
-                Assert.False(stateEntry.HasTemporaryValue(property));
+                Assert.False(generatedValue.IsTemporary);
 
-                values.Add((Guid)stateEntry[property]);
+                values.Add((Guid)generatedValue.Value);
             }
 
             Assert.Equal(100, values.Count);

@@ -6,12 +6,12 @@ using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Identity;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.SqlServer.Utilities;
+using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.SqlServer
 {
@@ -30,23 +30,24 @@ namespace Microsoft.Data.Entity.SqlServer
             _executor = executor;
         }
 
-        public override long GetNewCurrentValue(StateEntry stateEntry, IProperty property)
+        protected override long GetNewCurrentValue(IProperty property, LazyRef<DataStoreServices> dataStoreServices)
         {
-            Check.NotNull(stateEntry, "stateEntry");
             Check.NotNull(property, "property");
+            Check.NotNull(dataStoreServices, "dataStoreServices");
 
-            var commandInfo = PrepareCommand(stateEntry.Configuration);
+            var commandInfo = PrepareCommand((RelationalConnection)dataStoreServices.Value.Connection);
             var nextValue = _executor.ExecuteScalar(commandInfo.Item1.DbConnection, commandInfo.Item1.DbTransaction, commandInfo.Item2);
 
             return (long)Convert.ChangeType(nextValue, typeof(long), CultureInfo.InvariantCulture);
         }
 
-        public override async Task<long> GetNewCurrentValueAsync(StateEntry stateEntry, IProperty property, CancellationToken cancellationToken)
+        protected override async Task<long> GetNewCurrentValueAsync(
+            IProperty property, LazyRef<DataStoreServices> dataStoreServices, CancellationToken cancellationToken)
         {
-            Check.NotNull(stateEntry, "stateEntry");
             Check.NotNull(property, "property");
+            Check.NotNull(dataStoreServices, "dataStoreServices");
 
-            var commandInfo = PrepareCommand(stateEntry.Configuration);
+            var commandInfo = PrepareCommand((RelationalConnection)dataStoreServices.Value.Connection);
             var nextValue = await _executor
                 .ExecuteScalarAsync(commandInfo.Item1.DbConnection, commandInfo.Item1.DbTransaction, commandInfo.Item2, cancellationToken)
                 .WithCurrentCulture();
@@ -54,15 +55,12 @@ namespace Microsoft.Data.Entity.SqlServer
             return (long)Convert.ChangeType(nextValue, typeof(long), CultureInfo.InvariantCulture);
         }
 
-        private Tuple<RelationalConnection, SqlStatement> PrepareCommand(DbContextConfiguration contextConfiguration)
+        private Tuple<RelationalConnection, SqlStatement> PrepareCommand(RelationalConnection connection)
         {
             // TODO: Parameterize query and/or delimit identifier without using SqlServerMigrationOperationSqlGenerator
             var sql = new SqlStatement(string.Format(
                 CultureInfo.InvariantCulture,
                 "SELECT NEXT VALUE FOR {0}", SequenceName));
-
-            // TODO: Should be able to get relational connection without cast
-            var connection = (RelationalConnection)contextConfiguration.Connection;
 
             return Tuple.Create(connection, sql);
         }

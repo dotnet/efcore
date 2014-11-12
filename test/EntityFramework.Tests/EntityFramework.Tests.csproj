@@ -86,7 +86,7 @@
     <Compile Include="EntitySetFinderTest.cs" />
     <Compile Include="Extensions\ServiceProviderExtensionsTest.cs" />
     <Compile Include="Extensions\TaskExtensionsTest.cs" />
-    <Compile Include="Identity\ForeignKeyValueGeneratorTest.cs" />
+    <Compile Include="Identity\ForeignKeyValuePropagatorTest.cs" />
     <Compile Include="Identity\GuidValueGeneratorTest.cs" />
     <Compile Include="Identity\SimpleValueGeneratorFactoryTest.cs" />
     <Compile Include="Identity\SimpleValueGeneratorTest.cs" />

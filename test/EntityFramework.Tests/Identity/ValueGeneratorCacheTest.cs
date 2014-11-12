@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.Tests.Identity
         {
             var property = CreateProperty(generateValues: false);
             var selector = new ValueGeneratorSelector(new SimpleValueGeneratorFactory<GuidValueGenerator>());
-            var cache = new ValueGeneratorCache(selector, Mock.Of<ForeignKeyValueGenerator>());
+            var cache = new ValueGeneratorCache(selector);
 
             Assert.Null(cache.GetGenerator(property));
         }
@@ -32,7 +32,7 @@ namespace Microsoft.Data.Entity.Tests.Identity
             factoryMock.Setup(m => m.GetCacheKey(property)).Returns("TheKeyMaster");
 
             var selector = new ValueGeneratorSelector(factoryMock.Object);
-            var cache = new ValueGeneratorCache(selector, Mock.Of<ForeignKeyValueGenerator>());
+            var cache = new ValueGeneratorCache(selector);
 
             var generator1 = cache.GetGenerator(property);
             Assert.NotNull(generator1);
@@ -57,7 +57,7 @@ namespace Microsoft.Data.Entity.Tests.Identity
             factoryMock.Setup(m => m.GetCacheKey(property)).Returns("TheKeyMaster");
 
             var selector = new ValueGeneratorSelector(factoryMock.Object);
-            var cache = new ValueGeneratorCache(selector, Mock.Of<ForeignKeyValueGenerator>());
+            var cache = new ValueGeneratorCache(selector);
 
             var generator1a = cache.GetGenerator(property);
             var generator1b = cache.GetGenerator(property);
