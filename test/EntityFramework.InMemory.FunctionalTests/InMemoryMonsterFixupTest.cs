@@ -11,7 +11,7 @@ using Microsoft.Framework.DependencyInjection.Fallback;
 
 namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 {
-    public class MonsterFixupTest : MonsterFixupTestBase
+    public class InMemoryMonsterFixupTest : MonsterFixupTestBase
     {
         protected override IServiceProvider CreateServiceProvider(bool throwingStateManager = false)
         {

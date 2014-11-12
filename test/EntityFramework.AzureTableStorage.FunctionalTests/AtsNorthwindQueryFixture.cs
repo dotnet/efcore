@@ -22,7 +22,6 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
         {
             _options
                 = new DbContextOptions()
-                    .UseModel(CreateModel())
                     .UseAzureTableStorage(TestConfig.Instance.ConnectionString, batchRequests: false);
 
             _serviceProvider
@@ -30,6 +29,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
                     .AddEntityFramework()
                     .AddAzureTableStorage()
                     .ServiceCollection
+                    .AddTestModelSource(OnModelCreating)
                     .BuildServiceProvider();
 
             AtsTestStore.GetOrCreateSharedAsync(_tableSuffix, () =>
@@ -45,16 +45,16 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
             }).Wait();
         }
         
-        public override void OnModelCreating(BasicModelBuilder modelBuilder)
+        public override void OnModelCreating(ModelBuilder modelBuilder)
         {
-
             modelBuilder.Entity<Customer>()
                 .ForAzureTableStorage(ab =>
                 {
                     ab.PartitionAndRowKey(s => s.City, s => s.CustomerID);
                     ab.Timestamp("Timestamp", true);
                     ab.Table("Customer" + _tableSuffix);
-                });
+                })
+                .Key(c => c.CustomerID);
 
             modelBuilder.Entity<Employee>()
                 .ForAzureTableStorage(ab =>
@@ -62,7 +62,8 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
                     ab.PartitionAndRowKey(s => s.City, s => s.EmployeeID);
                     ab.Timestamp("Timestamp", true);
                     ab.Table("Employee" + _tableSuffix);
-                });
+                })
+                .Key(c => c.EmployeeID);
 
             modelBuilder.Entity<Order>()
                 .ForAzureTableStorage(ab =>
@@ -70,7 +71,8 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
                     ab.PartitionAndRowKey(s => s.CustomerID, s => s.OrderID);
                     ab.Timestamp("Timestamp", true);
                     ab.Table("Order" + _tableSuffix);
-                });
+                })
+                .Key(c => c.OrderID);
 
             modelBuilder.Entity<Product>()
                 .ForAzureTableStorage(ab =>
@@ -78,7 +80,8 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
                     ab.PartitionAndRowKey(s => s.SupplierID, s => s.ProductID);
                     ab.Timestamp("Timestamp", true);
                     ab.Table("Product" + _tableSuffix);
-                });
+                })
+                .Key(c => c.ProductID);
 
             modelBuilder.Entity<OrderDetail>()
                 .ForAzureTableStorage(ab =>

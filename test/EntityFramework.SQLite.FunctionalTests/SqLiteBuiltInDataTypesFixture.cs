@@ -19,6 +19,7 @@ namespace Microsoft.Data.Entity.SQLite.FunctionalTests
                 .AddEntityFramework()
                 .AddSQLite()
                 .ServiceCollection
+                .AddTestModelSource(OnModelCreating)
                 .BuildServiceProvider();
         }
 
@@ -36,33 +37,17 @@ namespace Microsoft.Data.Entity.SQLite.FunctionalTests
         public override DbContext CreateContext(SqLiteTestStore testStore)
         {
             var options = new DbContextOptions()
-                .UseModel(CreateModel())
                 .UseSQLite(testStore.Connection.ConnectionString);
 
             return new DbContext(_serviceProvider, options);
         }
 
-        public override void OnModelCreating(BasicModelBuilder modelBuilder)
+        public override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<BuiltInNonNullableDataTypes>(b =>
-            {
-                b.Property(dt => dt.TestInt16);
-                b.Property(dt => dt.TestUnsignedInt16);
-                b.Property(dt => dt.TestUnsignedInt32);
-                b.Property(dt => dt.TestUnsignedInt64);
-                b.Property(dt => dt.TestSignedByte);
-            });
-
-            modelBuilder.Entity<BuiltInNullableDataTypes>(b =>
-            {
-                b.Property(dt => dt.TestNullableInt16);
-                b.Property(dt => dt.TestNullableUnsignedInt16);
-                b.Property(dt => dt.TestNullableUnsignedInt32);
-                b.Property(dt => dt.TestNullableUnsignedInt64);
-                b.Property(dt => dt.TestNullableSignedByte);
-            });
+            modelBuilder.Entity<BuiltInNonNullableDataTypes>(b => b.Ignore(dt => dt.TestCharacter));
+            modelBuilder.Entity<BuiltInNullableDataTypes>(b => b.Ignore(dt => dt.TestNullableCharacter));
         }
     }
 }

@@ -16,12 +16,12 @@ namespace Microsoft.Data.Entity.Redis.FunctionalTests
 
         public RedisBuiltInDataTypesFixture()
         {
-            _serviceProvider
-                = new ServiceCollection()
-                    .AddEntityFramework()
-                    .AddRedis()
-                    .ServiceCollection
-                    .BuildServiceProvider();
+            _serviceProvider = new ServiceCollection()
+                .AddEntityFramework()
+                .AddRedis()
+                .ServiceCollection
+                .AddTestModelSource(OnModelCreating)
+                .BuildServiceProvider();
         }
 
         public override RedisTestStore CreateTestStore()
@@ -46,7 +46,6 @@ namespace Microsoft.Data.Entity.Redis.FunctionalTests
         public override DbContext CreateContext(RedisTestStore testStore)
         {
             var options = new DbContextOptions()
-                .UseModel(CreateModel())
                 .UseRedis("127.0.0.1", RedisTestConfig.RedisPort);
 
             return new DbContext(_serviceProvider, options);
@@ -59,31 +58,6 @@ namespace Microsoft.Data.Entity.Redis.FunctionalTests
             {
                 context.Database.EnsureDeleted();
             }
-        }
-
-        public override void OnModelCreating(BasicModelBuilder modelBuilder)
-        {
-            base.OnModelCreating(modelBuilder);
-
-            modelBuilder.Entity<BuiltInNonNullableDataTypes>(b =>
-            {
-                b.Property(dt => dt.TestInt16);
-                b.Property(dt => dt.TestUnsignedInt16);
-                b.Property(dt => dt.TestUnsignedInt32);
-                b.Property(dt => dt.TestUnsignedInt64);
-                b.Property(dt => dt.TestCharacter);
-                b.Property(dt => dt.TestSignedByte);
-            });
-
-            modelBuilder.Entity<BuiltInNullableDataTypes>(b =>
-            {
-                b.Property(dt => dt.TestNullableInt16);
-                b.Property(dt => dt.TestNullableUnsignedInt16);
-                b.Property(dt => dt.TestNullableUnsignedInt32);
-                b.Property(dt => dt.TestNullableUnsignedInt64);
-                b.Property(dt => dt.TestNullableCharacter);
-                b.Property(dt => dt.TestNullableSignedByte);
-            });
         }
     }
 }

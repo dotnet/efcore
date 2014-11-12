@@ -20,6 +20,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
                 .AddEntityFramework()
                 .AddAzureTableStorage()
                 .ServiceCollection
+                .AddTestModelSource(OnModelCreating)
                 .BuildServiceProvider();
         }
 
@@ -32,12 +33,12 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
             }
 
             store.CleanupAction = () =>
-            {
-                using (var context = CreateContext(store))
                 {
-                    Cleanup(context);
-                }
-            };
+                    using (var context = CreateContext(store))
+                    {
+                        Cleanup(context);
+                    }
+                };
 
             return store;
         }
@@ -45,38 +46,51 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
         public override DbContext CreateContext(AtsTestStore testStore)
         {
             var options = new DbContextOptions()
-                .UseModel(CreateModel())
                 .UseAzureTableStorage(testStore.ConnectionString);
 
             return new DbContext(_serviceProvider, options);
         }
 
-        public override void OnModelCreating(BasicModelBuilder modelBuilder)
+        public override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<BuiltInNonNullableDataTypes>(b =>
                 {
+                    b.Ignore(dt => dt.TestInt16);
+                    b.Ignore(dt => dt.TestUnsignedInt16);
+                    b.Ignore(dt => dt.TestUnsignedInt32);
+                    b.Ignore(dt => dt.TestUnsignedInt64);
+                    b.Ignore(dt => dt.TestCharacter);
+                    b.Ignore(dt => dt.TestSignedByte);
+
                     b.ForAzureTableStorage(ab =>
                         {
-                            ab.PartitionAndRowKey(dt => dt.Id0, dt => dt.Id1);
+                            ab.PartitionAndRowKey(dt => dt.PartitionId, dt => dt.Id);
                             ab.Timestamp("Timestamp", true);
                             ab.Table("BuiltInNonNullableDataTypes" + _tableSuffix);
                         });
 
-                    b.Key(dt => dt.Id0); // See issue #632
+                    b.Key(dt => dt.Id);
                 });
 
             modelBuilder.Entity<BuiltInNullableDataTypes>(b =>
                 {
+                    b.Ignore(dt => dt.TestNullableInt16);
+                    b.Ignore(dt => dt.TestNullableUnsignedInt16);
+                    b.Ignore(dt => dt.TestNullableUnsignedInt32);
+                    b.Ignore(dt => dt.TestNullableUnsignedInt64);
+                    b.Ignore(dt => dt.TestNullableCharacter);
+                    b.Ignore(dt => dt.TestNullableSignedByte);
+
                     b.ForAzureTableStorage(ab =>
                         {
-                            ab.PartitionAndRowKey(dt => dt.Id0, dt => dt.Id1);
+                            ab.PartitionAndRowKey(dt => dt.PartitionId, dt => dt.Id);
                             ab.Timestamp("Timestamp", true);
                             ab.Table("BuiltInNullableDataTypes" + _tableSuffix);
                         });
 
-                    b.Key(dt => dt.Id0); // See issue #632
+                    b.Key(dt => dt.Id);
                 });
         }
 

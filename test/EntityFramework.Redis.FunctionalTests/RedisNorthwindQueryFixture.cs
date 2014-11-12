@@ -23,10 +23,10 @@ namespace Microsoft.Data.Entity.Redis.FunctionalTests
                     .AddEntityFramework()
                     .AddRedis()
                     .ServiceCollection
+                    .AddTestModelSource(OnModelCreating)
                     .BuildServiceProvider();
 
             _options = new DbContextOptions()
-                .UseModel(CreateModel())
                 .UseRedis("127.0.0.1", RedisTestConfig.RedisPort);
 
             using (var context = CreateContext())

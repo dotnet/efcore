@@ -9,13 +9,14 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
 {
     public abstract class RelationalNorthwindQueryFixture : NorthwindQueryFixtureBase
     {
-        public override void OnModelCreating(BasicModelBuilder modelBuilder)
+        public override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<Customer>().ForRelational().Table("Customers");
             modelBuilder.Entity<Employee>().ForRelational().Table("Employees");
             modelBuilder.Entity<Product>().ForRelational().Table("Products");
+            modelBuilder.Entity<Product>().Ignore(p => p.SupplierID);
             modelBuilder.Entity<Order>().ForRelational().Table("Orders");
             modelBuilder.Entity<OrderDetail>().ForRelational().Table("Order Details");
         }

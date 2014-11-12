@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
 using Microsoft.Data.Entity.Relational.FunctionalTests;
 using Microsoft.Data.Entity.SQLite.FunctionalTests.TestModels;
@@ -23,13 +24,14 @@ namespace Microsoft.Data.Entity.SQLite.FunctionalTests
 
             _serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
-                .AddSQLite().ServiceCollection
+                .AddSQLite()
+                .ServiceCollection
+                .AddTestModelSource(OnModelCreating)
                 .AddInstance<ILoggerFactory>(new TestSqlLoggerFactory())
                 .BuildServiceProvider();
 
             _options
                 = new DbContextOptions()
-                    .UseModel(CreateModel())
                     .UseSQLite(_testStore.Connection.ConnectionString);
         }
 

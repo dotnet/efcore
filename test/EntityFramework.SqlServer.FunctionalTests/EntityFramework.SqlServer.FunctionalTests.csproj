@@ -104,7 +104,7 @@
     <Compile Include="SqlServerDataStoreCreatorTest.cs" />
     <Compile Include="SqlServerEndToEndTest.cs" />
     <Compile Include="SqlServerSimpleCommandExecutorTest.cs" />
-    <Compile Include="MonsterFixupTest.cs" />
+    <Compile Include="SqlServerMonsterFixupTest.cs" />
     <Compile Include="SqlServerTestStore.cs" />
     <Compile Include="SqlServerTransactionFixture.cs" />
     <Compile Include="SqlServerTransactionTest.cs" />

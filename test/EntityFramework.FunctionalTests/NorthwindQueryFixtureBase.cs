@@ -9,60 +9,58 @@ namespace Microsoft.Data.Entity.FunctionalTests
 {
     public abstract class NorthwindQueryFixtureBase
     {
-        public Model CreateModel()
-        {
-            var modelBuilder = new BasicModelBuilder(new Model());
-            OnModelCreating(modelBuilder);
-            return modelBuilder.Model;
-        }
-
-        public virtual void OnModelCreating(BasicModelBuilder modelBuilder)
+        public virtual void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Customer>(e =>
                 {
-                    e.Key(c => c.CustomerID);
-                    e.Property(c => c.CompanyName);
-                    e.Property(c => c.ContactName);
-                    e.Property(c => c.ContactTitle);
-                    e.Property(c => c.Address);
-                    e.Property(c => c.City);
-                    e.Property(c => c.Region);
-                    e.Property(c => c.PostalCode);
-                    e.Property(c => c.Country);
-                    e.Property(c => c.Phone);
-                    e.Property(c => c.Fax);
+                    e.Ignore(c => c.IsLondon);
                 });
 
             modelBuilder.Entity<Employee>(e =>
                 {
-                    e.Key(em => em.EmployeeID);
-                    e.Property(em => em.City);
-                    e.Property(em => em.Country);
-                    e.Property(em => em.FirstName);
-                    e.Property(em => em.ReportsTo);
-                    e.Property<string>("Title");
+                    e.Ignore(em => em.Address);
+                    e.Ignore(em => em.BirthDate);
+                    e.Ignore(em => em.Extension);
+                    e.Ignore(em => em.HireDate);
+                    e.Ignore(em => em.HomePhone);
+                    e.Ignore(em => em.LastName);
+                    e.Ignore(em => em.Notes);
+                    e.Ignore(em => em.Photo);
+                    e.Ignore(em => em.PhotoPath);
+                    e.Ignore(em => em.PostalCode);
+                    e.Ignore(em => em.Region);
+                    e.Ignore(em => em.TitleOfCourtesy);
                 });
 
             modelBuilder.Entity<Product>(e =>
                 {
-                    e.Key(p => p.ProductID);
-                    e.Property(p => p.ProductName);
-                    e.Property(p => p.Discontinued);
+                    e.Ignore(p => p.CategoryID);
+                    e.Ignore(p => p.QuantityPerUnit);
+                    e.Ignore(p => p.ReorderLevel);
+                    e.Ignore(p => p.UnitPrice);
+                    e.Ignore(p => p.UnitsInStock);
+                    e.Ignore(p => p.UnitsOnOrder);
                 });
 
             modelBuilder.Entity<Order>(e =>
                 {
-                    e.Key(o => o.OrderID);
-                    e.Property(o => o.OrderDate);
+                    e.Ignore(o => o.EmployeeID);
+                    e.Ignore(o => o.Freight);
+                    e.Ignore(o => o.RequiredDate);
+                    e.Ignore(o => o.ShipAddress);
+                    e.Ignore(o => o.ShipCity);
+                    e.Ignore(o => o.ShipCountry);
+                    e.Ignore(o => o.ShipName);
+                    e.Ignore(o => o.ShipPostalCode);
+                    e.Ignore(o => o.ShipRegion);
+                    e.Ignore(o => o.ShipVia);
+                    e.Ignore(o => o.ShippedDate);
                     e.ForeignKey<Customer>(o => o.CustomerID);
                 });
 
             modelBuilder.Entity<OrderDetail>(e =>
                 {
                     e.Key(od => new { od.OrderID, od.ProductID });
-                    e.Property(od => od.UnitPrice);
-                    e.Property(od => od.Quantity);
-                    e.Property(od => od.Discount);
                     e.ForeignKey<Product>(od => od.ProductID);
                     e.ForeignKey<Order>(od => od.OrderID);
                 });

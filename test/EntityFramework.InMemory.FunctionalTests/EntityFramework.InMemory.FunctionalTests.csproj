@@ -80,7 +80,7 @@
     <Compile Include="InMemoryConfigPatternsTest.cs" />
     <Compile Include="InMemoryDataStoreTest.cs" />
     <Compile Include="InMemoryIntegerGeneratorEndToEndTest.cs" />
-    <Compile Include="MonsterFixupTest.cs" />
+    <Compile Include="InMemoryMonsterFixupTest.cs" />
     <Compile Include="OneToOneQueryFixture.cs" />
     <Compile Include="InMemoryNorthwindQueryFixture.cs" />
     <Compile Include="InMemoryAsyncQueryTest.cs" />

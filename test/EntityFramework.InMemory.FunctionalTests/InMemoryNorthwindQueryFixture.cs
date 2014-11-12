@@ -21,11 +21,11 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                     .AddEntityFramework()
                     .AddInMemoryStore()
                     .ServiceCollection
+                    .AddTestModelSource(OnModelCreating)
                     .BuildServiceProvider();
 
             _options
                 = new DbContextOptions()
-                    .UseModel(CreateModel())
                     .UseInMemoryStore();
 
             using (var context = CreateContext())

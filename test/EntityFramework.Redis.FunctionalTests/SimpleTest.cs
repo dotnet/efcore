@@ -211,12 +211,10 @@ namespace Microsoft.Data.Entity.Redis.FunctionalTests
         private IModel CreateModel()
         {
             var model = new Model();
-            var builder = new BasicModelBuilder(model);
+            var builder = new ModelBuilder(model);
             builder.Entity<SimplePoco>(b =>
                 {
                     b.Key(cust => cust.PocoKey);
-                    b.Property(cust => cust.PocoKey);
-                    b.Property(cust => cust.Name);
                 });
 
             return model;

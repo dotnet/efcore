@@ -19,8 +19,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 context.Set<BuiltInNonNullableDataTypes>().Add(
                     new BuiltInNonNullableDataTypes
                         {
-                            Id0 = 0,
-                            Id1 = 0,
+                            Id = 1,
+                            PartitionId = 1,
                             TestInt16 = -1234,
                             TestInt32 = -123456789,
                             TestInt64 = -1234567890123456789L,
@@ -46,7 +46,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             using (var context = CreateContext())
             {
-                var dt = context.Set<BuiltInNonNullableDataTypes>().Single(nndt => nndt.Id0 == 0);
+                var dt = context.Set<BuiltInNonNullableDataTypes>().Single(nndt => nndt.Id == 1);
 
                 var entityType = context.Model.GetEntityType(typeof(BuiltInNonNullableDataTypes));
                 Assert.Equal(-1234, dt.TestInt16);
@@ -75,8 +75,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 context.Set<BuiltInNullableDataTypes>().Add(
                     new BuiltInNullableDataTypes
                         {
-                            Id0 = 100,
-                            Id1 = 100,
+                            Id = 100,
+                            PartitionId = 100,
                             TestString = null,
                             TestNullableInt16 = null,
                             TestNullableInt32 = null,
@@ -101,7 +101,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             using (var context = CreateContext())
             {
-                var dt = context.Set<BuiltInNullableDataTypes>().Single(ndt => ndt.Id0 == 100);
+                var dt = context.Set<BuiltInNullableDataTypes>().Single(ndt => ndt.Id == 100);
 
                 Assert.Null(dt.TestString);
                 Assert.Null(dt.TestNullableInt16);
@@ -130,8 +130,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 context.Set<BuiltInNullableDataTypes>().Add(
                     new BuiltInNullableDataTypes
                         {
-                            Id0 = 101,
-                            Id1 = 101,
+                            Id = 101,
+                            PartitionId = 101,
                             TestString = "TestString",
                             TestNullableInt16 = -1234,
                             TestNullableInt32 = -123456789,
@@ -158,7 +158,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             using (var context = CreateContext())
             {
-                var dt = context.Set<BuiltInNullableDataTypes>().Single(ndt => ndt.Id0 == 101);
+                var dt = context.Set<BuiltInNullableDataTypes>().Single(ndt => ndt.Id == 101);
 
                 var entityType = context.Model.GetEntityType(typeof(BuiltInNonNullableDataTypes));
                 Assert.Equal("TestString", dt.TestString);

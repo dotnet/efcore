@@ -77,7 +77,7 @@
     <Compile Include="SqLiteBuiltInDataTypesTest.cs" />
     <Compile Include="SqLiteIncludeAsyncTest.cs" />
     <Compile Include="SqLiteIncludeTest.cs" />
-    <Compile Include="MonsterFixupTest.cs" />
+    <Compile Include="SqLiteMonsterFixupTest.cs" />
     <Compile Include="SqLiteAsNoTrackingTest.cs" />
     <Compile Include="SqLiteAsyncQueryTest.cs" />
     <Compile Include="SqLiteNorthwindQueryFixture.cs" />
