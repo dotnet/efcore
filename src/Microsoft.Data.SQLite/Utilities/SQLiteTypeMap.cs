@@ -36,7 +36,7 @@ namespace Microsoft.Data.SQLite.Utilities
             Add((byte b) => (long)b, l => (byte)l, new[] { "TINYINT" }, DbType.Byte);
             Add((DateTime d) => d.ToString("o"), DateTime.Parse, new[] { "DATETIME" }, DbType.DateTime);
             Add((DateTimeOffset d) => d.ToString("o"), DateTimeOffset.Parse, new[] { "DATETIMEOFFSET" }, DbType.DateTimeOffset);
-            Add((decimal d) => d.ToString(CultureInfo.InvariantCulture), decimal.Parse, new[] { "DECIMAL" }, DbType.Decimal);
+            Add((decimal d) => d.ToString(CultureInfo.InvariantCulture), d => decimal.Parse(d, CultureInfo.InvariantCulture), new[] { "DECIMAL" }, DbType.Decimal);
             Add((float f) => (double)f, d => (float)d, new[] { "SINGLE" }, DbType.Single);
             Add((Guid g) => g.ToByteArray(), b => new Guid(b), new[] { "UNIQUEIDENTIFIER" }, DbType.Guid);
             Add((int i) => (long)i, l => (int)l, new[] { "INT" }, DbType.Int32);
