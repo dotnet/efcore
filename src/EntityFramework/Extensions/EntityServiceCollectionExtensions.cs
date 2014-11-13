@@ -54,9 +54,13 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddSingleton<StateEntryMetadataServices>()
                 .AddScoped<DataStoreSelector>()
                 .AddScoped<StateEntryFactory>()
-                .AddScoped<IEntityStateListener, NavigationFixer>()
-                .AddScoped<StateEntryNotifier>()
+                .AddScoped<NavigationFixer>()
                 .AddScoped<ChangeDetector>()
+                // TODO: Is this the appropriate way to register listeners?
+                .AddScoped<IEntityStateListener>(p => p.GetService<NavigationFixer>())
+                .AddScoped<IRelationshipListener>(p => p.GetService<NavigationFixer>())
+                .AddScoped<IPropertyListener>(p => p.GetService<ChangeDetector>())
+                .AddScoped<StateEntryNotifier>()
                 .AddScoped<StateEntrySubscriber>()
                 .AddScoped<DbContextConfiguration>()
                 .AddScoped<ContextSets>()
@@ -124,9 +128,9 @@ namespace Microsoft.Framework.DependencyInjection
                 // TODO: Allows parser to be obtained from service provider. Issue #947
                 builder.ServiceCollection.ConfigureOptions(
                     new DbContextConfigureOptions<TContext>(builder.Configuration, new DbContextOptionsParser())
-                        {
-                            Order = ConfigurationOrder
-                        });
+                    {
+                        Order = ConfigurationOrder
+                    });
             }
 
             if (optionsAction != null)

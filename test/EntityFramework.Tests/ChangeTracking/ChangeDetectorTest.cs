@@ -4,6 +4,9 @@
 using System;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Utilities;
+using Microsoft.Framework.DependencyInjection;
+using Microsoft.Framework.DependencyInjection.Fallback;
 using Moq;
 using Xunit;
 
@@ -14,8 +17,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Detects_principal_key_change()
         {
+            var notifierMock = new Mock<StateEntryNotifier>();
             var model = BuildModel();
-            var configuration = TestHelpers.CreateContextConfiguration(model);
+            var configuration = TestHelpers.CreateContextConfiguration(CreateServiceProvider(notifierMock.Object), model);
             var stateManager = configuration.Services.StateManager;
 
             var entityType = model.GetEntityType(typeof(Category));
@@ -26,8 +30,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             principalEntry.RelationshipsSnapshot[keyProperty] = 77;
             principalEntry.EntityState = EntityState.Added;
 
-            var notifierMock = new Mock<StateEntryNotifier>();
-            var changeDetector = new ChangeDetector(configuration, notifierMock.Object);
+            var changeDetector = new ChangeDetector(new LazyRef<IModel>(model));
 
             Assert.Same(principalEntry, stateManager.TryGetEntry(new SimpleEntityKey<int>(entityType, -1)));
 
@@ -43,8 +46,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Reacts_to_principal_key_change_in_sidecar()
         {
+            var notifierMock = new Mock<StateEntryNotifier>();
             var model = BuildModel();
-            var configuration = TestHelpers.CreateContextConfiguration(model);
+            var configuration = TestHelpers.CreateContextConfiguration(CreateServiceProvider(notifierMock.Object), model);
             var stateManager = configuration.Services.StateManager;
 
             var entityType = model.GetEntityType(typeof(Category));
@@ -55,8 +59,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             principalEntry.RelationshipsSnapshot[keyProperty] = 77;
             principalEntry.EntityState = EntityState.Added;
 
-            var notifierMock = new Mock<StateEntryNotifier>();
-            var changeDetector = new ChangeDetector(configuration, notifierMock.Object);
+            var changeDetector = new ChangeDetector(new LazyRef<IModel>(model));
 
             Assert.Same(principalEntry, stateManager.TryGetEntry(new SimpleEntityKey<int>(entityType, -1)));
 
@@ -72,8 +75,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Detects_primary_key_change()
         {
+            var notifierMock = new Mock<StateEntryNotifier>();
             var model = BuildModel();
-            var configuration = TestHelpers.CreateContextConfiguration(model);
+            var configuration = TestHelpers.CreateContextConfiguration(CreateServiceProvider(notifierMock.Object), model);
             var stateManager = configuration.Services.StateManager;
 
             var entityType = model.GetEntityType(typeof(Category));
@@ -84,8 +88,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             principalEntry.RelationshipsSnapshot[keyProperty] = -1;
             principalEntry.EntityState = EntityState.Added;
 
-            var notifierMock = new Mock<StateEntryNotifier>();
-            var changeDetector = new ChangeDetector(configuration, notifierMock.Object);
+            var changeDetector = new ChangeDetector(new LazyRef<IModel>(model));
 
             Assert.Same(principalEntry, stateManager.TryGetEntry(new SimpleEntityKey<int>(entityType, -1)));
 
@@ -101,8 +104,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Reacts_to_primary_key_change_in_sidecar()
         {
+            var notifierMock = new Mock<StateEntryNotifier>();
             var model = BuildModel();
-            var configuration = TestHelpers.CreateContextConfiguration(model);
+            var configuration = TestHelpers.CreateContextConfiguration(CreateServiceProvider(notifierMock.Object), model);
             var stateManager = configuration.Services.StateManager;
 
             var entityType = model.GetEntityType(typeof(Category));
@@ -113,8 +117,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             principalEntry.RelationshipsSnapshot[keyProperty] = -1;
             principalEntry.EntityState = EntityState.Added;
 
-            var notifierMock = new Mock<StateEntryNotifier>();
-            var changeDetector = new ChangeDetector(configuration, notifierMock.Object);
+            var changeDetector = new ChangeDetector(new LazyRef<IModel>(model));
 
             Assert.Same(principalEntry, stateManager.TryGetEntry(new SimpleEntityKey<int>(entityType, -1)));
 
@@ -130,8 +133,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Ignores_non_principal_key_change()
         {
+            var notifierMock = new Mock<StateEntryNotifier>();
             var model = BuildModel();
-            var configuration = TestHelpers.CreateContextConfiguration(model);
+            var configuration = TestHelpers.CreateContextConfiguration(CreateServiceProvider(notifierMock.Object), model);
             var stateManager = configuration.Services.StateManager;
 
             var entityType = model.GetEntityType(typeof(Category));
@@ -142,8 +146,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             principalEntry.RelationshipsSnapshot[property] = "Blue";
             principalEntry.EntityState = EntityState.Added;
 
-            var notifierMock = new Mock<StateEntryNotifier>();
-            var changeDetector = new ChangeDetector(configuration, notifierMock.Object);
+            var changeDetector = new ChangeDetector(new LazyRef<IModel>(model));
 
             Assert.Same(principalEntry, stateManager.TryGetEntry(new SimpleEntityKey<int>(entityType, -1)));
 
@@ -160,8 +163,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Ignores_non_principal_key_change_in_sidecar()
         {
+            var notifierMock = new Mock<StateEntryNotifier>();
             var model = BuildModel();
-            var configuration = TestHelpers.CreateContextConfiguration(model);
+            var configuration = TestHelpers.CreateContextConfiguration(CreateServiceProvider(notifierMock.Object), model);
             var stateManager = configuration.Services.StateManager;
 
             var entityType = model.GetEntityType(typeof(Category));
@@ -172,8 +176,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             principalEntry.RelationshipsSnapshot[property] = "Blue";
             principalEntry.EntityState = EntityState.Added;
 
-            var notifierMock = new Mock<StateEntryNotifier>();
-            var changeDetector = new ChangeDetector(configuration, notifierMock.Object);
+            var changeDetector = new ChangeDetector(new LazyRef<IModel>(model));
 
             Assert.Same(principalEntry, stateManager.TryGetEntry(new SimpleEntityKey<int>(entityType, -1)));
 
@@ -190,8 +193,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Ignores_no_change_to_principal_key()
         {
+            var notifierMock = new Mock<StateEntryNotifier>();
             var model = BuildModel();
-            var configuration = TestHelpers.CreateContextConfiguration(model);
+            var configuration = TestHelpers.CreateContextConfiguration(CreateServiceProvider(notifierMock.Object), model);
             var stateManager = configuration.Services.StateManager;
 
             var entityType = model.GetEntityType(typeof(Category));
@@ -202,8 +206,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             principalEntry.RelationshipsSnapshot[keyProperty] = 77;
             principalEntry.EntityState = EntityState.Added;
 
-            var notifierMock = new Mock<StateEntryNotifier>();
-            var changeDetector = new ChangeDetector(configuration, notifierMock.Object);
+            var changeDetector = new ChangeDetector(new LazyRef<IModel>(model));
 
             Assert.Same(principalEntry, stateManager.TryGetEntry(new SimpleEntityKey<int>(entityType, -1)));
 
@@ -219,8 +222,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Ignores_no_change_to_principal_key_in_sidecar()
         {
+            var notifierMock = new Mock<StateEntryNotifier>();
             var model = BuildModel();
-            var configuration = TestHelpers.CreateContextConfiguration(model);
+            var configuration = TestHelpers.CreateContextConfiguration(CreateServiceProvider(notifierMock.Object), model);
             var stateManager = configuration.Services.StateManager;
 
             var entityType = model.GetEntityType(typeof(Category));
@@ -231,8 +235,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             principalEntry.RelationshipsSnapshot[keyProperty] = 77;
             principalEntry.EntityState = EntityState.Added;
 
-            var notifierMock = new Mock<StateEntryNotifier>();
-            var changeDetector = new ChangeDetector(configuration, notifierMock.Object);
+            var changeDetector = new ChangeDetector(new LazyRef<IModel>(model));
 
             Assert.Same(principalEntry, stateManager.TryGetEntry(new SimpleEntityKey<int>(entityType, -1)));
 
@@ -274,6 +277,16 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             productType.GetOrAddForeignKey(productType.GetProperty("DependentId"), new Key(new[] { categoryType.GetProperty("PrincipalId") }));
 
             return model;
+        }
+
+        public static IServiceProvider CreateServiceProvider(StateEntryNotifier notifier)
+        {
+            return new ServiceCollection()
+                .AddEntityFramework()
+                .AddInMemoryStore()
+                .ServiceCollection
+                .AddInstance(notifier)
+                .BuildServiceProvider();
         }
     }
 }

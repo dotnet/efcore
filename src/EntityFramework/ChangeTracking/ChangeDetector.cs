@@ -8,16 +8,14 @@ using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.ChangeTracking
 {
-    public class ChangeDetector
+    public class ChangeDetector : IPropertyListener
     {
-        private readonly DbContextConfiguration _configuration;
-        private readonly StateEntryNotifier _notifier;
+        private readonly LazyRef<IModel> _model;
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
@@ -28,16 +26,14 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
         }
 
-        public ChangeDetector([NotNull] DbContextConfiguration configuration, [NotNull] StateEntryNotifier notifier)
+        public ChangeDetector([NotNull] LazyRef<IModel> model)
         {
-            Check.NotNull(configuration, "configuration");
-            Check.NotNull(notifier, "notifier");
+            Check.NotNull(model, "model");
 
-            _configuration = configuration;
-            _notifier = notifier;
+            _model = model;
         }
 
-        public virtual void SidecarPropertyChanged([NotNull] StateEntry entry, [NotNull] IPropertyBase propertyBase)
+        public virtual void SidecarPropertyChanged(StateEntry entry, IPropertyBase propertyBase)
         {
             Check.NotNull(entry, "entry");
             Check.NotNull(propertyBase, "propertyBase");
@@ -49,12 +45,12 @@ namespace Microsoft.Data.Entity.ChangeTracking
             }
         }
 
-        public virtual void SidecarPropertyChanging([NotNull] StateEntry entry, [NotNull] IPropertyBase propertyBase)
+        public virtual void SidecarPropertyChanging(StateEntry entry, IPropertyBase propertyBase)
         {
             PropertyChanging(entry, propertyBase);
         }
 
-        public virtual void PropertyChanged([NotNull] StateEntry entry, [NotNull] IPropertyBase propertyBase)
+        public virtual void PropertyChanged(StateEntry entry, IPropertyBase propertyBase)
         {
             Check.NotNull(entry, "entry");
             Check.NotNull(propertyBase, "propertyBase");
@@ -88,7 +84,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             }
         }
 
-        public virtual void PropertyChanging([NotNull] StateEntry entry, [NotNull] IPropertyBase propertyBase)
+        public virtual void PropertyChanging(StateEntry entry, IPropertyBase propertyBase)
         {
             Check.NotNull(entry, "entry");
             Check.NotNull(propertyBase, "propertyBase");
@@ -179,7 +175,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 // of byte[] with the same content must be detected as equal.
                 if (!StructuralComparisons.StructuralEqualityComparer.Equals(currentValue, snapshotValue))
                 {
-                    _notifier.ForeignKeyPropertyChanged(entry, property, snapshotValue, currentValue);
+                    entry.StateManager.Notify.ForeignKeyPropertyChanged(entry, property, snapshotValue, currentValue);
 
                     return true;
                 }
@@ -223,14 +219,14 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 if (added.Any()
                     || removed.Any())
                 {
-                    _notifier.NavigationCollectionChanged(entry, navigation, added, removed);
+                    entry.StateManager.Notify.NavigationCollectionChanged(entry, navigation, added, removed);
 
                     return true;
                 }
             }
             else if (!ReferenceEquals(currentValue, snapshotValue))
             {
-                _notifier.NavigationReferenceChanged(entry, navigation, snapshotValue, currentValue);
+                entry.StateManager.Notify.NavigationReferenceChanged(entry, navigation, snapshotValue, currentValue);
 
                 return true;
             }
@@ -244,7 +240,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             var isPrimaryKey = property.IsPrimaryKey();
 
             // TODO: Perf: make it faster to check if the property is at the principal end or not
-            var foreignKeys = _configuration.Model.GetReferencingForeignKeys(property).ToList();
+            var foreignKeys = _model.Value.GetReferencingForeignKeys(property).ToList();
 
             if (isPrimaryKey || foreignKeys.Count > 0)
             {
@@ -255,10 +251,10 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 {
                     if (isPrimaryKey)
                     {
-                        _configuration.StateManager.UpdateIdentityMap(entry, entry.RelationshipsSnapshot.GetPrimaryKeyValue());
+                        entry.StateManager.UpdateIdentityMap(entry, entry.RelationshipsSnapshot.GetPrimaryKeyValue());
                     }
 
-                    _notifier.PrincipalKeyPropertyChanged(entry, property, snapshotValue, currentValue);
+                    entry.StateManager.Notify.PrincipalKeyPropertyChanged(entry, property, snapshotValue, currentValue);
 
                     entry.RelationshipsSnapshot.TakeSnapshot(property);
 

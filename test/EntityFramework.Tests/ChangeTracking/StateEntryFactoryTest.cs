@@ -20,14 +20,14 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entityType.GetOrAddProperty("Hammer", typeof(string), shadowProperty: true);
 
             var configuration = TestHelpers.CreateContextConfiguration(model);
-
+            var stateManager = configuration.ScopedServiceProvider.GetRequiredService<StateManager>();
             var factory = configuration.ScopedServiceProvider.GetRequiredService<StateEntryFactory>();
 
-            var entry = factory.Create(entityType, new Random());
+            var entry = factory.Create(stateManager, entityType, new Random());
 
             Assert.IsType<ShadowStateEntry>(entry);
 
-            Assert.Same(configuration, entry.Configuration);
+            Assert.Same(stateManager, entry.StateManager);
             Assert.Same(entityType, entry.EntityType);
             Assert.Null(entry.Entity);
         }
@@ -41,15 +41,15 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entityType.GetOrAddProperty("Hammer", typeof(string));
 
             var configuration = TestHelpers.CreateContextConfiguration(model);
-
+            var stateManager = configuration.ScopedServiceProvider.GetRequiredService<StateManager>();
             var factory = configuration.ScopedServiceProvider.GetRequiredService<StateEntryFactory>();
 
             var entity = new RedHook();
-            var entry = factory.Create(entityType, entity);
+            var entry = factory.Create(stateManager, entityType, entity);
 
             Assert.IsType<ClrStateEntry>(entry);
 
-            Assert.Same(configuration, entry.Configuration);
+            Assert.Same(stateManager, entry.StateManager);
             Assert.Same(entityType, entry.EntityType);
             Assert.Same(entity, entry.Entity);
         }
@@ -63,15 +63,15 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entityType.GetOrAddProperty("Hammer", typeof(string), shadowProperty: true);
 
             var configuration = TestHelpers.CreateContextConfiguration(model);
-
+            var stateManager = configuration.ScopedServiceProvider.GetRequiredService<StateManager>();
             var factory = configuration.ScopedServiceProvider.GetRequiredService<StateEntryFactory>();
 
             var entity = new RedHook();
-            var entry = factory.Create(entityType, entity);
+            var entry = factory.Create(stateManager, entityType, entity);
 
             Assert.IsType<MixedStateEntry>(entry);
 
-            Assert.Same(configuration, entry.Configuration);
+            Assert.Same(stateManager, entry.StateManager);
             Assert.Same(entityType, entry.EntityType);
             Assert.Same(entity, entry.Entity);
         }
@@ -85,13 +85,13 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var property2 = entityType.GetOrAddProperty("Hammer", typeof(string), shadowProperty: true);
 
             var configuration = TestHelpers.CreateContextConfiguration(model);
-
+            var stateManager = configuration.ScopedServiceProvider.GetRequiredService<StateManager>();
             var factory = configuration.ScopedServiceProvider.GetRequiredService<StateEntryFactory>();
-            var entry = factory.Create(entityType, new ObjectArrayValueReader(new object[] { "Green", 77 }));
+            var entry = factory.Create(stateManager, entityType, new ObjectArrayValueReader(new object[] { "Green", 77 }));
 
             Assert.IsType<ShadowStateEntry>(entry);
 
-            Assert.Same(configuration, entry.Configuration);
+            Assert.Same(stateManager, entry.StateManager);
             Assert.Same(entityType, entry.EntityType);
             Assert.Equal(77, entry[property1]);
             Assert.Equal("Green", entry[property2]);
@@ -107,14 +107,14 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var property2 = entityType.GetOrAddProperty("Hammer", typeof(string));
 
             var configuration = TestHelpers.CreateContextConfiguration(model);
-
+            var stateManager = configuration.ScopedServiceProvider.GetRequiredService<StateManager>();
             var factory = configuration.ScopedServiceProvider.GetRequiredService<StateEntryFactory>();
 
-            var entry = factory.Create(entityType, new ObjectArrayValueReader(new object[] { "Green", 77 }));
+            var entry = factory.Create(stateManager, entityType, new ObjectArrayValueReader(new object[] { "Green", 77 }));
 
             Assert.IsType<ClrStateEntry>(entry);
 
-            Assert.Same(configuration, entry.Configuration);
+            Assert.Same(stateManager, entry.StateManager);
             Assert.Same(entityType, entry.EntityType);
             Assert.Equal(77, entry[property1]);
             Assert.Equal("Green", entry[property2]);
@@ -133,14 +133,14 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var property2 = entityType.GetOrAddProperty("Hammer", typeof(string), shadowProperty: true);
 
             var configuration = TestHelpers.CreateContextConfiguration(model);
-
+            var stateManager = configuration.ScopedServiceProvider.GetRequiredService<StateManager>();
             var factory = configuration.ScopedServiceProvider.GetRequiredService<StateEntryFactory>();
 
-            var entry = factory.Create(entityType, new ObjectArrayValueReader(new object[] { "Green", 77 }));
+            var entry = factory.Create(stateManager, entityType, new ObjectArrayValueReader(new object[] { "Green", 77 }));
 
             Assert.IsType<MixedStateEntry>(entry);
 
-            Assert.Same(configuration, entry.Configuration);
+            Assert.Same(stateManager, entry.StateManager);
             Assert.Same(entityType, entry.EntityType);
             Assert.Equal(77, entry[property1]);
             Assert.Equal("Green", entry[property2]);

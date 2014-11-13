@@ -237,15 +237,6 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Can_get_model()
-        {
-            var model = BuildModel();
-            var stateManager = CreateStateManager(model);
-
-            Assert.Same(model, stateManager.Model);
-        }
-
-        [Fact]
         public void Listeners_are_notified_when_entity_states_change()
         {
             var listeners = new[]

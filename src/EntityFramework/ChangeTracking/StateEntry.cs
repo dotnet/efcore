@@ -9,8 +9,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Identity;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
@@ -19,7 +17,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public abstract partial class StateEntry : IPropertyBagEntry
     {
-        private readonly DbContextConfiguration _configuration;
+        private readonly StateManager _stateManager;
         private readonly IEntityType _entityType;
         private readonly StateEntryMetadataServices _metadataServices;
         private StateData _stateData;
@@ -37,15 +35,15 @@ namespace Microsoft.Data.Entity.ChangeTracking
         }
 
         protected StateEntry(
-            [NotNull] DbContextConfiguration configuration,
+            [NotNull] StateManager stateManager,
             [NotNull] IEntityType entityType,
             [NotNull] StateEntryMetadataServices metadataServices)
         {
-            Check.NotNull(configuration, "configuration");
+            Check.NotNull(stateManager, "stateManager");
             Check.NotNull(entityType, "entityType");
             Check.NotNull(metadataServices, "metadataServices");
 
-            _configuration = configuration;
+            _stateManager = stateManager;
             _metadataServices = metadataServices;
             _entityType = entityType;
             _stateData = new StateData(_entityType.Properties.Count);
@@ -59,9 +57,9 @@ namespace Microsoft.Data.Entity.ChangeTracking
             get { return _entityType; }
         }
 
-        public virtual DbContextConfiguration Configuration
+        public virtual StateManager StateManager
         {
-            get { return _configuration; }
+            get { return _stateManager; }
         }
 
         public virtual Sidecar OriginalValues
@@ -139,7 +137,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             if (PrepareForAdd(entityState))
             {
-                _configuration.StateManager.ValueGeneration.Generate(this);
+                StateManager.ValueGeneration.Generate(this);
             }
 
             SetEntityState(oldState, entityState);
@@ -154,7 +152,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             if (PrepareForAdd(entityState))
             {
-                await _configuration.StateManager.ValueGeneration.GenerateAsync(this, cancellationToken).WithCurrentCulture();
+                await StateManager.ValueGeneration.GenerateAsync(this, cancellationToken).WithCurrentCulture();
             }
 
             SetEntityState(oldState, entityState);
@@ -211,13 +209,13 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 _stateData.FlagAllProperties(EntityType.Properties.Count(), isFlagged: false);
             }
 
-            _configuration.Services.StateEntryNotifier.StateChanging(this, newState);
+            StateManager.Notify.StateChanging(this, newState);
 
             _stateData.EntityState = newState;
 
             if (oldState == EntityState.Unknown)
             {
-                _configuration.StateManager.StartTracking(this);
+                StateManager.StartTracking(this);
             }
             else if (newState == EntityState.Unknown)
             {
@@ -231,10 +229,10 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
                 // TODO: Does changing to Unknown really mean stop tracking?
                 // Issue #323
-                _configuration.StateManager.StopTracking(this);
+                StateManager.StopTracking(this);
             }
 
-            _configuration.Services.StateEntryNotifier.StateChanged(this, oldState);
+            StateManager.Notify.StateChanged(this, oldState);
         }
 
         public virtual EntityState EntityState
@@ -288,18 +286,16 @@ namespace Microsoft.Data.Entity.ChangeTracking
             // Don't change entity state if it is Added or Deleted
             if (isModified && currentState == EntityState.Unchanged)
             {
-                var notifier = _configuration.Services.StateEntryNotifier;
-                notifier.StateChanging(this, EntityState.Modified);
+                StateManager.Notify.StateChanging(this, EntityState.Modified);
                 _stateData.EntityState = EntityState.Modified;
-                notifier.StateChanged(this, currentState);
+                StateManager.Notify.StateChanged(this, currentState);
             }
             else if (!isModified
                      && !_stateData.AnyPropertiesFlagged())
             {
-                var notifier = _configuration.Services.StateEntryNotifier;
-                notifier.StateChanging(this, EntityState.Unchanged);
+                StateManager.Notify.StateChanging(this, EntityState.Unchanged);
                 _stateData.EntityState = EntityState.Unchanged;
-                notifier.StateChanged(this, currentState);
+                StateManager.Notify.StateChanged(this, currentState);
             }
         }
 
@@ -379,13 +375,12 @@ namespace Microsoft.Data.Entity.ChangeTracking
                         if (sidecar.TransparentWrite
                             && sidecar.CanStoreValue(property))
                         {
-                            var changeDetector = _configuration.Services.ChangeDetector;
-                            changeDetector.SidecarPropertyChanging(this, property);
+                            StateManager.Notify.SidecarPropertyChanging(this, property);
 
                             sidecar[property] = value;
                             wrote = true;
 
-                            changeDetector.SidecarPropertyChanged(this, property);
+                            StateManager.Notify.SidecarPropertyChanged(this, property);
                         }
                     }
                     if (wrote)
@@ -398,13 +393,11 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
                 if (!Equals(currentValue, value))
                 {
-                    var changeDetector = _configuration.Services.ChangeDetector;
-
-                    changeDetector.PropertyChanging(this, property);
+                    StateManager.Notify.PropertyChanging(this, property);
 
                     WritePropertyValue(property, value);
 
-                    changeDetector.PropertyChanged(this, property);
+                    StateManager.Notify.PropertyChanged(this, property);
                 }
             }
         }
@@ -448,11 +441,6 @@ namespace Microsoft.Data.Entity.ChangeTracking
         public virtual object[] GetValueBuffer()
         {
             return EntityType.Properties.Select(p => this[p]).ToArray();
-        }
-
-        public virtual bool DetectChanges()
-        {
-            return _configuration.Services.ChangeDetector.DetectChanges(this);
         }
 
         public virtual void AcceptChanges()

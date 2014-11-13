@@ -756,7 +756,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 Assert.False(entry.IsPropertyModified(nameProperty));
                 Assert.Equal(EntityState.Unchanged, entry.EntityState);
 
-                entry.DetectChanges();
+                configuration.ScopedServiceProvider.GetRequiredService<ChangeDetector>().DetectChanges(entry);
             }
 
             Assert.True(entry.IsPropertyModified(nameProperty));
@@ -1143,20 +1143,18 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             return configuration.Services.ServiceProvider.GetService<StateEntrySubscriber>().SnapshotAndSubscribe(
                 new StateEntryFactory(
-                    configuration,
                     configuration.Services.ServiceProvider.GetService<EntityMaterializerSource>(),
                     configuration.Services.ServiceProvider.GetService<StateEntryMetadataServices>())
-                    .Create(entityType, entity));
+                    .Create(configuration.ScopedServiceProvider.GetService<StateManager>(), entityType, entity));
         }
 
         protected virtual StateEntry CreateStateEntry(DbContextConfiguration configuration, IEntityType entityType, IValueReader valueReader)
         {
             return configuration.Services.ServiceProvider.GetService<StateEntrySubscriber>().SnapshotAndSubscribe(
                 new StateEntryFactory(
-                    configuration,
                     configuration.Services.ServiceProvider.GetService<EntityMaterializerSource>(),
                     configuration.Services.ServiceProvider.GetService<StateEntryMetadataServices>())
-                    .Create(entityType, valueReader));
+                    .Create(configuration.ScopedServiceProvider.GetService<StateManager>(), entityType, valueReader));
         }
 
         protected virtual Model BuildModel()

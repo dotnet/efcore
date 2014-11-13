@@ -66,8 +66,8 @@ namespace Microsoft.Data.Entity.Tests
         {
             var entry = CreateContextConfiguration(model)
                 .Services
-                .StateEntryFactory
-                .Create(model.GetEntityType(typeof(TEntity)), entity ?? new TEntity());
+                .StateManager
+                .GetOrCreateEntry(entity ?? new TEntity());
 
             entry.EntityState = entityState;
 

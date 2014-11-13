@@ -22,8 +22,8 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         {
             var serviceProvider = TestHelpers.CreateServiceProvider();
 
-            var store1 = CreateScopedServices(serviceProvider).GetRequiredService<InMemoryDataStore>();
-            var store2 = CreateScopedServices(serviceProvider).GetRequiredService<InMemoryDataStore>();
+            var store1 = CreateScopedServices(CreateModel(), serviceProvider).GetRequiredService<InMemoryDataStore>();
+            var store2 = CreateScopedServices(CreateModel(), serviceProvider).GetRequiredService<InMemoryDataStore>();
 
             Assert.Same(store1.Database, store2.Database);
         }
@@ -92,12 +92,9 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         [Fact]
         public async Task Save_changes_adds_new_objects_to_store()
         {
-            var serviceProvider = CreateScopedServices();
-            var model = CreateModel();
-            var entityType = model.GetEntityType(typeof(Customer));
-
+            var serviceProvider = CreateScopedServices(CreateModel());
             var customer = new Customer { Id = 42, Name = "Unikorn" };
-            var entityEntry = serviceProvider.GetRequiredService<StateEntryFactory>().Create(entityType, customer);
+            var entityEntry = serviceProvider.GetRequiredService<StateManager>().GetOrCreateEntry(customer);
             await entityEntry.SetEntityStateAsync(EntityState.Added);
 
             var inMemoryDataStore = serviceProvider.GetRequiredService<InMemoryDataStore>();
@@ -111,12 +108,10 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         [Fact]
         public async Task Save_changes_updates_changed_objects_in_store()
         {
-            var serviceProvider = CreateScopedServices();
-            var model = CreateModel();
-            var entityType = model.GetEntityType(typeof(Customer));
+            var serviceProvider = CreateScopedServices(CreateModel());
 
             var customer = new Customer { Id = 42, Name = "Unikorn" };
-            var entityEntry = serviceProvider.GetRequiredService<StateEntryFactory>().Create(entityType, customer);
+            var entityEntry = serviceProvider.GetRequiredService<StateManager>().GetOrCreateEntry(customer);
             await entityEntry.SetEntityStateAsync(EntityState.Added);
 
             var inMemoryDataStore = serviceProvider.GetRequiredService<InMemoryDataStore>();
@@ -135,12 +130,10 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         [Fact]
         public async Task Save_changes_removes_deleted_objects_from_store()
         {
-            var serviceProvider = CreateScopedServices();
-            var model = CreateModel();
-            var entityType = model.GetEntityType(typeof(Customer));
+            var serviceProvider = CreateScopedServices(CreateModel());
 
             var customer = new Customer { Id = 42, Name = "Unikorn" };
-            var entityEntry = serviceProvider.GetRequiredService<StateEntryFactory>().Create(entityType, customer);
+            var entityEntry = serviceProvider.GetRequiredService<StateManager>().GetOrCreateEntry(customer);
             await entityEntry.SetEntityStateAsync(EntityState.Added);
 
             var inMemoryDataStore = serviceProvider.GetRequiredService<InMemoryDataStore>();
@@ -158,11 +151,11 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             Assert.Equal(0, inMemoryDataStore.Database.SelectMany(t => t).Count());
         }
 
-        private static IServiceProvider CreateScopedServices(IServiceProvider serviceProvider = null)
+        private static IServiceProvider CreateScopedServices(IModel model, IServiceProvider serviceProvider = null)
         {
             return new DbContext(
                 serviceProvider ?? TestHelpers.CreateServiceProvider(),
-                new DbContextOptions().UseInMemoryStore()).Configuration.ScopedServiceProvider;
+                new DbContextOptions().UseModel(model).UseInMemoryStore()).Configuration.ScopedServiceProvider;
         }
 
         [Fact]
@@ -181,12 +174,10 @@ namespace Microsoft.Data.Entity.InMemory.Tests
                 .AddInstance(mockFactory.Object)
                 .BuildServiceProvider();
 
-            var scopedServices = CreateScopedServices(serviceProvider);
-            var model = CreateModel();
-            var entityType = model.GetEntityType(typeof(Customer));
+            var scopedServices = CreateScopedServices(CreateModel(), serviceProvider);
 
             var customer = new Customer { Id = 42, Name = "Unikorn" };
-            var entityEntry = scopedServices.GetRequiredService<StateEntryFactory>().Create(entityType, customer);
+            var entityEntry = scopedServices.GetRequiredService<StateManager>().GetOrCreateEntry(customer);
             await entityEntry.SetEntityStateAsync(EntityState.Added);
 
             var inMemoryDataStore = scopedServices.GetRequiredService<InMemoryDataStore>();
@@ -209,10 +200,10 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder.Entity<Customer>(b =>
-                {
-                    b.Key(c => c.Id);
-                    b.Property(c => c.Name);
-                });
+            {
+                b.Key(c => c.Id);
+                b.Property(c => c.Name);
+            });
 
             return model;
         }

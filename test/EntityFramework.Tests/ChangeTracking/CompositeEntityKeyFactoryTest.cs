@@ -16,12 +16,12 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var model = BuildModel();
             var type = model.GetEntityType(typeof(Banana));
-            var factory = TestHelpers.CreateContextConfiguration(model).ScopedServiceProvider.GetRequiredService<StateEntryFactory>();
+            var stateManager = TestHelpers.CreateContextConfiguration(model).ScopedServiceProvider.GetRequiredService<StateManager>();
 
             var random = new Random();
             var entity = new Banana { P1 = 7, P2 = "Ate", P3 = random };
 
-            var entry = factory.Create(type, entity);
+            var entry = stateManager.GetOrCreateEntry(entity);
 
             var key = (CompositeEntityKey)new CompositeEntityKeyFactory().Create(type, type.GetPrimaryKey().Properties, entry);
 
@@ -33,12 +33,12 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var model = BuildModel();
             var type = model.GetEntityType(typeof(Banana));
-            var factory = TestHelpers.CreateContextConfiguration(model).ScopedServiceProvider.GetRequiredService<StateEntryFactory>();
+            var stateManager = TestHelpers.CreateContextConfiguration(model).ScopedServiceProvider.GetRequiredService<StateManager>();
 
             var random = new Random();
             var entity = new Banana { P5 = "Ate", P6 = random };
 
-            var entry = factory.Create(type, entity);
+            var entry = stateManager.GetOrCreateEntry(entity);
 
             var key = (CompositeEntityKey)new CompositeEntityKeyFactory().Create(
                 type, new[] { type.GetProperty("P6"), type.GetProperty("P5") }, entry);
@@ -51,12 +51,12 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var model = BuildModel();
             var type = model.GetEntityType(typeof(Banana));
-            var factory = TestHelpers.CreateContextConfiguration(model).ScopedServiceProvider.GetRequiredService<StateEntryFactory>();
+            var stateManager = TestHelpers.CreateContextConfiguration(model).ScopedServiceProvider.GetRequiredService<StateManager>();
 
             var random = new Random();
             var entity = new Banana { P4 = 7, P5 = "Ate", P6 = random };
 
-            var entry = factory.Create(type, entity);
+            var entry = stateManager.GetOrCreateEntry(entity);
 
             var sidecar = new RelationshipsSnapshot(entry);
             sidecar[type.GetProperty("P4")] = 77;
@@ -72,12 +72,12 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var model = BuildModel();
             var type = model.GetEntityType(typeof(Banana));
-            var factory = TestHelpers.CreateContextConfiguration(model).ScopedServiceProvider.GetRequiredService<StateEntryFactory>();
+            var stateManager = TestHelpers.CreateContextConfiguration(model).ScopedServiceProvider.GetRequiredService<StateManager>();
 
             var random = new Random();
             var entity = new Banana { P1 = 7, P2 = null, P3 = random };
 
-            var entry = factory.Create(type, entity);
+            var entry = stateManager.GetOrCreateEntry(entity);
 
             Assert.Equal(EntityKey.NullEntityKey, new CompositeEntityKeyFactory().Create(type, type.GetPrimaryKey().Properties, entry));
         }

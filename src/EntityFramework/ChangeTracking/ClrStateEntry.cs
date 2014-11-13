@@ -3,7 +3,6 @@
 
 using System;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
@@ -23,11 +22,11 @@ namespace Microsoft.Data.Entity.ChangeTracking
         }
 
         public ClrStateEntry(
-            [NotNull] DbContextConfiguration configuration,
+            [NotNull] StateManager stateManager,
             [NotNull] IEntityType entityType,
             [NotNull] StateEntryMetadataServices metadataServices,
             [NotNull] object entity)
-            : base(configuration, entityType, metadataServices)
+            : base(stateManager, entityType, metadataServices)
         {
             Check.NotNull(entity, "entity");
 

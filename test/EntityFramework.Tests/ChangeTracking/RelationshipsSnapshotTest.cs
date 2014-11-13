@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.Linq;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Framework.DependencyInjection;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Tests.ChangeTracking
@@ -285,9 +286,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             entity = entity ?? new Banana { Id = 77 };
 
-            var configuration = TestHelpers.CreateContextConfiguration(BuildModel());
+            var configuration = TestHelpers.CreateContextConfiguration(_model);
 
-            return configuration.Services.StateEntryFactory.Create(_model.GetEntityType(typeof(Banana)), entity);
+            return configuration.ScopedServiceProvider.GetService<StateManager>().GetOrCreateEntry(entity);
         }
 
         private static Model BuildModel()

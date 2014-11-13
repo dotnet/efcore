@@ -65,10 +65,9 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         [Fact]
         public async Task BatchCommands_creates_valid_batch_for_added_entities()
         {
-            var factory = CreateConfiguration().ScopedServiceProvider.GetRequiredService<StateEntryFactory>();
+            var stateManager = CreateConfiguration(CreateSimpleFKModel()).ScopedServiceProvider.GetRequiredService<StateManager>();
 
-            var stateEntry = factory.Create(
-                CreateSimpleFKModel().GetEntityType(typeof(FakeEntity)), new FakeEntity { Id = 42, Value = "Test" });
+            var stateEntry = stateManager.GetOrCreateEntry(new FakeEntity { Id = 42, Value = "Test" });
 
             await stateEntry.SetEntityStateAsync(EntityState.Added);
 
@@ -104,10 +103,9 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         [Fact]
         public async Task BatchCommands_creates_valid_batch_for_modified_entities()
         {
-            var factory = CreateConfiguration().ScopedServiceProvider.GetRequiredService<StateEntryFactory>();
+            var stateManager = CreateConfiguration(CreateSimpleFKModel()).ScopedServiceProvider.GetRequiredService<StateManager>();
 
-            var stateEntry = factory.Create(
-                CreateSimpleFKModel().GetEntityType(typeof(FakeEntity)), new FakeEntity { Id = 42, Value = "Test" });
+            var stateEntry = stateManager.GetOrCreateEntry(new FakeEntity { Id = 42, Value = "Test" });
 
             await stateEntry.SetEntityStateAsync(EntityState.Modified);
             stateEntry.SetPropertyModified(stateEntry.EntityType.GetPrimaryKey().Properties.Single(), isModified: false);
@@ -144,10 +142,9 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         [Fact]
         public async Task BatchCommands_creates_valid_batch_for_deleted_entities()
         {
-            var factory = CreateConfiguration().ScopedServiceProvider.GetRequiredService<StateEntryFactory>();
+            var stateManager = CreateConfiguration(CreateSimpleFKModel()).ScopedServiceProvider.GetRequiredService<StateManager>();
 
-            var stateEntry = factory.Create(
-                CreateSimpleFKModel().GetEntityType(typeof(FakeEntity)), new FakeEntity { Id = 42, Value = "Test" });
+            var stateEntry = stateManager.GetOrCreateEntry(new FakeEntity { Id = 42, Value = "Test" });
 
             await stateEntry.SetEntityStateAsync(EntityState.Deleted);
 
@@ -173,16 +170,13 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         [Fact]
         public async Task BatchCommands_sorts_related_added_entities()
         {
-            var configuration = CreateConfiguration();
-            var model = CreateSimpleFKModel();
-            var factory = configuration.ScopedServiceProvider.GetRequiredService<StateEntryFactory>();
+            var configuration = CreateConfiguration(CreateSimpleFKModel());
+            var stateManager = configuration.ScopedServiceProvider.GetRequiredService<StateManager>();
 
-            var stateEntry = factory.Create(
-                model.GetEntityType(typeof(FakeEntity)), new FakeEntity { Id = 42, Value = "Test" });
+            var stateEntry = stateManager.GetOrCreateEntry(new FakeEntity { Id = 42, Value = "Test" });
             await stateEntry.SetEntityStateAsync(EntityState.Added);
 
-            var relatedStateEntry = factory.Create(
-                model.GetEntityType(typeof(RelatedFakeEntity)), new RelatedFakeEntity { Id = 42 });
+            var relatedStateEntry = stateManager.GetOrCreateEntry(new RelatedFakeEntity { Id = 42 });
             await relatedStateEntry.SetEntityStateAsync(EntityState.Added);
 
             var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { relatedStateEntry, stateEntry }).ToArray();
@@ -195,16 +189,13 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         [Fact]
         public async Task BatchCommands_sorts_added_and_related_modified_entities()
         {
-            var configuration = CreateConfiguration();
-            var model = CreateSimpleFKModel();
-            var factory = configuration.ScopedServiceProvider.GetRequiredService<StateEntryFactory>();
+            var configuration = CreateConfiguration(CreateSimpleFKModel());
+            var stateManager = configuration.ScopedServiceProvider.GetRequiredService<StateManager>();
 
-            var stateEntry = factory.Create(
-                model.GetEntityType(typeof(FakeEntity)), new FakeEntity { Id = 42, Value = "Test" });
+            var stateEntry = stateManager.GetOrCreateEntry(new FakeEntity { Id = 42, Value = "Test" });
             await stateEntry.SetEntityStateAsync(EntityState.Added);
 
-            var relatedStateEntry = factory.Create(
-                model.GetEntityType(typeof(RelatedFakeEntity)), new RelatedFakeEntity { Id = 42 });
+            var relatedStateEntry = stateManager.GetOrCreateEntry(new RelatedFakeEntity { Id = 42 });
             await relatedStateEntry.SetEntityStateAsync(EntityState.Modified);
 
             var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { relatedStateEntry, stateEntry }).ToArray();
@@ -217,16 +208,13 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         [Fact]
         public async Task BatchCommands_sorts_unrelated_entities()
         {
-            var configuration = CreateConfiguration();
-            var model = CreateSimpleFKModel();
-            var factory = configuration.ScopedServiceProvider.GetRequiredService<StateEntryFactory>();
+            var configuration = CreateConfiguration(CreateSimpleFKModel());
+            var stateManager = configuration.ScopedServiceProvider.GetRequiredService<StateManager>();
 
-            var firstStateEntry = factory.Create(
-                model.GetEntityType(typeof(FakeEntity)), new FakeEntity { Id = 42, Value = "Test" });
+            var firstStateEntry = stateManager.GetOrCreateEntry(new FakeEntity { Id = 42, Value = "Test" });
             await firstStateEntry.SetEntityStateAsync(EntityState.Added);
 
-            var secondStateEntry = factory.Create(
-                model.GetEntityType(typeof(RelatedFakeEntity)), new RelatedFakeEntity { Id = 1 });
+            var secondStateEntry = stateManager.GetOrCreateEntry(new RelatedFakeEntity { Id = 1 });
             await secondStateEntry.SetEntityStateAsync(EntityState.Added);
 
             var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { secondStateEntry, firstStateEntry }).ToArray();
@@ -239,20 +227,16 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         [Fact]
         public async Task BatchCommands_sorts_entities_when_reparenting()
         {
-            var configuration = CreateConfiguration();
-            var model = CreateCyclicFKModel();
-            var factory = configuration.ScopedServiceProvider.GetRequiredService<StateEntryFactory>();
+            var configuration = CreateConfiguration(CreateCyclicFKModel());
+            var stateManager = configuration.ScopedServiceProvider.GetRequiredService<StateManager>();
 
-            var previousParent = factory.Create(
-                model.GetEntityType(typeof(FakeEntity)), new FakeEntity { Id = 42, Value = "Test" });
+            var previousParent = stateManager.GetOrCreateEntry(new FakeEntity { Id = 42, Value = "Test" });
             await previousParent.SetEntityStateAsync(EntityState.Deleted);
 
-            var newParent = factory.Create(
-                model.GetEntityType(typeof(FakeEntity)), new FakeEntity { Id = 3, Value = "Test" });
+            var newParent = stateManager.GetOrCreateEntry(new FakeEntity { Id = 3, Value = "Test" });
             await newParent.SetEntityStateAsync(EntityState.Added);
 
-            var relatedStateEntry = factory.Create(
-                model.GetEntityType(typeof(RelatedFakeEntity)), new RelatedFakeEntity { Id = 1, RelatedId = 3 });
+            var relatedStateEntry = stateManager.GetOrCreateEntry(new RelatedFakeEntity { Id = 1, RelatedId = 3 });
             await relatedStateEntry.SetEntityStateAsync(EntityState.Modified);
             relatedStateEntry.OriginalValues[relatedStateEntry.EntityType.GetProperty("RelatedId")] = 42;
             relatedStateEntry.SetPropertyModified(relatedStateEntry.EntityType.GetPrimaryKey().Properties.Single(), isModified: false);
@@ -267,17 +251,14 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         [Fact]
         public async Task BatchCommands_creates_batches_lazily()
         {
-            var configuration = CreateConfiguration();
-            var model = CreateSimpleFKModel();
-            var factory = configuration.ScopedServiceProvider.GetRequiredService<StateEntryFactory>();
+            var configuration = CreateConfiguration(CreateSimpleFKModel());
+            var stateManager = configuration.ScopedServiceProvider.GetRequiredService<StateManager>();
 
             var fakeEntity = new FakeEntity { Id = 42, Value = "Test" };
-            var stateEntry = factory.Create(
-                model.GetEntityType(typeof(FakeEntity)), fakeEntity);
+            var stateEntry = stateManager.GetOrCreateEntry(fakeEntity);
             await stateEntry.SetEntityStateAsync(EntityState.Added);
 
-            var relatedStateEntry = factory.Create(
-                model.GetEntityType(typeof(RelatedFakeEntity)), new RelatedFakeEntity { Id = 42 });
+            var relatedStateEntry = stateManager.GetOrCreateEntry(new RelatedFakeEntity { Id = 42 });
             await relatedStateEntry.SetEntityStateAsync(EntityState.Added);
 
             var modificationCommandBatchFactoryMock = new Mock<ModificationCommandBatchFactory>();
@@ -294,9 +275,9 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             modificationCommandBatchFactoryMock.Verify(mcb => mcb.Create(), Times.Exactly(2));
         }
 
-        private static DbContextConfiguration CreateConfiguration()
+        private static DbContextConfiguration CreateConfiguration(IModel model)
         {
-            return new DbContext(new DbContextOptions().UseInMemoryStore(persist: false)).Configuration;
+            return new DbContext(new DbContextOptions().UseModel(model).UseInMemoryStore(persist: false)).Configuration;
         }
 
         private static CommandBatchPreparer CreateCommandBatchPreparer(ModificationCommandBatchFactory modificationCommandBatchFactory = null)
@@ -316,16 +297,16 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder.Entity<FakeEntity>(b =>
-                {
-                    b.Key(c => c.Id);
-                    b.Property(c => c.Value);
-                });
+            {
+                b.Key(c => c.Id);
+                b.Property(c => c.Value);
+            });
 
             modelBuilder.Entity<RelatedFakeEntity>(b =>
-                {
-                    b.Key(c => c.Id);
-                    b.ForeignKey<FakeEntity>(c => c.Id);
-                });
+            {
+                b.Key(c => c.Id);
+                b.ForeignKey<FakeEntity>(c => c.Id);
+            });
 
             return model;
         }
@@ -336,16 +317,16 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder.Entity<FakeEntity>(b =>
-                {
-                    b.Key(c => c.Id);
-                    b.Property(c => c.Value);
-                });
+            {
+                b.Key(c => c.Id);
+                b.Property(c => c.Value);
+            });
 
             modelBuilder.Entity<RelatedFakeEntity>(b =>
-                {
-                    b.Key(c => c.Id);
-                    b.ForeignKey<FakeEntity>(c => c.RelatedId);
-                });
+            {
+                b.Key(c => c.Id);
+                b.ForeignKey<FakeEntity>(c => c.RelatedId);
+            });
 
             modelBuilder
                 .Entity<FakeEntity>()

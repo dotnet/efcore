@@ -3,7 +3,6 @@
 
 using System;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
@@ -24,11 +23,11 @@ namespace Microsoft.Data.Entity.ChangeTracking
         }
 
         public MixedStateEntry(
-            [NotNull] DbContextConfiguration configuration,
+            [NotNull] StateManager stateManager,
             [NotNull] IEntityType entityType,
             [NotNull] StateEntryMetadataServices metadataServices,
             [NotNull] object entity)
-            : base(configuration, entityType, metadataServices)
+            : base(stateManager, entityType, metadataServices)
         {
             Check.NotNull(entity, "entity");
 
@@ -37,12 +36,12 @@ namespace Microsoft.Data.Entity.ChangeTracking
         }
 
         public MixedStateEntry(
-            [NotNull] DbContextConfiguration configuration,
+            [NotNull] StateManager stateManager,
             [NotNull] IEntityType entityType,
             [NotNull] StateEntryMetadataServices metadataServices,
             [NotNull] object entity,
             [NotNull] IValueReader valueReader)
-            : base(configuration, entityType, metadataServices)
+            : base(stateManager, entityType, metadataServices)
         {
             Check.NotNull(entity, "entity");
             Check.NotNull(valueReader, "valueReader");

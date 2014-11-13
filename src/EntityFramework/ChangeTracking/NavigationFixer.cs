@@ -7,18 +7,18 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.ChangeTracking
 {
-    public class NavigationFixer : IEntityStateListener
+    public class NavigationFixer : IEntityStateListener, IRelationshipListener
     {
-        private readonly DbContextConfiguration _configuration;
-        private readonly ClrCollectionAccessorSource _collectionAccessorSource;
         private readonly ClrPropertySetterSource _setterSource;
         private readonly ClrPropertyGetterSource _getterSource;
+        private readonly ClrCollectionAccessorSource _collectionAccessorSource;
+        private readonly StoreGeneratedValuesFactory _storeGeneratedValuesFactory;
+        private readonly LazyRef<IModel> _model;
         private bool _inFixup;
 
         /// <summary>
@@ -31,20 +31,23 @@ namespace Microsoft.Data.Entity.ChangeTracking
         }
 
         public NavigationFixer(
-            [NotNull] DbContextConfiguration configuration,
             [NotNull] ClrPropertyGetterSource getterSource,
             [NotNull] ClrPropertySetterSource setterSource,
-            [NotNull] ClrCollectionAccessorSource collectionAccessorSource)
+            [NotNull] ClrCollectionAccessorSource collectionAccessorSource,
+            [NotNull] StoreGeneratedValuesFactory storeGeneratedValuesFactory,
+            [NotNull] LazyRef<IModel> model)
         {
-            Check.NotNull(configuration, "configuration");
             Check.NotNull(getterSource, "getterSource");
             Check.NotNull(setterSource, "setterSource");
             Check.NotNull(collectionAccessorSource, "collectionAccessorSource");
+            Check.NotNull(storeGeneratedValuesFactory, "storeGeneratedValuesFactory");
+            Check.NotNull(model, "model");
 
-            _configuration = configuration;
             _getterSource = getterSource;
             _setterSource = setterSource;
             _collectionAccessorSource = collectionAccessorSource;
+            _storeGeneratedValuesFactory = storeGeneratedValuesFactory;
+            _model = model;
         }
 
         public virtual void ForeignKeyPropertyChanged(StateEntry entry, IProperty property, object oldValue, object newValue)
@@ -57,24 +60,22 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         private void ForeignKeyPropertyChangedAction(StateEntry entry, IProperty property, object oldValue, object newValue)
         {
-            var stateManager = _configuration.StateManager;
-
             foreach (var foreignKey in entry.EntityType.ForeignKeys.Where(p => p.Properties.Contains(property)).Distinct())
             {
-                var navigations = stateManager.Model.GetNavigations(foreignKey).ToList();
+                var navigations = _model.Value.GetNavigations(foreignKey).ToList();
 
-                var oldPrincipalEntry = stateManager.GetPrincipal(entry.RelationshipsSnapshot, foreignKey);
+                var oldPrincipalEntry = entry.StateManager.GetPrincipal(entry.RelationshipsSnapshot, foreignKey);
                 if (oldPrincipalEntry != null)
                 {
                     Unfixup(navigations, oldPrincipalEntry, entry);
                 }
 
-                var principalEntry = stateManager.GetPrincipal(entry, foreignKey);
+                var principalEntry = entry.StateManager.GetPrincipal(entry, foreignKey);
                 if (principalEntry != null)
                 {
                     if (foreignKey.IsUnique)
                     {
-                        var oldDependents = stateManager.GetDependents(principalEntry, foreignKey).Where(e => e != entry).ToList();
+                        var oldDependents = entry.StateManager.GetDependents(principalEntry, foreignKey).Where(e => e != entry).ToList();
 
                         // TODO: Decide how to handle case where multiple values found (negative case)
                         // Issue #739
@@ -102,7 +103,6 @@ namespace Microsoft.Data.Entity.ChangeTracking
             var foreignKey = navigation.ForeignKey;
             var dependentProperties = foreignKey.Properties;
             var principalProperties = foreignKey.ReferencedProperties;
-            var stateManager = _configuration.StateManager;
 
             // TODO: What if the other entry is not yet being tracked?
             // Issue #323
@@ -110,7 +110,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             {
                 if (newValue != null)
                 {
-                    SetForeignKeyValue(entry, dependentProperties, stateManager.GetOrCreateEntry(newValue), principalProperties);
+                    SetForeignKeyValue(entry, dependentProperties, entry.StateManager.GetOrCreateEntry(newValue), principalProperties);
                 }
                 else
                 {
@@ -123,12 +123,12 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
                 if (newValue != null)
                 {
-                    SetForeignKeyValue(stateManager.GetOrCreateEntry(newValue), dependentProperties, entry, principalProperties);
+                    SetForeignKeyValue(entry.StateManager.GetOrCreateEntry(newValue), dependentProperties, entry, principalProperties);
                 }
 
                 if (oldValue != null)
                 {
-                    ConditionallySetNullForeignKey(stateManager.GetOrCreateEntry(oldValue), dependentProperties, entry, principalProperties);
+                    ConditionallySetNullForeignKey(entry.StateManager.GetOrCreateEntry(oldValue), dependentProperties, entry, principalProperties);
                 }
             }
 
@@ -158,8 +158,6 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
             Contract.Assert(navigation.IsCollection());
 
-            var stateManager = _configuration.StateManager;
-
             var dependentProperties = navigation.ForeignKey.Properties;
             var principalValues = navigation.ForeignKey.ReferencedProperties.Select(p => entry[p]).ToList();
 
@@ -167,13 +165,13 @@ namespace Microsoft.Data.Entity.ChangeTracking
             // Issue #323
             foreach (var entity in removed)
             {
-                ConditionallySetNullForeignKey(stateManager.GetOrCreateEntry(entity), dependentProperties, principalValues);
+                ConditionallySetNullForeignKey(entry.StateManager.GetOrCreateEntry(entity), dependentProperties, principalValues);
                 ConditionallyClearInverse(entry, navigation, entity);
             }
 
             foreach (var entity in added)
             {
-                SetForeignKeyValue(stateManager.GetOrCreateEntry(entity), dependentProperties, principalValues);
+                SetForeignKeyValue(entry.StateManager.GetOrCreateEntry(entity), dependentProperties, principalValues);
                 SetInverse(entry, navigation, entity);
             }
         }
@@ -188,22 +186,19 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         private void PrincipalKeyPropertyChangedAction(StateEntry entry, IProperty property, object oldValue, object newValue)
         {
-            var stateManager = _configuration.StateManager;
-            var generatedValuesFactory = _configuration.Services.StoreGeneratedValuesFactory;
-
-            foreach (var foreignKey in _configuration.Model.EntityTypes.SelectMany(
+            foreach (var foreignKey in _model.Value.EntityTypes.SelectMany(
                 e => e.ForeignKeys.Where(f => f.ReferencedProperties.Contains(property))))
             {
                 var newKeyValues = foreignKey.ReferencedProperties.Select(p => entry[p]).ToList();
                 var oldKey = entry.RelationshipsSnapshot.GetPrincipalKeyValue(foreignKey);
 
-                foreach (var dependent in stateManager.StateEntries.Where(
+                foreach (var dependent in entry.StateManager.StateEntries.Where(
                     e => e.EntityType == foreignKey.EntityType
                          && oldKey.Equals(e.GetDependentKeyValue(foreignKey))).ToList())
                 {
                     if (dependent.TryGetSidecar(Sidecar.WellKnownNames.StoreGeneratedValues) == null)
                     {
-                        dependent.AddSidecar(generatedValuesFactory.Create(dependent));
+                        dependent.AddSidecar(_storeGeneratedValuesFactory.Create(dependent));
                     }
                     SetForeignKeyValue(dependent, foreignKey.Properties, newKeyValues);
                 }
@@ -229,7 +224,6 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         private void InitialFixup(StateEntry entry, EntityState oldState)
         {
-            var stateManager = _configuration.StateManager;
             var entityType = entry.EntityType;
 
             foreach (var navigation in entityType.Navigations)
@@ -257,10 +251,10 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 }
             }
 
-            var stateEntries = stateManager.StateEntries.ToList();
+            var stateEntries = entry.StateManager.StateEntries.ToList();
 
             // TODO: Perf on this state manager query
-            foreach (var navigation in stateManager.Model.EntityTypes
+            foreach (var navigation in _model.Value.EntityTypes
                 .SelectMany(e => e.Navigations)
                 .Where(n => n.GetTargetType() == entityType))
             {
@@ -313,16 +307,16 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             foreach (var foreignKey in entityType.ForeignKeys)
             {
-                var principalEntry = stateManager.GetPrincipal(entry.RelationshipsSnapshot, foreignKey);
+                var principalEntry = entry.StateManager.GetPrincipal(entry.RelationshipsSnapshot, foreignKey);
                 if (principalEntry != null)
                 {
                     DoFixup(foreignKey, principalEntry, new[] { entry });
                 }
             }
 
-            foreach (var foreignKey in stateManager.Model.GetReferencingForeignKeys(entityType))
+            foreach (var foreignKey in _model.Value.GetReferencingForeignKeys(entityType))
             {
-                var dependents = stateManager.GetDependents(entry, foreignKey).ToArray();
+                var dependents = entry.StateManager.GetDependents(entry, foreignKey).ToArray();
 
                 if (dependents.Length > 0)
                 {
@@ -352,7 +346,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         private void DoFixup(IForeignKey foreignKey, StateEntry principalEntry, StateEntry[] dependentEntries)
         {
-            DoFixup(_configuration.StateManager.Model.GetNavigations(foreignKey).ToList(), principalEntry, dependentEntries);
+            DoFixup(_model.Value.GetNavigations(foreignKey).ToList(), principalEntry, dependentEntries);
         }
 
         private void DoFixup(IEnumerable<INavigation> navigations, StateEntry principalEntry, StateEntry[] dependentEntries)
@@ -513,7 +507,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                     _setterSource.GetAccessor(inverse).SetClrValue(entity, entry.Entity);
                 }
 
-                _configuration.StateManager.GetOrCreateEntry(entity).RelationshipsSnapshot.TakeSnapshot(inverse);
+                entry.StateManager.GetOrCreateEntry(entity).RelationshipsSnapshot.TakeSnapshot(inverse);
             }
         }
 
@@ -535,7 +529,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                     }
                 }
 
-                _configuration.StateManager.GetOrCreateEntry(entity).RelationshipsSnapshot.TakeSnapshot(inverse);
+                entry.StateManager.GetOrCreateEntry(entity).RelationshipsSnapshot.TakeSnapshot(inverse);
             }
         }
     }

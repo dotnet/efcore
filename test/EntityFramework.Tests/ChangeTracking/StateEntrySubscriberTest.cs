@@ -5,7 +5,6 @@ using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Microsoft.Data.Entity.ChangeTracking;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Moq;
 using Xunit;
@@ -61,13 +60,13 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entryMock.Setup(m => m.EntityType).Returns(entityType);
             entryMock.Setup(m => m.Entity).Returns(entity);
 
-            var detectorMock = new Mock<ChangeDetector>();
-            new StateEntrySubscriber(detectorMock.Object).SnapshotAndSubscribe(entryMock.Object);
+            var notifierMock = new Mock<StateEntryNotifier>();
+            new StateEntrySubscriber(notifierMock.Object).SnapshotAndSubscribe(entryMock.Object);
 
             entity.Name = "George";
 
-            detectorMock.Verify(m => m.PropertyChanging(entryMock.Object, property));
-            detectorMock.Verify(m => m.PropertyChanged(entryMock.Object, property));
+            notifierMock.Verify(m => m.PropertyChanging(entryMock.Object, property));
+            notifierMock.Verify(m => m.PropertyChanged(entryMock.Object, property));
         }
 
         [Fact]
@@ -82,18 +81,18 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entryMock.Setup(m => m.EntityType).Returns(entityType);
             entryMock.Setup(m => m.Entity).Returns(entity);
 
-            var detectorMock = new Mock<ChangeDetector>();
-            new StateEntrySubscriber(detectorMock.Object).SnapshotAndSubscribe(entryMock.Object);
+            var notifierMock = new Mock<StateEntryNotifier>();
+            new StateEntrySubscriber(notifierMock.Object).SnapshotAndSubscribe(entryMock.Object);
 
             entity.NotMapped = "Formby";
 
-            detectorMock.Verify(m => m.PropertyChanging(It.IsAny<StateEntry>(), It.IsAny<IProperty>()), Times.Never);
-            detectorMock.Verify(m => m.PropertyChanged(It.IsAny<StateEntry>(), It.IsAny<IProperty>()), Times.Never);
+            notifierMock.Verify(m => m.PropertyChanging(It.IsAny<StateEntry>(), It.IsAny<IProperty>()), Times.Never);
+            notifierMock.Verify(m => m.PropertyChanged(It.IsAny<StateEntry>(), It.IsAny<IProperty>()), Times.Never);
         }
 
         private static StateEntrySubscriber CreateSubscriber()
         {
-            return new StateEntrySubscriber(new ChangeDetector(Mock.Of<DbContextConfiguration>(), Mock.Of<StateEntryNotifier>()));
+            return new StateEntrySubscriber(Mock.Of<StateEntryNotifier>());
         }
 
         private class FullNotificationEntity : INotifyPropertyChanging, INotifyPropertyChanged

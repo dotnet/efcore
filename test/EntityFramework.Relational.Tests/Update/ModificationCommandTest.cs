@@ -393,8 +393,8 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             bool computeNonKeyValue = false)
         {
             var model = BuildModel(generateKeyValues, computeNonKeyValue);
-            var stateEntry = CreateConfiguration(model).Services.StateEntryFactory.Create(
-                model.GetEntityType(typeof(T1).FullName), new T1 { Id = 1, Name = "Test" });
+            var stateEntry = CreateConfiguration(model).ScopedServiceProvider.GetService<StateManager>().GetOrCreateEntry(
+                new T1 { Id = 1, Name = "Test" });
             stateEntry.EntityState = entityState;
             return stateEntry;
         }

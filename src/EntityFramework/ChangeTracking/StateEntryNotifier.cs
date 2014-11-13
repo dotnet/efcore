@@ -13,6 +13,8 @@ namespace Microsoft.Data.Entity.ChangeTracking
     public class StateEntryNotifier
     {
         private readonly IEntityStateListener[] _entityStateListeners;
+        private readonly IPropertyListener[] _propertyListeners;
+        private readonly IRelationshipListener[] _relationshipListeners;
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
@@ -23,12 +25,27 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
         }
 
-        public StateEntryNotifier([CanBeNull] IEnumerable<IEntityStateListener> entityStateListeners)
+        public StateEntryNotifier(
+            [CanBeNull] IEnumerable<IEntityStateListener> entityStateListeners,
+            [CanBeNull] IEnumerable<IPropertyListener> propertyListeners,
+            [CanBeNull] IEnumerable<IRelationshipListener> relationshipListeners)
         {
             if (entityStateListeners != null)
             {
-                var stateListeners = entityStateListeners.ToArray();
-                _entityStateListeners = stateListeners.Length == 0 ? null : stateListeners;
+                var listeners = entityStateListeners.ToArray();
+                _entityStateListeners = listeners.Length == 0 ? null : listeners;
+            }
+
+            if (propertyListeners != null)
+            {
+                var listeners = propertyListeners.ToArray();
+                _propertyListeners = listeners.Length == 0 ? null : listeners;
+            }
+
+            if (relationshipListeners != null)
+            {
+                var listeners = relationshipListeners.ToArray();
+                _relationshipListeners = listeners.Length == 0 ? null : listeners;
             }
         }
 
@@ -86,6 +103,38 @@ namespace Microsoft.Data.Entity.ChangeTracking
             Dispatch(l => l.PrincipalKeyPropertyChanged(entry, property, oldValue, newValue));
         }
 
+        public virtual void SidecarPropertyChanged([NotNull] StateEntry entry, [NotNull] IPropertyBase property)
+        {
+            Check.NotNull(entry, "entry");
+            Check.NotNull(property, "property");
+
+            Dispatch(l => l.SidecarPropertyChanged(entry, property));
+        }
+
+        public virtual void SidecarPropertyChanging([NotNull] StateEntry entry, [NotNull] IPropertyBase property)
+        {
+            Check.NotNull(entry, "entry");
+            Check.NotNull(property, "property");
+
+            Dispatch(l => l.SidecarPropertyChanging(entry, property));
+        }
+
+        public virtual void PropertyChanged([NotNull] StateEntry entry, [NotNull] IPropertyBase property)
+        {
+            Check.NotNull(entry, "entry");
+            Check.NotNull(property, "property");
+
+            Dispatch(l => l.PropertyChanged(entry, property));
+        }
+
+        public virtual void PropertyChanging([NotNull] StateEntry entry, [NotNull] IPropertyBase property)
+        {
+            Check.NotNull(entry, "entry");
+            Check.NotNull(property, "property");
+
+            Dispatch(l => l.PropertyChanging(entry, property));
+        }
+
         private void Dispatch(Action<IEntityStateListener> action)
         {
             if (_entityStateListeners == null)
@@ -94,6 +143,32 @@ namespace Microsoft.Data.Entity.ChangeTracking
             }
 
             foreach (var listener in _entityStateListeners)
+            {
+                action(listener);
+            }
+        }
+
+        private void Dispatch(Action<IPropertyListener> action)
+        {
+            if (_entityStateListeners == null)
+            {
+                return;
+            }
+
+            foreach (var listener in _propertyListeners)
+            {
+                action(listener);
+            }
+        }
+
+        private void Dispatch(Action<IRelationshipListener> action)
+        {
+            if (_entityStateListeners == null)
+            {
+                return;
+            }
+
+            foreach (var listener in _relationshipListeners)
             {
                 action(listener);
             }

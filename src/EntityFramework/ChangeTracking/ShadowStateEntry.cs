@@ -4,7 +4,6 @@
 using System;
 using System.Diagnostics.Contracts;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
@@ -29,20 +28,20 @@ namespace Microsoft.Data.Entity.ChangeTracking
         }
 
         public ShadowStateEntry(
-            [NotNull] DbContextConfiguration configuration,
+            [NotNull] StateManager stateManager,
             [NotNull] IEntityType entityType,
             [NotNull] StateEntryMetadataServices metadataServices)
-            : base(configuration, entityType, metadataServices)
+            : base(stateManager, entityType, metadataServices)
         {
             _propertyValues = new object[entityType.ShadowPropertyCount];
         }
 
         public ShadowStateEntry(
-            [NotNull] DbContextConfiguration configuration,
+            [NotNull] StateManager stateManager,
             [NotNull] IEntityType entityType,
             [NotNull] StateEntryMetadataServices metadataServices,
             [NotNull] IValueReader valueReader)
-            : base(configuration, entityType, metadataServices)
+            : base(stateManager, entityType, metadataServices)
         {
             Check.NotNull(valueReader, "valueReader");
 

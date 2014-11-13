@@ -8,6 +8,7 @@ using System.Linq;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Framework.DependencyInjection;
 using Moq;
 using Xunit;
 
@@ -988,7 +989,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
         private static NavigationFixer CreateNavigationFixer(DbContextConfiguration contextConfiguration)
         {
-            return new NavigationFixer(contextConfiguration, new ClrPropertyGetterSource(), new ClrPropertySetterSource(), new ClrCollectionAccessorSource(new CollectionTypeFactory()));
+            return (NavigationFixer)contextConfiguration.ScopedServiceProvider.GetService<IEntityStateListener>();
         }
     }
 }

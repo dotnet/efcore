@@ -44,7 +44,7 @@ namespace Microsoft.Data.Entity.Identity
             Contract.Assert(property.IsForeignKey());
 
             var entityType = property.EntityType;
-            var stateManager = stateEntry.Configuration.StateManager;
+            var stateManager = stateEntry.StateManager;
 
             foreach (var foreignKey in entityType.ForeignKeys)
             {

@@ -11,13 +11,13 @@ namespace Microsoft.Data.Entity.ChangeTracking
 {
     public class StateEntrySubscriber
     {
-        private readonly ChangeDetector _changeDetector;
+        private readonly StateEntryNotifier _notifier;
 
-        public StateEntrySubscriber([NotNull] ChangeDetector changeDetector)
+        public StateEntrySubscriber([NotNull] StateEntryNotifier notifier)
         {
-            Check.NotNull(changeDetector, "changeDetector");
+            Check.NotNull(notifier, "notifier");
 
-            _changeDetector = changeDetector;
+            _notifier = notifier;
         }
 
         public virtual StateEntry SnapshotAndSubscribe([NotNull] StateEntry entry)
@@ -34,26 +34,26 @@ namespace Microsoft.Data.Entity.ChangeTracking
             if (changing != null)
             {
                 changing.PropertyChanging += (s, e) =>
+                {
+                    var property = TryGetPropertyBase(entityType, e.PropertyName);
+                    if (property != null)
                     {
-                        var property = TryGetPropertyBase(entityType, e.PropertyName);
-                        if (property != null)
-                        {
-                            _changeDetector.PropertyChanging(entry, property);
-                        }
-                    };
+                        _notifier.PropertyChanging(entry, property);
+                    }
+                };
             }
 
             var changed = entry.Entity as INotifyPropertyChanged;
             if (changed != null)
             {
                 changed.PropertyChanged += (s, e) =>
+                {
+                    var property = TryGetPropertyBase(entityType, e.PropertyName);
+                    if (property != null)
                     {
-                        var property = TryGetPropertyBase(entityType, e.PropertyName);
-                        if (property != null)
-                        {
-                            _changeDetector.PropertyChanged(entry, property);
-                        }
-                    };
+                        _notifier.PropertyChanged(entry, property);
+                    }
+                };
             }
 
             return entry;
