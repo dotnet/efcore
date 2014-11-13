@@ -27,18 +27,8 @@ namespace Microsoft.Data.Entity.Relational.Model
                 Tuple.Create(typeof(float), new RelationalTypeMapping("real", DbType.Single))
             };
 
-        // TODO: What is the best size value for the base provider mapping?
-        // Issue #768
-        private readonly RelationalTypeMapping _nonKeyStringMapping
+        private readonly RelationalSizedTypeMapping _stringMapping
             = new RelationalSizedTypeMapping("varchar(4000)", DbType.AnsiString, 4000);
-
-        // TODO: What is the best size value for the base provider mapping?
-        // Issue #768
-        private readonly RelationalTypeMapping _keyStringMapping
-            = new RelationalSizedTypeMapping("varchar(128)", DbType.AnsiString, 128);
-
-        private readonly RelationalTypeMapping _rowVersionMapping
-            = new RelationalSizedTypeMapping("rowversion", DbType.Binary, 8);
 
         private readonly RelationalDecimalTypeMapping _decimalMapping = new RelationalDecimalTypeMapping(18, 2);
 
@@ -82,16 +72,8 @@ namespace Microsoft.Data.Entity.Relational.Model
 
             if (propertyType == typeof(string))
             {
-                if (isKey)
-                {
-                    return _keyStringMapping;
-                }
-                return _nonKeyStringMapping;
-            }
-
-            if (propertyType == typeof(byte[]) && isConcurrencyToken)
-            {
-                return _rowVersionMapping;
+                // TODO: Honor length if configured; fallthrough if unbounded
+                return _stringMapping;
             }
 
             // TODO: Consider TimeSpan mapping

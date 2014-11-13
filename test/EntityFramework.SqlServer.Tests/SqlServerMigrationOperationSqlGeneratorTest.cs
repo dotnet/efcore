@@ -297,7 +297,7 @@ EXECUTE('ALTER TABLE [dbo].[MyTable] DROP CONSTRAINT ""' + @var0 + '""')",
             table.PrimaryKey = new PrimaryKey("PK_Users", new List<Column> { column }.AsReadOnly());
             table.AddColumn(column);
 
-            Assert.Equal("nvarchar(128)", GenerateDataType(column));
+            Assert.Equal("nvarchar(450)", GenerateDataType(column));
         }
 
         [Fact]
@@ -435,7 +435,7 @@ EXECUTE('ALTER TABLE [dbo].[MyTable] DROP CONSTRAINT ""' + @var0 + '""')",
             var table = new Table("dbo.Users") { PrimaryKey = new PrimaryKey("PK_Users", new[] { column }) };
             table.AddColumn(column);
 
-            Assert.Equal("varbinary(128)", GenerateDataType(column));
+            Assert.Equal("varbinary(900)", GenerateDataType(column));
         }
 
         [Fact]

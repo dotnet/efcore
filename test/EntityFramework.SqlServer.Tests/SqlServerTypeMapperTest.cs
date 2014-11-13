@@ -171,8 +171,29 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 .GetTypeMapping(null, "MyColumn", typeof(string), isKey: true, isConcurrencyToken: false);
 
             Assert.Equal(DbType.String, typeMapping.StoreType);
-            Assert.Equal(128, typeMapping.Size);
-            Assert.Equal("nvarchar(128)", typeMapping.StoreTypeName);
+            Assert.Equal(900, typeMapping.Size);
+            Assert.Equal("nvarchar(450)", typeMapping.StoreTypeName);
+        }
+
+        [Fact]
+        public void Does_non_key_SQL_Server_byteArray_mapping()
+        {
+            var typeMapping = new SqlServerTypeMapper()
+                .GetTypeMapping(null, "MyColumn", typeof(byte[]), isKey: false, isConcurrencyToken: false);
+
+            Assert.Equal(DbType.Binary, typeMapping.StoreType);
+            Assert.Equal("varbinary(max)", typeMapping.StoreTypeName);
+        }
+
+        [Fact]
+        public void Does_key_SQL_Server_byteArray_mapping()
+        {
+            var typeMapping = (RelationalSizedTypeMapping)new SqlServerTypeMapper()
+                .GetTypeMapping(null, "MyColumn", typeof(byte[]), isKey: true, isConcurrencyToken: false);
+
+            Assert.Equal(DbType.Binary, typeMapping.StoreType);
+            Assert.Equal(900, typeMapping.Size);
+            Assert.Equal("varbinary(900)", typeMapping.StoreTypeName);
         }
 
         [Fact]

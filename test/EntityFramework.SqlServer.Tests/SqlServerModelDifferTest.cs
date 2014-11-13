@@ -697,7 +697,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var alterColumnOperation = (AlterColumnOperation)operations[1];
 
             Assert.Equal("P", alterColumnOperation.NewColumn.Name);
-            Assert.Equal("nvarchar(128)", alterColumnOperation.NewColumn.DataType);
+            Assert.Equal("nvarchar(450)", alterColumnOperation.NewColumn.DataType);
         }
 
         [Fact]
@@ -775,7 +775,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var alterColumnOperation = (AlterColumnOperation)operations[1];
 
             Assert.Equal("P2", alterColumnOperation.NewColumn.Name);
-            Assert.Equal("nvarchar(128)", alterColumnOperation.NewColumn.DataType);
+            Assert.Equal("nvarchar(450)", alterColumnOperation.NewColumn.DataType);
         }
 
         [Fact]
@@ -876,8 +876,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             Assert.Equal("P1", alterColumnOperation1.NewColumn.Name);
             Assert.Equal("P2", alterColumnOperation2.NewColumn.Name);
-            Assert.Equal("nvarchar(128)", alterColumnOperation1.NewColumn.DataType);
-            Assert.Equal("nvarchar(128)", alterColumnOperation2.NewColumn.DataType);
+            Assert.Equal("nvarchar(450)", alterColumnOperation1.NewColumn.DataType);
+            Assert.Equal("nvarchar(450)", alterColumnOperation2.NewColumn.DataType);
         }
 
         [Fact]

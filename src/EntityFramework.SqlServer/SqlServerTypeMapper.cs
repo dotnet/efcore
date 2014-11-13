@@ -32,18 +32,17 @@ namespace Microsoft.Data.Entity.SqlServer
         private readonly RelationalTypeMapping _nonKeyStringMapping
             = new RelationalTypeMapping("nvarchar(max)", DbType.String);
 
-        // TODO: It may be possible to increase 128 to 900, at least for SQL Server
-        // Issue #768
         private readonly RelationalTypeMapping _keyStringMapping
-            = new RelationalSizedTypeMapping("nvarchar(128)", DbType.String, 128);
+            = new RelationalSizedTypeMapping("nvarchar(450)", DbType.String, 900);
 
         private readonly RelationalTypeMapping _nonKeyByteArrayMapping
             = new RelationalTypeMapping("varbinary(max)", DbType.Binary);
 
-        // TODO: It may be possible to increase 128 to 900, at least for SQL Server
-        // Issue #768
         private readonly RelationalTypeMapping _keyByteArrayMapping
-            = new RelationalSizedTypeMapping("varbinary(128)", DbType.Binary, 128);
+            = new RelationalSizedTypeMapping("varbinary(900)", DbType.Binary, 900);
+
+        private readonly RelationalTypeMapping _rowVersionMapping
+            = new RelationalSizedTypeMapping("rowversion", DbType.Binary, 8);
 
         public override RelationalTypeMapping GetTypeMapping(
             string specifiedType, string storageName, Type propertyType, bool isKey, bool isConcurrencyToken)
@@ -72,10 +71,12 @@ namespace Microsoft.Data.Entity.SqlServer
                     return _keyByteArrayMapping;
                 }
 
-                if (!isConcurrencyToken)
+                if (isConcurrencyToken)
                 {
-                    return _nonKeyByteArrayMapping;
+                    return _rowVersionMapping;
                 }
+
+                return _nonKeyByteArrayMapping;
             }
 
             return base.GetTypeMapping(specifiedType, storageName, propertyType, isKey, isConcurrencyToken);

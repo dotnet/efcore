@@ -107,7 +107,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Model
         }
 
         [Fact]
-        public void Does_non_key_ANSI_string_mapping()
+        public void Does_ANSI_string_mapping()
         {
             var typeMapping = (RelationalSizedTypeMapping)new ConcreteTypeMapper()
                 .GetTypeMapping(null, "MyColumn", typeof(string), isKey: false, isConcurrencyToken: false);
@@ -115,28 +115,6 @@ namespace Microsoft.Data.Entity.Relational.Tests.Model
             Assert.Equal(DbType.AnsiString, typeMapping.StoreType);
             Assert.Equal(4000, typeMapping.Size);
             Assert.Equal("varchar(4000)", typeMapping.StoreTypeName);
-        }
-
-        [Fact]
-        public void Does_key_ANSI_string_mapping()
-        {
-            var typeMapping = (RelationalSizedTypeMapping)new ConcreteTypeMapper()
-                .GetTypeMapping(null, "MyColumn", typeof(string), isKey: true, isConcurrencyToken: false);
-
-            Assert.Equal(DbType.AnsiString, typeMapping.StoreType);
-            Assert.Equal(128, typeMapping.Size);
-            Assert.Equal("varchar(128)", typeMapping.StoreTypeName);
-        }
-
-        [Fact]
-        public void Does_rowversion_mapping()
-        {
-            var typeMapping = (RelationalSizedTypeMapping)new ConcreteTypeMapper()
-                .GetTypeMapping(null, "MyColumn", typeof(byte[]), isKey: false, isConcurrencyToken: true);
-
-            Assert.Equal(DbType.Binary, typeMapping.StoreType);
-            Assert.Equal(8, typeMapping.Size);
-            Assert.Equal("rowversion", typeMapping.StoreTypeName);
         }
 
         [Fact]
