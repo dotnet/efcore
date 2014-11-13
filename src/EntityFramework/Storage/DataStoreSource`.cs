@@ -14,22 +14,30 @@ namespace Microsoft.Data.Entity.Storage
         where TOptionsExtension : DbContextOptionsExtension
     {
         private readonly DbContextConfiguration _configuration;
+        private readonly LazyRef<IDbContextOptions> _options;
 
-        protected DataStoreSource([NotNull] DbContextConfiguration configuration)
+        protected DataStoreSource([NotNull] DbContextConfiguration configuration, [NotNull] LazyRef<IDbContextOptions> options)
         {
             Check.NotNull(configuration, "configuration");
+            Check.NotNull(options, "options");
 
             _configuration = configuration;
+            _options = options;
         }
 
         public override DataStoreServices StoreServices
         {
-            get { return _configuration.Services.ServiceProvider.GetRequiredServiceChecked<TStoreServices>(); }
+            get
+            {
+                // Using service locator here so that all services for every provider are not always
+                // eagerly loaded during the provider selection process.
+                return _configuration.ScopedServiceProvider.GetRequiredServiceChecked<TStoreServices>();
+            }
         }
 
         public override bool IsConfigured
         {
-            get { return _configuration.ContextOptions.Extensions.OfType<TOptionsExtension>().Any(); }
+            get { return _options.Value.Extensions.OfType<TOptionsExtension>().Any(); }
         }
 
         public override bool IsAvailable

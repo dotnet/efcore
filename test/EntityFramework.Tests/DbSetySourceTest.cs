@@ -20,7 +20,6 @@ namespace Microsoft.Data.Entity.Tests
             var set = factorySource.Create(context, typeof(Random));
 
             Assert.IsType<DbSet<Random>>(set);
-            Assert.Same(context.Configuration, set.Configuration);
         }
 
         [Fact]

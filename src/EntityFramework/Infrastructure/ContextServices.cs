@@ -59,11 +59,6 @@ namespace Microsoft.Data.Entity.Infrastructure
             get { return _serviceProvider.GetRequiredServiceChecked<ClrCollectionAccessorSource>(); }
         }
 
-        public virtual ContextSets ContextSets
-        {
-            get { return ServiceProvider.GetRequiredServiceChecked<ContextSets>(); }
-        }
-
         public virtual DataStoreSelector DataStoreSelector
         {
             get { return _serviceProvider.GetRequiredServiceChecked<DataStoreSelector>(); }

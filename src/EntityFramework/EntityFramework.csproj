@@ -78,7 +78,6 @@
     <Compile Include="Infrastructure\DbContextActivator.cs" />
     <Compile Include="DbContextOptions.cs" />
     <Compile Include="DbContextOptions`.cs" />
-    <Compile Include="DbSet.cs" />
     <Compile Include="EntityServicesBuilder.cs" />
     <Compile Include="DbSet`.cs" />
     <Compile Include="EntityState.cs" />
@@ -200,7 +199,6 @@
     <Compile Include="Extensions\EntityServiceCollectionExtensions.cs" />
     <Compile Include="Extensions\QueryableExtensions.cs" />
     <Compile Include="Infrastructure\ContextServices.cs" />
-    <Compile Include="Infrastructure\ContextSets.cs" />
     <Compile Include="Infrastructure\Database.cs" />
     <Compile Include="Infrastructure\DbContextConfiguration.cs" />
     <Compile Include="Infrastructure\DbSetFinder.cs" />

@@ -53,7 +53,7 @@ namespace Microsoft.Data.Entity.Infrastructure
             _context = context;
 
             _dataStoreServices = new LazyRef<DataStoreServices>(() =>
-                _scopedProvider.GetRequiredServiceChecked<DataStoreSelector>().SelectDataStore(this));
+                _scopedProvider.GetRequiredServiceChecked<DataStoreSelector>().SelectDataStore(ProviderSource));
 
             _modelFromSource = new LazyRef<IModel>(CreateModel);
 

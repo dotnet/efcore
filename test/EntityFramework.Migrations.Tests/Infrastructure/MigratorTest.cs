@@ -1341,8 +1341,8 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
 
         private class FakeDataStoreSource : DataStoreSource<FakeRelationalDataStoreServices, FakeRelationalOptionsExtension>
         {
-            public FakeDataStoreSource(DbContextConfiguration configuration)
-                : base(configuration)
+            public FakeDataStoreSource(DbContextConfiguration configuration, LazyRef<IDbContextOptions> options)
+                : base(configuration, options)
             {
             }
 

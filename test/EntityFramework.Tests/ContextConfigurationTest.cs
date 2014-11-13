@@ -39,7 +39,6 @@ namespace Microsoft.Data.Entity.Tests
             var configuration = TestHelpers.CreateContextConfiguration(provider);
 
             Assert.Same(configuration.Services.StateManager, configuration.Services.StateManager);
-            Assert.Same(configuration.Services.ContextSets, configuration.Services.ContextSets);
             Assert.Same(configuration.Services.StateEntryNotifier, configuration.Services.StateEntryNotifier);
             Assert.Same(configuration.Services.StateEntryFactory, configuration.Services.StateEntryFactory);
         }
@@ -52,7 +51,6 @@ namespace Microsoft.Data.Entity.Tests
             var configuration2 = TestHelpers.CreateContextConfiguration(provider);
 
             Assert.NotSame(configuration1.Services.StateManager, configuration2.Services.StateManager);
-            Assert.NotSame(configuration1.Services.ContextSets, configuration2.Services.ContextSets);
             Assert.NotSame(configuration1.Services.StateEntryNotifier, configuration2.Services.StateEntryNotifier);
             Assert.NotSame(configuration1.Services.StateEntryFactory, configuration2.Services.StateEntryFactory);
         }

@@ -12,14 +12,14 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity
 {
-    public class DbSet<TEntity> : DbSet, IOrderedQueryable<TEntity>, IAsyncEnumerableAccessor<TEntity>
+    public class DbSet<TEntity> : IOrderedQueryable<TEntity>, IAsyncEnumerableAccessor<TEntity>
         where TEntity : class
     {
-        private readonly EntityQueryable<TEntity> _entityQueryable;
+        private readonly DbContext _context;
+        private readonly LazyRef<EntityQueryable<TEntity>> _entityQueryable;
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
@@ -31,20 +31,22 @@ namespace Microsoft.Data.Entity
         }
 
         public DbSet([NotNull] DbContext context)
-            : base(Check.NotNull(context, "context"))
         {
-            // TODO: Decouple from DbContextConfiguration (Issue #641)
-            _entityQueryable
-                = new EntityQueryable<TEntity>(new EntityQueryExecutor(
-                    context, 
-                    new LazyRef<ILoggerFactory>(() => context.Configuration.Services.ServiceProvider.GetRequiredServiceChecked<ILoggerFactory>())));
+            Check.NotNull(context, "context");
+
+            _context = context;
+            // Using context/service locator here so that the context will be initialized the first time the
+            // set is used and services will be obtained from the correctly scoped container when this happens.
+            _entityQueryable = new LazyRef<EntityQueryable<TEntity>>(
+                () => new EntityQueryable<TEntity>(
+                    _context.Configuration.ScopedServiceProvider.GetRequiredServiceChecked<EntityQueryExecutor>()));
         }
 
         public virtual TEntity Add([NotNull] TEntity entity)
         {
             Check.NotNull(entity, "entity");
 
-            return Configuration.Context.Add(entity);
+            return _context.Add(entity);
         }
 
         public virtual Task<TEntity> AddAsync(
@@ -52,21 +54,21 @@ namespace Microsoft.Data.Entity
         {
             Check.NotNull(entity, "entity");
 
-            return Configuration.Context.AddAsync(entity, cancellationToken);
+            return _context.AddAsync(entity, cancellationToken);
         }
 
         public virtual TEntity Remove([NotNull] TEntity entity)
         {
             Check.NotNull(entity, "entity");
 
-            return Configuration.Context.Delete(entity);
+            return _context.Delete(entity);
         }
 
         public virtual TEntity Update([NotNull] TEntity entity)
         {
             Check.NotNull(entity, "entity");
 
-            return Configuration.Context.Update(entity);
+            return _context.Update(entity);
         }
 
         public virtual Task<TEntity> UpdateAsync(
@@ -74,7 +76,7 @@ namespace Microsoft.Data.Entity
         {
             Check.NotNull(entity, "entity");
 
-            return Configuration.Context.UpdateAsync(entity, cancellationToken);
+            return _context.UpdateAsync(entity, cancellationToken);
         }
 
         public virtual void AddRange([NotNull] IEnumerable<TEntity> entities)
@@ -109,32 +111,32 @@ namespace Microsoft.Data.Entity
 
         IEnumerator<TEntity> IEnumerable<TEntity>.GetEnumerator()
         {
-            return _entityQueryable.GetEnumerator();
+            return _entityQueryable.Value.GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return _entityQueryable.GetEnumerator();
+            return _entityQueryable.Value.GetEnumerator();
         }
 
-        public override Type ElementType
+        public virtual Type ElementType
         {
-            get { return _entityQueryable.ElementType; }
+            get { return _entityQueryable.Value.ElementType; }
         }
 
-        public override Expression Expression
+        public virtual Expression Expression
         {
-            get { return _entityQueryable.Expression; }
+            get { return _entityQueryable.Value.Expression; }
         }
 
-        public override IQueryProvider Provider
+        public virtual IQueryProvider Provider
         {
-            get { return _entityQueryable.Provider; }
+            get { return _entityQueryable.Value.Provider; }
         }
 
         IAsyncEnumerable<TEntity> IAsyncEnumerableAccessor<TEntity>.AsyncEnumerable
         {
-            get { return _entityQueryable; }
+            get { return _entityQueryable.Value; }
         }
     }
 }

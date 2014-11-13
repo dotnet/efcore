@@ -13,44 +13,6 @@ namespace Microsoft.Data.Entity.Tests
     public class DbSetTest
     {
         [Fact]
-        public void Members_check_arguments()
-        {
-            Assert.Equal(
-                "context",
-                // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => new DbSet<Random>(null)).ParamName);
-
-            var set = new DbSet<Random>(new Mock<DbContext>().Object);
-
-            Assert.Equal(
-                "entity",
-                // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => set.Add(null)).ParamName);
-            Assert.Equal(
-                "entity",
-                // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.ThrowsAsync<ArgumentNullException>(() => set.AddAsync(null)).Result.ParamName);
-            Assert.Equal(
-                "entity",
-                // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(
-                    () => set.AddAsync(null, new CancellationToken()).GetAwaiter().GetResult()).ParamName);
-
-            Assert.Equal(
-                "entity",
-                // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => set.Update(null)).ParamName);
-            Assert.Equal(
-                "entity",
-                // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.ThrowsAsync<ArgumentNullException>(() => set.UpdateAsync(null)).Result.ParamName);
-            Assert.Equal(
-                "entity",
-                // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.ThrowsAsync<ArgumentNullException>(() => set.UpdateAsync(null, new CancellationToken())).Result.ParamName);
-        }
-
-        [Fact]
         public void Can_add_new_entities_to_context()
         {
             var contextMock = CreateContextMock();

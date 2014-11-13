@@ -4,13 +4,14 @@
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Redis
 {
     public class RedisDataStoreSource : DataStoreSource<RedisDataStoreServices, RedisOptionsExtension>
     {
-        public RedisDataStoreSource([NotNull] DbContextConfiguration configuration)
-            : base(configuration)
+        public RedisDataStoreSource([NotNull] DbContextConfiguration configuration, [NotNull] LazyRef<IDbContextOptions> options)
+            : base(configuration, options)
         {
         }
 

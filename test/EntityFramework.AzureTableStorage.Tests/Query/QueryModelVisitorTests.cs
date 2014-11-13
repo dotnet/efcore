@@ -8,9 +8,9 @@ using System.Linq.Expressions;
 using Microsoft.Data.Entity.AzureTableStorage.Query;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
-using Microsoft.Data.Entity.Utilities;
+using Microsoft.Framework.DependencyInjection;
+using Microsoft.Framework.DependencyInjection.Fallback;
 using Microsoft.Framework.Logging;
-using Moq;
 using Remotion.Linq;
 using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Parsing;
@@ -72,27 +72,63 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
 
         private int CountScans<T>(Expression<Func<DbSet<T>, IQueryable>> expression) where T : class, new()
         {
-            var query = expression.Compile()(new DbSet<T>(Mock.Of<DbContext>()));
-            return CountQuery(query);
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFramework()
+                .AddAzureTableStorage()
+                .ServiceCollection
+                .BuildServiceProvider();
+
+            var options = new DbContextOptions().UseAzureTableStorage("X");
+
+            using (var context = new DbContext(serviceProvider, options))
+            {
+                var executor = context.Configuration.ScopedServiceProvider.GetService<EntityQueryExecutor>();
+                var query = expression.Compile()(new DbSet<T>(context));
+                return CountQuery(query);
+            }
         }
 
         private int CountScans<T1, T2>(Expression<Func<DbSet<T1>, DbSet<T2>, IQueryable>> expression) where T1 : class, new() where T2 : class
         {
-            var query = expression.Compile()(new DbSet<T1>(Mock.Of<DbContext>()), new DbSet<T2>(Mock.Of<DbContext>()));
-            return CountQuery(query);
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFramework()
+                .AddAzureTableStorage()
+                .ServiceCollection
+                .BuildServiceProvider();
+
+            var options = new DbContextOptions().UseAzureTableStorage("X");
+
+            using (var context = new DbContext(serviceProvider, options))
+            {
+                var executor = context.Configuration.ScopedServiceProvider.GetService<EntityQueryExecutor>();
+                var query = expression.Compile()(new DbSet<T1>(context), new DbSet<T2>(context));
+                return CountQuery(query);
+            }
         }
 
         private int CountQuery(IQueryable query)
         {
-            var queryModel = new EntityQueryProvider(new EntityQueryExecutor(Mock.Of<DbContext>(), new LazyRef<ILoggerFactory>(new LoggerFactory()))).GenerateQueryModel(query.Expression);
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFramework()
+                .AddAzureTableStorage()
+                .ServiceCollection
+                .BuildServiceProvider();
 
-            return CountQueryModel(queryModel);
+            var options = new DbContextOptions().UseAzureTableStorage("X");
+
+            using (var context = new DbContext(serviceProvider, options))
+            {
+                var executor = context.Configuration.ScopedServiceProvider.GetService<EntityQueryExecutor>();
+                var queryModel = new EntityQueryProvider(executor).GenerateQueryModel(query.Expression);
+
+                return CountQueryModel(queryModel);
+            }
         }
 
         public int CountQueryModel(QueryModel queryModel)
         {
             var context = new AtsQueryCompilationContext(
-                CreateModel(), 
+                CreateModel(),
                 new LoggerFactory().Create("Fake"),
                 new EntityMaterializerSource(new MemberMapper(new FieldMatcher())));
             var visitor = context.CreateQueryModelVisitor();

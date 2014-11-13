@@ -1,17 +1,11 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Linq;
-using System.Linq.Expressions;
-using Microsoft.Data.Entity.AzureTableStorage.Adapters;
-using Microsoft.Data.Entity.AzureTableStorage.Query;
 using Microsoft.Data.Entity.AzureTableStorage.Requests;
-using Microsoft.Data.Entity.ChangeTracking;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Query;
-using Microsoft.Data.Entity.Utilities;
+using Microsoft.Framework.DependencyInjection;
+using Microsoft.Framework.DependencyInjection.Fallback;
 using Microsoft.Framework.Logging;
 using Moq;
 using Xunit;
@@ -20,70 +14,34 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
 {
     public class QueryCachingTests
     {
-        private readonly Mock<AtsConnection> _connection;
-        private readonly AtsDataStore _dataStore;
-
-        public QueryCachingTests()
-        {
-            _connection = new Mock<AtsConnection>();
-            _connection
-                .Setup(s => s.ExecuteRequest(It.IsAny<TableRequest<bool>>(), It.IsAny<ILogger>()))
-                .Returns(false); // keep all requests in memory
-
-            var configuration = new Mock<DbContextConfiguration>();
-            configuration.SetupGet(s => s.Connection).Returns(_connection.Object);
-            configuration.SetupGet(s => s.Model).Returns(CreateModel());
-            configuration.SetupGet(s => s.StateManager).Returns(new Mock<StateManager>().Object);
-            configuration.SetupGet(s => s.Services.EntityKeyFactorySource).Returns(new Mock<EntityKeyFactorySource>().Object);
-            configuration.SetupGet(s => s.Services.StateEntryFactory).Returns(new Mock<StateEntryFactory>().Object);
-            configuration.SetupGet(s => s.Services.EntityMaterializerSource).Returns(new Mock<EntityMaterializerSource>().Object);
-            configuration.SetupGet(s => s.Services.ClrCollectionAccessorSource).Returns(new Mock<ClrCollectionAccessorSource>().Object);
-            configuration.SetupGet(s => s.Services.ClrPropertySetterSource).Returns(new Mock<ClrPropertySetterSource>().Object);
-
-            _dataStore = new AtsDataStore(
-                Mock.Of<StateManager>(),
-                new LazyRef<IModel>(CreateModel),
-                Mock.Of<EntityKeyFactorySource>(),
-                Mock.Of<EntityMaterializerSource>(),
-                Mock.Of<ClrCollectionAccessorSource>(),
-                Mock.Of<ClrPropertySetterSource>(),
-                _connection.Object,
-                new AtsQueryFactory(new AtsValueReaderFactory()),
-                new TableEntityAdapterFactory(),
-                new LazyRef<DbContext>(() => null),
-                new LoggerFactory());
-        }
-
         [Fact]
         public void Multiple_identical_queries()
         {
-            AssertQuery<Customer>(Times.Once(), cs =>
-                (from c in cs
-                    orderby cs.Any(c2 => c2.CustomerID == c.CustomerID)
-                    select c).AsNoTracking());
-        }
+            var connection = new Mock<AtsConnection>();
+            connection
+                .Setup(s => s.ExecuteRequest(It.IsAny<TableRequest<bool>>(), It.IsAny<ILogger>()))
+                .Returns(false); // keep all requests in memory
 
-        private void AssertQuery<T>(Times times, Expression<Func<DbSet<T>, IQueryable>> expression) where T : class, new()
-        {
-            var query = expression.Compile()(new DbSet<T>(Mock.Of<DbContext>()));
-            var queryModel = new EntityQueryProvider(new EntityQueryExecutor(Mock.Of<DbContext>(), new LazyRef<ILoggerFactory>(new LoggerFactory()))).GenerateQueryModel(query.Expression);
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFramework()
+                .AddAzureTableStorage()
+                .ServiceCollection
+                .AddInstance(connection.Object)
+                .BuildServiceProvider();
 
-            _connection.Setup(s => s.ExecuteRequest(
-                It.IsAny<QueryTableRequest<T>>(),
-                It.IsAny<ILogger>()))
-                .Returns(NewTCallback<T>);
+            var options = new DbContextOptions().UseModel(CreateModel()).UseAzureTableStorage("X");
 
-            _dataStore.Query<T>(queryModel).ToList();
+            using (var context = new DbContext(serviceProvider, options))
+            {
+                (from c in context.Set<Customer>()
+                    orderby context.Set<Customer>().Any(c2 => c2.CustomerID == c.CustomerID)
+                    select c).AsNoTracking().ToList();
+            }
 
-            _connection.Verify(s => s.ExecuteRequest(
-                It.IsAny<QueryTableRequest<T>>(),
+            connection.Verify(s => s.ExecuteRequest(
+                It.IsAny<QueryTableRequest<Customer>>(),
                 It.IsAny<ILogger>()),
-                times);
-        }
-
-        private static T[] NewTCallback<T>() where T : class, new()
-        {
-            return new[] { new T() };
+                Times.Once());
         }
 
         private IModel CreateModel()
@@ -95,7 +53,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
             return model;
         }
 
-        internal class Customer
+        private class Customer
         {
             public string CustomerID { get; set; }
         }

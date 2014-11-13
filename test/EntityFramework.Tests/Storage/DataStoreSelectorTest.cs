@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Tests.Storage
 
             var selector = new DataStoreSelector(new[] { source });
 
-            Assert.Same(services, selector.SelectDataStore(new DbContextConfiguration()));
+            Assert.Same(services, selector.SelectDataStore(DbContextConfiguration.ServiceProviderSource.Explicit));
         }
 
         [Fact]
@@ -34,31 +34,28 @@ namespace Microsoft.Data.Entity.Tests.Storage
             var selector = new DataStoreSelector(new[] { source1, source2, source3, source4 });
 
             Assert.Equal(Strings.MultipleDataStoresConfigured("'DataStore1' 'DataStore2' 'DataStore4' "),
-                Assert.Throws<InvalidOperationException>(() => selector.SelectDataStore(new DbContextConfiguration())).Message);
+                Assert.Throws<InvalidOperationException>(
+                    () => selector.SelectDataStore(DbContextConfiguration.ServiceProviderSource.Explicit)).Message);
         }
 
         [Fact]
         public void Throws_if_no_store_services_have_been_registered_using_external_service_provider()
         {
-            var configurationMock = new Mock<DbContextConfiguration>();
-            configurationMock.Setup(m => m.ProviderSource).Returns(DbContextConfiguration.ServiceProviderSource.Explicit);
-
             var selector = new DataStoreSelector(null);
 
             Assert.Equal(Strings.NoDataStoreService,
-                Assert.Throws<InvalidOperationException>(() => selector.SelectDataStore(configurationMock.Object)).Message);
+                Assert.Throws<InvalidOperationException>(
+                    () => selector.SelectDataStore(DbContextConfiguration.ServiceProviderSource.Explicit)).Message);
         }
 
         [Fact]
         public void Throws_if_no_store_services_have_been_registered_using_implicit_service_provider()
         {
-            var configurationMock = new Mock<DbContextConfiguration>();
-            configurationMock.Setup(m => m.ProviderSource).Returns(DbContextConfiguration.ServiceProviderSource.Implicit);
-
             var selector = new DataStoreSelector(null);
 
             Assert.Equal(Strings.NoDataStoreConfigured,
-                Assert.Throws<InvalidOperationException>(() => selector.SelectDataStore(configurationMock.Object)).Message);
+                Assert.Throws<InvalidOperationException>(
+                    () => selector.SelectDataStore(DbContextConfiguration.ServiceProviderSource.Implicit)).Message);
         }
 
         [Fact]
@@ -71,7 +68,8 @@ namespace Microsoft.Data.Entity.Tests.Storage
             var selector = new DataStoreSelector(new[] { source1, source2, source3 });
 
             Assert.Equal(Strings.MultipleDataStoresAvailable("'DataStore1' 'DataStore2' 'DataStore3' "),
-                Assert.Throws<InvalidOperationException>(() => selector.SelectDataStore(new DbContextConfiguration())).Message);
+                Assert.Throws<InvalidOperationException>(
+                    () => selector.SelectDataStore(DbContextConfiguration.ServiceProviderSource.Explicit)).Message);
         }
 
         [Fact]
@@ -82,7 +80,8 @@ namespace Microsoft.Data.Entity.Tests.Storage
             var selector = new DataStoreSelector(new[] { source });
 
             Assert.Equal(Strings.NoDataStoreConfigured,
-                Assert.Throws<InvalidOperationException>(() => selector.SelectDataStore(new DbContextConfiguration())).Message);
+                Assert.Throws<InvalidOperationException>(
+                    () => selector.SelectDataStore(DbContextConfiguration.ServiceProviderSource.Explicit)).Message);
         }
 
         [Fact]
@@ -93,7 +92,7 @@ namespace Microsoft.Data.Entity.Tests.Storage
 
             var selector = new DataStoreSelector(new[] { source });
 
-            Assert.Same(services, selector.SelectDataStore(new DbContextConfiguration()));
+            Assert.Same(services, selector.SelectDataStore(DbContextConfiguration.ServiceProviderSource.Explicit));
         }
 
         private static DataStoreSource CreateSource(string name, bool configured, bool available, DataStoreServices services = null)

@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Infrastructure
@@ -13,6 +14,7 @@ namespace Microsoft.Data.Entity.Infrastructure
     {
         private readonly DbSetFinder _setFinder;
         private readonly ClrPropertySetterSource _setSetters;
+        private readonly DbSetSource _setSource;
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
@@ -23,13 +25,18 @@ namespace Microsoft.Data.Entity.Infrastructure
         {
         }
 
-        public DbSetInitializer([NotNull] DbSetFinder setFinder, [NotNull] ClrPropertySetterSource setSetters)
+        public DbSetInitializer(
+            [NotNull] DbSetFinder setFinder, 
+            [NotNull] ClrPropertySetterSource setSetters,
+            [NotNull] DbSetSource setSource)
         {
             Check.NotNull(setFinder, "setFinder");
             Check.NotNull(setSetters, "setSetters");
+            Check.NotNull(setSource, "setSource");
 
             _setFinder = setFinder;
             _setSetters = setSetters;
+            _setSource = setSource;
         }
 
         public virtual void InitializeSets([NotNull] DbContext context)
@@ -40,8 +47,16 @@ namespace Microsoft.Data.Entity.Infrastructure
             {
                 _setSetters
                     .GetAccessor(setInfo.ContextType, setInfo.Name)
-                    .SetClrValue(context, context.Set(setInfo.EntityType));
+                    .SetClrValue(context, _setSource.Create(context, setInfo.EntityType));
             }
+        }
+
+        public virtual DbSet<TEntity> CreateSet<TEntity>([NotNull] DbContext context)
+            where TEntity : class
+        {
+            Check.NotNull(context, "context");
+
+            return (DbSet<TEntity>)_setSource.Create(context, typeof(TEntity));
         }
     }
 }

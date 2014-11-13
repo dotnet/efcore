@@ -11,6 +11,7 @@ using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Framework.ConfigurationModel;
 using Microsoft.Framework.DependencyInjection;
@@ -438,19 +439,6 @@ namespace Microsoft.Data.Entity.Tests
         }
 
         [Fact]
-        public void Set_and_non_generic_set_always_return_same_instance_returns_a_new_DbSet_for_the_given_type()
-        {
-            using (var context = new ContextWithSets())
-            {
-                var set = context.Set<Product>();
-                Assert.NotNull(set);
-                Assert.Same(set, context.Set<Product>());
-                Assert.Same(set, context.Set(typeof(Product)));
-                Assert.Same(set, context.Products);
-            }
-        }
-
-        [Fact]
         public void SaveChanges_doesnt_call_DataStore_when_nothing_is_dirty()
         {
             var store = new Mock<DataStore>();
@@ -598,7 +586,6 @@ namespace Microsoft.Data.Entity.Tests
 
                 Assert.IsType<StateEntryFactory>(configuration.Services.StateEntryFactory);
                 Assert.IsType<StateEntryNotifier>(configuration.Services.StateEntryNotifier);
-                Assert.IsType<ContextSets>(configuration.Services.ContextSets);
                 Assert.IsType<StateManager>(configuration.Services.StateManager);
                 Assert.IsType<NavigationFixer>(configuration.Services.EntityStateListeners.Single());
             }
@@ -621,7 +608,7 @@ namespace Microsoft.Data.Entity.Tests
             var factory = Mock.Of<OriginalValuesFactory>();
             var serviceCollection = new ServiceCollection()
                 .AddSingleton<DbSetFinder>()
-                .AddSingleton<DbSetInitializer>()
+                .AddSingleton<DbSetSource>()
                 .AddSingleton<ClrPropertyGetterSource>()
                 .AddSingleton<ClrPropertySetterSource>()
                 .AddSingleton<ClrCollectionAccessorSource>()
@@ -629,8 +616,8 @@ namespace Microsoft.Data.Entity.Tests
                 .AddSingleton<MemberMapper>()
                 .AddSingleton<FieldMatcher>()
                 .AddSingleton<DataStoreSelector>()
+                .AddScoped<DbSetInitializer>()
                 .AddScoped<DbContextConfiguration>()
-                .AddScoped<ContextSets>()
                 .AddInstance(factory);
 
             var provider = serviceCollection.BuildServiceProvider();
@@ -1097,6 +1084,39 @@ namespace Microsoft.Data.Entity.Tests
             }
 
             public DbSet<Product> Products { get; set; }
+        }
+
+        [Fact]
+        public void Model_cannot_be_used_in_OnModelCreating()
+        {
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFramework()
+                .AddInMemoryStore()
+                .AddDbContext<UseModelInOnModelCreatingContext>()
+                .ServiceCollection
+                .BuildServiceProvider();
+
+            using (var context = serviceProvider.GetService<UseModelInOnModelCreatingContext>())
+            {
+                Assert.Equal(
+                    Strings.RecursiveOnModelCreating,
+                    Assert.Throws<InvalidOperationException>(() => context.Model).Message);
+            }
+        }
+
+        private class UseModelInOnModelCreatingContext : DbContext
+        {
+            public UseModelInOnModelCreatingContext(IServiceProvider serviceProvider)
+                : base(serviceProvider)
+            {
+            }
+
+            public DbSet<Product> Products { get; set; }
+
+            protected internal override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                var _ = Model;
+            }
         }
 
         [Fact]

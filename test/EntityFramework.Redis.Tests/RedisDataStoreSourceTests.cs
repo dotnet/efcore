@@ -3,6 +3,7 @@
 
 using System;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Utilities;
 using Moq;
 using Xunit;
 
@@ -14,14 +15,15 @@ namespace Microsoft.Data.Entity.Redis.Tests
         public void Available_when_configured()
         {
             var config = new DbContextConfiguration();
+            var options = new DbContextOptions();
             config.Initialize(
                 Mock.Of<IServiceProvider>(),
                 Mock.Of<IServiceProvider>(),
-                new DbContextOptions(),
+                options,
                 Mock.Of<DbContext>(),
                 DbContextConfiguration.ServiceProviderSource.Implicit);
 
-            var source = new RedisDataStoreSource(config);
+            var source = new RedisDataStoreSource(config, new LazyRef<IDbContextOptions>(options));
 
             Assert.False(source.IsAvailable);
 
@@ -33,7 +35,9 @@ namespace Microsoft.Data.Entity.Redis.Tests
         [Fact]
         public void Named_correctly()
         {
-            Assert.Equal(typeof(RedisDataStore).Name, new RedisDataStoreSource(Mock.Of<DbContextConfiguration>()).Name);
+            Assert.Equal(
+                typeof(RedisDataStore).Name,
+                new RedisDataStoreSource(Mock.Of<DbContextConfiguration>(), new LazyRef<IDbContextOptions>(() => null)).Name);
         }
     }
 }

@@ -4,13 +4,14 @@
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.SQLite
 {
     public class SQLiteDataStoreSource : DataStoreSource<SQLiteDataStoreServices, SQLiteOptionsExtension>
     {
-        public SQLiteDataStoreSource([NotNull] DbContextConfiguration configuration)
-            : base(configuration)
+        public SQLiteDataStoreSource([NotNull] DbContextConfiguration configuration, [NotNull] LazyRef<IDbContextOptions> options)
+            : base(configuration, options)
         {
         }
 

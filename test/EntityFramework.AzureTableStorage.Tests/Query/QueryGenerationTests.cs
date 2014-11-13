@@ -10,7 +10,10 @@ using Microsoft.Data.Entity.AzureTableStorage.Query.Expressions;
 using Microsoft.Data.Entity.AzureTableStorage.Tests.Helpers;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
+using Microsoft.Framework.DependencyInjection;
+using Microsoft.Framework.DependencyInjection.Fallback;
 using Microsoft.Framework.Logging;
 using Moq;
 using Remotion.Linq;
@@ -157,13 +160,26 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
 
         private static QueryModel Query<T>(Expression<Func<DbSet<T>, IQueryable>> expression) where T : class
         {
-            var query = expression.Compile()(new DbSet<T>(Mock.Of<DbContext>()));
-            return new EntityQueryProvider(new EntityQueryExecutor(Mock.Of<DbContext>(), new LazyRef<ILoggerFactory>(new LoggerFactory()))).GenerateQueryModel(query.Expression);
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFramework()
+                .AddAzureTableStorage()
+                .ServiceCollection
+                .BuildServiceProvider();
+
+            var options = new DbContextOptions().UseAzureTableStorage("X");
+
+            using (var context = new DbContext(serviceProvider, options))
+            {
+                var executor = context.Configuration.ScopedServiceProvider.GetService<EntityQueryExecutor>();
+                var query = expression.Compile()(new DbSet<T>(context));
+                return new EntityQueryProvider(executor).GenerateQueryModel(query.Expression);
+            }
         }
 
         private MainFromClause CreateWithEntityQueryable<T>()
         {
-            var queryable = new EntityQueryable<T>(new EntityQueryExecutor(Mock.Of<DbContext>(), new LazyRef<ILoggerFactory>(new LoggerFactory())));
+            var entityQueryExecutor = new EntityQueryExecutor(new LazyRef<DbContext>(Mock.Of<DbContext>()), new LazyRef<DataStore>(() => null), new LoggerFactory());
+            var queryable = new EntityQueryable<T>(entityQueryExecutor);
             return new MainFromClause("s", typeof(T), Expression.Constant(queryable));
         }
     }

@@ -10,6 +10,7 @@ using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.ConfigurationModel;
@@ -37,6 +38,7 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddSingleton<SimpleValueGeneratorFactory<GuidValueGenerator>>()
                 .AddSingleton<DbSetFinder>()
                 .AddSingleton<DbSetInitializer>()
+                .AddSingleton<DbSetSource>()
                 .AddSingleton<EntityKeyFactorySource>()
                 .AddSingleton<ClrPropertyGetterSource>()
                 .AddSingleton<ClrPropertySetterSource>()
@@ -63,9 +65,10 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddScoped<StateEntryNotifier>()
                 .AddScoped<StateEntrySubscriber>()
                 .AddScoped<DbContextConfiguration>()
-                .AddScoped<ContextSets>()
                 .AddScoped<StateManager>()
                 .AddScoped<ValueGenerationManager>()
+                .AddScoped<EntityQueryExecutor>()
+                .AddScoped<ChangeTracker>()
                 .AddScoped<LazyRef<IModel>>(DbContextConfiguration.ModelFactory)
                 .AddScoped<LazyRef<DbContext>>(DbContextConfiguration.ContextFactory)
                 .AddScoped<LazyRef<IDbContextOptions>>(DbContextConfiguration.ContextOptionsFactory)

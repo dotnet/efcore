@@ -14,22 +14,6 @@ namespace Microsoft.Data.Entity.Tests
     public class DbSetInitializerTest
     {
         [Fact]
-        public void Members_check_arguments()
-        {
-            Assert.Equal(
-                "setFinder",
-                // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => new DbSetInitializer(null, new ClrPropertySetterSource())).ParamName);
-
-            var initializer = new DbSetInitializer(new Mock<DbSetFinder>().Object, new ClrPropertySetterSource());
-
-            Assert.Equal(
-                "context",
-                // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => initializer.InitializeSets(null)).ParamName);
-        }
-
-        [Fact]
         public void Initializes_all_entity_set_properties_with_setters()
         {
             var setFinderMock = new Mock<DbSetFinder>();
@@ -44,7 +28,7 @@ namespace Microsoft.Data.Entity.Tests
 
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework().ServiceCollection
-                .AddInstance(new DbSetInitializer(setFinderMock.Object, new ClrPropertySetterSource()))
+                .AddInstance(new DbSetInitializer(setFinderMock.Object, new ClrPropertySetterSource(), new DbSetSource()))
                 .BuildServiceProvider();
 
             var options = new DbContextOptions();

@@ -22,8 +22,8 @@ namespace Microsoft.Data.Entity
         private static readonly ThreadSafeDictionaryCache<Type, Type> _optionsTypes = new ThreadSafeDictionaryCache<Type, Type>();
 
         private readonly LazyRef<DbContextConfiguration> _configuration;
-        private readonly ContextSets _sets = new ContextSets();
         private readonly LazyRef<ILogger> _logger;
+        private readonly LazyRef<DbSetInitializer> _setInitializer;
 
         private IServiceProvider _scopedServiceProvider;
         private bool _initializing;
@@ -36,6 +36,7 @@ namespace Microsoft.Data.Entity
             InitializeSets(serviceProvider, options);
             _configuration = new LazyRef<DbContextConfiguration>(() => Initialize(serviceProvider, options));
             _logger = new LazyRef<ILogger>(CreateLogger);
+            _setInitializer = new LazyRef<DbSetInitializer>(GetSetInitializer);
         }
 
         public DbContext([NotNull] IServiceProvider serviceProvider)
@@ -49,6 +50,7 @@ namespace Microsoft.Data.Entity
                 () => Initialize(serviceProvider, options));
 
             _logger = new LazyRef<ILogger>(CreateLogger);
+            _setInitializer = new LazyRef<DbSetInitializer>(GetSetInitializer);
         }
 
         private DbContextOptions GetOptions(IServiceProvider serviceProvider)
@@ -97,6 +99,7 @@ namespace Microsoft.Data.Entity
             InitializeSets(serviceProvider, options);
             _configuration = new LazyRef<DbContextConfiguration>(() => Initialize(serviceProvider, options));
             _logger = new LazyRef<ILogger>(CreateLogger);
+            _setInitializer = new LazyRef<DbSetInitializer>(GetSetInitializer);
         }
 
         // TODO: Consider removing this constructor if DbContextOptions should be obtained from serviceProvider
@@ -109,11 +112,27 @@ namespace Microsoft.Data.Entity
             InitializeSets(serviceProvider, options);
             _configuration = new LazyRef<DbContextConfiguration>(() => Initialize(serviceProvider, options));
             _logger = new LazyRef<ILogger>(CreateLogger);
+            _setInitializer = new LazyRef<DbSetInitializer>(GetSetInitializer);
         }
 
         private ILogger CreateLogger()
         {
-            return _configuration.Value.Services.ServiceProvider.GetRequiredServiceChecked<ILoggerFactory>().Create<DbContext>();
+            return _configuration.Value.ScopedServiceProvider.GetRequiredServiceChecked<ILoggerFactory>().Create<DbContext>();
+        }
+
+        private DbSetInitializer GetSetInitializer()
+        {
+            return _configuration.Value.ScopedServiceProvider.GetRequiredServiceChecked<DbSetInitializer>();
+        }
+
+        private ChangeDetector GetChangeDetector()
+        {
+            return _configuration.Value.ScopedServiceProvider.GetRequiredServiceChecked<ChangeDetector>();
+        }
+
+        private StateManager GetStateManager()
+        {
+            return _configuration.Value.ScopedServiceProvider.GetRequiredServiceChecked<StateManager>();
         }
 
         private DbContextConfiguration Initialize(IServiceProvider serviceProvider, DbContextOptions options)
@@ -164,6 +183,11 @@ namespace Microsoft.Data.Entity
             get { return _configuration.Value; }
         }
 
+        internal virtual void EnsureInitialized()
+        {
+            var _ = _configuration.Value;
+        }
+
         protected internal virtual void OnConfiguring(DbContextOptions options)
         {
         }
@@ -174,11 +198,11 @@ namespace Microsoft.Data.Entity
 
         public virtual int SaveChanges()
         {
-            var stateManager = Configuration.StateManager;
+            var stateManager = GetStateManager();
 
             // TODO: Allow auto-detect changes to be switched off
             // Issue #745
-            Configuration.Services.ChangeDetector.DetectChanges(stateManager);
+            GetChangeDetector().DetectChanges(stateManager);
 
             try
             {
@@ -198,11 +222,11 @@ namespace Microsoft.Data.Entity
 
         public virtual async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var stateManager = Configuration.StateManager;
+            var stateManager = GetStateManager();
 
             // TODO: Allow auto-detect changes to be switched off
             // Issue #745
-            Configuration.Services.ChangeDetector.DetectChanges(stateManager);
+            GetChangeDetector().DetectChanges(stateManager);
 
             try
             {
@@ -236,7 +260,7 @@ namespace Microsoft.Data.Entity
         {
             Check.NotNull(entity, "entity");
 
-            Configuration.StateManager
+            GetStateManager()
                 .GetOrCreateEntry(entity)
                 .EntityState = EntityState.Added;
 
@@ -248,7 +272,7 @@ namespace Microsoft.Data.Entity
         {
             Check.NotNull(entity, "entity");
 
-            await Configuration.StateManager
+            await GetStateManager()
                 .GetOrCreateEntry(entity)
                 .SetEntityStateAsync(EntityState.Added, cancellationToken)
                 .WithCurrentCulture();
@@ -283,26 +307,17 @@ namespace Microsoft.Data.Entity
 
         public virtual Database Database
         {
-            get { return Configuration.Database; }
+            get { return _configuration.Value.ScopedServiceProvider.GetRequiredServiceChecked<LazyRef<Database>>().Value; }
         }
 
         public virtual ChangeTracker ChangeTracker
         {
-            get { return new ChangeTracker(Configuration.StateManager, Configuration.Services.ChangeDetector); }
+            get { return _configuration.Value.ScopedServiceProvider.GetRequiredServiceChecked<ChangeTracker>(); }
         }
 
         public virtual IModel Model
         {
-            get { return Configuration.Model; }
-        }
-
-        public virtual DbSet Set([NotNull] Type entityType)
-        {
-            Check.NotNull(entityType, "entityType");
-
-            // Note: Creating sets needs to be fast because it is done eagerly when a context instance
-            // is created so we avoid loading metadata to validate the type here.
-            return _sets.GetSet(this, entityType);
+            get { return _configuration.Value.ScopedServiceProvider.GetRequiredServiceChecked<LazyRef<IModel>>().Value; }
         }
 
         public virtual DbSet<TEntity> Set<TEntity>()
@@ -310,7 +325,7 @@ namespace Microsoft.Data.Entity
         {
             // Note: Creating sets needs to be fast because it is done eagerly when a context instance
             // is created so we avoid loading metadata to validate the type here.
-            return _sets.GetSet<TEntity>(this);
+            return _setInitializer.Value.CreateSet<TEntity>(this);
         }
     }
 }
