@@ -5,8 +5,9 @@ namespace Microsoft.AspNet.Diagnostics.Entity
     using System.Globalization;
     using System.Reflection;
     using System.Resources;
+	using JetBrains.Annotations;
 
-    internal static class Strings
+    public static class Strings
     {
         private static readonly ResourceManager _resourceManager
             = new ResourceManager("Microsoft.AspNet.Diagnostics.Entity.Strings", typeof(Strings).GetTypeInfo().Assembly);
@@ -14,7 +15,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity
         /// <summary>
         /// The string argument '{argumentName}' cannot be empty.
         /// </summary>
-        public static string ArgumentIsEmpty(object argumentName)
+        public static string ArgumentIsEmpty([CanBeNull] object argumentName)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("ArgumentIsEmpty", "argumentName"), argumentName);
         }
@@ -22,7 +23,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity
         /// <summary>
         /// The collection argument '{argumentName}' must contain at least one element.
         /// </summary>
-        public static string CollectionArgumentIsEmpty(object argumentName)
+        public static string CollectionArgumentIsEmpty([CanBeNull] object argumentName)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("CollectionArgumentIsEmpty", "argumentName"), argumentName);
         }
@@ -30,7 +31,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity
         /// <summary>
         /// The context type '{0}' was not found in services. This usually means the context was not registered in services during startup. You probably want to call AddScoped&lt;{0}&gt;() inside the UseServices(...) call in your application startup code. Skipping display of the database error page.
         /// </summary>
-        public static string DatabaseErrorPageMiddleware_ContextNotRegistered(object p0)
+        public static string DatabaseErrorPageMiddleware_ContextNotRegistered([CanBeNull] object p0)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("DatabaseErrorPageMiddleware_ContextNotRegistered"), p0);
         }
@@ -110,7 +111,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity
         /// <summary>
         /// Use migrations to create the database for {0}
         /// </summary>
-        public static string DatabaseErrorPage_NoDbOrMigrationsTitle(object p0)
+        public static string DatabaseErrorPage_NoDbOrMigrationsTitle([CanBeNull] object p0)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("DatabaseErrorPage_NoDbOrMigrationsTitle"), p0);
         }
@@ -126,7 +127,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity
         /// <summary>
         /// There are pending model changes for {0}
         /// </summary>
-        public static string DatabaseErrorPage_PendingChangesTitle(object p0)
+        public static string DatabaseErrorPage_PendingChangesTitle([CanBeNull] object p0)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("DatabaseErrorPage_PendingChangesTitle"), p0);
         }
@@ -134,7 +135,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity
         /// <summary>
         /// There are migrations for {0} that have not been applied to the database
         /// </summary>
-        public static string DatabaseErrorPage_PendingMigrationsInfo(object p0)
+        public static string DatabaseErrorPage_PendingMigrationsInfo([CanBeNull] object p0)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("DatabaseErrorPage_PendingMigrationsInfo"), p0);
         }
@@ -142,7 +143,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity
         /// <summary>
         /// Applying existing migrations for {0} may resolve this issue
         /// </summary>
-        public static string DatabaseErrorPage_PendingMigrationsTitle(object p0)
+        public static string DatabaseErrorPage_PendingMigrationsTitle([CanBeNull] object p0)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("DatabaseErrorPage_PendingMigrationsTitle"), p0);
         }
@@ -158,7 +159,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity
         /// <summary>
         /// The value provided for argument '{argumentName}' must be a valid value of enum type '{enumType}'.
         /// </summary>
-        public static string InvalidEnumValue(object argumentName, object enumType)
+        public static string InvalidEnumValue([CanBeNull] object argumentName, [CanBeNull] object enumType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("InvalidEnumValue", "argumentName", "enumType"), argumentName, enumType);
         }
@@ -166,7 +167,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity
         /// <summary>
         /// Migrations successfully applied for context '{0}'.
         /// </summary>
-        public static string MigrationsEndPointMiddleware_Applied(object p0)
+        public static string MigrationsEndPointMiddleware_Applied([CanBeNull] object p0)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("MigrationsEndPointMiddleware_Applied"), p0);
         }
@@ -174,7 +175,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity
         /// <summary>
         /// Request is valid, applying migrations for context '{0}'.
         /// </summary>
-        public static string MigrationsEndPointMiddleware_ApplyingMigrations(object p0)
+        public static string MigrationsEndPointMiddleware_ApplyingMigrations([CanBeNull] object p0)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("MigrationsEndPointMiddleware_ApplyingMigrations"), p0);
         }
@@ -182,7 +183,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity
         /// <summary>
         /// The context type '{0}' was not found in services. This usually means the context was not registered in services during startup. You probably want to call AddScoped&lt;{0}&gt;() inside the UseServices(...) call in your application startup code.
         /// </summary>
-        public static string MigrationsEndPointMiddleware_ContextNotRegistered(object p0)
+        public static string MigrationsEndPointMiddleware_ContextNotRegistered([CanBeNull] object p0)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("MigrationsEndPointMiddleware_ContextNotRegistered"), p0);
         }
@@ -190,7 +191,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity
         /// <summary>
         /// An error occured while applying the migrations for '{0}'. See InnerException for details.
         /// </summary>
-        public static string MigrationsEndPointMiddleware_Exception(object p0)
+        public static string MigrationsEndPointMiddleware_Exception([CanBeNull] object p0)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("MigrationsEndPointMiddleware_Exception"), p0);
         }
@@ -198,7 +199,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity
         /// <summary>
         /// The context type '{0}' could not be loaded. Ensure this is the correct type name for the context you are trying to apply migrations for.
         /// </summary>
-        public static string MigrationsEndPointMiddleware_InvalidContextType(object p0)
+        public static string MigrationsEndPointMiddleware_InvalidContextType([CanBeNull] object p0)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("MigrationsEndPointMiddleware_InvalidContextType"), p0);
         }
@@ -214,7 +215,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity
         /// <summary>
         /// Request path matched the path configured for this migrations endpoint ({0}). Attempting to process the migrations request.
         /// </summary>
-        public static string MigrationsEndPointMiddleware_RequestPathMatched(object p0)
+        public static string MigrationsEndPointMiddleware_RequestPathMatched([CanBeNull] object p0)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("MigrationsEndPointMiddleware_RequestPathMatched"), p0);
         }

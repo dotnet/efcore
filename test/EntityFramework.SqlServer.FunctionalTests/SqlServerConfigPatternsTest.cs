@@ -3,14 +3,14 @@
 
 using System;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.SqlServer.FunctionalTests.TestModels;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
 using Xunit;
+using CoreStrings = Microsoft.Data.Entity.Internal.Strings;
+using RelationalStrings = Microsoft.Data.Entity.Relational.Strings;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
@@ -174,7 +174,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     var serviceProvider = serviceCollection.BuildServiceProvider();
 
                     Assert.Equal(
-                        GetRelationalString("NoConnectionOrConnectionString"),
+                        RelationalStrings.NoConnectionOrConnectionString,
                         Assert.Throws<InvalidOperationException>(() =>
                             {
                                 using (var context = new NorthwindContext(serviceProvider))
@@ -209,7 +209,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 using (await SqlServerNorthwindContext.GetSharedStoreAsync())
                 {
                     Assert.Equal(
-                        GetString("NoDataStoreConfigured"),
+                        CoreStrings.NoDataStoreConfigured,
                         Assert.Throws<InvalidOperationException>(() =>
                             {
                                 using (var context = new NorthwindContext())
@@ -245,7 +245,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     var serviceProvider = serviceCollection.BuildServiceProvider();
 
                     Assert.Equal(
-                        GetString("NoDataStoreService"),
+                        CoreStrings.NoDataStoreService,
                         Assert.Throws<InvalidOperationException>(() =>
                             {
                                 using (var context = new NorthwindContext(serviceProvider))
@@ -706,18 +706,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     b.Key(c => c.CustomerID);
                     b.ForSqlServer().Table("Customers");
                 });
-        }
-
-        private static string GetString(string stringName)
-        {
-            var strings = typeof(DbContext).GetTypeInfo().Assembly.GetType(typeof(DbContext).Namespace + ".Strings");
-            return (string)strings.GetTypeInfo().GetDeclaredProperty(stringName).GetGetMethod().Invoke(null, null);
-        }
-
-        private static string GetRelationalString(string stringName)
-        {
-            var strings = typeof(RelationalConnection).GetTypeInfo().Assembly.GetType(typeof(RelationalConnection).Namespace + ".Strings");
-            return (string)strings.GetTypeInfo().GetDeclaredProperty(stringName).GetGetMethod().Invoke(null, null);
         }
     }
 }

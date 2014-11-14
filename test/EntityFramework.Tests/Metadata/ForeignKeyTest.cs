@@ -3,6 +3,7 @@
 
 using System;
 using System.Linq;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Xunit;
 
@@ -20,9 +21,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var foreignKey
                 = new ForeignKey(new[] { dependentProp }, entityType.GetPrimaryKey())
-                    {
-                        IsUnique = true,
-                    };
+                {
+                    IsUnique = true,
+                };
 
             Assert.Same(entityType, foreignKey.ReferencedEntityType);
             Assert.Same(principalProp, foreignKey.ReferencedProperties.Single());
@@ -84,9 +85,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var foreignKey
                 = new ForeignKey(new[] { dependentProp }, referencedKey)
-                    {
-                        IsUnique = false,
-                    };
+                {
+                    IsUnique = false,
+                };
 
             Assert.Same(entityType, foreignKey.ReferencedEntityType);
             Assert.Same(principalProp, foreignKey.ReferencedProperties.Single());

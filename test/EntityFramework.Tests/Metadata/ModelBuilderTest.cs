@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Metadata.ModelConventions;
@@ -6340,7 +6341,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         private static void AssertIsGenericManyToOne(ModelBuilder.EntityBuilder<Order>.ManyToOneBuilder<Customer> _)
         {
         }
-        
+
         [Fact]
         public void OnEntityTypeAdded_calls_apply_on_conventions()
         {

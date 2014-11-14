@@ -5,8 +5,9 @@ namespace Microsoft.Data.Entity.Migrations
     using System.Globalization;
     using System.Reflection;
     using System.Resources;
+	using JetBrains.Annotations;
 
-    internal static class Strings
+    public static class Strings
     {
         private static readonly ResourceManager _resourceManager
             = new ResourceManager("EntityFramework.Migrations.Strings", typeof(Strings).GetTypeInfo().Assembly);
@@ -14,7 +15,7 @@ namespace Microsoft.Data.Entity.Migrations
         /// <summary>
         /// The string argument '{argumentName}' cannot be empty.
         /// </summary>
-        public static string ArgumentIsEmpty(object argumentName)
+        public static string ArgumentIsEmpty([CanBeNull] object argumentName)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("ArgumentIsEmpty", "argumentName"), argumentName);
         }
@@ -22,7 +23,7 @@ namespace Microsoft.Data.Entity.Migrations
         /// <summary>
         /// The value provided for argument '{argumentName}' must be a valid value of enum type '{enumType}'.
         /// </summary>
-        public static string InvalidEnumValue(object argumentName, object enumType)
+        public static string InvalidEnumValue([CanBeNull] object argumentName, [CanBeNull] object enumType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("InvalidEnumValue", "argumentName", "enumType"), argumentName, enumType);
         }
@@ -30,7 +31,7 @@ namespace Microsoft.Data.Entity.Migrations
         /// <summary>
         /// The current migration SQL generator '{sqlGeneratorType}' is unable to generate SQL for operations of type '{operationType}'.
         /// </summary>
-        public static string UnknownOperation(object sqlGeneratorType, object operationType)
+        public static string UnknownOperation([CanBeNull] object sqlGeneratorType, [CanBeNull] object operationType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("UnknownOperation", "sqlGeneratorType", "operationType"), sqlGeneratorType, operationType);
         }
@@ -38,7 +39,7 @@ namespace Microsoft.Data.Entity.Migrations
         /// <summary>
         /// The target migration '{targetMigrationName}' was not found.
         /// </summary>
-        public static string TargetMigrationNotFound(object targetMigrationName)
+        public static string TargetMigrationNotFound([CanBeNull] object targetMigrationName)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("TargetMigrationNotFound", "targetMigrationName"), targetMigrationName);
         }
@@ -46,7 +47,7 @@ namespace Microsoft.Data.Entity.Migrations
         /// <summary>
         /// The history repository includes a migration with the identifier '{migrationId}' but the migration assembly does not contain the corresponding migration class.
         /// </summary>
-        public static string LocalMigrationNotFound(object migrationId)
+        public static string LocalMigrationNotFound([CanBeNull] object migrationId)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("LocalMigrationNotFound", "migrationId"), migrationId);
         }
@@ -54,7 +55,7 @@ namespace Microsoft.Data.Entity.Migrations
         /// <summary>
         /// '{migrationId}' is not a valid migration identifier.
         /// </summary>
-        public static string InvalidMigrationId(object migrationId)
+        public static string InvalidMigrationId([CanBeNull] object migrationId)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("InvalidMigrationId", "migrationId"), migrationId);
         }
@@ -62,7 +63,7 @@ namespace Microsoft.Data.Entity.Migrations
         /// <summary>
         /// '{migrationType}' does not implement IMigrationMetadata.
         /// </summary>
-        public static string MissingMigrationMetadata(object migrationType)
+        public static string MissingMigrationMetadata([CanBeNull] object migrationType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("MissingMigrationMetadata", "migrationType"), migrationType);
         }
@@ -86,7 +87,7 @@ namespace Microsoft.Data.Entity.Migrations
         /// <summary>
         /// Applying migration '{migrationId}'.
         /// </summary>
-        public static string MigratorLoggerApplyingMigration(object migrationId)
+        public static string MigratorLoggerApplyingMigration([CanBeNull] object migrationId)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("MigratorLoggerApplyingMigration", "migrationId"), migrationId);
         }
@@ -94,7 +95,7 @@ namespace Microsoft.Data.Entity.Migrations
         /// <summary>
         /// Reverting migration '{migrationId}'.
         /// </summary>
-        public static string MigratorLoggerRevertingMigration(object migrationId)
+        public static string MigratorLoggerRevertingMigration([CanBeNull] object migrationId)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("MigratorLoggerRevertingMigration", "migrationId"), migrationId);
         }

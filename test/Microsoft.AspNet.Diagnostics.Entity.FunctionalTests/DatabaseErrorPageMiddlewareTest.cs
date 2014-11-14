@@ -1,16 +1,6 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.AspNet.Builder;
-using Microsoft.AspNet.Diagnostics.Entity.FunctionalTests.Helpers;
-using Microsoft.AspNet.Diagnostics.Entity.Tests.Helpers;
-using Microsoft.AspNet.Http;
-using Microsoft.AspNet.TestHost;
-using Microsoft.Data.Entity;
-using Microsoft.Data.Entity.Migrations.Infrastructure;
-using Microsoft.Data.Entity.SqlServer.FunctionalTests;
-using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.Logging;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -18,6 +8,15 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.AspNet.Builder;
+using Microsoft.AspNet.Diagnostics.Entity.FunctionalTests.Helpers;
+using Microsoft.AspNet.Http;
+using Microsoft.AspNet.TestHost;
+using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.Migrations.Infrastructure;
+using Microsoft.Data.Entity.SqlServer.FunctionalTests;
+using Microsoft.Framework.DependencyInjection;
+using Microsoft.Framework.Logging;
 using Xunit;
 
 namespace Microsoft.AspNet.Diagnostics.Entity.Tests
@@ -81,9 +80,9 @@ namespace Microsoft.AspNet.Diagnostics.Entity.Tests
 
             Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
             var content = await response.Content.ReadAsStringAsync();
-            Assert.Contains(StringsHelpers.GetResourceString("DatabaseErrorPage_NoDbOrMigrationsTitle", typeof(BloggingContext).Name), content);
-            Assert.Contains(StringsHelpers.GetResourceString("DatabaseErrorPage_AddMigrationCommand").Replace(">", "&gt;"), content);
-            Assert.Contains(StringsHelpers.GetResourceString("DatabaseErrorPage_ApplyMigrationsCommand").Replace(">", "&gt;"), content);
+            Assert.Contains(Strings.DatabaseErrorPage_NoDbOrMigrationsTitle(typeof(BloggingContext).Name), content);
+            Assert.Contains(Strings.DatabaseErrorPage_AddMigrationCommand.Replace(">", "&gt;"), content);
+            Assert.Contains(Strings.DatabaseErrorPage_ApplyMigrationsCommand.Replace(">", "&gt;"), content);
         }
 
         class NoMigrationsMiddleware
@@ -111,12 +110,12 @@ namespace Microsoft.AspNet.Diagnostics.Entity.Tests
             Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
 
             var content = await response.Content.ReadAsStringAsync();
-            Assert.Contains(StringsHelpers.GetResourceString("DatabaseErrorPage_PendingMigrationsTitle", typeof(BloggingContextWithMigrations).Name), content);
-            Assert.Contains(StringsHelpers.GetResourceString("DatabaseErrorPage_ApplyMigrationsCommand").Replace(">", "&gt;"), content);
+            Assert.Contains(Strings.DatabaseErrorPage_PendingMigrationsTitle(typeof(BloggingContextWithMigrations).Name), content);
+            Assert.Contains(Strings.DatabaseErrorPage_ApplyMigrationsCommand.Replace(">", "&gt;"), content);
             Assert.Contains("<li>111111111111111_MigrationOne</li>", content);
             Assert.Contains("<li>222222222222222_MigrationTwo</li>", content);
 
-            Assert.DoesNotContain(StringsHelpers.GetResourceString("DatabaseErrorPage_AddMigrationCommand").Replace(">", "&gt;"), content);
+            Assert.DoesNotContain(Strings.DatabaseErrorPage_AddMigrationCommand.Replace(">", "&gt;"), content);
         }
 
         class PendingMigrationsMiddleware
@@ -144,9 +143,9 @@ namespace Microsoft.AspNet.Diagnostics.Entity.Tests
             Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
 
             var content = await response.Content.ReadAsStringAsync();
-            Assert.Contains(StringsHelpers.GetResourceString("DatabaseErrorPage_PendingChangesTitle", typeof(BloggingContextWithPendingModelChanges).Name), content);
-            Assert.Contains(StringsHelpers.GetResourceString("DatabaseErrorPage_AddMigrationCommand").Replace(">", "&gt;"), content);
-            Assert.Contains(StringsHelpers.GetResourceString("DatabaseErrorPage_ApplyMigrationsCommand").Replace(">", "&gt;"), content);
+            Assert.Contains(Strings.DatabaseErrorPage_PendingChangesTitle(typeof(BloggingContextWithPendingModelChanges).Name), content);
+            Assert.Contains(Strings.DatabaseErrorPage_AddMigrationCommand.Replace(">", "&gt;"), content);
+            Assert.Contains(Strings.DatabaseErrorPage_ApplyMigrationsCommand.Replace(">", "&gt;"), content);
         }
 
         class PendingModelChangesMiddleware
@@ -281,7 +280,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity.Tests
                     await server.CreateClient().GetAsync("http://localhost/"));
 
                 Assert.True(logProvider.Logger.Messages.Any(m =>
-                    m.StartsWith(StringsHelpers.GetResourceString("DatabaseErrorPageMiddleware_ContextNotRegistered", typeof(BloggingContext)))));
+                    m.StartsWith(Strings.DatabaseErrorPageMiddleware_ContextNotRegistered(typeof(BloggingContext)))));
             }
         }
 
@@ -315,7 +314,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity.Tests
                     await server.CreateClient().GetAsync("http://localhost/"));
 
                 Assert.True(logProvider.Logger.Messages.Any(m =>
-                    m.StartsWith(StringsHelpers.GetResourceString("DatabaseErrorPageMiddleware_Exception"))));
+                    m.StartsWith(Strings.DatabaseErrorPageMiddleware_Exception)));
             }
         }
 

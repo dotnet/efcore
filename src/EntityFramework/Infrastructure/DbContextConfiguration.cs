@@ -5,6 +5,7 @@ using System;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Identity;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
@@ -135,7 +136,7 @@ namespace Microsoft.Data.Entity.Infrastructure
         {
             get { return _dataStoreServices.Value.Database; }
         }
-        
+
         // TODO: Remove this (Issue #641)
         public virtual DataStoreCreator DataStoreCreator
         {

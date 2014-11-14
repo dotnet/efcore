@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Infrastructure;
@@ -25,6 +24,7 @@ using Microsoft.Framework.Logging;
 using Moq;
 using Moq.Protected;
 using Xunit;
+using RelationalStrings = Microsoft.Data.Entity.Relational.Strings;
 
 namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
 {
@@ -1088,26 +1088,26 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                     .Append(typeof(Migrator).FullName).Append(" Information ")
                     .AppendLine(Strings.MigratorLoggerCreatingHistoryTable)
                     .Append(typeof(DataStoreConnection).FullName).Append(" Verbose ")
-                    .AppendLine(GetString("RelationalLoggerBeginningTransaction", "Serializable"))
+                    .AppendLine(RelationalStrings.RelationalLoggerBeginningTransaction("Serializable"))
                     .Append(typeof(SqlStatementExecutor).FullName).Append(" Verbose ")
-                    .AppendLine(GetString("RelationalLoggerOpeningConnection", "MyConnectionString"))
+                    .AppendLine(RelationalStrings.RelationalLoggerOpeningConnection("MyConnectionString"))
                     .Append(typeof(SqlStatementExecutor).FullName).AppendLine(" Verbose Create__MigrationHistorySql")
                     .Append(typeof(SqlStatementExecutor).FullName).Append(" Verbose ")
-                    .AppendLine(GetString("RelationalLoggerClosingConnection", "MyConnectionString"))
+                    .AppendLine(RelationalStrings.RelationalLoggerClosingConnection("MyConnectionString"))
                     .Append(typeof(DataStoreConnection).FullName).Append(" Verbose ")
-                    .AppendLine(GetString("RelationalLoggerCommittingTransaction"))
+                    .AppendLine(RelationalStrings.RelationalLoggerCommittingTransaction)
                     .Append(typeof(Migrator).FullName).Append(" Information ")
                     .AppendLine(Strings.MigratorLoggerApplyingMigration("000000000000001_Migration1"))
                     .Append(typeof(DataStoreConnection).FullName).Append(" Verbose ")
-                    .AppendLine(GetString("RelationalLoggerBeginningTransaction", "Serializable"))
+                    .AppendLine(RelationalStrings.RelationalLoggerBeginningTransaction("Serializable"))
                     .Append(typeof(SqlStatementExecutor).FullName).Append(" Verbose ")
-                    .AppendLine(GetString("RelationalLoggerOpeningConnection", "MyConnectionString"))
+                    .AppendLine(RelationalStrings.RelationalLoggerOpeningConnection("MyConnectionString"))
                     .Append(typeof(SqlStatementExecutor).FullName).AppendLine(" Verbose SomeSql")
                     .Append(typeof(SqlStatementExecutor).FullName).AppendLine(" Verbose Migration1InsertSql")
                     .Append(typeof(SqlStatementExecutor).FullName).Append(" Verbose ")
-                    .AppendLine(GetString("RelationalLoggerClosingConnection", "MyConnectionString"))
+                    .AppendLine(RelationalStrings.RelationalLoggerClosingConnection("MyConnectionString"))
                     .Append(typeof(DataStoreConnection).FullName).Append(" Verbose ")
-                    .AppendLine(GetString("RelationalLoggerCommittingTransaction"))
+                    .AppendLine(RelationalStrings.RelationalLoggerCommittingTransaction)
                     .ToString(),
                 loggerFactory.LogContent);
         }
@@ -1145,38 +1145,28 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                     .Append(typeof(Migrator).FullName).Append(" Information ")
                     .AppendLine(Strings.MigratorLoggerRevertingMigration("000000000000001_Migration1"))
                     .Append(typeof(DataStoreConnection).FullName).Append(" Verbose ")
-                    .AppendLine(GetString("RelationalLoggerBeginningTransaction", "Serializable"))
+                    .AppendLine(RelationalStrings.RelationalLoggerBeginningTransaction("Serializable"))
                     .Append(typeof(SqlStatementExecutor).FullName).Append(" Verbose ")
-                    .AppendLine(GetString("RelationalLoggerOpeningConnection", "MyConnectionString"))
+                    .AppendLine(RelationalStrings.RelationalLoggerOpeningConnection("MyConnectionString"))
                     .Append(typeof(SqlStatementExecutor).FullName).AppendLine(" Verbose SomeSql")
                     .Append(typeof(SqlStatementExecutor).FullName).AppendLine(" Verbose Migration1DeleteSql")
                     .Append(typeof(SqlStatementExecutor).FullName).Append(" Verbose ")
-                    .AppendLine(GetString("RelationalLoggerClosingConnection", "MyConnectionString"))
+                    .AppendLine(RelationalStrings.RelationalLoggerClosingConnection("MyConnectionString"))
                     .Append(typeof(DataStoreConnection).FullName).Append(" Verbose ")
-                    .AppendLine(GetString("RelationalLoggerCommittingTransaction"))
+                    .AppendLine(RelationalStrings.RelationalLoggerCommittingTransaction)
                     .Append(typeof(Migrator).FullName).Append(" Information ")
                     .AppendLine(Strings.MigratorLoggerDroppingHistoryTable)
                     .Append(typeof(DataStoreConnection).FullName).Append(" Verbose ")
-                    .AppendLine(GetString("RelationalLoggerBeginningTransaction", "Serializable"))
+                    .AppendLine(RelationalStrings.RelationalLoggerBeginningTransaction("Serializable"))
                     .Append(typeof(SqlStatementExecutor).FullName).Append(" Verbose ")
-                    .AppendLine(GetString("RelationalLoggerOpeningConnection", "MyConnectionString"))
+                    .AppendLine(RelationalStrings.RelationalLoggerOpeningConnection("MyConnectionString"))
                     .Append(typeof(SqlStatementExecutor).FullName).AppendLine(" Verbose Drop__MigrationHistorySql")
                     .Append(typeof(SqlStatementExecutor).FullName).Append(" Verbose ")
-                    .AppendLine(GetString("RelationalLoggerClosingConnection", "MyConnectionString"))
+                    .AppendLine(RelationalStrings.RelationalLoggerClosingConnection("MyConnectionString"))
                     .Append(typeof(DataStoreConnection).FullName).Append(" Verbose ")
-                    .AppendLine(GetString("RelationalLoggerCommittingTransaction"))
+                    .AppendLine(RelationalStrings.RelationalLoggerCommittingTransaction)
                     .ToString(),
                 loggerFactory.LogContent);
-        }
-
-        private static string GetString(string stringName, params object[] parameters)
-        {
-            var strings = typeof(SqlStatement).GetTypeInfo().Assembly.GetType(typeof(SqlStatement).Namespace + ".Strings").GetTypeInfo();
-            var method = parameters.Length == 0
-                ? strings.GetDeclaredProperty(stringName).GetGetMethod()
-                : strings.GetDeclaredMethods(stringName).Single();
-
-            return (string)method.Invoke(null, parameters);
         }
 
         #region Fixture
@@ -1248,9 +1238,9 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                     dbCreatorMock.Object,
                     contextConfiguration.ScopedServiceProvider.GetRequiredService<FakeRelationalConnection>(),
                     loggerFactory)
-                    {
-                        CallBase = true
-                    }
+                {
+                    CallBase = true
+                }
                     .Object;
         }
 
@@ -1291,7 +1281,8 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             var mock = new Mock<HistoryRepository>(
                         contextConfiguration.ScopedServiceProvider,
                         new LazyRef<IDbContextOptions>(new DbContextOptions()),
-                        new LazyRef<DbContext>(() => null)) { CallBase = true };
+                        new LazyRef<DbContext>(() => null))
+            { CallBase = true };
 
             if (historyRepositoryExists)
             {
@@ -1460,9 +1451,9 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
 
                             return
                                 new SqlStatement(builder.ToString())
-                                    {
-                                        SuppressTransaction = sqlOperation != null && sqlOperation.SuppressTransaction
-                                    };
+                                {
+                                    SuppressTransaction = sqlOperation != null && sqlOperation.SuppressTransaction
+                                };
                         });
             }
 

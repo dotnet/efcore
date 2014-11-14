@@ -5,8 +5,9 @@ namespace Microsoft.Data.Entity.Relational
     using System.Globalization;
     using System.Reflection;
     using System.Resources;
+	using JetBrains.Annotations;
 
-    internal static class Strings
+    public static class Strings
     {
         private static readonly ResourceManager _resourceManager
             = new ResourceManager("EntityFramework.Relational.Strings", typeof(Strings).GetTypeInfo().Assembly);
@@ -14,7 +15,7 @@ namespace Microsoft.Data.Entity.Relational
         /// <summary>
         /// The string argument '{argumentName}' cannot be empty.
         /// </summary>
-        public static string ArgumentIsEmpty(object argumentName)
+        public static string ArgumentIsEmpty([CanBeNull] object argumentName)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("ArgumentIsEmpty", "argumentName"), argumentName);
         }
@@ -22,7 +23,7 @@ namespace Microsoft.Data.Entity.Relational
         /// <summary>
         /// The value provided for argument '{argumentName}' must be a valid value of enum type '{enumType}'.
         /// </summary>
-        public static string InvalidEnumValue(object argumentName, object enumType)
+        public static string InvalidEnumValue([CanBeNull] object argumentName, [CanBeNull] object enumType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("InvalidEnumValue", "argumentName", "enumType"), argumentName, enumType);
         }
@@ -30,7 +31,7 @@ namespace Microsoft.Data.Entity.Relational
         /// <summary>
         /// The schema qualified name '{name}' is invalid. Schema qualified names must be of the form [&lt;schema_name&gt;.]&lt;object_name&gt;.
         /// </summary>
-        public static string InvalidSchemaQualifiedName(object name)
+        public static string InvalidSchemaQualifiedName([CanBeNull] object name)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("InvalidSchemaQualifiedName", "name"), name);
         }
@@ -38,7 +39,7 @@ namespace Microsoft.Data.Entity.Relational
         /// <summary>
         /// Can not create a ModificationFunction for an entity in state '{entityState}'.
         /// </summary>
-        public static string ModificationFunctionInvalidEntityState(object entityState)
+        public static string ModificationFunctionInvalidEntityState([CanBeNull] object entityState)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("ModificationFunctionInvalidEntityState", "entityState"), entityState);
         }
@@ -46,7 +47,7 @@ namespace Microsoft.Data.Entity.Relational
         /// <summary>
         /// Update failed. Expected {expectedRows} row(s) but {actualRows} row(s) returned.
         /// </summary>
-        public static string UpdateConcurrencyException(object expectedRows, object actualRows)
+        public static string UpdateConcurrencyException([CanBeNull] object expectedRows, [CanBeNull] object actualRows)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("UpdateConcurrencyException", "expectedRows", "actualRows"), expectedRows, actualRows);
         }
@@ -86,7 +87,7 @@ namespace Microsoft.Data.Entity.Relational
         /// <summary>
         /// The property '{propertyName}' cannot be mapped because it is of type '{propertyType}' which is currently not supported.
         /// </summary>
-        public static string UnsupportedType(object propertyName, object propertyType)
+        public static string UnsupportedType([CanBeNull] object propertyName, [CanBeNull] object propertyType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("UnsupportedType", "propertyName", "propertyType"), propertyName, propertyType);
         }
@@ -110,7 +111,7 @@ namespace Microsoft.Data.Entity.Relational
         /// <summary>
         /// The property '{property}' of the argument '{argument}' cannot be null.
         /// </summary>
-        public static string ArgumentPropertyNull(object property, object argument)
+        public static string ArgumentPropertyNull([CanBeNull] object property, [CanBeNull] object argument)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("ArgumentPropertyNull", "property", "argument"), property, argument);
         }
@@ -118,7 +119,7 @@ namespace Microsoft.Data.Entity.Relational
         /// <summary>
         /// The collection argument '{argumentName}' must contain at least one element.
         /// </summary>
-        public static string CollectionArgumentIsEmpty(object argumentName)
+        public static string CollectionArgumentIsEmpty([CanBeNull] object argumentName)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("CollectionArgumentIsEmpty", "argumentName"), argumentName);
         }
@@ -150,7 +151,7 @@ namespace Microsoft.Data.Entity.Relational
         /// <summary>
         /// The SQL Server sequence '{sequenceName}' was already specified with a different definition.
         /// </summary>
-        public static string SequenceDefinitionMismatch(object sequenceName)
+        public static string SequenceDefinitionMismatch([CanBeNull] object sequenceName)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("SequenceDefinitionMismatch", "sequenceName"), sequenceName);
         }
@@ -158,7 +159,7 @@ namespace Microsoft.Data.Entity.Relational
         /// <summary>
         /// Creating database '{databaseName}'.
         /// </summary>
-        public static string RelationalLoggerCreatingDatabase(object databaseName)
+        public static string RelationalLoggerCreatingDatabase([CanBeNull] object databaseName)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("RelationalLoggerCreatingDatabase", "databaseName"), databaseName);
         }
@@ -166,7 +167,7 @@ namespace Microsoft.Data.Entity.Relational
         /// <summary>
         /// Opening connection '{connectionString}'.
         /// </summary>
-        public static string RelationalLoggerOpeningConnection(object connectionString)
+        public static string RelationalLoggerOpeningConnection([CanBeNull] object connectionString)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("RelationalLoggerOpeningConnection", "connectionString"), connectionString);
         }
@@ -174,7 +175,7 @@ namespace Microsoft.Data.Entity.Relational
         /// <summary>
         /// Closing connection '{connectionString}'.
         /// </summary>
-        public static string RelationalLoggerClosingConnection(object connectionString)
+        public static string RelationalLoggerClosingConnection([CanBeNull] object connectionString)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("RelationalLoggerClosingConnection", "connectionString"), connectionString);
         }
@@ -182,7 +183,7 @@ namespace Microsoft.Data.Entity.Relational
         /// <summary>
         /// Beginning transaction with isolation level '{isolationLevel}'.
         /// </summary>
-        public static string RelationalLoggerBeginningTransaction(object isolationLevel)
+        public static string RelationalLoggerBeginningTransaction([CanBeNull] object isolationLevel)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("RelationalLoggerBeginningTransaction", "isolationLevel"), isolationLevel);
         }

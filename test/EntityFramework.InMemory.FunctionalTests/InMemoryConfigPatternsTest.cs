@@ -3,10 +3,10 @@
 
 using System;
 using System.Linq;
-using System.Reflection;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
 using Xunit;
+using CoreStrings = Microsoft.Data.Entity.Internal.Strings;
 
 namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 {
@@ -202,7 +202,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
         public void Throws_on_attempt_to_use_context_with_no_store()
         {
             Assert.Equal(
-                GetString("NoDataStoreConfigured"),
+                CoreStrings.NoDataStoreConfigured,
                 Assert.Throws<InvalidOperationException>(() =>
                     {
                         using (var context = new NoServicesAndNoConfigBlogContext())
@@ -226,7 +226,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             var serviceProvider = serviceCollection.BuildServiceProvider();
 
             Assert.Equal(
-                GetString("NoDataStoreService"),
+                CoreStrings.NoDataStoreService,
                 Assert.Throws<InvalidOperationException>(() =>
                     {
                         using (var context = new ImplicitConfigButNoServicesBlogContext(serviceProvider))
@@ -606,12 +606,6 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
         {
             public int Id { get; set; }
             public string Name { get; set; }
-        }
-
-        private static string GetString(string stringName)
-        {
-            var strings = typeof(DbContext).GetTypeInfo().Assembly.GetType(typeof(DbContext).Namespace + ".Strings");
-            return (string)strings.GetTypeInfo().GetDeclaredProperty(stringName).GetGetMethod().Invoke(null, null);
         }
     }
 }

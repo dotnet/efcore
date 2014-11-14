@@ -6,7 +6,7 @@ using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.Internal;
 
 // ReSharper disable once CheckNamespace
 

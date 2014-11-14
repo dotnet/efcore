@@ -5,8 +5,9 @@ namespace Microsoft.Data.Entity.AzureTableStorage
     using System.Globalization;
     using System.Reflection;
     using System.Resources;
+	using JetBrains.Annotations;
 
-    internal static class Strings
+    public static class Strings
     {
         private static readonly ResourceManager _resourceManager
             = new ResourceManager("EntityFramework.AzureTableStorage.Strings", typeof(Strings).GetTypeInfo().Assembly);
@@ -14,7 +15,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
         /// <summary>
         /// The string argument '{argumentName}' cannot be empty.
         /// </summary>
-        public static string ArgumentIsEmpty(object argumentName)
+        public static string ArgumentIsEmpty([CanBeNull] object argumentName)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("ArgumentIsEmpty", "argumentName"), argumentName);
         }
@@ -22,7 +23,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
         /// <summary>
         /// The collection argument '{argumentName}' must contain at least one element.
         /// </summary>
-        public static string CollectionArgumentIsEmpty(object argumentName)
+        public static string CollectionArgumentIsEmpty([CanBeNull] object argumentName)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("CollectionArgumentIsEmpty", "argumentName"), argumentName);
         }
@@ -30,7 +31,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
         /// <summary>
         /// The value provided for argument '{argumentName}' must be a valid value of enum type '{enumType}'.
         /// </summary>
-        public static string InvalidEnumValue(object argumentName, object enumType)
+        public static string InvalidEnumValue([CanBeNull] object argumentName, [CanBeNull] object enumType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("InvalidEnumValue", "argumentName", "enumType"), argumentName, enumType);
         }
@@ -46,7 +47,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
         /// <summary>
         /// Cannot access a public setter and getter for the property '{propertyName}' of type '{typeName}'
         /// </summary>
-        public static string InvalidPoco(object propertyName, object typeName)
+        public static string InvalidPoco([CanBeNull] object propertyName, [CanBeNull] object typeName)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("InvalidPoco", "propertyName", "typeName"), propertyName, typeName);
         }
@@ -62,7 +63,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
         /// <summary>
         /// Cannot read value of type '{typeName}' from '{accessName}'
         /// </summary>
-        public static string InvalidReadType(object typeName, object accessName)
+        public static string InvalidReadType([CanBeNull] object typeName, [CanBeNull] object accessName)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("InvalidReadType", "typeName", "accessName"), typeName, accessName);
         }
@@ -70,7 +71,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
         /// <summary>
         /// A property with the storage name '{property}' on entity type '{entityType}' could not be found. Ensure that the property exists, has been included in the model, and has been configured with storage name specified.
         /// </summary>
-        public static string PropertyWithStorageNameNotFound(object property, object entityType)
+        public static string PropertyWithStorageNameNotFound([CanBeNull] object property, [CanBeNull] object entityType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("PropertyWithStorageNameNotFound", "property", "entityType"), property, entityType);
         }
@@ -134,7 +135,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
         /// <summary>
         /// The property '{property}' on entity type '{entityType}' cannot be used as an Azure Table Storage timestamp because its type is '{propertyType}'. Only 'DateTimeOffset' properties can be used as timestamps.
         /// </summary>
-        public static string BadTimestampType(object property, object entityType, object propertyType)
+        public static string BadTimestampType([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object propertyType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("BadTimestampType", "property", "entityType", "propertyType"), property, entityType, propertyType);
         }
@@ -142,7 +143,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
         /// <summary>
         /// Executing request '{name}'
         /// </summary>
-        public static string LogExecutingRequest(object name)
+        public static string LogExecutingRequest([CanBeNull] object name)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("LogExecutingRequest", "name"), name);
         }
@@ -150,7 +151,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
         /// <summary>
         /// Retrying request to '{uri}'
         /// </summary>
-        public static string LogRequestRetry(object uri)
+        public static string LogRequestRetry([CanBeNull] object uri)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("LogRequestRetry", "uri"), uri);
         }
@@ -158,7 +159,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
         /// <summary>
         /// Response from '{uri}' = {statusCode} {description}
         /// </summary>
-        public static string LogResponseReceived(object uri, object statusCode, object description)
+        public static string LogResponseReceived([CanBeNull] object uri, [CanBeNull] object statusCode, [CanBeNull] object description)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("LogResponseReceived", "uri", "statusCode", "description"), uri, statusCode, description);
         }
@@ -166,7 +167,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
         /// <summary>
         /// Sending request to '{uri}'
         /// </summary>
-        public static string LogSendingRequest(object uri)
+        public static string LogSendingRequest([CanBeNull] object uri)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("LogSendingRequest", "uri"), uri);
         }

@@ -7,7 +7,6 @@ using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Update;
-using Microsoft.Data.Entity.FunctionalTests;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Relational.FunctionalTests
@@ -255,9 +254,9 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
             {
                 using (var context = CreateContext())
                 {
-                    Assert.Throws<InvalidOperationException>(() =>
-                        context.Database.AsRelational().Connection.UseTransaction(transaction))
-                        .ValidateMessage(typeof(RelationalConnection), "TransactionAssociatedWithDifferentConnection");
+                    var ex = Assert.Throws<InvalidOperationException>(() =>
+                        context.Database.AsRelational().Connection.UseTransaction(transaction));
+                    Assert.Equal(Strings.TransactionAssociatedWithDifferentConnection, ex.Message);
                 }
             }
         }
@@ -271,9 +270,9 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
                 {
                     using (context.Database.AsRelational().Connection.BeginTransaction())
                     {
-                        Assert.Throws<InvalidOperationException>(() =>
-                            context.Database.AsRelational().Connection.UseTransaction(transaction))
-                            .ValidateMessage(typeof(RelationalConnection), "TransactionAlreadyStarted");
+                        var ex = Assert.Throws<InvalidOperationException>(() =>
+                            context.Database.AsRelational().Connection.UseTransaction(transaction));
+                        Assert.Equal(Strings.TransactionAlreadyStarted, ex.Message);
                     }
                 }
             }
@@ -320,7 +319,7 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
         }
 
         protected abstract bool SnapshotSupported { get; }
-        
+
         protected DbContext CreateContext()
         {
             return Fixture.CreateContext(TestDatabase);

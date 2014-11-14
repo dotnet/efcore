@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Data.Entity.Internal;
 
 namespace Microsoft.Data.Entity.Utilities
 {
@@ -154,8 +155,8 @@ namespace Microsoft.Data.Entity.Utilities
         public override IEnumerable<TVertex> GetIncomingNeighbours(TVertex to)
         {
             return from vertexSuccessors in _successorMap
-                where vertexSuccessors.Value.Contains(to)
-                select vertexSuccessors.Key;
+                   where vertexSuccessors.Value.Contains(to)
+                   select vertexSuccessors.Key;
         }
     }
 }

@@ -2,12 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Linq;
-using System.Reflection;
 using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Metadata;
 using Moq;
 using Xunit;
+using CoreStrings = Microsoft.Data.Entity.Internal.Strings;
 
 namespace Microsoft.Data.Entity.Redis.Tests
 {
@@ -78,19 +77,19 @@ namespace Microsoft.Data.Entity.Redis.Tests
             typeMock.Setup(m => m.Name).Returns("AnEntity");
 
             Assert.Equal(
-                GetString("NoValueGenerator", "MyProperty", "MyType", "String"),
+                CoreStrings.NoValueGenerator("MyProperty", "MyType", "String"),
                 Assert.Throws<NotSupportedException>(() => selector.Select(CreateProperty(typeof(string)))).Message);
             Assert.Equal(
-                GetString("NoValueGenerator", "MyProperty", "MyType", "Single"),
+                CoreStrings.NoValueGenerator("MyProperty", "MyType", "Single"),
                 Assert.Throws<NotSupportedException>(() => selector.Select(CreateProperty(typeof(float)))).Message);
             Assert.Equal(
-                GetString("NoValueGenerator", "MyProperty", "MyType", "Double"),
+                CoreStrings.NoValueGenerator("MyProperty", "MyType", "Double"),
                 Assert.Throws<NotSupportedException>(() => selector.Select(CreateProperty(typeof(double)))).Message);
             Assert.Equal(
-                GetString("NoValueGenerator", "MyProperty", "MyType", "DateTime"),
+                CoreStrings.NoValueGenerator("MyProperty", "MyType", "DateTime"),
                 Assert.Throws<NotSupportedException>(() => selector.Select(CreateProperty(typeof(DateTime)))).Message);
             Assert.Equal(
-                GetString("NoValueGenerator", "MyProperty", "MyType", "DateTimeOffset"),
+                CoreStrings.NoValueGenerator("MyProperty", "MyType", "DateTimeOffset"),
                 Assert.Throws<NotSupportedException>(() => selector.Select(CreateProperty(typeof(DateTimeOffset)))).Message);
         }
 
@@ -101,15 +100,6 @@ namespace Microsoft.Data.Entity.Redis.Tests
             property.GenerateValueOnAdd = generateValues;
 
             return property;
-        }
-
-        private static string GetString(string stringName, params object[] parameters)
-        {
-            var strings = typeof(DbContext).GetTypeInfo().Assembly.GetType(typeof(DbContext).Namespace + ".Strings").GetTypeInfo();
-            var method = parameters.Length == 0
-                ? strings.GetDeclaredProperty(stringName).GetGetMethod()
-                : strings.GetDeclaredMethods(stringName).Single();
-            return (string)method.Invoke(null, parameters);
         }
     }
 }

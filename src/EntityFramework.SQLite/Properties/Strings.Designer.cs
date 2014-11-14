@@ -5,8 +5,9 @@ namespace Microsoft.Data.Entity.SQLite
     using System.Globalization;
     using System.Reflection;
     using System.Resources;
+	using JetBrains.Annotations;
 
-    internal static class Strings
+    public static class Strings
     {
         private static readonly ResourceManager _resourceManager
             = new ResourceManager("EntityFramework.SQLite.Strings", typeof(Strings).GetTypeInfo().Assembly);
@@ -14,7 +15,7 @@ namespace Microsoft.Data.Entity.SQLite
         /// <summary>
         /// The string argument '{argumentName}' cannot be empty.
         /// </summary>
-        public static string ArgumentIsEmpty(object argumentName)
+        public static string ArgumentIsEmpty([CanBeNull] object argumentName)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("ArgumentIsEmpty", "argumentName"), argumentName);
         }
@@ -22,7 +23,7 @@ namespace Microsoft.Data.Entity.SQLite
         /// <summary>
         /// The value provided for argument '{argumentName}' must be a valid value of enum type '{enumType}'.
         /// </summary>
-        public static string InvalidEnumValue(object argumentName, object enumType)
+        public static string InvalidEnumValue([CanBeNull] object argumentName, [CanBeNull] object enumType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("InvalidEnumValue", "argumentName", "enumType"), argumentName, enumType);
         }
@@ -30,7 +31,7 @@ namespace Microsoft.Data.Entity.SQLite
         /// <summary>
         /// '{generatorType}' does not support migration operations of type '{operationType}'.
         /// </summary>
-        public static string MigrationOperationNotSupported(object generatorType, object operationType)
+        public static string MigrationOperationNotSupported([CanBeNull] object generatorType, [CanBeNull] object operationType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("MigrationOperationNotSupported", "generatorType", "operationType"), generatorType, operationType);
         }

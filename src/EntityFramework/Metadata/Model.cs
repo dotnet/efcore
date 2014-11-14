@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
@@ -140,7 +141,7 @@ namespace Microsoft.Data.Entity.Metadata
             return EntityTypes.SelectMany(e => e.ForeignKeys.Where(f => f.ReferencedProperties.Contains(property))).ToArray();
         }
 
-        public virtual string StorageName { get; [param: CanBeNull] set; }
+        public virtual string StorageName { get;[param: CanBeNull] set; }
 
         IEntityType IModel.TryGetEntityType(Type type)
         {

@@ -5,8 +5,9 @@ namespace Microsoft.Data.Entity.Redis
     using System.Globalization;
     using System.Reflection;
     using System.Resources;
+	using JetBrains.Annotations;
 
-    internal static class Strings
+    public static class Strings
     {
         private static readonly ResourceManager _resourceManager
             = new ResourceManager("EntityFramework.Redis.Strings", typeof(Strings).GetTypeInfo().Assembly);
@@ -14,7 +15,7 @@ namespace Microsoft.Data.Entity.Redis
         /// <summary>
         /// The string argument '{argumentName}' cannot be empty.
         /// </summary>
-        public static string ArgumentIsEmpty(object argumentName)
+        public static string ArgumentIsEmpty([CanBeNull] object argumentName)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("ArgumentIsEmpty", "argumentName"), argumentName);
         }
@@ -22,7 +23,7 @@ namespace Microsoft.Data.Entity.Redis
         /// <summary>
         /// The bytes {0} could not be interpreted as a UTF-8 string.
         /// </summary>
-        public static string InvalidDatabaseValue(object p0)
+        public static string InvalidDatabaseValue([CanBeNull] object p0)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("InvalidDatabaseValue"), p0);
         }
@@ -30,7 +31,7 @@ namespace Microsoft.Data.Entity.Redis
         /// <summary>
         /// The value provided for argument '{argumentName}' must be a valid value of enum type '{enumType}'.
         /// </summary>
-        public static string InvalidEnumValue(object argumentName, object enumType)
+        public static string InvalidEnumValue([CanBeNull] object argumentName, [CanBeNull] object enumType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("InvalidEnumValue", "argumentName", "enumType"), argumentName, enumType);
         }
@@ -38,7 +39,7 @@ namespace Microsoft.Data.Entity.Redis
         /// <summary>
         /// Primary Key value for Entity '{0}', Property '{1}' cannot be null.
         /// </summary>
-        public static string InvalidPrimaryKeyValue(object p0, object p1)
+        public static string InvalidPrimaryKeyValue([CanBeNull] object p0, [CanBeNull] object p1)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("InvalidPrimaryKeyValue"), p0, p1);
         }
@@ -46,7 +47,7 @@ namespace Microsoft.Data.Entity.Redis
         /// <summary>
         /// Cannot decode property of name '{0}' of type '{1}' on EntityType '{2}'.
         /// </summary>
-        public static string UnableToDecodeProperty(object p0, object p1, object p2)
+        public static string UnableToDecodeProperty([CanBeNull] object p0, [CanBeNull] object p1, [CanBeNull] object p2)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("UnableToDecodeProperty"), p0, p1, p2);
         }
@@ -54,7 +55,7 @@ namespace Microsoft.Data.Entity.Redis
         /// <summary>
         /// Cannot update entity of type '{0}' with key '{1}' because the key does not exist in the Primary Key Index for that entity.
         /// </summary>
-        public static string UnableToUpdate(object p0, object p1)
+        public static string UnableToUpdate([CanBeNull] object p0, [CanBeNull] object p1)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("UnableToUpdate"), p0, p1);
         }

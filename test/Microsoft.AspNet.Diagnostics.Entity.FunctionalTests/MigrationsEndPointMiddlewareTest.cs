@@ -1,8 +1,13 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
 using Microsoft.AspNet.Builder;
-using Microsoft.AspNet.Diagnostics.Entity.Tests.Helpers;
 using Microsoft.AspNet.Http;
 using Microsoft.AspNet.TestHost;
 using Microsoft.Data.Entity;
@@ -10,12 +15,6 @@ using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Migrations.Utilities;
 using Microsoft.Data.Entity.SqlServer.FunctionalTests;
 using Microsoft.Framework.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace Microsoft.AspNet.Diagnostics.Entity.Tests
@@ -123,7 +122,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity.Tests
             var content = await response.Content.ReadAsStringAsync();
 
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-            Assert.StartsWith(StringsHelpers.GetResourceString("MigrationsEndPointMiddleware_NoContextType"), content);
+            Assert.StartsWith(Strings.MigrationsEndPointMiddleware_NoContextType, content);
             Assert.True(content.Length > 512);
         }
 
@@ -145,7 +144,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity.Tests
             var content = await response.Content.ReadAsStringAsync();
 
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-            Assert.StartsWith(StringsHelpers.GetResourceString("MigrationsEndPointMiddleware_InvalidContextType", typeName), content);
+            Assert.StartsWith(Strings.MigrationsEndPointMiddleware_InvalidContextType(typeName), content);
             Assert.True(content.Length > 512);
         }
 
@@ -170,7 +169,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity.Tests
             var content = await response.Content.ReadAsStringAsync();
 
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-            Assert.StartsWith(StringsHelpers.GetResourceString("MigrationsEndPointMiddleware_ContextNotRegistered", typeof(BloggingContext)), content);
+            Assert.StartsWith(Strings.MigrationsEndPointMiddleware_ContextNotRegistered(typeof(BloggingContext)), content);
             Assert.True(content.Length > 512);
         }
 
@@ -198,10 +197,10 @@ namespace Microsoft.AspNet.Diagnostics.Entity.Tests
                         new KeyValuePair<string, string>("context", typeof(BloggingContextWithSnapshotThatThrows).AssemblyQualifiedName)
                     });
 
-                var ex = await Assert.ThrowsAsync<InvalidOperationException>(async () => 
+                var ex = await Assert.ThrowsAsync<InvalidOperationException>(async () =>
                     await server.CreateClient().PostAsync("http://localhost" + MigrationsEndPointOptions.DefaultPath, formData));
 
-                Assert.Equal(StringsHelpers.GetResourceString("MigrationsEndPointMiddleware_Exception", typeof(BloggingContextWithSnapshotThatThrows)), ex.Message);
+                Assert.Equal(Strings.MigrationsEndPointMiddleware_Exception(typeof(BloggingContextWithSnapshotThatThrows)), ex.Message);
                 Assert.Equal("Welcome to the invalid snapshot!", ex.InnerException.Message);
             }
         }

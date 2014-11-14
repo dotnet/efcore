@@ -5,9 +5,9 @@ using System;
 using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational;
-using Microsoft.Data.Entity.Tests;
 using Microsoft.Framework.Logging;
 using Xunit;
+using CoreStrings = Microsoft.Data.Entity.Internal.Strings;
 
 namespace Microsoft.Data.Entity.SqlServer.Tests
 {
@@ -224,7 +224,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 .Metadata;
 
             Assert.Equal(
-                TestHelpers.GetCoreString("NoValueGenerator", "String", typeof(Robot).FullName, "String"),
+                CoreStrings.NoValueGenerator("String", typeof(Robot).FullName, "String"),
                 Assert.Throws<NotSupportedException>(() => selector.Select(property)).Message);
         }
 

@@ -22,6 +22,8 @@
     var projectDirectory = Path.GetDirectoryName(templateProjectItem.ContainingProject.FullName);
     var ttDirectory = Path.Combine(projectDirectory, "Properties");
     var projectNamespace = templateProjectItem.ContainingProject.Properties.Item("DefaultNamespace").Value;
+    var templateNamespace = (string)templateProjectItem.Properties.Item("CustomToolNamespace").Value;
+    var fileNamespace = !string.IsNullOrEmpty(templateNamespace) ? templateNamespace : projectNamespace;
     var projectName = Path.GetFileName(projectDirectory.TrimEnd('/'));
     var namedParameterMatcher = new Regex(@"\{([a-z]\w+)\}", RegexOptions.IgnoreCase);
     var numberParameterMatcher = new Regex(@"\{(\d+)\}");
@@ -76,13 +78,14 @@ namespace {0}
     using System.Globalization;
     using System.Reflection;
     using System.Resources;
+	using JetBrains.Annotations;
 
-    internal static class {2}
+    public static class {2}
     {{
         private static readonly ResourceManager _resourceManager
             = new ResourceManager(""{1}.{2}"", typeof({2}).GetTypeInfo().Assembly);
 ",
-            projectNamespace,
+            fileNamespace,
             projectName,
             fileName);
 
@@ -186,7 +189,7 @@ namespace {0}
 
         public string Parameters
         {
-            get { return string.Join(", ", Arguments.Select(a => "object " + GetArgName(a))); }
+            get { return string.Join(", ", Arguments.Select(a => "[CanBeNull] object " + GetArgName(a))); }
         }
 
         public string GetArgName(string name)

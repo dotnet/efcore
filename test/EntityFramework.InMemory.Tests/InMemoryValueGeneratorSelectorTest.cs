@@ -4,9 +4,9 @@
 using System;
 using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Tests;
 using Moq;
 using Xunit;
+using CoreStrings = Microsoft.Data.Entity.Internal.Strings;
 
 namespace Microsoft.Data.Entity.InMemory.Tests
 {
@@ -62,7 +62,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             var property = CreateProperty(typeof(double));
 
             Assert.Equal(
-                TestHelpers.GetCoreString("NoValueGenerator", "MyProperty", "MyType", "Double"),
+                CoreStrings.NoValueGenerator("MyProperty", "MyType", "Double"),
                 Assert.Throws<NotSupportedException>(() => selector.Select(property)).Message);
         }
 

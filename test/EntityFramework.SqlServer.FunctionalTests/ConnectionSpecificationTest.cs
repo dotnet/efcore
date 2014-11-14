@@ -4,15 +4,14 @@
 using System;
 using System.Data.SqlClient;
 using System.Linq;
-using System.Reflection;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.SqlServer.FunctionalTests.TestModels;
 using Microsoft.Framework.ConfigurationModel;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
 using Xunit;
+using RelationalStrings = Microsoft.Data.Entity.Relational.Strings;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
@@ -194,7 +193,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             using (var context = serviceProvider.GetService<StringInConfigContext>())
             {
                 Assert.Equal(
-                    GetRelationalString("NoConnectionOrConnectionString"),
+                    RelationalStrings.NoConnectionOrConnectionString,
                     Assert.Throws<InvalidOperationException>(() => context.Customers.Any()).Message);
             }
         }
@@ -213,7 +212,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             using (var context = serviceProvider.GetService<StringInConfigContext>())
             {
                 Assert.Equal(
-                    GetRelationalString("NoConnectionOrConnectionString"),
+                    RelationalStrings.NoConnectionOrConnectionString,
                     Assert.Throws<InvalidOperationException>(() => context.Customers.Any()).Message);
             }
         }
@@ -224,7 +223,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             using (var context = new StringInConfigContext())
             {
                 Assert.Equal(
-                    GetRelationalString("NoConnectionOrConnectionString"),
+                    RelationalStrings.NoConnectionOrConnectionString,
                     Assert.Throws<InvalidOperationException>(() => context.Customers.Any()).Message);
             }
         }
@@ -319,7 +318,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             using (var context = serviceProvider.GetService<NoUseSqlServerContext>())
             {
                 Assert.Equal(
-                    GetRelationalString("NoConnectionOrConnectionString"),
+                    RelationalStrings.NoConnectionOrConnectionString,
                     Assert.Throws<InvalidOperationException>(() => context.Customers.Any()).Message);
             }
         }
@@ -338,7 +337,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             using (var context = serviceProvider.GetService<NoUseSqlServerContext>())
             {
                 Assert.Equal(
-                    GetRelationalString("NoConnectionOrConnectionString"),
+                    RelationalStrings.NoConnectionOrConnectionString,
                     Assert.Throws<InvalidOperationException>(() => context.Customers.Any()).Message);
             }
         }
@@ -697,12 +696,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             protected override void ApplyServices(EntityServicesBuilder builder)
             {
             }
-        }
-
-        private static string GetRelationalString(string stringName)
-        {
-            var strings = typeof(RelationalConnection).GetTypeInfo().Assembly.GetType(typeof(RelationalConnection).Namespace + ".Strings");
-            return (string)strings.GetTypeInfo().GetDeclaredProperty(stringName).GetGetMethod().Invoke(null, null);
         }
     }
 }

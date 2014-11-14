@@ -5,8 +5,9 @@ namespace Microsoft.Data.Entity.Commands
     using System.Globalization;
     using System.Reflection;
     using System.Resources;
+	using JetBrains.Annotations;
 
-    internal static class Strings
+    public static class Strings
     {
         private static readonly ResourceManager _resourceManager
             = new ResourceManager("EntityFramework.Commands.Strings", typeof(Strings).GetTypeInfo().Assembly);
@@ -14,7 +15,7 @@ namespace Microsoft.Data.Entity.Commands
         /// <summary>
         /// The string argument '{argumentName}' cannot be empty.
         /// </summary>
-        public static string ArgumentIsEmpty(object argumentName)
+        public static string ArgumentIsEmpty([CanBeNull] object argumentName)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("ArgumentIsEmpty", "argumentName"), argumentName);
         }
@@ -22,7 +23,7 @@ namespace Microsoft.Data.Entity.Commands
         /// <summary>
         /// The collection argument '{argumentName}' must contain at least one element.
         /// </summary>
-        public static string CollectionArgumentIsEmpty(object argumentName)
+        public static string CollectionArgumentIsEmpty([CanBeNull] object argumentName)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("CollectionArgumentIsEmpty", "argumentName"), argumentName);
         }
@@ -30,7 +31,7 @@ namespace Microsoft.Data.Entity.Commands
         /// <summary>
         /// The value provided for argument '{argumentName}' must be a valid value of enum type '{enumType}'.
         /// </summary>
-        public static string InvalidEnumValue(object argumentName, object enumType)
+        public static string InvalidEnumValue([CanBeNull] object argumentName, [CanBeNull] object enumType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("InvalidEnumValue", "argumentName", "enumType"), argumentName, enumType);
         }
@@ -38,7 +39,7 @@ namespace Microsoft.Data.Entity.Commands
         /// <summary>
         /// The name '{migrationName}' is used by an existing migration.
         /// </summary>
-        public static string DuplicateMigrationName(object migrationName)
+        public static string DuplicateMigrationName([CanBeNull] object migrationName)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("DuplicateMigrationName", "migrationName"), migrationName);
         }
@@ -54,7 +55,7 @@ namespace Microsoft.Data.Entity.Commands
         /// <summary>
         /// More than one DbContext named '{name}' was found. Specify which one to use by providing its fully qualified name.
         /// </summary>
-        public static string MultipleContextsWithName(object name)
+        public static string MultipleContextsWithName([CanBeNull] object name)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("MultipleContextsWithName", "name"), name);
         }
@@ -62,7 +63,7 @@ namespace Microsoft.Data.Entity.Commands
         /// <summary>
         /// More than one DbContext named '{name}' was found. Specify which one to use by providing its fully qualified name using its exact case.
         /// </summary>
-        public static string MultipleContextsWithQualifiedName(object name)
+        public static string MultipleContextsWithQualifiedName([CanBeNull] object name)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("MultipleContextsWithQualifiedName", "name"), name);
         }
@@ -78,7 +79,7 @@ namespace Microsoft.Data.Entity.Commands
         /// <summary>
         /// No DbContext named '{name}' was found.
         /// </summary>
-        public static string NoContextWithName(object name)
+        public static string NoContextWithName([CanBeNull] object name)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("NoContextWithName", "name"), name);
         }
@@ -86,7 +87,7 @@ namespace Microsoft.Data.Entity.Commands
         /// <summary>
         /// Using context '{name}'.
         /// </summary>
-        public static string LogUseContext(object name)
+        public static string LogUseContext([CanBeNull] object name)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("LogUseContext", "name"), name);
         }

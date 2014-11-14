@@ -2,8 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Linq;
-using System.Reflection;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
@@ -72,16 +70,6 @@ namespace Microsoft.Data.Entity.Tests
             entry.EntityState = entityState;
 
             return entry;
-        }
-
-        public static string GetCoreString(string stringName, params object[] parameters)
-        {
-            var strings = typeof(DbContext).GetTypeInfo().Assembly.GetType(typeof(DbContext).Namespace + ".Strings").GetTypeInfo();
-            var method = parameters.Length == 0
-                ? strings.GetDeclaredProperty(stringName).GetGetMethod()
-                : strings.GetDeclaredMethods(stringName).Single();
-
-            return (string)method.Invoke(null, parameters);
         }
     }
 }

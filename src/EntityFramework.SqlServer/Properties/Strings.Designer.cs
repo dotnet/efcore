@@ -5,8 +5,9 @@ namespace Microsoft.Data.Entity.SqlServer
     using System.Globalization;
     using System.Reflection;
     using System.Resources;
+	using JetBrains.Annotations;
 
-    internal static class Strings
+    public static class Strings
     {
         private static readonly ResourceManager _resourceManager
             = new ResourceManager("EntityFramework.SqlServer.Strings", typeof(Strings).GetTypeInfo().Assembly);
@@ -14,7 +15,7 @@ namespace Microsoft.Data.Entity.SqlServer
         /// <summary>
         /// The string argument '{argumentName}' cannot be empty.
         /// </summary>
-        public static string ArgumentIsEmpty(object argumentName)
+        public static string ArgumentIsEmpty([CanBeNull] object argumentName)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("ArgumentIsEmpty", "argumentName"), argumentName);
         }
@@ -22,7 +23,7 @@ namespace Microsoft.Data.Entity.SqlServer
         /// <summary>
         /// The collection argument '{argumentName}' must contain at least one element.
         /// </summary>
-        public static string CollectionArgumentIsEmpty(object argumentName)
+        public static string CollectionArgumentIsEmpty([CanBeNull] object argumentName)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("CollectionArgumentIsEmpty", "argumentName"), argumentName);
         }
@@ -30,7 +31,7 @@ namespace Microsoft.Data.Entity.SqlServer
         /// <summary>
         /// The value for the configuration entry '{configurationKey}' is '{invalidValue}', but an integer is expected.
         /// </summary>
-        public static string IntegerConfigurationValueFormatError(object configurationKey, object invalidValue)
+        public static string IntegerConfigurationValueFormatError([CanBeNull] object configurationKey, [CanBeNull] object invalidValue)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("IntegerConfigurationValueFormatError", "configurationKey", "invalidValue"), configurationKey, invalidValue);
         }
@@ -38,7 +39,7 @@ namespace Microsoft.Data.Entity.SqlServer
         /// <summary>
         /// The value provided for argument '{argumentName}' must be a valid value of enum type '{enumType}'.
         /// </summary>
-        public static string InvalidEnumValue(object argumentName, object enumType)
+        public static string InvalidEnumValue([CanBeNull] object argumentName, [CanBeNull] object enumType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("InvalidEnumValue", "argumentName", "enumType"), argumentName, enumType);
         }
@@ -54,7 +55,7 @@ namespace Microsoft.Data.Entity.SqlServer
         /// <summary>
         /// The increment value of '{increment}' for sequence '{sequenceName}' cannot be used for value generation. Sequences used for value generation must have positive increments.
         /// </summary>
-        public static string SequenceBadBlockSize(object increment, object sequenceName)
+        public static string SequenceBadBlockSize([CanBeNull] object increment, [CanBeNull] object sequenceName)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("SequenceBadBlockSize", "increment", "sequenceName"), increment, sequenceName);
         }
@@ -62,7 +63,7 @@ namespace Microsoft.Data.Entity.SqlServer
         /// <summary>
         /// Identity value generation cannot be used for the property '{property}' on entity type '{entityType}' because the property type is '{propertyType}'. Identity value generation can only be used with signed integer properties.
         /// </summary>
-        public static string IdentityBadType(object property, object entityType, object propertyType)
+        public static string IdentityBadType([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object propertyType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("IdentityBadType", "property", "entityType", "propertyType"), property, entityType, propertyType);
         }
@@ -70,7 +71,7 @@ namespace Microsoft.Data.Entity.SqlServer
         /// <summary>
         /// SQL Server sequences cannot be used to generate values for the property '{property}' on entity type '{entityType}' because the property type is '{propertyType}'. Sequences can only be used with integer properties.
         /// </summary>
-        public static string SequenceBadType(object property, object entityType, object propertyType)
+        public static string SequenceBadType([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object propertyType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("SequenceBadType", "property", "entityType", "propertyType"), property, entityType, propertyType);
         }
