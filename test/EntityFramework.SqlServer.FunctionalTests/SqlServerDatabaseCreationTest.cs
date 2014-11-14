@@ -67,20 +67,35 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         [Fact]
         public async Task EnsureDeleted_will_delete_database()
         {
-            await EnsureDeleted_will_delete_database_test(async: false);
+            await EnsureDeleted_will_delete_database_test(async: false, openConnection: false);
         }
 
         [Fact]
         public async Task EnsureDeletedAsync_will_delete_database()
         {
-            await EnsureDeleted_will_delete_database_test(async: true);
+            await EnsureDeleted_will_delete_database_test(async: true, openConnection: false);
         }
 
-        private static async Task EnsureDeleted_will_delete_database_test(bool async)
+        [Fact]
+        public async Task EnsureDeleted_will_delete_database_with_opened_connections()
+        {
+            await EnsureDeleted_will_delete_database_test(async: false, openConnection: true);
+        }
+
+        [Fact]
+        public async Task EnsureDeletedAsync_will_delete_database_with_opened_connections()
+        {
+            await EnsureDeleted_will_delete_database_test(async: true, openConnection: true);
+        }
+
+        private static async Task EnsureDeleted_will_delete_database_test(bool async, bool openConnection)
         {
             using (var testDatabase = await SqlServerTestStore.CreateScratchAsync(createDatabase: true))
             {
-                testDatabase.Connection.Close();
+                if (!openConnection)
+                {
+                    testDatabase.Connection.Close();
+                }
 
                 using (var context = new BloggingContext(testDatabase))
                 {

@@ -221,7 +221,17 @@ namespace Microsoft.Data.Entity.SqlServer
 
             using (var masterConnection = _connection.CreateMasterConnection())
             {
-                _statementExecutor.ExecuteNonQuery(masterConnection, null, CreateDropCommands());
+                var dropDatabaseCommands = new List<SqlStatement>();
+                if (!IsSqlAzure(masterConnection))
+                {
+                    var databaseName = _connection.DbConnection.Database;
+                    var sqlGenerator = _sqlGeneratorFactory.Create();
+                    
+                    dropDatabaseCommands.Add(CreateSetSingleUserCommand(sqlGenerator, databaseName));
+                }
+
+                dropDatabaseCommands.AddRange(CreateDropCommands());
+                _statementExecutor.ExecuteNonQuery(masterConnection, null, dropDatabaseCommands);
             }
         }
 
@@ -231,10 +241,44 @@ namespace Microsoft.Data.Entity.SqlServer
 
             using (var masterConnection = _connection.CreateMasterConnection())
             {
+                var dropDatabaseCommands = new List<SqlStatement>();
+                if (!await IsSqlAzureAsync(masterConnection, cancellationToken))
+                {
+                    var databaseName = _connection.DbConnection.Database;
+                    var sqlGenerator = _sqlGeneratorFactory.Create();
+
+                    dropDatabaseCommands.Add(CreateSetSingleUserCommand(sqlGenerator, databaseName));
+                }
+
+                dropDatabaseCommands.AddRange(CreateDropCommands());
                 await _statementExecutor
-                    .ExecuteNonQueryAsync(masterConnection, null, CreateDropCommands(), cancellationToken)
+                    .ExecuteNonQueryAsync(masterConnection, null, dropDatabaseCommands, cancellationToken)
                     .WithCurrentCulture();
             }
+        }
+
+        private bool IsSqlAzure(SqlConnection connection)
+        {
+            return (int)_statementExecutor.ExecuteScalar(connection, null, CreateIsSqlAzureCommand()) != 0;
+        }
+
+        private async Task<bool> IsSqlAzureAsync(SqlConnection connection, CancellationToken cancellationToken)
+        {
+            return (int) await _statementExecutor.ExecuteScalarAsync(connection, null, CreateIsSqlAzureCommand(), cancellationToken).WithCurrentCulture() != 0;
+        }
+
+        private static SqlStatement CreateIsSqlAzureCommand()
+        {
+            return new SqlStatement("IF SERVERPROPERTY('EngineEdition') = 5 SELECT 1 ELSE SELECT 0");
+        }
+
+        private static SqlStatement CreateSetSingleUserCommand(SqlServerMigrationOperationSqlGenerator sqlGenerator, string databaseName)
+        {
+            return new SqlStatement(
+                string.Concat(
+                    "ALTER DATABASE ",
+                    sqlGenerator.DelimitIdentifier(databaseName),
+                    " SET SINGLE_USER WITH ROLLBACK IMMEDIATE"));
         }
 
         private IEnumerable<SqlStatement> CreateDropCommands()

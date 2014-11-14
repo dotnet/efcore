@@ -192,11 +192,14 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 var creator = GetDataStoreCreator(testDatabase);
 
-                Assert.Equal(
-                    3701, // Database does not exist
-                    async
-                        ? (await Assert.ThrowsAsync<SqlException>(() => creator.DeleteAsync())).Number
-                        : Assert.Throws<SqlException>(() => creator.Delete()).Number);
+                if (async)
+                {
+                    await Assert.ThrowsAsync<SqlException>(() => creator.DeleteAsync());
+                }
+                else
+                {
+                    Assert.Throws<SqlException>(() => creator.Delete());
+                }
             }
         }
 
