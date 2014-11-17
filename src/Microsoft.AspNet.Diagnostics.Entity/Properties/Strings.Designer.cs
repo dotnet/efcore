@@ -37,7 +37,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity
         }
 
         /// <summary>
-        /// An exception occured while calculating the database error page content. Skipping display of the database error page.
+        /// An exception occurred while calculating the database error page content. Skipping display of the database error page.
         /// </summary>
         public static string DatabaseErrorPageMiddleware_Exception
         {
@@ -77,7 +77,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity
         }
 
         /// <summary>
-        /// An error occured applying migrations, try applying them from the command line
+        /// An error occurred applying migrations, try applying them from the command line
         /// </summary>
         public static string DatabaseErrorPage_ApplyMigrationsFailed
         {
@@ -85,7 +85,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity
         }
 
         /// <summary>
-        /// You can also apply migrations from the command line
+        /// You can also apply migrations from the command line:
         /// </summary>
         public static string DatabaseErrorPage_HowToApplyFromCmd
         {
@@ -101,7 +101,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity
         }
 
         /// <summary>
-        /// From the command line, scaffold a new migration and apply it to the database
+        /// From the command line, scaffold a new migration and apply it to the database:
         /// </summary>
         public static string DatabaseErrorPage_NoDbOrMigrationsInfo
         {
@@ -117,7 +117,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity
         }
 
         /// <summary>
-        /// Scaffold a new migration for these changes and apply them to the database from the command line
+        /// Scaffold a new migration for these changes and apply them to the database from the command line:
         /// </summary>
         public static string DatabaseErrorPage_PendingChangesInfo
         {
@@ -189,7 +189,7 @@ namespace Microsoft.AspNet.Diagnostics.Entity
         }
 
         /// <summary>
-        /// An error occured while applying the migrations for '{0}'. See InnerException for details.
+        /// An error occurred while applying the migrations for '{0}'. See InnerException for details.
         /// </summary>
         public static string MigrationsEndPointMiddleware_Exception([CanBeNull] object p0)
         {
@@ -218,6 +218,22 @@ namespace Microsoft.AspNet.Diagnostics.Entity
         public static string MigrationsEndPointMiddleware_RequestPathMatched([CanBeNull] object p0)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("MigrationsEndPointMiddleware_RequestPathMatched"), p0);
+        }
+
+        /// <summary>
+        /// A database operation failed while processing the request.
+        /// </summary>
+        public static string DatabaseErrorPage_Title
+        {
+            get { return GetString("DatabaseErrorPage_Title"); }
+        }
+
+        /// <summary>
+        /// To use migrations from a command prompt you will need to &lt;a href='http://go.microsoft.com/fwlink/?LinkId=518242'&gt;install K Version Manager (KVM)&lt;/a&gt;. Once installed, you can run migration commands from a standard command prompt in the project directory.
+        /// </summary>
+        public static string DatabaseErrorPage_EnableMigrationsCommandsInfo
+        {
+            get { return GetString("DatabaseErrorPage_EnableMigrationsCommandsInfo"); }
         }
 
         private static string GetString(string name, params string[] formatterNames)

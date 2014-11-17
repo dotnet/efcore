@@ -83,8 +83,13 @@ using Microsoft.AspNet.Diagnostics.Entity.Views
 
 #line default
 #line hidden
-            WriteLiteral("\r\n    </style>\r\n</head>\r\n<body>\r\n    <h1>A database operartion failed while proce" +
-"ssing the request.</h1>\r\n");
+            WriteLiteral("\r\n    </style>\r\n</head>\r\n<body>\r\n    <h1>");
+#line 41 "DatabaseErrorPage.cshtml"
+   Write(Strings.DatabaseErrorPage_Title);
+
+#line default
+#line hidden
+            WriteLiteral("</h1>\r\n");
 #line 42 "DatabaseErrorPage.cshtml"
     
 
@@ -176,8 +181,14 @@ using Microsoft.AspNet.Diagnostics.Entity.Views
 
 #line default
 #line hidden
-            WriteLiteral(" </code>\r\n        <hr />\r\n");
-#line 62 "DatabaseErrorPage.cshtml"
+            WriteLiteral(" </code>\r\n        <p><strong>");
+#line 61 "DatabaseErrorPage.cshtml"
+              WriteLiteral(Strings.DatabaseErrorPage_EnableMigrationsCommandsInfo);
+
+#line default
+#line hidden
+            WriteLiteral("</strong></p>\r\n        <hr />\r\n");
+#line 63 "DatabaseErrorPage.cshtml"
     }
     else if (Model.PendingMigrations.Any())
     {
@@ -186,25 +197,25 @@ using Microsoft.AspNet.Diagnostics.Entity.Views
 #line hidden
 
             WriteLiteral("        <div>\r\n            <h2>");
-#line 66 "DatabaseErrorPage.cshtml"
+#line 67 "DatabaseErrorPage.cshtml"
            Write(Strings.DatabaseErrorPage_PendingMigrationsTitle(Model.ContextType.Name));
 
 #line default
 #line hidden
             WriteLiteral("</h2>\r\n            <p>");
-#line 67 "DatabaseErrorPage.cshtml"
+#line 68 "DatabaseErrorPage.cshtml"
           Write(Strings.DatabaseErrorPage_PendingMigrationsInfo(Model.ContextType.Name));
 
 #line default
 #line hidden
             WriteLiteral("</p>\r\n\r\n");
-#line 69 "DatabaseErrorPage.cshtml"
+#line 70 "DatabaseErrorPage.cshtml"
             
 
 #line default
 #line hidden
 
-#line 69 "DatabaseErrorPage.cshtml"
+#line 70 "DatabaseErrorPage.cshtml"
              if (Model.Options.ListMigrations)
             {
 
@@ -212,13 +223,13 @@ using Microsoft.AspNet.Diagnostics.Entity.Views
 #line hidden
 
             WriteLiteral("                <ul>\r\n");
-#line 72 "DatabaseErrorPage.cshtml"
+#line 73 "DatabaseErrorPage.cshtml"
                     
 
 #line default
 #line hidden
 
-#line 72 "DatabaseErrorPage.cshtml"
+#line 73 "DatabaseErrorPage.cshtml"
                      foreach (var migration in Model.PendingMigrations)
                     {
 
@@ -226,33 +237,33 @@ using Microsoft.AspNet.Diagnostics.Entity.Views
 #line hidden
 
             WriteLiteral("                        <li>");
-#line 74 "DatabaseErrorPage.cshtml"
+#line 75 "DatabaseErrorPage.cshtml"
                        Write(migration);
 
 #line default
 #line hidden
             WriteLiteral("</li>\r\n");
-#line 75 "DatabaseErrorPage.cshtml"
+#line 76 "DatabaseErrorPage.cshtml"
                     }
 
 #line default
 #line hidden
 
             WriteLiteral("                </ul>\r\n");
-#line 77 "DatabaseErrorPage.cshtml"
+#line 78 "DatabaseErrorPage.cshtml"
             }
 
 #line default
 #line hidden
 
             WriteLiteral("\r\n");
-#line 79 "DatabaseErrorPage.cshtml"
+#line 80 "DatabaseErrorPage.cshtml"
             
 
 #line default
 #line hidden
 
-#line 79 "DatabaseErrorPage.cshtml"
+#line 80 "DatabaseErrorPage.cshtml"
              if (Model.Options.EnableMigrationCommands)
             {
 
@@ -261,7 +272,7 @@ using Microsoft.AspNet.Diagnostics.Entity.Views
 
             WriteLiteral("                <p>\r\n                    <button id=\"applyMigrations\" onclick=\" A" +
 "pplyMigrations() \">");
-#line 82 "DatabaseErrorPage.cshtml"
+#line 83 "DatabaseErrorPage.cshtml"
                                                                           Write(Strings.DatabaseErrorPage_ApplyMigrationsButton);
 
 #line default
@@ -275,21 +286,21 @@ using Microsoft.AspNet.Diagnostics.Entity.Views
                         applyMigrations.disabled = true;
                         applyMigrationsError.innerHTML = """";
                         applyMigrations.innerHTML = """);
-#line 90 "DatabaseErrorPage.cshtml"
+#line 91 "DatabaseErrorPage.cshtml"
                                                 Write(Strings.DatabaseErrorPage_ApplyMigrationsButtonRunning);
 
 #line default
 #line hidden
             WriteLiteral("\";\r\n\r\n                        var req = new XMLHttpRequest();\r\n                  " +
 "      req.open(\"POST\", \"");
-#line 93 "DatabaseErrorPage.cshtml"
+#line 94 "DatabaseErrorPage.cshtml"
                                      Write(Model.Options.MigrationsEndPointPath.Value);
 
 #line default
 #line hidden
             WriteLiteral("\", true);\r\n                        var params = \"context=\" + encodeURIComponent(\"" +
 "");
-#line 94 "DatabaseErrorPage.cshtml"
+#line 95 "DatabaseErrorPage.cshtml"
                                                                  Write(Model.ContextType.AssemblyQualifiedName);
 
 #line default
@@ -302,19 +313,18 @@ using Microsoft.AspNet.Diagnostics.Entity.Views
                         req.onload = function (e) {
                             if (req.status == 204) {
                                 applyMigrations.innerHTML = """);
-#line 101 "DatabaseErrorPage.cshtml"
+#line 102 "DatabaseErrorPage.cshtml"
                                                         Write(Strings.DatabaseErrorPage_ApplyMigrationsButtonDone);
 
 #line default
 #line hidden
-            WriteLiteral("\";\r\n                                applyMigrationsSuccess.innerHTML = \"<a href=\'" +
-".\'>");
-#line 102 "DatabaseErrorPage.cshtml"
-                                                                           Write(Strings.DatabaseErrorPage_MigrationsAppliedRefresh);
+            WriteLiteral("\";\r\n                                applyMigrationsSuccess.innerHTML = \"");
+#line 103 "DatabaseErrorPage.cshtml"
+                                                               Write(Strings.DatabaseErrorPage_MigrationsAppliedRefresh);
 
 #line default
 #line hidden
-            WriteLiteral(@"</a>"";
+            WriteLiteral(@""";
                             } else {
                                 ErrorApplyingMigrations();
                             }
@@ -329,39 +339,45 @@ using Microsoft.AspNet.Diagnostics.Entity.Views
 
                     function ErrorApplyingMigrations() {
                         applyMigrations.innerHTML = """);
-#line 116 "DatabaseErrorPage.cshtml"
+#line 117 "DatabaseErrorPage.cshtml"
                                                 Write(Strings.DatabaseErrorPage_ApplyMigrationsButton);
 
 #line default
 #line hidden
             WriteLiteral("\";\r\n                        applyMigrationsError.innerHTML = \"");
-#line 117 "DatabaseErrorPage.cshtml"
+#line 118 "DatabaseErrorPage.cshtml"
                                                      Write(Strings.DatabaseErrorPage_ApplyMigrationsFailed);
 
 #line default
 #line hidden
             WriteLiteral("\";\r\n                        applyMigrations.disabled = false;\r\n                  " +
 "  }\r\n                </script>\r\n");
-#line 121 "DatabaseErrorPage.cshtml"
+#line 122 "DatabaseErrorPage.cshtml"
             }
 
 #line default
 #line hidden
 
             WriteLiteral("\r\n            <p>");
-#line 123 "DatabaseErrorPage.cshtml"
+#line 124 "DatabaseErrorPage.cshtml"
           Write(Strings.DatabaseErrorPage_HowToApplyFromCmd);
 
 #line default
 #line hidden
             WriteLiteral("</p>\r\n            <code>");
-#line 124 "DatabaseErrorPage.cshtml"
+#line 125 "DatabaseErrorPage.cshtml"
              Write(Strings.DatabaseErrorPage_ApplyMigrationsCommand);
 
 #line default
 #line hidden
-            WriteLiteral("</code>\r\n            <hr />\r\n        </div>\r\n");
-#line 127 "DatabaseErrorPage.cshtml"
+            WriteLiteral("</code>\r\n            <p><strong>");
+#line 126 "DatabaseErrorPage.cshtml"
+                  WriteLiteral(Strings.DatabaseErrorPage_EnableMigrationsCommandsInfo);
+
+#line default
+#line hidden
+            WriteLiteral("</strong></p>\r\n            <hr />\r\n        </div>\r\n");
+#line 129 "DatabaseErrorPage.cshtml"
     }
     else if (Model.PendingModelChanges)
     {
@@ -370,31 +386,37 @@ using Microsoft.AspNet.Diagnostics.Entity.Views
 #line hidden
 
             WriteLiteral("        <div>\r\n            <h2>");
-#line 131 "DatabaseErrorPage.cshtml"
+#line 133 "DatabaseErrorPage.cshtml"
            Write(Strings.DatabaseErrorPage_PendingChangesTitle(Model.ContextType.Name));
 
 #line default
 #line hidden
             WriteLiteral("</h2>\r\n            <p>");
-#line 132 "DatabaseErrorPage.cshtml"
+#line 134 "DatabaseErrorPage.cshtml"
           Write(Strings.DatabaseErrorPage_PendingChangesInfo);
 
 #line default
 #line hidden
             WriteLiteral("</p>\r\n            <code>");
-#line 133 "DatabaseErrorPage.cshtml"
+#line 135 "DatabaseErrorPage.cshtml"
              Write(Strings.DatabaseErrorPage_AddMigrationCommand);
 
 #line default
 #line hidden
             WriteLiteral("</code>\r\n            <br />\r\n            <code>");
-#line 135 "DatabaseErrorPage.cshtml"
+#line 137 "DatabaseErrorPage.cshtml"
              Write(Strings.DatabaseErrorPage_ApplyMigrationsCommand);
 
 #line default
 #line hidden
-            WriteLiteral("</code>\r\n            <hr />\r\n        </div>\r\n");
+            WriteLiteral("</code>\r\n            <p><strong>");
 #line 138 "DatabaseErrorPage.cshtml"
+                  WriteLiteral(Strings.DatabaseErrorPage_EnableMigrationsCommandsInfo);
+
+#line default
+#line hidden
+            WriteLiteral("</strong></p>\r\n            <hr />\r\n        </div>\r\n");
+#line 141 "DatabaseErrorPage.cshtml"
     }
 
 #line default
