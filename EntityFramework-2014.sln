@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.22228.1
+VisualStudioVersion = 14.0.22310.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{E7D68B03-3A5D-4710-9A1F-20D198E41F78}"
 EndProject
@@ -51,14 +51,6 @@ Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFramework.AzureTableS
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFramework.AzureTableStorage.Tests", "test\EntityFramework.AzureTableStorage.Tests\EntityFramework.AzureTableStorage.Tests.kproj", "{7446F22A-9E40-483F-A63B-C532FEB26BDC}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFramework.CUD.Tests", "test\Perf\EntityFramework.CUD.Tests\EntityFramework.CUD.Tests.kproj", "{697E4E88-27D4-4FC8-8F66-DDFC21C3B18C}"
-EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFramework.DbContext.Tests", "test\Perf\EntityFramework.DbContext.Tests\EntityFramework.DbContext.Tests.kproj", "{7599A685-77C2-497B-80F0-1C5BECFB2B1F}"
-EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFramework.QueryExecution.Tests", "test\Perf\EntityFramework.QueryExecution.Tests\EntityFramework.QueryExecution.Tests.kproj", "{F3DD138F-DD8D-4A85-BD8E-CE8D83139707}"
-EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFramework.StateManager.Tests", "test\Perf\EntityFramework.StateManager.Tests\EntityFramework.StateManager.Tests.kproj", "{19B68792-E760-41AE-8450-C75CBB0A8C85}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Perf", "Perf", "{22A56D45-1A71-40B6-97A4-27AC131AAC1D}"
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFramework.Redis", "src\EntityFramework.Redis\EntityFramework.Redis.kproj", "{6147E1A1-F3CC-4A86-86DB-C3B14C52B366}"
@@ -68,6 +60,8 @@ EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFramework.Redis.Tests", "test\EntityFramework.Redis.Tests\EntityFramework.Redis.Tests.kproj", "{B0C91151-2400-43D3-B45A-3C88B2219790}"
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFramework.Commands.FunctionalTests", "test\EntityFramework.Commands.FunctionalTests\EntityFramework.Commands.FunctionalTests.kproj", "{CCEAA6B7-9270-4F5D-8F50-F2773F2A87CE}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFramework.Microbenchmarks", "test\Perf\EntityFramework.Microbenchmarks\EntityFramework.Microbenchmarks.kproj", "{E800A5B3-8620-4826-8CE2-B8BE1F754DD1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -163,22 +157,6 @@ Global
 		{7446F22A-9E40-483F-A63B-C532FEB26BDC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7446F22A-9E40-483F-A63B-C532FEB26BDC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7446F22A-9E40-483F-A63B-C532FEB26BDC}.Release|Any CPU.Build.0 = Release|Any CPU
-		{697E4E88-27D4-4FC8-8F66-DDFC21C3B18C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{697E4E88-27D4-4FC8-8F66-DDFC21C3B18C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{697E4E88-27D4-4FC8-8F66-DDFC21C3B18C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{697E4E88-27D4-4FC8-8F66-DDFC21C3B18C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7599A685-77C2-497B-80F0-1C5BECFB2B1F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7599A685-77C2-497B-80F0-1C5BECFB2B1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7599A685-77C2-497B-80F0-1C5BECFB2B1F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7599A685-77C2-497B-80F0-1C5BECFB2B1F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F3DD138F-DD8D-4A85-BD8E-CE8D83139707}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F3DD138F-DD8D-4A85-BD8E-CE8D83139707}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F3DD138F-DD8D-4A85-BD8E-CE8D83139707}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F3DD138F-DD8D-4A85-BD8E-CE8D83139707}.Release|Any CPU.Build.0 = Release|Any CPU
-		{19B68792-E760-41AE-8450-C75CBB0A8C85}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{19B68792-E760-41AE-8450-C75CBB0A8C85}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{19B68792-E760-41AE-8450-C75CBB0A8C85}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{19B68792-E760-41AE-8450-C75CBB0A8C85}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6147E1A1-F3CC-4A86-86DB-C3B14C52B366}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6147E1A1-F3CC-4A86-86DB-C3B14C52B366}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6147E1A1-F3CC-4A86-86DB-C3B14C52B366}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -195,6 +173,10 @@ Global
 		{CCEAA6B7-9270-4F5D-8F50-F2773F2A87CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CCEAA6B7-9270-4F5D-8F50-F2773F2A87CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CCEAA6B7-9270-4F5D-8F50-F2773F2A87CE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E800A5B3-8620-4826-8CE2-B8BE1F754DD1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E800A5B3-8620-4826-8CE2-B8BE1F754DD1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E800A5B3-8620-4826-8CE2-B8BE1F754DD1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E800A5B3-8620-4826-8CE2-B8BE1F754DD1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -222,14 +204,11 @@ Global
 		{7B8EE169-B0E0-402B-9A4C-57A75AC19802} = {E7D68B03-3A5D-4710-9A1F-20D198E41F78}
 		{168954B5-BF0C-4EDA-A015-79FF2AACE22E} = {C605BAB7-B06E-4BDF-80B2-E661B7670E25}
 		{7446F22A-9E40-483F-A63B-C532FEB26BDC} = {C605BAB7-B06E-4BDF-80B2-E661B7670E25}
-		{697E4E88-27D4-4FC8-8F66-DDFC21C3B18C} = {22A56D45-1A71-40B6-97A4-27AC131AAC1D}
-		{7599A685-77C2-497B-80F0-1C5BECFB2B1F} = {22A56D45-1A71-40B6-97A4-27AC131AAC1D}
-		{F3DD138F-DD8D-4A85-BD8E-CE8D83139707} = {22A56D45-1A71-40B6-97A4-27AC131AAC1D}
-		{19B68792-E760-41AE-8450-C75CBB0A8C85} = {22A56D45-1A71-40B6-97A4-27AC131AAC1D}
 		{22A56D45-1A71-40B6-97A4-27AC131AAC1D} = {C605BAB7-B06E-4BDF-80B2-E661B7670E25}
 		{6147E1A1-F3CC-4A86-86DB-C3B14C52B366} = {E7D68B03-3A5D-4710-9A1F-20D198E41F78}
 		{7C7057C9-EEB3-45E9-A660-235336474FBF} = {C605BAB7-B06E-4BDF-80B2-E661B7670E25}
 		{B0C91151-2400-43D3-B45A-3C88B2219790} = {C605BAB7-B06E-4BDF-80B2-E661B7670E25}
 		{CCEAA6B7-9270-4F5D-8F50-F2773F2A87CE} = {C605BAB7-B06E-4BDF-80B2-E661B7670E25}
+		{E800A5B3-8620-4826-8CE2-B8BE1F754DD1} = {22A56D45-1A71-40B6-97A4-27AC131AAC1D}
 	EndGlobalSection
 EndGlobal

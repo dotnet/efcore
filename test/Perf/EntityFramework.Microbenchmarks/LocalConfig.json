@@ -1,0 +1,17 @@
+﻿{
+    "Data": {
+        "DefaultDataSource": { 
+            "DataSource": ".\\SQLEXPRESS"
+        },
+        "DefaultConnection": {
+            "Connectionstring": "Data Source={0};Integrated Security=True;MultipleActiveResultSets=true;"
+        },
+        "TcpIpConnection": {
+            "Connectionstring": "Data Source={0};Integrated Security=True;MultipleActiveResultSets=true;Network Library=dbmssocn;"
+        },
+        "SqlServer": {
+            "MaxBatchSize": "1"
+        },
+        "RunPerfTests": "false"
+    }
+}
