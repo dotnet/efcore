@@ -179,16 +179,11 @@ function GetMigrations($contextTypeName, $projectName) {
 }
 
 function ProcessCommonParameters($contextTypeName, $projectName) {
-    if (!$contextTypeName) {
-        $contextTypeName = $EFDefaultParameterValues.ContextTypeName
-        $projectName = $EFDefaultParameterValues.ProjectName
-    }
-
-    if (!$projectName) {
-        $projectName = $EFDefaultParameterValues.ProjectName
-    }
-
     $project = GetProject $projectName
+
+    if (!$contextTypeName -and $project.ProjectName -eq $EFDefaultParameterValues.ProjectName) {
+        $contextTypeName = $EFDefaultParameterValues.ContextTypeName
+    }
 
     return @{
         Project = $project
