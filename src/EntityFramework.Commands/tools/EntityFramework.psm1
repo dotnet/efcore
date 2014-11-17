@@ -71,6 +71,12 @@ function Apply-Migration {
     $dteProject = $values.Project
     $contextTypeName = $values.ContextTypeName
 
+    $targetFrameworkMoniker = GetProperty $dteProject.Properties TargetFrameworkMoniker
+    $frameworkName = New-Object System.Runtime.Versioning.FrameworkName $targetFrameworkMoniker
+    if ($frameworkName.Identifier -in '.NETCore', 'WindowsPhoneApp') {
+        throw 'Apply-Migration should not be used with Phone/Store apps. Instead, call DbContext.Database.AsMigrationsEnabled().ApplyMigrations() at runtime.'
+    }
+
     InvokeOperation $dteProject ApplyMigration @{
         migrationName = $Migration
         contextTypeName = $contextTypeName
