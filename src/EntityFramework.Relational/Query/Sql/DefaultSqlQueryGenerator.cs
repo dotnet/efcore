@@ -471,10 +471,16 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             {
                 _sql.Append("NOT ");
 
-                VisitExpression(unaryExpression.Operand);
+                return VisitExpression(unaryExpression.Operand);
             }
 
-            return unaryExpression;
+            if (unaryExpression.NodeType == ExpressionType.Convert
+                && unaryExpression.Type.IsNullableType())
+            {
+                return VisitExpression(unaryExpression.Operand);
+            }
+
+            return base.VisitUnaryExpression(unaryExpression);
         }
 
         protected override Expression VisitConstantExpression(ConstantExpression constantExpression)

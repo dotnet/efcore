@@ -3,6 +3,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Framework.DependencyInjection;
@@ -146,7 +148,7 @@ ORDER BY [c].[FirstName], [c].[LastName]";
                 var expectedSql =
 @"SELECT [o].[CustomerId0], [o].[CustomerId1], [o].[Id], [o].[Name], [c].[FirstName], [c].[LastName]
 FROM [Order] AS [o]
-LEFT JOIN [Customer] AS [c] ON ([c].[FirstName] = [o].[CustomerId0] AND [c].[LastName] = [o].[CustomerId1])";
+LEFT JOIN [Customer] AS [c] ON ([o].[CustomerId0] = [c].[FirstName] AND [o].[CustomerId1] = [c].[LastName])";
 
                 Assert.Equal(expectedSql, TestSqlLoggerFactory.Sql);
             }
@@ -213,7 +215,7 @@ LEFT JOIN [Customer] AS [c] ON ([c].[FirstName] = [o].[CustomerId0] AND [c].[Las
             }
         }
 
-        ////[Fact]
+        [Fact]
         public void Include_on_optional_navigation_One_To_Many_963()
         {
             CreateDatabase963();
@@ -224,7 +226,7 @@ LEFT JOIN [Customer] AS [c] ON ([c].[FirstName] = [o].[CustomerId0] AND [c].[Las
             }
         }
 
-        ////[Fact]
+        [Fact]
         public void Include_on_optional_navigation_Many_To_One_963()
         {
             CreateDatabase963();
@@ -235,7 +237,7 @@ LEFT JOIN [Customer] AS [c] ON ([c].[FirstName] = [o].[CustomerId0] AND [c].[Las
             }
         }
 
-        ////[Fact]
+        [Fact]
         public void Include_on_optional_navigation_One_To_One_principal_963()
         {
             CreateDatabase963();
@@ -246,7 +248,7 @@ LEFT JOIN [Customer] AS [c] ON ([c].[FirstName] = [o].[CustomerId0] AND [c].[Las
             }
         }
 
-        ////[Fact]
+        [Fact]
         public void Include_on_optional_navigation_One_To_One_dependent_963()
         {
             CreateDatabase963();
@@ -254,6 +256,19 @@ LEFT JOIN [Customer] AS [c] ON ([c].[FirstName] = [o].[CustomerId0] AND [c].[Las
             using (var ctx = new MyContext963(_fixture.ServiceProvider))
             {
                 ctx.Details.Include(d => d.Targaryen).ToList();
+            }
+        }
+
+        [Fact]
+        public void Join_on_optional_navigation_One_To_Many_963()
+        {
+            CreateDatabase963();
+
+            using (var ctx = new MyContext963(_fixture.ServiceProvider))
+            {
+                (from t in ctx.Targaryens
+                    join d in ctx.Dragons on t.Id equals d.MotherId
+                    select d).ToList();
             }
         }
 
