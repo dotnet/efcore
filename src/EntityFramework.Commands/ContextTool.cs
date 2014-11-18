@@ -35,19 +35,18 @@ namespace Microsoft.Data.Entity.Commands
             try
             {
                 // TODO: Let Hosting do this the right way (See aspnet/Hosting#85)
-                var hostingServices = new ServiceCollection()
+                var hostingServiceCollection = new ServiceCollection()
+                    .Import(CallContextServiceLocator.Locator.ServiceProvider)
                     .Add(HostingServices.GetDefaultServices())
-                    .AddInstance<IHostingEnvironment>(new HostingEnvironment { EnvironmentName = "Development" })
-                    .BuildServiceProvider(CallContextServiceLocator.Locator.ServiceProvider);
+                    .AddInstance<IHostingEnvironment>(new HostingEnvironment { EnvironmentName = "Development" });
+                var hostingServices = hostingServiceCollection.BuildServiceProvider();
                 var assembly = type.GetTypeInfo().Assembly;
                 var startupType = assembly.DefinedTypes.FirstOrDefault(t => t.Name.Equals("Startup", StringComparison.Ordinal));
                 var instance = ActivatorUtilities.GetServiceOrCreateInstance(hostingServices, startupType.AsType());
                 var servicesMethod = startupType.GetDeclaredMethod("ConfigureServices");
-                var services = new ServiceCollection()
-                    .Add(OptionsServices.GetDefaultServices());
-                servicesMethod.Invoke(instance, new[] { services });
-                var applicationServices = services.BuildServiceProvider(hostingServices);
-
+                hostingServiceCollection.Add(OptionsServices.GetDefaultServices());
+                servicesMethod.Invoke(instance, new[] { hostingServiceCollection });
+                var applicationServices = hostingServiceCollection.BuildServiceProvider();
                 return applicationServices.GetService(type) as DbContext;
             }
             catch
