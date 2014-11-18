@@ -85,6 +85,11 @@ namespace Microsoft.Data.Entity.Query
                     .GetKeyFactory(keyProperties)
                     .Create(entityType, keyProperties, valueReader);
 
+            if (entityKey == EntityKey.NullEntityKey)
+            {
+                return null;
+            }
+
             var stateEntry = _stateManager.TryGetEntry(entityKey);
 
             if (stateEntry != null)
@@ -162,6 +167,7 @@ namespace Microsoft.Data.Entity.Query
                 navigation,
                 relatedValueReaders(primaryKey, relatedKeyFactory)
                     .Select(valueReader => GetTargetEntity(targetEntityType, valueReader, bufferedEntities))
+                    .Where(e => e != null)
                     .ToList());
         }
 
@@ -191,6 +197,7 @@ namespace Microsoft.Data.Entity.Query
                 navigation,
                 await relatedValueReaders(primaryKey, relatedKeyFactory)
                     .Select(valueReader => GetTargetEntity(targetEntityType, valueReader, bufferedEntities))
+                    .Where(e => e != null)
                     .ToList(cancellationToken)
                     .WithCurrentCulture());
         }
@@ -268,7 +275,8 @@ namespace Microsoft.Data.Entity.Query
         private void LoadNavigationProperties(
             object entity, INavigation navigation, IReadOnlyList<object> relatedEntities)
         {
-            if (navigation.PointsToPrincipal)
+            if (navigation.PointsToPrincipal
+                && relatedEntities.Any())
             {
                 _clrPropertySetterSource
                     .GetAccessor(navigation)
@@ -314,7 +322,7 @@ namespace Microsoft.Data.Entity.Query
                         }
                     }
                 }
-                else
+                else if (relatedEntities.Any())
                 {
                     _clrPropertySetterSource
                         .GetAccessor(navigation)
@@ -337,14 +345,17 @@ namespace Microsoft.Data.Entity.Query
         {
             var targetEntity = GetEntity(targetEntityType, valueReader);
 
-            List<BufferedEntity> bufferedTargetEntities;
-            bufferedEntities.Add(
-                _byEntityInstance.TryGetValue(targetEntity, out bufferedTargetEntities)
-                    ? bufferedTargetEntities[0]
-                    : new BufferedEntity(targetEntityType, valueReader)
-                        {
-                            Instance = targetEntity
-                        });
+            if (targetEntity != null)
+            {
+                List<BufferedEntity> bufferedTargetEntities;
+                bufferedEntities.Add(
+                    _byEntityInstance.TryGetValue(targetEntity, out bufferedTargetEntities)
+                        ? bufferedTargetEntities[0]
+                        : new BufferedEntity(targetEntityType, valueReader)
+                            {
+                                Instance = targetEntity
+                            });
+            }
 
             return targetEntity;
         }

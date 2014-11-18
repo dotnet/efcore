@@ -275,6 +275,16 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                     return Expression.Not(operand);
                 }
             }
+            else if (expression.NodeType == ExpressionType.Convert
+                && expression.Type.IsNullableType())
+            {
+                var operand = VisitExpression(expression.Operand);
+
+                if (operand != null)
+                {
+                    return Expression.Convert(operand, expression.Type);
+                }
+            }
 
             _requiresClientEval = true;
 
