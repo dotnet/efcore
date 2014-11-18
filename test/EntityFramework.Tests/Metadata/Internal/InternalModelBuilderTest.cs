@@ -1,6 +1,10 @@
-﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using System.Linq;
+using System.Reflection;
+using Microsoft.Data.Entity.Internal;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
@@ -34,7 +38,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         }
 
         [Fact]
-        public void Can_ignore_lower_source_entity_type_using_entity_entity_clr_type()
+        public void Can_ignore_lower_source_entity_type_using_entity_clr_type()
         {
             var model = new Model();
             var modelBuilder = new InternalModelBuilder(model, null);
@@ -60,11 +64,14 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Assert.Null(model.TryGetEntityType(typeof(Customer).FullName));
             Assert.True(modelBuilder.IgnoreEntity(typeof(Customer).FullName, ConfigurationSource.Explicit));
             Assert.Null(modelBuilder.Entity(typeof(Customer).FullName, ConfigurationSource.DataAnnotation));
-            Assert.NotNull(modelBuilder.Entity(typeof(Customer).FullName, ConfigurationSource.Explicit));
+
+            Assert.Equal(Strings.EntityIgnoredExplicitly(typeof(Customer).FullName),
+                Assert.Throws<InvalidOperationException>(() =>
+                    Assert.Null(modelBuilder.Entity(typeof(Customer).FullName, ConfigurationSource.Explicit))).Message);
         }
 
         [Fact]
-        public void Cannot_ignore_higher_source_entity_type_using_entity_entity_clr_type()
+        public void Cannot_ignore_same_or_higher_source_entity_type_using_entity_clr_type()
         {
             var model = new Model();
             var modelBuilder = new InternalModelBuilder(model, null);
@@ -79,7 +86,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         }
 
         [Fact]
-        public void Cannot_ignore_higher_source_entity_type_using_entity_type_name()
+        public void Cannot_ignore_same_or_higher_source_entity_type_using_entity_type_name()
         {
             var model = new Model();
             var modelBuilder = new InternalModelBuilder(model, null);
@@ -94,7 +101,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         }
 
         [Fact]
-        public void Can_only_ignore_existing_entity_type_explicitly_using_entity_entity_clr_type()
+        public void Cannot_ignore_existing_entity_type_using_entity_clr_type()
         {
             var model = new Model();
             var entityType = model.AddEntityType(typeof(Customer));
@@ -107,11 +114,13 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Assert.False(modelBuilder.IgnoreEntity(typeof(Customer), ConfigurationSource.DataAnnotation));
             Assert.NotNull(model.TryGetEntityType(typeof(Customer)));
 
-            Assert.True(modelBuilder.IgnoreEntity(typeof(Customer), ConfigurationSource.Explicit));
+            Assert.Equal(Strings.EntityAddedExplicitly(typeof(Customer).FullName),
+                Assert.Throws<InvalidOperationException>(() =>
+                    Assert.False(modelBuilder.IgnoreEntity(typeof(Customer), ConfigurationSource.Explicit))).Message);
         }
 
         [Fact]
-        public void Can_only_ignore_existing_entity_type_explicitly_using_entity_entity_type_name()
+        public void Cannot_ignore_existing_entity_type_using_entity_type_name()
         {
             var model = new Model();
             var entityType = model.AddEntityType(typeof(Customer).FullName);
@@ -124,13 +133,62 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Assert.False(modelBuilder.IgnoreEntity(typeof(Customer).FullName, ConfigurationSource.DataAnnotation));
             Assert.NotNull(model.TryGetEntityType(typeof(Customer).FullName));
 
-            Assert.True(modelBuilder.IgnoreEntity(typeof(Customer).FullName, ConfigurationSource.Explicit));
+            Assert.Equal(Strings.EntityAddedExplicitly(typeof(Customer).FullName),
+                Assert.Throws<InvalidOperationException>(() =>
+                    Assert.False(modelBuilder.IgnoreEntity(typeof(Customer).FullName, ConfigurationSource.Explicit))).Message);
+        }
+
+        [Fact]
+        public void Can_ignore_entity_type_referenced_from_lower_source_foreign_key()
+        {
+            var modelBuilder = new InternalModelBuilder(new Model(), null);
+            modelBuilder
+                .Entity(typeof(Customer), ConfigurationSource.Convention)
+                .Key(new[] { Customer.IdProperty }, ConfigurationSource.Convention);
+            var orderEntityTypeBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+
+            Assert.NotNull(orderEntityTypeBuilder.ForeignKey(typeof(Customer), new[] { Order.CustomerIdProperty }, ConfigurationSource.Convention));
+            
+            Assert.True(modelBuilder.IgnoreEntity(typeof(Customer), ConfigurationSource.Explicit));
+
+            Assert.Equal(typeof(Order), modelBuilder.Metadata.EntityTypes.Single().Type);
+            Assert.Empty(orderEntityTypeBuilder.Metadata.ForeignKeys);
+        }
+
+        [Fact]
+        public void Cannot_ignore_entity_type_referenced_from_same_or_higher_source_foreign_key()
+        {
+            var modelBuilder = new InternalModelBuilder(new Model(), null);
+            modelBuilder
+                .Entity(typeof(Customer), ConfigurationSource.Convention)
+                .Key(new[] { Customer.IdProperty }, ConfigurationSource.Convention);
+            var orderEntityTypeBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+
+            Assert.NotNull(orderEntityTypeBuilder.ForeignKey(typeof(Customer), new[] { Order.CustomerIdProperty }, ConfigurationSource.Explicit));
+
+            Assert.False(modelBuilder.IgnoreEntity(typeof(Customer), ConfigurationSource.Convention));
+
+            Assert.Equal(2, modelBuilder.Metadata.EntityTypes.Count);
+            Assert.Equal(1, orderEntityTypeBuilder.Metadata.ForeignKeys.Count);
         }
 
         private class Customer
         {
+            public static readonly PropertyInfo IdProperty = typeof(Customer).GetProperty("Id");
+
             public int Id { get; set; }
             public string Name { get; set; }
         }
+
+        private class Order
+        {
+            public static readonly PropertyInfo IdProperty = typeof(Order).GetProperty("Id");
+            public static readonly PropertyInfo CustomerIdProperty = typeof(Order).GetProperty("CustomerId");
+
+            public int Id { get; set; }
+            public int CustomerId { get; set; }
+            public Customer Customer { get; set; }
+        }
+
     }
 }

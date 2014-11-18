@@ -716,6 +716,46 @@ namespace Microsoft.Data.Entity.Internal
             get { return GetString("RecursiveOnConfiguring"); }
         }
 
+        /// <summary>
+        /// The property '{property}' on entity type '{entityType}' could not be ignored because it has been explicitly added or is part of a key, foreign key or index that has been explicitly defined.
+        /// </summary>
+        public static string PropertyAddedExplicitly([CanBeNull] object property, [CanBeNull] object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("PropertyAddedExplicitly", "property", "entityType"), property, entityType);
+        }
+
+        /// <summary>
+        /// The property '{property}' on entity type '{entityType}' could not be added because it has been explicitly ignored.
+        /// </summary>
+        public static string PropertyIgnoredExplicitly([CanBeNull] object property, [CanBeNull] object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("PropertyIgnoredExplicitly", "property", "entityType"), property, entityType);
+        }
+
+        /// <summary>
+        /// The  entity type '{entityType}' could not be ignored because it has been explicitly added or is referenced from a foreign key that has been explicitly defined.
+        /// </summary>
+        public static string EntityAddedExplicitly([CanBeNull] object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("EntityAddedExplicitly", "entityType"), entityType);
+        }
+
+        /// <summary>
+        /// The entity type '{entityType}' could not be added because it has been explicitly ignored.
+        /// </summary>
+        public static string EntityIgnoredExplicitly([CanBeNull] object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("EntityIgnoredExplicitly", "entityType"), entityType);
+        }
+
+        /// <summary>
+        /// The entity type '{entityType}' cannot be removed because it is being referenced from a foreign key. All referencing foreign keys must be removed or redefined before the entity type can be removed.
+        /// </summary>
+        public static string EntityTypeInUse([CanBeNull] object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("EntityTypeInUse", "entityType"), entityType);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

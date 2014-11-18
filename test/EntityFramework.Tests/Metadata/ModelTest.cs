@@ -3,6 +3,7 @@
 
 using System;
 using System.Linq;
+using System.Reflection;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Xunit;
@@ -54,6 +55,23 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Same(entityType, model.RemoveEntityType(entityType));
             Assert.Null(model.RemoveEntityType(entityType));
             Assert.Null(model.TryGetEntityType(typeof(Customer).FullName));
+        }
+
+        [Fact]
+        public void Cannot_remove_entity_type_when_referenced_by_foreign_key()
+        {
+            var model = new Model();
+            var customerType = model.GetOrAddEntityType(typeof(Customer));
+            var idProperty = customerType.GetOrAddProperty(Customer.IdProperty);
+            var customerKey = customerType.GetOrAddKey(idProperty);
+            var orderType = model.GetOrAddEntityType(typeof(Order));
+            var customerFk = orderType.GetOrAddProperty(Order.CustomerIdProperty);
+
+            orderType.AddForeignKey(customerFk, customerKey);
+
+            Assert.Equal(
+                Strings.EntityTypeInUse(typeof(Customer).FullName),
+                Assert.Throws<InvalidOperationException>(() => model.RemoveEntityType(customerType)).Message);
         }
 
         [Fact]
@@ -140,12 +158,18 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
         private class Customer
         {
+            public static readonly PropertyInfo IdProperty = typeof(Customer).GetProperty("Id");
+
             public int Id { get; set; }
             public string Name { get; set; }
         }
 
         private class Order
         {
+            public static readonly PropertyInfo CustomerIdProperty = typeof(Order).GetProperty("CustomerId");
+
+            public int Id { get; set; }
+            public int CustomerId { get; set; }
         }
     }
 }

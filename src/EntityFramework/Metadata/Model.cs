@@ -108,6 +108,11 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotNull(entityType, "entityType");
 
+            if (GetReferencingForeignKeys(entityType).Any())
+            {
+                throw new InvalidOperationException(Strings.EntityTypeInUse(entityType.Name));
+            }
+
             var previousEntities = _entities;
             _entities = _entities.Remove(entityType);
 

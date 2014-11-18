@@ -1,10 +1,11 @@
-﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Microsoft.Data.Entity.Internal;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
@@ -222,7 +223,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         }
 
         [Fact]
-        public void Can_ignore_lower_source_property()
+        public void Can_ignore_same_or_lower_source_property()
         {
             var entityType = new Model().AddEntityType(typeof(Order));
             var entityBuilder = new InternalEntityBuilder(entityType, new InternalModelBuilder(new Model(), null));
@@ -232,11 +233,14 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Assert.Null(entityType.TryGetProperty(Order.IdProperty.Name));
             Assert.True(entityBuilder.Ignore(Order.IdProperty.Name, ConfigurationSource.Explicit));
             Assert.Null(entityBuilder.Property(typeof(Order), Order.IdProperty.Name, ConfigurationSource.DataAnnotation));
-            Assert.NotNull(entityBuilder.Property(typeof(Order), Order.IdProperty.Name, ConfigurationSource.Explicit));
+
+            Assert.Equal(Strings.PropertyIgnoredExplicitly(Order.IdProperty.Name, typeof(Order).FullName),
+                Assert.Throws<InvalidOperationException>(() =>
+                    Assert.NotNull(entityBuilder.Property(typeof(Order), Order.IdProperty.Name, ConfigurationSource.Explicit))).Message);
         }
 
         [Fact]
-        public void Cannot_ignore_higher_source_property()
+        public void Cannot_ignore_same_or_higher_source_property()
         {
             var entityType = new Model().AddEntityType(typeof(Order));
             var entityBuilder = new InternalEntityBuilder(entityType, new InternalModelBuilder(new Model(), null));
@@ -246,12 +250,13 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Assert.NotNull(entityBuilder.Property(typeof(Order), Order.IdProperty.Name, ConfigurationSource.DataAnnotation));
 
             Assert.False(entityBuilder.Ignore(Order.IdProperty.Name, ConfigurationSource.Convention));
+            Assert.False(entityBuilder.Ignore(Order.IdProperty.Name, ConfigurationSource.DataAnnotation));
 
             Assert.NotNull(entityType.TryGetProperty(Order.IdProperty.Name));
         }
 
         [Fact]
-        public void Can_only_ignore_existing_property_explicitly()
+        public void Cannot_ignore_existing_property()
         {
             var entityType = new Model().AddEntityType(typeof(Order));
             var property = entityType.AddProperty(Order.IdProperty.Name, typeof(int));
@@ -264,7 +269,99 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Assert.False(entityBuilder.Ignore(Order.IdProperty.Name, ConfigurationSource.DataAnnotation));
             Assert.NotNull(entityType.TryGetProperty(Order.IdProperty.Name));
 
-            Assert.True(entityBuilder.Ignore(Order.IdProperty.Name, ConfigurationSource.Explicit));
+            Assert.Equal(Strings.PropertyAddedExplicitly(Order.IdProperty.Name, typeof(Order).FullName),
+                Assert.Throws<InvalidOperationException>(() =>
+                    entityBuilder.Ignore(Order.IdProperty.Name, ConfigurationSource.Explicit)).Message);
+        }
+
+        [Fact]
+        public void Can_ignore_property_that_is_part_of_lower_source_foreign_key()
+        {
+            var modelBuilder = new InternalModelBuilder(new Model(), null);
+            modelBuilder
+                .Entity(typeof(Customer), ConfigurationSource.Explicit)
+                .Key(new[] { Customer.IdProperty, Customer.UniqueProperty }, ConfigurationSource.Explicit);
+            var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+
+            Assert.NotNull(entityBuilder.ForeignKey(typeof(Customer), new[] { Order.CustomerIdProperty, Order.CustomerUniqueProperty }, ConfigurationSource.Convention));
+
+            Assert.True(entityBuilder.Ignore(Order.CustomerIdProperty.Name, ConfigurationSource.DataAnnotation));
+
+            Assert.Empty(entityBuilder.Metadata.Properties.Where(p => p.Name == Order.CustomerIdProperty.Name));
+            Assert.Empty(entityBuilder.Metadata.ForeignKeys);
+        }
+
+        [Fact]
+        public void Cannot_ignore_property_that_is_part_of_same_or_higher_source_foreign_key()
+        {
+            var modelBuilder = new InternalModelBuilder(new Model(), null);
+            modelBuilder
+                .Entity(typeof(Customer), ConfigurationSource.Explicit)
+                .Key(new[] { Customer.IdProperty, Customer.UniqueProperty }, ConfigurationSource.Explicit);
+            var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+
+            Assert.NotNull(entityBuilder.ForeignKey(typeof(Customer), new[] { Order.CustomerIdProperty, Order.CustomerUniqueProperty }, ConfigurationSource.DataAnnotation));
+
+            Assert.False(entityBuilder.Ignore(Order.CustomerIdProperty.Name, ConfigurationSource.DataAnnotation));
+
+            Assert.NotEmpty(entityBuilder.Metadata.Properties.Where(p => p.Name == Order.CustomerIdProperty.Name));
+            Assert.NotEmpty(entityBuilder.Metadata.ForeignKeys);
+        }
+
+        [Fact]
+        public void Can_ignore_property_that_is_part_of_lower_source_index()
+        {
+            var entityType = new Model().AddEntityType(typeof(Order));
+            var entityBuilder = new InternalEntityBuilder(entityType, new InternalModelBuilder(new Model(), null));
+
+            Assert.NotNull(entityBuilder.Index(new[] { Order.IdProperty, Order.CustomerIdProperty }, ConfigurationSource.DataAnnotation));
+
+            Assert.True(entityBuilder.Ignore(Order.CustomerIdProperty.Name, ConfigurationSource.Explicit));
+
+            Assert.Empty(entityBuilder.Metadata.Properties.Where(p => p.Name == Order.CustomerIdProperty.Name));
+            Assert.Empty(entityBuilder.Metadata.Indexes);
+        }
+
+        [Fact]
+        public void Cannot_ignore_property_that_is_part_of_same_or_higher_source_index()
+        {
+            var entityType = new Model().AddEntityType(typeof(Order));
+            var entityBuilder = new InternalEntityBuilder(entityType, new InternalModelBuilder(new Model(), null));
+
+            Assert.NotNull(entityBuilder.Index(new[] { Order.IdProperty, Order.CustomerIdProperty }, ConfigurationSource.Explicit));
+
+            Assert.False(entityBuilder.Ignore(Order.CustomerIdProperty.Name, ConfigurationSource.DataAnnotation));
+
+            Assert.NotEmpty(entityBuilder.Metadata.Properties.Where(p => p.Name == Order.CustomerIdProperty.Name));
+            Assert.NotEmpty(entityBuilder.Metadata.Indexes);
+        }
+
+        [Fact]
+        public void Can_ignore_property_that_is_part_of_lower_source_key()
+        {
+            var entityType = new Model().AddEntityType(typeof(Order));
+            var entityBuilder = new InternalEntityBuilder(entityType, new InternalModelBuilder(new Model(), null));
+
+            Assert.NotNull(entityBuilder.Key(new[] { Order.IdProperty, Order.CustomerIdProperty }, ConfigurationSource.DataAnnotation));
+
+            Assert.True(entityBuilder.Ignore(Order.CustomerIdProperty.Name, ConfigurationSource.Explicit));
+
+            Assert.Empty(entityBuilder.Metadata.Properties.Where(p => p.Name == Order.CustomerIdProperty.Name));
+            Assert.Empty(entityBuilder.Metadata.Keys);
+        }
+
+        [Fact]
+        public void Cannot_ignore_property_that_is_part_of_same_or_higher_source_key()
+        {
+            var entityType = new Model().AddEntityType(typeof(Order));
+            var entityBuilder = new InternalEntityBuilder(entityType, new InternalModelBuilder(new Model(), null));
+
+            Assert.NotNull(entityBuilder.Key(new[] { Order.IdProperty, Order.CustomerIdProperty }, ConfigurationSource.Explicit));
+
+            Assert.False(entityBuilder.Ignore(Order.CustomerIdProperty.Name, ConfigurationSource.DataAnnotation));
+
+            Assert.NotEmpty(entityBuilder.Metadata.Properties.Where(p => p.Name == Order.CustomerIdProperty.Name));
+            Assert.NotEmpty(entityBuilder.Metadata.Keys);
         }
 
         [Fact]

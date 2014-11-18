@@ -3,7 +3,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
@@ -72,6 +75,11 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     return false;
                 }
 
+                if (ignoredConfigurationSource == ConfigurationSource.Explicit)
+                {
+                    throw new InvalidOperationException(Strings.EntityIgnoredExplicitly(name));
+                }
+
                 _ignoredEntityTypeNames.Value.Remove(name);
             }
 
@@ -107,9 +115,21 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var entityType = Metadata.TryGetEntityType(name);
             if (entityType != null)
             {
-                if (!_entityBuilders.Remove(entityType, configurationSource))
+                if (!_entityBuilders.Remove(entityType, configurationSource, canOverrideSameSource: false))
                 {
+                    if (configurationSource == ConfigurationSource.Explicit)
+                    {
+                        throw new InvalidOperationException(Strings.EntityAddedExplicitly(name));
+                    }
+
                     return false;
+                }
+
+                foreach (ForeignKey foreignKey in Metadata.GetReferencingForeignKeys(entityType).ToList())
+                {
+                    var removed = RemoveForeignKey(foreignKey, configurationSource);
+
+                    Debug.Assert(removed);
                 }
 
                 Metadata.RemoveEntityType(entityType);
@@ -118,6 +138,14 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             _ignoredEntityTypeNames.Value[name] = configurationSource;
 
             return true;
+        }
+
+
+        private bool RemoveForeignKey(ForeignKey foreignKey, ConfigurationSource configurationSource)
+        {
+            var entityBuilder = Entity(foreignKey.EntityType.Type, ConfigurationSource.Convention);
+
+            return entityBuilder.RemoveForeignKey(foreignKey, configurationSource);
         }
 
         public virtual bool IgnoreEntity([NotNull] Type type, ConfigurationSource configurationSource)

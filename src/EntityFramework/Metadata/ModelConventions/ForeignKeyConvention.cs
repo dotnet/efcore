@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             [NotNull] EntityType dependentType,
             [CanBeNull] string navigationToPrincipal,
             [CanBeNull] string navigationToDependent,
-            bool isUnqiue)
+            bool isUnique)
         {
             Check.NotNull(principalType, "principalType");
             Check.NotNull(dependentType, "dependentType");
@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
                 navigationToDependent,
                 ImmutableList<Property>.Empty,
                 ImmutableList<Property>.Empty,
-                isUnqiue);
+                isUnique);
         }
 
         public virtual ForeignKey FindOrCreateForeignKey(

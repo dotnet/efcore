@@ -63,7 +63,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
 
             var fk = DependentType.GetOrAddForeignKey(fkProperty, PrincipalType.GetPrimaryKey());
 
-            Assert.Same(fk, new ForeignKeyConvention().FindOrCreateForeignKey(PrincipalType, DependentType, "SomeNav", "SomeInverse", isUnqiue: false));
+            Assert.Same(fk, new ForeignKeyConvention().FindOrCreateForeignKey(PrincipalType, DependentType, "SomeNav", "SomeInverse", isUnique: false));
         }
 
         [Fact]
@@ -75,7 +75,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
 
             var fk = DependentType.GetOrAddForeignKey(fkProperty, PrincipalType.GetPrimaryKey());
 
-            Assert.Same(fk, new ForeignKeyConvention().FindOrCreateForeignKey(PrincipalType, DependentType, "SomeNav", "SomeInverse", isUnqiue: false));
+            Assert.Same(fk, new ForeignKeyConvention().FindOrCreateForeignKey(PrincipalType, DependentType, "SomeNav", "SomeInverse", isUnique: false));
         }
 
         [Fact]
@@ -86,7 +86,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
 
             var fk = DependentType.GetOrAddForeignKey(fkProperty, PrincipalType.GetPrimaryKey());
 
-            Assert.Same(fk, new ForeignKeyConvention().FindOrCreateForeignKey(PrincipalType, DependentType, "SomeNav", "SomeInverse", isUnqiue: false));
+            Assert.Same(fk, new ForeignKeyConvention().FindOrCreateForeignKey(PrincipalType, DependentType, "SomeNav", "SomeInverse", isUnique: false));
         }
 
         [Fact]
@@ -96,7 +96,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
 
             var fk = DependentType.GetOrAddForeignKey(fkProperty, PrincipalType.GetPrimaryKey());
 
-            Assert.Same(fk, new ForeignKeyConvention().FindOrCreateForeignKey(PrincipalType, DependentType, "SomeNav", "SomeInverse", isUnqiue: false));
+            Assert.Same(fk, new ForeignKeyConvention().FindOrCreateForeignKey(PrincipalType, DependentType, "SomeNav", "SomeInverse", isUnique: false));
         }
 
         [Fact]
@@ -229,7 +229,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             DependentType.GetOrAddProperty("PrincipalEntityID", typeof(int), shadowProperty: true);
             DependentType.GetOrAddProperty("PrincipalEntityPeEKaY", typeof(int), shadowProperty: true);
 
-            var fk = (IForeignKey)new ForeignKeyConvention().FindOrCreateForeignKey(PrincipalType, DependentType, "SomeNav", "SomeInverse", isUnqiue: true);
+            var fk = (IForeignKey)new ForeignKeyConvention().FindOrCreateForeignKey(PrincipalType, DependentType, "SomeNav", "SomeInverse", isUnique: true);
 
             Assert.Same(fkProperty, fk.Properties.Single());
             Assert.Same(PrimaryKey, fk.ReferencedProperties.Single());
@@ -244,7 +244,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             DependentType.GetOrAddProperty("PrincipalEntityID", typeof(int), shadowProperty: true);
             DependentType.GetOrAddProperty("PrincipalEntityPeEKaY", typeof(int), shadowProperty: true);
 
-            var fk = (IForeignKey)new ForeignKeyConvention().FindOrCreateForeignKey(PrincipalType, DependentType, "SomeNav", "SomeInverse", isUnqiue: false);
+            var fk = (IForeignKey)new ForeignKeyConvention().FindOrCreateForeignKey(PrincipalType, DependentType, "SomeNav", "SomeInverse", isUnique: false);
 
             Assert.Same(fkProperty, fk.Properties.Single());
             Assert.Same(PrimaryKey, fk.ReferencedProperties.Single());
@@ -258,7 +258,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             var fkProperty = DependentType.GetOrAddProperty("PrincipalEntityID", typeof(int), shadowProperty: true);
             DependentType.GetOrAddProperty("PrincipalEntityPeEKaY", typeof(int), shadowProperty: true);
 
-            var fk = (IForeignKey)new ForeignKeyConvention().FindOrCreateForeignKey(PrincipalType, DependentType, "SomeNav", "SomeInverse", isUnqiue: true);
+            var fk = (IForeignKey)new ForeignKeyConvention().FindOrCreateForeignKey(PrincipalType, DependentType, "SomeNav", "SomeInverse", isUnique: true);
 
             Assert.Same(fkProperty, fk.Properties.Single());
             Assert.Same(PrimaryKey, fk.ReferencedProperties.Single());
@@ -271,7 +271,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         {
             var fkProperty = DependentType.GetOrAddProperty("PrincipalEntityPeEKaY", typeof(int), shadowProperty: true);
 
-            var fk = (IForeignKey)new ForeignKeyConvention().FindOrCreateForeignKey(PrincipalType, DependentType, "SomeNav", "SomeInverse", isUnqiue: false);
+            var fk = (IForeignKey)new ForeignKeyConvention().FindOrCreateForeignKey(PrincipalType, DependentType, "SomeNav", "SomeInverse", isUnique: false);
 
             Assert.Same(fkProperty, fk.Properties.Single());
             Assert.Same(PrimaryKey, fk.ReferencedProperties.Single());
@@ -282,7 +282,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         [Fact]
         public void Creates_foreign_key_based_on_nav_name_if_no_appropriate_property_is_found()
         {
-            var fk = (IForeignKey)new ForeignKeyConvention().FindOrCreateForeignKey(PrincipalType, DependentType, "SomeNav", "SomeInverse", isUnqiue: false);
+            var fk = (IForeignKey)new ForeignKeyConvention().FindOrCreateForeignKey(PrincipalType, DependentType, "SomeNav", "SomeInverse", isUnique: false);
 
             Assert.Equal("SomeNavId", fk.Properties.Single().Name);
             Assert.Equal(typeof(int?), fk.Properties.Single().PropertyType);
@@ -296,7 +296,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         [Fact]
         public void Creates_foreign_key_based_on_type_name_if_no_appropriate_property_is_found()
         {
-            var fk = (IForeignKey)new ForeignKeyConvention().FindOrCreateForeignKey(PrincipalType, DependentType, null, null, isUnqiue: false);
+            var fk = (IForeignKey)new ForeignKeyConvention().FindOrCreateForeignKey(PrincipalType, DependentType, null, null, isUnique: false);
 
             Assert.Equal("PrincipalEntityId", fk.Properties.Single().Name);
             Assert.Equal(typeof(int?), fk.Properties.Single().PropertyType);
@@ -361,7 +361,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         [Fact]
         public void Creates_unique_foreign_key_using_dependent_PK_if_no_matching_FK_property_found()
         {
-            var fk = (IForeignKey)new ForeignKeyConvention().FindOrCreateForeignKey(PrincipalType, DependentType, "SomeNav", "SomeInverse", isUnqiue: true);
+            var fk = (IForeignKey)new ForeignKeyConvention().FindOrCreateForeignKey(PrincipalType, DependentType, "SomeNav", "SomeInverse", isUnique: true);
 
             Assert.Same(DependentType.GetPrimaryKey().Properties.Single(), fk.Properties.Single());
             Assert.Same(PrimaryKey, fk.ReferencedProperties.Single());
@@ -377,7 +377,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
                 _model.GetEntityType(typeof(DependentEntityWithCompositeKey)),
                 "NavProp",
                 "NavProp",
-                isUnqiue: false);
+                isUnique: false);
 
             Assert.Equal(2, fk.ReferencedProperties.Count);
             Assert.Equal(typeof(int), fk.ReferencedProperties[0].PropertyType);

@@ -808,13 +808,13 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         [CanBeNull]
-        public virtual Property TryGetProperty([NotNull] string name)
+        public virtual Property TryGetProperty([NotNull] string propertyName)
         {
-            Check.NotEmpty(name, "name");
+            Check.NotEmpty(propertyName, "propertyName");
 
             // TODO: Perf: This should be O(log(n)) but an additional index could be created
             // TODO: if this is too slow or if creating the surrogate Property object is too expensive
-            var surrogate = new Property(name, typeof(object), this);
+            var surrogate = new Property(propertyName, typeof(object), this);
             var index = _properties.BinarySearch(surrogate, PropertyComparer.Instance);
             return index >= 0 ? _properties[index] : null;
         }
@@ -826,14 +826,14 @@ namespace Microsoft.Data.Entity.Metadata
             return GetProperty(propertyInfo.Name);
         }
 
-        public virtual Property GetProperty([NotNull] string name)
+        public virtual Property GetProperty([NotNull] string propertyName)
         {
-            Check.NotEmpty(name, "name");
+            Check.NotEmpty(propertyName, "propertyName");
 
-            var property = TryGetProperty(name);
+            var property = TryGetProperty(propertyName);
             if (property == null)
             {
-                throw new ModelItemNotFoundException(Strings.PropertyNotFound(name, Name));
+                throw new ModelItemNotFoundException(Strings.PropertyNotFound(propertyName, Name));
             }
             return property;
         }
@@ -923,14 +923,14 @@ namespace Microsoft.Data.Entity.Metadata
             return GetPrimaryKey();
         }
 
-        IProperty IEntityType.TryGetProperty(string name)
+        IProperty IEntityType.TryGetProperty(string propertyName)
         {
-            return TryGetProperty(name);
+            return TryGetProperty(propertyName);
         }
 
-        IProperty IEntityType.GetProperty(string name)
+        IProperty IEntityType.GetProperty(string propertyName)
         {
-            return GetProperty(name);
+            return GetProperty(propertyName);
         }
 
         INavigation IEntityType.TryGetNavigation(string name)

@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata.ModelConventions;
 using Microsoft.Data.Entity.Utilities;
 
@@ -38,7 +39,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         {
             Check.NotEmpty(propertyNames, "propertyNames");
 
-            return Key(GetExistingProperties(propertyNames), configurationSource);
+            return Key(GetExistingProperties(propertyNames, configurationSource), configurationSource);
         }
 
         public virtual InternalKeyBuilder Key([NotNull] IReadOnlyList<PropertyInfo> clrProperties, ConfigurationSource configurationSource)
@@ -60,6 +61,20 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 configurationSource);
         }
 
+        public virtual bool RemoveKey([NotNull] Key key, ConfigurationSource configurationSource)
+        {
+            Check.NotNull(key, "key");
+
+            if (!_keyBuilders.Remove(key, configurationSource, canOverrideSameSource: false))
+            {
+                return false;
+            }
+
+            Metadata.RemoveKey(key);
+
+            return true;
+        }
+
         public virtual InternalPropertyBuilder Property(
             [NotNull] Type propertyType, [NotNull] string name, ConfigurationSource configurationSource)
         {
@@ -76,43 +91,48 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return InternalProperty(clrProperty.PropertyType, clrProperty.Name, /*shadowProperty:*/ false, configurationSource);
         }
 
-        private InternalPropertyBuilder InternalProperty(Type propertyType, string name, bool shadowProperty, ConfigurationSource configurationSource)
+        private InternalPropertyBuilder InternalProperty(Type propertyType, string propertyName, bool shadowProperty, ConfigurationSource configurationSource)
         {
-            if (!CanAdd(name, configurationSource))
+            if (!CanAdd(propertyName, configurationSource))
             {
                 return null;
             }
 
             return _propertyBuilders.GetOrAdd(
-                () => Metadata.TryGetProperty(name),
-                () => Metadata.AddProperty(name, propertyType, shadowProperty),
+                () => Metadata.TryGetProperty(propertyName),
+                () => Metadata.AddProperty(propertyName, propertyType, shadowProperty),
                 (property, isNew) => new InternalPropertyBuilder(property, ModelBuilder, configurationSource),
                 configurationSource);
         }
 
-        private bool CanAdd(string name, ConfigurationSource configurationSource)
+        private bool CanAdd(string propertyName, ConfigurationSource configurationSource)
         {
             ConfigurationSource ignoredConfigurationSource;
             if (_ignoredProperties.HasValue
-                && _ignoredProperties.Value.TryGetValue(name, out ignoredConfigurationSource))
+                && _ignoredProperties.Value.TryGetValue(propertyName, out ignoredConfigurationSource))
             {
                 if (!configurationSource.Overrides(ignoredConfigurationSource))
                 {
                     return false;
                 }
 
-                _ignoredProperties.Value.Remove(name);
+                if (ignoredConfigurationSource == ConfigurationSource.Explicit)
+                {
+                    throw new InvalidOperationException(Strings.PropertyIgnoredExplicitly(propertyName, Metadata.Name));
+                }
+
+                _ignoredProperties.Value.Remove(propertyName);
             }
 
             return true;
         }
 
-        public virtual bool Ignore([NotNull] string name, ConfigurationSource configurationSource)
+        public virtual bool Ignore([NotNull] string propertyName, ConfigurationSource configurationSource)
         {
-            Check.NotEmpty(name, "name");
+            Check.NotEmpty(propertyName, "propertyName");
 
             ConfigurationSource ignoredConfigurationSource;
-            if (_ignoredProperties.Value.TryGetValue(name, out ignoredConfigurationSource))
+            if (_ignoredProperties.Value.TryGetValue(propertyName, out ignoredConfigurationSource))
             {
                 if (!configurationSource.Overrides(ignoredConfigurationSource)
                     || configurationSource == ignoredConfigurationSource)
@@ -121,18 +141,44 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 }
             }
 
-            var property = Metadata.TryGetProperty(name);
+            var property = Metadata.TryGetProperty(propertyName);
             if (property != null)
             {
-                if (!_propertyBuilders.Remove(property, configurationSource))
+                if (!_propertyBuilders.Remove(property, configurationSource, canOverrideSameSource: false))
                 {
+                    if (configurationSource == ConfigurationSource.Explicit)
+                    {
+                        throw new InvalidOperationException(Strings.PropertyAddedExplicitly(propertyName, Metadata.Name));
+                    }
+
                     return false;
+                }
+
+                foreach (var index in Metadata.Indexes.Where(i => i.Properties.Contains(property)).ToList())
+                {
+                    var removed = RemoveIndex(index, configurationSource);
+
+                    Debug.Assert(removed);
+                }
+
+                foreach (var foreignKey in Metadata.ForeignKeys.Where(i => i.Properties.Contains(property)).ToList())
+                {
+                    var removed = RemoveForeignKey(foreignKey, configurationSource);
+
+                    Debug.Assert(removed);
+                }
+
+                foreach (var key in Metadata.Keys.Where(i => i.Properties.Contains(property)).ToList())
+                {
+                    var removed = RemoveKey(key, configurationSource);
+
+                    Debug.Assert(removed);
                 }
 
                 Metadata.RemoveProperty(property);
             }
 
-            _ignoredProperties.Value[name] = configurationSource;
+            _ignoredProperties.Value[propertyName] = configurationSource;
 
             return true;
         }
@@ -150,7 +196,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 return null;
             }
 
-            return ForeignKey(principalType.Metadata, GetExistingProperties(propertyNames), configurationSource);
+            return ForeignKey(principalType.Metadata, GetExistingProperties(propertyNames, configurationSource), configurationSource);
         }
 
         public virtual InternalForeignKeyBuilder ForeignKey([NotNull] Type referencedType, [NotNull] IReadOnlyList<PropertyInfo> clrProperties,
@@ -177,11 +223,25 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 configurationSource);
         }
 
+        public virtual bool RemoveForeignKey([NotNull] ForeignKey foreignKey, ConfigurationSource configurationSource)
+        {
+            Check.NotNull(foreignKey, "foreignKey");
+
+            if (!_foreignKeyBuilders.Value.Remove(foreignKey, configurationSource, canOverrideSameSource: false))
+            {
+                return false;
+            }
+
+            Metadata.RemoveForeignKey(foreignKey);
+
+            return true;
+        }
+
         public virtual InternalIndexBuilder Index([NotNull] IReadOnlyList<string> propertyNames, ConfigurationSource configurationSource)
         {
             Check.NotNull(propertyNames, "propertyNames");
 
-            return Index(GetExistingProperties(propertyNames), configurationSource);
+            return Index(GetExistingProperties(propertyNames, configurationSource), configurationSource);
         }
 
         public virtual InternalIndexBuilder Index([NotNull] IReadOnlyList<PropertyInfo> clrProperties, ConfigurationSource configurationSource)
@@ -198,6 +258,20 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 () => Metadata.AddIndex(properties),
                 (index, isNew) => new InternalIndexBuilder(index, ModelBuilder),
                 configurationSource);
+        }
+
+        public virtual bool RemoveIndex([NotNull] Index index, ConfigurationSource configurationSource)
+        {
+            Check.NotNull(index, "index");
+
+            if (!_indexBuilders.Value.Remove(index, configurationSource, canOverrideSameSource: false))
+            {
+                return false;
+            }
+
+            Metadata.RemoveIndex(index);
+
+            return true;
         }
 
         public virtual InternalRelationshipBuilder BuildRelationship(
@@ -403,14 +477,32 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return builder;
         }
 
-        private IReadOnlyList<Property> GetExistingProperties(IEnumerable<string> propertyNames)
+        private IReadOnlyList<Property> GetExistingProperties(IEnumerable<string> propertyNames, ConfigurationSource configurationSource)
         {
-            return propertyNames.Select(n => Metadata.GetProperty(n)).ToList();
+            var list = new List<Property>();
+            foreach (var propertyName in propertyNames)
+            {
+                var property = Metadata.GetProperty(propertyName);
+                InternalProperty(property.PropertyType, property.Name, property.IsShadowProperty, configurationSource);
+                list.Add(property);
+            }
+            return list;
         }
 
         private IReadOnlyList<Property> GetOrCreateProperties(IEnumerable<PropertyInfo> clrProperties, ConfigurationSource configurationSource)
         {
-            return clrProperties.Select(p => Property(p, configurationSource).Metadata).ToList();
+            var list = new List<Property>();
+            foreach (var propertyInfo in clrProperties)
+            {
+                var propertyBuilder = Property(propertyInfo, configurationSource);
+
+                var property = propertyBuilder == null
+                    ? Metadata.GetProperty(propertyInfo)
+                    : propertyBuilder.Metadata;
+
+                list.Add(property);
+            }
+            return list;
         }
     }
 }
