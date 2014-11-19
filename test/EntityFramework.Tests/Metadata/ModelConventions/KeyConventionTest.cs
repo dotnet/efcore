@@ -122,27 +122,57 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
                 ex.Message);
         }
 
-        private class EntityWithGuidKey
+        private class EntityWithGenericKey<T>
         {
-            public Guid Id { get; set; }
+            public T Id { get; set; }
         }
 
         [Fact]
-        public void ConfigureKeyProperty_sets_generation_strategy_when_guid()
+        public void ConfigureKeyProperty_sets_generation_strategy_only_when_guid_or_common_integer()
         {
-            var entityBuilder = CreateInternalEntityBuilder<EntityWithGuidKey>();
+            ConfigureKeyProperty_generation_strategy<Guid>(true);
+            ConfigureKeyProperty_generation_strategy<long>(true);
+            ConfigureKeyProperty_generation_strategy<int>(true);
+            ConfigureKeyProperty_generation_strategy<short>(true);
+            ConfigureKeyProperty_generation_strategy<byte>(true);
+            ConfigureKeyProperty_generation_strategy<long?>(true);
+            ConfigureKeyProperty_generation_strategy<int?>(true);
+            ConfigureKeyProperty_generation_strategy<short?>(true);
+            ConfigureKeyProperty_generation_strategy<byte?>(true);
+            ConfigureKeyProperty_generation_strategy<string>(null);
+            ConfigureKeyProperty_generation_strategy<Enum1>(null);
+            ConfigureKeyProperty_generation_strategy<Enum1?>(null);
+            ConfigureKeyProperty_generation_strategy<bool>(null);
+            ConfigureKeyProperty_generation_strategy<bool?>(null);
+            ConfigureKeyProperty_generation_strategy<sbyte>(null);
+            ConfigureKeyProperty_generation_strategy<uint>(null);
+            ConfigureKeyProperty_generation_strategy<ulong>(null);
+            ConfigureKeyProperty_generation_strategy<ushort>(null);
+            ConfigureKeyProperty_generation_strategy<decimal>(null);
+            ConfigureKeyProperty_generation_strategy<float>(null);
+            ConfigureKeyProperty_generation_strategy<DateTime>(null);
+        }
+
+        private void ConfigureKeyProperty_generation_strategy<T>(bool? shouldGenerate)
+        {
+            var entityBuilder = CreateInternalEntityBuilder<EntityWithGenericKey<T>>();
 
             new KeyConvention().Apply(entityBuilder);
 
             var property = entityBuilder.Metadata.TryGetProperty("Id");
             Assert.NotNull(property);
-            Assert.Equal(true, property.GenerateValueOnAdd);
+            Assert.Equal(shouldGenerate, property.GenerateValueOnAdd);
+        }
+
+        private enum Enum1
+        {
+
         }
 
         [Fact]
-        public void ConfigureKeyProperty_does_not_override_generation_strategy_when_guid_configured_explicitly()
+        public void ConfigureKeyProperty_does_not_override_generation_strategy_when_configured_explicitly()
         {
-            var entityBuilder = CreateInternalEntityBuilder<EntityWithGuidKey>();
+            var entityBuilder = CreateInternalEntityBuilder<EntityWithGenericKey<Guid>>();
             var property = entityBuilder.Metadata.TryGetProperty("Id");
             property.GenerateValueOnAdd = false;
 

@@ -29,12 +29,22 @@ namespace Microsoft.Data.Entity.Tests.Utilities
             Assert.True(typeof(int).IsInteger());
             Assert.True(typeof(short).IsInteger());
             Assert.True(typeof(byte).IsInteger());
+            Assert.True(typeof(ulong).IsInteger());
+            Assert.True(typeof(uint).IsInteger());
+            Assert.True(typeof(ushort).IsInteger());
+            Assert.True(typeof(sbyte).IsInteger());
+            Assert.True(typeof(long?).IsInteger());
+            Assert.True(typeof(int?).IsInteger());
+            Assert.True(typeof(short?).IsInteger());
+            Assert.True(typeof(byte?).IsInteger());
             Assert.True(typeof(long?).IsInteger());
             Assert.True(typeof(int?).IsInteger());
             Assert.True(typeof(short?).IsInteger());
             Assert.True(typeof(byte?).IsInteger());
             Assert.False(typeof(bool).IsInteger());
             Assert.False(typeof(bool?).IsInteger());
+            Assert.False(typeof(decimal).IsInteger());
+            Assert.False(typeof(float).IsInteger());
         }
 
         public class CtorFixture

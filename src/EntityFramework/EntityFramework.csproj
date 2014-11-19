@@ -129,6 +129,7 @@
     <Compile Include="Metadata\IOneToOneBuilder.cs" />
     <Compile Include="Metadata\IPropertyBuilder.cs" />
     <Compile Include="Metadata\ModelBuilder.cs" />
+    <Compile Include="Metadata\ModelConventions\ConventionsPropertyInfoExtensions.cs" />
     <Compile Include="Metadata\TypedAnnotation.cs" />
     <Compile Include="Query\ExpressionTreeVisitors\EntityQueryableExpressionTreeVisitor.cs" />
     <Compile Include="Query\ExpressionTreeVisitors\DefaultQueryExpressionTreeVisitor.cs" />

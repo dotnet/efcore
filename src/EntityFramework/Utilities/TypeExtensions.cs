@@ -15,9 +15,7 @@ namespace System
     {
         public static Type GetSequenceType(this Type type)
         {
-            var sequenceType
-                = type.TryGetElementType(typeof(IEnumerable<>))
-                  ?? type.TryGetElementType(typeof(IAsyncEnumerable<>));
+            var sequenceType = TryGetSequenceType(type);
 
             if (sequenceType == null)
             {
@@ -25,6 +23,12 @@ namespace System
             }
 
             return sequenceType;
+        }
+
+        public static Type TryGetSequenceType(this Type type)
+        {
+            return type.TryGetElementType(typeof(IEnumerable<>))
+                  ?? type.TryGetElementType(typeof(IAsyncEnumerable<>));
         }
 
         public static Type TryGetElementType(this Type type, Type interfaceOrBaseType)

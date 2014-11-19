@@ -3,6 +3,7 @@
 
 using System;
 using System.Linq;
+using System.Reflection;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Metadata.ModelConventions;
@@ -58,6 +59,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             public short Int16 { get; set; }
             public int Int32 { get; set; }
             public long Int64 { get; set; }
+            internal int Internal { get; set; }
             public bool? NullableBoolean { get; set; }
             public byte? NullableByte { get; set; }
             public char? NullableChar { get; set; }
@@ -76,6 +78,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             public ushort? NullableUInt16 { get; set; }
             public uint? NullableUInt32 { get; set; }
             public ulong? NullableUInt64 { get; set; }
+            private int Private { get; set; }
+            public int PrivateGetter { private get; set; }
+            public int PrivateSetter { get; private set; }
+            protected int Protected { get; set; }
             public sbyte SByte { get; set; }
             public float Single { get; set; }
             public string String { get; set; }
@@ -98,7 +104,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             new PropertiesConvention().Apply(entityBuilder);
 
             Assert.Equal(
-                typeof(EntityWithEveryPrimitive).GetProperties().Select(p => p.Name),
+                typeof(EntityWithEveryPrimitive)
+                    .GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+                    .Select(p => p.Name),
                 entityBuilder.Metadata.Properties.Select(p => p.Name));
         }
 
