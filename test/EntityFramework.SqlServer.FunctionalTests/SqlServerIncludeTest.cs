@@ -28,6 +28,25 @@ ORDER BY [c].[CustomerID]",
                 Sql);
         }
 
+        public override void Include_collection_alias_generation()
+        {
+            base.Include_collection_alias_generation();
+
+            Assert.Equal(
+                 @"SELECT [o].[CustomerID], [o].[OrderDate], [o].[OrderID]
+FROM [Orders] AS [o]
+ORDER BY [o].[OrderID]
+
+SELECT [o0].[Discount], [o0].[OrderID], [o0].[ProductID], [o0].[Quantity], [o0].[UnitPrice]
+FROM [Order Details] AS [o0]
+INNER JOIN (
+    SELECT DISTINCT [o].[OrderID]
+    FROM [Orders] AS [o]
+) AS [o] ON [o0].[OrderID] = [o].[OrderID]
+ORDER BY [o].[OrderID]",
+                 Sql);
+        }
+
         public override void Include_collection_order_by_key()
         {
             base.Include_collection_order_by_key();
@@ -426,6 +445,17 @@ ORDER BY [c].[CustomerID]",
                 @"SELECT [o].[CustomerID], [o].[OrderDate], [o].[OrderID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]",
+                Sql);
+        }
+
+        public override void Include_reference_alias_generation()
+        {
+            base.Include_reference_alias_generation();
+
+            Assert.Equal(
+                @"SELECT [o].[Discount], [o].[OrderID], [o].[ProductID], [o].[Quantity], [o].[UnitPrice], [o0].[CustomerID], [o0].[OrderDate], [o0].[OrderID]
+FROM [Order Details] AS [o]
+INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]",
                 Sql);
         }
 

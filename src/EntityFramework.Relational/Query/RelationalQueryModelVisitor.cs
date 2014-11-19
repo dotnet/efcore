@@ -114,11 +114,14 @@ namespace Microsoft.Data.Entity.Relational.Query
             var targetEntityType = navigation.GetTargetType();
             var targetTableName = QueryCompilationContext.GetTableName(targetEntityType);
 
+            var targetTableAlias
+               = CreateUniqueAlias(selectExpression, targetTableName.First().ToString().ToLower());
+
             var targetTableExpression
                 = new TableExpression(
                     targetTableName,
                     QueryCompilationContext.GetSchema(targetEntityType),
-                    targetTableName.First().ToString().ToLower(),
+                    targetTableAlias,
                     querySource);
 
             var readerOffset = selectExpression.Projection.Count;
@@ -192,11 +195,14 @@ namespace Microsoft.Data.Entity.Relational.Query
 
             var targetSelectExpression = new SelectExpression();
 
+            var targetTableAlias 
+                = CreateUniqueAlias(selectExpression, targetTableName.First().ToString().ToLower());
+
             var targetTableExpression
                 = new TableExpression(
                     targetTableName,
                     QueryCompilationContext.GetSchema(targetEntityType),
-                    targetTableName.First().ToString().ToLower(),
+                    targetTableAlias,
                     querySource);
 
             targetSelectExpression.AddTable(targetTableExpression);
@@ -267,6 +273,20 @@ namespace Microsoft.Data.Entity.Relational.Query
             QueryContext queryContext, DbDataReader dataReader, IEntityType entityType)
         {
             return ((RelationalQueryContext)queryContext).ValueReaderFactory.Create(dataReader);
+        }
+        
+        private static string CreateUniqueAlias(SelectExpression selectExpression, string preferredAlias)
+        {
+            var alias = preferredAlias;
+            var counter = 0;
+
+            while (selectExpression.Projection
+                .Any(c => string.Equals(c.TableAlias, alias, StringComparison.OrdinalIgnoreCase)))
+            {
+                alias = preferredAlias + counter++;
+            }
+
+            return alias;
         }
 
         private void BuildJoinEqualityExpression(

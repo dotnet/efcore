@@ -99,7 +99,7 @@ FROM (
 ) AS [t0]",
                 Sql);
         }
-
+        
         [Fact]
         public override void Select_Distinct_Count()
         {

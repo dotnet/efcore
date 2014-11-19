@@ -11,5 +11,10 @@ namespace Microsoft.Data.Entity.SQLite.FunctionalTests
             : base(fixture)
         {
         }
+
+        public override void Can_insert_and_read_back_all_non_nullable_data_types()
+        {
+            base.Can_insert_and_read_back_all_non_nullable_data_types();
+        }
     }
 }

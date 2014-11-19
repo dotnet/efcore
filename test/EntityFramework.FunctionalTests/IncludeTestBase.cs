@@ -47,6 +47,20 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void Include_collection_alias_generation()
+        {
+            using (var context = CreateContext())
+            {
+                var orders
+                    = context.Set<Order>()
+                        .Include(o => o.OrderDetails)
+                        .ToList();
+
+                Assert.Equal(830, orders.Count);
+            }
+        }
+
+        [Fact]
         public virtual void Include_collection_order_by_key()
         {
             using (var context = CreateContext())
@@ -134,6 +148,20 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 Assert.True(orders.All(o => o.Customer != null));
                 Assert.Equal(89, orders.Select(o => o.Customer).Distinct().Count());
                 Assert.Equal(830 + 89, context.ChangeTracker.Entries().Count());
+            }
+        }
+        
+        [Fact]
+        public virtual void Include_reference_alias_generation()
+        {
+            using (var context = CreateContext())
+            {
+                var orders
+                    = context.Set<OrderDetail>()
+                        .Include(o => o.Order)
+                        .ToList();
+
+                Assert.True(orders.Any());
             }
         }
 
