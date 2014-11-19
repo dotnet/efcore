@@ -3,7 +3,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
+using System.Diagnostics;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
@@ -62,7 +62,7 @@ namespace Microsoft.Data.Entity.Redis.Query
                 (property, querySource, redisQuery) =>
                     {
                         var projectionIndex = redisQuery.GetProjectionIndex(property);
-                        Contract.Assert(projectionIndex > -1);
+                        Debug.Assert(projectionIndex > -1);
                         return BindReadValueMethod(methodCallExpression.Type, expression, projectionIndex);
                     });
         }
@@ -92,7 +92,7 @@ namespace Microsoft.Data.Entity.Redis.Query
                 (property, querySource, redisQuery) =>
                     {
                         var projectionIndex = redisQuery.GetProjectionIndex(property);
-                        Contract.Assert(projectionIndex > -1);
+                        Debug.Assert(projectionIndex > -1);
                         return BindReadValueMethod(memberExpression.Type, expression, projectionIndex);
                     });
         }

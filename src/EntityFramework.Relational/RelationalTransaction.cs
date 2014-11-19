@@ -3,7 +3,7 @@
 
 using System;
 using System.Data.Common;
-using System.Diagnostics.Contracts;
+using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Relational.Utilities;
 using Microsoft.Data.Entity.Storage;
@@ -85,7 +85,7 @@ namespace Microsoft.Data.Entity.Relational
 
         private void ClearTransaction()
         {
-            Contract.Assert(Connection.Transaction == null || Connection.Transaction == this);
+            Debug.Assert(Connection.Transaction == null || Connection.Transaction == this);
 
             Connection.UseTransaction(null);
         }

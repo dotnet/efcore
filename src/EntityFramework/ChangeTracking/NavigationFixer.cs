@@ -4,7 +4,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
+using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
@@ -119,7 +119,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             }
             else
             {
-                Contract.Assert(foreignKey.IsUnique);
+                Debug.Assert(foreignKey.IsUnique);
 
                 if (newValue != null)
                 {
@@ -156,7 +156,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         private void NavigationCollectionChangedAction(
             StateEntry entry, INavigation navigation, IEnumerable<object> added, IEnumerable<object> removed)
         {
-            Contract.Assert(navigation.IsCollection());
+            Debug.Assert(navigation.IsCollection());
 
             var dependentProperties = navigation.ForeignKey.Properties;
             var principalValues = navigation.ForeignKey.ReferencedProperties.Select(p => entry[p]).ToList();
@@ -441,7 +441,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             StateEntry dependentEntry, IReadOnlyList<IProperty> dependentProperties,
             StateEntry principalEntry, IReadOnlyList<IProperty> principalProperties)
         {
-            Contract.Assert(principalProperties.Count == dependentProperties.Count);
+            Debug.Assert(principalProperties.Count == dependentProperties.Count);
 
             SetForeignKeyValue(dependentEntry, dependentProperties, principalProperties.Select(p => principalEntry[p]).ToList());
         }

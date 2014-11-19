@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.Contracts;
+
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -330,7 +330,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
             Check.NotNull(propertyBase, "propertyBase");
 
-            Contract.Assert(!(propertyBase is IProperty) || !((IProperty)propertyBase).IsShadowProperty);
+            Debug.Assert(!(propertyBase is IProperty) || !((IProperty)propertyBase).IsShadowProperty);
 
             return _metadataServices.ReadValue(Entity, propertyBase);
         }
@@ -339,7 +339,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
             Check.NotNull(propertyBase, "propertyBase");
 
-            Contract.Assert(!(propertyBase is IProperty) || !((IProperty)propertyBase).IsShadowProperty);
+            Debug.Assert(!(propertyBase is IProperty) || !((IProperty)propertyBase).IsShadowProperty);
 
             _metadataServices.WriteValue(Entity, propertyBase, value);
         }

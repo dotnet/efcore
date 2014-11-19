@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
-using System.Diagnostics.Contracts;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -529,7 +529,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                     {
                         var projectionIndex = selectExpression.GetProjectionIndex(property, querySource);
 
-                        Contract.Assert(projectionIndex > -1);
+                        Debug.Assert(projectionIndex > -1);
 
                         return BindReadValueMethod(memberExpression.Type, expression, projectionIndex);
                     });
@@ -547,7 +547,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                     {
                         var projectionIndex = selectExpression.GetProjectionIndex(property, querySource);
 
-                        Contract.Assert(projectionIndex > -1);
+                        Debug.Assert(projectionIndex > -1);
 
                         return BindReadValueMethod(methodCallExpression.Type, expression, projectionIndex);
                     });

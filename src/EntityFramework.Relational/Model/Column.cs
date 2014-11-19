@@ -3,7 +3,7 @@
 
 using System;
 using System.Diagnostics;
-using System.Diagnostics.Contracts;
+
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Utilities;
@@ -32,7 +32,7 @@ namespace Microsoft.Data.Entity.Relational.Model
 
         public Column([CanBeNull] string name, [CanBeNull] Type clrType, [CanBeNull] string dataType)
         {
-            Contract.Assert((clrType != null) || !string.IsNullOrEmpty(dataType));
+            Debug.Assert((clrType != null) || !string.IsNullOrEmpty(dataType));
 
             Name = name;
             ClrType = clrType;
@@ -51,7 +51,7 @@ namespace Microsoft.Data.Entity.Relational.Model
             [param: CanBeNull]
             internal set
             {
-                Contract.Assert((value == null) != (_table == null));
+                Debug.Assert((value == null) != (_table == null));
                 _table = value;
             }
         }

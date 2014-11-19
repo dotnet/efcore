@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Diagnostics.Contracts;
+using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
@@ -41,7 +41,7 @@ namespace Microsoft.Data.Entity.Identity
             Check.NotNull(stateEntry, "stateEntry");
             Check.NotNull(property, "property");
 
-            Contract.Assert(property.IsForeignKey());
+            Debug.Assert(property.IsForeignKey());
 
             var entityType = property.EntityType;
             var stateManager = stateEntry.StateManager;

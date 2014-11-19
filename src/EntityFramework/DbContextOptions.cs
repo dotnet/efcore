@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics.Contracts;
+using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
@@ -73,7 +73,7 @@ namespace Microsoft.Data.Entity
         {
             Check.NotNull(extension, "extension");
 
-            Contract.Assert(_extensions.All(e => e.GetType() != extension.GetType()));
+            Debug.Assert(_extensions.All(e => e.GetType() != extension.GetType()));
 
             extension.Configure(_rawOptions);
             _extensions.Add(extension);

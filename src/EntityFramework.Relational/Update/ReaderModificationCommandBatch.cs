@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using System.Diagnostics.Contracts;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -159,7 +159,7 @@ namespace Microsoft.Data.Entity.Relational.Update
                 logger.WriteSql(commandText);
             }
 
-            Contract.Assert(ResultSetEnds.Count == ModificationCommands.Count);
+            Debug.Assert(ResultSetEnds.Count == ModificationCommands.Count);
 
             var commandIndex = 0;
             using (var storeCommand = CreateStoreCommand(commandText, transaction.DbTransaction, typeMapper))
@@ -179,12 +179,12 @@ namespace Microsoft.Data.Entity.Relational.Update
                         while (commandIndex < ResultSetEnds.Count
                                && reader.NextResult());
 
-                        Contract.Assert(commandIndex == ModificationCommands.Count, "Expected " + ModificationCommands.Count + " results, got " + commandIndex);
+                        Debug.Assert(commandIndex == ModificationCommands.Count, "Expected " + ModificationCommands.Count + " results, got " + commandIndex);
 #if DEBUG
                         var expectedResultSetCount = 1 + ResultSetEnds.Count(e => e);
                         expectedResultSetCount += ResultSetEnds[ResultSetEnds.Count - 1] ? -1 : 0;
 
-                        Contract.Assert(actualResultSetCount == expectedResultSetCount, "Expected " + expectedResultSetCount + " result sets, got " + actualResultSetCount);
+                        Debug.Assert(actualResultSetCount == expectedResultSetCount, "Expected " + expectedResultSetCount + " result sets, got " + actualResultSetCount);
 #endif
                     }
                 }
@@ -224,7 +224,7 @@ namespace Microsoft.Data.Entity.Relational.Update
                 logger.WriteSql(commandText);
             }
 
-            Contract.Assert(ResultSetEnds.Count == ModificationCommands.Count);
+            Debug.Assert(ResultSetEnds.Count == ModificationCommands.Count);
 
             var commandIndex = 0;
             using (var storeCommand = CreateStoreCommand(commandText, transaction.DbTransaction, typeMapper))
@@ -246,12 +246,12 @@ namespace Microsoft.Data.Entity.Relational.Update
                         while (commandIndex < ResultSetEnds.Count
                                && await reader.NextResultAsync(cancellationToken).WithCurrentCulture());
 
-                        Contract.Assert(commandIndex == ModificationCommands.Count, "Expected " + ModificationCommands.Count + " results, got " + commandIndex);
+                        Debug.Assert(commandIndex == ModificationCommands.Count, "Expected " + ModificationCommands.Count + " results, got " + commandIndex);
 #if DEBUG
                         var expectedResultSetCount = 1 + ResultSetEnds.Count(e => e);
                         expectedResultSetCount += ResultSetEnds[ResultSetEnds.Count - 1] ? -1 : 0;
 
-                        Contract.Assert(actualResultSetCount == expectedResultSetCount, "Expected " + expectedResultSetCount + " result sets, got " + actualResultSetCount);
+                        Debug.Assert(actualResultSetCount == expectedResultSetCount, "Expected " + expectedResultSetCount + " result sets, got " + actualResultSetCount);
 #endif
                     }
                 }
@@ -279,7 +279,7 @@ namespace Microsoft.Data.Entity.Relational.Update
             do
             {
                 var tableModification = ModificationCommands[commandIndex];
-                Contract.Assert(tableModification.RequiresResultPropagation);
+                Debug.Assert(tableModification.RequiresResultPropagation);
 
                 if (!reader.Read())
                 {
@@ -312,7 +312,7 @@ namespace Microsoft.Data.Entity.Relational.Update
             do
             {
                 var tableModification = ModificationCommands[commandIndex];
-                Contract.Assert(tableModification.RequiresResultPropagation);
+                Debug.Assert(tableModification.RequiresResultPropagation);
 
                 if (!await reader.ReadAsync(cancellationToken).WithCurrentCulture())
                 {
@@ -344,7 +344,7 @@ namespace Microsoft.Data.Entity.Relational.Update
             while (++commandIndex < ResultSetEnds.Count
                    && !ResultSetEnds[commandIndex - 1])
             {
-                Contract.Assert(!ModificationCommands[commandIndex].RequiresResultPropagation);
+                Debug.Assert(!ModificationCommands[commandIndex].RequiresResultPropagation);
 
                 expectedRowsAffected++;
             }
@@ -377,7 +377,7 @@ namespace Microsoft.Data.Entity.Relational.Update
             while (++commandIndex < ResultSetEnds.Count
                    && !ResultSetEnds[commandIndex - 1])
             {
-                Contract.Assert(!ModificationCommands[commandIndex].RequiresResultPropagation);
+                Debug.Assert(!ModificationCommands[commandIndex].RequiresResultPropagation);
 
                 expectedRowsAffected++;
             }

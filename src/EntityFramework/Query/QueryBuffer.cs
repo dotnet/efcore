@@ -3,7 +3,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -225,7 +225,7 @@ namespace Microsoft.Data.Entity.Query
 
                 var stateEntry = _stateManager.TryGetEntry(entity);
 
-                Contract.Assert(stateEntry != null);
+                Debug.Assert(stateEntry != null);
 
                 primaryKey
                     = navigation.PointsToPrincipal

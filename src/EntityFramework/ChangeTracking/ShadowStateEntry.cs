@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Diagnostics.Contracts;
+using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
@@ -60,7 +60,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             Check.NotNull(propertyBase, "propertyBase");
 
             var property = propertyBase as IProperty;
-            Contract.Assert(property != null && property.IsShadowProperty);
+            Debug.Assert(property != null && property.IsShadowProperty);
 
             return _propertyValues[property.ShadowIndex];
         }
@@ -70,7 +70,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             Check.NotNull(propertyBase, "propertyBase");
 
             var property = propertyBase as IProperty;
-            Contract.Assert(property != null && property.IsShadowProperty);
+            Debug.Assert(property != null && property.IsShadowProperty);
 
             _propertyValues[property.ShadowIndex] = value;
         }
