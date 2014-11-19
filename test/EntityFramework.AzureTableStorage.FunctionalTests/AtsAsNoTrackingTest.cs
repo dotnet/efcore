@@ -5,6 +5,7 @@ using Microsoft.Data.Entity.FunctionalTests;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
 {
+    [RunIfConfigured]
     public class AtsAsNoTrackingTest : AsNoTrackingTestBase<AtsNorthwindQueryFixture>
     {
         public AtsAsNoTrackingTest(AtsNorthwindQueryFixture fixture)

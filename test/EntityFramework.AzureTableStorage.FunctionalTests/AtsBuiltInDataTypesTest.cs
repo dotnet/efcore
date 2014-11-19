@@ -5,6 +5,7 @@ using Microsoft.Data.Entity.FunctionalTests;
 
 namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
 {
+    [RunIfConfigured]
     public class AtsBuiltInDataTypesTest : BuiltInDataTypesTestBase<AtsTestStore, AtsBuiltInDataTypesFixture>
     {
         public AtsBuiltInDataTypesTest(AtsBuiltInDataTypesFixture fixture)
