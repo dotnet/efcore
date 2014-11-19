@@ -35,8 +35,6 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 .Entity(typeof(Customer), ConfigurationSource.Explicit)
                 .Key(new[] { Customer.IdProperty, Customer.UniqueProperty }, ConfigurationSource.Explicit);
             var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
-            entityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Explicit);
-            entityBuilder.Property(Order.CustomerUniqueProperty, ConfigurationSource.Explicit);
 
             var foreignKeyBuilder = entityBuilder.ForeignKey(typeof(Customer).FullName, new[] { Order.CustomerIdProperty.Name, Order.CustomerUniqueProperty.Name }, ConfigurationSource.DataAnnotation);
 
@@ -69,6 +67,30 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         }
 
         [Fact]
+        public void ForeignKey_returns_null_for_ignored_clr_properties()
+        {
+            var modelBuilder = new InternalModelBuilder(new Model(), null);
+            var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+            entityBuilder.Ignore(Order.CustomerUniqueProperty.Name, ConfigurationSource.Explicit);
+
+            var foreignKeyBuilder = entityBuilder.ForeignKey(typeof(Customer), new[] { Order.CustomerIdProperty, Order.CustomerUniqueProperty }, ConfigurationSource.Convention);
+
+            Assert.Null(foreignKeyBuilder);
+        }
+
+        [Fact]
+        public void ForeignKey_returns_null_for_ignored_property_names()
+        {
+            var modelBuilder = new InternalModelBuilder(new Model(), null);
+            var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+            entityBuilder.Ignore(Order.CustomerUniqueProperty.Name, ConfigurationSource.Explicit);
+
+            var foreignKeyBuilder = entityBuilder.ForeignKey(typeof(Customer).FullName, new[] { Order.CustomerIdProperty.Name, Order.CustomerUniqueProperty.Name }, ConfigurationSource.Convention);
+
+            Assert.Null(foreignKeyBuilder);
+        }
+
+        [Fact]
         public void Index_returns_same_instance_for_clr_properties()
         {
             var entityType = new Model().AddEntityType(typeof(Order));
@@ -85,13 +107,31 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         {
             var entityType = new Model().AddEntityType(typeof(Order));
             var entityBuilder = new InternalEntityBuilder(entityType, new InternalModelBuilder(new Model(), null));
-            entityType.GetOrAddProperty(Order.IdProperty);
-            entityType.GetOrAddProperty(Order.CustomerIdProperty);
 
             var indexBuilder = entityBuilder.Index(new[] { Order.IdProperty.Name, Order.CustomerIdProperty.Name }, ConfigurationSource.Convention);
 
             Assert.NotNull(indexBuilder);
             Assert.Same(indexBuilder, entityBuilder.Index(new[] { Order.IdProperty, Order.CustomerIdProperty }, ConfigurationSource.Explicit));
+        }
+
+        [Fact]
+        public void Index_returns_null_for_ignored_clr_properties()
+        {
+            var entityType = new Model().AddEntityType(typeof(Order));
+            var entityBuilder = new InternalEntityBuilder(entityType, new InternalModelBuilder(new Model(), null));
+            entityBuilder.Ignore(Order.CustomerIdProperty.Name, ConfigurationSource.Explicit);
+
+            Assert.Null(entityBuilder.Index(new[] { Order.IdProperty, Order.CustomerIdProperty }, ConfigurationSource.DataAnnotation));
+        }
+
+        [Fact]
+        public void Index_returns_null_for_ignored_property_names()
+        {
+            var entityType = new Model().AddEntityType(typeof(Order));
+            var entityBuilder = new InternalEntityBuilder(entityType, new InternalModelBuilder(new Model(), null));
+            entityBuilder.Ignore(Order.CustomerIdProperty.Name, ConfigurationSource.DataAnnotation);
+
+            Assert.Null(entityBuilder.Index(new[] { Order.IdProperty.Name, Order.CustomerIdProperty.Name }, ConfigurationSource.Convention));
         }
 
         [Fact]
@@ -111,8 +151,6 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         {
             var entityType = new Model().AddEntityType(typeof(Order));
             var entityBuilder = new InternalEntityBuilder(entityType, new InternalModelBuilder(new Model(), null));
-            entityType.GetOrAddProperty(Order.IdProperty);
-            entityType.GetOrAddProperty(Order.CustomerIdProperty);
 
             var keyBuilder = entityBuilder.Key(new[] { Order.IdProperty.Name, Order.CustomerIdProperty.Name }, ConfigurationSource.Convention);
 
@@ -121,12 +159,75 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         }
 
         [Fact]
+        public void Key_throws_for_clr_properties_if_they_do_not_exist()
+        {
+            var entityType = new Model().AddEntityType(typeof(Order));
+            var entityBuilder = new InternalEntityBuilder(entityType, new InternalModelBuilder(new Model(), null));
+
+            Assert.Equal(Strings.NoClrProperty(Customer.UniqueProperty.Name, typeof(Order).FullName),
+                Assert.Throws<InvalidOperationException>(() =>
+                    entityBuilder.Key(new[] { Customer.UniqueProperty }, ConfigurationSource.DataAnnotation)).Message);
+        }
+
+        [Fact]
+        public void Key_throws_for_property_names_if_they_do_not_exist()
+        {
+            var entityType = new Model().AddEntityType(typeof(Order));
+            var entityBuilder = new InternalEntityBuilder(entityType, new InternalModelBuilder(new Model(), null));
+
+            Assert.Equal(Strings.NoClrProperty(Customer.UniqueProperty.Name, typeof(Order).FullName),
+                Assert.Throws<InvalidOperationException>(() =>
+                    entityBuilder.Key(new[] { Customer.UniqueProperty.Name }, ConfigurationSource.Convention)).Message);
+        }
+
+        [Fact]
+        public void Key_throws_for_property_names_for_shadow_entity_type_if_they_do_not_exist()
+        {
+            var entityType = new Model().AddEntityType(typeof(Order).Name);
+            var entityBuilder = new InternalEntityBuilder(entityType, new InternalModelBuilder(new Model(), null));
+
+            Assert.Equal(Strings.PropertyNotFound(Order.IdProperty.Name, typeof(Order).Name),
+                Assert.Throws<ModelItemNotFoundException>(() =>
+                    entityBuilder.Key(new[] { Order.IdProperty.Name }, ConfigurationSource.Convention)).Message);
+        }
+
+        [Fact]
+        public void Key_works_for_property_names_for_shadow_entity_type()
+        {
+            var entityType = new Model().AddEntityType(typeof(Order).Name);
+            var entityBuilder = new InternalEntityBuilder(entityType, new InternalModelBuilder(new Model(), null));
+            entityBuilder.Property(Order.CustomerIdProperty.PropertyType, Order.CustomerIdProperty.Name, ConfigurationSource.Convention);
+
+            Assert.NotNull(entityBuilder.Key(new[] { Order.CustomerIdProperty.Name }, ConfigurationSource.Convention));
+
+            Assert.Equal(Order.CustomerIdProperty.Name, entityType.GetPrimaryKey().Properties.Single().Name);
+        }
+
+        [Fact]
+        public void Key_returns_null_for_ignored_clr_properties()
+        {
+            var entityType = new Model().AddEntityType(typeof(Order));
+            var entityBuilder = new InternalEntityBuilder(entityType, new InternalModelBuilder(new Model(), null));
+            entityBuilder.Ignore(Order.CustomerIdProperty.Name, ConfigurationSource.Explicit);
+
+            Assert.Null(entityBuilder.Key(new[] { Order.IdProperty, Order.CustomerIdProperty }, ConfigurationSource.DataAnnotation));
+        }
+
+        [Fact]
+        public void Key_returns_null_for_ignored_property_names()
+        {
+            var entityType = new Model().AddEntityType(typeof(Order));
+            var entityBuilder = new InternalEntityBuilder(entityType, new InternalModelBuilder(new Model(), null));
+            entityBuilder.Ignore(Order.CustomerIdProperty.Name, ConfigurationSource.DataAnnotation);
+
+            Assert.Null(entityBuilder.Key(new[] { Order.IdProperty.Name, Order.CustomerIdProperty.Name }, ConfigurationSource.Convention));
+        }
+
+        [Fact]
         public void Can_only_override_lower_source_key_using_clr_properties()
         {
             var entityType = new Model().AddEntityType(typeof(Order));
             var entityBuilder = new InternalEntityBuilder(entityType, new InternalModelBuilder(new Model(), null));
-            entityType.GetOrAddProperty(Order.IdProperty);
-            entityType.GetOrAddProperty(Order.CustomerIdProperty);
 
             var originalKeyBuilder = entityBuilder.Key(new[] { Order.IdProperty, Order.CustomerIdProperty }, ConfigurationSource.Convention);
             var newKeyBuilder = entityBuilder.Key(new[] { Order.IdProperty }, ConfigurationSource.Explicit);
@@ -148,8 +249,6 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         {
             var entityType = new Model().AddEntityType(typeof(Order));
             var entityBuilder = new InternalEntityBuilder(entityType, new InternalModelBuilder(new Model(), null));
-            entityType.GetOrAddProperty(Order.IdProperty);
-            entityType.GetOrAddProperty(Order.CustomerIdProperty);
 
             var originalKeyBuilder = entityBuilder.Key(new[] { Order.IdProperty.Name, Order.CustomerIdProperty.Name }, ConfigurationSource.Convention);
             var newKeyBuilder = entityBuilder.Key(new[] { Order.IdProperty.Name }, ConfigurationSource.DataAnnotation);

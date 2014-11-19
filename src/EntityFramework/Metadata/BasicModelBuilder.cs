@@ -420,7 +420,8 @@ namespace Microsoft.Data.Entity.Metadata
             {
                 Check.NotNull(propertyExpression, "propertyExpression");
 
-                return new PropertyBuilder(Builder.Property(propertyExpression.GetPropertyAccess(), ConfigurationSource.Explicit));
+                var propertyInfo = propertyExpression.GetPropertyAccess();
+                return new PropertyBuilder(Builder.Property(propertyInfo, ConfigurationSource.Explicit));
             }
 
             public virtual ForeignKeyBuilder ForeignKey<TReferencedEntityType>([NotNull] Expression<Func<TEntity, object>> foreignKeyExpression)

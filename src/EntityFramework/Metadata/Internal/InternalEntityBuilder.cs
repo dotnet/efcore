@@ -39,7 +39,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         {
             Check.NotEmpty(propertyNames, "propertyNames");
 
-            return Key(GetExistingProperties(propertyNames, configurationSource), configurationSource);
+            return Key(GetOrCreateProperties(propertyNames, configurationSource), configurationSource);
         }
 
         public virtual InternalKeyBuilder Key([NotNull] IReadOnlyList<PropertyInfo> clrProperties, ConfigurationSource configurationSource)
@@ -51,14 +51,14 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         private InternalKeyBuilder Key(IReadOnlyList<Property> properties, ConfigurationSource configurationSource)
         {
-            Debug.Assert(properties != null);
-
-            return _keyBuilders.GetOrReplace(
-                () => Metadata.TryGetPrimaryKey(properties),
-                () => Metadata.TryGetPrimaryKey(),
-                () => Metadata.SetPrimaryKey(properties),
-                (key, isNew) => new InternalKeyBuilder(key, ModelBuilder),
-                configurationSource);
+            return properties == null
+                ? null
+                : _keyBuilders.GetOrReplace(
+                    () => Metadata.TryGetPrimaryKey(properties),
+                    () => Metadata.TryGetPrimaryKey(),
+                    () => Metadata.SetPrimaryKey(properties),
+                    (key, isNew) => new InternalKeyBuilder(key, ModelBuilder),
+                    configurationSource);
         }
 
         public virtual bool RemoveKey([NotNull] Key key, ConfigurationSource configurationSource)
@@ -76,12 +76,12 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         }
 
         public virtual InternalPropertyBuilder Property(
-            [NotNull] Type propertyType, [NotNull] string name, ConfigurationSource configurationSource)
+            [NotNull] Type propertyType, [NotNull] string propertyName, ConfigurationSource configurationSource)
         {
             Check.NotNull(propertyType, "propertyType");
-            Check.NotEmpty(name, "name");
+            Check.NotEmpty(propertyName, "propertyName");
 
-            return InternalProperty(propertyType, name, /*shadowProperty:*/ true, configurationSource);
+            return InternalProperty(propertyType, propertyName, /*shadowProperty:*/ true, configurationSource);
         }
 
         public virtual InternalPropertyBuilder Property([NotNull] PropertyInfo clrProperty, ConfigurationSource configurationSource)
@@ -93,16 +93,13 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         private InternalPropertyBuilder InternalProperty(Type propertyType, string propertyName, bool shadowProperty, ConfigurationSource configurationSource)
         {
-            if (!CanAdd(propertyName, configurationSource))
-            {
-                return null;
-            }
-
-            return _propertyBuilders.GetOrAdd(
-                () => Metadata.TryGetProperty(propertyName),
-                () => Metadata.AddProperty(propertyName, propertyType, shadowProperty),
-                (property, isNew) => new InternalPropertyBuilder(property, ModelBuilder, configurationSource),
-                configurationSource);
+            return CanAdd(propertyName, configurationSource)
+                ? _propertyBuilders.GetOrAdd(
+                    () => Metadata.TryGetProperty(propertyName),
+                    () => Metadata.AddProperty(propertyName, propertyType, shadowProperty),
+                    (property, isNew) => new InternalPropertyBuilder(property, ModelBuilder, configurationSource),
+                    configurationSource)
+                : null;
         }
 
         private bool CanAdd(string propertyName, ConfigurationSource configurationSource)
@@ -196,7 +193,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 return null;
             }
 
-            return ForeignKey(principalType.Metadata, GetExistingProperties(propertyNames, configurationSource), configurationSource);
+            return ForeignKey(principalType.Metadata, GetOrCreateProperties(propertyNames, configurationSource), configurationSource);
         }
 
         public virtual InternalForeignKeyBuilder ForeignKey([NotNull] Type referencedType, [NotNull] IReadOnlyList<PropertyInfo> clrProperties,
@@ -216,11 +213,13 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         private InternalForeignKeyBuilder ForeignKey(EntityType principalType, IReadOnlyList<Property> dependentProperties, ConfigurationSource configurationSource)
         {
-            return _foreignKeyBuilders.Value.GetOrAdd(
-                () => Metadata.TryGetForeignKey(dependentProperties),
-                () => Metadata.AddForeignKey(dependentProperties, principalType.GetPrimaryKey()),
-                (foreignKey, isNew) => new InternalForeignKeyBuilder(foreignKey, ModelBuilder),
-                configurationSource);
+            return dependentProperties == null
+                ? null
+                : _foreignKeyBuilders.Value.GetOrAdd(
+                    () => Metadata.TryGetForeignKey(dependentProperties),
+                    () => Metadata.AddForeignKey(dependentProperties, principalType.GetPrimaryKey()),
+                    (foreignKey, isNew) => new InternalForeignKeyBuilder(foreignKey, ModelBuilder),
+                    configurationSource);
         }
 
         public virtual bool RemoveForeignKey([NotNull] ForeignKey foreignKey, ConfigurationSource configurationSource)
@@ -241,7 +240,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         {
             Check.NotNull(propertyNames, "propertyNames");
 
-            return Index(GetExistingProperties(propertyNames, configurationSource), configurationSource);
+            return Index(GetOrCreateProperties(propertyNames, configurationSource), configurationSource);
         }
 
         public virtual InternalIndexBuilder Index([NotNull] IReadOnlyList<PropertyInfo> clrProperties, ConfigurationSource configurationSource)
@@ -253,11 +252,13 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         private InternalIndexBuilder Index(IReadOnlyList<Property> properties, ConfigurationSource configurationSource)
         {
-            return _indexBuilders.Value.GetOrAdd(
-                () => Metadata.TryGetIndex(properties),
-                () => Metadata.AddIndex(properties),
-                (index, isNew) => new InternalIndexBuilder(index, ModelBuilder),
-                configurationSource);
+            return properties == null
+                ? null
+                : _indexBuilders.Value.GetOrAdd(
+                    () => Metadata.TryGetIndex(properties),
+                    () => Metadata.AddIndex(properties),
+                    (index, isNew) => new InternalIndexBuilder(index, ModelBuilder),
+                    configurationSource);
         }
 
         public virtual bool RemoveIndex([NotNull] Index index, ConfigurationSource configurationSource)
@@ -444,14 +445,13 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     navigationToDependent.Name, newForeignKey, navigationToDependent.PointsToPrincipal);
             }
 
-            InternalRelationshipBuilder builder;
             var owner = this;
             if (Metadata != newForeignKey.EntityType)
             {
                 owner = ModelBuilder.Entity(newForeignKey.EntityType.Name, configurationSource);
             }
 
-            builder = owner._relationshipBuilders.Value.TryGetValue(newForeignKey, configurationSource);
+            var builder = owner._relationshipBuilders.Value.TryGetValue(newForeignKey, configurationSource);
             if (builder != null)
             {
                 if (builder.PrincipalType == relationshipBuilder.PrincipalType
@@ -477,13 +477,36 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return builder;
         }
 
-        private IReadOnlyList<Property> GetExistingProperties(IEnumerable<string> propertyNames, ConfigurationSource configurationSource)
+        private IReadOnlyList<Property> GetOrCreateProperties(IEnumerable<string> propertyNames, ConfigurationSource configurationSource)
         {
             var list = new List<Property>();
             foreach (var propertyName in propertyNames)
             {
-                var property = Metadata.GetProperty(propertyName);
-                InternalProperty(property.PropertyType, property.Name, property.IsShadowProperty, configurationSource);
+                var property = Metadata.TryGetProperty(propertyName);
+                if (property == null)
+                {
+                    if (Metadata.Type == null)
+                    {
+                        throw new ModelItemNotFoundException(Strings.PropertyNotFound(propertyName, Metadata.Name));
+                    }
+
+                    var clrProperty = Metadata.Type.GetPropertiesInHierarchy(propertyName).FirstOrDefault();
+                    if (clrProperty == null)
+                    {
+                        throw new InvalidOperationException(Strings.NoClrProperty(propertyName, Metadata.Name));
+                    }
+
+                    var propertyBuilder = Property(clrProperty, configurationSource);
+                    if (propertyBuilder == null)
+                    {
+                        return null;
+                    }
+                    property = propertyBuilder.Metadata;
+                }
+                else
+                {
+                    InternalProperty(property.PropertyType, property.Name, property.IsShadowProperty, configurationSource);
+                }
                 list.Add(property);
             }
             return list;
@@ -495,12 +518,12 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             foreach (var propertyInfo in clrProperties)
             {
                 var propertyBuilder = Property(propertyInfo, configurationSource);
+                if (propertyBuilder == null)
+                {
+                    return null;
+                }
 
-                var property = propertyBuilder == null
-                    ? Metadata.GetProperty(propertyInfo)
-                    : propertyBuilder.Metadata;
-
-                list.Add(property);
+                list.Add(propertyBuilder.Metadata);
             }
             return list;
         }
