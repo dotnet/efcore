@@ -3,6 +3,8 @@
 
 using System;
 using System.Linq;
+using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
 using Xunit;
@@ -204,13 +206,13 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             Assert.Equal(
                 CoreStrings.NoDataStoreConfigured,
                 Assert.Throws<InvalidOperationException>(() =>
+                {
+                    using (var context = new NoServicesAndNoConfigBlogContext())
                     {
-                        using (var context = new NoServicesAndNoConfigBlogContext())
-                        {
-                            context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
-                            context.SaveChanges();
-                        }
-                    }).Message);
+                        context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
+                        context.SaveChanges();
+                    }
+                }).Message);
         }
 
         private class NoServicesAndNoConfigBlogContext : DbContext
@@ -228,13 +230,13 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             Assert.Equal(
                 CoreStrings.NoDataStoreService,
                 Assert.Throws<InvalidOperationException>(() =>
+                {
+                    using (var context = new ImplicitConfigButNoServicesBlogContext(serviceProvider))
                     {
-                        using (var context = new ImplicitConfigButNoServicesBlogContext(serviceProvider))
-                        {
-                            context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
-                            context.SaveChanges();
-                        }
-                    }).Message);
+                        context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
+                        context.SaveChanges();
+                    }
+                }).Message);
         }
 
         private class ImplicitConfigButNoServicesBlogContext : DbContext
@@ -263,7 +265,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
             var serviceProvider = services.BuildServiceProvider();
 
-            serviceProvider.GetService<InjectContextController>().Test();
+            serviceProvider.GetRequiredService<InjectContextController>().Test();
         }
 
         private class InjectContextController
@@ -314,7 +316,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
             var serviceProvider = services.BuildServiceProvider();
 
-            serviceProvider.GetService<InjectContextAndConfigurationController>().Test();
+            serviceProvider.GetRequiredService<InjectContextAndConfigurationController>().Test();
         }
 
         private class InjectContextAndConfigurationController
@@ -369,7 +371,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
             var serviceProvider = services.BuildServiceProvider();
 
-            serviceProvider.GetService<InjectConfigurationController>().Test();
+            serviceProvider.GetRequiredService<InjectConfigurationController>().Test();
         }
 
         private class InjectConfigurationController
@@ -424,8 +426,8 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
             var serviceProvider = services.BuildServiceProvider();
 
-            serviceProvider.GetService<InjectDifferentConfigurationsBlogController>().Test();
-            serviceProvider.GetService<InjectDifferentConfigurationsAccountController>().Test();
+            serviceProvider.GetRequiredService<InjectDifferentConfigurationsBlogController>().Test();
+            serviceProvider.GetRequiredService<InjectDifferentConfigurationsAccountController>().Test();
         }
 
         private class InjectDifferentConfigurationsBlogController
@@ -441,7 +443,8 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
             public void Test()
             {
-                Assert.IsType<DbContextOptions<InjectDifferentConfigurationsBlogContext>>(_context.Configuration.ContextOptions);
+                Assert.IsType<DbContextOptions<InjectDifferentConfigurationsBlogContext>>(
+                    ((IDbContextServices)_context).ScopedServiceProvider.GetRequiredService<LazyRef<IDbContextOptions>>().Value);
 
                 _context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
                 _context.SaveChanges();
@@ -466,7 +469,8 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
             public void Test()
             {
-                Assert.IsType<DbContextOptions<InjectDifferentConfigurationsAccountContext>>(_context.Configuration.ContextOptions);
+                Assert.IsType<DbContextOptions<InjectDifferentConfigurationsAccountContext>>(
+                    ((IDbContextServices)_context).ScopedServiceProvider.GetRequiredService<LazyRef<IDbContextOptions>>().Value);
 
                 _context.Accounts.Add(new Account { Name = "Eeky Bear" });
                 _context.SaveChanges();
@@ -520,8 +524,8 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
             var serviceProvider = services.BuildServiceProvider();
 
-            serviceProvider.GetService<InjectDifferentConfigurationsNoConstructorBlogController>().Test();
-            serviceProvider.GetService<InjectDifferentConfigurationsNoConstructorAccountController>().Test();
+            serviceProvider.GetRequiredService<InjectDifferentConfigurationsNoConstructorBlogController>().Test();
+            serviceProvider.GetRequiredService<InjectDifferentConfigurationsNoConstructorAccountController>().Test();
         }
 
         private class InjectDifferentConfigurationsNoConstructorBlogController
@@ -537,7 +541,8 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
             public void Test()
             {
-                Assert.IsType<DbContextOptions<InjectDifferentConfigurationsNoConstructorBlogContext>>(_context.Configuration.ContextOptions);
+                Assert.IsType<DbContextOptions<InjectDifferentConfigurationsNoConstructorBlogContext>>(
+                    ((IDbContextServices)_context).ScopedServiceProvider.GetRequiredService<LazyRef<IDbContextOptions>>().Value);
 
                 _context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
                 _context.SaveChanges();
@@ -562,7 +567,8 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
             public void Test()
             {
-                Assert.IsType<DbContextOptions<InjectDifferentConfigurationsNoConstructorAccountContext>>(_context.Configuration.ContextOptions);
+                Assert.IsType<DbContextOptions<InjectDifferentConfigurationsNoConstructorAccountContext>>(
+                    ((IDbContextServices)_context).ScopedServiceProvider.GetRequiredService<LazyRef<IDbContextOptions>>().Value);
 
                 _context.Accounts.Add(new Account { Name = "Eeky Bear" });
                 _context.SaveChanges();

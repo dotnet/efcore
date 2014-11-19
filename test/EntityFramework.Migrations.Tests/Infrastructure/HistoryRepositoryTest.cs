@@ -81,8 +81,11 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                 {
                     Assert.Same(historyRepository.HistoryModel, historyContext.Model);
 
-                    var extensions = context.Configuration.ContextOptions.Extensions;
-                    var historyExtensions = historyContext.Configuration.ContextOptions.Extensions;
+                    var options = ((IDbContextServices)context).ScopedServiceProvider.GetRequiredService<LazyRef<IDbContextOptions>>();
+                    var historyOptions = ((IDbContextServices)historyContext).ScopedServiceProvider.GetRequiredService<LazyRef<IDbContextOptions>>();
+
+                    var extensions = options.Value.Extensions;
+                    var historyExtensions = historyOptions.Value.Extensions;
 
                     Assert.Equal(extensions.Count, historyExtensions.Count);
 
@@ -142,7 +145,8 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                 var historyRepositoryMock = new Mock<HistoryRepository>(
                     serviceProvider,
                     new LazyRef<IDbContextOptions>(new DbContextOptions()),
-                    new LazyRef<DbContext>(context)) { CallBase = true };
+                    new LazyRef<DbContext>(context))
+                { CallBase = true };
 
                 historyRepositoryMock
                     .Setup(o => o.GetMigrationsQuery(It.IsAny<DbContext>()))
@@ -207,7 +211,8 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                 var historyRepository = new Mock<HistoryRepository>(
                     serviceProvider,
                     new LazyRef<IDbContextOptions>(new DbContextOptions()),
-                    new LazyRef<DbContext>(context)) { CallBase = true };
+                    new LazyRef<DbContext>(context))
+                { CallBase = true };
 
                 historyRepository.Protected().Setup<string>("GetContextKey").Returns("SomeContextKey");
 

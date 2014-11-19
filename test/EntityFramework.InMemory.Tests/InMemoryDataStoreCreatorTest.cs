@@ -8,7 +8,6 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Tests;
 using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.Logging;
 using Xunit;
 
 namespace Microsoft.Data.Entity.InMemory.Tests
@@ -85,9 +84,9 @@ namespace Microsoft.Data.Entity.InMemory.Tests
 
         private static InMemoryDataStore CreateStore(IServiceProvider serviceProvider, bool persist)
         {
-            var configuration = new DbContext(serviceProvider, new DbContextOptions().UseInMemoryStore(persist: persist)).Configuration;
+            var contextServices = ((IDbContextServices)new DbContext(serviceProvider, new DbContextOptions().UseInMemoryStore(persist: persist))).ScopedServiceProvider;
 
-            return configuration.ScopedServiceProvider.GetRequiredService<InMemoryDataStore>();
+            return contextServices.GetRequiredService<InMemoryDataStore>();
         }
 
         [Fact]
@@ -173,10 +172,10 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder.Entity<Test>(b =>
-                {
-                    b.Key(c => c.Id);
-                    b.Property(c => c.Name);
-                });
+            {
+                b.Key(c => c.Id);
+                b.Property(c => c.Name);
+            });
 
             return model;
         }
@@ -185,11 +184,6 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         {
             public int Id { get; set; }
             public string Name { get; set; }
-        }
-
-        private static DbContextConfiguration CreateConfiguration(DbContextOptions options)
-        {
-            return new DbContext(options).Configuration;
         }
     }
 }

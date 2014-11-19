@@ -8,6 +8,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Storage;
@@ -213,16 +214,16 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 var testNumber = i;
                 generatedValues[testNumber] = new List<long>();
                 tests[testNumber] = () =>
+                {
+                    for (var j = 0; j < valueCount; j++)
                     {
-                        for (var j = 0; j < valueCount; j++)
-                        {
-                            var storeServices = CreateStoreServices(serviceProvider);
+                        var storeServices = CreateStoreServices(serviceProvider);
 
-                            var generatedValue = generator.Next(property, storeServices);
+                        var generatedValue = generator.Next(property, storeServices);
 
-                            generatedValues[testNumber].Add((long)generatedValue.Value);
-                        }
-                    };
+                        generatedValues[testNumber].Add((long)generatedValue.Value);
+                    }
+                };
             }
 
             Parallel.Invoke(tests);
@@ -264,16 +265,16 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 var testNumber = i;
                 generatedValues[testNumber] = new List<long>();
                 tests[testNumber] = async () =>
+                {
+                    for (var j = 0; j < valueCount; j++)
                     {
-                        for (var j = 0; j < valueCount; j++)
-                        {
-                            var storeServices = CreateStoreServices(serviceProvider);
+                        var storeServices = CreateStoreServices(serviceProvider);
 
-                            var generatedValue = await generator.NextAsync(property, storeServices);
+                        var generatedValue = await generator.NextAsync(property, storeServices);
 
-                            generatedValues[testNumber].Add((long)generatedValue.Value);
-                        }
-                    };
+                        generatedValues[testNumber].Add((long)generatedValue.Value);
+                    }
+                };
             }
 
             var tasks = tests.Select(Task.Run).ToArray();
@@ -304,13 +305,13 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 .AddSqlServer().ServiceCollection
                 .BuildServiceProvider();
 
-            var configuration = new DbContext(
+            var contextServices = ((IDbContextServices)new DbContext(
                 serviceProvider,
                 new DbContextOptions()
                     .UseModel(_model)
-                    .UseSqlServer(new SqlConnection())).Configuration;
+                    .UseSqlServer(new SqlConnection()))).ScopedServiceProvider;
 
-            return configuration.ScopedServiceProvider.GetService<LazyRef<DataStoreServices>>();
+            return contextServices.GetRequiredService<LazyRef<DataStoreServices>>();
         }
 
         private class FakeSqlStatementExecutor : SqlStatementExecutor

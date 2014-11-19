@@ -18,7 +18,6 @@ namespace Microsoft.Data.Entity.Redis.Tests
             var options = new DbContextOptions();
             config.Initialize(
                 Mock.Of<IServiceProvider>(),
-                Mock.Of<IServiceProvider>(),
                 options,
                 Mock.Of<DbContext>(),
                 DbContextConfiguration.ServiceProviderSource.Implicit);

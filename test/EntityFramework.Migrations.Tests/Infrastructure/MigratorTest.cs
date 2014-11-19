@@ -1225,18 +1225,18 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                 .Setup<DbCommand>("CreateCommand", ItExpr.IsAny<DbConnection>(), ItExpr.IsAny<DbTransaction>(), ItExpr.IsAny<SqlStatement>())
                 .Returns(new Mock<DbCommand>().Object);
 
-            var contextConfiguration = CreateFakeContextConfiguration(dbCreatorMock.Object, dbConnectionMock.Object, loggerFactory);
+            var contextServices = CreateContextServices(dbCreatorMock.Object, dbConnectionMock.Object, loggerFactory);
 
             return
                 new Mock<Migrator>(
-                    MockHistoryRepository(contextConfiguration, databaseMigrations, historyRepositoryExists).Object,
-                    MockMigrationAssembly(contextConfiguration, localMigrations).Object,
+                    MockHistoryRepository(contextServices, databaseMigrations, historyRepositoryExists).Object,
+                    MockMigrationAssembly(contextServices.GetRequiredService<LazyRef<DbContext>>(), contextServices.GetRequiredService<LazyRef<IDbContextOptions>>(), localMigrations).Object,
                     new TestModelDiffer(),
                     MockMigrationOperationSqlGeneratorFactory().Object,
                     new Mock<SqlGenerator>().Object,
                     sqlStatementExecutorMock.Object,
                     dbCreatorMock.Object,
-                    contextConfiguration.ScopedServiceProvider.GetRequiredService<FakeRelationalConnection>(),
+                    contextServices.GetRequiredService<FakeRelationalConnection>(),
                     loggerFactory)
                 {
                     CallBase = true
@@ -1244,7 +1244,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                     .Object;
         }
 
-        private static DbContextConfiguration CreateFakeContextConfiguration(RelationalDataStoreCreator dbCreator,
+        private static IServiceProvider CreateContextServices(RelationalDataStoreCreator dbCreator,
             DbConnection dbConnection, ILoggerFactory loggerFactory)
         {
             var services = new ServiceCollection()
@@ -1271,15 +1271,15 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
 
             var context = new DbContext(serviceProvider, contextOptions);
 
-            return context.Configuration;
+            return ((IDbContextServices)context).ScopedServiceProvider;
         }
 
         private static Mock<HistoryRepository> MockHistoryRepository(
-            DbContextConfiguration contextConfiguration, IReadOnlyList<MigrationInfo> migrations,
+            IServiceProvider contextServices, IReadOnlyList<MigrationInfo> migrations,
             bool historyRepositoryExists = true)
         {
             var mock = new Mock<HistoryRepository>(
-                        contextConfiguration.ScopedServiceProvider,
+                        contextServices,
                         new LazyRef<IDbContextOptions>(new DbContextOptions()),
                         new LazyRef<DbContext>(() => null))
             { CallBase = true };
@@ -1306,9 +1306,9 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         }
 
         private static Mock<MigrationAssembly> MockMigrationAssembly(
-            DbContextConfiguration contextConfiguration, IReadOnlyList<MigrationInfo> migrations)
+            LazyRef<DbContext> context, LazyRef<IDbContextOptions> options, IReadOnlyList<MigrationInfo> migrations)
         {
-            var mock = new Mock<MigrationAssembly>(contextConfiguration);
+            var mock = new Mock<MigrationAssembly>(context, options);
 
             mock.SetupGet(ma => ma.Migrations).Returns(migrations.Select(m => new FakeMigration(m)).ToArray());
 

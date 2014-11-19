@@ -9,6 +9,7 @@ using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
@@ -39,7 +40,7 @@ namespace Microsoft.Data.Entity
             // set is used and services will be obtained from the correctly scoped container when this happens.
             _entityQueryable = new LazyRef<EntityQueryable<TEntity>>(
                 () => new EntityQueryable<TEntity>(
-                    _context.Configuration.ScopedServiceProvider.GetRequiredServiceChecked<EntityQueryExecutor>()));
+                    ((IDbContextServices)_context).ScopedServiceProvider.GetRequiredServiceChecked<EntityQueryExecutor>()));
         }
 
         public virtual TEntity Add([NotNull] TEntity entity)

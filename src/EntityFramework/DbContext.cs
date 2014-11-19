@@ -17,7 +17,7 @@ using Microsoft.Framework.OptionsModel;
 
 namespace Microsoft.Data.Entity
 {
-    public class DbContext : IDisposable
+    public class DbContext : IDisposable, IDbContextServices
     {
         private static readonly ThreadSafeDictionaryCache<Type, Type> _optionsTypes = new ThreadSafeDictionaryCache<Type, Type>();
 
@@ -25,7 +25,6 @@ namespace Microsoft.Data.Entity
         private readonly LazyRef<ILogger> _logger;
         private readonly LazyRef<DbSetInitializer> _setInitializer;
 
-        private IServiceProvider _scopedServiceProvider;
         private bool _initializing;
 
         protected DbContext()
@@ -156,14 +155,14 @@ namespace Microsoft.Data.Entity
 
                 serviceProvider = serviceProvider ?? ServiceProviderCache.Instance.GetOrAdd(options);
 
-                _scopedServiceProvider = serviceProvider
+                var scopedServiceProvider = serviceProvider
                     .GetRequiredServiceChecked<IServiceScopeFactory>()
                     .CreateScope()
                     .ServiceProvider;
 
-                return _scopedServiceProvider
+                return scopedServiceProvider
                     .GetRequiredServiceChecked<DbContextConfiguration>()
-                    .Initialize(serviceProvider, _scopedServiceProvider, options, this, providerSource);
+                    .Initialize(scopedServiceProvider, options, this, providerSource);
             }
             finally
             {
@@ -178,15 +177,11 @@ namespace Microsoft.Data.Entity
             serviceProvider.GetRequiredServiceChecked<DbSetInitializer>().InitializeSets(this);
         }
 
-        public virtual DbContextConfiguration Configuration
+        IServiceProvider IDbContextServices.ScopedServiceProvider
         {
-            get { return _configuration.Value; }
+            get { return _configuration.Value.ScopedServiceProvider; }
         }
 
-        internal virtual void EnsureInitialized()
-        {
-            var _ = _configuration.Value;
-        }
 
         protected internal virtual void OnConfiguring(DbContextOptions options)
         {
@@ -244,15 +239,11 @@ namespace Microsoft.Data.Entity
             }
         }
 
-        // TODO: Consider Framework Guidelines recommended dispose pattern
-        // Issue #746
         public virtual void Dispose()
         {
-            var disposableServiceProvider = _scopedServiceProvider as IDisposable;
-
-            if (disposableServiceProvider != null)
+            if (_configuration.HasValue)
             {
-                disposableServiceProvider.Dispose();
+                _configuration.Value.Dispose();
             }
         }
 

@@ -377,14 +377,14 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             return model;
         }
 
-        private static DbContextConfiguration CreateConfiguration(IModel model)
+        private static IServiceProvider CreateContextServices(IModel model)
         {
             var serviceCollection = new ServiceCollection();
             serviceCollection.AddEntityFramework().AddInMemoryStore();
-            return new DbContext(serviceCollection.BuildServiceProvider(),
+            return ((IDbContextServices)new DbContext(serviceCollection.BuildServiceProvider(),
                 new DbContextOptions()
-                    .UseModel(model))
-                .Configuration;
+                    .UseModel(model)))
+                .ScopedServiceProvider;
         }
 
         private static StateEntry CreateStateEntry(
@@ -393,7 +393,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             bool computeNonKeyValue = false)
         {
             var model = BuildModel(generateKeyValues, computeNonKeyValue);
-            var stateEntry = CreateConfiguration(model).ScopedServiceProvider.GetService<StateManager>().GetOrCreateEntry(
+            var stateEntry = CreateContextServices(model).GetRequiredService<StateManager>().GetOrCreateEntry(
                 new T1 { Id = 1, Name = "Test" });
             stateEntry.EntityState = entityState;
             return stateEntry;

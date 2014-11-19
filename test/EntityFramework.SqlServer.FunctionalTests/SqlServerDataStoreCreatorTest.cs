@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational;
+using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
 using Xunit;
@@ -227,7 +229,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                 using (var context = new BloggingContext(serviceProvider, options))
                 {
-                    var creator = (RelationalDataStoreCreator)context.Configuration.DataStoreCreator;
+                    var contextServices = ((IDbContextServices)context).ScopedServiceProvider;
+
+                    var creator = (RelationalDataStoreCreator)contextServices.GetRequiredService<LazyRef<DataStoreCreator>>().Value;
 
                     if (async)
                     {
@@ -360,22 +364,22 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             }
         }
 
-        private static DbContextConfiguration CreateConfiguration(SqlServerTestStore testStore)
+        private static IServiceProvider CreateContextServices(SqlServerTestStore testStore)
         {
             var serviceCollection = new ServiceCollection();
             serviceCollection
                 .AddEntityFramework()
                 .AddSqlServer();
 
-            return new DbContext(
+            return ((IDbContextServices)new DbContext(
                 serviceCollection.BuildServiceProvider(),
-                new DbContextOptions().UseSqlServer(testStore.Connection.ConnectionString))
-                .Configuration;
+                new DbContextOptions().UseSqlServer(testStore.Connection.ConnectionString)))
+                .ScopedServiceProvider;
         }
 
         private static SqlServerDataStoreCreator GetDataStoreCreator(SqlServerTestStore testStore)
         {
-            return CreateConfiguration(testStore).Services.ServiceProvider.GetService<SqlServerDataStoreCreator>();
+            return CreateContextServices(testStore).GetRequiredService<SqlServerDataStoreCreator>();
         }
 
         private class BloggingContext : DbContext

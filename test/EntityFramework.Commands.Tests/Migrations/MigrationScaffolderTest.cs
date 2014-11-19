@@ -9,7 +9,8 @@ using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Model;
-using Moq;
+using Microsoft.Data.Entity.Utilities;
+using Microsoft.Framework.DependencyInjection;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Commands.Tests.Migrations
@@ -21,10 +22,16 @@ namespace Microsoft.Data.Entity.Commands.Tests.Migrations
         {
             using (var context = new Context(new Model()))
             {
+                var contextServices = ((IDbContextServices)context).ScopedServiceProvider;
+                var options = contextServices.GetRequiredService<LazyRef<IDbContextOptions>>();
+                var model = contextServices.GetRequiredService<LazyRef<IModel>>().Value;
+
                 var scaffolder
                     = new MyMigrationScaffolder(
-                        context.Configuration,
-                        MockMigrationAssembly(context.Configuration),
+                        context,
+                        options.Value,
+                        model,
+                        new MigrationAssembly(new LazyRef<DbContext>(context), options),
                         new TestModelDiffer(),
                         new CSharpMigrationCodeGenerator(
                             new CSharpModelCodeGenerator()),
@@ -40,10 +47,16 @@ namespace Microsoft.Data.Entity.Commands.Tests.Migrations
         {
             using (var context = new Context(CreateModel()))
             {
+                var contextServices = ((IDbContextServices)context).ScopedServiceProvider;
+                var options = contextServices.GetRequiredService<LazyRef<IDbContextOptions>>();
+                var model = contextServices.GetRequiredService<LazyRef<IModel>>().Value;
+
                 var scaffolder
                     = new MyMigrationScaffolder(
-                        context.Configuration,
-                        MockMigrationAssembly(context.Configuration),
+                        context,
+                        options.Value,
+                        model,
+                        new MigrationAssembly(new LazyRef<DbContext>(context), options),
                         new TestModelDiffer(),
                         new CSharpMigrationCodeGenerator(
                             new CSharpModelCodeGenerator()),
@@ -59,10 +72,16 @@ namespace Microsoft.Data.Entity.Commands.Tests.Migrations
         {
             using (var context = new Context(CreateModelWithForeignKeys()))
             {
+                var contextServices = ((IDbContextServices)context).ScopedServiceProvider;
+                var options = contextServices.GetRequiredService<LazyRef<IDbContextOptions>>();
+                var model = contextServices.GetRequiredService<LazyRef<IModel>>().Value;
+
                 var scaffolder
                     = new MyMigrationScaffolder(
-                        context.Configuration,
-                        MockMigrationAssembly(context.Configuration),
+                        context,
+                        options.Value,
+                        model,
+                        new MigrationAssembly(new LazyRef<DbContext>(context), options),
                         new TestModelDiffer(),
                         new CSharpMigrationCodeGenerator(
                             new CSharpModelCodeGenerator()),
@@ -78,10 +97,16 @@ namespace Microsoft.Data.Entity.Commands.Tests.Migrations
         {
             using (var context = new Context(CreateModelWithCompositeKeys()))
             {
+                var contextServices = ((IDbContextServices)context).ScopedServiceProvider;
+                var options = contextServices.GetRequiredService<LazyRef<IDbContextOptions>>();
+                var model = contextServices.GetRequiredService<LazyRef<IModel>>().Value;
+
                 var scaffolder
                     = new MyMigrationScaffolder(
-                        context.Configuration,
-                        MockMigrationAssembly(context.Configuration),
+                        context,
+                        options.Value,
+                        model,
+                        new MigrationAssembly(new LazyRef<DbContext>(context), options),
                         new TestModelDiffer(),
                         new CSharpMigrationCodeGenerator(
                             new CSharpModelCodeGenerator()),
@@ -731,16 +756,6 @@ namespace MyNamespace
                 modelSnapshotClass);
         }
 
-        private static MigrationAssembly MockMigrationAssembly(DbContextConfiguration contextConfiguration)
-        {
-            var mock = new Mock<MigrationAssembly>(contextConfiguration);
-
-            mock.SetupGet(ma => ma.Migrations).Returns(new Migration[0]);
-            mock.SetupGet(ma => ma.Model).Returns((IModel)null);
-
-            return mock.Object;
-        }
-
         private static IModel CreateModel()
         {
             var model = new Model();
@@ -879,14 +894,18 @@ namespace MyNamespace
             private readonly Action<string, string> _modelValidation;
 
             public MyMigrationScaffolder(
-                DbContextConfiguration contextConfiguration,
+                DbContext context,
+                IDbContextOptions options,
+                IModel model,
                 MigrationAssembly migrationAssembly,
                 ModelDiffer modelDiffer,
                 MigrationCodeGenerator migrationCodeGenerator,
                 Action<string, string, string> migrationValidation,
                 Action<string, string> modelValidation)
                 : base(
-                    contextConfiguration,
+                    context,
+                    options,
+                    model,
                     migrationAssembly,
                     modelDiffer,
                     migrationCodeGenerator)
@@ -906,11 +925,11 @@ namespace MyNamespace
 
                 return
                     new MigrationInfo(migration.MigrationId, "1.2.3.4")
-                        {
-                            TargetModel = migration.TargetModel,
-                            UpgradeOperations = migration.UpgradeOperations,
-                            DowngradeOperations = migration.DowngradeOperations
-                        };
+                    {
+                        TargetModel = migration.TargetModel,
+                        UpgradeOperations = migration.UpgradeOperations,
+                        DowngradeOperations = migration.DowngradeOperations
+                    };
             }
 
             public override ScaffoldedMigration ScaffoldMigration(string migrationName)

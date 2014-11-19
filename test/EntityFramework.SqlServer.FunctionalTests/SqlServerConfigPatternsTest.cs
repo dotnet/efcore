@@ -294,7 +294,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                 using (await SqlServerNorthwindContext.GetSharedStoreAsync())
                 {
-                    await serviceProvider.GetService<MyController>().TestAsync();
+                    await serviceProvider.GetRequiredService<MyController>().TestAsync();
                 }
             }
 
@@ -357,7 +357,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                 using (await SqlServerNorthwindContext.GetSharedStoreAsync())
                 {
-                    await serviceProvider.GetService<MyController>().TestAsync();
+                    await serviceProvider.GetRequiredService<MyController>().TestAsync();
                 }
             }
 
@@ -419,7 +419,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                 using (await SqlServerNorthwindContext.GetSharedStoreAsync())
                 {
-                    await serviceProvider.GetService<MyController>().TestAsync();
+                    await serviceProvider.GetRequiredService<MyController>().TestAsync();
                 }
             }
 

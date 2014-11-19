@@ -19,8 +19,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var notifierMock = new Mock<StateEntryNotifier>();
             var model = BuildModel();
-            var configuration = TestHelpers.CreateContextConfiguration(CreateServiceProvider(notifierMock.Object), model);
-            var stateManager = configuration.Services.StateManager;
+            var contextServices = TestHelpers.CreateContextServices(CreateServiceProvider(notifierMock.Object), model);
+            var stateManager = contextServices.GetRequiredService<StateManager>();
 
             var entityType = model.GetEntityType(typeof(Category));
             var keyProperty = entityType.GetProperty("PrincipalId");
@@ -48,8 +48,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var notifierMock = new Mock<StateEntryNotifier>();
             var model = BuildModel();
-            var configuration = TestHelpers.CreateContextConfiguration(CreateServiceProvider(notifierMock.Object), model);
-            var stateManager = configuration.Services.StateManager;
+            var contextServices = TestHelpers.CreateContextServices(CreateServiceProvider(notifierMock.Object), model);
+            var stateManager = contextServices.GetRequiredService<StateManager>();
 
             var entityType = model.GetEntityType(typeof(Category));
             var keyProperty = entityType.GetProperty("PrincipalId");
@@ -77,8 +77,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var notifierMock = new Mock<StateEntryNotifier>();
             var model = BuildModel();
-            var configuration = TestHelpers.CreateContextConfiguration(CreateServiceProvider(notifierMock.Object), model);
-            var stateManager = configuration.Services.StateManager;
+            var contextServices = TestHelpers.CreateContextServices(CreateServiceProvider(notifierMock.Object), model);
+            var stateManager = contextServices.GetRequiredService<StateManager>();
 
             var entityType = model.GetEntityType(typeof(Category));
             var keyProperty = entityType.GetProperty("Id");
@@ -106,8 +106,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var notifierMock = new Mock<StateEntryNotifier>();
             var model = BuildModel();
-            var configuration = TestHelpers.CreateContextConfiguration(CreateServiceProvider(notifierMock.Object), model);
-            var stateManager = configuration.Services.StateManager;
+            var contextServices = TestHelpers.CreateContextServices(CreateServiceProvider(notifierMock.Object), model);
+            var stateManager = contextServices.GetRequiredService<StateManager>();
 
             var entityType = model.GetEntityType(typeof(Category));
             var keyProperty = entityType.GetProperty("Id");
@@ -135,8 +135,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var notifierMock = new Mock<StateEntryNotifier>();
             var model = BuildModel();
-            var configuration = TestHelpers.CreateContextConfiguration(CreateServiceProvider(notifierMock.Object), model);
-            var stateManager = configuration.Services.StateManager;
+            var contextServices = TestHelpers.CreateContextServices(CreateServiceProvider(notifierMock.Object), model);
+            var stateManager = contextServices.GetRequiredService<StateManager>();
 
             var entityType = model.GetEntityType(typeof(Category));
             var property = entityType.GetProperty("Name");
@@ -165,8 +165,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var notifierMock = new Mock<StateEntryNotifier>();
             var model = BuildModel();
-            var configuration = TestHelpers.CreateContextConfiguration(CreateServiceProvider(notifierMock.Object), model);
-            var stateManager = configuration.Services.StateManager;
+            var contextServices = TestHelpers.CreateContextServices(CreateServiceProvider(notifierMock.Object), model);
+            var stateManager = contextServices.GetRequiredService<StateManager>();
 
             var entityType = model.GetEntityType(typeof(Category));
             var property = entityType.GetProperty("Name");
@@ -195,8 +195,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var notifierMock = new Mock<StateEntryNotifier>();
             var model = BuildModel();
-            var configuration = TestHelpers.CreateContextConfiguration(CreateServiceProvider(notifierMock.Object), model);
-            var stateManager = configuration.Services.StateManager;
+            var contextServices = TestHelpers.CreateContextServices(CreateServiceProvider(notifierMock.Object), model);
+            var stateManager = contextServices.GetRequiredService<StateManager>();
 
             var entityType = model.GetEntityType(typeof(Category));
             var keyProperty = entityType.GetProperty("PrincipalId");
@@ -224,8 +224,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var notifierMock = new Mock<StateEntryNotifier>();
             var model = BuildModel();
-            var configuration = TestHelpers.CreateContextConfiguration(CreateServiceProvider(notifierMock.Object), model);
-            var stateManager = configuration.Services.StateManager;
+            var contextServices = TestHelpers.CreateContextServices(CreateServiceProvider(notifierMock.Object), model);
+            var stateManager = contextServices.GetRequiredService<StateManager>();
 
             var entityType = model.GetEntityType(typeof(Category));
             var keyProperty = entityType.GetProperty("PrincipalId");

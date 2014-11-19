@@ -115,7 +115,6 @@
     </Compile>
     <Compile Include="Utilities\AssemblyExtensions.cs" />
     <Compile Include="Utilities\Check.cs" />
-    <Compile Include="Utilities\DbContextConfigurationExtensions.cs" />
     <Compile Include="Utilities\EnumerableExtensions.cs" />
     <Compile Include="Utilities\MigrationExtensions.cs" />
     <Compile Include="Utilities\PropertyInfoExtensions.cs" />

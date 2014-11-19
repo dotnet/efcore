@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Redis.Extensions;
 using Microsoft.Data.Entity.Storage;
@@ -216,16 +217,16 @@ namespace Microsoft.Data.Entity.Redis.Tests
                 var testNumber = i;
                 generatedValues[testNumber] = new List<long>();
                 tests[testNumber] = () =>
+                {
+                    var storeServices = CreateStoreServices(serviceProvider);
+
+                    for (var j = 0; j < valueCount; j++)
                     {
-                        var storeServices = CreateStoreServices(serviceProvider);
+                        var generatedValue = generator.Next(property, storeServices);
 
-                        for (var j = 0; j < valueCount; j++)
-                        {
-                            var generatedValue = generator.Next(property, storeServices);
-
-                            generatedValues[testNumber].Add((long)generatedValue.Value);
-                        }
-                    };
+                        generatedValues[testNumber].Add((long)generatedValue.Value);
+                    }
+                };
             }
 
             Parallel.Invoke(tests);
@@ -268,16 +269,16 @@ namespace Microsoft.Data.Entity.Redis.Tests
                 var testNumber = i;
                 generatedValues[testNumber] = new List<long>();
                 tests[testNumber] = async () =>
+                {
+                    var storeServices = CreateStoreServices(serviceProvider);
+
+                    for (var j = 0; j < valueCount; j++)
                     {
-                        var storeServices = CreateStoreServices(serviceProvider);
+                        var generatedValue = await generator.NextAsync(property, storeServices);
 
-                        for (var j = 0; j < valueCount; j++)
-                        {
-                            var generatedValue = await generator.NextAsync(property, storeServices);
-
-                            generatedValues[testNumber].Add((long)generatedValue.Value);
-                        }
-                    };
+                        generatedValues[testNumber].Add((long)generatedValue.Value);
+                    }
+                };
             }
 
             var tasks = tests.Select(Task.Run).ToArray();
@@ -341,13 +342,13 @@ namespace Microsoft.Data.Entity.Redis.Tests
                 .AddInstance(new FakeRedisSequence())
                 .BuildServiceProvider();
 
-            var configuration = new DbContext(
+            var contextServices = ((IDbContextServices)new DbContext(
                 serviceProvider,
                 new DbContextOptions()
                     .UseModel(_model)
-                    .UseRedis("127.0.0.1", 6375)).Configuration;
+                    .UseRedis("127.0.0.1", 6375))).ScopedServiceProvider;
 
-            return configuration.ScopedServiceProvider.GetService<LazyRef<DataStoreServices>>();
+            return contextServices.GetRequiredService<LazyRef<DataStoreServices>>();
         }
 
         private class FakeRedisSequence

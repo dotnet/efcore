@@ -12,37 +12,41 @@ using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Migrations.Utilities;
+using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Commands.Migrations
 {
     public class MigrationScaffolder
     {
-        private readonly DbContextConfiguration _contextConfiguration;
+        private readonly DbContext _context;
+        private readonly IDbContextOptions _options;
+        private readonly IModel _model;
         private readonly MigrationAssembly _migrationAssembly;
         private readonly ModelDiffer _modelDiffer;
         private readonly MigrationCodeGenerator _migrationCodeGenerator;
 
         public MigrationScaffolder(
-            [NotNull] DbContextConfiguration contextConfiguration,
+            [NotNull] DbContext context,
+            [NotNull] IDbContextOptions options,
+            [NotNull] IModel model,
             [NotNull] MigrationAssembly migrationAssembly,
             [NotNull] ModelDiffer modelDiffer,
             [NotNull] MigrationCodeGenerator migrationCodeGenerator)
         {
-            Check.NotNull(contextConfiguration, "contextConfiguration");
+            Check.NotNull(context, "context");
+            Check.NotNull(options, "options");
+            Check.NotNull(model, "model");
             Check.NotNull(migrationAssembly, "migrationAssembly");
             Check.NotNull(modelDiffer, "modelDiffer");
             Check.NotNull(migrationCodeGenerator, "migrationCodeGenerator");
 
-            _contextConfiguration = contextConfiguration;
+            _context = context;
+            _options = options;
+            _model = model;
             _migrationAssembly = migrationAssembly;
             _modelDiffer = modelDiffer;
             _migrationCodeGenerator = migrationCodeGenerator;
-        }
-
-        protected virtual DbContextConfiguration ContextConfiguration
-        {
-            get { return _contextConfiguration; }
         }
 
         protected MigrationAssembly MigrationAssembly
@@ -62,7 +66,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
 
         public virtual string MigrationNamespace
         {
-            get { return ContextConfiguration.GetMigrationNamespace(); }
+            get { return RelationalOptionsExtension.Extract(_options).MigrationNamespace; }
         }
 
         public virtual ScaffoldedMigration ScaffoldMigration([NotNull] string migrationName)
@@ -75,7 +79,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             }
 
             var migration = CreateMigration(migrationName);
-            var contextType = ContextConfiguration.Context.GetType();
+            var contextType = _context.GetType();
 
             var migrationCode = new IndentedStringBuilder();
             var migrationMetadataCode = new IndentedStringBuilder();
@@ -101,7 +105,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             Check.NotEmpty(migrationName, "migrationName");
 
             var sourceModel = MigrationAssembly.Model;
-            var targetModel = ContextConfiguration.Model;
+            var targetModel = _model;
 
             IReadOnlyList<MigrationOperation> upgradeOperations, downgradeOperations;
             if (sourceModel != null)
@@ -170,7 +174,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
         {
             Check.NotNull(model, "model");
 
-            return _contextConfiguration.Context.GetType().Name + "ModelSnapshot";
+            return _context.GetType().Name + "ModelSnapshot";
         }
     }
 }

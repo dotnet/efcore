@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var model = BuildModel();
             var type = model.GetEntityType(typeof(Banana));
-            var stateManager = TestHelpers.CreateContextConfiguration(model).ScopedServiceProvider.GetRequiredService<StateManager>();
+            var stateManager = TestHelpers.CreateContextServices(model).GetRequiredService<StateManager>();
 
             var random = new Random();
             var entity = new Banana { P1 = 7, P2 = "Ate", P3 = random };
@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var model = BuildModel();
             var type = model.GetEntityType(typeof(Banana));
-            var stateManager = TestHelpers.CreateContextConfiguration(model).ScopedServiceProvider.GetRequiredService<StateManager>();
+            var stateManager = TestHelpers.CreateContextServices(model).GetRequiredService<StateManager>();
 
             var random = new Random();
             var entity = new Banana { P5 = "Ate", P6 = random };
@@ -51,7 +51,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var model = BuildModel();
             var type = model.GetEntityType(typeof(Banana));
-            var stateManager = TestHelpers.CreateContextConfiguration(model).ScopedServiceProvider.GetRequiredService<StateManager>();
+            var stateManager = TestHelpers.CreateContextServices(model).GetRequiredService<StateManager>();
 
             var random = new Random();
             var entity = new Banana { P4 = 7, P5 = "Ate", P6 = random };
@@ -72,7 +72,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var model = BuildModel();
             var type = model.GetEntityType(typeof(Banana));
-            var stateManager = TestHelpers.CreateContextConfiguration(model).ScopedServiceProvider.GetRequiredService<StateManager>();
+            var stateManager = TestHelpers.CreateContextServices(model).GetRequiredService<StateManager>();
 
             var random = new Random();
             var entity = new Banana { P1 = 7, P2 = null, P3 = random };

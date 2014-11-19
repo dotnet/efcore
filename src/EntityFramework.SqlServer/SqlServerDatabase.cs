@@ -20,5 +20,10 @@ namespace Microsoft.Data.Entity.SqlServer
             : base(model, dataStoreCreator, connection, migrator, loggerFactory)
         {
         }
+
+        public new virtual SqlServerConnection Connection
+        {
+            get { return (SqlServerConnection)base.Connection; }
+        }
     }
 }

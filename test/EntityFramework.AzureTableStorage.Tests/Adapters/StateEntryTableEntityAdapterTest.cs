@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Adapters
 {
     public class StateEntryTableEntityAdapterTest
     {
-        private static DbContextConfiguration CreateConfiguration(IModel model)
+        private static IServiceProvider CreateContextServices(IModel model)
         {
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
@@ -27,9 +27,9 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Adapters
                 .ServiceCollection
                 .BuildServiceProvider();
 
-            return new DbContext(serviceProvider, new DbContextOptions()
+            return ((IDbContextServices)new DbContext(serviceProvider, new DbContextOptions()
                 .UseModel(model)
-                .UseAzureTableStorage("Moria", "mellon")).Configuration;
+                .UseAzureTableStorage("Moria", "mellon"))).ScopedServiceProvider;
         }
 
         private static IModel CreateModel()
@@ -43,13 +43,13 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Adapters
                 .Timestamp(s => s.Timestamp);
 
             builder.Entity("ShadowEntity", pb =>
-                {
-                    pb.Property<object>("PartitionKey");
-                    pb.Property<object>("RowKey");
-                    pb.Property<object>("Timestamp");
-                    pb.Property<object>("SomeProperty");
-                    pb.Key("PartitionKey", "RowKey");
-                });
+            {
+                pb.Property<object>("PartitionKey");
+                pb.Property<object>("RowKey");
+                pb.Property<object>("Timestamp");
+                pb.Property<object>("SomeProperty");
+                pb.Key("PartitionKey", "RowKey");
+            });
 
             builder.Entity<GuidKeysPoco>()
                 .ForAzureTableStorage().PartitionAndRowKey(s => s.PartitionGuid, s => s.RowGuid)
@@ -59,12 +59,12 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Adapters
                 .ForAzureTableStorage().PartitionAndRowKey(s => s.PartitionID, s => s.RowID);
 
             builder.Entity<ClrPocoWithProp>(pb =>
-                {
-                    pb.ForAzureTableStorage().PartitionAndRowKey(s => s.PartitionKey, s => s.RowKey);
-                    pb.Property(s => s.Timestamp);
-                    pb.Property(s => s.StringProp);
-                    pb.Property(s => s.IntProp);
-                });
+            {
+                pb.ForAzureTableStorage().PartitionAndRowKey(s => s.PartitionKey, s => s.RowKey);
+                pb.Property(s => s.Timestamp);
+                pb.Property(s => s.StringProp);
+                pb.Property(s => s.IntProp);
+            });
 
             return model;
         }
@@ -73,7 +73,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Adapters
         public void It_wraps_poco_in_adapter()
         {
             var model = CreateModel();
-            var stateManager = CreateConfiguration(model).ScopedServiceProvider.GetRequiredService<StateManager>();
+            var stateManager = CreateContextServices(model).GetRequiredService<StateManager>();
 
             var obj = new ClrPoco();
             var entry = stateManager.GetOrCreateEntry(obj);
@@ -85,7 +85,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Adapters
         public void It_writes_to_clr_properties()
         {
             var model = CreateModel();
-            var stateManager = CreateConfiguration(model).ScopedServiceProvider.GetRequiredService<StateManager>();
+            var stateManager = CreateContextServices(model).GetRequiredService<StateManager>();
 
             var obj = new ClrPoco();
             var entry = stateManager.GetOrCreateEntry(obj);
@@ -105,7 +105,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Adapters
         public void It_writes_to_shadow_state_properties()
         {
             var model = CreateModel();
-            var stateManager = CreateConfiguration(model).ScopedServiceProvider.GetRequiredService<StateManager>();
+            var stateManager = CreateContextServices(model).GetRequiredService<StateManager>();
 
             var entityType = model.GetEntityType("ShadowEntity");
             var entry = stateManager.GetOrMaterializeEntry(entityType, new AtsObjectArrayValueReader(new object[] { "PK", "RK", null, null }));
@@ -132,7 +132,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Adapters
         public void It_reads_from_shadow_state_properties()
         {
             var model = CreateModel();
-            var stateManager = CreateConfiguration(model).ScopedServiceProvider.GetRequiredService<StateManager>();
+            var stateManager = CreateContextServices(model).GetRequiredService<StateManager>();
 
             var entityType = model.GetEntityType("ShadowEntity");
             var entry = stateManager.GetOrMaterializeEntry(entityType, new AtsObjectArrayValueReader(new object[] { "PK", "RK", null, null }));
@@ -156,7 +156,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Adapters
         public void It_casts_to_int_keys()
         {
             var model = CreateModel();
-            var stateManager = CreateConfiguration(model).ScopedServiceProvider.GetRequiredService<StateManager>();
+            var stateManager = CreateContextServices(model).GetRequiredService<StateManager>();
 
             var data = new object[] { "42", "1980", "11/11/2011 11:11:11 PM" };
             var entityType = model.GetEntityType(typeof(IntKeysPoco));
@@ -172,7 +172,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Adapters
         public void It_casts_from_int_keys()
         {
             var model = CreateModel();
-            var stateManager = CreateConfiguration(model).ScopedServiceProvider.GetRequiredService<StateManager>();
+            var stateManager = CreateContextServices(model).GetRequiredService<StateManager>();
 
             var obj = new IntKeysPoco { PartitionID = 42, RowID = 1980 };
             var entry = stateManager.GetOrCreateEntry(obj);
@@ -186,7 +186,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Adapters
         public void It_interprets_guid_keys()
         {
             var model = CreateModel();
-            var stateManager = CreateConfiguration(model).ScopedServiceProvider.GetRequiredService<StateManager>();
+            var stateManager = CreateContextServices(model).GetRequiredService<StateManager>();
 
             var data = new object[] { "80d401da-ef77-4bc6-a2b0-300025098a0e", "4b240e4f-b886-4d23-a63c-017a3d79885a", "timestamp" };
             var entityType = model.GetEntityType(typeof(GuidKeysPoco));
@@ -201,7 +201,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Adapters
         public void It_reads_from_dictionary()
         {
             var model = CreateModel();
-            var stateManager = CreateConfiguration(model).ScopedServiceProvider.GetRequiredService<StateManager>();
+            var stateManager = CreateContextServices(model).GetRequiredService<StateManager>();
 
             var data = new Dictionary<string, EntityProperty>
                 {
@@ -223,7 +223,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Adapters
         public void It_skips_mismatched_types()
         {
             var model = CreateModel();
-            var stateManager = CreateConfiguration(model).ScopedServiceProvider.GetRequiredService<StateManager>();
+            var stateManager = CreateContextServices(model).GetRequiredService<StateManager>();
 
             var data = new Dictionary<string, EntityProperty>
                 {
@@ -245,16 +245,16 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Adapters
         public void It_writes_to_dictionary()
         {
             var model = CreateModel();
-            var stateManager = CreateConfiguration(model).ScopedServiceProvider.GetRequiredService<StateManager>();
+            var stateManager = CreateContextServices(model).GetRequiredService<StateManager>();
 
             var instance = new ClrPocoWithProp
-                {
-                    PartitionKey = "A",
-                    RowKey = "B",
-                    StringProp = "C",
-                    IntProp = 5,
-                    Timestamp = DateTimeOffset.UtcNow,
-                };
+            {
+                PartitionKey = "A",
+                RowKey = "B",
+                StringProp = "C",
+                IntProp = 5,
+                Timestamp = DateTimeOffset.UtcNow,
+            };
             var entry = stateManager.GetOrCreateEntry(instance);
             var adapter = new StateEntryTableEntityAdapter<ClrPocoWithProp>(entry);
 

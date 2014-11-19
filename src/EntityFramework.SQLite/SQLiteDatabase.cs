@@ -20,5 +20,10 @@ namespace Microsoft.Data.Entity.SQLite
             : base(model, dataStoreCreator, connection, migrator, loggerFactory)
         {
         }
+
+        public new virtual SQLiteConnection Connection
+        {
+            get { return (SQLiteConnection)base.Connection; }
+        }
     }
 }

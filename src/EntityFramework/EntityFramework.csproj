@@ -100,6 +100,7 @@
     <Compile Include="Infrastructure\DbContextConfigureOptions.cs" />
     <Compile Include="Infrastructure\DbContextOptionsParser.cs" />
     <Compile Include="Infrastructure\IDatabaseInternals.cs" />
+    <Compile Include="Infrastructure\IDbContextServices.cs" />
     <Compile Include="Infrastructure\ModelSourceHelpers.cs" />
     <Compile Include="Metadata\BasicModelBuilder.cs" />
     <Compile Include="Metadata\CollectionTypeFactory.cs" />
@@ -198,7 +199,6 @@
     <Compile Include="ChangeTracking\StoreGeneratedValuesFactory.cs" />
     <Compile Include="Extensions\EntityServiceCollectionExtensions.cs" />
     <Compile Include="Extensions\QueryableExtensions.cs" />
-    <Compile Include="Infrastructure\ContextServices.cs" />
     <Compile Include="Infrastructure\Database.cs" />
     <Compile Include="Infrastructure\DbContextConfiguration.cs" />
     <Compile Include="Infrastructure\DbSetFinder.cs" />

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Framework.DependencyInjection;
@@ -253,11 +254,17 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             services.AddInstance(listeners[1].Object);
             services.AddInstance(listeners[2].Object);
 
-            var config = new DbContext(services.AddEntityFramework().AddInMemoryStore().ServiceCollection.BuildServiceProvider(),
-                new DbContextOptions().UseModel(BuildModel()))
-                .Configuration;
+            var contextServices
+                = ((IDbContextServices)new DbContext(
+                    services
+                    .AddEntityFramework()
+                    .AddInMemoryStore()
+                    .ServiceCollection
+                    .BuildServiceProvider(),
+                new DbContextOptions().UseModel(BuildModel())))
+                .ScopedServiceProvider;
 
-            var stateManager = config.StateManager;
+            var stateManager = contextServices.GetRequiredService<StateManager>();
 
             var entry = stateManager.GetOrCreateEntry(new Category { Id = 77 });
             entry.EntityState = EntityState.Added;
@@ -291,8 +298,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var services = new ServiceCollection();
             services.AddEntityFramework().AddInMemoryStore();
 
-            var config = TestHelpers.CreateContextConfiguration(services.BuildServiceProvider(), model);
-            var stateManager = config.Services.StateManager;
+            var contextServices = TestHelpers.CreateContextServices(services.BuildServiceProvider(), model);
+            var stateManager = contextServices.GetRequiredService<StateManager>();
 
             var entry1 = stateManager.GetOrCreateEntry(new Category { Id = 77, Name = "Beverages" });
             var entry2 = stateManager.GetOrCreateEntry(new Category { Id = 78, Name = "Foods" });
@@ -394,7 +401,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
         private static StateManager CreateStateManager(IModel model)
         {
-            return TestHelpers.CreateContextConfiguration(model).Services.StateManager;
+            return TestHelpers.CreateContextServices(model).GetRequiredService<StateManager>();
         }
 
         private class Category

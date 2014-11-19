@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Relational.Update;
 using Microsoft.Framework.DependencyInjection;
 using Xunit;
@@ -16,8 +17,11 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var model = new Entity.Metadata.Model();
             var entityType = model.AddEntityType(typeof(object));
 
-            var configuration = new DbContext(new DbContextOptions().UseModel(model).UseInMemoryStore(persist: false)).Configuration;
-            var stateManager = configuration.ScopedServiceProvider.GetRequiredService<StateManager>();
+            var contextServices = ((IDbContextServices)new DbContext(
+                new DbContextOptions()
+                .UseModel(model)
+                .UseInMemoryStore(persist: false))).ScopedServiceProvider;
+            var stateManager = contextServices.GetRequiredService<StateManager>();
 
             var key = entityType.GetOrAddProperty("Id", typeof(int), shadowProperty: true);
             entityType.GetOrSetPrimaryKey(key);

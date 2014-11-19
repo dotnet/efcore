@@ -19,5 +19,10 @@ namespace Microsoft.Data.Entity.AzureTableStorage
             : base(model, dataStoreCreator, connection, loggerFactory)
         {
         }
+
+        public new virtual AtsConnection Connection
+        {
+            get { return (AtsConnection)base.Connection; }
+        }
     }
 }

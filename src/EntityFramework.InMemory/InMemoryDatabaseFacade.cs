@@ -19,5 +19,10 @@ namespace Microsoft.Data.Entity.InMemory
             : base(model, dataStoreCreator, connection, loggerFactory)
         {
         }
+
+        public new virtual InMemoryConnection Connection
+        {
+            get { return (InMemoryConnection)base.Connection; }
+        }
     }
 }

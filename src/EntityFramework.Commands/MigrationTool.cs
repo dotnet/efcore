@@ -9,10 +9,13 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Commands.Migrations;
 using Microsoft.Data.Entity.Commands.Utilities;
+using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Utilities;
+using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Commands
@@ -47,9 +50,11 @@ namespace Microsoft.Data.Entity.Commands
             var contextType = GetContextType(contextTypeName);
             using (var context = CreateContext(contextType))
             {
-                var configuration = context.Configuration;
+                var scopedServiceProvider = ((IDbContextServices)context).ScopedServiceProvider;
+                var options = scopedServiceProvider.GetRequiredService<LazyRef<IDbContextOptions>>();
+                var model = scopedServiceProvider.GetRequiredService<LazyRef<IModel>>();
 
-                var extension = RelationalOptionsExtension.Extract(configuration.ContextOptions);
+                var extension = RelationalOptionsExtension.Extract(options.Value);
                 if (extension.MigrationNamespace == null)
                 {
                     extension.MigrationNamespace = rootNamespace + ".Migrations";
@@ -57,7 +62,9 @@ namespace Microsoft.Data.Entity.Commands
 
                 var migrator = CreateMigrator(context);
                 var scaffolder = new MigrationScaffolder(
-                    configuration,
+                    context,
+                    options.Value,
+                    model.Value,
                     migrator.MigrationAssembly,
                     migrator.ModelDiffer,
                     new CSharpMigrationCodeGenerator(new CSharpModelCodeGenerator()));
@@ -175,11 +182,13 @@ namespace Microsoft.Data.Entity.Commands
         {
             var context = ContextTool.CreateContext(type);
 
-            // TODO: Decouple from DbContextConfiguration (Issue #641)
-            var loggerFactory = (ILoggerFactory)context.Configuration.Services.ServiceProvider.GetService(typeof(ILoggerFactory));
+            var scopedServiceProvider = ((IDbContextServices)context).ScopedServiceProvider;
+            var options = scopedServiceProvider.GetRequiredService<LazyRef<IDbContextOptions>>();
+
+            var loggerFactory = scopedServiceProvider.GetRequiredService<ILoggerFactory>();
             loggerFactory.AddProvider(_loggerProvider);
 
-            var extension = RelationalOptionsExtension.Extract(context.Configuration.ContextOptions);
+            var extension = RelationalOptionsExtension.Extract(options.Value);
             if (extension.MigrationAssembly == null)
             {
                 extension.MigrationAssembly = _assembly;
@@ -190,8 +199,7 @@ namespace Microsoft.Data.Entity.Commands
 
         private Migrator CreateMigrator(DbContext context)
         {
-            var services = (MigrationsDataStoreServices)context.Configuration.DataStoreServices;
-            return services.Migrator;
+            return ((IDbContextServices)context).ScopedServiceProvider.GetRequiredService<LazyRef<Migrator>>().Value;
         }
 
         private IEnumerable<Type> GetMigrationTypes()

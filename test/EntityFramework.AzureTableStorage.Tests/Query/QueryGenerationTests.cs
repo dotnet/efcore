@@ -8,6 +8,7 @@ using System.Linq.Expressions;
 using Microsoft.Data.Entity.AzureTableStorage.Query;
 using Microsoft.Data.Entity.AzureTableStorage.Query.Expressions;
 using Microsoft.Data.Entity.AzureTableStorage.Tests.Helpers;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Storage;
@@ -170,7 +171,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
 
             using (var context = new DbContext(serviceProvider, options))
             {
-                var executor = context.Configuration.ScopedServiceProvider.GetService<EntityQueryExecutor>();
+                var executor = ((IDbContextServices)context).ScopedServiceProvider.GetRequiredService<EntityQueryExecutor>();
                 var query = expression.Compile()(new DbSet<T>(context));
                 return new EntityQueryProvider(executor).GenerateQueryModel(query.Expression);
             }

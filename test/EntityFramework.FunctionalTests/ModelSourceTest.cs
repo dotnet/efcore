@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 .AddSingleton<IModelSource, MyModelSource>()
                 .BuildServiceProvider();
 
-            using (var context = serviceProvider.GetService<JustSomeContext>())
+            using (var context = serviceProvider.GetRequiredService<JustSomeContext>())
             {
                 var model = context.Model;
 

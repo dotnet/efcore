@@ -286,9 +286,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             entity = entity ?? new Banana { Id = 77 };
 
-            var configuration = TestHelpers.CreateContextConfiguration(_model);
+            var contextServices = TestHelpers.CreateContextServices(_model);
 
-            return configuration.ScopedServiceProvider.GetService<StateManager>().GetOrCreateEntry(entity);
+            return contextServices.GetRequiredService<StateManager>().GetOrCreateEntry(entity);
         }
 
         private static Model BuildModel()

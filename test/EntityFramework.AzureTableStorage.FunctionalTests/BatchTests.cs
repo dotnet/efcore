@@ -40,7 +40,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.FunctionalTests
         public BatchTests(TestFixture fixture)
             : base(fixture)
         {
-            Context.Configuration.Connection.AsAtsConnection().UseBatching(true);
+            Context.Database.AsAzureTableStorage().Connection.UseBatching(true);
         }
     }
 }

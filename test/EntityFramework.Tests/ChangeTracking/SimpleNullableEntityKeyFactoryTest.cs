@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var model = BuildModel();
             var type = model.GetEntityType(typeof(Banana));
-            var stateManager = TestHelpers.CreateContextConfiguration(model).ScopedServiceProvider.GetRequiredService<StateManager>();
+            var stateManager = TestHelpers.CreateContextServices(model).GetRequiredService<StateManager>();
 
             var entity = new Banana { P1 = 7 };
             var entry = stateManager.GetOrCreateEntry(entity);
@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var model = BuildModel();
             var type = model.GetEntityType(typeof(Banana));
-            var stateManager = TestHelpers.CreateContextConfiguration(model).ScopedServiceProvider.GetRequiredService<StateManager>();
+            var stateManager = TestHelpers.CreateContextServices(model).GetRequiredService<StateManager>();
 
             var entity = new Banana { P1 = 7, P2 = null };
             var entry = stateManager.GetOrCreateEntry(entity);
@@ -65,7 +65,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var model = BuildModel();
             var type = model.GetEntityType(typeof(Banana));
-            var stateManager = TestHelpers.CreateContextConfiguration(model).ScopedServiceProvider.GetRequiredService<StateManager>();
+            var stateManager = TestHelpers.CreateContextServices(model).GetRequiredService<StateManager>();
 
             var entity = new Banana { P1 = 7, P2 = 77 };
             var entry = stateManager.GetOrCreateEntry(entity);
@@ -84,7 +84,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var model = BuildModel();
             var type = model.GetEntityType(typeof(Banana));
-            var stateManager = TestHelpers.CreateContextConfiguration(model).ScopedServiceProvider.GetRequiredService<StateManager>();
+            var stateManager = TestHelpers.CreateContextServices(model).GetRequiredService<StateManager>();
 
             var entity = new Banana { P1 = 7, P2 = 77 };
             var entry = stateManager.GetOrCreateEntry(entity);

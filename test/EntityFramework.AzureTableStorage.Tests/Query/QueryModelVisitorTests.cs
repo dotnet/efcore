@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.Data.Entity.AzureTableStorage.Query;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Framework.DependencyInjection;
@@ -82,7 +83,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
 
             using (var context = new DbContext(serviceProvider, options))
             {
-                var executor = context.Configuration.ScopedServiceProvider.GetService<EntityQueryExecutor>();
+                var executor = ((IDbContextServices)context).ScopedServiceProvider.GetRequiredService<EntityQueryExecutor>();
                 var query = expression.Compile()(new DbSet<T>(context));
                 return CountQuery(query);
             }
@@ -100,7 +101,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
 
             using (var context = new DbContext(serviceProvider, options))
             {
-                var executor = context.Configuration.ScopedServiceProvider.GetService<EntityQueryExecutor>();
+                var executor = ((IDbContextServices)context).ScopedServiceProvider.GetRequiredService<EntityQueryExecutor>();
                 var query = expression.Compile()(new DbSet<T1>(context), new DbSet<T2>(context));
                 return CountQuery(query);
             }
@@ -118,7 +119,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
 
             using (var context = new DbContext(serviceProvider, options))
             {
-                var executor = context.Configuration.ScopedServiceProvider.GetService<EntityQueryExecutor>();
+                var executor = ((IDbContextServices)context).ScopedServiceProvider.GetRequiredService<EntityQueryExecutor>();
                 var queryModel = new EntityQueryProvider(executor).GenerateQueryModel(query.Expression);
 
                 return CountQueryModel(queryModel);
@@ -145,18 +146,18 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
             var builder = new ModelBuilder(model);
 
             builder.Entity<Branch>(b =>
-                {
-                    b.Key(s => s.ID);
-                    b.Property(s => s.RootID);
-                    b.Property(s => s.SHA1);
-                });
+            {
+                b.Key(s => s.ID);
+                b.Property(s => s.RootID);
+                b.Property(s => s.SHA1);
+            });
 
             builder.Entity<Root>(b =>
-                {
-                    b.Key(s => s.ID);
-                    b.Property(s => s.SHA1);
-                    b.OneToMany(e => e.Branches, e => e.Root);
-                });
+            {
+                b.Key(s => s.ID);
+                b.Property(s => s.SHA1);
+                b.OneToMany(e => e.Branches, e => e.Root);
+            });
 
             return model;
         }

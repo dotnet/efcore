@@ -31,24 +31,24 @@ namespace Microsoft.Data.Entity.Tests
             return services.BuildServiceProvider();
         }
 
-        public static DbContextConfiguration CreateContextConfiguration(IServiceProvider serviceProvider, IModel model)
+        public static IServiceProvider CreateContextServices(IServiceProvider serviceProvider, IModel model)
         {
-            return new DbContext(serviceProvider, CreateOptions(model)).Configuration;
+            return ((IDbContextServices)new DbContext(serviceProvider, CreateOptions(model))).ScopedServiceProvider;
         }
 
-        public static DbContextConfiguration CreateContextConfiguration(IServiceProvider serviceProvider)
+        public static IServiceProvider CreateContextServices(IServiceProvider serviceProvider)
         {
-            return new DbContext(serviceProvider, CreateOptions()).Configuration;
+            return ((IDbContextServices)new DbContext(serviceProvider, CreateOptions())).ScopedServiceProvider;
         }
 
-        public static DbContextConfiguration CreateContextConfiguration(IModel model)
+        public static IServiceProvider CreateContextServices(IModel model)
         {
-            return new DbContext(CreateServiceProvider(), CreateOptions(model)).Configuration;
+            return ((IDbContextServices)new DbContext(CreateServiceProvider(), CreateOptions(model))).ScopedServiceProvider;
         }
 
-        public static DbContextConfiguration CreateContextConfiguration()
+        public static IServiceProvider CreateContextServices()
         {
-            return new DbContext(CreateServiceProvider(), CreateOptions()).Configuration;
+            return ((IDbContextServices)new DbContext(CreateServiceProvider(), CreateOptions())).ScopedServiceProvider;
         }
 
         public static Model BuildModelFor<TEntity>()
@@ -62,9 +62,8 @@ namespace Microsoft.Data.Entity.Tests
             IModel model, EntityState entityState = EntityState.Unknown, TEntity entity = null)
             where TEntity : class, new()
         {
-            var entry = CreateContextConfiguration(model)
-                .Services
-                .StateManager
+            var entry = CreateContextServices(model)
+                .GetRequiredService<StateManager>()
                 .GetOrCreateEntry(entity ?? new TEntity());
 
             entry.EntityState = entityState;

@@ -2,8 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
 using Moq;
@@ -14,45 +16,32 @@ namespace Microsoft.Data.Entity.Tests
     public class ContextConfigurationTest
     {
         [Fact]
-        public void Optional_multi_services_return_empty_list_when_not_registered()
-        {
-            Assert.Empty(CreateEmptyConfiguration().Services.EntityStateListeners);
-        }
-
-        [Fact]
         public void Requesting_a_singleton_always_returns_same_instance()
         {
             var provider = CreateDefaultProvider();
-            var configuration1 = TestHelpers.CreateContextConfiguration(provider);
-            var configuration2 = TestHelpers.CreateContextConfiguration(provider);
+            var contextServices1 = TestHelpers.CreateContextServices(provider);
+            var contextServices2 = TestHelpers.CreateContextServices(provider);
 
-            Assert.Same(configuration1.Services.ModelSource, configuration2.Services.ModelSource);
-            Assert.Same(configuration1.Services.EntityKeyFactorySource, configuration2.Services.EntityKeyFactorySource);
-            Assert.Same(configuration1.Services.ClrPropertyGetterSource, configuration2.Services.ClrPropertyGetterSource);
-            Assert.Same(configuration1.Services.ClrPropertySetterSource, configuration2.Services.ClrPropertySetterSource);
+            Assert.Same(contextServices1.GetRequiredService<IModelSource>(), contextServices2.GetRequiredService<IModelSource>());
         }
 
         [Fact]
         public void Requesting_a_scoped_service_always_returns_same_instance_in_scope()
         {
             var provider = CreateDefaultProvider();
-            var configuration = TestHelpers.CreateContextConfiguration(provider);
+            var contextServices = TestHelpers.CreateContextServices(provider);
 
-            Assert.Same(configuration.Services.StateManager, configuration.Services.StateManager);
-            Assert.Same(configuration.Services.StateEntryNotifier, configuration.Services.StateEntryNotifier);
-            Assert.Same(configuration.Services.StateEntryFactory, configuration.Services.StateEntryFactory);
+            Assert.Same(contextServices.GetRequiredService<StateManager>(), contextServices.GetRequiredService<StateManager>());
         }
 
         [Fact]
         public void Requesting_a_scoped_service_always_returns_a_different_instance_in_a_different_scope()
         {
             var provider = CreateDefaultProvider();
-            var configuration1 = TestHelpers.CreateContextConfiguration(provider);
-            var configuration2 = TestHelpers.CreateContextConfiguration(provider);
+            var contextServices1 = TestHelpers.CreateContextServices(provider);
+            var contextServices2 = TestHelpers.CreateContextServices(provider);
 
-            Assert.NotSame(configuration1.Services.StateManager, configuration2.Services.StateManager);
-            Assert.NotSame(configuration1.Services.StateEntryNotifier, configuration2.Services.StateEntryNotifier);
-            Assert.NotSame(configuration1.Services.StateEntryFactory, configuration2.Services.StateEntryFactory);
+            Assert.NotSame(contextServices1.GetRequiredService<StateManager>(), contextServices2.GetRequiredService<StateManager>());
         }
 
         [Fact]
@@ -68,20 +57,24 @@ namespace Microsoft.Data.Entity.Tests
 
             using (var context = new DbContext(serviceProvider))
             {
-                store = context.Configuration.DataStore;
-                creator = context.Configuration.DataStoreCreator;
-                connection = context.Configuration.Connection;
+                var contextServices = ((IDbContextServices)context).ScopedServiceProvider;
 
-                Assert.Same(store, context.Configuration.DataStore);
-                Assert.Same(creator, context.Configuration.DataStoreCreator);
-                Assert.Same(connection, context.Configuration.Connection);
+                store = contextServices.GetRequiredService<LazyRef<DataStore>>().Value;
+                creator = contextServices.GetRequiredService<LazyRef<DataStoreCreator>>().Value;
+                connection = contextServices.GetRequiredService<LazyRef<DataStoreConnection>>().Value;
+
+                Assert.Same(store, contextServices.GetRequiredService<LazyRef<DataStore>>().Value);
+                Assert.Same(creator, contextServices.GetRequiredService<LazyRef<DataStoreCreator>>().Value);
+                Assert.Same(connection, contextServices.GetRequiredService<LazyRef<DataStoreConnection>>().Value);
             }
 
             using (var context = new DbContext(serviceProvider))
             {
-                Assert.NotSame(store, context.Configuration.DataStore);
-                Assert.NotSame(creator, context.Configuration.DataStoreCreator);
-                Assert.NotSame(connection, context.Configuration.Connection);
+                var contextServices = ((IDbContextServices)context).ScopedServiceProvider;
+
+                Assert.NotSame(store, contextServices.GetRequiredService<LazyRef<DataStore>>().Value);
+                Assert.NotSame(creator, contextServices.GetRequiredService<LazyRef<DataStoreCreator>>().Value);
+                Assert.NotSame(connection, contextServices.GetRequiredService<LazyRef<DataStoreConnection>>().Value);
             }
         }
 
@@ -94,20 +87,24 @@ namespace Microsoft.Data.Entity.Tests
 
             using (var context = new GiddyupContext())
             {
-                store = context.Configuration.DataStore;
-                creator = context.Configuration.DataStoreCreator;
-                connection = context.Configuration.Connection;
+                var contextServices = ((IDbContextServices)context).ScopedServiceProvider;
 
-                Assert.Same(store, context.Configuration.DataStore);
-                Assert.Same(creator, context.Configuration.DataStoreCreator);
-                Assert.Same(connection, context.Configuration.Connection);
+                store = contextServices.GetRequiredService<LazyRef<DataStore>>().Value;
+                creator = contextServices.GetRequiredService<LazyRef<DataStoreCreator>>().Value;
+                connection = contextServices.GetRequiredService<LazyRef<DataStoreConnection>>().Value;
+
+                Assert.Same(store, contextServices.GetRequiredService<LazyRef<DataStore>>().Value);
+                Assert.Same(creator, contextServices.GetRequiredService<LazyRef<DataStoreCreator>>().Value);
+                Assert.Same(connection, contextServices.GetRequiredService<LazyRef<DataStoreConnection>>().Value);
             }
 
             using (var context = new GiddyupContext())
             {
-                Assert.NotSame(store, context.Configuration.DataStore);
-                Assert.NotSame(creator, context.Configuration.DataStoreCreator);
-                Assert.NotSame(connection, context.Configuration.Connection);
+                var contextServices = ((IDbContextServices)context).ScopedServiceProvider;
+
+                Assert.NotSame(store, contextServices.GetRequiredService<LazyRef<DataStore>>().Value);
+                Assert.NotSame(creator, contextServices.GetRequiredService<LazyRef<DataStoreCreator>>().Value);
+                Assert.NotSame(connection, contextServices.GetRequiredService<LazyRef<DataStoreConnection>>().Value);
             }
         }
 
@@ -130,7 +127,7 @@ namespace Microsoft.Data.Entity.Tests
         {
             var provider = new ServiceCollection().BuildServiceProvider();
             return new DbContextConfiguration()
-                .Initialize(provider, provider, new DbContextOptions(), Mock.Of<DbContext>(), DbContextConfiguration.ServiceProviderSource.Explicit);
+                .Initialize(provider, new DbContextOptions(), Mock.Of<DbContext>(), DbContextConfiguration.ServiceProviderSource.Explicit);
         }
     }
 }
