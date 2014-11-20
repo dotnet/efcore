@@ -12,7 +12,7 @@
     "frameworks": {
         "aspnetcore50": {
             "dependencies": {
-                "System.ComponentModel.Annotations": "4.0.0-beta-*"
+                "System.ComponentModel.Annotations": "4.0.10-beta-*"
             }
         },
         "aspnet50": {
