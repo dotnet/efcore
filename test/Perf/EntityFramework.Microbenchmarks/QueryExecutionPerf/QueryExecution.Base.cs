@@ -5,7 +5,6 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using EntityFramework.Microbenchmarks.QueryExecutionPerf.Model;
 using Microsoft.Data.Entity;
-using EntityFramework.Microbenchmarks.QueryExecutionPerf.Model;
 
 namespace EntityFramework.Microbenchmarks.QueryExecutionPerf
 {

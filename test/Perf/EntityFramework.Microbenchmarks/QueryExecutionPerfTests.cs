@@ -12,7 +12,6 @@ namespace EntityFramework.Microbenchmarks
     public class QueryExecutionPerfTests
     {
         private readonly string defaultResultDirectory;
-        private string testName;
         private PerfTestRunner runner;
         private QueryExecutionTestsTPT tests;
 

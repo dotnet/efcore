@@ -10,8 +10,15 @@
         "test": "Xunit.KRunner"
     },
     "frameworks": {
-        "aspnet50": { 
-            "System.ComponentModel.Annotations": "4.0.10-beta-*"
+        "aspnetcore50": {
+            "dependencies": {
+                "System.ComponentModel.Annotations": "4.0.0-beta-*"
+            }
+        },
+        "aspnet50": {
+            "frameworkAssemblies": {
+                "System.ComponentModel.DataAnnotations": ""
+            }
         }
     }
 }

@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Framework.ConfigurationModel;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -131,7 +127,7 @@ namespace EntityFramework.Microbenchmarks
             var services = CallContextServiceLocator.Locator.ServiceProvider;
             var appEnv = (IApplicationEnvironment)services.GetService(typeof(IApplicationEnvironment));
             var isCoreCLR = appEnv.RuntimeFramework.Identifier == "ASP.NETCore";
-            frameworkFlavor = isCoreCLR ? "CoreCLR" : "Desktop";
+            runtimeFlavor = isCoreCLR ? "CoreCLR" : "Desktop";
 #endif
             return runtimeFlavor;
         }

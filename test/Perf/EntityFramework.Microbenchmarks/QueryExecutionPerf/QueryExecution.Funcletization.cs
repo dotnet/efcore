@@ -4,7 +4,6 @@
 using System.Linq;
 using EntityFramework.Microbenchmarks.QueryExecutionPerf.Model;
 using Microsoft.Data.Entity;
-using EntityFramework.Microbenchmarks.QueryExecutionPerf.Model;
 
 namespace EntityFramework.Microbenchmarks.QueryExecutionPerf
 {

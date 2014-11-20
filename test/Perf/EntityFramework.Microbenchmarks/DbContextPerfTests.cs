@@ -12,7 +12,6 @@ namespace EntityFramework.Microbenchmarks
     public class DbContextPerfTests
     {
         private readonly string defaultResultDirectory = @".\PerfResults";
-        private string testName;
         private PerfTestRunner runner;
         private DbContextPerf.DbContextPerfTests tests;
 
