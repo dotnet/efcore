@@ -4,8 +4,8 @@
 using System.Linq;
 using Microsoft.Data.Entity.AzureTableStorage.Requests;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Tests;
 using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.DependencyInjection.Fallback;
 using Microsoft.Framework.Logging;
 using Moq;
 using Xunit;
@@ -22,21 +22,13 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
                 .Setup(s => s.ExecuteRequest(It.IsAny<TableRequest<bool>>(), It.IsAny<ILogger>()))
                 .Returns(false); // keep all requests in memory
 
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddAzureTableStorage()
-                .ServiceCollection
-                .AddInstance(connection.Object)
-                .BuildServiceProvider();
+            var services = new ServiceCollection();
+            services.AddInstance(connection.Object);
 
-            var options = new DbContextOptions().UseModel(CreateModel()).UseAzureTableStorage("X");
-
-            using (var context = new DbContext(serviceProvider, options))
-            {
-                (from c in context.Set<Customer>()
-                    orderby context.Set<Customer>().Any(c2 => c2.CustomerID == c.CustomerID)
-                    select c).AsNoTracking().ToList();
-            }
+            var context = TestHelpers.CreateContext(services, CreateModel());
+            (from c in context.Set<Customer>()
+                orderby context.Set<Customer>().Any(c2 => c2.CustomerID == c.CustomerID)
+                select c).AsNoTracking().ToList();
 
             connection.Verify(s => s.ExecuteRequest(
                 It.IsAny<QueryTableRequest<Customer>>(),

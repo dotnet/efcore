@@ -4,18 +4,15 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
-using System.Data.SqlClient;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Tests;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.DependencyInjection.Fallback;
 using Microsoft.Framework.Logging;
 using Xunit;
 
@@ -194,10 +191,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         [Fact]
         public void Multiple_threads_can_use_the_same_generator()
         {
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer().ServiceCollection
-                .BuildServiceProvider();
+            var serviceProvider = TestHelpers.CreateServiceProvider();
 
             var property = _model.GetEntityType(typeof(AnEntity)).GetProperty("Long");
 
@@ -245,10 +239,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         [Fact]
         public async Task Multiple_threads_can_use_the_same_generator_async()
         {
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer().ServiceCollection
-                .BuildServiceProvider();
+            var serviceProvider = TestHelpers.CreateServiceProvider();
 
             var property = _model.GetEntityType(typeof(AnEntity)).GetProperty("Long");
 
@@ -300,18 +291,9 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
         private LazyRef<DataStoreServices> CreateStoreServices(IServiceProvider serviceProvider = null)
         {
-            serviceProvider = serviceProvider ?? new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer().ServiceCollection
-                .BuildServiceProvider();
+            serviceProvider = serviceProvider ?? TestHelpers.CreateServiceProvider();
 
-            var contextServices = ((IDbContextServices)new DbContext(
-                serviceProvider,
-                new DbContextOptions()
-                    .UseModel(_model)
-                    .UseSqlServer(new SqlConnection()))).ScopedServiceProvider;
-
-            return contextServices.GetRequiredService<LazyRef<DataStoreServices>>();
+            return TestHelpers.CreateContextServices(serviceProvider, _model).GetRequiredService<LazyRef<DataStoreServices>>();
         }
 
         private class FakeSqlStatementExecutor : SqlStatementExecutor

@@ -4,7 +4,6 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Tests;
 using Microsoft.Framework.DependencyInjection;
@@ -84,9 +83,9 @@ namespace Microsoft.Data.Entity.InMemory.Tests
 
         private static InMemoryDataStore CreateStore(IServiceProvider serviceProvider, bool persist)
         {
-            var contextServices = ((IDbContextServices)new DbContext(serviceProvider, new DbContextOptions().UseInMemoryStore(persist: persist))).ScopedServiceProvider;
+            var options = new DbContextOptions().UseInMemoryStore(persist: persist);
 
-            return contextServices.GetRequiredService<InMemoryDataStore>();
+            return TestHelpers.CreateContextServices(serviceProvider, options).GetRequiredService<InMemoryDataStore>();
         }
 
         [Fact]

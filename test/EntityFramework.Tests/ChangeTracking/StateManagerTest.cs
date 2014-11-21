@@ -5,11 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.Entity.ChangeTracking;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.DependencyInjection.Fallback;
 using Moq;
 using Xunit;
 
@@ -248,21 +246,12 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                     new Mock<IEntityStateListener>()
                 };
 
-            var services = new ServiceCollection();
-            services.AddEntityFramework();
-            services.AddInstance(listeners[0].Object);
-            services.AddInstance(listeners[1].Object);
-            services.AddInstance(listeners[2].Object);
+            var services = new ServiceCollection()
+                .AddInstance(listeners[0].Object)
+                .AddInstance(listeners[1].Object)
+                .AddInstance(listeners[2].Object);
 
-            var contextServices
-                = ((IDbContextServices)new DbContext(
-                    services
-                    .AddEntityFramework()
-                    .AddInMemoryStore()
-                    .ServiceCollection
-                    .BuildServiceProvider(),
-                new DbContextOptions().UseModel(BuildModel())))
-                .ScopedServiceProvider;
+            var contextServices = TestHelpers.CreateContextServices(services, BuildModel());
 
             var stateManager = contextServices.GetRequiredService<StateManager>();
 
@@ -293,12 +282,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void DetectChanges_is_called_for_all_tracked_entities_and_returns_true_if_any_changes_detected()
         {
-            var model = BuildModel();
-
-            var services = new ServiceCollection();
-            services.AddEntityFramework().AddInMemoryStore();
-
-            var contextServices = TestHelpers.CreateContextServices(services.BuildServiceProvider(), model);
+            var contextServices = TestHelpers.CreateContextServices(BuildModel());
             var stateManager = contextServices.GetRequiredService<StateManager>();
 
             var entry1 = stateManager.GetOrCreateEntry(new Category { Id = 77, Name = "Beverages" });

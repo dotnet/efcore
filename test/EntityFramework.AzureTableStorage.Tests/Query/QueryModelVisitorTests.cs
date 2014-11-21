@@ -9,8 +9,8 @@ using Microsoft.Data.Entity.AzureTableStorage.Query;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
+using Microsoft.Data.Entity.Tests;
 using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.DependencyInjection.Fallback;
 using Microsoft.Framework.Logging;
 using Remotion.Linq;
 using Remotion.Linq.Clauses.Expressions;
@@ -73,17 +73,8 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
 
         private int CountScans<T>(Expression<Func<DbSet<T>, IQueryable>> expression) where T : class, new()
         {
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddAzureTableStorage()
-                .ServiceCollection
-                .BuildServiceProvider();
-
-            var options = new DbContextOptions().UseAzureTableStorage("X");
-
-            using (var context = new DbContext(serviceProvider, options))
+            using (var context = TestHelpers.CreateContext())
             {
-                var executor = ((IDbContextServices)context).ScopedServiceProvider.GetRequiredService<EntityQueryExecutor>();
                 var query = expression.Compile()(new DbSet<T>(context));
                 return CountQuery(query);
             }
@@ -91,17 +82,8 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
 
         private int CountScans<T1, T2>(Expression<Func<DbSet<T1>, DbSet<T2>, IQueryable>> expression) where T1 : class, new() where T2 : class
         {
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddAzureTableStorage()
-                .ServiceCollection
-                .BuildServiceProvider();
-
-            var options = new DbContextOptions().UseAzureTableStorage("X");
-
-            using (var context = new DbContext(serviceProvider, options))
+            using (var context = TestHelpers.CreateContext())
             {
-                var executor = ((IDbContextServices)context).ScopedServiceProvider.GetRequiredService<EntityQueryExecutor>();
                 var query = expression.Compile()(new DbSet<T1>(context), new DbSet<T2>(context));
                 return CountQuery(query);
             }
@@ -109,15 +91,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
 
         private int CountQuery(IQueryable query)
         {
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddAzureTableStorage()
-                .ServiceCollection
-                .BuildServiceProvider();
-
-            var options = new DbContextOptions().UseAzureTableStorage("X");
-
-            using (var context = new DbContext(serviceProvider, options))
+            using (var context = TestHelpers.CreateContext())
             {
                 var executor = ((IDbContextServices)context).ScopedServiceProvider.GetRequiredService<EntityQueryExecutor>();
                 var queryModel = new EntityQueryProvider(executor).GenerateQueryModel(query.Expression);

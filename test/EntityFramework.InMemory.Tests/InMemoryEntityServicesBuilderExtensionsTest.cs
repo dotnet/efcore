@@ -4,8 +4,8 @@
 using System.Linq;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Tests;
 using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.DependencyInjection.Fallback;
 using Xunit;
 
 namespace Microsoft.Data.Entity.InMemory.Tests
@@ -25,11 +25,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         [Fact]
         public void Services_wire_up_correctly()
         {
-            var services = new ServiceCollection();
-            services.AddEntityFramework().AddInMemoryStore();
-            var serviceProvider = services.BuildServiceProvider();
-
-            using (var context = new DbContext(serviceProvider, new DbContextOptions()))
+            using (var context = TestHelpers.CreateContext())
             {
                 var scopedProvider = ((IDbContextServices)context).ScopedServiceProvider;
 

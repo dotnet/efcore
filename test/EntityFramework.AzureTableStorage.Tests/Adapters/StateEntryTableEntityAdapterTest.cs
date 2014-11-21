@@ -8,10 +8,9 @@ using Microsoft.Data.Entity.AzureTableStorage.Query;
 using Microsoft.Data.Entity.AzureTableStorage.Tests.Helpers;
 using Microsoft.Data.Entity.AzureTableStorage.Utilities;
 using Microsoft.Data.Entity.ChangeTracking;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Tests;
 using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.DependencyInjection.Fallback;
 using Microsoft.WindowsAzure.Storage.Table;
 using Xunit;
 
@@ -19,19 +18,6 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Adapters
 {
     public class StateEntryTableEntityAdapterTest
     {
-        private static IServiceProvider CreateContextServices(IModel model)
-        {
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddAzureTableStorage()
-                .ServiceCollection
-                .BuildServiceProvider();
-
-            return ((IDbContextServices)new DbContext(serviceProvider, new DbContextOptions()
-                .UseModel(model)
-                .UseAzureTableStorage("Moria", "mellon"))).ScopedServiceProvider;
-        }
-
         private static IModel CreateModel()
         {
             var model = new Model();
@@ -73,7 +59,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Adapters
         public void It_wraps_poco_in_adapter()
         {
             var model = CreateModel();
-            var stateManager = CreateContextServices(model).GetRequiredService<StateManager>();
+            var stateManager = TestHelpers.CreateContextServices(model).GetRequiredService<StateManager>();
 
             var obj = new ClrPoco();
             var entry = stateManager.GetOrCreateEntry(obj);
@@ -85,7 +71,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Adapters
         public void It_writes_to_clr_properties()
         {
             var model = CreateModel();
-            var stateManager = CreateContextServices(model).GetRequiredService<StateManager>();
+            var stateManager = TestHelpers.CreateContextServices(model).GetRequiredService<StateManager>();
 
             var obj = new ClrPoco();
             var entry = stateManager.GetOrCreateEntry(obj);
@@ -105,7 +91,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Adapters
         public void It_writes_to_shadow_state_properties()
         {
             var model = CreateModel();
-            var stateManager = CreateContextServices(model).GetRequiredService<StateManager>();
+            var stateManager = TestHelpers.CreateContextServices(model).GetRequiredService<StateManager>();
 
             var entityType = model.GetEntityType("ShadowEntity");
             var entry = stateManager.GetOrMaterializeEntry(entityType, new AtsObjectArrayValueReader(new object[] { "PK", "RK", null, null }));
@@ -132,7 +118,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Adapters
         public void It_reads_from_shadow_state_properties()
         {
             var model = CreateModel();
-            var stateManager = CreateContextServices(model).GetRequiredService<StateManager>();
+            var stateManager = TestHelpers.CreateContextServices(model).GetRequiredService<StateManager>();
 
             var entityType = model.GetEntityType("ShadowEntity");
             var entry = stateManager.GetOrMaterializeEntry(entityType, new AtsObjectArrayValueReader(new object[] { "PK", "RK", null, null }));
@@ -156,7 +142,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Adapters
         public void It_casts_to_int_keys()
         {
             var model = CreateModel();
-            var stateManager = CreateContextServices(model).GetRequiredService<StateManager>();
+            var stateManager = TestHelpers.CreateContextServices(model).GetRequiredService<StateManager>();
 
             var data = new object[] { "42", "1980", "11/11/2011 11:11:11 PM" };
             var entityType = model.GetEntityType(typeof(IntKeysPoco));
@@ -172,7 +158,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Adapters
         public void It_casts_from_int_keys()
         {
             var model = CreateModel();
-            var stateManager = CreateContextServices(model).GetRequiredService<StateManager>();
+            var stateManager = TestHelpers.CreateContextServices(model).GetRequiredService<StateManager>();
 
             var obj = new IntKeysPoco { PartitionID = 42, RowID = 1980 };
             var entry = stateManager.GetOrCreateEntry(obj);
@@ -186,7 +172,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Adapters
         public void It_interprets_guid_keys()
         {
             var model = CreateModel();
-            var stateManager = CreateContextServices(model).GetRequiredService<StateManager>();
+            var stateManager = TestHelpers.CreateContextServices(model).GetRequiredService<StateManager>();
 
             var data = new object[] { "80d401da-ef77-4bc6-a2b0-300025098a0e", "4b240e4f-b886-4d23-a63c-017a3d79885a", "timestamp" };
             var entityType = model.GetEntityType(typeof(GuidKeysPoco));
@@ -201,7 +187,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Adapters
         public void It_reads_from_dictionary()
         {
             var model = CreateModel();
-            var stateManager = CreateContextServices(model).GetRequiredService<StateManager>();
+            var stateManager = TestHelpers.CreateContextServices(model).GetRequiredService<StateManager>();
 
             var data = new Dictionary<string, EntityProperty>
                 {
@@ -223,7 +209,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Adapters
         public void It_skips_mismatched_types()
         {
             var model = CreateModel();
-            var stateManager = CreateContextServices(model).GetRequiredService<StateManager>();
+            var stateManager = TestHelpers.CreateContextServices(model).GetRequiredService<StateManager>();
 
             var data = new Dictionary<string, EntityProperty>
                 {
@@ -245,7 +231,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Adapters
         public void It_writes_to_dictionary()
         {
             var model = CreateModel();
-            var stateManager = CreateContextServices(model).GetRequiredService<StateManager>();
+            var stateManager = TestHelpers.CreateContextServices(model).GetRequiredService<StateManager>();
 
             var instance = new ClrPocoWithProp
             {

@@ -61,9 +61,7 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Each_context_gets_new_scoped_services()
         {
-            var services = new ServiceCollection();
-            services.AddEntityFramework();
-            var serviceProvider = services.BuildServiceProvider();
+            var serviceProvider = TestHelpers.CreateServiceProvider();
 
             IServiceProvider contextServices;
             using (var context = new DbContext(serviceProvider))
@@ -97,9 +95,7 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Each_context_gets_new_scoped_services_with_explicit_config()
         {
-            var services = new ServiceCollection();
-            services.AddEntityFramework();
-            var serviceProvider = services.BuildServiceProvider();
+            var serviceProvider = TestHelpers.CreateServiceProvider();
 
             var options = new DbContextOptions();
 
@@ -137,13 +133,11 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void SaveChanges_calls_DetectChanges()
         {
-            var services = new ServiceCollection();
-            services.AddEntityFramework()
-                .ServiceCollection
+            var services = new ServiceCollection()
                 .AddScoped<StateManager, FakeStateManager>()
                 .AddScoped<ChangeDetector, FakeChangeDetector>();
 
-            var serviceProvider = services.BuildServiceProvider();
+            var serviceProvider = TestHelpers.CreateServiceProvider(services);
 
             var options = new DbContextOptions();
 
@@ -162,13 +156,11 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void SaveChanges_calls_state_manager_SaveChanges()
         {
-            var services = new ServiceCollection();
-            services.AddEntityFramework()
-                .ServiceCollection
+            var services = new ServiceCollection()
                 .AddScoped<StateManager, FakeStateManager>()
                 .AddScoped<ChangeDetector, FakeChangeDetector>();
 
-            var serviceProvider = services.BuildServiceProvider();
+            var serviceProvider = TestHelpers.CreateServiceProvider(services);
 
             var options = new DbContextOptions();
 
@@ -191,13 +183,11 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public async Task SaveChangesAsync_calls_state_manager_SaveChangesAsync()
         {
-            var services = new ServiceCollection();
-            services.AddEntityFramework()
-                .ServiceCollection
+            var services = new ServiceCollection()
                 .AddScoped<StateManager, FakeStateManager>()
                 .AddScoped<ChangeDetector, FakeChangeDetector>();
 
-            var serviceProvider = services.BuildServiceProvider();
+            var serviceProvider = TestHelpers.CreateServiceProvider(services);
 
             var options = new DbContextOptions();
 
@@ -705,12 +695,10 @@ namespace Microsoft.Data.Entity.Tests
         {
             var modelSource = Mock.Of<IModelSource>();
 
-            var services = new ServiceCollection();
-            services
-                .AddEntityFramework().ServiceCollection
+            var services = new ServiceCollection()
                 .AddInstance(modelSource);
 
-            var provider = services.BuildServiceProvider();
+            var provider = TestHelpers.CreateServiceProvider(services);
 
             using (var context = new EarlyLearningCenter(provider))
             {
@@ -723,12 +711,10 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Can_set_known_singleton_services_using_type_activation()
         {
-            var services = new ServiceCollection();
-            services
-                .AddEntityFramework().ServiceCollection
+            var services = new ServiceCollection()
                 .AddSingleton<IModelSource, FakeModelSource>();
 
-            var provider = services.BuildServiceProvider();
+            var provider = TestHelpers.CreateServiceProvider(services);
 
             using (var context = new EarlyLearningCenter(provider))
             {
@@ -741,12 +727,10 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Can_set_known_context_scoped_services_using_type_activation()
         {
-            var services = new ServiceCollection();
-            services
-                .AddEntityFramework().ServiceCollection
+            var services = new ServiceCollection()
                 .AddScoped<StateManager, FakeStateManager>();
 
-            var provider = services.BuildServiceProvider();
+            var provider = TestHelpers.CreateServiceProvider(services);
 
             using (var context = new EarlyLearningCenter(provider))
             {

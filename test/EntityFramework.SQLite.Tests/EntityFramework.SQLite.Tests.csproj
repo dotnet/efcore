@@ -82,6 +82,8 @@
     <Compile Include="SQLiteMigrationOperationSqlGeneratorTest.cs" />
     <Compile Include="SQLiteSqlGeneratorTest.cs" />
     <Compile Include="SQLiteValueGeneratorSelectorTest.cs" />
+    <Compile Include="..\Shared\TestHelpers.cs" />
+    <Compile Include="TestHelperExtensions.cs" />
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>

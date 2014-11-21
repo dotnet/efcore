@@ -9,14 +9,12 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.ChangeTracking;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Relational.Model;
 using Microsoft.Data.Entity.Relational.Update;
+using Microsoft.Data.Entity.Tests;
 using Microsoft.Data.Entity.Update;
-using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.DependencyInjection.Fallback;
 using Microsoft.Framework.Logging;
 using Moq;
 using Moq.Protected;
@@ -579,27 +577,14 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             return model;
         }
 
-        private static IServiceProvider CreateContextServices(IModel model)
-        {
-            var serviceCollection = new ServiceCollection();
-            serviceCollection.AddEntityFramework().AddInMemoryStore();
-            return ((IDbContextServices)new DbContext(serviceCollection.BuildServiceProvider(),
-                new DbContextOptions()
-                    .UseInMemoryStore(false)
-                    .UseModel(model)))
-                .ScopedServiceProvider;
-        }
-
         private static StateEntry CreateStateEntry(
             EntityState entityState,
             bool generateKeyValues = false,
             bool computeNonKeyValue = false)
         {
             var model = BuildModel(generateKeyValues, computeNonKeyValue);
-            var stateEntry = CreateContextServices(model).GetRequiredService<StateManager>().GetOrCreateEntry(
-                new T1 { Id = 1, Name = "Test" });
-            stateEntry.EntityState = entityState;
-            return stateEntry;
+
+            return TestHelpers.CreateStateEntry(model, entityState, new T1 { Id = 1, Name = "Test" });
         }
 
         private class ModificationCommandBatchFake : ReaderModificationCommandBatch

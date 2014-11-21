@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Update;
+using Microsoft.Data.Entity.Tests;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.DependencyInjection.Fallback;
 using Microsoft.Framework.Logging;
 using Moq;
 using Xunit;
@@ -25,17 +25,15 @@ namespace Microsoft.Data.Entity.Relational.Tests
             var commandBatchPreparerMock = new Mock<CommandBatchPreparer>();
             var batchExecutorMock = new Mock<BatchExecutor>();
 
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddInMemoryStore()
-                .ServiceCollection
+            var customServices = new ServiceCollection()
                 .AddInstance(relationalConnectionMock.Object)
                 .AddInstance(commandBatchPreparerMock.Object)
                 .AddInstance(batchExecutorMock.Object)
-                .AddSingleton<FakeRelationalDataStore>()
-                .BuildServiceProvider();
+                .AddSingleton<FakeRelationalDataStore>();
 
-            var relationalDataStore = serviceProvider.GetRequiredService<FakeRelationalDataStore>();
+            var contextServices = TestHelpers.CreateContextServices(customServices);
+
+            var relationalDataStore = contextServices.GetRequiredService<FakeRelationalDataStore>();
 
             var stateEntries = new List<StateEntry>();
             var cancellationToken = new CancellationTokenSource().Token;
@@ -53,17 +51,15 @@ namespace Microsoft.Data.Entity.Relational.Tests
             var commandBatchPreparerMock = new Mock<CommandBatchPreparer>();
             var batchExecutorMock = new Mock<BatchExecutor>();
 
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddInMemoryStore()
-                .ServiceCollection
+            var customServices = new ServiceCollection()
                 .AddInstance(relationalConnectionMock.Object)
                 .AddInstance(commandBatchPreparerMock.Object)
                 .AddInstance(batchExecutorMock.Object)
-                .AddSingleton<FakeRelationalDataStore>()
-                .BuildServiceProvider();
+                .AddSingleton<FakeRelationalDataStore>();
 
-            var relationalDataStore = serviceProvider.GetRequiredService<FakeRelationalDataStore>();
+            var contextServices = TestHelpers.CreateContextServices(customServices);
+
+            var relationalDataStore = contextServices.GetRequiredService<FakeRelationalDataStore>();
 
             var stateEntries = new List<StateEntry>();
 

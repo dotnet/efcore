@@ -182,7 +182,6 @@ namespace Microsoft.Data.Entity
             get { return _configuration.Value.ScopedServiceProvider; }
         }
 
-
         protected internal virtual void OnConfiguring(DbContextOptions options)
         {
         }

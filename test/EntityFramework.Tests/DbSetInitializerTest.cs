@@ -5,7 +5,6 @@ using System;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.DependencyInjection.Fallback;
 using Moq;
 using Xunit;
 
@@ -26,10 +25,10 @@ namespace Microsoft.Data.Entity.Tests
                         new DbSetFinder.DbSetProperty(typeof(JustAContext), "Four", typeof(string), hasSetter: false)
                     });
 
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFramework().ServiceCollection
-                .AddInstance(new DbSetInitializer(setFinderMock.Object, new ClrPropertySetterSource(), new DbSetSource()))
-                .BuildServiceProvider();
+            var customServices = new ServiceCollection()
+                .AddInstance(new DbSetInitializer(setFinderMock.Object, new ClrPropertySetterSource(), new DbSetSource()));
+
+            var serviceProvider = TestHelpers.CreateServiceProvider(customServices);
 
             var options = new DbContextOptions();
 

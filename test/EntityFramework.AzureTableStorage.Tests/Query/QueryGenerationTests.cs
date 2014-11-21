@@ -12,9 +12,9 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Tests;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.DependencyInjection.Fallback;
 using Microsoft.Framework.Logging;
 using Moq;
 using Remotion.Linq;
@@ -161,15 +161,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
 
         private static QueryModel Query<T>(Expression<Func<DbSet<T>, IQueryable>> expression) where T : class
         {
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddAzureTableStorage()
-                .ServiceCollection
-                .BuildServiceProvider();
-
-            var options = new DbContextOptions().UseAzureTableStorage("X");
-
-            using (var context = new DbContext(serviceProvider, options))
+            using (var context = TestHelpers.CreateContext())
             {
                 var executor = ((IDbContextServices)context).ScopedServiceProvider.GetRequiredService<EntityQueryExecutor>();
                 var query = expression.Compile()(new DbSet<T>(context));

@@ -111,7 +111,9 @@
     <Compile Include="Query\QueryModelVisitorTests.cs" />
     <Compile Include="Query\TableQueryGeneratorTests.cs" />
     <Compile Include="Requests\TableOperationRequestTests.cs" />
+    <Compile Include="TestHelperExtensions.cs" />
     <Compile Include="Utilities\EntityTypeExtensionsTest.cs" />
+    <Compile Include="..\Shared\TestHelpers.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="project.json" />

@@ -1,14 +1,11 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.DependencyInjection.Fallback;
-using Moq;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Tests
@@ -18,7 +15,7 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Requesting_a_singleton_always_returns_same_instance()
         {
-            var provider = CreateDefaultProvider();
+            var provider = TestHelpers.CreateServiceProvider();
             var contextServices1 = TestHelpers.CreateContextServices(provider);
             var contextServices2 = TestHelpers.CreateContextServices(provider);
 
@@ -28,7 +25,7 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Requesting_a_scoped_service_always_returns_same_instance_in_scope()
         {
-            var provider = CreateDefaultProvider();
+            var provider = TestHelpers.CreateServiceProvider();
             var contextServices = TestHelpers.CreateContextServices(provider);
 
             Assert.Same(contextServices.GetRequiredService<StateManager>(), contextServices.GetRequiredService<StateManager>());
@@ -37,7 +34,7 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Requesting_a_scoped_service_always_returns_a_different_instance_in_a_different_scope()
         {
-            var provider = CreateDefaultProvider();
+            var provider = TestHelpers.CreateServiceProvider();
             var contextServices1 = TestHelpers.CreateContextServices(provider);
             var contextServices2 = TestHelpers.CreateContextServices(provider);
 
@@ -47,9 +44,7 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Scoped_data_store_services_can_be_obtained_from_configuration()
         {
-            var services = new ServiceCollection();
-            services.AddEntityFramework().AddInMemoryStore();
-            var serviceProvider = services.BuildServiceProvider();
+            var serviceProvider = TestHelpers.CreateServiceProvider();
 
             DataStore store;
             DataStoreCreator creator;
@@ -114,20 +109,6 @@ namespace Microsoft.Data.Entity.Tests
             {
                 options.UseInMemoryStore();
             }
-        }
-
-        private static IServiceProvider CreateDefaultProvider()
-        {
-            var services = new ServiceCollection();
-            services.AddEntityFramework().AddInMemoryStore();
-            return services.BuildServiceProvider();
-        }
-
-        private static DbContextConfiguration CreateEmptyConfiguration()
-        {
-            var provider = new ServiceCollection().BuildServiceProvider();
-            return new DbContextConfiguration()
-                .Initialize(provider, new DbContextOptions(), Mock.Of<DbContext>(), DbContextConfiguration.ServiceProviderSource.Explicit);
         }
     }
 }

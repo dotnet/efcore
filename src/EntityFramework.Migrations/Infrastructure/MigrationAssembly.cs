@@ -22,6 +22,15 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
         private IReadOnlyList<Migration> _migrations;
         private IModel _model;
 
+        /// <summary>
+        ///     This constructor is intended only for use when creating test doubles that will override members
+        ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
+        ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
+        /// </summary>
+        protected MigrationAssembly()
+        {
+        }
+
         public MigrationAssembly([NotNull] LazyRef<DbContext> context, [NotNull] LazyRef<IDbContextOptions> options)
         {
             Check.NotNull(context, "context");

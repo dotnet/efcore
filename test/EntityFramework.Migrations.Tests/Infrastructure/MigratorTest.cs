@@ -3,12 +3,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Data.Common;
 using System.Linq;
 using System.Text;
-using Microsoft.Data.Entity.Identity;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Builders;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
@@ -17,12 +13,9 @@ using Microsoft.Data.Entity.Migrations.Utilities;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Model;
 using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Utilities;
+using Microsoft.Data.Entity.Tests;
 using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.DependencyInjection.Fallback;
 using Microsoft.Framework.Logging;
-using Moq;
-using Moq.Protected;
 using Xunit;
 using RelationalStrings = Microsoft.Data.Entity.Relational.Strings;
 
@@ -41,7 +34,8 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                     };
             var databaseMigrations = localMigrations;
 
-            var migrator = MockMigrator(databaseMigrations, localMigrations);
+            var migrator = CreateMigrator(databaseMigrations, localMigrations);
+
             var migrations = migrator.GetDatabaseMigrations();
 
             Assert.Equal(databaseMigrations.Length, migrations.Count);
@@ -62,7 +56,8 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                         new MigrationInfo("000000000000002_Migration2")
                     };
 
-            var migrator = MockMigrator(new MigrationInfo[0], localMigrations);
+            var migrator = CreateMigrator(new MigrationInfo[0], localMigrations);
+
             var migrations = migrator.GetLocalMigrations();
 
             Assert.Equal(localMigrations.Length, migrations.Count);
@@ -92,7 +87,8 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                         new MigrationInfo("000000000000004_M4")
                     };
 
-            var migrator = MockMigrator(databaseMigrations, localMigrations);
+            var migrator = CreateMigrator(databaseMigrations, localMigrations);
+
             var migrations = migrator.GetPendingMigrations();
 
             Assert.Equal(2, migrations.Count);
@@ -104,7 +100,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         [Fact]
         public void ScriptMigrations_with_single_initial_migration()
         {
-            var migrator = MockMigrator(
+            var migrator = CreateMigrator(
                 new MigrationInfo[0],
                 new[]
                     {
@@ -130,7 +126,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         [Fact]
         public void ScriptMigrations_with_multiple_initial_migrations()
         {
-            var migrator = MockMigrator(
+            var migrator = CreateMigrator(
                 new MigrationInfo[0],
                 new[]
                     {
@@ -169,7 +165,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         [Fact]
         public void ScriptMigrations_with_single_migration()
         {
-            var migrator = MockMigrator(
+            var migrator = CreateMigrator(
                 new[]
                     {
                         new MigrationInfo("000000000000001_Migration1")
@@ -204,7 +200,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         [Fact]
         public void ScriptMigrations_with_multiple_migrations()
         {
-            var migrator = MockMigrator(
+            var migrator = CreateMigrator(
                 new[]
                     {
                         new MigrationInfo("000000000000001_Migration1"),
@@ -255,7 +251,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         [Fact]
         public void ScriptMigrations_with_target_last_local_migration()
         {
-            var migrator = MockMigrator(
+            var migrator = CreateMigrator(
                 new[]
                     {
                         new MigrationInfo("000000000000001_Migration1"),
@@ -306,7 +302,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         [Fact]
         public void ScriptMigrations_with_target_local_migration()
         {
-            var migrator = MockMigrator(
+            var migrator = CreateMigrator(
                 new[]
                     {
                         new MigrationInfo("000000000000001_Migration1"),
@@ -355,7 +351,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         [Fact]
         public void ScriptMigrations_with_target_last_database_migration()
         {
-            var migrator = MockMigrator(
+            var migrator = CreateMigrator(
                 new[]
                     {
                         new MigrationInfo("000000000000001_Migration1"),
@@ -379,7 +375,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         [Fact]
         public void ScriptMigrations_with_target_database_migration()
         {
-            var migrator = MockMigrator(
+            var migrator = CreateMigrator(
                 new[]
                     {
                         new MigrationInfo("000000000000001_Migration1"),
@@ -433,7 +429,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         [Fact]
         public void ScriptMigrations_with_local_migration_before_last_database_migration()
         {
-            var migrator = MockMigrator(
+            var migrator = CreateMigrator(
                 new[]
                     {
                         new MigrationInfo("000000000000001_Migration1"),
@@ -475,7 +471,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         [Fact]
         public void ScriptMigrations_with_target_local_migration_before_last_database_migration()
         {
-            var migrator = MockMigrator(
+            var migrator = CreateMigrator(
                 new[]
                     {
                         new MigrationInfo("000000000000001_Migration1"),
@@ -557,7 +553,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                             }
                     };
 
-            var migrator = MockMigrator(databaseMigrations, localMigrations);
+            var migrator = CreateMigrator(databaseMigrations, localMigrations);
 
             var sqlStatements = migrator.ScriptMigrations(Migrator.InitialDatabase);
 
@@ -588,7 +584,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                             }
                     };
 
-            var migrator = MockMigrator(databaseMigrations, localMigrations, databaseExists: true, historyRepositoryExists: false);
+            var migrator = CreateMigrator(databaseMigrations, localMigrations, historyRepositoryExists: false);
 
             var sqlStatements = migrator.ScriptMigrations();
 
@@ -601,7 +597,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         [Fact]
         public void ScriptMigrations_throws_if_local_migrations_do_not_include_all_database_migrations()
         {
-            var migrator = MockMigrator(
+            var migrator = CreateMigrator(
                 new[]
                     {
                         new MigrationInfo("000000000000001_Migration1"),
@@ -620,7 +616,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                 Strings.LocalMigrationNotFound("000000000000002_Migration2"),
                 Assert.Throws<InvalidOperationException>(() => migrator.ScriptMigrations("Migration1")).Message);
 
-            migrator = MockMigrator(
+            migrator = CreateMigrator(
                 new[]
                     {
                         new MigrationInfo("000000000000001_Migration1"),
@@ -645,7 +641,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         [Fact]
         public void ScriptMigrations_throws_if_target_migration_not_found()
         {
-            var migrator = MockMigrator(
+            var migrator = CreateMigrator(
                 new[]
                     {
                         new MigrationInfo("000000000000001_Migration1")
@@ -668,57 +664,42 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             var databaseMigrations = new MigrationInfo[0];
             var localMigrations
                 = new[]
-                      {
-                          new MigrationInfo("000000000000001_Migration1")
-                              {
-                                  UpgradeOperations = new[] { new SqlOperation("SomeSql") },
-                                  TargetModel = new Metadata.Model()
-                              }
-                      };
-
-            Mock<RelationalDataStoreCreator> dbCreatorMock;
-            Mock<DbConnection> dbConnectionMock;
-            Mock<DbTransaction> dbTransactionMock;
-            Mock<SqlStatementExecutor> sqlStatementExecutorMock;
-
-            var migrator
-                = MockMigrator(
-                    databaseMigrations,
-                    localMigrations,
-                    /*databaseExists*/ false,
-                    /*historyTableExists*/ false,
-                    out dbCreatorMock,
-                    out dbConnectionMock,
-                    out dbTransactionMock,
-                    out sqlStatementExecutorMock);
-
-            var callCount = 0;
-
-            sqlStatementExecutorMock.Setup(m => m.ExecuteNonQuery(It.IsAny<DbConnection>(), It.IsAny<DbTransaction>(), It.IsAny<IEnumerable<SqlStatement>>()))
-                .Callback<DbConnection, DbTransaction, IEnumerable<SqlStatement>>(
-                    (_, __, statements) =>
-                        {
-                            switch (++callCount)
+                    {
+                        new MigrationInfo("000000000000001_Migration1")
                             {
-                                case 1:
-                                    Assert.Equal(new[] { "Create__MigrationHistorySql" }, statements.Select(s => s.Sql));
-                                    break;
-                                case 2:
-                                    Assert.Equal(new[] { "SomeSql", "Migration1InsertSql" }, statements.Select(s => s.Sql));
-                                    break;
-                                default:
-                                    Assert.False(true, "Unexpected call count.");
-                                    break;
+                                UpgradeOperations = new[] { new SqlOperation("SomeSql") },
+                                TargetModel = new Metadata.Model()
                             }
-                        });
+                    };
+
+            var contextServices = CreateContextServices(databaseMigrations, localMigrations, historyRepositoryExists: false);
+            var migrator = contextServices.GetRequiredService<TestMigrator>();
+            var creator = contextServices.GetRequiredService<RecordingDataStoreCreator>();
+            var executor = (RecordingSqlStatementExecutor)contextServices.GetRequiredService<SqlStatementExecutor>();
+
+            creator.ExistsState = false;
 
             migrator.ApplyMigrations();
 
-            dbCreatorMock.Verify(m => m.Exists(), Times.Once);
-            dbCreatorMock.Verify(m => m.Create(), Times.Once);
-            dbConnectionMock.Protected().Verify("BeginDbTransaction", Times.Exactly(2), IsolationLevel.Serializable);
-            dbTransactionMock.Verify(m => m.Commit(), Times.Exactly(2));
-            sqlStatementExecutorMock.Verify(m => m.ExecuteNonQuery(It.IsAny<DbConnection>(), It.IsAny<DbTransaction>(), It.IsAny<IEnumerable<SqlStatement>>()), Times.Exactly(2));
+            Assert.Equal(
+                new[]
+                    {
+                        "Create__MigrationHistorySql",
+                        "SomeSql",
+                        "Migration1InsertSql",
+                    },
+                executor.NonQueries.SelectMany(t => t.Item3));
+
+            Assert.Equal(
+                new[]
+                    {
+                        true,
+                        true
+                    },
+                executor.NonQueries.Select(t => ((FakeDbTransaction)t.Item2).Committed));
+
+            Assert.True(creator.Created);
+            Assert.True(creator.ExistsState);
         }
 
         [Fact]
@@ -735,49 +716,32 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                               }
                       };
 
-            Mock<RelationalDataStoreCreator> dbCreatorMock;
-            Mock<DbConnection> dbConnectionMock;
-            Mock<DbTransaction> dbTransactionMock;
-            Mock<SqlStatementExecutor> sqlStatementExecutorMock;
-
-            var migrator
-                = MockMigrator(
-                    databaseMigrations,
-                    localMigrations,
-                    /*databaseExists*/ true,
-                    /*historyTableExists*/ false,
-                    out dbCreatorMock,
-                    out dbConnectionMock,
-                    out dbTransactionMock,
-                    out sqlStatementExecutorMock);
-
-            var callCount = 0;
-
-            sqlStatementExecutorMock.Setup(m => m.ExecuteNonQuery(It.IsAny<DbConnection>(), It.IsAny<DbTransaction>(), It.IsAny<IEnumerable<SqlStatement>>()))
-                .Callback<DbConnection, DbTransaction, IEnumerable<SqlStatement>>(
-                    (_, __, statements) =>
-                        {
-                            switch (++callCount)
-                            {
-                                case 1:
-                                    Assert.Equal(new[] { "Create__MigrationHistorySql" }, statements.Select(s => s.Sql));
-                                    break;
-                                case 2:
-                                    Assert.Equal(new[] { "SomeSql", "Migration1InsertSql" }, statements.Select(s => s.Sql));
-                                    break;
-                                default:
-                                    Assert.False(true, "Unexpected call count.");
-                                    break;
-                            }
-                        });
+            var contextServices = CreateContextServices(databaseMigrations, localMigrations, historyRepositoryExists: false);
+            var migrator = contextServices.GetRequiredService<TestMigrator>();
+            var creator = contextServices.GetRequiredService<RecordingDataStoreCreator>();
+            var executor = (RecordingSqlStatementExecutor)contextServices.GetRequiredService<SqlStatementExecutor>();
 
             migrator.ApplyMigrations();
 
-            dbCreatorMock.Verify(m => m.Exists(), Times.Once);
-            dbCreatorMock.Verify(m => m.Create(), Times.Never);
-            dbConnectionMock.Protected().Verify("BeginDbTransaction", Times.Exactly(2), IsolationLevel.Serializable);
-            dbTransactionMock.Verify(m => m.Commit(), Times.Exactly(2));
-            sqlStatementExecutorMock.Verify(m => m.ExecuteNonQuery(It.IsAny<DbConnection>(), It.IsAny<DbTransaction>(), It.IsAny<IEnumerable<SqlStatement>>()), Times.Exactly(2));
+            Assert.Equal(
+                new[]
+                    {
+                        "Create__MigrationHistorySql",
+                        "SomeSql",
+                        "Migration1InsertSql",
+                    },
+                executor.NonQueries.SelectMany(t => t.Item3));
+
+            Assert.Equal(
+                new[]
+                    {
+                        true,
+                        true
+                    },
+                executor.NonQueries.Select(t => ((FakeDbTransaction)t.Item2).Committed));
+
+            Assert.False(creator.Created);
+            Assert.True(creator.ExistsState);
         }
 
         [Fact]
@@ -794,35 +758,30 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                               }
                       };
 
-            Mock<RelationalDataStoreCreator> dbCreatorMock;
-            Mock<DbConnection> dbConnectionMock;
-            Mock<DbTransaction> dbTransactionMock;
-            Mock<SqlStatementExecutor> sqlStatementExecutorMock;
-
-            var migrator
-                = MockMigrator(
-                    databaseMigrations,
-                    localMigrations,
-                    /*databaseExists*/ true,
-                    /*historyTableExists*/ true,
-                    out dbCreatorMock,
-                    out dbConnectionMock,
-                    out dbTransactionMock,
-                    out sqlStatementExecutorMock);
-
-            var expectedSql = new[] { "SomeSql", "Migration1InsertSql" };
-
-            sqlStatementExecutorMock.Setup(m => m.ExecuteNonQuery(It.IsAny<DbConnection>(), It.IsAny<DbTransaction>(), It.IsAny<IEnumerable<SqlStatement>>()))
-                .Callback<DbConnection, DbTransaction, IEnumerable<SqlStatement>>(
-                    (_, __, statements) => Assert.Equal(expectedSql, statements.Select(s => s.Sql)));
+            var contextServices = CreateContextServices(databaseMigrations, localMigrations);
+            var migrator = contextServices.GetRequiredService<TestMigrator>();
+            var creator = contextServices.GetRequiredService<RecordingDataStoreCreator>();
+            var executor = (RecordingSqlStatementExecutor)contextServices.GetRequiredService<SqlStatementExecutor>();
 
             migrator.ApplyMigrations();
 
-            dbCreatorMock.Verify(m => m.Exists(), Times.Once);
-            dbCreatorMock.Verify(m => m.Create(), Times.Never);
-            dbConnectionMock.Protected().Verify("BeginDbTransaction", Times.Once(), IsolationLevel.Serializable);
-            dbTransactionMock.Verify(m => m.Commit(), Times.Once);
-            sqlStatementExecutorMock.Verify(m => m.ExecuteNonQuery(It.IsAny<DbConnection>(), It.IsAny<DbTransaction>(), It.IsAny<IEnumerable<SqlStatement>>()), Times.Once);
+            Assert.Equal(
+                new[]
+                    {
+                        "SomeSql",
+                        "Migration1InsertSql",
+                    },
+                executor.NonQueries.SelectMany(t => t.Item3));
+
+            Assert.Equal(
+                new[]
+                    {
+                        true
+                    },
+                executor.NonQueries.Select(t => ((FakeDbTransaction)t.Item2).Committed));
+
+            Assert.False(creator.Created);
+            Assert.True(creator.ExistsState);
         }
 
         [Fact]
@@ -847,35 +806,30 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                               }
                       };
 
-            Mock<RelationalDataStoreCreator> dbCreatorMock;
-            Mock<DbConnection> dbConnectionMock;
-            Mock<DbTransaction> dbTransactionMock;
-            Mock<SqlStatementExecutor> sqlStatementExecutorMock;
-
-            var migrator
-                = MockMigrator(
-                    databaseMigrations,
-                    localMigrations,
-                    /*databaseExists*/ true,
-                    /*historyTableExists*/ true,
-                    out dbCreatorMock,
-                    out dbConnectionMock,
-                    out dbTransactionMock,
-                    out sqlStatementExecutorMock);
-
-            var expectedSql = new[] { "SomeSql", "Migration2DeleteSql" };
-
-            sqlStatementExecutorMock.Setup(m => m.ExecuteNonQuery(It.IsAny<DbConnection>(), It.IsAny<DbTransaction>(), It.IsAny<IEnumerable<SqlStatement>>()))
-                .Callback<DbConnection, DbTransaction, IEnumerable<SqlStatement>>(
-                    (_, __, statements) => Assert.Equal(expectedSql, statements.Select(s => s.Sql)));
+            var contextServices = CreateContextServices(databaseMigrations, localMigrations);
+            var migrator = contextServices.GetRequiredService<TestMigrator>();
+            var creator = contextServices.GetRequiredService<RecordingDataStoreCreator>();
+            var executor = (RecordingSqlStatementExecutor)contextServices.GetRequiredService<SqlStatementExecutor>();
 
             migrator.ApplyMigrations("Migration1");
 
-            dbCreatorMock.Verify(m => m.Exists(), Times.Once);
-            dbCreatorMock.Verify(m => m.Create(), Times.Never);
-            dbConnectionMock.Protected().Verify("BeginDbTransaction", Times.Once(), IsolationLevel.Serializable);
-            dbTransactionMock.Verify(m => m.Commit(), Times.Once);
-            sqlStatementExecutorMock.Verify(m => m.ExecuteNonQuery(It.IsAny<DbConnection>(), It.IsAny<DbTransaction>(), It.IsAny<IEnumerable<SqlStatement>>()), Times.Once);
+            Assert.Equal(
+                new[]
+                    {
+                        "SomeSql",
+                        "Migration2DeleteSql",
+                    },
+                executor.NonQueries.SelectMany(t => t.Item3));
+
+            Assert.Equal(
+                new[]
+                    {
+                        true
+                    },
+                executor.NonQueries.Select(t => ((FakeDbTransaction)t.Item2).Committed));
+
+            Assert.False(creator.Created);
+            Assert.True(creator.ExistsState);
         }
 
         [Fact]
@@ -888,88 +842,65 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                     };
             var localMigrations
                 = new[]
-                      {
-                          new MigrationInfo("000000000000001_Migration1")
-                              {
-                                  DowngradeOperations = new[] { new SqlOperation("SomeSql") },
-                              }
-                      };
-
-            Mock<RelationalDataStoreCreator> dbCreatorMock;
-            Mock<DbConnection> dbConnectionMock;
-            Mock<DbTransaction> dbTransactionMock;
-            Mock<SqlStatementExecutor> sqlStatementExecutorMock;
-
-            var migrator
-                = MockMigrator(
-                    databaseMigrations,
-                    localMigrations,
-                    /*databaseExists*/ true,
-                    /*historyTableExists*/ true,
-                    out dbCreatorMock,
-                    out dbConnectionMock,
-                    out dbTransactionMock,
-                    out sqlStatementExecutorMock);
-
-            var callCount = 0;
-
-            sqlStatementExecutorMock.Setup(m => m.ExecuteNonQuery(It.IsAny<DbConnection>(), It.IsAny<DbTransaction>(), It.IsAny<IEnumerable<SqlStatement>>()))
-                .Callback<DbConnection, DbTransaction, IEnumerable<SqlStatement>>(
-                    (_, __, statements) =>
-                        {
-                            switch (++callCount)
+                    {
+                        new MigrationInfo("000000000000001_Migration1")
                             {
-                                case 1:
-                                    Assert.Equal(new[] { "SomeSql", "Migration1DeleteSql" }, statements.Select(s => s.Sql));
-                                    break;
-                                case 2:
-                                    Assert.Equal(new[] { "Drop__MigrationHistorySql" }, statements.Select(s => s.Sql));
-                                    break;
-                                default:
-                                    Assert.False(true, "Unexpected call count.");
-                                    break;
+                                DowngradeOperations = new[] { new SqlOperation("SomeSql") },
                             }
-                        });
+                    };
+
+            var contextServices = CreateContextServices(databaseMigrations, localMigrations);
+            var migrator = contextServices.GetRequiredService<TestMigrator>();
+            var creator = contextServices.GetRequiredService<RecordingDataStoreCreator>();
+            var executor = (RecordingSqlStatementExecutor)contextServices.GetRequiredService<SqlStatementExecutor>();
 
             migrator.ApplyMigrations(Migrator.InitialDatabase);
 
-            dbCreatorMock.Verify(m => m.Exists(), Times.Once);
-            dbCreatorMock.Verify(m => m.Create(), Times.Never);
-            dbConnectionMock.Protected().Verify("BeginDbTransaction", Times.Exactly(2), IsolationLevel.Serializable);
-            dbTransactionMock.Verify(m => m.Commit(), Times.Exactly(2));
-            sqlStatementExecutorMock.Verify(m => m.ExecuteNonQuery(It.IsAny<DbConnection>(), It.IsAny<DbTransaction>(), It.IsAny<IEnumerable<SqlStatement>>()), Times.Exactly(2));
+            Assert.Equal(
+                new[]
+                    {
+                        "SomeSql",
+                        "Migration1DeleteSql",
+                        "Drop__MigrationHistorySql"
+                    },
+                executor.NonQueries.SelectMany(t => t.Item3));
+
+            Assert.Equal(
+                new[]
+                    {
+                        true,
+                        true
+                    },
+                executor.NonQueries.Select(t => ((FakeDbTransaction)t.Item2).Committed));
+
+            Assert.False(creator.Created);
+            Assert.True(creator.ExistsState);
         }
 
         [Fact]
         public void ApplyMigrations_creates_database_if_no_migrations()
         {
-            Mock<RelationalDataStoreCreator> dbCreatorMock;
-            Mock<DbConnection> dbConnectionMock;
-            Mock<DbTransaction> dbTransactionMock;
-            Mock<SqlStatementExecutor> sqlStatementExecutorMock;
+            var contextServices = CreateContextServices(new MigrationInfo[0], new MigrationInfo[0], historyRepositoryExists: false);
+            var migrator = contextServices.GetRequiredService<TestMigrator>();
+            var creator = contextServices.GetRequiredService<RecordingDataStoreCreator>();
+            var executor = (RecordingSqlStatementExecutor)contextServices.GetRequiredService<SqlStatementExecutor>();
 
-            var migrator
-                = MockMigrator(
-                    new MigrationInfo[0],
-                    new MigrationInfo[0],
-                    /*databaseExists*/ false,
-                    /*historyTableExists*/ false,
-                    out dbCreatorMock,
-                    out dbConnectionMock,
-                    out dbTransactionMock,
-                    out sqlStatementExecutorMock);
+            creator.ExistsState = false;
 
             migrator.ApplyMigrations();
 
-            dbCreatorMock.Verify(m => m.Exists(), Times.Once);
-            dbCreatorMock.Verify(m => m.Create(), Times.Once);
+            Assert.Empty(executor.NonQueries);
+            Assert.True(creator.Created);
+            Assert.True(creator.ExistsState);
+
+            creator.ExistsState = false;
+            creator.Created = false;
 
             migrator.ApplyMigrations(Migrator.InitialDatabase);
 
-            dbCreatorMock.Verify(m => m.Exists(), Times.Exactly(2));
-            dbCreatorMock.Verify(m => m.Create(), Times.Exactly(2));
-
-            sqlStatementExecutorMock.Verify(m => m.ExecuteNonQuery(It.IsAny<DbConnection>(), It.IsAny<DbTransaction>(), It.IsAny<IEnumerable<SqlStatement>>()), Times.Never);
+            Assert.Empty(executor.NonQueries);
+            Assert.True(creator.Created);
+            Assert.True(creator.ExistsState);
         }
 
         [Fact]
@@ -996,66 +927,36 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                               }
                       };
 
-            Mock<RelationalDataStoreCreator> dbCreatorMock;
-            Mock<DbConnection> dbConnectionMock;
-            Mock<DbTransaction> dbTransactionMock;
-            Mock<SqlStatementExecutor> sqlStatementExecutorMock;
-
-            var migrator
-                = MockMigrator(
-                    databaseMigrations,
-                    localMigrations,
-                    /*databaseExists*/ true,
-                    /*historyTableExists*/ true,
-                    out dbCreatorMock,
-                    out dbConnectionMock,
-                    out dbTransactionMock,
-                    out sqlStatementExecutorMock);
-
-            var callCount = 0;
-
-            sqlStatementExecutorMock.Setup(m => m.ExecuteNonQuery(It.IsAny<DbConnection>(), It.IsAny<DbTransaction>(), It.IsAny<IEnumerable<SqlStatement>>()))
-                .Callback<DbConnection, DbTransaction, IEnumerable<SqlStatement>>(
-                    (connection, transaction, statements) =>
-                        {
-                            switch (++callCount)
-                            {
-                                case 1:
-                                    Assert.Null(transaction);
-                                    Assert.Equal(new[] { "1" }, statements.Select(s => s.Sql));
-                                    break;
-                                case 2:
-                                    Assert.Equal(new[] { "2", "3" }, statements.Select(s => s.Sql));
-                                    break;
-                                case 3:
-                                    Assert.Null(transaction);
-                                    Assert.Equal(new[] { "4" }, statements.Select(s => s.Sql));
-                                    break;
-                                case 4:
-                                    Assert.NotNull(transaction);
-                                    Assert.Equal(new[] { "5", "6" }, statements.Select(s => s.Sql));
-                                    break;
-                                case 5:
-                                    Assert.Null(transaction);
-                                    Assert.Equal(new[] { "7" }, statements.Select(s => s.Sql));
-                                    break;
-                                case 6:
-                                    Assert.NotNull(transaction);
-                                    Assert.Equal(new[] { "Migration1InsertSql" }, statements.Select(s => s.Sql));
-                                    break;
-                                default:
-                                    Assert.False(true, "Unexpected call count.");
-                                    break;
-                            }
-                        });
+            var contextServices = CreateContextServices(databaseMigrations, localMigrations);
+            var migrator = contextServices.GetRequiredService<TestMigrator>();
+            var creator = contextServices.GetRequiredService<RecordingDataStoreCreator>();
+            var executor = (RecordingSqlStatementExecutor)contextServices.GetRequiredService<SqlStatementExecutor>();
 
             migrator.ApplyMigrations();
 
-            dbCreatorMock.Verify(m => m.Exists(), Times.Once);
-            dbCreatorMock.Verify(m => m.Create(), Times.Never);
-            dbConnectionMock.Protected().Verify("BeginDbTransaction", Times.Exactly(3), IsolationLevel.Serializable);
-            dbTransactionMock.Verify(m => m.Commit(), Times.Exactly(3));
-            sqlStatementExecutorMock.Verify(m => m.ExecuteNonQuery(It.IsAny<DbConnection>(), It.IsAny<DbTransaction>(), It.IsAny<IEnumerable<SqlStatement>>()), Times.Exactly(6));
+            Assert.Equal(
+                new[]
+                    {
+                        new [] {  "1" },
+                        new [] {  "2", "3" },
+                        new [] {  "4" },
+                        new [] {  "5", "6" },
+                        new [] {  "7" },
+                        new [] {  "Migration1InsertSql" }
+                    },
+                executor.NonQueries.Select(t => t.Item3).ToArray());
+
+            var transactions = executor.NonQueries.Select(t => ((FakeDbTransaction)t.Item2)).ToList();
+
+            Assert.Null(transactions[0]);
+            Assert.True(transactions[1].Committed);
+            Assert.Null(transactions[2]);
+            Assert.True(transactions[3].Committed);
+            Assert.Null(transactions[4]);
+            Assert.True(transactions[5].Committed);
+
+            Assert.False(creator.Created);
+            Assert.True(creator.ExistsState);
         }
 
         [Fact]
@@ -1072,14 +973,12 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                               }
                       };
 
-            var loggerFactory = new TestLoggerFactory();
-            var migrator
-                = MockMigrator(
-                    databaseMigrations,
-                    localMigrations,
-                    /*databaseExists*/ false,
-                    /*historyTableExists*/ false,
-                    loggerFactory);
+            var contextServices = CreateContextServices(databaseMigrations, localMigrations, historyRepositoryExists: false);
+            var migrator = contextServices.GetRequiredService<TestMigrator>();
+            var creator = contextServices.GetRequiredService<RecordingDataStoreCreator>();
+            var loggerFactory = (RecordingLoggerFactory)contextServices.GetRequiredService<ILoggerFactory>();
+
+            creator.ExistsState = false;
 
             migrator.ApplyMigrations();
 
@@ -1129,14 +1028,9 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                               }
                       };
 
-            var loggerFactory = new TestLoggerFactory();
-            var migrator
-                = MockMigrator(
-                    databaseMigrations,
-                    localMigrations,
-                    /*databaseExists*/ true,
-                    /*historyTableExists*/ true,
-                    loggerFactory);
+            var contextServices = CreateContextServices(databaseMigrations, localMigrations);
+            var migrator = contextServices.GetRequiredService<TestMigrator>();
+            var loggerFactory = (RecordingLoggerFactory)contextServices.GetRequiredService<ILoggerFactory>();
 
             migrator.ApplyMigrations(Migrator.InitialDatabase);
 
@@ -1169,312 +1063,70 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                 loggerFactory.LogContent);
         }
 
-        #region Fixture
-
-        private static Migrator MockMigrator(
+        private static TestMigrator CreateMigrator(
             IReadOnlyList<MigrationInfo> databaseMigrations,
             IReadOnlyList<MigrationInfo> localMigrations,
-            bool databaseExists = true,
-            bool historyRepositoryExists = true,
-            ILoggerFactory loggerFactory = null)
-        {
-            Mock<RelationalDataStoreCreator> dbCreatorMock;
-            Mock<DbConnection> dbConnectionMock;
-            Mock<DbTransaction> dbTransactionMock;
-            Mock<SqlStatementExecutor> sqlStatementExecutorMock;
-
-            return MockMigrator(
-                databaseMigrations,
-                localMigrations,
-                databaseExists,
-                historyRepositoryExists,
-                out dbCreatorMock,
-                out dbConnectionMock,
-                out dbTransactionMock,
-                out sqlStatementExecutorMock,
-                loggerFactory);
-        }
-
-        private static Migrator MockMigrator(
-            IReadOnlyList<MigrationInfo> databaseMigrations,
-            IReadOnlyList<MigrationInfo> localMigrations,
-            bool databaseExists,
-            bool historyRepositoryExists,
-            out Mock<RelationalDataStoreCreator> dbCreatorMock,
-            out Mock<DbConnection> dbConnectionMock,
-            out Mock<DbTransaction> dbTransactionMock,
-            out Mock<SqlStatementExecutor> sqlStatementExecutorMock,
-            ILoggerFactory loggerFactory = null)
-        {
-            if (loggerFactory == null)
-            {
-                loggerFactory = new LoggerFactory();
-            }
-
-            dbCreatorMock = new Mock<RelationalDataStoreCreator>();
-            dbConnectionMock = new Mock<DbConnection>();
-            dbTransactionMock = new Mock<DbTransaction>();
-            sqlStatementExecutorMock = new Mock<SqlStatementExecutor>(loggerFactory) { CallBase = true };
-
-            dbCreatorMock.Setup(m => m.Exists()).Returns(databaseExists);
-            dbConnectionMock.SetupGet(m => m.Database).Returns("MyDatabase");
-            dbConnectionMock.SetupGet(m => m.ConnectionString).Returns("MyConnectionString");
-            dbConnectionMock.Protected().Setup<DbTransaction>("BeginDbTransaction", ItExpr.IsAny<IsolationLevel>()).Returns(dbTransactionMock.Object);
-            dbTransactionMock.Protected().SetupGet<DbConnection>("DbConnection").Returns(dbConnectionMock.Object);
-            sqlStatementExecutorMock.Protected()
-                .Setup<DbCommand>("CreateCommand", ItExpr.IsAny<DbConnection>(), ItExpr.IsAny<DbTransaction>(), ItExpr.IsAny<SqlStatement>())
-                .Returns(new Mock<DbCommand>().Object);
-
-            var contextServices = CreateContextServices(dbCreatorMock.Object, dbConnectionMock.Object, loggerFactory);
-
-            return
-                new Mock<Migrator>(
-                    MockHistoryRepository(contextServices, databaseMigrations, historyRepositoryExists).Object,
-                    MockMigrationAssembly(contextServices.GetRequiredService<LazyRef<DbContext>>(), contextServices.GetRequiredService<LazyRef<IDbContextOptions>>(), localMigrations).Object,
-                    new TestModelDiffer(),
-                    MockMigrationOperationSqlGeneratorFactory().Object,
-                    new Mock<SqlGenerator>().Object,
-                    sqlStatementExecutorMock.Object,
-                    dbCreatorMock.Object,
-                    contextServices.GetRequiredService<FakeRelationalConnection>(),
-                    loggerFactory)
-                {
-                    CallBase = true
-                }
-                    .Object;
-        }
-
-        private static IServiceProvider CreateContextServices(RelationalDataStoreCreator dbCreator,
-            DbConnection dbConnection, ILoggerFactory loggerFactory)
-        {
-            var services = new ServiceCollection()
-                .AddEntityFramework()
-                .AddMigrations()
-                .ServiceCollection
-                .AddScoped<DataStoreSource, FakeDataStoreSource>()
-                .AddScoped<DataStoreSelector>()
-                .AddScoped<FakeRelationalDataStoreServices>()
-                .AddScoped<FakeDatabase>()
-                .AddScoped<FakeRelationalOptionsExtension>()
-                .AddScoped<FakeRelationalConnection>()
-                .AddScoped<FakeMigrator>()
-                .AddInstance(dbCreator)
-                .AddInstance(loggerFactory);
-
-            var serviceProvider = services.BuildServiceProvider();
-
-            var contextOptions = new DbContextOptions();
-
-            ((IDbContextOptions)contextOptions)
-                .AddOrUpdateExtension<FakeRelationalOptionsExtension>(
-                    x => { x.Connection = dbConnection; });
-
-            var context = new DbContext(serviceProvider, contextOptions);
-
-            return ((IDbContextServices)context).ScopedServiceProvider;
-        }
-
-        private static Mock<HistoryRepository> MockHistoryRepository(
-            IServiceProvider contextServices, IReadOnlyList<MigrationInfo> migrations,
             bool historyRepositoryExists = true)
         {
-            var mock = new Mock<HistoryRepository>(
-                        contextServices,
-                        new LazyRef<IDbContextOptions>(new DbContextOptions()),
-                        new LazyRef<DbContext>(() => null))
-            { CallBase = true };
+            return CreateContextServices(databaseMigrations, localMigrations, historyRepositoryExists).GetRequiredService<TestMigrator>();
+        }
 
-            if (historyRepositoryExists)
+        private static IServiceProvider CreateContextServices(IReadOnlyList<MigrationInfo> databaseMigrations, IReadOnlyList<MigrationInfo> localMigrations, bool historyRepositoryExists = true)
+        {
+            var customServices = new ServiceCollection()
+                .AddInstance<HistoryRepository>(new FakeHistoryRepository(databaseMigrations, historyRepositoryExists))
+                .AddInstance<MigrationAssembly>(new FakeMigrationAssembly(localMigrations));
+
+            var contextServices = TestHelpers.CreateContextServices(customServices);
+            return contextServices;
+        }
+
+        private class FakeHistoryRepository : HistoryRepository
+        {
+            private readonly IReadOnlyList<MigrationInfo> _migrations;
+            private readonly bool _historyRepositoryExists;
+
+            public FakeHistoryRepository(IReadOnlyList<MigrationInfo> migrations, bool historyRepositoryExists = true)
             {
-                mock.Protected().Setup<IReadOnlyList<HistoryRow>>("GetRows")
-                    .Returns(migrations.Select(m => new HistoryRow { MigrationId = m.MigrationId }).ToArray());
-            }
-            else
-            {
-                var dbException = new Mock<DbException>();
-
-                mock.Protected().Setup<IReadOnlyList<HistoryRow>>("GetRows").Throws(dbException.Object);
-            }
-
-            mock.Setup(hr => hr.GenerateInsertMigrationSql(It.IsAny<IMigrationMetadata>(), It.IsAny<SqlGenerator>()))
-                .Returns<IMigrationMetadata, SqlGenerator>((m, sg) => new[] { new SqlStatement(m.GetMigrationName() + "InsertSql") });
-
-            mock.Setup(hr => hr.GenerateDeleteMigrationSql(It.IsAny<IMigrationMetadata>(), It.IsAny<SqlGenerator>()))
-                .Returns<IMigrationMetadata, SqlGenerator>((m, sg) => new[] { new SqlStatement(m.GetMigrationName() + "DeleteSql") });
-
-            return mock;
-        }
-
-        private static Mock<MigrationAssembly> MockMigrationAssembly(
-            LazyRef<DbContext> context, LazyRef<IDbContextOptions> options, IReadOnlyList<MigrationInfo> migrations)
-        {
-            var mock = new Mock<MigrationAssembly>(context, options);
-
-            mock.SetupGet(ma => ma.Migrations).Returns(migrations.Select(m => new FakeMigration(m)).ToArray());
-
-            return mock;
-        }
-
-        private static Mock<IMigrationOperationSqlGeneratorFactory> MockMigrationOperationSqlGeneratorFactory()
-        {
-            var mock = new Mock<IMigrationOperationSqlGeneratorFactory>();
-
-            mock.Setup(mosgf => mosgf.Create())
-                .Returns(MockMigrationOperationSqlGenerator().Object);
-
-            mock.Setup(mosgf => mosgf.Create(It.IsAny<DatabaseModel>()))
-                .Returns(MockMigrationOperationSqlGenerator().Object);
-
-            return mock;
-        }
-
-        private static Mock<MigrationOperationSqlGenerator> MockMigrationOperationSqlGenerator()
-        {
-            var mock = new Mock<MigrationOperationSqlGenerator>(new RelationalTypeMapper());
-
-            mock.Setup(mosg => mosg.Generate(It.IsAny<IReadOnlyList<MigrationOperation>>()))
-                .Returns<IReadOnlyList<MigrationOperation>>(
-                    operations => FakeSqlGenerator.Instance.Generate(operations));
-
-            return mock;
-        }
-
-        private class FakeDataStoreSource : DataStoreSource<FakeRelationalDataStoreServices, FakeRelationalOptionsExtension>
-        {
-            public FakeDataStoreSource(DbContextConfiguration configuration, LazyRef<IDbContextOptions> options)
-                : base(configuration, options)
-            {
+                _migrations = migrations;
+                _historyRepositoryExists = historyRepositoryExists;
             }
 
-            public override string Name
+            protected override IReadOnlyList<HistoryRow> GetRows()
             {
-                get { return GetType().Name; }
+                if (_historyRepositoryExists)
+                {
+                    return _migrations.Select(m => new HistoryRow { MigrationId = m.MigrationId }).ToArray();
+                }
+                throw new FakeDbException();
+            }
+
+            public override IReadOnlyList<SqlStatement> GenerateInsertMigrationSql(IMigrationMetadata migration, SqlGenerator sqlGenerator)
+            {
+                return new[] { new SqlStatement(migration.GetMigrationName() + "InsertSql") };
+            }
+
+            public override IReadOnlyList<SqlStatement> GenerateDeleteMigrationSql(IMigrationMetadata migration, SqlGenerator sqlGenerator)
+            {
+                return new[] { new SqlStatement(migration.GetMigrationName() + "DeleteSql") };
             }
         }
 
-        private class FakeRelationalDataStoreServices : DataStoreServices
+        private class FakeMigrationAssembly : MigrationAssembly
         {
-            private readonly RelationalDataStoreCreator _creator;
-            private readonly FakeRelationalConnection _connection;
-            private readonly FakeDatabase _database;
+            private readonly IReadOnlyList<MigrationInfo> _migrations;
 
-            public FakeRelationalDataStoreServices(RelationalDataStoreCreator creator,
-                FakeRelationalConnection connection, FakeDatabase database)
+            public FakeMigrationAssembly(IReadOnlyList<MigrationInfo> migrations)
             {
-                _creator = creator;
-                _connection = connection;
-                _database = database;
+                _migrations = migrations;
             }
 
-            public override DataStore Store
+            public override IReadOnlyList<Migration> Migrations
             {
-                get { throw new NotImplementedException(); }
-            }
-
-            public override DataStoreCreator Creator
-            {
-                get { return _creator; }
-            }
-
-            public override DataStoreConnection Connection
-            {
-                get { return _connection; }
-            }
-
-            public override ValueGeneratorCache ValueGeneratorCache
-            {
-                get { throw new NotImplementedException(); }
-            }
-
-            public override Database Database
-            {
-                get { return _database; }
-            }
-
-            public override IModelBuilderFactory ModelBuilderFactory
-            {
-                get { throw new NotImplementedException(); }
-            }
-        }
-
-        private class FakeDatabase : MigrationsEnabledDatabase
-        {
-            public FakeDatabase(
-                LazyRef<IModel> model,
-                RelationalDataStoreCreator dataStoreCreator,
-                FakeRelationalConnection connection,
-                FakeMigrator migrator,
-                ILoggerFactory loggerFactory)
-                : base(model, dataStoreCreator, connection, migrator, loggerFactory)
-            {
-            }
-        }
-
-        private class FakeRelationalOptionsExtension : RelationalOptionsExtension
-        {
-            protected override void ApplyServices(EntityServicesBuilder builder)
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        private class FakeRelationalConnection : RelationalConnection
-        {
-            public FakeRelationalConnection(LazyRef<IDbContextOptions> options, ILoggerFactory loggerFactory)
-                : base(options, loggerFactory)
-            {
-            }
-
-            protected override DbConnection CreateDbConnection()
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        private class FakeMigrator : Migrator
-        {
-        }
-
-        private class FakeSqlGenerator : MigrationOperationVisitor<IndentedStringBuilder>
-        {
-            public static readonly FakeSqlGenerator Instance = new FakeSqlGenerator();
-
-            public virtual IEnumerable<SqlStatement> Generate(IEnumerable<MigrationOperation> operations)
-            {
-                return operations.Select(
-                    o =>
-                        {
-                            var sqlOperation = o as SqlOperation;
-                            var builder = new IndentedStringBuilder();
-
-                            o.Accept(this, builder);
-
-                            return
-                                new SqlStatement(builder.ToString())
-                                {
-                                    SuppressTransaction = sqlOperation != null && sqlOperation.SuppressTransaction
-                                };
-                        });
-            }
-
-            public override void Visit(CreateTableOperation operation, IndentedStringBuilder builder)
-            {
-                builder.Append("Create").Append(operation.TableName).Append("Sql");
-            }
-
-            public override void Visit(DropTableOperation operation, IndentedStringBuilder builder)
-            {
-                builder.Append("Drop").Append(operation.TableName).Append("Sql");
-            }
-
-            public override void Visit(SqlOperation operation, IndentedStringBuilder builder)
-            {
-                builder.Append(operation.Sql);
-            }
-
-            protected override void VisitDefault(MigrationOperation operation, IndentedStringBuilder builder)
-            {
-                builder.Append(operation.GetType().Name).Append("Sql");
+                get
+                {
+                    return _migrations.Select(m => new FakeMigration(m)).ToArray();
+                }
             }
         }
 
@@ -1518,85 +1170,5 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                 get { return _migration.TargetModel; }
             }
         }
-
-        private class TestLoggerFactory : ILoggerFactory
-        {
-            private readonly StringBuilder _builder = new StringBuilder();
-
-            public string LogContent
-            {
-                get { return _builder.ToString(); }
-            }
-
-            public ILogger Create(string name)
-            {
-                return new TestLogger(name, _builder);
-            }
-
-            public void AddProvider(ILoggerProvider provider)
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        private class TestLogger : ILogger
-        {
-            private readonly string _name;
-            private readonly StringBuilder _builder;
-
-            public TestLogger(string name, StringBuilder builder)
-            {
-                _name = name;
-                _builder = builder;
-            }
-
-            public void Write(LogLevel logLevel, int eventId, object state, Exception exception, Func<object, Exception, string> formatter)
-            {
-                _builder
-                    .Append(_name)
-                    .Append(" ")
-                    .Append(logLevel.ToString("G"))
-                    .Append(" ")
-                    .AppendLine(formatter(state, exception));
-            }
-
-            public bool IsEnabled(LogLevel logLevel)
-            {
-                return true;
-            }
-
-            public IDisposable BeginScope(object state)
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        private class TestDatabaseBuilder : DatabaseBuilder
-        {
-            public TestDatabaseBuilder()
-                : base(new RelationalTypeMapper())
-            {
-            }
-
-            protected override Sequence BuildSequence(IProperty property)
-            {
-                return null;
-            }
-        }
-
-        private class TestModelDiffer : ModelDiffer
-        {
-            public TestModelDiffer()
-                : base(new TestDatabaseBuilder())
-            {
-            }
-
-            protected override string GetSequenceName(Column column)
-            {
-                return null;
-            }
-        }
-
-        #endregion
     }
 }

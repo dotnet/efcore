@@ -6,14 +6,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Redis.Extensions;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Tests;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.DependencyInjection.Fallback;
 using Microsoft.Framework.Logging;
 using Xunit;
 
@@ -196,12 +193,11 @@ namespace Microsoft.Data.Entity.Redis.Tests
         [Fact]
         public void Multiple_threads_can_use_the_same_generator()
         {
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddRedis().ServiceCollection
+            var customServices = new ServiceCollection()
                 .AddScoped<RedisDatabase, FakeRedisDatabase>()
-                .AddInstance(new FakeRedisSequence())
-                .BuildServiceProvider();
+                .AddInstance(new FakeRedisSequence());
+
+            var serviceProvider = TestHelpers.CreateServiceProvider(customServices);
 
             var generator = new RedisSequenceValueGenerator("TestSequenceName", 1);
 
@@ -248,12 +244,11 @@ namespace Microsoft.Data.Entity.Redis.Tests
         [Fact]
         public async Task Multiple_threads_can_use_the_same_generator_async()
         {
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddRedis().ServiceCollection
+            var customServices = new ServiceCollection()
                 .AddScoped<RedisDatabase, FakeRedisDatabase>()
-                .AddInstance(new FakeRedisSequence())
-                .BuildServiceProvider();
+                .AddInstance(new FakeRedisSequence());
+
+            var serviceProvider = TestHelpers.CreateServiceProvider(customServices);
 
             var generator = new RedisSequenceValueGenerator("TestSequenceName", 1);
 
@@ -335,20 +330,12 @@ namespace Microsoft.Data.Entity.Redis.Tests
 
         private LazyRef<DataStoreServices> CreateStoreServices(IServiceProvider serviceProvider = null)
         {
-            serviceProvider = serviceProvider ?? new ServiceCollection()
-                .AddEntityFramework()
-                .AddRedis().ServiceCollection
-                .AddScoped<RedisDatabase, FakeRedisDatabase>()
-                .AddInstance(new FakeRedisSequence())
-                .BuildServiceProvider();
+            serviceProvider = serviceProvider
+                              ?? TestHelpers.CreateServiceProvider(new ServiceCollection()
+                                  .AddScoped<RedisDatabase, FakeRedisDatabase>()
+                                  .AddInstance(new FakeRedisSequence()));
 
-            var contextServices = ((IDbContextServices)new DbContext(
-                serviceProvider,
-                new DbContextOptions()
-                    .UseModel(_model)
-                    .UseRedis("127.0.0.1", 6375))).ScopedServiceProvider;
-
-            return contextServices.GetRequiredService<LazyRef<DataStoreServices>>();
+            return TestHelpers.CreateContextServices(serviceProvider, _model).GetRequiredService<LazyRef<DataStoreServices>>();
         }
 
         private class FakeRedisSequence

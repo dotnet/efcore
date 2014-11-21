@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Data.SqlClient;
 using System.Linq;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
@@ -9,9 +8,9 @@ using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Update;
 using Microsoft.Data.Entity.SqlServer.Update;
 using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Tests;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.DependencyInjection.Fallback;
 using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.Tests
@@ -56,17 +55,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         [Fact]
         public void Services_wire_up_correctly()
         {
-            var services = new ServiceCollection();
-            services
-                .AddEntityFramework()
-                .AddSqlServer();
-
-            var serviceProvider = services.BuildServiceProvider();
-
-            var context = new DbContext(
-                serviceProvider,
-                new DbContextOptions().UseSqlServer("goo=boo"));
-
+            var serviceProvider = TestHelpers.CreateServiceProvider();
+            var context = TestHelpers.CreateContext(serviceProvider);
             var scopedProvider = ((IDbContextServices)context).ScopedServiceProvider;
 
             var databaseBuilder = scopedProvider.GetRequiredService<SqlServerDatabaseBuilder>();
@@ -117,10 +107,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             context.Dispose();
 
-            context = new DbContext(
-                serviceProvider,
-                new DbContextOptions().UseSqlServer("goo=boo"));
-
+            context = TestHelpers.CreateContext(serviceProvider);
             scopedProvider = ((IDbContextServices)context).ScopedServiceProvider;
 
             // Dingletons

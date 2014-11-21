@@ -29,6 +29,15 @@ namespace Microsoft.Data.Entity.Migrations
         private readonly RelationalTypeMapper _typeMapper;
         private DatabaseModel _database;
 
+        /// <summary>
+        ///     This constructor is intended only for use when creating test doubles that will override members
+        ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
+        ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
+        /// </summary>
+        protected MigrationOperationSqlGenerator()
+        {
+        }
+
         protected MigrationOperationSqlGenerator([NotNull] RelationalTypeMapper typeMapper)
         {
             Check.NotNull(typeMapper, "typeMapper");
