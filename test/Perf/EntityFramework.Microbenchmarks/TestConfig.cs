@@ -126,7 +126,7 @@ namespace EntityFramework.Microbenchmarks
 #if ASPNET50 || ASPNETCORE50
             var services = CallContextServiceLocator.Locator.ServiceProvider;
             var appEnv = (IApplicationEnvironment)services.GetService(typeof(IApplicationEnvironment));
-            var isCoreCLR = appEnv.RuntimeFramework.Identifier == "ASP.NETCore";
+            var isCoreCLR = appEnv.RuntimeFramework.Identifier == "Asp.NetCore";
             runtimeFlavor = isCoreCLR ? "CoreCLR" : "Desktop";
 #endif
             return runtimeFlavor;
