@@ -142,7 +142,6 @@ namespace Microsoft.Data.Entity.Infrastructure
             if (disposableServiceProvider != null)
             {
                 disposableServiceProvider.Dispose();
-                _scopedProvider = null;
             }
         }
     }
