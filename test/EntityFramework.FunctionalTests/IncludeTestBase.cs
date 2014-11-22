@@ -30,6 +30,36 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void Include_collection_and_reference()
+        {
+            using (var context = CreateContext())
+            {
+                var orders
+                    = context.Set<Order>()
+                        .Include(o => o.OrderDetails)
+                        .Include(o => o.Customer)
+                        .ToList();
+
+                Assert.Equal(830, orders.Count);
+            }
+        }
+
+        [Fact]
+        public virtual void Include_reference_and_collection()
+        {
+            using (var context = CreateContext())
+            {
+                var orders
+                    = context.Set<Order>()
+                        .Include(o => o.Customer)
+                        .Include(o => o.OrderDetails)
+                        .ToList();
+
+                Assert.Equal(830, orders.Count);
+            }
+        }
+
+        [Fact]
         public virtual void Include_multi_level()
         {
             Assert.Throws<NotImplementedException>(() =>
@@ -150,7 +180,26 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 Assert.Equal(830 + 89, context.ChangeTracker.Entries().Count());
             }
         }
-        
+
+        [Fact]
+        public virtual void Include_multiple_references()
+        {
+            using (var context = CreateContext())
+            {
+                var orderDetails
+                    = context.Set<OrderDetail>()
+                        .Include(o => o.Order)
+                        .Include(o => o.Product)
+                        .ToList();
+
+                Assert.True(orderDetails.Count > 0);
+                Assert.True(orderDetails.All(o => o.Order != null));
+                Assert.True(orderDetails.All(o => o.Product != null));
+                Assert.Equal(830, orderDetails.Select(o => o.Order).Distinct().Count());
+                Assert.True(orderDetails.Select(o => o.Product).Distinct().Any());
+            }
+        }
+
         [Fact]
         public virtual void Include_reference_alias_generation()
         {
@@ -434,7 +483,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public virtual void Include_multiple_collection()
+        public virtual void Include_duplicate_collection()
         {
             using (var context = CreateContext())
             {
@@ -461,7 +510,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public virtual void Include_multiple_reference()
+        public virtual void Include_duplicate_reference()
         {
             using (var context = CreateContext())
             {
@@ -488,7 +537,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public virtual void Include_multiple_reference2()
+        public virtual void Include_duplicate_reference2()
         {
             using (var context = CreateContext())
             {
@@ -513,7 +562,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public virtual void Include_multiple_reference3()
+        public virtual void Include_duplicate_reference3()
         {
             using (var context = CreateContext())
             {
@@ -538,7 +587,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public virtual void Include_multiple_collection_result_operator()
+        public virtual void Include_duplicate_collection_result_operator()
         {
             using (var context = CreateContext())
             {
@@ -566,7 +615,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public virtual void Include_multiple_collection_result_operator2()
+        public virtual void Include_duplicate_collection_result_operator2()
         {
             using (var context = CreateContext())
             {

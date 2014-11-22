@@ -73,6 +73,8 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="SqlServerIncludeOneToOneTest.cs" />
+    <Compile Include="SqlServerOneToOneQueryFixture.cs" />
     <Compile Include="SqlServerBuiltInDataTypesFixture.cs" />
     <Compile Include="SqlServerBuiltInDataTypesTest.cs" />
     <Compile Include="BatchingTest.cs" />

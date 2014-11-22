@@ -11,6 +11,7 @@ using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
+using System.Diagnostics;
 
 namespace Microsoft.Data.Entity.ChangeTracking
 {
@@ -330,6 +331,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                          && principalKeyValue.Equals(e.GetDependentKeyValue(foreignKey)));
         }
 
+        [DebuggerStepThrough]
         public virtual int SaveChanges()
         {
             var entriesToSave = StateEntries

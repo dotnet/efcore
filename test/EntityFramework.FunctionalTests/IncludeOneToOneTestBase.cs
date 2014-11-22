@@ -15,7 +15,23 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 var people
                     = context.Set<Person>()
-                        .Include(c => c.Address)
+                        .Include(p => p.Address)
+                        .ToList();
+
+                Assert.Equal(3, people.Count);
+                Assert.True(people.All(p => p.Address != null));
+                Assert.Equal(3 + 3, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [Fact]
+        public virtual void Include_address_shadow()
+        {
+            using (var context = CreateContext())
+            {
+                var people
+                    = context.Set<Person2>()
+                        .Include(p => p.Address)
                         .ToList();
 
                 Assert.Equal(3, people.Count);
@@ -31,7 +47,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 var people
                     = context.Set<Person>()
-                        .Include(c => c.Address)
+                        .Include(p => p.Address)
                         .AsNoTracking()
                         .ToList();
 
@@ -48,7 +64,23 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 var addresses
                     = context.Set<Address>()
-                        .Include(c => c.Resident)
+                        .Include(a => a.Resident)
+                        .ToList();
+
+                Assert.Equal(3, addresses.Count);
+                Assert.True(addresses.All(p => p.Resident != null));
+                Assert.Equal(3 + 3, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [Fact]
+        public virtual void Include_person_shadow()
+        {
+            using (var context = CreateContext())
+            {
+                var addresses
+                    = context.Set<Address2>()
+                        .Include(a => a.Resident)
                         .ToList();
 
                 Assert.Equal(3, addresses.Count);
@@ -64,7 +96,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 var addresses
                     = context.Set<Address>()
-                        .Include(c => c.Resident)
+                        .Include(a => a.Resident)
                         .AsNoTracking()
                         .ToList();
 
@@ -85,7 +117,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                 var people
                     = context.Set<Person>()
-                        .Include(c => c.Address)
+                        .Include(p => p.Address)
                         .ToList();
 
                 Assert.Equal(3, people.Count);
@@ -106,7 +138,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                 var addresses
                     = context.Set<Address>()
-                        .Include(c => c.Resident)
+                        .Include(a => a.Resident)
                         .ToList();
 
                 Assert.Equal(3, addresses.Count);

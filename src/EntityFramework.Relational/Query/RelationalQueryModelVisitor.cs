@@ -97,7 +97,7 @@ namespace Microsoft.Data.Entity.Relational.Query
             Check.NotNull(accessorLambda, "accessorLambda");
             Check.NotNull(navigation, "navigation");
 
-            if (!navigation.PointsToPrincipal)
+            if (navigation.IsCollection())
             {
                 IncludeCollection(querySource, resultType, accessorLambda, navigation);
             }
@@ -110,14 +110,14 @@ namespace Microsoft.Data.Entity.Relational.Query
         private void IncludeReference(IQuerySource querySource, INavigation navigation)
         {
             var selectExpression = QueryCompilationContext.FindSelectExpression(querySource);
-            var dependentTableExpression = selectExpression.FindTableForQuerySource(querySource);
+            var targetTableExpression = selectExpression.FindTableForQuerySource(querySource);
             var targetEntityType = navigation.GetTargetType();
             var targetTableName = QueryCompilationContext.GetTableName(targetEntityType);
 
             var targetTableAlias
                = CreateUniqueAlias(selectExpression, targetTableName.First().ToString().ToLower());
 
-            var targetTableExpression
+            var joinedTableExpression
                 = new TableExpression(
                     targetTableName,
                     QueryCompilationContext.GetSchema(targetEntityType),
@@ -131,18 +131,24 @@ namespace Microsoft.Data.Entity.Relational.Query
                     .Select(p => new ColumnExpression(
                         QueryCompilationContext.GetColumnName(p),
                         p,
-                        targetTableExpression));
+                        joinedTableExpression));
 
             var joinExpression
                 = navigation.ForeignKey.IsRequired
                     ? selectExpression
-                        .AddInnerJoin(targetTableExpression, columnExpressions)
+                        .AddInnerJoin(joinedTableExpression, columnExpressions)
                     : selectExpression
-                        .AddOuterJoin(targetTableExpression, columnExpressions);
+                        .AddOuterJoin(joinedTableExpression, columnExpressions);
 
-            var primaryKeyProperties = targetEntityType.GetPrimaryKey().Properties;
-
-            BuildJoinEqualityExpression(navigation, primaryKeyProperties, dependentTableExpression, joinExpression);
+            joinExpression.Predicate
+                = BuildJoinEqualityExpression(
+                    navigation,
+                    (navigation.PointsToPrincipal
+                        ? targetEntityType
+                        : navigation.EntityType)
+                        .GetPrimaryKey().Properties,
+                    navigation.PointsToPrincipal ? targetTableExpression : joinExpression,
+                    navigation.PointsToPrincipal ? joinExpression : targetTableExpression);
 
             Expression
                 = new IncludeReferenceExpressionTreeVisitor(querySource, navigation, readerOffset)
@@ -238,7 +244,8 @@ namespace Microsoft.Data.Entity.Relational.Query
 
             targetSelectExpression.AddToOrderBy(selectExpression.OrderBy);
 
-            BuildJoinEqualityExpression(navigation, primaryKeyProperties, targetTableExpression, innerJoinExpression);
+            innerJoinExpression.Predicate 
+                = BuildJoinEqualityExpression(navigation, primaryKeyProperties, targetTableExpression, innerJoinExpression); ;
 
             var readerParameter = Expression.Parameter(typeof(DbDataReader));
 
@@ -289,11 +296,11 @@ namespace Microsoft.Data.Entity.Relational.Query
             return alias;
         }
 
-        private void BuildJoinEqualityExpression(
-            INavigation navigation, 
+        private Expression BuildJoinEqualityExpression(
+            INavigation navigation,
             IReadOnlyList<IProperty> primaryKeyProperties, 
             TableExpressionBase targetTableExpression, 
-            JoinExpressionBase joinExpression)
+            TableExpressionBase joinExpression)
         {
             Expression joinPredicateExpression = null;
 
@@ -333,7 +340,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                         : Expression.AndAlso(joinPredicateExpression, equalExpression);
             }
 
-            joinExpression.Predicate = joinPredicateExpression;
+            return joinPredicateExpression;
         }
 
         public override void VisitAdditionalFromClause(AdditionalFromClause fromClause, QueryModel queryModel, int index)

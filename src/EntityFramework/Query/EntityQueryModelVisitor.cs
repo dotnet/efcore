@@ -212,52 +212,56 @@ namespace Microsoft.Data.Entity.Query
             var querySourceTracingExpressionTreeVisitor
                 = new QuerySourceTracingExpressionTreeVisitor();
 
-            foreach (var queryAnnotation in queryAnnotations)
-            {
-                var includeResultOperator
-                    = queryAnnotation.ResultOperator as IncludeResultOperator;
-
-                if (includeResultOperator != null)
-                {
-                    var navigation
+            foreach (var include 
+                in from queryAnnotation in queryAnnotations
+                    let includeResultOperator = queryAnnotation.ResultOperator as IncludeResultOperator
+                    where includeResultOperator != null
+                    let navigation
                         = BindNavigationMemberExpression(
                             (MemberExpression)includeResultOperator.NavigationPropertyPath,
-                            (n, _) => n);
-
-                    if (navigation != null)
-                    {
-                        var resultQuerySourceReferenceExpression
-                            = querySourceTracingExpressionTreeVisitor
-                                .FindResultQuerySourceReferenceExpression(
-                                    queryModel.SelectClause.Selector,
-                                    queryAnnotation.QuerySource);
-
-                        if (resultQuerySourceReferenceExpression != null)
+                            (n, _) => n)
+                    orderby navigation != null
+                            && navigation.PointsToPrincipal
+                    select new
                         {
-                            var accessorLambda
-                                = AccessorFindingExpressionTreeVisitor
-                                    .FindAccessorLambda(
-                                        resultQuerySourceReferenceExpression,
-                                        queryModel.SelectClause.Selector,
-                                        Expression.Parameter(queryModel.SelectClause.Selector.Type));
+                            navigation,
+                            queryAnnotation.QuerySource,
+                            includeResultOperator.NavigationPropertyPath
+                        })
+            {
+                if (include.navigation != null)
+                {
+                    var resultQuerySourceReferenceExpression
+                        = querySourceTracingExpressionTreeVisitor
+                            .FindResultQuerySourceReferenceExpression(
+                                queryModel.SelectClause.Selector,
+                                include.QuerySource);
 
-                            QueryCompilationContext.Logger
-                                .WriteInformation(
-                                    navigation,
-                                    Strings.LogIncludingNavigation);
-
-                            IncludeNavigation(
-                                queryAnnotation.QuerySource,
-                                resultType,
-                                accessorLambda,
-                                navigation);
-                        }
-                    }
-                    else
+                    if (resultQuerySourceReferenceExpression != null)
                     {
-                        throw new NotImplementedException(
-                            Strings.IncludeNonBindableExpression(includeResultOperator.NavigationPropertyPath));
+                        var accessorLambda
+                            = AccessorFindingExpressionTreeVisitor
+                                .FindAccessorLambda(
+                                    resultQuerySourceReferenceExpression,
+                                    queryModel.SelectClause.Selector,
+                                    Expression.Parameter(queryModel.SelectClause.Selector.Type));
+
+                        QueryCompilationContext.Logger
+                            .WriteInformation(
+                                include.navigation,
+                                Strings.LogIncludingNavigation);
+
+                        IncludeNavigation(
+                            include.QuerySource,
+                            resultType,
+                            accessorLambda,
+                            include.navigation);
                     }
+                }
+                else
+                {
+                    throw new NotImplementedException(
+                        Strings.IncludeNonBindableExpression(include.NavigationPropertyPath));
                 }
             }
         }
