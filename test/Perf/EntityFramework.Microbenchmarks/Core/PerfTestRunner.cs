@@ -51,6 +51,9 @@ namespace EntityFramework.Microbenchmarks.Core
         public void RunTests(string resultDirectory)
         {
             var results = new List<PerformanceMetric>();
+            var performanceCaseResult = new PerformanceCaseResult();
+            performanceCaseResult.StartTimer();
+            
             foreach (var testDefinition in Tests)
             {
                 var result = Run(testDefinition);
@@ -58,9 +61,12 @@ namespace EntityFramework.Microbenchmarks.Core
                 results.AddRange(ConvertResultToMetrics(result));
             }
 
+            performanceCaseResult.StopTimer();
+            performanceCaseResult.Metrics = results.ToArray();
+
             Assert.False(results.Count == 0, "tests returned no results");
 
-            var parsedData = JsonConvert.SerializeObject(results);
+            var parsedData = JsonConvert.SerializeObject(performanceCaseResult, Formatting.Indented);
 
             if (!Directory.Exists(resultDirectory))
             {

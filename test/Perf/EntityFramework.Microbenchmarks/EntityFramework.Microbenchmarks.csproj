@@ -84,6 +84,7 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Core\PerformanceCaseResult.cs" />
     <Compile Include="CUDPerfTests.cs" />
     <Compile Include="CudPerf\CudTests.cs" />
     <Compile Include="CudPerf\Model\CudContext.cs" />
