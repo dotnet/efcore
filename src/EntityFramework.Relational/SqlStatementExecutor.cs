@@ -33,21 +33,21 @@ namespace Microsoft.Data.Entity.Relational
         public virtual Task ExecuteNonQueryAsync(
             [NotNull] DbConnection connection,
             [CanBeNull] DbTransaction transaction,
-            [NotNull] IEnumerable<SqlStatement> statements,
+            [NotNull] IEnumerable<SqlBatch> sqlBatches,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(connection, "connection");
-            Check.NotNull(statements, "statements");
+            Check.NotNull(sqlBatches, "sqlBatches");
 
             return ExecuteAsync(
                 connection,
                 async () =>
                     {
-                        foreach (var statement in statements)
+                        foreach (var sqlBatch in sqlBatches)
                         {
-                            Logger.WriteSql(statement.Sql);
+                            Logger.WriteSql(sqlBatch.Sql);
 
-                            await CreateCommand(connection, transaction, statement).ExecuteNonQueryAsync(cancellationToken)
+                            await CreateCommand(connection, transaction, sqlBatch.Sql).ExecuteNonQueryAsync(cancellationToken)
                                 .WithCurrentCulture();
                         }
                         return Task.FromResult<object>(null);
@@ -58,19 +58,19 @@ namespace Microsoft.Data.Entity.Relational
         public virtual Task<object> ExecuteScalarAsync(
             [NotNull] DbConnection connection,
             [CanBeNull] DbTransaction transaction,
-            [NotNull] SqlStatement statement,
+            [NotNull] string sql,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(connection, "connection");
-            Check.NotNull(statement, "statement");
+            Check.NotNull(sql, "sql");
 
             return ExecuteAsync(
                 connection,
                 () =>
                     {
-                        Logger.WriteSql(statement.Sql);
+                        Logger.WriteSql(sql);
 
-                        return CreateCommand(connection, transaction, statement).ExecuteScalarAsync(cancellationToken);
+                        return CreateCommand(connection, transaction, sql).ExecuteScalarAsync(cancellationToken);
                     },
                 cancellationToken);
         }
@@ -110,20 +110,20 @@ namespace Microsoft.Data.Entity.Relational
         public virtual void ExecuteNonQuery(
             [NotNull] DbConnection connection,
             [CanBeNull] DbTransaction transaction,
-            [NotNull] IEnumerable<SqlStatement> statements)
+            [NotNull] IEnumerable<SqlBatch> sqlBatches)
         {
             Check.NotNull(connection, "connection");
-            Check.NotNull(statements, "statements");
+            Check.NotNull(sqlBatches, "sqlBatches");
 
             Execute(
                 connection,
                 () =>
                     {
-                        foreach (var statement in statements)
+                        foreach (var sqlBatch in sqlBatches)
                         {
-                            Logger.WriteSql(statement.Sql);
+                            Logger.WriteSql(sqlBatch.Sql);
 
-                            CreateCommand(connection, transaction, statement).ExecuteNonQuery();
+                            CreateCommand(connection, transaction, sqlBatch.Sql).ExecuteNonQuery();
                         }
                         return null;
                     });
@@ -132,18 +132,18 @@ namespace Microsoft.Data.Entity.Relational
         public virtual object ExecuteScalar(
             [NotNull] DbConnection connection,
             [CanBeNull] DbTransaction transaction,
-            [NotNull] SqlStatement statement)
+            [NotNull] string sql)
         {
             Check.NotNull(connection, "connection");
-            Check.NotNull(statement, "statement");
+            Check.NotNull(sql, "sql");
 
             return Execute(
                 connection,
                 () =>
                     {
-                        Logger.WriteSql(statement.Sql);
+                        Logger.WriteSql(sql);
 
-                        return CreateCommand(connection, transaction, statement).ExecuteScalar();
+                        return CreateCommand(connection, transaction, sql).ExecuteScalar();
                     });
         }
 
@@ -181,10 +181,10 @@ namespace Microsoft.Data.Entity.Relational
         protected virtual DbCommand CreateCommand(
             DbConnection connection,
             DbTransaction transaction,
-            SqlStatement statement)
+            string sql)
         {
             var command = connection.CreateCommand();
-            command.CommandText = statement.Sql;
+            command.CommandText = sql;
             command.Transaction = transaction;
             return command;
         }

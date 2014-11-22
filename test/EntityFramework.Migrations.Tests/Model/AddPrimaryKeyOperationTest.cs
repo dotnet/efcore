@@ -2,8 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.Data.Entity.Migrations.Model;
+using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Model;
-using Microsoft.Data.Entity.Utilities;
 using Moq;
 using Xunit;
 
@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Model
             var addPrimaryKeyOperation = new AddPrimaryKeyOperation(
                 "dbo.MyTable", "MyPK", new[] { "Foo", "Bar" }, isClustered: true);
             var mockVisitor = new Mock<MigrationOperationSqlGenerator>(new RelationalTypeMapper());
-            var builder = new Mock<IndentedStringBuilder>();
+            var builder = new Mock<SqlBatchBuilder>();
             addPrimaryKeyOperation.GenerateSql(mockVisitor.Object, builder.Object);
 
             mockVisitor.Verify(g => g.Generate(addPrimaryKeyOperation, builder.Object), Times.Once());

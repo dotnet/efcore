@@ -694,8 +694,8 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
 
             var callCount = 0;
 
-            sqlStatementExecutorMock.Setup(m => m.ExecuteNonQuery(It.IsAny<DbConnection>(), It.IsAny<DbTransaction>(), It.IsAny<IEnumerable<SqlStatement>>()))
-                .Callback<DbConnection, DbTransaction, IEnumerable<SqlStatement>>(
+            sqlStatementExecutorMock.Setup(m => m.ExecuteNonQuery(It.IsAny<DbConnection>(), It.IsAny<DbTransaction>(), It.IsAny<IEnumerable<SqlBatch>>()))
+                .Callback<DbConnection, DbTransaction, IEnumerable<SqlBatch>>(
                     (_, __, statements) =>
                         {
                             switch (++callCount)
@@ -718,7 +718,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             dbCreatorMock.Verify(m => m.Create(), Times.Once);
             dbConnectionMock.Protected().Verify("BeginDbTransaction", Times.Exactly(2), IsolationLevel.Serializable);
             dbTransactionMock.Verify(m => m.Commit(), Times.Exactly(2));
-            sqlStatementExecutorMock.Verify(m => m.ExecuteNonQuery(It.IsAny<DbConnection>(), It.IsAny<DbTransaction>(), It.IsAny<IEnumerable<SqlStatement>>()), Times.Exactly(2));
+            sqlStatementExecutorMock.Verify(m => m.ExecuteNonQuery(It.IsAny<DbConnection>(), It.IsAny<DbTransaction>(), It.IsAny<IEnumerable<SqlBatch>>()), Times.Exactly(2));
         }
 
         [Fact]
@@ -753,8 +753,8 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
 
             var callCount = 0;
 
-            sqlStatementExecutorMock.Setup(m => m.ExecuteNonQuery(It.IsAny<DbConnection>(), It.IsAny<DbTransaction>(), It.IsAny<IEnumerable<SqlStatement>>()))
-                .Callback<DbConnection, DbTransaction, IEnumerable<SqlStatement>>(
+            sqlStatementExecutorMock.Setup(m => m.ExecuteNonQuery(It.IsAny<DbConnection>(), It.IsAny<DbTransaction>(), It.IsAny<IEnumerable<SqlBatch>>()))
+                .Callback<DbConnection, DbTransaction, IEnumerable<SqlBatch>>(
                     (_, __, statements) =>
                         {
                             switch (++callCount)
@@ -777,7 +777,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             dbCreatorMock.Verify(m => m.Create(), Times.Never);
             dbConnectionMock.Protected().Verify("BeginDbTransaction", Times.Exactly(2), IsolationLevel.Serializable);
             dbTransactionMock.Verify(m => m.Commit(), Times.Exactly(2));
-            sqlStatementExecutorMock.Verify(m => m.ExecuteNonQuery(It.IsAny<DbConnection>(), It.IsAny<DbTransaction>(), It.IsAny<IEnumerable<SqlStatement>>()), Times.Exactly(2));
+            sqlStatementExecutorMock.Verify(m => m.ExecuteNonQuery(It.IsAny<DbConnection>(), It.IsAny<DbTransaction>(), It.IsAny<IEnumerable<SqlBatch>>()), Times.Exactly(2));
         }
 
         [Fact]
@@ -812,8 +812,8 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
 
             var expectedSql = new[] { "SomeSql", "Migration1InsertSql" };
 
-            sqlStatementExecutorMock.Setup(m => m.ExecuteNonQuery(It.IsAny<DbConnection>(), It.IsAny<DbTransaction>(), It.IsAny<IEnumerable<SqlStatement>>()))
-                .Callback<DbConnection, DbTransaction, IEnumerable<SqlStatement>>(
+            sqlStatementExecutorMock.Setup(m => m.ExecuteNonQuery(It.IsAny<DbConnection>(), It.IsAny<DbTransaction>(), It.IsAny<IEnumerable<SqlBatch>>()))
+                .Callback<DbConnection, DbTransaction, IEnumerable<SqlBatch>>(
                     (_, __, statements) => Assert.Equal(expectedSql, statements.Select(s => s.Sql)));
 
             migrator.ApplyMigrations();
@@ -822,7 +822,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             dbCreatorMock.Verify(m => m.Create(), Times.Never);
             dbConnectionMock.Protected().Verify("BeginDbTransaction", Times.Once(), IsolationLevel.Serializable);
             dbTransactionMock.Verify(m => m.Commit(), Times.Once);
-            sqlStatementExecutorMock.Verify(m => m.ExecuteNonQuery(It.IsAny<DbConnection>(), It.IsAny<DbTransaction>(), It.IsAny<IEnumerable<SqlStatement>>()), Times.Once);
+            sqlStatementExecutorMock.Verify(m => m.ExecuteNonQuery(It.IsAny<DbConnection>(), It.IsAny<DbTransaction>(), It.IsAny<IEnumerable<SqlBatch>>()), Times.Once);
         }
 
         [Fact]
@@ -865,8 +865,8 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
 
             var expectedSql = new[] { "SomeSql", "Migration2DeleteSql" };
 
-            sqlStatementExecutorMock.Setup(m => m.ExecuteNonQuery(It.IsAny<DbConnection>(), It.IsAny<DbTransaction>(), It.IsAny<IEnumerable<SqlStatement>>()))
-                .Callback<DbConnection, DbTransaction, IEnumerable<SqlStatement>>(
+            sqlStatementExecutorMock.Setup(m => m.ExecuteNonQuery(It.IsAny<DbConnection>(), It.IsAny<DbTransaction>(), It.IsAny<IEnumerable<SqlBatch>>()))
+                .Callback<DbConnection, DbTransaction, IEnumerable<SqlBatch>>(
                     (_, __, statements) => Assert.Equal(expectedSql, statements.Select(s => s.Sql)));
 
             migrator.ApplyMigrations("Migration1");
@@ -875,7 +875,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             dbCreatorMock.Verify(m => m.Create(), Times.Never);
             dbConnectionMock.Protected().Verify("BeginDbTransaction", Times.Once(), IsolationLevel.Serializable);
             dbTransactionMock.Verify(m => m.Commit(), Times.Once);
-            sqlStatementExecutorMock.Verify(m => m.ExecuteNonQuery(It.IsAny<DbConnection>(), It.IsAny<DbTransaction>(), It.IsAny<IEnumerable<SqlStatement>>()), Times.Once);
+            sqlStatementExecutorMock.Verify(m => m.ExecuteNonQuery(It.IsAny<DbConnection>(), It.IsAny<DbTransaction>(), It.IsAny<IEnumerable<SqlBatch>>()), Times.Once);
         }
 
         [Fact]
@@ -913,8 +913,8 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
 
             var callCount = 0;
 
-            sqlStatementExecutorMock.Setup(m => m.ExecuteNonQuery(It.IsAny<DbConnection>(), It.IsAny<DbTransaction>(), It.IsAny<IEnumerable<SqlStatement>>()))
-                .Callback<DbConnection, DbTransaction, IEnumerable<SqlStatement>>(
+            sqlStatementExecutorMock.Setup(m => m.ExecuteNonQuery(It.IsAny<DbConnection>(), It.IsAny<DbTransaction>(), It.IsAny<IEnumerable<SqlBatch>>()))
+                .Callback<DbConnection, DbTransaction, IEnumerable<SqlBatch>>(
                     (_, __, statements) =>
                         {
                             switch (++callCount)
@@ -937,7 +937,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             dbCreatorMock.Verify(m => m.Create(), Times.Never);
             dbConnectionMock.Protected().Verify("BeginDbTransaction", Times.Exactly(2), IsolationLevel.Serializable);
             dbTransactionMock.Verify(m => m.Commit(), Times.Exactly(2));
-            sqlStatementExecutorMock.Verify(m => m.ExecuteNonQuery(It.IsAny<DbConnection>(), It.IsAny<DbTransaction>(), It.IsAny<IEnumerable<SqlStatement>>()), Times.Exactly(2));
+            sqlStatementExecutorMock.Verify(m => m.ExecuteNonQuery(It.IsAny<DbConnection>(), It.IsAny<DbTransaction>(), It.IsAny<IEnumerable<SqlBatch>>()), Times.Exactly(2));
         }
 
         [Fact]
@@ -969,7 +969,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             dbCreatorMock.Verify(m => m.Exists(), Times.Exactly(2));
             dbCreatorMock.Verify(m => m.Create(), Times.Exactly(2));
 
-            sqlStatementExecutorMock.Verify(m => m.ExecuteNonQuery(It.IsAny<DbConnection>(), It.IsAny<DbTransaction>(), It.IsAny<IEnumerable<SqlStatement>>()), Times.Never);
+            sqlStatementExecutorMock.Verify(m => m.ExecuteNonQuery(It.IsAny<DbConnection>(), It.IsAny<DbTransaction>(), It.IsAny<IEnumerable<SqlBatch>>()), Times.Never);
         }
 
         [Fact]
@@ -1014,8 +1014,8 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
 
             var callCount = 0;
 
-            sqlStatementExecutorMock.Setup(m => m.ExecuteNonQuery(It.IsAny<DbConnection>(), It.IsAny<DbTransaction>(), It.IsAny<IEnumerable<SqlStatement>>()))
-                .Callback<DbConnection, DbTransaction, IEnumerable<SqlStatement>>(
+            sqlStatementExecutorMock.Setup(m => m.ExecuteNonQuery(It.IsAny<DbConnection>(), It.IsAny<DbTransaction>(), It.IsAny<IEnumerable<SqlBatch>>()))
+                .Callback<DbConnection, DbTransaction, IEnumerable<SqlBatch>>(
                     (connection, transaction, statements) =>
                         {
                             switch (++callCount)
@@ -1055,7 +1055,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             dbCreatorMock.Verify(m => m.Create(), Times.Never);
             dbConnectionMock.Protected().Verify("BeginDbTransaction", Times.Exactly(3), IsolationLevel.Serializable);
             dbTransactionMock.Verify(m => m.Commit(), Times.Exactly(3));
-            sqlStatementExecutorMock.Verify(m => m.ExecuteNonQuery(It.IsAny<DbConnection>(), It.IsAny<DbTransaction>(), It.IsAny<IEnumerable<SqlStatement>>()), Times.Exactly(6));
+            sqlStatementExecutorMock.Verify(m => m.ExecuteNonQuery(It.IsAny<DbConnection>(), It.IsAny<DbTransaction>(), It.IsAny<IEnumerable<SqlBatch>>()), Times.Exactly(6));
         }
 
         [Fact]
@@ -1222,7 +1222,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             dbConnectionMock.Protected().Setup<DbTransaction>("BeginDbTransaction", ItExpr.IsAny<IsolationLevel>()).Returns(dbTransactionMock.Object);
             dbTransactionMock.Protected().SetupGet<DbConnection>("DbConnection").Returns(dbConnectionMock.Object);
             sqlStatementExecutorMock.Protected()
-                .Setup<DbCommand>("CreateCommand", ItExpr.IsAny<DbConnection>(), ItExpr.IsAny<DbTransaction>(), ItExpr.IsAny<SqlStatement>())
+                .Setup<DbCommand>("CreateCommand", ItExpr.IsAny<DbConnection>(), ItExpr.IsAny<DbTransaction>(), ItExpr.IsAny<string>())
                 .Returns(new Mock<DbCommand>().Object);
 
             var contextServices = CreateContextServices(dbCreatorMock.Object, dbConnectionMock.Object, loggerFactory);
@@ -1297,10 +1297,10 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             }
 
             mock.Setup(hr => hr.GenerateInsertMigrationSql(It.IsAny<IMigrationMetadata>(), It.IsAny<SqlGenerator>()))
-                .Returns<IMigrationMetadata, SqlGenerator>((m, sg) => new[] { new SqlStatement(m.GetMigrationName() + "InsertSql") });
+                .Returns<IMigrationMetadata, SqlGenerator>((m, sg) => new[] { new SqlBatch(m.GetMigrationName() + "InsertSql") });
 
             mock.Setup(hr => hr.GenerateDeleteMigrationSql(It.IsAny<IMigrationMetadata>(), It.IsAny<SqlGenerator>()))
-                .Returns<IMigrationMetadata, SqlGenerator>((m, sg) => new[] { new SqlStatement(m.GetMigrationName() + "DeleteSql") });
+                .Returns<IMigrationMetadata, SqlGenerator>((m, sg) => new[] { new SqlBatch(m.GetMigrationName() + "DeleteSql") });
 
             return mock;
         }
@@ -1439,7 +1439,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         {
             public static readonly FakeSqlGenerator Instance = new FakeSqlGenerator();
 
-            public virtual IEnumerable<SqlStatement> Generate(IEnumerable<MigrationOperation> operations)
+            public virtual IEnumerable<SqlBatch> Generate(IEnumerable<MigrationOperation> operations)
             {
                 return operations.Select(
                     o =>
@@ -1450,7 +1450,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                             o.Accept(this, builder);
 
                             return
-                                new SqlStatement(builder.ToString())
+                                new SqlBatch(builder.ToString())
                                 {
                                     SuppressTransaction = sqlOperation != null && sqlOperation.SuppressTransaction
                                 };

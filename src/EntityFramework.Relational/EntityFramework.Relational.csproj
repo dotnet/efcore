@@ -159,8 +159,9 @@
     <Compile Include="RelationalTypedValueReaderFactory.cs" />
     <Compile Include="RelationalValueReaderFactory.cs" />
     <Compile Include="SchemaQualifiedName.cs" />
+    <Compile Include="SqlBatch.cs" />
+    <Compile Include="SqlBatchBuilder.cs" />
     <Compile Include="SqlGenerator.cs" />
-    <Compile Include="SqlStatement.cs" />
     <Compile Include="SqlStatementExecutor.cs" />
     <Compile Include="Model\Column.cs" />
     <Compile Include="Model\DatabaseModel.cs" />

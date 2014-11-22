@@ -7,6 +7,7 @@ using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Model;
 using Moq;
 using Xunit;
+using System;
 
 namespace Microsoft.Data.Entity.Migrations.Tests
 {
@@ -17,7 +18,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         {
             Assert.Equal(
                 @"CREATE DATABASE ""MyDatabase""",
-                Generate(new CreateDatabaseOperation("MyDatabase")).Sql);
+                Generate(new CreateDatabaseOperation("MyDatabase")));
         }
 
         [Fact]
@@ -25,7 +26,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         {
             Assert.Equal(
                 @"DROP DATABASE ""MyDatabase""",
-                Generate(new DropDatabaseOperation("MyDatabase")).Sql);
+                Generate(new DropDatabaseOperation("MyDatabase")));
         }
 
         [Fact]
@@ -34,7 +35,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             Assert.Equal(
                 @"CREATE SEQUENCE ""dbo"".""MySequence"" AS bigint START WITH 0 INCREMENT BY 1",
                 Generate(
-                    new CreateSequenceOperation(new Sequence("dbo.MySequence", typeof(long), 0, 1))).Sql);
+                    new CreateSequenceOperation(new Sequence("dbo.MySequence", typeof(long), 0, 1))));
         }
 
         [Fact]
@@ -42,7 +43,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         {
             Assert.Equal(
                 @"DROP SEQUENCE ""dbo"".""MySequence""",
-                Generate(new DropSequenceOperation("dbo.MySequence")).Sql);
+                Generate(new DropSequenceOperation("dbo.MySequence")));
         }
 
         [Fact]
@@ -50,7 +51,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         {
             Assert.Equal(
                 @"ALTER SEQUENCE ""dbo"".""MySequence"" INCREMENT BY 7",
-                Generate(new AlterSequenceOperation("dbo.MySequence", 7)).Sql);
+                Generate(new AlterSequenceOperation("dbo.MySequence", 7)));
         }
 
         [Fact]
@@ -76,7 +77,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
     ""Bar"" int,
     CONSTRAINT ""MyPK"" PRIMARY KEY (""Foo"", ""Bar"")
 )",
-                Generate(new CreateTableOperation(table), database).Sql);
+                Generate(new CreateTableOperation(table), database));
         }
 
         [Fact]
@@ -110,7 +111,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
     CONSTRAINT ""MyUC0"" UNIQUE (""C1""),
     CONSTRAINT ""MyUC1"" UNIQUE (""Bar"", ""C2"")
 )",
-                Generate(new CreateTableOperation(table), database).Sql);
+                Generate(new CreateTableOperation(table), database));
         }
 
         [Fact]
@@ -118,7 +119,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         {
             Assert.Equal(
                 @"DROP TABLE ""dbo"".""MyTable""",
-                Generate(new DropTableOperation("dbo.MyTable")).Sql);
+                Generate(new DropTableOperation("dbo.MyTable")));
         }
 
         [Fact]
@@ -131,7 +132,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
 
             Assert.Equal(
                 @"ALTER TABLE ""dbo"".""MyTable"" ADD ""Bar"" int NOT NULL DEFAULT 5",
-                Generate(new AddColumnOperation("dbo.MyTable", column), database).Sql);
+                Generate(new AddColumnOperation("dbo.MyTable", column), database));
         }
 
         [Fact]
@@ -140,7 +141,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             Assert.Equal(
                 @"ALTER TABLE ""dbo"".""MyTable"" DROP COLUMN ""Foo""",
                 Generate(
-                    new DropColumnOperation("dbo.MyTable", "Foo")).Sql);
+                    new DropColumnOperation("dbo.MyTable", "Foo")));
         }
 
         [Fact]
@@ -161,7 +162,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                 Generate(
                     new AlterColumnOperation("dbo.MyTable",
                         new Column("Foo", "int") { IsNullable = true }, isDestructiveChange: false),
-                    database).Sql);
+                    database));
         }
 
         [Fact]
@@ -182,7 +183,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                 Generate(
                     new AlterColumnOperation("dbo.MyTable",
                         new Column("Foo", "int") { IsNullable = false }, isDestructiveChange: false),
-                    database).Sql);
+                    database));
         }
 
         [Fact]
@@ -191,7 +192,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             Assert.Equal(
                 @"ALTER TABLE ""dbo"".""MyTable"" ALTER COLUMN ""Foo"" SET DEFAULT 'MyDefault'",
                 Generate(
-                    new AddDefaultConstraintOperation("dbo.MyTable", "Foo", "MyDefault", null)).Sql);
+                    new AddDefaultConstraintOperation("dbo.MyTable", "Foo", "MyDefault", null)));
         }
 
         [Fact]
@@ -200,7 +201,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             Assert.Equal(
                 @"ALTER TABLE ""dbo"".""MyTable"" ALTER COLUMN ""Foo"" SET DEFAULT GETDATE()",
                 Generate(
-                    new AddDefaultConstraintOperation("dbo.MyTable", "Foo", null, "GETDATE()")).Sql);
+                    new AddDefaultConstraintOperation("dbo.MyTable", "Foo", null, "GETDATE()")));
         }
 
         [Fact]
@@ -209,7 +210,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             Assert.Equal(
                 @"ALTER TABLE ""dbo"".""MyTable"" ALTER COLUMN ""Foo"" DROP DEFAULT",
                 Generate(
-                    new DropDefaultConstraintOperation("dbo.MyTable", "Foo")).Sql);
+                    new DropDefaultConstraintOperation("dbo.MyTable", "Foo")));
         }
 
         [Fact]
@@ -218,7 +219,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             Assert.Equal(
                 @"ALTER TABLE ""dbo"".""MyTable"" ADD CONSTRAINT ""MyPK"" PRIMARY KEY (""Foo"", ""Bar"")",
                 Generate(
-                    new AddPrimaryKeyOperation("dbo.MyTable", "MyPK", new[] { "Foo", "Bar" }, isClustered: false)).Sql);
+                    new AddPrimaryKeyOperation("dbo.MyTable", "MyPK", new[] { "Foo", "Bar" }, isClustered: false)));
         }
 
         [Fact]
@@ -226,7 +227,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         {
             Assert.Equal(
                 @"ALTER TABLE ""dbo"".""MyTable"" DROP CONSTRAINT ""MyPK""",
-                Generate(new DropPrimaryKeyOperation("dbo.MyTable", "MyPK")).Sql);
+                Generate(new DropPrimaryKeyOperation("dbo.MyTable", "MyPK")));
         }
 
         [Fact]
@@ -235,7 +236,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             Assert.Equal(
                 @"ALTER TABLE ""dbo"".""MyTable"" ADD CONSTRAINT ""MyUC"" UNIQUE (""Foo"", ""Bar"")",
                 Generate(
-                    new AddUniqueConstraintOperation("dbo.MyTable", "MyUC", new[] { "Foo", "Bar" })).Sql);
+                    new AddUniqueConstraintOperation("dbo.MyTable", "MyUC", new[] { "Foo", "Bar" })));
         }
 
         [Fact]
@@ -243,7 +244,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         {
             Assert.Equal(
                 @"ALTER TABLE ""dbo"".""MyTable"" DROP CONSTRAINT ""MyUC""",
-                Generate(new DropUniqueConstraintOperation("dbo.MyTable", "MyUC")).Sql);
+                Generate(new DropUniqueConstraintOperation("dbo.MyTable", "MyUC")));
         }
 
         [Fact]
@@ -253,7 +254,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                 @"ALTER TABLE ""dbo"".""MyTable"" ADD CONSTRAINT ""MyFK"" FOREIGN KEY (""Foo"", ""Bar"") REFERENCES ""dbo"".""MyTable2"" (""Foo2"", ""Bar2"") ON DELETE CASCADE",
                 Generate(
                     new AddForeignKeyOperation("dbo.MyTable", "MyFK", new[] { "Foo", "Bar" },
-                        "dbo.MyTable2", new[] { "Foo2", "Bar2" }, cascadeDelete: true)).Sql);
+                        "dbo.MyTable2", new[] { "Foo2", "Bar2" }, cascadeDelete: true)));
         }
 
         [Fact]
@@ -261,7 +262,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         {
             Assert.Equal(
                 @"ALTER TABLE ""dbo"".""MyTable"" DROP CONSTRAINT ""MyFK""",
-                Generate(new DropForeignKeyOperation("dbo.MyTable", "MyFK")).Sql);
+                Generate(new DropForeignKeyOperation("dbo.MyTable", "MyFK")));
         }
 
         [Fact]
@@ -271,7 +272,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
                 @"CREATE UNIQUE CLUSTERED INDEX ""MyIndex"" ON ""dbo"".""MyTable"" (""Foo"", ""Bar"")",
                 Generate(
                     new CreateIndexOperation("dbo.MyTable", "MyIndex", new[] { "Foo", "Bar" },
-                        isUnique: true, isClustered: true)).Sql);
+                        isUnique: true, isClustered: true)));
         }
 
         [Fact]
@@ -279,7 +280,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         {
             Assert.Equal(
                 @"DROP INDEX ""MyIndex""",
-                Generate(new DropIndexOperation("dbo.MyTable", "MyIndex")).Sql);
+                Generate(new DropIndexOperation("dbo.MyTable", "MyIndex")));
         }
 
         [Fact]
@@ -288,7 +289,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             Assert.Equal(
                 @"INSERT INTO ""dbo"".""T2"" ( ""C"", ""D"" )
     SELECT ""A"", ""B"" FROM ""dbo"".""T1""",
-                Generate(new CopyDataOperation("dbo.T1", new[] { "A", "B" }, "dbo.T2", new[] { "C", "D" })).Sql);
+                Generate(new CopyDataOperation("dbo.T1", new[] { "A", "B" }, "dbo.T2", new[] { "C", "D" })));
         }
 
         [Fact]
@@ -299,10 +300,11 @@ namespace Microsoft.Data.Entity.Migrations.Tests
     SET C1='V1'
     WHERE C2='V2'";
 
-            var statement = Generate(new SqlOperation(sql));
+            var batches = CreateSqlGenerator().Generate(new SqlOperation(sql)).ToList();
 
-            Assert.Equal(sql, statement.Sql);
-            Assert.False(statement.SuppressTransaction);
+            Assert.Equal(1, batches.Count);
+            Assert.Equal(sql, batches[0].Sql);
+            Assert.False(batches[0].SuppressTransaction);
         }
 
         [Fact]
@@ -313,10 +315,11 @@ namespace Microsoft.Data.Entity.Migrations.Tests
     SET C1='V1'
     WHERE C2='V2'";
 
-            var statement = Generate(new SqlOperation(sql) { SuppressTransaction = true });
+            var batches = CreateSqlGenerator().Generate(new SqlOperation(sql) { SuppressTransaction = true }).ToList();
 
-            Assert.Equal(sql, statement.Sql);
-            Assert.True(statement.SuppressTransaction);
+            Assert.Equal(1, batches.Count);
+            Assert.Equal(sql, batches[0].Sql);
+            Assert.True(batches[0].SuppressTransaction);
         }
 
         [Fact]
@@ -366,9 +369,12 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             return sqlGenerator;
         }
 
-        private static SqlStatement Generate(MigrationOperation migrationOperation, DatabaseModel database = null)
+        private static string Generate(MigrationOperation migrationOperation, DatabaseModel database = null)
         {
-            return CreateSqlGenerator(database).Generate(migrationOperation);
+            var batches = CreateSqlGenerator(database).Generate(migrationOperation);
+
+            return string.Join(Environment.NewLine, batches.Select(b => b.Sql));
         }
+
     }
 }

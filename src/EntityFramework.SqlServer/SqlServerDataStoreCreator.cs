@@ -95,45 +95,27 @@ namespace Microsoft.Data.Entity.SqlServer
                 .WithCurrentCulture()) != 0;
         }
 
-        private IEnumerable<SqlStatement> CreateSchemaCommands(IModel model)
-        {
-            var database = _modelDiffer.DatabaseBuilder.GetDatabase(model);
-            var sqlGenerator = _sqlGeneratorFactory.Create(database);
-            return sqlGenerator.Generate(_modelDiffer.CreateSchema(database));
-        }
-
-        private SqlStatement CreateHasTablesCommand()
-        {
-            return new SqlStatement("IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES) SELECT 1 ELSE SELECT 0");
-        }
-
-        private IEnumerable<SqlStatement> CreateCreateOperations()
+        private IEnumerable<SqlBatch> CreateSchemaCommands(IModel model)
         {
             // TODO Check DbConnection.Database always gives us what we want
             // Issue #775
+            var database = _modelDiffer.DatabaseBuilder.GetDatabase(model);
+            var sqlGenerator = _sqlGeneratorFactory.Create(database);
+
+            return sqlGenerator.Generate(_modelDiffer.CreateSchema(database));
+        }
+
+        private string CreateHasTablesCommand()
+        {
+            return "IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES) SELECT 1 ELSE SELECT 0";
+        }
+
+        private IEnumerable<SqlBatch> CreateCreateOperations()
+        {
             var databaseName = _connection.DbConnection.Database;
             var sqlGenerator = _sqlGeneratorFactory.Create();
 
-            var operations = new MigrationOperation[]
-                {
-                    new CreateDatabaseOperation(databaseName),
-                    SetReadCommittedSnapshotOn(sqlGenerator, databaseName)
-                };
-
-            return sqlGenerator.Generate(operations);
-        }
-
-        private static SqlOperation SetReadCommittedSnapshotOn(
-            SqlServerMigrationOperationSqlGenerator sqlGenerator, string databaseName)
-        {
-            return new SqlOperation(
-                string.Concat(
-                    "IF SERVERPROPERTY('EngineEdition') <> 5 EXECUTE sp_executesql N",
-                    sqlGenerator.GenerateLiteral(
-                        string.Concat(
-                            "ALTER DATABASE ",
-                            sqlGenerator.DelimitIdentifier(databaseName),
-                            " SET READ_COMMITTED_SNAPSHOT ON"))));
+            return sqlGenerator.Generate(new CreateDatabaseOperation(databaseName));
         }
 
         public override bool Exists()
@@ -237,7 +219,7 @@ namespace Microsoft.Data.Entity.SqlServer
             }
         }
 
-        private IEnumerable<SqlStatement> CreateDropCommands()
+        private IEnumerable<SqlBatch> CreateDropCommands()
         {
             var operations = new MigrationOperation[]
                 {

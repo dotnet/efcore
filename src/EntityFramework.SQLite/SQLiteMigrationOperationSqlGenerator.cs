@@ -24,8 +24,17 @@ namespace Microsoft.Data.Entity.SQLite
         }
 
         public override void Generate(
+            CreateTableOperation createTableOperation, 
+            SqlBatchBuilder batchBuilder)
+        {
+            base.Generate(createTableOperation, batchBuilder);
+
+            batchBuilder.EndBatch();
+        }
+
+        public override void Generate(
             CreateDatabaseOperation createDatabaseOperation,
-            IndentedStringBuilder stringBuilder)
+            SqlBatchBuilder batchBuilder)
         {
             throw new NotSupportedException(Strings.MigrationOperationNotSupported(
                 GetType(), createDatabaseOperation.GetType()));
@@ -33,7 +42,7 @@ namespace Microsoft.Data.Entity.SQLite
 
         public override void Generate(
             DropDatabaseOperation dropDatabaseOperation,
-            IndentedStringBuilder stringBuilder)
+            SqlBatchBuilder batchBuilder)
         {
             throw new NotSupportedException(Strings.MigrationOperationNotSupported(
                 GetType(), dropDatabaseOperation.GetType()));
@@ -41,7 +50,7 @@ namespace Microsoft.Data.Entity.SQLite
 
         public override void Generate(
             CreateSequenceOperation createSequenceOperation,
-            IndentedStringBuilder stringBuilder)
+            SqlBatchBuilder batchBuilder)
         {
             throw new NotSupportedException(Strings.MigrationOperationNotSupported(
                 GetType(), createSequenceOperation.GetType()));
@@ -49,7 +58,7 @@ namespace Microsoft.Data.Entity.SQLite
 
         public override void Generate(
             DropSequenceOperation dropSequenceOperation,
-            IndentedStringBuilder stringBuilder)
+            SqlBatchBuilder batchBuilder)
         {
             throw new NotSupportedException(Strings.MigrationOperationNotSupported(
                 GetType(), dropSequenceOperation.GetType()));
@@ -57,7 +66,7 @@ namespace Microsoft.Data.Entity.SQLite
 
         public override void Generate(
             MoveSequenceOperation moveSequenceOperation,
-            IndentedStringBuilder stringBuilder)
+            SqlBatchBuilder batchBuilder)
         {
             throw new NotSupportedException(Strings.MigrationOperationNotSupported(
                 GetType(), moveSequenceOperation.GetType()));
@@ -65,7 +74,7 @@ namespace Microsoft.Data.Entity.SQLite
 
         public override void Generate(
             RenameSequenceOperation renameSequenceOperation,
-            IndentedStringBuilder stringBuilder)
+            SqlBatchBuilder batchBuilder)
         {
             throw new NotSupportedException(Strings.MigrationOperationNotSupported(
                 GetType(), renameSequenceOperation.GetType()));
@@ -73,7 +82,7 @@ namespace Microsoft.Data.Entity.SQLite
 
         public override void Generate(
             AlterSequenceOperation alterSequenceOperation,
-            IndentedStringBuilder stringBuilder)
+            SqlBatchBuilder batchBuilder)
         {
             throw new NotSupportedException(Strings.MigrationOperationNotSupported(
                 GetType(), alterSequenceOperation.GetType()));
@@ -81,16 +90,16 @@ namespace Microsoft.Data.Entity.SQLite
 
         protected override void GenerateTableConstraints(
             Table table,
-            IndentedStringBuilder stringBuilder)
+            SqlBatchBuilder batchBuilder)
         {
             Check.NotNull(table, "table");
-            Check.NotNull(stringBuilder, "stringBuilder");
+            Check.NotNull(batchBuilder, "batchBuilder");
 
-            base.GenerateTableConstraints(table, stringBuilder);
+            base.GenerateTableConstraints(table, batchBuilder);
 
             foreach (var foreignKey in table.ForeignKeys)
             {
-                stringBuilder.AppendLine(",");
+                batchBuilder.AppendLine(",");
                 GenerateForeignKey(
                     new AddForeignKeyOperation(
                         foreignKey.Table.Name,
@@ -99,55 +108,55 @@ namespace Microsoft.Data.Entity.SQLite
                         foreignKey.ReferencedTable.Name,
                         foreignKey.ReferencedColumns.Select(c => c.Name).ToArray(),
                         foreignKey.CascadeDelete),
-                    stringBuilder);
+                    batchBuilder);
             }
         }
 
-        public override void Generate(RenameTableOperation renameTableOperation, IndentedStringBuilder stringBuilder)
+        public override void Generate(RenameTableOperation renameTableOperation, SqlBatchBuilder batchBuilder)
         {
             Check.NotNull(renameTableOperation, "renameTableOperation");
-            Check.NotNull(stringBuilder, "stringBuilder");
+            Check.NotNull(batchBuilder, "batchBuilder");
 
             GenerateRenameTable(
                 renameTableOperation.TableName,
                 new SchemaQualifiedName(renameTableOperation.NewTableName, renameTableOperation.TableName.Schema),
-                stringBuilder);
+                batchBuilder);
         }
 
-        public override void Generate(MoveTableOperation moveTableOperation, IndentedStringBuilder stringBuilder)
+        public override void Generate(MoveTableOperation moveTableOperation, SqlBatchBuilder batchBuilder)
         {
             Check.NotNull(moveTableOperation, "moveTableOperation");
-            Check.NotNull(stringBuilder, "stringBuilder");
+            Check.NotNull(batchBuilder, "batchBuilder");
 
             GenerateRenameTable(
                 moveTableOperation.TableName,
                 new SchemaQualifiedName(moveTableOperation.TableName.Name, moveTableOperation.NewSchema),
-                stringBuilder);
+                batchBuilder);
         }
 
         protected virtual void GenerateRenameTable(
             [NotNull] SchemaQualifiedName tableName,
             [NotNull] SchemaQualifiedName newTableName,
-            [NotNull] IndentedStringBuilder stringBuilder)
+            [NotNull] SqlBatchBuilder batchBuilder)
         {
             Check.NotNull(tableName, "tableName");
             Check.NotNull(newTableName, "newTableName");
-            Check.NotNull(stringBuilder, "stringBuilder");
+            Check.NotNull(batchBuilder, "batchBuilder");
 
-            stringBuilder
+            batchBuilder
                 .Append("ALTER TABLE ")
                 .Append(DelimitIdentifier(tableName))
                 .Append(" RENAME TO ")
                 .Append(DelimitIdentifier(newTableName));
         }
 
-        public override void Generate(DropColumnOperation dropColumnOperation, IndentedStringBuilder stringBuilder)
+        public override void Generate(DropColumnOperation dropColumnOperation, SqlBatchBuilder batchBuilder)
         {
             // TODO: Rebuild table
             throw new NotImplementedException();
         }
 
-        public override void Generate(AlterColumnOperation alterColumnOperation, IndentedStringBuilder stringBuilder)
+        public override void Generate(AlterColumnOperation alterColumnOperation, SqlBatchBuilder batchBuilder)
         {
             // TODO: Rebuild table
             throw new NotImplementedException();
@@ -155,7 +164,7 @@ namespace Microsoft.Data.Entity.SQLite
 
         public override void Generate(
             AddDefaultConstraintOperation addDefaultConstraintOperation,
-            IndentedStringBuilder stringBuilder)
+            SqlBatchBuilder batchBuilder)
         {
             // TODO: Rebuild table
             throw new NotImplementedException();
@@ -163,13 +172,15 @@ namespace Microsoft.Data.Entity.SQLite
 
         public override void Generate(
             DropDefaultConstraintOperation dropDefaultConstraintOperation,
-            IndentedStringBuilder stringBuilder)
+            SqlBatchBuilder batchBuilder)
         {
             // TODO: Rebuild table
             throw new NotImplementedException();
         }
 
-        public override void Generate(RenameColumnOperation renameColumnOperation, IndentedStringBuilder stringBuilder)
+        public override void Generate(
+            RenameColumnOperation renameColumnOperation, 
+            SqlBatchBuilder batchBuilder)
         {
             // TODO: Rebuild table
             throw new NotImplementedException();
@@ -177,7 +188,7 @@ namespace Microsoft.Data.Entity.SQLite
 
         public override void Generate(
             AddPrimaryKeyOperation addPrimaryKeyOperation,
-            IndentedStringBuilder stringBuilder)
+            SqlBatchBuilder batchBuilder)
         {
             // TODO: Rebuild table
             throw new NotImplementedException();
@@ -185,7 +196,7 @@ namespace Microsoft.Data.Entity.SQLite
 
         public override void Generate(
             DropPrimaryKeyOperation dropPrimaryKeyOperation,
-            IndentedStringBuilder stringBuilder)
+            SqlBatchBuilder batchBuilder)
         {
             // TODO: Rebuild table
             throw new NotImplementedException();
@@ -193,7 +204,7 @@ namespace Microsoft.Data.Entity.SQLite
 
         public override void Generate(
             AddForeignKeyOperation addForeignKeyOperation,
-            IndentedStringBuilder stringBuilder)
+            SqlBatchBuilder batchBuilder)
         {
             // TODO: Rebuild table
             throw new NotImplementedException();
@@ -201,13 +212,15 @@ namespace Microsoft.Data.Entity.SQLite
 
         public override void Generate(
             DropForeignKeyOperation dropForeignKeyOperation,
-            IndentedStringBuilder stringBuilder)
+            SqlBatchBuilder batchBuilder)
         {
             // TODO: Rebuild table
             throw new NotImplementedException();
         }
 
-        public override void Generate(RenameIndexOperation renameIndexOperation, IndentedStringBuilder stringBuilder)
+        public override void Generate(
+            RenameIndexOperation renameIndexOperation, 
+            SqlBatchBuilder batchBuilder)
         {
             // TODO: Rebuild index
             throw new NotImplementedException();
@@ -240,12 +253,12 @@ namespace Microsoft.Data.Entity.SQLite
 
         protected override void GenerateUniqueConstraint(
             AddUniqueConstraintOperation uniqueConstraintOperation,
-            IndentedStringBuilder stringBuilder)
+            SqlBatchBuilder batchBuilder)
         {
             Check.NotNull(uniqueConstraintOperation, "uniqueConstraintOperation");
-            Check.NotNull(stringBuilder, "stringBuilder");
+            Check.NotNull(batchBuilder, "batchBuilder");
 
-            stringBuilder
+            batchBuilder
                 .Append("UNIQUE (")
                 .Append(uniqueConstraintOperation.ColumnNames.Select(DelimitIdentifier).Join())
                 .Append(")");

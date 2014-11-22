@@ -23,87 +23,105 @@ namespace Microsoft.Data.Entity.SqlServer
         {
         }
 
-        public override void Generate(RenameSequenceOperation renameSequenceOperation, IndentedStringBuilder stringBuilder)
+        public override void Generate(CreateDatabaseOperation createDatabaseOperation, SqlBatchBuilder batchBuilder)
+        {
+            base.Generate(createDatabaseOperation, batchBuilder);
+
+            batchBuilder.EndBatch();
+
+            batchBuilder
+                .Append("IF SERVERPROPERTY('EngineEdition') <> 5 EXECUTE sp_executesql N")
+                .Append(
+                    GenerateLiteral(
+                        string.Concat(
+                            "ALTER DATABASE ",
+                            DelimitIdentifier(createDatabaseOperation.DatabaseName),
+                            " SET READ_COMMITTED_SNAPSHOT ON")));
+
+            batchBuilder.EndBatch();
+        }
+
+        public override void Generate(RenameSequenceOperation renameSequenceOperation, SqlBatchBuilder batchBuilder)
         {
             Check.NotNull(renameSequenceOperation, "renameSequenceOperation");
-            Check.NotNull(stringBuilder, "stringBuilder");
+            Check.NotNull(batchBuilder, "batchBuilder");
 
             GenerateRename(
                 renameSequenceOperation.SequenceName,
                 renameSequenceOperation.NewSequenceName,
                 "OBJECT",
-                stringBuilder);
+                batchBuilder);
         }
 
-        public override void Generate(MoveSequenceOperation moveSequenceOperation, IndentedStringBuilder stringBuilder)
+        public override void Generate(MoveSequenceOperation moveSequenceOperation, SqlBatchBuilder batchBuilder)
         {
             Check.NotNull(moveSequenceOperation, "moveSequenceOperation");
-            Check.NotNull(stringBuilder, "stringBuilder");
+            Check.NotNull(batchBuilder, "batchBuilder");
 
             GenerateMove(
                 moveSequenceOperation.SequenceName,
                 moveSequenceOperation.NewSchema,
-                stringBuilder);
+                batchBuilder);
         }
 
-        public override void Generate(RenameTableOperation renameTableOperation, IndentedStringBuilder stringBuilder)
+        public override void Generate(RenameTableOperation renameTableOperation, SqlBatchBuilder batchBuilder)
         {
             Check.NotNull(renameTableOperation, "renameTableOperation");
-            Check.NotNull(stringBuilder, "stringBuilder");
+            Check.NotNull(batchBuilder, "batchBuilder");
 
             GenerateRename(
                 renameTableOperation.TableName,
                 renameTableOperation.NewTableName,
                 "OBJECT",
-                stringBuilder);
+                batchBuilder);
         }
 
-        public override void Generate(MoveTableOperation moveTableOperation, IndentedStringBuilder stringBuilder)
+        public override void Generate(MoveTableOperation moveTableOperation, SqlBatchBuilder batchBuilder)
         {
             Check.NotNull(moveTableOperation, "moveTableOperation");
-            Check.NotNull(stringBuilder, "stringBuilder");
+            Check.NotNull(batchBuilder, "batchBuilder");
 
             GenerateMove(
                 moveTableOperation.TableName,
                 moveTableOperation.NewSchema,
-                stringBuilder);
+                batchBuilder);
         }
 
-        public override void Generate(AddDefaultConstraintOperation addDefaultConstraintOperation, IndentedStringBuilder stringBuilder)
+        public override void Generate(AddDefaultConstraintOperation addDefaultConstraintOperation, SqlBatchBuilder batchBuilder)
         {
             Check.NotNull(addDefaultConstraintOperation, "addDefaultConstraintOperation");
-            Check.NotNull(stringBuilder, "stringBuilder");
+            Check.NotNull(batchBuilder, "batchBuilder");
 
             var tableName = addDefaultConstraintOperation.TableName;
             var columnName = addDefaultConstraintOperation.ColumnName;
 
-            stringBuilder
+            batchBuilder
                 .Append("ALTER TABLE ")
                 .Append(DelimitIdentifier(tableName))
                 .Append(" ADD CONSTRAINT ")
                 .Append(DelimitIdentifier("DF_" + tableName + "_" + columnName))
                 .Append(" DEFAULT ");
 
-            stringBuilder.Append(addDefaultConstraintOperation.DefaultSql ?? GenerateLiteral((dynamic)addDefaultConstraintOperation.DefaultValue));
+            batchBuilder.Append(addDefaultConstraintOperation.DefaultSql ?? GenerateLiteral((dynamic)addDefaultConstraintOperation.DefaultValue));
 
-            stringBuilder
+            batchBuilder
                 .Append(" FOR ")
                 .Append(DelimitIdentifier(columnName));
         }
 
-        public override void Generate(DropDefaultConstraintOperation dropDefaultConstraintOperation, IndentedStringBuilder stringBuilder)
+        public override void Generate(DropDefaultConstraintOperation dropDefaultConstraintOperation, SqlBatchBuilder batchBuilder)
         {
             Check.NotNull(dropDefaultConstraintOperation, "dropDefaultConstraintOperation");
-            Check.NotNull(stringBuilder, "stringBuilder");
+            Check.NotNull(batchBuilder, "batchBuilder");
 
             var constraintNameVariable = "@var" + _variableCount++;
 
-            stringBuilder
+            batchBuilder
                 .Append("DECLARE ")
                 .Append(constraintNameVariable)
                 .AppendLine(" nvarchar(128)");
 
-            stringBuilder
+            batchBuilder
                 .Append("SELECT ")
                 .Append(constraintNameVariable)
                 .Append(" = name FROM sys.default_constraints WHERE parent_object_id = OBJECT_ID(N")
@@ -111,7 +129,7 @@ namespace Microsoft.Data.Entity.SqlServer
                 .Append(") AND COL_NAME(parent_object_id, parent_column_id) = N")
                 .AppendLine(DelimitLiteral(dropDefaultConstraintOperation.ColumnName));
 
-            stringBuilder
+            batchBuilder
                 .Append("EXECUTE('ALTER TABLE ")
                 .Append(DelimitIdentifier(dropDefaultConstraintOperation.TableName))
                 .Append(" DROP CONSTRAINT \"' + ")
@@ -119,7 +137,7 @@ namespace Microsoft.Data.Entity.SqlServer
                 .Append(" + '\"')");
         }
 
-        public override void Generate(RenameColumnOperation renameColumnOperation, IndentedStringBuilder stringBuilder)
+        public override void Generate(RenameColumnOperation renameColumnOperation, SqlBatchBuilder batchBuilder)
         {
             Check.NotNull(renameColumnOperation, "renameColumnOperation");
 
@@ -130,14 +148,14 @@ namespace Microsoft.Data.Entity.SqlServer
                     EscapeLiteral(renameColumnOperation.ColumnName)),
                 renameColumnOperation.NewColumnName,
                 "COLUMN",
-                stringBuilder);
+                batchBuilder);
         }
 
-        public override void Generate(RenameIndexOperation renameIndexOperation, IndentedStringBuilder stringBuilder)
+        public override void Generate(RenameIndexOperation renameIndexOperation, SqlBatchBuilder batchBuilder)
         {
             Check.NotNull(renameIndexOperation, "renameIndexOperation");
 
-            stringBuilder
+            batchBuilder
                 .Append("EXECUTE sp_rename @objname = N'")
                 .Append(EscapeLiteral(renameIndexOperation.TableName))
                 .Append(".")
@@ -161,7 +179,7 @@ namespace Microsoft.Data.Entity.SqlServer
             return identifier.Replace("]", "]]");
         }
 
-        protected override void GenerateColumnTraits(Column column, IndentedStringBuilder stringBuilder)
+        protected override void GenerateColumnTraits(Column column, SqlBatchBuilder batchBuilder)
         {
             // TODO: This is essentially duplicated logic from the selector; combine if possible
             if (column.GenerateValueOnAdd)
@@ -175,39 +193,42 @@ namespace Microsoft.Data.Entity.SqlServer
                     || (strategy == null
                         && column.ClrType.IsInteger()))
                 {
-                    stringBuilder.Append(" IDENTITY");
+                    batchBuilder.Append(" IDENTITY");
                 }
             }
         }
 
         protected override void GeneratePrimaryKeyTraits(
             AddPrimaryKeyOperation primaryKeyOperation,
-            IndentedStringBuilder stringBuilder)
+            SqlBatchBuilder batchBuilder)
         {
             if (!primaryKeyOperation.IsClustered)
             {
-                stringBuilder.Append(" NONCLUSTERED");
+                batchBuilder.Append(" NONCLUSTERED");
             }
         }
 
-        public override void Generate(DropIndexOperation dropIndexOperation, IndentedStringBuilder stringBuilder)
+        public override void Generate(DropIndexOperation dropIndexOperation, SqlBatchBuilder batchBuilder)
         {
-            base.Generate(dropIndexOperation, stringBuilder);
+            base.Generate(dropIndexOperation, batchBuilder);
 
-            stringBuilder
+            batchBuilder
                 .Append(" ON ")
                 .Append(DelimitIdentifier(dropIndexOperation.TableName));
         }
 
-        protected virtual void GenerateRename([NotNull] string name, [NotNull] string newName,
-            [NotNull] string objectType, [NotNull] IndentedStringBuilder stringBuilder)
+        protected virtual void GenerateRename(
+            [NotNull] string name, 
+            [NotNull] string newName,
+            [NotNull] string objectType,
+            [NotNull] SqlBatchBuilder batchBuilder)
         {
             Check.NotEmpty(name, "name");
             Check.NotEmpty(newName, "newName");
             Check.NotEmpty(objectType, "objectType");
-            Check.NotNull(stringBuilder, "stringBuilder");
+            Check.NotNull(batchBuilder, "batchBuilder");
 
-            stringBuilder
+            batchBuilder
                 .Append("EXECUTE sp_rename @objname = N")
                 .Append(DelimitLiteral(name))
                 .Append(", @newname = N")
@@ -216,13 +237,15 @@ namespace Microsoft.Data.Entity.SqlServer
                 .Append(DelimitLiteral(objectType));
         }
 
-        protected virtual void GenerateMove(SchemaQualifiedName name, [NotNull] string newSchema,
-            [NotNull] IndentedStringBuilder stringBuilder)
+        protected virtual void GenerateMove(
+            SchemaQualifiedName name, 
+            [NotNull] string newSchema,
+            [NotNull] SqlBatchBuilder batchBuilder)
         {
             Check.NotEmpty(newSchema, "newSchema");
-            Check.NotNull(stringBuilder, "stringBuilder");
+            Check.NotNull(batchBuilder, "stringBuilder");
 
-            stringBuilder
+            batchBuilder
                 .Append("ALTER SCHEMA ")
                 .Append(DelimitIdentifier(newSchema))
                 .Append(" TRANSFER ")

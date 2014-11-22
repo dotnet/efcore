@@ -2,8 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.Data.Entity.Migrations.Model;
+using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Model;
-using Microsoft.Data.Entity.Utilities;
 using Moq;
 using Xunit;
 
@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Model
                 "dbo.MyTable", "MyIndex", new[] { "Foo", "Bar" },
                 isUnique: true, isClustered: true);
             var mockVisitor = new Mock<MigrationOperationSqlGenerator>(new RelationalTypeMapper());
-            var builder = new Mock<IndentedStringBuilder>();
+            var builder = new Mock<SqlBatchBuilder>();
             createIndexOperation.GenerateSql(mockVisitor.Object, builder.Object);
 
             mockVisitor.Verify(g => g.Generate(createIndexOperation, builder.Object), Times.Once());

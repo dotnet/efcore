@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Migrations.Model
@@ -18,7 +19,7 @@ namespace Microsoft.Data.Entity.Migrations.Model
         public abstract void Accept<TVisitor, TContext>([NotNull] TVisitor visitor, [NotNull] TContext context)
             where TVisitor : MigrationOperationVisitor<TContext>;
 
-        public abstract void GenerateSql([NotNull] MigrationOperationSqlGenerator generator, [NotNull] IndentedStringBuilder stringBuilder);
+        public abstract void GenerateSql([NotNull] MigrationOperationSqlGenerator generator, [NotNull] SqlBatchBuilder batchBuilder);
 
         public abstract void GenerateCode([NotNull] MigrationCodeGenerator generator, [NotNull] IndentedStringBuilder stringBuilder);
     }

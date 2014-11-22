@@ -326,13 +326,13 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 _current = -blockSize;
             }
 
-            public override object ExecuteScalar(DbConnection connection, DbTransaction transaction, SqlStatement statement)
+            public override object ExecuteScalar(DbConnection connection, DbTransaction transaction, string sql)
             {
                 return Interlocked.Add(ref _current, _blockSize);
             }
 
             public override Task<object> ExecuteScalarAsync(
-                DbConnection connection, DbTransaction transaction, SqlStatement statement, CancellationToken cancellationToken = new CancellationToken())
+                DbConnection connection, DbTransaction transaction, string sql, CancellationToken cancellationToken = new CancellationToken())
             {
                 return Task.FromResult<object>(Interlocked.Add(ref _current, _blockSize));
             }
