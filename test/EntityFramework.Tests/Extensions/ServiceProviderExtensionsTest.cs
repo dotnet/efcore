@@ -104,7 +104,7 @@ namespace Microsoft.Data.Entity.Tests
         {
         }
 
-        private class Karl
+        private class Karl : IPilkington
         {
             public Karl()
             {

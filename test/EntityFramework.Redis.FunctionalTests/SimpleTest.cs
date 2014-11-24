@@ -14,17 +14,17 @@ namespace Microsoft.Data.Entity.Redis.FunctionalTests
 {
     public class SimpleTest : IClassFixture<RedisFixture>, IDisposable
     {
-        [Fact]
+        // [Fact] Disabled due to #1038
         public void Add_modify_and_delete_simple_poco()
         {
             using (var context = CreateContext())
             {
                 var simplePoco = context.Set<SimplePoco>().Add(
                     new SimplePoco
-                        {
-                            PocoKey = 100,
-                            Name = "A. Name",
-                        });
+                    {
+                        PocoKey = 100,
+                        Name = "A. Name",
+                    });
                 var changes = context.SaveChanges();
                 Assert.Equal(1, changes);
 
@@ -38,7 +38,7 @@ namespace Microsoft.Data.Entity.Redis.FunctionalTests
             }
         }
 
-        [Fact]
+        // [Fact] Disabled due to #1038
         public async Task Add_modify_and_delete_simple_poco_async()
         {
             using (var context = CreateContext())
@@ -62,7 +62,7 @@ namespace Microsoft.Data.Entity.Redis.FunctionalTests
             }
         }
 
-        [Fact]
+        // [Fact] Disabled due to #1038
         public void Add_modify_and_delete_simple_poco_together()
         {
             using (var context = CreateContext())
@@ -96,7 +96,7 @@ namespace Microsoft.Data.Entity.Redis.FunctionalTests
             }
         }
 
-        [Fact]
+        // [Fact] Disabled due to #1038
         public async Task Add_modify_and_delete_simple_poco_together_async()
         {
             using (var context = CreateContext())
@@ -130,7 +130,7 @@ namespace Microsoft.Data.Entity.Redis.FunctionalTests
             }
         }
 
-        [Fact]
+        // [Fact] Disabled due to #1038
         public void Get_simple_poco_count()
         {
             using (var context = CreateContext())
@@ -151,7 +151,7 @@ namespace Microsoft.Data.Entity.Redis.FunctionalTests
             }
         }
 
-        [Fact]
+        // [Fact] Disabled due to #1038
         public void Get_simple_poco_projection()
         {
             using (var context = CreateContext())
