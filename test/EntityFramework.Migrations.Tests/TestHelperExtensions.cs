@@ -190,6 +190,10 @@ namespace Microsoft.Data.Entity.Tests
         public override void Generate(RenameIndexOperation renameIndexOperation, SqlBatchBuilder batchBuilder)
         {
         }
+
+        protected override void EnsureSchema(string schema, SqlBatchBuilder batchBuilder)
+        {
+        }
     }
 
     public class FakeMigrationsSqlGenerator : MigrationOperationVisitor<IndentedStringBuilder>

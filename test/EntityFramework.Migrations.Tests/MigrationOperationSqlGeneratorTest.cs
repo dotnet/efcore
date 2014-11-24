@@ -398,7 +398,7 @@ DROP DATABASE ""CustomeOrderDb""", batches[0].Sql);
         [Fact]
         public void Delimit_literal()
         {
-            Assert.Equal("'foo''bar'", SqlGenerator().DelimitLiteral("foo'bar"));
+            Assert.Equal("'foo''bar'", SqlGenerator().GenerateLiteral("foo'bar"));
         }
 
         [Fact]
