@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Model;
@@ -18,8 +19,10 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         public void Generate_when_create_database_operation()
         {
             Assert.Equal(
-                @"CREATE DATABASE [MyDatabase]",
-                Generate(new CreateDatabaseOperation("MyDatabase")).Sql);
+@"CREATE DATABASE [MyDatabase]
+IF SERVERPROPERTY('EngineEdition') <> 5 EXECUTE sp_executesql N'ALTER DATABASE [MyDatabase] SET READ_COMMITTED_SNAPSHOT ON'",
+
+            Generate(new CreateDatabaseOperation("MyDatabase")));
         }
 
         [Fact]
@@ -27,7 +30,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         {
             Assert.Equal(
                 @"DROP DATABASE [MyDatabase]",
-                Generate(new DropDatabaseOperation("MyDatabase")).Sql);
+                Generate(new DropDatabaseOperation("MyDatabase")));
         }
 
         [Fact]
@@ -35,7 +38,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         {
             Assert.Equal(
                 @"CREATE SEQUENCE [dbo].[MySequence] AS bigint START WITH 0 INCREMENT BY 1",
-                Generate(new CreateSequenceOperation(new Sequence("dbo.MySequence", typeof(long), 0, 1))).Sql);
+                Generate(new CreateSequenceOperation(new Sequence("dbo.MySequence", typeof(long), 0, 1))));
         }
 
         [Fact]
@@ -43,7 +46,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         {
             Assert.Equal(
                 @"ALTER SCHEMA [dbo2] TRANSFER [dbo].[MySequence]",
-                Generate(new MoveSequenceOperation("dbo.MySequence", "dbo2")).Sql);
+                Generate(new MoveSequenceOperation("dbo.MySequence", "dbo2")));
         }
 
         [Fact]
@@ -51,7 +54,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         {
             Assert.Equal(
                 @"EXECUTE sp_rename @objname = N'dbo.MySequence', @newname = N'MySequence2', @objtype = N'OBJECT'",
-                Generate(new RenameSequenceOperation("dbo.MySequence", "MySequence2")).Sql);
+                Generate(new RenameSequenceOperation("dbo.MySequence", "MySequence2")));
         }
 
         [Fact]
@@ -59,7 +62,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         {
             Assert.Equal(
                 @"DROP SEQUENCE [dbo].[MySequence]",
-                Generate(new DropSequenceOperation("dbo.MySequence")).Sql);
+                Generate(new DropSequenceOperation("dbo.MySequence")));
         }
 
         [Fact]
@@ -67,7 +70,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         {
             Assert.Equal(
                 @"ALTER SEQUENCE [dbo].[MySequence] INCREMENT BY 7",
-                Generate(new AlterSequenceOperation("dbo.MySequence", 7)).Sql);
+                Generate(new AlterSequenceOperation("dbo.MySequence", 7)));
         }
 
         [Fact]
@@ -92,7 +95,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
     [Bar] int,
     CONSTRAINT [MyPK] PRIMARY KEY NONCLUSTERED ([Foo], [Bar])
 )",
-                Generate(new CreateTableOperation(table), database).Sql);
+                Generate(new CreateTableOperation(table), database));
         }
 
         [Fact]
@@ -118,7 +121,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
     [Bar] int,
     CONSTRAINT [MyPK] PRIMARY KEY NONCLUSTERED ([Foo])
 )",
-                Generate(new CreateTableOperation(table), database).Sql);
+                Generate(new CreateTableOperation(table), database));
         }
 
         [Fact]
@@ -126,7 +129,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         {
             Assert.Equal(
                 @"DROP TABLE [dbo].[MyTable]",
-                Generate(new DropTableOperation("dbo.MyTable")).Sql);
+                Generate(new DropTableOperation("dbo.MyTable")));
         }
 
         [Fact]
@@ -134,7 +137,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         {
             Assert.Equal(
                 @"EXECUTE sp_rename @objname = N'dbo.MyTable', @newname = N'MyTable2', @objtype = N'OBJECT'",
-                Generate(new RenameTableOperation("dbo.MyTable", "MyTable2")).Sql);
+                Generate(new RenameTableOperation("dbo.MyTable", "MyTable2")));
         }
 
         [Fact]
@@ -142,7 +145,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         {
             Assert.Equal(
                 @"ALTER SCHEMA [dbo2] TRANSFER [dbo].[MyTable]",
-                Generate(new MoveTableOperation("dbo.MyTable", "dbo2")).Sql);
+                Generate(new MoveTableOperation("dbo.MyTable", "dbo2")));
         }
 
         [Fact]
@@ -155,7 +158,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             Assert.Equal(
                 @"ALTER TABLE [dbo].[MyTable] ADD [Bar] int NOT NULL DEFAULT 5",
-                Generate(new AddColumnOperation("dbo.MyTable", column), database).Sql);
+                Generate(new AddColumnOperation("dbo.MyTable", column), database));
         }
 
         [Fact]
@@ -166,7 +169,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             Assert.Equal(
                 @"ALTER TABLE [dbo].[MyTable] DROP COLUMN [Foo]",
-                Generate(new DropColumnOperation("dbo.MyTable", "Foo"), database).Sql);
+                Generate(new DropColumnOperation("dbo.MyTable", "Foo"), database));
         }
 
         [Fact]
@@ -187,7 +190,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 Generate(
                     new AlterColumnOperation("dbo.MyTable", new Column("Foo", typeof(int)) { IsNullable = false },
                         isDestructiveChange: false),
-                    database).Sql);
+                    database));
         }
 
         [Fact]
@@ -196,7 +199,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             Assert.Equal(
                 @"ALTER TABLE [dbo].[MyTable] ADD CONSTRAINT [DF_dbo.MyTable_Foo] DEFAULT 5 FOR [Foo]",
                 Generate(
-                    new AddDefaultConstraintOperation("dbo.MyTable", "Foo", 5, null)).Sql);
+                    new AddDefaultConstraintOperation("dbo.MyTable", "Foo", 5, null)));
         }
 
         [Fact]
@@ -207,7 +210,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 SELECT @var0 = name FROM sys.default_constraints WHERE parent_object_id = OBJECT_ID(N'dbo.MyTable') AND COL_NAME(parent_object_id, parent_column_id) = N'Foo'
 EXECUTE('ALTER TABLE [dbo].[MyTable] DROP CONSTRAINT ""' + @var0 + '""')",
                 Generate(
-                    new DropDefaultConstraintOperation("dbo.MyTable", "Foo")).Sql);
+                    new DropDefaultConstraintOperation("dbo.MyTable", "Foo")));
         }
 
         [Fact]
@@ -216,7 +219,7 @@ EXECUTE('ALTER TABLE [dbo].[MyTable] DROP CONSTRAINT ""' + @var0 + '""')",
             Assert.Equal(
                 @"EXECUTE sp_rename @objname = N'dbo.MyTable.Foo', @newname = N'Foo2', @objtype = N'COLUMN'",
                 Generate(
-                    new RenameColumnOperation("dbo.MyTable", "Foo", "Foo2")).Sql);
+                    new RenameColumnOperation("dbo.MyTable", "Foo", "Foo2")));
         }
 
         [Fact]
@@ -225,7 +228,7 @@ EXECUTE('ALTER TABLE [dbo].[MyTable] DROP CONSTRAINT ""' + @var0 + '""')",
             Assert.Equal(
                 @"ALTER TABLE [dbo].[MyTable] ADD CONSTRAINT [MyPK] PRIMARY KEY NONCLUSTERED ([Foo], [Bar])",
                 Generate(
-                    new AddPrimaryKeyOperation("dbo.MyTable", "MyPK", new[] { "Foo", "Bar" }, isClustered: false)).Sql);
+                    new AddPrimaryKeyOperation("dbo.MyTable", "MyPK", new[] { "Foo", "Bar" }, isClustered: false)));
         }
 
         [Fact]
@@ -233,7 +236,7 @@ EXECUTE('ALTER TABLE [dbo].[MyTable] DROP CONSTRAINT ""' + @var0 + '""')",
         {
             Assert.Equal(
                 @"ALTER TABLE [dbo].[MyTable] DROP CONSTRAINT [MyPK]",
-                Generate(new DropPrimaryKeyOperation("dbo.MyTable", "MyPK")).Sql);
+                Generate(new DropPrimaryKeyOperation("dbo.MyTable", "MyPK")));
         }
 
         [Fact]
@@ -243,7 +246,7 @@ EXECUTE('ALTER TABLE [dbo].[MyTable] DROP CONSTRAINT ""' + @var0 + '""')",
                 @"ALTER TABLE [dbo].[MyTable] ADD CONSTRAINT [MyFK] FOREIGN KEY ([Foo], [Bar]) REFERENCES [dbo].[MyTable2] ([Foo2], [Bar2]) ON DELETE CASCADE",
                 Generate(
                     new AddForeignKeyOperation("dbo.MyTable", "MyFK", new[] { "Foo", "Bar" },
-                        "dbo.MyTable2", new[] { "Foo2", "Bar2" }, cascadeDelete: true)).Sql);
+                        "dbo.MyTable2", new[] { "Foo2", "Bar2" }, cascadeDelete: true)));
         }
 
         [Fact]
@@ -251,7 +254,7 @@ EXECUTE('ALTER TABLE [dbo].[MyTable] DROP CONSTRAINT ""' + @var0 + '""')",
         {
             Assert.Equal(
                 @"ALTER TABLE [dbo].[MyTable2] DROP CONSTRAINT [MyFK]",
-                Generate(new DropForeignKeyOperation("dbo.MyTable2", "MyFK")).Sql);
+                Generate(new DropForeignKeyOperation("dbo.MyTable2", "MyFK")));
         }
 
         [Fact]
@@ -261,7 +264,7 @@ EXECUTE('ALTER TABLE [dbo].[MyTable] DROP CONSTRAINT ""' + @var0 + '""')",
                 @"CREATE UNIQUE CLUSTERED INDEX [MyIndex] ON [dbo].[MyTable] ([Foo], [Bar])",
                 Generate(
                     new CreateIndexOperation("dbo.MyTable", "MyIndex", new[] { "Foo", "Bar" },
-                        isUnique: true, isClustered: true)).Sql);
+                        isUnique: true, isClustered: true)));
         }
 
         [Fact]
@@ -269,7 +272,7 @@ EXECUTE('ALTER TABLE [dbo].[MyTable] DROP CONSTRAINT ""' + @var0 + '""')",
         {
             Assert.Equal(
                 @"DROP INDEX [MyIndex] ON [dbo].[MyTable]",
-                Generate(new DropIndexOperation("dbo.MyTable", "MyIndex")).Sql);
+                Generate(new DropIndexOperation("dbo.MyTable", "MyIndex")));
         }
 
         [Fact]
@@ -278,7 +281,7 @@ EXECUTE('ALTER TABLE [dbo].[MyTable] DROP CONSTRAINT ""' + @var0 + '""')",
             Assert.Equal(
                 @"EXECUTE sp_rename @objname = N'dbo.MyTable.MyIndex', @newname = N'MyIndex2', @objtype = N'INDEX'",
                 Generate(
-                    new RenameIndexOperation("dbo.MyTable", "MyIndex", "MyIndex2")).Sql);
+                    new RenameIndexOperation("dbo.MyTable", "MyIndex", "MyIndex2")));
         }
 
         [Fact]
@@ -496,9 +499,11 @@ EXECUTE('ALTER TABLE [dbo].[MyTable] DROP CONSTRAINT ""' + @var0 + '""')",
             Assert.Equal("foo''bar", sqlGenerator.EscapeLiteral("foo'bar"));
         }
 
-        private static SqlStatement Generate(MigrationOperation migrationOperation, DatabaseModel database = null)
+        private static string Generate(MigrationOperation migrationOperation, DatabaseModel database = null)
         {
-            return CreateSqlGenerator(database).Generate(migrationOperation);
+            var batches = CreateSqlGenerator(database).Generate(migrationOperation);
+
+            return string.Join(Environment.NewLine, batches.Select(b => b.Sql));
         }
 
         private static SqlServerMigrationOperationSqlGenerator CreateSqlGenerator(DatabaseModel database = null)

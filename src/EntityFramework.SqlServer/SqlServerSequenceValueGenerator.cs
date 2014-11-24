@@ -55,12 +55,12 @@ namespace Microsoft.Data.Entity.SqlServer
             return (long)Convert.ChangeType(nextValue, typeof(long), CultureInfo.InvariantCulture);
         }
 
-        private Tuple<RelationalConnection, SqlStatement> PrepareCommand(RelationalConnection connection)
+        private Tuple<RelationalConnection, string> PrepareCommand(RelationalConnection connection)
         {
             // TODO: Parameterize query and/or delimit identifier without using SqlServerMigrationOperationSqlGenerator
-            var sql = new SqlStatement(string.Format(
+            var sql = string.Format(
                 CultureInfo.InvariantCulture,
-                "SELECT NEXT VALUE FOR {0}", SequenceName));
+                "SELECT NEXT VALUE FOR {0}", SequenceName);
 
             return Tuple.Create(connection, sql);
         }

@@ -3,6 +3,7 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Migrations.Utilities;
+using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Migrations.Model
@@ -36,12 +37,12 @@ namespace Microsoft.Data.Entity.Migrations.Model
             visitor.Visit(this, context);
         }
 
-        public override void GenerateSql(MigrationOperationSqlGenerator generator, IndentedStringBuilder stringBuilder)
+        public override void GenerateSql(MigrationOperationSqlGenerator generator, SqlBatchBuilder batchBuilder)
         {
             Check.NotNull(generator, "generator");
-            Check.NotNull(stringBuilder, "stringBuilder");
+            Check.NotNull(batchBuilder, "batchBuilder");
 
-            generator.Generate(this, stringBuilder);
+            generator.Generate(this, batchBuilder);
         }
 
         public override void GenerateCode(MigrationCodeGenerator generator, IndentedStringBuilder stringBuilder)

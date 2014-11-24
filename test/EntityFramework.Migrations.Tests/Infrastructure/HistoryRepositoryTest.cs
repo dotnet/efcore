@@ -191,13 +191,13 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                     new LazyRef<IDbContextOptions>(new DbContextOptions()),
                     new LazyRef<DbContext>(context));
 
-                var sqlStatements = historyRepository.GenerateInsertMigrationSql(
-                    new MigrationInfo("000000000000001_Foo"), new DmlSqlGenerator());
+                var sqlBatches = historyRepository.GenerateInsertMigrationSql(
+                    new MigrationInfo("000000000000001_Foo"), new DmlSqlGenerator()).ToList();
 
-                Assert.Equal(1, sqlStatements.Count);
+                Assert.Equal(1, sqlBatches.Count);
                 Assert.Equal(string.Format(
                     @"INSERT INTO ""__MigrationHistory"" (""MigrationId"", ""ContextKey"", ""ProductVersion"") VALUES ('000000000000001_Foo', 'Microsoft.Data.Entity.Migrations.Tests.Infrastructure.HistoryRepositoryTest+Context', '{0}')",
-                    MigrationInfo.CurrentProductVersion), sqlStatements[0].Sql);
+                    MigrationInfo.CurrentProductVersion), sqlBatches[0].Sql);
             }
         }
 
@@ -216,13 +216,13 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
 
                 historyRepository.Protected().Setup<string>("GetContextKey").Returns("SomeContextKey");
 
-                var sqlStatements = historyRepository.Object.GenerateInsertMigrationSql(
-                    new MigrationInfo("000000000000001_Foo"), new DmlSqlGenerator());
+                var sqlBatches = historyRepository.Object.GenerateInsertMigrationSql(
+                    new MigrationInfo("000000000000001_Foo"), new DmlSqlGenerator()).ToList();
 
-                Assert.Equal(1, sqlStatements.Count);
+                Assert.Equal(1, sqlBatches.Count);
                 Assert.Equal(string.Format(
                     @"INSERT INTO ""__MigrationHistory"" (""MigrationId"", ""ContextKey"", ""ProductVersion"") VALUES ('000000000000001_Foo', 'SomeContextKey', '{0}')",
-                    MigrationInfo.CurrentProductVersion), sqlStatements[0].Sql);
+                    MigrationInfo.CurrentProductVersion), sqlBatches[0].Sql);
             }
         }
 
@@ -238,13 +238,13 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                     new LazyRef<IDbContextOptions>(new DbContextOptions()),
                     new LazyRef<DbContext>(context));
 
-                var sqlStatements = historyRepository.GenerateDeleteMigrationSql(
-                    new MigrationInfo("000000000000001_Foo"), new DmlSqlGenerator());
+                var sqlBatches = historyRepository.GenerateDeleteMigrationSql(
+                    new MigrationInfo("000000000000001_Foo"), new DmlSqlGenerator()).ToList();
 
-                Assert.Equal(1, sqlStatements.Count);
+                Assert.Equal(1, sqlBatches.Count);
                 Assert.Equal(
                     @"DELETE FROM ""__MigrationHistory"" WHERE ""MigrationId"" = '000000000000001_Foo' AND ""ContextKey"" = 'Microsoft.Data.Entity.Migrations.Tests.Infrastructure.HistoryRepositoryTest+Context'",
-                    sqlStatements[0].Sql);
+                    sqlBatches[0].Sql);
             }
         }
 
