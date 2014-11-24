@@ -34,9 +34,7 @@ namespace Microsoft.Data.Entity.Commands
 #if ASPNET50 || ASPNETCORE50
             try
             {
-                // TODO: Let Hosting do this the right way (See aspnet/Hosting#85)
-                var hostingServiceCollection = HostingServices.Create(CallContextServiceLocator.Locator.ServiceProvider)
-                    .AddInstance<IConfigureHostingEnvironment>(new ConfigureHostingEnvironment(env => env.EnvironmentName = "Development"));
+                var hostingServiceCollection = HostingServices.Create();
                 var hostingServices = hostingServiceCollection.BuildServiceProvider();
                 var assembly = type.GetTypeInfo().Assembly;
                 var startupType = assembly.DefinedTypes.FirstOrDefault(t => t.Name.Equals("Startup", StringComparison.Ordinal));
