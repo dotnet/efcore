@@ -5,10 +5,9 @@ using System;
 using System.Diagnostics;
 
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Relational.Utilities;
+using Microsoft.Data.Entity.Migrations.Utilities;
 
-namespace Microsoft.Data.Entity.Relational.Model
+namespace Microsoft.Data.Entity.Migrations.Model
 {
     // TODO: Consider adding more validation.
     // Issue #767

@@ -3,11 +3,9 @@
 
 using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Relational.Metadata;
-using Microsoft.Data.Entity.Relational.Model;
 using Microsoft.Data.Entity.Utilities;
 using Moq;
 using Xunit;
-using Sequence = Microsoft.Data.Entity.Relational.Metadata.Sequence;
 
 namespace Microsoft.Data.Entity.Migrations.Tests.Model
 {
@@ -46,7 +44,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Model
         public void Dispatches_visitor()
         {
             var createSequenceOperation = new CreateSequenceOperation("dbo.MySequence");
-            var mockVisitor = new Mock<MigrationOperationSqlGenerator>(new RelationalMetadataExtensionProvider(), new RelationalTypeMapper());
+            var mockVisitor = MigrationsTestHelpers.MockSqlGenerator();
             var builder = new Mock<IndentedStringBuilder>();
             createSequenceOperation.GenerateSql(mockVisitor.Object, builder.Object);
 

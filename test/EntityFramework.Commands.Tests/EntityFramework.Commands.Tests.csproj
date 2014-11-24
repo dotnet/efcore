@@ -88,6 +88,12 @@
     <Compile Include="..\..\src\EntityFramework.Commands\tools\Handlers.cs">
       <Link>Handlers.cs</Link>
     </Compile>
+    <Compile Include="..\Shared\MigrationsTestHelpers.cs">
+      <Link>MigrationsTestHelpers.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\RelationalTestHelpers.cs">
+      <Link>RelationalTestHelpers.cs</Link>
+    </Compile>
     <Compile Include="ApiConsistencyTest.cs" />
     <Compile Include="Migrations\CodeGeneratorTestHelper.cs" />
     <Compile Include="Migrations\CSharpMigrationCodeGeneratorTest.cs" />

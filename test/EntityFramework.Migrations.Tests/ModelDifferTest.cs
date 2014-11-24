@@ -7,6 +7,7 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Relational.Model;
+using Microsoft.Data.Entity.Relational.Tests;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Migrations.Tests
@@ -2073,7 +2074,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
 
         private static ModelDiffer ModelDiffer()
         {
-            var extensionProvider = new RelationalMetadataExtensionProvider();
+            var extensionProvider = RelationalTestHelpers.ExtensionProvider();
             var typeMapper = new RelationalTypeMapper();
             var operationFactory = new MigrationOperationFactory(extensionProvider);
             var operationProcessor = new MigrationOperationProcessor(extensionProvider, typeMapper, operationFactory);

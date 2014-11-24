@@ -73,6 +73,9 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Shared\RelationalTestHelpers.cs">
+      <Link>RelationalTestHelpers.cs</Link>
+    </Compile>
     <Compile Include="ApiConsistencyTest.cs" />
     <Compile Include="Metadata\RelationalMetadataExtensionsTest.cs" />
     <Compile Include="Metadata\RelationalNameBuilderTest.cs" />
@@ -90,7 +93,6 @@
     <Compile Include="SchemaQualifiedNameTest.cs" />
     <Compile Include="SqlGeneratorTest.cs" />
     <Compile Include="SqlGeneratorTestBase.cs" />
-    <Compile Include="Model\ColumnTest.cs" />
     <Compile Include="Model\RelationalTypeMapperTest.cs" />
     <Compile Include="TestHelperExtensions.cs" />
     <Compile Include="Update\BatchExecutorTest.cs" />

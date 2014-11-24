@@ -9,7 +9,7 @@ using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Relational.Metadata;
-using Microsoft.Data.Entity.Relational.Model;
+using Microsoft.Data.Entity.Relational.Tests;
 using Microsoft.Data.Entity.Utilities;
 using Xunit;
 
@@ -782,7 +782,7 @@ namespace MyNamespace
 
         private static MigrationOperationFactory OperationFactory()
         {
-            return new MigrationOperationFactory(new RelationalMetadataExtensionProvider());
+            return new MigrationOperationFactory(RelationalTestHelpers.ExtensionProvider());
         }
         #endregion
     }

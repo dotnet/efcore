@@ -135,7 +135,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Metadata
 
         private static RelationalNameBuilder NameBuilder()
         {
-            return new RelationalNameBuilder(new RelationalMetadataExtensionProvider());
+            return new RelationalNameBuilder(RelationalTestHelpers.ExtensionProvider());
         }
     }
 }

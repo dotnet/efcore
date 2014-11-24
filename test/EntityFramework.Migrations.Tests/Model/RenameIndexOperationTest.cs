@@ -2,8 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.Data.Entity.Migrations.Model;
-using Microsoft.Data.Entity.Relational.Metadata;
-using Microsoft.Data.Entity.Relational.Model;
 using Microsoft.Data.Entity.Utilities;
 using Moq;
 using Xunit;
@@ -27,7 +25,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Model
         public void Dispatches_visitor()
         {
             var renameIndexOperation = new RenameIndexOperation("dbo.MyTable", "MyIndex", "MyIndex2");
-            var mockVisitor = new Mock<MigrationOperationSqlGenerator>(new RelationalMetadataExtensionProvider(), new RelationalTypeMapper());
+            var mockVisitor = MigrationsTestHelpers.MockSqlGenerator();
             var builder = new Mock<IndentedStringBuilder>();
             renameIndexOperation.GenerateSql(mockVisitor.Object, builder.Object);
 

@@ -87,6 +87,7 @@
     <Compile Include="Model\AddPrimaryKeyOperation.cs" />
     <Compile Include="Model\AlterSequenceOperation.cs" />
     <Compile Include="Model\AlterColumnOperation.cs" />
+    <Compile Include="Model\Column.cs" />
     <Compile Include="Model\CopyDataOperation.cs" />
     <Compile Include="Model\CreateDatabaseOperation.cs" />
     <Compile Include="Model\CreateIndexOperation.cs" />

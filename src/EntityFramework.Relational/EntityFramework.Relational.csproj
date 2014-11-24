@@ -84,7 +84,6 @@
     <Compile Include="Metadata\RelationalIndexBuilder.cs" />
     <Compile Include="Metadata\RelationalKeyExtensions.cs" />
     <Compile Include="Metadata\RelationalKeyBuilder.cs" />
-    <Compile Include="Metadata\RelationalMetadataExtensionProvider.cs" />
     <Compile Include="Metadata\RelationalModelBuilder.cs" />
     <Compile Include="Metadata\RelationalModelExtensions.cs" />
     <Compile Include="Metadata\RelationalPropertyExtensions.cs" />
@@ -161,7 +160,6 @@
     <Compile Include="SqlGenerator.cs" />
     <Compile Include="SqlStatement.cs" />
     <Compile Include="SqlStatementExecutor.cs" />
-    <Compile Include="Model\Column.cs" />
     <Compile Include="Model\RelationalDecimalTypeMapping.cs" />
     <Compile Include="Model\RelationalSizedTypeMapping.cs" />
     <Compile Include="Model\RelationalTypeMapper.cs" />

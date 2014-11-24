@@ -4,9 +4,7 @@
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Relational;
-using Microsoft.Data.Entity.Relational.Metadata;
-using Microsoft.Data.Entity.Relational.Model;
-using Moq;
+using Microsoft.Data.Entity.Relational.Tests;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Migrations.Tests
@@ -357,9 +355,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
 
         private static MigrationOperationSqlGenerator SqlGenerator(IModel targetModel = null)
         {
-            var extensionProvider = new RelationalMetadataExtensionProvider();
-            var typeMapper = new RelationalTypeMapper();
-            var sqlGenerator = new Mock<MigrationOperationSqlGenerator>(extensionProvider, typeMapper) { CallBase = true }.Object;
+            var sqlGenerator = MigrationsTestHelpers.MockSqlGenerator(callBase: true).Object;
 
             sqlGenerator.TargetModel = targetModel ?? new Metadata.Model();
 
@@ -373,7 +369,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
 
         private static MigrationOperationFactory OperationFactory()
         {
-            return new MigrationOperationFactory(new RelationalMetadataExtensionProvider());
+            return new MigrationOperationFactory(RelationalTestHelpers.ExtensionProvider());
         }
     }
 }

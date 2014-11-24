@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.Data.Entity.Relational.Model;
+using Microsoft.Data.Entity.Migrations.Model;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Relational.Tests.Model
+namespace Microsoft.Data.Entity.Migrations.Tests.Model
 {
     public class ColumnTest
     {

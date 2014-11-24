@@ -9,7 +9,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Infrastructure;
@@ -17,10 +16,10 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Migrations.Model;
-using Microsoft.Data.Entity.Migrations.Utilities;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Relational.Model;
+using Microsoft.Data.Entity.Relational.Tests;
 using Microsoft.Data.Entity.Relational.Update;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
@@ -97,7 +96,7 @@ namespace Microsoft.Data.Entity.Tests
         }
     }
 
-    public class FakeRelationalMetadataExtensionProvider : RelationalMetadataExtensionProvider
+    public class FakeRelationalMetadataExtensionProvider : RelationalTestHelpers.RelationalMetadataExtensionProvider
     {
     }
 

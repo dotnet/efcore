@@ -388,7 +388,7 @@ namespace Microsoft.Data.Entity.SQLite.Tests
 
         private static MigrationOperationFactory OperationFactory()
         {
-            return new MigrationOperationFactory(new RelationalMetadataExtensionProvider());
+            return new MigrationOperationFactory(new SQLiteMetadataExtensionProvider());
         }
 
         private static SQLiteMigrationOperationProcessor CreatePreProcessor()

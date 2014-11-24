@@ -3,7 +3,7 @@
 
 using System.Linq;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Relational.Metadata;
+using Microsoft.Data.Entity.Relational.Tests;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Migrations.Tests
@@ -44,7 +44,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
 
         private static MigrationOperationFactory OperationFactory()
         {
-            return new MigrationOperationFactory(new RelationalMetadataExtensionProvider());
+            return new MigrationOperationFactory(RelationalTestHelpers.ExtensionProvider());
         }
     }
 }
