@@ -90,19 +90,19 @@ namespace Microsoft.Data.Entity.Infrastructure
             get { return _dataStoreServices.Value; }
         }
 
-        public static Func<IServiceProvider, LazyRef<DbContext>> ContextFactory
+        public static Func<IServiceProvider, ContextService<DbContext>> ContextFactory
         {
-            get { return p => new LazyRef<DbContext>(() => p.GetRequiredServiceChecked<DbContextConfiguration>().Context); }
+            get { return p => new ContextService<DbContext>(() => p.GetRequiredServiceChecked<DbContextConfiguration>().Context); }
         }
 
-        public static Func<IServiceProvider, LazyRef<IModel>> ModelFactory
+        public static Func<IServiceProvider, ContextService<IModel>> ModelFactory
         {
-            get { return p => new LazyRef<IModel>(() => p.GetRequiredServiceChecked<DbContextConfiguration>().Model); }
+            get { return p => new ContextService<IModel>(() => p.GetRequiredServiceChecked<DbContextConfiguration>().Model); }
         }
 
-        public static Func<IServiceProvider, LazyRef<IDbContextOptions>> ContextOptionsFactory
+        public static Func<IServiceProvider, ContextService<IDbContextOptions>> ContextOptionsFactory
         {
-            get { return p => new LazyRef<IDbContextOptions>(() => p.GetRequiredServiceChecked<DbContextConfiguration>().ContextOptions); }
+            get { return p => new ContextService<IDbContextOptions>(() => p.GetRequiredServiceChecked<DbContextConfiguration>().ContextOptions); }
         }
 
         public virtual IServiceProvider ScopedServiceProvider

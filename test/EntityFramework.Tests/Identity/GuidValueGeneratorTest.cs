@@ -5,9 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Identity;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Utilities;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Tests.Identity
@@ -39,8 +39,8 @@ namespace Microsoft.Data.Entity.Tests.Identity
             for (var i = 0; i < 100; i++)
             {
                 var generatedValue = async 
-                    ? await sequentialGuidIdentityGenerator.NextAsync(property, new LazyRef<DataStoreServices>(() => null))
-                    : sequentialGuidIdentityGenerator.Next(property, new LazyRef<DataStoreServices>(() => null));
+                    ? await sequentialGuidIdentityGenerator.NextAsync(property, new ContextService<DataStoreServices>(() => null))
+                    : sequentialGuidIdentityGenerator.Next(property, new ContextService<DataStoreServices>(() => null));
 
                 Assert.False(generatedValue.IsTemporary);
 

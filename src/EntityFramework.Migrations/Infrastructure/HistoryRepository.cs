@@ -11,15 +11,14 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Utilities;
 using Microsoft.Data.Entity.Relational;
-using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Migrations.Infrastructure
 {
     public class HistoryRepository
     {
         private readonly IServiceProvider _serviceProvider;
-        private readonly LazyRef<IDbContextOptions> _options;
-        private readonly LazyRef<DbContext> _context;
+        private readonly ContextService<IDbContextOptions> _options;
+        private readonly ContextService<DbContext> _context;
         private IModel _historyModel;
         private DbContextOptions _contextOptions;
 
@@ -34,8 +33,8 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
 
         public HistoryRepository(
             [NotNull] IServiceProvider serviceProvider,
-            [NotNull] LazyRef<IDbContextOptions> options,
-            [NotNull] LazyRef<DbContext> context)
+            [NotNull] ContextService<IDbContextOptions> options,
+            [NotNull] ContextService<DbContext> context)
         {
             Check.NotNull(serviceProvider, "serviceProvider");
 
@@ -187,7 +186,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
 
             // TODO: Figure out whether it is ok to reuse all the extensions
             // from the user context configuration for the history context.
-            foreach (var item in _options.Value.Extensions)
+            foreach (var item in _options.Service.Extensions)
             {
                 var extension = item;
                 contextOptions.AddExtension(extension);
@@ -198,7 +197,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
 
         protected virtual string GetContextKey()
         {
-            return _context.Value.GetType().FullName;
+            return _context.Service.GetType().FullName;
         }
     }
 }

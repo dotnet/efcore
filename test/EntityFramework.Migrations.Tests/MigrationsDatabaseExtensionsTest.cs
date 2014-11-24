@@ -6,7 +6,6 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 using Moq;
 using Xunit;
@@ -19,7 +18,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         public void Returns_typed_database_object()
         {
             var database = new ConcreteMigrationsEnabledDatabase(
-                new LazyRef<IModel>(() => null),
+                new ContextService<IModel>(() => null),
                 Mock.Of<DataStoreCreator>(),
                 Mock.Of<DataStoreConnection>(),
                 Mock.Of<Migrator>(),
@@ -32,7 +31,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         public void Throws_when_non_relational_provider_is_in_use()
         {
             var database = new ConcreteDatabase(
-                new LazyRef<IModel>(() => null),
+                new ContextService<IModel>(() => null),
                 Mock.Of<DataStoreCreator>(),
                 Mock.Of<DataStoreConnection>(),
                 new LoggerFactory());
@@ -45,7 +44,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         private class ConcreteDatabase : Database
         {
             public ConcreteDatabase(
-                LazyRef<IModel> model,
+                ContextService<IModel> model,
                 DataStoreCreator dataStoreCreator,
                 DataStoreConnection connection,
                 ILoggerFactory loggerFactory)
@@ -57,7 +56,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         private class ConcreteMigrationsEnabledDatabase : MigrationsEnabledDatabase
         {
             public ConcreteMigrationsEnabledDatabase(
-                LazyRef<IModel> model,
+                ContextService<IModel> model,
                 DataStoreCreator dataStoreCreator,
                 DataStoreConnection connection,
                 Migrator migrator,

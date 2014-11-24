@@ -6,10 +6,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Tests;
-using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
 using Xunit;
@@ -328,14 +328,14 @@ namespace Microsoft.Data.Entity.Redis.Tests
             public sbyte SignedByte { get; set; }
         }
 
-        private LazyRef<DataStoreServices> CreateStoreServices(IServiceProvider serviceProvider = null)
+        private ContextService<DataStoreServices> CreateStoreServices(IServiceProvider serviceProvider = null)
         {
             serviceProvider = serviceProvider
                               ?? TestHelpers.CreateServiceProvider(new ServiceCollection()
                                   .AddScoped<RedisDatabase, FakeRedisDatabase>()
                                   .AddInstance(new FakeRedisSequence()));
 
-            return TestHelpers.CreateContextServices(serviceProvider, _model).GetRequiredService<LazyRef<DataStoreServices>>();
+            return TestHelpers.CreateContextServices(serviceProvider, _model).GetRequiredService<ContextService<DataStoreServices>>();
         }
 
         private class FakeRedisSequence
@@ -348,7 +348,7 @@ namespace Microsoft.Data.Entity.Redis.Tests
             private readonly FakeRedisSequence _redisSequence;
 
             public FakeRedisDatabase(
-                LazyRef<IModel> model,
+                ContextService<IModel> model,
                 RedisDataStoreCreator dataStoreCreator,
                 RedisConnection connection,
                 FakeRedisSequence redisSequence,

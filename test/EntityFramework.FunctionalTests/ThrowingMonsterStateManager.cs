@@ -6,9 +6,9 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.FunctionalTests
 {
@@ -20,8 +20,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
             StateEntrySubscriber subscriber,
             StateEntryNotifier notifier,
             ValueGenerationManager valueGeneration,
-            LazyRef<IModel> model,
-            LazyRef<DataStore> dataStore)
+            ContextService<IModel> model,
+            ContextService<DataStore> dataStore)
             : base(factory, entityKeyFactorySource, subscriber, notifier, valueGeneration, model, dataStore)
         {
         }

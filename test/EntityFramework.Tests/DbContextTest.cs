@@ -12,7 +12,6 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.ConfigurationModel;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
@@ -889,7 +888,7 @@ namespace Microsoft.Data.Entity.Tests
 
                 Assert.NotNull(serviceProvider.GetRequiredService<FakeService>());
                 Assert.NotSame(serviceProvider, contextServices);
-                Assert.Equal(0, contextServices.GetRequiredService<LazyRef<IDbContextOptions>>().Value.Extensions.Count);
+                Assert.Equal(0, contextServices.GetRequiredService<ContextService<IDbContextOptions>>().Service.Extensions.Count);
             }
         }
 
@@ -909,7 +908,7 @@ namespace Microsoft.Data.Entity.Tests
             using (var context = serviceProvider.GetRequiredService<ContextWithDefaults>())
             {
                 var contextServices = ((IDbContextServices)context).ScopedServiceProvider;
-                var options = contextServices.GetRequiredService<LazyRef<IDbContextOptions>>().Value;
+                var options = contextServices.GetRequiredService<ContextService<IDbContextOptions>>().Service;
 
                 Assert.NotNull(contextServices.GetRequiredService<FakeService>());
                 Assert.Equal(1, options.Extensions.Count);
@@ -933,7 +932,7 @@ namespace Microsoft.Data.Entity.Tests
             using (var context = serviceProvider.GetRequiredService<ContextWithServiceProvider>())
             {
                 var contextServices = ((IDbContextServices)context).ScopedServiceProvider;
-                var options = contextServices.GetRequiredService<LazyRef<IDbContextOptions>>().Value;
+                var options = contextServices.GetRequiredService<ContextService<IDbContextOptions>>().Service;
 
                 Assert.NotNull(contextServices.GetRequiredService<FakeService>());
                 Assert.Equal(1, options.Extensions.Count);
@@ -957,7 +956,7 @@ namespace Microsoft.Data.Entity.Tests
             using (var context = serviceProvider.GetRequiredService<ContextWithOptions>())
             {
                 var contextServices = ((IDbContextServices)context).ScopedServiceProvider;
-                var options = contextServices.GetRequiredService<LazyRef<IDbContextOptions>>().Value;
+                var options = contextServices.GetRequiredService<ContextService<IDbContextOptions>>().Service;
 
                 Assert.NotNull(contextServices.GetRequiredService<FakeService>());
                 Assert.Equal(1, options.Extensions.Count);
@@ -1002,7 +1001,7 @@ namespace Microsoft.Data.Entity.Tests
             using (var context = serviceProvider.GetRequiredService<ContextT>())
             {
                 var contextServices = ((IDbContextServices)context).ScopedServiceProvider;
-                var contextOptions = (DbContextOptions<ContextT>)contextServices.GetRequiredService<LazyRef<IDbContextOptions>>().Value;
+                var contextOptions = (DbContextOptions<ContextT>)contextServices.GetRequiredService<ContextService<IDbContextOptions>>().Service;
 
                 Assert.NotNull(contextOptions);
                 var rawOptions = ((IDbContextOptions)contextOptions).RawOptions;
@@ -1034,7 +1033,7 @@ namespace Microsoft.Data.Entity.Tests
             using (var context = serviceProvider.GetRequiredService<ContextWithDefaults>())
             {
                 var contextServices = ((IDbContextServices)context).ScopedServiceProvider;
-                var contextOptions = (DbContextOptions<ContextWithDefaults>)contextServices.GetRequiredService<LazyRef<IDbContextOptions>>().Value;
+                var contextOptions = (DbContextOptions<ContextWithDefaults>)contextServices.GetRequiredService<ContextService<IDbContextOptions>>().Service;
 
                 Assert.NotNull(contextOptions);
                 var rawOptions = ((IDbContextOptions)contextOptions).RawOptions;

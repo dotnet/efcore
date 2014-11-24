@@ -7,11 +7,11 @@ using System.Data.Common;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Tests;
-using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
 using Xunit;
@@ -289,11 +289,11 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             Assert.True(checks.All(c => c));
         }
 
-        private LazyRef<DataStoreServices> CreateStoreServices(IServiceProvider serviceProvider = null)
+        private ContextService<DataStoreServices> CreateStoreServices(IServiceProvider serviceProvider = null)
         {
             serviceProvider = serviceProvider ?? TestHelpers.CreateServiceProvider();
 
-            return TestHelpers.CreateContextServices(serviceProvider, _model).GetRequiredService<LazyRef<DataStoreServices>>();
+            return TestHelpers.CreateContextServices(serviceProvider, _model).GetRequiredService<ContextService<DataStoreServices>>();
         }
 
         private class FakeSqlStatementExecutor : SqlStatementExecutor

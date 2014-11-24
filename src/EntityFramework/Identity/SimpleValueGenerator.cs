@@ -4,6 +4,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
@@ -14,7 +15,7 @@ namespace Microsoft.Data.Entity.Identity
     {
         public abstract GeneratedValue Next([NotNull] IProperty property);
 
-        public virtual GeneratedValue Next(IProperty property, LazyRef<DataStoreServices> dataStoreServices)
+        public virtual GeneratedValue Next(IProperty property, ContextService<DataStoreServices> dataStoreServices)
         {
             Check.NotNull(property, "property");
 
@@ -23,7 +24,7 @@ namespace Microsoft.Data.Entity.Identity
 
         public virtual Task<GeneratedValue> NextAsync(
             IProperty property,
-            LazyRef<DataStoreServices> dataStoreServices,
+            ContextService<DataStoreServices> dataStoreServices,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(property, "property");

@@ -13,7 +13,6 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Tests;
-using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
 using Moq;
@@ -171,7 +170,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
 
         private MainFromClause CreateWithEntityQueryable<T>()
         {
-            var entityQueryExecutor = new EntityQueryExecutor(new LazyRef<DbContext>(Mock.Of<DbContext>()), new LazyRef<DataStore>(() => null), new LoggerFactory());
+            var entityQueryExecutor = new EntityQueryExecutor(new ContextService<DbContext>(Mock.Of<DbContext>()), new ContextService<DataStore>(() => null), new LoggerFactory());
             var queryable = new EntityQueryable<T>(entityQueryExecutor);
             return new MainFromClause("s", typeof(T), Expression.Constant(queryable));
         }

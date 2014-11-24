@@ -8,6 +8,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
@@ -15,7 +16,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 {
     public class ChangeDetector : IPropertyListener
     {
-        private readonly LazyRef<IModel> _model;
+        private readonly ContextService<IModel> _model;
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
@@ -26,7 +27,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
         }
 
-        public ChangeDetector([NotNull] LazyRef<IModel> model)
+        public ChangeDetector([NotNull] ContextService<IModel> model)
         {
             Check.NotNull(model, "model");
 
@@ -240,7 +241,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             var isPrimaryKey = property.IsPrimaryKey();
 
             // TODO: Perf: make it faster to check if the property is at the principal end or not
-            var foreignKeys = _model.Value.GetReferencingForeignKeys(property).ToList();
+            var foreignKeys = _model.Service.GetReferencingForeignKeys(property).ToList();
 
             if (isPrimaryKey || foreignKeys.Count > 0)
             {

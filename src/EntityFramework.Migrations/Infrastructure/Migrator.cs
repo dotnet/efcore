@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Utilities;
 using Microsoft.Data.Entity.Relational;
@@ -26,7 +27,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
         private readonly SqlStatementExecutor _sqlExecutor;
         private readonly RelationalDataStoreCreator _storeCreator;
         private readonly RelationalConnection _connection;
-        private readonly LazyRef<ILogger> _logger;
+        private readonly ContextService<ILogger> _logger;
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
@@ -66,7 +67,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             _sqlExecutor = sqlExecutor;
             _storeCreator = storeCreator;
             _connection = connection;
-            _logger = new LazyRef<ILogger>(loggerFactory.Create<Migrator>);
+            _logger = new ContextService<ILogger>(loggerFactory.Create<Migrator>);
         }
 
         public virtual HistoryRepository HistoryRepository
@@ -101,7 +102,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
 
         protected virtual ILogger Logger
         {
-            get { return _logger.Value; }
+            get { return _logger.Service; }
         }
 
         public virtual IReadOnlyList<Migration> GetLocalMigrations()

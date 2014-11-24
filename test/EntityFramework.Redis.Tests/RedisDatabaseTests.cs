@@ -3,7 +3,6 @@
 
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 using Moq;
 using Xunit;
@@ -27,7 +26,7 @@ namespace Microsoft.Data.Entity.Redis.Tests
             configurationMock.Setup(m => m.DataStoreCreator).Returns(creatorMock.Object);
 
             var database = new RedisDatabase(
-                new LazyRef<IModel>(() => model),
+                new ContextService<IModel>(() => model),
                 creatorMock.Object,
                 connection,
                 new LoggerFactory());

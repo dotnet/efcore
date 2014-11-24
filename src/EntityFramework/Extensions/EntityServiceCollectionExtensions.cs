@@ -69,15 +69,15 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddScoped<ValueGenerationManager>()
                 .AddScoped<EntityQueryExecutor>()
                 .AddScoped<ChangeTracker>()
-                .AddScoped<LazyRef<IModel>>(DbContextConfiguration.ModelFactory)
-                .AddScoped<LazyRef<DbContext>>(DbContextConfiguration.ContextFactory)
-                .AddScoped<LazyRef<IDbContextOptions>>(DbContextConfiguration.ContextOptionsFactory)
-                .AddScoped<LazyRef<DataStoreServices>>(DataStoreServices.DataStoreServicesFactory)
-                .AddScoped<LazyRef<DataStore>>(DataStoreServices.DataStoreFactory)
-                .AddScoped<LazyRef<DataStoreConnection>>(DataStoreServices.ConnectionFactory)
-                .AddScoped<LazyRef<Database>>(DataStoreServices.DatabaseFactory)
-                .AddScoped<LazyRef<ValueGeneratorCache>>(DataStoreServices.ValueGeneratorCacheFactory)
-                .AddScoped<LazyRef<DataStoreCreator>>(DataStoreServices.DataStoreCreatorFactory);
+                .AddScoped(DbContextConfiguration.ModelFactory)
+                .AddScoped(DbContextConfiguration.ContextFactory)
+                .AddScoped(DbContextConfiguration.ContextOptionsFactory)
+                .AddScoped(DataStoreServices.DataStoreServicesFactory)
+                .AddScoped(DataStoreServices.DataStoreFactory)
+                .AddScoped(DataStoreServices.ConnectionFactory)
+                .AddScoped(DataStoreServices.DatabaseFactory)
+                .AddScoped(DataStoreServices.ValueGeneratorCacheFactory)
+                .AddScoped(DataStoreServices.DataStoreCreatorFactory);
 
             EnsureLowLevelServices(serviceCollection);
 

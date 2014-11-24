@@ -2,9 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations;
-using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Sqlite
@@ -12,7 +12,7 @@ namespace Microsoft.Data.Entity.Sqlite
     public class SqliteDatabase : MigrationsEnabledDatabase
     {
         public SqliteDatabase(
-            [NotNull] LazyRef<IModel> model,
+            [NotNull] ContextService<IModel> model,
             [NotNull] SqliteDataStoreCreator dataStoreCreator,
             [NotNull] SqliteConnection connection,
             [NotNull] SqliteMigrator migrator,

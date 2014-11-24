@@ -75,6 +75,7 @@
     <Compile Include="ChangeTracking\ValueGenerationManager.cs" />
     <Compile Include="DbContext.cs" />
     <Compile Include="Identity\GeneratedValue.cs" />
+    <Compile Include="Infrastructure\ContextService.cs" />
     <Compile Include="Infrastructure\DbContextActivator.cs" />
     <Compile Include="DbContextOptions.cs" />
     <Compile Include="DbContextOptions`.cs" />

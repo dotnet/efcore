@@ -6,7 +6,6 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Redis.Utilities;
 using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Redis
@@ -25,12 +24,12 @@ namespace Microsoft.Data.Entity.Redis
         {
         }
 
-        public RedisConnection([NotNull] LazyRef<IDbContextOptions> options, [NotNull] ILoggerFactory loggerFactory)
+        public RedisConnection([NotNull] ContextService<IDbContextOptions> options, [NotNull] ILoggerFactory loggerFactory)
             : base(loggerFactory)
         {
             Check.NotNull(options, "options");
 
-            var extracted = RedisOptionsExtension.Extract(options.Value);
+            var extracted = RedisOptionsExtension.Extract(options.Service);
             _connectionString = extracted.HostName + ":" + extracted.Port;
             _database = extracted.Database;
         }

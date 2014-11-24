@@ -2,8 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Migrations.Infrastructure
 {
@@ -11,9 +11,9 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
     {
         public abstract Migrator Migrator { get; }
 
-        public static Func<IServiceProvider, LazyRef<Migrator>> MigratorFactory
+        public static Func<IServiceProvider, ContextService<Migrator>> MigratorFactory
         {
-            get { return p => new LazyRef<Migrator>(() => ((MigrationsDataStoreServices)GetStoreServices(p)).Migrator); }
+            get { return p => new ContextService<Migrator>(() => ((MigrationsDataStoreServices)GetStoreServices(p)).Migrator); }
         }
     }
 }
