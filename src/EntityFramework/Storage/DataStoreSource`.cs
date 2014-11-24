@@ -13,15 +13,15 @@ namespace Microsoft.Data.Entity.Storage
         where TStoreServices : DataStoreServices
         where TOptionsExtension : DbContextOptionsExtension
     {
-        private readonly DbContextConfiguration _configuration;
+        private readonly ContextServices _services;
         private readonly ContextService<IDbContextOptions> _options;
 
-        protected DataStoreSource([NotNull] DbContextConfiguration configuration, [NotNull] ContextService<IDbContextOptions> options)
+        protected DataStoreSource([NotNull] ContextServices services, [NotNull] ContextService<IDbContextOptions> options)
         {
-            Check.NotNull(configuration, "configuration");
+            Check.NotNull(services, "services");
             Check.NotNull(options, "options");
 
-            _configuration = configuration;
+            _services = services;
             _options = options;
         }
 
@@ -31,7 +31,7 @@ namespace Microsoft.Data.Entity.Storage
             {
                 // Using service locator here so that all services for every provider are not always
                 // eagerly loaded during the provider selection process.
-                return _configuration.ScopedServiceProvider.GetRequiredServiceChecked<TStoreServices>();
+                return _services.ScopedServiceProvider.GetRequiredServiceChecked<TStoreServices>();
             }
         }
 
@@ -47,7 +47,7 @@ namespace Microsoft.Data.Entity.Storage
 
         public override DbContextOptions ContextOptions
         {
-            get { return (DbContextOptions)_configuration.ContextOptions; }
+            get { return (DbContextOptions)_services.ContextOptions; }
         }
     }
 }

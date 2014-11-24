@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         {
             Assert.Equal(
                 typeof(SqlServerDataStore).Name, 
-                new SqlServerDataStoreSource(Mock.Of<DbContextConfiguration>(), new ContextService<IDbContextOptions>(() => null)).Name);
+                new SqlServerDataStoreSource(Mock.Of<ContextServices>(), new ContextService<IDbContextOptions>(() => null)).Name);
         }
 
         [Fact]
@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             IDbContextOptions options = new DbContextOptions();
             options.AddOrUpdateExtension<SqlServerOptionsExtension>(e => { });
 
-            var configurationMock = new Mock<DbContextConfiguration>();
+            var configurationMock = new Mock<ContextServices>();
             configurationMock.Setup(m => m.ContextOptions).Returns(options);
 
             Assert.True(new SqlServerDataStoreSource(configurationMock.Object, new ContextService<IDbContextOptions>(options)).IsConfigured);
@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         {
             var options = new DbContextOptions();
 
-            var configurationMock = new Mock<DbContextConfiguration>();
+            var configurationMock = new Mock<ContextServices>();
             configurationMock.Setup(m => m.ContextOptions).Returns(options);
 
             Assert.False(new SqlServerDataStoreSource(configurationMock.Object, new ContextService<IDbContextOptions>(options)).IsConfigured);
@@ -46,7 +46,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             IDbContextOptions options = new DbContextOptions();
             options.AddOrUpdateExtension<SqlServerOptionsExtension>(e => { });
 
-            var configurationMock = new Mock<DbContextConfiguration>();
+            var configurationMock = new Mock<ContextServices>();
             configurationMock.Setup(m => m.ContextOptions).Returns(options);
 
             Assert.True(new SqlServerDataStoreSource(configurationMock.Object, new ContextService<IDbContextOptions>(options)).IsAvailable);
@@ -57,7 +57,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         {
             var options = new DbContextOptions();
 
-            var configurationMock = new Mock<DbContextConfiguration>();
+            var configurationMock = new Mock<ContextServices>();
             configurationMock.Setup(m => m.ContextOptions).Returns(options);
 
             Assert.False(new SqlServerDataStoreSource(configurationMock.Object, new ContextService<IDbContextOptions>(options)).IsAvailable);

@@ -13,13 +13,13 @@ namespace Microsoft.Data.Entity.Redis.Tests
         [Fact]
         public void Available_when_configured()
         {
-            var config = new DbContextConfiguration();
+            var config = new ContextServices();
             var options = new DbContextOptions();
             config.Initialize(
                 Mock.Of<IServiceProvider>(),
                 options,
                 Mock.Of<DbContext>(),
-                DbContextConfiguration.ServiceProviderSource.Implicit);
+                ContextServices.ServiceProviderSource.Implicit);
 
             var source = new RedisDataStoreSource(config, new ContextService<IDbContextOptions>(options));
 
@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.Redis.Tests
         {
             Assert.Equal(
                 typeof(RedisDataStore).Name,
-                new RedisDataStoreSource(Mock.Of<DbContextConfiguration>(), new ContextService<IDbContextOptions>(() => null)).Name);
+                new RedisDataStoreSource(Mock.Of<ContextServices>(), new ContextService<IDbContextOptions>(() => null)).Name);
         }
     }
 }

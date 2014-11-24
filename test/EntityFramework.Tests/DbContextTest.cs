@@ -601,7 +601,7 @@ namespace Microsoft.Data.Entity.Tests
                 .AddSingleton<FieldMatcher>()
                 .AddSingleton<DataStoreSelector>()
                 .AddScoped<DbSetInitializer>()
-                .AddScoped<DbContextConfiguration>()
+                .AddScoped<ContextServices>()
                 .AddInstance(factory);
 
             var provider = serviceCollection.BuildServiceProvider();

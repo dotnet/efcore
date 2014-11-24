@@ -12,7 +12,7 @@ using Microsoft.Framework.DependencyInjection;
 
 namespace Microsoft.Data.Entity.Infrastructure
 {
-    public class DbContextConfiguration : IDisposable
+    public class ContextServices : IDisposable
     {
         public enum ServiceProviderSource
         {
@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity.Infrastructure
         private LazyRef<DataStoreServices> _dataStoreServices;
         private bool _inOnModelCreating;
 
-        public virtual DbContextConfiguration Initialize(
+        public virtual ContextServices Initialize(
             [NotNull] IServiceProvider scopedProvider,
             [NotNull] DbContextOptions contextOptions,
             [NotNull] DbContext context,
@@ -92,17 +92,17 @@ namespace Microsoft.Data.Entity.Infrastructure
 
         public static Func<IServiceProvider, ContextService<DbContext>> ContextFactory
         {
-            get { return p => new ContextService<DbContext>(() => p.GetRequiredServiceChecked<DbContextConfiguration>().Context); }
+            get { return p => new ContextService<DbContext>(() => p.GetRequiredServiceChecked<ContextServices>().Context); }
         }
 
         public static Func<IServiceProvider, ContextService<IModel>> ModelFactory
         {
-            get { return p => new ContextService<IModel>(() => p.GetRequiredServiceChecked<DbContextConfiguration>().Model); }
+            get { return p => new ContextService<IModel>(() => p.GetRequiredServiceChecked<ContextServices>().Model); }
         }
 
         public static Func<IServiceProvider, ContextService<IDbContextOptions>> ContextOptionsFactory
         {
-            get { return p => new ContextService<IDbContextOptions>(() => p.GetRequiredServiceChecked<DbContextConfiguration>().ContextOptions); }
+            get { return p => new ContextService<IDbContextOptions>(() => p.GetRequiredServiceChecked<ContextServices>().ContextOptions); }
         }
 
         public virtual IServiceProvider ScopedServiceProvider

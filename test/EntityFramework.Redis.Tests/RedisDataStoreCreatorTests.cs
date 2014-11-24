@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.Redis.Tests
         public void Ensure_creation()
         {
             var model = Mock.Of<IModel>();
-            var configurationMock = new Mock<DbContextConfiguration>();
+            var configurationMock = new Mock<ContextServices>();
 
             var creator = new RedisDataStoreCreator(configurationMock.Object);
             Assert.False(creator.EnsureCreated(model));
@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.Redis.Tests
         public void Ensure_creation_async()
         {
             var model = Mock.Of<IModel>();
-            var configurationMock = new Mock<DbContextConfiguration>();
+            var configurationMock = new Mock<ContextServices>();
 
             var creator = new RedisDataStoreCreator(configurationMock.Object);
             Assert.False(creator.EnsureCreatedAsync(model).Result);
@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.Redis.Tests
         public void Ensure_deletion()
         {
             var model = Mock.Of<IModel>();
-            var configurationMock = new Mock<DbContextConfiguration>();
+            var configurationMock = new Mock<ContextServices>();
             var databaseMock = new Mock<RedisDatabase>();
             configurationMock.SetupGet(m => m.Database).Returns(databaseMock.Object);
 
@@ -48,7 +48,7 @@ namespace Microsoft.Data.Entity.Redis.Tests
         public void Ensure_deletion_async()
         {
             var model = Mock.Of<IModel>();
-            var configurationMock = new Mock<DbContextConfiguration>();
+            var configurationMock = new Mock<ContextServices>();
             var databaseMock = new Mock<RedisDatabase>();
             configurationMock.SetupGet(m => m.Database).Returns(databaseMock.Object);
 

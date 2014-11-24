@@ -202,7 +202,7 @@
     <Compile Include="Extensions\EntityServiceCollectionExtensions.cs" />
     <Compile Include="Extensions\QueryableExtensions.cs" />
     <Compile Include="Infrastructure\Database.cs" />
-    <Compile Include="Infrastructure\DbContextConfiguration.cs" />
+    <Compile Include="Infrastructure\ContextServices.cs" />
     <Compile Include="Infrastructure\DbSetFinder.cs" />
     <Compile Include="Infrastructure\DbSetInitializer.cs" />
     <Compile Include="Infrastructure\DbSetSource.cs" />
