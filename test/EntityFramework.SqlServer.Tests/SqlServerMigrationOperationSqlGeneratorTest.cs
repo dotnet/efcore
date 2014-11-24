@@ -2,7 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Migrations.Builders;
 using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.SqlServer.Metadata;
@@ -94,7 +96,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         }
 
         [Fact]
-        public void Generate_when_create_table_operation_with_Identity_key()
+        public void Generate_when_create_table_operation_with_identity_key()
         {
             var targetModel = new Model();
             var targetModelBuilder = new BasicModelBuilder(targetModel);
@@ -116,6 +118,87 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
     CONSTRAINT [MyPK] PRIMARY KEY NONCLUSTERED ([Foo])
 )",
                 Generate(operation, targetModel).Sql);
+        }
+
+        [Fact]
+        public void Generate_when_create_table_operation_with_non_identity_key()
+        {
+            var targetModelBuilder = new BasicModelBuilder();
+            targetModelBuilder.Entity("ExpenseCategory",
+                b =>
+                {
+                    b.Property<int>("Id");
+                    b.Property<string>("Name").Metadata.IsNullable = false;
+                    b.Key("Id").ForSqlServer().Name("PK_ExpenseCategory");
+                });
+
+            var migrationBuilder = new MigrationBuilder();
+            migrationBuilder.CreateTable("ExpenseCategory",
+                c => new
+                {
+                    Id = c.Int(nullable: false),
+                    Name = c.String(nullable: false)
+                })
+                .PrimaryKey("PK_ExpenseCategory", t => t.Id);
+
+            Assert.Equal(
+@"CREATE TABLE [ExpenseCategory] (
+    [Id] int NOT NULL,
+    [Name] nvarchar(max) NOT NULL,
+    CONSTRAINT [PK_ExpenseCategory] PRIMARY KEY ([Id])
+)",
+                Generate(migrationBuilder.Operations.Single(), targetModelBuilder.Model).Sql);
+        }
+
+        [Fact]
+        public void Generate_when_create_table_operation_with_non_nullable_properties()
+        {
+            var targetModelBuilder = new BasicModelBuilder();
+            targetModelBuilder.Entity("ExpenseLine",
+                b =>
+                {
+                    b.Property<int>("Id");
+                    b.Property<string>("Category").Metadata.IsNullable = false;
+                    b.Property<string>("CostCenter").Metadata.IsNullable = false;
+                    b.Property<DateTimeOffset>("Date");
+                    b.Property<string>("Description").Metadata.IsNullable = false;
+                    b.Property<string>("MerchantCity").Metadata.IsNullable = false;
+                    b.Property<string>("MerchantName").Metadata.IsNullable = false;
+                    b.Property<decimal>("TransactionAmount");
+                    b.Property<int>("ExpenseReportId");
+                    b.Key("Id").ForSqlServer().Name("PK_ExpenseLine");
+                });
+
+            var migrationBuilder = new MigrationBuilder();
+            migrationBuilder.CreateTable("ExpenseLine",
+                c => new
+                {
+                    Id = c.Int(nullable: false, identity: true),
+                    Category = c.String(nullable: false),
+                    CostCenter = c.String(nullable: false),
+                    Date = c.DateTimeOffset(nullable: false),
+                    Description = c.String(nullable: false),
+                    MerchantCity = c.String(nullable: false),
+                    MerchantName = c.String(nullable: false),
+                    TransactionAmount = c.Decimal(nullable: false),
+                    ExpenseReportId = c.Int(nullable: false)
+                })
+                .PrimaryKey("PK_ExpenseLine", t => t.Id);
+
+            Assert.Equal(
+@"CREATE TABLE [ExpenseLine] (
+    [Id] int NOT NULL IDENTITY,
+    [Category] nvarchar(max) NOT NULL,
+    [CostCenter] nvarchar(max) NOT NULL,
+    [Date] datetimeoffset NOT NULL,
+    [Description] nvarchar(max) NOT NULL,
+    [MerchantCity] nvarchar(max) NOT NULL,
+    [MerchantName] nvarchar(max) NOT NULL,
+    [TransactionAmount] decimal(18, 2) NOT NULL,
+    [ExpenseReportId] int NOT NULL,
+    CONSTRAINT [PK_ExpenseLine] PRIMARY KEY ([Id])
+)",
+                Generate(migrationBuilder.Operations.Single(), targetModelBuilder.Model).Sql);
         }
 
         [Fact]
