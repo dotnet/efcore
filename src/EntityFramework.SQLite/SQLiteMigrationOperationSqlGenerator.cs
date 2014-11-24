@@ -252,5 +252,9 @@ namespace Microsoft.Data.Entity.Sqlite
                 .Append(uniqueConstraintOperation.ColumnNames.Select(DelimitIdentifier).Join())
                 .Append(")");
         }
+
+        protected override void EnsureSchema(string schema, SqlBatchBuilder batchBuilder)
+        {
+        }
     }
 }

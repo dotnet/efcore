@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Migrations;
@@ -9,19 +10,24 @@ using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.SqlServer.Metadata;
 using Microsoft.Data.Entity.SqlServer.Utilities;
-using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.SqlServer
 {
     public class SqlServerMigrationOperationSqlGenerator : MigrationOperationSqlGenerator
     {
         private int _variableCount;
-
+        private readonly HashSet<string> _generatedSchemas = new HashSet<string>();
+ 
         public SqlServerMigrationOperationSqlGenerator(
             [NotNull] SqlServerMetadataExtensionProvider extensionProvider,
             [NotNull] SqlServerTypeMapper typeMapper)
             : base(extensionProvider, typeMapper)
         {
+        }
+
+        protected HashSet<string> GeneratedSchemas
+        {
+            get { return _generatedSchemas; }
         }
 
         public override void Generate(CreateDatabaseOperation createDatabaseOperation, SqlBatchBuilder batchBuilder)
@@ -126,9 +132,9 @@ namespace Microsoft.Data.Entity.SqlServer
                 .Append("SELECT ")
                 .Append(constraintNameVariable)
                 .Append(" = name FROM sys.default_constraints WHERE parent_object_id = OBJECT_ID(N")
-                .Append(DelimitLiteral(dropDefaultConstraintOperation.TableName))
+                .Append(GenerateLiteral(dropDefaultConstraintOperation.TableName))
                 .Append(") AND COL_NAME(parent_object_id, parent_column_id) = N")
-                .AppendLine(DelimitLiteral(dropDefaultConstraintOperation.ColumnName));
+                .AppendLine(GenerateLiteral(dropDefaultConstraintOperation.ColumnName));
 
             batchBuilder
                 .Append("EXECUTE('ALTER TABLE ")
@@ -162,7 +168,7 @@ namespace Microsoft.Data.Entity.SqlServer
                 .Append(".")
                 .Append(EscapeLiteral(renameIndexOperation.IndexName))
                 .Append("', @newname = N")
-                .Append(DelimitLiteral(renameIndexOperation.NewIndexName))
+                .Append(GenerateLiteral(renameIndexOperation.NewIndexName))
                 .Append(", @objtype = N'INDEX'");
         }
 
@@ -225,6 +231,32 @@ namespace Microsoft.Data.Entity.SqlServer
                 .Append(DelimitIdentifier(dropIndexOperation.TableName));
         }
 
+        protected override void EnsureSchema(string schema, SqlBatchBuilder batchBuilder)
+        {
+            Check.NotNull(batchBuilder, "batchBuilder");
+
+            if (string.IsNullOrEmpty(schema)
+                || schema.Equals("dbo", StringComparison.OrdinalIgnoreCase)
+                || GeneratedSchemas.Contains(schema))
+            {
+                return;
+            }
+
+            batchBuilder
+                .Append("IF schema_id(")
+                .Append(GenerateLiteral(schema))
+                .AppendLine(") IS NULL");
+
+            using (batchBuilder.Indent())
+            {
+                CreateSchema(schema, batchBuilder);
+            }
+
+            batchBuilder.AppendLine();
+
+            GeneratedSchemas.Add(schema);
+        }
+
         protected virtual void GenerateRename(
             [NotNull] string name, 
             [NotNull] string newName,
@@ -238,11 +270,11 @@ namespace Microsoft.Data.Entity.SqlServer
 
             batchBuilder
                 .Append("EXECUTE sp_rename @objname = N")
-                .Append(DelimitLiteral(name))
+                .Append(GenerateLiteral(name))
                 .Append(", @newname = N")
-                .Append(DelimitLiteral(newName))
+                .Append(GenerateLiteral(newName))
                 .Append(", @objtype = N")
-                .Append(DelimitLiteral(objectType));
+                .Append(GenerateLiteral(objectType));
         }
 
         protected virtual void GenerateMove(
@@ -251,7 +283,7 @@ namespace Microsoft.Data.Entity.SqlServer
             [NotNull] SqlBatchBuilder batchBuilder)
         {
             Check.NotEmpty(newSchema, "newSchema");
-            Check.NotNull(batchBuilder, "stringBuilder");
+            Check.NotNull(batchBuilder, "batchBuilder");
 
             batchBuilder
                 .Append("ALTER SCHEMA ")

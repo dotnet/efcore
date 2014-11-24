@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Builders;
@@ -38,6 +39,32 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             Assert.Equal(
                 @"CREATE SEQUENCE [dbo].[MySequence] AS bigint START WITH 0 INCREMENT BY 1",
                 Generate(new CreateSequenceOperation("dbo.MySequence", 0, 1)));
+        }
+
+        [Fact]
+        public void Generate_when_create_sequence_operation_with_non_default_schema()
+        {
+            Assert.Equal(
+@"IF schema_id('abc') IS NULL
+    EXECUTE('CREATE SCHEMA [abc]')
+CREATE SEQUENCE [abc].[MySequence] AS bigint START WITH 0 INCREMENT BY 1",
+                Generate(new CreateSequenceOperation("abc.MySequence", 0, 1)));
+        }
+
+        [Fact]
+        public void Generate_does_not_replicate_sql_for_creating_schema()
+        {
+            Assert.Equal(
+@"IF schema_id('abc') IS NULL
+    EXECUTE('CREATE SCHEMA [abc]')
+CREATE SEQUENCE [abc].[S1] AS bigint START WITH 0 INCREMENT BY 1;
+CREATE SEQUENCE [abc].[S2] AS bigint START WITH 2 INCREMENT BY 3",
+                Generate(
+                    new[]
+                        {
+                            new CreateSequenceOperation("abc.S1", 0, 1),
+                            new CreateSequenceOperation("abc.S2", 2, 3)
+                        }));
         }
 
         [Fact]
@@ -107,14 +134,16 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 {
                     b.Property<int>("Foo").GenerateValueOnAdd();
                     b.Property<int?>("Bar");
-                    b.ForSqlServer().Table("MyTable", "dbo");
+                    b.ForSqlServer().Table("MyTable", "abc");
                     b.Key("Foo").ForSqlServer().Name("MyPK").Clustered(false);
                 });
 
             var operation = OperationFactory().CreateTableOperation(targetModel.GetEntityType("E"));
 
             Assert.Equal(
-                @"CREATE TABLE [dbo].[MyTable] (
+@"IF schema_id('abc') IS NULL
+    EXECUTE('CREATE SCHEMA [abc]')
+CREATE TABLE [abc].[MyTable] (
     [Foo] int NOT NULL IDENTITY,
     [Bar] int,
     CONSTRAINT [MyPK] PRIMARY KEY NONCLUSTERED ([Foo])
@@ -523,7 +552,7 @@ EXECUTE('ALTER TABLE [dbo].[MyTable] DROP CONSTRAINT ""' + @var0 + '""')",
         [Fact]
         public void Delimit_literal()
         {
-            Assert.Equal("'foo''bar'", SqlGenerator().DelimitLiteral("foo'bar"));
+            Assert.Equal("'foo''bar'", SqlGenerator().GenerateLiteral("foo'bar"));
         }
 
         [Fact]
@@ -537,6 +566,13 @@ EXECUTE('ALTER TABLE [dbo].[MyTable] DROP CONSTRAINT ""' + @var0 + '""')",
             var batches = SqlGenerator(targetModel).Generate(migrationOperation);
 
             return string.Join(Environment.NewLine, batches.Select(b => b.Sql));        
+        }
+
+        private static string Generate(IEnumerable<MigrationOperation> migrationOperations, IModel targetModel = null)
+        {
+            var batches = SqlGenerator(targetModel).Generate(migrationOperations);
+
+            return string.Join(Environment.NewLine, batches.Select(b => b.Sql));
         }
 
         private static SqlServerMigrationOperationSqlGenerator SqlGenerator(IModel targetModel = null)

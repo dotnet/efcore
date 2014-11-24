@@ -13,7 +13,6 @@ using Microsoft.Data.Entity.Migrations.Utilities;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Relational.Model;
-using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Migrations
 {
@@ -87,7 +86,7 @@ namespace Microsoft.Data.Entity.Migrations
 
             var batchBuilder = new SqlBatchBuilder();
             var migrationOperationsList = migrationOperations.ToList();
-            for (int i = 0; i < migrationOperationsList.Count; i++)
+            for (var i = 0; i < migrationOperationsList.Count; i++)
             {
                 if (i > 0)
                 {
@@ -142,6 +141,8 @@ namespace Microsoft.Data.Entity.Migrations
                 null, createSequenceOperation.SequenceName, createSequenceOperation.Type, 
                 isKey: false, isConcurrencyToken: false).StoreTypeName;
 
+            EnsureSchema(createSequenceOperation.SequenceName.Schema, batchBuilder);
+
             batchBuilder
                 .Append("CREATE SEQUENCE ")
                 .Append(DelimitIdentifier(createSequenceOperation.SequenceName))
@@ -183,6 +184,8 @@ namespace Microsoft.Data.Entity.Migrations
         {
             Check.NotNull(createTableOperation, "createTableOperation");
             Check.NotNull(batchBuilder, "batchBuilder");
+
+            EnsureSchema(createTableOperation.TableName.Schema, batchBuilder);
 
             batchBuilder
                 .Append("CREATE TABLE ")
@@ -415,7 +418,7 @@ namespace Microsoft.Data.Entity.Migrations
         public virtual void Generate([NotNull] DropIndexOperation dropIndexOperation, [NotNull] SqlBatchBuilder batchBuilder)
         {
             Check.NotNull(dropIndexOperation, "dropIndexOperation");
-            Check.NotNull(batchBuilder, "stringBuilder");
+            Check.NotNull(batchBuilder, "batchBuilder");
 
             batchBuilder
                 .Append("DROP INDEX ")
@@ -427,7 +430,7 @@ namespace Microsoft.Data.Entity.Migrations
         public virtual void Generate([NotNull] CopyDataOperation copyDataOperation, [NotNull] SqlBatchBuilder batchBuilder)
         {
             Check.NotNull(copyDataOperation, "copyDataOperation");
-            Check.NotNull(batchBuilder, "stringBuilder");
+            Check.NotNull(batchBuilder, "batchBuilder");
 
             batchBuilder
                 .Append("INSERT INTO ")
@@ -452,6 +455,19 @@ namespace Microsoft.Data.Entity.Migrations
             Check.NotNull(batchBuilder, "batchBuilder");
 
             batchBuilder.Append(sqlOperation.Sql, sqlOperation.SuppressTransaction);
+        }
+
+        protected abstract void EnsureSchema([CanBeNull] string schema, [NotNull] SqlBatchBuilder batchBuilder);
+
+        protected virtual void CreateSchema([NotNull] string schema, [NotNull] SqlBatchBuilder batchBuilder)
+        {
+            Check.NotEmpty(schema, "schema");
+            Check.NotNull(batchBuilder, "batchBuilder");
+
+            batchBuilder
+                .Append("EXECUTE(")
+                .Append(GenerateLiteral("CREATE SCHEMA " + DelimitIdentifier(schema)))
+                .Append(")");
         }
 
         public virtual string GenerateDataType(SchemaQualifiedName tableName, [NotNull] Column column)
@@ -484,7 +500,7 @@ namespace Microsoft.Data.Entity.Migrations
         {
             Check.NotNull(value, "value");
 
-            return "'" + value + "'";
+            return "'" + EscapeLiteral(value) + "'";
         }
 
         public virtual string GenerateLiteral(Guid value)
@@ -542,13 +558,6 @@ namespace Microsoft.Data.Entity.Migrations
             Check.NotEmpty(identifier, "identifier");
 
             return identifier.Replace("\"", "\"\"");
-        }
-
-        public virtual string DelimitLiteral([NotNull] string literal)
-        {
-            Check.NotNull(literal, "literal");
-
-            return "'" + EscapeLiteral(literal) + "'";
         }
 
         public virtual string EscapeLiteral([NotNull] string literal)
