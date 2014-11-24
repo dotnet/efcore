@@ -89,8 +89,8 @@ namespace Microsoft.Framework.DependencyInjection
             var requiredServices = new List<Tuple<Type, Action<IServiceCollection>>>
                 {
                     Tuple.Create<Type, Action<IServiceCollection>>(typeof(ILoggerFactory), c => c.AddSingleton<ILoggerFactory, LoggerFactory>()),
-                    Tuple.Create<Type, Action<IServiceCollection>>(typeof(ITypeActivator), c => c.AddTypeActivator),
-                    Tuple.Create<Type, Action<IServiceCollection>>(typeof(IOptions<>), c => c.AddOptions)),
+                    Tuple.Create<Type, Action<IServiceCollection>>(typeof(ITypeActivator), c => c.AddTypeActivator()),
+                    Tuple.Create<Type, Action<IServiceCollection>>(typeof(IOptions<>), c => c.AddOptions()),
                 };
 
             foreach (var descriptor in serviceCollection)
