@@ -54,7 +54,7 @@ namespace Microsoft.Data.Entity.Storage
         {
             Check.NotNull(serviceProvider, "serviceProvider");
 
-            return serviceProvider.GetRequiredServiceChecked<DbContextConfiguration>().DataStoreServices;
+            return serviceProvider.GetRequiredServiceChecked<ContextServices>().DataStoreServices;
         }
     }
 }

@@ -33,9 +33,9 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
             _connection = connection;
         }
 
-        private static DbContextConfiguration BuildConfig()
+        private static ContextServices BuildConfig()
         {
-            var config = new Mock<DbContextConfiguration>();
+            var config = new Mock<ContextServices>();
             config.Setup(c => c.Context).Returns(new Mock<DbContext>().Object);
             return config.Object;
         }

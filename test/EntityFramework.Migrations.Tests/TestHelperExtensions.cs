@@ -385,8 +385,8 @@ namespace Microsoft.Data.Entity.Tests
 
     public class FakeDataStoreSource : DataStoreSource<FakeDataStoreServices, FakeRelationalOptionsExtension>
     {
-        public FakeDataStoreSource(DbContextConfiguration configuration, ContextService<IDbContextOptions> options)
-            : base(configuration, options)
+        public FakeDataStoreSource(ContextServices services, ContextService<IDbContextOptions> options)
+            : base(services, options)
         {
         }
 
