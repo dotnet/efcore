@@ -5,10 +5,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Identity;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Redis.Utilities;
 using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Redis
 {
@@ -19,24 +19,24 @@ namespace Microsoft.Data.Entity.Redis
         {
         }
 
-        protected override long GetNewCurrentValue(IProperty property, LazyRef<DataStoreServices> dataStoreServices)
+        protected override long GetNewCurrentValue(IProperty property, ContextService<DataStoreServices> dataStoreServices)
         {
             Check.NotNull(property, "property");
             Check.NotNull(dataStoreServices, "dataStoreServices");
 
-            var database = (RedisDatabase)dataStoreServices.Value.Database;
+            var database = (RedisDatabase)dataStoreServices.Service.Database;
             return database.GetNextGeneratedValue(property, BlockSize, SequenceName);
         }
 
         protected override async Task<long> GetNewCurrentValueAsync(
-            IProperty property, LazyRef<DataStoreServices> dataStoreServices, CancellationToken cancellationToken)
+            IProperty property, ContextService<DataStoreServices> dataStoreServices, CancellationToken cancellationToken)
         {
             Check.NotNull(property, "property");
             Check.NotNull(dataStoreServices, "dataStoreServices");
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            var database = (RedisDatabase)dataStoreServices.Value.Database;
+            var database = (RedisDatabase)dataStoreServices.Service.Database;
 
             return
                 await database.GetNextGeneratedValueAsync(

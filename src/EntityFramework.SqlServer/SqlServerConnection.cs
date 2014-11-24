@@ -7,7 +7,6 @@ using System.Data.SqlClient;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Relational;
-using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.SqlServer
@@ -23,7 +22,7 @@ namespace Microsoft.Data.Entity.SqlServer
         {
         }
 
-        public SqlServerConnection([NotNull] LazyRef<IDbContextOptions> options, [NotNull] ILoggerFactory loggerFactory)
+        public SqlServerConnection([NotNull] ContextService<IDbContextOptions> options, [NotNull] ILoggerFactory loggerFactory)
             : base(options, loggerFactory)
         {
         }

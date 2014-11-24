@@ -13,10 +13,10 @@ using Microsoft.Data.Entity.AzureTableStorage.Query;
 using Microsoft.Data.Entity.AzureTableStorage.Requests;
 using Microsoft.Data.Entity.AzureTableStorage.Utilities;
 using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Update;
-using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
     public class AtsDataStore : DataStore
     {
         private readonly AtsQueryFactory _queryFactory;
-        private readonly LazyRef<DbContext> _context;
+        private readonly ContextService<DbContext> _context;
         protected readonly AtsConnection Connection;
         internal TableEntityAdapterFactory EntityFactory;
         private const int MaxBatchOperations = 100;
@@ -43,7 +43,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
 
         public AtsDataStore(
             [NotNull] StateManager stateManager,
-            [NotNull] LazyRef<IModel> model,
+            [NotNull] ContextService<IModel> model,
             [NotNull] EntityKeyFactorySource entityKeyFactorySource,
             [NotNull] EntityMaterializerSource entityMaterializerSource,
             [NotNull] ClrCollectionAccessorSource collectionAccessorSource,
@@ -51,7 +51,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
             [NotNull] AtsConnection connection,
             [NotNull] AtsQueryFactory queryFactory,
             [NotNull] TableEntityAdapterFactory tableEntityFactory,
-            [NotNull] LazyRef<DbContext> context,
+            [NotNull] ContextService<DbContext> context,
             [NotNull] ILoggerFactory loggerFactory)
             : base(stateManager, model, entityKeyFactorySource, entityMaterializerSource,
                 collectionAccessorSource, propertySetterSource, loggerFactory)
@@ -295,21 +295,21 @@ namespace Microsoft.Data.Entity.AzureTableStorage
             var statusCode = exception.RequestInformation.HttpStatusCode;
             if (statusCode == (int)HttpStatusCode.PreconditionFailed)
             {
-                return new DbUpdateConcurrencyException(Strings.ETagPreconditionFailed, _context.Value, stateEntries);
+                return new DbUpdateConcurrencyException(Strings.ETagPreconditionFailed, _context.Service, stateEntries);
             }
             if (statusCode == (int)HttpStatusCode.NotFound)
             {
                 var extendedErrorCode = exception.RequestInformation.ExtendedErrorInformation.ErrorCode;
                 if (extendedErrorCode == StorageErrorCodes.ResourceNotFound)
                 {
-                    return new DbUpdateConcurrencyException(Strings.ResourceNotFound, _context.Value, stateEntries);
+                    return new DbUpdateConcurrencyException(Strings.ResourceNotFound, _context.Service, stateEntries);
                 }
                 if (extendedErrorCode == StorageErrorCodes.TableNotFoundError)
                 {
-                    return new DbUpdateException(Strings.TableNotFound, _context.Value, stateEntries);
+                    return new DbUpdateException(Strings.TableNotFound, _context.Service, stateEntries);
                 }
             }
-            return new DbUpdateException(Strings.SaveChangesFailed, _context.Value, exception, stateEntries);
+            return new DbUpdateException(Strings.SaveChangesFailed, _context.Service, exception, stateEntries);
         }
 
         public virtual TableOperationRequest CreateRequest([NotNull] AtsTable table, [NotNull] StateEntry entry)

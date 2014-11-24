@@ -4,9 +4,9 @@
 using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 using Moq;
 using Xunit;
@@ -31,7 +31,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
             dbConnectionMock.SetupGet(m => m.Database).Returns("MyDb");
 
             var database = new ConcreteRelationalDatabase(
-                new LazyRef<IModel>(model),
+                new ContextService<IModel>(model),
                 creatorMock.Object,
                 connectionMock.Object,
                 new LoggerFactory());
@@ -78,7 +78,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
             dbConnectionMock.SetupGet(m => m.Database).Returns("MyDb");
 
             var database = new ConcreteRelationalDatabase(
-                new LazyRef<IModel>(model),
+                new ContextService<IModel>(model),
                 creatorMock.Object,
                 connectionMock.Object,
                 new LoggerFactory());
@@ -108,7 +108,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
         private class ConcreteRelationalDatabase : RelationalDatabase
         {
             public ConcreteRelationalDatabase(
-                LazyRef<IModel> model,
+                ContextService<IModel> model,
                 DataStoreCreator dataStoreCreator,
                 DataStoreConnection connection,
                 ILoggerFactory loggerFactory)

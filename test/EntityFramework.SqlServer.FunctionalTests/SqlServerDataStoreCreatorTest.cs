@@ -11,7 +11,6 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
 using Xunit;
@@ -231,7 +230,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 {
                     var contextServices = ((IDbContextServices)context).ScopedServiceProvider;
 
-                    var creator = (RelationalDataStoreCreator)contextServices.GetRequiredService<LazyRef<DataStoreCreator>>().Value;
+                    var creator = (RelationalDataStoreCreator)contextServices.GetRequiredService<ContextService<DataStoreCreator>>().Service;
 
                     if (async)
                     {

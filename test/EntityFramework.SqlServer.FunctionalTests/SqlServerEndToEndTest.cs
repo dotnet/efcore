@@ -17,7 +17,6 @@ using Microsoft.Data.Entity.Relational.FunctionalTests;
 using Microsoft.Data.Entity.SqlServer.FunctionalTests.TestModels;
 using Microsoft.Data.Entity.SqlServer.Update;
 using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
 using Microsoft.Framework.Logging;
@@ -86,7 +85,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                     var contextServices = ((IDbContextServices)db).ScopedServiceProvider;
 
-                    Assert.IsType<SqlStoreWithBufferReader>(contextServices.GetRequiredService<LazyRef<DataStore>>().Value);
+                    Assert.IsType<SqlStoreWithBufferReader>(contextServices.GetRequiredService<ContextService<DataStore>>().Service);
                 }
             }
         }
@@ -95,7 +94,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             public SqlStoreWithBufferReader(
                 StateManager stateManager,
-                LazyRef<IModel> model,
+                ContextService<IModel> model,
                 EntityKeyFactorySource entityKeyFactorySource,
                 EntityMaterializerSource entityMaterializerSource,
                 ClrCollectionAccessorSource collectionAccessorSource,

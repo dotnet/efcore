@@ -5,10 +5,10 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Update;
 using Microsoft.Data.Entity.Tests;
-using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
 using Moq;
@@ -73,7 +73,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
         {
             public FakeRelationalDataStore(
                 StateManager stateManager,
-                LazyRef<IModel> model,
+                ContextService<IModel> model,
                 EntityKeyFactorySource entityKeyFactorySource,
                 EntityMaterializerSource entityMaterializerSource,
                 ClrCollectionAccessorSource collectionAccessorSource,

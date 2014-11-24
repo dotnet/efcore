@@ -3,7 +3,6 @@
 
 using System;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Utilities;
 using Moq;
 using Xunit;
 
@@ -22,7 +21,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
                 Mock.Of<DbContext>(),
                 DbContextConfiguration.ServiceProviderSource.Implicit);
 
-            var source = new AtsDataStoreSource(config, new LazyRef<IDbContextOptions>(options));
+            var source = new AtsDataStoreSource(config, new ContextService<IDbContextOptions>(options));
 
             Assert.False(source.IsAvailable);
 
@@ -36,7 +35,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
         {
             Assert.Equal(
                 "AzureTableStorage", 
-                new AtsDataStoreSource(Mock.Of<DbContextConfiguration>(),  new LazyRef<IDbContextOptions>(() => null)).Name);
+                new AtsDataStoreSource(Mock.Of<DbContextConfiguration>(),  new ContextService<IDbContextOptions>(() => null)).Name);
         }
     }
 }

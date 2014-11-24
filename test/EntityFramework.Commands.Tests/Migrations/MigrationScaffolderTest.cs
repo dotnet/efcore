@@ -9,7 +9,6 @@ using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Model;
-using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
 using Xunit;
 
@@ -23,15 +22,15 @@ namespace Microsoft.Data.Entity.Commands.Tests.Migrations
             using (var context = new Context(new Model()))
             {
                 var contextServices = ((IDbContextServices)context).ScopedServiceProvider;
-                var options = contextServices.GetRequiredService<LazyRef<IDbContextOptions>>();
-                var model = contextServices.GetRequiredService<LazyRef<IModel>>().Value;
+                var options = contextServices.GetRequiredService<ContextService<IDbContextOptions>>();
+                var model = contextServices.GetRequiredService<ContextService<IModel>>().Service;
 
                 var scaffolder
                     = new MyMigrationScaffolder(
                         context,
-                        options.Value,
+                        options.Service,
                         model,
-                        new MigrationAssembly(new LazyRef<DbContext>(context), options),
+                        new MigrationAssembly(new ContextService<DbContext>(context), options),
                         new TestModelDiffer(),
                         new CSharpMigrationCodeGenerator(
                             new CSharpModelCodeGenerator()),
@@ -48,15 +47,15 @@ namespace Microsoft.Data.Entity.Commands.Tests.Migrations
             using (var context = new Context(CreateModel()))
             {
                 var contextServices = ((IDbContextServices)context).ScopedServiceProvider;
-                var options = contextServices.GetRequiredService<LazyRef<IDbContextOptions>>();
-                var model = contextServices.GetRequiredService<LazyRef<IModel>>().Value;
+                var options = contextServices.GetRequiredService<ContextService<IDbContextOptions>>();
+                var model = contextServices.GetRequiredService<ContextService<IModel>>().Service;
 
                 var scaffolder
                     = new MyMigrationScaffolder(
                         context,
-                        options.Value,
+                        options.Service,
                         model,
-                        new MigrationAssembly(new LazyRef<DbContext>(context), options),
+                        new MigrationAssembly(new ContextService<DbContext>(context), options),
                         new TestModelDiffer(),
                         new CSharpMigrationCodeGenerator(
                             new CSharpModelCodeGenerator()),
@@ -73,15 +72,15 @@ namespace Microsoft.Data.Entity.Commands.Tests.Migrations
             using (var context = new Context(CreateModelWithForeignKeys()))
             {
                 var contextServices = ((IDbContextServices)context).ScopedServiceProvider;
-                var options = contextServices.GetRequiredService<LazyRef<IDbContextOptions>>();
-                var model = contextServices.GetRequiredService<LazyRef<IModel>>().Value;
+                var options = contextServices.GetRequiredService<ContextService<IDbContextOptions>>();
+                var model = contextServices.GetRequiredService<ContextService<IModel>>().Service;
 
                 var scaffolder
                     = new MyMigrationScaffolder(
                         context,
-                        options.Value,
+                        options.Service,
                         model,
-                        new MigrationAssembly(new LazyRef<DbContext>(context), options),
+                        new MigrationAssembly(new ContextService<DbContext>(context), options),
                         new TestModelDiffer(),
                         new CSharpMigrationCodeGenerator(
                             new CSharpModelCodeGenerator()),
@@ -98,15 +97,15 @@ namespace Microsoft.Data.Entity.Commands.Tests.Migrations
             using (var context = new Context(CreateModelWithCompositeKeys()))
             {
                 var contextServices = ((IDbContextServices)context).ScopedServiceProvider;
-                var options = contextServices.GetRequiredService<LazyRef<IDbContextOptions>>();
-                var model = contextServices.GetRequiredService<LazyRef<IModel>>().Value;
+                var options = contextServices.GetRequiredService<ContextService<IDbContextOptions>>();
+                var model = contextServices.GetRequiredService<ContextService<IModel>>().Service;
 
                 var scaffolder
                     = new MyMigrationScaffolder(
                         context,
-                        options.Value,
+                        options.Service,
                         model,
-                        new MigrationAssembly(new LazyRef<DbContext>(context), options),
+                        new MigrationAssembly(new ContextService<DbContext>(context), options),
                         new TestModelDiffer(),
                         new CSharpMigrationCodeGenerator(
                             new CSharpModelCodeGenerator()),

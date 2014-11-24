@@ -15,7 +15,6 @@ using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Update;
-using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
@@ -148,7 +147,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
         {
             var store = new AtsDataStore(
                 Mock.Of<StateManager>(),
-                new LazyRef<IModel>(() => null),
+                new ContextService<IModel>(() => null),
                 Mock.Of<EntityKeyFactorySource>(),
                 Mock.Of<EntityMaterializerSource>(),
                 Mock.Of<ClrCollectionAccessorSource>(),
@@ -156,7 +155,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
                 _connection.Object,
                 new AtsQueryFactory(new AtsValueReaderFactory()),
                 new TableEntityAdapterFactory(),
-                new LazyRef<DbContext>(Mock.Of<DbContext>()),
+                new ContextService<DbContext>(Mock.Of<DbContext>()),
                 new LoggerFactory());
             return store;
         }

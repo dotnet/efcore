@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Identity;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
@@ -13,13 +14,13 @@ namespace Microsoft.Data.Entity.ChangeTracking
 {
     public class ValueGenerationManager
     {
-        private readonly LazyRef<ValueGeneratorCache> _valueGeneratorCache;
-        private readonly LazyRef<DataStoreServices> _dataStoreServices;
+        private readonly ContextService<ValueGeneratorCache> _valueGeneratorCache;
+        private readonly ContextService<DataStoreServices> _dataStoreServices;
         private readonly ForeignKeyValuePropagator _foreignKeyValuePropagator;
 
         public ValueGenerationManager(
-            [NotNull] LazyRef<ValueGeneratorCache> valueGeneratorCache,
-            [NotNull] LazyRef<DataStoreServices> dataStoreServices,
+            [NotNull] ContextService<ValueGeneratorCache> valueGeneratorCache,
+            [NotNull] ContextService<DataStoreServices> dataStoreServices,
             [NotNull] ForeignKeyValuePropagator foreignKeyValuePropagator)
         {
             Check.NotNull(valueGeneratorCache, "valueGeneratorCache");
@@ -48,7 +49,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                     }
                     else
                     {
-                        var valueGenerator = _valueGeneratorCache.Value.GetGenerator(property);
+                        var valueGenerator = _valueGeneratorCache.Service.GetGenerator(property);
                         var generatedValue = valueGenerator == null
                             ? null
                             : valueGenerator.Next(property, _dataStoreServices);
@@ -76,7 +77,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                     }
                     else
                     {
-                        var valueGenerator = _valueGeneratorCache.Value.GetGenerator(property);
+                        var valueGenerator = _valueGeneratorCache.Service.GetGenerator(property);
                         var generatedValue = valueGenerator == null
                             ? null
                             : await valueGenerator.NextAsync(property, _dataStoreServices, cancellationToken);

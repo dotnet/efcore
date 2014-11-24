@@ -4,9 +4,9 @@
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Identity
 {
@@ -14,11 +14,11 @@ namespace Microsoft.Data.Entity.Identity
     {
         GeneratedValue Next(
             [NotNull] IProperty property,
-            [NotNull] LazyRef<DataStoreServices> dataStoreServices);
+            [NotNull] ContextService<DataStoreServices> dataStoreServices);
 
         Task<GeneratedValue> NextAsync(
             [NotNull] IProperty property,
-            [NotNull] LazyRef<DataStoreServices> dataStoreServices,
+            [NotNull] ContextService<DataStoreServices> dataStoreServices,
             CancellationToken cancellationToken = default(CancellationToken));
     }
 }

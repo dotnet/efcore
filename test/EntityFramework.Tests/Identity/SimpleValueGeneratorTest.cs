@@ -3,9 +3,9 @@
 
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Identity;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Utilities;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Tests.Identity
@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.Tests.Identity
 
             var generator = new TestValueGenerator();
 
-            var generatedValue = generator.Next(property, new LazyRef<DataStoreServices>(() => null));
+            var generatedValue = generator.Next(property, new ContextService<DataStoreServices>(() => null));
 
             Assert.Same(generator.Property, property);
 
@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.Tests.Identity
 
             var generator = new TestValueGenerator();
 
-            var generatedValue = await generator.NextAsync(property, new LazyRef<DataStoreServices>(() => null));
+            var generatedValue = await generator.NextAsync(property, new ContextService<DataStoreServices>(() => null));
 
             Assert.Same(generator.Property, property);
 

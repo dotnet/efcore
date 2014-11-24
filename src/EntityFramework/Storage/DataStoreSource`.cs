@@ -14,9 +14,9 @@ namespace Microsoft.Data.Entity.Storage
         where TOptionsExtension : DbContextOptionsExtension
     {
         private readonly DbContextConfiguration _configuration;
-        private readonly LazyRef<IDbContextOptions> _options;
+        private readonly ContextService<IDbContextOptions> _options;
 
-        protected DataStoreSource([NotNull] DbContextConfiguration configuration, [NotNull] LazyRef<IDbContextOptions> options)
+        protected DataStoreSource([NotNull] DbContextConfiguration configuration, [NotNull] ContextService<IDbContextOptions> options)
         {
             Check.NotNull(configuration, "configuration");
             Check.NotNull(options, "options");
@@ -37,7 +37,7 @@ namespace Microsoft.Data.Entity.Storage
 
         public override bool IsConfigured
         {
-            get { return _options.Value.Extensions.OfType<TOptionsExtension>().Any(); }
+            get { return _options.Service.Extensions.OfType<TOptionsExtension>().Any(); }
         }
 
         public override bool IsAvailable

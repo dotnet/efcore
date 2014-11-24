@@ -5,6 +5,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
@@ -43,7 +44,7 @@ namespace Microsoft.Data.Entity.Identity
             get { return _blockSize; }
         }
 
-        public virtual GeneratedValue Next(IProperty property, LazyRef<DataStoreServices> dataStoreServices)
+        public virtual GeneratedValue Next(IProperty property, ContextService<DataStoreServices> dataStoreServices)
         {
             Check.NotNull(property, "property");
             Check.NotNull(dataStoreServices, "dataStoreServices");
@@ -77,7 +78,7 @@ namespace Microsoft.Data.Entity.Identity
 
         public virtual async Task<GeneratedValue> NextAsync(
             IProperty property,
-            LazyRef<DataStoreServices> dataStoreServices,
+            ContextService<DataStoreServices> dataStoreServices,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(property, "property");
@@ -112,11 +113,11 @@ namespace Microsoft.Data.Entity.Identity
 
         protected abstract long GetNewCurrentValue(
             [NotNull] IProperty property,
-            [NotNull] LazyRef<DataStoreServices> dataStoreServices);
+            [NotNull] ContextService<DataStoreServices> dataStoreServices);
 
         protected abstract Task<long> GetNewCurrentValueAsync(
             [NotNull] IProperty property,
-            [NotNull] LazyRef<DataStoreServices> dataStoreServices,
+            [NotNull] ContextService<DataStoreServices> dataStoreServices,
             CancellationToken cancellationToken);
 
         private SequenceValue GetNextValue()

@@ -3,8 +3,8 @@
 
 using System;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Relational.Update;
-using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.SQLite
@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.SQLite
 
         public SQLiteBatchExecutor(
             [NotNull] SQLiteTypeMapper typeMapper,
-            [NotNull] LazyRef<DbContext> context,
+            [NotNull] ContextService<DbContext> context,
             [NotNull] ILoggerFactory loggerFactory)
             : base(typeMapper, context, loggerFactory)
         {

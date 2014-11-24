@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 using Moq;
 using Xunit;
@@ -26,7 +25,7 @@ namespace Microsoft.Data.Entity.Tests
             var connection = Mock.Of<DataStoreConnection>();
 
             var database = new ConcreteDatabase(
-                    new LazyRef<IModel>(() => model),
+                    new ContextService<IModel>(() => model),
                     creatorMock.Object,
                     connection,
                     new LoggerFactory());
@@ -51,7 +50,7 @@ namespace Microsoft.Data.Entity.Tests
             creatorMock.Setup(m => m.EnsureDeletedAsync(model, cancellationToken)).Returns(Task.FromResult(true));
 
             var database = new ConcreteDatabase(
-                    new LazyRef<IModel>(() => model),
+                    new ContextService<IModel>(() => model),
                     creatorMock.Object,
                     Mock.Of<DataStoreConnection>(),
                     new LoggerFactory());
@@ -66,7 +65,7 @@ namespace Microsoft.Data.Entity.Tests
         private class ConcreteDatabase : Database
         {
             public ConcreteDatabase(
-                LazyRef<IModel> model,
+                ContextService<IModel> model,
                 DataStoreCreator dataStoreCreator,
                 DataStoreConnection connection,
                 ILoggerFactory loggerFactory)
