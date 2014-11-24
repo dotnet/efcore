@@ -40,7 +40,7 @@ namespace Microsoft.Data.Entity.Commands
                 var startupType = assembly.DefinedTypes.FirstOrDefault(t => t.Name.Equals("Startup", StringComparison.Ordinal));
                 var instance = ActivatorUtilities.GetServiceOrCreateInstance(hostingServices, startupType.AsType());
                 var servicesMethod = startupType.GetDeclaredMethod("ConfigureServices");
-                hostingServiceCollection.Add(OptionsServices.GetDefaultServices());
+                hostingServiceCollection.AddOptions();
                 servicesMethod.Invoke(instance, new[] { hostingServiceCollection });
                 var applicationServices = hostingServiceCollection.BuildServiceProvider();
                 return applicationServices.GetService(type) as DbContext;

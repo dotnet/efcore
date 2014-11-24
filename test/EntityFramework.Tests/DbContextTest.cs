@@ -649,7 +649,7 @@ namespace Microsoft.Data.Entity.Tests
             serviceCollection
                 .AddInstance<ILoggerFactory>(loggerFactory)
                 .AddInstance<ITypeActivator>(typeActivator)
-                .Add(OptionsServices.GetDefaultServices())
+                .AddOptions()
                 .AddEntityFramework();
 
             var provider = serviceCollection.BuildServiceProvider();
@@ -673,7 +673,7 @@ namespace Microsoft.Data.Entity.Tests
             serviceCollection
                 .AddInstance<ILoggerFactory>(loggerFactory)
                 .AddInstance<ITypeActivator>(typeActivator)
-                .Add(OptionsServices.GetDefaultServices());
+                .AddOptions();
 
             var provider = serviceCollection.BuildServiceProvider();
 
@@ -893,7 +893,7 @@ namespace Microsoft.Data.Entity.Tests
 
             services
                 .AddSingleton<FakeService>()
-                .Add(OptionsServices.GetDefaultServices())
+                .AddOptions()
                 .AddEntityFramework()
                 .AddDbContext<ContextWithDefaults>();
 
