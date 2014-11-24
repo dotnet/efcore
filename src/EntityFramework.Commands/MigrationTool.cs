@@ -51,10 +51,10 @@ namespace Microsoft.Data.Entity.Commands
             using (var context = CreateContext(contextType))
             {
                 var scopedServiceProvider = ((IDbContextServices)context).ScopedServiceProvider;
-                var options = scopedServiceProvider.GetRequiredService<LazyRef<IDbContextOptions>>();
-                var model = scopedServiceProvider.GetRequiredService<LazyRef<IModel>>();
+                var options = scopedServiceProvider.GetRequiredService<ContextService<IDbContextOptions>>();
+                var model = scopedServiceProvider.GetRequiredService<ContextService<IModel>>();
 
-                var extension = RelationalOptionsExtension.Extract(options.Value);
+                var extension = RelationalOptionsExtension.Extract(options.Service);
                 if (extension.MigrationNamespace == null)
                 {
                     extension.MigrationNamespace = rootNamespace + ".Migrations";
@@ -63,8 +63,8 @@ namespace Microsoft.Data.Entity.Commands
                 var migrator = CreateMigrator(context);
                 var scaffolder = new MigrationScaffolder(
                     context,
-                    options.Value,
-                    model.Value,
+                    options.Service,
+                    model.Service,
                     migrator.MigrationAssembly,
                     migrator.ModelDiffer,
                     new CSharpMigrationCodeGenerator(new CSharpModelCodeGenerator()));
@@ -183,12 +183,12 @@ namespace Microsoft.Data.Entity.Commands
             var context = ContextTool.CreateContext(type);
 
             var scopedServiceProvider = ((IDbContextServices)context).ScopedServiceProvider;
-            var options = scopedServiceProvider.GetRequiredService<LazyRef<IDbContextOptions>>();
+            var options = scopedServiceProvider.GetRequiredService<ContextService<IDbContextOptions>>();
 
             var loggerFactory = scopedServiceProvider.GetRequiredService<ILoggerFactory>();
             loggerFactory.AddProvider(_loggerProvider);
 
-            var extension = RelationalOptionsExtension.Extract(options.Value);
+            var extension = RelationalOptionsExtension.Extract(options.Service);
             if (extension.MigrationAssembly == null)
             {
                 extension.MigrationAssembly = _assembly;
@@ -199,7 +199,7 @@ namespace Microsoft.Data.Entity.Commands
 
         private Migrator CreateMigrator(DbContext context)
         {
-            return ((IDbContextServices)context).ScopedServiceProvider.GetRequiredService<LazyRef<Migrator>>().Value;
+            return ((IDbContextServices)context).ScopedServiceProvider.GetRequiredService<ContextService<Migrator>>().Service;
         }
 
         private IEnumerable<Type> GetMigrationTypes()

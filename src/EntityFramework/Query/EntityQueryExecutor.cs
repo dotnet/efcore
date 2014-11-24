@@ -9,6 +9,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
@@ -19,13 +20,13 @@ namespace Microsoft.Data.Entity.Query
 {
     public class EntityQueryExecutor : IQueryExecutor
     {
-        private readonly LazyRef<DbContext> _context;
-        private readonly LazyRef<DataStore> _dataStore;
+        private readonly ContextService<DbContext> _context;
+        private readonly ContextService<DataStore> _dataStore;
         private readonly LazyRef<ILogger> _logger;
 
         public EntityQueryExecutor(
-            [NotNull] LazyRef<DbContext> context,
-            [NotNull] LazyRef<DataStore> dataStore,
+            [NotNull] ContextService<DbContext> context,
+            [NotNull] ContextService<DataStore> dataStore,
             [NotNull] ILoggerFactory loggerFactory)
         {
             Check.NotNull(context, "context");
@@ -76,14 +77,14 @@ namespace Microsoft.Data.Entity.Query
 
             try
             {
-                var enumerable = _dataStore.Value.Query<T>(queryModel);
+                var enumerable = _dataStore.Service.Query<T>(queryModel);
 
-                return new EnumerableExceptionInterceptor<T>(enumerable, _context.Value, _logger);
+                return new EnumerableExceptionInterceptor<T>(enumerable, _context.Service, _logger);
             }
             catch (Exception ex)
             {
                 _logger.Value.WriteError(
-                    new DataStoreErrorLogState(_context.Value.GetType()),
+                    new DataStoreErrorLogState(_context.Service.GetType()),
                     ex,
                     (state, exception) =>
                         Strings.LogExceptionDuringQueryIteration(Environment.NewLine, exception));
@@ -103,15 +104,15 @@ namespace Microsoft.Data.Entity.Query
             try
             {
                 var asyncEnumerable
-                    = _dataStore.Value
+                    = _dataStore.Service
                         .AsyncQuery<T>(queryModel, cancellationToken);
 
-                return new AsyncEnumerableExceptionInterceptor<T>(asyncEnumerable, _context.Value, _logger);
+                return new AsyncEnumerableExceptionInterceptor<T>(asyncEnumerable, _context.Service, _logger);
             }
             catch (Exception ex)
             {
                 _logger.Value.WriteError(
-                    new DataStoreErrorLogState(_context.Value.GetType()),
+                    new DataStoreErrorLogState(_context.Service.GetType()),
                     ex,
                     (state, exception) =>
                         Strings.LogExceptionDuringQueryIteration(Environment.NewLine, exception));

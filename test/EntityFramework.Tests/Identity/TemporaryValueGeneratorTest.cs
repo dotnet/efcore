@@ -4,9 +4,9 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Identity;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Utilities;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Tests.Identity
@@ -22,32 +22,32 @@ namespace Microsoft.Data.Entity.Tests.Identity
 
             var generator = new TemporaryValueGenerator();
 
-            var generatedValue = await generator.NextAsync(property, new LazyRef<DataStoreServices>(() => null));
+            var generatedValue = await generator.NextAsync(property, new ContextService<DataStoreServices>(() => null));
 
             Assert.Equal(-1, generatedValue.Value);
             Assert.True(generatedValue.IsTemporary);
 
-            generatedValue = await generator.NextAsync(property, new LazyRef<DataStoreServices>(() => null));
+            generatedValue = await generator.NextAsync(property, new ContextService<DataStoreServices>(() => null));
 
             Assert.Equal(-2, generatedValue.Value);
             Assert.True(generatedValue.IsTemporary);
 
-            generatedValue = await generator.NextAsync(property, new LazyRef<DataStoreServices>(() => null));
+            generatedValue = await generator.NextAsync(property, new ContextService<DataStoreServices>(() => null));
 
             Assert.Equal(-3, generatedValue.Value);
             Assert.True(generatedValue.IsTemporary);
 
-            generatedValue = generator.Next(property, new LazyRef<DataStoreServices>(() => null));
+            generatedValue = generator.Next(property, new ContextService<DataStoreServices>(() => null));
 
             Assert.Equal(-4, generatedValue.Value);
             Assert.True(generatedValue.IsTemporary);
 
-            generatedValue = generator.Next(property, new LazyRef<DataStoreServices>(() => null));
+            generatedValue = generator.Next(property, new ContextService<DataStoreServices>(() => null));
 
             Assert.Equal(-5, generatedValue.Value);
             Assert.True(generatedValue.IsTemporary);
 
-            generatedValue = generator.Next(property, new LazyRef<DataStoreServices>(() => null));
+            generatedValue = generator.Next(property, new ContextService<DataStoreServices>(() => null));
 
             Assert.Equal(-6, generatedValue.Value);
             Assert.True(generatedValue.IsTemporary);
@@ -67,62 +67,62 @@ namespace Microsoft.Data.Entity.Tests.Identity
 
             var generator = new TemporaryValueGenerator();
             
-            var generatedValue = await generator.NextAsync(longProperty, new LazyRef<DataStoreServices>(() => null));
+            var generatedValue = await generator.NextAsync(longProperty, new ContextService<DataStoreServices>(() => null));
 
             Assert.Equal(-1L, generatedValue.Value);
             Assert.True(generatedValue.IsTemporary);
 
-            generatedValue = await generator.NextAsync(intProperty, new LazyRef<DataStoreServices>(() => null));
+            generatedValue = await generator.NextAsync(intProperty, new ContextService<DataStoreServices>(() => null));
 
             Assert.Equal(-2, generatedValue.Value);
             Assert.True(generatedValue.IsTemporary);
 
-            generatedValue = await generator.NextAsync(shortProperty, new LazyRef<DataStoreServices>(() => null));
+            generatedValue = await generator.NextAsync(shortProperty, new ContextService<DataStoreServices>(() => null));
 
             Assert.Equal((short)-3, generatedValue.Value);
             Assert.True(generatedValue.IsTemporary);
 
-            generatedValue = generator.Next(longProperty, new LazyRef<DataStoreServices>(() => null));
+            generatedValue = generator.Next(longProperty, new ContextService<DataStoreServices>(() => null));
 
             Assert.Equal(-4L, generatedValue.Value);
             Assert.True(generatedValue.IsTemporary);
 
-            generatedValue = generator.Next(intProperty, new LazyRef<DataStoreServices>(() => null));
+            generatedValue = generator.Next(intProperty, new ContextService<DataStoreServices>(() => null));
 
             Assert.Equal(-5, generatedValue.Value);
             Assert.True(generatedValue.IsTemporary);
 
-            generatedValue = generator.Next(shortProperty, new LazyRef<DataStoreServices>(() => null));
+            generatedValue = generator.Next(shortProperty, new ContextService<DataStoreServices>(() => null));
 
             Assert.Equal((short)-6, generatedValue.Value);
             Assert.True(generatedValue.IsTemporary);
 
-            generatedValue = await generator.NextAsync(nullableLongProperty, new LazyRef<DataStoreServices>(() => null));
+            generatedValue = await generator.NextAsync(nullableLongProperty, new ContextService<DataStoreServices>(() => null));
 
             Assert.Equal(-7L, generatedValue.Value);
             Assert.True(generatedValue.IsTemporary);
 
-            generatedValue = await generator.NextAsync(nullableIntProperty, new LazyRef<DataStoreServices>(() => null));
+            generatedValue = await generator.NextAsync(nullableIntProperty, new ContextService<DataStoreServices>(() => null));
 
             Assert.Equal(-8, generatedValue.Value);
             Assert.True(generatedValue.IsTemporary);
 
-            generatedValue = await generator.NextAsync(nullableShortProperty, new LazyRef<DataStoreServices>(() => null));
+            generatedValue = await generator.NextAsync(nullableShortProperty, new ContextService<DataStoreServices>(() => null));
 
             Assert.Equal((short)-9, generatedValue.Value);
             Assert.True(generatedValue.IsTemporary);
 
-            generatedValue = generator.Next(nullableLongProperty, new LazyRef<DataStoreServices>(() => null));
+            generatedValue = generator.Next(nullableLongProperty, new ContextService<DataStoreServices>(() => null));
 
             Assert.Equal(-10L, generatedValue.Value);
             Assert.True(generatedValue.IsTemporary);
 
-            generatedValue = generator.Next(nullableIntProperty, new LazyRef<DataStoreServices>(() => null));
+            generatedValue = generator.Next(nullableIntProperty, new ContextService<DataStoreServices>(() => null));
 
             Assert.Equal(-11, generatedValue.Value);
             Assert.True(generatedValue.IsTemporary);
 
-            generatedValue = generator.Next(nullableShortProperty, new LazyRef<DataStoreServices>(() => null));
+            generatedValue = generator.Next(nullableShortProperty, new ContextService<DataStoreServices>(() => null));
 
             Assert.Equal((short)-12, generatedValue.Value);
             Assert.True(generatedValue.IsTemporary);

@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Utilities;
 using Moq;
 using Xunit;
 
@@ -15,7 +14,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         {
             Assert.Equal(
                 typeof(InMemoryDataStore).Name, 
-                new InMemoryDataStoreSource(Mock.Of<DbContextConfiguration>(), new LazyRef<IDbContextOptions>(() => null)).Name);
+                new InMemoryDataStoreSource(Mock.Of<DbContextConfiguration>(), new ContextService<IDbContextOptions>(() => null)).Name);
         }
 
         [Fact]
@@ -27,7 +26,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             var configurationMock = new Mock<DbContextConfiguration>();
             configurationMock.Setup(m => m.ContextOptions).Returns(options);
 
-            Assert.True(new InMemoryDataStoreSource(configurationMock.Object, new LazyRef<IDbContextOptions>(options)).IsConfigured);
+            Assert.True(new InMemoryDataStoreSource(configurationMock.Object, new ContextService<IDbContextOptions>(options)).IsConfigured);
         }
 
         [Fact]
@@ -38,13 +37,13 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             var configurationMock = new Mock<DbContextConfiguration>();
             configurationMock.Setup(m => m.ContextOptions).Returns(options);
 
-            Assert.False(new InMemoryDataStoreSource(configurationMock.Object, new LazyRef<IDbContextOptions>(options)).IsConfigured);
+            Assert.False(new InMemoryDataStoreSource(configurationMock.Object, new ContextService<IDbContextOptions>(options)).IsConfigured);
         }
 
         [Fact]
         public void Is_always_available()
         {
-            Assert.True(new InMemoryDataStoreSource(Mock.Of<DbContextConfiguration>(), new LazyRef<IDbContextOptions>(() => null)).IsAvailable);
+            Assert.True(new InMemoryDataStoreSource(Mock.Of<DbContextConfiguration>(), new ContextService<IDbContextOptions>(() => null)).IsAvailable);
         }
     }
 }

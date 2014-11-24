@@ -20,34 +20,34 @@ namespace Microsoft.Data.Entity.Storage
         public abstract Database Database { get; }
         public abstract IModelBuilderFactory ModelBuilderFactory { get; }
 
-        public static Func<IServiceProvider, LazyRef<DataStoreServices>> DataStoreServicesFactory
+        public static Func<IServiceProvider, ContextService<DataStoreServices>> DataStoreServicesFactory
         {
-            get { return p => new LazyRef<DataStoreServices>(() => GetStoreServices(p)); }
+            get { return p => new ContextService<DataStoreServices>(() => GetStoreServices(p)); }
         }
 
-        public static Func<IServiceProvider, LazyRef<DataStore>> DataStoreFactory
+        public static Func<IServiceProvider, ContextService<DataStore>> DataStoreFactory
         {
-            get { return p => new LazyRef<DataStore>(() => GetStoreServices(p).Store); }
+            get { return p => new ContextService<DataStore>(() => GetStoreServices(p).Store); }
         }
 
-        public static Func<IServiceProvider, LazyRef<Database>> DatabaseFactory
+        public static Func<IServiceProvider, ContextService<Database>> DatabaseFactory
         {
-            get { return p => new LazyRef<Database>(() => GetStoreServices(p).Database); }
+            get { return p => new ContextService<Database>(() => GetStoreServices(p).Database); }
         }
 
-        public static Func<IServiceProvider, LazyRef<DataStoreCreator>> DataStoreCreatorFactory
+        public static Func<IServiceProvider, ContextService<DataStoreCreator>> DataStoreCreatorFactory
         {
-            get { return p => new LazyRef<DataStoreCreator>(() => GetStoreServices(p).Creator); }
+            get { return p => new ContextService<DataStoreCreator>(() => GetStoreServices(p).Creator); }
         }
 
-        public static Func<IServiceProvider, LazyRef<ValueGeneratorCache>> ValueGeneratorCacheFactory
+        public static Func<IServiceProvider, ContextService<ValueGeneratorCache>> ValueGeneratorCacheFactory
         {
-            get { return p => new LazyRef<ValueGeneratorCache>(() => GetStoreServices(p).ValueGeneratorCache); }
+            get { return p => new ContextService<ValueGeneratorCache>(() => GetStoreServices(p).ValueGeneratorCache); }
         }
 
-        public static Func<IServiceProvider, LazyRef<DataStoreConnection>> ConnectionFactory
+        public static Func<IServiceProvider, ContextService<DataStoreConnection>> ConnectionFactory
         {
-            get { return p => new LazyRef<DataStoreConnection>(() => GetStoreServices(p).Connection); }
+            get { return p => new ContextService<DataStoreConnection>(() => GetStoreServices(p).Connection); }
         }
 
         protected static DataStoreServices GetStoreServices([NotNull] IServiceProvider serviceProvider)

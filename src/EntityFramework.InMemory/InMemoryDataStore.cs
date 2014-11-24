@@ -35,20 +35,20 @@ namespace Microsoft.Data.Entity.InMemory
 
         public InMemoryDataStore(
              [NotNull] StateManager stateManager,
-             [NotNull] LazyRef<IModel> model,
+             [NotNull] ContextService<IModel> model,
              [NotNull] EntityKeyFactorySource entityKeyFactorySource,
              [NotNull] EntityMaterializerSource entityMaterializerSource,
              [NotNull] ClrCollectionAccessorSource collectionAccessorSource,
              [NotNull] ClrPropertySetterSource propertySetterSource,
              [NotNull] InMemoryDatabase persistentDatabase,
-             [NotNull] LazyRef<IDbContextOptions> options,
+             [NotNull] ContextService<IDbContextOptions> options,
              [NotNull] ILoggerFactory loggerFactory)
             : base(stateManager, model, entityKeyFactorySource, entityMaterializerSource,
                 collectionAccessorSource, propertySetterSource, loggerFactory)
         {
             Check.NotNull(persistentDatabase, "persistentDatabase");
 
-            var storeConfig = options.Value.Extensions
+            var storeConfig = options.Service.Extensions
                 .OfType<InMemoryOptionsExtension>()
                 .FirstOrDefault();
 

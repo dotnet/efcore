@@ -297,7 +297,7 @@ namespace Microsoft.Data.Entity
 
         public virtual Database Database
         {
-            get { return _configuration.Value.ScopedServiceProvider.GetRequiredServiceChecked<LazyRef<Database>>().Value; }
+            get { return _configuration.Value.ScopedServiceProvider.GetRequiredServiceChecked<ContextService<Database>>().Service; }
         }
 
         public virtual ChangeTracker ChangeTracker
@@ -307,7 +307,7 @@ namespace Microsoft.Data.Entity
 
         public virtual IModel Model
         {
-            get { return _configuration.Value.ScopedServiceProvider.GetRequiredServiceChecked<LazyRef<IModel>>().Value; }
+            get { return _configuration.Value.ScopedServiceProvider.GetRequiredServiceChecked<ContextService<IModel>>().Service; }
         }
 
         public virtual DbSet<TEntity> Set<TEntity>()

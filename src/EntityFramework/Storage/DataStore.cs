@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Utilities;
@@ -18,7 +19,7 @@ namespace Microsoft.Data.Entity.Storage
     public abstract class DataStore
     {
         private readonly StateManager _stateManager;
-        private readonly LazyRef<IModel> _model;
+        private readonly ContextService<IModel> _model;
         private readonly EntityKeyFactorySource _entityKeyFactorySource;
         private readonly EntityMaterializerSource _entityMaterializerSource;
         private readonly ClrCollectionAccessorSource _collectionAccessorSource;
@@ -36,7 +37,7 @@ namespace Microsoft.Data.Entity.Storage
 
         protected DataStore(
             [NotNull] StateManager stateManager,
-            [NotNull] LazyRef<IModel> model,
+            [NotNull] ContextService<IModel> model,
             [NotNull] EntityKeyFactorySource entityKeyFactorySource,
             [NotNull] EntityMaterializerSource entityMaterializerSource,
             [NotNull] ClrCollectionAccessorSource collectionAccessorSource,
@@ -67,7 +68,7 @@ namespace Microsoft.Data.Entity.Storage
 
         public virtual IModel Model
         {
-            get { return _model.Value; }
+            get { return _model.Service; }
         }
 
         public virtual EntityKeyFactorySource EntityKeyFactorySource

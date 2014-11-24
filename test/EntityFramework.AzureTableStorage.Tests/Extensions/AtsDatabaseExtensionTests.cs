@@ -5,7 +5,6 @@ using System;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 using Moq;
 using Xunit;
@@ -18,7 +17,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Extensions
         public void Returns_typed_database_object()
         {
             var database = new AtsDatabase(
-                new LazyRef<IModel>(() => null),
+                new ContextService<IModel>(() => null),
                 Mock.Of<AtsDataStoreCreator>(),
                 Mock.Of<AtsConnection>(),
                 new LoggerFactory());
@@ -30,7 +29,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Extensions
         public void Throws_when_non_ats_provider_is_in_use()
         {
             var database = new ConcreteDatabase(
-                new LazyRef<IModel>(() => null),
+                new ContextService<IModel>(() => null),
                 Mock.Of<DataStoreCreator>(),
                 Mock.Of<DataStoreConnection>(),
                 new LoggerFactory());
@@ -43,7 +42,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Extensions
         private class ConcreteDatabase : Database
         {
             public ConcreteDatabase(
-                LazyRef<IModel> model,
+                ContextService<IModel> model,
                 DataStoreCreator dataStoreCreator,
                 DataStoreConnection connection,
                 ILoggerFactory loggerFactory)

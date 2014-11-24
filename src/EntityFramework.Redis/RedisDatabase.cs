@@ -15,7 +15,6 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Redis.Query;
 using Microsoft.Data.Entity.Redis.Utilities;
-using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 using StackExchange.Redis;
 
@@ -63,7 +62,7 @@ namespace Microsoft.Data.Entity.Redis
         }
 
         public RedisDatabase(
-            [NotNull] LazyRef<IModel> model,
+            [NotNull] ContextService<IModel> model,
             [NotNull] RedisDataStoreCreator dataStoreCreator,
             [NotNull] RedisConnection connection,
             [NotNull] ILoggerFactory loggerFactory)

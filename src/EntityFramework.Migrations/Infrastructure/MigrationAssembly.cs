@@ -10,14 +10,13 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Utilities;
 using Microsoft.Data.Entity.Relational;
-using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Migrations.Infrastructure
 {
     public class MigrationAssembly
     {
-        private readonly LazyRef<DbContext> _context;
-        private readonly LazyRef<IDbContextOptions> _options;
+        private readonly ContextService<DbContext> _context;
+        private readonly ContextService<IDbContextOptions> _options;
 
         private IReadOnlyList<Migration> _migrations;
         private IModel _model;
@@ -31,7 +30,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
         {
         }
 
-        public MigrationAssembly([NotNull] LazyRef<DbContext> context, [NotNull] LazyRef<IDbContextOptions> options)
+        public MigrationAssembly([NotNull] ContextService<DbContext> context, [NotNull] ContextService<IDbContextOptions> options)
         {
             Check.NotNull(context, "context");
             Check.NotNull(options, "options");
@@ -44,8 +43,8 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
         {
             get
             {
-                return RelationalOptionsExtension.Extract(_options.Value).MigrationAssembly
-                       ?? _context.Value.GetType().GetTypeInfo().Assembly;
+                return RelationalOptionsExtension.Extract(_options.Service).MigrationAssembly
+                       ?? _context.Service.GetType().GetTypeInfo().Assembly;
             }
         }
 
@@ -84,14 +83,14 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
 
         protected virtual IReadOnlyList<Migration> LoadMigrations()
         {
-            var contextType = _context.Value.GetType();
+            var contextType = _context.Service.GetType();
             return LoadMigrations(GetMigrationTypes(Assembly), contextType)
                 .ToArray();
         }
 
         protected virtual IModel LoadModel()
         {
-            var contextType = _context.Value.GetType();
+            var contextType = _context.Service.GetType();
             var modelSnapshotType = Assembly.GetAccessibleTypes().SingleOrDefault(
                 t => t.GetTypeInfo().IsSubclassOf(typeof(ModelSnapshot))
                      && t.GetPublicConstructor() != null

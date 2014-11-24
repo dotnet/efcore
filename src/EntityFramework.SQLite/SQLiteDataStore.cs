@@ -3,6 +3,7 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Relational;
@@ -10,7 +11,6 @@ using Microsoft.Data.Entity.Relational.Query;
 using Microsoft.Data.Entity.Relational.Query.Methods;
 using Microsoft.Data.Entity.SQLite.Query;
 using Microsoft.Data.Entity.SQLite.Utilities;
-using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.SQLite
@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.SQLite
     {
         public SQLiteDataStore(
             [NotNull] StateManager stateManager,
-            [NotNull] LazyRef<IModel> model,
+            [NotNull] ContextService<IModel> model,
             [NotNull] EntityKeyFactorySource entityKeyFactorySource,
             [NotNull] EntityMaterializerSource entityMaterializerSource,
             [NotNull] ClrCollectionAccessorSource collectionAccessorSource,

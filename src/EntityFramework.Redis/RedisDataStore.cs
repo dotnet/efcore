@@ -12,7 +12,6 @@ using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Redis.Query;
 using Microsoft.Data.Entity.Redis.Utilities;
 using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 using Remotion.Linq;
 
@@ -20,21 +19,21 @@ namespace Microsoft.Data.Entity.Redis
 {
     public class RedisDataStore : DataStore
     {
-        private readonly LazyRef<RedisDatabase> _database;
+        private readonly ContextService<RedisDatabase> _database;
 
         public RedisDataStore(
              [NotNull] StateManager stateManager,
-             [NotNull] LazyRef<IModel> model,
+             [NotNull] ContextService<IModel> model,
              [NotNull] EntityKeyFactorySource entityKeyFactorySource,
              [NotNull] EntityMaterializerSource entityMaterializerSource,
              [NotNull] ClrCollectionAccessorSource collectionAccessorSource,
              [NotNull] ClrPropertySetterSource propertySetterSource,
-             [NotNull] LazyRef<Database> database,
+             [NotNull] ContextService<Database> database,
              [NotNull] ILoggerFactory loggerFactory)
             : base(stateManager, model, entityKeyFactorySource, entityMaterializerSource,
                 collectionAccessorSource, propertySetterSource, loggerFactory)
         {
-            _database = new LazyRef<RedisDatabase>(() => (RedisDatabase)database.Value);
+            _database = new ContextService<RedisDatabase>(() => (RedisDatabase)database.Service);
         }
 
         public override int SaveChanges(
@@ -42,7 +41,7 @@ namespace Microsoft.Data.Entity.Redis
         {
             Check.NotNull(stateEntries, "stateEntries");
 
-            return _database.Value.SaveChanges(stateEntries);
+            return _database.Service.SaveChanges(stateEntries);
         }
 
         public override Task<int> SaveChangesAsync(
@@ -51,7 +50,7 @@ namespace Microsoft.Data.Entity.Redis
         {
             Check.NotNull(stateEntries, "stateEntries");
 
-            return _database.Value.SaveChangesAsync(stateEntries, cancellationToken);
+            return _database.Service.SaveChangesAsync(stateEntries, cancellationToken);
         }
 
         public override IEnumerable<TResult> Query<TResult>(QueryModel queryModel)
@@ -73,7 +72,7 @@ namespace Microsoft.Data.Entity.Redis
                 = new RedisQueryContext(
                     Logger,
                     CreateQueryBuffer(),
-                    _database.Value);
+                    _database.Service);
 
             return queryExecutor(queryContext);
         }
@@ -100,7 +99,7 @@ namespace Microsoft.Data.Entity.Redis
                 = new RedisQueryContext(
                     Logger,
                     CreateQueryBuffer(),
-                    _database.Value)
+                    _database.Service)
                 {
                     CancellationToken = cancellationToken
                 };

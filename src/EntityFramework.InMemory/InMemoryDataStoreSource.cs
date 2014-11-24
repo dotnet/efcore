@@ -4,13 +4,12 @@
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.InMemory
 {
     public class InMemoryDataStoreSource : DataStoreSource<InMemoryDataStoreServices, InMemoryOptionsExtension>
     {
-        public InMemoryDataStoreSource([NotNull] DbContextConfiguration configuration, [NotNull] LazyRef<IDbContextOptions> options)
+        public InMemoryDataStoreSource([NotNull] DbContextConfiguration configuration, [NotNull] ContextService<IDbContextOptions> options)
             : base(configuration, options)
         {
         }

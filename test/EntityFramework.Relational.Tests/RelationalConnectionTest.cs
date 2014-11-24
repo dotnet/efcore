@@ -7,7 +7,6 @@ using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 using Moq;
 using Moq.Protected;
@@ -324,7 +323,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
                             }))).Message);
         }
 
-        private static LazyRef<IDbContextOptions> CreateOptions(
+        private static ContextService<IDbContextOptions> CreateOptions(
             Action<FakeOptionsExtension1> configUpdater1,
             Action<FakeOptionsExtension2> configUpdater2 = null)
         {
@@ -340,12 +339,12 @@ namespace Microsoft.Data.Entity.Relational.Tests
                 contextOptions.AddOrUpdateExtension(configUpdater2);
             }
 
-            return new LazyRef<IDbContextOptions>(contextOptions);
+            return new ContextService<IDbContextOptions>(contextOptions);
         }
 
         private class FakeConnection : RelationalConnection
         {
-            public FakeConnection(LazyRef<IDbContextOptions> options)
+            public FakeConnection(ContextService<IDbContextOptions> options)
                 : base(options, new LoggerFactory())
             {
             }

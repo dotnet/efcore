@@ -4,7 +4,6 @@
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
 using Xunit;
 
@@ -54,22 +53,22 @@ namespace Microsoft.Data.Entity.Tests
             {
                 var contextServices = ((IDbContextServices)context).ScopedServiceProvider;
 
-                store = contextServices.GetRequiredService<LazyRef<DataStore>>().Value;
-                creator = contextServices.GetRequiredService<LazyRef<DataStoreCreator>>().Value;
-                connection = contextServices.GetRequiredService<LazyRef<DataStoreConnection>>().Value;
+                store = contextServices.GetRequiredService<ContextService<DataStore>>().Service;
+                creator = contextServices.GetRequiredService<ContextService<DataStoreCreator>>().Service;
+                connection = contextServices.GetRequiredService<ContextService<DataStoreConnection>>().Service;
 
-                Assert.Same(store, contextServices.GetRequiredService<LazyRef<DataStore>>().Value);
-                Assert.Same(creator, contextServices.GetRequiredService<LazyRef<DataStoreCreator>>().Value);
-                Assert.Same(connection, contextServices.GetRequiredService<LazyRef<DataStoreConnection>>().Value);
+                Assert.Same(store, contextServices.GetRequiredService<ContextService<DataStore>>().Service);
+                Assert.Same(creator, contextServices.GetRequiredService<ContextService<DataStoreCreator>>().Service);
+                Assert.Same(connection, contextServices.GetRequiredService<ContextService<DataStoreConnection>>().Service);
             }
 
             using (var context = new DbContext(serviceProvider))
             {
                 var contextServices = ((IDbContextServices)context).ScopedServiceProvider;
 
-                Assert.NotSame(store, contextServices.GetRequiredService<LazyRef<DataStore>>().Value);
-                Assert.NotSame(creator, contextServices.GetRequiredService<LazyRef<DataStoreCreator>>().Value);
-                Assert.NotSame(connection, contextServices.GetRequiredService<LazyRef<DataStoreConnection>>().Value);
+                Assert.NotSame(store, contextServices.GetRequiredService<ContextService<DataStore>>().Service);
+                Assert.NotSame(creator, contextServices.GetRequiredService<ContextService<DataStoreCreator>>().Service);
+                Assert.NotSame(connection, contextServices.GetRequiredService<ContextService<DataStoreConnection>>().Service);
             }
         }
 
@@ -84,22 +83,22 @@ namespace Microsoft.Data.Entity.Tests
             {
                 var contextServices = ((IDbContextServices)context).ScopedServiceProvider;
 
-                store = contextServices.GetRequiredService<LazyRef<DataStore>>().Value;
-                creator = contextServices.GetRequiredService<LazyRef<DataStoreCreator>>().Value;
-                connection = contextServices.GetRequiredService<LazyRef<DataStoreConnection>>().Value;
+                store = contextServices.GetRequiredService<ContextService<DataStore>>().Service;
+                creator = contextServices.GetRequiredService<ContextService<DataStoreCreator>>().Service;
+                connection = contextServices.GetRequiredService<ContextService<DataStoreConnection>>().Service;
 
-                Assert.Same(store, contextServices.GetRequiredService<LazyRef<DataStore>>().Value);
-                Assert.Same(creator, contextServices.GetRequiredService<LazyRef<DataStoreCreator>>().Value);
-                Assert.Same(connection, contextServices.GetRequiredService<LazyRef<DataStoreConnection>>().Value);
+                Assert.Same(store, contextServices.GetRequiredService<ContextService<DataStore>>().Service);
+                Assert.Same(creator, contextServices.GetRequiredService<ContextService<DataStoreCreator>>().Service);
+                Assert.Same(connection, contextServices.GetRequiredService<ContextService<DataStoreConnection>>().Service);
             }
 
             using (var context = new GiddyupContext())
             {
                 var contextServices = ((IDbContextServices)context).ScopedServiceProvider;
 
-                Assert.NotSame(store, contextServices.GetRequiredService<LazyRef<DataStore>>().Value);
-                Assert.NotSame(creator, contextServices.GetRequiredService<LazyRef<DataStoreCreator>>().Value);
-                Assert.NotSame(connection, contextServices.GetRequiredService<LazyRef<DataStoreConnection>>().Value);
+                Assert.NotSame(store, contextServices.GetRequiredService<ContextService<DataStore>>().Service);
+                Assert.NotSame(creator, contextServices.GetRequiredService<ContextService<DataStoreCreator>>().Service);
+                Assert.NotSame(connection, contextServices.GetRequiredService<ContextService<DataStoreConnection>>().Service);
             }
         }
 
