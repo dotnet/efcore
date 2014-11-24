@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.Redis
         {
         }
 
-        public RedisConnection([NotNull] ContextService<IDbContextOptions> options, [NotNull] ILoggerFactory loggerFactory)
+        public RedisConnection([NotNull] DbContextService<IDbContextOptions> options, [NotNull] ILoggerFactory loggerFactory)
             : base(loggerFactory)
         {
             Check.NotNull(options, "options");

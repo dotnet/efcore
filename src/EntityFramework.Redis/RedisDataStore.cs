@@ -19,21 +19,21 @@ namespace Microsoft.Data.Entity.Redis
 {
     public class RedisDataStore : DataStore
     {
-        private readonly ContextService<RedisDatabase> _database;
+        private readonly DbContextService<RedisDatabase> _database;
 
         public RedisDataStore(
              [NotNull] StateManager stateManager,
-             [NotNull] ContextService<IModel> model,
+             [NotNull] DbContextService<IModel> model,
              [NotNull] EntityKeyFactorySource entityKeyFactorySource,
              [NotNull] EntityMaterializerSource entityMaterializerSource,
              [NotNull] ClrCollectionAccessorSource collectionAccessorSource,
              [NotNull] ClrPropertySetterSource propertySetterSource,
-             [NotNull] ContextService<Database> database,
+             [NotNull] DbContextService<Database> database,
              [NotNull] ILoggerFactory loggerFactory)
             : base(stateManager, model, entityKeyFactorySource, entityMaterializerSource,
                 collectionAccessorSource, propertySetterSource, loggerFactory)
         {
-            _database = new ContextService<RedisDatabase>(() => (RedisDatabase)database.Service);
+            _database = new DbContextService<RedisDatabase>(() => (RedisDatabase)database.Service);
         }
 
         public override int SaveChanges(

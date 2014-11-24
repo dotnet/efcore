@@ -9,8 +9,8 @@ namespace Microsoft.Data.Entity.AzureTableStorage
 {
     public class AtsDataStoreSource : DataStoreSource<AtsDataStoreServices, AtsOptionsExtension>
     {
-        public AtsDataStoreSource([NotNull] DbContextConfiguration configuration, [NotNull] ContextService<IDbContextOptions> options)
-            : base(configuration, options)
+        public AtsDataStoreSource([NotNull] DbContextServices services, [NotNull] DbContextService<IDbContextOptions> options)
+            : base(services, options)
         {
         }
 

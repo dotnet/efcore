@@ -9,8 +9,8 @@ namespace Microsoft.Data.Entity.SqlServer
 {
     public class SqlServerDataStoreSource : DataStoreSource<SqlServerDataStoreServices, SqlServerOptionsExtension>
     {
-        public SqlServerDataStoreSource([NotNull] DbContextConfiguration configuration, [NotNull] ContextService<IDbContextOptions> options)
-            : base(configuration, options)
+        public SqlServerDataStoreSource([NotNull] DbContextServices services, [NotNull] DbContextService<IDbContextOptions> options)
+            : base(services, options)
         {
         }
 

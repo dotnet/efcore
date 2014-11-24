@@ -26,11 +26,11 @@ namespace Microsoft.Data.Entity.Redis
         {
         }
 
-        public RedisDataStoreCreator([NotNull] DbContextConfiguration configuration)
+        public RedisDataStoreCreator([NotNull] DbContextServices services)
         {
-            Check.NotNull(configuration, "configuration");
+            Check.NotNull(services, "services");
 
-            _database = new LazyRef<RedisDatabase>(() => (RedisDatabase)configuration.Database);
+            _database = new LazyRef<RedisDatabase>(() => (RedisDatabase)services.Database);
         }
 
         public override bool EnsureDeleted(IModel model)

@@ -230,7 +230,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 {
                     var contextServices = ((IDbContextServices)context).ScopedServiceProvider;
 
-                    var creator = (RelationalDataStoreCreator)contextServices.GetRequiredService<ContextService<DataStoreCreator>>().Service;
+                    var creator = (RelationalDataStoreCreator)contextServices.GetRequiredService<DbContextService<DataStoreCreator>>().Service;
 
                     if (async)
                     {

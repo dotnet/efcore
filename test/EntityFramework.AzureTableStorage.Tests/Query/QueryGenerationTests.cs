@@ -170,7 +170,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests.Query
 
         private MainFromClause CreateWithEntityQueryable<T>()
         {
-            var entityQueryExecutor = new EntityQueryExecutor(new ContextService<DbContext>(Mock.Of<DbContext>()), new ContextService<DataStore>(() => null), new LoggerFactory());
+            var entityQueryExecutor = new EntityQueryExecutor(new DbContextService<DbContext>(Mock.Of<DbContext>()), new DbContextService<DataStore>(() => null), new LoggerFactory());
             var queryable = new EntityQueryable<T>(entityQueryExecutor);
             return new MainFromClause("s", typeof(T), Expression.Constant(queryable));
         }

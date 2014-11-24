@@ -11,9 +11,9 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
     {
         public abstract Migrator Migrator { get; }
 
-        public static Func<IServiceProvider, ContextService<Migrator>> MigratorFactory
+        public static Func<IServiceProvider, DbContextService<Migrator>> MigratorFactory
         {
-            get { return p => new ContextService<Migrator>(() => ((MigrationsDataStoreServices)GetStoreServices(p)).Migrator); }
+            get { return p => new DbContextService<Migrator>(() => ((MigrationsDataStoreServices)GetStoreServices(p)).Migrator); }
         }
     }
 }

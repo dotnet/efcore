@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity
     {
         private static readonly ThreadSafeDictionaryCache<Type, Type> _optionsTypes = new ThreadSafeDictionaryCache<Type, Type>();
 
-        private readonly LazyRef<DbContextConfiguration> _configuration;
+        private readonly LazyRef<DbContextServices> _configuration;
         private readonly LazyRef<ILogger> _logger;
         private readonly LazyRef<DbSetInitializer> _setInitializer;
 
@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity
             var options = GetOptions(serviceProvider);
 
             InitializeSets(serviceProvider, options);
-            _configuration = new LazyRef<DbContextConfiguration>(() => Initialize(serviceProvider, options));
+            _configuration = new LazyRef<DbContextServices>(() => Initialize(serviceProvider, options));
             _logger = new LazyRef<ILogger>(CreateLogger);
             _setInitializer = new LazyRef<DbSetInitializer>(GetSetInitializer);
         }
@@ -45,7 +45,7 @@ namespace Microsoft.Data.Entity
             var options = GetOptions(serviceProvider);
 
             InitializeSets(serviceProvider, options);
-            _configuration = new LazyRef<DbContextConfiguration>(
+            _configuration = new LazyRef<DbContextServices>(
                 () => Initialize(serviceProvider, options));
 
             _logger = new LazyRef<ILogger>(CreateLogger);
@@ -96,7 +96,7 @@ namespace Microsoft.Data.Entity
             var serviceProvider = DbContextActivator.ServiceProvider;
 
             InitializeSets(serviceProvider, options);
-            _configuration = new LazyRef<DbContextConfiguration>(() => Initialize(serviceProvider, options));
+            _configuration = new LazyRef<DbContextServices>(() => Initialize(serviceProvider, options));
             _logger = new LazyRef<ILogger>(CreateLogger);
             _setInitializer = new LazyRef<DbSetInitializer>(GetSetInitializer);
         }
@@ -109,7 +109,7 @@ namespace Microsoft.Data.Entity
             Check.NotNull(options, "options");
 
             InitializeSets(serviceProvider, options);
-            _configuration = new LazyRef<DbContextConfiguration>(() => Initialize(serviceProvider, options));
+            _configuration = new LazyRef<DbContextServices>(() => Initialize(serviceProvider, options));
             _logger = new LazyRef<ILogger>(CreateLogger);
             _setInitializer = new LazyRef<DbSetInitializer>(GetSetInitializer);
         }
@@ -134,7 +134,7 @@ namespace Microsoft.Data.Entity
             return _configuration.Value.ScopedServiceProvider.GetRequiredServiceChecked<StateManager>();
         }
 
-        private DbContextConfiguration Initialize(IServiceProvider serviceProvider, DbContextOptions options)
+        private DbContextServices Initialize(IServiceProvider serviceProvider, DbContextOptions options)
         {
             if (_initializing)
             {
@@ -150,8 +150,8 @@ namespace Microsoft.Data.Entity
                 OnConfiguring(options);
 
                 var providerSource = serviceProvider != null
-                    ? DbContextConfiguration.ServiceProviderSource.Explicit
-                    : DbContextConfiguration.ServiceProviderSource.Implicit;
+                    ? DbContextServices.ServiceProviderSource.Explicit
+                    : DbContextServices.ServiceProviderSource.Implicit;
 
                 serviceProvider = serviceProvider ?? ServiceProviderCache.Instance.GetOrAdd(options);
 
@@ -161,7 +161,7 @@ namespace Microsoft.Data.Entity
                     .ServiceProvider;
 
                 return scopedServiceProvider
-                    .GetRequiredServiceChecked<DbContextConfiguration>()
+                    .GetRequiredServiceChecked<DbContextServices>()
                     .Initialize(scopedServiceProvider, options, this, providerSource);
             }
             finally
@@ -297,7 +297,7 @@ namespace Microsoft.Data.Entity
 
         public virtual Database Database
         {
-            get { return _configuration.Value.ScopedServiceProvider.GetRequiredServiceChecked<ContextService<Database>>().Service; }
+            get { return _configuration.Value.ScopedServiceProvider.GetRequiredServiceChecked<DbContextService<Database>>().Service; }
         }
 
         public virtual ChangeTracker ChangeTracker
@@ -307,7 +307,7 @@ namespace Microsoft.Data.Entity
 
         public virtual IModel Model
         {
-            get { return _configuration.Value.ScopedServiceProvider.GetRequiredServiceChecked<ContextService<IModel>>().Service; }
+            get { return _configuration.Value.ScopedServiceProvider.GetRequiredServiceChecked<DbContextService<IModel>>().Service; }
         }
 
         public virtual DbSet<TEntity> Set<TEntity>()

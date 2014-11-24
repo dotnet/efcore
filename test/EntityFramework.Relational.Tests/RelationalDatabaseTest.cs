@@ -31,7 +31,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
             dbConnectionMock.SetupGet(m => m.Database).Returns("MyDb");
 
             var database = new ConcreteRelationalDatabase(
-                new ContextService<IModel>(model),
+                new DbContextService<IModel>(model),
                 creatorMock.Object,
                 connectionMock.Object,
                 new LoggerFactory());
@@ -78,7 +78,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
             dbConnectionMock.SetupGet(m => m.Database).Returns("MyDb");
 
             var database = new ConcreteRelationalDatabase(
-                new ContextService<IModel>(model),
+                new DbContextService<IModel>(model),
                 creatorMock.Object,
                 connectionMock.Object,
                 new LoggerFactory());
@@ -108,7 +108,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
         private class ConcreteRelationalDatabase : RelationalDatabase
         {
             public ConcreteRelationalDatabase(
-                ContextService<IModel> model,
+                DbContextService<IModel> model,
                 DataStoreCreator dataStoreCreator,
                 DataStoreConnection connection,
                 ILoggerFactory loggerFactory)

@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 {
     public class ChangeDetector : IPropertyListener
     {
-        private readonly ContextService<IModel> _model;
+        private readonly DbContextService<IModel> _model;
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
         }
 
-        public ChangeDetector([NotNull] ContextService<IModel> model)
+        public ChangeDetector([NotNull] DbContextService<IModel> model)
         {
             Check.NotNull(model, "model");
 

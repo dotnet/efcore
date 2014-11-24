@@ -14,11 +14,11 @@ namespace Microsoft.Data.Entity.Identity
     {
         GeneratedValue Next(
             [NotNull] IProperty property,
-            [NotNull] ContextService<DataStoreServices> dataStoreServices);
+            [NotNull] DbContextService<DataStoreServices> dataStoreServices);
 
         Task<GeneratedValue> NextAsync(
             [NotNull] IProperty property,
-            [NotNull] ContextService<DataStoreServices> dataStoreServices,
+            [NotNull] DbContextService<DataStoreServices> dataStoreServices,
             CancellationToken cancellationToken = default(CancellationToken));
     }
 }

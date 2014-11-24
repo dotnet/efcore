@@ -51,8 +51,8 @@ namespace Microsoft.Data.Entity.Commands
             using (var context = CreateContext(contextType))
             {
                 var scopedServiceProvider = ((IDbContextServices)context).ScopedServiceProvider;
-                var options = scopedServiceProvider.GetRequiredService<ContextService<IDbContextOptions>>();
-                var model = scopedServiceProvider.GetRequiredService<ContextService<IModel>>();
+                var options = scopedServiceProvider.GetRequiredService<DbContextService<IDbContextOptions>>();
+                var model = scopedServiceProvider.GetRequiredService<DbContextService<IModel>>();
 
                 var extension = RelationalOptionsExtension.Extract(options.Service);
                 if (extension.MigrationNamespace == null)
@@ -183,7 +183,7 @@ namespace Microsoft.Data.Entity.Commands
             var context = ContextTool.CreateContext(type);
 
             var scopedServiceProvider = ((IDbContextServices)context).ScopedServiceProvider;
-            var options = scopedServiceProvider.GetRequiredService<ContextService<IDbContextOptions>>();
+            var options = scopedServiceProvider.GetRequiredService<DbContextService<IDbContextOptions>>();
 
             var loggerFactory = scopedServiceProvider.GetRequiredService<ILoggerFactory>();
             loggerFactory.AddProvider(_loggerProvider);
@@ -199,7 +199,7 @@ namespace Microsoft.Data.Entity.Commands
 
         private Migrator CreateMigrator(DbContext context)
         {
-            return ((IDbContextServices)context).ScopedServiceProvider.GetRequiredService<ContextService<Migrator>>().Service;
+            return ((IDbContextServices)context).ScopedServiceProvider.GetRequiredService<DbContextService<Migrator>>().Service;
         }
 
         private IEnumerable<Type> GetMigrationTypes()

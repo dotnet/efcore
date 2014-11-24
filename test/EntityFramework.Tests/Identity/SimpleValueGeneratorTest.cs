@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.Tests.Identity
 
             var generator = new TestValueGenerator();
 
-            var generatedValue = generator.Next(property, new ContextService<DataStoreServices>(() => null));
+            var generatedValue = generator.Next(property, new DbContextService<DataStoreServices>(() => null));
 
             Assert.Same(generator.Property, property);
 
@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.Tests.Identity
 
             var generator = new TestValueGenerator();
 
-            var generatedValue = await generator.NextAsync(property, new ContextService<DataStoreServices>(() => null));
+            var generatedValue = await generator.NextAsync(property, new DbContextService<DataStoreServices>(() => null));
 
             Assert.Same(generator.Property, property);
 

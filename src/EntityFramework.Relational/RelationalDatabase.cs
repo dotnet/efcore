@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.Relational
     public abstract class RelationalDatabase : Database
     {
         protected RelationalDatabase(
-                   [NotNull] ContextService<IModel> model,
+                   [NotNull] DbContextService<IModel> model,
                    [NotNull] DataStoreCreator dataStoreCreator,
                    [NotNull] DataStoreConnection connection,
                    [NotNull] ILoggerFactory loggerFactory)

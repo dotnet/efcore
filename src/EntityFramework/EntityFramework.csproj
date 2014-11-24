@@ -75,7 +75,7 @@
     <Compile Include="ChangeTracking\ValueGenerationManager.cs" />
     <Compile Include="DbContext.cs" />
     <Compile Include="Identity\GeneratedValue.cs" />
-    <Compile Include="Infrastructure\ContextService.cs" />
+    <Compile Include="Infrastructure\DbContextService.cs" />
     <Compile Include="Infrastructure\DbContextActivator.cs" />
     <Compile Include="DbContextOptions.cs" />
     <Compile Include="DbContextOptions`.cs" />
@@ -202,7 +202,7 @@
     <Compile Include="Extensions\EntityServiceCollectionExtensions.cs" />
     <Compile Include="Extensions\QueryableExtensions.cs" />
     <Compile Include="Infrastructure\Database.cs" />
-    <Compile Include="Infrastructure\DbContextConfiguration.cs" />
+    <Compile Include="Infrastructure\DbContextServices.cs" />
     <Compile Include="Infrastructure\DbSetFinder.cs" />
     <Compile Include="Infrastructure\DbSetInitializer.cs" />
     <Compile Include="Infrastructure\DbSetSource.cs" />

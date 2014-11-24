@@ -29,8 +29,8 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             {
                 var historyRepository = new HistoryRepository(
                     serviceProvider,
-                    new ContextService<IDbContextOptions>(new DbContextOptions()),
-                    new ContextService<DbContext>(context));
+                    new DbContextService<IDbContextOptions>(new DbContextOptions()),
+                    new DbContextService<DbContext>(context));
 
                 Assert.Equal("__MigrationHistory", historyRepository.TableName);
             }
@@ -45,8 +45,8 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             {
                 var historyRepository = new HistoryRepository(
                     serviceProvider,
-                    new ContextService<IDbContextOptions>(new DbContextOptions()),
-                    new ContextService<DbContext>(context));
+                    new DbContextService<IDbContextOptions>(new DbContextOptions()),
+                    new DbContextService<DbContext>(context));
 
                 var historyModel1 = historyRepository.HistoryModel;
                 var historyModel2 = historyRepository.HistoryModel;
@@ -74,15 +74,15 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             {
                 var historyRepository = new HistoryRepository(
                     serviceProvider,
-                    new ContextService<IDbContextOptions>(new DbContextOptions()),
-                    new ContextService<DbContext>(context));
+                    new DbContextService<IDbContextOptions>(new DbContextOptions()),
+                    new DbContextService<DbContext>(context));
 
                 using (var historyContext = historyRepository.CreateHistoryContext())
                 {
                     Assert.Same(historyRepository.HistoryModel, historyContext.Model);
 
-                    var options = ((IDbContextServices)context).ScopedServiceProvider.GetRequiredService<ContextService<IDbContextOptions>>();
-                    var historyOptions = ((IDbContextServices)historyContext).ScopedServiceProvider.GetRequiredService<ContextService<IDbContextOptions>>();
+                    var options = ((IDbContextServices)context).ScopedServiceProvider.GetRequiredService<DbContextService<IDbContextOptions>>();
+                    var historyOptions = ((IDbContextServices)historyContext).ScopedServiceProvider.GetRequiredService<DbContextService<IDbContextOptions>>();
 
                     var extensions = options.Service.Extensions;
                     var historyExtensions = historyOptions.Service.Extensions;
@@ -106,8 +106,8 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             {
                 var historyRepository = new HistoryRepository(
                     serviceProvider,
-                    new ContextService<IDbContextOptions>(new DbContextOptions()),
-                    new ContextService<DbContext>(context));
+                    new DbContextService<IDbContextOptions>(new DbContextOptions()),
+                    new DbContextService<DbContext>(context));
 
                 using (var historyContext = historyRepository.CreateHistoryContext())
                 {
@@ -144,8 +144,8 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             {
                 var historyRepositoryMock = new Mock<HistoryRepository>(
                     serviceProvider,
-                    new ContextService<IDbContextOptions>(new DbContextOptions()),
-                    new ContextService<DbContext>(context))
+                    new DbContextService<IDbContextOptions>(new DbContextOptions()),
+                    new DbContextService<DbContext>(context))
                 { CallBase = true };
 
                 historyRepositoryMock
@@ -178,8 +178,8 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             {
                 var historyRepository = new HistoryRepository(
                     serviceProvider,
-                    new ContextService<IDbContextOptions>(new DbContextOptions()),
-                    new ContextService<DbContext>(context));
+                    new DbContextService<IDbContextOptions>(new DbContextOptions()),
+                    new DbContextService<DbContext>(context));
 
                 var sqlStatements = historyRepository.GenerateInsertMigrationSql(
                     new MigrationInfo("000000000000001_Foo"), new DmlSqlGenerator());
@@ -200,8 +200,8 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             {
                 var historyRepository = new Mock<HistoryRepository>(
                     serviceProvider,
-                    new ContextService<IDbContextOptions>(new DbContextOptions()),
-                    new ContextService<DbContext>(context))
+                    new DbContextService<IDbContextOptions>(new DbContextOptions()),
+                    new DbContextService<DbContext>(context))
                 { CallBase = true };
 
                 historyRepository.Protected().Setup<string>("GetContextKey").Returns("SomeContextKey");
@@ -225,8 +225,8 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             {
                 var historyRepository = new HistoryRepository(
                     serviceProvider,
-                    new ContextService<IDbContextOptions>(new DbContextOptions()),
-                    new ContextService<DbContext>(context));
+                    new DbContextService<IDbContextOptions>(new DbContextOptions()),
+                    new DbContextService<DbContext>(context));
 
                 var sqlStatements = historyRepository.GenerateDeleteMigrationSql(
                     new MigrationInfo("000000000000001_Foo"), new DmlSqlGenerator());

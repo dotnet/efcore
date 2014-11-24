@@ -37,7 +37,7 @@ namespace Microsoft.Data.Entity.Relational
 
         protected RelationalDataStore(
             [NotNull] StateManager stateManager,
-            [NotNull] ContextService<IModel> model,
+            [NotNull] DbContextService<IModel> model,
             [NotNull] EntityKeyFactorySource entityKeyFactorySource,
             [NotNull] EntityMaterializerSource entityMaterializerSource,
             [NotNull] ClrCollectionAccessorSource collectionAccessorSource,

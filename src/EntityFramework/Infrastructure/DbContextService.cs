@@ -12,18 +12,18 @@ namespace Microsoft.Data.Entity.Infrastructure
     ///     of the currrently in scope <see cref="DbContext" />.
     /// </summary>
     /// <typeparam name="TService">The service that will be dynamically resolved.</typeparam>
-    public class ContextService<TService>
+    public class DbContextService<TService>
     {
         private readonly LazyRef<TService> _service;
 
-        public ContextService([NotNull] Func<TService> initializer)
+        public DbContextService([NotNull] Func<TService> initializer)
         {
             Check.NotNull(initializer, "initializer");
 
             _service = new LazyRef<TService>(initializer);
         }
 
-        public ContextService([CanBeNull] TService service)
+        public DbContextService([CanBeNull] TService service)
         {
             _service = new LazyRef<TService>(service);
         }

@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.Storage
     public abstract class DataStore
     {
         private readonly StateManager _stateManager;
-        private readonly ContextService<IModel> _model;
+        private readonly DbContextService<IModel> _model;
         private readonly EntityKeyFactorySource _entityKeyFactorySource;
         private readonly EntityMaterializerSource _entityMaterializerSource;
         private readonly ClrCollectionAccessorSource _collectionAccessorSource;
@@ -37,7 +37,7 @@ namespace Microsoft.Data.Entity.Storage
 
         protected DataStore(
             [NotNull] StateManager stateManager,
-            [NotNull] ContextService<IModel> model,
+            [NotNull] DbContextService<IModel> model,
             [NotNull] EntityKeyFactorySource entityKeyFactorySource,
             [NotNull] EntityMaterializerSource entityMaterializerSource,
             [NotNull] ClrCollectionAccessorSource collectionAccessorSource,

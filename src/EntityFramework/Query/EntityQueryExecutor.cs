@@ -20,13 +20,13 @@ namespace Microsoft.Data.Entity.Query
 {
     public class EntityQueryExecutor : IQueryExecutor
     {
-        private readonly ContextService<DbContext> _context;
-        private readonly ContextService<DataStore> _dataStore;
+        private readonly DbContextService<DbContext> _context;
+        private readonly DbContextService<DataStore> _dataStore;
         private readonly LazyRef<ILogger> _logger;
 
         public EntityQueryExecutor(
-            [NotNull] ContextService<DbContext> context,
-            [NotNull] ContextService<DataStore> dataStore,
+            [NotNull] DbContextService<DbContext> context,
+            [NotNull] DbContextService<DataStore> dataStore,
             [NotNull] ILoggerFactory loggerFactory)
         {
             Check.NotNull(context, "context");

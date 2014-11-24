@@ -15,8 +15,8 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
 {
     public class MigrationAssembly
     {
-        private readonly ContextService<DbContext> _context;
-        private readonly ContextService<IDbContextOptions> _options;
+        private readonly DbContextService<DbContext> _context;
+        private readonly DbContextService<IDbContextOptions> _options;
 
         private IReadOnlyList<Migration> _migrations;
         private IModel _model;
@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
         {
         }
 
-        public MigrationAssembly([NotNull] ContextService<DbContext> context, [NotNull] ContextService<IDbContextOptions> options)
+        public MigrationAssembly([NotNull] DbContextService<DbContext> context, [NotNull] DbContextService<IDbContextOptions> options)
         {
             Check.NotNull(context, "context");
             Check.NotNull(options, "options");

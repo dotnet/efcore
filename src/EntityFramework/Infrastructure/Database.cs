@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.Infrastructure
 {
     public abstract class Database : IDatabaseInternals
     {
-        private readonly ContextService<IModel> _model;
+        private readonly DbContextService<IModel> _model;
         private readonly DataStoreCreator _dataStoreCreator;
         private readonly DataStoreConnection _connection;
         private readonly LazyRef<ILogger> _logger;
@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.Infrastructure
         }
 
         protected Database(
-            [NotNull] ContextService<IModel> model,
+            [NotNull] DbContextService<IModel> model,
             [NotNull] DataStoreCreator dataStoreCreator,
             [NotNull] DataStoreConnection connection,
             [NotNull] ILoggerFactory loggerFactory)

@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
         private readonly SqlStatementExecutor _sqlExecutor;
         private readonly RelationalDataStoreCreator _storeCreator;
         private readonly RelationalConnection _connection;
-        private readonly ContextService<ILogger> _logger;
+        private readonly DbContextService<ILogger> _logger;
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
@@ -67,7 +67,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             _sqlExecutor = sqlExecutor;
             _storeCreator = storeCreator;
             _connection = connection;
-            _logger = new ContextService<ILogger>(loggerFactory.Create<Migrator>);
+            _logger = new DbContextService<ILogger>(loggerFactory.Create<Migrator>);
         }
 
         public virtual HistoryRepository HistoryRepository

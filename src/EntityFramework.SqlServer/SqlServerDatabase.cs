@@ -12,7 +12,7 @@ namespace Microsoft.Data.Entity.SqlServer
     public class SqlServerDatabase : MigrationsEnabledDatabase
     {
         public SqlServerDatabase(
-            [NotNull] ContextService<IModel> model,
+            [NotNull] DbContextService<IModel> model,
             [NotNull] SqlServerDataStoreCreator dataStoreCreator,
             [NotNull] SqlServerConnection connection,
             [NotNull] SqlServerMigrator migrator,

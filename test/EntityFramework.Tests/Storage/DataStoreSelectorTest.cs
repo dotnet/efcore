@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Tests.Storage
 
             var selector = new DataStoreSelector(new[] { source });
 
-            Assert.Same(services, selector.SelectDataStore(DbContextConfiguration.ServiceProviderSource.Explicit));
+            Assert.Same(services, selector.SelectDataStore(DbContextServices.ServiceProviderSource.Explicit));
         }
 
         [Fact]
@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.Tests.Storage
 
             Assert.Equal(Strings.MultipleDataStoresConfigured("'DataStore1' 'DataStore2' 'DataStore4' "),
                 Assert.Throws<InvalidOperationException>(
-                    () => selector.SelectDataStore(DbContextConfiguration.ServiceProviderSource.Explicit)).Message);
+                    () => selector.SelectDataStore(DbContextServices.ServiceProviderSource.Explicit)).Message);
         }
 
         [Fact]
@@ -45,7 +45,7 @@ namespace Microsoft.Data.Entity.Tests.Storage
 
             Assert.Equal(Strings.NoDataStoreService,
                 Assert.Throws<InvalidOperationException>(
-                    () => selector.SelectDataStore(DbContextConfiguration.ServiceProviderSource.Explicit)).Message);
+                    () => selector.SelectDataStore(DbContextServices.ServiceProviderSource.Explicit)).Message);
         }
 
         [Fact]
@@ -55,7 +55,7 @@ namespace Microsoft.Data.Entity.Tests.Storage
 
             Assert.Equal(Strings.NoDataStoreConfigured,
                 Assert.Throws<InvalidOperationException>(
-                    () => selector.SelectDataStore(DbContextConfiguration.ServiceProviderSource.Implicit)).Message);
+                    () => selector.SelectDataStore(DbContextServices.ServiceProviderSource.Implicit)).Message);
         }
 
         [Fact]
@@ -69,7 +69,7 @@ namespace Microsoft.Data.Entity.Tests.Storage
 
             Assert.Equal(Strings.MultipleDataStoresAvailable("'DataStore1' 'DataStore2' 'DataStore3' "),
                 Assert.Throws<InvalidOperationException>(
-                    () => selector.SelectDataStore(DbContextConfiguration.ServiceProviderSource.Explicit)).Message);
+                    () => selector.SelectDataStore(DbContextServices.ServiceProviderSource.Explicit)).Message);
         }
 
         [Fact]
@@ -81,7 +81,7 @@ namespace Microsoft.Data.Entity.Tests.Storage
 
             Assert.Equal(Strings.NoDataStoreConfigured,
                 Assert.Throws<InvalidOperationException>(
-                    () => selector.SelectDataStore(DbContextConfiguration.ServiceProviderSource.Explicit)).Message);
+                    () => selector.SelectDataStore(DbContextServices.ServiceProviderSource.Explicit)).Message);
         }
 
         [Fact]
@@ -92,7 +92,7 @@ namespace Microsoft.Data.Entity.Tests.Storage
 
             var selector = new DataStoreSelector(new[] { source });
 
-            Assert.Same(services, selector.SelectDataStore(DbContextConfiguration.ServiceProviderSource.Explicit));
+            Assert.Same(services, selector.SelectDataStore(DbContextServices.ServiceProviderSource.Explicit));
         }
 
         private static DataStoreSource CreateSource(string name, bool configured, bool available, DataStoreServices services = null)

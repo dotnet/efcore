@@ -14,13 +14,13 @@ namespace Microsoft.Data.Entity.ChangeTracking
 {
     public class ValueGenerationManager
     {
-        private readonly ContextService<ValueGeneratorCache> _valueGeneratorCache;
-        private readonly ContextService<DataStoreServices> _dataStoreServices;
+        private readonly DbContextService<ValueGeneratorCache> _valueGeneratorCache;
+        private readonly DbContextService<DataStoreServices> _dataStoreServices;
         private readonly ForeignKeyValuePropagator _foreignKeyValuePropagator;
 
         public ValueGenerationManager(
-            [NotNull] ContextService<ValueGeneratorCache> valueGeneratorCache,
-            [NotNull] ContextService<DataStoreServices> dataStoreServices,
+            [NotNull] DbContextService<ValueGeneratorCache> valueGeneratorCache,
+            [NotNull] DbContextService<DataStoreServices> dataStoreServices,
             [NotNull] ForeignKeyValuePropagator foreignKeyValuePropagator)
         {
             Check.NotNull(valueGeneratorCache, "valueGeneratorCache");

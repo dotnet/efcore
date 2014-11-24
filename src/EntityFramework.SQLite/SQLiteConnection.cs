@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.Sqlite
         {
         }
 
-        public SqliteConnection([NotNull] ContextService<IDbContextOptions> options, [NotNull] ILoggerFactory loggerFactory)
+        public SqliteConnection([NotNull] DbContextService<IDbContextOptions> options, [NotNull] ILoggerFactory loggerFactory)
             : base(options, loggerFactory)
         {
         }

@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.Redis.Tests
         {
             var model = Mock.Of<IModel>();
             var connection = Mock.Of<RedisConnection>();
-            var configurationMock = new Mock<DbContextConfiguration>();
+            var configurationMock = new Mock<DbContextServices>();
             configurationMock.Setup(m => m.Model).Returns(model);
             configurationMock.Setup(m => m.Connection).Returns(connection);
 
@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.Redis.Tests
             configurationMock.Setup(m => m.DataStoreCreator).Returns(creatorMock.Object);
 
             var database = new RedisDatabase(
-                new ContextService<IModel>(() => model),
+                new DbContextService<IModel>(() => model),
                 creatorMock.Object,
                 connection,
                 new LoggerFactory());

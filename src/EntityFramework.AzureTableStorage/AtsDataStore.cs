@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
     public class AtsDataStore : DataStore
     {
         private readonly AtsQueryFactory _queryFactory;
-        private readonly ContextService<DbContext> _context;
+        private readonly DbContextService<DbContext> _context;
         protected readonly AtsConnection Connection;
         internal TableEntityAdapterFactory EntityFactory;
         private const int MaxBatchOperations = 100;
@@ -43,7 +43,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
 
         public AtsDataStore(
             [NotNull] StateManager stateManager,
-            [NotNull] ContextService<IModel> model,
+            [NotNull] DbContextService<IModel> model,
             [NotNull] EntityKeyFactorySource entityKeyFactorySource,
             [NotNull] EntityMaterializerSource entityMaterializerSource,
             [NotNull] ClrCollectionAccessorSource collectionAccessorSource,
@@ -51,7 +51,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
             [NotNull] AtsConnection connection,
             [NotNull] AtsQueryFactory queryFactory,
             [NotNull] TableEntityAdapterFactory tableEntityFactory,
-            [NotNull] ContextService<DbContext> context,
+            [NotNull] DbContextService<DbContext> context,
             [NotNull] ILoggerFactory loggerFactory)
             : base(stateManager, model, entityKeyFactorySource, entityMaterializerSource,
                 collectionAccessorSource, propertySetterSource, loggerFactory)

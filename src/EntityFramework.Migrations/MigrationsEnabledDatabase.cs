@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.Migrations
         private readonly Migrator _migrator;
 
         protected MigrationsEnabledDatabase(
-            [NotNull] ContextService<IModel> model,
+            [NotNull] DbContextService<IModel> model,
             [NotNull] DataStoreCreator dataStoreCreator,
             [NotNull] DataStoreConnection connection,
             [NotNull] Migrator migrator,

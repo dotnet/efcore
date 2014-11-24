@@ -328,14 +328,14 @@ namespace Microsoft.Data.Entity.Redis.Tests
             public sbyte SignedByte { get; set; }
         }
 
-        private ContextService<DataStoreServices> CreateStoreServices(IServiceProvider serviceProvider = null)
+        private DbContextService<DataStoreServices> CreateStoreServices(IServiceProvider serviceProvider = null)
         {
             serviceProvider = serviceProvider
                               ?? TestHelpers.CreateServiceProvider(new ServiceCollection()
                                   .AddScoped<RedisDatabase, FakeRedisDatabase>()
                                   .AddInstance(new FakeRedisSequence()));
 
-            return TestHelpers.CreateContextServices(serviceProvider, _model).GetRequiredService<ContextService<DataStoreServices>>();
+            return TestHelpers.CreateContextServices(serviceProvider, _model).GetRequiredService<DbContextService<DataStoreServices>>();
         }
 
         private class FakeRedisSequence
@@ -348,7 +348,7 @@ namespace Microsoft.Data.Entity.Redis.Tests
             private readonly FakeRedisSequence _redisSequence;
 
             public FakeRedisDatabase(
-                ContextService<IModel> model,
+                DbContextService<IModel> model,
                 RedisDataStoreCreator dataStoreCreator,
                 RedisConnection connection,
                 FakeRedisSequence redisSequence,

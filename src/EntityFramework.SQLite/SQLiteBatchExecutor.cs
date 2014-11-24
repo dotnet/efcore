@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.Sqlite
 
         public SqliteBatchExecutor(
             [NotNull] SqliteTypeMapper typeMapper,
-            [NotNull] ContextService<DbContext> context,
+            [NotNull] DbContextService<DbContext> context,
             [NotNull] ILoggerFactory loggerFactory)
             : base(typeMapper, context, loggerFactory)
         {

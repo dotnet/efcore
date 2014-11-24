@@ -37,9 +37,9 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
             _queue = new Queue<IList<TableResult>>();
         }
 
-        private static DbContextConfiguration BuildConfig()
+        private static DbContextServices BuildConfig()
         {
-            var config = new Mock<DbContextConfiguration>();
+            var config = new Mock<DbContextServices>();
             config.Setup(c => c.Context).Returns(new Mock<DbContext>().Object);
             return config.Object;
         }
@@ -147,7 +147,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
         {
             var store = new AtsDataStore(
                 Mock.Of<StateManager>(),
-                new ContextService<IModel>(() => null),
+                new DbContextService<IModel>(() => null),
                 Mock.Of<EntityKeyFactorySource>(),
                 Mock.Of<EntityMaterializerSource>(),
                 Mock.Of<ClrCollectionAccessorSource>(),
@@ -155,7 +155,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
                 _connection.Object,
                 new AtsQueryFactory(new AtsValueReaderFactory()),
                 new TableEntityAdapterFactory(),
-                new ContextService<DbContext>(Mock.Of<DbContext>()),
+                new DbContextService<DbContext>(Mock.Of<DbContext>()),
                 new LoggerFactory());
             return store;
         }

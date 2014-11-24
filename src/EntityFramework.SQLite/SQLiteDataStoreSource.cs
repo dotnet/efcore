@@ -9,7 +9,7 @@ namespace Microsoft.Data.Entity.Sqlite
 {
     public class SqliteDataStoreSource : DataStoreSource<SqliteDataStoreServices, SqliteOptionsExtension>
     {
-        public SqliteDataStoreSource([NotNull] DbContextServices services, [NotNull] LazyRef<IDbContextOptions> options)
+        public SqliteDataStoreSource([NotNull] DbContextServices services, [NotNull] DbContextService<IDbContextOptions> options)
             : base(services, options)
         {
         }

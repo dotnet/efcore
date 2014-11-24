@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.Storage
             _sources = sources == null ? new DataStoreSource[0] : sources.ToArray();
         }
 
-        public virtual DataStoreServices SelectDataStore(DbContextConfiguration.ServiceProviderSource providerSource)
+        public virtual DataStoreServices SelectDataStore(DbContextServices.ServiceProviderSource providerSource)
         {
             Check.IsDefined(providerSource, "providerSource");
 
@@ -47,7 +47,7 @@ namespace Microsoft.Data.Entity.Storage
 
             if (_sources.Length == 0)
             {
-                if (providerSource == DbContextConfiguration.ServiceProviderSource.Implicit)
+                if (providerSource == DbContextServices.ServiceProviderSource.Implicit)
                 {
                     throw new InvalidOperationException(Strings.NoDataStoreConfigured);
                 }

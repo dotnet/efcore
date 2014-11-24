@@ -289,11 +289,11 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             Assert.True(checks.All(c => c));
         }
 
-        private ContextService<DataStoreServices> CreateStoreServices(IServiceProvider serviceProvider = null)
+        private DbContextService<DataStoreServices> CreateStoreServices(IServiceProvider serviceProvider = null)
         {
             serviceProvider = serviceProvider ?? TestHelpers.CreateServiceProvider();
 
-            return TestHelpers.CreateContextServices(serviceProvider, _model).GetRequiredService<ContextService<DataStoreServices>>();
+            return TestHelpers.CreateContextServices(serviceProvider, _model).GetRequiredService<DbContextService<DataStoreServices>>();
         }
 
         private class FakeSqlStatementExecutor : SqlStatementExecutor

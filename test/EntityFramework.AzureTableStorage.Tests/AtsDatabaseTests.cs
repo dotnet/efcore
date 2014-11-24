@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
             creatorMock.Setup(m => m.EnsureDeleted(model)).Returns(true);
 
             var database = new AtsDatabase(
-                new ContextService<IModel>(() => model),
+                new DbContextService<IModel>(() => model),
                 creatorMock.Object,
                 connection,
                 new LoggerFactory());

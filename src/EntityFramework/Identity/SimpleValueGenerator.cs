@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.Identity
     {
         public abstract GeneratedValue Next([NotNull] IProperty property);
 
-        public virtual GeneratedValue Next(IProperty property, ContextService<DataStoreServices> dataStoreServices)
+        public virtual GeneratedValue Next(IProperty property, DbContextService<DataStoreServices> dataStoreServices)
         {
             Check.NotNull(property, "property");
 
@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.Identity
 
         public virtual Task<GeneratedValue> NextAsync(
             IProperty property,
-            ContextService<DataStoreServices> dataStoreServices,
+            DbContextService<DataStoreServices> dataStoreServices,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(property, "property");

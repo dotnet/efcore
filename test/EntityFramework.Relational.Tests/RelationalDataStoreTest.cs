@@ -73,7 +73,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
         {
             public FakeRelationalDataStore(
                 StateManager stateManager,
-                ContextService<IModel> model,
+                DbContextService<IModel> model,
                 EntityKeyFactorySource entityKeyFactorySource,
                 EntityMaterializerSource entityMaterializerSource,
                 ClrCollectionAccessorSource collectionAccessorSource,

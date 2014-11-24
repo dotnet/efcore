@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.Tests
             var connection = Mock.Of<DataStoreConnection>();
 
             var database = new ConcreteDatabase(
-                    new ContextService<IModel>(() => model),
+                    new DbContextService<IModel>(() => model),
                     creatorMock.Object,
                     connection,
                     new LoggerFactory());
@@ -50,7 +50,7 @@ namespace Microsoft.Data.Entity.Tests
             creatorMock.Setup(m => m.EnsureDeletedAsync(model, cancellationToken)).Returns(Task.FromResult(true));
 
             var database = new ConcreteDatabase(
-                    new ContextService<IModel>(() => model),
+                    new DbContextService<IModel>(() => model),
                     creatorMock.Object,
                     Mock.Of<DataStoreConnection>(),
                     new LoggerFactory());
@@ -65,7 +65,7 @@ namespace Microsoft.Data.Entity.Tests
         private class ConcreteDatabase : Database
         {
             public ConcreteDatabase(
-                ContextService<IModel> model,
+                DbContextService<IModel> model,
                 DataStoreCreator dataStoreCreator,
                 DataStoreConnection connection,
                 ILoggerFactory loggerFactory)

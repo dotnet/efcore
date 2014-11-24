@@ -20,8 +20,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
             StateEntrySubscriber subscriber,
             StateEntryNotifier notifier,
             ValueGenerationManager valueGeneration,
-            ContextService<IModel> model,
-            ContextService<DataStore> dataStore)
+            DbContextService<IModel> model,
+            DbContextService<DataStore> dataStore)
             : base(factory, entityKeyFactorySource, subscriber, notifier, valueGeneration, model, dataStore)
         {
         }

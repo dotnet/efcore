@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity.InMemory
     public class InMemoryDatabaseFacade : Database
     {
         public InMemoryDatabaseFacade(
-            [NotNull] ContextService<IModel> model,
+            [NotNull] DbContextService<IModel> model,
             [NotNull] InMemoryDataStoreCreator dataStoreCreator,
             [NotNull] InMemoryConnection connection,
             [NotNull] ILoggerFactory loggerFactory)

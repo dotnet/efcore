@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             principalEntry.RelationshipsSnapshot[keyProperty] = 77;
             principalEntry.EntityState = EntityState.Added;
 
-            var changeDetector = new ChangeDetector(new ContextService<IModel>(model));
+            var changeDetector = new ChangeDetector(new DbContextService<IModel>(model));
 
             Assert.Same(principalEntry, stateManager.TryGetEntry(new SimpleEntityKey<int>(entityType, -1)));
 
@@ -59,7 +59,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             principalEntry.RelationshipsSnapshot[keyProperty] = 77;
             principalEntry.EntityState = EntityState.Added;
 
-            var changeDetector = new ChangeDetector(new ContextService<IModel>(model));
+            var changeDetector = new ChangeDetector(new DbContextService<IModel>(model));
 
             Assert.Same(principalEntry, stateManager.TryGetEntry(new SimpleEntityKey<int>(entityType, -1)));
 
@@ -88,7 +88,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             principalEntry.RelationshipsSnapshot[keyProperty] = -1;
             principalEntry.EntityState = EntityState.Added;
 
-            var changeDetector = new ChangeDetector(new ContextService<IModel>(model));
+            var changeDetector = new ChangeDetector(new DbContextService<IModel>(model));
 
             Assert.Same(principalEntry, stateManager.TryGetEntry(new SimpleEntityKey<int>(entityType, -1)));
 
@@ -117,7 +117,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             principalEntry.RelationshipsSnapshot[keyProperty] = -1;
             principalEntry.EntityState = EntityState.Added;
 
-            var changeDetector = new ChangeDetector(new ContextService<IModel>(model));
+            var changeDetector = new ChangeDetector(new DbContextService<IModel>(model));
 
             Assert.Same(principalEntry, stateManager.TryGetEntry(new SimpleEntityKey<int>(entityType, -1)));
 
@@ -146,7 +146,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             principalEntry.RelationshipsSnapshot[property] = "Blue";
             principalEntry.EntityState = EntityState.Added;
 
-            var changeDetector = new ChangeDetector(new ContextService<IModel>(model));
+            var changeDetector = new ChangeDetector(new DbContextService<IModel>(model));
 
             Assert.Same(principalEntry, stateManager.TryGetEntry(new SimpleEntityKey<int>(entityType, -1)));
 
@@ -176,7 +176,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             principalEntry.RelationshipsSnapshot[property] = "Blue";
             principalEntry.EntityState = EntityState.Added;
 
-            var changeDetector = new ChangeDetector(new ContextService<IModel>(model));
+            var changeDetector = new ChangeDetector(new DbContextService<IModel>(model));
 
             Assert.Same(principalEntry, stateManager.TryGetEntry(new SimpleEntityKey<int>(entityType, -1)));
 
@@ -206,7 +206,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             principalEntry.RelationshipsSnapshot[keyProperty] = 77;
             principalEntry.EntityState = EntityState.Added;
 
-            var changeDetector = new ChangeDetector(new ContextService<IModel>(model));
+            var changeDetector = new ChangeDetector(new DbContextService<IModel>(model));
 
             Assert.Same(principalEntry, stateManager.TryGetEntry(new SimpleEntityKey<int>(entityType, -1)));
 
@@ -235,7 +235,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             principalEntry.RelationshipsSnapshot[keyProperty] = 77;
             principalEntry.EntityState = EntityState.Added;
 
-            var changeDetector = new ChangeDetector(new ContextService<IModel>(model));
+            var changeDetector = new ChangeDetector(new DbContextService<IModel>(model));
 
             Assert.Same(principalEntry, stateManager.TryGetEntry(new SimpleEntityKey<int>(entityType, -1)));
 

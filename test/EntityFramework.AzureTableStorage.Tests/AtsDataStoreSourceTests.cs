@@ -13,15 +13,15 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
         [Fact]
         public void Available_when_configured()
         {
-            var config = new DbContextConfiguration();
+            var config = new DbContextServices();
             var options = new DbContextOptions();
             config.Initialize(
                 Mock.Of<IServiceProvider>(),
                 options,
                 Mock.Of<DbContext>(),
-                DbContextConfiguration.ServiceProviderSource.Implicit);
+                DbContextServices.ServiceProviderSource.Implicit);
 
-            var source = new AtsDataStoreSource(config, new ContextService<IDbContextOptions>(options));
+            var source = new AtsDataStoreSource(config, new DbContextService<IDbContextOptions>(options));
 
             Assert.False(source.IsAvailable);
 
@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage.Tests
         {
             Assert.Equal(
                 "AzureTableStorage", 
-                new AtsDataStoreSource(Mock.Of<DbContextConfiguration>(),  new ContextService<IDbContextOptions>(() => null)).Name);
+                new AtsDataStoreSource(Mock.Of<DbContextServices>(),  new DbContextService<IDbContextOptions>(() => null)).Name);
         }
     }
 }

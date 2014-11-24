@@ -38,8 +38,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             for (var i = 0; i < 100; i++)
             {
                 var generatedValue = async
-                    ? await sequentialGuidIdentityGenerator.NextAsync(property, new ContextService<DataStoreServices>(() => null))
-                    : sequentialGuidIdentityGenerator.Next(property, new ContextService<DataStoreServices>(() => null));
+                    ? await sequentialGuidIdentityGenerator.NextAsync(property, new DbContextService<DataStoreServices>(() => null))
+                    : sequentialGuidIdentityGenerator.Next(property, new DbContextService<DataStoreServices>(() => null));
 
                 Assert.False(generatedValue.IsTemporary);
 

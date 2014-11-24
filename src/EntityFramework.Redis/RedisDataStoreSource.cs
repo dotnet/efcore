@@ -9,8 +9,8 @@ namespace Microsoft.Data.Entity.Redis
 {
     public class RedisDataStoreSource : DataStoreSource<RedisDataStoreServices, RedisOptionsExtension>
     {
-        public RedisDataStoreSource([NotNull] DbContextConfiguration configuration, [NotNull] ContextService<IDbContextOptions> options)
-            : base(configuration, options)
+        public RedisDataStoreSource([NotNull] DbContextServices services, [NotNull] DbContextService<IDbContextOptions> options)
+            : base(services, options)
         {
         }
 

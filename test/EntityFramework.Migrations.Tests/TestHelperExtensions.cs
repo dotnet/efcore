@@ -376,7 +376,7 @@ namespace Microsoft.Data.Entity.Tests
 
     public class FakeRelationalConnection : RelationalConnection
     {
-        public FakeRelationalConnection(ContextService<IDbContextOptions> options, ILoggerFactory loggerFactory)
+        public FakeRelationalConnection(DbContextService<IDbContextOptions> options, ILoggerFactory loggerFactory)
             : base(options, loggerFactory)
         {
         }
@@ -389,8 +389,8 @@ namespace Microsoft.Data.Entity.Tests
 
     public class FakeDataStoreSource : DataStoreSource<FakeDataStoreServices, FakeRelationalOptionsExtension>
     {
-        public FakeDataStoreSource(DbContextConfiguration configuration, ContextService<IDbContextOptions> options)
-            : base(configuration, options)
+        public FakeDataStoreSource(DbContextServices services, DbContextService<IDbContextOptions> options)
+            : base(services, options)
         {
         }
 
@@ -477,7 +477,7 @@ namespace Microsoft.Data.Entity.Tests
     public class FakeDatabase : MigrationsEnabledDatabase
     {
         public FakeDatabase(
-            ContextService<IModel> model,
+            DbContextService<IModel> model,
             RecordingDataStoreCreator dataStoreCreator,
             FakeRelationalConnection connection,
             TestMigrator migrator,
@@ -498,7 +498,7 @@ namespace Microsoft.Data.Entity.Tests
     {
         public FakeDataStore(
             StateManager stateManager,
-            ContextService<IModel> model,
+            DbContextService<IModel> model,
             EntityKeyFactorySource entityKeyFactorySource,
             EntityMaterializerSource entityMaterializerSource,
             ClrCollectionAccessorSource collectionAccessorSource,

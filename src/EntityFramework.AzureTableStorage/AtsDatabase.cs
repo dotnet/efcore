@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity.AzureTableStorage
     public class AtsDatabase : Database
     {
         public AtsDatabase(
-            [NotNull] ContextService<IModel> model,
+            [NotNull] DbContextService<IModel> model,
             [NotNull] AtsDataStoreCreator dataStoreCreator,
             [NotNull] AtsConnection connection,
             [NotNull] ILoggerFactory loggerFactory)

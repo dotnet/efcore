@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.Redis.Tests
         public void Returns_typed_database_object()
         {
             var database = new RedisDatabase(
-                new ContextService<IModel>(() => null),
+                new DbContextService<IModel>(() => null),
                 Mock.Of<RedisDataStoreCreator>(),
                 Mock.Of<RedisConnection>(),
                 new LoggerFactory());
@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.Redis.Tests
         public void Throws_when_non_relational_provider_is_in_use()
         {
             var database = new ConcreteDatabase(
-                new ContextService<IModel>(() => null),
+                new DbContextService<IModel>(() => null),
                 Mock.Of<DataStoreCreator>(),
                 Mock.Of<DataStoreConnection>(),
                 new LoggerFactory());
@@ -42,7 +42,7 @@ namespace Microsoft.Data.Entity.Redis.Tests
         private class ConcreteDatabase : Database
         {
             public ConcreteDatabase(
-                ContextService<IModel> model,
+                DbContextService<IModel> model,
                 DataStoreCreator dataStoreCreator,
                 DataStoreConnection connection,
                 ILoggerFactory loggerFactory)

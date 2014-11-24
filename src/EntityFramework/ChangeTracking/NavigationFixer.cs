@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         private readonly ClrPropertyGetterSource _getterSource;
         private readonly ClrCollectionAccessorSource _collectionAccessorSource;
         private readonly StoreGeneratedValuesFactory _storeGeneratedValuesFactory;
-        private readonly ContextService<IModel> _model;
+        private readonly DbContextService<IModel> _model;
         private bool _inFixup;
 
         /// <summary>
@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             [NotNull] ClrPropertySetterSource setterSource,
             [NotNull] ClrCollectionAccessorSource collectionAccessorSource,
             [NotNull] StoreGeneratedValuesFactory storeGeneratedValuesFactory,
-            [NotNull] ContextService<IModel> model)
+            [NotNull] DbContextService<IModel> model)
         {
             Check.NotNull(getterSource, "getterSource");
             Check.NotNull(setterSource, "setterSource");

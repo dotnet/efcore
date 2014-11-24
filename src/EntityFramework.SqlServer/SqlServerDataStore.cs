@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.SqlServer
     {
         public SqlServerDataStore(
             [NotNull] StateManager stateManager,
-            [NotNull] ContextService<IModel> model,
+            [NotNull] DbContextService<IModel> model,
             [NotNull] EntityKeyFactorySource entityKeyFactorySource,
             [NotNull] EntityMaterializerSource entityMaterializerSource,
             [NotNull] ClrCollectionAccessorSource collectionAccessorSource,

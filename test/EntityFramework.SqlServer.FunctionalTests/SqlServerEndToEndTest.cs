@@ -85,7 +85,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                     var contextServices = ((IDbContextServices)db).ScopedServiceProvider;
 
-                    Assert.IsType<SqlStoreWithBufferReader>(contextServices.GetRequiredService<ContextService<DataStore>>().Service);
+                    Assert.IsType<SqlStoreWithBufferReader>(contextServices.GetRequiredService<DbContextService<DataStore>>().Service);
                 }
             }
         }
@@ -94,7 +94,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             public SqlStoreWithBufferReader(
                 StateManager stateManager,
-                ContextService<IModel> model,
+                DbContextService<IModel> model,
                 EntityKeyFactorySource entityKeyFactorySource,
                 EntityMaterializerSource entityMaterializerSource,
                 ClrCollectionAccessorSource collectionAccessorSource,

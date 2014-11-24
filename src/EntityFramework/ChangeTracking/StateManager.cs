@@ -27,8 +27,8 @@ namespace Microsoft.Data.Entity.ChangeTracking
         private readonly StateEntrySubscriber _subscriber;
         private readonly StateEntryNotifier _notifier;
         private readonly ValueGenerationManager _valueGeneration;
-        private readonly ContextService<IModel> _model;
-        private readonly ContextService<DataStore> _dataStore;
+        private readonly DbContextService<IModel> _model;
+        private readonly DbContextService<DataStore> _dataStore;
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
@@ -45,8 +45,8 @@ namespace Microsoft.Data.Entity.ChangeTracking
             [NotNull] StateEntrySubscriber subscriber,
             [NotNull] StateEntryNotifier notifier,
             [NotNull] ValueGenerationManager valueGeneration,
-            [NotNull] ContextService<IModel> model,
-            [NotNull] ContextService<DataStore> dataStore)
+            [NotNull] DbContextService<IModel> model,
+            [NotNull] DbContextService<DataStore> dataStore)
         {
             Check.NotNull(factory, "factory");
             Check.NotNull(entityKeyFactorySource, "entityKeyFactorySource");

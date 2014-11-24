@@ -17,8 +17,8 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
     public class HistoryRepository
     {
         private readonly IServiceProvider _serviceProvider;
-        private readonly ContextService<IDbContextOptions> _options;
-        private readonly ContextService<DbContext> _context;
+        private readonly DbContextService<IDbContextOptions> _options;
+        private readonly DbContextService<DbContext> _context;
         private IModel _historyModel;
         private DbContextOptions _contextOptions;
 
@@ -33,8 +33,8 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
 
         public HistoryRepository(
             [NotNull] IServiceProvider serviceProvider,
-            [NotNull] ContextService<IDbContextOptions> options,
-            [NotNull] ContextService<DbContext> context)
+            [NotNull] DbContextService<IDbContextOptions> options,
+            [NotNull] DbContextService<DbContext> context)
         {
             Check.NotNull(serviceProvider, "serviceProvider");
 

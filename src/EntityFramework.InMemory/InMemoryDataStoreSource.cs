@@ -9,8 +9,8 @@ namespace Microsoft.Data.Entity.InMemory
 {
     public class InMemoryDataStoreSource : DataStoreSource<InMemoryDataStoreServices, InMemoryOptionsExtension>
     {
-        public InMemoryDataStoreSource([NotNull] DbContextConfiguration configuration, [NotNull] ContextService<IDbContextOptions> options)
-            : base(configuration, options)
+        public InMemoryDataStoreSource([NotNull] DbContextServices services, [NotNull] DbContextService<IDbContextOptions> options)
+            : base(services, options)
         {
         }
 

@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.Relational.Update
     public class BatchExecutor
     {
         private readonly RelationalTypeMapper _typeMapper;
-        private readonly ContextService<DbContext> _context;
+        private readonly DbContextService<DbContext> _context;
         private readonly LazyRef<ILogger> _logger;
 
         /// <summary>
@@ -31,7 +31,7 @@ namespace Microsoft.Data.Entity.Relational.Update
 
         public BatchExecutor(
             [NotNull] RelationalTypeMapper typeMapper,
-            [NotNull] ContextService<DbContext> context,
+            [NotNull] DbContextService<DbContext> context,
             [NotNull] ILoggerFactory loggerFactory)
         {
             Check.NotNull(typeMapper, "typeMapper");

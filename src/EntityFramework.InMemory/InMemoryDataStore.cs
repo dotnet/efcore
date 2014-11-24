@@ -35,13 +35,13 @@ namespace Microsoft.Data.Entity.InMemory
 
         public InMemoryDataStore(
              [NotNull] StateManager stateManager,
-             [NotNull] ContextService<IModel> model,
+             [NotNull] DbContextService<IModel> model,
              [NotNull] EntityKeyFactorySource entityKeyFactorySource,
              [NotNull] EntityMaterializerSource entityMaterializerSource,
              [NotNull] ClrCollectionAccessorSource collectionAccessorSource,
              [NotNull] ClrPropertySetterSource propertySetterSource,
              [NotNull] InMemoryDatabase persistentDatabase,
-             [NotNull] ContextService<IDbContextOptions> options,
+             [NotNull] DbContextService<IDbContextOptions> options,
              [NotNull] ILoggerFactory loggerFactory)
             : base(stateManager, model, entityKeyFactorySource, entityMaterializerSource,
                 collectionAccessorSource, propertySetterSource, loggerFactory)

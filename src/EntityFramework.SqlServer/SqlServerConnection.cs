@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.SqlServer
         {
         }
 
-        public SqlServerConnection([NotNull] ContextService<IDbContextOptions> options, [NotNull] ILoggerFactory loggerFactory)
+        public SqlServerConnection([NotNull] DbContextService<IDbContextOptions> options, [NotNull] ILoggerFactory loggerFactory)
             : base(options, loggerFactory)
         {
         }

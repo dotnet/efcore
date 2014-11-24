@@ -601,7 +601,7 @@ namespace Microsoft.Data.Entity.Tests
                 .AddSingleton<FieldMatcher>()
                 .AddSingleton<DataStoreSelector>()
                 .AddScoped<DbSetInitializer>()
-                .AddScoped<DbContextConfiguration>()
+                .AddScoped<DbContextServices>()
                 .AddInstance(factory);
 
             var provider = serviceCollection.BuildServiceProvider();
@@ -888,7 +888,7 @@ namespace Microsoft.Data.Entity.Tests
 
                 Assert.NotNull(serviceProvider.GetRequiredService<FakeService>());
                 Assert.NotSame(serviceProvider, contextServices);
-                Assert.Equal(0, contextServices.GetRequiredService<ContextService<IDbContextOptions>>().Service.Extensions.Count);
+                Assert.Equal(0, contextServices.GetRequiredService<DbContextService<IDbContextOptions>>().Service.Extensions.Count);
             }
         }
 
@@ -908,7 +908,7 @@ namespace Microsoft.Data.Entity.Tests
             using (var context = serviceProvider.GetRequiredService<ContextWithDefaults>())
             {
                 var contextServices = ((IDbContextServices)context).ScopedServiceProvider;
-                var options = contextServices.GetRequiredService<ContextService<IDbContextOptions>>().Service;
+                var options = contextServices.GetRequiredService<DbContextService<IDbContextOptions>>().Service;
 
                 Assert.NotNull(contextServices.GetRequiredService<FakeService>());
                 Assert.Equal(1, options.Extensions.Count);
@@ -932,7 +932,7 @@ namespace Microsoft.Data.Entity.Tests
             using (var context = serviceProvider.GetRequiredService<ContextWithServiceProvider>())
             {
                 var contextServices = ((IDbContextServices)context).ScopedServiceProvider;
-                var options = contextServices.GetRequiredService<ContextService<IDbContextOptions>>().Service;
+                var options = contextServices.GetRequiredService<DbContextService<IDbContextOptions>>().Service;
 
                 Assert.NotNull(contextServices.GetRequiredService<FakeService>());
                 Assert.Equal(1, options.Extensions.Count);
@@ -956,7 +956,7 @@ namespace Microsoft.Data.Entity.Tests
             using (var context = serviceProvider.GetRequiredService<ContextWithOptions>())
             {
                 var contextServices = ((IDbContextServices)context).ScopedServiceProvider;
-                var options = contextServices.GetRequiredService<ContextService<IDbContextOptions>>().Service;
+                var options = contextServices.GetRequiredService<DbContextService<IDbContextOptions>>().Service;
 
                 Assert.NotNull(contextServices.GetRequiredService<FakeService>());
                 Assert.Equal(1, options.Extensions.Count);
@@ -1001,7 +1001,7 @@ namespace Microsoft.Data.Entity.Tests
             using (var context = serviceProvider.GetRequiredService<ContextT>())
             {
                 var contextServices = ((IDbContextServices)context).ScopedServiceProvider;
-                var contextOptions = (DbContextOptions<ContextT>)contextServices.GetRequiredService<ContextService<IDbContextOptions>>().Service;
+                var contextOptions = (DbContextOptions<ContextT>)contextServices.GetRequiredService<DbContextService<IDbContextOptions>>().Service;
 
                 Assert.NotNull(contextOptions);
                 var rawOptions = ((IDbContextOptions)contextOptions).RawOptions;
@@ -1033,7 +1033,7 @@ namespace Microsoft.Data.Entity.Tests
             using (var context = serviceProvider.GetRequiredService<ContextWithDefaults>())
             {
                 var contextServices = ((IDbContextServices)context).ScopedServiceProvider;
-                var contextOptions = (DbContextOptions<ContextWithDefaults>)contextServices.GetRequiredService<ContextService<IDbContextOptions>>().Service;
+                var contextOptions = (DbContextOptions<ContextWithDefaults>)contextServices.GetRequiredService<DbContextService<IDbContextOptions>>().Service;
 
                 Assert.NotNull(contextOptions);
                 var rawOptions = ((IDbContextOptions)contextOptions).RawOptions;

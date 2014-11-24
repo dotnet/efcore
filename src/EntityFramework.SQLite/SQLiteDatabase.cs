@@ -12,7 +12,7 @@ namespace Microsoft.Data.Entity.Sqlite
     public class SqliteDatabase : MigrationsEnabledDatabase
     {
         public SqliteDatabase(
-            [NotNull] ContextService<IModel> model,
+            [NotNull] DbContextService<IModel> model,
             [NotNull] SqliteDataStoreCreator dataStoreCreator,
             [NotNull] SqliteConnection connection,
             [NotNull] SqliteMigrator migrator,

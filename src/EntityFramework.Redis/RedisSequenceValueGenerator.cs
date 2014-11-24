@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.Redis
         {
         }
 
-        protected override long GetNewCurrentValue(IProperty property, ContextService<DataStoreServices> dataStoreServices)
+        protected override long GetNewCurrentValue(IProperty property, DbContextService<DataStoreServices> dataStoreServices)
         {
             Check.NotNull(property, "property");
             Check.NotNull(dataStoreServices, "dataStoreServices");
@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.Redis
         }
 
         protected override async Task<long> GetNewCurrentValueAsync(
-            IProperty property, ContextService<DataStoreServices> dataStoreServices, CancellationToken cancellationToken)
+            IProperty property, DbContextService<DataStoreServices> dataStoreServices, CancellationToken cancellationToken)
         {
             Check.NotNull(property, "property");
             Check.NotNull(dataStoreServices, "dataStoreServices");

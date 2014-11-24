@@ -20,41 +20,41 @@ namespace Microsoft.Data.Entity.Storage
         public abstract Database Database { get; }
         public abstract IModelBuilderFactory ModelBuilderFactory { get; }
 
-        public static Func<IServiceProvider, ContextService<DataStoreServices>> DataStoreServicesFactory
+        public static Func<IServiceProvider, DbContextService<DataStoreServices>> DataStoreServicesFactory
         {
-            get { return p => new ContextService<DataStoreServices>(() => GetStoreServices(p)); }
+            get { return p => new DbContextService<DataStoreServices>(() => GetStoreServices(p)); }
         }
 
-        public static Func<IServiceProvider, ContextService<DataStore>> DataStoreFactory
+        public static Func<IServiceProvider, DbContextService<DataStore>> DataStoreFactory
         {
-            get { return p => new ContextService<DataStore>(() => GetStoreServices(p).Store); }
+            get { return p => new DbContextService<DataStore>(() => GetStoreServices(p).Store); }
         }
 
-        public static Func<IServiceProvider, ContextService<Database>> DatabaseFactory
+        public static Func<IServiceProvider, DbContextService<Database>> DatabaseFactory
         {
-            get { return p => new ContextService<Database>(() => GetStoreServices(p).Database); }
+            get { return p => new DbContextService<Database>(() => GetStoreServices(p).Database); }
         }
 
-        public static Func<IServiceProvider, ContextService<DataStoreCreator>> DataStoreCreatorFactory
+        public static Func<IServiceProvider, DbContextService<DataStoreCreator>> DataStoreCreatorFactory
         {
-            get { return p => new ContextService<DataStoreCreator>(() => GetStoreServices(p).Creator); }
+            get { return p => new DbContextService<DataStoreCreator>(() => GetStoreServices(p).Creator); }
         }
 
-        public static Func<IServiceProvider, ContextService<ValueGeneratorCache>> ValueGeneratorCacheFactory
+        public static Func<IServiceProvider, DbContextService<ValueGeneratorCache>> ValueGeneratorCacheFactory
         {
-            get { return p => new ContextService<ValueGeneratorCache>(() => GetStoreServices(p).ValueGeneratorCache); }
+            get { return p => new DbContextService<ValueGeneratorCache>(() => GetStoreServices(p).ValueGeneratorCache); }
         }
 
-        public static Func<IServiceProvider, ContextService<DataStoreConnection>> ConnectionFactory
+        public static Func<IServiceProvider, DbContextService<DataStoreConnection>> ConnectionFactory
         {
-            get { return p => new ContextService<DataStoreConnection>(() => GetStoreServices(p).Connection); }
+            get { return p => new DbContextService<DataStoreConnection>(() => GetStoreServices(p).Connection); }
         }
 
         protected static DataStoreServices GetStoreServices([NotNull] IServiceProvider serviceProvider)
         {
             Check.NotNull(serviceProvider, "serviceProvider");
 
-            return serviceProvider.GetRequiredServiceChecked<DbContextConfiguration>().DataStoreServices;
+            return serviceProvider.GetRequiredServiceChecked<DbContextServices>().DataStoreServices;
         }
     }
 }

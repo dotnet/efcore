@@ -31,9 +31,9 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             }
         }
 
-        public static ContextService<IDbContextOptions> CreateOptions()
+        public static DbContextService<IDbContextOptions> CreateOptions()
         {
-            return new ContextService<IDbContextOptions>(() => new DbContextOptions()
+            return new DbContextService<IDbContextOptions>(() => new DbContextOptions()
                 .UseSqlServer(@"Server=(localdb)\v11.0;Database=SqlServerConnectionTest;Trusted_Connection=True;"));
         }
     }

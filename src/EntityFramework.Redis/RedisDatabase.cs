@@ -62,7 +62,7 @@ namespace Microsoft.Data.Entity.Redis
         }
 
         public RedisDatabase(
-            [NotNull] ContextService<IModel> model,
+            [NotNull] DbContextService<IModel> model,
             [NotNull] RedisDataStoreCreator dataStoreCreator,
             [NotNull] RedisConnection connection,
             [NotNull] ILoggerFactory loggerFactory)
