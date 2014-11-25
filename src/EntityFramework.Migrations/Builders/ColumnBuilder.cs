@@ -3,8 +3,7 @@
 
 using System;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Relational.Model;
+using Microsoft.Data.Entity.Migrations.Model;
 
 namespace Microsoft.Data.Entity.Migrations.Builders
 {
@@ -284,8 +283,9 @@ namespace Microsoft.Data.Entity.Migrations.Builders
             string dataType = null)
         {
             var column
-                = new Column(name, clrType, dataType)
+                = new Column(name, clrType)
                     {
+                        DataType = dataType,
                         DefaultValue = defaultValue,
                         DefaultSql = defaultSql,
                         GenerateValueOnAdd =  identity,

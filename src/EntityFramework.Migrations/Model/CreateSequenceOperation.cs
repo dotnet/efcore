@@ -37,16 +37,6 @@ namespace Microsoft.Data.Entity.Migrations.Model
             _type = type ?? Sequence.DefaultType;
         }
 
-        public CreateSequenceOperation([NotNull] Relational.Model.Sequence sequence)
-        {
-            Check.NotNull(sequence, "sequence");
-
-            _sequenceName = sequence.Name;
-            _startValue = sequence.StartWith;
-            _incrementBy = sequence.IncrementBy;
-            _type = sequence.Type;
-        }
-
         public virtual SchemaQualifiedName SequenceName
         {
             get { return _sequenceName; }

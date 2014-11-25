@@ -2,27 +2,45 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations;
-using Microsoft.Data.Entity.Relational.Model;
+using Microsoft.Data.Entity.SQLite.Metadata;
 using Microsoft.Data.Entity.SQLite.Utilities;
 
 namespace Microsoft.Data.Entity.SQLite
 {
     public class SQLiteMigrationOperationSqlGeneratorFactory : IMigrationOperationSqlGeneratorFactory
     {
-        public virtual SQLiteMigrationOperationSqlGenerator Create()
+        private readonly SQLiteMetadataExtensionProvider _extensionProvider;
+
+        public SQLiteMigrationOperationSqlGeneratorFactory(
+            [NotNull] SQLiteMetadataExtensionProvider extensionProvider)
         {
-            return Create(new DatabaseModel());
+            Check.NotNull(extensionProvider, "extensionProvider");
+
+            _extensionProvider = extensionProvider;
         }
 
-        public virtual SQLiteMigrationOperationSqlGenerator Create([NotNull] DatabaseModel database)
+        public virtual SQLiteMetadataExtensionProvider ExtensionProvider
         {
-            Check.NotNull(database, "database");
+            get { return _extensionProvider; }
+        }
+
+        public virtual SQLiteMigrationOperationSqlGenerator Create()
+        {
+            return Create(new Model());
+        }
+
+        public virtual SQLiteMigrationOperationSqlGenerator Create([NotNull] IModel targetModel)
+        {
+            Check.NotNull(targetModel, "targetModel");
 
             return
-                new SQLiteMigrationOperationSqlGenerator(new SQLiteTypeMapper())
+                new SQLiteMigrationOperationSqlGenerator(
+                    ExtensionProvider, 
+                    new SQLiteTypeMapper())
                     {
-                        Database = database,
+                        TargetModel = targetModel,
                     };
         }
 
@@ -31,9 +49,9 @@ namespace Microsoft.Data.Entity.SQLite
             return Create();
         }
 
-        MigrationOperationSqlGenerator IMigrationOperationSqlGeneratorFactory.Create(DatabaseModel database)
+        MigrationOperationSqlGenerator IMigrationOperationSqlGeneratorFactory.Create(IModel targetModel)
         {
-            return Create(database);
+            return Create(targetModel);
         }
     }
 }

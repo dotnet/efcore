@@ -8,10 +8,10 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Migrations.Model;
-using Microsoft.Data.Entity.Relational.Model;
+using Microsoft.Data.Entity.Relational.Metadata;
+using Microsoft.Data.Entity.Relational.Tests;
 using Microsoft.Data.Entity.Utilities;
 using Xunit;
-using Sequence = Microsoft.Data.Entity.Relational.Metadata.Sequence;
 
 namespace Microsoft.Data.Entity.Commands.Tests.Migrations
 {
@@ -128,20 +128,24 @@ namespace Microsoft.Data.Entity.Commands.Tests.Migrations
         [Fact]
         public void Generate_when_create_table_operation_without_primary_key()
         {
-            var table = new Table("dbo.MyTable",
-                new[]
-                    {
-                        new Column("Foo", typeof(int)) { IsNullable = false, DefaultValue = 5 },
-                        new Column("Bar", typeof(int))
-                    });
-            var operation = new CreateTableOperation(table);
+            var model = new Model();
+            var modelBuilder = new BasicModelBuilder(model);
+            modelBuilder.Entity("E",
+                b =>
+                {
+                    b.Property<int>("Foo").ForRelational().DefaultValue(5);
+                    b.Property<int?>("Bar");
+                    b.ForRelational().Table("MyTable", "dbo");
+                });
+
+            var operation = OperationFactory().CreateTableOperation(model.GetEntityType("E"));
 
             Assert.Equal(
                 @"CreateTable(""dbo.MyTable"",
     c => new
         {
-            Foo = c.Int(nullable: false, defaultValue: 5),
-            Bar = c.Int()
+            Bar = c.Int(),
+            Foo = c.Int(nullable: false, defaultValue: 5)
         })",
                 CSharpMigrationCodeGenerator.Generate(operation));
 
@@ -151,17 +155,18 @@ namespace Microsoft.Data.Entity.Commands.Tests.Migrations
         [Fact]
         public void Generate_when_create_table_operation_with_one_primary_key_columns()
         {
-            Column foo;
-            var table = new Table("dbo.MyTable",
-                new[]
-                    {
-                        foo = new Column("Foo", typeof(int)) { IsNullable = false, DefaultValue = 5 },
-                        new Column("Bar", typeof(int))
-                    })
+            var model = new Model();
+            var modelBuilder = new BasicModelBuilder(model);
+            modelBuilder.Entity("E",
+                b =>
                 {
-                    PrimaryKey = new PrimaryKey("MyPK", new[] { foo })
-                };
-            var operation = new CreateTableOperation(table);
+                    b.Property<int>("Foo").ForRelational().DefaultValue(5);
+                    b.Property<int?>("Bar");
+                    b.Key("Foo").ForRelational().Name("MyPK");
+                    b.ForRelational().Table("MyTable", "dbo");
+                });
+
+            var operation = OperationFactory().CreateTableOperation(model.GetEntityType("E"));
 
             Assert.Equal(
                 @"CreateTable(""dbo.MyTable"",
@@ -179,17 +184,18 @@ namespace Microsoft.Data.Entity.Commands.Tests.Migrations
         [Fact]
         public void Generate_when_create_table_operation_with_multiple_primary_key_columns()
         {
-            Column foo, bar;
-            var table = new Table("dbo.MyTable",
-                new[]
-                    {
-                        foo = new Column("Foo", typeof(int)) { IsNullable = false, DefaultValue = 5 },
-                        bar = new Column("Bar", typeof(int))
-                    })
+            var model = new Model();
+            var modelBuilder = new BasicModelBuilder(model);
+            modelBuilder.Entity("E",
+                b =>
                 {
-                    PrimaryKey = new PrimaryKey("MyPK", new[] { foo, bar })
-                };
-            var operation = new CreateTableOperation(table);
+                    b.Property<int>("Foo").ForRelational().DefaultValue(5);
+                    b.Property<int?>("Bar");
+                    b.Key("Foo", "Bar").ForRelational().Name("MyPK");
+                    b.ForRelational().Table("MyTable", "dbo");
+                });
+
+            var operation = OperationFactory().CreateTableOperation(model.GetEntityType("E"));
 
             Assert.Equal(
                 @"CreateTable(""dbo.MyTable"",
@@ -207,12 +213,16 @@ namespace Microsoft.Data.Entity.Commands.Tests.Migrations
         [Fact]
         public void Generate_when_create_table_operation_with_column_having_enum_clr_type()
         {
-            var table = new Table("dbo.MyTable",
-                new[]
-                    {
-                        new Column("Foo", typeof(BikeType)) { IsNullable = false, DefaultValue = BikeType.Mountain }
-                    });
-            var operation = new CreateTableOperation(table);
+            var model = new Model();
+            var modelBuilder = new BasicModelBuilder(model);
+            modelBuilder.Entity("E",
+                b =>
+                {
+                    b.Property<byte>("Foo").ForRelational().DefaultValue((byte)BikeType.Mountain);
+                    b.ForRelational().Table("MyTable", "dbo");
+                });
+
+            var operation = OperationFactory().CreateTableOperation(model.GetEntityType("E"));
 
             Assert.Equal(
                 @"CreateTable(""dbo.MyTable"",
@@ -228,22 +238,22 @@ namespace Microsoft.Data.Entity.Commands.Tests.Migrations
         [Fact]
         public void Generate_when_create_table_with_unique_constraints()
         {
-            Column foo, bar, c1, c2;
-            var table = new Table("dbo.MyTable",
-                new[]
-                    {
-                        foo = new Column("Foo", typeof(int)) { IsNullable = false, DefaultValue = 5 },
-                        bar = new Column("Bar", typeof(int)),
-                        c1 = new Column("C1", typeof(string)),
-                        c2 = new Column("C2", typeof(string))
-                    })
+            var model = new Model();
+            var modelBuilder = new BasicModelBuilder(model);
+            modelBuilder.Entity("E",
+                b =>
                 {
-                    PrimaryKey = new PrimaryKey("MyPK", new[] { foo })
-                };
-            table.AddUniqueConstraint(new UniqueConstraint("MyUC0", new[] { c1 }));
-            table.AddUniqueConstraint(new UniqueConstraint("MyUC1", new[] { bar, c2 }));
+                    b.Property<int>("Foo").ForRelational().DefaultValue(5);
+                    var bar = b.Property<int?>("Bar").Metadata;
+                    var c1 = b.Property<string>("C1").Metadata;
+                    var c2 = b.Property<string>("C2").Metadata;
+                    b.Key("Foo").ForRelational().Name("MyPK");
+                    b.Metadata.AddKey(c1).Relational().Name = "MyUC0";
+                    b.Metadata.AddKey(new[] { bar, c2 }).Relational().Name = "MyUC1";
+                    b.ForRelational().Table("MyTable", "dbo");
+                });
 
-            var operation = new CreateTableOperation(table);
+            var operation = OperationFactory().CreateTableOperation(model.GetEntityType("E"));
 
             Assert.Equal(
                 @"CreateTable(""dbo.MyTable"",
@@ -367,7 +377,7 @@ namespace Microsoft.Data.Entity.Commands.Tests.Migrations
             var operation = new AddDefaultConstraintOperation("dbo.MyTable", "Foo", 5, null);
 
             Assert.Equal(
-                @"AddDefaultConstraint(""dbo.MyTable"", ""Foo"", DefaultConstraint.Value(5))",
+                @"AddDefaultValue(""dbo.MyTable"", ""Foo"", 5)",
                 CSharpMigrationCodeGenerator.Generate(operation));
         }
 
@@ -377,7 +387,7 @@ namespace Microsoft.Data.Entity.Commands.Tests.Migrations
             var operation = new AddDefaultConstraintOperation("dbo.MyTable", "Foo", null, "GETDATE()");
 
             Assert.Equal(
-                @"AddDefaultConstraint(""dbo.MyTable"", ""Foo"", DefaultConstraint.Sql(""GETDATE()""))",
+                @"AddDefaultExpression(""dbo.MyTable"", ""Foo"", ""GETDATE()"")",
                 CSharpMigrationCodeGenerator.Generate(operation));
 
             GenerateAndValidateCode(operation);
@@ -770,6 +780,10 @@ namespace MyNamespace
             Assert.Equal(migrationMetadataSource, migrationMetadataBuilder.ToString());
         }
 
+        private static MigrationOperationFactory OperationFactory()
+        {
+            return new MigrationOperationFactory(RelationalTestHelpers.ExtensionProvider());
+        }
         #endregion
     }
 }

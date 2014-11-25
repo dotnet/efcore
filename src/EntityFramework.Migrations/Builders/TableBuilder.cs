@@ -9,7 +9,6 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Migrations.Utilities;
-using Microsoft.Data.Entity.Relational.Model;
 
 namespace Microsoft.Data.Entity.Migrations.Builders
 {

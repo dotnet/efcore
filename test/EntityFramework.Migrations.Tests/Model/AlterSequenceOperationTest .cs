@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.Data.Entity.Migrations.Model;
-using Microsoft.Data.Entity.Relational.Model;
 using Microsoft.Data.Entity.Utilities;
 using Moq;
 using Xunit;
@@ -26,7 +25,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Model
         {
             var operation = new AlterSequenceOperation("dbo.MySequence", 7);
 
-            var sqlGeneratorMock = new Mock<MigrationOperationSqlGenerator>(new RelationalTypeMapper());
+            var sqlGeneratorMock = MigrationsTestHelpers.MockSqlGenerator();
             var builder = new IndentedStringBuilder();
             operation.GenerateSql(sqlGeneratorMock.Object, builder);
 

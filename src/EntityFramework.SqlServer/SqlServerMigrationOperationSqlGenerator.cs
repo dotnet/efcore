@@ -2,12 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Relational;
-using Microsoft.Data.Entity.Relational.Model;
 using Microsoft.Data.Entity.SqlServer.Metadata;
 using Microsoft.Data.Entity.SqlServer.Utilities;
 using Microsoft.Data.Entity.Utilities;
@@ -18,8 +17,10 @@ namespace Microsoft.Data.Entity.SqlServer
     {
         private int _variableCount;
 
-        public SqlServerMigrationOperationSqlGenerator([NotNull] SqlServerTypeMapper typeMapper)
-            : base(typeMapper)
+        public SqlServerMigrationOperationSqlGenerator(
+            [NotNull] SqlServerMetadataExtensionProvider extensionProvider,
+            [NotNull] SqlServerTypeMapper typeMapper)
+            : base(extensionProvider, typeMapper)
         {
         }
 
@@ -161,7 +162,8 @@ namespace Microsoft.Data.Entity.SqlServer
             return identifier.Replace("]", "]]");
         }
 
-        protected override void GenerateColumnTraits(Column column, IndentedStringBuilder stringBuilder)
+        protected override void GenerateColumnTraits(SchemaQualifiedName tableName, 
+            Column column, IndentedStringBuilder stringBuilder)
         {
             // TODO: This is essentially duplicated logic from the selector; combine if possible
             if (column.GenerateValueOnAdd)
@@ -169,9 +171,13 @@ namespace Microsoft.Data.Entity.SqlServer
                 // TODO: This can't use the normal APIs because all the annotations have been
                 // copied from the core metadata into the relational model.
 
-                var strategy = column[SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ValueGeneration];
+                var entityType = TargetModel.EntityTypes.Single(
+                    t => NameBuilder.SchemaQualifiedTableName(t) == tableName);
+                var property = entityType.Properties.Single(
+                    p => NameBuilder.ColumnName(p) == column.Name);
+                var strategy = property.SqlServer().ValueGenerationStrategy;
 
-                if (strategy == SqlServerValueGenerationStrategy.Identity.ToString()
+                if (strategy == SqlServerValueGenerationStrategy.Identity
                     || (strategy == null
                         && column.ClrType.IsInteger()))
                 {

@@ -9,8 +9,6 @@ using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Migrations.Utilities;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Metadata;
-using Microsoft.Data.Entity.Relational.Model;
-using Sequence = Microsoft.Data.Entity.Relational.Metadata.Sequence;
 
 namespace Microsoft.Data.Entity.Migrations.Builders
 {
@@ -86,8 +84,9 @@ namespace Microsoft.Data.Entity.Migrations.Builders
 
             IDictionary<PropertyInfo, Column> propertyInfoToColumnMap;
             var columns = GetColumns(columnsSpecFunc(new ColumnBuilder()), out propertyInfoToColumnMap);
-            var table = new Table(tableName, columns);
-            var createTableOperation = new CreateTableOperation(table);
+            var createTableOperation = new CreateTableOperation(tableName);
+
+            createTableOperation.Columns.AddRange(columns);
 
             AddOperation(createTableOperation);
 
@@ -156,13 +155,22 @@ namespace Microsoft.Data.Entity.Migrations.Builders
             AddOperation(new AlterColumnOperation(tableName, newColumn, isDestructiveChange: true));
         }
 
-        public virtual void AddDefaultConstraint(SchemaQualifiedName tableName, [NotNull] string columnName,
-            DefaultConstraint defaultConstraint)
+        public virtual void AddDefaultValue(SchemaQualifiedName tableName, [NotNull] string columnName,
+            [NotNull] object defaultValue)
         {
             Check.NotEmpty(columnName, "columnName");
+            Check.NotNull(defaultValue, "defaultValue");
 
-            AddOperation(new AddDefaultConstraintOperation(tableName, columnName,
-                defaultConstraint.GetValue(), defaultConstraint.GetSql()));
+            AddOperation(new AddDefaultConstraintOperation(tableName, columnName, defaultValue, null));
+        }
+
+        public virtual void AddDefaultExpression(SchemaQualifiedName tableName, [NotNull] string columnName,
+            [NotNull] string defaultExpression)
+        {
+            Check.NotEmpty(columnName, "columnName");
+            Check.NotEmpty(defaultExpression, "defaultExpression");
+
+            AddOperation(new AddDefaultConstraintOperation(tableName, columnName, null, defaultExpression));
         }
 
         public virtual void DropDefaultConstraint(SchemaQualifiedName tableName, [NotNull] string columnName)

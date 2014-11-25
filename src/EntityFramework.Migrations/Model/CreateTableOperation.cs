@@ -2,11 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Migrations.Utilities;
 using Microsoft.Data.Entity.Relational;
-using Microsoft.Data.Entity.Relational.Model;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Migrations.Model
@@ -23,34 +21,6 @@ namespace Microsoft.Data.Entity.Migrations.Model
         public CreateTableOperation(SchemaQualifiedName tableName)
         {
             _tableName = tableName;
-        }
-
-        public CreateTableOperation([NotNull] Table table)
-        {
-            Check.NotNull(table, "table");
-
-            _tableName = table.Name;
-            _columns = table.Columns.ToList();
-
-            if (table.PrimaryKey != null)
-            {
-                _primaryKey = new AddPrimaryKeyOperation(table.PrimaryKey);
-            }
-
-            foreach (var uniqueConstraint in table.UniqueConstraints)
-            {
-                _uniqueConstraints.Add(new AddUniqueConstraintOperation(uniqueConstraint));
-            }
-
-            foreach (var foreignKey in table.ForeignKeys)
-            {
-                _foreignKeys.Add(new AddForeignKeyOperation(foreignKey));
-            }
-
-            foreach (var index in table.Indexes)
-            {
-                _indexes.Add(new CreateIndexOperation(index));
-            }
         }
 
         public virtual SchemaQualifiedName TableName

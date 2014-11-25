@@ -2,27 +2,45 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations;
-using Microsoft.Data.Entity.Relational.Model;
+using Microsoft.Data.Entity.SqlServer.Metadata;
 using Microsoft.Data.Entity.SqlServer.Utilities;
 
 namespace Microsoft.Data.Entity.SqlServer
 {
     public class SqlServerMigrationOperationSqlGeneratorFactory : IMigrationOperationSqlGeneratorFactory
     {
-        public virtual SqlServerMigrationOperationSqlGenerator Create()
+        private readonly SqlServerMetadataExtensionProvider _extensionProvider;
+
+        public SqlServerMigrationOperationSqlGeneratorFactory(
+            [NotNull] SqlServerMetadataExtensionProvider extensionProvider)
         {
-            return Create(new DatabaseModel());
+            Check.NotNull(extensionProvider, "extensionProvider");
+
+            _extensionProvider = extensionProvider;
         }
 
-        public virtual SqlServerMigrationOperationSqlGenerator Create([NotNull] DatabaseModel database)
+        public virtual SqlServerMetadataExtensionProvider ExtensionProvider
         {
-            Check.NotNull(database, "database");
+            get { return _extensionProvider; }
+        }
+
+        public virtual SqlServerMigrationOperationSqlGenerator Create()
+        {
+            return Create(new Model());
+        }
+
+        public virtual SqlServerMigrationOperationSqlGenerator Create([NotNull] IModel targetModel)
+        {
+            Check.NotNull(targetModel, "targetModel");
 
             return
-                new SqlServerMigrationOperationSqlGenerator(new SqlServerTypeMapper())
+                new SqlServerMigrationOperationSqlGenerator(
+                    ExtensionProvider,
+                    new SqlServerTypeMapper())
                     {
-                        Database = database,
+                        TargetModel = targetModel,
                     };
         }
 
@@ -31,9 +49,9 @@ namespace Microsoft.Data.Entity.SqlServer
             return Create();
         }
 
-        MigrationOperationSqlGenerator IMigrationOperationSqlGeneratorFactory.Create(DatabaseModel database)
+        MigrationOperationSqlGenerator IMigrationOperationSqlGeneratorFactory.Create(IModel targetModel)
         {
-            return Create(database);
+            return Create(targetModel);
         }
     }
 }

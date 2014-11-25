@@ -5,50 +5,64 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Relational;
-using Microsoft.Data.Entity.Relational.Model;
+using Microsoft.Data.Entity.SQLite.Metadata;
+using Microsoft.Data.Entity.SQLite.Migrations;
 using Microsoft.Data.Entity.SQLite.Utilities;
 
 namespace Microsoft.Data.Entity.SQLite
 {
-    public class SQLiteMigrationOperationPreProcessor : MigrationOperationVisitor<SQLiteMigrationOperationPreProcessor.Context>
+    public class SQLiteMigrationOperationProcessor : MigrationOperationProcessor
     {
-        private readonly SQLiteTypeMapper _typeMapper;
-
-        public SQLiteMigrationOperationPreProcessor([NotNull] SQLiteTypeMapper typeMapper)
+        public SQLiteMigrationOperationProcessor(
+            [NotNull] SQLiteMetadataExtensionProvider extensionProvider,
+            [NotNull] SQLiteTypeMapper typeMapper,
+            [NotNull] SQLiteMigrationOperationFactory operationFactory)
+            : base(
+                extensionProvider,
+                typeMapper,
+                operationFactory)
         {
-            Check.NotNull(typeMapper, "typeMapper");
-
-            _typeMapper = typeMapper;
         }
 
-        public virtual SQLiteTypeMapper TypeMapper
+        public virtual new SQLiteMetadataExtensionProvider ExtensionProvider
         {
-            get { return _typeMapper; }
+            get { return (SQLiteMetadataExtensionProvider)base.ExtensionProvider; }
         }
 
-        public virtual IReadOnlyList<MigrationOperation> Process(            
-            [NotNull] MigrationOperationCollection operations,
-            [NotNull] DatabaseModel sourceDatabase,
-            [NotNull] DatabaseModel targetDatabase)
+        public virtual new SQLiteTypeMapper TypeMapper
+        {
+            get { return (SQLiteTypeMapper)base.TypeMapper; }
+        }
+
+        public virtual new SQLiteMigrationOperationFactory OperationFactory
+        {
+            get { return (SQLiteMigrationOperationFactory)base.OperationFactory; }
+        }
+
+        public override IReadOnlyList<MigrationOperation> Process(            
+            MigrationOperationCollection operations,
+            IModel sourceModel,
+            IModel targetModel)
         {            
             Check.NotNull(operations, "operations");
-            Check.NotNull(sourceDatabase, "sourceDatabase");
-            Check.NotNull(targetDatabase, "targetDatabase");
+            Check.NotNull(sourceModel, "sourceModel");
+            Check.NotNull(targetModel, "targetModel");
 
-            var context = new Context(sourceDatabase, targetDatabase);
+            var context = new Context(this, sourceModel, targetModel);
 
             foreach (var operation in operations.GetAll())
             {
-                operation.Accept(this, context);
+                Process((dynamic)operation, context);
             }
 
             return context.Operations;
         }
 
-        public override void Visit(CreateTableOperation operation, Context context)
+        public virtual void Process([NotNull] CreateTableOperation operation, [NotNull] Context context)
         {
             Check.NotNull(operation, "operation");
             Check.NotNull(context, "context");
@@ -63,7 +77,7 @@ namespace Microsoft.Data.Entity.SQLite
             context.SetHandler(new CreateTableHandler(operation));
         }
 
-        public override void Visit(RenameTableOperation operation, Context context)
+        public virtual void Process([NotNull] RenameTableOperation operation, [NotNull] Context context)
         {
             Check.NotNull(operation, "operation");
             Check.NotNull(context, "context");
@@ -74,7 +88,7 @@ namespace Microsoft.Data.Entity.SQLite
             handler.TableName = new SchemaQualifiedName(operation.NewTableName, operation.TableName.Schema);
         }
 
-        public override void Visit(MoveTableOperation operation, Context context)
+        public virtual void Process([NotNull] MoveTableOperation operation, [NotNull] Context context)
         {
             Check.NotNull(operation, "operation");
             Check.NotNull(context, "context");
@@ -85,7 +99,7 @@ namespace Microsoft.Data.Entity.SQLite
             handler.TableName = new SchemaQualifiedName(operation.TableName.Name, operation.NewSchema);
         }
 
-        public override void Visit(AddColumnOperation operation, Context context)
+        public virtual void Process([NotNull] AddColumnOperation operation, [NotNull] Context context)
         {
             Check.NotNull(operation, "operation");
             Check.NotNull(context, "context");
@@ -95,7 +109,7 @@ namespace Microsoft.Data.Entity.SQLite
             handler.AddOperation(operation);
         }
 
-        public override void Visit(DropColumnOperation operation, Context context)
+        public virtual void Process([NotNull] DropColumnOperation operation, [NotNull] Context context)
         {
             Check.NotNull(operation, "operation");
             Check.NotNull(context, "context");
@@ -106,7 +120,7 @@ namespace Microsoft.Data.Entity.SQLite
             handler.RemoveColumnNamePair(operation.ColumnName);
         }
 
-        public override void Visit(AlterColumnOperation operation, Context context)
+        public virtual void Process([NotNull] AlterColumnOperation operation, [NotNull] Context context)
         {
             Check.NotNull(operation, "operation");
             Check.NotNull(context, "context");
@@ -116,7 +130,7 @@ namespace Microsoft.Data.Entity.SQLite
             handler.AddOperation(operation);
         }
 
-        public override void Visit(AddDefaultConstraintOperation operation, Context context)
+        public virtual void Process([NotNull] AddDefaultConstraintOperation operation, [NotNull] Context context)
         {
             Check.NotNull(operation, "operation");
             Check.NotNull(context, "context");
@@ -126,7 +140,7 @@ namespace Microsoft.Data.Entity.SQLite
             handler.AddOperation(operation);
         }
 
-        public override void Visit(DropDefaultConstraintOperation operation, Context context)
+        public virtual void Process([NotNull] DropDefaultConstraintOperation operation, [NotNull] Context context)
         {
             Check.NotNull(operation, "operation");
             Check.NotNull(context, "context");
@@ -136,7 +150,7 @@ namespace Microsoft.Data.Entity.SQLite
             handler.AddOperation(operation);
         }
 
-        public override void Visit(RenameColumnOperation operation, Context context)
+        public virtual void Process([NotNull] RenameColumnOperation operation, [NotNull] Context context)
         {
             Check.NotNull(operation, "operation");
             Check.NotNull(context, "context");
@@ -147,7 +161,7 @@ namespace Microsoft.Data.Entity.SQLite
             handler.ResetColumnNamePair(operation.ColumnName, operation.NewColumnName);
         }
 
-        public override void Visit(AddPrimaryKeyOperation operation, Context context)
+        public virtual void Process([NotNull] AddPrimaryKeyOperation operation, [NotNull] Context context)
         {
             Check.NotNull(operation, "operation");
             Check.NotNull(context, "context");
@@ -157,7 +171,7 @@ namespace Microsoft.Data.Entity.SQLite
             handler.AddOperation(operation);
         }
 
-        public override void Visit(DropPrimaryKeyOperation operation, Context context)
+        public virtual void Process([NotNull] DropPrimaryKeyOperation operation, [NotNull] Context context)
         {
             Check.NotNull(operation, "operation");
             Check.NotNull(context, "context");
@@ -167,7 +181,7 @@ namespace Microsoft.Data.Entity.SQLite
             handler.AddOperation(operation);
         }
 
-        public override void Visit(AddForeignKeyOperation operation, Context context)
+        public virtual void Process([NotNull] AddForeignKeyOperation operation, [NotNull] Context context)
         {
             Check.NotNull(operation, "operation");
             Check.NotNull(context, "context");
@@ -177,7 +191,7 @@ namespace Microsoft.Data.Entity.SQLite
             handler.AddOperation(operation);
         }
 
-        public override void Visit(DropForeignKeyOperation operation, Context context)
+        public virtual void Process([NotNull] DropForeignKeyOperation operation, [NotNull] Context context)
         {
             Check.NotNull(operation, "operation");
             Check.NotNull(context, "context");
@@ -187,21 +201,23 @@ namespace Microsoft.Data.Entity.SQLite
             handler.AddOperation(operation);
         }
 
-        public override void Visit(RenameIndexOperation operation, Context context)
+        public virtual void Process([NotNull] RenameIndexOperation operation, [NotNull] Context context)
         {
             Check.NotNull(operation, "operation");
             Check.NotNull(context, "context");
 
             context.HandlePendingOperations();
 
-            var table = context.SourceDatabase.GetTable(operation.TableName);
-            var index = table.GetIndex(operation.IndexName);
+            var entitType = context.SourceModel.EntityTypes.Single(
+                t => NameBuilder.SchemaQualifiedTableName(t) == operation.TableName);
+            var index = entitType.Indexes.Single(
+                ix => NameBuilder.IndexName(ix) == operation.IndexName);
 
-            context.HandleOperation(new DropIndexOperation(operation.TableName, operation.IndexName));
-            context.HandleOperation(new CreateIndexOperation(index));
+            context.HandleOperation(OperationFactory.DropIndexOperation(index));
+            context.HandleOperation(OperationFactory.CreateIndexOperation(index));
         }
 
-        protected override void VisitDefault(MigrationOperation operation, Context context)
+        public virtual void Process([NotNull] MigrationOperation operation, [NotNull] Context context)
         {
             Check.NotNull(operation, "operation");
             Check.NotNull(context, "context");
@@ -359,29 +375,33 @@ namespace Microsoft.Data.Entity.SQLite
             {
                 Check.NotNull(context, "context");
 
-                var targetTable = context.TargetDatabase.GetTable(TableName);
+                var nameBuilder = context.Processor.NameBuilder;
+                var operationFactory = context.Processor.OperationFactory;
+
+                var targetTableName = TableName;
+                var targetEntityType = context.TargetModel.EntityTypes.Single(
+                    t => nameBuilder.SchemaQualifiedTableName(t) == targetTableName);
                 var sourceTableName = InitialTableName;
                 var targetColumnNames
-                    = targetTable.Columns
-                        .Where(c => ColumnNamePairs.ContainsKey(c.Name))
-                        .Select(c => c.Name)
-                        .ToArray();
+                    = operationFactory.OrderProperties(targetEntityType)
+                        .Where(p => ColumnNamePairs.ContainsKey(nameBuilder.ColumnName(p)))
+                        .Select(nameBuilder.ColumnName)
+                        .ToList();
                 var sourceColumnNames
                     = targetColumnNames
                         .Select(n => ColumnNamePairs[n])
-                        .ToArray();
+                        .ToList();
 
-                if (sourceTableName == targetTable.Name)
+                if (sourceTableName == targetTableName)
                 {
                     sourceTableName = new SchemaQualifiedName("__mig_tmp__" + sourceTableName.Name, sourceTableName.Schema);
 
-                    yield return new RenameTableOperation(targetTable.Name, sourceTableName.Name);
+                    yield return new RenameTableOperation(targetTableName, sourceTableName.Name);
                 }
 
-                yield return new CreateTableOperation(targetTable);
+                yield return operationFactory.CreateTableOperation(targetEntityType);
 
-                yield return new CopyDataOperation(
-                    sourceTableName, sourceColumnNames, targetTable.Name, targetColumnNames);
+                yield return new CopyDataOperation(sourceTableName, sourceColumnNames, targetTableName, targetColumnNames);
 
                 context.AddDeferredOperation(new DropTableOperation(sourceTableName));
             }
@@ -389,29 +409,37 @@ namespace Microsoft.Data.Entity.SQLite
 
         public class Context
         {
-            private readonly DatabaseModel _sourceDatabase;
-            private readonly DatabaseModel _targetDatabase;
+            private readonly SQLiteMigrationOperationProcessor _processor;
+            private readonly IModel _sourceModel;
+            private readonly IModel _targetModel;
             private readonly List<MigrationOperation> _operations = new List<MigrationOperation>();
             private readonly List<TableOperationHandler> _handlers = new List<TableOperationHandler>();
             private readonly List<MigrationOperation> _deferredOperations = new List<MigrationOperation>();
 
-            public Context([NotNull] DatabaseModel sourceDatabase, [NotNull] DatabaseModel targetDatabase)
+            public Context([NotNull] SQLiteMigrationOperationProcessor processor, [NotNull] IModel sourceModel, [NotNull] IModel targetModel)
             {
-                Check.NotNull(sourceDatabase, "sourceDatabase");
-                Check.NotNull(targetDatabase, "targetDatabase");
+                Check.NotNull(processor, "processor");
+                Check.NotNull(sourceModel, "sourceModel");
+                Check.NotNull(targetModel, "targetModel");
 
-                _sourceDatabase = sourceDatabase;
-                _targetDatabase = targetDatabase;
+                _processor = processor;
+                _sourceModel = sourceModel;
+                _targetModel = targetModel;
             }
 
-            public virtual DatabaseModel SourceDatabase
+            public virtual SQLiteMigrationOperationProcessor Processor
             {
-                get { return _sourceDatabase; }
+                get { return _processor; }
             }
 
-            public virtual DatabaseModel TargetDatabase
+            public virtual IModel SourceModel
             {
-                get { return _targetDatabase; }
+                get { return _sourceModel; }
+            }
+
+            public virtual IModel TargetModel
+            {
+                get { return _targetModel; }
             }
 
             public virtual IReadOnlyList<MigrationOperation> Operations
@@ -461,8 +489,9 @@ namespace Microsoft.Data.Entity.SQLite
 
                 if (handler == null)
                 {
-                    var table = _sourceDatabase.TryGetTable(tableName);
-                    var columnNames = table != null ? table.Columns.Select(c => c.Name) : Enumerable.Empty<string>();
+                    var entityType = SourceModel.EntityTypes.Single(
+                        t => Processor.NameBuilder.SchemaQualifiedTableName(t) == tableName);
+                    var columnNames = entityType.Properties.Select(p => Processor.NameBuilder.ColumnName(p));
 
                     SetHandler(handler
                         = supported

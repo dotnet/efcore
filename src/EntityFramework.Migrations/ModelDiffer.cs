@@ -9,105 +9,97 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Migrations.Utilities;
 using Microsoft.Data.Entity.Relational;
+using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Relational.Model;
-using ForeignKey = Microsoft.Data.Entity.Relational.Model.ForeignKey;
-using Index = Microsoft.Data.Entity.Relational.Model.Index;
 
 namespace Microsoft.Data.Entity.Migrations
 {
-    public abstract class ModelDiffer
+    public class ModelDiffer
     {
-        private ModelDatabaseMapping _sourceMapping;
-        private ModelDatabaseMapping _targetMapping;
+        private readonly IRelationalMetadataExtensionProvider _extensionProvider;
+        private readonly RelationalTypeMapper _typeMapper;
+        private readonly MigrationOperationFactory _operationFactory;
+        private readonly MigrationOperationProcessor _operationProcessor;
         private MigrationOperationCollection _operations;
 
-        private readonly DatabaseBuilder _databaseBuilder;
-
-        protected ModelDiffer([NotNull] DatabaseBuilder databaseBuilder)
+        public ModelDiffer(
+            [NotNull] IRelationalMetadataExtensionProvider extensionProvider,
+            [NotNull] RelationalTypeMapper typeMapper,
+            [NotNull] MigrationOperationFactory operationFactory,
+            [NotNull] MigrationOperationProcessor operationProcessor)
         {
-            Check.NotNull(databaseBuilder, "databaseBuilder");
+            Check.NotNull(extensionProvider, "extensionProvider");
+            Check.NotNull(typeMapper, "typeMapper");
+            Check.NotNull(operationFactory, "operationFactory");
+            Check.NotNull(operationProcessor, "operationProcessor");
 
-            _databaseBuilder = databaseBuilder;
+            _extensionProvider = extensionProvider;
+            _typeMapper = typeMapper;
+            _operationFactory = operationFactory;
+            _operationProcessor = operationProcessor;
         }
 
-        public virtual DatabaseBuilder DatabaseBuilder
+        public virtual IRelationalMetadataExtensionProvider ExtensionProvider
         {
-            get { return _databaseBuilder; }
+            get { return _extensionProvider; }
+        }
+
+        public virtual RelationalNameBuilder NameBuilder
+        {
+            get { return ExtensionProvider.NameBuilder; }
+        }
+
+        public virtual RelationalTypeMapper TypeMapper
+        {
+            get { return _typeMapper; }
+        }
+
+        public virtual MigrationOperationFactory OperationFactory
+        {
+            get { return _operationFactory; }
+        }
+
+        public virtual MigrationOperationProcessor OperationProcessor
+        {
+            get { return _operationProcessor; }
         }
 
         public virtual IReadOnlyList<MigrationOperation> CreateSchema([NotNull] IModel model)
         {
             Check.NotNull(model, "model");
 
-            var database = _databaseBuilder.GetDatabase(model);
+            _operations = new MigrationOperationCollection();
 
-            return CreateSchema(database);
-        }
+            _operations.AddRange(GetSequences(model)
+                .Select(s => OperationFactory.CreateSequenceOperation(s)));
 
-        public virtual IReadOnlyList<MigrationOperation> CreateSchema([NotNull] DatabaseModel database)
-        {
-            Check.NotNull(database, "database");
+            _operations.AddRange(model.EntityTypes
+                .Select(t => OperationFactory.CreateTableOperation(t)));
 
-            var createSequenceOperations = database.Sequences.Select(
-                s => new CreateSequenceOperation(s));
+            _operations.AddRange(model.EntityTypes
+                .SelectMany(t => t.ForeignKeys)
+                .Select(fk => OperationFactory.AddForeignKeyOperation(fk)));
 
-            var createTableOperations = database.Tables.Select(
-                t => new CreateTableOperation(t));
+            _operations.AddRange(model.EntityTypes
+                .SelectMany(t => t.Indexes)
+                .Select(ix => OperationFactory.CreateIndexOperation(ix)));
 
-            var addForeignKeyOperations = database.Tables.SelectMany(
-                t => t.ForeignKeys,
-                (t, fk) => new AddForeignKeyOperation(
-                    fk.Table.Name,
-                    fk.Name,
-                    fk.Columns.Select(c => c.Name).ToArray(),
-                    fk.ReferencedTable.Name,
-                    fk.ReferencedColumns.Select(c => c.Name).ToArray(),
-                    fk.CascadeDelete));
-
-            var createIndexOperations = database.Tables.SelectMany(
-                t => t.Indexes,
-                (t, idx) => new CreateIndexOperation(
-                    idx.Table.Name,
-                    idx.Name,
-                    idx.Columns.Select(c => c.Name).ToArray(),
-                    idx.IsUnique, idx.IsClustered));
-
-            return
-                ((IEnumerable<MigrationOperation>)createSequenceOperations)
-                    .Concat(createTableOperations)
-                    .Concat(addForeignKeyOperations)
-                    .Concat(createIndexOperations)
-                    .ToArray();
+            return OperationProcessor.Process(_operations, new Metadata.Model(), model);
         }
 
         public virtual IReadOnlyList<MigrationOperation> DropSchema([NotNull] IModel model)
         {
             Check.NotNull(model, "model");
 
-            var database = _databaseBuilder.GetDatabase(model);
+            _operations = new MigrationOperationCollection();
 
-            return DropSchema(database);
-        }
+            _operations.AddRange(GetSequences(model).Select(
+                s => OperationFactory.DropSequenceOperation(s)));
 
-        public virtual IReadOnlyList<MigrationOperation> DropSchema([NotNull] DatabaseModel database)
-        {
-            Check.NotNull(database, "database");
+            _operations.AddRange(model.EntityTypes.Select(
+                t => OperationFactory.DropTableOperation(t)));
 
-            var dropSequenceOperations = database.Sequences.Select(
-                s => new DropSequenceOperation(s.Name));
-
-            var dropForeignKeyOperations = database.Tables.SelectMany(
-                t => t.ForeignKeys,
-                (t, fk) => new DropForeignKeyOperation(fk.Table.Name, fk.Name));
-
-            var dropTableOperations = database.Tables.Select(
-                t => new DropTableOperation(t.Name));
-
-            return
-                ((IEnumerable<MigrationOperation>)dropSequenceOperations)
-                    .Concat(dropForeignKeyOperations)
-                    .Concat(dropTableOperations)
-                    .ToArray();
+            return OperationProcessor.Process(_operations, model, new Metadata.Model());
         }
 
         public virtual IReadOnlyList<MigrationOperation> Diff([NotNull] IModel sourceModel, [NotNull] IModel targetModel)
@@ -115,34 +107,25 @@ namespace Microsoft.Data.Entity.Migrations
             Check.NotNull(sourceModel, "sourceModel");
             Check.NotNull(targetModel, "targetModel");
 
-            _sourceMapping = _databaseBuilder.GetMapping(sourceModel);
-            _targetMapping = _databaseBuilder.GetMapping(targetModel);
             _operations = new MigrationOperationCollection();
 
-            Dictionary<Column, Column> columnMap;
-            DiffTables(out columnMap);
-            DiffSequences(columnMap);
+            var modelPair = Tuple.Create(sourceModel, targetModel);
+            Dictionary<IProperty, IProperty> columnMap;
+            DiffTables(modelPair, out columnMap);
+            DiffSequences(modelPair, columnMap);            
 
             // TODO: Add more unit tests for the operation order.
 
             HandleTransitiveRenames();
 
-            return Process(_operations, _sourceMapping.Database, _targetMapping.Database);
+            return OperationProcessor.Process(_operations, sourceModel, targetModel);
         }
 
-        protected virtual IReadOnlyList<MigrationOperation> Process(
-            [NotNull] MigrationOperationCollection operations,
-            [NotNull] DatabaseModel sourceDatabase,
-            [NotNull] DatabaseModel targetDatabase)
+        private void DiffTables(Tuple<IModel, IModel> modelPair, out Dictionary<IProperty, IProperty> columnMap)
         {
-            return _operations.GetAll();
-        }
-
-        private void DiffTables(out Dictionary<Column, Column> columnMap)
-        {
-            var tablePairs = FindTablePairs(FindEntityTypePairs());
-            var columnPairs = new IReadOnlyList<Tuple<Column, Column>>[tablePairs.Count];
-            columnMap = new Dictionary<Column, Column>();
+            var tablePairs = FindEntityTypePairs(modelPair);
+            var columnPairs = new IReadOnlyList<Tuple<IProperty, IProperty>>[tablePairs.Count];
+            columnMap = new Dictionary<IProperty, IProperty>();
 
             for (var i = 0; i < tablePairs.Count; i++)
             {
@@ -158,8 +141,8 @@ namespace Microsoft.Data.Entity.Migrations
 
             FindMovedTables(tablePairs);
             FindRenamedTables(tablePairs);
-            FindCreatedTables(tablePairs);
-            FindDroppedTables(tablePairs);
+            FindCreatedTables(modelPair, tablePairs);
+            FindDroppedTables(modelPair, tablePairs);
 
             for (var i = 0; i < tablePairs.Count; i++)
             {
@@ -191,16 +174,17 @@ namespace Microsoft.Data.Entity.Migrations
             }
         }
 
-        private void DiffSequences(Dictionary<Column, Column> columnMap)
+        private void DiffSequences(Tuple<IModel, IModel> modelPair, Dictionary<IProperty, IProperty> columnMap)
         {
-            Check.NotNull(columnMap, "columnMap");
+            var sourceSequences = GetSequences(modelPair.Item1);
+            var targetSequences = GetSequences(modelPair.Item2);
 
             var sequencePairs = FindSequencePairs(columnMap);
 
             FindMovedSequences(sequencePairs);
             FindRenamedSequences(sequencePairs);
-            FindCreatedSequences(sequencePairs);
-            FindDroppedSequences(sequencePairs);
+            FindCreatedSequences(sequencePairs, targetSequences);
+            FindDroppedSequences(sequencePairs, sourceSequences);
             FindAlteredSequences(sequencePairs);
         }
 
@@ -288,219 +272,140 @@ namespace Microsoft.Data.Entity.Migrations
             }
         }
 
-        private IReadOnlyList<Tuple<IEntityType, IEntityType>> FindEntityTypePairs()
+        private IReadOnlyList<Tuple<IEntityType, IEntityType>> FindEntityTypePairs(
+            Tuple<IModel, IModel> modelPair)
         {
             var simpleMatchPairs =
-                (from et1 in _sourceMapping.Model.EntityTypes
-                    from et2 in _targetMapping.Model.EntityTypes
+                (from et1 in modelPair.Item1.EntityTypes
+                 from et2 in modelPair.Item2.EntityTypes
                     where SimpleMatchEntityTypes(et1, et2)
                     select Tuple.Create(et1, et2))
-                    .ToArray();
+                    .ToList();
 
             var fuzzyMatchPairs =
-                from et1 in _sourceMapping.Model.EntityTypes.Except(simpleMatchPairs.Select(p => p.Item1))
-                from et2 in _targetMapping.Model.EntityTypes.Except(simpleMatchPairs.Select(p => p.Item2))
+                from et1 in modelPair.Item1.EntityTypes.Except(simpleMatchPairs.Select(p => p.Item1))
+                from et2 in modelPair.Item2.EntityTypes.Except(simpleMatchPairs.Select(p => p.Item2))
                 where FuzzyMatchEntityTypes(et1, et2)
                 select Tuple.Create(et1, et2);
 
-            return simpleMatchPairs.Concat(fuzzyMatchPairs).ToArray();
-        }
-
-        private IReadOnlyList<Tuple<Table, Table>> FindTablePairs(
-            IEnumerable<Tuple<IEntityType, IEntityType>> entityTypePairs)
-        {
-            return entityTypePairs
-                .Select(pair =>
-                    Tuple.Create(
-                        _sourceMapping.GetDatabaseObject<Table>(pair.Item1),
-                        _targetMapping.GetDatabaseObject<Table>(pair.Item2)))
-                .ToArray();
+            return simpleMatchPairs.Concat(fuzzyMatchPairs).ToList();
         }
 
         private void FindMovedTables(
-            IEnumerable<Tuple<Table, Table>> tablePairs)
+            IEnumerable<Tuple<IEntityType, IEntityType>> tablePairs)
         {
             _operations.AddRange(
                 tablePairs
-                    .Where(pair =>
-                        pair.Item1.Name.Schema != pair.Item2.Name.Schema)
-                    .Select(pair =>
-                        new MoveTableOperation(
-                            pair.Item1.Name,
-                            pair.Item2.Name.Schema)));
+                    .Where(pair => !MatchTableSchemas(pair.Item1, pair.Item2))
+                    .Select(pair => OperationFactory.MoveTableOperation(pair.Item1, pair.Item2)));
         }
 
         private void FindRenamedTables(
-            IEnumerable<Tuple<Table, Table>> tablePairs)
+            IEnumerable<Tuple<IEntityType, IEntityType>> tablePairs)
         {
             _operations.AddRange(
                 tablePairs
-                    .Where(pair =>
-                        pair.Item1.Name.Name != pair.Item2.Name.Name)
-                    .Select(pair =>
-                        new RenameTableOperation(
-                            new SchemaQualifiedName(
-                                pair.Item1.Name.Name,
-                                pair.Item2.Name.Schema),
-                            pair.Item2.Name.Name)));
+                    .Where(pair => !MatchTableNames(pair.Item1, pair.Item2))
+                    .Select(pair => OperationFactory.RenameTableOperation(pair.Item1, pair.Item2)));
         }
 
         private void FindCreatedTables(
-            IEnumerable<Tuple<Table, Table>> tablePairs)
+            Tuple<IModel, IModel> modelPair,
+            IEnumerable<Tuple<IEntityType, IEntityType>> tablePairs)
         {
             var tables =
-                _targetMapping.Database.Tables
+                modelPair.Item2.EntityTypes
                     .Except(tablePairs.Select(p => p.Item2))
-                    .ToArray();
+                    .ToList();
 
             _operations.AddRange(
-                tables
-                    .Select(t => new CreateTableOperation(t)));
+                tables.Select(t => OperationFactory.CreateTableOperation(t)));
 
             _operations.AddRange(
                 tables
                     .SelectMany(t => t.ForeignKeys)
-                    .Select(fk =>
-                        new AddForeignKeyOperation(
-                            fk.Table.Name,
-                            fk.Name,
-                            fk.Columns.Select(c => c.Name).ToArray(),
-                            fk.ReferencedTable.Name,
-                            fk.ReferencedColumns.Select(c => c.Name).ToArray(),
-                            fk.CascadeDelete)));
+                    .Select(fk => OperationFactory.AddForeignKeyOperation(fk)));
 
             _operations.AddRange(
                 tables
                     .SelectMany(t => t.Indexes)
-                    .Select(idx =>
-                        new CreateIndexOperation(
-                            idx.Table.Name,
-                            idx.Name,
-                            idx.Columns.Select(c => c.Name).ToArray(),
-                            idx.IsUnique,
-                            idx.IsClustered)));
+                    .Select(ix => OperationFactory.CreateIndexOperation(ix)));
         }
 
         private void FindDroppedTables(
-            IEnumerable<Tuple<Table, Table>> tablePairs)
+            Tuple<IModel, IModel> modelPair,
+            IEnumerable<Tuple<IEntityType, IEntityType>> tablePairs)
         {
             _operations.AddRange(
-                _sourceMapping.Database.Tables
+                modelPair.Item1.EntityTypes
                     .Except(tablePairs.Select(p => p.Item1))
-                    .Select(t => new DropTableOperation(t.Name)));
+                    .Select(t => OperationFactory.DropTableOperation(t)));
         }
 
-        private IReadOnlyList<Tuple<Column, Column>> FindColumnPairs(
-            Tuple<Table, Table> tablePair)
+        private IReadOnlyList<Tuple<IProperty, IProperty>> FindColumnPairs(
+            Tuple<IEntityType, IEntityType> tablePair)
         {
             var simplePropertyMatchPairs =
-                (from c1 in tablePair.Item1.Columns
-                    from c2 in tablePair.Item2.Columns
-                    where
-                        SimpleMatchProperties(
-                            _sourceMapping.GetModelObject<IProperty>(c1),
-                            _targetMapping.GetModelObject<IProperty>(c2))
-                    select Tuple.Create(c1, c2))
-                    .ToArray();
+                (from p1 in tablePair.Item1.Properties
+                    from p2 in tablePair.Item2.Properties
+                    where MatchPropertyNames(p1, p2)
+                    select Tuple.Create(p1, p2))
+                    .ToList();
 
             var simpleColumnMatchPairs =
-                from c1 in tablePair.Item1.Columns.Except(simplePropertyMatchPairs.Select(p => p.Item1))
-                from c2 in tablePair.Item2.Columns.Except(simplePropertyMatchPairs.Select(p => p.Item2))
-                where SimpleMatchColumns(c1, c2)
-                select Tuple.Create(c1, c2);
+                from p1 in tablePair.Item1.Properties.Except(simplePropertyMatchPairs.Select(p => p.Item1))
+                from p2 in tablePair.Item2.Properties.Except(simplePropertyMatchPairs.Select(p => p.Item2))
+                where MatchColumnNames(p1, p2)
+                select Tuple.Create(p1, p2);
 
-            return simplePropertyMatchPairs.Concat(simpleColumnMatchPairs).ToArray();
+            return simplePropertyMatchPairs.Concat(simpleColumnMatchPairs).ToList();
         }
 
         private void FindRenamedColumns(
-            IEnumerable<Tuple<Column, Column>> columnPairs)
+            IEnumerable<Tuple<IProperty, IProperty>> columnPairs)
         {
             _operations.AddRange(
                 columnPairs
-                    .Where(pair =>
-                        pair.Item1.Name != pair.Item2.Name)
-                    .Select(pair =>
-                        new RenameColumnOperation(
-                            pair.Item2.Table.Name,
-                            pair.Item1.Name,
-                            pair.Item2.Name)));
+                    .Where(pair => !MatchColumnNames(pair.Item1, pair.Item2))
+                    .Select(pair => OperationFactory.RenameColumnOperation(pair.Item1, pair.Item2)));
         }
 
         private void FindAddedColumns(
-            Tuple<Table, Table> tablePair,
-            IEnumerable<Tuple<Column, Column>> columnPairs)
+            Tuple<IEntityType, IEntityType> tablePair,
+            IEnumerable<Tuple<IProperty, IProperty>> columnPairs)
         {
             _operations.AddRange(
-                tablePair.Item2.Columns
+                tablePair.Item2.Properties
                     .Except(columnPairs.Select(pair => pair.Item2))
-                    .Select(c => new AddColumnOperation(c.Table.Name, c)));
+                    .Select(c => OperationFactory.AddColumnOperation(c)));
         }
 
         private void FindDroppedColumns(
-            Tuple<Table, Table> tablePair,
-            IEnumerable<Tuple<Column, Column>> columnPairs)
+            Tuple<IEntityType, IEntityType> tablePair,
+            IEnumerable<Tuple<IProperty, IProperty>> columnPairs)
         {
             _operations.AddRange(
-                tablePair.Item1.Columns
+                tablePair.Item1.Properties
                     .Except(columnPairs.Select(pair => pair.Item1))
-                    .Select(c => new DropColumnOperation(tablePair.Item2.Name, c.Name)));
+                    .Select(c => OperationFactory.DropColumnOperation(c)));
         }
 
         private void FindAlteredColumns(
-            IEnumerable<Tuple<Column, Column>> columnPairs)
+            IEnumerable<Tuple<IProperty, IProperty>> columnPairs)
         {
-            foreach (var pair in columnPairs)
-            {
-                if (!EquivalentColumns(pair.Item1, pair.Item2))
-                {
-                    _operations.Add(
-                        new AlterColumnOperation(
-                            pair.Item2.Table.Name,
-                            pair.Item2,
-                            isDestructiveChange: true));
-                }
-                else if (pair.Item1.DataType == null
-                         && pair.Item2.DataType == null)
-                {
-                    var sourceProperty = _sourceMapping.GetModelObject<IProperty>(pair.Item1);
-                    var targetProperty = _targetMapping.GetModelObject<IProperty>(pair.Item2);
-                    var sourceColumnType
-                        = DatabaseBuilder.TypeMapper.GetTypeMapping(
-                            null,
-                            pair.Item1.Name,
-                            sourceProperty.PropertyType,
-                            sourceProperty.IsKey() || sourceProperty.IsForeignKey(),
-                            sourceProperty.IsConcurrencyToken)
-                            .StoreTypeName;
-                    var targetColumnType
-                        = DatabaseBuilder.TypeMapper.GetTypeMapping(
-                            null,
-                            pair.Item2.Name,
-                            targetProperty.PropertyType,
-                            targetProperty.IsKey() || targetProperty.IsForeignKey(),
-                            targetProperty.IsConcurrencyToken)
-                            .StoreTypeName;
-
-                    if (sourceColumnType != targetColumnType)
-                    {
-                        _operations.Add(
-                            new AlterColumnOperation(
-                                pair.Item2.Table.Name,
-                                new Column(pair.Item2) { DataType = targetColumnType },
-                                isDestructiveChange: true));
-                    }
-                }
-            }
+            _operations.AddRange(
+                columnPairs.Where(pair => !EquivalentColumns(pair.Item1, pair.Item2))
+                    .Select(pair => OperationFactory.AlterColumnOperation(pair.Item1, pair.Item2, isDestructiveChange: true)));
 
             // TODO: Add functionality to determine the value of isDestructiveChange.
         }
 
         private void FindPrimaryKeyChanges(
-            Tuple<Table, Table> tablePair,
-            IDictionary<Column, Column> columnMap)
+            Tuple<IEntityType, IEntityType> tablePair,
+            IDictionary<IProperty, IProperty> columnMap)
         {
-            var sourcePrimaryKey = tablePair.Item1.PrimaryKey;
-            var targetPrimaryKey = tablePair.Item2.PrimaryKey;
+            var sourcePrimaryKey = tablePair.Item1.TryGetPrimaryKey();
+            var targetPrimaryKey = tablePair.Item2.TryGetPrimaryKey();
 
             if (targetPrimaryKey == null)
             {
@@ -515,369 +420,364 @@ namespace Microsoft.Data.Entity.Migrations
             {
                 AddPrimaryKey(targetPrimaryKey);
             }
-            else if (!MatchPrimaryKeys(sourcePrimaryKey, targetPrimaryKey, columnMap))
+            else if (!EquivalentPrimaryKeys(sourcePrimaryKey, targetPrimaryKey, columnMap))
             {
                 DropPrimaryKey(sourcePrimaryKey);
                 AddPrimaryKey(targetPrimaryKey);
             }
         }
 
-        private void AddPrimaryKey(PrimaryKey primaryKey)
+        private void AddPrimaryKey(IKey key)
         {
-            _operations.Add(
-                new AddPrimaryKeyOperation(
-                    primaryKey.Table.Name,
-                    primaryKey.Name,
-                    primaryKey.Columns.Select(c => c.Name).ToArray(),
-                    primaryKey.IsClustered));
+            _operations.Add(OperationFactory.AddPrimaryKeyOperation(key));
         }
 
-        private void DropPrimaryKey(PrimaryKey primaryKey)
+        private void DropPrimaryKey(IKey key)
         {
-            _operations.Add(
-                new DropPrimaryKeyOperation(
-                    primaryKey.Table.Name,
-                    primaryKey.Name));
+            _operations.Add(OperationFactory.DropPrimaryKeyOperation(key));
         }
 
-        private IReadOnlyList<Tuple<UniqueConstraint, UniqueConstraint>> FindUniqueConstraintPairs(
-            Tuple<Table, Table> table,
-            IDictionary<Column, Column> columnMap)
+        private IReadOnlyList<Tuple<IKey, IKey>> FindUniqueConstraintPairs(
+            Tuple<IEntityType, IEntityType> table,
+            IDictionary<IProperty, IProperty> columnMap)
         {
+            var pk1 = table.Item1.TryGetPrimaryKey();
+            var pk2 = table.Item2.TryGetPrimaryKey();
+
             return
-                (from uc1 in table.Item1.UniqueConstraints
-                    from uc2 in table.Item2.UniqueConstraints
-                    where MatchUniqueConstraints(uc1, uc2, columnMap)
+                (from uc1 in table.Item1.Keys.Where(k => k != pk1)
+                    from uc2 in table.Item2.Keys.Where(k => k != pk2)
+                    where EquivalentUniqueConstraints(uc1, uc2, columnMap)
                     select Tuple.Create(uc1, uc2))
-                    .ToArray();
+                    .ToList();
         }
 
         private void FindAddedUniqueConstraints(
-            Tuple<Table, Table> tablePair,
-            IEnumerable<Tuple<UniqueConstraint, UniqueConstraint>> uniqueConstraintPairs)
+            Tuple<IEntityType, IEntityType> tablePair,
+            IEnumerable<Tuple<IKey, IKey>> uniqueConstraintPairs)
         {
+            var pk2 = tablePair.Item2.TryGetPrimaryKey();
+
             _operations.AddRange(
-                tablePair.Item2.UniqueConstraints
+                tablePair.Item2.Keys.Where(k => k != pk2)
                     .Except(uniqueConstraintPairs.Select(pair => pair.Item2))
-                    .Select(uc => new AddUniqueConstraintOperation(uc)));
+                    .Select(uc => OperationFactory.AddUniqueConstraintOperation(uc)));
         }
 
         private void FindDroppedUniqueConstraints(
-            Tuple<Table, Table> tablePair,
-            IEnumerable<Tuple<UniqueConstraint, UniqueConstraint>> uniqueConstraintPairs)
+            Tuple<IEntityType, IEntityType> tablePair,
+            IEnumerable<Tuple<IKey, IKey>> uniqueConstraintPairs)
         {
+            var pk1 = tablePair.Item1.TryGetPrimaryKey();
+
             _operations.AddRange(
-                tablePair.Item1.UniqueConstraints
+                tablePair.Item1.Keys.Where(k => k != pk1)
                     .Except(uniqueConstraintPairs.Select(pair => pair.Item1))
-                    .Select(uc =>
-                        new DropUniqueConstraintOperation(
-                            uc.Table.Name,
-                            uc.Name)));
+                    .Select(uc => OperationFactory.DropUniqueConstraintOperation(uc)));
         }
 
-        private IReadOnlyList<Tuple<ForeignKey, ForeignKey>> FindForeignKeyPairs(
-            Tuple<Table, Table> table,
-            IDictionary<Column, Column> columnMap)
+        private IReadOnlyList<Tuple<IForeignKey, IForeignKey>> FindForeignKeyPairs(
+            Tuple<IEntityType, IEntityType> table,
+            IDictionary<IProperty, IProperty> columnMap)
         {
             return
                 (from fk1 in table.Item1.ForeignKeys
                     from fk2 in table.Item2.ForeignKeys
-                    where MatchForeignKeys(fk1, fk2, columnMap)
+                    where EquivalentForeignKeys(fk1, fk2, columnMap)
                     select Tuple.Create(fk1, fk2))
-                    .ToArray();
+                    .ToList();
         }
 
         private void FindAddedForeignKeys(
-            Tuple<Table, Table> tablePair,
-            IEnumerable<Tuple<ForeignKey, ForeignKey>> foreignKeyPairs)
+            Tuple<IEntityType, IEntityType> tablePair,
+            IEnumerable<Tuple<IForeignKey, IForeignKey>> foreignKeyPairs)
         {
             _operations.AddRange(
                 tablePair.Item2.ForeignKeys
                     .Except(foreignKeyPairs.Select(pair => pair.Item2))
-                    .Select(fk =>
-                        new AddForeignKeyOperation(
-                            fk.Table.Name,
-                            fk.Name,
-                            fk.Columns.Select(c => c.Name).ToArray(),
-                            fk.ReferencedTable.Name,
-                            fk.ReferencedColumns.Select(c => c.Name).ToArray(),
-                            fk.CascadeDelete)));
+                    .Select(fk => OperationFactory.AddForeignKeyOperation(fk)));
         }
 
         private void FindDroppedForeignKeys(
-            Tuple<Table, Table> tablePair,
-            IEnumerable<Tuple<ForeignKey, ForeignKey>> foreignKeyPairs)
+            Tuple<IEntityType, IEntityType> tablePair,
+            IEnumerable<Tuple<IForeignKey, IForeignKey>> foreignKeyPairs)
         {
             _operations.AddRange(
                 tablePair.Item1.ForeignKeys
                     .Except(foreignKeyPairs.Select(pair => pair.Item1))
-                    .Select(fk =>
-                        new DropForeignKeyOperation(
-                            fk.Table.Name,
-                            fk.Name)));
+                    .Select(fk => OperationFactory.DropForeignKeyOperation(fk)));
         }
 
-        private IReadOnlyList<Tuple<Index, Index>> FindIndexPairs(
-            Tuple<Table, Table> tablePair,
-            IDictionary<Column, Column> columnMap)
+        private IReadOnlyList<Tuple<IIndex, IIndex>> FindIndexPairs(
+            Tuple<IEntityType, IEntityType> tablePair,
+            IDictionary<IProperty, IProperty> columnMap)
         {
             return
                 (from ix1 in tablePair.Item1.Indexes
                     from ix2 in tablePair.Item2.Indexes
-                    where MatchIndexes(ix1, ix2, columnMap)
+                    where EquivalentIndexes(ix1, ix2, columnMap)
                     select Tuple.Create(ix1, ix2))
-                    .ToArray();
+                    .ToList();
         }
 
         private void FindRenamedIndexes(
-            IEnumerable<Tuple<Index, Index>> indexPairs)
+            IEnumerable<Tuple<IIndex, IIndex>> indexPairs)
         {
             _operations.AddRange(
                 indexPairs
-                    .Where(pair =>
-                        !string.Equals(pair.Item1.Name, pair.Item2.Name))
-                    .Select(pair =>
-                        new RenameIndexOperation(
-                            pair.Item2.Table.Name,
-                            pair.Item1.Name,
-                            pair.Item2.Name)));
+                    .Where(pair => !MatchIndexNames(pair.Item1, pair.Item2))
+                    .Select(pair => OperationFactory.RenameIndexOperation(pair.Item1, pair.Item2)));
         }
 
         private void FindCreatedIndexes(
-            Tuple<Table, Table> tablePair,
-            IEnumerable<Tuple<Index, Index>> indexPairs)
+            Tuple<IEntityType, IEntityType> tablePair,
+            IEnumerable<Tuple<IIndex, IIndex>> indexPairs)
         {
             _operations.AddRange(
                 tablePair.Item2.Indexes
                     .Except(indexPairs.Select(pair => pair.Item2))
-                    .Select(idx =>
-                        new CreateIndexOperation(
-                            idx.Table.Name,
-                            idx.Name,
-                            idx.Columns.Select(c => c.Name).ToArray(),
-                            idx.IsUnique,
-                            idx.IsClustered)));
+                    .Select(ix => OperationFactory.CreateIndexOperation(ix)));
         }
 
         private void FindDroppedIndexes(
-            Tuple<Table, Table> tablePair,
-            IEnumerable<Tuple<Index, Index>> indexPairs)
+            Tuple<IEntityType, IEntityType> tablePair,
+            IEnumerable<Tuple<IIndex, IIndex>> indexPairs)
         {
             _operations.AddRange(
                 tablePair.Item1.Indexes
                     .Except(indexPairs.Select(pair => pair.Item1))
-                    .Select(idx =>
-                        new DropIndexOperation(
-                            idx.Table.Name,
-                            idx.Name)));
+                    .Select(ix => OperationFactory.DropIndexOperation(ix)));
         }
 
-        private IReadOnlyList<Tuple<Sequence, Sequence>> FindSequencePairs(Dictionary<Column, Column> columnMap)
+        private IReadOnlyList<Tuple<ISequence, ISequence>> FindSequencePairs(
+            Dictionary<IProperty, IProperty> columnMap)
         {
             return
-                (from columnPair in columnMap
-                    let sourceSequenceName = GetSequenceName(columnPair.Key)
-                    where sourceSequenceName != null
-                    let targetSequenceName = GetSequenceName(columnPair.Value)
-                    where targetSequenceName != null
-                    let sourceSequence = _sourceMapping.Database.GetSequence(sourceSequenceName)
-                    let targetSequence = _targetMapping.Database.GetSequence(targetSequenceName)
-                    where SimpleMatchSequences(sourceSequence, targetSequence)
+                (from pair in columnMap
+                    let sourceSequence = TryGetSequence(pair.Key)
+                    where sourceSequence != null
+                    let targetSequence = TryGetSequence(pair.Value)
+                    where targetSequence != null
+                    where MatchSequences(sourceSequence, targetSequence)
                     select Tuple.Create(sourceSequence, targetSequence))
+                    .Distinct((x, y) => MatchSequenceNames(x.Item1, y.Item1) && MatchSequenceSchemas(x.Item1, y.Item1))
                     .ToList();
         }
 
-        private void FindMovedSequences(IEnumerable<Tuple<Sequence, Sequence>> sequencePairs)
+        private void FindMovedSequences(IEnumerable<Tuple<ISequence, ISequence>> sequencePairs)
         {
             _operations.AddRange(
                 sequencePairs
-                    .Where(pair =>
-                        pair.Item1.Name.Schema != pair.Item2.Name.Schema)
-                    .Select(pair =>
-                        new MoveSequenceOperation(
-                            pair.Item1.Name,
-                            pair.Item2.Name.Schema)));
+                    .Where(pair => !MatchSequenceSchemas(pair.Item1, pair.Item2))
+                    .Select(pair => OperationFactory.MoveSequenceOperation(pair.Item1, pair.Item2)));
         }
 
-        private void FindRenamedSequences(IEnumerable<Tuple<Sequence, Sequence>> sequencePairs)
+        private void FindRenamedSequences(IEnumerable<Tuple<ISequence, ISequence>> sequencePairs)
         {
             _operations.AddRange(
                 sequencePairs
-                    .Where(pair =>
-                        pair.Item1.Name.Name != pair.Item2.Name.Name)
-                    .Select(pair =>
-                        new RenameSequenceOperation(
-                            new SchemaQualifiedName(
-                                pair.Item1.Name.Name,
-                                pair.Item2.Name.Schema),
-                            pair.Item2.Name.Name)));
+                    .Where(pair => !MatchSequenceNames(pair.Item1, pair.Item2))
+                    .Select(pair => OperationFactory.RenameSequenceOperation(pair.Item1, pair.Item2)));
         }
 
-        private void FindCreatedSequences(IEnumerable<Tuple<Sequence, Sequence>> sequencePairs)
+        private void FindCreatedSequences(IEnumerable<Tuple<ISequence, ISequence>> sequencePairs, IEnumerable<ISequence> targetSequences)
         {
             _operations.AddRange(
-                _targetMapping.Database.Sequences
-                    .Except(sequencePairs.Select(p => p.Item2))
-                    .Select(s => new CreateSequenceOperation(s)));
+                targetSequences
+                    .Except(sequencePairs.Select(p => p.Item2), (x, y) => MatchSequenceNames(x, y) && MatchSequenceSchemas(x, y))
+                    .Select(s => OperationFactory.CreateSequenceOperation(s)));
         }
 
-        private void FindDroppedSequences(IEnumerable<Tuple<Sequence, Sequence>> sequencePairs)
+        private void FindDroppedSequences(IEnumerable<Tuple<ISequence, ISequence>> sequencePairs, IEnumerable<ISequence> sourceSequences)
         {
             _operations.AddRange(
-                _sourceMapping.Database.Sequences
-                    .Except(sequencePairs.Select(p => p.Item1))
-                    .Select(s => new DropSequenceOperation(s.Name)));
+                sourceSequences
+                    .Except(sequencePairs.Select(p => p.Item1), (x, y) => MatchSequenceNames(x, y) && MatchSequenceSchemas(x, y))
+                    .Select(s => OperationFactory.DropSequenceOperation(s)));
         }
 
-        private void FindAlteredSequences(IEnumerable<Tuple<Sequence, Sequence>> sequencePairs)
+        private void FindAlteredSequences(IEnumerable<Tuple<ISequence, ISequence>> sequencePairs)
         {
             _operations.AddRange(
                 sequencePairs
                     .Where(pair => !EquivalentSequences(pair.Item1, pair.Item2))
-                    .Select(pair =>
-                        new AlterSequenceOperation(
-                            pair.Item2.Name,
-                            pair.Item2.IncrementBy)));
+                    .Select(pair => OperationFactory.AlterSequenceOperation(pair.Item1, pair.Item2)));
         }
 
-        protected virtual bool SimpleMatchEntityTypes([NotNull] IEntityType sourceEntityType, [NotNull] IEntityType targetEntityType)
+        protected virtual bool SimpleMatchEntityTypes([NotNull] IEntityType source, [NotNull] IEntityType target)
         {
-            Check.NotNull(sourceEntityType, "sourceEntityType");
-            Check.NotNull(targetEntityType, "targetEntityType");
+            Check.NotNull(source, "source");
+            Check.NotNull(target, "target");
 
-            return sourceEntityType.Name == targetEntityType.Name;
+            return source.Name == target.Name;
         }
 
-        protected virtual bool FuzzyMatchEntityTypes([NotNull] IEntityType sourceEntityType, [NotNull] IEntityType targetEntityType)
+        protected virtual bool FuzzyMatchEntityTypes([NotNull] IEntityType source, [NotNull] IEntityType target)
         {
-            Check.NotNull(sourceEntityType, "sourceEntityType");
-            Check.NotNull(targetEntityType, "targetEntityType");
+            Check.NotNull(source, "source");
+            Check.NotNull(target, "target");
 
             var matchingPropertyCount =
-                (from p1 in sourceEntityType.Properties
-                    from p2 in targetEntityType.Properties
-                    where EquivalentProperties(p1, p2)
+                (from p1 in source.Properties
+                 from p2 in target.Properties
+                    where MatchProperties(p1, p2)
                     select 1)
                     .Count();
 
             // At least 80% of properties, across both entities, must be equivalent.
-            return (matchingPropertyCount * 2.0f / (sourceEntityType.Properties.Count + targetEntityType.Properties.Count)) >= 0.80;
+            return (matchingPropertyCount * 2.0f / (source.Properties.Count + target.Properties.Count)) >= 0.80;
         }
 
-        protected virtual bool EquivalentProperties([NotNull] IProperty sourceProperty, [NotNull] IProperty targetProperty)
+        protected virtual bool MatchProperties([NotNull] IProperty source, [NotNull] IProperty target)
         {
-            Check.NotNull(sourceProperty, "sourceProperty");
-            Check.NotNull(targetProperty, "targetProperty");
+            Check.NotNull(source, "source");
+            Check.NotNull(target, "target");
 
             return
-                sourceProperty.Name == targetProperty.Name
-                && sourceProperty.PropertyType == targetProperty.PropertyType;
+                source.Name == target.Name
+                && source.PropertyType == target.PropertyType;
         }
 
-        protected virtual bool SimpleMatchProperties([NotNull] IProperty sourceProperty, [NotNull] IProperty targetProperty)
+        protected virtual bool MatchPropertyNames([NotNull] IProperty source, [NotNull] IProperty target)
         {
-            Check.NotNull(sourceProperty, "sourceProperty");
-            Check.NotNull(targetProperty, "targetProperty");
+            Check.NotNull(source, "source");
+            Check.NotNull(target, "target");
 
-            return sourceProperty.Name == targetProperty.Name;
+            return source.Name == target.Name;
         }
 
-        protected virtual bool EquivalentColumns([NotNull] Column sourceColumn, [NotNull] Column targetColumn)
+        protected virtual bool MatchSequences([NotNull] ISequence source, [NotNull] ISequence target)
         {
-            Check.NotNull(sourceColumn, "sourceColumn");
-            Check.NotNull(targetColumn, "targetColumn");
+            Check.NotNull(source, "source");
+            Check.NotNull(target, "target");
+
+            return source.Type == target.Type;
+        }
+
+        protected virtual bool MatchSequenceNames([NotNull] ISequence source, [NotNull] ISequence target)
+        {
+            Check.NotNull(source, "source");
+            Check.NotNull(target, "target");
+
+            return source.Name == target.Name;
+        }
+
+        protected virtual bool MatchSequenceSchemas([NotNull] ISequence source, [NotNull] ISequence target)
+        {
+            Check.NotNull(source, "source");
+            Check.NotNull(target, "target");
+
+            return source.Schema == target.Schema;
+        }
+
+        protected virtual bool MatchTableNames([NotNull] IEntityType source, [NotNull] IEntityType target)
+        {
+            Check.NotNull(source, "source");
+            Check.NotNull(target, "target");
+
+            return ExtensionProvider.Extensions(source).Table == ExtensionProvider.Extensions(target).Table;
+        }
+
+        protected virtual bool MatchTableSchemas([NotNull] IEntityType source, [NotNull] IEntityType target)
+        {
+            Check.NotNull(source, "source");
+            Check.NotNull(target, "target");
+
+            return ExtensionProvider.Extensions(source).Schema == ExtensionProvider.Extensions(target).Schema;
+        }
+
+        protected virtual bool MatchColumnNames([NotNull] IProperty source, [NotNull] IProperty target)
+        {
+            Check.NotNull(source, "source");
+            Check.NotNull(target, "target");
+
+            return ExtensionProvider.Extensions(source).Column == ExtensionProvider.Extensions(target).Column;
+        }
+
+        protected virtual bool MatchIndexNames([NotNull] IIndex source, [NotNull] IIndex target)
+        {
+            Check.NotNull(source, "source");
+            Check.NotNull(target, "target");
+
+            return ExtensionProvider.Extensions(source).Name == ExtensionProvider.Extensions(target).Name;
+        }
+
+        protected virtual bool EquivalentColumns([NotNull] IProperty source, [NotNull] IProperty target)
+        {
+            Check.NotNull(source, "source");
+            Check.NotNull(target, "target");
+
+            var sourceExtensions = ExtensionProvider.Extensions(source);
+            var targetExtensions = ExtensionProvider.Extensions(target);
 
             return
-                sourceColumn.ClrType == targetColumn.ClrType
-                && sourceColumn.DataType == targetColumn.DataType
-                && sourceColumn.DefaultValue == targetColumn.DefaultValue
-                && sourceColumn.DefaultSql == targetColumn.DefaultSql
-                && sourceColumn.IsNullable == targetColumn.IsNullable
-                && sourceColumn.GenerateValueOnAdd == targetColumn.GenerateValueOnAdd
-                && sourceColumn.IsComputed == targetColumn.IsComputed
-                && sourceColumn.IsTimestamp == targetColumn.IsTimestamp
-                && sourceColumn.MaxLength == targetColumn.MaxLength
-                && sourceColumn.Precision == targetColumn.Precision
-                && sourceColumn.Scale == targetColumn.Scale
-                && sourceColumn.IsFixedLength == targetColumn.IsFixedLength
-                && sourceColumn.IsUnicode == targetColumn.IsUnicode;
+                source.PropertyType == target.PropertyType
+                && ColumnType(source) == ColumnType(target)
+                && sourceExtensions.DefaultValue == targetExtensions.DefaultValue
+                && sourceExtensions.DefaultExpression == targetExtensions.DefaultExpression
+                && source.IsNullable == target.IsNullable
+                && source.GenerateValueOnAdd == target.GenerateValueOnAdd
+                && source.IsStoreComputed == target.IsStoreComputed
+                && source.IsConcurrencyToken == target.IsConcurrencyToken
+                && source.MaxLength == target.MaxLength;
         }
 
-        protected virtual bool SimpleMatchSequences([NotNull] Sequence sourceSequence, [NotNull] Sequence targetSequence)
+        protected virtual bool EquivalentSequences([NotNull] ISequence source, [NotNull] ISequence target)
         {
-            Check.NotNull(sourceSequence, "sourceSequence");
-            Check.NotNull(targetSequence, "targetSequence");
+            Check.NotNull(source, "source");
+            Check.NotNull(target, "target");
 
             return
-                sourceSequence.Type == targetSequence.Type;
+                source.IncrementBy == target.IncrementBy;
         }
 
-        protected virtual bool EquivalentSequences([NotNull] Sequence sourceSequence, [NotNull] Sequence targetSequence)
+        protected virtual bool EquivalentPrimaryKeys(
+            [NotNull] IKey sourceKey,
+            [NotNull] IKey targetKey,
+            [NotNull] IDictionary<IProperty, IProperty> columnMap)
         {
-            Check.NotNull(sourceSequence, "sourceSequence");
-            Check.NotNull(targetSequence, "targetSequence");
-
-            return
-                sourceSequence.IncrementBy == targetSequence.IncrementBy;
-        }
-
-        protected virtual bool SimpleMatchColumns([NotNull] Column sourceColumn, [NotNull] Column targetColumn)
-        {
-            Check.NotNull(sourceColumn, "sourceColumn");
-            Check.NotNull(targetColumn, "targetColumn");
-
-            return sourceColumn.Name == targetColumn.Name;
-        }
-
-        protected virtual bool MatchPrimaryKeys(
-            [NotNull] PrimaryKey sourcePrimaryKey,
-            [NotNull] PrimaryKey targetPrimaryKey,
-            [NotNull] IDictionary<Column, Column> columnMap)
-        {
-            Check.NotNull(sourcePrimaryKey, "sourcePrimaryKey");
-            Check.NotNull(targetPrimaryKey, "targetPrimaryKey");
+            Check.NotNull(sourceKey, "sourceKey");
+            Check.NotNull(targetKey, "targetKey");
             Check.NotNull(columnMap, "columnMap");
 
             return
-                sourcePrimaryKey.Name == targetPrimaryKey.Name
-                && sourcePrimaryKey.IsClustered == targetPrimaryKey.IsClustered
-                && MatchColumnReferences(sourcePrimaryKey.Columns, targetPrimaryKey.Columns, columnMap);
+                NameBuilder.KeyName(sourceKey) == NameBuilder.KeyName(targetKey)
+                && EquivalentColumnReferences(sourceKey.Properties, targetKey.Properties, columnMap);
         }
 
-        protected virtual bool MatchUniqueConstraints(
-            [NotNull] UniqueConstraint sourceUniqueConstraint,
-            [NotNull] UniqueConstraint targetUniqueConstraint,
-            [NotNull] IDictionary<Column, Column> columnMap)
+        protected virtual bool EquivalentUniqueConstraints(
+            [NotNull] IKey sourceKey,
+            [NotNull] IKey targetKey,
+            [NotNull] IDictionary<IProperty, IProperty> columnMap)
         {
-            Check.NotNull(sourceUniqueConstraint, "sourceUniqueConstraint");
-            Check.NotNull(targetUniqueConstraint, "targetUniqueConstraint");
+            Check.NotNull(sourceKey, "sourceKey");
+            Check.NotNull(targetKey, "targetKey");
             Check.NotNull(columnMap, "columnMap");
 
             return
-                sourceUniqueConstraint.Name == targetUniqueConstraint.Name
-                && MatchColumnReferences(sourceUniqueConstraint.Columns, targetUniqueConstraint.Columns, columnMap);
+                NameBuilder.KeyName(sourceKey) == NameBuilder.KeyName(targetKey)
+                && EquivalentColumnReferences(sourceKey.Properties, targetKey.Properties, columnMap);
         }
 
-        protected virtual bool MatchForeignKeys(
-            [NotNull] ForeignKey sourceForeignKey,
-            [NotNull] ForeignKey targetForeignKey,
-            [NotNull] IDictionary<Column, Column> columnMap)
+        protected virtual bool EquivalentForeignKeys(
+            [NotNull] IForeignKey sourceForeignKey,
+            [NotNull] IForeignKey targetForeignKey,
+            [NotNull] IDictionary<IProperty, IProperty> columnMap)
         {
             Check.NotNull(sourceForeignKey, "sourceForeignKey");
             Check.NotNull(targetForeignKey, "targetForeignKey");
             Check.NotNull(columnMap, "columnMap");
 
             return
-                sourceForeignKey.Name == targetForeignKey.Name
-                && sourceForeignKey.CascadeDelete == targetForeignKey.CascadeDelete
-                && MatchColumnReferences(sourceForeignKey.Columns, targetForeignKey.Columns, columnMap)
-                && MatchColumnReferences(sourceForeignKey.ReferencedColumns, targetForeignKey.ReferencedColumns, columnMap);
+                NameBuilder.ForeignKeyName(sourceForeignKey) == NameBuilder.ForeignKeyName(targetForeignKey)
+                && EquivalentColumnReferences(sourceForeignKey.Properties, targetForeignKey.Properties, columnMap)
+                && EquivalentColumnReferences(sourceForeignKey.ReferencedProperties, targetForeignKey.ReferencedProperties, columnMap);
         }
 
-        protected virtual bool MatchIndexes(
-            [NotNull] Index sourceIndex,
-            [NotNull] Index targetIndex,
-            [NotNull] IDictionary<Column, Column> columnMap)
+        protected virtual bool EquivalentIndexes(
+            [NotNull] IIndex sourceIndex,
+            [NotNull] IIndex targetIndex,
+            [NotNull] IDictionary<IProperty, IProperty> columnMap)
         {
             Check.NotNull(sourceIndex, "sourceIndex");
             Check.NotNull(targetIndex, "targetIndex");
@@ -885,27 +785,26 @@ namespace Microsoft.Data.Entity.Migrations
 
             return
                 sourceIndex.IsUnique == targetIndex.IsUnique
-                && sourceIndex.IsClustered == targetIndex.IsClustered
-                && MatchColumnReferences(sourceIndex.Columns, targetIndex.Columns, columnMap);
+                && EquivalentColumnReferences(sourceIndex.Properties, targetIndex.Properties, columnMap);
         }
 
-        protected virtual bool MatchColumnReferences(
-            [NotNull] Column sourceColumn,
-            [NotNull] Column targetColumn,
-            [NotNull] IDictionary<Column, Column> columnMap)
+        protected virtual bool EquivalentColumnReferences(
+            [NotNull] IProperty sourceColumn,
+            [NotNull] IProperty targetColumn,
+            [NotNull] IDictionary<IProperty, IProperty> columnMap)
         {
             Check.NotNull(sourceColumn, "sourceColumn");
             Check.NotNull(targetColumn, "targetColumn");
             Check.NotNull(columnMap, "columnMap");
 
-            Column column;
+            IProperty column;
             return columnMap.TryGetValue(sourceColumn, out column) && ReferenceEquals(column, targetColumn);
         }
 
-        protected virtual bool MatchColumnReferences(
-            [NotNull] IReadOnlyList<Column> sourceColumns,
-            [NotNull] IReadOnlyList<Column> targetColumns,
-            [NotNull] IDictionary<Column, Column> columnMap)
+        protected virtual bool EquivalentColumnReferences(
+            [NotNull] IReadOnlyList<IProperty> sourceColumns,
+            [NotNull] IReadOnlyList<IProperty> targetColumns,
+            [NotNull] IDictionary<IProperty, IProperty> columnMap)
         {
             Check.NotNull(sourceColumns, "sourceColumns");
             Check.NotNull(targetColumns, "targetColumns");
@@ -913,9 +812,31 @@ namespace Microsoft.Data.Entity.Migrations
 
             return
                 sourceColumns.Count == targetColumns.Count
-                && !sourceColumns.Where((t, i) => !MatchColumnReferences(t, targetColumns[i], columnMap)).Any();
+                && !sourceColumns.Where((t, i) => !EquivalentColumnReferences(t, targetColumns[i], columnMap)).Any();
         }
 
-        protected abstract string GetSequenceName([NotNull] Column column);
+        protected virtual string ColumnType(IProperty property)
+        {
+            var extensions = ExtensionProvider.Extensions(property);
+
+            return
+                TypeMapper.GetTypeMapping(
+                    extensions.ColumnType,
+                    extensions.Column,
+                    property.PropertyType,
+                    property.IsKey() || property.IsForeignKey(),
+                    property.IsConcurrencyToken)
+                    .StoreTypeName;
+        }
+
+        protected virtual ISequence TryGetSequence([NotNull] IProperty property)
+        {
+            return null;
+        }
+
+        protected virtual IReadOnlyList<ISequence> GetSequences([NotNull] IModel model)
+        {
+            return new ISequence[0];
+        }
     }
 }

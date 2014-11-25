@@ -18,6 +18,9 @@ namespace Microsoft.Data.Entity.Metadata
         [CanBeNull]
         Type Type { get; }
 
+        [CanBeNull]
+        IKey TryGetPrimaryKey();
+
         IKey GetPrimaryKey();
 
         [CanBeNull]

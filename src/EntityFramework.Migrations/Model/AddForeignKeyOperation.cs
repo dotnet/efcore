@@ -2,11 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Migrations.Utilities;
 using Microsoft.Data.Entity.Relational;
-using Microsoft.Data.Entity.Relational.Model;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Migrations.Model
@@ -38,18 +36,6 @@ namespace Microsoft.Data.Entity.Migrations.Model
             _columnNames = columnNames;
             _referencedColumnNames = referencedColumnNames;
             _cascadeDelete = cascadeDelete;
-        }
-
-        public AddForeignKeyOperation([NotNull] ForeignKey foreignKey)
-        {
-            Check.NotNull(foreignKey, "foreignKey");
-
-            _tableName = foreignKey.Table.Name;
-            _foreignKeyName = foreignKey.Name;
-            _referencedTableName = foreignKey.ReferencedTable.Name;
-            _columnNames = foreignKey.Columns.Select(c => c.Name).ToArray();
-            _referencedColumnNames = foreignKey.ReferencedColumns.Select(c => c.Name).ToArray();
-            _cascadeDelete = foreignKey.CascadeDelete;
         }
 
         public virtual string ForeignKeyName

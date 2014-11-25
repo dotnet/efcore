@@ -69,6 +69,8 @@
     <Compile Include="Migration.cs" />
     <Compile Include="MigrationCodeGenerator.cs" />
     <Compile Include="MigrationOperationCollection.cs" />
+    <Compile Include="MigrationOperationFactory.cs" />
+    <Compile Include="MigrationOperationProcessor.cs" />
     <Compile Include="MigrationOperationSqlGenerator.cs" />
     <Compile Include="MigrationsDatabaseExtensions.cs" />
     <Compile Include="MigrationsEnabledDatabase.cs" />
@@ -85,6 +87,7 @@
     <Compile Include="Model\AddPrimaryKeyOperation.cs" />
     <Compile Include="Model\AlterSequenceOperation.cs" />
     <Compile Include="Model\AlterColumnOperation.cs" />
+    <Compile Include="Model\Column.cs" />
     <Compile Include="Model\CopyDataOperation.cs" />
     <Compile Include="Model\CreateDatabaseOperation.cs" />
     <Compile Include="Model\CreateIndexOperation.cs" />
