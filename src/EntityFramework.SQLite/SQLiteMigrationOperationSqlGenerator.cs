@@ -9,24 +9,24 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Relational;
-using Microsoft.Data.Entity.SQLite.Metadata;
-using Microsoft.Data.Entity.SQLite.Utilities;
+using Microsoft.Data.Entity.Sqlite.Metadata;
+using Microsoft.Data.Entity.Sqlite.Utilities;
 using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.Entity.SQLite
+namespace Microsoft.Data.Entity.Sqlite
 {
-    public class SQLiteMigrationOperationSqlGenerator : MigrationOperationSqlGenerator
+    public class SqliteMigrationOperationSqlGenerator : MigrationOperationSqlGenerator
     {
-        public SQLiteMigrationOperationSqlGenerator(
-            [NotNull] SQLiteMetadataExtensionProvider extensionProvider,
-            [NotNull] SQLiteTypeMapper typeMapper)
+        public SqliteMigrationOperationSqlGenerator(
+            [NotNull] SqliteMetadataExtensionProvider extensionProvider,
+            [NotNull] SqliteTypeMapper typeMapper)
             : base(extensionProvider, typeMapper)
         {
         }
 
-        public virtual new SQLiteMetadataExtensionProvider ExtensionProvider
+        public virtual new SqliteMetadataExtensionProvider ExtensionProvider
         {
-            get { return (SQLiteMetadataExtensionProvider)base.ExtensionProvider; }
+            get { return (SqliteMetadataExtensionProvider)base.ExtensionProvider; }
         }
 
         public override void Generate(

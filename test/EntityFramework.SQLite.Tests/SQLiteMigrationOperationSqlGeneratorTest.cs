@@ -5,13 +5,13 @@ using System;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Relational;
-using Microsoft.Data.Entity.SQLite.Metadata;
-using Microsoft.Data.Entity.SQLite.Migrations;
+using Microsoft.Data.Entity.Sqlite.Metadata;
+using Microsoft.Data.Entity.Sqlite.Migrations;
 using Xunit;
 
-namespace Microsoft.Data.Entity.SQLite.Tests
+namespace Microsoft.Data.Entity.Sqlite.Tests
 {
-    public class SQLiteMigrationOperationSqlGeneratorTest
+    public class SqliteMigrationOperationSqlGeneratorTest
     {
         [Fact]
         public void Generate_with_create_database_not_supported()
@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.SQLite.Tests
             var operation = new CreateDatabaseOperation("Bronies");
 
             Assert.Equal(
-                Strings.MigrationOperationNotSupported(typeof(SQLiteMigrationOperationSqlGenerator), operation.GetType()),
+                Strings.MigrationOperationNotSupported(typeof(SqliteMigrationOperationSqlGenerator), operation.GetType()),
                 Assert.Throws<NotSupportedException>(() => Generate(operation)).Message);
         }
 
@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.SQLite.Tests
             var operation = new DropDatabaseOperation("Bronies");
 
             Assert.Equal(
-                Strings.MigrationOperationNotSupported(typeof(SQLiteMigrationOperationSqlGenerator), operation.GetType()),
+                Strings.MigrationOperationNotSupported(typeof(SqliteMigrationOperationSqlGenerator), operation.GetType()),
                 Assert.Throws<NotSupportedException>(() => Generate(operation)).Message);
         }
 
@@ -39,7 +39,7 @@ namespace Microsoft.Data.Entity.SQLite.Tests
             var operation = new CreateSequenceOperation("EpisodeSequence", 0, 1);
 
             Assert.Equal(
-                Strings.MigrationOperationNotSupported(typeof(SQLiteMigrationOperationSqlGenerator), operation.GetType()),
+                Strings.MigrationOperationNotSupported(typeof(SqliteMigrationOperationSqlGenerator), operation.GetType()),
                 Assert.Throws<NotSupportedException>(() => Generate(operation)).Message);
         }
 
@@ -49,7 +49,7 @@ namespace Microsoft.Data.Entity.SQLite.Tests
             var operation = new DropSequenceOperation("EpisodeSequence");
 
             Assert.Equal(
-                Strings.MigrationOperationNotSupported(typeof(SQLiteMigrationOperationSqlGenerator), operation.GetType()),
+                Strings.MigrationOperationNotSupported(typeof(SqliteMigrationOperationSqlGenerator), operation.GetType()),
                 Assert.Throws<NotSupportedException>(() => Generate(operation)).Message);
         }
 
@@ -59,7 +59,7 @@ namespace Microsoft.Data.Entity.SQLite.Tests
             var operation = new RenameSequenceOperation("EpisodeSequence", "RenamedSchema");
 
             Assert.Equal(
-                Strings.MigrationOperationNotSupported(typeof(SQLiteMigrationOperationSqlGenerator), operation.GetType()),
+                Strings.MigrationOperationNotSupported(typeof(SqliteMigrationOperationSqlGenerator), operation.GetType()),
                 Assert.Throws<NotSupportedException>(() => Generate(operation)).Message);
         }
 
@@ -69,7 +69,7 @@ namespace Microsoft.Data.Entity.SQLite.Tests
             var operation = new AlterSequenceOperation("EpisodeSequence", 7);
 
             Assert.Equal(
-                Strings.MigrationOperationNotSupported(typeof(SQLiteMigrationOperationSqlGenerator), operation.GetType()),
+                Strings.MigrationOperationNotSupported(typeof(SqliteMigrationOperationSqlGenerator), operation.GetType()),
                 Assert.Throws<NotSupportedException>(() => Generate(operation)).Message);
         }
 
@@ -204,20 +204,20 @@ namespace Microsoft.Data.Entity.SQLite.Tests
             return SqlGenerator(targetModel).Generate(operation).Sql;
         }
 
-        private static SQLiteMigrationOperationSqlGenerator SqlGenerator(IModel targetModel = null)
+        private static SqliteMigrationOperationSqlGenerator SqlGenerator(IModel targetModel = null)
         {
             return
-                new SQLiteMigrationOperationSqlGenerator(
-                    new SQLiteMetadataExtensionProvider(),
-                    new SQLiteTypeMapper())
+                new SqliteMigrationOperationSqlGenerator(
+                    new SqliteMetadataExtensionProvider(),
+                    new SqliteTypeMapper())
                     {
                         TargetModel = targetModel ?? new Model(),
                     };
         }
 
-        private static SQLiteMigrationOperationFactory OperationFactory()
+        private static SqliteMigrationOperationFactory OperationFactory()
         {
-            return new SQLiteMigrationOperationFactory(new SQLiteMetadataExtensionProvider());
+            return new SqliteMigrationOperationFactory(new SqliteMetadataExtensionProvider());
         }
     }
 }

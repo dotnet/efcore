@@ -9,18 +9,18 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Relational;
-using Microsoft.Data.Entity.SQLite.Metadata;
-using Microsoft.Data.Entity.SQLite.Migrations;
-using Microsoft.Data.Entity.SQLite.Utilities;
+using Microsoft.Data.Entity.Sqlite.Metadata;
+using Microsoft.Data.Entity.Sqlite.Utilities;
+using Microsoft.Data.Entity.Sqlite.Migrations;
 
-namespace Microsoft.Data.Entity.SQLite
+namespace Microsoft.Data.Entity.Sqlite
 {
-    public class SQLiteMigrationOperationProcessor : MigrationOperationProcessor
+    public class SqliteMigrationOperationProcessor : MigrationOperationProcessor
     {
-        public SQLiteMigrationOperationProcessor(
-            [NotNull] SQLiteMetadataExtensionProvider extensionProvider,
-            [NotNull] SQLiteTypeMapper typeMapper,
-            [NotNull] SQLiteMigrationOperationFactory operationFactory)
+        public SqliteMigrationOperationProcessor(
+            [NotNull] SqliteMetadataExtensionProvider extensionProvider,
+            [NotNull] SqliteTypeMapper typeMapper,
+            [NotNull] SqliteMigrationOperationFactory operationFactory)
             : base(
                 extensionProvider,
                 typeMapper,
@@ -28,19 +28,19 @@ namespace Microsoft.Data.Entity.SQLite
         {
         }
 
-        public virtual new SQLiteMetadataExtensionProvider ExtensionProvider
+        public virtual new SqliteMetadataExtensionProvider ExtensionProvider
         {
-            get { return (SQLiteMetadataExtensionProvider)base.ExtensionProvider; }
+            get { return (SqliteMetadataExtensionProvider)base.ExtensionProvider; }
         }
 
-        public virtual new SQLiteTypeMapper TypeMapper
+        public virtual new SqliteTypeMapper TypeMapper
         {
-            get { return (SQLiteTypeMapper)base.TypeMapper; }
+            get { return (SqliteTypeMapper)base.TypeMapper; }
         }
 
-        public virtual new SQLiteMigrationOperationFactory OperationFactory
+        public virtual new SqliteMigrationOperationFactory OperationFactory
         {
-            get { return (SQLiteMigrationOperationFactory)base.OperationFactory; }
+            get { return (SqliteMigrationOperationFactory)base.OperationFactory; }
         }
 
         public override IReadOnlyList<MigrationOperation> Process(            
@@ -409,14 +409,14 @@ namespace Microsoft.Data.Entity.SQLite
 
         public class Context
         {
-            private readonly SQLiteMigrationOperationProcessor _processor;
+            private readonly SqliteMigrationOperationProcessor _processor;
             private readonly IModel _sourceModel;
             private readonly IModel _targetModel;
             private readonly List<MigrationOperation> _operations = new List<MigrationOperation>();
             private readonly List<TableOperationHandler> _handlers = new List<TableOperationHandler>();
             private readonly List<MigrationOperation> _deferredOperations = new List<MigrationOperation>();
 
-            public Context([NotNull] SQLiteMigrationOperationProcessor processor, [NotNull] IModel sourceModel, [NotNull] IModel targetModel)
+            public Context([NotNull] SqliteMigrationOperationProcessor processor, [NotNull] IModel sourceModel, [NotNull] IModel targetModel)
             {
                 Check.NotNull(processor, "processor");
                 Check.NotNull(sourceModel, "sourceModel");
@@ -427,7 +427,7 @@ namespace Microsoft.Data.Entity.SQLite
                 _targetModel = targetModel;
             }
 
-            public virtual SQLiteMigrationOperationProcessor Processor
+            public virtual SqliteMigrationOperationProcessor Processor
             {
                 get { return _processor; }
             }

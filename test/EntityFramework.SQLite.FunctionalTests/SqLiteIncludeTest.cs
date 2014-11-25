@@ -5,7 +5,7 @@ using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.Relational.FunctionalTests;
 using Xunit;
 
-namespace Microsoft.Data.Entity.SQLite.FunctionalTests
+namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
 {
     public class SqLiteIncludeTest : IncludeTestBase<SqLiteNorthwindQueryFixture>
     {

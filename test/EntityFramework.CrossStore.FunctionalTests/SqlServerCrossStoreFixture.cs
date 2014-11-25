@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             _serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
-                .AddSQLite()
+                .AddSqlite()
                 .AddSqlServer()
                 .AddAzureTableStorage()
                 .AddInMemoryStore()

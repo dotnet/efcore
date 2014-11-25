@@ -7,7 +7,7 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
 
-namespace Microsoft.Data.Entity.SQLite.FunctionalTests
+namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
 {
     public class SqLiteBuiltInDataTypesFixture : BuiltInDataTypesFixtureBase<SqLiteTestStore>
     {
@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.SQLite.FunctionalTests
         {
             _serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
-                .AddSQLite()
+                .AddSqlite()
                 .ServiceCollection
                 .AddTestModelSource(OnModelCreating)
                 .BuildServiceProvider();
@@ -37,7 +37,7 @@ namespace Microsoft.Data.Entity.SQLite.FunctionalTests
         public override DbContext CreateContext(SqLiteTestStore testStore)
         {
             var options = new DbContextOptions()
-                .UseSQLite(testStore.Connection.ConnectionString);
+                .UseSqlite(testStore.Connection.ConnectionString);
 
             return new DbContext(_serviceProvider, options);
         }

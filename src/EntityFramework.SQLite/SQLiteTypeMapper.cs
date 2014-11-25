@@ -6,9 +6,9 @@ using System.Linq;
 using Microsoft.Data.Entity.Relational.Model;
 using Microsoft.Data.SQLite.Utilities;
 
-namespace Microsoft.Data.Entity.SQLite
+namespace Microsoft.Data.Entity.Sqlite
 {
-    public class SQLiteTypeMapper : RelationalTypeMapper
+    public class SqliteTypeMapper : RelationalTypeMapper
     {
         public override RelationalTypeMapping GetTypeMapping(
             string specifiedType, string storageName, Type propertyType, bool isKey, bool isConcurrencyToken)

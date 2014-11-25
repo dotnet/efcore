@@ -3,18 +3,18 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Migrations;
-using Microsoft.Data.Entity.SQLite.Metadata;
-using Microsoft.Data.Entity.SQLite.Migrations;
+using Microsoft.Data.Entity.Sqlite.Metadata;
+using Microsoft.Data.Entity.Sqlite.Migrations;
 
-namespace Microsoft.Data.Entity.SQLite
+namespace Microsoft.Data.Entity.Sqlite
 {
-    public class SQLiteModelDiffer : ModelDiffer
+    public class SqliteModelDiffer : ModelDiffer
     {
-        public SQLiteModelDiffer(
-            [NotNull] SQLiteMetadataExtensionProvider extensionProvider,
-            [NotNull] SQLiteTypeMapper typeMapper,
-            [NotNull] SQLiteMigrationOperationFactory operationFactory,
-            [NotNull] SQLiteMigrationOperationProcessor operationProcessor)
+        public SqliteModelDiffer(
+            [NotNull] SqliteMetadataExtensionProvider extensionProvider,
+            [NotNull] SqliteTypeMapper typeMapper,
+            [NotNull] SqliteMigrationOperationFactory operationFactory,
+            [NotNull] SqliteMigrationOperationProcessor operationProcessor)
             : base(
                 extensionProvider,
                 typeMapper,
@@ -23,24 +23,24 @@ namespace Microsoft.Data.Entity.SQLite
         {
         }
 
-        public virtual new SQLiteMetadataExtensionProvider ExtensionProvider
+        public virtual new SqliteMetadataExtensionProvider ExtensionProvider
         {
-            get { return (SQLiteMetadataExtensionProvider)base.ExtensionProvider; }
+            get { return (SqliteMetadataExtensionProvider)base.ExtensionProvider; }
         }
 
-        public virtual new SQLiteTypeMapper TypeMapper
+        public virtual new SqliteTypeMapper TypeMapper
         {
-            get { return (SQLiteTypeMapper)base.TypeMapper; }
+            get { return (SqliteTypeMapper)base.TypeMapper; }
         }
 
-        public virtual new SQLiteMigrationOperationFactory OperationFactory
+        public virtual new SqliteMigrationOperationFactory OperationFactory
         {
-            get { return (SQLiteMigrationOperationFactory)base.OperationFactory; }
+            get { return (SqliteMigrationOperationFactory)base.OperationFactory; }
         }
 
-        public virtual new SQLiteMigrationOperationProcessor OperationProcessor
+        public virtual new SqliteMigrationOperationProcessor OperationProcessor
         {
-            get { return (SQLiteMigrationOperationProcessor)base.OperationProcessor; }
+            get { return (SqliteMigrationOperationProcessor)base.OperationProcessor; }
         }
     }
 }

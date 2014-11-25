@@ -5,13 +5,13 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
 
-namespace Microsoft.Data.Entity.SQLite.FunctionalTests.TestModels
+namespace Microsoft.Data.Entity.Sqlite.FunctionalTests.TestModels
 {
-    public class SQLiteNorthwindContext : NorthwindContext
+    public class SqliteNorthwindContext : NorthwindContext
     {
         public const string DatabaseName = "Northwind";
 
-        public SQLiteNorthwindContext(IServiceProvider serviceProvider, DbContextOptions options)
+        public SqliteNorthwindContext(IServiceProvider serviceProvider, DbContextOptions options)
             : base(serviceProvider, options)
         {
         }

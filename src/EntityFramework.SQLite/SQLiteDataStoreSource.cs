@@ -6,18 +6,18 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.Entity.SQLite
+namespace Microsoft.Data.Entity.Sqlite
 {
-    public class SQLiteDataStoreSource : DataStoreSource<SQLiteDataStoreServices, SQLiteOptionsExtension>
+    public class SqliteDataStoreSource : DataStoreSource<SqliteDataStoreServices, SqliteOptionsExtension>
     {
-        public SQLiteDataStoreSource([NotNull] DbContextConfiguration configuration, [NotNull] LazyRef<IDbContextOptions> options)
+        public SqliteDataStoreSource([NotNull] DbContextConfiguration configuration, [NotNull] LazyRef<IDbContextOptions> options)
             : base(configuration, options)
         {
         }
 
         public override string Name
         {
-            get { return typeof(SQLiteDataStore).Name; }
+            get { return typeof(SqliteDataStore).Name; }
         }
     }
 }

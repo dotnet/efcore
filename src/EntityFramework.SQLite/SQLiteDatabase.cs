@@ -7,23 +7,23 @@ using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 
-namespace Microsoft.Data.Entity.SQLite
+namespace Microsoft.Data.Entity.Sqlite
 {
-    public class SQLiteDatabase : MigrationsEnabledDatabase
+    public class SqliteDatabase : MigrationsEnabledDatabase
     {
-        public SQLiteDatabase(
+        public SqliteDatabase(
             [NotNull] LazyRef<IModel> model,
-            [NotNull] SQLiteDataStoreCreator dataStoreCreator,
-            [NotNull] SQLiteConnection connection,
-            [NotNull] SQLiteMigrator migrator,
+            [NotNull] SqliteDataStoreCreator dataStoreCreator,
+            [NotNull] SqliteConnection connection,
+            [NotNull] SqliteMigrator migrator,
             [NotNull] ILoggerFactory loggerFactory)
             : base(model, dataStoreCreator, connection, migrator, loggerFactory)
         {
         }
 
-        public new virtual SQLiteConnection Connection
+        public new virtual SqliteConnection Connection
         {
-            get { return (SQLiteConnection)base.Connection; }
+            get { return (SqliteConnection)base.Connection; }
         }
     }
 }

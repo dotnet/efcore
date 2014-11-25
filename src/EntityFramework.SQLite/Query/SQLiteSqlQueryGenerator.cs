@@ -4,9 +4,9 @@
 using Microsoft.Data.Entity.Relational.Query.Expressions;
 using Microsoft.Data.Entity.Relational.Query.Sql;
 
-namespace Microsoft.Data.Entity.SQLite.Query
+namespace Microsoft.Data.Entity.Sqlite.Query
 {
-    public class SQLiteSqlQueryGenerator : DefaultSqlQueryGenerator
+    public class SqliteSqlQueryGenerator : DefaultSqlQueryGenerator
     {
         protected override void GenerateTop(SelectExpression selectExpression)
         {

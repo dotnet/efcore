@@ -8,7 +8,7 @@ using Microsoft.Data.Entity.FunctionalTests.TestModels;
 using Microsoft.Data.Entity.InMemory.FunctionalTests;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Redis.FunctionalTests;
-using Microsoft.Data.Entity.SQLite.FunctionalTests;
+using Microsoft.Data.Entity.Sqlite.FunctionalTests;
 using Microsoft.Data.Entity.SqlServer.FunctionalTests;
 using Xunit;
 

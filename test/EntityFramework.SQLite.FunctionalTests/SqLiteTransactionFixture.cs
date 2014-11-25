@@ -9,7 +9,7 @@ using Microsoft.Data.SQLite;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
 
-namespace Microsoft.Data.Entity.SQLite.FunctionalTests
+namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
 {
     public class SqLiteTransactionFixture : TransactionFixtureBase<SqLiteTestStore>
     {
@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.SQLite.FunctionalTests
         {
             _serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
-                .AddSQLite()
+                .AddSqlite()
                 .ServiceCollection
                 .AddTestModelSource(OnModelCreating)
                 .BuildServiceProvider();
@@ -41,7 +41,7 @@ namespace Microsoft.Data.Entity.SQLite.FunctionalTests
             var sb = new SQLiteConnectionStringBuilder(testStore.Connection.ConnectionString);
 
             var options = new DbContextOptions()
-                .UseSQLite(sb.ConnectionString);
+                .UseSqlite(sb.ConnectionString);
 
             return new DbContext(_serviceProvider, options);
         }
@@ -49,7 +49,7 @@ namespace Microsoft.Data.Entity.SQLite.FunctionalTests
         public override DbContext CreateContext(DbConnection connection)
         {
             var options = new DbContextOptions()
-                .UseSQLite(connection);
+                .UseSqlite(connection);
 
             return new DbContext(_serviceProvider, options);
         }

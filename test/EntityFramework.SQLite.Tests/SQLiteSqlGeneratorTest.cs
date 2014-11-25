@@ -4,13 +4,13 @@
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Tests;
 
-namespace Microsoft.Data.Entity.SQLite.Tests
+namespace Microsoft.Data.Entity.Sqlite.Tests
 {
-    public class SQLiteSqlGeneratorTest : SqlGeneratorTestBase
+    public class SqliteSqlGeneratorTest : SqlGeneratorTestBase
     {
         protected override SqlGenerator CreateSqlGenerator()
         {
-            return new SQLiteSqlGenerator();
+            return new SqliteSqlGenerator();
         }
 
         protected override string RowsAffected

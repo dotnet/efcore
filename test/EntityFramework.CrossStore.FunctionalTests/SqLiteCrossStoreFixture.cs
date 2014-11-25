@@ -3,7 +3,7 @@
 
 using System;
 using Microsoft.Data.Entity.FunctionalTests.TestModels;
-using Microsoft.Data.Entity.SQLite.FunctionalTests;
+using Microsoft.Data.Entity.Sqlite.FunctionalTests;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
 
@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             _serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
-                .AddSQLite()
+                .AddSqlite()
                 .AddSqlServer()
                 .AddAzureTableStorage()
                 .AddInMemoryStore()
@@ -40,7 +40,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         public override CrossStoreContext CreateContext(SqLiteTestStore testStore)
         {
             var options = new DbContextOptions()
-                .UseSQLite(testStore.Connection.ConnectionString);
+                .UseSqlite(testStore.Connection.ConnectionString);
 
             return new CrossStoreContext(_serviceProvider, options);
         }

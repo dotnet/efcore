@@ -7,34 +7,34 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational;
-using Microsoft.Data.Entity.SQLite.Utilities;
+using Microsoft.Data.Entity.Sqlite.Utilities;
 using Microsoft.Data.SQLite;
 
-namespace Microsoft.Data.Entity.SQLite
+namespace Microsoft.Data.Entity.Sqlite
 {
-    public class SQLiteDataStoreCreator : RelationalDataStoreCreator
+    public class SqliteDataStoreCreator : RelationalDataStoreCreator
     {
         private const int SQLITE_CANTOPEN = 14;
 
-        private readonly SQLiteConnection _connection;
+        private readonly SqliteConnection _connection;
         private readonly SqlStatementExecutor _executor;
-        private readonly SQLiteMigrationOperationSqlGeneratorFactory _generatorFactory;
-        private readonly SQLiteModelDiffer _modelDiffer;
+        private readonly SqliteMigrationOperationSqlGeneratorFactory _generatorFactory;
+        private readonly SqliteModelDiffer _modelDiffer;
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
         ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
         ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
         /// </summary>
-        protected SQLiteDataStoreCreator()
+        protected SqliteDataStoreCreator()
         {
         }
 
-        public SQLiteDataStoreCreator(
-            [NotNull] SQLiteConnection connection,
+        public SqliteDataStoreCreator(
+            [NotNull] SqliteConnection connection,
             [NotNull] SqlStatementExecutor executor,
-            [NotNull] SQLiteMigrationOperationSqlGeneratorFactory generatorFactory,
-            [NotNull] SQLiteModelDiffer modelDiffer)
+            [NotNull] SqliteMigrationOperationSqlGeneratorFactory generatorFactory,
+            [NotNull] SqliteModelDiffer modelDiffer)
         {
             Check.NotNull(connection, "connection");
             Check.NotNull(executor, "executor");

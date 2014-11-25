@@ -3,7 +3,7 @@
 
 using Microsoft.Data.Entity.FunctionalTests;
 
-namespace Microsoft.Data.Entity.SQLite.FunctionalTests
+namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
 {
     public class SqLiteAsyncQueryTest : AsyncQueryTestBase<SqLiteNorthwindQueryFixture>
     {

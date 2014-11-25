@@ -5,13 +5,13 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Metadata;
 
-namespace Microsoft.Data.Entity.SQLite.Metadata
+namespace Microsoft.Data.Entity.Sqlite.Metadata
 {
-    public class SQLiteMetadataExtensionProvider : IRelationalMetadataExtensionProvider
+    public class SqliteMetadataExtensionProvider : IRelationalMetadataExtensionProvider
     {
         private RelationalNameBuilder _nameBuilder;
 
-        public SQLiteMetadataExtensionProvider()
+        public SqliteMetadataExtensionProvider()
         {
             _nameBuilder = new RelationalNameBuilder(this);
         }

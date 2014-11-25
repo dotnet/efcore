@@ -6,9 +6,9 @@ using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Metadata;
 using Xunit;
 
-namespace Microsoft.Data.Entity.SQLite.Tests
+namespace Microsoft.Data.Entity.Sqlite.Tests
 {
-    public class SQLiteValueGeneratorSelectorTest
+    public class SqliteValueGeneratorSelectorTest
     {
         [Fact]
         public void Select_returns_tempFactory_when_single_long_key()
@@ -74,9 +74,9 @@ namespace Microsoft.Data.Entity.SQLite.Tests
             Assert.Throws<NotSupportedException>(() => selector.Select(property));
         }
 
-        private SQLiteValueGeneratorSelector CreateSelector()
+        private SqliteValueGeneratorSelector CreateSelector()
         {
-            return new SQLiteValueGeneratorSelector(
+            return new SqliteValueGeneratorSelector(
                 new SimpleValueGeneratorFactory<GuidValueGenerator>(),
                 new SimpleValueGeneratorFactory<TemporaryValueGenerator>());
         }

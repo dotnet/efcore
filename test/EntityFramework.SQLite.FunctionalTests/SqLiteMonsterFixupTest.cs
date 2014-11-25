@@ -14,7 +14,7 @@ using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
 
-namespace Microsoft.Data.Entity.SQLite.FunctionalTests
+namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
 {
     // TODO: SaveChanges fails with "Batch queries are not supported." for SQLite
     // TODO: Re-enable when #1053 is fixed
@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.SQLite.FunctionalTests
         {
             var serviceCollection = new ServiceCollection()
                 .AddEntityFramework()
-                .AddSQLite()
+                .AddSqlite()
                 .ServiceCollection;
 
             if (throwingStateManager)
@@ -42,7 +42,7 @@ namespace Microsoft.Data.Entity.SQLite.FunctionalTests
 
         protected override DbContextOptions CreateOptions(string databaseName)
         {
-            return new DbContextOptions().UseSQLite("Filename=" + databaseName + ".db");
+            return new DbContextOptions().UseSqlite("Filename=" + databaseName + ".db");
         }
 
         protected override async Task CreateAndSeedDatabase(string databaseName, Func<MonsterContext> createContext)

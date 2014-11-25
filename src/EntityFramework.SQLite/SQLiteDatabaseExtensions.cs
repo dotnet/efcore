@@ -4,24 +4,24 @@
 using System;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.SQLite;
-using Microsoft.Data.Entity.SQLite.Utilities;
+using Microsoft.Data.Entity.Sqlite;
+using Microsoft.Data.Entity.Sqlite.Utilities;
 
 // ReSharper disable once CheckNamespace
 
 namespace Microsoft.Data.Entity
 {
-    public static class SQLiteDatabaseExtensions
+    public static class SqliteDatabaseExtensions
     {
-        public static SQLiteDatabase AsSQLite([NotNull] this Database database)
+        public static SqliteDatabase AsSqlite([NotNull] this Database database)
         {
             Check.NotNull(database, "database");
 
-            var sqliteDatabase = database as SQLiteDatabase;
+            var sqliteDatabase = database as SqliteDatabase;
 
             if (sqliteDatabase == null)
             {
-                throw new InvalidOperationException(Strings.SQLiteNotInUse);
+                throw new InvalidOperationException(Strings.SqliteNotInUse);
             }
 
             return sqliteDatabase;
