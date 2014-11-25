@@ -9,7 +9,7 @@
     <ProjectGuid>{4CC98896-FE91-4F16-AE60-D6FF9E905836}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Microsoft.Data.Entity.SQLite</RootNamespace>
+    <RootNamespace>Microsoft.Data.Entity.Sqlite</RootNamespace>
     <AssemblyName>EntityFramework.SQLite</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <FileAlignment>512</FileAlignment>

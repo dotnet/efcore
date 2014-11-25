@@ -7,13 +7,13 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Relational.Metadata;
-using Microsoft.Data.Entity.SQLite.Metadata;
-using Microsoft.Data.Entity.SQLite.Migrations;
+using Microsoft.Data.Entity.Sqlite.Metadata;
+using Microsoft.Data.Entity.Sqlite.Migrations;
 using Xunit;
 
-namespace Microsoft.Data.Entity.SQLite.Tests
+namespace Microsoft.Data.Entity.Sqlite.Tests
 {
-    public class SQLiteMigrationOperationPreProcessorTest
+    public class SqliteMigrationOperationPreProcessorTest
     {
         [Fact]
         public void Process_with_create_table_operation()
@@ -388,16 +388,16 @@ namespace Microsoft.Data.Entity.SQLite.Tests
 
         private static MigrationOperationFactory OperationFactory()
         {
-            return new MigrationOperationFactory(new SQLiteMetadataExtensionProvider());
+            return new MigrationOperationFactory(new SqliteMetadataExtensionProvider());
         }
 
-        private static SQLiteMigrationOperationProcessor CreatePreProcessor()
+        private static SqliteMigrationOperationProcessor CreatePreProcessor()
         {
-            var extensionProvider = new SQLiteMetadataExtensionProvider();
-            var typeMapper = new SQLiteTypeMapper();
-            var operationFactory = new SQLiteMigrationOperationFactory(extensionProvider);
+            var extensionProvider = new SqliteMetadataExtensionProvider();
+            var typeMapper = new SqliteTypeMapper();
+            var operationFactory = new SqliteMigrationOperationFactory(extensionProvider);
 
-            return new SQLiteMigrationOperationProcessor(extensionProvider, typeMapper, operationFactory);
+            return new SqliteMigrationOperationProcessor(extensionProvider, typeMapper, operationFactory);
         }
     }
 }

@@ -5,15 +5,15 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Relational.Update;
-using Microsoft.Data.Entity.SQLite.Utilities;
+using Microsoft.Data.Entity.Sqlite.Utilities;
 using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.Entity.SQLite
+namespace Microsoft.Data.Entity.Sqlite
 {
-    public class SQLiteCommandBatchPreparer : CommandBatchPreparer
+    public class SqliteCommandBatchPreparer : CommandBatchPreparer
     {
-        public SQLiteCommandBatchPreparer(
-            [NotNull] SQLiteModificationCommandBatchFactory modificationCommandBatchFactory,
+        public SqliteCommandBatchPreparer(
+            [NotNull] SqliteModificationCommandBatchFactory modificationCommandBatchFactory,
             [NotNull] ParameterNameGeneratorFactory parameterNameGeneratorFactory,
             [NotNull] GraphFactory graphFactory,
             [NotNull] ModificationCommandComparer modificationCommandComparer)

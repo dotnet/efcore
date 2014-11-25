@@ -4,11 +4,11 @@
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Identity;
 
-namespace Microsoft.Data.Entity.SQLite
+namespace Microsoft.Data.Entity.Sqlite
 {
-    public class SQLiteValueGeneratorCache : ValueGeneratorCache
+    public class SqliteValueGeneratorCache : ValueGeneratorCache
     {
-        public SQLiteValueGeneratorCache([NotNull] SQLiteValueGeneratorSelector selector)
+        public SqliteValueGeneratorCache([NotNull] SqliteValueGeneratorSelector selector)
             : base(selector)
         {
         }

@@ -5,12 +5,12 @@ using System;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
 using Microsoft.Data.Entity.Relational.FunctionalTests;
-using Microsoft.Data.Entity.SQLite.FunctionalTests.TestModels;
+using Microsoft.Data.Entity.Sqlite.FunctionalTests.TestModels;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
 using Microsoft.Framework.Logging;
 
-namespace Microsoft.Data.Entity.SQLite.FunctionalTests
+namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
 {
     public class SqLiteNorthwindQueryFixture : RelationalNorthwindQueryFixture, IDisposable
     {
@@ -20,11 +20,11 @@ namespace Microsoft.Data.Entity.SQLite.FunctionalTests
 
         public SqLiteNorthwindQueryFixture()
         {
-            _testStore = SQLiteNorthwindContext.GetSharedStoreAsync().Result;
+            _testStore = SqliteNorthwindContext.GetSharedStoreAsync().Result;
 
             _serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
-                .AddSQLite()
+                .AddSqlite()
                 .ServiceCollection
                 .AddTestModelSource(OnModelCreating)
                 .AddInstance<ILoggerFactory>(new TestSqlLoggerFactory())
@@ -32,12 +32,12 @@ namespace Microsoft.Data.Entity.SQLite.FunctionalTests
 
             _options
                 = new DbContextOptions()
-                    .UseSQLite(_testStore.Connection.ConnectionString);
+                    .UseSqlite(_testStore.Connection.ConnectionString);
         }
 
         public override NorthwindContext CreateContext()
         {
-            return new SQLiteNorthwindContext(_serviceProvider, _options);
+            return new SqliteNorthwindContext(_serviceProvider, _options);
         }
 
         public void Dispose()

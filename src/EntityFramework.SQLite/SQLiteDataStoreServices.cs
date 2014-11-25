@@ -6,29 +6,29 @@ using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
-using Microsoft.Data.Entity.SQLite.Utilities;
+using Microsoft.Data.Entity.Sqlite.Utilities;
 using Microsoft.Data.Entity.Storage;
 
-namespace Microsoft.Data.Entity.SQLite
+namespace Microsoft.Data.Entity.Sqlite
 {
-    public class SQLiteDataStoreServices : MigrationsDataStoreServices
+    public class SqliteDataStoreServices : MigrationsDataStoreServices
     {
-        private readonly SQLiteDataStore _store;
-        private readonly SQLiteDataStoreCreator _creator;
-        private readonly SQLiteConnection _connection;
-        private readonly SQLiteValueGeneratorCache _valueGeneratorCache;
-        private readonly SQLiteDatabase _database;
+        private readonly SqliteDataStore _store;
+        private readonly SqliteDataStoreCreator _creator;
+        private readonly SqliteConnection _connection;
+        private readonly SqliteValueGeneratorCache _valueGeneratorCache;
+        private readonly SqliteDatabase _database;
         private readonly ModelBuilderFactory _modelBuilderFactory;
-        private readonly SQLiteMigrator _migrator;
+        private readonly SqliteMigrator _migrator;
 
-        public SQLiteDataStoreServices(
-            [NotNull] SQLiteDataStore store,
-            [NotNull] SQLiteDataStoreCreator creator,
-            [NotNull] SQLiteConnection connection,
-            [NotNull] SQLiteValueGeneratorCache valueGeneratorCache,
-            [NotNull] SQLiteDatabase database,
+        public SqliteDataStoreServices(
+            [NotNull] SqliteDataStore store,
+            [NotNull] SqliteDataStoreCreator creator,
+            [NotNull] SqliteConnection connection,
+            [NotNull] SqliteValueGeneratorCache valueGeneratorCache,
+            [NotNull] SqliteDatabase database,
             [NotNull] ModelBuilderFactory modelBuilderFactory,
-            [NotNull] SQLiteMigrator migrator)
+            [NotNull] SqliteMigrator migrator)
         {
             Check.NotNull(store, "store");
             Check.NotNull(creator, "creator");

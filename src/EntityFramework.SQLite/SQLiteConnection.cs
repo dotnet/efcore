@@ -10,20 +10,20 @@ using Microsoft.Data.Entity.Utilities;
 using Microsoft.Data.SQLite;
 using Microsoft.Framework.Logging;
 
-namespace Microsoft.Data.Entity.SQLite
+namespace Microsoft.Data.Entity.Sqlite
 {
-    public class SQLiteConnection : RelationalConnection
+    public class SqliteConnection : RelationalConnection
     {
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
         ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
         ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
         /// </summary>
-        protected SQLiteConnection()
+        protected SqliteConnection()
         {
         }
 
-        public SQLiteConnection([NotNull] LazyRef<IDbContextOptions> options, [NotNull] ILoggerFactory loggerFactory)
+        public SqliteConnection([NotNull] LazyRef<IDbContextOptions> options, [NotNull] ILoggerFactory loggerFactory)
             : base(options, loggerFactory)
         {
         }

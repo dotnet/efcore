@@ -8,25 +8,25 @@ using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Query;
 using Microsoft.Data.Entity.Relational.Query.Methods;
-using Microsoft.Data.Entity.SQLite.Query;
-using Microsoft.Data.Entity.SQLite.Utilities;
+using Microsoft.Data.Entity.Sqlite.Query;
+using Microsoft.Data.Entity.Sqlite.Utilities;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 
-namespace Microsoft.Data.Entity.SQLite
+namespace Microsoft.Data.Entity.Sqlite
 {
-    public class SQLiteDataStore : RelationalDataStore
+    public class SqliteDataStore : RelationalDataStore
     {
-        public SQLiteDataStore(
+        public SqliteDataStore(
             [NotNull] StateManager stateManager,
             [NotNull] LazyRef<IModel> model,
             [NotNull] EntityKeyFactorySource entityKeyFactorySource,
             [NotNull] EntityMaterializerSource entityMaterializerSource,
             [NotNull] ClrCollectionAccessorSource collectionAccessorSource,
             [NotNull] ClrPropertySetterSource propertySetterSource,
-            [NotNull] SQLiteConnection connection,
-            [NotNull] SQLiteCommandBatchPreparer batchPreparer,
-            [NotNull] SQLiteBatchExecutor batchExecutor,
+            [NotNull] SqliteConnection connection,
+            [NotNull] SqliteCommandBatchPreparer batchPreparer,
+            [NotNull] SqliteBatchExecutor batchExecutor,
             [NotNull] ILoggerFactory loggerFactory)
             : base(stateManager, model, entityKeyFactorySource, entityMaterializerSource,
                 collectionAccessorSource, propertySetterSource, connection, batchPreparer, batchExecutor, loggerFactory)
@@ -48,7 +48,7 @@ namespace Microsoft.Data.Entity.SQLite
             Check.NotNull(resultOperatorHandler, "resultOperatorHandler");
             Check.NotNull(queryMethodProvider, "queryMethodProvider");
 
-            return new SQLiteQueryCompilationContext(
+            return new SqliteQueryCompilationContext(
                 Model,
                 Logger,
                 linqOperatorProvider,

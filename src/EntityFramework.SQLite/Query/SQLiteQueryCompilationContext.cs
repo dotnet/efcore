@@ -7,14 +7,14 @@ using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Relational.Query;
 using Microsoft.Data.Entity.Relational.Query.Methods;
 using Microsoft.Data.Entity.Relational.Query.Sql;
-using Microsoft.Data.Entity.SQLite.Utilities;
+using Microsoft.Data.Entity.Sqlite.Utilities;
 using Microsoft.Framework.Logging;
 
-namespace Microsoft.Data.Entity.SQLite.Query
+namespace Microsoft.Data.Entity.Sqlite.Query
 {
-    public class SQLiteQueryCompilationContext : RelationalQueryCompilationContext
+    public class SqliteQueryCompilationContext : RelationalQueryCompilationContext
     {
-        public SQLiteQueryCompilationContext(
+        public SqliteQueryCompilationContext(
             [NotNull] IModel model,
             [NotNull] ILogger logger,
             [NotNull] ILinqOperatorProvider linqOperatorProvider,
@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.SQLite.Query
 
         public override ISqlQueryGenerator CreateSqlQueryGenerator()
         {
-            return new SQLiteSqlQueryGenerator();
+            return new SqliteSqlQueryGenerator();
         }
 
         public override string GetTableName(IEntityType entityType)

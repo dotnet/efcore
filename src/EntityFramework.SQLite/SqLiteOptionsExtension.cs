@@ -2,18 +2,18 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.Data.Entity.Relational;
-using Microsoft.Data.Entity.SQLite.Utilities;
+using Microsoft.Data.Entity.Sqlite.Utilities;
 using Microsoft.Framework.DependencyInjection;
 
-namespace Microsoft.Data.Entity.SQLite
+namespace Microsoft.Data.Entity.Sqlite
 {
-    public class SQLiteOptionsExtension : RelationalOptionsExtension
+    public class SqliteOptionsExtension : RelationalOptionsExtension
     {
         protected override void ApplyServices(EntityServicesBuilder builder)
         {
             Check.NotNull(builder, "builder");
 
-            builder.AddSQLite();
+            builder.AddSqlite();
         }
     }
 }

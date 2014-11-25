@@ -6,13 +6,13 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Relational.Update;
-using Microsoft.Data.Entity.SQLite.Utilities;
+using Microsoft.Data.Entity.Sqlite.Utilities;
 
-namespace Microsoft.Data.Entity.SQLite
+namespace Microsoft.Data.Entity.Sqlite
 {
-    public class SQLiteSingularModificationCommandBatch : SingularModificationCommandBatch
+    public class SqliteSingularModificationCommandBatch : SingularModificationCommandBatch
     {
-        public SQLiteSingularModificationCommandBatch([NotNull] SqlGenerator sqlGenerator)
+        public SqliteSingularModificationCommandBatch([NotNull] SqlGenerator sqlGenerator)
             : base(sqlGenerator)
         {
         }

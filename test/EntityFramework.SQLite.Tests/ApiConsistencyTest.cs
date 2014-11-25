@@ -3,13 +3,13 @@
 
 using System.Reflection;
 
-namespace Microsoft.Data.Entity.SQLite.Tests
+namespace Microsoft.Data.Entity.Sqlite.Tests
 {
     public class ApiConsistencyTest : ApiConsistencyTestBase
     {
         protected override Assembly TargetAssembly
         {
-            get { return typeof(SQLiteDataStore).Assembly; }
+            get { return typeof(SqliteDataStore).Assembly; }
         }
     }
 }

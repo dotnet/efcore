@@ -3,21 +3,21 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Migrations;
-using Microsoft.Data.Entity.SQLite.Metadata;
+using Microsoft.Data.Entity.Sqlite.Metadata;
 
-namespace Microsoft.Data.Entity.SQLite.Migrations
+namespace Microsoft.Data.Entity.Sqlite.Migrations
 {
-    public class SQLiteMigrationOperationFactory : MigrationOperationFactory
+    public class SqliteMigrationOperationFactory : MigrationOperationFactory
     {
-        public SQLiteMigrationOperationFactory(
-            [NotNull] SQLiteMetadataExtensionProvider extensionProvider)
+        public SqliteMigrationOperationFactory(
+            [NotNull] SqliteMetadataExtensionProvider extensionProvider)
             : base(extensionProvider)
         {
         }
 
-        public virtual new SQLiteMetadataExtensionProvider ExtensionProvider
+        public virtual new SqliteMetadataExtensionProvider ExtensionProvider
         {
-            get { return (SQLiteMetadataExtensionProvider)base.ExtensionProvider; }
+            get { return (SqliteMetadataExtensionProvider)base.ExtensionProvider; }
         }
     }
 }

@@ -10,21 +10,21 @@ using Microsoft.Framework.Logging;
 using Moq;
 using Xunit;
 
-namespace Microsoft.Data.Entity.SQLite.Tests
+namespace Microsoft.Data.Entity.Sqlite.Tests
 {
-    public class SQLiteDatabaseExtensionsTest
+    public class SqliteDatabaseExtensionsTest
     {
         [Fact]
         public void Returns_typed_database_object()
         {
-            var database = new SQLiteDatabase(
+            var database = new SqliteDatabase(
                 new LazyRef<IModel>(() => null),
-                Mock.Of<SQLiteDataStoreCreator>(),
-                Mock.Of<SQLiteConnection>(),
-                Mock.Of<SQLiteMigrator>(),
+                Mock.Of<SqliteDataStoreCreator>(),
+                Mock.Of<SqliteConnection>(),
+                Mock.Of<SqliteMigrator>(),
                 new LoggerFactory());
 
-            Assert.Same(database, database.AsSQLite());
+            Assert.Same(database, database.AsSqlite());
         }
 
         [Fact]
@@ -37,8 +37,8 @@ namespace Microsoft.Data.Entity.SQLite.Tests
                 new LoggerFactory());
 
             Assert.Equal(
-                Strings.SQLiteNotInUse,
-                Assert.Throws<InvalidOperationException>(() => database.AsSQLite()).Message);
+                Strings.SqliteNotInUse,
+                Assert.Throws<InvalidOperationException>(() => database.AsSqlite()).Message);
         }
 
         private class ConcreteDatabase : Database

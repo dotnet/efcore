@@ -4,41 +4,41 @@
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations;
-using Microsoft.Data.Entity.SQLite.Metadata;
-using Microsoft.Data.Entity.SQLite.Utilities;
+using Microsoft.Data.Entity.Sqlite.Metadata;
+using Microsoft.Data.Entity.Sqlite.Utilities;
 
-namespace Microsoft.Data.Entity.SQLite
+namespace Microsoft.Data.Entity.Sqlite
 {
-    public class SQLiteMigrationOperationSqlGeneratorFactory : IMigrationOperationSqlGeneratorFactory
+    public class SqliteMigrationOperationSqlGeneratorFactory : IMigrationOperationSqlGeneratorFactory
     {
-        private readonly SQLiteMetadataExtensionProvider _extensionProvider;
+        private readonly SqliteMetadataExtensionProvider _extensionProvider;
 
-        public SQLiteMigrationOperationSqlGeneratorFactory(
-            [NotNull] SQLiteMetadataExtensionProvider extensionProvider)
+        public SqliteMigrationOperationSqlGeneratorFactory(
+            [NotNull] SqliteMetadataExtensionProvider extensionProvider)
         {
             Check.NotNull(extensionProvider, "extensionProvider");
 
             _extensionProvider = extensionProvider;
         }
 
-        public virtual SQLiteMetadataExtensionProvider ExtensionProvider
+        public virtual SqliteMetadataExtensionProvider ExtensionProvider
         {
             get { return _extensionProvider; }
         }
 
-        public virtual SQLiteMigrationOperationSqlGenerator Create()
+        public virtual SqliteMigrationOperationSqlGenerator Create()
         {
             return Create(new Model());
         }
 
-        public virtual SQLiteMigrationOperationSqlGenerator Create([NotNull] IModel targetModel)
+        public virtual SqliteMigrationOperationSqlGenerator Create([NotNull] IModel targetModel)
         {
             Check.NotNull(targetModel, "targetModel");
 
             return
-                new SQLiteMigrationOperationSqlGenerator(
+                new SqliteMigrationOperationSqlGenerator(
                     ExtensionProvider, 
-                    new SQLiteTypeMapper())
+                    new SqliteTypeMapper())
                     {
                         TargetModel = targetModel,
                     };

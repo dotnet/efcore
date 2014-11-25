@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace Microsoft.Data.Entity.SQLite.Utilities
+namespace Microsoft.Data.Entity.Sqlite.Utilities
 {
     [DebuggerStepThrough]
     internal static class EnumerableExtensions

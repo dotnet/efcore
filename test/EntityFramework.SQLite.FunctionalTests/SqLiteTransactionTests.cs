@@ -3,7 +3,7 @@
 
 using Microsoft.Data.Entity.Relational.FunctionalTests;
 
-namespace Microsoft.Data.Entity.SQLite.FunctionalTests
+namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
 {
     public class SqLiteTransactionTest : TransactionTestBase<SqLiteTestStore, SqLiteTransactionFixture>
     {

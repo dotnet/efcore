@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.Data.Entity.Relational.FunctionalTests;
 using Microsoft.Data.SQLite;
 
-namespace Microsoft.Data.Entity.SQLite.FunctionalTests
+namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
 {
     public class SqLiteTestStore : RelationalTestStore
     {

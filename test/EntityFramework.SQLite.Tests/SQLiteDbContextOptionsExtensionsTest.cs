@@ -5,18 +5,18 @@ using System.Linq;
 using Microsoft.Data.Entity.Infrastructure;
 using Xunit;
 
-namespace Microsoft.Data.Entity.SQLite.Tests
+namespace Microsoft.Data.Entity.Sqlite.Tests
 {
-    public class SQLiteDbContextOptionsExtensionsTest
+    public class SqliteDbContextOptionsExtensionsTest
     {
         [Fact]
         public void Can_add_extension_with_connection_string()
         {
             var options = new DbContextOptions();
 
-            options = options.UseSQLite("Database=Crunchie");
+            options = options.UseSqlite("Database=Crunchie");
 
-            var extension = ((IDbContextOptions)options).Extensions.OfType<SQLiteOptionsExtension>().Single();
+            var extension = ((IDbContextOptions)options).Extensions.OfType<SqliteOptionsExtension>().Single();
 
             Assert.Equal("Database=Crunchie", extension.ConnectionString);
         }
@@ -26,9 +26,9 @@ namespace Microsoft.Data.Entity.SQLite.Tests
         {
             var options = new DbContextOptions<DbContext>();
 
-            options = options.UseSQLite("Database=Whisper");
+            options = options.UseSqlite("Database=Whisper");
 
-            var extension = ((IDbContextOptions)options).Extensions.OfType<SQLiteOptionsExtension>().Single();
+            var extension = ((IDbContextOptions)options).Extensions.OfType<SqliteOptionsExtension>().Single();
 
             Assert.Equal("Database=Whisper", extension.ConnectionString);
         }

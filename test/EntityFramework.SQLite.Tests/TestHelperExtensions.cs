@@ -11,12 +11,12 @@ namespace Microsoft.Data.Entity.Tests
     {
         public static EntityServicesBuilder AddProviderServices(this EntityServicesBuilder entityServicesBuilder)
         {
-            return entityServicesBuilder.AddSQLite();
+            return entityServicesBuilder.AddSqlite();
         }
 
         public static DbContextOptions UseProviderOptions(this DbContextOptions options)
         {
-            return options.UseSQLite("DummyConnection");
+            return options.UseSqlite("DummyConnection");
         }
     }
 }

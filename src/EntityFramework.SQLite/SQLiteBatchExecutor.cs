@@ -7,21 +7,21 @@ using Microsoft.Data.Entity.Relational.Update;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 
-namespace Microsoft.Data.Entity.SQLite
+namespace Microsoft.Data.Entity.Sqlite
 {
-    public class SQLiteBatchExecutor : BatchExecutor
+    public class SqliteBatchExecutor : BatchExecutor
     {
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
         ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
         ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
         /// </summary>
-        protected SQLiteBatchExecutor()
+        protected SqliteBatchExecutor()
         {
         }
 
-        public SQLiteBatchExecutor(
-            [NotNull] SQLiteTypeMapper typeMapper,
+        public SqliteBatchExecutor(
+            [NotNull] SqliteTypeMapper typeMapper,
             [NotNull] LazyRef<DbContext> context,
             [NotNull] ILoggerFactory loggerFactory)
             : base(typeMapper, context, loggerFactory)

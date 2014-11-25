@@ -7,28 +7,28 @@ using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Framework.Logging;
 
-namespace Microsoft.Data.Entity.SQLite
+namespace Microsoft.Data.Entity.Sqlite
 {
-    public class SQLiteMigrator : Migrator
+    public class SqliteMigrator : Migrator
     {
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
         ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
         ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
         /// </summary>
-        protected SQLiteMigrator()
+        protected SqliteMigrator()
         {
         }
 
-        public SQLiteMigrator(
+        public SqliteMigrator(
             [NotNull] HistoryRepository historyRepository,
             [NotNull] MigrationAssembly migrationAssembly,
-            [NotNull] SQLiteModelDiffer modelDiffer,
-            [NotNull] SQLiteMigrationOperationSqlGeneratorFactory ddlSqlGeneratorFactory,
-            [NotNull] SQLiteSqlGenerator dmlSqlGenerator,
+            [NotNull] SqliteModelDiffer modelDiffer,
+            [NotNull] SqliteMigrationOperationSqlGeneratorFactory ddlSqlGeneratorFactory,
+            [NotNull] SqliteSqlGenerator dmlSqlGenerator,
             [NotNull] SqlStatementExecutor sqlExecutor,
-            [NotNull] SQLiteDataStoreCreator storeCreator,
-            [NotNull] SQLiteConnection connection,
+            [NotNull] SqliteDataStoreCreator storeCreator,
+            [NotNull] SqliteConnection connection,
             [NotNull] ILoggerFactory loggerFactory)
             : base(
                 historyRepository,

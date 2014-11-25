@@ -5,17 +5,17 @@ using System;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.SQLite.Utilities;
+using Microsoft.Data.Entity.Sqlite.Utilities;
 using Microsoft.Data.SQLite;
 using Microsoft.Data.SQLite.Utilities;
 
-namespace Microsoft.Data.Entity.SQLite
+namespace Microsoft.Data.Entity.Sqlite
 {
-    public class SQLiteValueGeneratorSelector : ValueGeneratorSelector
+    public class SqliteValueGeneratorSelector : ValueGeneratorSelector
     {
         private readonly SimpleValueGeneratorFactory<TemporaryValueGenerator> _tempFactory;
 
-        public SQLiteValueGeneratorSelector(
+        public SqliteValueGeneratorSelector(
             [NotNull] SimpleValueGeneratorFactory<GuidValueGenerator> guidFactory,
             [NotNull] SimpleValueGeneratorFactory<TemporaryValueGenerator> tempFactory)
             : base(guidFactory)

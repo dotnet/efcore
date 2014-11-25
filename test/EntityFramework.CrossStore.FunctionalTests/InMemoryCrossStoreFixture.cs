@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 .AddEntityFramework()
                 .AddInMemoryStore()
                 .AddRedis()
-                .AddSQLite()
+                .AddSqlite()
                 .AddSqlServer()
                 .AddAzureTableStorage()
                 .ServiceCollection
