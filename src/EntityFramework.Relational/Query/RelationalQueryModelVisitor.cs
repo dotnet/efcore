@@ -702,7 +702,8 @@ namespace Microsoft.Data.Entity.Relational.Query
             QuerySourceScope parentQuerySourceScope,
             DbDataReader dataReader,
             int readerOffset,
-            IEntityType entityType)
+            IEntityType entityType,
+            bool queryStateManager)
         {
             var valueReader
                 = ((RelationalQueryContext)queryContext).ValueReaderFactory
@@ -715,7 +716,7 @@ namespace Microsoft.Data.Entity.Relational.Query
 
             return new QuerySourceScope<TEntity>(
                 querySource,
-                (TEntity)queryContext.QueryBuffer.GetEntity(entityType, valueReader),
+                (TEntity)queryContext.QueryBuffer.GetEntity(entityType, valueReader, queryStateManager),
                 parentQuerySourceScope);
         }
     }

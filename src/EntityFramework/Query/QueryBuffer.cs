@@ -74,6 +74,11 @@ namespace Microsoft.Data.Entity.Query
 
         public virtual object GetEntity(IEntityType entityType, IValueReader valueReader)
         {
+            return GetEntity(entityType, valueReader, queryStateManager: true);
+        }
+
+        public virtual object GetEntity(IEntityType entityType, IValueReader valueReader, bool queryStateManager)
+        {
             Check.NotNull(entityType, "entityType");
             Check.NotNull(valueReader, "valueReader");
 
@@ -92,7 +97,7 @@ namespace Microsoft.Data.Entity.Query
 
             var stateEntry = _stateManager.TryGetEntry(entityKey);
 
-            if (stateEntry != null)
+            if (queryStateManager && stateEntry != null)
             {
                 return stateEntry.Entity;
             }

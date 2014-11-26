@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         where TFixture : CrossStoreFixture<TTestStore>, new()
     {
         [Fact]
-        public void Can_save_changes_and_query()
+        public virtual void Can_save_changes_and_query()
         {
             using (var context = CreateContext())
             {
@@ -43,7 +43,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                 var secondEntity = context.SimpleEntities.Single(e => e.Id == 42);
                 Assert.Equal("Entity 2", secondEntity.StringProperty);
-                Assert.Same(secondEntity, context.SimpleEntities.Single(e => e.Property<string>(SimpleEntity.ShadowPropertyName) == "shadow"));
+                var thirdEntity = context.SimpleEntities.Single(e => e.Property<string>(SimpleEntity.ShadowPropertyName) == "shadow");
+                Assert.Same(secondEntity, thirdEntity);
 
                 firstEntity.StringProperty = "first";
                 context.SimpleEntities.Remove(secondEntity);

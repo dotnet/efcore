@@ -82,7 +82,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                     var newArguments = new List<Expression>(newExpression.Arguments);
                     newArguments[2] = _outerShaperExpression;
 
-                    if (newArguments.Count == 6)
+                    if (newArguments.Count == RelationalQueryModelVisitor.CreateEntityMethodInfo.GetParameters().Length)
                     {
                         newArguments[4]
                             = Expression.Constant(

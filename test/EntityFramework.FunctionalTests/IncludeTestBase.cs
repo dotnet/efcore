@@ -299,7 +299,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         .AsNoTracking()
                         .Single(c => c.CustomerID == "ALFKI");
 
-                Assert.Same(customer1, customer2);
+                Assert.Equal(customer1.CustomerID, customer2.CustomerID);
+                Assert.Null(customer1.Orders);
                 Assert.Equal(6, customer2.Orders.Count);
                 Assert.True(customer2.Orders.All(o => o.Customer != null));
                 Assert.Equal(1, context.ChangeTracker.Entries().Count());

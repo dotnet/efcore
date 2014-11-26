@@ -117,6 +117,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
                 queryMethodArguments.Add(Expression.Constant(0));
                 queryMethodArguments.Add(Expression.Constant(entityType));
+                queryMethodArguments.Add(Expression.Constant(QueryModelVisitor.QuerySourceRequiresTracking(_querySource)));
             }
 
             return Expression.Call(

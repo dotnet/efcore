@@ -96,11 +96,12 @@ namespace Microsoft.Data.Entity.InMemory.Query
         private static IEnumerable<TEntity> EntityQuery<TEntity>(
             QueryContext queryContext,
             IEntityType entityType,
-            InMemoryDatabase.InMemoryTable inMemoryTable)
+            InMemoryDatabase.InMemoryTable inMemoryTable, 
+            bool queryStateManager)
         {
             return inMemoryTable
                 .Select(t => (TEntity)queryContext.QueryBuffer
-                    .GetEntity(entityType, new ObjectArrayValueReader(t)));
+                    .GetEntity(entityType, new ObjectArrayValueReader(t), queryStateManager));
         }
 
         private static readonly MethodInfo _projectionQueryMethodInfo
@@ -147,7 +148,8 @@ namespace Microsoft.Data.Entity.InMemory.Query
                         _entityQueryMethodInfo.MakeGenericMethod(elementType),
                         QueryContextParameter,
                         Expression.Constant(entityType),
-                        Expression.Constant(inMemoryTable));
+                        Expression.Constant(inMemoryTable), 
+                        Expression.Constant(QueryModelVisitor.QuerySourceRequiresTracking(_querySource)));
                 }
 
                 return Expression.Call(_projectionQueryMethodInfo, Expression.Constant(inMemoryTable));

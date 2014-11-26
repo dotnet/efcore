@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
 using Xunit;
 
@@ -76,7 +77,22 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 Assert.Equal(0, context.ChangeTracker.Entries().Count());
             }
         }
-        
+
+        [Fact]
+        public virtual void Can_get_current_values()
+        {
+            using (var db = CreateContext())
+            {
+                var customer = db.Customers.First();
+
+                customer.CompanyName = "foo";
+
+                var dbCustomer = db.Customers.AsNoTracking().First();
+
+                Assert.NotEqual(customer.CompanyName, dbCustomer.CompanyName);
+            }         
+        }
+
         protected NorthwindContext CreateContext()
         {
             return Fixture.CreateContext();
