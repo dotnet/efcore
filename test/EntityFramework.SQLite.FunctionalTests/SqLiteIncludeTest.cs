@@ -279,9 +279,9 @@ ORDER BY ""c"".""CustomerID""",
                 TestSqlLoggerFactory.Sql);
         }
 
-        public override void Include_multiple_collection()
+        public override void Include_duplicate_collection()
         {
-            base.Include_multiple_collection();
+            base.Include_duplicate_collection();
 
             Assert.Equal(
                 @"SELECT ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""CustomerID"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
@@ -323,9 +323,9 @@ LIMIT @p0 OFFSET @p0",
                 TestSqlLoggerFactory.Sql);
         }
 
-        public override void Include_multiple_collection_result_operator()
+        public override void Include_duplicate_collection_result_operator()
         {
-            base.Include_multiple_collection_result_operator();
+            base.Include_duplicate_collection_result_operator();
 
             Assert.Equal(
                 @"SELECT ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""CustomerID"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
@@ -412,9 +412,9 @@ FROM ""Customers"" AS ""c""",
                 TestSqlLoggerFactory.Sql);
         }
 
-        public override void Include_multiple_collection_result_operator2()
+        public override void Include_duplicate_collection_result_operator2()
         {
-            base.Include_multiple_collection_result_operator2();
+            base.Include_duplicate_collection_result_operator2();
 
             Assert.Equal(
                 @"SELECT ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""CustomerID"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
@@ -449,9 +449,9 @@ LEFT JOIN ""Customers"" AS ""c"" ON ""o"".""CustomerID"" = ""c"".""CustomerID"""
                 TestSqlLoggerFactory.Sql);
         }
 
-        public override void Include_multiple_reference()
+        public override void Include_duplicate_reference()
         {
-            base.Include_multiple_reference();
+            base.Include_duplicate_reference();
 
             Assert.Equal(
                 @"SELECT ""o"".""CustomerID"", ""o"".""OrderDate"", ""o"".""OrderID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""CustomerID"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
@@ -474,9 +474,9 @@ LIMIT @p0 OFFSET @p0",
                 TestSqlLoggerFactory.Sql);
         }
 
-        public override void Include_multiple_reference2()
+        public override void Include_duplicate_reference2()
         {
-            base.Include_multiple_reference2();
+            base.Include_duplicate_reference2();
 
             Assert.Equal(
                 @"SELECT ""o"".""CustomerID"", ""o"".""OrderDate"", ""o"".""OrderID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""CustomerID"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
@@ -497,9 +497,9 @@ LIMIT @p0 OFFSET @p0",
                 TestSqlLoggerFactory.Sql);
         }
 
-        public override void Include_multiple_reference3()
+        public override void Include_duplicate_reference3()
         {
-            base.Include_multiple_reference3();
+            base.Include_duplicate_reference3();
 
             Assert.Equal(
                 @"SELECT ""o"".""CustomerID"", ""o"".""OrderDate"", ""o"".""OrderID""

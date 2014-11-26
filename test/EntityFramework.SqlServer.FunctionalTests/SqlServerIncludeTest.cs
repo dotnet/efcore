@@ -28,6 +28,26 @@ ORDER BY [c].[CustomerID]",
                 Sql);
         }
 
+        public override void Include_reference_and_collection()
+        {
+            base.Include_reference_and_collection();
+
+            Assert.Equal(
+                @"SELECT [o].[CustomerID], [o].[OrderDate], [o].[OrderID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+ORDER BY [o].[OrderID]
+
+SELECT [o0].[Discount], [o0].[OrderID], [o0].[ProductID], [o0].[Quantity], [o0].[UnitPrice]
+FROM [Order Details] AS [o0]
+INNER JOIN (
+    SELECT DISTINCT [o].[OrderID]
+    FROM [Orders] AS [o]
+) AS [o] ON [o0].[OrderID] = [o].[OrderID]
+ORDER BY [o].[OrderID]",
+                Sql);
+        }
+
         public override void Include_collection_alias_generation()
         {
             base.Include_collection_alias_generation();
@@ -291,9 +311,9 @@ ORDER BY [c].[CustomerID]",
                 Sql);
         }
 
-        public override void Include_multiple_collection()
+        public override void Include_duplicate_collection()
         {
-            base.Include_multiple_collection();
+            base.Include_duplicate_collection();
 
             Assert.Equal(
                 @"SELECT TOP(@p0) [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -330,9 +350,9 @@ ORDER BY [c].[CustomerID] OFFSET @p0 ROWS FETCH NEXT @p0 ROWS ONLY",
                 Sql);
         }
 
-        public override void Include_multiple_collection_result_operator()
+        public override void Include_duplicate_collection_result_operator()
         {
-            base.Include_multiple_collection_result_operator();
+            base.Include_duplicate_collection_result_operator();
 
             Assert.Equal(
                 @"SELECT TOP(@p0) [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -414,9 +434,9 @@ FROM [Customers] AS [c]",
                 Sql);
         }
 
-        public override void Include_multiple_collection_result_operator2()
+        public override void Include_duplicate_collection_result_operator2()
         {
-            base.Include_multiple_collection_result_operator2();
+            base.Include_duplicate_collection_result_operator2();
 
             Assert.Equal(
                 @"SELECT TOP(@p0) [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -448,6 +468,18 @@ LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]",
                 Sql);
         }
 
+        public override void Include_multiple_references()
+        {
+            base.Include_multiple_references();
+
+            Assert.Equal(
+                @"SELECT [o].[Discount], [o].[OrderID], [o].[ProductID], [o].[Quantity], [o].[UnitPrice], [o0].[CustomerID], [o0].[OrderDate], [o0].[OrderID], [p].[Discontinued], [p].[ProductID], [p].[ProductName]
+FROM [Order Details] AS [o]
+INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
+INNER JOIN [Products] AS [p] ON [o].[ProductID] = [p].[ProductID]",
+                Sql);
+        }
+
         public override void Include_reference_alias_generation()
         {
             base.Include_reference_alias_generation();
@@ -459,9 +491,9 @@ INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]",
                 Sql);
         }
 
-        public override void Include_multiple_reference()
+        public override void Include_duplicate_reference()
         {
-            base.Include_multiple_reference();
+            base.Include_duplicate_reference();
 
             Assert.Equal(
                 @"SELECT TOP(@p0) [o].[CustomerID], [o].[OrderDate], [o].[OrderID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -481,9 +513,9 @@ ORDER BY [o].[CustomerID] OFFSET @p0 ROWS FETCH NEXT @p0 ROWS ONLY",
                 Sql);
         }
 
-        public override void Include_multiple_reference2()
+        public override void Include_duplicate_reference2()
         {
-            base.Include_multiple_reference2();
+            base.Include_duplicate_reference2();
 
             Assert.Equal(
                 @"SELECT TOP(@p0) [o].[CustomerID], [o].[OrderDate], [o].[OrderID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -501,9 +533,9 @@ ORDER BY [o].[OrderID] OFFSET @p0 ROWS FETCH NEXT @p0 ROWS ONLY",
                 Sql);
         }
 
-        public override void Include_multiple_reference3()
+        public override void Include_duplicate_reference3()
         {
-            base.Include_multiple_reference3();
+            base.Include_duplicate_reference3();
 
             Assert.Equal(
                 @"SELECT TOP(@p0) [o].[CustomerID], [o].[OrderDate], [o].[OrderID]

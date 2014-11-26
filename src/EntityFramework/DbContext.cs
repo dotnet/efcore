@@ -14,6 +14,7 @@ using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
 using Microsoft.Framework.OptionsModel;
+using System.Diagnostics;
 
 namespace Microsoft.Data.Entity
 {
@@ -190,6 +191,7 @@ namespace Microsoft.Data.Entity
         {
         }
 
+        [DebuggerStepThrough]
         public virtual int SaveChanges()
         {
             var stateManager = GetStateManager();

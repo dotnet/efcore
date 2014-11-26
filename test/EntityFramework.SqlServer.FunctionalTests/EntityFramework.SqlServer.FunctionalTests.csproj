@@ -87,11 +87,13 @@
     <Compile Include="SqlServerF1Fixture.cs" />
     <Compile Include="SqlServerFixture.cs" />
     <Compile Include="SqlServerIncludeAsyncTest.cs" />
+    <Compile Include="SqlServerIncludeOneToOneTest.cs" />
     <Compile Include="SqlServerIncludeTest.cs" />
     <Compile Include="SqlServerAsNoTrackingTest.cs" />
     <Compile Include="SqlServerMigrationsTest.cs" />
     <Compile Include="SqlServerNorthwindQueryFixture.cs" />
     <Compile Include="SqlServerAsyncQueryTest.cs" />
+    <Compile Include="SqlServerOneToOneQueryFixture.cs" />
     <Compile Include="SqlServerQueryLoggingTest.cs" />
     <Compile Include="SqlServerQueryTest.cs" />
     <Compile Include="QueryBugsTest.cs" />

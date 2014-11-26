@@ -73,7 +73,7 @@
     <Compile Include="InMemoryTestStore.cs" />
     <Compile Include="InMemoryBuiltInDataTypesFixture.cs" />
     <Compile Include="InMemoryBuiltInDataTypesTest.cs" />
-    <Compile Include="IncludeOneToOneTest.cs" />
+    <Compile Include="InMemoryIncludeOneToOneTest.cs" />
     <Compile Include="MusicStoreQueryTests.cs" />
     <Compile Include="CompositeKeyEndToEndTest.cs" />
     <Compile Include="GuidValueGeneratorEndToEndTest.cs" />

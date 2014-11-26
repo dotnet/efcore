@@ -76,11 +76,13 @@
     <Compile Include="SqLiteBuiltInDataTypesFixture.cs" />
     <Compile Include="SqLiteBuiltInDataTypesTest.cs" />
     <Compile Include="SqLiteIncludeAsyncTest.cs" />
+    <Compile Include="SqLiteIncludeOneToOneTest.cs" />
     <Compile Include="SqLiteIncludeTest.cs" />
     <Compile Include="SqLiteMonsterFixupTest.cs" />
     <Compile Include="SqLiteAsNoTrackingTest.cs" />
     <Compile Include="SqLiteAsyncQueryTest.cs" />
     <Compile Include="SqLiteNorthwindQueryFixture.cs" />
+    <Compile Include="SqLiteOneToOneQueryFixture.cs" />
     <Compile Include="SqLiteQueryTest.cs" />
     <Compile Include="SqLiteTestStore.cs" />
     <Compile Include="SqLiteTransactionFixture.cs" />

@@ -70,7 +70,7 @@ namespace Microsoft.Data.Entity.Relational.Query
         protected override ExpressionTreeVisitor CreateQueryingExpressionTreeVisitor(IQuerySource querySource)
         {
             Check.NotNull(querySource, "querySource");
-            
+
             return new RelationalEntityQueryableExpressionTreeVisitor(this, querySource);
         }
 
@@ -97,7 +97,7 @@ namespace Microsoft.Data.Entity.Relational.Query
             Check.NotNull(accessorLambda, "accessorLambda");
             Check.NotNull(navigation, "navigation");
 
-            if (!navigation.PointsToPrincipal)
+            if (navigation.IsCollection())
             {
                 IncludeCollection(querySource, resultType, accessorLambda, navigation);
             }
@@ -110,14 +110,14 @@ namespace Microsoft.Data.Entity.Relational.Query
         private void IncludeReference(IQuerySource querySource, INavigation navigation)
         {
             var selectExpression = QueryCompilationContext.FindSelectExpression(querySource);
-            var dependentTableExpression = selectExpression.FindTableForQuerySource(querySource);
+            var targetTableExpression = selectExpression.FindTableForQuerySource(querySource);
             var targetEntityType = navigation.GetTargetType();
             var targetTableName = QueryCompilationContext.GetTableName(targetEntityType);
 
             var targetTableAlias
                = CreateUniqueAlias(selectExpression, targetTableName.First().ToString().ToLower());
 
-            var targetTableExpression
+            var joinedTableExpression
                 = new TableExpression(
                     targetTableName,
                     QueryCompilationContext.GetSchema(targetEntityType),
@@ -131,18 +131,24 @@ namespace Microsoft.Data.Entity.Relational.Query
                     .Select(p => new ColumnExpression(
                         QueryCompilationContext.GetColumnName(p),
                         p,
-                        targetTableExpression));
+                        joinedTableExpression));
 
             var joinExpression
                 = navigation.ForeignKey.IsRequired
                     ? selectExpression
-                        .AddInnerJoin(targetTableExpression, columnExpressions)
+                        .AddInnerJoin(joinedTableExpression, columnExpressions)
                     : selectExpression
-                        .AddOuterJoin(targetTableExpression, columnExpressions);
+                        .AddOuterJoin(joinedTableExpression, columnExpressions);
 
-            var primaryKeyProperties = targetEntityType.GetPrimaryKey().Properties;
-
-            BuildJoinEqualityExpression(navigation, primaryKeyProperties, dependentTableExpression, joinExpression);
+            joinExpression.Predicate
+                = BuildJoinEqualityExpression(
+                    navigation,
+                    (navigation.PointsToPrincipal
+                        ? targetEntityType
+                        : navigation.EntityType)
+                        .GetPrimaryKey().Properties,
+                    navigation.PointsToPrincipal ? targetTableExpression : joinExpression,
+                    navigation.PointsToPrincipal ? joinExpression : targetTableExpression);
 
             Expression
                 = new IncludeReferenceExpressionTreeVisitor(querySource, navigation, readerOffset)
@@ -195,7 +201,7 @@ namespace Microsoft.Data.Entity.Relational.Query
 
             var targetSelectExpression = new SelectExpression();
 
-            var targetTableAlias 
+            var targetTableAlias
                 = CreateUniqueAlias(selectExpression, targetTableName.First().ToString().ToLower());
 
             var targetTableExpression
@@ -223,7 +229,7 @@ namespace Microsoft.Data.Entity.Relational.Query
             innerJoinSelectExpression.IsDistinct = true;
             innerJoinSelectExpression.ClearProjection();
 
-            foreach (var columnExpression 
+            foreach (var columnExpression
                 in innerJoinSelectExpression.OrderBy
                     .Select(o => o.Expression)
                     .Cast<ColumnExpression>())
@@ -238,7 +244,8 @@ namespace Microsoft.Data.Entity.Relational.Query
 
             targetSelectExpression.AddToOrderBy(selectExpression.OrderBy);
 
-            BuildJoinEqualityExpression(navigation, primaryKeyProperties, targetTableExpression, innerJoinExpression);
+            innerJoinExpression.Predicate
+                = BuildJoinEqualityExpression(navigation, primaryKeyProperties, targetTableExpression, innerJoinExpression); ;
 
             var readerParameter = Expression.Parameter(typeof(DbDataReader));
 
@@ -274,7 +281,7 @@ namespace Microsoft.Data.Entity.Relational.Query
         {
             return ((RelationalQueryContext)queryContext).ValueReaderFactory.Create(dataReader);
         }
-        
+
         private static string CreateUniqueAlias(SelectExpression selectExpression, string preferredAlias)
         {
             var alias = preferredAlias;
@@ -289,11 +296,11 @@ namespace Microsoft.Data.Entity.Relational.Query
             return alias;
         }
 
-        private void BuildJoinEqualityExpression(
-            INavigation navigation, 
-            IReadOnlyList<IProperty> primaryKeyProperties, 
-            TableExpressionBase targetTableExpression, 
-            JoinExpressionBase joinExpression)
+        private Expression BuildJoinEqualityExpression(
+            INavigation navigation,
+            IReadOnlyList<IProperty> primaryKeyProperties,
+            TableExpressionBase targetTableExpression,
+            TableExpressionBase joinExpression)
         {
             Expression joinPredicateExpression = null;
 
@@ -333,7 +340,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                         : Expression.AndAlso(joinPredicateExpression, equalExpression);
             }
 
-            joinExpression.Predicate = joinPredicateExpression;
+            return joinPredicateExpression;
         }
 
         public override void VisitAdditionalFromClause(AdditionalFromClause fromClause, QueryModel queryModel, int index)
@@ -450,10 +457,10 @@ namespace Microsoft.Data.Entity.Relational.Query
             var projectionCounts
                 = _queriesBySource
                     .Select(kv => new
-                        {
-                            SelectExpression = kv.Value,
-                            kv.Value.Projection.Count
-                        })
+                    {
+                        SelectExpression = kv.Value,
+                        kv.Value.Projection.Count
+                    })
                     .ToList();
 
             _requiresClientFilter = !_queriesBySource.Any();
@@ -546,13 +553,13 @@ namespace Microsoft.Data.Entity.Relational.Query
             return BindMemberExpression(
                 memberExpression,
                 (property, querySource, selectExpression) =>
-                    {
-                        var projectionIndex = selectExpression.GetProjectionIndex(property, querySource);
+                {
+                    var projectionIndex = selectExpression.GetProjectionIndex(property, querySource);
 
-                        Debug.Assert(projectionIndex > -1);
+                    Debug.Assert(projectionIndex > -1);
 
-                        return BindReadValueMethod(memberExpression.Type, expression, projectionIndex);
-                    });
+                    return BindReadValueMethod(memberExpression.Type, expression, projectionIndex);
+                });
         }
 
         public override Expression BindMethodCallToValueReader(
@@ -564,13 +571,13 @@ namespace Microsoft.Data.Entity.Relational.Query
             return BindMethodCallExpression(
                 methodCallExpression,
                 (property, querySource, selectExpression) =>
-                    {
-                        var projectionIndex = selectExpression.GetProjectionIndex(property, querySource);
+                {
+                    var projectionIndex = selectExpression.GetProjectionIndex(property, querySource);
 
-                        Debug.Assert(projectionIndex > -1);
+                    Debug.Assert(projectionIndex > -1);
 
-                        return BindReadValueMethod(methodCallExpression.Type, expression, projectionIndex);
-                    });
+                    return BindReadValueMethod(methodCallExpression.Type, expression, projectionIndex);
+                });
         }
 
         public virtual void BindMemberExpression(
@@ -582,11 +589,11 @@ namespace Microsoft.Data.Entity.Relational.Query
 
             BindMemberExpression(memberExpression, null,
                 (property, querySource, selectExpression) =>
-                    {
-                        memberBinder(property, querySource, selectExpression);
+                {
+                    memberBinder(property, querySource, selectExpression);
 
-                        return default(object);
-                    });
+                    return default(object);
+                });
         }
 
         public virtual TResult BindMemberExpression<TResult>(
@@ -620,11 +627,11 @@ namespace Microsoft.Data.Entity.Relational.Query
 
             BindMethodCallExpression(methodCallExpression, null,
                 (property, querySource, selectExpression) =>
-                    {
-                        memberBinder(property, querySource, selectExpression);
+                {
+                    memberBinder(property, querySource, selectExpression);
 
-                        return default(object);
-                    });
+                    return default(object);
+                });
         }
 
         public virtual TResult BindMethodCallExpression<TResult>(

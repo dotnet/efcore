@@ -6,11 +6,11 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 {
-    public class IncludeOneToOneTest : IncludeOneToOneTestBase, IClassFixture<OneToOneQueryFixture>
+    public class InMemoryIncludeOneToOneTest : IncludeOneToOneTestBase, IClassFixture<OneToOneQueryFixture>
     {
         private readonly OneToOneQueryFixture _fixture;
 
-        public IncludeOneToOneTest(OneToOneQueryFixture fixture)
+        public InMemoryIncludeOneToOneTest(OneToOneQueryFixture fixture)
         {
             _fixture = fixture;
         }

@@ -212,52 +212,56 @@ namespace Microsoft.Data.Entity.Query
             var querySourceTracingExpressionTreeVisitor
                 = new QuerySourceTracingExpressionTreeVisitor();
 
-            foreach (var queryAnnotation in queryAnnotations)
+            foreach (var include
+                in from queryAnnotation in queryAnnotations
+                   let includeResultOperator = queryAnnotation.ResultOperator as IncludeResultOperator
+                   where includeResultOperator != null
+                   let navigation
+                       = BindNavigationMemberExpression(
+                           (MemberExpression)includeResultOperator.NavigationPropertyPath,
+                           (n, _) => n)
+                   orderby navigation != null
+                           && navigation.PointsToPrincipal
+                   select new
+                   {
+                       navigation,
+                       queryAnnotation.QuerySource,
+                       includeResultOperator.NavigationPropertyPath
+                   })
             {
-                var includeResultOperator
-                    = queryAnnotation.ResultOperator as IncludeResultOperator;
-
-                if (includeResultOperator != null)
+                if (include.navigation != null)
                 {
-                    var navigation
-                        = BindNavigationMemberExpression(
-                            (MemberExpression)includeResultOperator.NavigationPropertyPath,
-                            (n, _) => n);
+                    var resultQuerySourceReferenceExpression
+                        = querySourceTracingExpressionTreeVisitor
+                            .FindResultQuerySourceReferenceExpression(
+                                queryModel.SelectClause.Selector,
+                                include.QuerySource);
 
-                    if (navigation != null)
+                    if (resultQuerySourceReferenceExpression != null)
                     {
-                        var resultQuerySourceReferenceExpression
-                            = querySourceTracingExpressionTreeVisitor
-                                .FindResultQuerySourceReferenceExpression(
+                        var accessorLambda
+                            = AccessorFindingExpressionTreeVisitor
+                                .FindAccessorLambda(
+                                    resultQuerySourceReferenceExpression,
                                     queryModel.SelectClause.Selector,
-                                    queryAnnotation.QuerySource);
+                                    Expression.Parameter(queryModel.SelectClause.Selector.Type));
 
-                        if (resultQuerySourceReferenceExpression != null)
-                        {
-                            var accessorLambda
-                                = AccessorFindingExpressionTreeVisitor
-                                    .FindAccessorLambda(
-                                        resultQuerySourceReferenceExpression,
-                                        queryModel.SelectClause.Selector,
-                                        Expression.Parameter(queryModel.SelectClause.Selector.Type));
+                        QueryCompilationContext.Logger
+                            .WriteInformation(
+                                include.navigation,
+                                Strings.LogIncludingNavigation);
 
-                            QueryCompilationContext.Logger
-                                .WriteInformation(
-                                    navigation,
-                                    Strings.LogIncludingNavigation);
-
-                            IncludeNavigation(
-                                queryAnnotation.QuerySource,
-                                resultType,
-                                accessorLambda,
-                                navigation);
-                        }
+                        IncludeNavigation(
+                            include.QuerySource,
+                            resultType,
+                            accessorLambda,
+                            include.navigation);
                     }
-                    else
-                    {
-                        throw new NotImplementedException(
-                            Strings.IncludeNonBindableExpression(includeResultOperator.NavigationPropertyPath));
-                    }
+                }
+                else
+                {
+                    throw new NotImplementedException(
+                        Strings.IncludeNonBindableExpression(include.NavigationPropertyPath));
                 }
             }
         }
@@ -839,13 +843,13 @@ namespace Microsoft.Data.Entity.Query
 
             return BindMemberExpressionCore(memberExpression, null,
                 (p, qs) =>
-                    {
-                        var navigation = p as INavigation;
+                {
+                    var navigation = p as INavigation;
 
-                        return navigation != null
-                            ? memberBinder(navigation, qs)
-                            : default(TResult);
-                    });
+                    return navigation != null
+                        ? memberBinder(navigation, qs)
+                        : default(TResult);
+                });
         }
 
         public virtual void BindMemberExpression(
@@ -857,11 +861,11 @@ namespace Microsoft.Data.Entity.Query
 
             BindMemberExpression(memberExpression, null,
                 (property, querySource) =>
-                    {
-                        memberBinder(property, querySource);
+                {
+                    memberBinder(property, querySource);
 
-                        return default(object);
-                    });
+                    return default(object);
+                });
         }
 
         public virtual TResult BindMemberExpression<TResult>(
@@ -884,13 +888,13 @@ namespace Microsoft.Data.Entity.Query
 
             return BindMemberExpressionCore(memberExpression, querySource,
                 (p, qs) =>
-                    {
-                        var property = p as IProperty;
+                {
+                    var property = p as IProperty;
 
-                        return property != null
-                            ? memberBinder(property, qs)
-                            : default(TResult);
-                    });
+                    return property != null
+                        ? memberBinder(property, qs)
+                        : default(TResult);
+                });
         }
 
         private TResult BindMemberExpressionCore<TResult>(

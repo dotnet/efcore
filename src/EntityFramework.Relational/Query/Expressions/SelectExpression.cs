@@ -104,7 +104,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
         {
             Check.NotNull(querySource, "querySource");
 
-            return _tables.Single(t => t.QuerySource == querySource);
+            return _tables.First(t => t.QuerySource == querySource);
         }
 
         public virtual bool IsDistinct
