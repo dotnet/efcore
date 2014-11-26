@@ -4,6 +4,7 @@
 using System.Linq;
 using Microsoft.Data.Entity.Migrations.Builders;
 using Microsoft.Data.Entity.Migrations.Model;
+using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Utilities;
 using Xunit;
 
@@ -544,7 +545,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Builders
 
             public override void GenerateSql(
                 MigrationOperationSqlGenerator generator,
-                IndentedStringBuilder stringBuilder)
+                SqlBatchBuilder batchBuilder)
             {
             }
 

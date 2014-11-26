@@ -1100,14 +1100,14 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                 throw new FakeDbException();
             }
 
-            public override IReadOnlyList<SqlStatement> GenerateInsertMigrationSql(IMigrationMetadata migration, SqlGenerator sqlGenerator)
+            public override IReadOnlyList<SqlBatch> GenerateInsertMigrationSql(IMigrationMetadata migration, SqlGenerator sqlGenerator)
             {
-                return new[] { new SqlStatement(migration.GetMigrationName() + "InsertSql") };
+                return new[] { new SqlBatch(migration.GetMigrationName() + "InsertSql") };
             }
 
-            public override IReadOnlyList<SqlStatement> GenerateDeleteMigrationSql(IMigrationMetadata migration, SqlGenerator sqlGenerator)
+            public override IReadOnlyList<SqlBatch> GenerateDeleteMigrationSql(IMigrationMetadata migration, SqlGenerator sqlGenerator)
             {
-                return new[] { new SqlStatement(migration.GetMigrationName() + "DeleteSql") };
+                return new[] { new SqlBatch(migration.GetMigrationName() + "DeleteSql") };
             }
         }
 

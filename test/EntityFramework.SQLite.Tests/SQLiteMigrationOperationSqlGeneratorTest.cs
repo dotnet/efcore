@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Relational;
@@ -201,7 +202,9 @@ namespace Microsoft.Data.Entity.Sqlite.Tests
 
         private static string Generate(MigrationOperation operation, IModel targetModel = null)
         {
-            return SqlGenerator(targetModel).Generate(operation).Sql;
+            var batches = SqlGenerator(targetModel).Generate(operation);
+
+            return string.Join(Environment.NewLine, batches.Select(b => b.Sql));
         }
 
         private static SqliteMigrationOperationSqlGenerator SqlGenerator(IModel targetModel = null)

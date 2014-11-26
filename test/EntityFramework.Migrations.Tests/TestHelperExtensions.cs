@@ -162,39 +162,39 @@ namespace Microsoft.Data.Entity.Tests
 
     public class FakeMigrationOperationSqlGenerator : MigrationOperationSqlGenerator
     {
-        public override IEnumerable<SqlStatement> Generate(IEnumerable<MigrationOperation> migrationOperations)
+        public override IEnumerable<SqlBatch> Generate(IEnumerable<MigrationOperation> migrationOperations)
         {
             return new FakeMigrationsSqlGenerator().Generate(migrationOperations);
         }
 
-        public override void Generate(RenameSequenceOperation renameSequenceOperation, IndentedStringBuilder stringBuilder)
+        public override void Generate(RenameSequenceOperation renameSequenceOperation, SqlBatchBuilder batchBuilder)
         {
         }
 
-        public override void Generate(MoveSequenceOperation moveSequenceOperation, IndentedStringBuilder stringBuilder)
+        public override void Generate(MoveSequenceOperation moveSequenceOperation, SqlBatchBuilder batchBuilder)
         {
         }
 
-        public override void Generate(RenameTableOperation renameTableOperation, IndentedStringBuilder stringBuilder)
+        public override void Generate(RenameTableOperation renameTableOperation, SqlBatchBuilder batchBuilder)
         {
         }
 
-        public override void Generate(MoveTableOperation moveTableOperation, IndentedStringBuilder stringBuilder)
+        public override void Generate(MoveTableOperation moveTableOperation, SqlBatchBuilder batchBuilder)
         {
         }
 
-        public override void Generate(RenameColumnOperation renameColumnOperation, IndentedStringBuilder stringBuilder)
+        public override void Generate(RenameColumnOperation renameColumnOperation, SqlBatchBuilder batchBuilder)
         {
         }
 
-        public override void Generate(RenameIndexOperation renameIndexOperation, IndentedStringBuilder stringBuilder)
+        public override void Generate(RenameIndexOperation renameIndexOperation, SqlBatchBuilder batchBuilder)
         {
         }
     }
 
     public class FakeMigrationsSqlGenerator : MigrationOperationVisitor<IndentedStringBuilder>
     {
-        public virtual IEnumerable<SqlStatement> Generate(IEnumerable<MigrationOperation> operations)
+        public virtual IEnumerable<SqlBatch> Generate(IEnumerable<MigrationOperation> operations)
         {
             return operations.Select(
                 o =>
@@ -205,7 +205,7 @@ namespace Microsoft.Data.Entity.Tests
                     o.Accept(this, builder);
 
                     return
-                            new SqlStatement(builder.ToString())
+                            new SqlBatch(builder.ToString())
                             {
                                 SuppressTransaction = sqlOperation != null && sqlOperation.SuppressTransaction
                             };
@@ -248,7 +248,7 @@ namespace Microsoft.Data.Entity.Tests
             get { return _nonQueries; }
         }
 
-        public override void ExecuteNonQuery(DbConnection connection, DbTransaction transaction, IEnumerable<SqlStatement> statements)
+        public override void ExecuteNonQuery(DbConnection connection, DbTransaction transaction, IEnumerable<SqlBatch> statements)
         {
             _nonQueries.Add(Tuple.Create(connection, transaction, statements.Select(s => s.Sql).ToArray()));
 

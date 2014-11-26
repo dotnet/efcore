@@ -109,7 +109,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                     .OrderBy(h => h.MigrationId);
         }
 
-        public virtual IReadOnlyList<SqlStatement> GenerateInsertMigrationSql(
+        public virtual IReadOnlyList<SqlBatch> GenerateInsertMigrationSql(
             [NotNull] IMigrationMetadata migration, [NotNull] SqlGenerator sqlGenerator)
         {
             Check.NotNull(migration, "migration");
@@ -136,10 +136,10 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                 .Append(sqlGenerator.GenerateLiteral(migration.ProductVersion))
                 .Append(")");
 
-            return new[] { new SqlStatement(stringBuilder.ToString()) };
+            return new[] { new SqlBatch(stringBuilder.ToString()) };
         }
 
-        public virtual IReadOnlyList<SqlStatement> GenerateDeleteMigrationSql(
+        public virtual IReadOnlyList<SqlBatch> GenerateDeleteMigrationSql(
             [NotNull] IMigrationMetadata migration, [NotNull] SqlGenerator sqlGenerator)
         {
             Check.NotNull(migration, "migration");
@@ -161,7 +161,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                 .Append(" = ")
                 .Append(sqlGenerator.GenerateLiteral(GetContextKey()));
 
-            return new[] { new SqlStatement(stringBuilder.ToString()) };
+            return new[] { new SqlBatch(stringBuilder.ToString()) };
         }
 
         protected virtual IModel CreateHistoryModel()

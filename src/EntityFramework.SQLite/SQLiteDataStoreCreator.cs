@@ -124,9 +124,9 @@ namespace Microsoft.Data.Entity.Sqlite
                 .WithCurrentCulture()) != 0;
         }
 
-        private SqlStatement CreateHasTablesCommand()
+        private string CreateHasTablesCommand()
         {
-            return new SqlStatement("SELECT count(*) FROM sqlite_master WHERE type = 'table' AND rootpage IS NOT NULL");
+            return "SELECT count(*) FROM sqlite_master WHERE type = 'table' AND rootpage IS NOT NULL";
         }
 
         public override void Delete()
