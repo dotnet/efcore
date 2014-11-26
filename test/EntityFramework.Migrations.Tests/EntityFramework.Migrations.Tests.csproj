@@ -124,6 +124,7 @@
     <Compile Include="..\Shared\ApiConsistencyTestBase.cs" />
     <Compile Include="Model\SqlOperationTest.cs" />
     <Compile Include="..\Shared\TestHelpers.cs" />
+    <Compile Include="MigrationsDbContextOptionsExtensionsTest.cs" />
     <Compile Include="TestHelperExtensions.cs" />
     <None Include="project.json" />
   </ItemGroup>

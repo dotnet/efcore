@@ -13,7 +13,6 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
-using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
@@ -54,10 +53,11 @@ namespace Microsoft.Data.Entity.Commands
                 var options = scopedServiceProvider.GetRequiredService<DbContextService<IDbContextOptions>>();
                 var model = scopedServiceProvider.GetRequiredService<DbContextService<IModel>>();
 
-                var extension = RelationalOptionsExtension.Extract(options.Service);
-                if (extension.MigrationNamespace == null)
+                var extension = MigrationsOptionsExtension.Extract(options.Service);
+                if (extension == null || extension.MigrationNamespace == null)
                 {
-                    extension.MigrationNamespace = rootNamespace + ".Migrations";
+                    options.Service.AddOrUpdateExtension<MigrationsOptionsExtension>(
+                        x => x.MigrationNamespace = rootNamespace + ".Migrations");
                 }
 
                 var migrator = CreateMigrator(context);
@@ -188,10 +188,11 @@ namespace Microsoft.Data.Entity.Commands
             var loggerFactory = scopedServiceProvider.GetRequiredService<ILoggerFactory>();
             loggerFactory.AddProvider(_loggerProvider);
 
-            var extension = RelationalOptionsExtension.Extract(options.Service);
-            if (extension.MigrationAssembly == null)
+            var extension = MigrationsOptionsExtension.Extract(options.Service);
+            if (extension == null || extension.MigrationAssembly == null)
             {
-                extension.MigrationAssembly = _assembly;
+                options.Service.AddOrUpdateExtension<MigrationsOptionsExtension>(
+                    x => x.MigrationAssembly =_assembly);
             }
 
             return context;

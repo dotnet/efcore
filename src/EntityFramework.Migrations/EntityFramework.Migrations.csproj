@@ -52,6 +52,7 @@
     <Compile Include="..\Shared\LoggingExtensions.cs">
       <Link>LoggingExtensions.cs</Link>
     </Compile>
+    <Compile Include="Extensions\MigrationsDbContextOptionsExtensions.cs" />
     <Compile Include="IMigrationOperationSqlGeneratorFactory.cs" />
     <Compile Include="IMigrationsEnabledDatabaseInternals.cs" />
     <Compile Include="Infrastructure\ContextTypeAttribute.cs" />
@@ -116,6 +117,7 @@
     <Compile Include="Properties\Strings.Designer.cs">
       <DependentUpon>Strings.resx</DependentUpon>
     </Compile>
+    <Compile Include="MigrationsOptionsExtension.cs" />
     <Compile Include="Utilities\AssemblyExtensions.cs" />
     <Compile Include="Utilities\Check.cs" />
     <Compile Include="Utilities\EnumerableExtensions.cs" />

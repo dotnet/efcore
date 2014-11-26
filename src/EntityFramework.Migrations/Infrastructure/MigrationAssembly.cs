@@ -43,8 +43,10 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
         {
             get
             {
-                return RelationalOptionsExtension.Extract(_options.Service).MigrationAssembly
-                       ?? _context.Service.GetType().GetTypeInfo().Assembly;
+                var extension = MigrationsOptionsExtension.Extract(_options.Service);
+                return extension != null && extension.MigrationAssembly != null
+                    ? extension.MigrationAssembly
+                    : _context.Service.GetType().GetTypeInfo().Assembly;
             }
         }
 

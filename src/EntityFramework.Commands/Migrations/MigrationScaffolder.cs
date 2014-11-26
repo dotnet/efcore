@@ -66,7 +66,11 @@ namespace Microsoft.Data.Entity.Commands.Migrations
 
         public virtual string MigrationNamespace
         {
-            get { return RelationalOptionsExtension.Extract(_options).MigrationNamespace; }
+            get
+            {
+                var extension = MigrationsOptionsExtension.Extract(_options);
+                return extension == null ? null : extension.MigrationNamespace;
+            }
         }
 
         public virtual ScaffoldedMigration ScaffoldMigration([NotNull] string migrationName)

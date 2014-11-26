@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Linq;
 using System.Reflection;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
@@ -79,20 +80,18 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             internal Assembly MigrationAssembly { get; set; }
             internal string MigrationNamespace { get; set; }
 
-            protected override void OnConfiguring(DbContextOptions builder)
+            protected override void OnConfiguring(DbContextOptions options)
             {
-                var contextOptionsExtensions = (IDbContextOptions)builder;
-
-                contextOptionsExtensions.AddOrUpdateExtension<MyRelationalOptionsExtension>(x => x.ConnectionString = "ConnectionString");
+                ((IDbContextOptions)options).AddOrUpdateExtension<MyRelationalOptionsExtension>(x => x.ConnectionString = "ConnectionString");
 
                 if (MigrationAssembly != null)
                 {
-                    contextOptionsExtensions.AddOrUpdateExtension<MyRelationalOptionsExtension>(x => x.MigrationAssembly = MigrationAssembly);
+                    options.UseMigrationAssembly(MigrationAssembly);
                 }
 
                 if (MigrationNamespace != null)
                 {
-                    contextOptionsExtensions.AddOrUpdateExtension<MyRelationalOptionsExtension>(x => x.MigrationNamespace = MigrationNamespace);
+                    options.UseMigrationNamespace(MigrationNamespace);
                 }
             }
         }
