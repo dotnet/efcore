@@ -147,6 +147,25 @@ namespace Microsoft.Data.Entity.Metadata
             return this;
         }
 
+        public virtual void Ignore<T>()
+        {
+            Ignore(typeof(T));
+        }
+
+        public virtual void Ignore([NotNull] Type entityType)
+        {
+            Check.NotNull(entityType, "entityType");
+
+            Builder.Ignore(entityType, ConfigurationSource.Explicit);
+        }
+
+        public virtual void Ignore([NotNull] string name)
+        {
+            Check.NotEmpty(name, "name");
+
+            Builder.Ignore(name, ConfigurationSource.Explicit);
+        }
+
         public class EntityBuilder : IEntityBuilder<EntityBuilder>
         {
             private readonly InternalEntityBuilder _builder;

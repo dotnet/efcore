@@ -54,6 +54,45 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         }
 
         [Fact]
+        public void Cannot_get_entity_builder_for_ignored_clr_type()
+        {
+            var model = new Model();
+            var modelBuilder = new ModelBuilder(model);
+
+            modelBuilder.Ignore<Customer>();
+
+            Assert.Equal(Strings.EntityIgnoredExplicitly(typeof(Customer).FullName),
+                Assert.Throws<InvalidOperationException>(() =>
+                    modelBuilder.Entity(typeof(Customer).FullName)).Message);
+        }
+
+        [Fact]
+        public void Cannot_get_entity_builder_for_ignored_clr_type_non_generic()
+        {
+            var model = new Model();
+            var modelBuilder = new ModelBuilder(model);
+
+            modelBuilder.Ignore(typeof(Customer));
+
+            Assert.Equal(Strings.EntityIgnoredExplicitly(typeof(Customer).FullName),
+                Assert.Throws<InvalidOperationException>(() =>
+                    modelBuilder.Entity<Customer>()).Message);
+        }
+
+        [Fact]
+        public void Cannot_get_entity_builder_for_ignored_entity_type_name()
+        {
+            var model = new Model();
+            var modelBuilder = new ModelBuilder(model);
+
+            modelBuilder.Ignore(typeof(Customer).FullName);
+
+            Assert.Equal(Strings.EntityIgnoredExplicitly(typeof(Customer).FullName),
+                Assert.Throws<InvalidOperationException>(() =>
+                    modelBuilder.Entity(typeof(Customer))).Message);
+        }
+
+        [Fact]
         public void Can_set_entity_key_from_clr_property()
         {
             var model = new Model();

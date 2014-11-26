@@ -44,10 +44,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var modelBuilder = new InternalModelBuilder(model, null);
             modelBuilder.Entity(typeof(Customer), ConfigurationSource.Convention);
 
-            Assert.True(modelBuilder.IgnoreEntity(typeof(Customer), ConfigurationSource.DataAnnotation));
+            Assert.True(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.DataAnnotation));
 
             Assert.Null(model.TryGetEntityType(typeof(Customer)));
-            Assert.True(modelBuilder.IgnoreEntity(typeof(Customer), ConfigurationSource.DataAnnotation));
+            Assert.True(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.DataAnnotation));
             Assert.Null(modelBuilder.Entity(typeof(Customer), ConfigurationSource.Convention));
             Assert.NotNull(modelBuilder.Entity(typeof(Customer), ConfigurationSource.DataAnnotation));
         }
@@ -59,10 +59,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var modelBuilder = new InternalModelBuilder(model, null);
             modelBuilder.Entity(typeof(Customer).FullName, ConfigurationSource.DataAnnotation);
 
-            Assert.True(modelBuilder.IgnoreEntity(typeof(Customer).FullName, ConfigurationSource.Explicit));
+            Assert.True(modelBuilder.Ignore(typeof(Customer).FullName, ConfigurationSource.Explicit));
 
             Assert.Null(model.TryGetEntityType(typeof(Customer).FullName));
-            Assert.True(modelBuilder.IgnoreEntity(typeof(Customer).FullName, ConfigurationSource.Explicit));
+            Assert.True(modelBuilder.Ignore(typeof(Customer).FullName, ConfigurationSource.Explicit));
             Assert.Null(modelBuilder.Entity(typeof(Customer).FullName, ConfigurationSource.DataAnnotation));
 
             Assert.Equal(Strings.EntityIgnoredExplicitly(typeof(Customer).FullName),
@@ -76,11 +76,11 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var model = new Model();
             var modelBuilder = new InternalModelBuilder(model, null);
 
-            Assert.True(modelBuilder.IgnoreEntity(typeof(Customer), ConfigurationSource.DataAnnotation));
+            Assert.True(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.DataAnnotation));
             Assert.NotNull(modelBuilder.Entity(typeof(Customer), ConfigurationSource.DataAnnotation));
             Assert.NotNull(modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit));
 
-            Assert.False(modelBuilder.IgnoreEntity(typeof(Customer), ConfigurationSource.DataAnnotation));
+            Assert.False(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.DataAnnotation));
 
             Assert.NotNull(model.TryGetEntityType(typeof(Customer)));
         }
@@ -91,11 +91,11 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var model = new Model();
             var modelBuilder = new InternalModelBuilder(model, null);
 
-            Assert.True(modelBuilder.IgnoreEntity(typeof(Customer).FullName, ConfigurationSource.Convention));
+            Assert.True(modelBuilder.Ignore(typeof(Customer).FullName, ConfigurationSource.Convention));
             Assert.NotNull(modelBuilder.Entity(typeof(Customer).FullName, ConfigurationSource.Convention));
             Assert.NotNull(modelBuilder.Entity(typeof(Customer).FullName, ConfigurationSource.DataAnnotation));
 
-            Assert.False(modelBuilder.IgnoreEntity(typeof(Customer).FullName, ConfigurationSource.Convention));
+            Assert.False(modelBuilder.Ignore(typeof(Customer).FullName, ConfigurationSource.Convention));
 
             Assert.NotNull(model.TryGetEntityType(typeof(Customer).FullName));
         }
@@ -108,15 +108,15 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var modelBuilder = new InternalModelBuilder(model, null);
             Assert.Same(entityType, modelBuilder.Entity(typeof(Customer), ConfigurationSource.Convention).Metadata);
 
-            Assert.False(modelBuilder.IgnoreEntity(typeof(Customer), ConfigurationSource.DataAnnotation));
+            Assert.False(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.DataAnnotation));
 
             Assert.Same(entityType, modelBuilder.Entity(typeof(Customer), ConfigurationSource.Convention).Metadata);
-            Assert.False(modelBuilder.IgnoreEntity(typeof(Customer), ConfigurationSource.DataAnnotation));
+            Assert.False(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.DataAnnotation));
             Assert.NotNull(model.TryGetEntityType(typeof(Customer)));
 
             Assert.Equal(Strings.EntityAddedExplicitly(typeof(Customer).FullName),
                 Assert.Throws<InvalidOperationException>(() =>
-                    Assert.False(modelBuilder.IgnoreEntity(typeof(Customer), ConfigurationSource.Explicit))).Message);
+                    Assert.False(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.Explicit))).Message);
         }
 
         [Fact]
@@ -127,15 +127,15 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var modelBuilder = new InternalModelBuilder(model, null);
             Assert.Same(entityType, modelBuilder.Entity(typeof(Customer).FullName, ConfigurationSource.Convention).Metadata);
 
-            Assert.False(modelBuilder.IgnoreEntity(typeof(Customer).FullName, ConfigurationSource.DataAnnotation));
+            Assert.False(modelBuilder.Ignore(typeof(Customer).FullName, ConfigurationSource.DataAnnotation));
 
             Assert.Same(entityType, modelBuilder.Entity(typeof(Customer).FullName, ConfigurationSource.Convention).Metadata);
-            Assert.False(modelBuilder.IgnoreEntity(typeof(Customer).FullName, ConfigurationSource.DataAnnotation));
+            Assert.False(modelBuilder.Ignore(typeof(Customer).FullName, ConfigurationSource.DataAnnotation));
             Assert.NotNull(model.TryGetEntityType(typeof(Customer).FullName));
 
             Assert.Equal(Strings.EntityAddedExplicitly(typeof(Customer).FullName),
                 Assert.Throws<InvalidOperationException>(() =>
-                    Assert.False(modelBuilder.IgnoreEntity(typeof(Customer).FullName, ConfigurationSource.Explicit))).Message);
+                    Assert.False(modelBuilder.Ignore(typeof(Customer).FullName, ConfigurationSource.Explicit))).Message);
         }
 
         [Fact]
@@ -149,7 +149,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             Assert.NotNull(orderEntityTypeBuilder.ForeignKey(typeof(Customer), new[] { Order.CustomerIdProperty }, ConfigurationSource.Convention));
             
-            Assert.True(modelBuilder.IgnoreEntity(typeof(Customer), ConfigurationSource.Explicit));
+            Assert.True(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.Explicit));
 
             Assert.Equal(typeof(Order), modelBuilder.Metadata.EntityTypes.Single().Type);
             Assert.Empty(orderEntityTypeBuilder.Metadata.ForeignKeys);
@@ -162,11 +162,11 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             modelBuilder
                 .Entity(typeof(Customer), ConfigurationSource.Convention)
                 .Key(new[] { Customer.IdProperty }, ConfigurationSource.Convention);
-            var orderEntityTypeBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+            var orderEntityTypeBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Convention);
 
             Assert.NotNull(orderEntityTypeBuilder.ForeignKey(typeof(Customer), new[] { Order.CustomerIdProperty }, ConfigurationSource.Explicit));
 
-            Assert.False(modelBuilder.IgnoreEntity(typeof(Customer), ConfigurationSource.Convention));
+            Assert.False(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.DataAnnotation));
 
             Assert.Equal(2, modelBuilder.Metadata.EntityTypes.Count);
             Assert.Equal(1, orderEntityTypeBuilder.Metadata.ForeignKeys.Count);

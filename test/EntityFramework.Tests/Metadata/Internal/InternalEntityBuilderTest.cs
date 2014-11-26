@@ -46,7 +46,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public void ForeignKey_returns_null_for_clr_properties_if_entity_type_ignored()
         {
             var modelBuilder = new InternalModelBuilder(new Model(), null);
-            modelBuilder.IgnoreEntity(typeof(Customer), ConfigurationSource.Explicit);
+            modelBuilder.Ignore(typeof(Customer), ConfigurationSource.Explicit);
             var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
 
             var foreignKeyBuilder = entityBuilder.ForeignKey(typeof(Customer), new[] { Order.CustomerIdProperty, Order.CustomerUniqueProperty }, ConfigurationSource.Convention);
@@ -58,7 +58,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public void ForeignKey_returns_null_for_property_names_if_entity_type_ignored()
         {
             var modelBuilder = new InternalModelBuilder(new Model(), null);
-            modelBuilder.IgnoreEntity(typeof(Customer), ConfigurationSource.Explicit);
+            modelBuilder.Ignore(typeof(Customer), ConfigurationSource.Explicit);
             var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
 
             var foreignKeyBuilder = entityBuilder.ForeignKey(typeof(Customer).FullName, new[] { Order.CustomerIdProperty.Name, Order.CustomerUniqueProperty.Name }, ConfigurationSource.Convention);
@@ -497,7 +497,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var modelBuilder = new InternalModelBuilder(new Model(), null);
             var customerEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
             customerEntityBuilder.Key(new[] { Customer.IdProperty, Customer.UniqueProperty }, ConfigurationSource.Explicit);
-            modelBuilder.IgnoreEntity(typeof(Order), ConfigurationSource.Explicit);
+            modelBuilder.Ignore(typeof(Order), ConfigurationSource.Explicit);
 
             var relationshipBuilder = customerEntityBuilder.BuildRelationship(typeof(Customer), typeof(Order), null, null, /*oneToOne:*/ true, ConfigurationSource.Convention);
 
@@ -508,7 +508,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public void BuildRelationship_returns_null_for_clr_types_if_principal_entity_type_ignored()
         {
             var modelBuilder = new InternalModelBuilder(new Model(), null);
-            modelBuilder.IgnoreEntity(typeof(Customer), ConfigurationSource.Explicit);
+            modelBuilder.Ignore(typeof(Customer), ConfigurationSource.Explicit);
             var orderEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
 
             var relationshipBuilder = orderEntityBuilder.BuildRelationship(typeof(Customer), typeof(Order), null, null, /*oneToOne:*/ true, ConfigurationSource.Convention);

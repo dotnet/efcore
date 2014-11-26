@@ -98,7 +98,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return builder;
         }
 
-        public virtual bool IgnoreEntity([NotNull] string name, ConfigurationSource configurationSource)
+        public virtual bool Ignore([NotNull] string name, ConfigurationSource configurationSource)
         {
             Check.NotEmpty(name, "name");
 
@@ -140,19 +140,18 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return true;
         }
 
+        public virtual bool Ignore([NotNull] Type type, ConfigurationSource configurationSource)
+        {
+            Check.NotNull(type, "type");
+
+            return Ignore(type.FullName, configurationSource);
+        }
 
         private bool RemoveForeignKey(ForeignKey foreignKey, ConfigurationSource configurationSource)
         {
             var entityBuilder = Entity(foreignKey.EntityType.Type, ConfigurationSource.Convention);
 
             return entityBuilder.RemoveForeignKey(foreignKey, configurationSource);
-        }
-
-        public virtual bool IgnoreEntity([NotNull] Type type, ConfigurationSource configurationSource)
-        {
-            Check.NotNull(type, "type");
-
-            return IgnoreEntity(type.FullName, configurationSource);
         }
     }
 }
