@@ -3,7 +3,6 @@
 
 using System;
 using System.Data;
-using Microsoft.Data.Entity.Relational.Model;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Relational.Tests.Model

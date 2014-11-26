@@ -620,7 +620,7 @@ namespace Microsoft.Data.Entity.Commands.Tests.Migrations
             Assert.Equal(
                 @"using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Builders;
-using Microsoft.Data.Entity.Relational.Model;
+using Microsoft.Data.Entity.Migrations.Model;
 using System;
 
 namespace MyNamespace

@@ -3,7 +3,7 @@
 
 using System;
 using System.Data;
-using Microsoft.Data.Entity.Relational.Model;
+using Microsoft.Data.Entity.Relational;
 using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.Tests

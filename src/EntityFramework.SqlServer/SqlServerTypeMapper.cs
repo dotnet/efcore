@@ -4,7 +4,7 @@
 using System;
 using System.Data;
 using System.Linq;
-using Microsoft.Data.Entity.Relational.Model;
+using Microsoft.Data.Entity.Relational;
 
 namespace Microsoft.Data.Entity.SqlServer
 {

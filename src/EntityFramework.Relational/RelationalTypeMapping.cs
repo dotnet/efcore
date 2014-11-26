@@ -8,7 +8,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Relational.Update;
 using Microsoft.Data.Entity.Relational.Utilities;
 
-namespace Microsoft.Data.Entity.Relational.Model
+namespace Microsoft.Data.Entity.Relational
 {
     public class RelationalTypeMapping
     {

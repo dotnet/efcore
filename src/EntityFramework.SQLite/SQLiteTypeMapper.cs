@@ -3,7 +3,7 @@
 
 using System;
 using System.Linq;
-using Microsoft.Data.Entity.Relational.Model;
+using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.SQLite.Utilities;
 
 namespace Microsoft.Data.Entity.Sqlite

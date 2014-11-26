@@ -51,7 +51,7 @@ namespace Microsoft.Data.Entity.Migrations
                 {
                     "Microsoft.Data.Entity.Migrations",
                     "Microsoft.Data.Entity.Migrations.Builders",
-                    "Microsoft.Data.Entity.Relational.Model",
+                    "Microsoft.Data.Entity.Migrations.Model",
                     "System"
                 };
         }

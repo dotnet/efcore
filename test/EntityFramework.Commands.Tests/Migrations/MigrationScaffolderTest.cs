@@ -8,8 +8,6 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Relational;
-using Microsoft.Data.Entity.Relational.Metadata;
-using Microsoft.Data.Entity.Relational.Model;
 using Microsoft.Data.Entity.Relational.Tests;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
@@ -126,7 +124,7 @@ namespace Microsoft.Data.Entity.Commands.Tests.Migrations
             Assert.Equal(
                 @"using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Builders;
-using Microsoft.Data.Entity.Relational.Model;
+using Microsoft.Data.Entity.Migrations.Model;
 using System;
 
 namespace MyNamespace
@@ -222,7 +220,7 @@ namespace MyNamespace
 
             Assert.Equal(@"using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Builders;
-using Microsoft.Data.Entity.Relational.Model;
+using Microsoft.Data.Entity.Migrations.Model;
 using System;
 
 namespace MyNamespace
@@ -342,7 +340,7 @@ namespace MyNamespace
             Assert.Equal(
                 @"using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Builders;
-using Microsoft.Data.Entity.Relational.Model;
+using Microsoft.Data.Entity.Migrations.Model;
 using System;
 
 namespace MyNamespace
@@ -546,7 +544,7 @@ namespace MyNamespace
             Assert.Equal(
                 @"using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Builders;
-using Microsoft.Data.Entity.Relational.Model;
+using Microsoft.Data.Entity.Migrations.Model;
 using System;
 
 namespace MyNamespace
