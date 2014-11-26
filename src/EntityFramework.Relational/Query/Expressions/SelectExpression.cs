@@ -306,13 +306,6 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             _projection.RemoveAll(ce => orderBy.Any(o => ReferenceEquals(o.Expression, ce)));
         }
 
-//        public void RemoveFromProjection([NotNull] IQuerySource querySource)
-//        {
-//            Check.NotNull(querySource, "querySource");
-//
-//            _projection.RemoveAll(ce => ce.Table.QuerySource == querySource);
-//        }
-
         public virtual int GetProjectionIndex([NotNull] IProperty property, [NotNull] IQuerySource querySource)
         {
             Check.NotNull(property, "property");

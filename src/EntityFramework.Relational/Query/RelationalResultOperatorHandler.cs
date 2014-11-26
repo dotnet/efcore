@@ -179,38 +179,53 @@ namespace Microsoft.Data.Entity.Relational.Query
 
         private static Expression HandleMin(HandlerContext handlerContext)
         {
-            var minExpression
-                = new MinExpression(handlerContext.SelectExpression.Projection.Single());
+            if (!handlerContext.QueryModelVisitor.RequiresClientProjection)
+            {
+                var minExpression
+                    = new MinExpression(handlerContext.SelectExpression.Projection.Single());
 
-            handlerContext.SelectExpression.SetProjectionExpression(minExpression);
+                handlerContext.SelectExpression.SetProjectionExpression(minExpression);
 
-            return (Expression)_transformClientExpressionMethodInfo
-                .MakeGenericMethod(minExpression.Type)
-                .Invoke(null, new object[] { handlerContext });
+                return (Expression)_transformClientExpressionMethodInfo
+                    .MakeGenericMethod(minExpression.Type)
+                    .Invoke(null, new object[] { handlerContext });
+            }
+
+            return handlerContext.EvalOnClient;
         }
 
         private static Expression HandleMax(HandlerContext handlerContext)
         {
-            var maxExpression
-                = new MaxExpression(handlerContext.SelectExpression.Projection.Single());
+            if (!handlerContext.QueryModelVisitor.RequiresClientProjection)
+            {
+                var maxExpression
+                    = new MaxExpression(handlerContext.SelectExpression.Projection.Single());
 
-            handlerContext.SelectExpression.SetProjectionExpression(maxExpression);
+                handlerContext.SelectExpression.SetProjectionExpression(maxExpression);
 
-            return (Expression)_transformClientExpressionMethodInfo
-                .MakeGenericMethod(maxExpression.Type)
-                .Invoke(null, new object[] { handlerContext });
+                return (Expression)_transformClientExpressionMethodInfo
+                    .MakeGenericMethod(maxExpression.Type)
+                    .Invoke(null, new object[] { handlerContext });
+            }
+
+            return handlerContext.EvalOnClient;
         }
 
         private static Expression HandleSum(HandlerContext handlerContext)
         {
-            var sumExpression
-                = new SumExpression(handlerContext.SelectExpression.Projection.Single());
+            if (!handlerContext.QueryModelVisitor.RequiresClientProjection)
+            {
+                var sumExpression
+                    = new SumExpression(handlerContext.SelectExpression.Projection.Single());
 
-            handlerContext.SelectExpression.SetProjectionExpression(sumExpression);
+                handlerContext.SelectExpression.SetProjectionExpression(sumExpression);
 
-            return (Expression)_transformClientExpressionMethodInfo
-                .MakeGenericMethod(sumExpression.Type)
-                .Invoke(null, new object[] { handlerContext });
+                return (Expression)_transformClientExpressionMethodInfo
+                    .MakeGenericMethod(sumExpression.Type)
+                    .Invoke(null, new object[] { handlerContext });
+            }
+
+            return handlerContext.EvalOnClient;
         }
 
         private static Expression HandleDistinct(HandlerContext handlerContext)

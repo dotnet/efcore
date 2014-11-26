@@ -31,6 +31,8 @@ namespace Microsoft.Data.Entity.Relational.Query
 
         private bool _requiresClientFilter;
 
+        private RelationalProjectionExpressionTreeVisitor _projectionTreeVisitor;
+
         public RelationalQueryModelVisitor(
             [NotNull] RelationalQueryCompilationContext queryCompilationContext,
             [CanBeNull] RelationalQueryModelVisitor parentQueryModelVisitor)
@@ -39,15 +41,12 @@ namespace Microsoft.Data.Entity.Relational.Query
             _parentQueryModelVisitor = parentQueryModelVisitor;
         }
 
-        public virtual bool RequiresClientFilter
-        {
-            get { return _requiresClientFilter; }
-        }
+        public virtual bool RequiresClientFilter => _requiresClientFilter;
 
-        public new virtual RelationalQueryCompilationContext QueryCompilationContext
-        {
-            get { return (RelationalQueryCompilationContext)base.QueryCompilationContext; }
-        }
+        public virtual bool RequiresClientProjection => _projectionTreeVisitor.RequiresClientEval;
+
+        public new virtual RelationalQueryCompilationContext QueryCompilationContext 
+            => (RelationalQueryCompilationContext)base.QueryCompilationContext;
 
         public virtual void AddQuery([NotNull] IQuerySource querySource, [NotNull] SelectExpression selectExpression)
         {
@@ -76,7 +75,7 @@ namespace Microsoft.Data.Entity.Relational.Query
 
         protected override ExpressionTreeVisitor CreateProjectionExpressionTreeVisitor()
         {
-            return new RelationalProjectionExpressionTreeVisitor(this);
+            return _projectionTreeVisitor = new RelationalProjectionExpressionTreeVisitor(this);
         }
 
         protected override ExpressionTreeVisitor CreateOrderingExpressionTreeVisitor(Ordering ordering)
@@ -245,7 +244,7 @@ namespace Microsoft.Data.Entity.Relational.Query
             targetSelectExpression.AddToOrderBy(selectExpression.OrderBy);
 
             innerJoinExpression.Predicate
-                = BuildJoinEqualityExpression(navigation, primaryKeyProperties, targetTableExpression, innerJoinExpression); ;
+                = BuildJoinEqualityExpression(navigation, primaryKeyProperties, targetTableExpression, innerJoinExpression);
 
             var readerParameter = Expression.Parameter(typeof(DbDataReader));
 
@@ -395,9 +394,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                     : null;
 
             var previousSelectProjectionCount
-                = previousSelectExpression != null
-                    ? previousSelectExpression.Projection.Count
-                    : -1;
+                = previousSelectExpression?.Projection.Count ?? -1;
 
             base.VisitJoinClause(joinClause, queryModel, index);
 
@@ -666,18 +663,13 @@ namespace Microsoft.Data.Entity.Relational.Query
             }
 
             selectExpression
-                = _parentQueryModelVisitor != null
-                    ? _parentQueryModelVisitor.TryGetQuery(querySource)
-                    : null;
+                = _parentQueryModelVisitor?.TryGetQuery(querySource);
 
-            if (selectExpression != null)
-            {
-                selectExpression
-                    .AddToProjection(
-                        QueryCompilationContext.GetColumnName(property),
-                        property,
-                        querySource);
-            }
+            selectExpression?
+                .AddToProjection(
+                    QueryCompilationContext.GetColumnName(property),
+                    property,
+                    querySource);
 
             return default(TResult);
         }

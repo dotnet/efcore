@@ -1475,6 +1475,12 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void Sum_with_binary_expression()
+        {
+            AssertQuery<Order>(os => os.Select(o => o.OrderID * 2).Sum());
+        }
+
+        [Fact]
         public virtual void Sum_with_no_arg_empty()
         {
             AssertQuery<Order>(os => os.Where(o => o.OrderID == 42).Select(o => o.OrderID).Sum());

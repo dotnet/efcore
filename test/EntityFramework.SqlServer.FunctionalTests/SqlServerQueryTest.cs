@@ -47,6 +47,16 @@ FROM [Orders] AS [o]",
                 Sql);
         }
 
+        public override void Sum_with_binary_expression()
+        {
+            base.Sum_with_binary_expression();
+
+            Assert.Equal(
+                @"SELECT [o].[OrderID]
+FROM [Orders] AS [o]",
+                Sql);
+        }
+
         public override void Min_with_no_arg()
         {
             base.Min_with_no_arg();
