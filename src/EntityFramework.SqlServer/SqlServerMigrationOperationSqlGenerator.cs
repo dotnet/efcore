@@ -53,7 +53,11 @@ namespace Microsoft.Data.Entity.SqlServer
                             DelimitIdentifier(dropDatabaseOperation.DatabaseName),
                             " SET SINGLE_USER WITH ROLLBACK IMMEDIATE")));
 
+            batchBuilder.EndBatch();
+
             base.Generate(dropDatabaseOperation, batchBuilder);
+
+            batchBuilder.EndBatch();
         }
 
         public override void Generate(RenameSequenceOperation renameSequenceOperation, SqlBatchBuilder batchBuilder)

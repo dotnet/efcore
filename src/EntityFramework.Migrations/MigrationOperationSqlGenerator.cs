@@ -128,13 +128,9 @@ namespace Microsoft.Data.Entity.Migrations
             Check.NotNull(dropDatabaseOperation, "dropDatabaseOperation");
             Check.NotNull(batchBuilder, "batchBuilder");
 
-            batchBuilder.EndBatch();
-
             batchBuilder
                 .Append("DROP DATABASE ")
                 .Append(DelimitIdentifier(dropDatabaseOperation.DatabaseName));
-
-            batchBuilder.EndBatch();
         }
 
         public virtual void Generate([NotNull] CreateSequenceOperation createSequenceOperation, [NotNull] SqlBatchBuilder batchBuilder)
