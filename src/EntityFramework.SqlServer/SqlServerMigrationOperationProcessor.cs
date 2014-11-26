@@ -117,7 +117,7 @@ namespace Microsoft.Data.Entity.SqlServer
             string dataType, newDataType;
             GetDataTypes(entityType, property, newColumn, context, out dataType, out newDataType);
 
-            var primaryKey = entityType.GetPrimaryKey();
+            var primaryKey = entityType.TryGetPrimaryKey();
             if (primaryKey != null
                 && primaryKey.Properties.Any(p => ReferenceEquals(p, property)))
             {
@@ -169,12 +169,14 @@ namespace Microsoft.Data.Entity.SqlServer
                 }
             }
 
-            if (extensions.DefaultValue != null || extensions.DefaultExpression != null)
+            if (!property.IsStoreComputed
+                && (extensions.DefaultValue != null || extensions.DefaultExpression != null))
             {
                 context.Operations.Add(OperationFactory.DropDefaultConstraintOperation(property));
             }
 
-            if (property.IsConcurrencyToken)
+            if (property.IsConcurrencyToken
+                || property.IsStoreComputed != alterColumnOperation.NewColumn.IsComputed)
             {
                 context.Operations.Remove(alterColumnOperation);
                 context.Operations.Add(OperationFactory.DropColumnOperation(property));

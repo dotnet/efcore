@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Relational;
@@ -184,6 +185,30 @@ namespace Microsoft.Data.Entity.SqlServer
             Check.NotEmpty(identifier, "identifier");
 
             return identifier.Replace("]", "]]");
+        }
+
+        protected override void GenerateComputedColumn(SchemaQualifiedName tableName,
+            Column column, SqlBatchBuilder batchBuilder)
+        {
+            Check.NotNull(column, "column");
+            Check.NotNull(batchBuilder, "batchBuilder");
+
+            batchBuilder
+                .Append(DelimitIdentifier(column.Name))
+                .Append(" AS ")
+                .Append(column.DefaultSql);
+
+            var entityType = TargetModel.EntityTypes.Single(t => NameBuilder.SchemaQualifiedTableName(t) == tableName);
+            var property = entityType.Properties.Single(p => NameBuilder.ColumnName(p) == column.Name);
+
+            if (!property.IsNullable
+                || property.IsForeignKey())
+            {
+                // TODO: Consider adding support for PERSISTED to SqlServer metadata extensions.
+                batchBuilder.Append(" PERSISTED");
+            }
+
+            GenerateNullConstraint(tableName, column, batchBuilder);
         }
 
         protected override void GenerateColumnTraits(

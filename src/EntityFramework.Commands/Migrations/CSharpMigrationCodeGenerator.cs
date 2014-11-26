@@ -934,6 +934,11 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 args.Add("defaultSql: " + GenerateLiteral(column.DefaultSql));
             }
 
+            if (column.IsComputed)
+            {
+                args.Add("computed: " + GenerateLiteral(true));
+            }
+
             if (column.IsTimestamp)
             {
                 args.Add("timestamp: " + GenerateLiteral(true));

@@ -276,8 +276,11 @@ namespace Microsoft.Data.Entity.Migrations
                 .Append(DelimitIdentifier(alterColumnOperation.TableName))
                 .Append(" ALTER COLUMN ")
                 .Append(DelimitIdentifier(newColumn.Name))
-                .Append(" ")
-                .Append(GenerateDataType(alterColumnOperation.TableName, newColumn))
+                .Append(" ");
+
+            GenerateColumnType(alterColumnOperation.TableName, newColumn, batchBuilder);
+
+            batchBuilder
                 .Append(newColumn.IsNullable ? " NULL" : " NOT NULL");
         }
 
@@ -469,20 +472,24 @@ namespace Microsoft.Data.Entity.Migrations
                 .Append(")");
         }
 
-        public virtual string GenerateDataType(SchemaQualifiedName tableName, [NotNull] Column column)
+        public virtual void GenerateColumnType(
+            SchemaQualifiedName tableName, [NotNull] Column column, [NotNull] SqlBatchBuilder batchBuilder)
         {
             Check.NotNull(column, "column");
+            Check.NotNull(batchBuilder, "batchBuilder");
 
             if (!string.IsNullOrEmpty(column.DataType))
             {
-                return column.DataType;
+                batchBuilder.Append(column.DataType);
+                return;
             }
 
             var entityType = TargetModel.EntityTypes.Single(t => NameBuilder.SchemaQualifiedTableName(t) == tableName);
             var property = entityType.Properties.Single(p => NameBuilder.ColumnName(p) == column.Name);
             var isKey = property.IsKey() || property.IsForeignKey();
 
-            return _typeMapper.GetTypeMapping(column.DataType, column.Name, column.ClrType, isKey, column.IsTimestamp).StoreTypeName;
+            batchBuilder.Append(_typeMapper.GetTypeMapping(column.DataType, 
+                column.Name, column.ClrType, isKey, column.IsTimestamp).StoreTypeName);
         }
 
         public virtual string GenerateLiteral([NotNull] object value)
@@ -594,18 +601,53 @@ namespace Microsoft.Data.Entity.Migrations
             Check.NotNull(column, "column");
             Check.NotNull(batchBuilder, "batchBuilder");
 
+            if (column.IsComputed && column.DefaultSql != null)
+            {
+                GenerateComputedColumn(tableName, column, batchBuilder);
+
+                return;
+            }
+
             batchBuilder
                 .Append(DelimitIdentifier(column.Name))
                 .Append(" ");
 
-            batchBuilder.Append(GenerateDataType(tableName, column));
+            GenerateColumnType(tableName, column, batchBuilder);
+
+            GenerateNullConstraint(tableName, column, batchBuilder);
+
+            GenerateColumnTraits(tableName, column, batchBuilder);
+
+            GenerateDefaultConstraint(tableName, column, batchBuilder);
+        }
+
+        protected virtual void GenerateComputedColumn(SchemaQualifiedName tableName,
+            [NotNull] Column column, [NotNull] SqlBatchBuilder batchBuilder)
+        {
+        }
+
+        protected virtual void GenerateColumnTraits(SchemaQualifiedName tableName,
+            [NotNull] Column column, [NotNull] SqlBatchBuilder batchBuilder)
+        {
+        }
+
+        protected virtual void GenerateNullConstraint(
+            SchemaQualifiedName tableName, [NotNull] Column column, [NotNull] SqlBatchBuilder batchBuilder)
+        {
+            Check.NotNull(column, "column");
+            Check.NotNull(batchBuilder, "batchBuilder");
 
             if (!column.IsNullable)
             {
                 batchBuilder.Append(" NOT NULL");
             }
+        }
 
-            GenerateColumnTraits(tableName, column, batchBuilder);
+        protected virtual void GenerateDefaultConstraint(
+            SchemaQualifiedName tableName, [NotNull] Column column, [NotNull] SqlBatchBuilder batchBuilder)
+        {
+            Check.NotNull(column, "column");
+            Check.NotNull(batchBuilder, "batchBuilder");
 
             if (column.DefaultSql != null)
             {
@@ -619,11 +661,6 @@ namespace Microsoft.Data.Entity.Migrations
                     .Append(" DEFAULT ")
                     .Append(GenerateLiteral((dynamic)column.DefaultValue));
             }
-        }
-
-        protected virtual void GenerateColumnTraits(SchemaQualifiedName tableName, 
-            [NotNull] Column column, [NotNull] SqlBatchBuilder batchBuilder)
-        {
         }
 
         protected virtual void GeneratePrimaryKey(

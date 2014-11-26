@@ -9,6 +9,7 @@ using Microsoft.Data.Entity.Migrations.Builders;
 using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.SqlServer.Metadata;
+using Microsoft.Data.Entity.Utilities;
 using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.Tests
@@ -109,6 +110,8 @@ CREATE SEQUENCE [abc].[S2] AS bigint START WITH 2 INCREMENT BY 3",
                 {
                     b.Property<int>("Foo").ForSqlServer().DefaultValue(5);
                     b.Property<int?>("Bar");
+                    b.Property<int>("P1").StoreComputed().ForSqlServer().DefaultExpression("Foo + 1");
+                    b.Property<int?>("P2").StoreComputed().ForSqlServer().DefaultExpression("Foo + 2");
                     b.ForSqlServer().Table("MyTable", "dbo");
                     b.Key("Foo", "Bar").ForSqlServer().Name("MyPK").Clustered(false);
                 });
@@ -119,6 +122,8 @@ CREATE SEQUENCE [abc].[S2] AS bigint START WITH 2 INCREMENT BY 3",
                 @"CREATE TABLE [dbo].[MyTable] (
     [Foo] int NOT NULL DEFAULT 5,
     [Bar] int,
+    [P1] AS Foo + 1 PERSISTED NOT NULL,
+    [P2] AS Foo + 2,
     CONSTRAINT [MyPK] PRIMARY KEY NONCLUSTERED ([Foo], [Bar])
 )",
                 Generate(operation, targetModel));
@@ -273,6 +278,48 @@ CREATE TABLE [abc].[MyTable] (
 
             Assert.Equal(
                 @"ALTER TABLE [dbo].[MyTable] ADD [Bar] int NOT NULL DEFAULT 5",
+                Generate(operation, targetModel));
+        }
+
+        [Fact]
+        public void Generate_when_add_column_operation_with_computed_column()
+        {
+            var targetModel = new Model();
+            var targetModelBuilder = new BasicModelBuilder(targetModel);
+            targetModelBuilder.Entity("E",
+                b =>
+                {
+                    b.Property<int?>("Bar").ForSqlServer().DefaultValue(5);
+                    b.Property<int?>("P").StoreComputed().ForSqlServer().DefaultExpression("Bar + 2");
+                    b.ForSqlServer().Table("MyTable", "dbo");
+                });
+
+            var operation = new AddColumnOperation("dbo.MyTable",
+                OperationFactory().Column(targetModel.GetEntityType("E").GetProperty("P")));
+
+            Assert.Equal(
+                @"ALTER TABLE [dbo].[MyTable] ADD [P] AS Bar + 2",
+                Generate(operation, targetModel));
+        }
+
+        [Fact]
+        public void Generate_when_add_column_operation_with_persisted_computed_column()
+        {
+            var targetModel = new Model();
+            var targetModelBuilder = new BasicModelBuilder(targetModel);
+            targetModelBuilder.Entity("E",
+                b =>
+                {
+                    b.Property<int>("Bar").ForSqlServer().DefaultValue(5);
+                    b.Property<int>("P").StoreComputed().ForSqlServer().DefaultExpression("Bar + 2");
+                    b.ForSqlServer().Table("MyTable", "dbo");
+                });
+
+            var operation = new AddColumnOperation("dbo.MyTable",
+                OperationFactory().Column(targetModel.GetEntityType("E").GetProperty("P")));
+
+            Assert.Equal(
+                @"ALTER TABLE [dbo].[MyTable] ADD [P] AS Bar + 2 PERSISTED NOT NULL",
                 Generate(operation, targetModel));
         }
 
@@ -529,12 +576,18 @@ EXECUTE('ALTER TABLE [dbo].[MyTable] DROP CONSTRAINT ""' + @var0 + '""')",
                 });
 
             var property = targetModel.GetEntityType("E").GetProperty("P");
+            var batchBuilder = new SqlBatchBuilder();
 
-            return SqlGenerator(targetModel).GenerateDataType(
+            SqlGenerator(targetModel).GenerateColumnType(
                 new SchemaQualifiedName(
                     property.EntityType.SqlServer().Table,
                     property.EntityType.SqlServer().Schema),
-                OperationFactory().Column(property));
+                OperationFactory().Column(property),
+                batchBuilder);
+
+            batchBuilder.EndBatch();
+
+            return string.Join(Environment.NewLine, batchBuilder.SqlBatches.Select(b => b.Sql));
         }
 
         [Fact]

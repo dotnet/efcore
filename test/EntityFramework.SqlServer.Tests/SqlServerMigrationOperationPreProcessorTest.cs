@@ -51,6 +51,65 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         }
 
         [Fact]
+        public void Process_with_alter_column_operation_and_computed_source_column()
+        {
+            var sourceModel = new Model();
+            var sourceModelBuilder = new BasicModelBuilder(sourceModel);
+
+            sourceModelBuilder.Entity("A").Property<int>("P").StoreComputed().ForSqlServer().DefaultExpression("1 + 2");
+
+            var inOperations = new MigrationOperationCollection();
+            inOperations.Add(
+                new AlterColumnOperation(
+                    "A",
+                    new Column("P", typeof(int)) { IsComputed = false },
+                    isDestructiveChange: true));
+
+            var operations = Process(inOperations, sourceModel);
+
+            Assert.Equal(2, operations.Count);
+            Assert.IsType<DropColumnOperation>(operations[0]);
+            Assert.IsType<AddColumnOperation>(operations[1]);
+
+            var dropColumnOperation = (DropColumnOperation)operations[0];
+            var addColumnOperation = (AddColumnOperation)operations[1];
+
+            Assert.Equal("P", dropColumnOperation.ColumnName);
+            Assert.Equal("P", addColumnOperation.Column.Name);
+            Assert.False(addColumnOperation.Column.IsComputed);
+        }
+
+        [Fact]
+        public void Process_with_alter_column_operation_and_computed_target_column()
+        {
+            var sourceModel = new Model();
+            var sourceModelBuilder = new BasicModelBuilder(sourceModel);
+
+            sourceModelBuilder.Entity("A").Property<int>("P").ForSqlServer().DefaultExpression("1 + 2");
+
+            var inOperations = new MigrationOperationCollection();
+            inOperations.Add(
+                new AlterColumnOperation(
+                    "A",
+                    new Column("P", typeof(int)) { IsComputed = true },
+                    isDestructiveChange: true));
+
+            var operations = Process(inOperations, sourceModel);
+
+            Assert.Equal(3, operations.Count);
+            Assert.IsType<DropDefaultConstraintOperation>(operations[0]);
+            Assert.IsType<DropColumnOperation>(operations[1]);
+            Assert.IsType<AddColumnOperation>(operations[2]);
+
+            var dropColumnOperation = (DropColumnOperation)operations[1];
+            var addColumnOperation = (AddColumnOperation)operations[2];
+
+            Assert.Equal("P", dropColumnOperation.ColumnName);
+            Assert.Equal("P", addColumnOperation.Column.Name);
+            Assert.True(addColumnOperation.Column.IsComputed);
+        }
+
+        [Fact]
         public void Process_with_alter_column_operation_resets_primary_key()
         {
             var sourceModel = new Model();
