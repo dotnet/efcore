@@ -629,20 +629,27 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             Check.NotNull(addForeignKeyOperation, "addForeignKeyOperation");
             Check.NotNull(stringBuilder, "stringBuilder");
 
-            stringBuilder
-                .Append("AddForeignKey(")
-                .Append(GenerateLiteral(addForeignKeyOperation.TableName))
-                .Append(", ")
-                .Append(GenerateLiteral(addForeignKeyOperation.ForeignKeyName))
-                .Append(", new[] { ")
-                .Append(addForeignKeyOperation.ColumnNames.Select(GenerateLiteral).Join())
-                .Append(" }, ")
-                .Append(GenerateLiteral(addForeignKeyOperation.ReferencedTableName))
-                .Append(", new[] { ")
-                .Append(addForeignKeyOperation.ReferencedColumnNames.Select(GenerateLiteral).Join())
-                .Append(" }, cascadeDelete: ")
-                .Append(GenerateLiteral(addForeignKeyOperation.CascadeDelete))
-                .Append(")");
+            stringBuilder.AppendLine("AddForeignKey(");
+
+            using (stringBuilder.Indent())
+            {
+                stringBuilder
+                    .Append(GenerateLiteral(addForeignKeyOperation.TableName))
+                    .AppendLine(",")
+                    .Append(GenerateLiteral(addForeignKeyOperation.ForeignKeyName))
+                    .AppendLine(",")
+                    .Append("new[] { ")
+                    .Append(addForeignKeyOperation.ColumnNames.Select(GenerateLiteral).Join())
+                    .AppendLine(" },")
+                    .Append(GenerateLiteral(addForeignKeyOperation.ReferencedTableName))
+                    .AppendLine(",")
+                    .Append("new[] { ")
+                    .Append(addForeignKeyOperation.ReferencedColumnNames.Select(GenerateLiteral).Join())
+                    .AppendLine(" },")
+                    .Append("cascadeDelete: ")
+                    .Append(GenerateLiteral(addForeignKeyOperation.CascadeDelete))
+                    .Append(")");
+            }
         }
 
         public override void Generate(DropForeignKeyOperation dropForeignKeyOperation, IndentedStringBuilder stringBuilder)

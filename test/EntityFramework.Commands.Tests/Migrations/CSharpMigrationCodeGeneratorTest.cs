@@ -460,7 +460,13 @@ namespace Microsoft.Data.Entity.Commands.Tests.Migrations
                 "dbo.MyTable2", new[] { "Foo2", "Bar2" }, cascadeDelete: false);
 
             Assert.Equal(
-                @"AddForeignKey(""dbo.MyTable"", ""MyFK"", new[] { ""Foo"", ""Bar"" }, ""dbo.MyTable2"", new[] { ""Foo2"", ""Bar2"" }, cascadeDelete: false)",
+@"AddForeignKey(
+    ""dbo.MyTable"",
+    ""MyFK"",
+    new[] { ""Foo"", ""Bar"" },
+    ""dbo.MyTable2"",
+    new[] { ""Foo2"", ""Bar2"" },
+    cascadeDelete: false)",
                 CSharpMigrationCodeGenerator.Generate(operation));
 
             GenerateAndValidateCode(operation);

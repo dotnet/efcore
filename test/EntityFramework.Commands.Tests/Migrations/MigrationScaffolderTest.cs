@@ -372,9 +372,21 @@ namespace MyNamespace
                     })
                 .PrimaryKey(""PK_dbo.Ord[\""e.r]s"", t => t.OrderId);
             
-            migrationBuilder.AddForeignKey(""dbo.[Cus[\""om.er]]s]"", ""My_[\""FK]"", new[] { ""House[\""Id]Column"" }, ""[Ho!use[]]]"", new[] { ""Id"" }, cascadeDelete: false);
+            migrationBuilder.AddForeignKey(
+                ""dbo.[Cus[\""om.er]]s]"",
+                ""My_[\""FK]"",
+                new[] { ""House[\""Id]Column"" },
+                ""[Ho!use[]]]"",
+                new[] { ""Id"" },
+                cascadeDelete: false);
             
-            migrationBuilder.AddForeignKey(""dbo.[Ord[\""e.r]]s]"", ""FK_dbo.Ord[\""e.r]s_dbo.Cus[\""om.er]s_CustomerId"", new[] { ""CustomerId"" }, ""dbo.[Cus[\""om.er]]s]"", new[] { ""Id"" }, cascadeDelete: false);
+            migrationBuilder.AddForeignKey(
+                ""dbo.[Ord[\""e.r]]s]"",
+                ""FK_dbo.Ord[\""e.r]s_dbo.Cus[\""om.er]s_CustomerId"",
+                new[] { ""CustomerId"" },
+                ""dbo.[Cus[\""om.er]]s]"",
+                new[] { ""Id"" },
+                cascadeDelete: false);
         }
         
         public override void Down(MigrationBuilder migrationBuilder)
