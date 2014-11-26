@@ -54,6 +54,8 @@ namespace Microsoft.Data.Entity.SqlServer
                 _statementExecutor.ExecuteNonQuery(masterConnection, null, CreateCreateOperations());
                 ClearPool();
             }
+
+            Exists(retryOnNotExists: true);
         }
 
         public override async Task CreateAsync(CancellationToken cancellationToken = default(CancellationToken))
@@ -65,6 +67,8 @@ namespace Microsoft.Data.Entity.SqlServer
                     .WithCurrentCulture();
                 ClearPool();
             }
+
+            await ExistsAsync(retryOnNotExists: true, cancellationToken: cancellationToken).WithCurrentCulture();
         }
 
         public override void CreateTables(IModel model)
@@ -117,6 +121,11 @@ namespace Microsoft.Data.Entity.SqlServer
 
         public override bool Exists()
         {
+            return Exists(retryOnNotExists: false);
+        }
+
+        private bool Exists(bool retryOnNotExists)
+        {
             var retryCount = 0;
             while (true)
             {
@@ -128,12 +137,12 @@ namespace Microsoft.Data.Entity.SqlServer
                 }
                 catch (SqlException e)
                 {
-                    if (IsDoesNotExist(e))
+                    if (!retryOnNotExists && IsDoesNotExist(e))
                     {
                         return false;
                     }
 
-                    if (!RetryOnNoProcessOnEndOfPipe(e, ref retryCount))
+                    if (!RetryOnExistsFailure(e, ref retryCount))
                     {
                         throw;
                     }
@@ -141,7 +150,12 @@ namespace Microsoft.Data.Entity.SqlServer
             }
         }
 
-        public override async Task<bool> ExistsAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public override Task<bool> ExistsAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return ExistsAsync(retryOnNotExists: false, cancellationToken: cancellationToken);
+        }
+
+        private async Task<bool> ExistsAsync(bool retryOnNotExists, CancellationToken cancellationToken)
         {
             var retryCount = 0;
             while (true)
@@ -154,12 +168,12 @@ namespace Microsoft.Data.Entity.SqlServer
                 }
                 catch (SqlException e)
                 {
-                    if (IsDoesNotExist(e))
+                    if (!retryOnNotExists && IsDoesNotExist(e))
                     {
                         return false;
                     }
 
-                    if (!RetryOnNoProcessOnEndOfPipe(e, ref retryCount))
+                    if (!RetryOnExistsFailure(e, ref retryCount))
                     {
                         throw;
                     }
@@ -169,26 +183,32 @@ namespace Microsoft.Data.Entity.SqlServer
 
         private static bool IsDoesNotExist(SqlException exception)
         {
-            // TODO Explore if there are important scenarios where this could give a false negative
-            // Login failed is thrown when database does not exist
-            // Issue #776
+            // Login failed is thrown when database does not exist (See Issue #776)
             return exception.Number == 4060;
         }
 
-        private bool RetryOnNoProcessOnEndOfPipe(SqlException exception, ref int retryCount)
+        // See Issue #985
+        private bool RetryOnExistsFailure(SqlException exception, ref int retryCount)
         {
-            // This is to handle the case where Open throws:
-            //   System.Data.SqlClient.SqlException : A connection was successfully established with the
+            // This is to handle the case where Open throws (Number 233):
+            //   System.Data.SqlClient.SqlException: A connection was successfully established with the
             //   server, but then an error occurred during the login process. (provider: Named Pipes
             //   Provider, error: 0 - No process is on the other end of the pipe.)
             // It appears that this happens when the database has just been created but has not yet finished
             // opening or is auto-closing when using the AUTO_CLOSE option. The workaround is to flush the pool
             // for the connection and then retry the Open call.
-            if (exception.Number == 233
-                && retryCount++ < 3)
+            // Also handling (Number -2):
+            //   System.Data.SqlClient.SqlException: Connection Timeout Expired.  The timeout period elapsed while
+            //   attempting to consume the pre-login handshake acknowledgement.  This could be because the pre-login
+            //   handshake failed or the server was unable to respond back in time.
+            // And (Number 4060):
+            //   System.Data.SqlClient.SqlException: Cannot open database "X" requested by the login. The
+            //   login failed.
+            if ((exception.Number == 233 || exception.Number == -2 || exception.Number == 4060)
+                && ++retryCount < 30)
             {
                 ClearPool();
-                Thread.Sleep(10);
+                Thread.Sleep(100);
                 return true;
             }
             return false;

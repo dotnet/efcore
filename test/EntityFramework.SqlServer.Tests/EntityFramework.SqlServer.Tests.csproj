@@ -80,6 +80,7 @@
     <Compile Include="Metadata\SqlServerMetadataExtensionsTest.cs" />
     <Compile Include="SequentialGuidValueGeneratorTest.cs" />
     <Compile Include="..\EntityFramework.Relational.Tests\SqlGeneratorTestBase.cs" />
+    <Compile Include="SqlServerDataStoreCreatorTest.cs" />
     <Compile Include="SqlServerDbContextOptionsExtensionsTest.cs" />
     <Compile Include="SqlServerDatabaseExtensionsTest.cs" />
     <Compile Include="SqlServerMigrationOperationPreProcessorTest.cs" />

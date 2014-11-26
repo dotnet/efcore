@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Data.SqlClient;
@@ -19,9 +18,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
     public class SqlServerTestStore : RelationalTestStore, IDbCommandExecutor
     {
         public const int CommandTimeout = 30;
-        
+
         private static int _scratchCount;
-        
+
         public static Task<SqlServerTestStore> GetOrCreateSharedAsync(string name, Func<Task> initializeDatabase)
         {
             return new SqlServerTestStore(name).CreateSharedAsync(initializeDatabase);
@@ -37,8 +36,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             return new SqlServerTestStore(name).CreateTransientAsync(createDatabase);
         }
 
-        private DbConnection _connection;
-        private DbTransaction _transaction;
+        private SqlConnection _connection;
+        private SqlTransaction _transaction;
         private readonly string _name;
         private bool _deleteDatabase;
 
@@ -82,6 +81,11 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                             command.CommandText = string.Format(@"CREATE DATABASE [{0}]", name);
 
                             await command.ExecuteNonQueryAsync();
+
+                            using (var newConnection = new SqlConnection(CreateConnectionString(name)))
+                            {
+                                await WaitForExistsAsync(newConnection);
+                            }
                         }
                         else
                         {
@@ -114,6 +118,34 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             }
         }
 
+        private static async Task WaitForExistsAsync(SqlConnection connection)
+        {
+            var retryCount = 0;
+            while (true)
+            {
+                try
+                {
+                    await connection.OpenAsync();
+
+                    connection.Close();
+
+                    return;
+                }
+                catch (SqlException e)
+                {
+                    if (++retryCount >= 30
+                        || (e.Number != 233 && e.Number != -2 && e.Number != 4060))
+                    {
+                        throw;
+                    }
+
+                    SqlConnection.ClearPool(connection);
+
+                    Thread.Sleep(100);
+                }
+            }
+        }
+
         private async Task<SqlServerTestStore> CreateTransientAsync(bool createDatabase)
         {
             await DeleteDatabaseAsync(_name);
@@ -128,7 +160,10 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     using (var command = master.CreateCommand())
                     {
                         command.CommandText = string.Format("{0}CREATE DATABASE [{1}]", Environment.NewLine, _name);
+
                         await command.ExecuteNonQueryAsync();
+
+                        await WaitForExistsAsync(_connection);
                     }
                 }
                 await _connection.OpenAsync();
@@ -142,7 +177,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             using (var master = new SqlConnection(CreateConnectionString("master")))
             {
-                await master.OpenAsync();
+                await master.OpenAsync().WithCurrentCulture();
 
                 using (var command = master.CreateCommand())
                 {
