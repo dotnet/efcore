@@ -31,6 +31,8 @@ namespace Microsoft.Data.Entity.Relational.Query
 
         private bool _requiresClientFilter;
 
+        private RelationalProjectionExpressionTreeVisitor _projectionTreeVisitor;
+
         public RelationalQueryModelVisitor(
             [NotNull] RelationalQueryCompilationContext queryCompilationContext,
             [CanBeNull] RelationalQueryModelVisitor parentQueryModelVisitor)
@@ -42,6 +44,11 @@ namespace Microsoft.Data.Entity.Relational.Query
         public virtual bool RequiresClientFilter
         {
             get { return _requiresClientFilter; }
+        }
+
+        public virtual bool RequiresClientProjection
+        {
+            get { return _projectionTreeVisitor.RequiresClientEval; }
         }
 
         public new virtual RelationalQueryCompilationContext QueryCompilationContext
@@ -76,7 +83,7 @@ namespace Microsoft.Data.Entity.Relational.Query
 
         protected override ExpressionTreeVisitor CreateProjectionExpressionTreeVisitor()
         {
-            return new RelationalProjectionExpressionTreeVisitor(this);
+            return _projectionTreeVisitor = new RelationalProjectionExpressionTreeVisitor(this);
         }
 
         protected override ExpressionTreeVisitor CreateOrderingExpressionTreeVisitor(Ordering ordering)
@@ -245,7 +252,7 @@ namespace Microsoft.Data.Entity.Relational.Query
             targetSelectExpression.AddToOrderBy(selectExpression.OrderBy);
 
             innerJoinExpression.Predicate
-                = BuildJoinEqualityExpression(navigation, primaryKeyProperties, targetTableExpression, innerJoinExpression); ;
+                = BuildJoinEqualityExpression(navigation, primaryKeyProperties, targetTableExpression, innerJoinExpression);
 
             var readerParameter = Expression.Parameter(typeof(DbDataReader));
 

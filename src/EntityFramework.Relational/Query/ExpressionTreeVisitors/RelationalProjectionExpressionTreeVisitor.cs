@@ -5,11 +5,14 @@ using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Query.ExpressionTreeVisitors;
 using Microsoft.Data.Entity.Relational.Utilities;
+using Remotion.Linq.Clauses.Expressions;
 
 namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 {
     public class RelationalProjectionExpressionTreeVisitor : ProjectionExpressionTreeVisitor
     {
+        private bool _requiresClientEval;
+
         public RelationalProjectionExpressionTreeVisitor([NotNull] RelationalQueryModelVisitor queryModelVisitor)
             : base(Check.NotNull(queryModelVisitor, "queryModelVisitor"))
         {
@@ -20,19 +23,31 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             get { return (RelationalQueryModelVisitor)base.QueryModelVisitor; }
         }
 
+        public virtual bool RequiresClientEval
+        {
+            get { return _requiresClientEval; }
+        }
+
         protected override Expression VisitMemberExpression([NotNull] MemberExpression memberExpression)
         {
             Check.NotNull(memberExpression, "memberExpression");
 
-            ((RelationalQueryModelVisitor)base.QueryModelVisitor)
+            if (!((RelationalQueryModelVisitor)base.QueryModelVisitor)
                 .BindMemberExpression(
                     memberExpression,
-                    (property, querySource, selectExpression)
-                        => selectExpression.AddToProjection(
-                            QueryModelVisitor.QueryCompilationContext
-                                .GetColumnName(property),
-                            property,
-                            querySource));
+                    (property, querySource, selectExpression) =>
+                        {
+                            selectExpression.AddToProjection(
+                                QueryModelVisitor.QueryCompilationContext
+                                    .GetColumnName(property),
+                                property,
+                                querySource);
+
+                            return true;
+                        }))
+            {
+                _requiresClientEval = true;
+            }
 
             return base.VisitMemberExpression(memberExpression);
         }
@@ -41,17 +56,37 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
         {
             Check.NotNull(methodCallExpression, "methodCallExpression");
 
-            ((RelationalQueryModelVisitor)base.QueryModelVisitor)
+            if (!((RelationalQueryModelVisitor)base.QueryModelVisitor)
                 .BindMethodCallExpression(
                     methodCallExpression,
                     (property, querySource, selectExpression)
-                        => selectExpression.AddToProjection(
-                            QueryModelVisitor.QueryCompilationContext
-                                .GetColumnName(property),
-                            property,
-                            querySource));
+                        =>
+                        {
+                            selectExpression.AddToProjection(
+                                QueryModelVisitor.QueryCompilationContext
+                                    .GetColumnName(property),
+                                property,
+                                querySource);
+
+                            return true;
+                        }))
+            {
+                _requiresClientEval = true;
+            }
 
             return base.VisitMethodCallExpression(methodCallExpression);
+        }
+
+        public override Expression VisitExpression(Expression expression)
+        {
+            if (!(expression is MemberExpression
+                  || expression is MethodCallExpression
+                  || expression is QuerySourceReferenceExpression))
+            {
+                _requiresClientEval = true;
+            }
+
+            return base.VisitExpression(expression);
         }
     }
 }
