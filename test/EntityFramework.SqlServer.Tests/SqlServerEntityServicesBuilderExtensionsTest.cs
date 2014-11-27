@@ -12,6 +12,7 @@ using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Tests;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
+using Microsoft.Framework.DependencyInjection.Fallback;
 using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.Tests
@@ -141,6 +142,23 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             Assert.NotSame(sqlServerMigrator, scopedProvider.GetService<SqlServerMigrator>());
 
             context.Dispose();
+        }
+
+        [Fact]
+        public void AddSqlServer_does_not_replace_services_already_registered()
+        {
+            var services = new ServiceCollection()
+                .AddSingleton<SqlServerDataStore, FakeSqlServerDataStore>();
+
+            services.AddEntityFramework().AddSqlServer();
+
+            var serviceProvider = services.BuildServiceProvider();
+
+            Assert.IsType<FakeSqlServerDataStore>(serviceProvider.GetRequiredService<SqlServerDataStore>());
+        }
+
+        private class FakeSqlServerDataStore : SqlServerDataStore
+        {
         }
     }
 }

@@ -18,11 +18,11 @@ namespace Microsoft.Data.Entity.Relational
         {
             Check.NotNull(builder, "builder");
 
-            builder.ServiceCollection
+            builder.ServiceCollection.TryAdd(new ServiceCollection()
                 .AddSingleton<RelationalObjectArrayValueReaderFactory>()
                 .AddSingleton<RelationalTypedValueReaderFactory>()
                 .AddSingleton<ParameterNameGeneratorFactory>()
-                .AddSingleton<ModificationCommandComparer>();
+                .AddSingleton<ModificationCommandComparer>());
 
             return builder;
         }
