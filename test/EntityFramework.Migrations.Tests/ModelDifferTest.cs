@@ -51,9 +51,12 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             Assert.Equal("dbo.T1", createTableOperation1.TableName);
             Assert.Equal(new[] { "Id", "C0" }, createTableOperation0.Columns.Select(c => c.Name));
             Assert.Equal(new[] { "Id", "C1" }, createTableOperation1.Columns.Select(c => c.Name));
+            Assert.Equal(1, createTableOperation1.ForeignKeys.Count);
+            Assert.Equal(1, createTableOperation1.Indexes.Count);
 
             var addForeignKeyOperation = (AddForeignKeyOperation)operations[2];
 
+            Assert.Same(createTableOperation1.ForeignKeys[0], addForeignKeyOperation);
             Assert.Equal("FK", addForeignKeyOperation.ForeignKeyName);
             Assert.Equal("dbo.T1", addForeignKeyOperation.TableName);
             Assert.Equal("dbo.T0", addForeignKeyOperation.ReferencedTableName);
@@ -64,6 +67,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
 
             var createIndexOperation = (CreateIndexOperation)operations[3];
 
+            Assert.Same(createTableOperation1.Indexes[0], createIndexOperation);
             Assert.Equal("IX", createIndexOperation.IndexName);
             Assert.Equal("dbo.T1", createIndexOperation.TableName);
             Assert.Equal(new[] { "Id" }, createIndexOperation.ColumnNames.AsEnumerable());
@@ -208,9 +212,12 @@ namespace Microsoft.Data.Entity.Migrations.Tests
 
             Assert.Equal("B", createTableOperation.TableName);
             Assert.Equal(new[] { "Id" }, createTableOperation.Columns.Select(c => c.Name));
+            Assert.Equal(1, createTableOperation.ForeignKeys.Count);
+            Assert.Equal(1, createTableOperation.Indexes.Count);
 
             var addForeignKeyOperation = (AddForeignKeyOperation)operations[1];
 
+            Assert.Same(createTableOperation.ForeignKeys[0], addForeignKeyOperation);
             Assert.Equal("FK", addForeignKeyOperation.ForeignKeyName);
             Assert.Equal("B", addForeignKeyOperation.TableName);
             Assert.Equal("A", addForeignKeyOperation.ReferencedTableName);
@@ -222,6 +229,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
 
             var createIndexOperation = (CreateIndexOperation)operations[2];
 
+            Assert.Same(createTableOperation.Indexes[0], createIndexOperation);
             Assert.Equal("IX", createIndexOperation.IndexName);
             Assert.Equal("B", createIndexOperation.TableName);
             Assert.Equal(new[] { "Id" }, createIndexOperation.ColumnNames.AsEnumerable());

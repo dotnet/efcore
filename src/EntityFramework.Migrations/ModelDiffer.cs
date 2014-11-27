@@ -75,13 +75,12 @@ namespace Microsoft.Data.Entity.Migrations
             _operations.AddRange(model.EntityTypes
                 .Select(t => OperationFactory.CreateTableOperation(t)));
 
-            _operations.AddRange(model.EntityTypes
-                .SelectMany(t => t.ForeignKeys)
-                .Select(fk => OperationFactory.AddForeignKeyOperation(fk)));
+            // TODO: GitHub#1107
+            _operations.AddRange(_operations.Get<CreateTableOperation>()
+                .SelectMany(o => o.ForeignKeys));
 
-            _operations.AddRange(model.EntityTypes
-                .SelectMany(t => t.Indexes)
-                .Select(ix => OperationFactory.CreateIndexOperation(ix)));
+            _operations.AddRange(_operations.Get<CreateTableOperation>()
+                .SelectMany(o => o.Indexes));
 
             return OperationProcessor.Process(_operations, new Metadata.Model(), model);
         }
@@ -320,15 +319,12 @@ namespace Microsoft.Data.Entity.Migrations
             _operations.AddRange(
                 tables.Select(t => OperationFactory.CreateTableOperation(t)));
 
-            _operations.AddRange(
-                tables
-                    .SelectMany(t => t.ForeignKeys)
-                    .Select(fk => OperationFactory.AddForeignKeyOperation(fk)));
+            // TODO: GitHub#1107
+            _operations.AddRange(_operations.Get<CreateTableOperation>()
+                .SelectMany(o => o.ForeignKeys));
 
-            _operations.AddRange(
-                tables
-                    .SelectMany(t => t.Indexes)
-                    .Select(ix => OperationFactory.CreateIndexOperation(ix)));
+            _operations.AddRange(_operations.Get<CreateTableOperation>()
+                .SelectMany(o => o.Indexes));
         }
 
         private void FindDroppedTables(
