@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
@@ -60,6 +61,41 @@ namespace Microsoft.Data.Entity.Tests.Utilities
                     }
                 }
             }
+        }
+
+        [Fact]
+        public void AddVertices_adds_vertices()
+        {
+            var model = new Model();
+            var entityTypeA = model.AddEntityType(typeof(A));
+            var entityTypeB = model.AddEntityType(typeof(B));
+
+            var graph = new BidirectionalAdjacencyListGraph<EntityType>();
+
+            graph.AddVertices(new[] { entityTypeA, entityTypeB });
+
+            Assert.Equal(new[] { entityTypeA, entityTypeB }, graph.Vertices);
+        }
+
+        [Fact]
+        public void AddEdge_adds_edge()
+        {
+            var model = new Model();
+            var entityTypeA = model.AddEntityType(typeof(A));
+            var entityTypeB = model.AddEntityType(typeof(B));
+            var entityTypeC = model.AddEntityType(typeof(C));
+
+            var graph = new BidirectionalAdjacencyListGraph<EntityType>();
+            graph.AddVertex(entityTypeA);
+            graph.AddVertex(entityTypeB);
+            graph.AddVertex(entityTypeC);
+
+            graph.AddEdge(entityTypeA, entityTypeB);
+            graph.AddEdge(entityTypeA, entityTypeC);
+            graph.AddEdge(entityTypeB, entityTypeC);
+
+            Assert.Equal(new[] { entityTypeB, entityTypeC }, graph.GetOutgoingNeighbours(entityTypeA));
+            Assert.Equal(new[] { entityTypeA, entityTypeB }, graph.GetIncomingNeighbours(entityTypeC));
         }
 
         [Fact]

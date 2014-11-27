@@ -9,35 +9,35 @@ namespace Microsoft.Data.Entity.Utilities
     public abstract class Graph<TVertex>
     {
         public abstract IEnumerable<TVertex> Vertices { get; }
-
-        public abstract void AddVertex([NotNull] TVertex vertex);
-
-        public virtual void AddVertices([NotNull] IEnumerable<TVertex> vertices)
-        {
-            Check.NotNull(vertices, "vertices");
-
-            foreach (var vertex in vertices)
-            {
-                AddVertex(vertex);
-            }
-        }
-
-        public abstract void AddEdge([NotNull] TVertex from, [NotNull] TVertex to);
-
-        public virtual void AddEdges([NotNull] Dictionary<TVertex, TVertex> edges)
-        {
-            Check.NotNull(edges, "edges");
-
-            foreach (var edge in edges)
-            {
-                AddEdge(edge.Key, edge.Value);
-            }
-        }
-
+        
         public abstract IEnumerable<TVertex> GetOutgoingNeighbours([NotNull] TVertex from);
 
         public abstract IEnumerable<TVertex> GetIncomingNeighbours([NotNull] TVertex to);
 
-        public abstract IEnumerable<List<TVertex>> TopologicalSort();
+        public virtual ISet<TVertex> GetUnreachableVertices([NotNull] IReadOnlyList<TVertex> roots)
+        {
+            Check.NotNull(roots, "roots");
+
+            var unreachableVertices = new HashSet<TVertex>(Vertices);
+            unreachableVertices.ExceptWith(roots);
+            var visitingQueue = new List<TVertex>(roots);
+
+            var currentVertexIndex = 0;
+            while (currentVertexIndex < visitingQueue.Count)
+            {
+                var currentVertex = visitingQueue[currentVertexIndex];
+                currentVertexIndex++;
+                // ReSharper disable once LoopCanBeConvertedToQuery
+                foreach (var neighbour in GetOutgoingNeighbours(currentVertex))
+                {
+                    if (unreachableVertices.Remove(neighbour))
+                    {
+                        visitingQueue.Add(neighbour);
+                    }
+                }
+            }
+
+            return unreachableVertices;
+        }
     }
 }

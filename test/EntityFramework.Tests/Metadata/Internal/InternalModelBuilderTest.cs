@@ -172,6 +172,68 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Assert.Equal(1, orderEntityTypeBuilder.Metadata.ForeignKeys.Count);
         }
 
+        [Fact]
+        public void Ignoring_an_entity_type_removes_lower_source_orphaned_entity_types()
+        {
+            var modelBuilder = new InternalModelBuilder(new Model(), null);
+            modelBuilder
+                .Entity(typeof(Customer), ConfigurationSource.Convention)
+                .Key(new[] { Customer.IdProperty }, ConfigurationSource.Convention);
+            modelBuilder
+                .Entity(typeof(Product), ConfigurationSource.Convention)
+                .Key(new[] { Product.IdProperty }, ConfigurationSource.Convention);
+
+            var orderEntityTypeBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Convention);
+            orderEntityTypeBuilder.ForeignKey(typeof(Customer), new[] { Order.CustomerIdProperty }, ConfigurationSource.Convention);
+            orderEntityTypeBuilder.ForeignKey(typeof(Product), new[] { Order.ProductIdProperty }, ConfigurationSource.Convention);
+
+            Assert.True(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.Explicit));
+
+            Assert.Empty(modelBuilder.Metadata.EntityTypes);
+        }
+
+        [Fact]
+        public void Ignoring_an_entity_type_does_not_remove_referenced_lower_source_entity_types()
+        {
+            var modelBuilder = new InternalModelBuilder(new Model(), null);
+            modelBuilder
+                .Entity(typeof(Customer), ConfigurationSource.Convention)
+                .Key(new[] { Customer.IdProperty }, ConfigurationSource.Convention);
+            modelBuilder
+                .Entity(typeof(Product), ConfigurationSource.Convention)
+                .Key(new[] { Product.IdProperty }, ConfigurationSource.Convention);
+
+            var orderEntityTypeBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+            orderEntityTypeBuilder.ForeignKey(typeof(Customer), new[] { Order.CustomerIdProperty }, ConfigurationSource.Convention);
+            orderEntityTypeBuilder.ForeignKey(typeof(Product), new[] { Order.ProductIdProperty }, ConfigurationSource.Convention);
+
+            Assert.True(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.DataAnnotation));
+
+            Assert.Equal(new[] { typeof(Order), typeof(Product) }, modelBuilder.Metadata.EntityTypes.Select(et => et.Type));
+            Assert.Equal(typeof(Product), orderEntityTypeBuilder.Metadata.ForeignKeys.Single().ReferencedEntityType.Type);
+        }
+
+        [Fact]
+        public void Ignoring_an_entity_type_does_not_remove_referencing_lower_source_entity_types()
+        {
+            var modelBuilder = new InternalModelBuilder(new Model(), null);
+            modelBuilder
+                .Entity(typeof(Customer), ConfigurationSource.Convention)
+                .Key(new[] { Customer.IdProperty }, ConfigurationSource.Convention);
+            modelBuilder
+                .Entity(typeof(Product), ConfigurationSource.Explicit)
+                .Key(new[] { Product.IdProperty }, ConfigurationSource.Convention);
+
+            var orderEntityTypeBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Convention);
+            orderEntityTypeBuilder.ForeignKey(typeof(Customer), new[] { Order.CustomerIdProperty }, ConfigurationSource.Convention);
+            orderEntityTypeBuilder.ForeignKey(typeof(Product), new[] { Order.ProductIdProperty }, ConfigurationSource.Convention);
+
+            Assert.True(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.DataAnnotation));
+
+            Assert.Equal(new[] { typeof(Order), typeof(Product) }, modelBuilder.Metadata.EntityTypes.Select(et => et.Type));
+            Assert.Equal(typeof(Product), orderEntityTypeBuilder.Metadata.ForeignKeys.Single().ReferencedEntityType.Type);
+        }
+
         private class Customer
         {
             public static readonly PropertyInfo IdProperty = typeof(Customer).GetProperty("Id");
@@ -184,11 +246,19 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         {
             public static readonly PropertyInfo IdProperty = typeof(Order).GetProperty("Id");
             public static readonly PropertyInfo CustomerIdProperty = typeof(Order).GetProperty("CustomerId");
+            public static readonly PropertyInfo ProductIdProperty = typeof(Order).GetProperty("ProductId");
 
             public int Id { get; set; }
             public int CustomerId { get; set; }
             public Customer Customer { get; set; }
+            public int ProductId { get; set; }
+            public Product Product { get; set; }
         }
 
+        private class Product
+        {
+            public static readonly PropertyInfo IdProperty = typeof(Order).GetProperty("Id");
+            public int Id { get; set; }
+        }
     }
 }

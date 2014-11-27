@@ -30,7 +30,6 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             Assert.True(services.Any(sd => sd.ServiceType == typeof(RelationalObjectArrayValueReaderFactory)));
             Assert.True(services.Any(sd => sd.ServiceType == typeof(RelationalTypedValueReaderFactory)));
             Assert.True(services.Any(sd => sd.ServiceType == typeof(ModificationCommandComparer)));
-            Assert.True(services.Any(sd => sd.ServiceType == typeof(GraphFactory)));
 
             // SQL Server dingletones
             Assert.True(services.Any(sd => sd.ServiceType == typeof(DataStoreSource)));
@@ -66,7 +65,6 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var typedReaderFactory = scopedProvider.GetService<RelationalTypedValueReaderFactory>();
             var batchPreparer = scopedProvider.GetService<SqlServerCommandBatchPreparer>();
             var modificationCommandComparer = scopedProvider.GetService<ModificationCommandComparer>();
-            var graphFactory = scopedProvider.GetService<GraphFactory>();
 
             var sqlServerDataStoreSource = scopedProvider.GetRequiredService<DataStoreSource>() as SqlServerDataStoreSource;
             var sqlServerSqlGenerator = scopedProvider.GetRequiredService<SqlServerSqlGenerator>();
@@ -91,7 +89,6 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             Assert.NotNull(typedReaderFactory);
             Assert.NotNull(batchPreparer);
             Assert.NotNull(modificationCommandComparer);
-            Assert.NotNull(graphFactory);
 
             Assert.NotNull(sqlServerDataStoreSource);
             Assert.NotNull(sqlServerSqlGenerator);
@@ -121,7 +118,6 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             Assert.Same(arrayReaderFactory, scopedProvider.GetService<RelationalObjectArrayValueReaderFactory>());
             Assert.Same(typedReaderFactory, scopedProvider.GetService<RelationalTypedValueReaderFactory>());
             Assert.Same(modificationCommandComparer, scopedProvider.GetService<ModificationCommandComparer>());
-            Assert.Same(graphFactory, scopedProvider.GetService<GraphFactory>());
 
             Assert.Same(sqlServerSqlGenerator, scopedProvider.GetRequiredService<SqlServerSqlGenerator>());
             Assert.Same(sqlStatementExecutor, scopedProvider.GetRequiredService<SqlStatementExecutor>());

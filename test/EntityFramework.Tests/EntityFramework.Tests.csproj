@@ -155,12 +155,10 @@
     <Compile Include="Metadata\ModelConventions\PropertiesConventionTest.cs" />
     <Compile Include="Query\TaskResultAsyncEnumerableTest.cs" />
     <Compile Include="Storage\DataStoreSelectorTest.cs" />
-    <Compile Include="Utilities\BidirectionalAdjacencyListGraphFactoryTest.cs" />
     <Compile Include="Utilities\BidirectionalAdjacencyListGraphTest.cs" />
     <Compile Include="Utilities\CheckTest.cs" />
     <Compile Include="Utilities\EnumerableExtensionsTest.cs" />
     <Compile Include="Utilities\ExpressionExtensionsTest.cs" />
-    <Compile Include="Utilities\GraphTest.cs" />
     <Compile Include="Utilities\IndentedStringBuilderTest.cs" />
     <Compile Include="Utilities\LazyRefTest.cs" />
     <Compile Include="Utilities\PropertyInfoExtensionsTest.cs" />

@@ -15,9 +15,8 @@ namespace Microsoft.Data.Entity.SqlServer.Update
         public SqlServerCommandBatchPreparer(
             [NotNull] SqlServerModificationCommandBatchFactory modificationCommandBatchFactory,
             [NotNull] ParameterNameGeneratorFactory parameterNameGeneratorFactory,
-            [NotNull] GraphFactory graphFactory,
             [NotNull] ModificationCommandComparer modificationCommandComparer)
-            : base(modificationCommandBatchFactory, parameterNameGeneratorFactory, graphFactory, modificationCommandComparer)
+            : base(modificationCommandBatchFactory, parameterNameGeneratorFactory, modificationCommandComparer)
         {
         }
 

@@ -19,50 +19,6 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
     public class CommandBatchPreparerTest
     {
         [Fact]
-        public void Constructor_checks_arguments()
-        {
-            Assert.Equal(
-                "modificationCommandBatchFactory",
-                // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() =>
-                    new TestCommandBatchPreparer(
-                        null,
-                        new ParameterNameGeneratorFactory(),
-                        new BidirectionalAdjacencyListGraphFactory(),
-                        new ModificationCommandComparer())).ParamName);
-
-            Assert.Equal(
-                "parameterNameGeneratorFactory",
-                // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() =>
-                    new TestCommandBatchPreparer(
-                        new Mock<ModificationCommandBatchFactory>().Object,
-                        null,
-                        new BidirectionalAdjacencyListGraphFactory(),
-                        new ModificationCommandComparer())).ParamName);
-
-            Assert.Equal(
-                "graphFactory",
-                // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() =>
-                    new TestCommandBatchPreparer(
-                        new Mock<ModificationCommandBatchFactory>().Object,
-                        new ParameterNameGeneratorFactory(),
-                        null,
-                        new ModificationCommandComparer())).ParamName);
-
-            Assert.Equal(
-                "modificationCommandComparer",
-                // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() =>
-                    new TestCommandBatchPreparer(
-                        new Mock<ModificationCommandBatchFactory>().Object,
-                        new ParameterNameGeneratorFactory(),
-                        new BidirectionalAdjacencyListGraphFactory(),
-                        null)).ParamName);
-        }
-
-        [Fact]
         public async Task BatchCommands_creates_valid_batch_for_added_entities()
         {
             var stateManager = CreateContextServices(CreateSimpleFKModel()).GetRequiredService<StateManager>();
@@ -290,7 +246,6 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
 
             return new TestCommandBatchPreparer(modificationCommandBatchFactory,
                 new ParameterNameGeneratorFactory(),
-                new BidirectionalAdjacencyListGraphFactory(),
                 new ModificationCommandComparer());
         }
 
@@ -356,9 +311,8 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             public TestCommandBatchPreparer(
                 ModificationCommandBatchFactory modificationCommandBatchFactory,
                 ParameterNameGeneratorFactory parameterNameGeneratorFactory,
-                GraphFactory graphFactory,
                 ModificationCommandComparer modificationCommandComparer)
-                : base(modificationCommandBatchFactory, parameterNameGeneratorFactory, graphFactory, modificationCommandComparer)
+                : base(modificationCommandBatchFactory, parameterNameGeneratorFactory, modificationCommandComparer)
             {
             }
 

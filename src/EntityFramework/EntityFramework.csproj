@@ -275,12 +275,11 @@
     <Compile Include="Update\DbUpdateConcurrencyException.cs" />
     <Compile Include="Update\DbUpdateException.cs" />
     <Compile Include="Utilities\AsyncLock.cs" />
-    <Compile Include="Utilities\BidirectionalAdjacencyListGraphFactory.cs" />
     <Compile Include="Utilities\Check.cs" />
+    <Compile Include="Utilities\ModelUndirectedGraphAdapter.cs" />
     <Compile Include="Utilities\EnumerableExtensions.cs" />
     <Compile Include="Utilities\ExpressionExtensions.cs" />
     <Compile Include="Utilities\Graph.cs" />
-    <Compile Include="Utilities\GraphFactory.cs" />
     <Compile Include="Utilities\IndentedStringBuilder.cs" />
     <Compile Include="Utilities\LazyRef.cs" />
     <Compile Include="Utilities\ListExtensions.cs" />
