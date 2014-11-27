@@ -88,6 +88,7 @@
     <Compile Include="MigrationOperationFactoryTest.cs" />
     <Compile Include="MigrationOperationSqlGeneratorTest.cs" />
     <Compile Include="MigrationsDatabaseExtensionsTest.cs" />
+    <Compile Include="MigrationsEntityServicesBuilderExtensionsTest.cs" />
     <Compile Include="MigrationTest.cs" />
     <Compile Include="ModelDifferTest.cs" />
     <Compile Include="Builders\ColumnBuilderTest.cs" />

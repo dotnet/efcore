@@ -17,9 +17,10 @@ namespace Microsoft.Data.Entity.Migrations
 
             builder
                 .AddRelational().ServiceCollection
-                .AddScoped<MigrationAssembly>()
-                .AddScoped<HistoryRepository>()
-                .AddScoped(MigrationsDataStoreServices.MigratorFactory);
+                .TryAdd(new ServiceCollection()
+                    .AddScoped<MigrationAssembly>()
+                    .AddScoped<HistoryRepository>()
+                    .AddScoped(MigrationsDataStoreServices.MigratorFactory));
 
             return builder;
         }

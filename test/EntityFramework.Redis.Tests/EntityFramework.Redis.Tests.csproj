@@ -88,6 +88,7 @@
     <Compile Include="RedisDatabaseTests.cs" />
     <Compile Include="RedisDataStoreCreatorTests.cs" />
     <Compile Include="RedisDataStoreSourceTests.cs" />
+    <Compile Include="RedisEntityServicesBuilderExtensionsTest.cs" />
     <Compile Include="RedisSequenceValueGeneratorTest.cs" />
     <Compile Include="RedisValueGeneratorSelectorTest.cs" />
     <Compile Include="TestHelperExtensions.cs" />

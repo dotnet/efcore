@@ -6,6 +6,7 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Tests;
 using Microsoft.Framework.DependencyInjection;
+using Microsoft.Framework.DependencyInjection.Fallback;
 using Xunit;
 
 namespace Microsoft.Data.Entity.InMemory.Tests
@@ -32,6 +33,23 @@ namespace Microsoft.Data.Entity.InMemory.Tests
                 Assert.NotNull(scopedProvider.GetRequiredService<InMemoryDataStore>());
                 Assert.NotNull(scopedProvider.GetRequiredService<DataStoreSource>());
             }
+        }
+
+        [Fact]
+        public void AddInMemoryStore_does_not_replace_services_already_registered()
+        {
+            var services = new ServiceCollection()
+                .AddSingleton<InMemoryDataStore, FakeInMemoryDataStore>();
+
+            services.AddEntityFramework().AddInMemoryStore();
+
+            var serviceProvider = services.BuildServiceProvider();
+
+            Assert.IsType<FakeInMemoryDataStore>(serviceProvider.GetRequiredService<InMemoryDataStore>());
+        }
+
+        private class FakeInMemoryDataStore : InMemoryDataStore
+        {
         }
     }
 }

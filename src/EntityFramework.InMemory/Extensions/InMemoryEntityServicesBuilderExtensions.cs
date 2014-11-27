@@ -18,7 +18,7 @@ namespace Microsoft.Framework.DependencyInjection
         {
             Check.NotNull(builder, "builder");
 
-            builder.ServiceCollection
+            builder.ServiceCollection.TryAdd(new ServiceCollection()
                 .AddSingleton<InMemoryValueGeneratorCache>()
                 .AddSingleton<InMemoryValueGeneratorSelector>()
                 .AddSingleton<SimpleValueGeneratorFactory<InMemoryValueGenerator>>()
@@ -28,7 +28,7 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddScoped<InMemoryDatabaseFacade>()
                 .AddScoped<InMemoryDataStore>()
                 .AddScoped<InMemoryConnection>()
-                .AddScoped<InMemoryDataStoreCreator>();
+                .AddScoped<InMemoryDataStoreCreator>());
 
             return builder;
         }

@@ -15,7 +15,7 @@ namespace Microsoft.Framework.DependencyInjection
         {
             Check.NotNull(builder, "builder");
 
-            builder.ServiceCollection
+            builder.ServiceCollection.TryAdd(new ServiceCollection()
                 .AddSingleton<RedisValueGeneratorSelector>()
                 .AddSingleton<RedisValueGeneratorCache>()
                 .AddSingleton<RedisValueGeneratorFactory>()
@@ -25,7 +25,7 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddScoped<RedisDataStoreServices>()
                 .AddScoped<RedisConnection>()
                 .AddScoped<RedisDataStoreCreator>()
-                .AddScoped<RedisDatabase>();
+                .AddScoped<RedisDatabase>());
 
             return builder;
         }
