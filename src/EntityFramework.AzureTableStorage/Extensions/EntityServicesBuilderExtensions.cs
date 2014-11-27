@@ -20,7 +20,7 @@ namespace Microsoft.Framework.DependencyInjection
         {
             Check.NotNull(builder, "builder");
 
-            builder.ServiceCollection
+            builder.ServiceCollection.TryAdd(new ServiceCollection()
                 .AddSingleton<AtsQueryFactory>()
                 .AddSingleton<TableEntityAdapterFactory>()
                 .AddSingleton<AtsValueReaderFactory>()
@@ -31,7 +31,7 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddScoped<AtsDatabase>()
                 .AddScoped<AtsDataStore>()
                 .AddScoped<AtsConnection>()
-                .AddScoped<AtsDataStoreCreator>();
+                .AddScoped<AtsDataStoreCreator>());
 
             return builder;
         }

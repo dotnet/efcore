@@ -78,6 +78,7 @@
     <Compile Include="..\EntityFramework.Relational.Tests\SqlGeneratorTestBase.cs" />
     <Compile Include="SQLiteDatabaseExtensionsTest.cs" />
     <Compile Include="SQLiteDbContextOptionsExtensionsTest.cs" />
+    <Compile Include="SqliteEntityServicesBuilderExtensionsTest.cs" />
     <Compile Include="SQLiteMigrationOperationPreProcessorTest.cs" />
     <Compile Include="SQLiteMigrationOperationSqlGeneratorTest.cs" />
     <Compile Include="SQLiteSqlGeneratorTest.cs" />

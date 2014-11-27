@@ -86,6 +86,7 @@
     <Compile Include="RelationalDatabaseExtensionsTest.cs" />
     <Compile Include="RelationalDatabaseTest.cs" />
     <Compile Include="RelationalDataStoreTest.cs" />
+    <Compile Include="RelationalEntityServicesBuilderExtensionsTest.cs" />
     <Compile Include="RelationalObjectArrayValueReaderFactoryTest.cs" />
     <Compile Include="RelationalObjectArrayValueReaderTest.cs" />
     <Compile Include="RelationalTypedValueReaderFactoryTest.cs" />
