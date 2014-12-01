@@ -22,13 +22,6 @@ k-standard-goals
             "packages");
 }
 
-var sqliteTestDir='test/EntityFramework.SQLite.FunctionalTests/bin/Debug'
-var crossStoreTestDir='test/EntityFramework.CrossStore.FunctionalTests/bin/Debug'
-#copy-sqlite target='initialize' if='!IsMono && !File.Exists(sqliteTestDir + "/sqlite3.dll")'
-    var sourceDir='${Directory.EnumerateDirectories(packagesDir, "Microsoft.Data.SQLite/*").OrderByDescending(d => d).First() + "/redist/x86"}'
-    copy outputDir='${sqliteTestDir}'
-    copy outputDir='${crossStoreTestDir}'
-
 #nupkg-patch target='compile'
     @{
         var packagePaths = Files.Include("artifacts/build/**/EntityFramework.Commands.*.nupkg")

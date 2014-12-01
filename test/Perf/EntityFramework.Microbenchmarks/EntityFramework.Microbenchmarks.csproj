@@ -175,10 +175,6 @@
       <Project>{71415cec-8111-4c73-8751-512d22f10602}</Project>
       <Name>EntityFramework</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\EntityFramework.AzureTableStorage.FunctionalTests\EntityFramework.AzureTableStorage.FunctionalTests.csproj">
-      <Project>{1D821EE4-8260-4B37-A11A-17327822774A}</Project>
-      <Name>EntityFramework.AzureTableStorage.FunctionalTests</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="LocalConfig.json">

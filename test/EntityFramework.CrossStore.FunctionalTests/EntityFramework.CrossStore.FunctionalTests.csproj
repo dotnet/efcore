@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <Import Project="..\..\tools\EntityFramework.props" />
@@ -87,29 +87,13 @@
       <Project>{71415CEC-8111-4C73-8751-512D22F10602}</Project>
       <Name>Microsoft.Data.Entity</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\src\EntityFramework.AzureTableStorage\EntityFramework.AzureTableStorage.csproj">
-      <Project>{c059860c-039d-48c0-b381-987db950bb5d}</Project>
-      <Name>Microsoft.Data.Entity.AzureTableStorage</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\src\EntityFramework.InMemory\EntityFramework.InMemory.csproj">
       <Project>{BA3F5DBC-EC16-4D5A-8298-8226E6C5ACCC}</Project>
       <Name>EntityFramework.InMemory</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\src\EntityFramework.Redis\EntityFramework.Redis.csproj">
-      <Project>{4f810e8d-864a-4a3d-a653-0ccd3d3a29dd}</Project>
-      <Name>EntityFramework.Redis</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\src\EntityFramework.SQLite\EntityFramework.SQLite.csproj">
-      <Project>{4cc98896-fe91-4f16-ae60-d6ff9e905836}</Project>
-      <Name>EntityFramework.SQLite</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\src\EntityFramework.SqlServer\EntityFramework.SqlServer.csproj">
       <Project>{04E6620B-5B41-45FE-981A-F40EB7686B0E}</Project>
       <Name>EntityFramework.SqlServer</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\EntityFramework.AzureTableStorage.FunctionalTests\EntityFramework.AzureTableStorage.FunctionalTests.csproj">
-      <Project>{1d821ee4-8260-4b37-a11a-17327822774a}</Project>
-      <Name>EntityFramework.AzureTableStorage.FunctionalTests</Name>
     </ProjectReference>
     <ProjectReference Include="..\EntityFramework.FunctionalTests\EntityFramework.FunctionalTests.csproj">
       <Project>{6ab933c7-de2a-45f2-bdc6-e71a01ef7756}</Project>
@@ -119,17 +103,9 @@
       <Project>{7e1a1a1b-6d0b-4c66-8026-326efc0b4625}</Project>
       <Name>EntityFramework.InMemory.FunctionalTests</Name>
     </ProjectReference>
-    <ProjectReference Include="..\EntityFramework.Redis.FunctionalTests\EntityFramework.Redis.FunctionalTests.csproj">
-      <Project>{d1f26be2-6569-4c18-b322-1b717267194d}</Project>
-      <Name>EntityFramework.Redis.FunctionalTests</Name>
-    </ProjectReference>
     <ProjectReference Include="..\EntityFramework.Relational.FunctionalTests\EntityFramework.Relational.FunctionalTests.csproj">
       <Project>{82fad20c-28c6-4b48-b7e4-971ac821e27a}</Project>
       <Name>EntityFramework.Relational.FunctionalTests</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\EntityFramework.SQLite.FunctionalTests\EntityFramework.SQLite.FunctionalTests.csproj">
-      <Project>{a4604758-4d80-4c71-a972-5655fff38089}</Project>
-      <Name>EntityFramework.SQLite.FunctionalTests</Name>
     </ProjectReference>
     <ProjectReference Include="..\EntityFramework.SqlServer.FunctionalTests\EntityFramework.SqlServer.FunctionalTests.csproj">
       <Project>{fa789ed6-2aac-4baa-a4fb-b600be2da956}</Project>
@@ -140,14 +116,10 @@
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AtsCrossStoreFixture.cs" />
     <Compile Include="CrossStoreFixture.cs" />
-    <Compile Include="CrossStoreXunitTestFramework.cs" />
     <Compile Include="EndToEndTest.cs" />
     <Compile Include="InMemoryCrossStoreFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RedisCrossStoreFixture.cs" />
-    <Compile Include="SqLiteCrossStoreFixture.cs" />
     <Compile Include="SqlServerCrossStoreFixture.cs" />
     <Compile Include="TestModels\CrossStoreContext.cs" />
     <Compile Include="TestModels\SimpleEntity.cs" />

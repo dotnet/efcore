@@ -27,11 +27,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
                         eb.Property(typeof(string), SimpleEntity.ShadowPartitionIdName);
                         eb
                             .ForRelational(b => b.Table("RelationalSimpleEntity")) // TODO: specify schema when #948 is fixed
-                            .ForAzureTableStorage(b =>
-                                {
-                                    b.Table("ATSSimpleEntity" + AtsTableSuffix);
-                                    b.PartitionAndRowKey(SimpleEntity.ShadowPartitionIdName, "Id");
-                                })
                             .ForSqlServer(b =>
                                 {
                                     b.Table("SqlServerSimpleEntity"); // TODO: specify schema when #948 is fixed

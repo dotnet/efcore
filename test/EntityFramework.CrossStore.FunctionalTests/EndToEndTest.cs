@@ -3,12 +3,9 @@
 
 using System;
 using System.Linq;
-using Microsoft.Data.Entity.AzureTableStorage.FunctionalTests;
 using Microsoft.Data.Entity.FunctionalTests.TestModels;
 using Microsoft.Data.Entity.InMemory.FunctionalTests;
 using Microsoft.Data.Entity.Query;
-using Microsoft.Data.Entity.Redis.FunctionalTests;
-using Microsoft.Data.Entity.Sqlite.FunctionalTests;
 using Microsoft.Data.Entity.SqlServer.FunctionalTests;
 using Xunit;
 
@@ -91,34 +88,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
     }
 
-    [RunIfConfigured]
-    public class AtsEndToEndTest : EndToEndTest<AtsTestStore, AtsCrossStoreFixture>
-    {
-        public AtsEndToEndTest(AtsCrossStoreFixture fixture)
-            : base(fixture)
-        {
-        }
-    }
-
     public class InMemoryEndToEndTest : EndToEndTest<InMemoryTestStore, InMemoryCrossStoreFixture>
     {
         public InMemoryEndToEndTest(InMemoryCrossStoreFixture fixture)
-            : base(fixture)
-        {
-        }
-    }
-
-    public class RedisEndToEndTest : EndToEndTest<RedisTestStore, RedisCrossStoreFixture>
-    {
-        public RedisEndToEndTest(RedisCrossStoreFixture fixture)
-            : base(fixture)
-        {
-        }
-    }
-
-    public class SqLiteEndToEndTest : EndToEndTest<SqLiteTestStore, SqLiteCrossStoreFixture>
-    {
-        public SqLiteEndToEndTest(SqLiteCrossStoreFixture fixture)
             : base(fixture)
         {
         }
