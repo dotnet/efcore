@@ -519,14 +519,12 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var context = CreateF1Context())
             {
-                var entry =
-                    context.ChangeTracker.Entry(
-                        context.Drivers.Add(
-                            new Driver
-                                {
-                                    Name = "Larry David",
-                                    TeamId = Team.Ferrari
-                                }));
+                var entry = context.Drivers.Add(
+                    new Driver
+                        {
+                            Name = "Larry David",
+                            TeamId = Team.Ferrari
+                        });
 
                 Assert.Equal("Can't reload an added entity",
                     Assert.Throws<InvalidOperationException>(() => entry.Reload(context)).Message);
@@ -538,14 +536,12 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var context = CreateF1Context())
             {
-                var entry =
-                    context.ChangeTracker.Entry(
-                        context.Drivers.Add(
-                            new Driver
-                                {
-                                    Name = "Larry David",
-                                    TeamId = Team.Ferrari
-                                }));
+                var entry = context.Drivers.Add(
+                    new Driver
+                        {
+                            Name = "Larry David",
+                            TeamId = Team.Ferrari
+                        });
                 entry.State = EntityState.Unknown;
 
                 Assert.Equal("Can't reload an unknown entity",
@@ -596,14 +592,12 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var context = CreateF1Context())
             {
-                var entry =
-                    context.ChangeTracker.Entry(
-                        context.Drivers.Add(
-                            new Driver
-                                {
-                                    Name = "Larry David",
-                                    TeamId = Team.Ferrari
-                                }));
+                var entry = context.Drivers.Add(
+                    new Driver
+                        {
+                            Name = "Larry David",
+                            TeamId = Team.Ferrari
+                        });
 
                 Assert.Equal("Can't reload an added entity",
                     (await Assert.ThrowsAsync<InvalidOperationException>(() => entry.ReloadAsync(context))).Message);
@@ -615,14 +609,12 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var context = CreateF1Context())
             {
-                var entry =
-                    context.ChangeTracker.Entry(
-                        context.Drivers.Add(
-                            new Driver
-                                {
-                                    Name = "Larry David",
-                                    TeamId = Team.Ferrari
-                                }));
+                var entry = context.Drivers.Add(
+                    new Driver
+                        {
+                            Name = "Larry David",
+                            TeamId = Team.Ferrari
+                        });
                 entry.State = EntityState.Unknown;
 
                 Assert.Equal("Can't reload an unknown entity",

@@ -135,7 +135,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
             using (var context = new DbContext(_fixture.ServiceProvider, options))
             {
-                context.Delete(customer);
+                context.Remove(customer);
 
                 await context.SaveChangesAsync();
             }

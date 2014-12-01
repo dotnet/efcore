@@ -26,13 +26,13 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 context.Database.EnsureDeleted();
                 context.Database.EnsureCreated();
 
-                var honeyDijon = context.Add(new KettleChips { Name = "Honey Dijon" });
+                var honeyDijon = context.Add(new KettleChips { Name = "Honey Dijon" }).Entity;
 
                 context.SaveChanges();
 
                 Assert.Equal(new DateTime(2035, 9, 25), honeyDijon.BestBuyDate);
 
-                var buffaloBleu = context.Add(new KettleChips { Name = "Buffalo Bleu", BestBuyDate = new DateTime(2111, 1, 11) });
+                var buffaloBleu = context.Add(new KettleChips { Name = "Buffalo Bleu", BestBuyDate = new DateTime(2111, 1, 11) }).Entity;
 
                 context.SaveChanges();
 

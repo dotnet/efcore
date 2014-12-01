@@ -65,7 +65,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
             using (var context = new DbContext(serviceProvider, options))
             {
-                context.Delete(customer);
+                context.Remove(customer);
 
                 await context.SaveChangesAsync();
             }

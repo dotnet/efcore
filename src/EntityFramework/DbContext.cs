@@ -2,6 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -14,7 +17,6 @@ using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
 using Microsoft.Framework.OptionsModel;
-using System.Diagnostics;
 
 namespace Microsoft.Data.Entity
 {
@@ -248,53 +250,250 @@ namespace Microsoft.Data.Entity
             }
         }
 
-        public virtual TEntity Add<TEntity>([NotNull] TEntity entity)
+        public virtual EntityEntry<TEntity> Add<TEntity>([NotNull] TEntity entity)
         {
             Check.NotNull(entity, "entity");
 
-            GetStateManager()
-                .GetOrCreateEntry(entity)
-                .EntityState = EntityState.Added;
-
-            return entity;
+            return SetEntityState(entity, EntityState.Added);
         }
 
-        public virtual async Task<TEntity> AddAsync<TEntity>(
+        public virtual async Task<EntityEntry<TEntity>> AddAsync<TEntity>(
             [NotNull] TEntity entity, CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(entity, "entity");
 
-            await GetStateManager()
-                .GetOrCreateEntry(entity)
+            var entry = ChangeTracker.Entry(entity);
+
+            await entry.StateEntry
                 .SetEntityStateAsync(EntityState.Added, cancellationToken)
                 .WithCurrentCulture();
 
-            return entity;
+            return entry;
         }
 
-        public virtual TEntity Update<TEntity>([NotNull] TEntity entity)
+        public virtual EntityEntry<TEntity> Attach<TEntity>([NotNull] TEntity entity)
         {
             Check.NotNull(entity, "entity");
 
-            ChangeTracker.Entry(entity).State = EntityState.Modified;
-
-            return entity;
+            return SetEntityState(entity, EntityState.Unchanged);
         }
 
-        public virtual Task<TEntity> UpdateAsync<TEntity>([NotNull] TEntity entity, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual EntityEntry<TEntity> Update<TEntity>([NotNull] TEntity entity)
         {
             Check.NotNull(entity, "entity");
 
-            return Task.FromResult(Update(entity));
+            return SetEntityState(entity, EntityState.Modified);
         }
 
-        public virtual TEntity Delete<TEntity>([NotNull] TEntity entity)
+        public virtual EntityEntry<TEntity> Remove<TEntity>([NotNull] TEntity entity)
         {
             Check.NotNull(entity, "entity");
 
-            ChangeTracker.Entry(entity).State = EntityState.Deleted;
+            return SetEntityState(entity, EntityState.Deleted);
+        }
 
-            return entity;
+        private EntityEntry<TEntity> SetEntityState<TEntity>(TEntity entity, EntityState entityState)
+        {
+            var entry = ChangeTracker.Entry(entity);
+
+            entry.State = entityState;
+
+            return entry;
+        }
+
+        public virtual EntityEntry Add([NotNull] object entity)
+        {
+            Check.NotNull(entity, "entity");
+
+            return SetEntityState(entity, EntityState.Added);
+        }
+
+        public virtual async Task<EntityEntry> AddAsync(
+            [NotNull] object entity, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Check.NotNull(entity, "entity");
+
+            var entry = ChangeTracker.Entry(entity);
+
+            await entry.StateEntry
+                .SetEntityStateAsync(EntityState.Added, cancellationToken)
+                .WithCurrentCulture();
+
+            return entry;
+        }
+
+        public virtual EntityEntry Attach([NotNull] object entity)
+        {
+            Check.NotNull(entity, "entity");
+
+            return SetEntityState(entity, EntityState.Unchanged);
+        }
+
+        public virtual EntityEntry Update([NotNull] object entity)
+        {
+            Check.NotNull(entity, "entity");
+
+            return SetEntityState(entity, EntityState.Modified);
+        }
+
+        public virtual EntityEntry Remove([NotNull] object entity)
+        {
+            Check.NotNull(entity, "entity");
+
+            return SetEntityState(entity, EntityState.Deleted);
+        }
+
+        private EntityEntry SetEntityState(object entity, EntityState entityState)
+        {
+            var entry = ChangeTracker.Entry(entity);
+
+            entry.State = entityState;
+
+            return entry;
+        }
+
+        public virtual IReadOnlyList<EntityEntry<TEntity>> Add<TEntity>([NotNull] params TEntity[] entities)
+        {
+            Check.NotNull(entities, "entities");
+
+            return SetEntityStates(entities, EntityState.Added);
+        }
+
+        public virtual Task<IReadOnlyList<EntityEntry<TEntity>>> AddAsync<TEntity>([NotNull] params TEntity[] entities)
+        {
+            Check.NotNull(entities, "entities");
+
+            return AddAsync(entities, default(CancellationToken));
+        }
+
+        public virtual async Task<IReadOnlyList<EntityEntry<TEntity>>> AddAsync<TEntity>(
+            [NotNull] TEntity[] entities,
+            CancellationToken cancellationToken)
+        {
+            Check.NotNull(entities, "entities");
+
+            var entries = GetOrCreateEntries(entities);
+
+            foreach (var entry in entries)
+            {
+                await entry.StateEntry
+                    .SetEntityStateAsync(EntityState.Added, cancellationToken)
+                    .WithCurrentCulture();
+            }
+
+            return entries;
+        }
+
+        public virtual IReadOnlyList<EntityEntry<TEntity>> Attach<TEntity>([NotNull] params TEntity[] entities)
+        {
+            Check.NotNull(entities, "entities");
+
+            return SetEntityStates(entities, EntityState.Unchanged);
+        }
+
+        public virtual IReadOnlyList<EntityEntry<TEntity>> Update<TEntity>([NotNull] params TEntity[] entities)
+        {
+            Check.NotNull(entities, "entities");
+
+            return SetEntityStates(entities, EntityState.Modified);
+        }
+
+        public virtual IReadOnlyList<EntityEntry<TEntity>> Remove<TEntity>([NotNull] params TEntity[] entities)
+        {
+            Check.NotNull(entities, "entities");
+
+            return SetEntityStates(entities, EntityState.Deleted);
+        }
+
+        private List<EntityEntry<TEntity>> SetEntityStates<TEntity>(TEntity[] entities, EntityState entityState)
+        {
+            var entries = GetOrCreateEntries(entities);
+
+            foreach (var entry in entries)
+            {
+                entry.State = entityState;
+            }
+
+            return entries;
+        }
+
+        private List<EntityEntry<TEntity>> GetOrCreateEntries<TEntity>(IEnumerable<TEntity> entities)
+        {
+            var changeTracker = ChangeTracker;
+
+            return entities.Select(e => changeTracker.Entry(e)).ToList();
+        }
+
+        public virtual IReadOnlyList<EntityEntry> Add([NotNull] params object[] entities)
+        {
+            Check.NotNull(entities, "entities");
+
+            return SetEntityStates(entities, EntityState.Added);
+        }
+
+        public virtual Task<IReadOnlyList<EntityEntry>> AddAsync([NotNull] params object[] entities)
+        {
+            Check.NotNull(entities, "entities");
+
+            return AddAsync(entities, default(CancellationToken));
+        }
+
+        public virtual async Task<IReadOnlyList<EntityEntry>> AddAsync(
+            [NotNull] object[] entities,
+            CancellationToken cancellationToken)
+        {
+            Check.NotNull(entities, "entities");
+
+            var entries = GetOrCreateEntries(entities);
+
+            foreach (var entry in entries)
+            {
+                await entry.StateEntry
+                    .SetEntityStateAsync(EntityState.Added, cancellationToken)
+                    .WithCurrentCulture();
+            }
+
+            return entries;
+        }
+
+        public virtual IReadOnlyList<EntityEntry> Attach([NotNull] params object[] entities)
+        {
+            Check.NotNull(entities, "entities");
+
+            return SetEntityStates(entities, EntityState.Unchanged);
+        }
+
+        public virtual IReadOnlyList<EntityEntry> Update([NotNull] params object[] entities)
+        {
+            Check.NotNull(entities, "entities");
+
+            return SetEntityStates(entities, EntityState.Modified);
+        }
+
+        public virtual IReadOnlyList<EntityEntry> Remove([NotNull] params object[] entities)
+        {
+            Check.NotNull(entities, "entities");
+
+            return SetEntityStates(entities, EntityState.Deleted);
+        }
+
+        private List<EntityEntry> SetEntityStates(object[] entities, EntityState entityState)
+        {
+            var entries = GetOrCreateEntries(entities);
+
+            foreach (var entry in entries)
+            {
+                entry.State = entityState;
+            }
+
+            return entries;
+        }
+
+        private List<EntityEntry> GetOrCreateEntries(IEnumerable<object> entities)
+        {
+            var changeTracker = ChangeTracker;
+
+            return entities.Select(e => changeTracker.Entry(e)).ToList();
         }
 
         public virtual Database Database

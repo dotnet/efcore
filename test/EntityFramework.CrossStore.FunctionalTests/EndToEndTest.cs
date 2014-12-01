@@ -20,12 +20,12 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                var first = context.SimpleEntities.Add(new SimpleEntity { StringProperty = "Entity 1" });
+                var first = context.SimpleEntities.Add(new SimpleEntity { StringProperty = "Entity 1" }).Entity;
                 SetPartitionId(first, context);
                  
                 Assert.Equal(1, context.SaveChanges());
 
-                var second = context.SimpleEntities.Add(new SimpleEntity { Id = 42, StringProperty = "Entity 2"});
+                var second = context.SimpleEntities.Add(new SimpleEntity { Id = 42, StringProperty = "Entity 2"}).Entity;
                 // TODO: Replace with
                 // context.ChangeTracker.Entry(entity).Property(SimpleEntity.ShadowPropertyName).CurrentValue = "shadow";
                 var property = context.Model.GetEntityType(typeof(SimpleEntity)).GetProperty(SimpleEntity.ShadowPropertyName);
@@ -55,7 +55,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 Assert.Equal("first", context.SimpleEntities.Single().StringProperty);
 
-                context.SimpleEntities.RemoveRange(context.SimpleEntities);
+                context.SimpleEntities.Remove(context.SimpleEntities.ToArray());
                 context.SaveChanges();
             }
         }

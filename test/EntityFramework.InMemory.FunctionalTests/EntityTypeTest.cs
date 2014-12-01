@@ -75,7 +75,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
                 Assert.Equal("A", entry.Property(nameProperty.Name).CurrentValue);
 
-                context.Delete(entityFromStore);
+                context.Remove(entityFromStore);
 
                 context.SaveChanges();
             }

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
 using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.FunctionalTests
@@ -21,8 +22,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         public virtual void Cleanup(DbContext context)
         {
-            context.Set<BuiltInNonNullableDataTypes>().RemoveRange(context.Set<BuiltInNonNullableDataTypes>());
-            context.Set<BuiltInNullableDataTypes>().RemoveRange(context.Set<BuiltInNullableDataTypes>());
+            context.Set<BuiltInNonNullableDataTypes>().Remove(context.Set<BuiltInNonNullableDataTypes>().ToArray());
+            context.Set<BuiltInNullableDataTypes>().Remove(context.Set<BuiltInNullableDataTypes>().ToArray());
 
             context.SaveChanges();
         }

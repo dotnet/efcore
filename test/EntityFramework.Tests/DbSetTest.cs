@@ -2,9 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
-using System.Threading.Tasks;
-using Moq;
+using Microsoft.Data.Entity.ChangeTracking;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Tests
@@ -14,85 +14,254 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Can_add_new_entities_to_context()
         {
-            var contextMock = CreateContextMock();
-            contextMock.Setup(m => m.Add(It.IsAny<Random>())).Returns<Random>(e => e);
-
-            var entity = new Random();
-            Assert.Same(entity, new DbSet<Random>(contextMock.Object).Add(entity));
-
-            contextMock.Verify(m => m.Add(entity));
+            TrackEntitiesTest((c, e) => c.Add(e), (c, e) => c.Add(e), EntityState.Added);
         }
 
         [Fact]
         public void Can_add_new_entities_to_context_async()
         {
-            var contextMock = CreateContextMock();
-            contextMock.Setup(m => m.AddAsync(It.IsAny<Random>(), It.IsAny<CancellationToken>()))
-                .Returns<Random, CancellationToken>((e, c) => Task.FromResult(e));
-
-            var entity = new Random();
-            Assert.Same(entity, new DbSet<Random>(contextMock.Object).AddAsync(entity).Result);
-
-            contextMock.Verify(m => m.AddAsync(entity, CancellationToken.None));
+            TrackEntitiesTest((c, e) => c.AddAsync(e).Result, (c, e) => c.AddAsync(e).Result, EntityState.Added);
         }
 
         [Fact]
-        public void Can_add_new_entities_to_context_async_with_token()
+        public void Can_add_existing_entities_to_context_to_be_attached()
         {
-            var contextMock = CreateContextMock();
-            contextMock.Setup(m => m.AddAsync(It.IsAny<Random>(), It.IsAny<CancellationToken>()))
-                .Returns<Random, CancellationToken>((e, c) => Task.FromResult(e));
-
-            var entity = new Random();
-            var cancellationToken = new CancellationToken();
-            Assert.Same(entity, new DbSet<Random>(contextMock.Object).AddAsync(entity, cancellationToken).Result);
-
-            contextMock.Verify(m => m.AddAsync(entity, cancellationToken));
+            TrackEntitiesTest((c, e) => c.Attach(e), (c, e) => c.Attach(e), EntityState.Unchanged);
         }
 
         [Fact]
-        public void Can_add_existing_entities_for_update_to_context()
+        public void Can_add_existing_entities_to_context_to_be_updated()
         {
-            var contextMock = CreateContextMock();
-            contextMock.Setup(m => m.Update(It.IsAny<Random>())).Returns<Random>(e => e);
-
-            var entity = new Random();
-            Assert.Same(entity, new DbSet<Random>(contextMock.Object).Update(entity));
-
-            contextMock.Verify(m => m.Update(entity));
+            TrackEntitiesTest((c, e) => c.Update(e), (c, e) => c.Update(e), EntityState.Modified);
         }
 
         [Fact]
-        public void Can_add_existing_entities_for_update_to_context_async()
+        public void Can_add_existing_entities_to_context_to_be_deleted()
         {
-            var contextMock = CreateContextMock();
-            contextMock.Setup(m => m.UpdateAsync(It.IsAny<Random>(), It.IsAny<CancellationToken>()))
-                .Returns<Random, CancellationToken>((e, c) => Task.FromResult(e));
+            TrackEntitiesTest((c, e) => c.Remove(e), (c, e) => c.Remove(e), EntityState.Deleted);
+        }
 
-            var entity = new Random();
-            Assert.Same(entity, new DbSet<Random>(contextMock.Object).UpdateAsync(entity).Result);
+        private static void TrackEntitiesTest(
+            Func<DbSet<Category>, Category, EntityEntry<Category>> categoryAdder,
+            Func<DbSet<Product>, Product, EntityEntry<Product>> productAdder, EntityState expectedState)
+        {
+            using (var context = new EarlyLearningCenter(TestHelpers.CreateServiceProvider()))
+            {
+                var category1 = new Category { Id = 1, Name = "Beverages" };
+                var category2 = new Category { Id = 2, Name = "Foods" };
+                var product1 = new Product { Id = 1, Name = "Marmite", Price = 7.99m };
+                var product2 = new Product { Id = 2, Name = "Bovril", Price = 4.99m };
 
-            contextMock.Verify(m => m.UpdateAsync(entity, CancellationToken.None));
+                var categoryEntry1 = categoryAdder(context.Categories, category1);
+                var categoryEntry2 = categoryAdder(context.Categories, category2);
+                var productEntry1 = productAdder(context.Products, product1);
+                var productEntry2 = productAdder(context.Products, product2);
+
+                Assert.Same(category1, categoryEntry1.Entity);
+                Assert.Same(category2, categoryEntry2.Entity);
+                Assert.Same(product1, productEntry1.Entity);
+                Assert.Same(product2, productEntry2.Entity);
+
+                Assert.Same(category1, categoryEntry1.Entity);
+                Assert.Equal(expectedState, categoryEntry2.State);
+                Assert.Same(category2, categoryEntry2.Entity);
+                Assert.Equal(expectedState, categoryEntry2.State);
+
+                Assert.Same(product1, productEntry1.Entity);
+                Assert.Equal(expectedState, productEntry1.State);
+                Assert.Same(product2, productEntry2.Entity);
+                Assert.Equal(expectedState, productEntry2.State);
+
+                Assert.Same(categoryEntry1.StateEntry, context.ChangeTracker.Entry(category1).StateEntry);
+                Assert.Same(categoryEntry2.StateEntry, context.ChangeTracker.Entry(category2).StateEntry);
+                Assert.Same(productEntry1.StateEntry, context.ChangeTracker.Entry(product1).StateEntry);
+                Assert.Same(productEntry2.StateEntry, context.ChangeTracker.Entry(product2).StateEntry);
+            }
         }
 
         [Fact]
-        public void Can_add_existing_entities_for_update_to_context_async_with_token()
+        public void Can_add_multiple_new_entities_to_context()
         {
-            var contextMock = CreateContextMock();
-            contextMock.Setup(m => m.UpdateAsync(It.IsAny<Random>(), It.IsAny<CancellationToken>()))
-                .Returns<Random, CancellationToken>((e, c) => Task.FromResult(e));
-
-            var entity = new Random();
-            var cancellationToken = new CancellationToken();
-            Assert.Same(entity, new DbSet<Random>(contextMock.Object).UpdateAsync(entity, cancellationToken).Result);
-
-            contextMock.Verify(m => m.UpdateAsync(entity, cancellationToken));
+            TrackMultipleEntitiesTest((c, e) => c.Add(e[0], e[1]), (c, e) => c.Add(e[0], e[1]), EntityState.Added);
         }
 
-        private static Mock<DbContext> CreateContextMock()
+        [Fact]
+        public void Can_add_multiple_new_entities_to_context_async()
         {
-            var contextMock = new Mock<DbContext>();
-            return contextMock;
+            TrackMultipleEntitiesTest((c, e) => c.AddAsync(e[0], e[1]).Result, (c, e) => c.AddAsync(e[0], e[1]).Result, EntityState.Added);
+
+            TrackMultipleEntitiesTest(
+                (c, e) => c.AddAsync(new CancellationToken(), e[0], e[1]).Result,
+                (c, e) => c.AddAsync(new CancellationToken(), e[0], e[1]).Result, EntityState.Added);
+        }
+
+        [Fact]
+        public void Can_add_multiple_existing_entities_to_context_to_be_attached()
+        {
+            TrackMultipleEntitiesTest((c, e) => c.Attach(e[0], e[1]), (c, e) => c.Attach(e[0], e[1]), EntityState.Unchanged);
+        }
+
+        [Fact]
+        public void Can_add_multiple_existing_entities_to_context_to_be_updated()
+        {
+            TrackMultipleEntitiesTest((c, e) => c.Update(e[0], e[1]), (c, e) => c.Update(e[0], e[1]), EntityState.Modified);
+        }
+
+        [Fact]
+        public void Can_add_multiple_existing_entities_to_context_to_be_deleted()
+        {
+            TrackMultipleEntitiesTest((c, e) => c.Remove(e[0], e[1]), (c, e) => c.Remove(e[0], e[1]), EntityState.Deleted);
+        }
+
+        private static void TrackMultipleEntitiesTest(
+            Func<DbSet<Category>, Category[], IReadOnlyList<EntityEntry<Category>>> categoryAdder,
+            Func<DbSet<Product>, Product[], IReadOnlyList<EntityEntry<Product>>> productAdder, EntityState expectedState)
+        {
+            using (var context = new EarlyLearningCenter(TestHelpers.CreateServiceProvider()))
+            {
+                var category1 = new Category { Id = 1, Name = "Beverages" };
+                var category2 = new Category { Id = 2, Name = "Foods" };
+                var product1 = new Product { Id = 1, Name = "Marmite", Price = 7.99m };
+                var product2 = new Product { Id = 2, Name = "Bovril", Price = 4.99m };
+
+                var categoryEntries = categoryAdder(context.Categories, new[] { category1, category2 });
+                var productEntries = productAdder(context.Products, new[] { product1, product2 });
+
+                Assert.Same(category1, categoryEntries[0].Entity);
+                Assert.Same(category2, categoryEntries[1].Entity);
+                Assert.Same(product1, productEntries[0].Entity);
+                Assert.Same(product2, productEntries[1].Entity);
+
+                Assert.Same(category1, categoryEntries[0].Entity);
+                Assert.Equal(expectedState, categoryEntries[0].State);
+                Assert.Same(category2, categoryEntries[1].Entity);
+                Assert.Equal(expectedState, categoryEntries[1].State);
+
+                Assert.Same(product1, productEntries[0].Entity);
+                Assert.Equal(expectedState, productEntries[0].State);
+                Assert.Same(product2, productEntries[1].Entity);
+                Assert.Equal(expectedState, productEntries[1].State);
+
+                Assert.Same(categoryEntries[0].StateEntry, context.ChangeTracker.Entry(category1).StateEntry);
+                Assert.Same(categoryEntries[1].StateEntry, context.ChangeTracker.Entry(category2).StateEntry);
+                Assert.Same(productEntries[0].StateEntry, context.ChangeTracker.Entry(product1).StateEntry);
+                Assert.Same(productEntries[1].StateEntry, context.ChangeTracker.Entry(product2).StateEntry);
+            }
+        }
+
+        [Fact]
+        public void Can_add_no_new_entities_to_context()
+        {
+            TrackNoEntitiesTest(c => c.Add(new Category[0]), c => c.Add(new Product[0]), EntityState.Added);
+        }
+
+        [Fact]
+        public void Can_add_no_new_entities_to_context_async()
+        {
+            TrackNoEntitiesTest(c => c.AddAsync(new Category[0]).Result, c => c.AddAsync(new Product[0]).Result, EntityState.Added);
+
+            TrackNoEntitiesTest(
+                c => c.AddAsync(new CancellationToken(), new Category[0]).Result,
+                c => c.AddAsync(new CancellationToken(), new Product[0]).Result, EntityState.Added);
+        }
+
+        [Fact]
+        public void Can_add_no_existing_entities_to_context_to_be_attached()
+        {
+            TrackNoEntitiesTest(c => c.Attach(new Category[0]), c => c.Attach(new Product[0]), EntityState.Unchanged);
+        }
+
+        [Fact]
+        public void Can_add_no_existing_entities_to_context_to_be_updated()
+        {
+            TrackNoEntitiesTest(c => c.Update(new Category[0]), c => c.Update(new Product[0]), EntityState.Modified);
+        }
+
+        [Fact]
+        public void Can_add_no_existing_entities_to_context_to_be_deleted()
+        {
+            TrackNoEntitiesTest(c => c.Remove(new Category[0]), c => c.Remove(new Product[0]), EntityState.Deleted);
+        }
+
+        private static void TrackNoEntitiesTest(
+            Func<DbSet<Category>, IReadOnlyList<EntityEntry<Category>>> categoryAdder,
+            Func<DbSet<Product>, IReadOnlyList<EntityEntry<Product>>> productAdder, EntityState expectedState)
+        {
+            using (var context = new EarlyLearningCenter(TestHelpers.CreateServiceProvider()))
+            {
+                Assert.Empty(categoryAdder(context.Categories));
+                Assert.Empty(productAdder(context.Products));
+            }
+        }
+        [Fact]
+        public void Can_add_new_entities_to_context_with_key_generation()
+        {
+            TrackEntitiesWithKeyGenerationTest((c, e) => c.Add(e).Entity);
+        }
+
+        [Fact]
+        public void Can_add_new_entities_to_context_with_key_generation_async()
+        {
+            TrackEntitiesWithKeyGenerationTest((c, e) => c.AddAsync(e).Result.Entity);
+        }
+
+        private static void TrackEntitiesWithKeyGenerationTest(Func<DbSet<TheGu>, TheGu, TheGu> adder)
+        {
+            using (var context = new EarlyLearningCenter(TestHelpers.CreateServiceProvider()))
+            {
+                var gu1 = new TheGu { ShirtColor = "Red" };
+                var gu2 = new TheGu { ShirtColor = "Still Red" };
+
+                Assert.Same(gu1, adder(context.Gus, gu1));
+                Assert.Same(gu2, adder(context.Gus, gu2));
+                Assert.NotEqual(default(Guid), gu1.Id);
+                Assert.NotEqual(default(Guid), gu2.Id);
+                Assert.NotEqual(gu1.Id, gu2.Id);
+
+                var categoryEntry = context.ChangeTracker.Entry(gu1);
+                Assert.Same(gu1, categoryEntry.Entity);
+                Assert.Equal(EntityState.Added, categoryEntry.State);
+
+                categoryEntry = context.ChangeTracker.Entry(gu2);
+                Assert.Same(gu2, categoryEntry.Entity);
+                Assert.Equal(EntityState.Added, categoryEntry.State);
+            }
+        }
+
+        private class Category
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+        }
+
+        private class Product
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public decimal Price { get; set; }
+        }
+
+        private class TheGu
+        {
+            public Guid Id { get; set; }
+            public string ShirtColor { get; set; }
+        }
+
+        private class EarlyLearningCenter : DbContext
+        {
+            public EarlyLearningCenter(IServiceProvider serviceProvider)
+                : base(serviceProvider)
+            {
+            }
+
+            public DbSet<Product> Products { get; set; }
+            public DbSet<Category> Categories { get; set; }
+            public DbSet<TheGu> Gus { get; set; }
+
+            protected internal override void OnConfiguring(DbContextOptions options)
+            {
+                options.UseInMemoryStore(persist: false);
+            }
         }
     }
 }

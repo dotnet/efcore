@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
 using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.FunctionalTests.TestModels
@@ -41,7 +42,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
 
         public static void RemoveAllEntities(CrossStoreContext context)
         {
-            context.SimpleEntities.RemoveRange(context.SimpleEntities);
+            context.SimpleEntities.Remove(context.SimpleEntities.ToArray());
         }
     }
 }

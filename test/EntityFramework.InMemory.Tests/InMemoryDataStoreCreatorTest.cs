@@ -104,7 +104,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         {
             using (var context = new FraggleContext())
             {
-                context.Fraggles.AddRange(
+                context.Fraggles.Add(
                     new[]
                         {
                             new Fraggle { Id = 1, Name = "Gobo" },

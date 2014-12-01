@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 context.Database.EnsureDeleted();
                 context.Database.EnsureCreated();
 
-                var entity = context.Add(new Entity { P1 = 20, P2 = 30, P3 = 80 });
+                var entity = context.Add(new Entity { P1 = 20, P2 = 30, P3 = 80 }).Entity;
 
                 context.SaveChanges();
 
@@ -50,7 +50,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 context.Database.EnsureDeleted();
                 context.Database.EnsureCreated();
 
-                var entity = context.Add(new Entity { P1 = 20, P2 = 30 });
+                var entity = context.Add(new Entity { P1 = 20, P2 = 30 }).Entity;
 
                 context.SaveChanges();
 

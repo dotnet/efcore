@@ -7,7 +7,6 @@ using System.Linq;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
-using Microsoft.Framework.Logging;
 using Xunit;
 
 namespace Microsoft.Data.Entity.InMemory.FunctionalTests
@@ -32,9 +31,9 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             {
                 var albums = GetAlbums("~/Images/placeholder.png", Genres, Artists);
 
-                db.Genres.AddRange(Genres.Values);
-                db.Artists.AddRange(Artists.Values);
-                db.Albums.AddRange(albums);
+                db.Genres.Add(Genres.Values.ToArray());
+                db.Artists.Add(Artists.Values.ToArray());
+                db.Albums.Add(albums);
 
                 db.SaveChanges();
             }
@@ -158,7 +157,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             public virtual Order Order { get; set; }
         }
 
-        private static IEnumerable<Album> GetAlbums(string imgUrl, Dictionary<string, Genre> genres, Dictionary<string, Artist> artists)
+        private static Album[] GetAlbums(string imgUrl, Dictionary<string, Genre> genres, Dictionary<string, Artist> artists)
         {
             var albums = new[]
                 {

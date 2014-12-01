@@ -9,6 +9,7 @@ using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Utilities;
@@ -43,14 +44,14 @@ namespace Microsoft.Data.Entity
                     ((IDbContextServices)_context).ScopedServiceProvider.GetRequiredServiceChecked<EntityQueryExecutor>()));
         }
 
-        public virtual TEntity Add([NotNull] TEntity entity)
+        public virtual EntityEntry<TEntity> Add([NotNull] TEntity entity)
         {
             Check.NotNull(entity, "entity");
 
             return _context.Add(entity);
         }
 
-        public virtual Task<TEntity> AddAsync(
+        public virtual Task<EntityEntry<TEntity>> AddAsync(
             [NotNull] TEntity entity, CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(entity, "entity");
@@ -58,56 +59,68 @@ namespace Microsoft.Data.Entity
             return _context.AddAsync(entity, cancellationToken);
         }
 
-        public virtual TEntity Remove([NotNull] TEntity entity)
+        public virtual EntityEntry<TEntity> Attach([NotNull] TEntity entity)
         {
             Check.NotNull(entity, "entity");
 
-            return _context.Delete(entity);
+            return _context.Attach(entity);
         }
 
-        public virtual TEntity Update([NotNull] TEntity entity)
+        public virtual EntityEntry<TEntity> Remove([NotNull] TEntity entity)
+        {
+            Check.NotNull(entity, "entity");
+
+            return _context.Remove(entity);
+        }
+
+        public virtual EntityEntry<TEntity> Update([NotNull] TEntity entity)
         {
             Check.NotNull(entity, "entity");
 
             return _context.Update(entity);
         }
 
-        public virtual Task<TEntity> UpdateAsync(
-            [NotNull] TEntity entity, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Check.NotNull(entity, "entity");
-
-            return _context.UpdateAsync(entity, cancellationToken);
-        }
-
-        public virtual void AddRange([NotNull] IEnumerable<TEntity> entities)
+        public virtual IReadOnlyList<EntityEntry<TEntity>> Add([NotNull] params TEntity[] entities)
         {
             Check.NotNull(entities, "entities");
 
-            foreach (var entity in entities)
-            {
-                Add(entity);
-            }
+            return _context.Add(entities);
         }
 
-        public virtual void RemoveRange([NotNull] IEnumerable<TEntity> entities)
+        public virtual Task<IReadOnlyList<EntityEntry<TEntity>>> AddAsync([NotNull] params TEntity[] entities)
         {
             Check.NotNull(entities, "entities");
 
-            foreach (var entity in entities)
-            {
-                Remove(entity);
-            }
+            return _context.AddAsync(entities);
         }
 
-        public virtual void UpdateRange([NotNull] IEnumerable<TEntity> entities)
+        public virtual Task<IReadOnlyList<EntityEntry<TEntity>>> AddAsync(
+            CancellationToken cancellationToken, [NotNull] params TEntity[] entities)
         {
             Check.NotNull(entities, "entities");
 
-            foreach (var entity in entities)
-            {
-                Update(entity);
-            }
+            return _context.AddAsync(entities, cancellationToken);
+        }
+
+        public virtual IReadOnlyList<EntityEntry<TEntity>> Attach([NotNull] params TEntity[] entities)
+        {
+            Check.NotNull(entities, "entities");
+
+            return _context.Attach(entities);
+        }
+
+        public virtual IReadOnlyList<EntityEntry<TEntity>> Remove([NotNull] params TEntity[] entities)
+        {
+            Check.NotNull(entities, "entities");
+
+            return _context.Remove(entities);
+        }
+
+        public virtual IReadOnlyList<EntityEntry<TEntity>> Update([NotNull] params TEntity[] entities)
+        {
+            Check.NotNull(entities, "entities");
+
+            return _context.Update(entities);
         }
 
         IEnumerator<TEntity> IEnumerable<TEntity>.GetEnumerator()

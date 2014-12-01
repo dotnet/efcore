@@ -72,7 +72,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
             using (var context = new BronieContext(serviceProvider))
             {
-                var added = await context.AddAsync(new Unicorn { Id2 = id2, Name = "Rarity" });
+                var added = (await context.AddAsync(new Unicorn { Id2 = id2, Name = "Rarity" })).Entity;
 
                 Assert.True(added.Id1 > 0);
                 Assert.NotEqual(Guid.Empty, added.Id3);
@@ -127,9 +127,9 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
             using (var context = new BronieContext(serviceProvider))
             {
-                var pony1 = await context.AddAsync(new EarthPony { Id2 = 7, Name = "Apple Jack 1" });
-                var pony2 = await context.AddAsync(new EarthPony { Id2 = 7, Name = "Apple Jack 2" });
-                var pony3 = await context.AddAsync(new EarthPony { Id2 = 7, Name = "Apple Jack 3" });
+                var pony1 = (await context.AddAsync(new EarthPony { Id2 = 7, Name = "Apple Jack 1" })).Entity;
+                var pony2 = (await context.AddAsync(new EarthPony { Id2 = 7, Name = "Apple Jack 2" })).Entity;
+                var pony3 = (await context.AddAsync(new EarthPony { Id2 = 7, Name = "Apple Jack 3" })).Entity;
 
                 await context.SaveChangesAsync();
 
@@ -154,14 +154,14 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
             using (var context = new BronieContext(serviceProvider))
             {
-                var ponies = context.EarthPonies.ToList();
-                Assert.Equal(ponies.Count, ponies.Count(e => e.Name == "Apple Jack 1") * 3);
+                var ponies = context.EarthPonies.ToArray();
+                Assert.Equal(ponies.Length, ponies.Count(e => e.Name == "Apple Jack 1") * 3);
 
                 Assert.Equal("Apple Jack 1", ponies.Single(e => e.Id1 == ids[0]).Name);
                 Assert.Equal("Pinky Pie 2", ponies.Single(e => e.Id1 == ids[1]).Name);
                 Assert.Equal("Apple Jack 3", ponies.Single(e => e.Id1 == ids[2]).Name);
 
-                context.EarthPonies.RemoveRange(ponies);
+                context.EarthPonies.Remove(ponies);
 
                 await context.SaveChangesAsync();
             }

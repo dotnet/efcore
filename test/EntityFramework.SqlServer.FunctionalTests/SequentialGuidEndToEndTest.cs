@@ -64,7 +64,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                 for (var i = 0; i < 50; i++)
                 {
-                    guids.Add((await context.AddAsync(new Pegasus { Name = "Rainbow Dash " + i, Index = i, Id = Guid.NewGuid() })).Id);
+                    guids.Add((await context.AddAsync(new Pegasus { Name = "Rainbow Dash " + i, Index = i, Id = Guid.NewGuid() })).Entity.Id);
                 }
 
                 await context.SaveChangesAsync();

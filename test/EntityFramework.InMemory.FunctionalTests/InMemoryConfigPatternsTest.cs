@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 Assert.NotEqual(0, blog.Id);
                 Assert.Equal("The Waffle Cart", blog.Name);
 
-                context.Blogs.RemoveRange(context.Blogs);
+                context.Blogs.Remove(context.Blogs.ToArray());
                 context.SaveChanges();
 
                 Assert.Empty(context.Blogs);
@@ -64,7 +64,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 Assert.NotEqual(0, blog.Id);
                 Assert.Equal("The Waffle Cart", blog.Name);
 
-                context.Blogs.RemoveRange(context.Blogs);
+                context.Blogs.Remove(context.Blogs.ToArray());
                 context.SaveChanges();
 
                 Assert.Empty(context.Blogs);
@@ -101,7 +101,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 Assert.NotEqual(0, blog.Id);
                 Assert.Equal("The Waffle Cart", blog.Name);
 
-                context.Blogs.RemoveRange(context.Blogs);
+                context.Blogs.Remove(context.Blogs.ToArray());
                 context.SaveChanges();
 
                 Assert.Empty(context.Blogs);
@@ -145,7 +145,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 Assert.NotEqual(0, blog.Id);
                 Assert.Equal("The Waffle Cart", blog.Name);
 
-                context.Blogs.RemoveRange(context.Blogs);
+                context.Blogs.Remove(context.Blogs.ToArray());
                 context.SaveChanges();
 
                 Assert.Empty(context.Blogs);
@@ -182,7 +182,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 Assert.NotEqual(0, blog.Id);
                 Assert.Equal("The Waffle Cart", blog.Name);
 
-                context.Blogs.RemoveRange(context.Blogs);
+                context.Blogs.Remove(context.Blogs.ToArray());
                 context.SaveChanges();
 
                 Assert.Empty(context.Blogs);

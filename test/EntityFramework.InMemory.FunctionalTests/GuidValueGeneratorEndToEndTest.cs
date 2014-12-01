@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             {
                 for (var i = 0; i < 10; i++)
                 {
-                    guids.Add((await context.AddAsync(new Pegasus { Name = "Rainbow Dash " + i })).Id);
+                    guids.Add((await context.AddAsync(new Pegasus { Name = "Rainbow Dash " + i })).Entity.Id);
                     guidsHash.Add(guids.Last());
                 }
 
