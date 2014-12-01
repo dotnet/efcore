@@ -30,7 +30,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         public void Generate_when_drop_database_operation()
         {
             Assert.Equal(
-                @"DROP DATABASE [MyDatabase]",
+                @"IF SERVERPROPERTY('EngineEdition') <> 5 EXECUTE sp_executesql N'ALTER DATABASE [MyDatabase] SET SINGLE_USER WITH ROLLBACK IMMEDIATE'
+DROP DATABASE [MyDatabase]",
                 Generate(new DropDatabaseOperation("MyDatabase")));
         }
 
