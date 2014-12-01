@@ -10,6 +10,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
     {
         private readonly string _migrationId;
         private string _directory;
+        private string _modelSnapshotDirectory;
 
         public ScaffoldedMigration([NotNull] string migrationId)
         {
@@ -23,13 +24,12 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             get { return _migrationId; }
         }
 
-        public virtual string MigrationNamespace { get; [param: CanBeNull] set; }
-        public virtual string MigrationClass { get; [param: CanBeNull] set; }
-        public virtual string SnapshotModelClass { get; [param: CanBeNull] set; }
+        public virtual string SnapshotModelClass { get;[param: CanBeNull] set; }
+        public virtual string Language { get;[param: CanBeNull]  set; }
 
-        public virtual string MigrationCode { get; [param: CanBeNull] set; }
-        public virtual string MigrationMetadataCode { get; [param: CanBeNull] set; }
-        public virtual string SnapshotModelCode { get; [param: CanBeNull] set; }
+        public virtual string MigrationCode { get;[param: CanBeNull] set; }
+        public virtual string MigrationMetadataCode { get;[param: CanBeNull] set; }
+        public virtual string SnapshotModelCode { get;[param: CanBeNull] set; }
 
         public virtual string Directory
         {
@@ -40,6 +40,18 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 Check.NotEmpty(value, "value");
 
                 _directory = value;
+            }
+        }
+
+        public virtual string ModelSnapshotDirectory
+        {
+            get { return _modelSnapshotDirectory; }
+            [param: CanBeNull]
+            set
+            {
+                Check.NotEmpty(value, "value");
+
+                _modelSnapshotDirectory = value;
             }
         }
     }

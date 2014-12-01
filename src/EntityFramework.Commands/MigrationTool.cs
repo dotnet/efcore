@@ -53,13 +53,6 @@ namespace Microsoft.Data.Entity.Commands
                 var options = scopedServiceProvider.GetRequiredService<DbContextService<IDbContextOptions>>();
                 var model = scopedServiceProvider.GetRequiredService<DbContextService<IModel>>();
 
-                var extension = MigrationsOptionsExtension.Extract(options.Service);
-                if (extension == null || extension.MigrationNamespace == null)
-                {
-                    options.Service.AddOrUpdateExtension<MigrationsOptionsExtension>(
-                        x => x.MigrationNamespace = rootNamespace + ".Migrations");
-                }
-
                 var migrator = CreateMigrator(context);
                 var scaffolder = new MigrationScaffolder(
                     context,
@@ -69,21 +62,7 @@ namespace Microsoft.Data.Entity.Commands
                     migrator.ModelDiffer,
                     new CSharpMigrationCodeGenerator(new CSharpModelCodeGenerator()));
 
-                var migration = scaffolder.ScaffoldMigration(migrationName);
-
-                // Derive default directory from namespace
-                if (migration.Directory == null)
-                {
-                    var directory = migration.MigrationNamespace;
-                    if (directory.StartsWith(rootNamespace + '.'))
-                    {
-                        directory = directory.Substring(rootNamespace.Length + 1);
-                    }
-
-                    migration.Directory = directory.Replace('.', Path.DirectorySeparatorChar);
-                }
-
-                return migration;
+                return scaffolder.ScaffoldMigration(migrationName, rootNamespace);
             }
         }
 
@@ -97,18 +76,18 @@ namespace Microsoft.Data.Entity.Commands
             var migrationDir = Path.Combine(projectDir, migration.Directory);
             Directory.CreateDirectory(migrationDir);
 
-            // TODO: Get from migration (set in MigrationScaffolder)
-            var extension = ".cs";
-
-            var userCodeFile = Path.Combine(migrationDir, migration.MigrationId + extension);
+            var userCodeFile = Path.Combine(migrationDir, migration.MigrationId + migration.Language);
             File.WriteAllText(userCodeFile, migration.MigrationCode);
             yield return userCodeFile;
 
-            var designerCodeFile = Path.Combine(migrationDir, migration.MigrationId + ".Designer" + extension);
+            var designerCodeFile = Path.Combine(migrationDir, migration.MigrationId + ".Designer" + migration.Language);
             File.WriteAllText(designerCodeFile, migration.MigrationMetadataCode);
             yield return designerCodeFile;
 
-            var modelSnapshotFile = Path.Combine(migrationDir, migration.SnapshotModelClass + extension);
+            var modelSnapshotFile = Path.Combine(
+                projectDir,
+                migration.ModelSnapshotDirectory,
+                migration.SnapshotModelClass + migration.Language);
             File.WriteAllText(modelSnapshotFile, migration.SnapshotModelCode);
             yield return modelSnapshotFile;
         }
@@ -192,7 +171,7 @@ namespace Microsoft.Data.Entity.Commands
             if (extension == null || extension.MigrationAssembly == null)
             {
                 options.Service.AddOrUpdateExtension<MigrationsOptionsExtension>(
-                    x => x.MigrationAssembly =_assembly);
+                    x => x.MigrationAssembly = _assembly);
             }
 
             return context;

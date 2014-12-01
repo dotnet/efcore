@@ -710,6 +710,14 @@ namespace MyNamespace
                 stringBuilder.ToString());
         }
 
+        [Fact]
+        public void Language_returns_cs()
+        {
+            var generator = new CSharpMigrationCodeGenerator(new CSharpModelCodeGenerator());
+
+            Assert.Equal(".cs", generator.Language);
+        }
+
         private enum BikeType : byte
         {
             Road,

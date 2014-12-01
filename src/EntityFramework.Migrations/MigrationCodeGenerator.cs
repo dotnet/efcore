@@ -23,6 +23,11 @@ namespace Microsoft.Data.Entity.Migrations
             _modelCodeGenerator = modelCodeGenerator;
         }
 
+        public virtual string Language
+        {
+            get { return ".cs"; }
+        }
+
         public virtual ModelCodeGenerator ModelCodeGenerator
         {
             get { return _modelCodeGenerator; }

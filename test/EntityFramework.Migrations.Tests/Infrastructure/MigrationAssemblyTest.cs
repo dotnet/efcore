@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Linq;
 using System.Reflection;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
@@ -31,10 +30,9 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         public void Configure_assembly_and_namespace()
         {
             using (var context = new Context
-                {
-                    MigrationAssembly = new MockAssembly(),
-                    MigrationNamespace = "MyNamespace"
-                })
+            {
+                MigrationAssembly = new MockAssembly()
+            })
             {
                 var migrationAssembly = ((IDbContextServices)context).ScopedServiceProvider.GetRequiredService<MigrationAssembly>();
 
@@ -66,8 +64,8 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             {
                 var migrationAssembly = ((IDbContextServices)context).ScopedServiceProvider.GetRequiredService<MigrationAssembly>();
 
-                var model1 = migrationAssembly.Model;
-                var model2 = migrationAssembly.Model;
+                var model1 = migrationAssembly.ModelSnapshot;
+                var model2 = migrationAssembly.ModelSnapshot;
 
                 Assert.Same(model1, model2);
             }
@@ -78,7 +76,6 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         public class Context : DbContext
         {
             internal Assembly MigrationAssembly { get; set; }
-            internal string MigrationNamespace { get; set; }
 
             protected override void OnConfiguring(DbContextOptions options)
             {
@@ -87,11 +84,6 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                 if (MigrationAssembly != null)
                 {
                     options.UseMigrationAssembly(MigrationAssembly);
-                }
-
-                if (MigrationNamespace != null)
-                {
-                    options.UseMigrationNamespace(MigrationNamespace);
                 }
             }
         }
