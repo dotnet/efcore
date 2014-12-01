@@ -30,23 +30,5 @@ namespace Microsoft.Data.Entity
         {
             return (DbContextOptions<T>)UseMigrationAssembly((DbContextOptions)options, migrationAssembly);
         }
-
-        public static DbContextOptions UseMigrationNamespace(
-            [NotNull] this DbContextOptions options, [NotNull] string migrationNamespace)
-        {
-            Check.NotNull(options, "options");
-            Check.NotEmpty(migrationNamespace, "migrationNamespace");
-
-            ((IDbContextOptions)options).AddOrUpdateExtension<MigrationsOptionsExtension>(
-                x => x.MigrationNamespace = migrationNamespace);
-
-            return options;
-        }
-
-        public static DbContextOptions<T> UseMigrationNamespace<T>(
-            [NotNull] this DbContextOptions<T> options, [NotNull] string migrationNamespace)
-        {
-            return (DbContextOptions<T>)UseMigrationNamespace((DbContextOptions)options, migrationNamespace);
-        }
     }
 }

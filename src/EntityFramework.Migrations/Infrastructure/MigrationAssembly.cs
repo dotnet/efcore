@@ -7,9 +7,7 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Utilities;
-using Microsoft.Data.Entity.Relational;
 
 namespace Microsoft.Data.Entity.Migrations.Infrastructure
 {
@@ -19,7 +17,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
         private readonly DbContextService<IDbContextOptions> _options;
 
         private IReadOnlyList<Migration> _migrations;
-        private IModel _model;
+        private ModelSnapshot _modelSnapshot;
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
@@ -55,9 +53,9 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             get { return _migrations ?? (_migrations = LoadMigrations()); }
         }
 
-        public virtual IModel Model
+        public virtual ModelSnapshot ModelSnapshot
         {
-            get { return _model ?? (_model = LoadModel()); }
+            get { return _modelSnapshot ?? (_modelSnapshot = LoadModelSnapshot()); }
         }
 
         public static IEnumerable<Type> GetMigrationTypes([NotNull] Assembly assembly)
@@ -90,7 +88,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                 .ToArray();
         }
 
-        protected virtual IModel LoadModel()
+        protected virtual ModelSnapshot LoadModelSnapshot()
         {
             var contextType = _context.Service.GetType();
             var modelSnapshotType = Assembly.GetAccessibleTypes().SingleOrDefault(
@@ -101,7 +99,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                      && TryGetContextType(t) == contextType);
 
             return modelSnapshotType != null
-                ? ((ModelSnapshot)Activator.CreateInstance(modelSnapshotType)).Model
+                ? (ModelSnapshot)Activator.CreateInstance(modelSnapshotType)
                 : null;
         }
 

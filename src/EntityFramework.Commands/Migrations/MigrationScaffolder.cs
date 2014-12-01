@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Commands.Utilities;
@@ -12,7 +13,6 @@ using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Migrations.Utilities;
-using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Commands.Migrations
@@ -25,6 +25,15 @@ namespace Microsoft.Data.Entity.Commands.Migrations
         private readonly MigrationAssembly _migrationAssembly;
         private readonly ModelDiffer _modelDiffer;
         private readonly MigrationCodeGenerator _migrationCodeGenerator;
+
+        /// <summary>
+        ///     This constructor is intended only for use when creating test doubles that will override members
+        ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
+        ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
+        /// </summary>
+        protected MigrationScaffolder()
+        {
+        }
 
         public MigrationScaffolder(
             [NotNull] DbContext context,
@@ -64,24 +73,22 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             get { return _migrationCodeGenerator; }
         }
 
-        public virtual string MigrationNamespace
-        {
-            get
-            {
-                var extension = MigrationsOptionsExtension.Extract(_options);
-                return extension == null ? null : extension.MigrationNamespace;
-            }
-        }
-
-        public virtual ScaffoldedMigration ScaffoldMigration([NotNull] string migrationName)
+        public virtual ScaffoldedMigration ScaffoldMigration(
+            [NotNull] string migrationName,
+            [NotNull] string rootNamespace)
         {
             Check.NotEmpty(migrationName, "migrationName");
 
-            if (MigrationAssembly.Migrations.Any(m => m.GetMigrationName() == migrationName))
+            var existingMigrations = MigrationAssembly.Migrations.OrderBy(m => m.GetMigrationId()).ToList();
+
+            if (existingMigrations.Any(m => m.GetMigrationName() == migrationName))
             {
                 throw new InvalidOperationException(Strings.DuplicateMigrationName(migrationName));
             }
 
+            var lastMigration = existingMigrations.LastOrDefault();
+            var migrationNamespace = GetNamespace(lastMigration, rootNamespace);
+            var modelSnapshotNamespace = GetNamespace(MigrationAssembly.ModelSnapshot, migrationNamespace);
             var migration = CreateMigration(migrationName);
             var contextType = _context.GetType();
 
@@ -89,26 +96,27 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             var migrationMetadataCode = new IndentedStringBuilder();
             var snapshotModelCode = new IndentedStringBuilder();
 
-            ScaffoldMigration(migration, contextType, migrationCode, migrationMetadataCode);
-            ScaffoldSnapshotModel(migration.TargetModel, contextType, snapshotModelCode);
+            ScaffoldMigration(migrationNamespace, migration, contextType, migrationCode, migrationMetadataCode);
+            ScaffoldSnapshotModel(modelSnapshotNamespace, migration.TargetModel, contextType, snapshotModelCode);
 
             return
                 new ScaffoldedMigration(migration.MigrationId)
-                    {
-                        MigrationNamespace = MigrationNamespace,
-                        MigrationClass = GetClassName(migration),
-                        SnapshotModelClass = GetClassName(migration.TargetModel),
-                        MigrationCode = migrationCode.ToString(),
-                        MigrationMetadataCode = migrationMetadataCode.ToString(),
-                        SnapshotModelCode = snapshotModelCode.ToString()
-                    };
+                {
+                    Directory = GetDirectory(migrationNamespace, rootNamespace),
+                    ModelSnapshotDirectory = GetDirectory(modelSnapshotNamespace, rootNamespace),
+                    SnapshotModelClass = GetClassName(migration.TargetModel),
+                    Language = _migrationCodeGenerator.Language,
+                    MigrationCode = migrationCode.ToString(),
+                    MigrationMetadataCode = migrationMetadataCode.ToString(),
+                    SnapshotModelCode = snapshotModelCode.ToString()
+                };
         }
 
         protected virtual MigrationInfo CreateMigration([NotNull] string migrationName)
         {
             Check.NotEmpty(migrationName, "migrationName");
 
-            var sourceModel = MigrationAssembly.Model;
+            var sourceModel = MigrationAssembly.ModelSnapshot?.Model;
             var targetModel = _model;
 
             IReadOnlyList<MigrationOperation> upgradeOperations, downgradeOperations;
@@ -125,11 +133,11 @@ namespace Microsoft.Data.Entity.Commands.Migrations
 
             return
                 new MigrationInfo(CreateMigrationId(migrationName))
-                    {
-                        TargetModel = targetModel,
-                        UpgradeOperations = upgradeOperations,
-                        DowngradeOperations = downgradeOperations
-                    };
+                {
+                    TargetModel = targetModel,
+                    UpgradeOperations = upgradeOperations,
+                    DowngradeOperations = downgradeOperations
+                };
         }
 
         protected virtual string CreateMigrationId(string migrationName)
@@ -138,32 +146,37 @@ namespace Microsoft.Data.Entity.Commands.Migrations
         }
 
         protected virtual void ScaffoldMigration(
+            [NotNull] string migrationNamespace,
             [NotNull] MigrationInfo migration,
             [NotNull] Type contextType,
             [NotNull] IndentedStringBuilder migrationCode,
             [NotNull] IndentedStringBuilder migrationMetadataCode)
         {
+            Check.NotEmpty(migrationNamespace, "migrationNamespace");
             Check.NotNull(migration, "migration");
             Check.NotNull(migrationCode, "migrationCode");
             Check.NotNull(migrationMetadataCode, "migrationMetadataCode");
 
             var className = GetClassName(migration);
 
-            MigrationCodeGenerator.GenerateMigrationClass(MigrationNamespace, className, migration, migrationCode);
-            MigrationCodeGenerator.GenerateMigrationMetadataClass(MigrationNamespace, className, migration, contextType, migrationMetadataCode);
+            MigrationCodeGenerator.GenerateMigrationClass(migrationNamespace, className, migration, migrationCode);
+            MigrationCodeGenerator.GenerateMigrationMetadataClass(migrationNamespace, className, migration, contextType, migrationMetadataCode);
         }
 
         protected virtual void ScaffoldSnapshotModel(
+            [NotNull] string modelSnapshotNamespace,
             [NotNull] IModel model,
             [NotNull] Type contextType,
             [NotNull] IndentedStringBuilder snapshotModelCode)
         {
+            Check.NotEmpty(modelSnapshotNamespace, "modelSnapshotNamespace");
             Check.NotNull(model, "model");
             Check.NotNull(contextType, "contextType");
+            Check.NotNull(snapshotModelCode, "snapshotModelCode");
 
             var className = GetClassName(model);
 
-            MigrationCodeGenerator.ModelCodeGenerator.GenerateModelSnapshotClass(MigrationNamespace, className, model, contextType, snapshotModelCode);
+            MigrationCodeGenerator.ModelCodeGenerator.GenerateModelSnapshotClass(modelSnapshotNamespace, className, model, contextType, snapshotModelCode);
         }
 
         protected virtual string GetClassName([NotNull] MigrationInfo migration)
@@ -179,6 +192,34 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             Check.NotNull(model, "model");
 
             return _context.GetType().Name + "ModelSnapshot";
+        }
+
+        // Internal for testing
+        protected internal virtual string GetNamespace([CanBeNull] Migration lastMigration, [NotNull] string rootNamespace)
+        {
+            Check.NotEmpty(rootNamespace, "rootNamespace");
+
+            return lastMigration?.GetType().Namespace ?? rootNamespace + ".Migrations";
+        }
+
+        // Internal for testing
+        protected internal virtual string GetNamespace(
+            [CanBeNull] ModelSnapshot modelSnapshot,
+            [NotNull] string migrationNamespace)
+        {
+            Check.NotEmpty(migrationNamespace, "migrationNamespace");
+
+            return modelSnapshot?.GetType().Namespace ?? migrationNamespace;
+        }
+
+        // Internal for testing
+        protected internal virtual string GetDirectory(string @namespace, string rootNamespace)
+        {
+            var directory = @namespace.StartsWith(rootNamespace + '.')
+                ? @namespace.Substring(rootNamespace.Length + 1)
+                : @namespace;
+
+            return directory.Replace('.', Path.DirectorySeparatorChar);
         }
     }
 }
