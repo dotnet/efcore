@@ -17,14 +17,14 @@ namespace Microsoft.Data.Entity
         {
             Check.NotNull(database, "database");
 
-            var sqliteDatabase = database as InMemoryDatabaseFacade;
+            var inMemoryDatabase = database as InMemoryDatabaseFacade;
 
-            if (sqliteDatabase == null)
+            if (inMemoryDatabase == null)
             {
                 throw new InvalidOperationException(Strings.InMemoryNotInUse);
             }
 
-            return sqliteDatabase;
+            return inMemoryDatabase;
         }
     }
 }

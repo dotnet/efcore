@@ -54,9 +54,6 @@
     <PackageReference Include="System.Data.Common">
       <TargetFramework>net451</TargetFramework>
     </PackageReference>
-    <PackageReference Include="Microsoft.Data.SQLite">
-      <TargetFramework>net451</TargetFramework>
-    </PackageReference>
     <PackageReference Include="xunit.abstractions">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
@@ -68,9 +65,6 @@
       <Assemblies>xunit.core;xunit.runner.tdnet</Assemblies>
     </PackageReference>
     <PackageReference Include="xunit.execution">
-      <TargetFramework>net45</TargetFramework>
-    </PackageReference>
-    <PackageReference Include="StackExchange.Redis">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
     <PackageReference Include="Ix-Async">
