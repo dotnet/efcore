@@ -113,10 +113,12 @@
     <Compile Include="CrossStoreFixture.cs" />
     <Compile Include="EndToEndTest.cs" />
     <Compile Include="InMemoryCrossStoreFixture.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SqlServerCrossStoreFixture.cs" />
     <Compile Include="TestModels\CrossStoreContext.cs" />
     <Compile Include="TestModels\SimpleEntity.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Properties\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
