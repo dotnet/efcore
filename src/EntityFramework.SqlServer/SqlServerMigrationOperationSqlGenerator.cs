@@ -49,6 +49,24 @@ namespace Microsoft.Data.Entity.SqlServer
             batchBuilder.EndBatch();
         }
 
+        public override void Generate(DropDatabaseOperation dropDatabaseOperation, SqlBatchBuilder batchBuilder)
+        {
+            batchBuilder
+                .Append("IF SERVERPROPERTY('EngineEdition') <> 5 EXECUTE sp_executesql N")
+                .Append(
+                    GenerateLiteral(
+                        string.Concat(
+                            "ALTER DATABASE ",
+                            DelimitIdentifier(dropDatabaseOperation.DatabaseName),
+                            " SET SINGLE_USER WITH ROLLBACK IMMEDIATE")));
+
+            batchBuilder.EndBatch();
+
+            base.Generate(dropDatabaseOperation, batchBuilder);
+
+            batchBuilder.EndBatch();
+        }
+
         public override void Generate(RenameSequenceOperation renameSequenceOperation, SqlBatchBuilder batchBuilder)
         {
             Check.NotNull(renameSequenceOperation, "renameSequenceOperation");
