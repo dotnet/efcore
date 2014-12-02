@@ -64,24 +64,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     e.ForeignKey<Product>(od => od.ProductID);
                     e.ForeignKey<Order>(od => od.OrderID);
                 });
-
-            // TODO: Use FAPIS when avail.
-            var model = modelBuilder.Model;
-            var productType = model.GetEntityType(typeof(Product));
-            var customerType = model.GetEntityType(typeof(Customer));
-            var orderType = model.GetEntityType(typeof(Order));
-            var orderDetailType = model.GetEntityType(typeof(OrderDetail));
-
-            var customerIdFk = orderType.ForeignKeys.Single();
-            var productIdFk = orderDetailType.ForeignKeys.Single(fk => fk.ReferencedEntityType == productType);
-            var orderIdFk = orderDetailType.ForeignKeys.Single(fk => fk.ReferencedEntityType == orderType);
-
-            productType.AddNavigation("OrderDetails", productIdFk, pointsToPrincipal: false);
-            customerType.AddNavigation("Orders", customerIdFk, pointsToPrincipal: false);
-            orderType.AddNavigation("Customer", customerIdFk, pointsToPrincipal: true);
-            orderType.AddNavigation("OrderDetails", orderIdFk, pointsToPrincipal: false);
-            orderDetailType.AddNavigation("Product", productIdFk, pointsToPrincipal: true);
-            orderDetailType.AddNavigation("Order", orderIdFk, pointsToPrincipal: true);
         }
 
         public abstract NorthwindContext CreateContext();

@@ -34,7 +34,8 @@ namespace Microsoft.Data.Entity.Metadata
             _entityTypeConventions = new List<IEntityTypeConvention>
                 {
                     new PropertiesConvention(),
-                    new KeyConvention()
+                    new KeyConvention(),
+                    new RelationshipDiscoveryConvention()
                 };
         }
 
@@ -270,13 +271,13 @@ namespace Microsoft.Data.Entity.Metadata
 
             public virtual OneToOneBuilder OneToOne(
                 [NotNull] Type relatedEntityType,
-                [CanBeNull] string reference = null,
-                [CanBeNull] string inverse = null)
+                [CanBeNull] string navigationToDependent = null,
+                [CanBeNull] string navigationToPrincipal = null)
             {
                 Check.NotNull(relatedEntityType, "relatedEntityType");
 
                 return new OneToOneBuilder(Builder.BuildRelationship(
-                    Metadata, Builder.ModelBuilder.Entity(relatedEntityType, ConfigurationSource.Explicit).Metadata, inverse, reference, /*oneToOne:*/ true, ConfigurationSource.Explicit));
+                    Metadata, Builder.ModelBuilder.Entity(relatedEntityType, ConfigurationSource.Explicit).Metadata, navigationToPrincipal, navigationToDependent, /*oneToOne:*/ true, ConfigurationSource.Explicit));
             }
 
             public virtual OneToManyBuilder OneToMany(
@@ -303,13 +304,13 @@ namespace Microsoft.Data.Entity.Metadata
 
             public virtual OneToOneBuilder OneToOne(
                 [NotNull] string relatedEntityTypeName,
-                [CanBeNull] string reference = null,
-                [CanBeNull] string inverse = null)
+                [CanBeNull] string navigationToDependent = null,
+                [CanBeNull] string navigationToPrincipal = null)
             {
                 Check.NotEmpty(relatedEntityTypeName, "relatedEntityTypeName");
 
                 return new OneToOneBuilder(Builder.BuildRelationship(
-                    Metadata, Builder.ModelBuilder.Metadata.GetEntityType(relatedEntityTypeName), inverse, reference, /*oneToOne:*/ true, ConfigurationSource.Explicit));
+                    Metadata, Builder.ModelBuilder.Metadata.GetEntityType(relatedEntityTypeName), navigationToPrincipal, navigationToDependent, /*oneToOne:*/ true, ConfigurationSource.Explicit));
             }
 
             public class KeyBuilder : IKeyBuilder<KeyBuilder>
@@ -824,12 +825,12 @@ namespace Microsoft.Data.Entity.Metadata
             }
 
             public virtual OneToOneBuilder OneToOne<TRelatedEntity>(
-                [CanBeNull] Expression<Func<TEntity, TRelatedEntity>> reference = null,
-                [CanBeNull] Expression<Func<TRelatedEntity, TEntity>> inverse = null)
+                [CanBeNull] Expression<Func<TEntity, TRelatedEntity>> navigationToDependent = null,
+                [CanBeNull] Expression<Func<TRelatedEntity, TEntity>> navigationToPrincipal = null)
             {
                 // Find either navigation that already exists
-                var navNameToDependent = reference != null ? reference.GetPropertyAccess().Name : null;
-                var navNameToPrincipal = inverse != null ? inverse.GetPropertyAccess().Name : null;
+                var navNameToDependent = navigationToDependent != null ? navigationToDependent.GetPropertyAccess().Name : null;
+                var navNameToPrincipal = navigationToPrincipal != null ? navigationToPrincipal.GetPropertyAccess().Name : null;
 
                 return new OneToOneBuilder(Builder.BuildRelationship(
                     typeof(TEntity), typeof(TRelatedEntity), navNameToPrincipal, navNameToDependent, /*oneToOne:*/ true, ConfigurationSource.Explicit));

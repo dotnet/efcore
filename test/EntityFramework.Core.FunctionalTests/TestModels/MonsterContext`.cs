@@ -210,6 +210,12 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            // TODO: Complex types
+            modelBuilder.Ignore<AuditInfo>();
+            modelBuilder.Ignore<ConcurrencyInfo>();
+            modelBuilder.Ignore<ContactDetails>();
+            modelBuilder.Ignore<Dimensions>();
+
             modelBuilder.Entity<TBarcodeDetail>().Key(e => e.Code);
 
             // TODO: Key should not get by-convention value generation if it is dependent of identifying relationship

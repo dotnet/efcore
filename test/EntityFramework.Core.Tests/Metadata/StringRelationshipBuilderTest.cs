@@ -11,7 +11,9 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.Tests.Metadata
 {
-    public class StringRelationshipBuilderTest
+    // TODO: Fix when merging with ModelBuilderTest
+    // Issue #1102
+    internal class StringRelationshipBuilderTest
     {
         [Fact]
         public void OneToMany_finds_existing_navs_and_uses_associated_FK()

@@ -127,19 +127,29 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
                 }
             }
 
+            // Create foreign key properties in shadow state
             if (!foreignKeyProperties.Any()
                 || dependentType.TryGetForeignKey(foreignKeyProperties) != null)
             {
-                // Create foreign key properties in shadow state
-                // TODO: Convention property naming/disambiguation
-                // Issue #213
                 var baseName = (navigationToPrincipal ?? principalType.SimpleName) + "Id";
                 var isComposite = principalKey.Properties.Count > 1;
 
-                foreignKeyProperties = principalKey.Properties.Select((p, i) => dependentType.GetOrAddProperty(
-                    baseName + (isComposite ? i.ToString() : ""),
-                    principalKey.Properties[i].PropertyType.MakeNullable(),
-                    shadowProperty: true)).ToList();
+                var fkProperties = new List<Property>();
+                var index = 0;
+                foreach (var keyProperty in principalKey.Properties)
+                {
+                    string name;
+                    do
+                    {
+                        name = baseName + (isComposite || index > 0 ? index.ToString() : "");
+                        index++;
+                    }
+                    while (dependentType.TryGetProperty(name) != null);
+
+                    fkProperties.Add(dependentType.AddProperty(name, keyProperty.PropertyType.MakeNullable(), shadowProperty: true));
+                }
+
+                foreignKeyProperties = fkProperties;
             }
 
             var newForeignKey = dependentType.AddForeignKey(foreignKeyProperties, principalKey);

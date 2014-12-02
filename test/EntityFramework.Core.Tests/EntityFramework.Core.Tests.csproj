@@ -108,6 +108,7 @@
     <Compile Include="Metadata\Internal\InternalPropertyBuilderTest.cs" />
     <Compile Include="Metadata\MetadataBuilderTest.cs" />
     <Compile Include="Metadata\ModelConventions\ForeignKeyConventionTest.cs" />
+    <Compile Include="Metadata\ModelConventions\RelationshipDiscoveryConventionTest.cs" />
     <Compile Include="Metadata\NavigationExtensionsTest.cs" />
     <Compile Include="Extensions\QueryableExtensionsTest.cs" />
     <Compile Include="Metadata\NonGenericRelationshipBuilderTest.cs" />

@@ -20,17 +20,17 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public virtual TValue GetOrAdd(
             [NotNull] Func<TKey> getKey,
             [NotNull] Func<TKey> createKey,
-            [NotNull] Func<TKey, bool, TValue> createValue,
+            [NotNull] Func<TKey, TValue> createValue,
             ConfigurationSource configurationSource)
         {
-            return GetOrReplace(getKey, () => null, createKey, createValue, configurationSource);
+            return GetOrAdd(getKey, createKey, createValue, null, configurationSource);
         }
 
-        public virtual TValue GetOrReplace(
+        public virtual TValue GetOrAdd(
             [NotNull] Func<TKey> getKey,
-            [CanBeNull] Func<TKey> getKeyToReplace,
             [NotNull] Func<TKey> createKey,
-            [NotNull] Func<TKey, bool, TValue> createValue,
+            [NotNull] Func<TKey, TValue> createValue,
+            [CanBeNull] Action<TValue> onNewKeyAdded,
             ConfigurationSource configurationSource)
         {
             Check.NotNull(getKey, "getKey");
@@ -42,14 +42,6 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var key = getKey();
             if (key == null)
             {
-                var keyToRemove = getKeyToReplace == null
-                    ? null
-                    : getKeyToReplace();
-                if (keyToRemove != null
-                    && !Remove(keyToRemove, configurationSource))
-                {
-                    return null;
-                }
                 key = createKey();
                 isNewKey = true;
             }
@@ -63,8 +55,15 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 configurationSource = _defaultConfigurationSource;
             }
 
-            value = createValue(key, isNewKey);
+            value = createValue(key);
+
             Add(key, value, configurationSource);
+
+            if (isNewKey)
+            {
+                onNewKeyAdded?.Invoke(value);
+            }
+
             return value;
         }
 

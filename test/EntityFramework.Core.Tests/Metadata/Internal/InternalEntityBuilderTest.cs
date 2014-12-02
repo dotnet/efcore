@@ -462,6 +462,24 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Assert.NotEmpty(entityBuilder.Metadata.Properties.Where(p => p.Name == Order.CustomerIdProperty.Name));
             Assert.NotEmpty(entityBuilder.Metadata.Keys);
         }
+        
+        [Fact]
+        public void Removing_foreign_key_removes_contained_shadow_properties()
+        {
+            var modelBuilder = new InternalModelBuilder(new Model(), null);
+            modelBuilder
+                .Entity(typeof(Customer), ConfigurationSource.Explicit)
+                .Key(new[] { Customer.IdProperty, Customer.UniqueProperty }, ConfigurationSource.Explicit);
+            var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+            var shadowProperty = entityBuilder.Property(typeof(Guid), "Shadow", ConfigurationSource.Convention);
+
+            Assert.NotNull(entityBuilder.ForeignKey(typeof(Customer).FullName, new[] { Order.CustomerIdProperty.Name, shadowProperty.Metadata.Name }, ConfigurationSource.Convention));
+
+            Assert.True(entityBuilder.Ignore(Order.CustomerIdProperty.Name, ConfigurationSource.DataAnnotation));
+
+            Assert.Empty(entityBuilder.Metadata.Properties);
+            Assert.Empty(entityBuilder.Metadata.ForeignKeys);
+        }
 
         [Fact]
         public void BuildRelationship_returns_same_instance_for_clr_types()
@@ -531,7 +549,9 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Assert.Same(newRelationshipBuilder, orderEntityBuilder.BuildRelationship(typeof(Customer), typeof(Order), null, null, /*oneToOne:*/ true, ConfigurationSource.Explicit));
         }
 
-        [Fact]
+        // TODO: Enable when ForeignKeyConvention is properly implemented
+        // Issue #213
+        //[Fact]
         public void ReplaceForeignKey_returns_same_instance_different_entity()
         {
             var modelBuilder = new InternalModelBuilder(new Model(), null);

@@ -20,6 +20,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             Check.NotNull(entityBuilder, "entityBuilder");
             var entityType = entityBuilder.Metadata;
 
+            var name = entityType.Name;
             var keyProperties = DiscoverKeyProperties(entityType);
             if (keyProperties.Count != 0
                 && entityBuilder.Key(keyProperties.Select(p => p.Name).ToList(), ConfigurationSource.Convention) != null)

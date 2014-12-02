@@ -51,6 +51,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             // TODO: Complex type
             // .Property(c => c.StorageLocation);
+            modelBuilder.Ignore<Location>();
 
             modelBuilder.Entity<EngineSupplier>(b =>
             {
@@ -91,6 +92,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             //            ps.Property(s => s.Days);
             //            ps.Property(s => s.Space);
             //        });
+            modelBuilder.Ignore<SponsorDetails>();
 
             modelBuilder.Entity<Team>(b =>
             {

@@ -139,6 +139,15 @@ namespace Microsoft.Data.Entity.Metadata
             return EntityTypes.SelectMany(et => et.ForeignKeys).Where(fk => fk.ReferencedEntityType == entityType);
         }
 
+        public virtual IEnumerable<ForeignKey> GetReferencingForeignKeys([NotNull] Key key)
+        {
+            Check.NotNull(key, "key");
+
+            // TODO: Perf: Add additional indexes so that this isn't a linear lookup
+            // Issue #1179
+            return EntityTypes.SelectMany(e => e.ForeignKeys).Where(fk => fk.ReferencedKey == key).ToArray();
+        }
+
         public virtual IEnumerable<ForeignKey> GetReferencingForeignKeys([NotNull] IProperty property)
         {
             Check.NotNull(property, "property");

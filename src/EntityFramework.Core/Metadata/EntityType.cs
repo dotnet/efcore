@@ -115,16 +115,25 @@ namespace Microsoft.Data.Entity.Metadata
             if (properties != null
                 && properties.Count != 0)
             {
-                key = new Key(properties);
+                key = TryGetKey(properties);
 
-                if (key.EntityType != this)
+                if (key != null)
                 {
-                    throw new ArgumentException(
-                        Strings.KeyPropertiesWrongEntity(Property.Format(key.Properties), Name));
+                    _keys.Value.Remove(key);
+                }
+                else
+                {
+                    key = new Key(properties);
+                    if (key.EntityType != this)
+                    {
+                        throw new ArgumentException(
+                            Strings.KeyPropertiesWrongEntity(Property.Format(key.Properties), Name));
+                    }
                 }
             }
 
-            if (_primaryKey != null)
+            if (_primaryKey != null
+                && _primaryKey != key)
             {
                 CheckKeyNotInUse(_primaryKey);
             }

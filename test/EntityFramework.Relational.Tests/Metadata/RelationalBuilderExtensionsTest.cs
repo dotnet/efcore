@@ -427,7 +427,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
                 .ForRelational()
                 .Name("LemonSupreme");
 
-            var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).ForeignKeys.Single();
+            var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).ForeignKeys.Single(fk => fk.ReferencedEntityType.Type == typeof(Customer));
 
             Assert.Equal("LemonSupreme", foreignKey.Relational().Name);
 
@@ -452,7 +452,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
                 .ForRelational()
                 .Name("LemonSupreme");
 
-            var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).ForeignKeys.Single();
+            var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).ForeignKeys.Single(fk => fk.ReferencedEntityType.Type == typeof(Customer));
 
             Assert.Equal("LemonSupreme", foreignKey.Relational().Name);
         }
@@ -467,7 +467,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
                 .OneToMany(e => e.Orders, e => e.Customer)
                 .ForRelational(b => { b.Name("LemonSupreme"); });
 
-            var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).ForeignKeys.Single();
+            var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).ForeignKeys.Single(fk => fk.ReferencedEntityType.Type == typeof(Customer));
 
             Assert.Equal("LemonSupreme", foreignKey.Relational().Name);
         }
@@ -483,7 +483,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
                 .ForeignKey(e => e.CustomerId)
                 .ForRelational(b => { b.Name("LemonSupreme"); });
 
-            var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).ForeignKeys.Single();
+            var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).ForeignKeys.Single(fk => fk.ReferencedEntityType.Type == typeof(Customer));
 
             Assert.Equal("LemonSupreme", foreignKey.Relational().Name);
         }
@@ -499,7 +499,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
                 .ForRelational()
                 .Name("LemonSupreme");
 
-            var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).ForeignKeys.Single();
+            var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).ForeignKeys.Single(fk => fk.ReferencedEntityType.Type == typeof(Customer));
 
             Assert.Equal("LemonSupreme", foreignKey.Relational().Name);
 
@@ -524,7 +524,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
                 .ForRelational()
                 .Name("LemonSupreme");
 
-            var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).ForeignKeys.Single();
+            var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).ForeignKeys.Single(fk => fk.ReferencedEntityType.Type == typeof(Customer));
 
             Assert.Equal("LemonSupreme", foreignKey.Relational().Name);
         }
@@ -539,7 +539,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
                 .ManyToOne(e => e.Customer, e => e.Orders)
                 .ForRelational(b => { b.Name("LemonSupreme"); });
 
-            var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).ForeignKeys.Single();
+            var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).ForeignKeys.Single(fk => fk.ReferencedEntityType.Type == typeof(Customer));
 
             Assert.Equal("LemonSupreme", foreignKey.Relational().Name);
         }
@@ -555,7 +555,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
                 .ForeignKey(e => e.CustomerId)
                 .ForRelational(b => { b.Name("LemonSupreme"); });
 
-            var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).ForeignKeys.Single();
+            var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).ForeignKeys.Single(fk => fk.ReferencedEntityType.Type == typeof(Customer));
 
             Assert.Equal("LemonSupreme", foreignKey.Relational().Name);
         }

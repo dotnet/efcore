@@ -44,6 +44,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return _entityBuilders.GetOrAdd(
                 () => Metadata.TryGetEntityType(name),
                 () => Metadata.AddEntityType(name),
+                entityType => new InternalEntityBuilder(entityType, ModelBuilder),
                 EntityTypeAdded,
                 configurationSource);
         }
@@ -60,6 +61,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return _entityBuilders.GetOrAdd(
                 () => Metadata.TryGetEntityType(type),
                 () => Metadata.AddEntityType(type),
+                entityType => new InternalEntityBuilder(entityType, ModelBuilder),
                 EntityTypeAdded,
                 configurationSource);
         }
@@ -86,16 +88,12 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return true;
         }
 
-        private InternalEntityBuilder EntityTypeAdded(EntityType entityType, bool isNew)
+        private void EntityTypeAdded(InternalEntityBuilder builder)
         {
-            var builder = new InternalEntityBuilder(entityType, ModelBuilder);
-            if (isNew
-                && _modelChangeListener != null)
+            if (_modelChangeListener != null)
             {
                 _modelChangeListener.OnEntityTypeAdded(builder);
             }
-
-            return builder;
         }
 
         public virtual bool Ignore([NotNull] Type type, ConfigurationSource configurationSource)
@@ -122,8 +120,13 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var entityType = Metadata.TryGetEntityType(name);
             if (entityType != null)
             {
-                if (!Remove(entityType, configurationSource))
+                if (!Remove(entityType, configurationSource, canOverrideSameSource: false))
                 {
+                    if (configurationSource == ConfigurationSource.Explicit)
+                    {
+                        throw new InvalidOperationException(Strings.EntityAddedExplicitly(entityType.Name));
+                    }
+
                     return false;
                 }
 
@@ -135,16 +138,18 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return true;
         }
 
-        private bool Remove(EntityType entityType, ConfigurationSource configurationSource)
+        private bool Remove(EntityType entityType, ConfigurationSource configurationSource, bool canOverrideSameSource = true)
         {
-            if (!_entityBuilders.Remove(entityType, configurationSource, canOverrideSameSource: false))
+            if (!_entityBuilders.Remove(entityType, configurationSource, canOverrideSameSource))
             {
-                if (configurationSource == ConfigurationSource.Explicit)
-                {
-                    throw new InvalidOperationException(Strings.EntityAddedExplicitly(entityType.Name));
-                }
-
                 return false;
+            }
+
+            foreach (var foreignKey in entityType.ForeignKeys.ToList())
+            {
+                var removed = RemoveForeignKey(foreignKey, configurationSource);
+
+                Debug.Assert(removed);
             }
 
             foreach (var foreignKey in Metadata.GetReferencingForeignKeys(entityType).ToList())
@@ -180,7 +185,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         private bool RemoveForeignKey(ForeignKey foreignKey, ConfigurationSource configurationSource)
         {
-            var entityBuilder = Entity(foreignKey.EntityType.Type, ConfigurationSource.Convention);
+            var entityBuilder = Entity(foreignKey.EntityType.Name, ConfigurationSource.Convention);
 
             return entityBuilder.RemoveForeignKey(foreignKey, configurationSource);
         }
