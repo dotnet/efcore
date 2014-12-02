@@ -5,7 +5,7 @@ using System.Data;
 using System.Data.Common;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Relational.Update;
-using Microsoft.Data.Entity.Relational.Utilities;
+using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational
 {

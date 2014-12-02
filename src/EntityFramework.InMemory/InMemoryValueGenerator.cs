@@ -4,8 +4,8 @@
 using System;
 using System.Threading;
 using Microsoft.Data.Entity.Identity;
-using Microsoft.Data.Entity.InMemory.Utilities;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.InMemory
 {

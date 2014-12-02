@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
+using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Commands.Utilities

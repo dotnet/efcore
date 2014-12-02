@@ -4,9 +4,11 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Internal;
 
-namespace Microsoft.Data.Entity.SqlServer.Utilities
+namespace Microsoft.Data.Entity.Utilities
 {
     [DebuggerStepThrough]
     internal static class Check
@@ -18,6 +20,22 @@ namespace Microsoft.Data.Entity.SqlServer.Utilities
             {
                 NotEmpty(parameterName, "parameterName");
                 throw new ArgumentNullException(parameterName);
+            }
+
+            return value;
+        }
+
+        [ContractAnnotation("value:null => halt")]
+        public static T NotNull<T>(
+            [NoEnumeration] T value,
+            [InvokerParameterName] [NotNull] string parameterName,
+            [NotNull] string propertyName)
+        {
+            if (ReferenceEquals(value, null))
+            {
+                NotEmpty(parameterName, "parameterName");
+                NotEmpty(propertyName, "propertyName");
+                throw new ArgumentException(Strings.ArgumentPropertyNull(propertyName, parameterName));
             }
 
             return value;
@@ -66,6 +84,19 @@ namespace Microsoft.Data.Entity.SqlServer.Utilities
             {
                 NotEmpty(parameterName, "parameterName");
                 throw new ArgumentException(Strings.ArgumentIsEmpty(parameterName));
+            }
+
+            return value;
+        }
+        public static IReadOnlyList<T> HasNoNulls<T>(IReadOnlyList<T> value, [InvokerParameterName] [NotNull] string parameterName)
+            where T : class
+        {
+            NotNull(value, parameterName);
+
+            if (value.Any(e => e == null))
+            {
+                NotEmpty(parameterName, "parameterName");
+                throw new ArgumentException(parameterName);
             }
 
             return value;

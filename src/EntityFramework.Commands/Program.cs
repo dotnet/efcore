@@ -8,6 +8,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Utilities;
 using Microsoft.Data.Entity.Commands.Utilities;
 using Microsoft.Data.Entity.Migrations.Utilities;
 using Microsoft.Framework.Runtime;

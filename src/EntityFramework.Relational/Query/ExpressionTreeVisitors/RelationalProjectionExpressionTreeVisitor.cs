@@ -4,7 +4,7 @@
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Query.ExpressionTreeVisitors;
-using Microsoft.Data.Entity.Relational.Utilities;
+using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq.Clauses.Expressions;
 
 namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors

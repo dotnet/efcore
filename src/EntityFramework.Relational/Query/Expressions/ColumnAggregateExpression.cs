@@ -3,7 +3,7 @@
 
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Relational.Utilities;
+using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Parsing;
 

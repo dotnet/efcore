@@ -124,9 +124,11 @@
     <Compile Include="SqlServerValueGeneratorCache.cs" />
     <Compile Include="SqlServerValueGeneratorSelector.cs" />
     <Compile Include="Update\SqlServerModificationCommandBatch.cs" />
-    <Compile Include="Utilities\Check.cs" />
     <Compile Include="Utilities\EnumerableExtensions.cs" />
     <Compile Include="..\Shared\CodeAnnotations.cs" />
+    <Compile Include="..\Shared\Check.cs" >
+        <Link>Utilities\Check.cs</Link>
+    </Compile>
     <Compile Include="..\Shared\StringBuilderExtensions.cs" />
     <Compile Include="..\Shared\SharedTypeExtensions.cs" />
     <EmbeddedResource Include="Properties\Strings.resx">

@@ -8,6 +8,7 @@ using System.Runtime.Remoting;
 using System.Runtime.Remoting.Messaging;
 using System.Runtime.Remoting.Proxies;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Commands.Utilities
 {

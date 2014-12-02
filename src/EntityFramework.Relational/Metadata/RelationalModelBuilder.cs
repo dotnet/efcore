@@ -2,15 +2,16 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Relational.Utilities;
+using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational.Metadata
 {
     public class RelationalModelBuilder
     {
-        private readonly Entity.Metadata.Model _model;
+        private readonly Model _model;
 
-        public RelationalModelBuilder([NotNull] Entity.Metadata.Model model)
+        public RelationalModelBuilder([NotNull] Model model)
         {
             Check.NotNull(model, "model");
 

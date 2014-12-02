@@ -9,8 +9,8 @@ using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.SqlServer;
 using Microsoft.Data.Entity.SqlServer.Metadata;
 using Microsoft.Data.Entity.SqlServer.Update;
-using Microsoft.Data.Entity.SqlServer.Utilities;
 using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Utilities;
 
 // ReSharper disable once CheckNamespace
 

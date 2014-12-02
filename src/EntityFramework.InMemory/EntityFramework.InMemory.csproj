@@ -84,7 +84,9 @@
       <DependentUpon>Strings.resx</DependentUpon>
     </Compile>
     <Compile Include="Query\InMemoryQueryModelVisitor.cs" />
-    <Compile Include="Utilities\Check.cs" />
+    <Compile Include="..\Shared\Check.cs" >
+        <Link>Utilities\Check.cs</Link>
+    </Compile>
     <Compile Include="..\Shared\CodeAnnotations.cs" />
     <Compile Include="..\Shared\StringBuilderExtensions.cs" />
     <Compile Include="..\Shared\SharedTypeExtensions.cs" />

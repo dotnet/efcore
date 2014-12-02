@@ -11,23 +11,7 @@ namespace Microsoft.Data.Entity.SqlServer
     {
         private static readonly ResourceManager _resourceManager
             = new ResourceManager("EntityFramework.SqlServer.Strings", typeof(Strings).GetTypeInfo().Assembly);
-
-        /// <summary>
-        /// The string argument '{argumentName}' cannot be empty.
-        /// </summary>
-        public static string ArgumentIsEmpty([CanBeNull] object argumentName)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("ArgumentIsEmpty", "argumentName"), argumentName);
-        }
-
-        /// <summary>
-        /// The collection argument '{argumentName}' must contain at least one element.
-        /// </summary>
-        public static string CollectionArgumentIsEmpty([CanBeNull] object argumentName)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("CollectionArgumentIsEmpty", "argumentName"), argumentName);
-        }
-
+        
         /// <summary>
         /// The value for the configuration entry '{configurationKey}' is '{invalidValue}', but an integer is expected.
         /// </summary>

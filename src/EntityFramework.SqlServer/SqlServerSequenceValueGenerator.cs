@@ -10,7 +10,7 @@ using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational;
-using Microsoft.Data.Entity.SqlServer.Utilities;
+using Microsoft.Data.Entity.Utilities;
 using Microsoft.Data.Entity.Storage;
 
 namespace Microsoft.Data.Entity.SqlServer

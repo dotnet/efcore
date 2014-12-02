@@ -181,7 +181,9 @@
     <Compile Include="Update\ParameterNameGenerator.cs" />
     <Compile Include="Update\ParameterNameGeneratorFactory.cs" />
     <Compile Include="Update\SingularModificationCommandBatch.cs" />
-    <Compile Include="Utilities\Check.cs" />
+    <Compile Include="..\Shared\Check.cs" >
+        <Link>Utilities\Check.cs</Link>
+    </Compile>
     <Compile Include="..\Shared\CodeAnnotations.cs" />
     <Compile Include="..\Shared\StringBuilderExtensions.cs" />
     <Compile Include="..\Shared\SharedTypeExtensions.cs" />

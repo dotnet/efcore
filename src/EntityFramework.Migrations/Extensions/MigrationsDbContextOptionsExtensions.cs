@@ -5,7 +5,7 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Migrations;
-using Microsoft.Data.Entity.Migrations.Utilities;
+using Microsoft.Data.Entity.Utilities;
 
 // ReSharper disable once CheckNamespace
 

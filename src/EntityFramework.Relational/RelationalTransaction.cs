@@ -5,8 +5,8 @@ using System;
 using System.Data.Common;
 using System.Diagnostics;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Relational.Utilities;
 using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Relational

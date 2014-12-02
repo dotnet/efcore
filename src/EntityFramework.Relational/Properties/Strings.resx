@@ -117,9 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ArgumentIsEmpty" xml:space="preserve">
-    <value>The string argument '{argumentName}' cannot be empty.</value>
-  </data>
   <data name="InvalidEnumValue" xml:space="preserve">
     <value>The value provided for argument '{argumentName}' must be a valid value of enum type '{enumType}'.</value>
   </data>
@@ -152,12 +149,6 @@
   </data>
   <data name="UpdateStoreException" xml:space="preserve">
     <value>An error occurred while updating the entries. See the inner exception for details.</value>
-  </data>
-  <data name="ArgumentPropertyNull" xml:space="preserve">
-    <value>The property '{property}' of the argument '{argument}' cannot be null.</value>
-  </data>
-  <data name="CollectionArgumentIsEmpty" xml:space="preserve">
-    <value>The collection argument '{argumentName}' must contain at least one element.</value>
   </data>
   <data name="TransactionAlreadyStarted" xml:space="preserve">
     <value>The connection is already in a transaction and cannot participate in another transaction.</value>

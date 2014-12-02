@@ -756,6 +756,14 @@ namespace Microsoft.Data.Entity.Internal
             return string.Format(CultureInfo.CurrentCulture, GetString("EntityTypeInUse", "entityType"), entityType);
         }
 
+        /// <summary>
+        /// The property '{property}' of the argument '{argument}' cannot be null.
+        /// </summary>
+        public static string ArgumentPropertyNull([CanBeNull] object property, [CanBeNull] object argument)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ArgumentPropertyNull", "property", "argument"), property, argument);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

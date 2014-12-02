@@ -11,15 +11,7 @@ namespace Microsoft.Data.Entity.Migrations
     {
         private static readonly ResourceManager _resourceManager
             = new ResourceManager("EntityFramework.Migrations.Strings", typeof(Strings).GetTypeInfo().Assembly);
-
-        /// <summary>
-        /// The string argument '{argumentName}' cannot be empty.
-        /// </summary>
-        public static string ArgumentIsEmpty([CanBeNull] object argumentName)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("ArgumentIsEmpty", "argumentName"), argumentName);
-        }
-
+        
         /// <summary>
         /// The value provided for argument '{argumentName}' must be a valid value of enum type '{enumType}'.
         /// </summary>

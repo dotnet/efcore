@@ -70,7 +70,9 @@
       <DependentUpon>Strings.resx</DependentUpon>
     </Compile>
     <None Include="tools\Handlers.cs" />
-    <Compile Include="Utilities\Check.cs" />
+    <Compile Include="..\Shared\Check.cs" >
+        <Link>Utilities\Check.cs</Link>
+    </Compile>
     <Compile Include="Utilities\ColorScope.cs" />
     <Compile Include="Utilities\CommandLogger.cs" />
     <Compile Include="Utilities\CommandLoggerAdapter.cs" />

@@ -396,4 +396,7 @@
   <data name="EntityTypeInUse" xml:space="preserve">
     <value>The entity type '{entityType}' cannot be removed because it is being referenced from a foreign key. All referencing foreign keys must be removed or redefined before the entity type can be removed.</value>
   </data>
+  <data name="ArgumentPropertyNull" xml:space="preserve">
+    <value>The property '{property}' of the argument '{argument}' cannot be null.</value>
+  </data>
 </root>

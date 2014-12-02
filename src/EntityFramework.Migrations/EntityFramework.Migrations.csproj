@@ -119,7 +119,9 @@
     </Compile>
     <Compile Include="MigrationsOptionsExtension.cs" />
     <Compile Include="Utilities\AssemblyExtensions.cs" />
-    <Compile Include="Utilities\Check.cs" />
+    <Compile Include="..\Shared\Check.cs" >
+        <Link>Utilities\Check.cs</Link>
+    </Compile>
     <Compile Include="Utilities\EnumerableExtensions.cs" />
     <Compile Include="Utilities\MigrationExtensions.cs" />
     <Compile Include="Utilities\PropertyInfoExtensions.cs" />

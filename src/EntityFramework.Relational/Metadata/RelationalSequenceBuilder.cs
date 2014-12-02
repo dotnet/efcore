@@ -2,7 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Relational.Utilities;
+using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational.Metadata
 {
@@ -19,7 +20,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata
 
         public virtual RelationalSequenceBuilder IncrementBy(int increment)
         {
-            var model = (Entity.Metadata.Model)_sequence.Model;
+            var model = (Model)_sequence.Model;
 
             _sequence = new Sequence(
                 _sequence.Name,
@@ -37,7 +38,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata
 
         public virtual RelationalSequenceBuilder Start(long startValue)
         {
-            var model = (Entity.Metadata.Model)_sequence.Model;
+            var model = (Model)_sequence.Model;
 
             _sequence = new Sequence(
                 _sequence.Name,
@@ -55,7 +56,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata
 
         public virtual RelationalSequenceBuilder Type<T>()
         {
-            var model = (Entity.Metadata.Model)_sequence.Model;
+            var model = (Model)_sequence.Model;
 
             _sequence = new Sequence(
                 _sequence.Name,
@@ -73,7 +74,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata
 
         public virtual RelationalSequenceBuilder Max(long maximum)
         {
-            var model = (Entity.Metadata.Model)_sequence.Model;
+            var model = (Model)_sequence.Model;
 
             _sequence = new Sequence(
                 _sequence.Name,
@@ -91,7 +92,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata
 
         public virtual RelationalSequenceBuilder Min(long minimum)
         {
-            var model = (Entity.Metadata.Model)_sequence.Model;
+            var model = (Model)_sequence.Model;
 
             _sequence = new Sequence(
                 _sequence.Name,

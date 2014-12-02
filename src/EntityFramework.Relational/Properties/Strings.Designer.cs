@@ -11,15 +11,7 @@ namespace Microsoft.Data.Entity.Relational
     {
         private static readonly ResourceManager _resourceManager
             = new ResourceManager("EntityFramework.Relational.Strings", typeof(Strings).GetTypeInfo().Assembly);
-
-        /// <summary>
-        /// The string argument '{argumentName}' cannot be empty.
-        /// </summary>
-        public static string ArgumentIsEmpty([CanBeNull] object argumentName)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("ArgumentIsEmpty", "argumentName"), argumentName);
-        }
-
+        
         /// <summary>
         /// The value provided for argument '{argumentName}' must be a valid value of enum type '{enumType}'.
         /// </summary>
@@ -107,23 +99,7 @@ namespace Microsoft.Data.Entity.Relational
         {
             get { return GetString("UpdateStoreException"); }
         }
-
-        /// <summary>
-        /// The property '{property}' of the argument '{argument}' cannot be null.
-        /// </summary>
-        public static string ArgumentPropertyNull([CanBeNull] object property, [CanBeNull] object argument)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("ArgumentPropertyNull", "property", "argument"), property, argument);
-        }
-
-        /// <summary>
-        /// The collection argument '{argumentName}' must contain at least one element.
-        /// </summary>
-        public static string CollectionArgumentIsEmpty([CanBeNull] object argumentName)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("CollectionArgumentIsEmpty", "argumentName"), argumentName);
-        }
-
+        
         /// <summary>
         /// The connection is already in a transaction and cannot participate in another transaction.
         /// </summary>

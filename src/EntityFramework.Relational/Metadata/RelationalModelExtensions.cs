@@ -2,13 +2,14 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Relational.Utilities;
+using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational.Metadata
 {
     public class RelationalModelExtensions : ReadOnlyRelationalModelExtensions
     {
-        public RelationalModelExtensions([NotNull] Entity.Metadata.Model model)
+        public RelationalModelExtensions([NotNull] Model model)
             : base(model)
         {
         }
@@ -17,7 +18,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata
         {
             Check.NotNull(sequence, "sequence");
 
-            var model = (Entity.Metadata.Model)Model;
+            var model = (Model)Model;
             sequence.Model = model;
             model[RelationalSequenceAnnotation + sequence.Schema + "." + sequence.Name] = sequence.Serialize();
 
@@ -31,7 +32,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata
 
             name = name ?? Sequence.DefaultName;
 
-            return ((Entity.Metadata.Model)Model).Relational().TryGetSequence(name, schema)
+            return ((Model)Model).Relational().TryGetSequence(name, schema)
                    ?? AddOrReplaceSequence(new Sequence(name, schema));
         }
     }

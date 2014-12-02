@@ -5,8 +5,8 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.InMemory;
-using Microsoft.Data.Entity.InMemory.Utilities;
 using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Utilities;
 
 // ReSharper disable once CheckNamespace
 
