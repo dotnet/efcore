@@ -234,24 +234,9 @@ namespace Microsoft.Data.Entity.SqlServer
             Column column, 
             SqlBatchBuilder batchBuilder)
        {
-            // TODO: This is essentially duplicated logic from the selector; combine if possible
-            if (column.GenerateValueOnAdd)
+            if (column.IsIdentity)
             {
-                // TODO: This can't use the normal APIs because all the annotations have been
-                // copied from the core metadata into the relational model.
-
-                var entityType = TargetModel.EntityTypes.Single(
-                    t => NameBuilder.SchemaQualifiedTableName(t) == tableName);
-                var property = entityType.Properties.Single(
-                    p => NameBuilder.ColumnName(p) == column.Name);
-                var strategy = property.SqlServer().ValueGenerationStrategy;
-
-                if (strategy == SqlServerValueGenerationStrategy.Identity
-                    || (strategy == null
-                        && column.ClrType.IsInteger()))
-                {
-                    batchBuilder.Append(" IDENTITY");
-                }
+                batchBuilder.Append(" IDENTITY");
             }
         }
 

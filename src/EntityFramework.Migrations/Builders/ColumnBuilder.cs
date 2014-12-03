@@ -317,7 +317,7 @@ namespace Microsoft.Data.Entity.Migrations.Builders
                         DataType = dataType,
                         DefaultValue = defaultValue,
                         DefaultSql = defaultSql,
-                        GenerateValueOnAdd =  identity,
+                        IsIdentity =  identity,
                         IsTimestamp = timestamp,
                         IsComputed = computed,
                         MaxLength = maxLength,

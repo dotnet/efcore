@@ -919,7 +919,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 args.Add("unicode: " + GenerateLiteral(column.IsUnicode.Value));
             }
 
-            if (column.GenerateValueOnAdd)
+            if (column.IsIdentity)
             {
                 args.Add("identity: " + GenerateLiteral(true));
             }
