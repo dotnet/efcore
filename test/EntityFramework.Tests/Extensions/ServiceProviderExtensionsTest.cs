@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.Tests
         {
             var serviceProvider = new ServiceCollection().BuildServiceProvider();
 
-            Assert.Throws<Exception>(
+            Assert.Throws<InvalidOperationException>(
                 () => serviceProvider.GetRequiredServiceChecked<IPilkington>());
         }
 
@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.Tests
         {
             var serviceProvider = new ServiceCollection().BuildServiceProvider();
 
-            Assert.Throws<Exception>(
+            Assert.Throws<InvalidOperationException>(
                 () => serviceProvider.GetRequiredServiceChecked(typeof(IPilkington)));
         }
 
