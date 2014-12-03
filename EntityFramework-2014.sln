@@ -7,7 +7,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{E7D68B03-3A5
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{C605BAB7-B06E-4BDF-80B2-E661B7670E25}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFramework", "src\EntityFramework\EntityFramework.kproj", "{CE8F7D9C-FAC7-4BA9-868F-47A8BA3C381B}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFramework.Core", "src\EntityFramework.Core\EntityFramework.Core.kproj", "{CE8F7D9C-FAC7-4BA9-868F-47A8BA3C381B}"
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFramework.InMemory", "src\EntityFramework.InMemory\EntityFramework.InMemory.kproj", "{11D8B323-91B7-4F3D-9A15-6DC47D1A9B93}"
 EndProject
@@ -23,7 +23,7 @@ Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFramework.SqlServer.F
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFramework.InMemory.FunctionalTests", "test\EntityFramework.InMemory.FunctionalTests\EntityFramework.InMemory.FunctionalTests.kproj", "{91CB662D-A9BE-4FE7-AF2A-DCCFBFC29EC1}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFramework.FunctionalTests", "test\EntityFramework.FunctionalTests\EntityFramework.FunctionalTests.kproj", "{7A27CAE9-9FC6-402F-AEDA-90717EB1365D}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFramework.Core.FunctionalTests", "test\EntityFramework.Core.FunctionalTests\EntityFramework.Core.FunctionalTests.kproj", "{7A27CAE9-9FC6-402F-AEDA-90717EB1365D}"
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFramework.InMemory.Tests", "test\EntityFramework.InMemory.Tests\EntityFramework.InMemory.Tests.kproj", "{02C7760F-E138-4D54-AEDE-59CB17B503D9}"
 EndProject
@@ -35,7 +35,7 @@ Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFramework.Relational.
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFramework.SqlServer.Tests", "test\EntityFramework.SqlServer.Tests\EntityFramework.SqlServer.Tests.kproj", "{9A520B14-4E04-4D20-8821-C1C085B64EBA}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFramework.Tests", "test\EntityFramework.Tests\EntityFramework.Tests.kproj", "{E7FDBBB3-9D5F-4FAB-8515-B02B688F81A1}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFramework.Core.Tests", "test\EntityFramework.Core.Tests\EntityFramework.Core.Tests.kproj", "{E7FDBBB3-9D5F-4FAB-8515-B02B688F81A1}"
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFramework.Relational.FunctionalTests", "test\EntityFramework.Relational.FunctionalTests\EntityFramework.Relational.FunctionalTests.kproj", "{C9370CB1-1295-4163-9BAB-6B5E9A35595B}"
 EndProject

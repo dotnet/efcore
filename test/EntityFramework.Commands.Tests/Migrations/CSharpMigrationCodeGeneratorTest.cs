@@ -767,7 +767,7 @@ namespace MyNamespace
                         "System.Core",
                         "System.Linq.Expressions",
                         "System.Runtime",
-                        "EntityFramework",
+                        "EntityFramework.Core",
                         "EntityFramework.Relational",
                         "EntityFramework.Migrations"
                     });

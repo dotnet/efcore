@@ -6,7 +6,7 @@
     },
     "dependencies": {
         "System.Data.Common": "1.0.0-*",
-        "EntityFramework": "7.0.0-*"
+        "EntityFramework.Core": "7.0.0-*"
     },
     "code": [ "**\\*.cs", "..\\Shared\\*.cs" ],
     "frameworks": {

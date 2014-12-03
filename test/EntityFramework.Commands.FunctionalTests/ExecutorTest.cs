@@ -55,7 +55,7 @@ namespace Microsoft.Data.Entity.Commands
                         References =
                             {
                                 BuildReference.ByName("System.Runtime, Version=4.0.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"),
-                                BuildReference.ByName("EntityFramework", copyLocal: true),
+                                BuildReference.ByName("EntityFramework.Core", copyLocal: true),
                                 BuildReference.ByName("EntityFramework.Commands", copyLocal: true),
                                 BuildReference.ByName("EntityFramework.Migrations", copyLocal: true),
                                 BuildReference.ByName("Microsoft.Framework.Logging", copyLocal: true),
@@ -142,7 +142,7 @@ namespace Microsoft.Data.Entity.Commands
                     References =
                         {
                             BuildReference.ByName("System.Runtime, Version=4.0.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"),
-                            BuildReference.ByName("EntityFramework", copyLocal: true),
+                            BuildReference.ByName("EntityFramework.Core", copyLocal: true),
                             BuildReference.ByName("EntityFramework.Commands", copyLocal: true),
                             BuildReference.ByName("EntityFramework.Migrations", copyLocal: true),
                             BuildReference.ByName("Microsoft.Framework.Logging", copyLocal: true),
@@ -254,7 +254,7 @@ namespace Microsoft.Data.Entity.Commands
                     References =
                         {
                             BuildReference.ByName("System.Runtime, Version=4.0.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"),
-                            BuildReference.ByName("EntityFramework", copyLocal: true),
+                            BuildReference.ByName("EntityFramework.Core", copyLocal: true),
                             BuildReference.ByName("EntityFramework.Commands", copyLocal: true)
                         },
                     Source = @"
@@ -279,7 +279,7 @@ namespace Microsoft.Data.Entity.Commands
                     References =
                         {
                             BuildReference.ByName("System.Runtime, Version=4.0.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"),
-                            BuildReference.ByName("EntityFramework"),
+                            BuildReference.ByName("EntityFramework.Core"),
                             BuildReference.ByName("EntityFramework.Migrations", copyLocal: true),
                             BuildReference.ByName("Microsoft.Framework.Logging", copyLocal: true),
                             BuildReference.ByName("Microsoft.Framework.Logging.Interfaces", copyLocal: true),

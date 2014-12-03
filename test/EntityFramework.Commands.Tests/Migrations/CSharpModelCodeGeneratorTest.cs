@@ -706,7 +706,7 @@ namespace MyNamespace
                     {
                         "mscorlib",
                         "System.Runtime",
-                        "EntityFramework",
+                        "EntityFramework.Core",
                         "EntityFramework.Migrations"
                     });
             var compiledModelSnapshot = (ModelSnapshot)

@@ -10,7 +10,7 @@ namespace Microsoft.Data.Entity.Internal
     public static class Strings
     {
         private static readonly ResourceManager _resourceManager
-            = new ResourceManager("EntityFramework.Strings", typeof(Strings).GetTypeInfo().Assembly);
+            = new ResourceManager("EntityFramework.Core.Strings", typeof(Strings).GetTypeInfo().Assembly);
 
         /// <summary>
         /// The string argument '{argumentName}' cannot be empty.

@@ -118,9 +118,9 @@
       <Project>{6E38B72F-31DA-4AEF-8F34-B8269572EC6B}</Project>
       <Name>EntityFramework.Migrations</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\src\EntityFramework\EntityFramework.csproj">
+    <ProjectReference Include="..\..\src\EntityFramework.Core\EntityFramework.Core.csproj">
       <Project>{71415cec-8111-4c73-8751-512d22f10602}</Project>
-      <Name>EntityFramework</Name>
+      <Name>EntityFramework.Core</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

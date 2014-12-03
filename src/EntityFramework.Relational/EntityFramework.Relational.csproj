@@ -200,9 +200,9 @@
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\EntityFramework\EntityFramework.csproj">
+    <ProjectReference Include="..\EntityFramework.Core\EntityFramework.Core.csproj">
       <Project>{71415CEC-8111-4C73-8751-512D22F10602}</Project>
-      <Name>EntityFramework</Name>
+      <Name>EntityFramework.Core</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
