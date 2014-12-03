@@ -103,11 +103,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var createSequenceOperation = (CreateSequenceOperation)operations[0];
 
             Assert.Equal("dbo.S2", createSequenceOperation.SequenceName);
-
-            var alterColumnOperation = (AlterColumnOperation)operations[1];
-
             Assert.Null(sourceModelBuilder.Model.GetEntityType("A").GetProperty("P").GenerateValueOnAdd);
-            Assert.True(alterColumnOperation.NewColumn.GenerateValueOnAdd);
         }
 
         [Fact]
@@ -140,11 +136,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var dropSequenceOperation = (DropSequenceOperation)operations[0];
 
             Assert.Equal("dbo.S2", dropSequenceOperation.SequenceName);
-
-            var alterColumnOperation = (AlterColumnOperation)operations[1];
-
             Assert.Equal(true, sourceModelBuilder.Model.GetEntityType("A").GetProperty("P").GenerateValueOnAdd);
-            Assert.False(alterColumnOperation.NewColumn.GenerateValueOnAdd);
         }
 
         [Fact]

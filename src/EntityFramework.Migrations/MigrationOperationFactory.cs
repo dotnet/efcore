@@ -82,7 +82,6 @@ namespace Microsoft.Data.Entity.Migrations
                     IsNullable = property.IsNullable,
                     DefaultValue = extensions.DefaultValue,
                     DefaultSql = extensions.DefaultExpression,
-                    GenerateValueOnAdd = property.GenerateValueOnAdd,
                     IsComputed = property.IsStoreComputed,
                     IsTimestamp = property.IsConcurrencyToken && property.PropertyType == typeof(byte[]),
                     MaxLength = property.MaxLength > 0 ? property.MaxLength : (int?)null

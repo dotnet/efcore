@@ -41,7 +41,7 @@ namespace Microsoft.Data.Entity.Migrations.Model
 
         public virtual string DefaultSql { get; [param: CanBeNull] set; }
 
-        public virtual bool GenerateValueOnAdd { get; set; }
+        public virtual bool IsIdentity { get; set; }
 
         public virtual bool IsComputed { get; set; }
         
