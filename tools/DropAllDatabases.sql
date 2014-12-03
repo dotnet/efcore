@@ -4,7 +4,7 @@ DECLARE @name nvarchar(255)
 
 DECLARE db CURSOR FOR 
 SELECT Name FROM sysdatabases
-WHERE Name NOT IN ('master', 'tempdb', 'model', 'msdb', 'AdventureWorks2012', 'Chinook', 'Northwind', 'pubs')
+WHERE Name NOT IN ('master', 'tempdb', 'model', 'msdb')
 
 OPEN db;
 
