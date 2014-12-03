@@ -173,6 +173,47 @@ namespace Microsoft.Data.Entity.Tests
             }
         }
 
+        [Fact]
+        public void Entry_methods_check_arguments()
+        {
+            var services = new ServiceCollection()
+                .AddScoped<StateManager, FakeStateManager>();
+
+            var serviceProvider = TestHelpers.CreateServiceProvider(services);
+
+            using (var context = new DbContext(serviceProvider))
+            {
+                Assert.Equal(
+                    "entity",
+                    // ReSharper disable once AssignNullToNotNullAttribute
+                    Assert.Throws<ArgumentNullException>(() => context.Entry(null)).ParamName);
+                Assert.Equal(
+                    "entity",
+                    // ReSharper disable once AssignNullToNotNullAttribute
+                    Assert.Throws<ArgumentNullException>(() => context.Entry<Random>(null)).ParamName);
+            }
+        }
+
+        [Fact]
+        public void Entry_methods_delegate_to_underlying_state_manager()
+        {
+            var entity = new Random();
+            var stateManagerMock = new Mock<StateManager>();
+            var stateEntry = new Mock<StateEntry>().Object;
+            stateManagerMock.Setup(m => m.GetOrCreateEntry(entity)).Returns(stateEntry);
+
+            var services = new ServiceCollection()
+                .AddScoped(_ => stateManagerMock.Object);
+
+            var serviceProvider = TestHelpers.CreateServiceProvider(services);
+
+            using (var context = new DbContext(serviceProvider))
+            {
+                Assert.Same(stateEntry, context.Entry(entity).StateEntry);
+                Assert.Same(stateEntry, context.Entry((object)entity).StateEntry);
+            }
+        }
+
         private class FakeStateManager : StateManager
         {
             public IEnumerable<StateEntry> Entries { get; set; }
@@ -269,10 +310,10 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Same(product2, productEntry2.Entity);
                 Assert.Equal(expectedState, productEntry2.State);
 
-                Assert.Same(categoryEntry1.StateEntry, context.ChangeTracker.Entry(category1).StateEntry);
-                Assert.Same(categoryEntry2.StateEntry, context.ChangeTracker.Entry(category2).StateEntry);
-                Assert.Same(productEntry1.StateEntry, context.ChangeTracker.Entry(product1).StateEntry);
-                Assert.Same(productEntry2.StateEntry, context.ChangeTracker.Entry(product2).StateEntry);
+                Assert.Same(categoryEntry1.StateEntry, context.Entry(category1).StateEntry);
+                Assert.Same(categoryEntry2.StateEntry, context.Entry(category2).StateEntry);
+                Assert.Same(productEntry1.StateEntry, context.Entry(product1).StateEntry);
+                Assert.Same(productEntry2.StateEntry, context.Entry(product2).StateEntry);
             }
         }
 
@@ -342,10 +383,10 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Same(product2, productEntries[1].Entity);
                 Assert.Equal(expectedState, productEntries[1].State);
 
-                Assert.Same(categoryEntries[0].StateEntry, context.ChangeTracker.Entry(category1).StateEntry);
-                Assert.Same(categoryEntries[1].StateEntry, context.ChangeTracker.Entry(category2).StateEntry);
-                Assert.Same(productEntries[0].StateEntry, context.ChangeTracker.Entry(product1).StateEntry);
-                Assert.Same(productEntries[1].StateEntry, context.ChangeTracker.Entry(product2).StateEntry);
+                Assert.Same(categoryEntries[0].StateEntry, context.Entry(category1).StateEntry);
+                Assert.Same(categoryEntries[1].StateEntry, context.Entry(category2).StateEntry);
+                Assert.Same(productEntries[0].StateEntry, context.Entry(product1).StateEntry);
+                Assert.Same(productEntries[1].StateEntry, context.Entry(product2).StateEntry);
             }
         }
 
@@ -455,10 +496,10 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Same(product2, productEntry2.Entity);
                 Assert.Equal(expectedState, productEntry2.State);
 
-                Assert.Same(categoryEntry1.StateEntry, context.ChangeTracker.Entry(category1).StateEntry);
-                Assert.Same(categoryEntry2.StateEntry, context.ChangeTracker.Entry(category2).StateEntry);
-                Assert.Same(productEntry1.StateEntry, context.ChangeTracker.Entry(product1).StateEntry);
-                Assert.Same(productEntry2.StateEntry, context.ChangeTracker.Entry(product2).StateEntry);
+                Assert.Same(categoryEntry1.StateEntry, context.Entry(category1).StateEntry);
+                Assert.Same(categoryEntry2.StateEntry, context.Entry(category2).StateEntry);
+                Assert.Same(productEntry1.StateEntry, context.Entry(product1).StateEntry);
+                Assert.Same(productEntry2.StateEntry, context.Entry(product2).StateEntry);
             }
         }
 
@@ -528,10 +569,10 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Same(product2, productEntries[1].Entity);
                 Assert.Equal(expectedState, productEntries[1].State);
 
-                Assert.Same(categoryEntries[0].StateEntry, context.ChangeTracker.Entry(category1).StateEntry);
-                Assert.Same(categoryEntries[1].StateEntry, context.ChangeTracker.Entry(category2).StateEntry);
-                Assert.Same(productEntries[0].StateEntry, context.ChangeTracker.Entry(product1).StateEntry);
-                Assert.Same(productEntries[1].StateEntry, context.ChangeTracker.Entry(product2).StateEntry);
+                Assert.Same(categoryEntries[0].StateEntry, context.Entry(category1).StateEntry);
+                Assert.Same(categoryEntries[1].StateEntry, context.Entry(category2).StateEntry);
+                Assert.Same(productEntries[0].StateEntry, context.Entry(product1).StateEntry);
+                Assert.Same(productEntries[1].StateEntry, context.Entry(product2).StateEntry);
             }
         }
 
@@ -605,11 +646,11 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.NotEqual(default(Guid), gu2.Id);
                 Assert.NotEqual(gu1.Id, gu2.Id);
 
-                var categoryEntry = context.ChangeTracker.Entry(gu1);
+                var categoryEntry = context.Entry(gu1);
                 Assert.Same(gu1, categoryEntry.Entity);
                 Assert.Equal(EntityState.Added, categoryEntry.State);
 
-                categoryEntry = context.ChangeTracker.Entry(gu2);
+                categoryEntry = context.Entry(gu2);
                 Assert.Same(gu2, categoryEntry.Entity);
                 Assert.Equal(EntityState.Added, categoryEntry.State);
             }
@@ -715,8 +756,8 @@ namespace Microsoft.Data.Entity.Tests
 
             using (var context = new EarlyLearningCenter(serviceProvider, options))
             {
-                context.ChangeTracker.Entry(new Category { Id = 1 }).State = EntityState.Unchanged;
-                context.ChangeTracker.Entry(new Category { Id = 2 }).State = EntityState.Unchanged;
+                context.Entry(new Category { Id = 1 }).State = EntityState.Unchanged;
+                context.Entry(new Category { Id = 2 }).State = EntityState.Unchanged;
                 Assert.Equal(2, context.ChangeTracker.Entries().Count());
 
                 context.SaveChanges();
@@ -756,10 +797,10 @@ namespace Microsoft.Data.Entity.Tests
 
             using (var context = new EarlyLearningCenter(serviceProvider, options))
             {
-                context.ChangeTracker.Entry(new Category { Id = 1 }).State = EntityState.Unchanged;
-                context.ChangeTracker.Entry(new Category { Id = 2 }).State = EntityState.Modified;
-                context.ChangeTracker.Entry(new Category { Id = 3 }).State = EntityState.Added;
-                context.ChangeTracker.Entry(new Category { Id = 4 }).State = EntityState.Deleted;
+                context.Entry(new Category { Id = 1 }).State = EntityState.Unchanged;
+                context.Entry(new Category { Id = 2 }).State = EntityState.Modified;
+                context.Entry(new Category { Id = 3 }).State = EntityState.Added;
+                context.Entry(new Category { Id = 4 }).State = EntityState.Deleted;
                 Assert.Equal(4, context.ChangeTracker.Entries().Count());
 
                 context.SaveChanges();
@@ -801,10 +842,10 @@ namespace Microsoft.Data.Entity.Tests
 
             using (var context = new EarlyLearningCenter(serviceProvider, options))
             {
-                context.ChangeTracker.Entry(new Category { Id = 1 }).State = EntityState.Unchanged;
-                context.ChangeTracker.Entry(new Category { Id = 2 }).State = EntityState.Modified;
-                context.ChangeTracker.Entry(new Category { Id = 3 }).State = EntityState.Added;
-                context.ChangeTracker.Entry(new Category { Id = 4 }).State = EntityState.Deleted;
+                context.Entry(new Category { Id = 1 }).State = EntityState.Unchanged;
+                context.Entry(new Category { Id = 2 }).State = EntityState.Modified;
+                context.Entry(new Category { Id = 3 }).State = EntityState.Added;
+                context.Entry(new Category { Id = 4 }).State = EntityState.Deleted;
                 Assert.Equal(4, context.ChangeTracker.Entries().Count());
 
                 await context.SaveChangesAsync();

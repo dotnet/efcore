@@ -572,7 +572,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             using (var context = CreateF1Context())
             {
                 var larry = context.Drivers.Single(d => d.Name == "Jenson Button");
-                var entry = context.ChangeTracker.Entry(larry);
+                var entry = context.Entry(larry);
                 entry.State = state;
 
                 entry.Reload(context);
@@ -645,7 +645,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             using (var context = CreateF1Context())
             {
                 var larry = context.Drivers.Single(d => d.Name == "Jenson Button");
-                var entry = context.ChangeTracker.Entry(larry);
+                var entry = context.Entry(larry);
                 entry.State = state;
 
                 await entry.ReloadAsync(context);

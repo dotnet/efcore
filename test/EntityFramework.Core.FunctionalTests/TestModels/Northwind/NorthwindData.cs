@@ -54,7 +54,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind
             foreach (var employee in NorthwindData.CreateEmployees())
             {
                 context.Set<Employee>().Add(employee);
-                context.ChangeTracker.Entry(employee).StateEntry[titleProperty] = employee.Title;
+                context.Entry(employee).StateEntry[titleProperty] = employee.Title;
             }
 
             context.Set<Order>().Add(CreateOrders());

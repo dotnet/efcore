@@ -95,7 +95,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 context.Add(customer);
 
                 // TODO: Better API for shadow state access
-                var customerEntry = context.ChangeTracker.Entry(customer).StateEntry;
+                var customerEntry = context.Entry(customer).StateEntry;
                 customerEntry[customerType.GetProperty("Name")] = "Daenerys";
 
                 await context.SaveChangesAsync();
@@ -110,12 +110,12 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 Assert.Equal(42, customerFromStore.Id);
                 Assert.Equal(
                     "Daenerys",
-                    (string)context.ChangeTracker.Entry(customerFromStore).Property("Name").CurrentValue);
+                    (string)context.Entry(customerFromStore).Property("Name").CurrentValue);
             }
 
             using (var context = new DbContext(_fixture.ServiceProvider, options))
             {
-                var customerEntry = context.ChangeTracker.Entry(customer).StateEntry;
+                var customerEntry = context.Entry(customer).StateEntry;
                 customerEntry[customerType.GetProperty("Name")] = "Daenerys Targaryen";
 
                 context.Update(customer);
@@ -130,7 +130,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 Assert.Equal(42, customerFromStore.Id);
                 Assert.Equal(
                     "Daenerys Targaryen",
-                    (string)context.ChangeTracker.Entry(customerFromStore).Property("Name").CurrentValue);
+                    (string)context.Entry(customerFromStore).Property("Name").CurrentValue);
             }
 
             using (var context = new DbContext(_fixture.ServiceProvider, options))

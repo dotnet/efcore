@@ -72,10 +72,10 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Same(product2, productEntry2.Entity);
                 Assert.Equal(expectedState, productEntry2.State);
 
-                Assert.Same(categoryEntry1.StateEntry, context.ChangeTracker.Entry(category1).StateEntry);
-                Assert.Same(categoryEntry2.StateEntry, context.ChangeTracker.Entry(category2).StateEntry);
-                Assert.Same(productEntry1.StateEntry, context.ChangeTracker.Entry(product1).StateEntry);
-                Assert.Same(productEntry2.StateEntry, context.ChangeTracker.Entry(product2).StateEntry);
+                Assert.Same(categoryEntry1.StateEntry, context.Entry(category1).StateEntry);
+                Assert.Same(categoryEntry2.StateEntry, context.Entry(category2).StateEntry);
+                Assert.Same(productEntry1.StateEntry, context.Entry(product1).StateEntry);
+                Assert.Same(productEntry2.StateEntry, context.Entry(product2).StateEntry);
             }
         }
 
@@ -142,10 +142,10 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Same(product2, productEntries[1].Entity);
                 Assert.Equal(expectedState, productEntries[1].State);
 
-                Assert.Same(categoryEntries[0].StateEntry, context.ChangeTracker.Entry(category1).StateEntry);
-                Assert.Same(categoryEntries[1].StateEntry, context.ChangeTracker.Entry(category2).StateEntry);
-                Assert.Same(productEntries[0].StateEntry, context.ChangeTracker.Entry(product1).StateEntry);
-                Assert.Same(productEntries[1].StateEntry, context.ChangeTracker.Entry(product2).StateEntry);
+                Assert.Same(categoryEntries[0].StateEntry, context.Entry(category1).StateEntry);
+                Assert.Same(categoryEntries[1].StateEntry, context.Entry(category2).StateEntry);
+                Assert.Same(productEntries[0].StateEntry, context.Entry(product1).StateEntry);
+                Assert.Same(productEntries[1].StateEntry, context.Entry(product2).StateEntry);
             }
         }
 
@@ -218,11 +218,11 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.NotEqual(default(Guid), gu2.Id);
                 Assert.NotEqual(gu1.Id, gu2.Id);
 
-                var categoryEntry = context.ChangeTracker.Entry(gu1);
+                var categoryEntry = context.Entry(gu1);
                 Assert.Same(gu1, categoryEntry.Entity);
                 Assert.Equal(EntityState.Added, categoryEntry.State);
 
-                categoryEntry = context.ChangeTracker.Entry(gu2);
+                categoryEntry = context.Entry(gu2);
                 Assert.Same(gu2, categoryEntry.Entity);
                 Assert.Equal(EntityState.Added, categoryEntry.State);
             }

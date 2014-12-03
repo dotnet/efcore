@@ -162,8 +162,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     toDelete.Name = "Blog to delete";
                     var deletedId = toDelete.Id;
 
-                    db.ChangeTracker.Entry(toUpdate).State = EntityState.Modified;
-                    db.ChangeTracker.Entry(toDelete).State = EntityState.Deleted;
+                    db.Entry(toUpdate).State = EntityState.Modified;
+                    db.Entry(toDelete).State = EntityState.Deleted;
 
                     var toAdd = db.Add(new Blog
                     {
@@ -183,8 +183,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                     Assert.NotEqual(0, toAdd.Id);
 
-                    Assert.Equal(EntityState.Unchanged, db.ChangeTracker.Entry(toUpdate).State);
-                    Assert.Equal(EntityState.Unchanged, db.ChangeTracker.Entry(toAdd).State);
+                    Assert.Equal(EntityState.Unchanged, db.Entry(toUpdate).State);
+                    Assert.Equal(EntityState.Unchanged, db.Entry(toAdd).State);
                     Assert.DoesNotContain(toDelete, db.ChangeTracker.Entries().Select(e => e.Entity));
 
                     Assert.Equal(3, TestSqlLoggerFactory.SqlStatements.Count);
@@ -240,7 +240,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                         Away = 0.12345f,
                         AndChew = new byte[16]
                     }).Entity;
-                    db.ChangeTracker.Entry(toAdd).State = EntityState.Unknown;
+                    db.Entry(toAdd).State = EntityState.Unknown;
 
                     var blogs = await CreateBlogDatabaseAsync<Blog>(db);
 
@@ -252,15 +252,15 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     deletedId = toDelete.Id;
 
                     db.Remove(toDelete);
-                    db.ChangeTracker.Entry(toAdd).State = EntityState.Added;
+                    db.Entry(toAdd).State = EntityState.Added;
 
                     await db.SaveChangesAsync();
 
                     addedId = toAdd.Id;
                     Assert.NotEqual(0, addedId);
 
-                    Assert.Equal(EntityState.Unchanged, db.ChangeTracker.Entry(toUpdate).State);
-                    Assert.Equal(EntityState.Unchanged, db.ChangeTracker.Entry(toAdd).State);
+                    Assert.Equal(EntityState.Unchanged, db.Entry(toUpdate).State);
+                    Assert.Equal(EntityState.Unchanged, db.Entry(toAdd).State);
                     Assert.DoesNotContain(toDelete, db.ChangeTracker.Entries().Select(e => e.Entity));
                 }
 

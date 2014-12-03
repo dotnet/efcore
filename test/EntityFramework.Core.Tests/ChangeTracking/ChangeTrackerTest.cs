@@ -18,31 +18,6 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 "stateManager",
                 // ReSharper disable once AssignNullToNotNullAttribute
                 Assert.Throws<ArgumentNullException>(() => new ChangeTracker(null, null)).ParamName);
-
-            var changeTracker = new ChangeTracker(Mock.Of<StateManager>(), Mock.Of<ChangeDetector>());
-
-            Assert.Equal(
-                "entity",
-                // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => changeTracker.Entry(null)).ParamName);
-            Assert.Equal(
-                "entity",
-                // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => changeTracker.Entry<Random>(null)).ParamName);
-        }
-
-        [Fact]
-        public void Entry_methods_delegate_to_underlying_state_manager()
-        {
-            var entity = new Random();
-            var stateManagerMock = new Mock<StateManager>();
-            var stateEntry = new Mock<StateEntry>().Object;
-            stateManagerMock.Setup(m => m.GetOrCreateEntry(entity)).Returns(stateEntry);
-
-            var changeTracker = new ChangeTracker(stateManagerMock.Object, Mock.Of<ChangeDetector>());
-
-            Assert.Same(stateEntry, changeTracker.Entry(entity).StateEntry);
-            Assert.Same(stateEntry, changeTracker.Entry((object)entity).StateEntry);
         }
 
         [Fact]

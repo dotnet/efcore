@@ -20,8 +20,8 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                context.ChangeTracker.Entry(context.Set<TransactionCustomer>().First()).State = EntityState.Deleted;
-                context.ChangeTracker.Entry(context.Set<TransactionCustomer>().Last()).State = EntityState.Added;
+                context.Entry(context.Set<TransactionCustomer>().First()).State = EntityState.Deleted;
+                context.Entry(context.Set<TransactionCustomer>().Last()).State = EntityState.Added;
 
                 Assert.Throws<DbUpdateException>(() => context.SaveChanges());
             }
@@ -34,8 +34,8 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                context.ChangeTracker.Entry(context.Set<TransactionCustomer>().First()).State = EntityState.Deleted;
-                context.ChangeTracker.Entry(context.Set<TransactionCustomer>().Last()).State = EntityState.Added;
+                context.Entry(context.Set<TransactionCustomer>().First()).State = EntityState.Deleted;
+                context.Entry(context.Set<TransactionCustomer>().Last()).State = EntityState.Added;
 
                 try
                 {
@@ -56,7 +56,7 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
             {
                 using (context.Database.AsRelational().Connection.BeginTransaction())
                 {
-                    context.ChangeTracker.Entry(context.Set<TransactionCustomer>().First()).State = EntityState.Deleted;
+                    context.Entry(context.Set<TransactionCustomer>().First()).State = EntityState.Deleted;
                     context.SaveChanges();
                 }
             }
@@ -71,7 +71,7 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
             {
                 using (await context.Database.AsRelational().Connection.BeginTransactionAsync())
                 {
-                    context.ChangeTracker.Entry(context.Set<TransactionCustomer>().First()).State = EntityState.Deleted;
+                    context.Entry(context.Set<TransactionCustomer>().First()).State = EntityState.Deleted;
                     await context.SaveChangesAsync();
                 }
             }
@@ -86,8 +86,8 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
             {
                 using (var transaction = context.Database.AsRelational().Connection.BeginTransaction())
                 {
-                    context.ChangeTracker.Entry(context.Set<TransactionCustomer>().First()).State = EntityState.Deleted;
-                    context.ChangeTracker.Entry(context.Set<TransactionCustomer>().Last()).State = EntityState.Added;
+                    context.Entry(context.Set<TransactionCustomer>().First()).State = EntityState.Deleted;
+                    context.Entry(context.Set<TransactionCustomer>().Last()).State = EntityState.Added;
 
                     try
                     {
@@ -109,8 +109,8 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
             {
                 using (var transaction = await context.Database.AsRelational().Connection.BeginTransactionAsync())
                 {
-                    context.ChangeTracker.Entry(context.Set<TransactionCustomer>().First()).State = EntityState.Deleted;
-                    context.ChangeTracker.Entry(context.Set<TransactionCustomer>().Last()).State = EntityState.Added;
+                    context.Entry(context.Set<TransactionCustomer>().First()).State = EntityState.Deleted;
+                    context.Entry(context.Set<TransactionCustomer>().Last()).State = EntityState.Added;
 
                     try
                     {
@@ -132,7 +132,7 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
             {
                 using (var transaction = await context.Database.AsRelational().Connection.BeginTransactionAsync())
                 {
-                    context.ChangeTracker.Entry(context.Set<TransactionCustomer>().First()).State = EntityState.Deleted;
+                    context.Entry(context.Set<TransactionCustomer>().First()).State = EntityState.Deleted;
                     await context.SaveChangesAsync();
                     transaction.Commit();
                 }
@@ -151,7 +151,7 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
             {
                 using (var transaction = await context.Database.AsRelational().Connection.BeginTransactionAsync())
                 {
-                    context.ChangeTracker.Entry(context.Set<TransactionCustomer>().First()).State = EntityState.Deleted;
+                    context.Entry(context.Set<TransactionCustomer>().First()).State = EntityState.Deleted;
                     await context.SaveChangesAsync();
                     transaction.Rollback();
 
@@ -167,7 +167,7 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
             {
                 using (var transaction = context.Database.AsRelational().Connection.BeginTransaction())
                 {
-                    context.ChangeTracker.Entry(context.Set<TransactionCustomer>().First()).State = EntityState.Deleted;
+                    context.Entry(context.Set<TransactionCustomer>().First()).State = EntityState.Deleted;
                     context.SaveChanges();
 
                     using (var innerContext = CreateContext())
@@ -202,7 +202,7 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
             {
                 using (var transaction = await context.Database.AsRelational().Connection.BeginTransactionAsync())
                 {
-                    context.ChangeTracker.Entry(context.Set<TransactionCustomer>().First()).State = EntityState.Deleted;
+                    context.Entry(context.Set<TransactionCustomer>().First()).State = EntityState.Deleted;
                     await context.SaveChangesAsync();
 
                     using (var innerContext = CreateContext())
@@ -239,7 +239,7 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
                 {
                     context.Database.AsRelational().Connection.UseTransaction(transaction);
 
-                    context.ChangeTracker.Entry(context.Set<TransactionCustomer>().First()).State = EntityState.Deleted;
+                    context.Entry(context.Set<TransactionCustomer>().First()).State = EntityState.Deleted;
                     await context.SaveChangesAsync();
                 }
             }

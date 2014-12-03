@@ -88,7 +88,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
                 var entity = new KoolEntity15();
                 var property = (_KoolEntity15IdProperty)context.Model.GetEntityType(entity.GetType()).TryGetProperty("Id");
 
-                var stateEntry = context.ChangeTracker.Entry(entity).StateEntry;
+                var stateEntry = context.Entry(entity).StateEntry;
 
                 Assert.False(property.GetterCalled);
                 Assert.False(property.SetterCalled);

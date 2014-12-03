@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 // TODO: Replace with
                 // context.ChangeTracker.Entry(entity).Property(SimpleEntity.ShadowPropertyName).CurrentValue = "shadow";
                 var property = context.Model.GetEntityType(typeof(SimpleEntity)).GetProperty(SimpleEntity.ShadowPropertyName);
-                context.ChangeTracker.Entry(second).StateEntry[property] = "shadow";
+                context.Entry(second).StateEntry[property] = "shadow";
                 SetPartitionId(second, context);
 
                 Assert.Equal(1, context.SaveChanges());
@@ -65,7 +65,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         private void SetPartitionId(SimpleEntity entity, CrossStoreContext context)
         {
             var property = context.Model.GetEntityType(entity.GetType()).GetProperty(SimpleEntity.ShadowPartitionIdName);
-            context.ChangeTracker.Entry(entity).StateEntry[property] = "Partition";
+            context.Entry(entity).StateEntry[property] = "Partition";
         }
 
         protected EndToEndTest(TFixture fixture)

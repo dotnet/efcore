@@ -33,20 +33,6 @@ namespace Microsoft.Data.Entity.ChangeTracking
             _changeDetector = changeDetector;
         }
 
-        public virtual EntityEntry<TEntity> Entry<TEntity>([NotNull] TEntity entity)
-        {
-            Check.NotNull(entity, "entity");
-
-            return new EntityEntry<TEntity>(_stateManager.GetOrCreateEntry(entity));
-        }
-
-        public virtual EntityEntry Entry([NotNull] object entity)
-        {
-            Check.NotNull(entity, "entity");
-
-            return new EntityEntry(_stateManager.GetOrCreateEntry(entity));
-        }
-
         public virtual IEnumerable<EntityEntry> Entries()
         {
             return _stateManager.StateEntries.Select(e => new EntityEntry(e));

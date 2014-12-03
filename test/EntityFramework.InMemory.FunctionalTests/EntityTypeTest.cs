@@ -55,7 +55,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             using (var context = new DbContext(_fixture.ServiceProvider, options))
             {
                 var entityFromStore = context.Set<T>().Single();
-                var entityEntry = context.ChangeTracker.Entry(entityFromStore);
+                var entityEntry = context.Entry(entityFromStore);
 
                 Assert.NotSame(entity, entityFromStore);
                 Assert.Equal(42, entityEntry.Property(idProperty.Name).CurrentValue);
@@ -71,7 +71,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             using (var context = new DbContext(_fixture.ServiceProvider, options))
             {
                 var entityFromStore = context.Set<T>().Single();
-                var entry = context.ChangeTracker.Entry(entityFromStore);
+                var entry = context.Entry(entityFromStore);
 
                 Assert.Equal("A", entry.Property(nameProperty.Name).CurrentValue);
 

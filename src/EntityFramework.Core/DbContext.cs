@@ -250,6 +250,20 @@ namespace Microsoft.Data.Entity
             }
         }
 
+        public virtual EntityEntry<TEntity> Entry<TEntity>([NotNull] TEntity entity)
+        {
+            Check.NotNull(entity, "entity");
+
+            return new EntityEntry<TEntity>(GetStateManager().GetOrCreateEntry(entity));
+        }
+
+        public virtual EntityEntry Entry([NotNull] object entity)
+        {
+            Check.NotNull(entity, "entity");
+
+            return new EntityEntry(GetStateManager().GetOrCreateEntry(entity));
+        }
+
         public virtual EntityEntry<TEntity> Add<TEntity>([NotNull] TEntity entity)
         {
             Check.NotNull(entity, "entity");
@@ -262,7 +276,7 @@ namespace Microsoft.Data.Entity
         {
             Check.NotNull(entity, "entity");
 
-            var entry = ChangeTracker.Entry(entity);
+            var entry = Entry(entity);
 
             await entry.StateEntry
                 .SetEntityStateAsync(EntityState.Added, cancellationToken)
@@ -294,7 +308,7 @@ namespace Microsoft.Data.Entity
 
         private EntityEntry<TEntity> SetEntityState<TEntity>(TEntity entity, EntityState entityState)
         {
-            var entry = ChangeTracker.Entry(entity);
+            var entry = Entry(entity);
 
             entry.State = entityState;
 
@@ -313,7 +327,7 @@ namespace Microsoft.Data.Entity
         {
             Check.NotNull(entity, "entity");
 
-            var entry = ChangeTracker.Entry(entity);
+            var entry = Entry(entity);
 
             await entry.StateEntry
                 .SetEntityStateAsync(EntityState.Added, cancellationToken)
@@ -345,7 +359,7 @@ namespace Microsoft.Data.Entity
 
         private EntityEntry SetEntityState(object entity, EntityState entityState)
         {
-            var entry = ChangeTracker.Entry(entity);
+            var entry = Entry(entity);
 
             entry.State = entityState;
 
@@ -419,9 +433,9 @@ namespace Microsoft.Data.Entity
 
         private List<EntityEntry<TEntity>> GetOrCreateEntries<TEntity>(IEnumerable<TEntity> entities)
         {
-            var changeTracker = ChangeTracker;
+            var stateManager = GetStateManager();
 
-            return entities.Select(e => changeTracker.Entry(e)).ToList();
+            return entities.Select(e => new EntityEntry<TEntity>( stateManager.GetOrCreateEntry(e))).ToList();
         }
 
         public virtual IReadOnlyList<EntityEntry> Add([NotNull] params object[] entities)
@@ -491,9 +505,9 @@ namespace Microsoft.Data.Entity
 
         private List<EntityEntry> GetOrCreateEntries(IEnumerable<object> entities)
         {
-            var changeTracker = ChangeTracker;
+            var stateManager = GetStateManager();
 
-            return entities.Select(e => changeTracker.Entry(e)).ToList();
+            return entities.Select(e => new EntityEntry(stateManager.GetOrCreateEntry(e))).ToList();
         }
 
         public virtual Database Database
