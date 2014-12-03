@@ -615,7 +615,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 // TODO: Make this work or provide better exception
                 // Issue #935
-                Assert.Throws<Exception>(()
+                Assert.Throws<InvalidOperationException>(()
                     =>
                     {
                         using (var context = serviceProvider.GetRequiredService<NonGenericOptionsContext>())
