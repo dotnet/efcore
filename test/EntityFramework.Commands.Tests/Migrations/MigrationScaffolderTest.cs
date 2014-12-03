@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.IO;
 using Microsoft.Data.Entity.Commands.Migrations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
@@ -119,12 +118,55 @@ namespace Microsoft.Data.Entity.Commands.Tests.Migrations
         }
 
         [Fact]
+        public void GetNamespace_returns_default_when_migration_null()
+        {
+            var scaffolder = new Mock<MigrationScaffolder> { CallBase = true }.Object;
+
+            var result = scaffolder.GetNamespace(default(Migration), "Unicorn");
+
+            Assert.Equal("Unicorn.Migrations", result);
+        }
+
+        [Fact]
+        public void GetNamespace_returns_migration_namespace_when_set()
+        {
+            var migration = new Mock<Migration>();
+            var scaffolder = new Mock<MigrationScaffolder> { CallBase = true }.Object;
+
+            var result = scaffolder.GetNamespace(migration.Object, "Unicorn");
+
+            Assert.Equal("Castle.Proxies", result);
+        }
+
+        [Fact]
+        public void GetNamespace_returns_default_when_snapshot_null()
+        {
+            var scaffolder = new Mock<MigrationScaffolder> { CallBase = true }.Object;
+
+            var result = scaffolder.GetNamespace(default(ModelSnapshot), "Unicorn.Migrations");
+
+            Assert.Equal("Unicorn.Migrations", result);
+        }
+
+        [Fact]
+        public void GetNamespace_returns_snapshot_namespace_when_set()
+        {
+            var migration = new Mock<ModelSnapshot>();
+            var scaffolder = new Mock<MigrationScaffolder> { CallBase = true }.Object;
+
+            var result = scaffolder.GetNamespace(migration.Object, "Unicorn.Migrations");
+
+            Assert.Equal("Castle.Proxies", result);
+        }
+
+        [Fact]
         public void GetDirectory_returns_full_namespace_when_outside_of_root()
         {
             var rootNamespace = "Propalaeotherium";
-            var migrationNamespace = "Equus.Ferus.Unicornis";
+            var @namespace = "Equus.Ferus.Unicornis";
+            var scaffolder = new Mock<MigrationScaffolder> { CallBase = true }.Object;
 
-            var result = MigrationScaffolder.GetDirectory(rootNamespace, migrationNamespace);
+            var result = scaffolder.GetDirectory(@namespace, rootNamespace);
 
             Assert.Equal(@"Equus\Ferus\Unicornis", result);
         }
@@ -133,9 +175,10 @@ namespace Microsoft.Data.Entity.Commands.Tests.Migrations
         public void GetDirectory_returns_sub_namespace_when_under_root()
         {
             var rootNamespace = "Equus";
-            var migrationNamespace = "Equus.Ferus.Unicornis";
+            var @namespace = "Equus.Ferus.Unicornis";
+            var scaffolder = new Mock<MigrationScaffolder> { CallBase = true }.Object;
 
-            var result = MigrationScaffolder.GetDirectory(rootNamespace, migrationNamespace);
+            var result = scaffolder.GetDirectory(@namespace, rootNamespace);
 
             Assert.Equal(@"Ferus\Unicornis", result);
         }

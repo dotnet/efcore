@@ -26,6 +26,15 @@ namespace Microsoft.Data.Entity.Commands.Migrations
         private readonly ModelDiffer _modelDiffer;
         private readonly MigrationCodeGenerator _migrationCodeGenerator;
 
+        /// <summary>
+        ///     This constructor is intended only for use when creating test doubles that will override members
+        ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
+        ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
+        /// </summary>
+        protected MigrationScaffolder()
+        {
+        }
+
         public MigrationScaffolder(
             [NotNull] DbContext context,
             [NotNull] IDbContextOptions options,
@@ -77,11 +86,9 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 throw new InvalidOperationException(Strings.DuplicateMigrationName(migrationName));
             }
 
-            var migrationNamespace = existingMigrations.Any()
-                ? existingMigrations.Last().GetType().Namespace
-                : rootNamespace + ".Migrations";
-            var modelSnapshotNamespace = MigrationAssembly.ModelSnapshot?.GetType().Namespace
-                ?? migrationNamespace;
+            var lastMigration = existingMigrations.LastOrDefault();
+            var migrationNamespace = GetNamespace(lastMigration, rootNamespace);
+            var modelSnapshotNamespace = GetNamespace(MigrationAssembly.ModelSnapshot, migrationNamespace);
             var migration = CreateMigration(migrationName);
             var contextType = _context.GetType();
 
@@ -95,8 +102,8 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             return
                 new ScaffoldedMigration(migration.MigrationId)
                 {
-                    Directory = GetDirectory(rootNamespace, migrationNamespace),
-                    ModelSnapshotDirectory = GetDirectory(rootNamespace, modelSnapshotNamespace),
+                    Directory = GetDirectory(migrationNamespace, rootNamespace),
+                    ModelSnapshotDirectory = GetDirectory(modelSnapshotNamespace, rootNamespace),
                     SnapshotModelClass = GetClassName(migration.TargetModel),
                     Language = _migrationCodeGenerator.Language,
                     MigrationCode = migrationCode.ToString(),
@@ -188,11 +195,29 @@ namespace Microsoft.Data.Entity.Commands.Migrations
         }
 
         // Internal for testing
-        internal static string GetDirectory(string rootNamespace, string migrationNamespace)
+        protected internal virtual string GetNamespace([CanBeNull] Migration lastMigration, [NotNull] string rootNamespace)
         {
-            var directory = migrationNamespace.StartsWith(rootNamespace + '.')
-                ? migrationNamespace.Substring(rootNamespace.Length + 1)
-                : migrationNamespace;
+            Check.NotEmpty(rootNamespace, "rootNamespace");
+
+            return lastMigration?.GetType().Namespace ?? rootNamespace + ".Migrations";
+        }
+
+        // Internal for testing
+        protected internal virtual string GetNamespace(
+            [CanBeNull] ModelSnapshot modelSnapshot,
+            [NotNull] string migrationNamespace)
+        {
+            Check.NotEmpty(migrationNamespace, "migrationNamespace");
+
+            return modelSnapshot?.GetType().Namespace ?? migrationNamespace;
+        }
+
+        // Internal for testing
+        protected internal virtual string GetDirectory(string @namespace, string rootNamespace)
+        {
+            var directory = @namespace.StartsWith(rootNamespace + '.')
+                ? @namespace.Substring(rootNamespace.Length + 1)
+                : @namespace;
 
             return directory.Replace('.', Path.DirectorySeparatorChar);
         }
