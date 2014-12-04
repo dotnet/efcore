@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>EntityFramework</id>
+    <version>7.0.0-$star$</version>
+    <title>EntityFramework</title>
+    <authors>$author$</authors>
+    <owners>$author$</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Entity Framework is Microsoft's recommended data access technology for new applications.</description>
+    <dependencies>
+      <dependency id="EntityFramework.Commands" version="7.0.0-$star$" />
+    </dependencies>
+  </metadata>
+</package>

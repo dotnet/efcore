@@ -22,6 +22,10 @@ k-standard-goals
             "packages");
 }
 
+#nuspec-pack target="compile"
+    var K_BUILD_VERSION='${E("K_BUILD_VERSION")}'
+    nuget-pack each='var nuspecFile in Files.Include("src/**/*.nuspec")' outputDir='artifacts/build' extra='-Properties "star=${K_BUILD_VERSION};author=${AUTHORS}"'
+
 #nupkg-patch target='compile'
     @{
         var packagePaths = Files.Include("artifacts/build/**/EntityFramework.Commands.*.nupkg")
