@@ -2,57 +2,35 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Migrations;
+using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Commands.Migrations
 {
     public class ScaffoldedMigration
     {
-        private readonly string _migrationId;
-        private string _directory;
-        private string _modelSnapshotDirectory;
-
         public ScaffoldedMigration([NotNull] string migrationId)
         {
             Check.NotNull(migrationId, "migrationId");
 
-            _migrationId = migrationId;
+            MigrationId = migrationId;
         }
 
-        public virtual string MigrationId
-        {
-            get { return _migrationId; }
-        }
+        public virtual string MigrationId { get; }
 
-        public virtual string SnapshotModelClass { get;[param: CanBeNull] set; }
-        public virtual string Language { get;[param: CanBeNull]  set; }
+        public virtual string SnapshotModelClass { get;[param: NotNull] set; }
+        public virtual string Language { get;[param: NotNull]  set; }
 
-        public virtual string MigrationCode { get;[param: CanBeNull] set; }
-        public virtual string MigrationMetadataCode { get;[param: CanBeNull] set; }
-        public virtual string SnapshotModelCode { get;[param: CanBeNull] set; }
+        public virtual string MigrationCode { get;[param: NotNull] set; }
+        public virtual string MigrationMetadataCode { get;[param: NotNull] set; }
+        public virtual string SnapshotModelCode { get;[param: NotNull] set; }
 
-        public virtual string Directory
-        {
-            get { return _directory; }
-            [param: CanBeNull]
-            set
-            {
-                Check.NotEmpty(value, "value");
+        public virtual string MigrationNamespace { get;[param: NotNull]set; }
 
-                _directory = value;
-            }
-        }
+        public virtual string ModelSnapshotNamespace { get;[param: NotNull]set; }
 
-        public virtual string ModelSnapshotDirectory
-        {
-            get { return _modelSnapshotDirectory; }
-            [param: CanBeNull]
-            set
-            {
-                Check.NotEmpty(value, "value");
-
-                _modelSnapshotDirectory = value;
-            }
-        }
+        public virtual Migration LastMigration { get;[param: CanBeNull] set; }
+        public virtual ModelSnapshot LastModelSnapshot { get;[param: CanBeNull] set; }
     }
 }

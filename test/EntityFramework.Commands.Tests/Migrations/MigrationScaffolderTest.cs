@@ -118,22 +118,12 @@ namespace Microsoft.Data.Entity.Commands.Tests.Migrations
         }
 
         [Fact]
-        public void GetNamespace_returns_default_when_migration_null()
-        {
-            var scaffolder = new Mock<MigrationScaffolder> { CallBase = true }.Object;
-
-            var result = scaffolder.GetNamespace(default(Migration), "Unicorn");
-
-            Assert.Equal("Unicorn.Migrations", result);
-        }
-
-        [Fact]
         public void GetNamespace_returns_migration_namespace_when_set()
         {
             var migration = new Mock<Migration>();
             var scaffolder = new Mock<MigrationScaffolder> { CallBase = true }.Object;
 
-            var result = scaffolder.GetNamespace(migration.Object, "Unicorn");
+            var result = scaffolder.GetNamespace(migration.Object, "Unicorn", Mock.Of<Type>());
 
             Assert.Equal("Castle.Proxies", result);
         }
@@ -157,30 +147,6 @@ namespace Microsoft.Data.Entity.Commands.Tests.Migrations
             var result = scaffolder.GetNamespace(migration.Object, "Unicorn.Migrations");
 
             Assert.Equal("Castle.Proxies", result);
-        }
-
-        [Fact]
-        public void GetDirectory_returns_full_namespace_when_outside_of_root()
-        {
-            var rootNamespace = "Propalaeotherium";
-            var @namespace = "Equus.Ferus.Unicornis";
-            var scaffolder = new Mock<MigrationScaffolder> { CallBase = true }.Object;
-
-            var result = scaffolder.GetDirectory(@namespace, rootNamespace);
-
-            Assert.Equal(@"Equus\Ferus\Unicornis", result);
-        }
-
-        [Fact]
-        public void GetDirectory_returns_sub_namespace_when_under_root()
-        {
-            var rootNamespace = "Equus";
-            var @namespace = "Equus.Ferus.Unicornis";
-            var scaffolder = new Mock<MigrationScaffolder> { CallBase = true }.Object;
-
-            var result = scaffolder.GetDirectory(@namespace, rootNamespace);
-
-            Assert.Equal(@"Ferus\Unicornis", result);
         }
 
         private static void ValidateEmptyMigration(string className, string migrationClass, string migrationMetadataClass)
@@ -217,7 +183,7 @@ using System;
 
 namespace MyNamespace.Migrations
 {
-    [ContextType(typeof(MigrationScaffolderTest.Context))]
+    [ContextType(typeof(Microsoft.Data.Entity.Commands.Tests.Migrations.MigrationScaffolderTest.Context))]
     public partial class MyMigration : IMigrationMetadata
     {
         string IMigrationMetadata.MigrationId
@@ -263,7 +229,7 @@ using System;
 
 namespace MyNamespace.Migrations
 {
-    [ContextType(typeof(MigrationScaffolderTest.Context))]
+    [ContextType(typeof(Microsoft.Data.Entity.Commands.Tests.Migrations.MigrationScaffolderTest.Context))]
     public class ContextModelSnapshot : ModelSnapshot
     {
         public override IModel Model
@@ -320,7 +286,7 @@ using System;
 
 namespace MyNamespace.Migrations
 {
-    [ContextType(typeof(MigrationScaffolderTest.Context))]
+    [ContextType(typeof(Microsoft.Data.Entity.Commands.Tests.Migrations.MigrationScaffolderTest.Context))]
     public partial class MyMigration : IMigrationMetadata
     {
         string IMigrationMetadata.MigrationId
@@ -374,7 +340,7 @@ using System;
 
 namespace MyNamespace.Migrations
 {
-    [ContextType(typeof(MigrationScaffolderTest.Context))]
+    [ContextType(typeof(Microsoft.Data.Entity.Commands.Tests.Migrations.MigrationScaffolderTest.Context))]
     public class ContextModelSnapshot : ModelSnapshot
     {
         public override IModel Model
@@ -476,7 +442,7 @@ using System;
 
 namespace MyNamespace.Migrations
 {
-    [ContextType(typeof(MigrationScaffolderTest.Context))]
+    [ContextType(typeof(Microsoft.Data.Entity.Commands.Tests.Migrations.MigrationScaffolderTest.Context))]
     public partial class MyMigration : IMigrationMetadata
     {
         string IMigrationMetadata.MigrationId
@@ -560,7 +526,7 @@ using System;
 
 namespace MyNamespace.Migrations
 {
-    [ContextType(typeof(MigrationScaffolderTest.Context))]
+    [ContextType(typeof(Microsoft.Data.Entity.Commands.Tests.Migrations.MigrationScaffolderTest.Context))]
     public class ContextModelSnapshot : ModelSnapshot
     {
         public override IModel Model
@@ -687,7 +653,7 @@ using System;
 
 namespace MyNamespace.Migrations
 {
-    [ContextType(typeof(MigrationScaffolderTest.Context))]
+    [ContextType(typeof(Microsoft.Data.Entity.Commands.Tests.Migrations.MigrationScaffolderTest.Context))]
     public partial class MyMigration : IMigrationMetadata
     {
         string IMigrationMetadata.MigrationId
@@ -773,7 +739,7 @@ using System;
 
 namespace MyNamespace.Migrations
 {
-    [ContextType(typeof(MigrationScaffolderTest.Context))]
+    [ContextType(typeof(Microsoft.Data.Entity.Commands.Tests.Migrations.MigrationScaffolderTest.Context))]
     public class ContextModelSnapshot : ModelSnapshot
     {
         public override IModel Model

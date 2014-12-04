@@ -82,7 +82,7 @@ namespace Microsoft.Data.Entity.Commands
 
             var migration = _migrationTool.AddMigration(migrationName, _rootNamespace, contextTypeName);
 
-            return _migrationTool.WriteMigration(_projectDir, migration);
+            return _migrationTool.WriteMigration(_projectDir, migration, _rootNamespace);
         }
 
         public class ApplyMigration : OperationBase

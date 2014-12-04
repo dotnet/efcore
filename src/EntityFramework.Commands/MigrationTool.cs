@@ -13,6 +13,7 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
+using Microsoft.Data.Entity.Migrations.Utilities;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
@@ -68,12 +69,14 @@ namespace Microsoft.Data.Entity.Commands
 
         public virtual IEnumerable<string> WriteMigration(
             [NotNull] string projectDir,
-            [NotNull] ScaffoldedMigration migration)
+            [NotNull] ScaffoldedMigration migration,
+            [NotNull] string rootNamespace)
         {
             Check.NotEmpty(projectDir, "projectDir");
             Check.NotNull(migration, "migration");
+            Check.NotEmpty(rootNamespace, "rootNamespace");
 
-            var migrationDir = Path.Combine(projectDir, migration.Directory);
+            var migrationDir = GetMigrationDirectory(projectDir, migration, rootNamespace);
             Directory.CreateDirectory(migrationDir);
 
             var userCodeFile = Path.Combine(migrationDir, migration.MigrationId + migration.Language);
@@ -84,9 +87,9 @@ namespace Microsoft.Data.Entity.Commands
             File.WriteAllText(designerCodeFile, migration.MigrationMetadataCode);
             yield return designerCodeFile;
 
+            var modelShapshotDir = GetSnapshotDirectory(projectDir, migration, rootNamespace);
             var modelSnapshotFile = Path.Combine(
-                projectDir,
-                migration.ModelSnapshotDirectory,
+                modelShapshotDir,
                 migration.SnapshotModelClass + migration.Language);
             File.WriteAllText(modelSnapshotFile, migration.SnapshotModelCode);
             yield return modelSnapshotFile;
@@ -185,6 +188,55 @@ namespace Microsoft.Data.Entity.Commands
         private IEnumerable<Type> GetMigrationTypes()
         {
             return MigrationAssembly.GetMigrationTypes(_assembly);
+        }
+
+        private static string GetMigrationDirectory(string projectDir, ScaffoldedMigration migration, string rootNamespace)
+        {
+            if (migration.LastMigration != null)
+            {
+                var lastMigrationFiles = Directory.EnumerateFiles(
+                    projectDir,
+                    migration.LastMigration.GetMigrationId() + migration.Language,
+                    SearchOption.AllDirectories);
+
+                foreach (var lastMigrationFile in lastMigrationFiles)
+                {
+                    return Path.GetDirectoryName(lastMigrationFile);
+                }
+            }
+
+            var migrationDirectory = GetDirectoryFromNamespace(migration.MigrationNamespace, rootNamespace);
+
+            return Path.Combine(projectDir, migrationDirectory);
+        }
+
+        private static string GetSnapshotDirectory(string projectDir, ScaffoldedMigration migration, string rootNamespace)
+        {
+            if (migration.LastModelSnapshot != null)
+            {
+                var lastSnapshotFiles = Directory.EnumerateFiles(
+                    projectDir,
+                    migration.LastModelSnapshot.GetType().Name + migration.Language,
+                    SearchOption.AllDirectories);
+
+                foreach (var lastSnapshotFile in lastSnapshotFiles)
+                {
+                    return Path.GetDirectoryName(lastSnapshotFile);
+                }
+            }
+
+            var snapshotDirectory = GetDirectoryFromNamespace(migration.ModelSnapshotNamespace, rootNamespace);
+
+            return Path.Combine(projectDir, snapshotDirectory);
+        }
+
+        private static string GetDirectoryFromNamespace(string @namespace, string rootNamespace)
+        {
+            var directory = @namespace.StartsWith(rootNamespace + '.')
+                ? @namespace.Substring(rootNamespace.Length + 1)
+                : @namespace;
+
+            return directory.Replace('.', Path.DirectorySeparatorChar);
         }
     }
 }

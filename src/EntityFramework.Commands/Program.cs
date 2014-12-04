@@ -173,7 +173,7 @@ namespace Microsoft.Data.Entity.Commands
             Check.NotEmpty(name, "name");
 
             var migration = _migrationTool.AddMigration(name, _rootNamespace, context);
-            _migrationTool.WriteMigration(_projectDir, migration).ToArray();
+            _migrationTool.WriteMigration(_projectDir, migration, _rootNamespace).ToArray();
 
             return 0;
         }

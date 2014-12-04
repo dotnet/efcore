@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Commands.Utilities;
@@ -87,10 +86,11 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             }
 
             var lastMigration = existingMigrations.LastOrDefault();
-            var migrationNamespace = GetNamespace(lastMigration, rootNamespace);
-            var modelSnapshotNamespace = GetNamespace(MigrationAssembly.ModelSnapshot, migrationNamespace);
-            var migration = CreateMigration(migrationName);
             var contextType = _context.GetType();
+            var migrationNamespace = GetNamespace(lastMigration, rootNamespace, contextType);
+            var lastModelSnapshot = MigrationAssembly.ModelSnapshot;
+            var modelSnapshotNamespace = GetNamespace(lastModelSnapshot, migrationNamespace);
+            var migration = CreateMigration(migrationName);
 
             var migrationCode = new IndentedStringBuilder();
             var migrationMetadataCode = new IndentedStringBuilder();
@@ -102,13 +102,15 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             return
                 new ScaffoldedMigration(migration.MigrationId)
                 {
-                    Directory = GetDirectory(migrationNamespace, rootNamespace),
-                    ModelSnapshotDirectory = GetDirectory(modelSnapshotNamespace, rootNamespace),
+                    MigrationNamespace = migrationNamespace,
+                    ModelSnapshotNamespace = modelSnapshotNamespace,
                     SnapshotModelClass = GetClassName(migration.TargetModel),
                     Language = _migrationCodeGenerator.Language,
                     MigrationCode = migrationCode.ToString(),
                     MigrationMetadataCode = migrationMetadataCode.ToString(),
-                    SnapshotModelCode = snapshotModelCode.ToString()
+                    SnapshotModelCode = snapshotModelCode.ToString(),
+                    LastMigration = lastMigration,
+                    LastModelSnapshot = lastModelSnapshot
                 };
         }
 
@@ -195,11 +197,31 @@ namespace Microsoft.Data.Entity.Commands.Migrations
         }
 
         // Internal for testing
-        protected internal virtual string GetNamespace([CanBeNull] Migration lastMigration, [NotNull] string rootNamespace)
+        protected internal virtual string GetNamespace(
+            [CanBeNull] Migration lastMigration,
+            [NotNull] string rootNamespace,
+            [NotNull] Type contextType)
         {
             Check.NotEmpty(rootNamespace, "rootNamespace");
+            Check.NotNull(contextType, "contextType");
 
-            return lastMigration?.GetType().Namespace ?? rootNamespace + ".Migrations";
+            if (lastMigration != null)
+            {
+                return lastMigration.GetType().Namespace;
+            }
+
+            var @namespace = rootNamespace + ".Migrations";
+
+            var existingMigrations =
+                from t in MigrationAssembly.GetMigrationTypes(MigrationAssembly.Assembly)
+                where t.Namespace == @namespace && MigrationAssembly.TryGetContextType(t) != contextType
+                select t;
+            if (existingMigrations.Any())
+            {
+                return @namespace + "." + contextType.Name;
+            }
+
+            return @namespace;
         }
 
         // Internal for testing
@@ -210,16 +232,6 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             Check.NotEmpty(migrationNamespace, "migrationNamespace");
 
             return modelSnapshot?.GetType().Namespace ?? migrationNamespace;
-        }
-
-        // Internal for testing
-        protected internal virtual string GetDirectory(string @namespace, string rootNamespace)
-        {
-            var directory = @namespace.StartsWith(rootNamespace + '.')
-                ? @namespace.Substring(rootNamespace.Length + 1)
-                : @namespace;
-
-            return directory.Replace('.', Path.DirectorySeparatorChar);
         }
     }
 }

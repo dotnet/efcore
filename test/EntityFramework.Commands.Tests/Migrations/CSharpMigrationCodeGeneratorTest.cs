@@ -671,7 +671,7 @@ using System;
 
 namespace MyNamespace
 {
-    [ContextType(typeof(CSharpMigrationCodeGeneratorTest.MyContext))]
+    [ContextType(typeof(Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpMigrationCodeGeneratorTest.MyContext))]
     public partial class MyClass : IMigrationMetadata
     {
         string IMigrationMetadata.MigrationId

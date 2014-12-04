@@ -662,7 +662,7 @@ using System;
 
 namespace MyNamespace
 {
-    [ContextType(typeof(CSharpModelCodeGeneratorTest.MyContext))]
+    [ContextType(typeof(Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCodeGeneratorTest.MyContext))]
     public class MyClass : ModelSnapshot
     {
         public override IModel Model

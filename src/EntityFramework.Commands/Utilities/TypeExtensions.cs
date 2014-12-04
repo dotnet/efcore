@@ -9,11 +9,7 @@ namespace Microsoft.Data.Entity.Commands.Utilities
     {
         public static string GetNestedName(this Type type)
         {
-            return
-                (type.Namespace == null
-                    ? type.FullName
-                    : type.FullName.Substring(type.Namespace.Length + 1))
-                    .Replace("+", ".");
+            return type.FullName.Replace("+", ".");
         }
     }
 }
