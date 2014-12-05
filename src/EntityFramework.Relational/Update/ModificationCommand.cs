@@ -165,7 +165,7 @@ namespace Microsoft.Data.Entity.Relational.Update
             var columnOperations = ColumnModifications.Where(o => o.IsRead).ToArray();
             for (var i = 0; i < columnOperations.Length; i++)
             {
-                columnOperations[i].Value = reader.ReadValue<object>(i);
+                columnOperations[i].Value = reader.IsNull(i) ? null : reader.ReadValue<object>(i);
             }
         }
     }

@@ -34,9 +34,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             }
         }
 
-        //[Fact]
-        // TODO: GitHub#1184: InvalidCastException in ClrPropertySetter.SetClrValue, 
-        // probably because of a bug in the update pipeline.
+        [Fact]
         public void Can_use_computed_columns_with_null_values()
         {
             var serviceProvider = new ServiceCollection()
