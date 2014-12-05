@@ -8,6 +8,7 @@ using System.Text;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Commands.Migrations;
 using Microsoft.Data.Entity.Relational.Migrations;
+using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 
@@ -15,12 +16,13 @@ namespace Microsoft.Data.Entity.Commands.Utilities
 {
     public abstract class CommandLogger : ILogger
     {
-        private static readonly string[] _includedNames =
-            {
-                typeof(MigrationTool).FullName,
-                typeof(Migrator).FullName,
-                typeof(MigrationScaffolder).FullName
-            };
+        private static readonly string[] _includedNames = new[]
+        {
+            typeof(MigrationTool).FullName,
+            typeof(Migrator).FullName,
+            typeof(MigrationScaffolder).FullName,
+            typeof(ReverseEngineeringGenerator).FullName,
+        };
 
         private readonly string _name;
         private readonly bool _enabledByName;

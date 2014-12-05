@@ -16,6 +16,15 @@ namespace Microsoft.Data.Entity.Utilities
 
         private readonly StringBuilder _stringBuilder = new StringBuilder();
 
+        public IndentedStringBuilder()
+        {
+        }
+
+        public IndentedStringBuilder(IndentedStringBuilder from)
+        {
+            _indent = from._indent;
+        }
+
         public virtual IndentedStringBuilder Append([NotNull] object o)
         {
             Check.NotNull(o, "o");
@@ -44,6 +53,21 @@ namespace Microsoft.Data.Entity.Utilities
 
             _indentPending = true;
 
+            return this;
+        }
+
+        public virtual IndentedStringBuilder IncrementIndent()
+        {
+            _indent++;
+            return this;
+        }
+
+        public virtual IndentedStringBuilder DecrementIndent()
+        {
+            if (_indent > 0)
+            {
+                _indent--;
+            }
             return this;
         }
 

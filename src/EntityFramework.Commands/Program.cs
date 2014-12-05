@@ -6,10 +6,14 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Commands.Utilities;
+using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
 using Microsoft.Data.Entity.Utilities;
+using Microsoft.Framework.DependencyInjection;
+using Microsoft.Framework.Logging;
 using Microsoft.Framework.Runtime;
 using Microsoft.Framework.Runtime.Common.CommandLine;
 
@@ -18,17 +22,23 @@ namespace Microsoft.Data.Entity.Commands
     // TODO: Add verbose option
     public class Program
     {
+        public static readonly string _defaultReverseEngineeringProviderAssembly = "EntityFramework.SqlServer.Design";
+
+        private readonly IServiceProvider _serviceProvider;
         private readonly string _projectDir;
         private readonly string _rootNamespace;
         private readonly ILibraryManager _libraryManager;
         private readonly MigrationTool _migrationTool;
         private CommandLineApplication _app;
 
-        public Program([NotNull] IApplicationEnvironment appEnv, [NotNull] ILibraryManager libraryManager)
+        public Program([NotNull] IServiceProvider serviceProvider,
+            [NotNull] IApplicationEnvironment appEnv, [NotNull] ILibraryManager libraryManager)
         {
+            Check.NotNull(serviceProvider, nameof(serviceProvider));
             Check.NotNull(appEnv, nameof(appEnv));
             Check.NotNull(libraryManager, nameof(libraryManager));
 
+            _serviceProvider = serviceProvider;
             _projectDir = appEnv.ApplicationBasePath;
             _rootNamespace = appEnv.ApplicationName;
 
@@ -163,6 +173,19 @@ namespace Microsoft.Data.Entity.Commands
                 },
                 addHelpCommand: false);
             _app.Command(
+                "revEng",
+                revEng =>
+                {
+                    revEng.Description = "Command to reverse engineer code from a database";
+                    revEng.HelpOption("-h|--help");
+                    var connectionString = revEng.Argument(
+                            "[connectionString]",
+                            "The connection string of the database");
+
+                    revEng.OnExecute(() => ReverseEngineer(connectionString.Value));
+                },
+                addHelpCommand: false);
+            _app.Command(
                 "help",
                 help =>
                 {
@@ -272,6 +295,35 @@ namespace Microsoft.Data.Entity.Commands
             return 0;
         }
 
+        public virtual int ReverseEngineer(string connectionString)
+        {
+            var providerAssembly = GetReverseEngineerProviderAssembly(_defaultReverseEngineeringProviderAssembly);
+            if (providerAssembly == null)
+            {
+                Console.WriteLine("No provider assembly was found with name " + _defaultReverseEngineeringProviderAssembly);
+                return 1;
+            }
+
+            var configuration = new ReverseEngineeringConfiguration()
+            {
+                ProviderAssembly = providerAssembly,
+                ConnectionString = connectionString,
+                OutputPath = _projectDir,
+                Namespace = _rootNamespace
+            };
+
+            var serviceProvider = new ServiceProvider(_serviceProvider);
+            var loggerFactory = new LoggerFactory();
+            var loggerProvider = new LoggerProvider(name => new ConsoleCommandLogger(name, verbose: true));
+            loggerFactory.AddProvider(loggerProvider);
+            var logger = loggerFactory.Create<ReverseEngineeringGenerator>();
+            serviceProvider.AddService(typeof(ILogger), logger);
+            var generator = new ReverseEngineeringGenerator(serviceProvider);
+            generator.Generate(configuration).Wait();
+
+            return 0;
+        }
+
         public virtual int ShowHelp([CanBeNull] string command)
         {
             // TODO: Enable multiple parameters in escape sequences
@@ -325,6 +377,16 @@ namespace Microsoft.Data.Entity.Commands
             }
 
             return projectDir;
+        }
+
+        private Assembly GetReverseEngineerProviderAssembly(string providerAssemblyName)
+        {
+            return _libraryManager.GetReferencingLibraries("EntityFramework.Relational.Design")
+                .Distinct()
+                .Where(l => l.Name == providerAssemblyName)
+                .SelectMany(l => l.LoadableAssemblies)
+                .Select((assemblyName, assembly) => Assembly.Load(assemblyName))
+                .FirstOrDefault();
         }
     }
 }
