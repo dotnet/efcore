@@ -254,14 +254,14 @@ namespace Microsoft.Data.Entity
         {
             Check.NotNull(entity, "entity");
 
-            return new EntityEntry<TEntity>(GetStateManager().GetOrCreateEntry(entity));
+            return new EntityEntry<TEntity>(this, GetStateManager().GetOrCreateEntry(entity));
         }
 
         public virtual EntityEntry Entry([NotNull] object entity)
         {
             Check.NotNull(entity, "entity");
 
-            return new EntityEntry(GetStateManager().GetOrCreateEntry(entity));
+            return new EntityEntry(this, GetStateManager().GetOrCreateEntry(entity));
         }
 
         public virtual EntityEntry<TEntity> Add<TEntity>([NotNull] TEntity entity)
@@ -435,7 +435,7 @@ namespace Microsoft.Data.Entity
         {
             var stateManager = GetStateManager();
 
-            return entities.Select(e => new EntityEntry<TEntity>( stateManager.GetOrCreateEntry(e))).ToList();
+            return entities.Select(e => new EntityEntry<TEntity>(this, stateManager.GetOrCreateEntry(e))).ToList();
         }
 
         public virtual IReadOnlyList<EntityEntry> Add([NotNull] params object[] entities)
@@ -507,7 +507,7 @@ namespace Microsoft.Data.Entity
         {
             var stateManager = GetStateManager();
 
-            return entities.Select(e => new EntityEntry(stateManager.GetOrCreateEntry(e))).ToList();
+            return entities.Select(e => new EntityEntry(this, stateManager.GetOrCreateEntry(e))).ToList();
         }
 
         public virtual Database Database

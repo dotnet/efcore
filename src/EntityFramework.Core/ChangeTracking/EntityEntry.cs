@@ -10,41 +10,36 @@ namespace Microsoft.Data.Entity.ChangeTracking
     [DebuggerDisplay("{_stateEntry,nq}")]
     public class EntityEntry
     {
-        private readonly StateEntry _stateEntry;
-
-        public EntityEntry([NotNull] StateEntry stateEntry)
+        public EntityEntry([NotNull] DbContext context, [NotNull] StateEntry stateEntry)
         {
             Check.NotNull(stateEntry, "stateEntry");
+            Check.NotNull(context, "context");
 
-            _stateEntry = stateEntry;
+            StateEntry = stateEntry;
+            Context = context;
         }
 
-        public virtual object Entity
-        {
-            get { return _stateEntry.Entity; }
-        }
+        public virtual object Entity => StateEntry.Entity;
 
         public virtual EntityState State
         {
-            get { return _stateEntry.EntityState; }
+            get { return StateEntry.EntityState; }
             set
             {
                 Check.IsDefined(value, "value");
 
-                _stateEntry.EntityState = value;
+                StateEntry.EntityState = value;
             }
         }
 
-        public virtual StateEntry StateEntry
-        {
-            get { return _stateEntry; }
-        }
+        public virtual StateEntry StateEntry { get; }
+        public virtual DbContext Context { get; }
 
         public virtual PropertyEntry Property([NotNull] string propertyName)
         {
             Check.NotEmpty(propertyName, "propertyName");
 
-            return new PropertyEntry(_stateEntry, propertyName);
+            return new PropertyEntry(StateEntry, propertyName);
         }
     }
 }

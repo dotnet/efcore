@@ -69,6 +69,7 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddScoped<ValueGenerationManager>()
                 .AddScoped<EntityQueryExecutor>()
                 .AddScoped<ChangeTracker>()
+                .AddScoped<EntityEntryGraphIterator>()
                 .AddScoped(DbContextServices.ModelFactory)
                 .AddScoped(DbContextServices.ContextFactory)
                 .AddScoped(DbContextServices.ContextOptionsFactory)

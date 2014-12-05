@@ -10,15 +10,12 @@ namespace Microsoft.Data.Entity.ChangeTracking
 {
     public class EntityEntry<TEntity> : EntityEntry
     {
-        public EntityEntry([NotNull] StateEntry stateEntry)
-            : base(stateEntry)
+        public EntityEntry([NotNull] DbContext context, [NotNull] StateEntry stateEntry)
+            : base(context, stateEntry)
         {
         }
 
-        public new virtual TEntity Entity
-        {
-            get { return (TEntity)base.Entity; }
-        }
+        public new virtual TEntity Entity => (TEntity)base.Entity;
 
         public virtual PropertyEntry<TEntity, TProperty> Property<TProperty>(
             [NotNull] Expression<Func<TEntity, TProperty>> propertyExpression)
