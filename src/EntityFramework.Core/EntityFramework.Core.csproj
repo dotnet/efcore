@@ -295,7 +295,7 @@
     <Compile Include="..\Shared\StringBuilderExtensions.cs" />
     <Compile Include="..\Shared\SharedTypeExtensions.cs" />
     <EmbeddedResource Include="Properties\Strings.resx">
-      <LogicalName>EntityFramework.Strings.resources</LogicalName>
+      <LogicalName>EntityFramework.Core.Strings.resources</LogicalName>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <Content Include="..\..\tools\Resources.tt">
