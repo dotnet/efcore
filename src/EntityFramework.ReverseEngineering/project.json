@@ -1,0 +1,39 @@
+{
+    "version": "7.0.0-*",
+    "description": "Reverse Engineering utilities for Entity Framework.",
+    "compilationOptions": {
+        "warningsAsErrors": true
+    },
+    "dependencies": {
+        "EntityFramework": "",
+        "Microsoft.Framework.CodeGeneration": "1.0.0-*",
+        "Microsoft.Framework.CodeGeneration.Core": "1.0.0-*",
+        "Microsoft.Framework.CodeGeneration.Common": "1.0.0-*",
+        "Microsoft.Framework.Runtime.Interfaces": "1.0.0-*"
+    },
+    "code": [ "**\\*.cs", "..\\Shared\\CodeAnnotations.cs" ],
+    "frameworks": {
+        "aspnet50": {
+            "frameworkAssemblies": {
+                "System.Collections": "",
+                "System.Diagnostics.Debug": "",
+                "System.Diagnostics.Tools": "",
+                "System.Globalization": "",
+                "System.Linq": "",
+                "System.Linq.Expressions": "",
+                "System.Linq.Queryable": "",
+                "System.ObjectModel": "",
+                "System.Reflection": "",
+                "System.Reflection.Extensions": "",
+                "System.Resources.ResourceManager": "",
+                "System.Runtime": "",
+                "System.Runtime.Extensions": "",
+                "System.Runtime.InteropServices": "",
+                "System.Threading": ""
+            }
+        }
+    },
+    "commands": { 
+        "gen":  "Microsoft.Framework.CodeGeneration"
+    }
+}
