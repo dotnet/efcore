@@ -346,12 +346,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 return constantExpression;
             }
 
-            var underlyingType = constantExpression.Type.UnwrapNullableType();
-
-            if (underlyingType.GetTypeInfo().IsEnum)
-            {
-                underlyingType = Enum.GetUnderlyingType(underlyingType);
-            }
+            var underlyingType = constantExpression.Type.UnwrapNullableType().UnwrapEnumType();
 
             if (_supportedConstantTypes.Contains(underlyingType))
             {

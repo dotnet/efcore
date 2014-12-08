@@ -35,7 +35,9 @@ namespace Microsoft.Data.Entity.Commands.Utilities
         public static string GetTypeName(this Type type)
         {
             string name;
-            return _typeNames.TryGetValue(type, out name) ? name : type.Name;
+            var underlyingType = type.UnwrapNullableType().UnwrapEnumType();
+
+            return (_typeNames.TryGetValue(underlyingType, out name) ? name : underlyingType.Name) + (Nullable.GetUnderlyingType(type) != null ? "?" : "");
         }
     }
 }
