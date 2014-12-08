@@ -12,11 +12,6 @@
     "frameworks": {
         "net451": { },
         "aspnet50": { },
-        "aspnetcore50": { },
-        ".NETPortable,Version=v4.6,Profile=Profile151": {
-            "frameworkAssemblies": {
-                "System.Text.RegularExpressions": ""
-            }
-        }
+        "aspnetcore50": { }
     }
 }

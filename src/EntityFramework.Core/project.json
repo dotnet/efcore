@@ -58,14 +58,6 @@
                 "System.ObjectModel": "4.0.10-beta-*",
                 "System.Reflection.Extensions": "4.0.0-beta-*"
             }
-        },
-        ".NETPortable,Version=v4.6,Profile=Profile151": {
-            "frameworkAssemblies": {
-                "System.Diagnostics.Contracts": "",
-                "System.Linq.Queryable": "",
-                "System.ObjectModel": "",
-                "System.Reflection.Extensions": ""
-            }
         }
     }
 }

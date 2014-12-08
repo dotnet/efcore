@@ -23,11 +23,6 @@
                 "Microsoft.AspNet.Hosting": "1.0.0-*",
                 "Microsoft.Framework.CommandLineUtils": { "version": "1.0.0-*", "type": "build" }
             }
-        },
-        ".NETPortable,Version=v4.6,Profile=Profile151": {
-            "bin": {
-                "assembly": "lib\\portable-net451+win81+wpa81\\_._"
-            }
         }
     },
     "commands": { 
