@@ -39,11 +39,9 @@ Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFramework.Core.Tests"
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFramework.Relational.FunctionalTests", "test\EntityFramework.Relational.FunctionalTests\EntityFramework.Relational.FunctionalTests.kproj", "{C9370CB1-1295-4163-9BAB-6B5E9A35595B}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Perf", "Perf", "{22A56D45-1A71-40B6-97A4-27AC131AAC1D}"
-EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFramework.Commands.FunctionalTests", "test\EntityFramework.Commands.FunctionalTests\EntityFramework.Commands.FunctionalTests.kproj", "{CCEAA6B7-9270-4F5D-8F50-F2773F2A87CE}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFramework.Microbenchmarks", "test\Perf\EntityFramework.Microbenchmarks\EntityFramework.Microbenchmarks.kproj", "{E800A5B3-8620-4826-8CE2-B8BE1F754DD1}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFramework.Microbenchmarks", "test\EntityFramework.Microbenchmarks\EntityFramework.Microbenchmarks.kproj", "{E800A5B3-8620-4826-8CE2-B8BE1F754DD1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -144,8 +142,7 @@ Global
 		{9A520B14-4E04-4D20-8821-C1C085B64EBA} = {C605BAB7-B06E-4BDF-80B2-E661B7670E25}
 		{E7FDBBB3-9D5F-4FAB-8515-B02B688F81A1} = {C605BAB7-B06E-4BDF-80B2-E661B7670E25}
 		{C9370CB1-1295-4163-9BAB-6B5E9A35595B} = {C605BAB7-B06E-4BDF-80B2-E661B7670E25}
-		{22A56D45-1A71-40B6-97A4-27AC131AAC1D} = {C605BAB7-B06E-4BDF-80B2-E661B7670E25}
 		{CCEAA6B7-9270-4F5D-8F50-F2773F2A87CE} = {C605BAB7-B06E-4BDF-80B2-E661B7670E25}
-		{E800A5B3-8620-4826-8CE2-B8BE1F754DD1} = {22A56D45-1A71-40B6-97A4-27AC131AAC1D}
+		{E800A5B3-8620-4826-8CE2-B8BE1F754DD1} = {C605BAB7-B06E-4BDF-80B2-E661B7670E25}
 	EndGlobalSection
 EndGlobal

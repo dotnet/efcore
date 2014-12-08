@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.22228.1
+VisualStudioVersion = 14.0.22310.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{35BED7DE-CA6F-41EA-91E3-25CA7295C7B9}"
 EndProject
@@ -39,13 +39,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.Commands.Te
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.Relational.FunctionalTests", "test\EntityFramework.Relational.FunctionalTests\EntityFramework.Relational.FunctionalTests.csproj", "{82FAD20C-28C6-4B48-B7E4-971AC821E27A}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Perf", "Perf", "{FBEBCED5-F50F-4F2F-954F-5F2E65777672}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.Commands.FunctionalTests", "test\EntityFramework.Commands.FunctionalTests\EntityFramework.Commands.FunctionalTests.csproj", "{43FC8426-D120-44F7-B6D7-6F256D78B5BE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.CrossStore.FunctionalTests", "test\EntityFramework.CrossStore.FunctionalTests\EntityFramework.CrossStore.FunctionalTests.csproj", "{A3DE8824-240C-4313-8C36-264BCCEF8B54}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.Microbenchmarks", "test\Perf\EntityFramework.Microbenchmarks\EntityFramework.Microbenchmarks.csproj", "{F44DC472-86A1-4A60-B5C4-98D76D7B34AF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.Microbenchmarks", "test\EntityFramework.Microbenchmarks\EntityFramework.Microbenchmarks.csproj", "{F44DC472-86A1-4A60-B5C4-98D76D7B34AF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -150,9 +148,8 @@ Global
 		{10CA97EB-E724-4F08-86AF-F301F2B0BFFF} = {35BED7DE-CA6F-41EA-91E3-25CA7295C7B9}
 		{38F9AD16-B3B4-48A5-B814-77660CF409AE} = {547020C0-976F-4542-81CE-7FD465595614}
 		{82FAD20C-28C6-4B48-B7E4-971AC821E27A} = {547020C0-976F-4542-81CE-7FD465595614}
-		{FBEBCED5-F50F-4F2F-954F-5F2E65777672} = {547020C0-976F-4542-81CE-7FD465595614}
 		{43FC8426-D120-44F7-B6D7-6F256D78B5BE} = {547020C0-976F-4542-81CE-7FD465595614}
 		{A3DE8824-240C-4313-8C36-264BCCEF8B54} = {547020C0-976F-4542-81CE-7FD465595614}
-		{F44DC472-86A1-4A60-B5C4-98D76D7B34AF} = {FBEBCED5-F50F-4F2F-954F-5F2E65777672}
+		{F44DC472-86A1-4A60-B5C4-98D76D7B34AF} = {547020C0-976F-4542-81CE-7FD465595614}
 	EndGlobalSection
 EndGlobal
