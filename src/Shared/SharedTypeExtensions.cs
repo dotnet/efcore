@@ -72,5 +72,10 @@ namespace System
             return type.IsInteger()
                    || type.IsNonIntegerPrimitive();
         }
+
+        public static Type UnwrapEnumType(this Type type)
+        {
+            return type.GetTypeInfo().IsEnum ? Enum.GetUnderlyingType(type) : type;
+        }
     }
 }

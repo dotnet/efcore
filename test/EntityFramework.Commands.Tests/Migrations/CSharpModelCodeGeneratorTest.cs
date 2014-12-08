@@ -642,6 +642,96 @@ return builder.Model;",
         }
 
         [Fact]
+        public void Generate_entity_type_with_nullable_property()
+        {
+            var builder = new BasicModelBuilder();
+            builder.Entity<Customer>(b =>
+            {
+                b.Property(e => e.Id);
+                b.Property(e => e.ZipCode);
+                b.Key(e => e.Id);
+            });
+
+            var stringBuilder = new IndentedStringBuilder();
+            new CSharpModelCodeGenerator().Generate(builder.Model, stringBuilder);
+
+            Assert.Equal(
+                @"var builder = new BasicModelBuilder();
+
+builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCodeGeneratorTest+Customer"", b =>
+    {
+        b.Property<int>(""Id"");
+        b.Property<int?>(""ZipCode"");
+        b.Key(""Id"");
+    });
+
+return builder.Model;",
+                stringBuilder.ToString());
+
+            GenerateAndValidateCode(builder.Model);
+        }
+
+        [Fact]
+        public void Generate_entity_type_with_enum_property()
+        {
+            var builder = new BasicModelBuilder();
+            builder.Entity<Customer>(b =>
+            {
+                b.Property(e => e.Id);
+                b.Property(e => e.Day);
+                b.Key(e => e.Id);
+            });
+
+            var stringBuilder = new IndentedStringBuilder();
+            new CSharpModelCodeGenerator().Generate(builder.Model, stringBuilder);
+
+            Assert.Equal(
+                @"var builder = new BasicModelBuilder();
+
+builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCodeGeneratorTest+Customer"", b =>
+    {
+        b.Property<byte>(""Day"");
+        b.Property<int>(""Id"");
+        b.Key(""Id"");
+    });
+
+return builder.Model;",
+                stringBuilder.ToString());
+
+            GenerateAndValidateCode(builder.Model);
+        }
+
+        [Fact]
+        public void Generate_entity_type_with_nullable_enum_property()
+        {
+            var builder = new BasicModelBuilder();
+            builder.Entity<Customer>(b =>
+            {
+                b.Property(e => e.Id);
+                b.Property(e => e.OptionalDay);
+                b.Key(e => e.Id);
+            });
+
+            var stringBuilder = new IndentedStringBuilder();
+            new CSharpModelCodeGenerator().Generate(builder.Model, stringBuilder);
+
+            Assert.Equal(
+                @"var builder = new BasicModelBuilder();
+
+builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCodeGeneratorTest+Customer"", b =>
+    {
+        b.Property<int>(""Id"");
+        b.Property<byte?>(""OptionalDay"");
+        b.Key(""Id"");
+    });
+
+return builder.Model;",
+                stringBuilder.ToString());
+
+            GenerateAndValidateCode(builder.Model);
+        }
+
+        [Fact]
         public void Generate_model_snapshot_class()
         {
             var model = new Model();
@@ -732,6 +822,20 @@ namespace MyNamespace
         {
             public int Id { get; set; }
             public string Name { get; set; }
+            public int? ZipCode { get; set; }
+            public Days Day { get; set; }
+            public Days? OptionalDay { get; set; }
+        }
+
+        public enum Days : byte
+        {
+            Sun,
+            Mon,
+            Tue,
+            Wed,
+            Thu,
+            Fri,
+            Sat
         }
 
         private class Order

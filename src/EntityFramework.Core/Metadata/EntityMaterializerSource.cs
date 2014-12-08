@@ -70,10 +70,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             var unwrappedTargetMemberType = type.UnwrapNullableType();
 
-            var underlyingTargetMemberType
-                = unwrappedTargetMemberType.GetTypeInfo().IsEnum
-                    ? Enum.GetUnderlyingType(unwrappedTargetMemberType)
-                    : type;
+            var underlyingTargetMemberType = unwrappedTargetMemberType.UnwrapEnumType();
 
             var indexExpression = Expression.Constant(index);
 

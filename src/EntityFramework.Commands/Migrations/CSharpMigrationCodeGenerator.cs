@@ -994,16 +994,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
         {
             Check.NotNull(clrType, "clrType");
 
-            var underlyingType = Nullable.GetUnderlyingType(clrType);
-            if (underlyingType != null)
-            {
-                clrType = underlyingType;
-            }
-
-            if (clrType.GetTypeInfo().IsEnum)
-            {
-                clrType = Enum.GetUnderlyingType(clrType);
-            }
+            clrType = clrType.UnwrapNullableType().UnwrapEnumType();
 
             if (clrType == typeof(short))
             {
