@@ -47,7 +47,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 stateEntry[idProperty] = 42;
                 stateEntry[nameProperty] = "The";
 
-                stateEntry.EntityState = EntityState.Added;
+                stateEntry.SetEntityState(EntityState.Added);
 
                 context.SaveChanges();
             }

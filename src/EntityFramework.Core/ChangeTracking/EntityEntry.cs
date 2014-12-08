@@ -2,6 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 
@@ -21,15 +23,21 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         public virtual object Entity => StateEntry.Entity;
 
-        public virtual EntityState State
-        {
-            get { return StateEntry.EntityState; }
-            set
-            {
-                Check.IsDefined(value, "value");
+        public virtual EntityState State => StateEntry.EntityState;
 
-                StateEntry.EntityState = value;
-            }
+        public virtual void SetState(EntityState entityState)
+        {
+            Check.IsDefined(entityState, "entityState");
+
+            StateEntry.SetEntityState(entityState);
+        }
+
+        public virtual Task SetStateAsync(
+            EntityState entityState, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Check.IsDefined(entityState, "entityState");
+
+            return StateEntry.SetEntityStateAsync(entityState, cancellationToken);
         }
 
         public virtual StateEntry StateEntry { get; }

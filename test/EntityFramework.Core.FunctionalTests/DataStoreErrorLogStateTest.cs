@@ -40,7 +40,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 context.Blogs.Add(new BloggingContext.Blog(jimSaysThrow: false) { Url = "http://sample.com" });
                 context.SaveChanges();
-                context.ChangeTracker.Entries().Single().State = EntityState.Added;
+                context.ChangeTracker.Entries().Single().SetState(EntityState.Added);
 
                 Exception ex;
                 if (async)

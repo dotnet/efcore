@@ -128,7 +128,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             _identityMap.Add(keyValue, newEntry);
             _entityReferenceMap[entity] = newEntry;
 
-            newEntry.EntityState = EntityState.Unchanged;
+            newEntry.SetEntityState(EntityState.Unchanged);
         }
 
         public virtual StateEntry GetOrMaterializeEntry([NotNull] IEntityType entityType, [NotNull] IValueReader valueReader)
@@ -156,7 +156,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 _entityReferenceMap[entity] = newEntry;
             }
 
-            newEntry.EntityState = EntityState.Unchanged;
+            newEntry.SetEntityState(EntityState.Unchanged);
 
             return newEntry;
         }

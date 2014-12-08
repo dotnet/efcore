@@ -165,17 +165,17 @@ namespace EntityFramework.Microbenchmarks.CudPerf
                 {
                     foreach (var orderLineEntry in context.ChangeTracker.Entries<OrderLine>())
                     {
-                        orderLineEntry.State = EntityState.Deleted;
+                        orderLineEntry.SetState(EntityState.Deleted);
                     }
 
                     foreach (var orderEntry in context.ChangeTracker.Entries<Order>())
                     {
-                        orderEntry.State = EntityState.Deleted;
+                        orderEntry.SetState(EntityState.Deleted);
                     }
 
                     foreach (var customerEntry in context.ChangeTracker.Entries<Customer>())
                     {
-                        customerEntry.State = EntityState.Deleted;
+                        customerEntry.SetState(EntityState.Deleted);
                     }
 
                     context.SaveChanges();
@@ -217,7 +217,7 @@ namespace EntityFramework.Microbenchmarks.CudPerf
 
                     foreach (var orderLineEntry in context.ChangeTracker.Entries<OrderLine>())
                     {
-                        orderLineEntry.State = EntityState.Deleted;
+                        orderLineEntry.SetState(EntityState.Deleted);
                     }
 
                     CudContext.InsertTestingData(context);
