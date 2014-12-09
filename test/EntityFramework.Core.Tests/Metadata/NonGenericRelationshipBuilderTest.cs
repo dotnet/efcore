@@ -4972,6 +4972,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             public int Id { get; set; }
             public int AlternateKey { get; set; }
+            public Guid GuidKey { get; set; }
             public string Name { get; set; }
 
             public IEnumerable<Order> Orders { get; set; }

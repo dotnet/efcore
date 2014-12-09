@@ -19,7 +19,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
             // TODO: Bug #1116
             modelBuilder.Entity<Address>().Property(a => a.Id).GenerateValueOnAdd(false);
 
-            // TODO: Bugs #1123, #1124, #1125
             modelBuilder.Entity<Address2>().Property<int>("PersonId");
 
             modelBuilder

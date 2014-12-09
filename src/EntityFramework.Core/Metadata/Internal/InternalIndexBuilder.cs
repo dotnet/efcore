@@ -16,9 +16,19 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual bool IsUnique(bool isUnique, ConfigurationSource configurationSource)
         {
-            if (configurationSource.CanSet(_isUniqueConfigurationSource, Metadata.IsUnique.HasValue))
+            if (configurationSource.CanSet(_isUniqueConfigurationSource, Metadata.IsUnique.HasValue)
+                || Metadata.IsUnique.Value == isUnique)
             {
-                _isUniqueConfigurationSource = configurationSource;
+                if (_isUniqueConfigurationSource == null
+                    && Metadata.IsUnique != null)
+                {
+                    _isUniqueConfigurationSource = ConfigurationSource.Explicit;
+                }
+                else
+                {
+                    _isUniqueConfigurationSource = configurationSource.Max(_isUniqueConfigurationSource);
+                }
+
                 Metadata.IsUnique = isUnique;
                 return true;
             }

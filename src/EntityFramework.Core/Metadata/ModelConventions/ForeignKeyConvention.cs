@@ -41,95 +41,138 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             [NotNull] EntityType dependentType,
             [CanBeNull] string navigationToPrincipal,
             [CanBeNull] string navigationToDependent,
-            [NotNull] IReadOnlyList<Property> foreignKeyProperties,
-            [NotNull] IReadOnlyList<Property> referencedProperties,
+            [CanBeNull] IReadOnlyList<Property> foreignKeyProperties,
+            [CanBeNull] IReadOnlyList<Property> referencedProperties,
             bool isUnique)
         {
             Check.NotNull(principalType, "principalType");
             Check.NotNull(dependentType, "dependentType");
 
-            IReadOnlyList<IReadOnlyList<Property>> foreignKeyCandidates;
-            if (foreignKeyProperties.Any())
+            var foreignKey =
+                TryGetForeignKey(
+                    principalType,
+                    dependentType,
+                    navigationToPrincipal,
+                    navigationToDependent,
+                    foreignKeyProperties,
+                    referencedProperties,
+                    isUnique);
+
+            if (foreignKey != null)
             {
-                foreignKeyCandidates = new List<IReadOnlyList<Property>> { foreignKeyProperties };
-            }
-            else if (referencedProperties.Count <= 1)
-            {
-                foreignKeyCandidates = GetCandidateForeignKeyProperties(principalType, dependentType, navigationToPrincipal, isUnique);
-                foreignKeyProperties = foreignKeyCandidates.FirstOrDefault() ?? ImmutableList<Property>.Empty;
-            }
-            else
-            {
-                foreignKeyCandidates = new List<IReadOnlyList<Property>>();
+                return foreignKey;
             }
 
-            // If existing FK matches, then use it
-            if (!foreignKeyCandidates.Any())
-            {
-                var foreignKey = dependentType.ForeignKeys
-                    .FirstOrDefault(fk => ((IForeignKey)fk).IsUnique == isUnique
-                                          && fk.ReferencedEntityType == principalType
-                                          && fk.EntityType.Navigations.All(n => n.ForeignKey != fk || !n.PointsToPrincipal || n.Name == navigationToPrincipal)
-                                          && fk.ReferencedEntityType.Navigations.All(n => n.ForeignKey != fk || n.PointsToPrincipal || n.Name == navigationToDependent)
-                                          && (!referencedProperties.Any()
-                                              || fk.ReferencedKey.Properties.SequenceEqual(referencedProperties)));
+            return CreateForeignKeyByConvention(
+                principalType,
+                dependentType,
+                navigationToPrincipal,
+                foreignKeyProperties,
+                referencedProperties,
+                isUnique);
+        }
 
-                if (foreignKey != null)
+        public virtual ForeignKey TryGetForeignKey(
+            [NotNull] EntityType principalType,
+            [NotNull] EntityType dependentType,
+            [CanBeNull] string navigationToPrincipal,
+            [CanBeNull] string navigationToDependent,
+            [CanBeNull] IReadOnlyList<Property> foreignKeyProperties,
+            [CanBeNull] IReadOnlyList<Property> referencedProperties,
+            bool isUnique)
+        {
+            Check.NotNull(principalType, "principalType");
+            Check.NotNull(dependentType, "dependentType");
+
+            return dependentType.ForeignKeys.FirstOrDefault(fk =>
+                fk.IsCompatible(
+                    principalType,
+                    dependentType,
+                    navigationToPrincipal,
+                    navigationToDependent,
+                    foreignKeyProperties,
+                    referencedProperties,
+                    isUnique));
+        }
+
+        public virtual ForeignKey CreateForeignKeyByConvention(
+            [NotNull] EntityType principalType,
+            [NotNull] EntityType dependentType,
+            [CanBeNull] string navigationToPrincipal,
+            [CanBeNull] IReadOnlyList<Property> foreignKeyProperties,
+            [CanBeNull] IReadOnlyList<Property> referencedProperties,
+            bool isUnique)
+        {
+            Check.NotNull(principalType, "principalType");
+            Check.NotNull(dependentType, "dependentType");
+
+            if ((foreignKeyProperties == null || !foreignKeyProperties.Any()))
+            {
+                var principalKeyProperties = referencedProperties != null && referencedProperties.Any()
+                    ? referencedProperties
+                    : principalType.TryGetPrimaryKey()?.Properties;
+
+                if (principalKeyProperties != null
+                    && principalKeyProperties.Count == 1)
                 {
-                    return foreignKey;
+                    var foreignKeyCandidates = GetCandidateForeignKeyProperties(principalType, dependentType, navigationToPrincipal, isUnique);
+                    foreignKeyProperties = foreignKeyCandidates.FirstOrDefault() ?? ImmutableList<Property>.Empty;
+
+                    // If the best candidate fk is not available no further guesses will be performed
+                    if (foreignKeyProperties.Any()
+                        && dependentType.TryGetForeignKey(foreignKeyProperties) != null)
+                    {
+                        foreignKeyProperties = null;
+                    }
                 }
             }
 
-            foreach (var properties in foreignKeyCandidates)
-            {
-                var foreignKey = dependentType.ForeignKeys
-                    .FirstOrDefault(fk => fk.Properties.SequenceEqual(properties)
-                                          && ((IForeignKey)fk).IsUnique == isUnique
-                                          && fk.ReferencedEntityType == principalType
-                                          && fk.EntityType.Navigations.All(n => n.ForeignKey != fk || !n.PointsToPrincipal || n.Name == navigationToPrincipal)
-                                          && fk.ReferencedEntityType.Navigations.All(n => n.ForeignKey != fk || n.PointsToPrincipal || n.Name == navigationToDependent)
-                                          && (!referencedProperties.Any()
-                                              || fk.ReferencedKey.Properties.SequenceEqual(referencedProperties)));
+            return CreateForeignKey(
+                principalType,
+                dependentType,
+                navigationToPrincipal,
+                foreignKeyProperties,
+                referencedProperties,
+                isUnique);
+        }
 
-                if (foreignKey != null)
-                {
-                    return foreignKey;
-                }
+        public virtual ForeignKey CreateForeignKey(
+            [NotNull] EntityType principalType,
+            [NotNull] EntityType dependentType,
+            [CanBeNull] string navigationToPrincipal,
+            [CanBeNull] IReadOnlyList<Property> foreignKeyProperties,
+            [CanBeNull] IReadOnlyList<Property> referencedProperties,
+            bool isUnique)
+        {
+            foreignKeyProperties = foreignKeyProperties ?? ImmutableList<Property>.Empty;
+
+            if (foreignKeyProperties.Any()
+                && dependentType.TryGetForeignKey(foreignKeyProperties) != null)
+            {
+                return null;
             }
 
             Key principalKey;
-            if (referencedProperties.Any())
+            if (referencedProperties != null
+                && referencedProperties.Any())
             {
+                // TODO: Use ConfigurationSource
                 principalKey = principalType.GetOrAddKey(referencedProperties);
             }
             else
             {
-                // Use the primary key if it is compatible with the FK properties, otherwise create a principal key
+                // Use the primary key if it is compatible with the FK properties, otherwise return null
                 principalKey = principalType.TryGetPrimaryKey();
                 if (principalKey == null
                     || (foreignKeyProperties.Any()
                         && !principalKey.Properties.Select(p => p.UnderlyingType).SequenceEqual(foreignKeyProperties.Select(p => p.UnderlyingType))))
                 {
-                    // TODO: Convention property naming/disambiguation
-                    // Issue #213
-                    if (foreignKeyProperties.Any())
-                    {
-                        principalKey = principalType.GetOrAddKey(
-                            foreignKeyProperties.Select(p => principalType.GetOrAddProperty(p.Name + "Key", p.UnderlyingType, shadowProperty: true))
-                                .ToArray());
-                    }
-                    else
-                    {
-                        var shadowId = principalType.GetOrAddProperty(
-                            (navigationToPrincipal ?? principalType.SimpleName) + "IdKey", typeof(int), shadowProperty: true);
-                        principalKey = principalType.GetOrAddKey(new[] { shadowId });
-                    }
+                    return null;
                 }
             }
 
-            // Create foreign key properties in shadow state
-            if (!foreignKeyProperties.Any()
-                || dependentType.TryGetForeignKey(foreignKeyProperties) != null)
+            // Create foreign key properties in shadow state if no properties are specified
+            if (!foreignKeyProperties.Any())
             {
                 var baseName = (navigationToPrincipal ?? principalType.SimpleName) + "Id";
                 var isComposite = principalKey.Properties.Count > 1;
@@ -162,10 +205,14 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             EntityType principalType, EntityType dependentType, string navigationToPrincipal, bool isUnique)
         {
             var pk = principalType.TryGetPrimaryKey();
-            var pkPropertyName = pk != null && pk.Properties.Count == 1 ? pk.Properties[0].Name : null;
+            if (pk == null)
+            {
+                return new List<Property[]>();
+            }
+            
+            var pkPropertyName =  pk.Properties.Count == 1 ? pk.Properties[0].Name : null;
 
             var candidateNames = new List<string>();
-
             if (navigationToPrincipal != null)
             {
                 candidateNames.Add((navigationToPrincipal + "Id"));
@@ -203,8 +250,8 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
                     matches.Add(dependentPk.Properties.ToArray());
                 }
             }
-
-            return matches;
+            
+            return matches.Where(m => pk.Properties.Select(p => p.UnderlyingType).SequenceEqual(m.Select(p => p.UnderlyingType))).ToList();
         }
     }
 }

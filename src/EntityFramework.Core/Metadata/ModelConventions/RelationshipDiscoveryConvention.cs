@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             var navigationPairCandidates = new Dictionary<InternalEntityBuilder, Tuple<List<PropertyInfo>, List<PropertyInfo>>>();
             if (entityType.HasClrType)
             {
-                foreach (var navigationPropertyInfo in entityType.Type.GetRuntimeProperties())
+                foreach (var navigationPropertyInfo in entityType.Type.GetRuntimeProperties().OrderBy(p => p.Name))
                 {
                     Type entityClrType;
                     if (!navigationPropertyInfo.IsCandidateNavigationProperty(out entityClrType)
@@ -53,7 +53,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
 
                     navigationPairCandidates[targetEntityTypeBuilder] =
                         new Tuple<List<PropertyInfo>, List<PropertyInfo>>(navigations, reverseNavigations);
-                    foreach (var reversePropertyInfo in targetEntityTypeBuilder.Metadata.Type.GetRuntimeProperties())
+                    foreach (var reversePropertyInfo in targetEntityTypeBuilder.Metadata.Type.GetRuntimeProperties().OrderBy(p => p.Name))
                     {
                         Type reverseEntityClrType;
                         if (!reversePropertyInfo.IsCandidateNavigationProperty(out reverseEntityClrType)
@@ -110,10 +110,10 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
                     return;
                 }
 
-                targetBuilder.BuildRelationship(
-                    sourceBuilder.Metadata,
-                    targetBuilder.Metadata,
-                    navigationToSource == null ? null : navigationToSource.Name,
+                targetBuilder.Relationship(
+                    sourceBuilder,
+                    targetBuilder,
+                    navigationToSource?.Name,
                     navigationToTarget.Name,
                     /*oneToOne:*/ false,
                     ConfigurationSource.Convention);
@@ -122,9 +122,9 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             {
                 if (navigationToSource == null)
                 {
-                    targetBuilder.BuildRelationship(
-                        targetBuilder.Metadata,
-                        sourceBuilder.Metadata,
+                    targetBuilder.Relationship(
+                        targetBuilder,
+                        sourceBuilder,
                         navigationToTarget.Name,
                         /*navNameToDependent:*/ null,
                         /*oneToOne:*/ false,
@@ -134,9 +134,9 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
                 {
                     if (navigationToSource.PropertyType.TryGetSequenceType() == null)
                     {
-                        targetBuilder.BuildRelationship(
-                            sourceBuilder.Metadata,
-                            targetBuilder.Metadata,
+                        targetBuilder.Relationship(
+                            sourceBuilder,
+                            targetBuilder,
                             navigationToSource.Name,
                             navigationToTarget.Name,
                             /*oneToOne:*/ true,

@@ -291,7 +291,9 @@ namespace Microsoft.Data.Entity.Tests.Identity
             builder.Entity<OrderLine>(b =>
             {
                 b.Key(e => new { e.OrderId, e.ProductId });
-                b.OneToOne(e => e.Detail, e => e.OrderLine);
+                b.OneToOne(e => e.Detail, e => e.OrderLine)
+                // TODO: Remove this line when ForeignKeyConvention handles composite fks
+                .ForeignKey<OrderLineDetail>(e => new {e.OrderId, e.ProductId});
             });
 
             return model;

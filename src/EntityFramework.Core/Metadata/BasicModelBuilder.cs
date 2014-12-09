@@ -303,16 +303,16 @@ namespace Microsoft.Data.Entity.Metadata
 
             public class ForeignKeyBuilder : IForeignKeyBuilder<ForeignKeyBuilder>
             {
-                private readonly InternalForeignKeyBuilder _builder;
+                private readonly InternalRelationshipBuilder _builder;
 
-                public ForeignKeyBuilder([NotNull] InternalForeignKeyBuilder builder)
+                public ForeignKeyBuilder([NotNull] InternalRelationshipBuilder builder)
                 {
                     Check.NotNull(builder, "builder");
 
                     _builder = builder;
                 }
 
-                protected virtual InternalForeignKeyBuilder Builder
+                protected virtual InternalRelationshipBuilder Builder
                 {
                     get { return _builder; }
                 }
@@ -339,9 +339,7 @@ namespace Microsoft.Data.Entity.Metadata
 
                 public virtual ForeignKeyBuilder IsUnique(bool isUnique = true)
                 {
-                    Builder.IsUnique(isUnique, ConfigurationSource.Explicit);
-
-                    return this;
+                    return new ForeignKeyBuilder(Builder.Unique(isUnique, ConfigurationSource.Explicit));
                 }
             }
 

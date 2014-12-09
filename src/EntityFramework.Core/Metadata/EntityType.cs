@@ -498,13 +498,13 @@ namespace Microsoft.Data.Entity.Metadata
                 if (elementType == null
                     || !elementType.GetTypeInfo().IsAssignableFrom(targetClrType.GetTypeInfo()))
                 {
-                    throw new InvalidOperationException(Strings.WrongClrCollectionNavigationType(
+                    throw new InvalidOperationException(Strings.NavigationCollectionWrongClrType(
                         navigation.Name, Name, clrProperty.PropertyType.FullName, targetClrType.FullName));
                 }
             }
             else if (!clrProperty.PropertyType.GetTypeInfo().IsAssignableFrom(targetClrType.GetTypeInfo()))
             {
-                throw new InvalidOperationException(Strings.WrongClrSingleNavigationType(
+                throw new InvalidOperationException(Strings.NavigationSingleWrongClrType(
                     navigation.Name, Name, clrProperty.PropertyType.FullName, targetClrType.FullName));
             }
 
@@ -731,7 +731,7 @@ namespace Microsoft.Data.Entity.Metadata
 
                     if (property.PropertyType != clrProperty.PropertyType)
                     {
-                        throw new InvalidOperationException(Strings.WrongClrPropertyType(property.Name, Name));
+                        throw new InvalidOperationException(Strings.PropertyWrongClrType(property.Name, Name));
                     }
                 }
                 else

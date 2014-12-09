@@ -30,6 +30,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var metadata = builder.Metadata;
             metadata.IsUnique = true;
 
+            Assert.True(builder.IsUnique(true, ConfigurationSource.DataAnnotation));
             Assert.False(builder.IsUnique(false, ConfigurationSource.DataAnnotation));
 
             Assert.True(metadata.IsUnique.Value);

@@ -30,6 +30,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var metadata = builder.Metadata;
             metadata.IsConcurrencyToken = true;
 
+            Assert.True(builder.ConcurrencyToken(true, ConfigurationSource.DataAnnotation));
             Assert.False(builder.ConcurrencyToken(false, ConfigurationSource.DataAnnotation));
 
             Assert.True(metadata.IsConcurrencyToken.Value);
@@ -60,6 +61,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var metadata = builder.Metadata;
             metadata.GenerateValueOnAdd = true;
 
+            Assert.True(builder.GenerateValueOnAdd(true, ConfigurationSource.DataAnnotation));
             Assert.False(builder.GenerateValueOnAdd(false, ConfigurationSource.DataAnnotation));
 
             Assert.Equal(true, metadata.GenerateValueOnAdd);
@@ -90,6 +92,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var metadata = builder.Metadata;
             metadata.IsStoreComputed = true;
 
+            Assert.True(builder.StoreComputed(true, ConfigurationSource.DataAnnotation));
             Assert.False(builder.StoreComputed(false, ConfigurationSource.DataAnnotation));
 
             Assert.Equal(true, metadata.IsStoreComputed);
@@ -120,6 +123,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var metadata = builder.Metadata;
             metadata.MaxLength = 1;
 
+            Assert.True(builder.MaxLength(1, ConfigurationSource.DataAnnotation));
             Assert.False(builder.MaxLength(2, ConfigurationSource.DataAnnotation));
 
             Assert.Equal(1, metadata.MaxLength.Value);
@@ -150,6 +154,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var metadata = builder.Metadata;
             metadata.IsNullable = false;
 
+            Assert.True(builder.Required(true, ConfigurationSource.DataAnnotation));
             Assert.False(builder.Required(false, ConfigurationSource.DataAnnotation));
 
             Assert.False(metadata.IsNullable.Value);
@@ -181,6 +186,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var builder = entityBuilder.Property(Customer.NameProperty.PropertyType, Customer.NameProperty.Name, ConfigurationSource.Explicit);
             var metadata = builder.Metadata;
 
+            Assert.True(builder.Shadow(true, ConfigurationSource.DataAnnotation));
             Assert.False(builder.Shadow(false, ConfigurationSource.DataAnnotation));
 
             Assert.True(metadata.IsShadowProperty);
@@ -211,6 +217,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var metadata = builder.Metadata;
             metadata.UseStoreDefault = true;
 
+            Assert.True(builder.UseStoreDefault(true, ConfigurationSource.DataAnnotation));
             Assert.False(builder.UseStoreDefault(false, ConfigurationSource.DataAnnotation));
 
             Assert.True(metadata.UseStoreDefault.Value);

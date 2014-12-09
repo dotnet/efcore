@@ -55,14 +55,11 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     e.Ignore(o => o.ShipRegion);
                     e.Ignore(o => o.ShipVia);
                     e.Ignore(o => o.ShippedDate);
-                    e.ForeignKey<Customer>(o => o.CustomerID);
                 });
 
             modelBuilder.Entity<OrderDetail>(e =>
                 {
                     e.Key(od => new { od.OrderID, od.ProductID });
-                    e.ForeignKey<Product>(od => od.ProductID);
-                    e.ForeignKey<Order>(od => od.OrderID);
                 });
         }
 

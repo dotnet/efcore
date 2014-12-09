@@ -140,6 +140,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         private bool Remove(EntityType entityType, ConfigurationSource configurationSource, bool canOverrideSameSource = true)
         {
+            var entityBuilder = _entityBuilders.TryGetValue(entityType, ConfigurationSource.Convention);
             if (!_entityBuilders.Remove(entityType, configurationSource, canOverrideSameSource))
             {
                 return false;
@@ -147,15 +148,13 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             foreach (var foreignKey in entityType.ForeignKeys.ToList())
             {
-                var removed = RemoveForeignKey(foreignKey, configurationSource);
-
+                var removed = entityBuilder.RemoveRelationship(foreignKey, configurationSource);
                 Debug.Assert(removed);
             }
 
             foreach (var foreignKey in Metadata.GetReferencingForeignKeys(entityType).ToList())
             {
-                var removed = RemoveForeignKey(foreignKey, configurationSource);
-
+                var removed = entityBuilder.RemoveRelationship(foreignKey, configurationSource);
                 Debug.Assert(removed);
             }
 
@@ -181,13 +180,6 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             {
                 Remove(orphan, configurationSource);
             }
-        }
-
-        private bool RemoveForeignKey(ForeignKey foreignKey, ConfigurationSource configurationSource)
-        {
-            var entityBuilder = Entity(foreignKey.EntityType.Name, ConfigurationSource.Convention);
-
-            return entityBuilder.RemoveForeignKey(foreignKey, configurationSource);
         }
     }
 }

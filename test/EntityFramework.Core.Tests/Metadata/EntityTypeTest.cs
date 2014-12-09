@@ -602,12 +602,12 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var customerForeignKey = orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey);
 
             Assert.Equal(
-                Strings.WrongClrCollectionNavigationType("NotCollectionOrders", typeof(Customer).FullName, typeof(Order).FullName, typeof(Order).FullName),
+                Strings.NavigationCollectionWrongClrType("NotCollectionOrders", typeof(Customer).FullName, typeof(Order).FullName, typeof(Order).FullName),
                 Assert.Throws<InvalidOperationException>(
                     () => customerType.AddNavigation("NotCollectionOrders", customerForeignKey, pointsToPrincipal: false)).Message);
 
             Assert.Equal(
-                Strings.WrongClrCollectionNavigationType("DerivedOrders", typeof(Customer).FullName, typeof(IEnumerable<SpecialOrder>).FullName, typeof(Order).FullName),
+                Strings.NavigationCollectionWrongClrType("DerivedOrders", typeof(Customer).FullName, typeof(IEnumerable<SpecialOrder>).FullName, typeof(Order).FullName),
                 Assert.Throws<InvalidOperationException>(
                     () => customerType.AddNavigation("DerivedOrders", customerForeignKey, pointsToPrincipal: false)).Message);
         }
@@ -623,12 +623,12 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var customerForeignKey = orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey);
 
             Assert.Equal(
-                Strings.WrongClrSingleNavigationType("OrderCustomer", typeof(Order).FullName, typeof(Order).FullName, typeof(Customer).FullName),
+                Strings.NavigationSingleWrongClrType("OrderCustomer", typeof(Order).FullName, typeof(Order).FullName, typeof(Customer).FullName),
                 Assert.Throws<InvalidOperationException>(
                     () => orderType.AddNavigation("OrderCustomer", customerForeignKey, pointsToPrincipal: true)).Message);
 
             Assert.Equal(
-                Strings.WrongClrSingleNavigationType("DerivedCustomer", typeof(Order).FullName, typeof(SpecialCustomer).FullName, typeof(Customer).FullName),
+                Strings.NavigationSingleWrongClrType("DerivedCustomer", typeof(Order).FullName, typeof(SpecialCustomer).FullName, typeof(Customer).FullName),
                 Assert.Throws<InvalidOperationException>(
                     () => orderType.AddNavigation("DerivedCustomer", customerForeignKey, pointsToPrincipal: true)).Message);
         }
@@ -954,7 +954,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var entityType = new EntityType(typeof(Customer), new Model());
 
             Assert.Equal(
-                Strings.WrongClrPropertyType("Id", typeof(Customer).FullName),
+                Strings.PropertyWrongClrType("Id", typeof(Customer).FullName),
                 Assert.Throws<InvalidOperationException>(() => entityType.AddProperty("Id", typeof(string))).Message);
         }
 
@@ -971,7 +971,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 Assert.Throws<InvalidOperationException>(() => property1.IsShadowProperty = false).Message);
 
             Assert.Equal(
-                Strings.WrongClrPropertyType("Id", typeof(Customer).FullName),
+                Strings.PropertyWrongClrType("Id", typeof(Customer).FullName),
                 Assert.Throws<InvalidOperationException>(() => property2.IsShadowProperty = false).Message);
         }
 

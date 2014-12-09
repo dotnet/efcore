@@ -249,7 +249,7 @@
   <data name="NoClrProperty" xml:space="preserve">
     <value>The property '{property}' cannot exist on entity type '{entityType}' because the property is not marked as shadow state and no corresponding CLR property exists on the underlying type.</value>
   </data>
-  <data name="WrongClrPropertyType" xml:space="preserve">
+  <data name="PropertyWrongClrType" xml:space="preserve">
     <value>The property '{property}' cannot exist on entity type '{entityType}' because the property is not marked as shadow state and the type of the corresponding CLR property does not match the type specified in the property.</value>
   </data>
   <data name="ClrPropertyOnShadowEntity" xml:space="preserve">
@@ -276,10 +276,10 @@
   <data name="NoClrNavigation" xml:space="preserve">
     <value>The navigation property '{navigation}' cannot be added to entity type '{entityType}' because there is no corresponding CLR property on the underlying type and navigations properties cannot be added to shadow state.</value>
   </data>
-  <data name="WrongClrSingleNavigationType" xml:space="preserve">
-    <value>The navigation property '{navigation}' cannot be added to entity type '{entityType}' because its CLR type '{clrType}' does not match the CLR type '{targetType}' of the related entity.</value>
+  <data name="NavigationSingleWrongClrType" xml:space="preserve">
+    <value>The navigation property '{navigation}' cannot be added to entity type '{entityType}' because its CLR type '{clrType}' does not match the expected CLR type '{targetType}'.</value>
   </data>
-  <data name="WrongClrCollectionNavigationType" xml:space="preserve">
+  <data name="NavigationCollectionWrongClrType" xml:space="preserve">
     <value>The collection navigation property '{navigation}' cannot be added to entity type '{entityType}' because its CLR type '{clrType}' does not implement 'IEnumerable&lt;{targetType}&gt;'. Collection navigation properties must implement IEnumerable&lt;&gt; of the related entity.</value>
   </data>
   <data name="NavigationNotFound" xml:space="preserve">
@@ -388,7 +388,7 @@
     <value>The property '{property}' on entity type '{entityType}' could not be ignored because it has been explicitly added or is part of a key, foreign key or index that has been explicitly defined.</value>
   </data>
   <data name="PropertyIgnoredExplicitly" xml:space="preserve">
-    <value>The property '{property}' on entity type '{entityType}' could not be added because it has been explicitly ignored.</value>
+    <value>The property '{property}' cannot be added to entity type '{entityType}' because it has been explicitly ignored.</value>
   </data>
   <data name="EntityAddedExplicitly" xml:space="preserve">
     <value>The  entity type '{entityType}' could not be ignored because it has been explicitly added or is referenced from a foreign key that has been explicitly defined.</value>
@@ -401,6 +401,18 @@
   </data>
   <data name="ArgumentPropertyNull" xml:space="preserve">
     <value>The property '{property}' of the argument '{argument}' cannot be null.</value>
+  </data>
+  <data name="NavigationIgnoredExplicitly" xml:space="preserve">
+    <value>The navigation property '{navigation}' cannot be added to entity type '{entityType}' because it has been explicitly ignored.</value>
+  </data>
+  <data name="RelationshipCannotBeInverted" xml:space="preserve">
+    <value>The principal and dependent ends of the relationship cannot be flipped once foreign key or referenced key properties have been specified.</value>
+  </data>
+  <data name="NavigationAddedExplicitly" xml:space="preserve">
+    <value>The navigation property '{navigation}' on entity type '{entityType}' could not be ignored because it has been explicitly added.</value>
+  </data>
+  <data name="PrincipalEntityTypeRequiresKey" xml:space="preserve">
+    <value>The principal entity type '{entityType}' requires a key to be defined.</value>
   </data>
   <data name="InvalidEntityType" xml:space="preserve">
     <value>The entity type '{type}' provided for the argument '{argumentName}' must be a reference type.</value>

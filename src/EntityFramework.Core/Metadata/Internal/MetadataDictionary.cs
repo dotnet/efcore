@@ -69,6 +69,16 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual TValue TryGetValue([NotNull] TKey key, ConfigurationSource configurationSource)
         {
+            return GetTuple(key, configurationSource).Item1;
+        }
+
+        public virtual ConfigurationSource UpdateConfigurationSource([NotNull] TKey key, ConfigurationSource configurationSource)
+        {
+            return GetTuple(key, configurationSource).Item2;
+        }
+
+        private Tuple<TValue, ConfigurationSource> GetTuple([NotNull] TKey key, ConfigurationSource configurationSource)
+        {
             Tuple<TValue, ConfigurationSource> tuple;
             if (_values.TryGetValue(key, out tuple))
             {
@@ -80,10 +90,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     _values.Add(key, tuple);
                 }
 
-                return tuple.Item1;
+                return tuple;
             }
 
-            return default(TValue);
+            return new Tuple<TValue, ConfigurationSource>(default(TValue), _defaultConfigurationSource);
         }
 
         public virtual ConfigurationSource GetConfigurationSource([NotNull] TKey key)

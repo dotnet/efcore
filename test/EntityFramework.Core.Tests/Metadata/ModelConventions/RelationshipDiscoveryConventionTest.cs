@@ -21,7 +21,15 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
 
             new RelationshipDiscoveryConvention().Apply(entityBuilder);
 
-            VerifyOneToManyDependent(entityBuilder, dependentHasPK: false, unidirectional: true);
+            Assert.Empty(entityBuilder.Metadata.Properties);
+            Assert.Empty(entityBuilder.Metadata.ForeignKeys);
+            Assert.Empty(entityBuilder.Metadata.Navigations);
+            Assert.Equal(2, entityBuilder.Metadata.Model.EntityTypes.Count);
+            
+            var principalEntityType = entityBuilder.Metadata.Model.EntityTypes.Single(e => e.Type == typeof(OneToManyPrincipal));
+            Assert.Empty(principalEntityType.Properties);
+            Assert.Empty(principalEntityType.ForeignKeys);
+            Assert.Empty(principalEntityType.Navigations);
         }
 
         [Fact]
@@ -31,7 +39,14 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
 
             new RelationshipDiscoveryConvention().Apply(entityBuilder);
 
-            VerifyOneToManyPrincipal(entityBuilder, dependentHasPK: false, unidirectional: true);
+            Assert.Empty(entityBuilder.Metadata.Properties);
+            Assert.Empty(entityBuilder.Metadata.ForeignKeys);
+            Assert.Empty(entityBuilder.Metadata.Navigations);
+
+            var principalEntityType = entityBuilder.Metadata.Model.EntityTypes.Single(e => e.Type == typeof(OneToManyPrincipal));
+            Assert.Empty(principalEntityType.Properties);
+            Assert.Empty(principalEntityType.ForeignKeys);
+            Assert.Empty(principalEntityType.Navigations);
         }
 
         [Fact]
@@ -43,7 +58,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             new RelationshipDiscoveryConvention().Apply(entityBuilder);
 
             Assert.Empty(entityBuilder.Metadata.Properties);
-            VerifyModelUnchanged(entityBuilder);
+            Assert.Empty(entityBuilder.Metadata.ForeignKeys);
+            Assert.Empty(entityBuilder.Metadata.Navigations);
+            Assert.Equal(entityBuilder.Metadata.Type, entityBuilder.Metadata.Model.EntityTypes.Single().Type);
         }
 
         [Fact]
@@ -55,7 +72,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             new RelationshipDiscoveryConvention().Apply(entityBuilder);
 
             Assert.Empty(entityBuilder.Metadata.Properties);
-            VerifyModelUnchanged(entityBuilder);
+            Assert.Empty(entityBuilder.Metadata.ForeignKeys);
+            Assert.Empty(entityBuilder.Metadata.Navigations);
+            Assert.Equal(entityBuilder.Metadata.Type, entityBuilder.Metadata.Model.EntityTypes.Single().Type);
         }
 
         [Fact]
@@ -112,7 +131,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
 
             new RelationshipDiscoveryConvention().Apply(entityBuilder);
 
-            VerifyModelUnchanged(entityBuilder);
+            Assert.Empty(entityBuilder.Metadata.ForeignKeys);
+            Assert.Empty(entityBuilder.Metadata.Navigations);
+            Assert.Empty(entityBuilder.Metadata.Properties);
         }
 
         [Fact]
@@ -190,7 +211,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             Assert.False(firstFK.IsRequired);
             Assert.False(firstFK.IsUnique);
             Assert.Equal(
-                new[] { MultipleNavigationsFirst.CollectionNavigationProperty.Name, MultipleNavigationsFirst.NonCollectionNavigationProperty.Name },
+                new[] { MultipleNavigationsFirst.NonCollectionNavigationProperty.Name, MultipleNavigationsFirst.CollectionNavigationProperty.Name },
                 firstEntityType.Navigations.Select(n => n.Name));
 
             Assert.Equal(2, secondEntityType.Properties.Count);
@@ -208,7 +229,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
 
             new RelationshipDiscoveryConvention().Apply(entityBuilder);
 
-            VerifyModelUnchanged(entityBuilder);
+            Assert.Empty(entityBuilder.Metadata.ForeignKeys);
+            Assert.Empty(entityBuilder.Metadata.Navigations);
+            Assert.Empty(entityBuilder.Metadata.Properties);
         }
 
         private class EntityWithNoValidNavigations
@@ -251,15 +274,6 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         private abstract class AbstractClass
         {
             public int Id { get; set; }
-        }
-
-        public void VerifyModelUnchanged(InternalEntityBuilder entityBuilder)
-        {
-            Assert.Empty(entityBuilder.Metadata.ForeignKeys);
-            Assert.Empty(entityBuilder.Metadata.Navigations);
-
-            // TODO: remove discovered entity types if no relationship discovered
-            //Assert.Equal(entityBuilder.Metadata.Type, entityBuilder.Metadata.Model.EntityTypes.Single().Type);
         }
 
         private static void VerifyOneToOne(IModel model)

@@ -30,6 +30,17 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return true;
         }
 
+        public static ConfigurationSource Max(this ConfigurationSource left, ConfigurationSource? right)
+        {
+            if (!right.HasValue
+                || left.Overrides(right.Value))
+            {
+                return left;
+            }
+
+            return right.Value;
+        }
+
         public static bool CanSet(this ConfigurationSource newConfigurationSource, ConfigurationSource? oldConfigurationSource, bool isValueSet)
         {
             if (isValueSet)

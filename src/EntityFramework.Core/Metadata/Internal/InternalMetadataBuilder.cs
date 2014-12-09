@@ -27,7 +27,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Check.NotEmpty(annotation, "annotation");
             Check.NotEmpty(value, "value");
 
-            if (Metadata[annotation] != null)
+            var existingValue = Metadata[annotation];
+            if (existingValue != null)
             {
                 ConfigurationSource existingConfigurationSource;
                 if (!_annotationSources.Value.TryGetValue(annotation, out existingConfigurationSource))
@@ -35,10 +36,13 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     existingConfigurationSource = ConfigurationSource.Explicit;
                 }
 
-                if (!configurationSource.Overrides(existingConfigurationSource))
+                if (existingValue != value
+                    && !configurationSource.Overrides(existingConfigurationSource))
                 {
                     return false;
                 }
+
+                configurationSource = configurationSource.Max(existingConfigurationSource);
             }
 
             _annotationSources.Value[annotation] = configurationSource;

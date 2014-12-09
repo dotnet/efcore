@@ -35,6 +35,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var metadata = builder.Metadata;
             metadata["Foo"] = "1";
 
+            Assert.True(builder.Annotation("Foo", "1", ConfigurationSource.DataAnnotation));
             Assert.False(builder.Annotation("Foo", "2", ConfigurationSource.DataAnnotation));
 
             Assert.Equal("1", metadata.Annotations.Single().Value);

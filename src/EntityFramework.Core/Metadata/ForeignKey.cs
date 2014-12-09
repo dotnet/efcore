@@ -79,13 +79,24 @@ namespace Microsoft.Data.Entity.Metadata
         {
             get
             {
-                return Properties.All(p => p.IsNullable.HasValue)
-                    ? (bool?)!Properties.Any(p => p.IsNullable.Value)
+                return Properties.Any(p => p.IsNullable.HasValue)
+                    ? !Properties.Any(p => ((IProperty)p).IsNullable) as bool?
                     : null;
             }
             set
             {
-                foreach (var property in Properties)
+                var properties = Properties;
+                if (value.HasValue
+                    && !value.Value)
+                {
+                    var nullableTypeProperties = Properties.Where(p => p.PropertyType.IsNullableType()).ToList();
+                    if (nullableTypeProperties.Any())
+                    {
+                        properties = nullableTypeProperties;
+                    }
+                }
+
+                foreach (var property in properties)
                 {
                     // TODO: Depending on resolution of #723 this may change
                     property.IsNullable = !value;
