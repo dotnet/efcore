@@ -67,10 +67,10 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             if (!foreignKeyCandidates.Any())
             {
                 var foreignKey = dependentType.ForeignKeys
-                    .FirstOrDefault(fk => fk.IsUnique == isUnique
+                    .FirstOrDefault(fk => ((IForeignKey)fk).IsUnique == isUnique
                                           && fk.ReferencedEntityType == principalType
-                                          && !fk.EntityType.Navigations.Any(n => n.ForeignKey == fk && n.Name != navigationToPrincipal)
-                                          && !fk.ReferencedEntityType.Navigations.Any(n => n.ForeignKey == fk && n.Name != navigationToDependent)
+                                          && fk.EntityType.Navigations.All(n => n.ForeignKey != fk || !n.PointsToPrincipal || n.Name == navigationToPrincipal)
+                                          && fk.ReferencedEntityType.Navigations.All(n => n.ForeignKey != fk || n.PointsToPrincipal || n.Name == navigationToDependent)
                                           && (!referencedProperties.Any()
                                               || fk.ReferencedKey.Properties.SequenceEqual(referencedProperties)));
 
@@ -83,11 +83,11 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             foreach (var properties in foreignKeyCandidates)
             {
                 var foreignKey = dependentType.ForeignKeys
-                    .FirstOrDefault(fk => ((IForeignKey)fk).IsUnique == isUnique
+                    .FirstOrDefault(fk => fk.Properties.SequenceEqual(properties)
+                                          && ((IForeignKey)fk).IsUnique == isUnique
                                           && fk.ReferencedEntityType == principalType
-                                          && fk.Properties.SequenceEqual(properties)
-                                          && !fk.EntityType.Navigations.Any(n => n.ForeignKey == fk && n.Name != navigationToPrincipal)
-                                          && !fk.ReferencedEntityType.Navigations.Any(n => n.ForeignKey == fk && n.Name != navigationToDependent)
+                                          && fk.EntityType.Navigations.All(n => n.ForeignKey != fk || !n.PointsToPrincipal || n.Name == navigationToPrincipal)
+                                          && fk.ReferencedEntityType.Navigations.All(n => n.ForeignKey != fk || n.PointsToPrincipal || n.Name == navigationToDependent)
                                           && (!referencedProperties.Any()
                                               || fk.ReferencedKey.Properties.SequenceEqual(referencedProperties)));
 

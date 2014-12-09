@@ -431,9 +431,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         private void CheckForeignKeyNotInUse(ForeignKey foreignKey)
         {
-            var navigation = (Model == null
-                ? new[] { this }
-                : Model.EntityTypes).SelectMany(e => e.Navigations).FirstOrDefault(k => k.ForeignKey == foreignKey);
+            var navigation = foreignKey.GetNavigationToDependent() ?? foreignKey.GetNavigationToPrincipal();
 
             if (navigation != null)
             {
@@ -684,6 +682,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         #region Properties
 
+        [NotNull]
         public virtual Property AddProperty([NotNull] PropertyInfo propertyInfo)
         {
             Check.NotNull(propertyInfo, "propertyInfo");
@@ -692,6 +691,7 @@ namespace Microsoft.Data.Entity.Metadata
             return AddProperty(propertyInfo.Name, propertyInfo.PropertyType, shadowProperty: false);
         }
 
+        [NotNull]
         public virtual Property AddProperty([NotNull] string name, [NotNull] Type propertyType, bool shadowProperty = false)
         {
             Check.NotNull(name, "name");

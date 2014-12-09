@@ -444,6 +444,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.True(customerNavigation.PointsToPrincipal);
             Assert.False(customerNavigation.IsCollection());
             Assert.Same(customerType, customerNavigation.GetTargetType());
+            Assert.Same(customerNavigation, customerForeignKey.GetNavigationToPrincipal());
 
             Assert.Equal("Orders", ordersNavigation.Name);
             Assert.Same(customerType, ordersNavigation.EntityType);
@@ -451,6 +452,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.False(ordersNavigation.PointsToPrincipal);
             Assert.True(ordersNavigation.IsCollection());
             Assert.Same(orderType, ordersNavigation.GetTargetType());
+            Assert.Same(ordersNavigation, customerForeignKey.GetNavigationToDependent());
 
             Assert.Same(customerNavigation, orderType.Navigations.Single());
             Assert.Same(ordersNavigation, customerType.Navigations.Single());
@@ -647,6 +649,24 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 Strings.MultipleNavigations("Orders", "EnumerableOrders", typeof(Customer).FullName),
                 Assert.Throws<InvalidOperationException>(
                     () => customerType.AddNavigation("Orders", customerForeignKey, pointsToPrincipal: false)).Message);
+        }
+
+        [Fact]
+        public void Can_create_self_referencing_navigations()
+        {
+            var entityType = new EntityType(typeof(SelfRef), new Model());
+            var fkProperty = entityType.AddProperty("ForeignKey", typeof(int));
+            var referencedEntityType = entityType;
+            var referencedKeyProperty = referencedEntityType.AddProperty("Id", typeof(int));
+            var referencedKey = referencedEntityType.SetPrimaryKey(referencedKeyProperty);
+            var fk = entityType.AddForeignKey(fkProperty, referencedKey);
+            fk.IsUnique = true;
+
+            var navigationToDependent = referencedEntityType.AddNavigation("SelfRef1", fk, pointsToPrincipal: false);
+            var navigationToPrincipal = referencedEntityType.AddNavigation("SelfRef2", fk, pointsToPrincipal: true);
+
+            Assert.Same(fk.GetNavigationToDependent(), navigationToDependent);
+            Assert.Same(fk.GetNavigationToPrincipal(), navigationToPrincipal);
         }
 
         [Fact]
@@ -1292,6 +1312,14 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                     PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
                 }
             }
+        }
+
+        private class SelfRef
+        {
+            public int Id { get; set; }
+            public SelfRef SelfRef1 { get; set; }
+            public SelfRef SelfRef2 { get; set; }
+            public int ForeignKey { get; set; }
         }
     }
 }

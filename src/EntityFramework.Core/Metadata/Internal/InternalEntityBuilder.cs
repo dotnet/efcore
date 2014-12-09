@@ -279,10 +279,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 return false;
             }
 
-            var navToDependent = foreignKey.ReferencedEntityType.Navigations.FirstOrDefault(n => n.ForeignKey == foreignKey);
+            var navToDependent = foreignKey.GetNavigationToDependent();
             navToDependent?.EntityType.RemoveNavigation(navToDependent);
 
-            var navToPrincipal = foreignKey.EntityType.Navigations.FirstOrDefault(n => n.ForeignKey == foreignKey);
+            var navToPrincipal = foreignKey.GetNavigationToPrincipal();
             navToPrincipal?.EntityType.RemoveNavigation(navToPrincipal);
 
             Metadata.RemoveForeignKey(foreignKey);
@@ -392,24 +392,25 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             // by convention, but this part of conventions is not done yet, so we do it here instead--kind of h.acky
             // Issue #213
             var originalForeignKeys = dependentEntityType.ForeignKeys.ToList();
-            var foreignKey = navToDependent != null
-                ? navToDependent.ForeignKey
-                : navToPrincipal?.ForeignKey;
+            var foreignKey = navToDependent?.ForeignKey ??
+                             navToPrincipal?.ForeignKey;
 
             if (foreignKey != null
-                && (foreignKey.ReferencedEntityType !=  principalEntityType
+                && (foreignKey.ReferencedEntityType != principalEntityType
                     || foreignKey.IsUnique != oneToOne
-                    || foreignKey.EntityType.Navigations.Any(n => n.ForeignKey == foreignKey && n.Name != navNameToPrincipal)
-                    || foreignKey.ReferencedEntityType.Navigations.Any(n => n.ForeignKey == foreignKey && n.Name != navNameToDependent)
+                    || foreignKey.EntityType.Navigations.Any(n => n.ForeignKey == foreignKey && n.PointsToPrincipal && n.Name != navNameToPrincipal)
+                    || foreignKey.ReferencedEntityType.Navigations.Any(n => n.ForeignKey == foreignKey && !n.PointsToPrincipal && n.Name != navNameToDependent)
                     || foreignKey.ReferencedKey != foreignKey.ReferencedEntityType.TryGetPrimaryKey()))
             {
-                if (ModelBuilder.Entity(foreignKey.EntityType.Name, ConfigurationSource.Convention).RemoveForeignKey(foreignKey, configurationSource))
+                if (ModelBuilder.Entity(foreignKey.EntityType.Name, ConfigurationSource.Convention)
+                    .RemoveForeignKey(foreignKey, configurationSource))
                 {
                     if (navNameToPrincipal != null)
                     {
                         var otherFk = dependentEntityType.TryGetNavigation(navNameToPrincipal)?.ForeignKey;
                         if (otherFk != null
-                            && !ModelBuilder.Entity(otherFk.EntityType.Name, ConfigurationSource.Convention).RemoveForeignKey(otherFk, configurationSource))
+                            && !ModelBuilder.Entity(otherFk.EntityType.Name, ConfigurationSource.Convention)
+                                .RemoveForeignKey(otherFk, configurationSource))
                         {
                             return null;
                         }

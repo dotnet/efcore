@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotNull(navigation, "navigation");
 
-            return GetTargetType(navigation).Navigations.FirstOrDefault(
+            return GetTargetType(navigation).Navigations.SingleOrDefault(
                 i => i.ForeignKey == navigation.ForeignKey && i.PointsToPrincipal != navigation.PointsToPrincipal);
         }
 
