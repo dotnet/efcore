@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Commands.Utilities;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations;
@@ -165,7 +164,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             MigrationCodeGenerator.GenerateMigrationMetadataClass(migrationNamespace, className, migration, contextType, migrationMetadataCode);
         }
 
-        protected virtual void ScaffoldSnapshotModel(
+        public virtual void ScaffoldSnapshotModel(
             [NotNull] string modelSnapshotNamespace,
             [NotNull] IModel model,
             [NotNull] Type contextType,

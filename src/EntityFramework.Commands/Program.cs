@@ -5,6 +5,7 @@
 #if ASPNET50 || ASPNETCORE50
 
 using System;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -132,6 +133,19 @@ namespace Microsoft.Data.Entity.Commands
                             script.OnExecute(() => ScriptMigration(from.Value, to.Value, idempotent.HasValue(), context.Value()));
                         },
                         addHelpCommand: false);
+                    migration.Command(
+                        "remove",
+                        remove =>
+                        {
+                            remove.Description = "Remove the last migration";
+                            var context = remove.Option(
+                                "-c|--context <context>",
+                                "The context class to use",
+                                CommandOptionType.SingleValue);
+                            remove.HelpOption("-h|--help");
+                            remove.OnExecute(() => RemoveMigration(context.Value()));
+                        },
+                        addHelpCommand: false);
                     migration.OnExecute(() => ShowHelp(migration.Name));
                 },
                 addHelpCommand: false);
@@ -172,8 +186,7 @@ namespace Microsoft.Data.Entity.Commands
         {
             Check.NotEmpty(name, "name");
 
-            var migration = _migrationTool.AddMigration(name, _rootNamespace, context);
-            _migrationTool.WriteMigration(_projectDir, migration, _rootNamespace).ToArray();
+            _migrationTool.AddMigration(name, context, _rootNamespace, _projectDir).ToArray();
 
             return 0;
         }
@@ -214,6 +227,17 @@ namespace Microsoft.Data.Entity.Commands
 
             // TODO: Write to file?
             Console.WriteLine(sql);
+
+            return 0;
+        }
+
+        public virtual int RemoveMigration([CanBeNull] string context)
+        {
+            var filesToDelete = _migrationTool.RemoveMigration(context, _rootNamespace, _projectDir);
+            foreach (var file in filesToDelete)
+            {
+                File.Delete(file);
+            }
 
             return 0;
         }

@@ -150,6 +150,28 @@ function Script-Migration {
 }
 
 #
+# Remove-Migration
+#
+
+Register-TabExpansion Remove-Migration @{
+    Context = { param ($context) GetContextTypes $context.Project }
+    Project = { GetProjects }
+}
+
+function Remove-Migration {
+    [CmdletBinding()]
+    param ([string] $Context, [string] $Project)
+
+    $values = ProcessCommonParameters $Context $Project
+    $dteProject = $values.Project
+    $contextTypeName = $values.ContextTypeName
+
+    $filesToDelete = InvokeOperation $dteProject RemoveMigration @{ contextTypeName = $contextTypeName }
+
+	$filesToDelete | ?{ Test-Path $_ } | %{ (GetProjectItem $dteProject $_).Delete() }
+}
+
+#
 # (Private Helpers)
 #
 
@@ -329,4 +351,21 @@ function GetProperty($properties, $propertyName) {
     }
 
     return $property.Value
+}
+
+function GetProjectItem($project, $path) {
+	$fullPath = GetProperty $project.Properties FullPath
+	$itemDirectory = (Split-Path $path.Substring($fullPath.Length) -Parent)
+
+	$projectItems = $project.ProjectItems
+	if ($itemDirectory) {
+		$directories = $itemDirectory.Split('\')
+		$directories | %{
+            $projectItems = $projectItems.Item($_).ProjectItems
+        }
+	}
+
+	$itemName = Split-Path $path -Leaf
+
+	return $projectItems.Item($itemName)
 }

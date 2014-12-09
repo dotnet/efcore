@@ -8,7 +8,6 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Commands.Migrations;
-using Microsoft.Data.Entity.Commands.Utilities;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations;
@@ -20,6 +19,7 @@ using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Commands
 {
+    // TODO: Centralize filename logic #DRY
     public class MigrationTool
     {
         private readonly ILoggerProvider _loggerProvider;
@@ -39,38 +39,31 @@ namespace Microsoft.Data.Entity.Commands
             _assembly = assembly;
         }
 
-        public virtual ScaffoldedMigration AddMigration(
+        public virtual IEnumerable<string> AddMigration(
             [NotNull] string migrationName,
+            [CanBeNull] string contextTypeName,
             [NotNull] string rootNamespace,
-            [CanBeNull] string contextTypeName)
+            [NotNull] string projectDir)
         {
             Check.NotEmpty(migrationName, "migrationName");
             Check.NotEmpty(rootNamespace, "rootNamespace");
+            Check.NotEmpty(projectDir, "projectDir");
 
             var contextType = GetContextType(contextTypeName);
             using (var context = CreateContext(contextType))
             {
-                var scopedServiceProvider = ((IDbContextServices)context).ScopedServiceProvider;
-                var options = scopedServiceProvider.GetRequiredService<DbContextService<IDbContextOptions>>();
-                var model = scopedServiceProvider.GetRequiredService<DbContextService<IModel>>();
+                var scaffolder = CreateScaffolder(context);
+                var migration = scaffolder.ScaffoldMigration(migrationName, rootNamespace);
 
-                var migrator = CreateMigrator(context);
-                var scaffolder = new MigrationScaffolder(
-                    context,
-                    options.Service,
-                    model.Service,
-                    migrator.MigrationAssembly,
-                    migrator.ModelDiffer,
-                    new CSharpMigrationCodeGenerator(new CSharpModelCodeGenerator()));
-
-                return scaffolder.ScaffoldMigration(migrationName, rootNamespace);
+                return WriteMigration(projectDir, migration, rootNamespace);
             }
         }
 
-        public virtual IEnumerable<string> WriteMigration(
-            [NotNull] string projectDir,
-            [NotNull] ScaffoldedMigration migration,
-            [NotNull] string rootNamespace)
+        // TODO: Move to MigrationScaffolder
+        private IEnumerable<string> WriteMigration(
+            string projectDir,
+            ScaffoldedMigration migration,
+            string rootNamespace)
         {
             Check.NotEmpty(projectDir, "projectDir");
             Check.NotNull(migration, "migration");
@@ -142,6 +135,119 @@ namespace Microsoft.Data.Entity.Commands
             }
         }
 
+        // TODO: Move to MigrationScaffolder
+        public virtual IEnumerable<string> RemoveMigration(
+            [CanBeNull] string contextTypeName,
+            [NotNull] string rootNamespace,
+            [NotNull] string projectDir)
+        {
+            Check.NotEmpty(rootNamespace, "rootNamespace");
+            Check.NotEmpty(projectDir, "projectDir");
+
+            var filesToDelete = new List<string>();
+
+            var contextType = GetContextType(contextTypeName);
+            using (var context = CreateContext(contextType))
+            {
+                var migrator = CreateMigrator(context);
+                var snapshot = migrator.MigrationAssembly.ModelSnapshot;
+                if (snapshot == null)
+                {
+                    throw new InvalidOperationException(Strings.NoSnapshot);
+                }
+
+                var codeGenerator = CreateCodeGenerator();
+                var language = codeGenerator.Language;
+
+                IModel model = null;
+                var migrations = migrator.GetLocalMigrations();
+                if (migrations.Count != 0)
+                {
+                    var migration = migrations.Last();
+                    model = migration.GetMetadata().TargetModel;
+
+                    if (!migrator.ModelDiffer.Diff(snapshot.Model, model).Any())
+                    {
+                        if (migrator.GetDatabaseMigrations().Contains(migration))
+                        {
+                            throw new InvalidOperationException(
+                                Strings.UnapplyMigration(migration.GetMigrationName()));
+                        }
+
+                        var migrationFileName = migration.GetMigrationId() + language;
+                        var migrationFile = FindProjectFile(projectDir, migrationFileName);
+                        if (migrationFile != null)
+                        {
+                            filesToDelete.Add(migrationFile);
+                            _logger.Value.WriteInformation(Strings.RemovingMigration(migration.GetMigrationName()));
+                        }
+                        else
+                        {
+                            var migrationClass = migration.GetType().FullName;
+                            _logger.Value.WriteWarning(Strings.NoMigrationFile(migrationFileName, migrationClass));
+                        }
+
+                        var migrationMetadataFileName = migration.GetMigrationId() + ".Designer" + language;
+                        var migrationMetadataFile = FindProjectFile(projectDir, migrationMetadataFileName);
+                        if (migrationMetadataFile != null)
+                        {
+                            filesToDelete.Add(migrationMetadataFile);
+                        }
+                        else
+                        {
+                            _logger.Value.WriteVerbose(Strings.NoMigrationMetadataFile(migrationMetadataFileName));
+                        }
+
+                        model = migrations.Count > 1
+                            ? migrations[migrations.Count - 2].GetMetadata().TargetModel
+                            : null;
+                    }
+                    else
+                    {
+                        _logger.Value.WriteVerbose(Strings.ManuallyDeleted);
+                    }
+                }
+
+                var snapshotFileName = snapshot.GetType().Name + language;
+                var snapshotFile = FindProjectFile(projectDir, snapshotFileName);
+                if (model == null)
+                {
+                    if (snapshotFile != null)
+                    {
+                        filesToDelete.Add(snapshotFile);
+                        _logger.Value.WriteInformation(Strings.RemovingSnapshot);
+                    }
+                    else
+                    {
+                        var snapshotClass = snapshot.GetType().FullName;
+                        _logger.Value.WriteWarning(Strings.NoSnapshotFile(snapshotFileName, snapshotClass));
+                    }
+                }
+                else
+                {
+                    var snapshotNamespace = snapshot.GetType().Namespace;
+                    if (snapshotFile == null)
+                    {
+                        snapshotFile = Path.Combine(
+                            GetDirectoryFromNamespace(snapshotNamespace, rootNamespace),
+                            snapshotFileName);
+                    }
+
+                    var scaffolder = CreateScaffolder(context);
+                    var snapshotModelCode = new IndentedStringBuilder();
+                    scaffolder.ScaffoldSnapshotModel(
+                        snapshotNamespace,
+                        model,
+                        contextType,
+                        snapshotModelCode);
+                    File.WriteAllText(snapshotFile, snapshotModelCode.ToString());
+                    _logger.Value.WriteInformation(Strings.RevertingSnapshot);
+                }
+            }
+
+            return filesToDelete;
+        }
+
         public virtual Type GetContextType([CanBeNull] string name)
         {
             var contextType = ContextTool.SelectType(GetContextTypes(), name);
@@ -185,6 +291,28 @@ namespace Microsoft.Data.Entity.Commands
             return ((IDbContextServices)context).ScopedServiceProvider.GetRequiredService<DbContextService<Migrator>>().Service;
         }
 
+        private MigrationScaffolder CreateScaffolder(DbContext context)
+        {
+            var scopedServiceProvider = ((IDbContextServices)context).ScopedServiceProvider;
+            var options = scopedServiceProvider.GetRequiredService<DbContextService<IDbContextOptions>>();
+            var model = scopedServiceProvider.GetRequiredService<DbContextService<IModel>>();
+            var migrator = CreateMigrator(context);
+
+            return new MigrationScaffolder(
+                context,
+                options.Service,
+                model.Service,
+                migrator.MigrationAssembly,
+                migrator.ModelDiffer,
+                CreateCodeGenerator());
+        }
+
+        private MigrationCodeGenerator CreateCodeGenerator()
+        {
+            // TODO: Allow users to override #1283
+            return new CSharpMigrationCodeGenerator(new CSharpModelCodeGenerator());
+        }
+
         private IEnumerable<Type> GetMigrationTypes()
         {
             return MigrationAssembly.GetMigrationTypes(_assembly);
@@ -194,12 +322,10 @@ namespace Microsoft.Data.Entity.Commands
         {
             if (migration.LastMigration != null)
             {
-                var lastMigrationFiles = Directory.EnumerateFiles(
+                var lastMigrationFile = FindProjectFile(
                     projectDir,
-                    migration.LastMigration.GetMigrationId() + migration.Language,
-                    SearchOption.AllDirectories);
-
-                foreach (var lastMigrationFile in lastMigrationFiles)
+                    migration.LastMigration.GetMigrationId() + migration.Language);
+                if (lastMigrationFile != null)
                 {
                     return Path.GetDirectoryName(lastMigrationFile);
                 }
@@ -214,12 +340,10 @@ namespace Microsoft.Data.Entity.Commands
         {
             if (migration.LastModelSnapshot != null)
             {
-                var lastSnapshotFiles = Directory.EnumerateFiles(
+                var lastSnapshotFile = FindProjectFile(
                     projectDir,
-                    migration.LastModelSnapshot.GetType().Name + migration.Language,
-                    SearchOption.AllDirectories);
-
-                foreach (var lastSnapshotFile in lastSnapshotFiles)
+                    migration.LastModelSnapshot.GetType().Name + migration.Language);
+                if (lastSnapshotFile != null)
                 {
                     return Path.GetDirectoryName(lastSnapshotFile);
                 }
@@ -228,6 +352,11 @@ namespace Microsoft.Data.Entity.Commands
             var snapshotDirectory = GetDirectoryFromNamespace(migration.ModelSnapshotNamespace, rootNamespace);
 
             return Path.Combine(projectDir, snapshotDirectory);
+        }
+
+        private static string FindProjectFile(string projectDir, string fileName)
+        {
+            return Directory.EnumerateFiles(projectDir, fileName, SearchOption.AllDirectories).FirstOrDefault();
         }
 
         private static string GetDirectoryFromNamespace(string @namespace, string rootNamespace)

@@ -141,4 +141,31 @@
   <data name="LogUseContext" xml:space="preserve">
     <value>Using context '{name}'.</value>
   </data>
+  <data name="ManuallyDeleted" xml:space="preserve">
+    <value>A manual migration deletion was detected.</value>
+  </data>
+  <data name="NoMigrationFile" xml:space="preserve">
+    <value>No file named '{file}' was found. You must manually remove the migration class '{migrationClass}'.</value>
+  </data>
+  <data name="NoMigrationMetadataFile" xml:space="preserve">
+    <value>No file named '{file}' was found.</value>
+  </data>
+  <data name="NoSnapshot" xml:space="preserve">
+    <value>No ModelSnapshot was found.</value>
+  </data>
+  <data name="NoSnapshotFile" xml:space="preserve">
+    <value>No file named '{file}' was found. You must manually remove the model snapshot class '{snapshotClass}'.</value>
+  </data>
+  <data name="RemovingMigration" xml:space="preserve">
+    <value>Removing migration '{name}'.</value>
+  </data>
+  <data name="RemovingSnapshot" xml:space="preserve">
+    <value>Removing model snapshot.</value>
+  </data>
+  <data name="RevertingSnapshot" xml:space="preserve">
+    <value>Reverting model snapshot.</value>
+  </data>
+  <data name="UnapplyMigration" xml:space="preserve">
+    <value>The migration '{name}' has already been applied to the database. Unapply it and try again. If the migration has been applied to other databases, consider reverting its changes using a new migration.</value>
+  </data>
 </root>

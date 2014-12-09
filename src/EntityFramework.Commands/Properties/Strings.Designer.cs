@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity.Commands
     {
         private static readonly ResourceManager _resourceManager
             = new ResourceManager("EntityFramework.Commands.Strings", typeof(Strings).GetTypeInfo().Assembly);
-        
+
         /// <summary>
         /// The value provided for argument '{argumentName}' must be a valid value of enum type '{enumType}'.
         /// </summary>
@@ -74,6 +74,78 @@ namespace Microsoft.Data.Entity.Commands
         public static string LogUseContext([CanBeNull] object name)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("LogUseContext", "name"), name);
+        }
+
+        /// <summary>
+        /// A manual migration deletion was detected.
+        /// </summary>
+        public static string ManuallyDeleted
+        {
+            get { return GetString("ManuallyDeleted"); }
+        }
+
+        /// <summary>
+        /// No file named '{file}' was found. You must manually remove the migration class '{migrationClass}'.
+        /// </summary>
+        public static string NoMigrationFile([CanBeNull] object file, [CanBeNull] object migrationClass)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("NoMigrationFile", "file", "migrationClass"), file, migrationClass);
+        }
+
+        /// <summary>
+        /// No file named '{file}' was found.
+        /// </summary>
+        public static string NoMigrationMetadataFile([CanBeNull] object file)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("NoMigrationMetadataFile", "file"), file);
+        }
+
+        /// <summary>
+        /// No ModelSnapshot was found.
+        /// </summary>
+        public static string NoSnapshot
+        {
+            get { return GetString("NoSnapshot"); }
+        }
+
+        /// <summary>
+        /// No file named '{file}' was found. You must manually remove the model snapshot class '{snapshotClass}'.
+        /// </summary>
+        public static string NoSnapshotFile([CanBeNull] object file, [CanBeNull] object snapshotClass)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("NoSnapshotFile", "file", "snapshotClass"), file, snapshotClass);
+        }
+
+        /// <summary>
+        /// Removing migration '{name}'.
+        /// </summary>
+        public static string RemovingMigration([CanBeNull] object name)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("RemovingMigration", "name"), name);
+        }
+
+        /// <summary>
+        /// Removing model snapshot.
+        /// </summary>
+        public static string RemovingSnapshot
+        {
+            get { return GetString("RemovingSnapshot"); }
+        }
+
+        /// <summary>
+        /// Reverting model snapshot.
+        /// </summary>
+        public static string RevertingSnapshot
+        {
+            get { return GetString("RevertingSnapshot"); }
+        }
+
+        /// <summary>
+        /// The migration '{name}' has already been applied to the database. Unapply it and try again. If the migration has been applied to other databases, consider reverting its changes using a new migration.
+        /// </summary>
+        public static string UnapplyMigration([CanBeNull] object name)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("UnapplyMigration", "name"), name);
         }
 
         private static string GetString(string name, params string[] formatterNames)

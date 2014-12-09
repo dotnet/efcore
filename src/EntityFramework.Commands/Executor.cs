@@ -80,9 +80,7 @@ namespace Microsoft.Data.Entity.Commands
         {
             Check.NotEmpty(migrationName, "migrationName");
 
-            var migration = _migrationTool.AddMigration(migrationName, _rootNamespace, contextTypeName);
-
-            return _migrationTool.WriteMigration(_projectDir, migration, _rootNamespace);
+            return _migrationTool.AddMigration(migrationName, contextTypeName, _rootNamespace, _projectDir);
         }
 
         public class ApplyMigration : OperationBase
@@ -132,6 +130,28 @@ namespace Microsoft.Data.Entity.Commands
             [CanBeNull] string contextTypeName)
         {
             return _migrationTool.ScriptMigration(fromMigrationName, toMigrationName, idempotent, contextTypeName);
+        }
+
+        public class RemoveMigration : OperationBase
+        {
+            public RemoveMigration(
+                [NotNull] Executor executor,
+                [NotNull] object resultHandler,
+                [NotNull] IDictionary args)
+                : base(resultHandler)
+            {
+                Check.NotNull(executor, "executor");
+                Check.NotNull(args, "args");
+
+                var contextTypeName = (string)args["contextTypeName"];
+
+                Execute(() => executor.RemoveMigrationImpl(contextTypeName));
+            }
+        }
+
+        public virtual IEnumerable<string> RemoveMigrationImpl([CanBeNull] string contextTypeName)
+        {
+            return _migrationTool.RemoveMigration(contextTypeName, _rootNamespace, _projectDir);
         }
 
         public class GetContextTypes : OperationBase
