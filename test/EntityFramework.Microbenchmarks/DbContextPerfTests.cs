@@ -11,16 +11,16 @@ namespace EntityFramework.Microbenchmarks
 {
     public class DbContextPerfTests
     {
-        private readonly string defaultResultDirectory = @".\PerfResults";
-        private PerfTestRunner runner;
-        private DbContextPerf.DbContextPerfTests tests;
+        private readonly string _defaultResultDirectory;
+        private readonly PerfTestRunner _runner;
+        private readonly DbContextPerf.DbContextPerfTests _tests;
 
 
         public DbContextPerfTests()
         {
-            runner = new PerfTestRunner();
-            tests = new DbContextPerf.DbContextPerfTests();
-            defaultResultDirectory = TestConfig.Instance.ResultsDirectory;
+            _runner = new PerfTestRunner();
+            _tests = new DbContextPerf.DbContextPerfTests();
+            _defaultResultDirectory = TestConfig.Instance.ResultsDirectory;
         }
 
         [Fact] 
@@ -31,12 +31,12 @@ namespace EntityFramework.Microbenchmarks
                     TestName = "DbContextDelete",
                     IterationCount = 1,
                     WarmupCount = 0,
-                    Run = tests.DbContextDelete,
-                    Setup = tests.DbContextDeleteSetup,
-                    Cleanup = tests.Cleanup
+                    Run = _tests.DbContextDelete,
+                    Setup = _tests.DbContextDeleteSetup,
+                    Cleanup = _tests.Cleanup
                 };
-            runner.Register(testDefinition);
-            runner.RunTests(defaultResultDirectory);
+            _runner.Register(testDefinition);
+            _runner.RunTests(_defaultResultDirectory);
         }
 
 
@@ -48,13 +48,13 @@ namespace EntityFramework.Microbenchmarks
                     TestName = "DbContextInsert",
                     IterationCount = 1,
                     WarmupCount = 0,
-                    Run = tests.DbContextInsert,
-                    Setup = tests.Setup,
-                    Cleanup = tests.Cleanup
+                    Run = _tests.DbContextInsert,
+                    Setup = _tests.Setup,
+                    Cleanup = _tests.Cleanup
                 };
 
-            runner.Register(testDefinition);
-            runner.RunTests(defaultResultDirectory);
+            _runner.Register(testDefinition);
+            _runner.RunTests(_defaultResultDirectory);
         }
 
         [Fact]
@@ -65,13 +65,13 @@ namespace EntityFramework.Microbenchmarks
                     TestName = "DbContextQuery",
                     IterationCount = 1,
                     WarmupCount = 0,
-                    Run = tests.DbContextQuery,
-                    Setup = tests.Setup,
-                    Cleanup = tests.Cleanup
+                    Run = _tests.DbContextQuery,
+                    Setup = _tests.Setup,
+                    Cleanup = _tests.Cleanup
                 };
 
-            runner.Register(testDefinition);
-            runner.RunTests(defaultResultDirectory);
+            _runner.Register(testDefinition);
+            _runner.RunTests(_defaultResultDirectory);
         }
 
         [Fact]
@@ -82,13 +82,13 @@ namespace EntityFramework.Microbenchmarks
                     TestName = "DbContextQueryNoTracking",
                     IterationCount = 1,
                     WarmupCount = 0,
-                    Run = tests.DbContextQueryNoTracking,
-                    Setup = tests.Setup,
-                    Cleanup = tests.Cleanup
+                    Run = _tests.DbContextQueryNoTracking,
+                    Setup = _tests.Setup,
+                    Cleanup = _tests.Cleanup
                 };
 
-            runner.Register(testDefinition);
-            runner.RunTests(defaultResultDirectory);
+            _runner.Register(testDefinition);
+            _runner.RunTests(_defaultResultDirectory);
         }
 
         [Fact]
@@ -99,13 +99,13 @@ namespace EntityFramework.Microbenchmarks
                     TestName = "DbContextQueryWithThreadsNoTracking",
                     IterationCount = 1,
                     WarmupCount = 0,
-                    Run = tests.DbContextQueryWithThreadsNoTracking,
-                    Setup = tests.Setup,
-                    Cleanup = tests.Cleanup
+                    Run = _tests.DbContextQueryWithThreadsNoTracking,
+                    Setup = _tests.Setup,
+                    Cleanup = _tests.Cleanup
                 };
 
-            runner.Register(testDefinition);
-            runner.RunTests(defaultResultDirectory);
+            _runner.Register(testDefinition);
+            _runner.RunTests(_defaultResultDirectory);
         }
 
         [Fact]
@@ -116,13 +116,13 @@ namespace EntityFramework.Microbenchmarks
                     TestName = "DbContextUpdate",
                     IterationCount = 1,
                     WarmupCount = 0,
-                    Run = tests.DbContextUpdate,
-                    Setup = tests.DbContextUpdateSetup,
-                    Cleanup = tests.Cleanup
+                    Run = _tests.DbContextUpdate,
+                    Setup = _tests.DbContextUpdateSetup,
+                    Cleanup = _tests.Cleanup
                 };
 
-            runner.Register(testDefinition);
-            runner.RunTests(defaultResultDirectory);
+            _runner.Register(testDefinition);
+            _runner.RunTests(_defaultResultDirectory);
         }
 
         [Fact]
@@ -143,8 +143,8 @@ namespace EntityFramework.Microbenchmarks
                     Cleanup = existingDbContextTests.Cleanup
                 };
             
-            runner.Register(testDefinition);
-            runner.RunTests(defaultResultDirectory);
+            _runner.Register(testDefinition);
+            _runner.RunTests(_defaultResultDirectory);
         }
 
         [Fact]
@@ -161,8 +161,8 @@ namespace EntityFramework.Microbenchmarks
                     Cleanup = associationTests.Cleanup
                 };
             
-            runner.Register(testDefinition);
-            runner.RunTests(defaultResultDirectory);
+            _runner.Register(testDefinition);
+            _runner.RunTests(_defaultResultDirectory);
         }
 
     }

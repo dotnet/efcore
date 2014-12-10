@@ -39,8 +39,6 @@ namespace EntityFramework.Microbenchmarks
 
             return base.IsValidTestClass(type);
         }
-
-
     }
 
     public class TestConfig

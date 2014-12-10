@@ -39,7 +39,6 @@ namespace EntityFramework.Microbenchmarks.DbContextPerf.Model
                     b.Property(e => e.ProductID).GenerateValueOnAdd();
                     b.ForRelational().Table("Product", "dbo");
                 });
-
             builder.Entity<DbProductModel>(b =>
                 {
                     b.Key(e => e.ProductModelID);

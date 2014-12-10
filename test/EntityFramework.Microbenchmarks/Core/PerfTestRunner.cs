@@ -79,7 +79,7 @@ namespace EntityFramework.Microbenchmarks.Core
                 Directory.CreateDirectory(resultDirectory);
             }
 
-            var filename = string.Format("result_{0}.json", results.First().Scenario.Replace(' ', '_'));
+            var filename = string.Format("result_{0}_{1}.json", results.First().Scenario.Replace(' ', '_'), TestConfig.Instance.RuntimeFlavor);
 
             File.WriteAllText(Path.Combine(resultDirectory, filename), parsedData);
         }
@@ -208,6 +208,10 @@ namespace EntityFramework.Microbenchmarks.Core
             else if (test is ThreadedTestDefinition)
             {
                 result = Run(test as ThreadedTestDefinition);
+            }
+            else
+            {
+                throw new ArgumentException("Unexpected test definition type");
             }
             return result;
         }
@@ -468,40 +472,54 @@ namespace EntityFramework.Microbenchmarks.Core
             var metrics = new List<PerformanceMetric>();
             if (runResult.Successful)
             {
+                var metric = string.Format("{0} {1}", "total", TestConfig.Instance.RuntimeFlavor);
                 metrics.Add(
                     new PerformanceMetric
                         {
-                            Scenario = string.Format("{0} {1}", runResult.TestName, TestConfig.Instance.RuntimeFlavor).Trim(),
-                            Metric = "total",
+                            Scenario = runResult.TestName,
+                            Metric = metric,
                             Unit = "Milliseconds",
                             Value = runResult.ElapsedMillis
                         });
+
+                
+                Func<IterationCounterBase, long> propertyAccessor;
+                string unit;
+
+                if (runResult.IterationCounters.First() is ThreadedIterationCounter)
+                {
+                    propertyAccessor = (c => ((ThreadedIterationCounter)c).RequestsPerSecond);
+                    unit = "RPS";
+                }
+                else if (runResult.IterationCounters.First() is IterationCounter)
+                {
+                    propertyAccessor = (c => ((IterationCounter)c).ElapsedMillis);
+                    unit = "Milliseconds";
+                }
+                else
+                {
+                    throw new ArgumentException("Unexpected iteration counter type: " + runResult.IterationCounters.First().GetType());
+                }
 
                 if (runResult.IterationCounters.Count > 1)
                 {
                     foreach (var i in new[] { 0.95, 0.99, 0.999 })
                     {
                         var percentile = (i * 100).ToString(CultureInfo.InvariantCulture);
-                        long resultPercentile = 0;
+                        long resultPercentile = GetPercentile(runResult, i, propertyAccessor, true);
+                        long resultMemoryPercentile = 0;
+                       
+                        resultMemoryPercentile = GetPercentile(runResult, i,
+                            c => c.WorkingSet, true);
 
-                        if (runResult.IterationCounters.First() is ThreadedIterationCounter)
-                        {
-                            resultPercentile = GetPercentile(runResult, i,
-                                c => ((ThreadedIterationCounter)c).RequestsPerSecond, true);
-                        }
-                        else if (runResult.IterationCounters.First() is IterationCounter)
-                        {
-                            resultPercentile = GetPercentile(runResult, i,
-                                c => ((IterationCounter)c).ElapsedMillis, true);
-                        }
-                        var metric = string.Format("{0}th percentile", percentile);
+                        metric = string.Format("{0}th percentile {1}", percentile, TestConfig.Instance.RuntimeFlavor);
 
                         metrics.Add(
                             new PerformanceMetric
                                 {
-                                    Scenario = string.Format("{0} {1}", runResult.TestName, TestConfig.Instance.RuntimeFlavor).Trim(),
+                                    Scenario = runResult.TestName,
                                     Metric = metric,
-                                    Unit = "Milliseconds",
+                                    Unit = unit,
                                     Value = resultPercentile
                                 });
                     }
