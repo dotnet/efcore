@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Data.Entity.FunctionalTests.TestModels;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
 using Microsoft.Data.Entity.Query;
 using Xunit;
@@ -1102,6 +1103,36 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 select new { c, o });
         }
 
+        [Fact]
+        public virtual void Join_Where_Count()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                (from c in cs
+                    join o in os on c.CustomerID equals o.CustomerID
+                    where c.CustomerID == "ALFKI"
+                    select c).Count());
+        }
+
+        [Fact]
+        public virtual void Multiple_joins_Where_Order_Any()
+        {
+            AssertQuery<Customer, Order, OrderDetail>((cs, os, ods) =>
+                cs.Join(os, c => c.CustomerID, o => o.CustomerID, (cr, or) => new { cr, or })
+                    .Join(ods, e => e.or.OrderID, od => od.OrderID, (e, od) => new { e.cr, e.or, od })
+                    .Where(r => r.cr.City == "London").OrderBy(r => r.cr.CustomerID)
+                    .Any());
+        }
+
+        [Fact]
+        public virtual void Join_OrderBy_Count()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                (from c in cs
+                 join o in os on c.CustomerID equals o.CustomerID
+                 orderby c.CustomerID
+                 select c).Count());
+        }
+
         private class Foo
         {
             // ReSharper disable once UnusedAutoPropertyAccessor.Local
@@ -1155,6 +1186,26 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 where c.CustomerID == o.CustomerID
                 select new { c.ContactName, o.OrderID });
         }
+
+        [Fact]
+        public virtual void SelectMany_Count()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                (from c in cs
+                 from o in os
+                 select c.CustomerID).Count());
+        }
+
+        [Fact]
+        public virtual void SelectMany_OrderBy_ThenBy_Any()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                (from c in cs
+                 from o in os
+                 orderby c.CustomerID, c.City
+                 select c).Any());
+        }
+
 
         // TODO: Composite keys, slow..
 
@@ -1299,6 +1350,13 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 cs =>
                     cs.OrderByDescending(c => c.CustomerID).ThenByDescending(c => c.Country).Select(c => c.City),
                 assertOrder: true);
+        }
+
+        [Fact]
+        public virtual void OrderBy_ThenBy_Any()
+        {
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.CustomerID).ThenBy(c => c.ContactName).Any());
         }
 
         [Fact]
@@ -1912,6 +1970,22 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 AssertResults(
                     new[] { query(NorthwindData.Set<TItem1>(), NorthwindData.Set<TItem2>()) },
                     new[] { query(context.Set<TItem1>(), context.Set<TItem2>()) },
+                    assertOrder);
+            }
+        }
+
+        private void AssertQuery<TItem1, TItem2, TItem3>(
+            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, object> query,
+            bool assertOrder = false)
+            where TItem1 : class
+            where TItem2 : class
+            where TItem3 : class
+        {
+            using (var context = CreateContext())
+            {
+                AssertResults(
+                    new[] { query(NorthwindData.Set<TItem1>(), NorthwindData.Set<TItem2>(), NorthwindData.Set<TItem3>()) },
+                    new[] { query(context.Set<TItem1>(), context.Set<TItem2>(), context.Set<TItem3>()) },
                     assertOrder);
             }
         }

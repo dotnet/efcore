@@ -300,10 +300,14 @@ namespace Microsoft.Data.Entity.Relational.Query
 
         private static Expression TransformClientExpression<TResult>(HandlerContext handlerContext)
         {
-            return new ResultTransformingExpressionTreeVisitor<TResult>(
-                handlerContext.QueryModel.MainFromClause,
-                handlerContext.QueryModelVisitor.QueryCompilationContext)
-                .VisitExpression(handlerContext.QueryModelVisitor.Expression);
+            var querySource = handlerContext.QueryModel.BodyClauses.OfType<IQuerySource>().LastOrDefault() ??
+                              handlerContext.QueryModel.MainFromClause;
+
+            var visitor = new ResultTransformingExpressionTreeVisitor<TResult>(
+                querySource,
+                handlerContext.QueryModelVisitor.QueryCompilationContext);
+
+            return visitor.VisitExpression(handlerContext.QueryModelVisitor.Expression);
         }
     }
 }

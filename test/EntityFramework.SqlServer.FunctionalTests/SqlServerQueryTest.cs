@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Data.SqlClient;
 using System.Linq;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
@@ -723,6 +724,30 @@ CROSS JOIN [Employees] AS [e3]",
                 Sql);
         }
 
+        public override void SelectMany_Count()
+        {
+            base.SelectMany_Count();
+
+            Assert.Equal(
+                @"SELECT COUNT(*)
+FROM [Customers] AS [c]
+CROSS JOIN [Orders] AS [o]", Sql);
+        }
+
+        public override void SelectMany_OrderBy_ThenBy_Any()
+        {
+            base.SelectMany_OrderBy_ThenBy_Any();
+
+            Assert.Equal(
+                @"SELECT CASE WHEN (
+    EXISTS (
+        SELECT 1
+        FROM [Customers] AS [c]
+        CROSS JOIN [Orders] AS [o]
+    )
+) THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END", Sql);
+        }
+
         public override void Join_customers_orders_projection()
         {
             base.Join_customers_orders_projection();
@@ -779,6 +804,39 @@ FROM [Customers] AS [c]
 INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 CROSS JOIN [Employees] AS [e]",
                 Sql);
+        }
+
+        public override void Join_Where_Count()
+        {
+            base.Join_Where_Count();
+
+            Assert.Equal(
+                @"SELECT COUNT(*)
+FROM [Customers] AS [c]
+INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+WHERE [c].[CustomerID] = @p0", Sql);
+        }
+
+        public override void Join_OrderBy_Count()
+        {
+            //// issue 1251
+            Assert.Throws<SqlException>(() => base.Join_OrderBy_Count());
+        }
+
+        public override void Multiple_joins_Where_Order_Any()
+        {
+            base.Multiple_joins_Where_Order_Any();
+
+            Assert.Equal(
+                @"SELECT CASE WHEN (
+    EXISTS (
+        SELECT 1
+        FROM [Customers] AS [c]
+        INNER JOIN [Orders] AS [or] ON [c].[CustomerID] = [or].[CustomerID]
+        INNER JOIN [Order Details] AS [od] ON [or].[OrderID] = [od].[OrderID]
+        WHERE [c].[City] = @p0
+    )
+) THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END", Sql);
         }
 
         public override void GroupBy_Distinct()
@@ -939,6 +997,20 @@ ORDER BY [e].[Title], [e].[EmployeeID]",
                 @"SELECT [c].[City]
 FROM [Customers] AS [c]
 ORDER BY [c].[Country], [c].[CustomerID]",
+                Sql);
+        }
+
+        public override void OrderBy_ThenBy_Any()
+        {
+            base.OrderBy_ThenBy_Any();
+
+            Assert.Equal(
+                @"SELECT CASE WHEN (
+    EXISTS (
+        SELECT 1
+        FROM [Customers] AS [c]
+    )
+) THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END",
                 Sql);
         }
 
