@@ -1,7 +1,7 @@
 ﻿{
     "Data": {
         "DefaultDataSource": { 
-            "DataSource": ".\\SQLEXPRESS"
+            "DataSource": "(localdb)\\MSSQLLocalDB"
         },
         "DefaultConnection": {
             "Connectionstring": "Data Source={0};Integrated Security=True;MultipleActiveResultSets=true;"

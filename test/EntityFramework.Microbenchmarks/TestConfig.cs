@@ -83,7 +83,7 @@ namespace EntityFramework.Microbenchmarks
         }
 
         private static TestConfig _instance;
-        private readonly string _dataSource = @".\SQLEXPRESS";
+        private readonly string _dataSource = @"(localdb)\MSSQLLocalDB";
         private readonly string _resultsDirectory = @".\PerfResults";
         private readonly bool _runPerfTests = false;
         private readonly string _runtimeFlavor;
