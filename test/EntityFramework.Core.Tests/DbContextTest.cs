@@ -329,7 +329,7 @@ namespace Microsoft.Data.Entity.Tests
             TrackMultipleEntitiesTest((c, e) => c.AddAsync(e[0], e[1]).Result, (c, e) => c.AddAsync(e[0], e[1]).Result, EntityState.Added);
 
             TrackMultipleEntitiesTest(
-                (c, e) => c.AddAsync(new[] { e[0], e[1] }, new CancellationToken()).Result, 
+                (c, e) => c.AddAsync(new[] { e[0], e[1] }, new CancellationToken()).Result,
                 (c, e) => c.AddAsync(new[] { e[0], e[1] }, new CancellationToken()).Result, EntityState.Added);
         }
 
@@ -362,7 +362,7 @@ namespace Microsoft.Data.Entity.Tests
                 var product1 = new Product { Id = 1, Name = "Marmite", Price = 7.99m };
                 var product2 = new Product { Id = 2, Name = "Bovril", Price = 4.99m };
 
-                var categoryEntries = categoryAdder(context, new [] { category1, category2 });
+                var categoryEntries = categoryAdder(context, new[] { category1, category2 });
                 var productEntries = productAdder(context, new[] { product1, product2 });
 
                 Assert.Equal(2, categoryEntries.Count);
@@ -402,7 +402,7 @@ namespace Microsoft.Data.Entity.Tests
             TrackNoEntitiesTest(c => c.AddAsync(new Category[0]).Result, c => c.AddAsync(new Product[0]).Result, EntityState.Added);
 
             TrackNoEntitiesTest(
-                c => c.AddAsync(new Category[0], new CancellationToken()).Result, 
+                c => c.AddAsync(new Category[0], new CancellationToken()).Result,
                 c => c.AddAsync(new Product[0], new CancellationToken()).Result, EntityState.Added);
         }
 
@@ -515,7 +515,7 @@ namespace Microsoft.Data.Entity.Tests
             TrackMultipleEntitiesTestNonGeneric((c, e) => c.AddAsync(e[0], e[1]).Result, (c, e) => c.AddAsync(e[0], e[1]).Result, EntityState.Added);
 
             TrackMultipleEntitiesTestNonGeneric(
-                (c, e) => c.AddAsync(new[] { e[0], e[1] }, new CancellationToken()).Result, 
+                (c, e) => c.AddAsync(new[] { e[0], e[1] }, new CancellationToken()).Result,
                 (c, e) => c.AddAsync(new[] { e[0], e[1] }, new CancellationToken()).Result, EntityState.Added);
         }
 
@@ -588,7 +588,7 @@ namespace Microsoft.Data.Entity.Tests
             TrackNoEntitiesTestNonGeneric(c => c.AddAsync().Result, c => c.AddAsync().Result, EntityState.Added);
 
             TrackNoEntitiesTestNonGeneric(
-                c => c.AddAsync(new object[0], new CancellationToken()).Result, 
+                c => c.AddAsync(new object[0], new CancellationToken()).Result,
                 c => c.AddAsync(new object[0], new CancellationToken()).Result, EntityState.Added);
         }
 
@@ -657,6 +657,773 @@ namespace Microsoft.Data.Entity.Tests
         }
 
         [Fact]
+        public void Can_use_Add_to_change_entity_state()
+        {
+            ChangeStateWithMethod((c, e) => c.Add(e), EntityState.Unknown, EntityState.Added);
+            ChangeStateWithMethod((c, e) => c.Add(e), EntityState.Unchanged, EntityState.Added);
+            ChangeStateWithMethod((c, e) => c.Add(e), EntityState.Deleted, EntityState.Added);
+            ChangeStateWithMethod((c, e) => c.Add(e), EntityState.Modified, EntityState.Added);
+            ChangeStateWithMethod((c, e) => c.Add(e), EntityState.Added, EntityState.Added);
+        }
+
+        [Fact]
+        public void Can_use_Attach_to_change_entity_state()
+        {
+            ChangeStateWithMethod((c, e) => c.Attach(e), EntityState.Unknown, EntityState.Unchanged);
+            ChangeStateWithMethod((c, e) => c.Attach(e), EntityState.Unchanged, EntityState.Unchanged);
+            ChangeStateWithMethod((c, e) => c.Attach(e), EntityState.Deleted, EntityState.Unchanged);
+            ChangeStateWithMethod((c, e) => c.Attach(e), EntityState.Modified, EntityState.Unchanged);
+            ChangeStateWithMethod((c, e) => c.Attach(e), EntityState.Added, EntityState.Unchanged);
+        }
+
+        [Fact]
+        public void Can_use_Update_to_change_entity_state()
+        {
+            ChangeStateWithMethod((c, e) => c.Update(e), EntityState.Unknown, EntityState.Modified);
+            ChangeStateWithMethod((c, e) => c.Update(e), EntityState.Unchanged, EntityState.Modified);
+            ChangeStateWithMethod((c, e) => c.Update(e), EntityState.Deleted, EntityState.Modified);
+            ChangeStateWithMethod((c, e) => c.Update(e), EntityState.Modified, EntityState.Modified);
+            ChangeStateWithMethod((c, e) => c.Update(e), EntityState.Added, EntityState.Modified);
+        }
+
+        [Fact]
+        public void Can_use_Remove_to_change_entity_state()
+        {
+            ChangeStateWithMethod((c, e) => c.Remove(e), EntityState.Unknown, EntityState.Deleted);
+            ChangeStateWithMethod((c, e) => c.Remove(e), EntityState.Unchanged, EntityState.Deleted);
+            ChangeStateWithMethod((c, e) => c.Remove(e), EntityState.Deleted, EntityState.Deleted);
+            ChangeStateWithMethod((c, e) => c.Remove(e), EntityState.Modified, EntityState.Deleted);
+            ChangeStateWithMethod((c, e) => c.Remove(e), EntityState.Added, EntityState.Unknown);
+        }
+
+        private void ChangeStateWithMethod(Action<DbContext, object> action, EntityState initialState, EntityState expectedState)
+        {
+            using (var context = new EarlyLearningCenter(TestHelpers.CreateServiceProvider()))
+            {
+                var entity = new Category { Name = "Beverages" };
+                var entry = context.Entry(entity);
+
+                entry.SetState(initialState);
+
+                action(context, entity);
+
+                Assert.Equal(expectedState, entry.State);
+            }
+        }
+
+        [Fact] // Issue #1246
+        public void Can_attach_with_inconsistent_FK_principal_first_fully_fixed_up()
+        {
+            using (var context = new EarlyLearningCenter(TestHelpers.CreateServiceProvider()))
+            {
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
+                category.Products = new List<Product> { product };
+
+                context.Attach(category);
+
+                Assert.Equal(1, product.CategoryId);
+                Assert.Same(product, category.Products.Single());
+                Assert.Same(category, product.Category);
+                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+                Assert.Equal(EntityState.Unknown, context.Entry(product).State);
+
+                context.Attach(product);
+
+                Assert.Equal(1, product.CategoryId);
+                Assert.Same(product, category.Products.Single());
+                Assert.Same(category, product.Category);
+                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+
+                // Dependent is Unchanged here because the FK change happened before it was attached
+                Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
+            }
+        }
+
+        [Fact] // Issue #1246
+        public void Can_attach_with_inconsistent_FK_dependent_first_fully_fixed_up()
+        {
+            using (var context = new EarlyLearningCenter(TestHelpers.CreateServiceProvider()))
+            {
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
+                category.Products = new List<Product> { product };
+
+                context.Attach(product);
+
+                Assert.Equal(1, product.CategoryId);
+                Assert.Same(product, category.Products.Single());
+                Assert.Same(category, product.Category);
+                Assert.Equal(EntityState.Unknown, context.Entry(category).State);
+                Assert.Equal(EntityState.Modified, context.Entry(product).State);
+
+                context.Attach(category);
+
+                Assert.Equal(1, product.CategoryId);
+                Assert.Same(product, category.Products.Single());
+                Assert.Same(category, product.Category);
+                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+                Assert.Equal(EntityState.Modified, context.Entry(product).State);
+            }
+        }
+
+        [Fact] // Issue #1246
+        public void Can_attach_with_inconsistent_FK_principal_first_collection_not_fixed_up()
+        {
+            using (var context = new EarlyLearningCenter(TestHelpers.CreateServiceProvider()))
+            {
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
+                category.Products = new List<Product>();
+
+                context.Attach(category);
+
+                Assert.Equal(7, product.CategoryId);
+                Assert.Empty(category.Products);
+                Assert.Same(category, product.Category);
+                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+                Assert.Equal(EntityState.Unknown, context.Entry(product).State);
+
+                context.Attach(product);
+
+                Assert.Equal(1, product.CategoryId);
+                Assert.Same(product, category.Products.Single());
+                Assert.Same(category, product.Category);
+                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+                Assert.Equal(EntityState.Modified, context.Entry(product).State);
+            }
+        }
+
+        [Fact] // Issue #1246
+        public void Can_attach_with_inconsistent_FK_dependent_first_collection_not_fixed_up()
+        {
+            using (var context = new EarlyLearningCenter(TestHelpers.CreateServiceProvider()))
+            {
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
+                category.Products = new List<Product>();
+
+                context.Attach(product);
+
+                Assert.Equal(1, product.CategoryId);
+                Assert.Same(product, category.Products.Single());
+                Assert.Same(category, product.Category);
+                Assert.Equal(EntityState.Unknown, context.Entry(category).State);
+                Assert.Equal(EntityState.Modified, context.Entry(product).State);
+
+                context.Attach(category);
+
+                Assert.Equal(1, product.CategoryId);
+                Assert.Same(product, category.Products.Single());
+                Assert.Same(category, product.Category);
+                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+                Assert.Equal(EntityState.Modified, context.Entry(product).State);
+            }
+        }
+
+        [Fact] // Issue #1246
+        public void Can_attach_with_inconsistent_FK_principal_first_reference_not_fixed_up()
+        {
+            using (var context = new EarlyLearningCenter(TestHelpers.CreateServiceProvider()))
+            {
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite" };
+                category.Products = new List<Product> { product };
+
+                context.Attach(category);
+
+                Assert.Equal(1, product.CategoryId);
+                Assert.Same(product, category.Products.Single());
+                Assert.Same(category, product.Category);
+                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+                Assert.Equal(EntityState.Unknown, context.Entry(product).State);
+
+                context.Attach(product);
+
+                Assert.Equal(1, product.CategoryId);
+                Assert.Same(product, category.Products.Single());
+                Assert.Same(category, product.Category);
+                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+
+                // Dependent is Unchanged here because the FK change happened before it was attached
+                Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
+            }
+        }
+
+        [Fact] // Issue #1246
+        public void Can_attach_with_inconsistent_FK_dependent_first_reference_not_fixed_up()
+        {
+            using (var context = new EarlyLearningCenter(TestHelpers.CreateServiceProvider()))
+            {
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite" };
+                category.Products = new List<Product> { product };
+
+                context.Attach(product);
+
+                Assert.Equal(7, product.CategoryId);
+                Assert.Same(product, category.Products.Single());
+                Assert.Null(product.Category);
+                Assert.Equal(EntityState.Unknown, context.Entry(category).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
+
+                context.Attach(category);
+
+                Assert.Equal(1, product.CategoryId);
+                Assert.Same(product, category.Products.Single());
+                Assert.Same(category, product.Category);
+                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+                Assert.Equal(EntityState.Modified, context.Entry(product).State);
+            }
+        }
+
+        [Fact] // Issue #1246
+        public void Can_set_set_to_Unchanged_with_inconsistent_FK_principal_first_fully_fixed_up()
+        {
+            using (var context = new EarlyLearningCenter(TestHelpers.CreateServiceProvider()))
+            {
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
+                category.Products = new List<Product> { product };
+
+                context.Entry(category).SetState(EntityState.Unchanged);
+
+                Assert.Equal(1, product.CategoryId);
+                Assert.Same(product, category.Products.Single());
+                Assert.Same(category, product.Category);
+                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+                Assert.Equal(EntityState.Unknown, context.Entry(product).State);
+
+                context.Entry(product).SetState(EntityState.Unchanged);
+
+                Assert.Equal(1, product.CategoryId);
+                Assert.Same(product, category.Products.Single());
+                Assert.Same(category, product.Category);
+                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+
+                // Dependent is Unchanged here because the FK change happened before it was attached
+                Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
+            }
+        }
+
+        [Fact] // Issue #1246
+        public void Can_set_set_to_Unchanged_with_inconsistent_FK_dependent_first_fully_fixed_up()
+        {
+            using (var context = new EarlyLearningCenter(TestHelpers.CreateServiceProvider()))
+            {
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
+                category.Products = new List<Product> { product };
+
+                context.Entry(product).SetState(EntityState.Unchanged);
+
+                Assert.Equal(1, product.CategoryId);
+                Assert.Same(product, category.Products.Single());
+                Assert.Same(category, product.Category);
+                Assert.Equal(EntityState.Unknown, context.Entry(category).State);
+                Assert.Equal(EntityState.Modified, context.Entry(product).State);
+
+                context.Entry(category).SetState(EntityState.Unchanged);
+
+                Assert.Equal(1, product.CategoryId);
+                Assert.Same(product, category.Products.Single());
+                Assert.Same(category, product.Category);
+                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+                Assert.Equal(EntityState.Modified, context.Entry(product).State);
+            }
+        }
+
+        [Fact] // Issue #1246
+        public void Can_set_set_to_Unchanged_with_inconsistent_FK_principal_first_collection_not_fixed_up()
+        {
+            using (var context = new EarlyLearningCenter(TestHelpers.CreateServiceProvider()))
+            {
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
+                category.Products = new List<Product>();
+
+                context.Entry(category).SetState(EntityState.Unchanged);
+
+                Assert.Equal(7, product.CategoryId);
+                Assert.Empty(category.Products);
+                Assert.Same(category, product.Category);
+                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+                Assert.Equal(EntityState.Unknown, context.Entry(product).State);
+
+                context.Entry(product).SetState(EntityState.Unchanged);
+
+                Assert.Equal(1, product.CategoryId);
+                Assert.Same(product, category.Products.Single());
+                Assert.Same(category, product.Category);
+                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+                Assert.Equal(EntityState.Modified, context.Entry(product).State);
+            }
+        }
+
+        [Fact] // Issue #1246
+        public void Can_set_set_to_Unchanged_with_inconsistent_FK_dependent_first_collection_not_fixed_up()
+        {
+            using (var context = new EarlyLearningCenter(TestHelpers.CreateServiceProvider()))
+            {
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
+                category.Products = new List<Product>();
+
+                context.Entry(product).SetState(EntityState.Unchanged);
+
+                Assert.Equal(1, product.CategoryId);
+                Assert.Same(product, category.Products.Single());
+                Assert.Same(category, product.Category);
+                Assert.Equal(EntityState.Unknown, context.Entry(category).State);
+                Assert.Equal(EntityState.Modified, context.Entry(product).State);
+
+                context.Entry(category).SetState(EntityState.Unchanged);
+
+                Assert.Equal(1, product.CategoryId);
+                Assert.Same(product, category.Products.Single());
+                Assert.Same(category, product.Category);
+                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+                Assert.Equal(EntityState.Modified, context.Entry(product).State);
+            }
+        }
+
+        [Fact] // Issue #1246
+        public void Can_set_set_to_Unchanged_with_inconsistent_FK_principal_first_reference_not_fixed_up()
+        {
+            using (var context = new EarlyLearningCenter(TestHelpers.CreateServiceProvider()))
+            {
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite" };
+                category.Products = new List<Product> { product };
+
+                context.Entry(category).SetState(EntityState.Unchanged);
+
+                Assert.Equal(1, product.CategoryId);
+                Assert.Same(product, category.Products.Single());
+                Assert.Same(category, product.Category);
+                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+                Assert.Equal(EntityState.Unknown, context.Entry(product).State);
+
+                context.Entry(product).SetState(EntityState.Unchanged);
+
+                Assert.Equal(1, product.CategoryId);
+                Assert.Same(product, category.Products.Single());
+                Assert.Same(category, product.Category);
+                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+
+                // Dependent is Unchanged here because the FK change happened before it was attached
+                Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
+            }
+        }
+
+        [Fact] // Issue #1246
+        public void Can_set_set_to_Unchanged_with_inconsistent_FK_dependent_first_reference_not_fixed_up()
+        {
+            using (var context = new EarlyLearningCenter(TestHelpers.CreateServiceProvider()))
+            {
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite" };
+                category.Products = new List<Product> { product };
+
+                context.Entry(product).SetState(EntityState.Unchanged);
+
+                Assert.Equal(7, product.CategoryId);
+                Assert.Same(product, category.Products.Single());
+                Assert.Null(product.Category);
+                Assert.Equal(EntityState.Unknown, context.Entry(category).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
+
+                context.Entry(category).SetState(EntityState.Unchanged);
+
+                Assert.Equal(1, product.CategoryId);
+                Assert.Same(product, category.Products.Single());
+                Assert.Same(category, product.Category);
+                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+                Assert.Equal(EntityState.Modified, context.Entry(product).State);
+            }
+        }
+
+        [Fact] // Issue #1246
+        public void Can_attach_with_inconsistent_FK_principal_first_fully_fixed_up_with_tracked_FK_match()
+        {
+            using (var context = new EarlyLearningCenter(TestHelpers.CreateServiceProvider()))
+            {
+                var category7 = context.Attach(new Category { Id = 7, Products = new List<Product>() }).Entity;
+
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
+                category.Products = new List<Product> { product };
+
+                context.Attach(category);
+
+                Assert.Equal(1, product.CategoryId);
+                Assert.Same(product, category.Products.Single());
+                Assert.Same(category, product.Category);
+                Assert.Empty(category7.Products);
+                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+                Assert.Equal(EntityState.Unknown, context.Entry(product).State);
+
+                context.Attach(product);
+
+                Assert.Equal(1, product.CategoryId);
+                Assert.Same(product, category.Products.Single());
+                Assert.Same(category, product.Category);
+                Assert.Empty(category7.Products);
+                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+
+                // Dependent is Unchanged here because the FK change happened before it was attached
+                Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
+            }
+        }
+
+        [Fact] // Issue #1246
+        public void Can_attach_with_inconsistent_FK_dependent_first_fully_fixed_up_with_tracked_FK_match()
+        {
+            using (var context = new EarlyLearningCenter(TestHelpers.CreateServiceProvider()))
+            {
+                var category7 = context.Attach(new Category { Id = 7, Products = new List<Product>() }).Entity;
+
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
+                category.Products = new List<Product> { product };
+
+                context.Attach(product);
+
+                Assert.Equal(1, product.CategoryId);
+                Assert.Same(product, category.Products.Single());
+                Assert.Same(category, product.Category);
+                Assert.Empty(category7.Products);
+                Assert.Equal(EntityState.Unknown, context.Entry(category).State);
+                Assert.Equal(EntityState.Modified, context.Entry(product).State);
+
+                context.Attach(category);
+
+                Assert.Equal(1, product.CategoryId);
+                Assert.Same(product, category.Products.Single());
+                Assert.Same(category, product.Category);
+                Assert.Empty(category7.Products);
+                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+                Assert.Equal(EntityState.Modified, context.Entry(product).State);
+            }
+        }
+
+        [Fact] // Issue #1246
+        public void Can_attach_with_inconsistent_FK_principal_first_collection_not_fixed_up_with_tracked_FK_match()
+        {
+            using (var context = new EarlyLearningCenter(TestHelpers.CreateServiceProvider()))
+            {
+                var category7 = context.Attach(new Category { Id = 7, Products = new List<Product>() }).Entity;
+
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
+                category.Products = new List<Product>();
+
+                context.Attach(category);
+
+                Assert.Equal(7, product.CategoryId);
+                Assert.Empty(category.Products);
+                Assert.Same(category, product.Category);
+                Assert.Empty(category7.Products);
+                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+                Assert.Equal(EntityState.Unknown, context.Entry(product).State);
+
+                context.Attach(product);
+
+                Assert.Equal(1, product.CategoryId);
+                Assert.Same(product, category.Products.Single());
+                Assert.Same(category, product.Category);
+                Assert.Empty(category7.Products);
+                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+                Assert.Equal(EntityState.Modified, context.Entry(product).State);
+            }
+        }
+
+        [Fact] // Issue #1246
+        public void Can_attach_with_inconsistent_FK_dependent_first_collection_not_fixed_up_with_tracked_FK_match()
+        {
+            using (var context = new EarlyLearningCenter(TestHelpers.CreateServiceProvider()))
+            {
+                var category7 = context.Attach(new Category { Id = 7, Products = new List<Product>() }).Entity;
+
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
+                category.Products = new List<Product>();
+
+                context.Attach(product);
+
+                Assert.Equal(1, product.CategoryId);
+                Assert.Same(product, category.Products.Single());
+                Assert.Same(category, product.Category);
+                Assert.Empty(category7.Products);
+                Assert.Equal(EntityState.Unknown, context.Entry(category).State);
+                Assert.Equal(EntityState.Modified, context.Entry(product).State);
+
+                context.Attach(category);
+
+                Assert.Equal(1, product.CategoryId);
+                Assert.Same(product, category.Products.Single());
+                Assert.Same(category, product.Category);
+                Assert.Empty(category7.Products);
+                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+                Assert.Equal(EntityState.Modified, context.Entry(product).State);
+            }
+        }
+
+        [Fact] // Issue #1246
+        public void Can_attach_with_inconsistent_FK_principal_first_reference_not_fixed_up_with_tracked_FK_match()
+        {
+            using (var context = new EarlyLearningCenter(TestHelpers.CreateServiceProvider()))
+            {
+                var category7 = context.Attach(new Category { Id = 7, Products = new List<Product>() }).Entity;
+
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite" };
+                category.Products = new List<Product> { product };
+
+                context.Attach(category);
+
+                Assert.Equal(1, product.CategoryId);
+                Assert.Same(product, category.Products.Single());
+                Assert.Same(category, product.Category);
+                Assert.Empty(category7.Products);
+                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+                Assert.Equal(EntityState.Unknown, context.Entry(product).State);
+
+                context.Attach(product);
+
+                Assert.Equal(1, product.CategoryId);
+                Assert.Same(product, category.Products.Single());
+                Assert.Same(category, product.Category);
+                Assert.Empty(category7.Products);
+                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+
+                // Dependent is Unchanged here because the FK change happened before it was attached
+                Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
+            }
+        }
+
+        [Fact] // Issue #1246
+        public void Can_attach_with_inconsistent_FK_dependent_first_reference_not_fixed_up_with_tracked_FK_match()
+        {
+            using (var context = new EarlyLearningCenter(TestHelpers.CreateServiceProvider()))
+            {
+                var category7 = context.Attach(new Category { Id = 7, Products = new List<Product>() }).Entity;
+
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite" };
+                category.Products = new List<Product> { product };
+
+                context.Attach(product);
+
+                Assert.Equal(7, product.CategoryId);
+                Assert.Same(product, category.Products.Single());
+                Assert.Same(category7, product.Category);
+                Assert.Same(product, category7.Products.Single());
+                Assert.Equal(EntityState.Unknown, context.Entry(category).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
+
+                context.Attach(category);
+
+                Assert.Equal(1, product.CategoryId);
+                Assert.Same(product, category.Products.Single());
+                Assert.Same(category, product.Category);
+                Assert.Empty(category7.Products);
+                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+                Assert.Equal(EntityState.Modified, context.Entry(product).State);
+            }
+        }
+
+        [Fact] // Issue #1246
+        public void Can_set_set_to_Unchanged_with_inconsistent_FK_principal_first_fully_fixed_up_with_tracked_FK_match()
+        {
+            using (var context = new EarlyLearningCenter(TestHelpers.CreateServiceProvider()))
+            {
+                var category7 = context.Attach(new Category { Id = 7, Products = new List<Product>() }).Entity;
+
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
+                category.Products = new List<Product> { product };
+
+                context.Entry(category).SetState(EntityState.Unchanged);
+
+                Assert.Equal(1, product.CategoryId);
+                Assert.Same(product, category.Products.Single());
+                Assert.Same(category, product.Category);
+                Assert.Empty(category7.Products);
+                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+                Assert.Equal(EntityState.Unknown, context.Entry(product).State);
+
+                context.Entry(product).SetState(EntityState.Unchanged);
+
+                Assert.Equal(1, product.CategoryId);
+                Assert.Same(product, category.Products.Single());
+                Assert.Same(category, product.Category);
+                Assert.Empty(category7.Products);
+                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+
+                // Dependent is Unchanged here because the FK change happened before it was attached
+                Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
+            }
+        }
+
+        [Fact] // Issue #1246
+        public void Can_set_set_to_Unchanged_with_inconsistent_FK_dependent_first_fully_fixed_up_with_tracked_FK_match()
+        {
+            using (var context = new EarlyLearningCenter(TestHelpers.CreateServiceProvider()))
+            {
+                var category7 = context.Attach(new Category { Id = 7, Products = new List<Product>() }).Entity;
+
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
+                category.Products = new List<Product> { product };
+
+                context.Entry(product).SetState(EntityState.Unchanged);
+
+                Assert.Equal(1, product.CategoryId);
+                Assert.Same(product, category.Products.Single());
+                Assert.Same(category, product.Category);
+                Assert.Empty(category7.Products);
+                Assert.Equal(EntityState.Unknown, context.Entry(category).State);
+                Assert.Equal(EntityState.Modified, context.Entry(product).State);
+
+                context.Entry(category).SetState(EntityState.Unchanged);
+
+                Assert.Equal(1, product.CategoryId);
+                Assert.Same(product, category.Products.Single());
+                Assert.Same(category, product.Category);
+                Assert.Empty(category7.Products);
+                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+                Assert.Equal(EntityState.Modified, context.Entry(product).State);
+            }
+        }
+
+        [Fact] // Issue #1246
+        public void Can_set_set_to_Unchanged_with_inconsistent_FK_principal_first_collection_not_fixed_up_with_tracked_FK_match()
+        {
+            using (var context = new EarlyLearningCenter(TestHelpers.CreateServiceProvider()))
+            {
+                var category7 = context.Attach(new Category { Id = 7, Products = new List<Product>() }).Entity;
+
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
+                category.Products = new List<Product>();
+
+                context.Entry(category).SetState(EntityState.Unchanged);
+
+                Assert.Equal(7, product.CategoryId);
+                Assert.Empty(category.Products);
+                Assert.Same(category, product.Category);
+                Assert.Empty(category7.Products);
+                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+                Assert.Equal(EntityState.Unknown, context.Entry(product).State);
+
+                context.Entry(product).SetState(EntityState.Unchanged);
+
+                Assert.Equal(1, product.CategoryId);
+                Assert.Same(product, category.Products.Single());
+                Assert.Same(category, product.Category);
+                Assert.Empty(category7.Products);
+                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+                Assert.Equal(EntityState.Modified, context.Entry(product).State);
+            }
+        }
+
+        [Fact] // Issue #1246
+        public void Can_set_set_to_Unchanged_with_inconsistent_FK_dependent_first_collection_not_fixed_up_with_tracked_FK_match()
+        {
+            using (var context = new EarlyLearningCenter(TestHelpers.CreateServiceProvider()))
+            {
+                var category7 = context.Attach(new Category { Id = 7, Products = new List<Product>() }).Entity;
+
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
+                category.Products = new List<Product>();
+
+                context.Entry(product).SetState(EntityState.Unchanged);
+
+                Assert.Equal(1, product.CategoryId);
+                Assert.Same(product, category.Products.Single());
+                Assert.Same(category, product.Category);
+                Assert.Empty(category7.Products);
+                Assert.Equal(EntityState.Unknown, context.Entry(category).State);
+                Assert.Equal(EntityState.Modified, context.Entry(product).State);
+
+                context.Entry(category).SetState(EntityState.Unchanged);
+
+                Assert.Equal(1, product.CategoryId);
+                Assert.Same(product, category.Products.Single());
+                Assert.Same(category, product.Category);
+                Assert.Empty(category7.Products);
+                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+                Assert.Equal(EntityState.Modified, context.Entry(product).State);
+            }
+        }
+
+        [Fact] // Issue #1246
+        public void Can_set_set_to_Unchanged_with_inconsistent_FK_principal_first_reference_not_fixed_up_with_tracked_FK_match()
+        {
+            using (var context = new EarlyLearningCenter(TestHelpers.CreateServiceProvider()))
+            {
+                var category7 = context.Attach(new Category { Id = 7, Products = new List<Product>() }).Entity;
+
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite" };
+                category.Products = new List<Product> { product };
+
+                context.Entry(category).SetState(EntityState.Unchanged);
+
+                Assert.Equal(1, product.CategoryId);
+                Assert.Same(product, category.Products.Single());
+                Assert.Same(category, product.Category);
+                Assert.Empty(category7.Products);
+                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+                Assert.Equal(EntityState.Unknown, context.Entry(product).State);
+
+                context.Entry(product).SetState(EntityState.Unchanged);
+
+                Assert.Equal(1, product.CategoryId);
+                Assert.Same(product, category.Products.Single());
+                Assert.Same(category, product.Category);
+                Assert.Empty(category7.Products);
+                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+
+                // Dependent is Unchanged here because the FK change happened before it was attached
+                Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
+            }
+        }
+
+        [Fact] // Issue #1246
+        public void Can_set_set_to_Unchanged_with_inconsistent_FK_dependent_first_reference_not_fixed_up_with_tracked_FK_match()
+        {
+            using (var context = new EarlyLearningCenter(TestHelpers.CreateServiceProvider()))
+            {
+                var category7 = context.Attach(new Category { Id = 7, Products = new List<Product>() }).Entity;
+
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite" };
+                category.Products = new List<Product> { product };
+
+                context.Entry(product).SetState(EntityState.Unchanged);
+
+                Assert.Equal(7, product.CategoryId);
+                Assert.Same(product, category.Products.Single());
+                Assert.Same(category7, product.Category);
+                Assert.Same(product, category7.Products.Single());
+                Assert.Equal(EntityState.Unknown, context.Entry(category).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
+
+                context.Entry(category).SetState(EntityState.Unchanged);
+
+                Assert.Equal(1, product.CategoryId);
+                Assert.Same(product, category.Products.Single());
+                Assert.Same(category, product.Category);
+                Assert.Empty(category7.Products);
+                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+                Assert.Equal(EntityState.Modified, context.Entry(product).State);
+            }
+        }
+
+        [Fact]
         public void Context_can_build_model_using_DbSet_properties()
         {
             using (var context = new EarlyLearningCenter(TestHelpers.CreateServiceProvider()))
@@ -674,7 +1441,7 @@ namespace Microsoft.Data.Entity.Tests
                 var productType = context.Model.GetEntityType(typeof(Product));
                 Assert.Equal("Id", productType.GetPrimaryKey().Properties.Single().Name);
                 Assert.Equal(
-                    new[] { "Id", "Name", "Price" },
+                    new[] { "CategoryId", "Id", "Name", "Price" },
                     productType.Properties.Select(p => p.Name).ToArray());
 
                 var guType = context.Model.GetEntityType(typeof(TheGu));
@@ -715,16 +1482,11 @@ namespace Microsoft.Data.Entity.Tests
 
         private class ContextWithSets : DbContext
         {
-            private readonly DbSet<Random> _noSetter = null;
-
             public DbSet<Product> Products { get; set; }
             public DbSet<Category> Categories { get; private set; }
             private DbSet<TheGu> Gus { get; set; }
 
-            public DbSet<Random> NoSetter
-            {
-                get { return _noSetter; }
-            }
+            public DbSet<Random> NoSetter { get; } = null;
 
             public DbSet<TheGu> GetGus()
             {
@@ -1103,6 +1865,8 @@ namespace Microsoft.Data.Entity.Tests
         {
             public int Id { get; set; }
             public string Name { get; set; }
+
+            public List<Product> Products { get; set; }
         }
 
         private class Product
@@ -1110,6 +1874,9 @@ namespace Microsoft.Data.Entity.Tests
             public int Id { get; set; }
             public string Name { get; set; }
             public decimal Price { get; set; }
+
+            public int CategoryId { get; set; }
+            public Category Category { get; set; }
         }
 
         private class TheGu
@@ -1141,6 +1908,13 @@ namespace Microsoft.Data.Entity.Tests
             protected internal override void OnConfiguring(DbContextOptions options)
             {
                 options.UseInMemoryStore(persist: false);
+            }
+
+            protected internal override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder
+                    .Entity<Category>()
+                    .OneToMany(e => e.Products, e => e.Category);
             }
         }
 

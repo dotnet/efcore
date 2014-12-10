@@ -238,7 +238,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                         NavigationCollectionChangedAction(
                             entry,
                             navigation,
-                            ((IEnumerable)navigationValue).Cast<object>(),
+                            ((IEnumerable)navigationValue).Cast<object>().ToList(),
                             Enumerable.Empty<object>());
                     }
                     else
@@ -393,26 +393,31 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
             foreach (var navigation in navigations)
             {
-                if (navigation.PointsToPrincipal)
+                Unfixup(navigation, oldPrincipalEntry, dependentEntry);
+                oldPrincipalEntry.RelationshipsSnapshot.TakeSnapshot(navigation);
+            }
+        }
+
+        private void Unfixup(INavigation navigation, StateEntry oldPrincipalEntry, StateEntry dependentEntry)
+        {
+            if (navigation.PointsToPrincipal)
+            {
+                _setterSource.GetAccessor(navigation).SetClrValue(dependentEntry.Entity, null);
+                dependentEntry.RelationshipsSnapshot.TakeSnapshot(navigation);
+            }
+            else
+            {
+                if (navigation.IsCollection())
                 {
-                    _setterSource.GetAccessor(navigation).SetClrValue(dependentEntry.Entity, null);
-                    dependentEntry.RelationshipsSnapshot.TakeSnapshot(navigation);
+                    var collectionAccessor = _collectionAccessorSource.GetAccessor(navigation);
+                    if (collectionAccessor.Contains(oldPrincipalEntry.Entity, dependentEntry.Entity))
+                    {
+                        collectionAccessor.Remove(oldPrincipalEntry.Entity, dependentEntry.Entity);
+                    }
                 }
                 else
                 {
-                    if (navigation.IsCollection())
-                    {
-                        var collectionAccessor = _collectionAccessorSource.GetAccessor(navigation);
-                        if (collectionAccessor.Contains(oldPrincipalEntry.Entity, dependentEntry.Entity))
-                        {
-                            collectionAccessor.Remove(oldPrincipalEntry.Entity, dependentEntry.Entity);
-                        }
-                    }
-                    else
-                    {
-                        _setterSource.GetAccessor(navigation).SetClrValue(oldPrincipalEntry.Entity, null);
-                    }
-                    oldPrincipalEntry.RelationshipsSnapshot.TakeSnapshot(navigation);
+                    _setterSource.GetAccessor(navigation).SetClrValue(oldPrincipalEntry.Entity, null);
                 }
             }
         }
@@ -505,6 +510,12 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 }
                 else
                 {
+                    var oldEntity = _getterSource.GetAccessor(inverse).GetClrValue(entity);
+                    if (oldEntity != null && oldEntity != entry.Entity)
+                    {
+                        Unfixup(navigation, entry.StateManager.GetOrCreateEntry(oldEntity), entry.StateManager.GetOrCreateEntry(entity));
+                    }
+
                     _setterSource.GetAccessor(inverse).SetClrValue(entity, entry.Entity);
                 }
 

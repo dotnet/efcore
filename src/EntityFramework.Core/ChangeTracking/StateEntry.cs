@@ -176,14 +176,6 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 return;
             }
 
-            // An Added entity does not yet exist in the database. If it is then marked as deleted there is
-            // nothing to delete because it was not yet inserted, so just make sure it doesn't get inserted.
-            if (oldState == EntityState.Added
-                && newState == EntityState.Deleted)
-            {
-                newState = EntityState.Unknown;
-            }
-
             if (newState == EntityState.Unchanged)
             {
                 _stateData.FlagAllProperties(EntityType.Properties.Count(), isFlagged: false);

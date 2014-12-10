@@ -83,6 +83,69 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
+        public void Can_use_entry_to_change_state_to_Added()
+        {
+            ChangeStateOnEntry(EntityState.Unknown, EntityState.Added);
+            ChangeStateOnEntry(EntityState.Unchanged, EntityState.Added);
+            ChangeStateOnEntry(EntityState.Deleted, EntityState.Added);
+            ChangeStateOnEntry(EntityState.Modified, EntityState.Added);
+            ChangeStateOnEntry(EntityState.Added, EntityState.Added);
+        }
+
+        [Fact]
+        public void Can_use_entry_to_change_state_to_Unchanged()
+        {
+            ChangeStateOnEntry(EntityState.Unknown, EntityState.Unchanged);
+            ChangeStateOnEntry(EntityState.Unchanged, EntityState.Unchanged);
+            ChangeStateOnEntry(EntityState.Deleted, EntityState.Unchanged);
+            ChangeStateOnEntry(EntityState.Modified, EntityState.Unchanged);
+            ChangeStateOnEntry(EntityState.Added, EntityState.Unchanged);
+        }
+
+        [Fact]
+        public void Can_use_entry_to_change_state_to_Modified()
+        {
+            ChangeStateOnEntry(EntityState.Unknown, EntityState.Modified);
+            ChangeStateOnEntry(EntityState.Unchanged, EntityState.Modified);
+            ChangeStateOnEntry(EntityState.Deleted, EntityState.Modified);
+            ChangeStateOnEntry(EntityState.Modified, EntityState.Modified);
+            ChangeStateOnEntry(EntityState.Added, EntityState.Modified);
+        }
+
+        [Fact]
+        public void Can_use_entry_to_change_state_to_Deleted()
+        {
+            ChangeStateOnEntry(EntityState.Unknown, EntityState.Deleted);
+            ChangeStateOnEntry(EntityState.Unchanged, EntityState.Deleted);
+            ChangeStateOnEntry(EntityState.Deleted, EntityState.Deleted);
+            ChangeStateOnEntry(EntityState.Modified, EntityState.Deleted);
+            ChangeStateOnEntry(EntityState.Added, EntityState.Deleted);
+        }
+
+        [Fact]
+        public void Can_use_entry_to_change_state_to_Unknown()
+        {
+            ChangeStateOnEntry(EntityState.Unknown, EntityState.Unknown);
+            ChangeStateOnEntry(EntityState.Unchanged, EntityState.Unknown);
+            ChangeStateOnEntry(EntityState.Deleted, EntityState.Unknown);
+            ChangeStateOnEntry(EntityState.Modified, EntityState.Unknown);
+            ChangeStateOnEntry(EntityState.Added, EntityState.Unknown);
+        }
+
+        private void ChangeStateOnEntry(EntityState initialState, EntityState expectedState)
+        {
+            using (var context = new FreezerContext())
+            {
+                var entry = context.Add(new Chunky());
+
+                entry.SetState(initialState);
+                entry.SetState(expectedState);
+
+                Assert.Equal(expectedState, entry.State);
+            }
+        }
+
+        [Fact]
         public void Can_get_property_entry_by_name()
         {
             using (var context = new FreezerContext())
