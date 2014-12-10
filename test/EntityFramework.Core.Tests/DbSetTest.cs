@@ -45,7 +45,7 @@ namespace Microsoft.Data.Entity.Tests
             Func<DbSet<Category>, Category, EntityEntry<Category>> categoryAdder,
             Func<DbSet<Product>, Product, EntityEntry<Product>> productAdder, EntityState expectedState)
         {
-            using (var context = new EarlyLearningCenter(TestHelpers.CreateServiceProvider()))
+            using (var context = new EarlyLearningCenter())
             {
                 var category1 = new Category { Id = 1, Name = "Beverages" };
                 var category2 = new Category { Id = 2, Name = "Foods" };
@@ -117,7 +117,7 @@ namespace Microsoft.Data.Entity.Tests
             Func<DbSet<Category>, Category[], IReadOnlyList<EntityEntry<Category>>> categoryAdder,
             Func<DbSet<Product>, Product[], IReadOnlyList<EntityEntry<Product>>> productAdder, EntityState expectedState)
         {
-            using (var context = new EarlyLearningCenter(TestHelpers.CreateServiceProvider()))
+            using (var context = new EarlyLearningCenter())
             {
                 var category1 = new Category { Id = 1, Name = "Beverages" };
                 var category2 = new Category { Id = 2, Name = "Foods" };
@@ -187,12 +187,68 @@ namespace Microsoft.Data.Entity.Tests
             Func<DbSet<Category>, IReadOnlyList<EntityEntry<Category>>> categoryAdder,
             Func<DbSet<Product>, IReadOnlyList<EntityEntry<Product>>> productAdder, EntityState expectedState)
         {
-            using (var context = new EarlyLearningCenter(TestHelpers.CreateServiceProvider()))
+            using (var context = new EarlyLearningCenter())
             {
                 Assert.Empty(categoryAdder(context.Categories));
                 Assert.Empty(productAdder(context.Products));
             }
         }
+
+        [Fact]
+        public void Can_use_Add_to_change_entity_state()
+        {
+            ChangeStateWithMethod((c, e) => c.Categories.Add(e), EntityState.Unknown, EntityState.Added);
+            ChangeStateWithMethod((c, e) => c.Categories.Add(e), EntityState.Unchanged, EntityState.Added);
+            ChangeStateWithMethod((c, e) => c.Categories.Add(e), EntityState.Deleted, EntityState.Added);
+            ChangeStateWithMethod((c, e) => c.Categories.Add(e), EntityState.Modified, EntityState.Added);
+            ChangeStateWithMethod((c, e) => c.Categories.Add(e), EntityState.Added, EntityState.Added);
+        }
+
+        [Fact]
+        public void Can_use_Attach_to_change_entity_state()
+        {
+            ChangeStateWithMethod((c, e) => c.Categories.Attach(e), EntityState.Unknown, EntityState.Unchanged);
+            ChangeStateWithMethod((c, e) => c.Categories.Attach(e), EntityState.Unchanged, EntityState.Unchanged);
+            ChangeStateWithMethod((c, e) => c.Categories.Attach(e), EntityState.Deleted, EntityState.Unchanged);
+            ChangeStateWithMethod((c, e) => c.Categories.Attach(e), EntityState.Modified, EntityState.Unchanged);
+            ChangeStateWithMethod((c, e) => c.Categories.Attach(e), EntityState.Added, EntityState.Unchanged);
+        }
+
+        [Fact]
+        public void Can_use_Update_to_change_entity_state()
+        {
+            ChangeStateWithMethod((c, e) => c.Categories.Update(e), EntityState.Unknown, EntityState.Modified);
+            ChangeStateWithMethod((c, e) => c.Categories.Update(e), EntityState.Unchanged, EntityState.Modified);
+            ChangeStateWithMethod((c, e) => c.Categories.Update(e), EntityState.Deleted, EntityState.Modified);
+            ChangeStateWithMethod((c, e) => c.Categories.Update(e), EntityState.Modified, EntityState.Modified);
+            ChangeStateWithMethod((c, e) => c.Categories.Update(e), EntityState.Added, EntityState.Modified);
+        }
+
+        [Fact]
+        public void Can_use_Remove_to_change_entity_state()
+        {
+            ChangeStateWithMethod((c, e) => c.Categories.Remove(e), EntityState.Unknown, EntityState.Deleted);
+            ChangeStateWithMethod((c, e) => c.Categories.Remove(e), EntityState.Unchanged, EntityState.Deleted);
+            ChangeStateWithMethod((c, e) => c.Categories.Remove(e), EntityState.Deleted, EntityState.Deleted);
+            ChangeStateWithMethod((c, e) => c.Categories.Remove(e), EntityState.Modified, EntityState.Deleted);
+            ChangeStateWithMethod((c, e) => c.Categories.Remove(e), EntityState.Added, EntityState.Unknown);
+        }
+
+        private void ChangeStateWithMethod(Action<EarlyLearningCenter, Category> action, EntityState initialState, EntityState expectedState)
+        {
+            using (var context = new EarlyLearningCenter())
+            {
+                var entity = new Category { Name = "Beverages" };
+                var entry = context.Entry(entity);
+
+                entry.SetState(initialState);
+
+                action(context, entity);
+
+                Assert.Equal(expectedState, entry.State);
+            }
+        }
+
         [Fact]
         public void Can_add_new_entities_to_context_with_key_generation()
         {
@@ -207,7 +263,7 @@ namespace Microsoft.Data.Entity.Tests
 
         private static void TrackEntitiesWithKeyGenerationTest(Func<DbSet<TheGu>, TheGu, TheGu> adder)
         {
-            using (var context = new EarlyLearningCenter(TestHelpers.CreateServiceProvider()))
+            using (var context = new EarlyLearningCenter())
             {
                 var gu1 = new TheGu { ShirtColor = "Red" };
                 var gu2 = new TheGu { ShirtColor = "Still Red" };
@@ -249,8 +305,8 @@ namespace Microsoft.Data.Entity.Tests
 
         private class EarlyLearningCenter : DbContext
         {
-            public EarlyLearningCenter(IServiceProvider serviceProvider)
-                : base(serviceProvider)
+            public EarlyLearningCenter()
+                : base(TestHelpers.CreateServiceProvider())
             {
             }
 

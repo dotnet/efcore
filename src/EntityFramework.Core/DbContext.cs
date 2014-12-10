@@ -303,7 +303,12 @@ namespace Microsoft.Data.Entity
         {
             Check.NotNull(entity, "entity");
 
-            return SetEntityState(entity, EntityState.Deleted);
+            // An Added entity does not yet exist in the database. If it is then marked as deleted there is
+            // nothing to delete because it was not yet inserted, so just make sure it doesn't get inserted.
+            return SetEntityState(
+                entity, Entry(entity).State == EntityState.Added
+                    ? EntityState.Unknown
+                    : EntityState.Deleted);
         }
 
         private EntityEntry<TEntity> SetEntityState<TEntity>(TEntity entity, EntityState entityState)
@@ -354,7 +359,12 @@ namespace Microsoft.Data.Entity
         {
             Check.NotNull(entity, "entity");
 
-            return SetEntityState(entity, EntityState.Deleted);
+            // An Added entity does not yet exist in the database. If it is then marked as deleted there is
+            // nothing to delete because it was not yet inserted, so just make sure it doesn't get inserted.
+            return SetEntityState(
+                entity, Entry(entity).State == EntityState.Added
+                    ? EntityState.Unknown
+                    : EntityState.Deleted);
         }
 
         private EntityEntry SetEntityState(object entity, EntityState entityState)
@@ -416,7 +426,19 @@ namespace Microsoft.Data.Entity
         {
             Check.NotNull(entities, "entities");
 
-            return SetEntityStates(entities, EntityState.Deleted);
+            var entries = GetOrCreateEntries(entities);
+
+            // An Added entity does not yet exist in the database. If it is then marked as deleted there is
+            // nothing to delete because it was not yet inserted, so just make sure it doesn't get inserted.
+            foreach (var entry in entries)
+            {
+                entry.SetState(
+                    entry.State == EntityState.Added
+                        ? EntityState.Unknown
+                        : EntityState.Deleted);
+            }
+
+            return entries;
         }
 
         private List<EntityEntry<TEntity>> SetEntityStates<TEntity>(TEntity[] entities, EntityState entityState)
@@ -488,7 +510,19 @@ namespace Microsoft.Data.Entity
         {
             Check.NotNull(entities, "entities");
 
-            return SetEntityStates(entities, EntityState.Deleted);
+            var entries = GetOrCreateEntries(entities);
+
+            // An Added entity does not yet exist in the database. If it is then marked as deleted there is
+            // nothing to delete because it was not yet inserted, so just make sure it doesn't get inserted.
+            foreach (var entry in entries)
+            {
+                entry.SetState(
+                    entry.State == EntityState.Added
+                        ? EntityState.Unknown
+                        : EntityState.Deleted);
+            }
+
+            return entries;
         }
 
         private List<EntityEntry> SetEntityStates(object[] entities, EntityState entityState)
