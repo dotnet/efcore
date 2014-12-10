@@ -59,17 +59,16 @@
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
     <PackageReference Include="xunit.assert">
-      <TargetFramework>net45</TargetFramework>
+      <TargetFramework>portable-net45+aspnetcore50+win+wpa81+wp80+monoandroid+monotouch10</TargetFramework>
     </PackageReference>
     <PackageReference Include="xunit.core">
-      <TargetFramework>net45</TargetFramework>
-      <Assemblies>xunit.core;xunit.runner.tdnet</Assemblies>
+      <TargetFramework>portable-net45+aspnetcore50+win+wpa81+wp80+monotouch+monoandroid</TargetFramework>
     </PackageReference>
     <PackageReference Include="xunit.execution">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
     <PackageReference Include="xunit.abstractions">
-      <TargetFramework>net45</TargetFramework>
+      <TargetFramework>net35</TargetFramework>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>

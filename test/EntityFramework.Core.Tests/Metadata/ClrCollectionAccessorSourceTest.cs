@@ -110,7 +110,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             }
 
             Assert.False(accessor.Contains(entity, value));
-            Assert.DoesNotThrow(() => accessor.Remove(entity, value));
+            accessor.Remove(entity, value);
 
             accessor.Add(entity, value);
 

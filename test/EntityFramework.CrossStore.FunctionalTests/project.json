@@ -4,7 +4,7 @@
         "EntityFramework.SqlServer.FunctionalTests": "1.0.0"
     },
     "commands": {
-        "test": "Xunit.KRunner"
+        "test": "xunit.runner.kre"
     },
     "frameworks": {
         "aspnet50": { }

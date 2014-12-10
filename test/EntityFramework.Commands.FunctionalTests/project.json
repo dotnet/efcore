@@ -2,11 +2,11 @@
     "dependencies": {
         "EntityFramework.Commands": "7.0.0-*",
         "Microsoft.Framework.Runtime.Roslyn": "1.0.0-*",
-        "Xunit.KRunner": "1.0.0-*"
+        "xunit.runner.kre": "1.0.0-*"
     },
     "code": [ "**\\*.cs", "..\\..\\src\\EntityFramework.Commands\\tools\\Handlers.cs" ],
     "commands": {
-        "test": "Xunit.KRunner"
+        "test": "xunit.runner.kre"
     },
     "frameworks": {
         "aspnet50": { }

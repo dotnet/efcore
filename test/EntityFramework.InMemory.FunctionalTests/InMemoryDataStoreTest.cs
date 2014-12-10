@@ -81,8 +81,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
         {
             using (var db = new SimpleContext())
             {
-                // ReSharper disable once AccessToDisposedClosure
-                Assert.DoesNotThrow(() => db.Artists.Any());
+                db.Artists.Any();
             }
         }
 

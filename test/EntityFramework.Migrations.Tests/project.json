@@ -2,9 +2,9 @@
     "dependencies": {
         "EntityFramework.Migrations": "7.0.0-*",
         "Moq": "4.2.1312.1622",
-        "Xunit.KRunner": "1.0.0-*"
+        "xunit.runner.kre": "1.0.0-*"
     },
-    "code": [ 
+    "code": [
         "**\\*.cs",
         "..\\Shared\\ApiConsistencyTestBase.cs",
         "..\\Shared\\TestHelpers.cs",
@@ -12,7 +12,7 @@
         "..\\Shared\\MigrationsTestHelpers.cs"
     ],
     "commands": {
-        "test": "Xunit.KRunner"
+        "test": "xunit.runner.kre"
     },
     "frameworks": {
         "aspnet50": { }

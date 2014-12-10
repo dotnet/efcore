@@ -59,14 +59,13 @@
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
     <PackageReference Include="xunit.abstractions">
-      <TargetFramework>net45</TargetFramework>
+      <TargetFramework>net35</TargetFramework>
     </PackageReference>
     <PackageReference Include="xunit.assert">
-      <TargetFramework>net45</TargetFramework>
+      <TargetFramework>portable-net45+aspnetcore50+win+wpa81+wp80+monoandroid+monotouch10</TargetFramework>
     </PackageReference>
     <PackageReference Include="xunit.core">
-      <TargetFramework>net45</TargetFramework>
-      <Assemblies>xunit.core;xunit.runner.tdnet</Assemblies>
+      <TargetFramework>portable-net45+aspnetcore50+win+wpa81+wp80+monotouch+monoandroid</TargetFramework>
     </PackageReference>
     <PackageReference Include="xunit.execution">
       <TargetFramework>net45</TargetFramework>
@@ -74,6 +73,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ComputedColumnTest.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SqlServerBuiltInDataTypesFixture.cs" />
     <Compile Include="SqlServerBuiltInDataTypesTest.cs" />
     <Compile Include="BatchingTest.cs" />
@@ -146,9 +146,6 @@
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Properties\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

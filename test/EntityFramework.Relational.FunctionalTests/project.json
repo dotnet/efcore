@@ -1,8 +1,7 @@
 {
     "dependencies": {
         "EntityFramework.Core.FunctionalTests": "1.0.0",
-        "EntityFramework.Relational": "7.0.0-*",
-        "Xunit.KRunner": "1.0.0-*"
+        "EntityFramework.Relational": "7.0.0-*"
     },
     "frameworks": {
         "aspnet50": { },
