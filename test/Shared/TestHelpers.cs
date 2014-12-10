@@ -145,7 +145,7 @@ namespace Microsoft.Data.Entity.Tests
                 .GetRequiredService<StateManager>()
                 .GetOrCreateEntry(entity ?? new TEntity());
 
-            entry.EntityState = entityState;
+            entry.SetEntityState(entityState);
 
             return entry;
         }

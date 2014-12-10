@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,8 +17,6 @@ namespace Microsoft.Data.Entity.ChangeTracking
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public abstract partial class StateEntry : IPropertyBagEntry
     {
-        private readonly StateManager _stateManager;
-        private readonly IEntityType _entityType;
         private readonly StateEntryMetadataServices _metadataServices;
         private StateData _stateData;
         private Sidecar[] _sidecars;
@@ -44,42 +41,24 @@ namespace Microsoft.Data.Entity.ChangeTracking
             Check.NotNull(entityType, "entityType");
             Check.NotNull(metadataServices, "metadataServices");
 
-            _stateManager = stateManager;
+            StateManager = stateManager;
             _metadataServices = metadataServices;
-            _entityType = entityType;
-            _stateData = new StateData(_entityType.Properties.Count);
+            EntityType = entityType;
+            _stateData = new StateData(EntityType.Properties.Count);
         }
 
         [CanBeNull]
         public abstract object Entity { get; }
 
-        public virtual IEntityType EntityType
-        {
-            get { return _entityType; }
-        }
+        public virtual IEntityType EntityType { get; }
 
-        public virtual StateManager StateManager
-        {
-            get { return _stateManager; }
-        }
+        public virtual StateManager StateManager { get; }
 
-        public virtual Sidecar OriginalValues
-        {
-            get
-            {
-                return TryGetSidecar(Sidecar.WellKnownNames.OriginalValues)
-                       ?? AddSidecar(_metadataServices.CreateOriginalValues(this));
-            }
-        }
+        public virtual Sidecar OriginalValues => TryGetSidecar(Sidecar.WellKnownNames.OriginalValues)
+                                                 ?? AddSidecar(_metadataServices.CreateOriginalValues(this));
 
-        public virtual Sidecar RelationshipsSnapshot
-        {
-            get
-            {
-                return TryGetSidecar(Sidecar.WellKnownNames.RelationshipsSnapshot)
-                       ?? AddSidecar(_metadataServices.CreateRelationshipSnapshot(this));
-            }
-        }
+        public virtual Sidecar RelationshipsSnapshot => TryGetSidecar(Sidecar.WellKnownNames.RelationshipsSnapshot)
+                                                        ?? AddSidecar(_metadataServices.CreateRelationshipSnapshot(this));
 
         public virtual Sidecar AddSidecar([NotNull] Sidecar sidecar)
         {
@@ -104,9 +83,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
             Check.NotEmpty(name, "name");
 
-            return _sidecars == null
-                ? null
-                : _sidecars.FirstOrDefault(s => s.Name == name);
+            return _sidecars?.FirstOrDefault(s => s.Name == name);
         }
 
         public virtual void RemoveSidecar([NotNull] string name)
@@ -132,8 +109,10 @@ namespace Microsoft.Data.Entity.ChangeTracking
             }
         }
 
-        private void SetEntityState(EntityState entityState)
+        public virtual void SetEntityState(EntityState entityState)
         {
+            Check.IsDefined(entityState, "entityState");
+
             var oldState = _stateData.EntityState;
 
             if (PrepareForAdd(entityState))
@@ -236,16 +215,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             StateManager.Notify.StateChanged(this, oldState);
         }
 
-        public virtual EntityState EntityState
-        {
-            get { return _stateData.EntityState; }
-            set
-            {
-                Check.IsDefined(value, "value");
-
-                SetEntityState(value);
-            }
-        }
+        public virtual EntityState EntityState => _stateData.EntityState;
 
         public virtual bool IsPropertyModified([NotNull] IProperty property)
         {
@@ -456,17 +426,13 @@ namespace Microsoft.Data.Entity.ChangeTracking
             if (currentState == EntityState.Added
                 || currentState == EntityState.Modified)
             {
-                var originalValues = TryGetSidecar(Sidecar.WellKnownNames.OriginalValues);
-                if (originalValues != null)
-                {
-                    originalValues.UpdateSnapshot();
-                }
+                TryGetSidecar(Sidecar.WellKnownNames.OriginalValues)?.UpdateSnapshot();
 
-                EntityState = EntityState.Unchanged;
+                SetEntityState(EntityState.Unchanged);
             }
             else if (currentState == EntityState.Deleted)
             {
-                EntityState = EntityState.Unknown;
+                SetEntityState(EntityState.Unknown);
             }
         }
 
@@ -520,14 +486,8 @@ namespace Microsoft.Data.Entity.ChangeTracking
         }
 
         [UsedImplicitly]
-        private string DebuggerDisplay
-        {
-            get { return this.GetPrimaryKeyValue() + " - " + EntityState; }
-        }
+        private string DebuggerDisplay => this.GetPrimaryKeyValue() + " - " + EntityState;
 
-        StateEntry IPropertyBagEntry.StateEntry
-        {
-            get { return this; }
-        }
+        StateEntry IPropertyBagEntry.StateEntry => this;
     }
 }

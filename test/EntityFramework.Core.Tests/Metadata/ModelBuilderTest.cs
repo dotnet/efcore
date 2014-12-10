@@ -6204,6 +6204,48 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         }
 
         [Fact]
+        public void Self_referencing_one_to_one_can_be_flipped()
+        {
+            var modelBuilder = new ModelBuilder();
+            modelBuilder
+                .Entity<SelfRef>()
+                .OneToOne(e => e.SelfRef1, e => e.SelfRef2);
+
+            var entityType = modelBuilder.Model.GetEntityType(typeof(SelfRef));
+            var fk = entityType.ForeignKeys.Single();
+
+            var navigationToPrincipal = fk.GetNavigationToPrincipal();
+            var navigationToDependent = fk.GetNavigationToDependent();
+
+            modelBuilder
+                .Entity<SelfRef>()
+                .OneToOne(e => e.SelfRef1, e => e.SelfRef2);
+
+            Assert.Same(fk, entityType.ForeignKeys.Single());
+            Assert.True(((IForeignKey)fk).IsRequired);
+
+            modelBuilder
+                .Entity<SelfRef>()
+                .OneToOne(e => e.SelfRef2, e => e.SelfRef1);
+
+            var newFk = entityType.ForeignKeys.Single();
+
+            Assert.Equal(fk.Properties, newFk.Properties);
+            Assert.Equal(fk.ReferencedKey, newFk.ReferencedKey);
+            Assert.Equal(navigationToPrincipal.Name, newFk.GetNavigationToDependent().Name);
+            Assert.Equal(navigationToDependent.Name, newFk.GetNavigationToPrincipal().Name);
+            Assert.True(((IForeignKey)newFk).IsRequired);
+        }
+
+        private class SelfRef
+        {
+            public int Id { get; set; }
+            public SelfRef SelfRef1 { get; set; }
+            public SelfRef SelfRef2 { get; set; }
+            public int SelfRefId { get; set; }
+        }
+
+        [Fact]
         public void OnEntityTypeAdded_calls_apply_on_conventions()
         {
             var model = new Model();

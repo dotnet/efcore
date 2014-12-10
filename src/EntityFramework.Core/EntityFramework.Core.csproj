@@ -60,8 +60,8 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.tt</DependentUpon>
     </Compile>
-    <Compile Include="..\Shared\Check.cs" >
-        <Link>Utilities\Check.cs</Link>
+    <Compile Include="..\Shared\Check.cs">
+      <Link>Utilities\Check.cs</Link>
     </Compile>
     <Compile Include="..\Shared\LoggingExtensions.cs">
       <Link>LoggingExtensions.cs</Link>
@@ -109,6 +109,7 @@
     <Compile Include="Infrastructure\ModelSourceHelpers.cs" />
     <Compile Include="Metadata\BasicModelBuilder.cs" />
     <Compile Include="Metadata\CollectionTypeFactory.cs" />
+    <Compile Include="Metadata\ForeignKeyExtensions.cs" />
     <Compile Include="Metadata\IEntityBuilder.cs" />
     <Compile Include="Metadata\IEntityBuilder`.cs" />
     <Compile Include="Metadata\IForeignKeyBuilder.cs" />

@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var category = new Category { Id = -1, PrincipalId = 77 };
             var principalEntry = stateManager.StartTracking(stateManager.GetOrCreateEntry(category));
             principalEntry.RelationshipsSnapshot[keyProperty] = 77;
-            principalEntry.EntityState = EntityState.Added;
+            principalEntry.SetEntityState(EntityState.Added);
 
             var changeDetector = new ChangeDetector(new DbContextService<IModel>(model));
 
@@ -57,7 +57,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var category = new Category { Id = -1, PrincipalId = 77 };
             var principalEntry = stateManager.StartTracking(stateManager.GetOrCreateEntry(category));
             principalEntry.RelationshipsSnapshot[keyProperty] = 77;
-            principalEntry.EntityState = EntityState.Added;
+            principalEntry.SetEntityState(EntityState.Added);
 
             var changeDetector = new ChangeDetector(new DbContextService<IModel>(model));
 
@@ -86,7 +86,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var category = new Category { Id = -1 };
             var principalEntry = stateManager.StartTracking(stateManager.GetOrCreateEntry(category));
             principalEntry.RelationshipsSnapshot[keyProperty] = -1;
-            principalEntry.EntityState = EntityState.Added;
+            principalEntry.SetEntityState(EntityState.Added);
 
             var changeDetector = new ChangeDetector(new DbContextService<IModel>(model));
 
@@ -115,7 +115,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var category = new Category { Id = -1 };
             var principalEntry = stateManager.StartTracking(stateManager.GetOrCreateEntry(category));
             principalEntry.RelationshipsSnapshot[keyProperty] = -1;
-            principalEntry.EntityState = EntityState.Added;
+            principalEntry.SetEntityState(EntityState.Added);
 
             var changeDetector = new ChangeDetector(new DbContextService<IModel>(model));
 
@@ -144,7 +144,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var category = new Category { Id = -1, Name = "Blue" };
             var principalEntry = stateManager.StartTracking(stateManager.GetOrCreateEntry(category));
             principalEntry.RelationshipsSnapshot[property] = "Blue";
-            principalEntry.EntityState = EntityState.Added;
+            principalEntry.SetEntityState(EntityState.Added);
 
             var changeDetector = new ChangeDetector(new DbContextService<IModel>(model));
 
@@ -174,7 +174,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var category = new Category { Id = -1, Name = "Blue" };
             var principalEntry = stateManager.StartTracking(stateManager.GetOrCreateEntry(category));
             principalEntry.RelationshipsSnapshot[property] = "Blue";
-            principalEntry.EntityState = EntityState.Added;
+            principalEntry.SetEntityState(EntityState.Added);
 
             var changeDetector = new ChangeDetector(new DbContextService<IModel>(model));
 
@@ -204,7 +204,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var category = new Category { Id = -1, PrincipalId = 77 };
             var principalEntry = stateManager.StartTracking(stateManager.GetOrCreateEntry(category));
             principalEntry.RelationshipsSnapshot[keyProperty] = 77;
-            principalEntry.EntityState = EntityState.Added;
+            principalEntry.SetEntityState(EntityState.Added);
 
             var changeDetector = new ChangeDetector(new DbContextService<IModel>(model));
 
@@ -233,7 +233,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var category = new Category { Id = -1, PrincipalId = 77 };
             var principalEntry = stateManager.StartTracking(stateManager.GetOrCreateEntry(category));
             principalEntry.RelationshipsSnapshot[keyProperty] = 77;
-            principalEntry.EntityState = EntityState.Added;
+            principalEntry.SetEntityState(EntityState.Added);
 
             var changeDetector = new ChangeDetector(new DbContextService<IModel>(model));
 

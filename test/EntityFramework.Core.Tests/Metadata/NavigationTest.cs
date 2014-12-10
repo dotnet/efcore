@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
-using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Moq;
 using Xunit;
@@ -11,18 +9,6 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 {
     public class NavigationTest
     {
-        [Fact]
-        public void Members_check_arguments()
-        {
-            Assert.Equal(
-                "foreignKey",
-                // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => new Navigation("Handlebars", null, pointsToPrincipal: true)).ParamName);
-            Assert.Equal(
-                Strings.ArgumentIsEmpty("name"),
-                Assert.Throws<ArgumentException>(() => new Navigation("", new Mock<ForeignKey>().Object, pointsToPrincipal: true)).Message);
-        }
-
         [Fact]
         public void Can_create_navigation_to_principal()
         {

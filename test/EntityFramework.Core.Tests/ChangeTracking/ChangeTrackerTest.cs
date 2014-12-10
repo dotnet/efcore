@@ -85,7 +85,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                             }
                     };
 
-                context.ChangeTracker.AttachGraph(category, e => e.State = EntityState.Modified);
+                context.ChangeTracker.AttachGraph(category, e => e.SetState(EntityState.Modified));
 
                 Assert.Equal(4, context.ChangeTracker.Entries().Count());
 
@@ -111,7 +111,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             {
                 var product = new Product { Id = 1, Category = new Category { Id = 1 } };
 
-                context.ChangeTracker.AttachGraph(product, e => e.State = EntityState.Modified);
+                context.ChangeTracker.AttachGraph(product, e => e.SetState(EntityState.Modified));
 
                 Assert.Equal(2, context.ChangeTracker.Entries().Count());
 
@@ -130,7 +130,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             {
                 var product = new Product { Id = 1, Details = new ProductDetails { Id = 1 } };
 
-                context.ChangeTracker.AttachGraph(product, e => e.State = EntityState.Unchanged);
+                context.ChangeTracker.AttachGraph(product, e => e.SetState(EntityState.Unchanged));
 
                 Assert.Equal(2, context.ChangeTracker.Entries().Count());
 
@@ -148,7 +148,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             {
                 var details = new ProductDetails { Id = 1, Product = new Product { Id = 1 } };
 
-                context.ChangeTracker.AttachGraph(details, e => e.State = EntityState.Unchanged);
+                context.ChangeTracker.AttachGraph(details, e => e.SetState(EntityState.Unchanged));
 
                 Assert.Equal(2, context.ChangeTracker.Entries().Count());
 
@@ -177,7 +177,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                             }
                 };
 
-                context.ChangeTracker.AttachGraph(category, e => e.State = EntityState.Modified);
+                context.ChangeTracker.AttachGraph(category, e => e.SetState(EntityState.Modified));
 
                 Assert.Equal(4, context.ChangeTracker.Entries().Count());
 
@@ -219,7 +219,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                         if (product == null
                             || product.Id != 2)
                         {
-                            e.State = EntityState.Unchanged;
+                            e.SetState(EntityState.Unchanged);
                         }
                     });
 

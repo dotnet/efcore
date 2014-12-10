@@ -28,19 +28,19 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
 
             var stateEntry1 = stateManager.GetOrCreateEntry(new object());
             stateEntry1[key] = 0;
-            stateEntry1.EntityState = EntityState.Added;
+            stateEntry1.SetEntityState(EntityState.Added);
             var modificationCommandAdded = new ModificationCommand(new SchemaQualifiedName("A"), new ParameterNameGenerator(), p => p.Relational());
             modificationCommandAdded.AddStateEntry(stateEntry1);
 
             var stateEntry2 = stateManager.GetOrCreateEntry(new object());
             stateEntry2[key] = 1;
-            stateEntry2.EntityState = EntityState.Modified;
+            stateEntry2.SetEntityState(EntityState.Modified);
             var modificationCommandModified = new ModificationCommand(new SchemaQualifiedName("A"), new ParameterNameGenerator(), p => p.Relational());
             modificationCommandModified.AddStateEntry(stateEntry2);
 
             var stateEntry3 = stateManager.GetOrCreateEntry(new object());
             stateEntry3[key] = 2;
-            stateEntry3.EntityState = EntityState.Deleted;
+            stateEntry3.SetEntityState(EntityState.Deleted);
             var modificationCommandDeleted = new ModificationCommand(new SchemaQualifiedName("A"), new ParameterNameGenerator(), p => p.Relational());
             modificationCommandDeleted.AddStateEntry(stateEntry3);
 

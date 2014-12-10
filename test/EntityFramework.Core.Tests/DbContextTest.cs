@@ -756,8 +756,8 @@ namespace Microsoft.Data.Entity.Tests
 
             using (var context = new EarlyLearningCenter(serviceProvider, options))
             {
-                context.Entry(new Category { Id = 1 }).State = EntityState.Unchanged;
-                context.Entry(new Category { Id = 2 }).State = EntityState.Unchanged;
+                context.Entry(new Category { Id = 1 }).SetState(EntityState.Unchanged);
+                context.Entry(new Category { Id = 2 }).SetState(EntityState.Unchanged);
                 Assert.Equal(2, context.ChangeTracker.Entries().Count());
 
                 context.SaveChanges();
@@ -797,10 +797,10 @@ namespace Microsoft.Data.Entity.Tests
 
             using (var context = new EarlyLearningCenter(serviceProvider, options))
             {
-                context.Entry(new Category { Id = 1 }).State = EntityState.Unchanged;
-                context.Entry(new Category { Id = 2 }).State = EntityState.Modified;
-                context.Entry(new Category { Id = 3 }).State = EntityState.Added;
-                context.Entry(new Category { Id = 4 }).State = EntityState.Deleted;
+                context.Entry(new Category { Id = 1 }).SetState(EntityState.Unchanged);
+                context.Entry(new Category { Id = 2 }).SetState(EntityState.Modified);
+                context.Entry(new Category { Id = 3 }).SetState(EntityState.Added);
+                context.Entry(new Category { Id = 4 }).SetState(EntityState.Deleted);
                 Assert.Equal(4, context.ChangeTracker.Entries().Count());
 
                 context.SaveChanges();
@@ -842,10 +842,10 @@ namespace Microsoft.Data.Entity.Tests
 
             using (var context = new EarlyLearningCenter(serviceProvider, options))
             {
-                context.Entry(new Category { Id = 1 }).State = EntityState.Unchanged;
-                context.Entry(new Category { Id = 2 }).State = EntityState.Modified;
-                context.Entry(new Category { Id = 3 }).State = EntityState.Added;
-                context.Entry(new Category { Id = 4 }).State = EntityState.Deleted;
+                context.Entry(new Category { Id = 1 }).SetState(EntityState.Unchanged);
+                context.Entry(new Category { Id = 2 }).SetState(EntityState.Modified);
+                context.Entry(new Category { Id = 3 }).SetState(EntityState.Added);
+                context.Entry(new Category { Id = 4 }).SetState(EntityState.Deleted);
                 Assert.Equal(4, context.ChangeTracker.Entries().Count());
 
                 await context.SaveChangesAsync();

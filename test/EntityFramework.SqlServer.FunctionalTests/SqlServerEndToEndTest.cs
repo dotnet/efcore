@@ -162,8 +162,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     toDelete.Name = "Blog to delete";
                     var deletedId = toDelete.Id;
 
-                    db.Entry(toUpdate).State = EntityState.Modified;
-                    db.Entry(toDelete).State = EntityState.Deleted;
+                    db.Entry(toUpdate).SetState(EntityState.Modified);
+                    db.Entry(toDelete).SetState(EntityState.Deleted);
 
                     var toAdd = db.Add(new Blog
                     {
@@ -240,7 +240,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                         Away = 0.12345f,
                         AndChew = new byte[16]
                     }).Entity;
-                    db.Entry(toAdd).State = EntityState.Unknown;
+                    db.Entry(toAdd).SetState(EntityState.Unknown);
 
                     var blogs = await CreateBlogDatabaseAsync<Blog>(db);
 
@@ -252,7 +252,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     deletedId = toDelete.Id;
 
                     db.Remove(toDelete);
-                    db.Entry(toAdd).State = EntityState.Added;
+                    db.Entry(toAdd).SetState(EntityState.Added);
 
                     await db.SaveChangesAsync();
 

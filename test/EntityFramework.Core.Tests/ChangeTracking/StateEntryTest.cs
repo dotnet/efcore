@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entry = CreateStateEntry(contextServices, entityType, new SomeEntity());
             entry[keyProperty] = 1;
 
-            entry.EntityState = EntityState.Added;
+            entry.SetEntityState(EntityState.Added);
 
             Assert.Equal(EntityState.Added, entry.EntityState);
             Assert.Contains(entry, contextServices.GetRequiredService<StateManager>().StateEntries);
@@ -47,8 +47,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entry = CreateStateEntry(contextServices, entityType, new SomeEntity());
             entry[keyProperty] = 1;
 
-            entry.EntityState = EntityState.Added;
-            entry.EntityState = EntityState.Unknown;
+            entry.SetEntityState(EntityState.Added);
+            entry.SetEntityState(EntityState.Unknown);
 
             Assert.Equal(EntityState.Unknown, entry.EntityState);
             Assert.DoesNotContain(entry, contextServices.GetRequiredService<StateManager>().StateEntries);
@@ -66,8 +66,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entry = CreateStateEntry(contextServices, entityType, new SomeEntity());
             entry[keyProperty] = 1;
 
-            entry.EntityState = EntityState.Added;
-            entry.EntityState = EntityState.Deleted;
+            entry.SetEntityState(EntityState.Added);
+            entry.SetEntityState(EntityState.Deleted);
 
             Assert.Equal(EntityState.Unknown, entry.EntityState);
             Assert.DoesNotContain(entry, contextServices.GetRequiredService<StateManager>().StateEntries);
@@ -88,12 +88,12 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.False(entry.IsPropertyModified(keyProperty));
             Assert.False(entry.IsPropertyModified(nonKeyProperty));
 
-            entry.EntityState = EntityState.Modified;
+            entry.SetEntityState(EntityState.Modified);
 
             Assert.False(entry.IsPropertyModified(keyProperty));
             Assert.True(entry.IsPropertyModified(nonKeyProperty));
 
-            entry.EntityState = EntityState.Unchanged;
+            entry.SetEntityState(EntityState.Unchanged);
 
             Assert.False(entry.IsPropertyModified(keyProperty));
             Assert.False(entry.IsPropertyModified(nonKeyProperty));
@@ -120,12 +120,12 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entry[keyProperty] = 1;
             entry[nonKeyProperty] = "Jillybean";
 
-            entry.EntityState = EntityState.Modified;
+            entry.SetEntityState(EntityState.Modified);
 
             Assert.False(entry.IsPropertyModified(keyProperty));
             Assert.False(entry.IsPropertyModified(nonKeyProperty));
 
-            entry.EntityState = EntityState.Unchanged;
+            entry.SetEntityState(EntityState.Unchanged);
 
             Assert.False(entry.IsPropertyModified(keyProperty));
             Assert.False(entry.IsPropertyModified(nonKeyProperty));
@@ -172,7 +172,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.False(entry.IsPropertyModified(keyProperty));
             Assert.False(entry.IsPropertyModified(nonKeyProperty));
 
-            entry.EntityState = EntityState.Added;
+            entry.SetEntityState(EntityState.Added);
 
             Assert.False(entry.HasTemporaryValue(keyProperty));
             Assert.False(entry.HasTemporaryValue(nonKeyProperty));
@@ -194,7 +194,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.False(entry.IsPropertyModified(keyProperty));
             Assert.False(entry.IsPropertyModified(nonKeyProperty));
 
-            entry.EntityState = EntityState.Unchanged;
+            entry.SetEntityState(EntityState.Unchanged);
 
             Assert.False(entry.HasTemporaryValue(keyProperty));
             Assert.False(entry.HasTemporaryValue(nonKeyProperty));
@@ -209,7 +209,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.False(entry.IsPropertyModified(keyProperty));
             Assert.False(entry.IsPropertyModified(nonKeyProperty));
 
-            entry.EntityState = EntityState.Added;
+            entry.SetEntityState(EntityState.Added);
 
             Assert.False(entry.HasTemporaryValue(keyProperty));
             Assert.False(entry.HasTemporaryValue(nonKeyProperty));
@@ -236,7 +236,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 Assert.Equal(0, entry[keyProperty]);
             }
 
-            entry.EntityState = EntityState.Added;
+            entry.SetEntityState(EntityState.Added);
 
             Assert.NotNull(entry[keyProperty]);
             Assert.NotEqual(0, entry[keyProperty]);
@@ -254,7 +254,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             entry[keyProperty] = 31143;
 
-            entry.EntityState = EntityState.Added;
+            entry.SetEntityState(EntityState.Added);
 
             Assert.Equal(31143, entry[keyProperty]);
         }
@@ -269,13 +269,13 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var entry = CreateStateEntry(configuration, entityType, new SomeEntity());
 
-            entry.EntityState = EntityState.Added;
+            entry.SetEntityState(EntityState.Added);
             entry.MarkAsTemporary(keyProperty);
 
             Assert.NotNull(entry[keyProperty]);
             Assert.NotEqual(0, entry[keyProperty]);
 
-            entry.EntityState = EntityState.Unknown;
+            entry.SetEntityState(EntityState.Unknown);
 
             Assert.Equal(0, entry[keyProperty]);
         }
@@ -304,7 +304,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 Assert.Equal(0, entry[property]);
             }
 
-            entry.EntityState = EntityState.Added;
+            entry.SetEntityState(EntityState.Added);
 
             Assert.NotNull(entry[property]);
             Assert.NotEqual(0, entry[property]);
@@ -708,7 +708,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var configuration = TestHelpers.CreateContextServices(model);
 
             var entry = CreateStateEntry(configuration, entityType, new ObjectArrayValueReader(new object[] { 1, "Kool" }));
-            entry.EntityState = EntityState.Unchanged;
+            entry.SetEntityState(EntityState.Unchanged);
 
             Assert.False(entry.IsPropertyModified(idProperty));
             Assert.False(entry.IsPropertyModified(nameProperty));
@@ -737,7 +737,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var configuration = TestHelpers.CreateContextServices(model);
 
             var entry = CreateStateEntry(configuration, entityType, new ObjectArrayValueReader(new object[] { 1, "Kool" }));
-            entry.EntityState = EntityState.Unchanged;
+            entry.SetEntityState(EntityState.Unchanged);
 
             var entity = (TEntity)entry.Entity;
 
@@ -782,7 +782,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var configuration = TestHelpers.CreateContextServices(model);
 
             var entry = CreateStateEntry(configuration, entityType, new ObjectArrayValueReader(new object[] { 1, "Kool" }));
-            entry.EntityState = entityState;
+            entry.SetEntityState(entityState);
 
             entry.AcceptChanges();
 
@@ -809,7 +809,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var configuration = TestHelpers.CreateContextServices(model);
 
             var entry = CreateStateEntry(configuration, entityType, new ObjectArrayValueReader(new object[] { 1, "Kool" }));
-            entry.EntityState = entityState;
+            entry.SetEntityState(entityState);
 
             entry[nameProperty] = "Pickle";
             entry.OriginalValues[nameProperty] = "Cheese";
@@ -830,7 +830,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var configuration = TestHelpers.CreateContextServices(model);
 
             var entry = CreateStateEntry(configuration, entityType, new ObjectArrayValueReader(new object[] { 1, "Kool" }));
-            entry.EntityState = EntityState.Modified;
+            entry.SetEntityState(EntityState.Modified);
 
             entry[nameProperty] = "Pickle";
 
@@ -849,7 +849,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var configuration = TestHelpers.CreateContextServices(model);
 
             var entry = CreateStateEntry(configuration, entityType, new ObjectArrayValueReader(new object[] { 1, "Kool" }));
-            entry.EntityState = EntityState.Deleted;
+            entry.SetEntityState(EntityState.Deleted);
 
             entry.AcceptChanges();
 
@@ -1127,7 +1127,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 entityType,
                 new ObjectArrayValueReader(new object[] { 1, "Kool" }));
 
-            entry.EntityState = EntityState.Added;
+            entry.SetEntityState(EntityState.Added);
             entry.MarkAsTemporary(idProperty);
 
             entry.PrepareToSave();

@@ -310,7 +310,7 @@ namespace Microsoft.Data.Entity
         {
             var entry = Entry(entity);
 
-            entry.State = entityState;
+            entry.SetState(entityState);
 
             return entry;
         }
@@ -361,7 +361,7 @@ namespace Microsoft.Data.Entity
         {
             var entry = Entry(entity);
 
-            entry.State = entityState;
+            entry.SetState(entityState);
 
             return entry;
         }
@@ -425,7 +425,7 @@ namespace Microsoft.Data.Entity
 
             foreach (var entry in entries)
             {
-                entry.State = entityState;
+                entry.SetState(entityState);
             }
 
             return entries;
@@ -497,7 +497,7 @@ namespace Microsoft.Data.Entity
 
             foreach (var entry in entries)
             {
-                entry.State = entityState;
+                entry.SetState(entityState);
             }
 
             return entries;

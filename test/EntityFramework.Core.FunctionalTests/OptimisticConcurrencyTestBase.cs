@@ -55,13 +55,13 @@ namespace Microsoft.Data.Entity.FunctionalTests
             var storeValues = stateEntry.GetDatabaseValues(context);
             if (storeValues == null)
             {
-                stateEntry.EntityState = EntityState.Unknown;
+                stateEntry.SetEntityState(EntityState.Unknown);
             }
             else
             {
                 stateEntry.SetValues(storeValues);
                 stateEntry.OriginalValues.SetValues(storeValues);
-                stateEntry.EntityState = EntityState.Unchanged;
+                stateEntry.SetEntityState(EntityState.Unchanged);
             }
             return Task.FromResult(false);
         }
@@ -181,7 +181,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         var storeValues = driverEntry.GetDatabaseValues(c);
                         driverEntry.SetValues(storeValues);
                         driverEntry.OriginalValues.SetValues(storeValues);
-                        driverEntry.EntityState = EntityState.Unchanged;
+                        driverEntry.SetEntityState(EntityState.Unchanged);
                     });
         }
 
@@ -465,7 +465,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         var entry = ex.StateEntries.Single();
                         Assert.IsAssignableFrom<Driver>(entry.Entity);
 
-                        entry.EntityState = EntityState.Unchanged;
+                        entry.SetEntityState(EntityState.Unchanged);
                         var storeValues = entry.GetDatabaseValues(c);
                         entry.OriginalValues.SetValues(storeValues);
                         entry.SetValues(storeValues);
@@ -505,7 +505,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         Assert.IsAssignableFrom<Driver>(entry.Entity);
                         var storeValues = entry.GetDatabaseValues(c);
                         Assert.Null(storeValues);
-                        entry.EntityState = EntityState.Unknown;
+                        entry.SetEntityState(EntityState.Unknown);
                     },
                 c => Assert.Null(c.Drivers.SingleOrDefault(d => d.Name == "Fernando Alonso")));
         }
@@ -542,7 +542,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                             Name = "Larry David",
                             TeamId = Team.Ferrari
                         });
-                entry.State = EntityState.Unknown;
+                entry.SetState(EntityState.Unknown);
 
                 Assert.Equal("Can't reload an unknown entity",
                     Assert.Throws<InvalidOperationException>(() => entry.Reload(context)).Message);
@@ -573,7 +573,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 var larry = context.Drivers.Single(d => d.Name == "Jenson Button");
                 var entry = context.Entry(larry);
-                entry.State = state;
+                entry.SetState(state);
 
                 entry.Reload(context);
 
@@ -615,7 +615,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                             Name = "Larry David",
                             TeamId = Team.Ferrari
                         });
-                entry.State = EntityState.Unknown;
+                entry.SetState(EntityState.Unknown);
 
                 Assert.Equal("Can't reload an unknown entity",
                     (await Assert.ThrowsAsync<InvalidOperationException>(() => entry.ReloadAsync(context))).Message);
@@ -646,7 +646,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 var larry = context.Drivers.Single(d => d.Name == "Jenson Button");
                 var entry = context.Entry(larry);
-                entry.State = state;
+                entry.SetState(state);
 
                 await entry.ReloadAsync(context);
 

@@ -43,7 +43,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.Equal(EntityState.Unchanged, stateEntry.EntityState);
             Assert.Same(stateEntry, stateManager.GetOrMaterializeEntry(categoryType, new ObjectArrayValueReader(new object[] { 77, "Bjork", null })));
 
-            stateEntry.EntityState = EntityState.Modified;
+            stateEntry.SetEntityState(EntityState.Modified);
 
             Assert.Same(stateEntry, stateManager.GetOrMaterializeEntry(categoryType, new ObjectArrayValueReader(new object[] { 77, "Bjork", null })));
             Assert.Equal(EntityState.Modified, stateEntry.EntityState);
@@ -256,7 +256,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var stateManager = contextServices.GetRequiredService<StateManager>();
 
             var entry = stateManager.GetOrCreateEntry(new Category { Id = 77 });
-            entry.EntityState = EntityState.Added;
+            entry.SetEntityState(EntityState.Added);
 
             foreach (var listener in listeners)
             {
@@ -267,7 +267,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 listener.Verify(m => m.StateChanged(entry, EntityState.Unknown), Times.Once);
             }
 
-            entry.EntityState = EntityState.Modified;
+            entry.SetEntityState(EntityState.Modified);
 
             foreach (var listener in listeners)
             {
@@ -336,10 +336,10 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entry3 = stateManager.GetOrCreateEntry(new Product { Id = productId1 });
             var entry4 = stateManager.GetOrCreateEntry(new Product { Id = productId2 });
 
-            entry1.EntityState = EntityState.Added;
-            entry2.EntityState = EntityState.Modified;
-            entry3.EntityState = EntityState.Unchanged;
-            entry4.EntityState = EntityState.Deleted;
+            entry1.SetEntityState(EntityState.Added);
+            entry2.SetEntityState(EntityState.Modified);
+            entry3.SetEntityState(EntityState.Unchanged);
+            entry4.SetEntityState(EntityState.Deleted);
 
             stateManager.SaveChangesAsync().Wait();
 
