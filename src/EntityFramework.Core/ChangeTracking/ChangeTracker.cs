@@ -4,6 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Utilities;
@@ -72,6 +74,20 @@ namespace Microsoft.Data.Entity.ChangeTracking
             foreach (var entry in _graphIterator.TraverseGraph(rootEntity))
             {
                 callback(entry);
+            }
+        }
+
+        public virtual async Task AttachGraphAsync(
+            [NotNull] object rootEntity,
+            [NotNull] Func<EntityEntry, Task> callback,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Check.NotNull(rootEntity, "rootEntity");
+            Check.NotNull(callback, "callback");
+
+            foreach (var entry in _graphIterator.TraverseGraph(rootEntity))
+            {
+                await callback(entry).WithCurrentCulture();
             }
         }
     }

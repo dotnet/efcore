@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
@@ -258,6 +259,96 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 context.ChangeTracker.AttachGraph(details, e => { });
 
                 Assert.Equal(0, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [Fact]
+        public void Can_attach_parent_with_some_new_and_some_existing_entities()
+        {
+            using (var context = new EarlyLearningCenter())
+            {
+                var category = new Category
+                {
+                    Id = 77,
+                    Products = new List<Product>
+                            {
+                                new Product { Id = 77 },
+                                new Product { Id = 0 },
+                                new Product { Id = 78 }
+                            }
+                };
+
+                context.ChangeTracker.AttachGraph(
+                    category,
+                    e =>
+                    {
+                        var product = e.Entity as Product;
+                        e.SetState(product != null && product.Id == 0 ? EntityState.Added : EntityState.Unchanged);
+                    });
+
+                Assert.Equal(4, context.ChangeTracker.Entries().Count());
+
+                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(category.Products[0]).State);
+                Assert.Equal(EntityState.Added, context.Entry(category.Products[1]).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(category.Products[2]).State);
+
+                Assert.Equal(77, category.Products[0].Id);
+                Assert.Equal(1, category.Products[1].Id);
+                Assert.Equal(78, category.Products[2].Id);
+
+                Assert.Same(category, category.Products[0].Category);
+                Assert.Same(category, category.Products[1].Category);
+                Assert.Same(category, category.Products[2].Category);
+
+                Assert.Equal(category.Id, category.Products[0].CategoryId);
+                Assert.Equal(category.Id, category.Products[1].CategoryId);
+                Assert.Equal(category.Id, category.Products[2].CategoryId);
+            }
+        }
+
+        [Fact]
+        public async Task Can_attach_parent_with_some_new_and_some_existing_entities_async()
+        {
+            using (var context = new EarlyLearningCenter())
+            {
+                var category = new Category
+                {
+                    Id = 77,
+                    Products = new List<Product>
+                            {
+                                new Product { Id = 77 },
+                                new Product { Id = 0 },
+                                new Product { Id = 78 }
+                            }
+                };
+
+                await context.ChangeTracker.AttachGraphAsync(
+                    category,
+                    async e =>
+                    {
+                        var product = e.Entity as Product;
+                        await e.SetStateAsync(product != null && product.Id == 0 ? EntityState.Added : EntityState.Unchanged);
+                    });
+
+                Assert.Equal(4, context.ChangeTracker.Entries().Count());
+
+                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(category.Products[0]).State);
+                Assert.Equal(EntityState.Added, context.Entry(category.Products[1]).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(category.Products[2]).State);
+
+                Assert.Equal(77, category.Products[0].Id);
+                Assert.Equal(1, category.Products[1].Id);
+                Assert.Equal(78, category.Products[2].Id);
+
+                Assert.Same(category, category.Products[0].Category);
+                Assert.Same(category, category.Products[1].Category);
+                Assert.Same(category, category.Products[2].Category);
+
+                Assert.Equal(category.Id, category.Products[0].CategoryId);
+                Assert.Equal(category.Id, category.Products[1].CategoryId);
+                Assert.Equal(category.Id, category.Products[2].CategoryId);
             }
         }
 
