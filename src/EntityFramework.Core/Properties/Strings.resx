@@ -220,7 +220,10 @@
     <value>Multiple potential primary key properties named '{property}' but differing only by case were found on entity type '{entityType}'. Configure the primary key explicitly using the SetKey fluent API.</value>
   </data>
   <data name="NoValueGenerator" xml:space="preserve">
-    <value>The '{propertyName}' on entity type '{entityType}' is set up to use generated values, but no value generator is available for properties of type '{propertyType}'. To use value generation for properties of type '{propertyType}' the data store must configure an appropriate value generator.</value>
+    <value>The '{propertyName}' on entity type '{entityType}' does not have a value set and no value generator is available for properties of type '{propertyType}'. Either set a value for the property before adding the entity or configure a value generator for properties of type '{propertyType}'.</value>
+  </data>
+  <data name="TempValuePersists" xml:space="preserve">
+    <value>The property '{property}' on entity type '{entityType}' has a temporary value while attempting to change the entity's state to '{state}'. Either set a permanent value explicitly or ensure that the data store is configured to generate values for this property..</value>
   </data>
   <data name="PropertyWithStorageNameNotFound" xml:space="preserve">
     <value>A property with the storage name '{property}' on entity type '{entityType}' could not be found. Ensure that the property exists, has been included in the model, and has been configured with storage name specified.</value>

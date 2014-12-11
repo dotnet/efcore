@@ -4,8 +4,9 @@
 using System;
 using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Relational;
-using Microsoft.Framework.Logging;
+using Microsoft.Data.Entity.SqlServer.Metadata;
+using Microsoft.Data.Entity.Tests;
+using Microsoft.Framework.DependencyInjection;
 using Xunit;
 using CoreStrings = Microsoft.Data.Entity.Internal.Strings;
 
@@ -14,228 +15,153 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
     public class SqlServerValueGeneratorSelectorTest
     {
         [Fact]
-        public void Returns_sequence_generator_when_explicitly_configured()
+        public void Returns_built_in_generators_for_types_setup_for_value_generation()
         {
-            var sequenceFactory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new LoggerFactory()));
+            var model = BuildModel();
+            var entityType = model.GetEntityType(typeof(AnEntity));
 
-            var selector = new SqlServerValueGeneratorSelector(
-                new SimpleValueGeneratorFactory<GuidValueGenerator>(),
-                new SimpleValueGeneratorFactory<TemporaryValueGenerator>(),
-                sequenceFactory,
-                new SimpleValueGeneratorFactory<SequentialGuidValueGenerator>());
+            var selector = TestHelpers.CreateContextServices(model).GetRequiredService<SqlServerValueGeneratorSelector>();
 
-            Assert.Same(sequenceFactory, selector.Select(CreateSequenceProperty<long>()));
-            Assert.Same(sequenceFactory, selector.Select(CreateSequenceProperty<int>()));
-            Assert.Same(sequenceFactory, selector.Select(CreateSequenceProperty<short>()));
-            Assert.Same(sequenceFactory, selector.Select(CreateSequenceProperty<byte>()));
-            Assert.Same(sequenceFactory, selector.Select(CreateSequenceProperty<long?>()));
-            Assert.Same(sequenceFactory, selector.Select(CreateSequenceProperty<int?>()));
-            Assert.Same(sequenceFactory, selector.Select(CreateSequenceProperty<short?>()));
-            Assert.Same(sequenceFactory, selector.Select(CreateSequenceProperty<byte?>()));
-        }
-
-        private static Property CreateSequenceProperty<T>()
-        {
-            var property = new BasicModelBuilder()
-                .Entity<Robot>()
-                .Property<T>(typeof(T).Name)
-                .ForSqlServer(b => b.UseSequence())
-                .Metadata;
-
-            return property;
-        }
-
-        [Fact]
-        public void Returns_sequence_generator_when_explicitly_configured_on_model()
-        {
-            var sequenceFactory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new LoggerFactory()));
-
-            var selector = new SqlServerValueGeneratorSelector(
-                new SimpleValueGeneratorFactory<GuidValueGenerator>(),
-                new SimpleValueGeneratorFactory<TemporaryValueGenerator>(),
-                sequenceFactory,
-                new SimpleValueGeneratorFactory<SequentialGuidValueGenerator>());
-
-            Assert.Same(sequenceFactory, selector.Select(CreateModelSequenceProperty<long>()));
-            Assert.Same(sequenceFactory, selector.Select(CreateModelSequenceProperty<int>()));
-            Assert.Same(sequenceFactory, selector.Select(CreateModelSequenceProperty<short>()));
-            Assert.Same(sequenceFactory, selector.Select(CreateModelSequenceProperty<byte>()));
-            Assert.Same(sequenceFactory, selector.Select(CreateModelSequenceProperty<long?>()));
-            Assert.Same(sequenceFactory, selector.Select(CreateModelSequenceProperty<int?>()));
-            Assert.Same(sequenceFactory, selector.Select(CreateModelSequenceProperty<short?>()));
-            Assert.Same(sequenceFactory, selector.Select(CreateModelSequenceProperty<byte?>()));
-        }
-
-        private static Property CreateModelSequenceProperty<T>()
-        {
-            var property = new BasicModelBuilder()
-                .ForSqlServer(b => b.UseSequence())
-                .Entity<Robot>()
-                .Property<T>(typeof(T).Name)
-                .GenerateValueOnAdd()
-                .Metadata;
-
-            return property;
+            Assert.IsType<SimpleValueGeneratorFactory<TemporaryIntegerValueGenerator>>(selector.Select(entityType.GetProperty("Id")));
+            Assert.IsType<SimpleValueGeneratorFactory<TemporaryIntegerValueGenerator>>(selector.Select(entityType.GetProperty("Long")));
+            Assert.IsType<SimpleValueGeneratorFactory<TemporaryIntegerValueGenerator>>(selector.Select(entityType.GetProperty("Short")));
+            Assert.IsType<SimpleValueGeneratorFactory<TemporaryIntegerValueGenerator>>(selector.Select(entityType.GetProperty("Byte")));
+            Assert.IsType<SimpleValueGeneratorFactory<TemporaryIntegerValueGenerator>>(selector.Select(entityType.GetProperty("NullableInt")));
+            Assert.IsType<SimpleValueGeneratorFactory<TemporaryIntegerValueGenerator>>(selector.Select(entityType.GetProperty("NullableLong")));
+            Assert.IsType<SimpleValueGeneratorFactory<TemporaryIntegerValueGenerator>>(selector.Select(entityType.GetProperty("NullableShort")));
+            Assert.IsType<SimpleValueGeneratorFactory<TemporaryIntegerValueGenerator>>(selector.Select(entityType.GetProperty("NullableByte")));
+            Assert.IsType<SimpleValueGeneratorFactory<TemporaryIntegerValueGenerator>>(selector.Select(entityType.GetProperty("UInt")));
+            Assert.IsType<SimpleValueGeneratorFactory<TemporaryIntegerValueGenerator>>(selector.Select(entityType.GetProperty("ULong")));
+            Assert.IsType<SimpleValueGeneratorFactory<TemporaryIntegerValueGenerator>>(selector.Select(entityType.GetProperty("UShort")));
+            Assert.IsType<SimpleValueGeneratorFactory<TemporaryIntegerValueGenerator>>(selector.Select(entityType.GetProperty("SByte")));
+            Assert.IsType<SimpleValueGeneratorFactory<TemporaryIntegerValueGenerator>>(selector.Select(entityType.GetProperty("NullableUInt")));
+            Assert.IsType<SimpleValueGeneratorFactory<TemporaryIntegerValueGenerator>>(selector.Select(entityType.GetProperty("NullableULong")));
+            Assert.IsType<SimpleValueGeneratorFactory<TemporaryIntegerValueGenerator>>(selector.Select(entityType.GetProperty("NullableUShort")));
+            Assert.IsType<SimpleValueGeneratorFactory<TemporaryIntegerValueGenerator>>(selector.Select(entityType.GetProperty("NullableSByte")));
+            Assert.IsType<SimpleValueGeneratorFactory<TemporaryStringValueGenerator>>(selector.Select(entityType.GetProperty("String")));
+            Assert.IsType<SimpleValueGeneratorFactory<SequentialGuidValueGenerator>>(selector.Select(entityType.GetProperty("Guid")));
+            Assert.IsType<SimpleValueGeneratorFactory<TemporaryBinaryValueGenerator>>(selector.Select(entityType.GetProperty("Binary")));
+            Assert.IsType<SimpleValueGeneratorFactory<TemporaryIntegerValueGenerator>>(selector.Select(entityType.GetProperty("AlwaysIdentity")));
+            Assert.IsType<SqlServerSequenceValueGeneratorFactory>(selector.Select(entityType.GetProperty("AlwaysSequence")));
         }
 
         [Fact]
-        public void Returns_temp_generator_for_identity_generator_when_explicitly_configured()
+        public void Returns_sequence_value_generators_when_configured_for_model()
         {
-            var tempFactory = new SimpleValueGeneratorFactory<TemporaryValueGenerator>();
+            var model = BuildModel();
+            model.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Sequence;
+            var entityType = model.GetEntityType(typeof(AnEntity));
 
-            var selector = new SqlServerValueGeneratorSelector(
-                new SimpleValueGeneratorFactory<GuidValueGenerator>(),
-                tempFactory,
-                new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new LoggerFactory())),
-                new SimpleValueGeneratorFactory<SequentialGuidValueGenerator>());
+            var selector = TestHelpers.CreateContextServices(model).GetRequiredService<SqlServerValueGeneratorSelector>();
 
-            Assert.Same(tempFactory, selector.Select(CreateIdentityProperty<long>()));
-            Assert.Same(tempFactory, selector.Select(CreateIdentityProperty<int>()));
-            Assert.Same(tempFactory, selector.Select(CreateIdentityProperty<short>()));
-            Assert.Same(tempFactory, selector.Select(CreateIdentityProperty<long?>()));
-            Assert.Same(tempFactory, selector.Select(CreateIdentityProperty<int?>()));
-            Assert.Same(tempFactory, selector.Select(CreateIdentityProperty<short?>()));
-        }
-
-        private static Property CreateIdentityProperty<T>()
-        {
-            var property = new BasicModelBuilder()
-                .Entity<Robot>()
-                .Property<T>(typeof(T).Name)
-                .ForSqlServer(b => b.UseIdentity())
-                .Metadata;
-
-            return property;
-        }
-
-        [Fact]
-        public void Returns_temp_generator_for_identity_generator_when_explicitly_configured_on_model()
-        {
-            var tempFactory = new SimpleValueGeneratorFactory<TemporaryValueGenerator>();
-
-            var selector = new SqlServerValueGeneratorSelector(
-                new SimpleValueGeneratorFactory<GuidValueGenerator>(),
-                tempFactory,
-                new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new LoggerFactory())),
-                new SimpleValueGeneratorFactory<SequentialGuidValueGenerator>());
-
-            Assert.Same(tempFactory, selector.Select(CreateModelIdentityProperty<long>()));
-            Assert.Same(tempFactory, selector.Select(CreateModelIdentityProperty<int>()));
-            Assert.Same(tempFactory, selector.Select(CreateModelIdentityProperty<short>()));
-            Assert.Same(tempFactory, selector.Select(CreateModelIdentityProperty<long?>()));
-            Assert.Same(tempFactory, selector.Select(CreateModelIdentityProperty<int?>()));
-            Assert.Same(tempFactory, selector.Select(CreateModelIdentityProperty<short?>()));
-        }
-
-        private static Property CreateModelIdentityProperty<T>()
-        {
-            var property = new BasicModelBuilder()
-                .ForSqlServer(b => b.UseIdentity())
-                .Entity<Robot>()
-                .Property<T>(typeof(T).Name)
-                .GenerateValueOnAdd()
-                .Metadata;
-
-            return property;
-        }
-
-        [Fact] // TODO: This will change when sequence becomes the default
-        public void Returns_in_temp_generator_for_all_integer_types_except_byte_setup_for_value_generation()
-        {
-            var tempFactory = new SimpleValueGeneratorFactory<TemporaryValueGenerator>();
-
-            var selector = new SqlServerValueGeneratorSelector(
-                new SimpleValueGeneratorFactory<GuidValueGenerator>(),
-                tempFactory,
-                new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new LoggerFactory())),
-                new SimpleValueGeneratorFactory<SequentialGuidValueGenerator>());
-
-            Assert.Same(tempFactory, selector.Select(CreateDefaultValueGenProperty<long>()));
-            Assert.Same(tempFactory, selector.Select(CreateDefaultValueGenProperty<int>()));
-            Assert.Same(tempFactory, selector.Select(CreateDefaultValueGenProperty<short>()));
-            Assert.Same(tempFactory, selector.Select(CreateDefaultValueGenProperty<long?>()));
-            Assert.Same(tempFactory, selector.Select(CreateDefaultValueGenProperty<int?>()));
-            Assert.Same(tempFactory, selector.Select(CreateDefaultValueGenProperty<short?>()));
-        }
-
-        private static Property CreateDefaultValueGenProperty<T>()
-        {
-            var property = new BasicModelBuilder()
-                .Entity<Robot>()
-                .Property<T>(typeof(T).Name)
-                .GenerateValueOnAdd()
-                .Metadata;
-
-            return property;
+            Assert.IsType<SqlServerSequenceValueGeneratorFactory>(selector.Select(entityType.GetProperty("Id")));
+            Assert.IsType<SqlServerSequenceValueGeneratorFactory>(selector.Select(entityType.GetProperty("Long")));
+            Assert.IsType<SqlServerSequenceValueGeneratorFactory>(selector.Select(entityType.GetProperty("Short")));
+            Assert.IsType<SqlServerSequenceValueGeneratorFactory>(selector.Select(entityType.GetProperty("Byte")));
+            Assert.IsType<SqlServerSequenceValueGeneratorFactory>(selector.Select(entityType.GetProperty("NullableInt")));
+            Assert.IsType<SqlServerSequenceValueGeneratorFactory>(selector.Select(entityType.GetProperty("NullableLong")));
+            Assert.IsType<SqlServerSequenceValueGeneratorFactory>(selector.Select(entityType.GetProperty("NullableShort")));
+            Assert.IsType<SqlServerSequenceValueGeneratorFactory>(selector.Select(entityType.GetProperty("NullableByte")));
+            Assert.IsType<SqlServerSequenceValueGeneratorFactory>(selector.Select(entityType.GetProperty("UInt")));
+            Assert.IsType<SqlServerSequenceValueGeneratorFactory>(selector.Select(entityType.GetProperty("ULong")));
+            Assert.IsType<SqlServerSequenceValueGeneratorFactory>(selector.Select(entityType.GetProperty("UShort")));
+            Assert.IsType<SqlServerSequenceValueGeneratorFactory>(selector.Select(entityType.GetProperty("SByte")));
+            Assert.IsType<SqlServerSequenceValueGeneratorFactory>(selector.Select(entityType.GetProperty("NullableUInt")));
+            Assert.IsType<SqlServerSequenceValueGeneratorFactory>(selector.Select(entityType.GetProperty("NullableULong")));
+            Assert.IsType<SqlServerSequenceValueGeneratorFactory>(selector.Select(entityType.GetProperty("NullableUShort")));
+            Assert.IsType<SqlServerSequenceValueGeneratorFactory>(selector.Select(entityType.GetProperty("NullableSByte")));
+            Assert.IsType<SimpleValueGeneratorFactory<TemporaryStringValueGenerator>>(selector.Select(entityType.GetProperty("String")));
+            Assert.IsType<SimpleValueGeneratorFactory<SequentialGuidValueGenerator>>(selector.Select(entityType.GetProperty("Guid")));
+            Assert.IsType<SimpleValueGeneratorFactory<TemporaryBinaryValueGenerator>>(selector.Select(entityType.GetProperty("Binary")));
+            Assert.IsType<SimpleValueGeneratorFactory<TemporaryIntegerValueGenerator>>(selector.Select(entityType.GetProperty("AlwaysIdentity")));
+            Assert.IsType<SqlServerSequenceValueGeneratorFactory>(selector.Select(entityType.GetProperty("AlwaysSequence")));
         }
 
         [Fact]
-        public void Returns_sequential_GUID_generator_for_GUID_types()
+        public void Returns_null_when_no_value_generation_not_required()
         {
-            var sequentialGuidFactory = new SimpleValueGeneratorFactory<SequentialGuidValueGenerator>();
+            var model = BuildModel(generateValues: false);
+            var entityType = model.GetEntityType(typeof(AnEntity));
 
-            var selector = new SqlServerValueGeneratorSelector(
-                new SimpleValueGeneratorFactory<GuidValueGenerator>(),
-                new SimpleValueGeneratorFactory<TemporaryValueGenerator>(),
-                new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new LoggerFactory())),
-                sequentialGuidFactory);
+            var selector = TestHelpers.CreateContextServices(model).GetRequiredService<SqlServerValueGeneratorSelector>();
 
-            Assert.Same(sequentialGuidFactory, selector.Select(CreateDefaultValueGenProperty<Guid>()));
-        }
-
-        [Fact]
-        public void Returns_null_when_no_value_generation_configured()
-        {
-            var selector = new SqlServerValueGeneratorSelector(
-                new SimpleValueGeneratorFactory<GuidValueGenerator>(),
-                new SimpleValueGeneratorFactory<TemporaryValueGenerator>(),
-                new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new LoggerFactory())),
-                new SimpleValueGeneratorFactory<SequentialGuidValueGenerator>());
-
-            var property = new BasicModelBuilder()
-                .Entity<Robot>()
-                .Property(e => e.Int32)
-                .Metadata;
-
-            Assert.Null(selector.Select(property));
-
-            property = new BasicModelBuilder()
-                .Entity<Robot>()
-                .Property(e => e.Int32)
-                .StoreComputed()
-                .Metadata;
-
-            Assert.Null(selector.Select(property));
+            Assert.Null(selector.Select(entityType.GetProperty("Id")));
+            Assert.Null(selector.Select(entityType.GetProperty("Long")));
+            Assert.Null(selector.Select(entityType.GetProperty("Short")));
+            Assert.Null(selector.Select(entityType.GetProperty("Byte")));
+            Assert.Null(selector.Select(entityType.GetProperty("NullableInt")));
+            Assert.Null(selector.Select(entityType.GetProperty("NullableLong")));
+            Assert.Null(selector.Select(entityType.GetProperty("NullableShort")));
+            Assert.Null(selector.Select(entityType.GetProperty("NullableByte")));
+            Assert.Null(selector.Select(entityType.GetProperty("UInt")));
+            Assert.Null(selector.Select(entityType.GetProperty("ULong")));
+            Assert.Null(selector.Select(entityType.GetProperty("UShort")));
+            Assert.Null(selector.Select(entityType.GetProperty("SByte")));
+            Assert.Null(selector.Select(entityType.GetProperty("NullableUInt")));
+            Assert.Null(selector.Select(entityType.GetProperty("NullableULong")));
+            Assert.Null(selector.Select(entityType.GetProperty("NullableUShort")));
+            Assert.Null(selector.Select(entityType.GetProperty("NullableSByte")));
+            Assert.Null(selector.Select(entityType.GetProperty("String")));
+            Assert.Null(selector.Select(entityType.GetProperty("Guid")));
+            Assert.Null(selector.Select(entityType.GetProperty("Binary")));
+            Assert.Null(selector.Select(entityType.GetProperty("Float")));
+            Assert.Null(selector.Select(entityType.GetProperty("AlwaysIdentity")));
+            Assert.Null(selector.Select(entityType.GetProperty("AlwaysSequence")));
         }
 
         [Fact]
         public void Throws_for_unsupported_combinations()
         {
-            var selector = new SqlServerValueGeneratorSelector(
-                new SimpleValueGeneratorFactory<GuidValueGenerator>(),
-                new SimpleValueGeneratorFactory<TemporaryValueGenerator>(),
-                new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new LoggerFactory())),
-                new SimpleValueGeneratorFactory<SequentialGuidValueGenerator>());
+            var model = BuildModel();
+            var entityType = model.GetEntityType(typeof(AnEntity));
 
-            var property = new BasicModelBuilder()
-                .Entity<Robot>()
-                .Property(e => e.String)
-                .GenerateValueOnAdd()
-                .Metadata;
+            var selector = TestHelpers.CreateContextServices(model).GetRequiredService<SqlServerValueGeneratorSelector>();
 
             Assert.Equal(
-                CoreStrings.NoValueGenerator("String", typeof(Robot).FullName, "String"),
-                Assert.Throws<NotSupportedException>(() => selector.Select(property)).Message);
+                CoreStrings.NoValueGenerator("Float", "AnEntity", typeof(float).Name),
+                Assert.Throws<NotSupportedException>(() => selector.Select(entityType.GetProperty("Float"))).Message);
         }
 
-        private class Robot
+        private static Model BuildModel(bool generateValues = true)
         {
-            public long Int64 { get; set; }
-            public int Int32 { get; set; }
-            public short Int16 { get; set; }
+            var model = TestHelpers.BuildModelFor<AnEntity>();
+            var entityType = model.GetEntityType(typeof(AnEntity));
+
+            entityType.GetProperty("AlwaysIdentity").SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Identity;;
+            entityType.GetProperty("AlwaysSequence").SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Sequence; ;
+
+            foreach (var property in entityType.Properties)
+            {
+                property.GenerateValueOnAdd = generateValues;
+            }
+
+            return model;
+        }
+
+        private class AnEntity
+        {
+            public int Id { get; set; }
+            public long Long { get; set; }
+            public short Short { get; set; }
             public byte Byte { get; set; }
+            public int? NullableInt { get; set; }
+            public long? NullableLong { get; set; }
+            public short? NullableShort { get; set; }
+            public byte? NullableByte { get; set; }
+            public uint UInt { get; set; }
+            public ulong ULong { get; set; }
+            public ushort UShort { get; set; }
+            public sbyte SByte { get; set; }
+            public uint? NullableUInt { get; set; }
+            public ulong? NullableULong { get; set; }
+            public ushort? NullableUShort { get; set; }
+            public sbyte? NullableSByte { get; set; }
             public string String { get; set; }
             public Guid Guid { get; set; }
+            public byte[] Binary { get; set; }
+            public float Float { get; set; }
+            public int AlwaysIdentity { get; set; }
+            public int AlwaysSequence { get; set; }
         }
     }
 }

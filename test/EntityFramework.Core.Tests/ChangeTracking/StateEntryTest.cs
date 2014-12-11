@@ -194,6 +194,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.False(entry.IsPropertyModified(keyProperty));
             Assert.False(entry.IsPropertyModified(nonKeyProperty));
 
+            entry[nonKeyProperty] = "I Am A Real Person!";
+
             entry.SetEntityState(EntityState.Unchanged);
 
             Assert.False(entry.HasTemporaryValue(keyProperty));
@@ -215,6 +217,85 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.False(entry.HasTemporaryValue(nonKeyProperty));
             Assert.False(entry.IsPropertyModified(keyProperty));
             Assert.False(entry.IsPropertyModified(nonKeyProperty));
+        }
+
+        [Fact]
+        public void Changing_state_to_Unchanged_throws_with_temp_values()
+        {
+            Changing_state_with_temp_value_throws(EntityState.Unchanged);
+        }
+
+        [Fact]
+        public void Changing_state_to_Modified_throws_with_temp_values()
+        {
+            Changing_state_with_temp_value_throws(EntityState.Modified);
+        }
+
+        [Fact]
+        public void Changing_state_to_Deleted_throws_with_temp_values()
+        {
+            Changing_state_with_temp_value_throws(EntityState.Deleted);
+        }
+
+        private void Changing_state_with_temp_value_throws(EntityState targetState)
+        {
+            var model = BuildModel();
+            var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
+            var keyProperty = entityType.GetProperty("Id");
+            var configuration = TestHelpers.CreateContextServices(model);
+
+            var entry = CreateStateEntry(configuration, entityType, new SomeEntity());
+
+            entry.SetEntityState(EntityState.Added);
+            entry.MarkAsTemporary(keyProperty);
+
+            Assert.Equal(
+                Strings.TempValuePersists("Id", "SomeEntity", targetState.ToString()),
+                Assert.Throws<InvalidOperationException>(() => entry.SetEntityState(targetState)).Message);
+        }
+
+        [Fact]
+        public void Detaching_with_temp_values_does_not_throw()
+        {
+            var model = BuildModel();
+            var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
+            var keyProperty = entityType.GetProperty("Id");
+            var configuration = TestHelpers.CreateContextServices(model);
+
+            var entry = CreateStateEntry(configuration, entityType, new SomeEntity());
+
+            entry.SetEntityState(EntityState.Added);
+            entry.MarkAsTemporary(keyProperty);
+
+            entry.SetEntityState(EntityState.Unknown);
+
+            Assert.False(entry.HasTemporaryValue(keyProperty));
+
+            entry.SetEntityState(EntityState.Unchanged);
+
+            Assert.False(entry.HasTemporaryValue(keyProperty));
+        }
+
+        [Fact]
+        public void Setting_an_explicit_value_marks_property_as_not_temporary()
+        {
+            var model = BuildModel();
+            var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
+            var keyProperty = entityType.GetProperty("Id");
+            var configuration = TestHelpers.CreateContextServices(model);
+
+            var entry = CreateStateEntry(configuration, entityType, new SomeEntity());
+
+            entry.SetEntityState(EntityState.Added);
+            entry.MarkAsTemporary(keyProperty);
+
+            Assert.True(entry.HasTemporaryValue(keyProperty));
+
+            entry[keyProperty] = 77;
+
+            Assert.False(entry.HasTemporaryValue(keyProperty));
+
+            entry.SetEntityState(EntityState.Unchanged); // Does not throw
         }
 
         [Fact]
@@ -579,18 +660,18 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var configuration = TestHelpers.CreateContextServices(model);
 
             var entry = CreateStateEntry(configuration, entityType, new ObjectArrayValueReader(new object[] { 1, "Kool" }));
+            entry.SetEntityState(EntityState.Unchanged);
 
             Assert.Equal(1, entry.OriginalValues[idProperty]);
             Assert.Equal("Kool", entry.OriginalValues[nameProperty]);
             Assert.Equal(1, entry[idProperty]);
             Assert.Equal("Kool", entry[nameProperty]);
 
-            entry[idProperty] = 2;
             entry[nameProperty] = "Beans";
 
             Assert.Equal(1, entry.OriginalValues[idProperty]);
             Assert.Equal("Kool", entry.OriginalValues[nameProperty]);
-            Assert.Equal(2, entry[idProperty]);
+            Assert.Equal(1, entry[idProperty]);
             Assert.Equal("Beans", entry[nameProperty]);
 
             entry.OriginalValues[idProperty] = 3;
@@ -598,7 +679,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             Assert.Equal(3, entry.OriginalValues[idProperty]);
             Assert.Equal("Franks", entry.OriginalValues[nameProperty]);
-            Assert.Equal(2, entry[idProperty]);
+            Assert.Equal(1, entry[idProperty]);
             Assert.Equal("Beans", entry[nameProperty]);
         }
 
@@ -629,6 +710,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var configuration = TestHelpers.CreateContextServices(model);
 
             var entry = CreateStateEntry(configuration, entityType, new ObjectArrayValueReader(new object[] { 1, "Kool" }));
+            entry.SetEntityState(EntityState.Unchanged);
 
             Assert.Equal("Kool", entry.OriginalValues[nameProperty]);
             Assert.Equal("Kool", entry[nameProperty]);
@@ -671,6 +753,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var configuration = TestHelpers.CreateContextServices(model);
 
             var entry = CreateStateEntry(configuration, entityType, new ObjectArrayValueReader(new object[] { 1, null }));
+            entry.SetEntityState(EntityState.Unchanged);
 
             Assert.Null(entry.OriginalValues[nameProperty]);
             Assert.Null(entry[nameProperty]);

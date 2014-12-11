@@ -3,8 +3,9 @@
 
 using System;
 using Microsoft.Data.Entity.Identity;
+using Microsoft.Data.Entity.InMemory;
 using Microsoft.Data.Entity.Metadata;
-using Moq;
+using Microsoft.Framework.DependencyInjection;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Tests.Identity
@@ -14,85 +15,94 @@ namespace Microsoft.Data.Entity.Tests.Identity
         [Fact]
         public void Returns_null_if_selector_returns_null()
         {
-            var property = CreateProperty(generateValues: false);
-            var selector = new ValueGeneratorSelector(new SimpleValueGeneratorFactory<GuidValueGenerator>());
-            var cache = new ValueGeneratorCache(selector);
+            var model = CreateModel(generateValues: false);
+            var cache = TestHelpers.CreateContextServices(model).GetRequiredService<InMemoryValueGeneratorCache>();
 
-            Assert.Null(cache.GetGenerator(property));
+            Assert.Null(cache.GetGenerator(GetProperty1(model)));
         }
 
         [Fact]
         public void Uses_single_generator_per_cache_key_when_pool_size_is_one()
         {
-            var property = CreateProperty();
+            var model = CreateModel();
+            var property1 = GetProperty1(model);
+            var property2 = GetProperty2(model);
+            var cache = TestHelpers.CreateContextServices(model).GetRequiredService<InMemoryValueGeneratorCache>();
 
-            var factoryMock = new Mock<SimpleValueGeneratorFactory<GuidValueGenerator>>();
-            factoryMock.Setup(m => m.Create(property)).Returns(CreateValueGeneratorCallback);
-            factoryMock.Setup(m => m.GetPoolSize(property)).Returns(1);
-            factoryMock.Setup(m => m.GetCacheKey(property)).Returns("TheKeyMaster");
-
-            var selector = new ValueGeneratorSelector(factoryMock.Object);
-            var cache = new ValueGeneratorCache(selector);
-
-            var generator1 = cache.GetGenerator(property);
+            var generator1 = cache.GetGenerator(property1);
             Assert.NotNull(generator1);
-            Assert.Same(generator1, cache.GetGenerator(property));
+            Assert.Same(generator1, cache.GetGenerator(property1));
 
-            factoryMock.Setup(m => m.GetCacheKey(property)).Returns("TheGatekeeper");
-
-            var generator2 = cache.GetGenerator(property);
+            var generator2 = cache.GetGenerator(property2);
             Assert.NotNull(generator2);
-            Assert.Same(generator2, cache.GetGenerator(property));
+            Assert.Same(generator2, cache.GetGenerator(property2));
             Assert.NotSame(generator1, generator2);
         }
 
         [Fact]
         public void Uses_pool_per_cache_key_when_pool_size_is_greater_than_one()
         {
-            var property = CreateProperty();
+            var model = CreateModel();
+            var property1 = GetProperty1(model);
+            var property2 = GetProperty2(model);
 
-            var factoryMock = new Mock<SimpleValueGeneratorFactory<GuidValueGenerator>>();
-            factoryMock.Setup(m => m.Create(property)).Returns(CreateValueGeneratorCallback);
-            factoryMock.Setup(m => m.GetPoolSize(property)).Returns(2);
-            factoryMock.Setup(m => m.GetCacheKey(property)).Returns("TheKeyMaster");
+            var customServices = TestHelpers.CreateContextServices(
+                new ServiceCollection()
+                    .AddInstance<SimpleValueGeneratorFactory<GuidValueGenerator>>(new FakeGuidValueGeneratorFactory()),
+                model);
 
-            var selector = new ValueGeneratorSelector(factoryMock.Object);
-            var cache = new ValueGeneratorCache(selector);
+            var cache = customServices.GetRequiredService<InMemoryValueGeneratorCache>();
 
-            var generator1a = cache.GetGenerator(property);
-            var generator1b = cache.GetGenerator(property);
+            var generator1a = cache.GetGenerator(property1);
+            var generator1b = cache.GetGenerator(property1);
             Assert.NotSame(generator1a, generator1b);
 
-            Assert.Same(generator1a, cache.GetGenerator(property));
-            Assert.Same(generator1b, cache.GetGenerator(property));
-            Assert.Same(generator1a, cache.GetGenerator(property));
-            Assert.Same(generator1b, cache.GetGenerator(property));
+            Assert.Same(generator1a, cache.GetGenerator(property1));
+            Assert.Same(generator1b, cache.GetGenerator(property1));
+            Assert.Same(generator1a, cache.GetGenerator(property1));
+            Assert.Same(generator1b, cache.GetGenerator(property1));
 
-            factoryMock.Setup(m => m.GetCacheKey(property)).Returns("TheGatekeeper");
-
-            var generator2a = cache.GetGenerator(property);
-            var generator2b = cache.GetGenerator(property);
+            var generator2a = cache.GetGenerator(property2);
+            var generator2b = cache.GetGenerator(property2);
             Assert.NotSame(generator2a, generator2b);
             Assert.NotSame(generator1a, generator2a);
             Assert.NotSame(generator1b, generator2a);
 
-            Assert.Same(generator2a, cache.GetGenerator(property));
-            Assert.Same(generator2b, cache.GetGenerator(property));
-            Assert.Same(generator2a, cache.GetGenerator(property));
-            Assert.Same(generator2b, cache.GetGenerator(property));
+            Assert.Same(generator2a, cache.GetGenerator(property2));
+            Assert.Same(generator2b, cache.GetGenerator(property2));
+            Assert.Same(generator2a, cache.GetGenerator(property2));
+            Assert.Same(generator2b, cache.GetGenerator(property2));
         }
 
-        private static TemporaryValueGenerator CreateValueGeneratorCallback()
+        private class FakeGuidValueGeneratorFactory : SimpleValueGeneratorFactory<GuidValueGenerator>
         {
-            return new TemporaryValueGenerator();
+            public override int GetPoolSize(IProperty property)
+            {
+                return 2;
+            }
         }
 
-        private static Property CreateProperty(bool generateValues = true)
+        private static Property GetProperty1(Model model)
         {
-            var entityType = new Model().AddEntityType("Led");
-            var property = entityType.GetOrAddProperty("Zeppelin", typeof(Guid), shadowProperty: true);
-            property.GenerateValueOnAdd = generateValues;
-            return property;
+            return model.GetEntityType("Led").GetProperty("Zeppelin");
+        }
+
+        private static Property GetProperty2(Model model)
+        {
+            return model.GetEntityType("Led").GetProperty("Stairway");
+        }
+
+        private static Model CreateModel(bool generateValues = true)
+        {
+            var model = new Model();
+
+            var entityType = model.AddEntityType("Led");
+            var property1 = entityType.GetOrAddProperty("Zeppelin", typeof(Guid), shadowProperty: true);
+            property1.GenerateValueOnAdd = generateValues;
+            var property2 = entityType.GetOrAddProperty("Stairway", typeof(Guid), shadowProperty: true);
+            property2.GenerateValueOnAdd = generateValues;
+
+            return model;
         }
     }
 }

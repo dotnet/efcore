@@ -79,6 +79,8 @@
     <Compile Include="ChangeTracking\ValueGenerationManager.cs" />
     <Compile Include="DbContext.cs" />
     <Compile Include="Identity\GeneratedValue.cs" />
+    <Compile Include="Identity\TemporaryBinaryValueGenerator.cs" />
+    <Compile Include="Identity\TemporaryStringValueGenerator.cs" />
     <Compile Include="Infrastructure\DbContextService.cs" />
     <Compile Include="Infrastructure\DbContextActivator.cs" />
     <Compile Include="DbContextOptions.cs" />
@@ -98,7 +100,7 @@
     <Compile Include="Identity\SimpleValueGenerator.cs" />
     <Compile Include="Identity\SimpleValueGeneratorFactory.cs" />
     <Compile Include="Identity\SingleValueGeneratorPool.cs" />
-    <Compile Include="Identity\TemporaryValueGenerator.cs" />
+    <Compile Include="Identity\TemporaryIntegerValueGenerator.cs" />
     <Compile Include="Identity\ValueGeneratorCache.cs" />
     <Compile Include="Identity\ValueGeneratorPool.cs" />
     <Compile Include="Identity\ValueGeneratorSelector.cs" />

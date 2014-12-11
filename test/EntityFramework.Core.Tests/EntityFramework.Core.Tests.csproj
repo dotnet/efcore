@@ -91,7 +91,9 @@
     <Compile Include="Identity\SimpleValueGeneratorFactoryTest.cs" />
     <Compile Include="Identity\SimpleValueGeneratorTest.cs" />
     <Compile Include="Identity\SingleValueGeneratorPoolTest.cs" />
-    <Compile Include="Identity\TemporaryValueGeneratorTest.cs" />
+    <Compile Include="Identity\TemporaryBinaryValueGeneratorTest.cs" />
+    <Compile Include="Identity\TemporaryIntegerValueGeneratorTest.cs" />
+    <Compile Include="Identity\TemporaryStringValueGeneratorTest.cs" />
     <Compile Include="Identity\ValueGeneratorCacheTest.cs" />
     <Compile Include="Identity\ValueGeneratorPoolTest.cs" />
     <Compile Include="Identity\ValueGeneratorSelectorTest.cs" />

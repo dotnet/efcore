@@ -50,9 +50,9 @@ namespace Microsoft.Data.Entity.Tests.Identity
             factoryMock.Verify(m => m.Create(property), Times.Exactly(3));
         }
 
-        private static TemporaryValueGenerator CreateValueGeneratorCallback()
+        private static TemporaryIntegerValueGenerator CreateValueGeneratorCallback()
         {
-            return new TemporaryValueGenerator();
+            return new TemporaryIntegerValueGenerator();
         }
 
         private static Property CreateProperty()

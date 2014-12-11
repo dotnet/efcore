@@ -130,30 +130,30 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         [Fact]
         public void ConfigureKeyProperty_sets_generation_strategy_only_when_guid_or_common_integer()
         {
-            ConfigureKeyProperty_generation_strategy<Guid>(true);
-            ConfigureKeyProperty_generation_strategy<long>(true);
-            ConfigureKeyProperty_generation_strategy<int>(true);
-            ConfigureKeyProperty_generation_strategy<short>(true);
-            ConfigureKeyProperty_generation_strategy<byte>(true);
-            ConfigureKeyProperty_generation_strategy<long?>(true);
-            ConfigureKeyProperty_generation_strategy<int?>(true);
-            ConfigureKeyProperty_generation_strategy<short?>(true);
-            ConfigureKeyProperty_generation_strategy<byte?>(true);
-            ConfigureKeyProperty_generation_strategy<string>(null);
-            ConfigureKeyProperty_generation_strategy<Enum1>(null);
-            ConfigureKeyProperty_generation_strategy<Enum1?>(null);
-            ConfigureKeyProperty_generation_strategy<bool>(null);
-            ConfigureKeyProperty_generation_strategy<bool?>(null);
-            ConfigureKeyProperty_generation_strategy<sbyte>(null);
-            ConfigureKeyProperty_generation_strategy<uint>(null);
-            ConfigureKeyProperty_generation_strategy<ulong>(null);
-            ConfigureKeyProperty_generation_strategy<ushort>(null);
-            ConfigureKeyProperty_generation_strategy<decimal>(null);
-            ConfigureKeyProperty_generation_strategy<float>(null);
-            ConfigureKeyProperty_generation_strategy<DateTime>(null);
+            ConfigureKeyProperty_generation_strategy<Guid>();
+            ConfigureKeyProperty_generation_strategy<long>();
+            ConfigureKeyProperty_generation_strategy<int>();
+            ConfigureKeyProperty_generation_strategy<short>();
+            ConfigureKeyProperty_generation_strategy<byte>();
+            ConfigureKeyProperty_generation_strategy<long?>();
+            ConfigureKeyProperty_generation_strategy<int?>();
+            ConfigureKeyProperty_generation_strategy<short?>();
+            ConfigureKeyProperty_generation_strategy<byte?>();
+            ConfigureKeyProperty_generation_strategy<string>();
+            ConfigureKeyProperty_generation_strategy<Enum1>();
+            ConfigureKeyProperty_generation_strategy<Enum1?>();
+            ConfigureKeyProperty_generation_strategy<bool>();
+            ConfigureKeyProperty_generation_strategy<bool?>();
+            ConfigureKeyProperty_generation_strategy<sbyte>();
+            ConfigureKeyProperty_generation_strategy<uint>();
+            ConfigureKeyProperty_generation_strategy<ulong>();
+            ConfigureKeyProperty_generation_strategy<ushort>();
+            ConfigureKeyProperty_generation_strategy<decimal>();
+            ConfigureKeyProperty_generation_strategy<float>();
+            ConfigureKeyProperty_generation_strategy<DateTime>();
         }
 
-        private void ConfigureKeyProperty_generation_strategy<T>(bool? shouldGenerate)
+        private void ConfigureKeyProperty_generation_strategy<T>()
         {
             var entityBuilder = CreateInternalEntityBuilder<EntityWithGenericKey<T>>();
 
@@ -161,12 +161,11 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
 
             var property = entityBuilder.Metadata.TryGetProperty("Id");
             Assert.NotNull(property);
-            Assert.Equal(shouldGenerate, property.GenerateValueOnAdd);
+            Assert.True(property.GenerateValueOnAdd.Value);
         }
 
         private enum Enum1
         {
-
         }
 
         [Fact]

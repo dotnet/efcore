@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.Tests.Identity
         [Fact]
         public void Returns_the_same_instance_every_time()
         {
-            var pool = new SingleValueGeneratorPool(new SimpleValueGeneratorFactory<TemporaryValueGenerator>(), Mock.Of<IProperty>());
+            var pool = new SingleValueGeneratorPool(new SimpleValueGeneratorFactory<TemporaryIntegerValueGenerator>(), Mock.Of<IProperty>());
 
             var generator = pool.GetGenerator();
             Assert.NotNull(generator);

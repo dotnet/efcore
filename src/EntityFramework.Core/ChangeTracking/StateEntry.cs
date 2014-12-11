@@ -157,6 +157,18 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         private void SetEntityState(EntityState oldState, EntityState newState)
         {
+            // Prevent temp values from becoming permanent values
+            if (oldState == EntityState.Added
+                && newState != EntityState.Added
+                && newState != EntityState.Unknown)
+            {
+                var hasTempValue = EntityType.Properties.FirstOrDefault(p => _stateData.IsPropertyFlagged(p.Index));
+                if (hasTempValue != null)
+                {
+                    throw new InvalidOperationException(Strings.TempValuePersists(hasTempValue.Name, EntityType.SimpleName, newState));
+                }
+            }
+
             // The entity state can be Modified even if some properties are not modified so always
             // set all properties to modified if the entity state is explicitly set to Modified.
             if (newState == EntityState.Modified)
@@ -198,6 +210,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                         this[property] = property.PropertyType.GetDefaultValue();
                     }
                 }
+                _stateData.FlagAllProperties(EntityType.Properties.Count(), isFlagged: false);
 
                 // TODO: Does changing to Unknown really mean stop tracking?
                 // Issue #323
@@ -229,6 +242,12 @@ namespace Microsoft.Data.Entity.ChangeTracking
             // Issue #742
 
             var currentState = _stateData.EntityState;
+
+            if (currentState == EntityState.Added || currentState == EntityState.Unknown)
+            {
+                MarkAsTemporary(property, isTemporary: false);
+                OriginalValues.TakeSnapshot(property);
+            }
 
             if ((currentState != EntityState.Modified
                  && currentState != EntityState.Unchanged)
