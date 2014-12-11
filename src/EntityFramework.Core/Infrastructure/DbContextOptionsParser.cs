@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.Infrastructure
             Check.NotNull(configuration, "configuration");
             Check.NotNull(contextType, "contextType");
 
-            var options = currentOptions.ToDictionary(i => i.Key, i => i.Value);
+            var options = currentOptions.ToDictionary(i => i.Key, i => i.Value, StringComparer.OrdinalIgnoreCase);
 
             ReadRawOptions(options, configuration, string.Concat(
                 EntityFrameworkKey, Constants.KeyDelimiter, contextType.Name));

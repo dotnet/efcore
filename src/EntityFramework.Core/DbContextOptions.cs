@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity
         public DbContextOptions()
         {
             _extensions = new List<DbContextOptionsExtension>();
-            _rawOptions = ImmutableDictionary<string, string>.Empty;
+            _rawOptions = ImmutableDictionary<string, string>.Empty.WithComparers(StringComparer.OrdinalIgnoreCase);
         }
 
         protected DbContextOptions([NotNull] DbContextOptions copyFrom)

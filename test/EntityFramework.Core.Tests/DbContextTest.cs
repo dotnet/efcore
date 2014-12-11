@@ -2115,6 +2115,35 @@ namespace Microsoft.Data.Entity.Tests
             }
         }
 
+        [Fact]
+        public void Context_activation_reads_options_from_configuration_case_insensitively()
+        {
+            var configSource = new MemoryConfigurationSource();
+            configSource.Add("entityFramework:contextWithDefaults:connectionString", "MyConnectionString");
+
+            var config = new Configuration();
+            config.Add(configSource);
+
+            var services = new ServiceCollection();
+
+            services
+                .AddEntityFramework(config)
+                .AddDbContext<ContextWithDefaults>();
+
+            var serviceProvider = services.BuildServiceProvider();
+
+            using (var context = serviceProvider.GetRequiredService<ContextWithDefaults>())
+            {
+                var contextServices = ((IDbContextServices)context).ScopedServiceProvider;
+                var contextOptions = (DbContextOptions<ContextWithDefaults>)contextServices.GetRequiredService<DbContextService<IDbContextOptions>>().Service;
+
+                Assert.NotNull(contextOptions);
+                var rawOptions = ((IDbContextOptions)contextOptions).RawOptions;
+                Assert.Equal(1, rawOptions.Count);
+                Assert.Equal("MyConnectionString", rawOptions["ConnectionString"]);
+            }
+        }
+
         private class FakeService
         {
         }
