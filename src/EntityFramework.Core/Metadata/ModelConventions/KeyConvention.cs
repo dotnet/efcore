@@ -62,12 +62,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
         {
             Check.NotNull(propertyBuilder, "propertyBuilder");
 
-            var property = propertyBuilder.Metadata;
-            if (property.PropertyType == typeof(Guid)
-                || IsCommonInteger(property.PropertyType))
-            {
-                propertyBuilder.GenerateValueOnAdd(true, ConfigurationSource.Convention);
-            }
+            propertyBuilder.GenerateValueOnAdd(true, ConfigurationSource.Convention);
 
             // TODO: Nullable, Sequence
             // Issue #213

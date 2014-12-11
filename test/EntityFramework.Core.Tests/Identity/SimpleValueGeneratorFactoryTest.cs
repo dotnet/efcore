@@ -12,20 +12,20 @@ namespace Microsoft.Data.Entity.Tests.Identity
         [Fact]
         public void Creates_an_instance_of_the_generic_type()
         {
-            Assert.IsType<TemporaryValueGenerator>(
-                new SimpleValueGeneratorFactory<TemporaryValueGenerator>().Create(CreateProperty()));
+            Assert.IsType<TemporaryIntegerValueGenerator>(
+                new SimpleValueGeneratorFactory<TemporaryIntegerValueGenerator>().Create(CreateProperty()));
         }
 
         [Fact]
         public void Returns_pool_size_of_one()
         {
-            Assert.Equal(1, new SimpleValueGeneratorFactory<TemporaryValueGenerator>().GetPoolSize(CreateProperty()));
+            Assert.Equal(1, new SimpleValueGeneratorFactory<TemporaryIntegerValueGenerator>().GetPoolSize(CreateProperty()));
         }
 
         [Fact]
         public void Uses_property_name_to_form_cache_key()
         {
-            Assert.Equal("Led.Zeppelin", new SimpleValueGeneratorFactory<TemporaryValueGenerator>().GetCacheKey(CreateProperty()));
+            Assert.Equal("Led.Zeppelin", new SimpleValueGeneratorFactory<TemporaryIntegerValueGenerator>().GetCacheKey(CreateProperty()));
         }
 
         private static Property CreateProperty()

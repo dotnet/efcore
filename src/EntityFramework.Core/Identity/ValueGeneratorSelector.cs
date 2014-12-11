@@ -12,6 +12,9 @@ namespace Microsoft.Data.Entity.Identity
     public class ValueGeneratorSelector
     {
         private readonly SimpleValueGeneratorFactory<GuidValueGenerator> _guidFactory;
+        private readonly SimpleValueGeneratorFactory<TemporaryIntegerValueGenerator> _integerFactory;
+        private readonly SimpleValueGeneratorFactory<TemporaryStringValueGenerator> _stringFactory;
+        private readonly SimpleValueGeneratorFactory<TemporaryBinaryValueGenerator> _binaryFactory;
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
@@ -23,11 +26,17 @@ namespace Microsoft.Data.Entity.Identity
         }
 
         public ValueGeneratorSelector(
-            [NotNull] SimpleValueGeneratorFactory<GuidValueGenerator> guidFactory)
+            [NotNull] SimpleValueGeneratorFactory<GuidValueGenerator> guidFactory,
+            [NotNull] SimpleValueGeneratorFactory<TemporaryIntegerValueGenerator> integerFactory,
+            [NotNull] SimpleValueGeneratorFactory<TemporaryStringValueGenerator> stringFactory,
+            [NotNull] SimpleValueGeneratorFactory<TemporaryBinaryValueGenerator> binaryFactory)
         {
             Check.NotNull(guidFactory, "guidFactory");
 
             _guidFactory = guidFactory;
+            _integerFactory = integerFactory;
+            _stringFactory = stringFactory;
+            _binaryFactory = binaryFactory;
         }
 
         public virtual IValueGeneratorFactory Select([NotNull] IProperty property)
@@ -39,13 +48,30 @@ namespace Microsoft.Data.Entity.Identity
                 return null;
             }
 
-            if (property.PropertyType == typeof(Guid))
+            var propertyType = property.PropertyType;
+
+            if (propertyType == typeof(Guid))
             {
                 return _guidFactory;
             }
 
+            if (propertyType.UnwrapNullableType().IsInteger())
+            {
+                return _integerFactory;
+            }
+
+            if (propertyType == typeof(string))
+            {
+                return _stringFactory;
+            }
+
+            if (propertyType == typeof(byte[]))
+            {
+                return _binaryFactory;
+            }
+
             throw new NotSupportedException(
-                Strings.NoValueGenerator(property.Name, property.EntityType.Name, property.PropertyType.Name));
+                Strings.NoValueGenerator(property.Name, property.EntityType.SimpleName, propertyType.Name));
         }
 
         public virtual SimpleValueGeneratorFactory<GuidValueGenerator> GuidFactory

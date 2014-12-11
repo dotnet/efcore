@@ -12,21 +12,21 @@ namespace Microsoft.Data.Entity.SqlServer
 {
     public class SqlServerValueGeneratorSelector : ValueGeneratorSelector
     {
-        private readonly SimpleValueGeneratorFactory<TemporaryValueGenerator> _tempFactory;
         private readonly SqlServerSequenceValueGeneratorFactory _sequenceFactory;
         private readonly SimpleValueGeneratorFactory<SequentialGuidValueGenerator> _sequentialGuidFactory;
 
         public SqlServerValueGeneratorSelector(
             [NotNull] SimpleValueGeneratorFactory<GuidValueGenerator> guidFactory,
-            [NotNull] SimpleValueGeneratorFactory<TemporaryValueGenerator> tempFactory,
+            [NotNull] SimpleValueGeneratorFactory<TemporaryIntegerValueGenerator> integerFactory,
+            [NotNull] SimpleValueGeneratorFactory<TemporaryStringValueGenerator> stringFactory,
+            [NotNull] SimpleValueGeneratorFactory<TemporaryBinaryValueGenerator> binaryFactory,
             [NotNull] SqlServerSequenceValueGeneratorFactory sequenceFactory,
             [NotNull] SimpleValueGeneratorFactory<SequentialGuidValueGenerator> sequentialGuidFactory)
-            : base(guidFactory)
+            : base(guidFactory, integerFactory, stringFactory, binaryFactory)
         {
             Check.NotNull(sequenceFactory, "sequenceFactory");
             Check.NotNull(sequentialGuidFactory, "sequentialGuidFactory");
 
-            _tempFactory = tempFactory;
             _sequenceFactory = sequenceFactory;
             _sequentialGuidFactory = sequentialGuidFactory;
         }
@@ -40,21 +40,10 @@ namespace Microsoft.Data.Entity.SqlServer
                 var strategy = property.SqlServer().ValueGenerationStrategy
                                ?? property.EntityType.Model.SqlServer().ValueGenerationStrategy;
 
-                if (strategy == SqlServerValueGenerationStrategy.Sequence)
+                if (property.PropertyType.IsInteger() &&
+                    strategy == SqlServerValueGenerationStrategy.Sequence)
                 {
                     return _sequenceFactory;
-                }
-
-                if (strategy == SqlServerValueGenerationStrategy.Identity)
-                {
-                    return _tempFactory;
-                }
-
-                if (property.PropertyType.IsInteger()
-                    && property.PropertyType != typeof(byte)
-                    && property.PropertyType != typeof(byte?))
-                {
-                    return _tempFactory;
                 }
 
                 if (property.PropertyType == typeof(Guid))

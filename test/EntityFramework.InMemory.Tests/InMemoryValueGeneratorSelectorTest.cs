@@ -4,7 +4,8 @@
 using System;
 using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Metadata;
-using Moq;
+using Microsoft.Data.Entity.Tests;
+using Microsoft.Framework.DependencyInjection;
 using Xunit;
 using CoreStrings = Microsoft.Data.Entity.Internal.Strings;
 
@@ -13,66 +14,112 @@ namespace Microsoft.Data.Entity.InMemory.Tests
     public class InMemoryValueGeneratorSelectorTest
     {
         [Fact]
-        public void Returns_in_memory_integer_generator_for_all_integer_types_setup_for_generation_on_Add()
+        public void Returns_built_in_generators_for_types_setup_for_value_generation()
         {
-            var inMemoryFactory = new SimpleValueGeneratorFactory<InMemoryValueGenerator>();
+            var model = BuildModel();
+            var entityType = model.GetEntityType(typeof(AnEntity));
 
-            var selector = new InMemoryValueGeneratorSelector(
-                new SimpleValueGeneratorFactory<GuidValueGenerator>(),
-                inMemoryFactory);
+            var selector = TestHelpers.CreateContextServices(model).GetRequiredService<InMemoryValueGeneratorSelector>();
 
-            Assert.Same(inMemoryFactory, selector.Select(CreateProperty(typeof(long))));
-            Assert.Same(inMemoryFactory, selector.Select(CreateProperty(typeof(int))));
-            Assert.Same(inMemoryFactory, selector.Select(CreateProperty(typeof(short))));
-            Assert.Same(inMemoryFactory, selector.Select(CreateProperty(typeof(byte))));
+            Assert.IsType<SimpleValueGeneratorFactory<InMemoryValueGenerator>>(selector.Select(entityType.GetProperty("Id")));
+            Assert.IsType<SimpleValueGeneratorFactory<InMemoryValueGenerator>>(selector.Select(entityType.GetProperty("Long")));
+            Assert.IsType<SimpleValueGeneratorFactory<InMemoryValueGenerator>>(selector.Select(entityType.GetProperty("Short")));
+            Assert.IsType<SimpleValueGeneratorFactory<InMemoryValueGenerator>>(selector.Select(entityType.GetProperty("Byte")));
+            Assert.IsType<SimpleValueGeneratorFactory<InMemoryValueGenerator>>(selector.Select(entityType.GetProperty("NullableInt")));
+            Assert.IsType<SimpleValueGeneratorFactory<InMemoryValueGenerator>>(selector.Select(entityType.GetProperty("NullableLong")));
+            Assert.IsType<SimpleValueGeneratorFactory<InMemoryValueGenerator>>(selector.Select(entityType.GetProperty("NullableShort")));
+            Assert.IsType<SimpleValueGeneratorFactory<InMemoryValueGenerator>>(selector.Select(entityType.GetProperty("NullableByte")));
+            Assert.IsType<SimpleValueGeneratorFactory<InMemoryValueGenerator>>(selector.Select(entityType.GetProperty("UInt")));
+            Assert.IsType<SimpleValueGeneratorFactory<InMemoryValueGenerator>>(selector.Select(entityType.GetProperty("ULong")));
+            Assert.IsType<SimpleValueGeneratorFactory<InMemoryValueGenerator>>(selector.Select(entityType.GetProperty("UShort")));
+            Assert.IsType<SimpleValueGeneratorFactory<InMemoryValueGenerator>>(selector.Select(entityType.GetProperty("SByte")));
+            Assert.IsType<SimpleValueGeneratorFactory<InMemoryValueGenerator>>(selector.Select(entityType.GetProperty("NullableUInt")));
+            Assert.IsType<SimpleValueGeneratorFactory<InMemoryValueGenerator>>(selector.Select(entityType.GetProperty("NullableULong")));
+            Assert.IsType<SimpleValueGeneratorFactory<InMemoryValueGenerator>>(selector.Select(entityType.GetProperty("NullableUShort")));
+            Assert.IsType<SimpleValueGeneratorFactory<InMemoryValueGenerator>>(selector.Select(entityType.GetProperty("NullableSByte")));
+            Assert.IsType<SimpleValueGeneratorFactory<TemporaryStringValueGenerator>>(selector.Select(entityType.GetProperty("String")));
+            Assert.IsType<SimpleValueGeneratorFactory<GuidValueGenerator>>(selector.Select(entityType.GetProperty("Guid")));
+            Assert.IsType<SimpleValueGeneratorFactory<TemporaryBinaryValueGenerator>>(selector.Select(entityType.GetProperty("Binary")));
         }
 
         [Fact]
-        public void Returns_in_memory_GUID_generator_for_GUID_types_setup_for_generation_on_Add()
+        public void Returns_null_when_no_value_generation_not_required()
         {
-            var guidFactory = new SimpleValueGeneratorFactory<GuidValueGenerator>();
+            var model = BuildModel(generateValues: false);
+            var entityType = model.GetEntityType(typeof(AnEntity));
 
-            var selector = new InMemoryValueGeneratorSelector(
-                guidFactory,
-                new SimpleValueGeneratorFactory<InMemoryValueGenerator>());
+            var selector = TestHelpers.CreateContextServices(model).GetRequiredService<InMemoryValueGeneratorSelector>();
 
-            Assert.Same(guidFactory, selector.Select(CreateProperty(typeof(Guid))));
-        }
-
-        [Fact]
-        public void Returns_null_when_no_value_generation_configured()
-        {
-            var selector = new InMemoryValueGeneratorSelector(
-                new SimpleValueGeneratorFactory<GuidValueGenerator>(),
-                new SimpleValueGeneratorFactory<InMemoryValueGenerator>());
-
-            Assert.Null(selector.Select(CreateProperty(typeof(int), generateValues: false)));
+            Assert.Null(selector.Select(entityType.GetProperty("Id")));
+            Assert.Null(selector.Select(entityType.GetProperty("Long")));
+            Assert.Null(selector.Select(entityType.GetProperty("Short")));
+            Assert.Null(selector.Select(entityType.GetProperty("Byte")));
+            Assert.Null(selector.Select(entityType.GetProperty("NullableInt")));
+            Assert.Null(selector.Select(entityType.GetProperty("NullableLong")));
+            Assert.Null(selector.Select(entityType.GetProperty("NullableShort")));
+            Assert.Null(selector.Select(entityType.GetProperty("NullableByte")));
+            Assert.Null(selector.Select(entityType.GetProperty("UInt")));
+            Assert.Null(selector.Select(entityType.GetProperty("ULong")));
+            Assert.Null(selector.Select(entityType.GetProperty("UShort")));
+            Assert.Null(selector.Select(entityType.GetProperty("SByte")));
+            Assert.Null(selector.Select(entityType.GetProperty("NullableUInt")));
+            Assert.Null(selector.Select(entityType.GetProperty("NullableULong")));
+            Assert.Null(selector.Select(entityType.GetProperty("NullableUShort")));
+            Assert.Null(selector.Select(entityType.GetProperty("NullableSByte")));
+            Assert.Null(selector.Select(entityType.GetProperty("String")));
+            Assert.Null(selector.Select(entityType.GetProperty("Guid")));
+            Assert.Null(selector.Select(entityType.GetProperty("Binary")));
+            Assert.Null(selector.Select(entityType.GetProperty("Float")));
         }
 
         [Fact]
         public void Throws_for_unsupported_combinations()
         {
-            var selector = new InMemoryValueGeneratorSelector(
-                new SimpleValueGeneratorFactory<GuidValueGenerator>(),
-                new SimpleValueGeneratorFactory<InMemoryValueGenerator>());
+            var model = BuildModel();
+            var entityType = model.GetEntityType(typeof(AnEntity));
 
-            var typeMock = new Mock<IEntityType>();
-            typeMock.Setup(m => m.Name).Returns("AnEntity");
-
-            var property = CreateProperty(typeof(double));
+            var selector = TestHelpers.CreateContextServices(model).GetRequiredService<InMemoryValueGeneratorSelector>();
 
             Assert.Equal(
-                CoreStrings.NoValueGenerator("MyProperty", "MyType", "Double"),
-                Assert.Throws<NotSupportedException>(() => selector.Select(property)).Message);
+                CoreStrings.NoValueGenerator("Float", "AnEntity", typeof(float).Name),
+                Assert.Throws<NotSupportedException>(() => selector.Select(entityType.GetProperty("Float"))).Message);
         }
 
-        private static Property CreateProperty(Type propertyType, bool generateValues = true)
+        private static Model BuildModel(bool generateValues = true)
         {
-            var entityType = new Model().AddEntityType("MyType");
-            var property = entityType.GetOrAddProperty("MyProperty", propertyType, shadowProperty: true);
-            property.GenerateValueOnAdd = generateValues;
+            var model = TestHelpers.BuildModelFor<AnEntity>();
+            var entityType = model.GetEntityType(typeof(AnEntity));
 
-            return property;
+            foreach (var property in entityType.Properties)
+            {
+                property.GenerateValueOnAdd = generateValues;
+            }
+
+            return model;
+        }
+
+        private class AnEntity
+        {
+            public int Id { get; set; }
+            public long Long { get; set; }
+            public short Short { get; set; }
+            public byte Byte { get; set; }
+            public int? NullableInt { get; set; }
+            public long? NullableLong { get; set; }
+            public short? NullableShort { get; set; }
+            public byte? NullableByte { get; set; }
+            public uint UInt { get; set; }
+            public ulong ULong { get; set; }
+            public ushort UShort { get; set; }
+            public sbyte SByte { get; set; }
+            public uint? NullableUInt { get; set; }
+            public ulong? NullableULong { get; set; }
+            public ushort? NullableUShort { get; set; }
+            public sbyte? NullableSByte { get; set; }
+            public string String { get; set; }
+            public Guid Guid { get; set; }
+            public byte[] Binary { get; set; }
+            public float Float { get; set; }
         }
     }
 }

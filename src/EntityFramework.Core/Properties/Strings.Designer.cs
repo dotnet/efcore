@@ -285,11 +285,19 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// The '{propertyName}' on entity type '{entityType}' is set up to use generated values, but no value generator is available for properties of type '{propertyType}'. To use value generation for properties of type '{propertyType}' the data store must configure an appropriate value generator.
+        /// The '{propertyName}' on entity type '{entityType}' does not have a value set and no value generator is available for properties of type '{propertyType}'. Either set a value for the property before adding the entity or configure a value generator for properties of type '{propertyType}'.
         /// </summary>
         public static string NoValueGenerator([CanBeNull] object propertyName, [CanBeNull] object entityType, [CanBeNull] object propertyType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("NoValueGenerator", "propertyName", "entityType", "propertyType"), propertyName, entityType, propertyType);
+        }
+
+        /// <summary>
+        /// The property '{property}' on entity type '{entityType}' has a temporary value while attempting to change the entity's state to '{state}'. Either set a permanent value explicitly or ensure that the data store is configured to generate values for this property.
+        /// </summary>
+        public static string TempValuePersists([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object state)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("TempValuePersists", "property", "entityType", "state"), property, entityType, state);
         }
 
         /// <summary>

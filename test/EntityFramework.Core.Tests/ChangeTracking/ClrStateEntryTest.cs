@@ -2,8 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Framework.DependencyInjection;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Tests.ChangeTracking
@@ -112,6 +114,32 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.Equal(
                 Strings.OriginalValueNotTracked("Id", typeof(FullNotificationEntity).FullName),
                 Assert.Throws<InvalidOperationException>(() => entry.OriginalValues[idProperty]).Message);
+        }
+
+        [Fact]
+        public void Setting_an_explicit_value_on_the_entity_marks_property_as_not_temporary()
+        {
+            var model = BuildModel();
+            var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
+            var keyProperty = entityType.GetProperty("Id");
+            var configuration = TestHelpers.CreateContextServices(model);
+
+            var entry = CreateStateEntry(configuration, entityType, new SomeEntity());
+
+            var entity = (SomeEntity)entry.Entity;
+
+            entry.SetEntityState(EntityState.Added);
+            entry.MarkAsTemporary(keyProperty);
+
+            Assert.True(entry.HasTemporaryValue(keyProperty));
+
+            entity.Id = 77;
+
+            configuration.GetRequiredService<ChangeDetector>().DetectChanges(entry);
+
+            Assert.False(entry.HasTemporaryValue(keyProperty));
+
+            entry.SetEntityState(EntityState.Unchanged); // Does not throw
         }
     }
 }
