@@ -42,6 +42,7 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddSingleton<SimpleValueGeneratorFactory<TemporaryStringValueGenerator>>()
                 .AddSingleton<SimpleValueGeneratorFactory<TemporaryBinaryValueGenerator>>()
                 .AddSingleton<SimpleValueGeneratorFactory<GuidValueGenerator>>()
+                .AddSingleton<EntityAttacherFactory>()
                 .AddSingleton<DbSetFinder>()
                 .AddSingleton<DbSetInitializer>()
                 .AddSingleton<DbSetSource>()

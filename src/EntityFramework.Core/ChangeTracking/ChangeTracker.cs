@@ -18,6 +18,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         private readonly ChangeDetector _changeDetector;
         private readonly EntityEntryGraphIterator _graphIterator;
         private readonly DbContextService<DbContext> _context;
+        private readonly EntityAttacherFactory _attacherFactory;
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
@@ -32,17 +33,20 @@ namespace Microsoft.Data.Entity.ChangeTracking
             [NotNull] StateManager stateManager,
             [NotNull] ChangeDetector changeDetector,
             [NotNull] EntityEntryGraphIterator graphIterator,
-            [NotNull] DbContextService<DbContext> context)
+            [NotNull] DbContextService<DbContext> context,
+            [NotNull] EntityAttacherFactory attacherFactory)
         {
             Check.NotNull(stateManager, "stateManager");
             Check.NotNull(changeDetector, "changeDetector");
             Check.NotNull(graphIterator, "graphIterator");
             Check.NotNull(context, "context");
+            Check.NotNull(attacherFactory, "attacherFactory");
 
             StateManager = stateManager;
             _changeDetector = changeDetector;
             _graphIterator = graphIterator;
             _context = context;
+            _attacherFactory = attacherFactory;
         }
 
         public virtual IEnumerable<EntityEntry> Entries()
@@ -79,7 +83,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         public virtual async Task AttachGraphAsync(
             [NotNull] object rootEntity,
-            [NotNull] Func<EntityEntry, Task> callback,
+            [NotNull] Func<EntityEntry, CancellationToken, Task> callback,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(rootEntity, "rootEntity");
@@ -87,8 +91,44 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             foreach (var entry in _graphIterator.TraverseGraph(rootEntity))
             {
-                await callback(entry).WithCurrentCulture();
+                await callback(entry, cancellationToken).WithCurrentCulture();
             }
+        }
+
+        public virtual void AttachGraph([NotNull] object rootEntity)
+        {
+            Check.NotNull(rootEntity, "rootEntity");
+
+            var attacher = _attacherFactory.CreateForAttach();
+            AttachGraph(rootEntity, attacher.HandleEntity);
+        }
+
+        public virtual Task AttachGraphAsync(
+            [NotNull] object rootEntity,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Check.NotNull(rootEntity, "rootEntity");
+
+            var attacher = _attacherFactory.CreateForAttach();
+            return AttachGraphAsync(rootEntity, attacher.HandleEntityAsync, cancellationToken);
+        }
+
+        public virtual void UpdateGraph([NotNull] object rootEntity)
+        {
+            Check.NotNull(rootEntity, "rootEntity");
+
+            var attacher = _attacherFactory.CreateForUpdate();
+            AttachGraph(rootEntity, attacher.HandleEntity);
+        }
+
+        public virtual Task UpdateGraphAsync(
+            [NotNull] object rootEntity,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Check.NotNull(rootEntity, "rootEntity");
+
+            var attacher = _attacherFactory.CreateForUpdate();
+            return AttachGraphAsync(rootEntity, attacher.HandleEntityAsync, cancellationToken);
         }
     }
 }

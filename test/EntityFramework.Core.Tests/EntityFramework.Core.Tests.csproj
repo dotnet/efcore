@@ -71,6 +71,7 @@
   <ItemGroup>
     <Compile Include="ApiConsistencyTest.cs" />
     <Compile Include="ChangeTracking\ChangeDetectorTest.cs" />
+    <Compile Include="ChangeTracking\KeyValueEntityAttacherTest.cs" />
     <Compile Include="ChangeTracking\RelationshipsSnapshotTest.cs" />
     <Compile Include="ChangeTracking\SimpleNullableEntityKeyFactoryTest.cs" />
     <Compile Include="ContextConfigurationTest.cs" />

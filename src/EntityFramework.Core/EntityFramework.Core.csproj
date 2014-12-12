@@ -66,8 +66,11 @@
     <Compile Include="..\Shared\LoggingExtensions.cs">
       <Link>LoggingExtensions.cs</Link>
     </Compile>
+    <Compile Include="ChangeTracking\KeyValueEntityAttacher.cs" />
     <Compile Include="ChangeTracking\ChangeDetector.cs" />
+    <Compile Include="ChangeTracking\EntityAttacherFactory.cs" />
     <Compile Include="ChangeTracking\EntityEntryGraphIterator.cs" />
+    <Compile Include="ChangeTracking\IEntityAttacher.cs" />
     <Compile Include="ChangeTracking\IPropertyListener.cs" />
     <Compile Include="ChangeTracking\IRelationshipListener.cs" />
     <Compile Include="ChangeTracking\PropertyBagEntryExtensions.cs" />
