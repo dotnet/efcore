@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -49,5 +50,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             return new PropertyEntry(StateEntry, propertyName);
         }
+
+        public virtual bool IsKeySet => StateEntry.IsKeySet;
     }
 }

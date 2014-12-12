@@ -496,6 +496,8 @@ namespace Microsoft.Data.Entity.ChangeTracking
                        && !IsPropertyModified(property));
         }
 
+        public virtual bool IsKeySet => !EntityType.GetPrimaryKey().Properties.Any(this.HasDefaultValue);
+
         [UsedImplicitly]
         private string DebuggerDisplay => this.GetPrimaryKeyValue() + " - " + EntityState;
 
