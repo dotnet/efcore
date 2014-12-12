@@ -141,5 +141,10 @@ namespace System
                 ? value
                 : Activator.CreateInstance(type);
         }
+
+        public static bool IsDefaultValue(this Type type, object value)
+        {
+            return value == null || value.Equals(type.GetDefaultValue());
+        }
     }
 }

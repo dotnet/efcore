@@ -43,36 +43,6 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         }
 
         [Fact]
-        public void Returns_null_when_no_value_generation_not_required()
-        {
-            var model = BuildModel(generateValues: false);
-            var entityType = model.GetEntityType(typeof(AnEntity));
-
-            var selector = TestHelpers.CreateContextServices(model).GetRequiredService<InMemoryValueGeneratorSelector>();
-
-            Assert.Null(selector.Select(entityType.GetProperty("Id")));
-            Assert.Null(selector.Select(entityType.GetProperty("Long")));
-            Assert.Null(selector.Select(entityType.GetProperty("Short")));
-            Assert.Null(selector.Select(entityType.GetProperty("Byte")));
-            Assert.Null(selector.Select(entityType.GetProperty("NullableInt")));
-            Assert.Null(selector.Select(entityType.GetProperty("NullableLong")));
-            Assert.Null(selector.Select(entityType.GetProperty("NullableShort")));
-            Assert.Null(selector.Select(entityType.GetProperty("NullableByte")));
-            Assert.Null(selector.Select(entityType.GetProperty("UInt")));
-            Assert.Null(selector.Select(entityType.GetProperty("ULong")));
-            Assert.Null(selector.Select(entityType.GetProperty("UShort")));
-            Assert.Null(selector.Select(entityType.GetProperty("SByte")));
-            Assert.Null(selector.Select(entityType.GetProperty("NullableUInt")));
-            Assert.Null(selector.Select(entityType.GetProperty("NullableULong")));
-            Assert.Null(selector.Select(entityType.GetProperty("NullableUShort")));
-            Assert.Null(selector.Select(entityType.GetProperty("NullableSByte")));
-            Assert.Null(selector.Select(entityType.GetProperty("String")));
-            Assert.Null(selector.Select(entityType.GetProperty("Guid")));
-            Assert.Null(selector.Select(entityType.GetProperty("Binary")));
-            Assert.Null(selector.Select(entityType.GetProperty("Float")));
-        }
-
-        [Fact]
         public void Throws_for_unsupported_combinations()
         {
             var model = BuildModel();

@@ -43,11 +43,6 @@ namespace Microsoft.Data.Entity.Identity
         {
             Check.NotNull(property, "property");
 
-            if (!property.GenerateValueOnAdd)
-            {
-                return null;
-            }
-
             var propertyType = property.PropertyType;
 
             if (propertyType == typeof(Guid))
@@ -72,11 +67,6 @@ namespace Microsoft.Data.Entity.Identity
 
             throw new NotSupportedException(
                 Strings.NoValueGenerator(property.Name, property.EntityType.SimpleName, propertyType.Name));
-        }
-
-        public virtual SimpleValueGeneratorFactory<GuidValueGenerator> GuidFactory
-        {
-            get { return _guidFactory; }
         }
     }
 }

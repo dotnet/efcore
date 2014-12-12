@@ -35,21 +35,18 @@ namespace Microsoft.Data.Entity.SqlServer
         {
             Check.NotNull(property, "property");
 
-            if (property.GenerateValueOnAdd)
+            var strategy = property.SqlServer().ValueGenerationStrategy
+                           ?? property.EntityType.Model.SqlServer().ValueGenerationStrategy;
+
+            if (property.PropertyType.IsInteger()
+                && strategy == SqlServerValueGenerationStrategy.Sequence)
             {
-                var strategy = property.SqlServer().ValueGenerationStrategy
-                               ?? property.EntityType.Model.SqlServer().ValueGenerationStrategy;
+                return _sequenceFactory;
+            }
 
-                if (property.PropertyType.IsInteger() &&
-                    strategy == SqlServerValueGenerationStrategy.Sequence)
-                {
-                    return _sequenceFactory;
-                }
-
-                if (property.PropertyType == typeof(Guid))
-                {
-                    return _sequentialGuidFactory;
-                }
+            if (property.PropertyType == typeof(Guid))
+            {
+                return _sequentialGuidFactory;
             }
 
             return base.Select(property);

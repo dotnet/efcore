@@ -15,8 +15,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             Check.NotNull(entry, "entry");
             Check.NotNull(property, "property");
 
-            var value = entry[property];
-            return value == null || value.Equals(property.PropertyType.GetDefaultValue());
+            return property.PropertyType.IsDefaultValue(entry[property]);
         }
     }
 }

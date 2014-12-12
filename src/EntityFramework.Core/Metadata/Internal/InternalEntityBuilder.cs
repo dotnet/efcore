@@ -279,10 +279,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 return false;
             }
 
-            var navToDependent = foreignKey.GetNavigationToDependent();
+            var navToDependent = (Navigation)foreignKey.GetNavigationToDependent();
             navToDependent?.EntityType.RemoveNavigation(navToDependent);
 
-            var navToPrincipal = foreignKey.GetNavigationToPrincipal();
+            var navToPrincipal = (Navigation)foreignKey.GetNavigationToPrincipal();
             navToPrincipal?.EntityType.RemoveNavigation(navToPrincipal);
 
             Metadata.RemoveForeignKey(foreignKey);

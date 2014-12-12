@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Metadata;
@@ -13,27 +14,33 @@ namespace Microsoft.Data.Entity.Tests.Identity
 {
     public class ForeignKeyValuePropagatorTest
     {
-        [Fact]
-        public void Foreign_key_value_is_obtained_from_reference_to_principal()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task Foreign_key_value_is_obtained_from_reference_to_principal(bool async)
         {
             var model = BuildModel();
 
             var principal = new Category { Id = 11 };
             var dependent = new Product { Id = 21, Category = principal };
 
-            var dependentEntry = CreateContextServices(model).GetRequiredService<StateManager>().GetOrCreateEntry(dependent);
+            var contextServices = CreateContextServices(model);
+            var dependentEntry = contextServices.GetRequiredService<StateManager>().GetOrCreateEntry(dependent);
             var property = model.GetEntityType(typeof(Product)).GetProperty("CategoryId");
 
-            CreateValueGenerator().PropagateValue(dependentEntry, property);
+            await PropagateValue(contextServices.GetRequiredService<ForeignKeyValuePropagator>(), dependentEntry, property, async);
 
             Assert.Equal(11, dependentEntry[property]);
         }
 
-        [Fact]
-        public void Foreign_key_value_is_obtained_from_tracked_principal_with_populated_collection()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task Foreign_key_value_is_obtained_from_tracked_principal_with_populated_collection(bool async)
         {
             var model = BuildModel();
-            var manager = CreateContextServices(model).GetRequiredService<StateManager>();
+            var contextServices = CreateContextServices(model);
+            var manager = contextServices.GetRequiredService<StateManager>();
 
             var principal = new Category { Id = 11 };
             var dependent = new Product { Id = 21 };
@@ -43,32 +50,57 @@ namespace Microsoft.Data.Entity.Tests.Identity
             var dependentEntry = manager.GetOrCreateEntry(dependent);
             var property = model.GetEntityType(typeof(Product)).GetProperty("CategoryId");
 
-            CreateValueGenerator().PropagateValue(dependentEntry, property);
+            await PropagateValue(contextServices.GetRequiredService<ForeignKeyValuePropagator>(), dependentEntry, property, async);
 
             Assert.Equal(11, dependentEntry[property]);
         }
 
-        [Fact]
-        public void One_to_one_foreign_key_value_is_obtained_from_reference_to_principal()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task Non_identifying_foreign_key_value_is_not_generated_if_principal_key_not_set(bool async)
+        {
+            var model = BuildModel();
+
+            var principal = new Category();
+            var dependent = new Product { Id = 21, Category = principal };
+
+            var contextServices = CreateContextServices(model);
+            var dependentEntry = contextServices.GetRequiredService<StateManager>().GetOrCreateEntry(dependent);
+            var property = model.GetEntityType(typeof(Product)).GetProperty("CategoryId");
+
+            await PropagateValue(contextServices.GetRequiredService<ForeignKeyValuePropagator>(), dependentEntry, property, async);
+
+            Assert.Equal(0, dependentEntry[property]);
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task One_to_one_foreign_key_value_is_obtained_from_reference_to_principal(bool async)
         {
             var model = BuildModel();
 
             var principal = new Product { Id = 21 };
             var dependent = new ProductDetail { Product = principal };
 
-            var dependentEntry = CreateContextServices(model).GetRequiredService<StateManager>().GetOrCreateEntry(dependent);
+            var contextServices = CreateContextServices(model);
+            var dependentEntry = contextServices.GetRequiredService<StateManager>().GetOrCreateEntry(dependent);
             var property = model.GetEntityType(typeof(ProductDetail)).GetProperty("Id");
 
-            CreateValueGenerator().PropagateValue(dependentEntry, property);
+            await PropagateValue(contextServices.GetRequiredService<ForeignKeyValuePropagator>(), dependentEntry, property, async);
 
             Assert.Equal(21, dependentEntry[property]);
         }
 
-        [Fact]
-        public void One_to_one_foreign_key_value_is_obtained_from_tracked_principal()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task One_to_one_foreign_key_value_is_obtained_from_tracked_principal(bool async)
         {
             var model = BuildModel();
-            var manager = CreateContextServices(model).GetRequiredService<StateManager>();
+            var contextServices = CreateContextServices(model);
+            var manager = contextServices.GetRequiredService<StateManager>();
 
             var dependent = new ProductDetail();
             var principal = new Product { Id = 21, Detail = dependent };
@@ -77,35 +109,61 @@ namespace Microsoft.Data.Entity.Tests.Identity
             var dependentEntry = manager.GetOrCreateEntry(dependent);
             var property = model.GetEntityType(typeof(ProductDetail)).GetProperty("Id");
 
-            CreateValueGenerator().PropagateValue(dependentEntry, property);
+            await PropagateValue(contextServices.GetRequiredService<ForeignKeyValuePropagator>(), dependentEntry, property, async);
 
             Assert.Equal(21, dependentEntry[property]);
         }
 
-        [Fact]
-        public void Composite_foreign_key_value_is_obtained_from_reference_to_principal()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task Identifying_foreign_key_value_is_generated_if_principal_key_not_set(bool async)
+        {
+            var model = BuildModel();
+
+            var principal = new Product();
+            var dependent = new ProductDetail { Product = principal };
+
+            var contextServices = CreateContextServices(model);
+            var dependentEntry = contextServices.GetRequiredService<StateManager>().GetOrCreateEntry(dependent);
+            var property = model.GetEntityType(typeof(ProductDetail)).GetProperty("Id");
+
+            await PropagateValue(contextServices.GetRequiredService<ForeignKeyValuePropagator>(), dependentEntry, property, async);
+
+            Assert.Equal(1, dependentEntry[property]);
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task Composite_foreign_key_value_is_obtained_from_reference_to_principal(bool async)
         {
             var model = BuildModel();
 
             var principal = new OrderLine { OrderId = 11, ProductId = 21 };
             var dependent = new OrderLineDetail { OrderLine = principal };
 
-            var dependentEntry = CreateContextServices(model).GetRequiredService<StateManager>().GetOrCreateEntry(dependent);
+            var contextServices = CreateContextServices(model);
+            var dependentEntry = contextServices.GetRequiredService<StateManager>().GetOrCreateEntry(dependent);
             var property1 = model.GetEntityType(typeof(OrderLineDetail)).GetProperty("OrderId");
             var property2 = model.GetEntityType(typeof(OrderLineDetail)).GetProperty("ProductId");
 
-            CreateValueGenerator().PropagateValue(dependentEntry, property1);
-            CreateValueGenerator().PropagateValue(dependentEntry, property2);
+            var valuePropagator = contextServices.GetRequiredService<ForeignKeyValuePropagator>();
+            await PropagateValue(valuePropagator, dependentEntry, property1, async);
+            await PropagateValue(valuePropagator, dependentEntry, property2, async);
 
             Assert.Equal(11, dependentEntry[property1]);
             Assert.Equal(21, dependentEntry[property2]);
         }
 
-        [Fact]
-        public void Composite_foreign_key_value_is_obtained_from_tracked_principal()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task Composite_foreign_key_value_is_obtained_from_tracked_principal(bool async)
         {
             var model = BuildModel();
-            var manager = CreateContextServices(model).GetRequiredService<StateManager>();
+            var contextServices = CreateContextServices(model);
+            var manager = contextServices.GetRequiredService<StateManager>();
 
             var dependent = new OrderLineDetail();
             var principal = new OrderLine { OrderId = 11, ProductId = 21, Detail = dependent };
@@ -115,8 +173,9 @@ namespace Microsoft.Data.Entity.Tests.Identity
             var property1 = model.GetEntityType(typeof(OrderLineDetail)).GetProperty("OrderId");
             var property2 = model.GetEntityType(typeof(OrderLineDetail)).GetProperty("ProductId");
 
-            CreateValueGenerator().PropagateValue(dependentEntry, property1);
-            CreateValueGenerator().PropagateValue(dependentEntry, property2);
+            var valuePropagator = contextServices.GetRequiredService<ForeignKeyValuePropagator>();
+            await PropagateValue(valuePropagator, dependentEntry, property1, async);
+            await PropagateValue(valuePropagator, dependentEntry, property2, async);
 
             Assert.Equal(11, dependentEntry[property1]);
             Assert.Equal(21, dependentEntry[property2]);
@@ -125,6 +184,22 @@ namespace Microsoft.Data.Entity.Tests.Identity
         private static IServiceProvider CreateContextServices(IModel model = null)
         {
             return TestHelpers.CreateContextServices(model ?? BuildModel());
+        }
+
+        private static async Task PropagateValue(
+            ForeignKeyValuePropagator valuePropagator,
+            StateEntry dependentEntry,
+            IProperty property,
+            bool async)
+        {
+            if (async)
+            {
+                await valuePropagator.PropagateValueAsync(dependentEntry, property);
+            }
+            else
+            {
+                valuePropagator.PropagateValue(dependentEntry, property);
+            }
         }
 
         private class Category
@@ -220,11 +295,6 @@ namespace Microsoft.Data.Entity.Tests.Identity
             });
 
             return model;
-        }
-
-        private static ForeignKeyValuePropagator CreateValueGenerator()
-        {
-            return new ForeignKeyValuePropagator(new ClrPropertyGetterSource(), new ClrCollectionAccessorSource(new CollectionTypeFactory()));
         }
     }
 }

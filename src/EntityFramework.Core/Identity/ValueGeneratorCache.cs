@@ -36,12 +36,6 @@ namespace Microsoft.Data.Entity.Identity
             Check.NotNull(property, "property");
 
             var factory = _selector.Select(property);
-
-            if (factory == null)
-            {
-                return null;
-            }
-
             var pool = _cache.GetOrAdd(factory.GetCacheKey(property), k => CreatePool(property, factory));
 
             return pool.GetGenerator();

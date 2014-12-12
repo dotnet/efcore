@@ -13,15 +13,6 @@ namespace Microsoft.Data.Entity.Tests.Identity
     public class ValueGeneratorCacheTest
     {
         [Fact]
-        public void Returns_null_if_selector_returns_null()
-        {
-            var model = CreateModel(generateValues: false);
-            var cache = TestHelpers.CreateContextServices(model).GetRequiredService<InMemoryValueGeneratorCache>();
-
-            Assert.Null(cache.GetGenerator(GetProperty1(model)));
-        }
-
-        [Fact]
         public void Uses_single_generator_per_cache_key_when_pool_size_is_one()
         {
             var model = CreateModel();

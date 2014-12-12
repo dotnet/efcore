@@ -18,7 +18,6 @@ namespace Microsoft.Data.Entity.ChangeTracking
         private readonly ClrPropertySetterSource _setterSource;
         private readonly ClrPropertyGetterSource _getterSource;
         private readonly ClrCollectionAccessorSource _collectionAccessorSource;
-        private readonly StoreGeneratedValuesFactory _storeGeneratedValuesFactory;
         private readonly DbContextService<IModel> _model;
         private bool _inFixup;
 
@@ -35,19 +34,16 @@ namespace Microsoft.Data.Entity.ChangeTracking
             [NotNull] ClrPropertyGetterSource getterSource,
             [NotNull] ClrPropertySetterSource setterSource,
             [NotNull] ClrCollectionAccessorSource collectionAccessorSource,
-            [NotNull] StoreGeneratedValuesFactory storeGeneratedValuesFactory,
             [NotNull] DbContextService<IModel> model)
         {
             Check.NotNull(getterSource, "getterSource");
             Check.NotNull(setterSource, "setterSource");
             Check.NotNull(collectionAccessorSource, "collectionAccessorSource");
-            Check.NotNull(storeGeneratedValuesFactory, "storeGeneratedValuesFactory");
             Check.NotNull(model, "model");
 
             _getterSource = getterSource;
             _setterSource = setterSource;
             _collectionAccessorSource = collectionAccessorSource;
-            _storeGeneratedValuesFactory = storeGeneratedValuesFactory;
             _model = model;
         }
 
@@ -111,7 +107,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             {
                 if (newValue != null)
                 {
-                    SetForeignKeyValue(entry, dependentProperties, entry.StateManager.GetOrCreateEntry(newValue), principalProperties);
+                    SetForeignKeyValue(foreignKey, entry, entry.StateManager.GetOrCreateEntry(newValue));
                 }
                 else
                 {
@@ -124,7 +120,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
                 if (newValue != null)
                 {
-                    SetForeignKeyValue(entry.StateManager.GetOrCreateEntry(newValue), dependentProperties, entry, principalProperties);
+                    SetForeignKeyValue(foreignKey, entry.StateManager.GetOrCreateEntry(newValue), entry);
                 }
 
                 if (oldValue != null)
@@ -159,8 +155,9 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
             Debug.Assert(navigation.IsCollection());
 
+            var principalProperties = navigation.ForeignKey.ReferencedProperties;
             var dependentProperties = navigation.ForeignKey.Properties;
-            var principalValues = navigation.ForeignKey.ReferencedProperties.Select(p => entry[p]).ToList();
+            var principalValues = principalProperties.Select(p => entry[p]).ToList();
 
             // TODO: What if the entity is not yet being tracked?
             // Issue #323
@@ -172,7 +169,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             foreach (var entity in added)
             {
-                SetForeignKeyValue(entry.StateManager.GetOrCreateEntry(entity), dependentProperties, principalValues);
+                SetForeignKeyValue(navigation.ForeignKey, entry.StateManager.GetOrCreateEntry(entity), principalValues);
                 SetInverse(entry, navigation, entity);
             }
         }
@@ -182,11 +179,9 @@ namespace Microsoft.Data.Entity.ChangeTracking
             Check.NotNull(entry, "entry");
             Check.NotNull(property, "property");
 
-            PerformFixup(() => PrincipalKeyPropertyChangedAction(entry, property, oldValue, newValue));
-        }
+            // We don't prevent recursive entry here because changed of principal key can have cascading effects
+            // when principal key is also foreign key.
 
-        private void PrincipalKeyPropertyChangedAction(StateEntry entry, IProperty property, object oldValue, object newValue)
-        {
             foreach (var foreignKey in _model.Service.EntityTypes.SelectMany(
                 e => e.ForeignKeys.Where(f => f.ReferencedProperties.Contains(property))))
             {
@@ -197,11 +192,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                     e => e.EntityType == foreignKey.EntityType
                          && oldKey.Equals(e.GetDependentKeyValue(foreignKey))).ToList())
                 {
-                    if (dependent.TryGetSidecar(Sidecar.WellKnownNames.StoreGeneratedValues) == null)
-                    {
-                        dependent.AddSidecar(_storeGeneratedValuesFactory.Create(dependent));
-                    }
-                    SetForeignKeyValue(dependent, foreignKey.Properties, newKeyValues);
+                    SetForeignKeyValue(foreignKey, dependent, newKeyValues);
                 }
             }
         }
@@ -267,9 +258,8 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
                 var navigationEntityType = navigation.EntityType;
 
-                for (var stateEntryIterator = 0; stateEntryIterator < stateEntries.Count; ++stateEntryIterator)
+                foreach (var relatedEntry in stateEntries)
                 {
-                    var relatedEntry = stateEntries[stateEntryIterator];
                     if (relatedEntry.EntityType != navigationEntityType
                         || relatedEntry == entry)
                     {
@@ -444,24 +434,26 @@ namespace Microsoft.Data.Entity.ChangeTracking
         }
 
         private static void SetForeignKeyValue(
-            StateEntry dependentEntry, IReadOnlyList<IProperty> dependentProperties,
-            StateEntry principalEntry, IReadOnlyList<IProperty> principalProperties)
+            IForeignKey foreignKey,
+            StateEntry dependentEntry,
+            StateEntry principalEntry)
         {
-            Debug.Assert(principalProperties.Count == dependentProperties.Count);
-
-            SetForeignKeyValue(dependentEntry, dependentProperties, principalProperties.Select(p => principalEntry[p]).ToList());
+            SetForeignKeyValue(foreignKey, dependentEntry, foreignKey.ReferencedProperties.Select(p => principalEntry[p]).ToList());
         }
 
-        private static void SetForeignKeyValue(
-            StateEntry dependentEntry, IReadOnlyList<IProperty> dependentProperties, IReadOnlyList<object> principalValues)
+        private static void SetForeignKeyValue(IForeignKey foreignKey, StateEntry dependentEntry, IReadOnlyList<object> principalValues)
         {
-            for (var i = 0; i < dependentProperties.Count; i++)
+            for (var i = 0; i < foreignKey.Properties.Count; i++)
             {
-                // TODO: Consider nullable/non-nullable assignment issues
-                // Issue #740
-                var dependentProperty = dependentProperties[i];
-                dependentEntry[dependentProperty] = principalValues[i];
-                dependentEntry.RelationshipsSnapshot.TakeSnapshot(dependentProperty);
+                if (!foreignKey.FindRootValueGenerationProperty(i).GenerateValueOnAdd
+                    || !foreignKey.ReferencedProperties[i].PropertyType.IsDefaultValue(principalValues[i]))
+                {
+                    // TODO: Consider nullable/non-nullable assignment issues
+                    // Issue #740
+                    var dependentProperty = foreignKey.Properties[i];
+                    dependentEntry[dependentProperty] = principalValues[i];
+                    dependentEntry.RelationshipsSnapshot.TakeSnapshot(dependentProperty);
+                }
             }
         }
 

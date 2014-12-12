@@ -463,10 +463,10 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         public virtual StateEntry PrepareToSave()
         {
-            if (EntityType.Properties.Any(NeedsStoreValue))
-            {
-                AddSidecar(_metadataServices.CreateStoreGeneratedValues(this));
-            }
+            // TODO: Issue #1303
+            //if (EntityType.Properties.Any(NeedsStoreValue))
+
+            AddSidecar(_metadataServices.CreateStoreGeneratedValues(this));
 
             return this;
         }

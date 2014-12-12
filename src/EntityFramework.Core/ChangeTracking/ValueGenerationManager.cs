@@ -49,10 +49,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                     }
                     else
                     {
-                        var valueGenerator = _valueGeneratorCache.Service.GetGenerator(property);
-                        var generatedValue = valueGenerator == null
-                            ? null
-                            : valueGenerator.Next(property, _dataStoreServices);
+                        var generatedValue = _valueGeneratorCache.Service.GetGenerator(property)?.Next(property, _dataStoreServices);
 
                         SetGeneratedValue(entry, generatedValue, property);
                     }
@@ -73,14 +70,14 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 {
                     if (isForeignKey)
                     {
-                        _foreignKeyValuePropagator.PropagateValue(entry, property);
+                        await _foreignKeyValuePropagator.PropagateValueAsync(entry, property, cancellationToken).WithCurrentCulture();
                     }
                     else
                     {
                         var valueGenerator = _valueGeneratorCache.Service.GetGenerator(property);
                         var generatedValue = valueGenerator == null
                             ? null
-                            : await valueGenerator.NextAsync(property, _dataStoreServices, cancellationToken);
+                            : await valueGenerator.NextAsync(property, _dataStoreServices, cancellationToken).WithCurrentCulture();
 
                         SetGeneratedValue(entry, generatedValue, property);
                     }

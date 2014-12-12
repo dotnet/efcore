@@ -9,7 +9,7 @@ namespace Microsoft.Data.Entity.Metadata
 {
     public static class ForeignKeyExtensions
     {
-        public static Navigation GetNavigationToPrincipal([NotNull] this ForeignKey foreignKey)
+        public static INavigation GetNavigationToPrincipal([NotNull] this IForeignKey foreignKey)
         {
             Check.NotNull(foreignKey, "foreignKey");
 
@@ -17,12 +17,35 @@ namespace Microsoft.Data.Entity.Metadata
                 navigation => navigation.ForeignKey == foreignKey && navigation.PointsToPrincipal);
         }
 
-        public static Navigation GetNavigationToDependent([NotNull] this ForeignKey foreignKey)
+        public static INavigation GetNavigationToDependent([NotNull] this IForeignKey foreignKey)
         {
             Check.NotNull(foreignKey, "foreignKey");
 
             return foreignKey.ReferencedEntityType.Navigations.SingleOrDefault(
                 navigation => navigation.ForeignKey == foreignKey && !navigation.PointsToPrincipal);
+        }
+
+        public static IProperty FindRootValueGenerationProperty([NotNull] this IForeignKey foreignKey, int propertyIndex)
+        {
+            Check.NotNull(foreignKey, "foreignKey");
+
+            var principalProperty = foreignKey.ReferencedProperties[propertyIndex];
+            foreach (var nextForeignKey in principalProperty.EntityType.ForeignKeys)
+            {
+                for (var nextIndex = 0; nextIndex < nextForeignKey.Properties.Count; nextIndex++)
+                {
+                    if (principalProperty == nextForeignKey.Properties[nextIndex])
+                    {
+                        var rootPrincipal = FindRootValueGenerationProperty(nextForeignKey, nextIndex);
+                        if (rootPrincipal.GenerateValueOnAdd)
+                        {
+                            return rootPrincipal;
+                        }
+                    }
+                }
+            }
+
+            return principalProperty;
         }
     }
 }
