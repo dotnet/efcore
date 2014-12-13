@@ -36,48 +36,33 @@ namespace EntityFramework.Microbenchmarks.DbContextPerf.Model
                 {
                     b.Key(e => e.ProductID);
                     b.Property(e => e.ProductID).ForSqlServer().UseSequence();
+                    b.Property(e => e.ProductID).GenerateValueOnAdd();
                     b.ForRelational().Table("Product", "dbo");
                 });
+
             builder.Entity<DbProductModel>(b =>
                 {
                     b.Key(e => e.ProductModelID);
                     b.Property(e => e.ProductModelID).ForSqlServer().UseSequence();
+                    b.Property(e => e.ProductModelID).GenerateValueOnAdd();
                     b.ForRelational().Table("ProductModel", "dbo");
+                    b.OneToMany(model => model.Products, product => product.Model).ForeignKey(product => product.ProductModelID);
                 });
             builder.Entity<DbWorkOrder>(b =>
                 {
                     b.Key(e => e.WorkOrderID);
                     b.Property(e => e.WorkOrderID).ForSqlServer().UseSequence();
+                    b.Property(e => e.WorkOrderID).GenerateValueOnAdd();
                     b.ForRelational().Table("WorkOrder", "dbo");
                 });
             builder.Entity<DbProductSubcategory>(b =>
                 {
                     b.Key(e => e.ProductSubcategoryID);
                     b.Property(e => e.ProductSubcategoryID).ForSqlServer().UseSequence();
+                    b.Property(e => e.ProductSubcategoryID).GenerateValueOnAdd();
                     b.ForRelational().Table("ProductSubcategory", "dbo");
+                    b.OneToMany(subcategory => subcategory.Products, product => product.ProductSubcategory).ForeignKey(product => product.ProductSubcategoryID);
                 });
-
-            //Foreign keys
-            builder.Entity<DbProduct>().ForeignKey<DbProductSubcategory>(e => e.ProductSubcategoryID);
-            builder.Entity<DbProduct>().ForeignKey<DbProductModel>(e => e.ProductModelID);
-
-            var model = builder.Model;
-
-            // TODO: Key should get by-convention value generation even if key is not discovered by convention
-            var productId = model.GetEntityType(typeof(DbProduct)).GetProperty("ProductID");
-            productId.GenerateValueOnAdd = true;
-
-            var productModelId = model.GetEntityType(typeof(DbProductModel)).GetProperty("ProductModelID");
-            productModelId.GenerateValueOnAdd = true;
-
-            var workOrderId = model.GetEntityType(typeof(DbWorkOrder)).GetProperty("WorkOrderID");
-            workOrderId.GenerateValueOnAdd = true;
-
-            var productSubcategoryId = model.GetEntityType(typeof(DbProductSubcategory)).GetProperty("ProductSubcategoryID");
-            productSubcategoryId.GenerateValueOnAdd = true;
-
-            AddNavigationToPrincipal(model, typeof(DbProduct), "ProductSubcategoryID", "ProductSubcategory");
-            AddNavigationToPrincipal(model, typeof(DbProduct), "ProductModelID", "Model");
         }
 
         private static void AddNavigationToPrincipal(Microsoft.Data.Entity.Metadata.Model model, Type type, string fk, string navigation)
