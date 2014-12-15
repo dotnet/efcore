@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             Assert.Equal(
                 @"SELECT [a].[City], [a].[Id], [a].[Street], [p].[Id], [p].[Name]
 FROM [Address] AS [a]
-LEFT JOIN [Person] AS [p] ON [a].[Id] = [p].[Id]",
+INNER JOIN [Person] AS [p] ON [a].[Id] = [p].[Id]",
                 Sql);
         }
 
@@ -28,7 +28,7 @@ LEFT JOIN [Person] AS [p] ON [a].[Id] = [p].[Id]",
             Assert.Equal(
                 @"SELECT [a].[City], [a].[Id], [a].[PersonId], [a].[Street], [p].[Id], [p].[Name]
 FROM [Address2] AS [a]
-LEFT JOIN [Person2] AS [p] ON [a].[PersonId] = [p].[Id]",
+INNER JOIN [Person2] AS [p] ON [a].[PersonId] = [p].[Id]",
                 Sql);
         }
 

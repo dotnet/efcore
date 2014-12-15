@@ -132,7 +132,14 @@ namespace Microsoft.Data.Entity.Relational.Query
                         p,
                         joinedTableExpression));
 
-            var joinExpression = selectExpression.AddOuterJoin(joinedTableExpression, columnExpressions);
+            var joinExpression
+                = navigation.ForeignKey.IsRequired && navigation.PointsToPrincipal
+                    ? selectExpression
+                        .AddInnerJoin(joinedTableExpression, columnExpressions)
+                    : selectExpression
+                        .AddOuterJoin(joinedTableExpression, columnExpressions);
+
+            //var joinExpression = selectExpression.AddOuterJoin(joinedTableExpression, columnExpressions);
             
             joinExpression.Predicate
                 = BuildJoinEqualityExpression(

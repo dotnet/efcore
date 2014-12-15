@@ -475,8 +475,8 @@ LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]",
             Assert.Equal(
                 @"SELECT [o].[Discount], [o].[OrderID], [o].[ProductID], [o].[Quantity], [o].[UnitPrice], [o0].[CustomerID], [o0].[OrderDate], [o0].[OrderID], [p].[Discontinued], [p].[ProductID], [p].[ProductName]
 FROM [Order Details] AS [o]
-LEFT JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
-LEFT JOIN [Products] AS [p] ON [o].[ProductID] = [p].[ProductID]",
+INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
+INNER JOIN [Products] AS [p] ON [o].[ProductID] = [p].[ProductID]",
                 Sql);
         }
 
@@ -487,7 +487,7 @@ LEFT JOIN [Products] AS [p] ON [o].[ProductID] = [p].[ProductID]",
             Assert.Equal(
                 @"SELECT [o].[Discount], [o].[OrderID], [o].[ProductID], [o].[Quantity], [o].[UnitPrice], [o0].[CustomerID], [o0].[OrderDate], [o0].[OrderID]
 FROM [Order Details] AS [o]
-LEFT JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]",
+INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]",
                 Sql);
         }
 
