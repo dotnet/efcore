@@ -133,7 +133,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                         joinedTableExpression));
 
             var joinExpression
-                = navigation.ForeignKey.IsRequired
+                = navigation.ForeignKey.IsRequired && navigation.PointsToPrincipal
                     ? selectExpression
                         .AddInnerJoin(joinedTableExpression, columnExpressions)
                     : selectExpression

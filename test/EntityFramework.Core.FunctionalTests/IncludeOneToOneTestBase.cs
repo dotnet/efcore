@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using Xunit;
 
@@ -18,9 +19,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         .Include(p => p.Address)
                         .ToList();
 
-                Assert.Equal(3, people.Count);
-                Assert.True(people.All(p => p.Address != null));
-                Assert.Equal(3 + 3, context.ChangeTracker.Entries().Count());
+                Assert.Equal(4, people.Count);
+                Assert.Equal(3, people.Count(p => p.Address != null));
+                Assert.Equal(4 + 3, context.ChangeTracker.Entries().Count());
             }
         }
 
@@ -51,8 +52,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         .AsNoTracking()
                         .ToList();
 
-                Assert.Equal(3, people.Count);
-                Assert.True(people.All(p => p.Address != null));
+                Assert.Equal(4, people.Count);
+                Assert.Equal(3, people.Count(p => p.Address != null));
                 Assert.Equal(0, context.ChangeTracker.Entries().Count());
             }
         }
@@ -120,10 +121,10 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         .Include(p => p.Address)
                         .ToList();
 
-                Assert.Equal(3, people.Count);
+                Assert.Equal(4, people.Count);
                 Assert.True(people.Contains(person));
-                Assert.True(people.All(p => p.Address != null));
-                Assert.Equal(3 + 3, context.ChangeTracker.Entries().Count());
+                Assert.Equal(3, people.Count(p => p.Address != null));
+                Assert.Equal(4 + 3, context.ChangeTracker.Entries().Count());
             }
         }
 
