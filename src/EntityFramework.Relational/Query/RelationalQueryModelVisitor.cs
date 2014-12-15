@@ -139,6 +139,8 @@ namespace Microsoft.Data.Entity.Relational.Query
                     : selectExpression
                         .AddOuterJoin(joinedTableExpression, columnExpressions);
 
+            //var joinExpression = selectExpression.AddOuterJoin(joinedTableExpression, columnExpressions);
+            
             joinExpression.Predicate
                 = BuildJoinEqualityExpression(
                     navigation,
