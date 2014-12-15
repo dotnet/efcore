@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             Assert.Equal(
                 @"SELECT [a].[City], [a].[Id], [a].[Street], [p].[Id], [p].[Name]
 FROM [Address] AS [a]
-INNER JOIN [Person] AS [p] ON [a].[Id] = [p].[Id]",
+LEFT JOIN [Person] AS [p] ON [a].[Id] = [p].[Id]",
                 Sql);
         }
 
@@ -28,7 +28,7 @@ INNER JOIN [Person] AS [p] ON [a].[Id] = [p].[Id]",
             Assert.Equal(
                 @"SELECT [a].[City], [a].[Id], [a].[PersonId], [a].[Street], [p].[Id], [p].[Name]
 FROM [Address2] AS [a]
-INNER JOIN [Person2] AS [p] ON [a].[PersonId] = [p].[Id]",
+LEFT JOIN [Person2] AS [p] ON [a].[PersonId] = [p].[Id]",
                 Sql);
         }
 
@@ -39,7 +39,7 @@ INNER JOIN [Person2] AS [p] ON [a].[PersonId] = [p].[Id]",
             Assert.Equal(
                 @"SELECT [p].[Id], [p].[Name], [a].[City], [a].[Id], [a].[Street]
 FROM [Person] AS [p]
-INNER JOIN [Address] AS [a] ON [a].[Id] = [p].[Id]",
+LEFT JOIN [Address] AS [a] ON [a].[Id] = [p].[Id]",
                 Sql);
         }
 
@@ -50,7 +50,7 @@ INNER JOIN [Address] AS [a] ON [a].[Id] = [p].[Id]",
             Assert.Equal(
                 @"SELECT [p].[Id], [p].[Name], [a].[City], [a].[Id], [a].[PersonId], [a].[Street]
 FROM [Person2] AS [p]
-INNER JOIN [Address2] AS [a] ON [a].[PersonId] = [p].[Id]",
+LEFT JOIN [Address2] AS [a] ON [a].[PersonId] = [p].[Id]",
                 Sql);
         }
 
