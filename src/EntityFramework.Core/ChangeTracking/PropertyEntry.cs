@@ -35,6 +35,11 @@ namespace Microsoft.Data.Entity.ChangeTracking
         public virtual object CurrentValue
         {
             get { return _stateEntry[_property]; }
+            [param: CanBeNull]
+            set
+            {
+                _stateEntry[_property] = value;
+            }
         }
     }
 }

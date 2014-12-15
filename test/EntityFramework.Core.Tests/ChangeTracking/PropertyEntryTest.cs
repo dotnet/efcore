@@ -51,6 +51,28 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
+        public void Can_set_current_value()
+        {
+            var property = new Mock<IProperty>();
+            var stateEntryMock = CreateStateEntryMock(property);
+
+            new PropertyEntry(stateEntryMock.Object, "Monkey").CurrentValue = "Chimp";
+
+            stateEntryMock.VerifySet(m => m[property.Object] = "Chimp");
+        }
+
+        [Fact]
+        public void Can_set_current_value_to_null()
+        {
+            var property = new Mock<IProperty>();
+            var stateEntryMock = CreateStateEntryMock(property);
+
+            new PropertyEntry(stateEntryMock.Object, "Monkey").CurrentValue = null;
+
+            stateEntryMock.VerifySet(m => m[property.Object] = null);
+        }
+
+        [Fact]
         public void IsModified_delegates_to_state_object()
         {
             var propertyMock = new Mock<IProperty>();
