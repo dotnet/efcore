@@ -84,6 +84,7 @@
     <Compile Include="ExistingConnectionTest.cs" />
     <Compile Include="MappingQueryFixture.cs" />
     <Compile Include="MappingQueryTest.cs" />
+    <Compile Include="SqlServerChangeTrackingTest.cs" />
     <Compile Include="SqlServerF1Fixture.cs" />
     <Compile Include="SqlServerFixture.cs" />
     <Compile Include="SqlServerIncludeAsyncTest.cs" />

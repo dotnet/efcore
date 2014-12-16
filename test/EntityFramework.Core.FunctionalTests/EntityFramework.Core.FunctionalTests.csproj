@@ -72,6 +72,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AsNoTrackingTestBase.cs" />
+    <Compile Include="ChangeTrackingTestBase.cs" />
     <Compile Include="DeadlockTestBase.cs" />
     <Compile Include="DataStoreErrorLogStateTest.cs" />
     <Compile Include="BuiltInDataTypesFixtureBase.cs" />

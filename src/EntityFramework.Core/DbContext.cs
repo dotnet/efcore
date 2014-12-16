@@ -280,7 +280,7 @@ namespace Microsoft.Data.Entity
             var entry = Entry(entity);
 
             await entry.StateEntry
-                .SetEntityStateAsync(EntityState.Added, cancellationToken)
+                .SetEntityStateAsync(EntityState.Added, true, cancellationToken)
                 .WithCurrentCulture();
 
             return entry;
@@ -336,7 +336,7 @@ namespace Microsoft.Data.Entity
             var entry = Entry(entity);
 
             await entry.StateEntry
-                .SetEntityStateAsync(EntityState.Added, cancellationToken)
+                .SetEntityStateAsync(EntityState.Added, true, cancellationToken)
                 .WithCurrentCulture();
 
             return entry;
@@ -403,7 +403,7 @@ namespace Microsoft.Data.Entity
             foreach (var entry in entries)
             {
                 await entry.StateEntry
-                    .SetEntityStateAsync(EntityState.Added, cancellationToken)
+                    .SetEntityStateAsync(EntityState.Added, true, cancellationToken)
                     .WithCurrentCulture();
             }
 
@@ -487,7 +487,7 @@ namespace Microsoft.Data.Entity
             foreach (var entry in entries)
             {
                 await entry.StateEntry
-                    .SetEntityStateAsync(EntityState.Added, cancellationToken)
+                    .SetEntityStateAsync(EntityState.Added, true, cancellationToken)
                     .WithCurrentCulture();
             }
 

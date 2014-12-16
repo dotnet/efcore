@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.ChangeTracking
@@ -109,7 +110,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             }
         }
 
-        public virtual void SetEntityState(EntityState entityState)
+        public virtual void SetEntityState(EntityState entityState, bool acceptChanges = false)
         {
             Check.IsDefined(entityState, "entityState");
 
@@ -120,11 +121,10 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 StateManager.ValueGeneration.Generate(this);
             }
 
-            SetEntityState(oldState, entityState);
+            SetEntityState(oldState, entityState, acceptChanges);
         }
 
-        public virtual async Task SetEntityStateAsync(
-            EntityState entityState, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual async Task SetEntityStateAsync(EntityState entityState, bool acceptChanges = false, CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.IsDefined(entityState, "entityState");
 
@@ -135,7 +135,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 await StateManager.ValueGeneration.GenerateAsync(this, cancellationToken).WithCurrentCulture();
             }
 
-            SetEntityState(oldState, entityState);
+            SetEntityState(oldState, entityState, acceptChanges);
         }
 
         private bool PrepareForAdd(EntityState newState)
@@ -155,7 +155,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             return true;
         }
 
-        private void SetEntityState(EntityState oldState, EntityState newState)
+        private void SetEntityState(EntityState oldState, EntityState newState, bool acceptChanges)
         {
             // Prevent temp values from becoming permanent values
             if (oldState == EntityState.Added
@@ -195,6 +195,10 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             StateManager.Notify.StateChanging(this, newState);
 
+            if (!acceptChanges && newState == EntityState.Unchanged && oldState == EntityState.Modified)
+            {
+                ResetToOriginalValue();
+            }
             _stateData.EntityState = newState;
 
             if (oldState == EntityState.Unknown)
@@ -219,7 +223,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             StateManager.Notify.StateChanged(this, oldState);
         }
-
+        
         public virtual EntityState EntityState => _stateData.EntityState;
 
         public virtual bool IsPropertyModified([NotNull] IProperty property)
@@ -439,7 +443,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             {
                 TryGetSidecar(Sidecar.WellKnownNames.OriginalValues)?.UpdateSnapshot();
 
-                SetEntityState(EntityState.Unchanged);
+                SetEntityState(EntityState.Unchanged, true);
             }
             else if (currentState == EntityState.Deleted)
             {
@@ -481,6 +485,25 @@ namespace Microsoft.Data.Entity.ChangeTracking
                     {
                         sidecar.Rollback();
                     }
+                }
+            }
+        }
+
+        public virtual void ResetToOriginalValue()
+        {
+            var entityType = EntityType;
+            var originalValues = TryGetSidecar(Sidecar.WellKnownNames.OriginalValues);
+
+            if (originalValues == null)
+            {
+                return;
+            }
+
+            foreach (var property in entityType.Properties)
+            {
+                if (!Equals(this[property], originalValues[property]))
+                {
+                    this[property] = originalValues[property];
                 }
             }
         }

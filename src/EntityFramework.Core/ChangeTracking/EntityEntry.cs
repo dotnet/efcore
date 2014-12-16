@@ -38,7 +38,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
             Check.IsDefined(entityState, "entityState");
 
-            return StateEntry.SetEntityStateAsync(entityState, cancellationToken);
+            return StateEntry.SetEntityStateAsync(entityState, false, cancellationToken);
         }
 
         public virtual StateEntry StateEntry { get; }

@@ -93,7 +93,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.False(entry.IsPropertyModified(keyProperty));
             Assert.True(entry.IsPropertyModified(nonKeyProperty));
 
-            entry.SetEntityState(EntityState.Unchanged);
+            entry.SetEntityState(EntityState.Unchanged, true);
 
             Assert.False(entry.IsPropertyModified(keyProperty));
             Assert.False(entry.IsPropertyModified(nonKeyProperty));
@@ -125,7 +125,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.False(entry.IsPropertyModified(keyProperty));
             Assert.False(entry.IsPropertyModified(nonKeyProperty));
 
-            entry.SetEntityState(EntityState.Unchanged);
+            entry.SetEntityState(EntityState.Unchanged, true);
 
             Assert.False(entry.IsPropertyModified(keyProperty));
             Assert.False(entry.IsPropertyModified(nonKeyProperty));
