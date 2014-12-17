@@ -1,5 +1,6 @@
 {
     "dependencies": {
+        "K.Roslyn": "1.0.0-*",
         "Microsoft.Framework.Runtime.Roslyn": "1.0.0-*",
         "EntityFramework.Commands": "7.0.0-*",
         "Moq": "4.2.1312.1622",
