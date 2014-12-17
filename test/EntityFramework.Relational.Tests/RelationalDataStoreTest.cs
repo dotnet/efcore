@@ -40,7 +40,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
 
             await relationalDataStore.SaveChangesAsync(stateEntries, cancellationToken);
 
-            commandBatchPreparerMock.Verify(c => c.BatchCommands(stateEntries));
+            commandBatchPreparerMock.Verify(c => c.BatchCommands(stateEntries, relationalDataStore.DbContextOptions));
             batchExecutorMock.Verify(be => be.ExecuteAsync(It.IsAny<IEnumerable<ModificationCommandBatch>>(), relationalConnectionMock.Object, cancellationToken));
         }
 
@@ -65,7 +65,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
 
             relationalDataStore.SaveChanges(stateEntries);
 
-            commandBatchPreparerMock.Verify(c => c.BatchCommands(stateEntries));
+            commandBatchPreparerMock.Verify(c => c.BatchCommands(stateEntries, relationalDataStore.DbContextOptions));
             batchExecutorMock.Verify(be => be.Execute(It.IsAny<IEnumerable<ModificationCommandBatch>>(), relationalConnectionMock.Object));
         }
 
@@ -81,9 +81,10 @@ namespace Microsoft.Data.Entity.Relational.Tests
                 RelationalConnection connection,
                 CommandBatchPreparer batchPreparer,
                 BatchExecutor batchExecutor,
+                DbContextService<IDbContextOptions> options,
                 ILoggerFactory loggerFactory)
                 : base(stateManager, model, entityKeyFactorySource, entityMaterializerSource,
-                    collectionAccessorSource, propertySetterSource, connection, batchPreparer, batchExecutor, loggerFactory)
+                    collectionAccessorSource, propertySetterSource, connection, batchPreparer, batchExecutor, options, loggerFactory)
             {
             }
         }

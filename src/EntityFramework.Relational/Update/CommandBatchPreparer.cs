@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Utilities;
@@ -41,7 +42,7 @@ namespace Microsoft.Data.Entity.Relational.Update
             _modificationCommandComparer = modificationCommandComparer;
         }
 
-        public virtual IEnumerable<ModificationCommandBatch> BatchCommands([NotNull] IReadOnlyList<StateEntry> stateEntries)
+        public virtual IEnumerable<ModificationCommandBatch> BatchCommands([NotNull] IReadOnlyList<StateEntry> stateEntries, [NotNull] IDbContextOptions options)
         {
             Check.NotNull(stateEntries, "stateEntries");
 
@@ -53,13 +54,13 @@ namespace Microsoft.Data.Entity.Relational.Update
             {
                 independentCommandSet.Sort(_modificationCommandComparer);
 
-                var batch = _modificationCommandBatchFactory.Create();
+                var batch = _modificationCommandBatchFactory.Create(options);
                 foreach (var modificationCommand in independentCommandSet)
                 {
                     if (!_modificationCommandBatchFactory.AddCommand(batch, modificationCommand))
                     {
                         yield return batch;
-                        batch = _modificationCommandBatchFactory.Create();
+                        batch = _modificationCommandBatchFactory.Create(options);
                         _modificationCommandBatchFactory.AddCommand(batch, modificationCommand);
                     }
                 }

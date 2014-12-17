@@ -1,6 +1,8 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Relational.Update;
@@ -16,9 +18,10 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         {
             var factory = new TestModificationCommandBatchFactory(
                 new Mock<SqlGenerator>().Object);
+            var options = new Mock<IDbContextOptions>().Object;
 
-            var firstBatch = factory.Create();
-            var secondBatch = factory.Create();
+            var firstBatch = factory.Create(options);
+            var secondBatch = factory.Create(options);
 
             Assert.NotNull(firstBatch);
             Assert.NotNull(secondBatch);
@@ -46,7 +49,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             {
             }
 
-            public override ModificationCommandBatch Create()
+            public override ModificationCommandBatch Create([NotNull] IDbContextOptions options)
             {
                 return new TestModificationCommandBatch(SqlGenerator);
             }

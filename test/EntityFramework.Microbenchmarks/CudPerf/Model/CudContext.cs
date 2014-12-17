@@ -12,8 +12,8 @@ namespace EntityFramework.Microbenchmarks.CudPerf.Model
     {
         private readonly string _connectionString;
 
-        public CudContext(string connectionString, IServiceProvider serviceProvider, DbContextOptions options)
-            : base(serviceProvider, options)
+        public CudContext(string connectionString, IServiceProvider serviceProvider)
+            : base(serviceProvider)
         {
             _connectionString = connectionString;
         }

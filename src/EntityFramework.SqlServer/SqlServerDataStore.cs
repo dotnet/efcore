@@ -38,9 +38,10 @@ namespace Microsoft.Data.Entity.SqlServer
             [NotNull] SqlServerConnection connection,
             [NotNull] SqlServerCommandBatchPreparer batchPreparer,
             [NotNull] SqlServerBatchExecutor batchExecutor,
+            [NotNull] DbContextService<IDbContextOptions> options,
             [NotNull] ILoggerFactory loggerFactory)
             : base(stateManager, model, entityKeyFactorySource, entityMaterializerSource,
-                collectionAccessorSource, propertySetterSource, connection, batchPreparer, batchExecutor, loggerFactory)
+                collectionAccessorSource, propertySetterSource, connection, batchPreparer, batchExecutor, options, loggerFactory)
         {
         }
 

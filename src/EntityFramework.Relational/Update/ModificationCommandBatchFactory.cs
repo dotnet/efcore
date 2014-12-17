@@ -3,6 +3,7 @@
 
 using System;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational.Update
@@ -33,7 +34,7 @@ namespace Microsoft.Data.Entity.Relational.Update
             get { return _sqlGenerator; }
         }
 
-        public abstract ModificationCommandBatch Create();
+        public abstract ModificationCommandBatch Create([NotNull] IDbContextOptions options);
 
         public virtual bool AddCommand(
             [NotNull] ModificationCommandBatch modificationCommandBatch,

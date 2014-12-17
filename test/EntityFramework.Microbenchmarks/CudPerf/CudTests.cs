@@ -24,15 +24,13 @@ namespace EntityFramework.Microbenchmarks.CudPerf
         public static IServiceProvider CreateServiceProvider(Configuration configuration)
         {
             var services = new ServiceCollection();
-            services.AddEntityFramework().AddSqlServer();
-            services.AddInstance<IConfiguration>(configuration);
+            services.AddEntityFramework(configuration).AddDbContext<CudContext>().AddSqlServer();
             return services.BuildServiceProvider();
         }
 
         public static CudContext CreateContext(string connectionString)
         {
-            var options = new DbContextOptions();
-            return new CudContext(connectionString, _serviceProvider, options);
+            return new CudContext(connectionString, _serviceProvider);
         }
 
         public void Setup()

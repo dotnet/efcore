@@ -102,9 +102,10 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 SqlServerConnection connection,
                 SqlServerCommandBatchPreparer batchPreparer,
                 SqlServerBatchExecutor batchExecutor,
+                DbContextService<IDbContextOptions> options,
                 ILoggerFactory loggerFactory)
                 : base(stateManager, model, entityKeyFactorySource, entityMaterializerSource,
-                    collectionAccessorSource, propertySetterSource, connection, batchPreparer, batchExecutor, loggerFactory)
+                    collectionAccessorSource, propertySetterSource, connection, batchPreparer, batchExecutor, options, loggerFactory)
             {
             }
 

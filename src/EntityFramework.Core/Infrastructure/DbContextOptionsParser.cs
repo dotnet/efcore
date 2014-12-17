@@ -37,10 +37,10 @@ namespace Microsoft.Data.Entity.Infrastructure
             var options = currentOptions.ToDictionary(i => i.Key, i => i.Value, StringComparer.OrdinalIgnoreCase);
 
             ReadRawOptions(options, configuration, string.Concat(
-                EntityFrameworkKey, Constants.KeyDelimiter, contextType.Name));
+                EntityFrameworkKey, Constants.KeyDelimiter, contextType.Name), string.Empty);
 
             ReadRawOptions(options, configuration, string.Concat(
-                EntityFrameworkKey, Constants.KeyDelimiter, contextType.FullName));
+                EntityFrameworkKey, Constants.KeyDelimiter, contextType.FullName), string.Empty);
 
             return options;
         }
@@ -48,24 +48,28 @@ namespace Microsoft.Data.Entity.Infrastructure
         private static void ReadRawOptions(
             Dictionary<string, string> options,
             IConfiguration configuration,
-            string contextKey)
+            string contextKey,
+            string keyPrefix)
         {
             foreach (var pair in configuration.GetSubKeys(contextKey))
             {
                 string value;
+                var key = pair.Key;
                 if (!pair.Value.TryGet(null, out value))
                 {
+                    ReadRawOptions(options, configuration,
+                        string.Concat(contextKey, Constants.KeyDelimiter, key),
+                        string.Concat(keyPrefix, key, Constants.KeyDelimiter));
                     continue;
                 }
 
-                var key = pair.Key;
                 if (key.EndsWith(KeySuffix, StringComparison.Ordinal)
                     && configuration.TryGet(value, out value))
                 {
                     key = key.Substring(0, key.Length - KeySuffix.Length);
                 }
 
-                options[key] = value;
+                options[string.Concat(keyPrefix, key)] = value;
             }
         }
     }

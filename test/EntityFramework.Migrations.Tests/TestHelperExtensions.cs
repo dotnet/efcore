@@ -112,7 +112,7 @@ namespace Microsoft.Data.Entity.Tests
     }
 
     public class FakeMigrationOperationProcessor : MigrationOperationProcessor
-    {     
+    {
     }
 
     public class FakeModelDiffer : ModelDiffer
@@ -509,9 +509,10 @@ namespace Microsoft.Data.Entity.Tests
             FakeRelationalConnection connection,
             FakeCommandBatchPreparer batchPreparer,
             BatchExecutor batchExecutor,
+            DbContextService<IDbContextOptions> options,
             ILoggerFactory loggerFactory)
             : base(stateManager, model, entityKeyFactorySource, entityMaterializerSource,
-                collectionAccessorSource, propertySetterSource, connection, batchPreparer, batchExecutor, loggerFactory)
+                collectionAccessorSource, propertySetterSource, connection, batchPreparer, batchExecutor, options, loggerFactory)
         {
         }
     }

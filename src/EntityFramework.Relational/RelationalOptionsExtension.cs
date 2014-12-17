@@ -51,8 +51,6 @@ namespace Microsoft.Data.Entity.Relational
             {
                 rawOptions.TryGetValue(ConnectionStringKey, out _connectionString);
             }
-
-            // TODO: Read other options.
         }
 
         public static RelationalOptionsExtension Extract([NotNull] IDbContextOptions options)

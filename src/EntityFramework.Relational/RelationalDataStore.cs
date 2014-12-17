@@ -25,6 +25,7 @@ namespace Microsoft.Data.Entity.Relational
         private readonly CommandBatchPreparer _batchPreparer;
         private readonly BatchExecutor _batchExecutor;
         private readonly RelationalConnection _connection;
+        private readonly IDbContextOptions _options;
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
@@ -45,6 +46,7 @@ namespace Microsoft.Data.Entity.Relational
             [NotNull] RelationalConnection connection,
             [NotNull] CommandBatchPreparer batchPreparer,
             [NotNull] BatchExecutor batchExecutor,
+            [NotNull] DbContextService<IDbContextOptions> options,
             [NotNull] ILoggerFactory loggerFactory)
             : base(stateManager, model, entityKeyFactorySource, entityMaterializerSource,
                 collectionAccessorSource, propertySetterSource, loggerFactory)
@@ -52,10 +54,12 @@ namespace Microsoft.Data.Entity.Relational
             Check.NotNull(connection, "connection");
             Check.NotNull(batchPreparer, "batchPreparer");
             Check.NotNull(batchExecutor, "batchExecutor");
+            Check.NotNull(options, "options");
 
             _batchPreparer = batchPreparer;
             _batchExecutor = batchExecutor;
             _connection = connection;
+            _options = options.Service;
         }
 
         protected virtual RelationalValueReaderFactory ValueReaderFactory
@@ -63,12 +67,17 @@ namespace Microsoft.Data.Entity.Relational
             get { return new RelationalTypedValueReaderFactory(); }
         }
 
+        public virtual IDbContextOptions DbContextOptions
+        {
+            get { return _options; }
+        }
+
         public override int SaveChanges(
             IReadOnlyList<StateEntry> stateEntries)
         {
             Check.NotNull(stateEntries, "stateEntries");
 
-            var commandBatches = _batchPreparer.BatchCommands(stateEntries);
+            var commandBatches = _batchPreparer.BatchCommands(stateEntries, _options);
 
             return _batchExecutor.Execute(commandBatches, _connection);
         }
@@ -79,7 +88,7 @@ namespace Microsoft.Data.Entity.Relational
         {
             Check.NotNull(stateEntries, "stateEntries");
 
-            var commandBatches = _batchPreparer.BatchCommands(stateEntries);
+            var commandBatches = _batchPreparer.BatchCommands(stateEntries, _options);
 
             return _batchExecutor.ExecuteAsync(commandBatches, _connection, cancellationToken);
         }
@@ -132,9 +141,9 @@ namespace Microsoft.Data.Entity.Relational
                     CreateQueryBuffer(),
                     _connection,
                     ValueReaderFactory)
-                    {
-                        CancellationToken = cancellationToken
-                    };
+                {
+                    CancellationToken = cancellationToken
+                };
 
             return queryExecutor(queryContext);
         }
