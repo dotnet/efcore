@@ -7,7 +7,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
 {
-    public class ClrPropertySetter<TEntity, TValue> : IClrPropertySetter
+    public class ClrPropertySetter<TEntity, TValue> : IClrPropertySetter where TEntity : class
     {
         private readonly Action<TEntity, TValue> _setter;
 

@@ -5,7 +5,7 @@ namespace Microsoft.Data.Entity.Internal
     using System.Globalization;
     using System.Reflection;
     using System.Resources;
-	using JetBrains.Annotations;
+    using JetBrains.Annotations;
 
     public static class Strings
     {
@@ -138,6 +138,14 @@ namespace Microsoft.Data.Entity.Internal
         public static string CollectionArgumentIsEmpty([CanBeNull] object argumentName)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("CollectionArgumentIsEmpty", "argumentName"), argumentName);
+        }
+
+        /// <summary>
+        /// The entity type '{type}' provided for the argument '{argumentName}' must be a reference type.
+        /// </summary>
+        public static string InvalidEntityType([CanBeNull] object argumentName, [CanBeNull] object type)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("InvalidEntityType", "type", "argumentName"), type, argumentName);
         }
 
         /// <summary>

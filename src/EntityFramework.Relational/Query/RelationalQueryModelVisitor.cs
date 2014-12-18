@@ -165,6 +165,7 @@ namespace Microsoft.Data.Entity.Relational.Query
             INavigation navigation,
             DbDataReader dataReader,
             int readerOffset)
+            where TEntity : class
         {
             var valueReader
                 = ((RelationalQueryContext)queryContext).ValueReaderFactory
@@ -704,6 +705,7 @@ namespace Microsoft.Data.Entity.Relational.Query
             int readerOffset,
             IEntityType entityType,
             bool queryStateManager)
+            where TEntity : class
         {
             var valueReader
                 = ((RelationalQueryContext)queryContext).ValueReaderFactory

@@ -100,9 +100,9 @@ namespace Microsoft.Data.Entity.Metadata
             OnEntityTypeAdded(entityBuilder);
         }
 
-        public virtual EntityBuilder<T> Entity<T>()
+        public virtual EntityBuilder<TEntity> Entity<TEntity>() where TEntity : class
         {
-            return new EntityBuilder<T>(Builder.Entity(typeof(T), ConfigurationSource.Explicit));
+            return new EntityBuilder<TEntity>(Builder.Entity(typeof(TEntity), ConfigurationSource.Explicit));
         }
 
         public virtual EntityBuilder Entity([NotNull] Type entityType)
@@ -119,11 +119,11 @@ namespace Microsoft.Data.Entity.Metadata
             return new EntityBuilder(Builder.Entity(name, ConfigurationSource.Explicit));
         }
 
-        public virtual ModelBuilder Entity<T>([NotNull] Action<EntityBuilder<T>> entityBuilder)
+        public virtual ModelBuilder Entity<TEntity>([NotNull] Action<EntityBuilder<TEntity>> entityBuilder) where TEntity : class
         {
             Check.NotNull(entityBuilder, "entityBuilder");
 
-            entityBuilder(Entity<T>());
+            entityBuilder(Entity<TEntity>());
 
             return this;
         }
@@ -148,9 +148,9 @@ namespace Microsoft.Data.Entity.Metadata
             return this;
         }
 
-        public virtual void Ignore<T>()
+        public virtual void Ignore<TEntity>() where TEntity : class
         {
-            Ignore(typeof(T));
+            Ignore(typeof(TEntity));
         }
 
         public virtual void Ignore([NotNull] Type entityType)
@@ -742,7 +742,7 @@ namespace Microsoft.Data.Entity.Metadata
             }
         }
 
-        public class EntityBuilder<TEntity> : EntityBuilder, IEntityBuilder<TEntity, EntityBuilder<TEntity>>
+        public class EntityBuilder<TEntity> : EntityBuilder, IEntityBuilder<TEntity, EntityBuilder<TEntity>> where TEntity : class
         {
             public EntityBuilder([NotNull] InternalEntityBuilder builder)
                 : base(builder)

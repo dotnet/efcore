@@ -47,6 +47,6 @@ namespace Microsoft.Data.Entity.Metadata
             return (TAccessor)boundMethod.Invoke(this, new object[] { property });
         }
 
-        protected abstract TAccessor CreateGeneric<TEntity, TValue>([NotNull] PropertyInfo property);
+        protected abstract TAccessor CreateGeneric<TEntity, TValue>([NotNull] PropertyInfo property) where TEntity : class;
     }
 }

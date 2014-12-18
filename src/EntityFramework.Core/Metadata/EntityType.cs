@@ -47,6 +47,7 @@ namespace Microsoft.Data.Entity.Metadata
         public EntityType([NotNull] Type type, [NotNull] Model model)
         {
             Check.NotNull(type, "type");
+            Check.ValidEntityType(type, "type");
 
             Model = model;
             _typeOrName = type;

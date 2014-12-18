@@ -8,7 +8,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.ChangeTracking
 {
-    public class EntityEntry<TEntity> : EntityEntry
+    public class EntityEntry<TEntity> : EntityEntry where TEntity : class
     {
         public EntityEntry([NotNull] DbContext context, [NotNull] StateEntry stateEntry)
             : base(context, stateEntry)

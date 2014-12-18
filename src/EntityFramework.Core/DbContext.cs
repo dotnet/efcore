@@ -250,7 +250,7 @@ namespace Microsoft.Data.Entity
             }
         }
 
-        public virtual EntityEntry<TEntity> Entry<TEntity>([NotNull] TEntity entity)
+        public virtual EntityEntry<TEntity> Entry<TEntity>([NotNull] TEntity entity) where TEntity : class
         {
             Check.NotNull(entity, "entity");
 
@@ -264,7 +264,7 @@ namespace Microsoft.Data.Entity
             return new EntityEntry(this, GetStateManager().GetOrCreateEntry(entity));
         }
 
-        public virtual EntityEntry<TEntity> Add<TEntity>([NotNull] TEntity entity)
+        public virtual EntityEntry<TEntity> Add<TEntity>([NotNull] TEntity entity) where TEntity : class
         {
             Check.NotNull(entity, "entity");
 
@@ -273,6 +273,7 @@ namespace Microsoft.Data.Entity
 
         public virtual async Task<EntityEntry<TEntity>> AddAsync<TEntity>(
             [NotNull] TEntity entity, CancellationToken cancellationToken = default(CancellationToken))
+            where TEntity : class
         {
             Check.NotNull(entity, "entity");
 
@@ -285,21 +286,21 @@ namespace Microsoft.Data.Entity
             return entry;
         }
 
-        public virtual EntityEntry<TEntity> Attach<TEntity>([NotNull] TEntity entity)
+        public virtual EntityEntry<TEntity> Attach<TEntity>([NotNull] TEntity entity) where TEntity : class
         {
             Check.NotNull(entity, "entity");
 
             return SetEntityState(entity, EntityState.Unchanged);
         }
 
-        public virtual EntityEntry<TEntity> Update<TEntity>([NotNull] TEntity entity)
+        public virtual EntityEntry<TEntity> Update<TEntity>([NotNull] TEntity entity) where TEntity : class
         {
             Check.NotNull(entity, "entity");
 
             return SetEntityState(entity, EntityState.Modified);
         }
 
-        public virtual EntityEntry<TEntity> Remove<TEntity>([NotNull] TEntity entity)
+        public virtual EntityEntry<TEntity> Remove<TEntity>([NotNull] TEntity entity) where TEntity : class
         {
             Check.NotNull(entity, "entity");
 
@@ -311,7 +312,7 @@ namespace Microsoft.Data.Entity
                     : EntityState.Deleted);
         }
 
-        private EntityEntry<TEntity> SetEntityState<TEntity>(TEntity entity, EntityState entityState)
+        private EntityEntry<TEntity> SetEntityState<TEntity>(TEntity entity, EntityState entityState) where TEntity : class
         {
             var entry = Entry(entity);
 
@@ -376,14 +377,14 @@ namespace Microsoft.Data.Entity
             return entry;
         }
 
-        public virtual IReadOnlyList<EntityEntry<TEntity>> Add<TEntity>([NotNull] params TEntity[] entities)
+        public virtual IReadOnlyList<EntityEntry<TEntity>> Add<TEntity>([NotNull] params TEntity[] entities) where TEntity : class
         {
             Check.NotNull(entities, "entities");
 
             return SetEntityStates(entities, EntityState.Added);
         }
 
-        public virtual Task<IReadOnlyList<EntityEntry<TEntity>>> AddAsync<TEntity>([NotNull] params TEntity[] entities)
+        public virtual Task<IReadOnlyList<EntityEntry<TEntity>>> AddAsync<TEntity>([NotNull] params TEntity[] entities) where TEntity : class
         {
             Check.NotNull(entities, "entities");
 
@@ -393,6 +394,7 @@ namespace Microsoft.Data.Entity
         public virtual async Task<IReadOnlyList<EntityEntry<TEntity>>> AddAsync<TEntity>(
             [NotNull] TEntity[] entities,
             CancellationToken cancellationToken)
+             where TEntity : class
         {
             Check.NotNull(entities, "entities");
 
@@ -408,21 +410,21 @@ namespace Microsoft.Data.Entity
             return entries;
         }
 
-        public virtual IReadOnlyList<EntityEntry<TEntity>> Attach<TEntity>([NotNull] params TEntity[] entities)
+        public virtual IReadOnlyList<EntityEntry<TEntity>> Attach<TEntity>([NotNull] params TEntity[] entities) where TEntity : class
         {
             Check.NotNull(entities, "entities");
 
             return SetEntityStates(entities, EntityState.Unchanged);
         }
 
-        public virtual IReadOnlyList<EntityEntry<TEntity>> Update<TEntity>([NotNull] params TEntity[] entities)
+        public virtual IReadOnlyList<EntityEntry<TEntity>> Update<TEntity>([NotNull] params TEntity[] entities) where TEntity : class
         {
             Check.NotNull(entities, "entities");
 
             return SetEntityStates(entities, EntityState.Modified);
         }
 
-        public virtual IReadOnlyList<EntityEntry<TEntity>> Remove<TEntity>([NotNull] params TEntity[] entities)
+        public virtual IReadOnlyList<EntityEntry<TEntity>> Remove<TEntity>([NotNull] params TEntity[] entities) where TEntity : class
         {
             Check.NotNull(entities, "entities");
 
@@ -441,7 +443,7 @@ namespace Microsoft.Data.Entity
             return entries;
         }
 
-        private List<EntityEntry<TEntity>> SetEntityStates<TEntity>(TEntity[] entities, EntityState entityState)
+        private List<EntityEntry<TEntity>> SetEntityStates<TEntity>(TEntity[] entities, EntityState entityState) where TEntity : class
         {
             var entries = GetOrCreateEntries(entities);
 
@@ -453,7 +455,7 @@ namespace Microsoft.Data.Entity
             return entries;
         }
 
-        private List<EntityEntry<TEntity>> GetOrCreateEntries<TEntity>(IEnumerable<TEntity> entities)
+        private List<EntityEntry<TEntity>> GetOrCreateEntries<TEntity>(IEnumerable<TEntity> entities) where TEntity : class
         {
             var stateManager = GetStateManager();
 

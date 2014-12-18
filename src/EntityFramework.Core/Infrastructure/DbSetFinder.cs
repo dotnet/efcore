@@ -50,6 +50,7 @@ namespace Microsoft.Data.Entity.Infrastructure
                 Check.NotNull(contextType, "contextType");
                 Check.NotNull(name, "name");
                 Check.NotNull(entityType, "entityType");
+                Check.ValidEntityType(entityType, "entityType");
 
                 _contextType = contextType;
                 _name = name;

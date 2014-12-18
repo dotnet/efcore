@@ -130,7 +130,7 @@ namespace Microsoft.Data.Entity.Tests
             return ((IDbContextServices)CreateContext(customServices)).ScopedServiceProvider;
         }
 
-        public static Model BuildModelFor<TEntity>()
+        public static Model BuildModelFor<TEntity>() where TEntity : class
         {
             var builder = new ModelBuilder();
             builder.Entity<TEntity>();

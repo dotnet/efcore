@@ -4,6 +4,7 @@
 namespace Microsoft.Data.Entity.Metadata
 {
     public interface IEntityBuilder<TEntity, out TMetadataBuilder> : IEntityBuilder<TMetadataBuilder>
+        where TEntity : class
         where TMetadataBuilder : IMetadataBuilder<EntityType, TMetadataBuilder>
     {
     }

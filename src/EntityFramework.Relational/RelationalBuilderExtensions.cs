@@ -58,6 +58,7 @@ namespace Microsoft.Data.Entity
 
         public static RelationalEntityBuilder ForRelational<TEntity, TEntityBuilder>(
             [NotNull] this IEntityBuilder<TEntity, TEntityBuilder> entityBuilder)
+            where TEntity : class
             where TEntityBuilder : IEntityBuilder<TEntity, TEntityBuilder>
         {
             Check.NotNull(entityBuilder, "entityBuilder");
@@ -68,6 +69,7 @@ namespace Microsoft.Data.Entity
         public static TEntityBuilder ForRelational<TEntity, TEntityBuilder>(
             [NotNull] this IEntityBuilder<TEntity, TEntityBuilder> entityBuilder,
             [NotNull] Action<RelationalEntityBuilder> relationalEntityBuilder)
+            where TEntity : class
             where TEntityBuilder : IEntityBuilder<TEntity, TEntityBuilder>
         {
             Check.NotNull(entityBuilder, "entityBuilder");

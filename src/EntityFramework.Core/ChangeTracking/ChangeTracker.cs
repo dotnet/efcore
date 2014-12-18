@@ -54,7 +54,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             return StateManager.StateEntries.Select(e => new EntityEntry(_context.Service, e));
         }
 
-        public virtual IEnumerable<EntityEntry<TEntity>> Entries<TEntity>()
+        public virtual IEnumerable<EntityEntry<TEntity>> Entries<TEntity>() where TEntity : class
         {
             return StateManager.StateEntries
                 .Where(e => e.Entity is TEntity)

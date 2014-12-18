@@ -89,6 +89,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         // ReSharper disable once UnusedMember.Local
         private IClrCollectionAccessor CreateGeneric<TEntity, TCollection, TElement>(PropertyInfo property)
+            where TEntity : class
             where TCollection : class, ICollection<TElement>
         {
             var getterDelegate = (Func<TEntity, TCollection>)property.GetMethod.CreateDelegate(typeof(Func<TEntity, TCollection>));
@@ -119,6 +120,7 @@ namespace Microsoft.Data.Entity.Metadata
         private static TCollection CreateAndSet<TEntity, TCollection, TConcreteCollection>(
             TEntity entity,
             Action<TEntity, TCollection> setterDelegate)
+            where TEntity : class
             where TCollection : class
             where TConcreteCollection : TCollection, new()
         {

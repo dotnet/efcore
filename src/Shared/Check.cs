@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
 
@@ -109,6 +110,17 @@ namespace Microsoft.Data.Entity.Utilities
             {
                 NotEmpty(parameterName, "parameterName");
                 throw new ArgumentException(Strings.InvalidEnumValue(parameterName, typeof(T)));
+            }
+
+            return value;
+        }
+
+        public static Type ValidEntityType(Type value, [InvokerParameterName][NotNull] string parameterName)
+        {
+            if (!value.GetTypeInfo().IsClass)
+            {
+                NotEmpty(parameterName, "parameterName");
+                throw new ArgumentException(Strings.InvalidEntityType(parameterName, value));
             }
 
             return value;

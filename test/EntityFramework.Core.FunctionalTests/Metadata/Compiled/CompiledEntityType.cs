@@ -8,7 +8,7 @@ using System.Threading;
 
 namespace Microsoft.Data.Entity.Metadata.Compiled
 {
-    public abstract class CompiledEntityType<TEntity> : CompiledMetadataBase
+    public abstract class CompiledEntityType<TEntity> : CompiledMetadataBase where TEntity : class
     {
         private readonly IModel _model;
         private IKey _key;

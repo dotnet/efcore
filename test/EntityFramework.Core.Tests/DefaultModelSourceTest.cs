@@ -37,14 +37,13 @@ namespace Microsoft.Data.Entity.Tests
                     {
                         new DbSetFinder.DbSetProperty(typeof(JustAClass), "One", typeof(Random), hasSetter: true),
                         new DbSetFinder.DbSetProperty(typeof(JustAClass), "Two", typeof(object), hasSetter: true),
-                        new DbSetFinder.DbSetProperty(typeof(JustAClass), "Three", typeof(string), hasSetter: true),
-                        new DbSetFinder.DbSetProperty(typeof(JustAClass), "Four", typeof(string), hasSetter: true)
+                        new DbSetFinder.DbSetProperty(typeof(JustAClass), "Three", typeof(Random), hasSetter: true)
                     });
 
             var model = new DefaultModelSource(setFinderMock.Object).GetModel(new Mock<DbContext>().Object, new ModelBuilderFactory());
 
             Assert.Equal(
-                new[] { typeof(object).FullName, typeof(Random).FullName, typeof(string).FullName },
+                new[] { typeof(object).FullName, typeof(Random).FullName },
                 model.EntityTypes.Select(e => e.Name).ToArray());
         }
 

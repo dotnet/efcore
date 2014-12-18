@@ -10,6 +10,7 @@ using Microsoft.Data.Entity.Utilities;
 namespace Microsoft.Data.Entity.Metadata
 {
     public class ClrICollectionAccessor<TEntity, TCollection, TElement> : IClrCollectionAccessor
+        where TEntity : class
         where TCollection : class, ICollection<TElement>
     {
         private readonly string _propertyName;

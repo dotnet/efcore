@@ -836,6 +836,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         }
 
         public static TBuilder GenericEntityBuilderExtension<TEntity, TBuilder>(this IEntityBuilder<TEntity, TBuilder> builder, string value)
+            where TEntity : class
             where TBuilder : IEntityBuilder<TEntity, TBuilder>
         {
             builder.Annotation("Annotation", value + ".Annotation");
@@ -936,6 +937,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         }
 
         public static TBuilder SharedNameExtension<TEntity, TBuilder>(this IEntityBuilder<TEntity, TBuilder> builder, string value)
+            where TEntity : class
             where TBuilder : IEntityBuilder<TEntity, TBuilder>
         {
             builder.Annotation("Annotation", value + ".Annotation");

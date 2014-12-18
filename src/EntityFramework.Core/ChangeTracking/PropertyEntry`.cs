@@ -5,7 +5,7 @@ using JetBrains.Annotations;
 
 namespace Microsoft.Data.Entity.ChangeTracking
 {
-    public class PropertyEntry<TEntity, TProperty> : PropertyEntry
+    public class PropertyEntry<TEntity, TProperty> : PropertyEntry where TEntity : class
     {
         public PropertyEntry([NotNull] StateEntry stateEntry, [NotNull] string name)
             : base(stateEntry, name)

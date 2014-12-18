@@ -98,6 +98,7 @@ namespace Microsoft.Data.Entity.InMemory.Query
             IEntityType entityType,
             InMemoryDatabase.InMemoryTable inMemoryTable, 
             bool queryStateManager)
+            where TEntity : class
         {
             return inMemoryTable
                 .Select(t => (TEntity)queryContext.QueryBuffer

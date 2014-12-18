@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Utilities;
@@ -60,7 +61,7 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotNull(type, "type");
 
-            return TryGetEntityType(new EntityType(type, this));
+            return type.GetTypeInfo().IsClass ? TryGetEntityType(new EntityType(type, this)) : null;
         }
 
         [CanBeNull]

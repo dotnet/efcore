@@ -1303,6 +1303,7 @@ namespace System.Linq
         public static IQueryable<TEntity> Include<TEntity, TProperty>(
             [NotNull] this IQueryable<TEntity> source,
             [NotNull] Expression<Func<TEntity, TProperty>> navigationPropertyPath)
+            where TEntity : class
         {
             Check.NotNull(source, "source");
             Check.NotNull(navigationPropertyPath, "navigationPropertyPath");
@@ -1347,7 +1348,7 @@ namespace System.Linq
             = typeof(QueryableExtensions)
                 .GetTypeInfo().GetDeclaredMethod("AsNoTracking");
 
-        public static IQueryable<TEntity> AsNoTracking<TEntity>([NotNull] this IQueryable<TEntity> source)
+        public static IQueryable<TEntity> AsNoTracking<TEntity>([NotNull] this IQueryable<TEntity> source) where TEntity : class
         {
             Check.NotNull(source, "source");
 
