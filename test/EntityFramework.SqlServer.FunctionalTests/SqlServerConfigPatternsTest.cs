@@ -53,7 +53,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 using (await SqlServerNorthwindContext.GetSharedStoreAsync())
                 {
-                    var options = new DbContextOptions().UseSqlServer(SqlServerNorthwindContext.ConnectionString);
+                    var options = new DbContextOptions();
+                    options.UseSqlServer(SqlServerNorthwindContext.ConnectionString);
 
                     using (var context = new NorthwindContext(options))
                     {
@@ -134,7 +135,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                     var serviceProvider = serviceCollection.BuildServiceProvider();
 
-                    var options = new DbContextOptions().UseSqlServer(SqlServerNorthwindContext.ConnectionString);
+                    var options = new DbContextOptions();
+                    options.UseSqlServer(SqlServerNorthwindContext.ConnectionString);
 
                     using (var context = new NorthwindContext(serviceProvider, options))
                     {
@@ -342,7 +344,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             [Fact]
             public async Task Can_register_context_and_configuration_with_DI_container_and_have_both_injected()
             {
-                var options = new DbContextOptions().UseSqlServer(SqlServerNorthwindContext.ConnectionString);
+                var options = new DbContextOptions();
+                options.UseSqlServer(SqlServerNorthwindContext.ConnectionString);
 
                 var serviceCollection = new ServiceCollection();
                 serviceCollection
@@ -404,7 +407,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             [Fact]
             public async Task Can_register_configuration_with_DI_container_and_have_it_injected()
             {
-                var options = new DbContextOptions().UseSqlServer(SqlServerNorthwindContext.ConnectionString);
+                var options = new DbContextOptions();
+                options.UseSqlServer(SqlServerNorthwindContext.ConnectionString);
 
                 var serviceCollection = new ServiceCollection();
                 serviceCollection
@@ -460,11 +464,14 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         public class ConstructorArgsToBuilder
         {
             [Fact]
-            public async Task Can_pass_connection_string_to_constructor_and_use_in_builder()
+            public async Task Can_pass_context_options_to_constructor_and_use_in_builder()
             {
                 using (await SqlServerNorthwindContext.GetSharedStoreAsync())
                 {
-                    using (var context = new NorthwindContext(SqlServerNorthwindContext.ConnectionString))
+                    var options = new DbContextOptions();
+                    options.UseSqlServer(SqlServerNorthwindContext.ConnectionString);
+
+                    using (var context = new NorthwindContext(options))
                     {
                         Assert.Equal(91, await context.Customers.CountAsync());
                     }
@@ -473,8 +480,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             private class NorthwindContext : DbContext
             {
-                public NorthwindContext(string connectionString)
-                    : base(new DbContextOptions().UseSqlServer(connectionString))
+                public NorthwindContext(DbContextOptions options)
+                    : base(options)
                 {
                 }
 

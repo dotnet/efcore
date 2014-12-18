@@ -24,10 +24,9 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
             var model = CreateModel();
 
-            _options
-                = new DbContextOptions()
-                    .UseModel(model)
-                    .UseInMemoryStore();
+            _options = new DbContextOptions()
+                .UseModel(model);
+            _options.UseInMemoryStore();
 
             using (var context = new DbContext(_serviceProvider, _options))
             {

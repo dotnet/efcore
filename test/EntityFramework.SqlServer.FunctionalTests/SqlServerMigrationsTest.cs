@@ -38,9 +38,12 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     .ServiceCollection
                     .BuildServiceProvider();
 
+            var options =new DbContextOptions();
+            options.UseSqlServer(testStore.Connection.ConnectionString);
+
             return new BloggingContext(
                 serviceProvider,
-                new DbContextOptions().UseSqlServer(testStore.Connection.ConnectionString));
+                options);
         }
 
         private class BloggingContext : DbContext

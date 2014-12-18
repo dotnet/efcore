@@ -25,8 +25,8 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 .BuildServiceProvider();
 
             var options = new DbContextOptions()
-                .UseModel(model)
-                .UseInMemoryStore(persist: true);
+                .UseModel(model);
+            options.UseInMemoryStore(persist: true);
 
             var customer = new Customer { Id = 42, Name = "Theon" };
 

@@ -30,8 +30,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             _options
                 = new DbContextOptions()
-                    .UseModel(model)
-                    .UseSqlServer(database.Connection.ConnectionString);
+                    .UseModel(model);
+            _options.UseSqlServer(database.Connection.ConnectionString);
 
             using (var context = new DbContext(_serviceProvider, _options))
             {

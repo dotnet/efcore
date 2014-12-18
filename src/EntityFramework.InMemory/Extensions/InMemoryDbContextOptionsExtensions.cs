@@ -12,19 +12,17 @@ namespace Microsoft.Data.Entity
 {
     public static class InMemoryDbContextOptionsExtensions
     {
-        public static DbContextOptions UseInMemoryStore([NotNull] this DbContextOptions options, bool persist = true)
+        public static void UseInMemoryStore([NotNull] this DbContextOptions options, bool persist = true)
         {
             Check.NotNull(options, "options");
 
             ((IDbContextOptions)options)
                 .AddOrUpdateExtension<InMemoryOptionsExtension>(x => x.Persist = persist);
-
-            return options;
         }
 
-        public static DbContextOptions<T> UseInMemoryStore<T>([NotNull] this DbContextOptions<T> options, bool persist = true)
+        public static void UseInMemoryStore<T>([NotNull] this DbContextOptions<T> options, bool persist = true)
         {
-            return (DbContextOptions<T>)UseInMemoryStore((DbContextOptions)options, persist);
+            UseInMemoryStore((DbContextOptions)options, persist);
         }
     }
 }

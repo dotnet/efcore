@@ -30,8 +30,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         public override CrossStoreContext CreateContext(SqlServerTestStore testStore)
         {
-            var options = new DbContextOptions()
-                .UseSqlServer(testStore.Connection);
+            var options = new DbContextOptions();
+            options.UseSqlServer(testStore.Connection);
 
             var context = new CrossStoreContext(_serviceProvider, options);
             context.Database.EnsureCreated();

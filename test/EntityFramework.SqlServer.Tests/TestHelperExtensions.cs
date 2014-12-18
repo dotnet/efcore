@@ -15,7 +15,9 @@ namespace Microsoft.Data.Entity.Tests
 
         public static DbContextOptions UseProviderOptions(this DbContextOptions options)
         {
-            return options.UseSqlServer(new SqlConnection("Database=DummyDatabase"));
+            options.UseSqlServer(new SqlConnection("Database=DummyDatabase"));
+
+            return options;
         }
     }
 }

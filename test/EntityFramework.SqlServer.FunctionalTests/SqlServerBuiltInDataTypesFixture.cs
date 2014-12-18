@@ -30,8 +30,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         public override DbContext CreateContext(SqlServerTestStore testStore)
         {
-            var options = new DbContextOptions()
-                .UseSqlServer(testStore.Connection);
+            var options = new DbContextOptions();
+            options.UseSqlServer(testStore.Connection);
 
             var context = new DbContext(_serviceProvider, options);
             context.Database.EnsureCreated();

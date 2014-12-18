@@ -15,8 +15,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         public void Can_add_extension_with_connection_string()
         {
             var options = new DbContextOptions();
-
-            options = options.UseSqlServer("Database=Crunchie");
+            options.UseSqlServer("Database=Crunchie");
 
             var extension = ((IDbContextOptions)options).Extensions.OfType<SqlServerOptionsExtension>().Single();
 
@@ -28,8 +27,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         public void Can_add_extension_with_connection_string_using_generic_options()
         {
             var options = new DbContextOptions<DbContext>();
-
-            options = options.UseSqlServer("Database=Whisper");
+            options.UseSqlServer("Database=Whisper");
 
             var extension = ((IDbContextOptions)options).Extensions.OfType<SqlServerOptionsExtension>().Single();
 
@@ -43,7 +41,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var options = new DbContextOptions();
             var connection = new SqlConnection();
 
-            options = options.UseSqlServer(connection);
+            options.UseSqlServer(connection);
 
             var extension = ((IDbContextOptions)options).Extensions.OfType<SqlServerOptionsExtension>().Single();
 
@@ -57,7 +55,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var options = new DbContextOptions<DbContext>();
             var connection = new SqlConnection();
 
-            options = options.UseSqlServer(connection);
+            options.UseSqlServer(connection);
 
             var extension = ((IDbContextOptions)options).Extensions.OfType<SqlServerOptionsExtension>().Single();
 
@@ -71,7 +69,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var options = new DbContextOptions();
             ((IDbContextOptions)options).RawOptions = new Dictionary<string, string> { { "ConnectionString", "Database=Crunchie" } };
 
-            options = options.UseSqlServer();
+            options.UseSqlServer();
 
             var extension = ((IDbContextOptions)options).Extensions.OfType<SqlServerOptionsExtension>().Single();
 

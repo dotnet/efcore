@@ -23,9 +23,8 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                     .ServiceCollection
                     .BuildServiceProvider();
 
-            var options
-                = new DbContextOptions()
-                    .UseInMemoryStore(persist: true);
+            var options = new DbContextOptions();
+            options.UseInMemoryStore(persist: true);
 
             using (var db = new MusicStoreContext(serviceProvider, options))
             {

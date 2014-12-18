@@ -30,9 +30,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 .AddInstance<ILoggerFactory>(new TestSqlLoggerFactory())
                 .BuildServiceProvider();
 
-            _options
-                = new DbContextOptions()
-                    .UseSqlServer(_testStore.Connection.ConnectionString);
+            _options = new DbContextOptions();
+            _options.UseSqlServer(_testStore.Connection.ConnectionString);
         }
 
         public override NorthwindContext CreateContext()

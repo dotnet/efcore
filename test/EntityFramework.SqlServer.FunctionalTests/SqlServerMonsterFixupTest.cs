@@ -39,7 +39,10 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         protected override DbContextOptions CreateOptions(string databaseName)
         {
-            return new DbContextOptions().UseSqlServer(CreateConnectionString(databaseName));
+            var options = new DbContextOptions();
+            options.UseSqlServer(CreateConnectionString(databaseName));
+
+            return options;
         }
 
         private static string CreateConnectionString(string name)

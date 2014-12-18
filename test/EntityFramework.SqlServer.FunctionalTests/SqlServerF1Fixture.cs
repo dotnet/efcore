@@ -33,8 +33,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             return SqlServerTestStore.GetOrCreateSharedAsync(DatabaseName, async () =>
                 {
-                    var options = new DbContextOptions()
-                        .UseSqlServer(_connectionString);
+                    var options = new DbContextOptions();
+                    options.UseSqlServer(_connectionString);
 
                     using (var context = new F1Context(_serviceProvider, options))
                     {
@@ -48,9 +48,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         public override F1Context CreateContext(SqlServerTestStore testStore)
         {
-            var options
-                = new DbContextOptions()
-                    .UseSqlServer(testStore.Connection);
+            var options = new DbContextOptions();
+            options.UseSqlServer(testStore.Connection);
 
             var context = new F1Context(_serviceProvider, options);
             context.Database.AsRelational().Connection.UseTransaction(testStore.Transaction);

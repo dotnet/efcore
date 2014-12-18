@@ -140,8 +140,8 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         private static void FixupTest(IModel model)
         {
             var options = new DbContextOptions()
-                .UseModel(model)
-                .UseInMemoryStore(persist: false);
+                .UseModel(model);
+            options.UseInMemoryStore(persist: false);
 
             using (var context = new DbContext(options))
             {
@@ -192,8 +192,8 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         public void Navigation_fixup_happens_with_compiled_metadata_using_non_standard_collection_access()
         {
             var options = new DbContextOptions()
-                .UseModel(new _OneTwoThreeContextModel())
-                .UseInMemoryStore();
+                .UseModel(new _OneTwoThreeContextModel());
+            options.UseInMemoryStore();
 
             using (var context = new DbContext(options))
             {

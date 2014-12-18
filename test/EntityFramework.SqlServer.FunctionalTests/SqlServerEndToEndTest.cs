@@ -140,7 +140,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             using (var testDatabase = await SqlServerTestStore.CreateScratchAsync())
             {
-                var options = new DbContextOptions().UseSqlServer(testDatabase.Connection.ConnectionString);
+                var options = new DbContextOptions();
+                options.UseSqlServer(testDatabase.Connection.ConnectionString);
 
                 using (var db = new BloggingContext(_fixture.ServiceProvider, options))
                 {
@@ -221,7 +222,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             using (var testDatabase = await SqlServerTestStore.CreateScratchAsync())
             {
-                var options = new DbContextOptions().UseSqlServer(testDatabase.Connection.ConnectionString);
+                var options = new DbContextOptions();
+                options.UseSqlServer(testDatabase.Connection.ConnectionString);
 
                 int updatedId;
                 int deletedId;
@@ -400,7 +402,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             using (var testDatabase = await SqlServerTestStore.CreateScratchAsync())
             {
-                var options = new DbContextOptions().UseSqlServer(testDatabase.Connection.ConnectionString);
+                var options = new DbContextOptions();
+                options.UseSqlServer(testDatabase.Connection.ConnectionString);
 
                 int blog1Id;
                 int blog2Id;

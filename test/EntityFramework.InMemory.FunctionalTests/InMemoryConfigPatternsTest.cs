@@ -49,7 +49,8 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
         [Fact]
         public void Can_save_and_query_with_implicit_services_and_explicit_config()
         {
-            var options = new DbContextOptions().UseInMemoryStore();
+            var options = new DbContextOptions();
+            options.UseInMemoryStore();
 
             using (var context = new ImplicitServicesExplicitConfigBlogContext(options))
             {
@@ -130,7 +131,8 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             services.AddEntityFramework().AddInMemoryStore();
             var serviceProvider = services.BuildServiceProvider();
 
-            var options = new DbContextOptions().UseInMemoryStore();
+            var options = new DbContextOptions();
+            options.UseInMemoryStore();
 
             using (var context = new ExplicitServicesAndConfigBlogContext(serviceProvider, options))
             {
@@ -304,7 +306,8 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
         [Fact]
         public void Can_register_context_and_configuration_with_DI_container_and_have_both_injected()
         {
-            var options = new DbContextOptions().UseInMemoryStore();
+            var options = new DbContextOptions();
+            options.UseInMemoryStore();
 
             var services = new ServiceCollection();
             services.AddTransient<InjectContextAndConfigurationBlogContext>()
@@ -359,7 +362,8 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
         [Fact]
         public void Can_register_configuration_with_DI_container_and_have_it_injected()
         {
-            var options = new DbContextOptions().UseInMemoryStore(persist: false);
+            var options = new DbContextOptions();
+            options.UseInMemoryStore(persist: false);
 
             var services = new ServiceCollection();
             services.AddTransient<InjectConfigurationBlogContext>()
@@ -410,8 +414,11 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
         [Fact]
         public void Can_inject_different_configurations_into_different_contexts()
         {
-            var blogOptions = new DbContextOptions<InjectDifferentConfigurationsBlogContext>().UseInMemoryStore();
-            var accountOptions = new DbContextOptions<InjectDifferentConfigurationsAccountContext>().UseInMemoryStore();
+            var blogOptions = new DbContextOptions<InjectDifferentConfigurationsBlogContext>();
+            blogOptions.UseInMemoryStore();
+
+            var accountOptions = new DbContextOptions<InjectDifferentConfigurationsAccountContext>();
+            accountOptions.UseInMemoryStore();
 
             var services = new ServiceCollection();
             services.AddTransient<InjectDifferentConfigurationsBlogContext>()
@@ -508,8 +515,11 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
         [Fact]
         public void Can_inject_different_configurations_into_different_contexts_without_declaring_in_constructor()
         {
-            var blogOptions = new DbContextOptions<InjectDifferentConfigurationsNoConstructorBlogContext>().UseInMemoryStore();
-            var accountOptions = new DbContextOptions<InjectDifferentConfigurationsNoConstructorAccountContext>().UseInMemoryStore();
+            var blogOptions = new DbContextOptions<InjectDifferentConfigurationsNoConstructorBlogContext>();
+            blogOptions.UseInMemoryStore();
+
+            var accountOptions = new DbContextOptions<InjectDifferentConfigurationsNoConstructorAccountContext>();
+            accountOptions.UseInMemoryStore();
 
             var services = new ServiceCollection();
             services.AddTransient<InjectDifferentConfigurationsNoConstructorBlogContext>()

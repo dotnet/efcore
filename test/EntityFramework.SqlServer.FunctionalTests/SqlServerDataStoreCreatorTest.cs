@@ -227,7 +227,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                 var serviceProvider = serviceCollection.BuildServiceProvider();
 
-                var options = new DbContextOptions().UseSqlServer(testDatabase.Connection.ConnectionString);
+                var options = new DbContextOptions();
+                options.UseSqlServer(testDatabase.Connection.ConnectionString);
 
                 using (var context = new BloggingContext(serviceProvider, options))
                 {
@@ -373,9 +374,12 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 .AddEntityFramework()
                 .AddSqlServer();
 
+            var options = new DbContextOptions();
+            options.UseSqlServer(testStore.Connection.ConnectionString);
+
             return ((IDbContextServices)new DbContext(
                 serviceCollection.BuildServiceProvider(),
-                new DbContextOptions().UseSqlServer(testStore.Connection.ConnectionString)))
+                options))
                 .ScopedServiceProvider;
         }
 

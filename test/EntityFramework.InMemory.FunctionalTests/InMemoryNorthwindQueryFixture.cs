@@ -24,9 +24,8 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                     .AddTestModelSource(OnModelCreating)
                     .BuildServiceProvider();
 
-            _options
-                = new DbContextOptions()
-                    .UseInMemoryStore();
+            _options = new DbContextOptions();
+            _options.UseInMemoryStore();
 
             using (var context = CreateContext())
             {

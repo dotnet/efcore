@@ -234,10 +234,11 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
 
         private static IServiceProvider CreateContextServices(IModel model)
         {
-            return ((IDbContextServices)new DbContext(
-                new DbContextOptions()
-                    .UseModel(model)
-                    .UseInMemoryStore(persist: false))).ScopedServiceProvider;
+            var options = new DbContextOptions()
+                .UseModel(model);
+            options.UseInMemoryStore(persist: false);
+
+            return ((IDbContextServices)new DbContext(options)).ScopedServiceProvider;
         }
 
         private static CommandBatchPreparer CreateCommandBatchPreparer(ModificationCommandBatchFactory modificationCommandBatchFactory = null)

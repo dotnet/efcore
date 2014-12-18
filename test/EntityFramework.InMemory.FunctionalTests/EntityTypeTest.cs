@@ -35,15 +35,15 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             entityType.GetOrSetPrimaryKey(idProperty);
 
             var options = new DbContextOptions()
-                .UseModel(model)
-                .UseInMemoryStore();
+                .UseModel(model);
+            options.UseInMemoryStore();
 
             T entity;
             using (var context = new DbContext(_fixture.ServiceProvider, options))
             {
                 var stateEntry = context.ChangeTracker.StateManager.CreateNewEntry(entityType);
                 entity = (T)stateEntry.Entity;
-                
+
                 stateEntry[idProperty] = 42;
                 stateEntry[nameProperty] = "The";
 

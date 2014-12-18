@@ -30,8 +30,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         public override CrossStoreContext CreateContext(InMemoryTestStore testStore)
         {
-            var options = new DbContextOptions()
-                .UseInMemoryStore();
+            var options = new DbContextOptions();
+            options.UseInMemoryStore();
 
             return new CrossStoreContext(_serviceProvider, options);
         }

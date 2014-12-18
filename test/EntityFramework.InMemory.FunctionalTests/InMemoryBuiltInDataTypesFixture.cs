@@ -29,8 +29,8 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
         public override DbContext CreateContext(InMemoryTestStore testStore)
         {
-            var options = new DbContextOptions()
-                .UseInMemoryStore();
+            var options = new DbContextOptions();
+            options.UseInMemoryStore();
 
             return new DbContext(_serviceProvider, options);
         }

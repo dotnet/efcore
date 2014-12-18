@@ -18,10 +18,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             var modelBuilder = new ModelBuilder(new Model());
             modelBuilder.Entity<Blog>().Property(b => b.Id).GenerateValueOnAdd(generateValue: false);
 
-            var options
-                = new DbContextOptions()
-                    .UseModel(modelBuilder.Model)
-                    .UseSqlServer(_testStore.Connection);
+            var options = new DbContextOptions()
+                .UseModel(modelBuilder.Model);
+            options.UseSqlServer(_testStore.Connection);
 
             using (var context = new DbContext(_serviceProvider, options))
             {

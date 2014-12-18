@@ -23,8 +23,8 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             customerType.GetOrAddProperty("Name", typeof(string), shadowProperty: true);
 
             var options = new DbContextOptions()
-                .UseModel(model)
-                .UseInMemoryStore();
+                .UseModel(model);
+            options.UseInMemoryStore();
 
             using (var context = new DbContext(_fixture.ServiceProvider, options))
             {
@@ -85,8 +85,8 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             customerType.GetOrAddProperty("Name", typeof(string), shadowProperty: true);
 
             var options = new DbContextOptions()
-                .UseModel(model)
-                .UseInMemoryStore();
+                .UseModel(model);
+            options.UseInMemoryStore();
 
             var customer = new Customer { Id = 42 };
 

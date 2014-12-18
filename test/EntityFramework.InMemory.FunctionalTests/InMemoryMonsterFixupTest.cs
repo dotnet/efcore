@@ -27,7 +27,10 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
         protected override DbContextOptions CreateOptions(string databaseName)
         {
-            return new DbContextOptions().UseInMemoryStore();
+            var options = new DbContextOptions();
+            options.UseInMemoryStore();
+
+            return options;
         }
 
         protected override Task CreateAndSeedDatabase(string databaseName, Func<MonsterContext> createContext)
