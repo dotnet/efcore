@@ -1,0 +1,19 @@
+{
+    "dependencies": {
+        "EntityFramework": "6.1.1",
+        "EntityFramework.Microbenchmarks":  "1.0.0",
+        "Microsoft.Framework.ConfigurationModel.Json": "1.0.0-*",
+        "Microsoft.Framework.ConfigurationModel.Xml": "1.0.0-*",
+        "xunit.runner.kre": "1.0.0-*"
+    },
+    "commands": {
+        "test": "xunit.runner.kre"
+    },
+    "frameworks": {
+        "aspnet50": {
+            "frameworkAssemblies": {
+                "System.ComponentModel.DataAnnotations": ""
+            }
+        }
+    }
+}

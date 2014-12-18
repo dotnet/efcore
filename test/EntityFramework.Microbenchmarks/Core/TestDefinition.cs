@@ -16,7 +16,21 @@ namespace EntityFramework.Microbenchmarks.Core
     {
         public int? IterationCount { get; set; }
         public int? WarmupCount { get; set; }
-        public Action Run { get; set; }
+        public Action Run
+        {
+            set
+            {
+                RunWithCollector = (c) =>
+                {
+                    c.Start();
+
+                    value();
+
+                    c.Stop();
+                };
+            }
+        }
+        public Action<MetricCollector> RunWithCollector { get; set; }
     }
 
     public class ThreadedTestDefinition : TestDefinitionBase

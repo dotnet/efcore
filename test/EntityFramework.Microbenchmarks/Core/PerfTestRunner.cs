@@ -384,7 +384,7 @@ namespace EntityFramework.Microbenchmarks.Core
             }
             var testName = test.TestName ?? test.GetType() + "#" + test.GetHashCode();
             var setup = test.Setup;
-            var run = test.Run;
+            var run = test.RunWithCollector;
             var cleanup = test.Cleanup;
 
             //validate
@@ -411,7 +411,7 @@ namespace EntityFramework.Microbenchmarks.Core
             {
                 for (var w = 0; w < warmupCount; ++w)
                 {
-                    run();
+                    run(new MetricCollector(new Stopwatch(), new Stopwatch()));
                 }
             }
             catch (Exception e)
@@ -428,13 +428,11 @@ namespace EntityFramework.Microbenchmarks.Core
             {
                 for (var i = 0; i < iterationCount; ++i)
                 {
-                    iterationStopwatch.Restart();
-                    runStopwatch.Start();
+                    iterationStopwatch.Reset();
 
-                    run();
+                    var collector = new MetricCollector(iterationStopwatch, runStopwatch);
+                    run(collector);
 
-                    runStopwatch.Stop();
-                    iterationStopwatch.Stop();
                     iterationCounters.Add(
                         new IterationCounter
                             {

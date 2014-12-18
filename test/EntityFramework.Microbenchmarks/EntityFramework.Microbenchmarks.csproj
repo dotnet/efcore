@@ -86,15 +86,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Core\PerformanceCaseResult.cs" />
-    <Compile Include="CUDPerfTests.cs" />
-    <Compile Include="CudPerf\CudTests.cs" />
-    <Compile Include="CudPerf\Model\CudContext.cs" />
-    <Compile Include="CudPerf\Model\Customer.cs" />
-    <Compile Include="CudPerf\Model\FixupCollection.cs" />
-    <Compile Include="CudPerf\Model\Order.cs" />
-    <Compile Include="CudPerf\Model\OrderLine.cs" />
-    <Compile Include="CudPerf\Model\Product.cs" />
-    <Compile Include="CudPerf\Model\SpecialProduct.cs" />
+    <Compile Include="Core\Extensions.cs" />
+    <Compile Include="Core\MetricCollector.cs" />
     <Compile Include="DbContextPerf\DbContextAssociationPerfTests.cs" />
     <Compile Include="DbContextPerf\DbContextPerfTests.cs" />
     <Compile Include="DbContextPerf\DbContextPerfTestsBase.cs" />
@@ -148,6 +141,7 @@
     <Compile Include="QueryExecutionPerf\QueryExecution.DatabaseSetup.cs" />
     <Compile Include="QueryExecutionPerf\QueryExecution.Funcletization.cs" />
     <Compile Include="QueryExecutionPerf\QueryExecution.Tests.TPT.cs" />
+    <Compile Include="CalibrationTests.cs" />
     <Compile Include="StateManagerPerfTests.cs" />
     <Compile Include="StateManagerPerf\FixupTests.cs" />
     <Compile Include="StateManagerPerf\Model\AdventureWorks.cs" />
@@ -157,6 +151,12 @@
     <Compile Include="StateManagerPerf\Model\ProductSubCategory.cs" />
     <Compile Include="StateManagerPerf\StateManagerTestBase.cs" />
     <Compile Include="TestConfig.cs" />
+    <Compile Include="UpdatePipeline\Model\UpdatePipelineContext.cs" />
+    <Compile Include="UpdatePipeline\Model\Customer.cs" />
+    <Compile Include="UpdatePipeline\Model\Order.cs" />
+    <Compile Include="UpdatePipeline\Model\OrderLine.cs" />
+    <Compile Include="UpdatePipeline\Model\Product.cs" />
+    <Compile Include="UpdatePipeline\SimpleUpdatePipelineTests.cs" />
     <Compile Include="Utilities\ListExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
