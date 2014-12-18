@@ -2,12 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.SqlServer.FunctionalTests.TestModels;
-using Microsoft.Framework.ConfigurationModel;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
 using Xunit;
@@ -19,18 +17,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         [Fact]
         public async Task Can_use_actual_connection_string_in_OnConfiguring()
         {
-            var configuration = new Configuration
-                {
-                    new MemoryConfigurationSource(
-                        new Dictionary<string, string>
-                            {
-                                { "Data:Northwind:ConnectionString", SqlServerNorthwindContext.ConnectionString }
-                            })
-                };
-
             var serviceCollection = new ServiceCollection();
             serviceCollection
-                .AddInstance<IConfiguration>(configuration)
                 .AddEntityFramework()
                 .AddSqlServer();
 

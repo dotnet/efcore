@@ -3,7 +3,6 @@
 
 using System;
 using Microsoft.Data.Entity;
-using Microsoft.Framework.ConfigurationModel;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
 using EntityFramework.Microbenchmarks.QueryExecutionPerf.Model;
