@@ -11,7 +11,8 @@
     "frameworks": {
         "aspnetcore50": {
             "dependencies": {
-                "System.ComponentModel.Annotations": "4.0.10-beta-*"
+                "System.ComponentModel.Annotations": "4.0.10-beta-*",
+                "System.Net.NetworkInformation":  "4.0.10-beta-*"
             }
         },
         "aspnet50": {
