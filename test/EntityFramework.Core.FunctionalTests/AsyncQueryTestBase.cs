@@ -1643,6 +1643,13 @@ namespace Microsoft.Data.Entity.FunctionalTests
             await AssertQuery<Customer>(cs => cs.Where(c => c.ContactName.EndsWith(LocalMethod2())));
         }
 
+        [Fact]
+        public virtual async Task Contains_top_level()
+        {
+            await AssertQuery<Customer>(cs =>
+                cs.Select(c => c.CustomerID).ContainsAsync("ALFKI"));
+        }
+
         private static string LocalMethod1()
         {
             return "M";

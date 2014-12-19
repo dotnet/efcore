@@ -214,6 +214,7 @@ namespace Microsoft.Data.Entity.Query
         private static readonly MethodInfo _all = GetMethod("All", 1);
         private static readonly MethodInfo _cast = GetMethod("Cast");
         private static readonly MethodInfo _count = GetMethod("Count");
+        private static readonly MethodInfo _contains = GetMethod("Contains", 1);
         private static readonly MethodInfo _defaultIfEmpty = GetMethod("DefaultIfEmpty");
         private static readonly MethodInfo _defaultIfEmptyArg = GetMethod("DefaultIfEmpty", 1);
         private static readonly MethodInfo _distinct = GetMethod("Distinct");
@@ -238,6 +239,11 @@ namespace Microsoft.Data.Entity.Query
         public virtual MethodInfo Count
         {
             get { return _count; }
+        }
+
+        public virtual MethodInfo Contains
+        {
+            get { return _contains; }
         }
 
         public virtual MethodInfo DefaultIfEmpty

@@ -29,6 +29,7 @@ namespace Microsoft.Data.Entity.Query
                     { typeof(AverageResultOperator), (v, _, __) => HandleAverage(v) },
                     { typeof(CastResultOperator), (v, r, __) => HandleCast(v, (CastResultOperator)r) },
                     { typeof(CountResultOperator), (v, _, __) => HandleCount(v) },
+                    { typeof(ContainsResultOperator), (v, r, q) => HandleContains(v, (ContainsResultOperator)r, q) },
                     { typeof(DefaultIfEmptyResultOperator), (v, r, q) => HandleDefaultIfEmpty(v, (DefaultIfEmptyResultOperator)r, q) },
                     { typeof(DistinctResultOperator), (v, _, __) => HandleDistinct(v) },
                     { typeof(FirstResultOperator), (v, r, __) => HandleFirst(v, (ChoiceResultOperatorBase)r) },
@@ -110,6 +111,23 @@ namespace Microsoft.Data.Entity.Query
                 entityQueryModelVisitor.LinqOperatorProvider
                     .Count.MakeGenericMethod(entityQueryModelVisitor.StreamedSequenceInfo.ResultItemType),
                 entityQueryModelVisitor.Expression);
+        }
+
+        private static Expression HandleContains(
+            EntityQueryModelVisitor entityQueryModelVisitor, 
+            ContainsResultOperator containsResultOperator,
+            QueryModel queryModel)
+        {
+            var item = entityQueryModelVisitor
+                .ReplaceClauseReferences(
+                    containsResultOperator.Item,
+                    queryModel.MainFromClause);
+
+            return CallWithPossibleCancellationToken(
+                entityQueryModelVisitor.LinqOperatorProvider.Contains
+                    .MakeGenericMethod(entityQueryModelVisitor.StreamedSequenceInfo.ResultItemType),
+                entityQueryModelVisitor.Expression,
+                item);
         }
 
         private static Expression HandleDefaultIfEmpty(
