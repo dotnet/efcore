@@ -4,7 +4,10 @@
 using System.ComponentModel;
 using System.Linq;
 using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.Identity;
+using Microsoft.Data.Entity.InMemory;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Framework.DependencyInjection;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Tests.ChangeTracking
@@ -51,7 +54,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entity = new Banana { Name = "Stand", Fk = 88 };
             var sidecar = CreateSidecar(CreateStateEntry(entity));
 
-            Assert.Equal(1, sidecar[IdProperty]);
+            Assert.Equal(-1, sidecar[IdProperty]);
             Assert.Equal(88, sidecar[FkProperty]);
 
             sidecar[IdProperty] = 78;
@@ -60,7 +63,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.Equal(78, sidecar[IdProperty]);
             Assert.Equal(89, sidecar[FkProperty]);
 
-            Assert.Equal(1, entity.Id);
+            Assert.Equal(-1, entity.Id);
             Assert.Equal(88, entity.Fk);
         }
 
@@ -87,7 +90,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             sidecar[FkProperty] = 89;
             sidecar.Commit();
 
-            Assert.Equal(1, entity.Id);
+            Assert.Equal(-1, entity.Id);
             Assert.Equal(89, entity.Fk);
         }
 
@@ -117,7 +120,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             Assert.Null(stateEntry.TryGetSidecar(sidecar.Name));
 
-            Assert.Equal(1, entity.Id);
+            Assert.Equal(-1, entity.Id);
             Assert.Equal(88, entity.Fk);
         }
 
@@ -129,7 +132,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             sidecar.TakeSnapshot();
 
-            Assert.Equal(1, sidecar[IdProperty]);
+            Assert.Equal(-1, sidecar[IdProperty]);
             Assert.Equal(88, sidecar[FkProperty]);
 
             sidecar[IdProperty] = 78;
@@ -138,7 +141,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.Equal(78, sidecar[IdProperty]);
             Assert.Equal(89, sidecar[FkProperty]);
 
-            Assert.Equal(1, entity.Id);
+            Assert.Equal(-1, entity.Id);
             Assert.Equal(88, entity.Fk);
 
             entity.Id = 76;
@@ -164,15 +167,15 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             sidecar.TakeSnapshot(FkProperty);
 
-            Assert.Equal(1, sidecar[IdProperty]);
+            Assert.Equal(-1, sidecar[IdProperty]);
             Assert.Equal(88, sidecar[FkProperty]);
 
             sidecar[FkProperty] = 89;
 
-            Assert.Equal(1, sidecar[IdProperty]);
+            Assert.Equal(-1, sidecar[IdProperty]);
             Assert.Equal(89, sidecar[FkProperty]);
 
-            Assert.Equal(1, entity.Id);
+            Assert.Equal(-1, entity.Id);
             Assert.Equal(88, entity.Fk);
 
             entity.Id = 76;
@@ -250,14 +253,14 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             sidecar.EnsureSnapshot(IdProperty);
 
             Assert.True(sidecar.HasValue(IdProperty));
-            Assert.Equal(1, sidecar[IdProperty]);
+            Assert.Equal(-1, sidecar[IdProperty]);
 
             entity.Id = 76;
 
             sidecar.EnsureSnapshot(IdProperty);
 
             Assert.True(sidecar.HasValue(IdProperty));
-            Assert.Equal(1, sidecar[IdProperty]);
+            Assert.Equal(-1, sidecar[IdProperty]);
         }
 
         [Fact]
@@ -370,9 +373,14 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             entity = entity ?? new Banana { Name = "Stand", Fk = 88 };
 
-            var stateEntry = TestHelpers.CreateStateEntry(_model, EntityState.Added, entity);
+            var customServices = new ServiceCollection()
+                .AddSingleton<SimpleValueGeneratorFactory<InMemoryValueGenerator>, InMemoryTemporaryValueGeneratorFactory>();
 
-            stateEntry.MarkAsTemporary(IdProperty);
+            var stateEntry = TestHelpers.CreateContextServices(customServices, _model)
+                .GetRequiredService<StateManager>()
+                .GetOrCreateEntry(entity);
+
+            stateEntry.SetEntityState(EntityState.Added);
 
             return stateEntry;
         }
@@ -455,6 +463,14 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             public int Id { get; set; }
             public int Fk1 { get; set; }
             public string Fk2 { get; set; }
+        }
+
+        private class InMemoryTemporaryValueGeneratorFactory : SimpleValueGeneratorFactory<InMemoryValueGenerator>
+        {
+            public override IValueGenerator Create(IProperty property)
+            {
+                return new TemporaryIntegerValueGenerator();
+            }
         }
     }
 }

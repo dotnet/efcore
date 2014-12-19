@@ -42,12 +42,16 @@ namespace Microsoft.Data.Entity.Tests.Identity
                     ? await generator.NextAsync(property, new DbContextService<DataStoreServices>(() => null))
                     : generator.Next(property, new DbContextService<DataStoreServices>(() => null));
 
-                Assert.True(generatedValue.IsTemporary);
-
-                values.Add(Guid.Parse((string)generatedValue.Value));
+                values.Add(Guid.Parse((string)generatedValue));
             }
 
             Assert.Equal(100, values.Count);
+        }
+
+        [Fact]
+        public void Generates_temp_values()
+        {
+            Assert.True(new TemporaryStringValueGenerator().GeneratesTemporaryValues);
         }
 
         private class WithString

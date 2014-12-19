@@ -20,31 +20,23 @@ namespace Microsoft.Data.Entity.Identity
     public abstract class BlockOfSequentialValuesGenerator : IValueGenerator
     {
         private readonly AsyncLock _lock = new AsyncLock();
-        private readonly string _sequenceName;
-        private readonly int _blockSize;
         private SequenceValue _currentValue = new SequenceValue(-1, 0);
 
-        public BlockOfSequentialValuesGenerator(
+        protected BlockOfSequentialValuesGenerator(
             [NotNull] string sequenceName,
             int blockSize)
         {
             Check.NotEmpty(sequenceName, "sequenceName");
 
-            _sequenceName = sequenceName;
-            _blockSize = blockSize;
+            SequenceName = sequenceName;
+            BlockSize = blockSize;
         }
 
-        public virtual string SequenceName
-        {
-            get { return _sequenceName; }
-        }
+        public virtual string SequenceName { get; }
 
-        public virtual int BlockSize
-        {
-            get { return _blockSize; }
-        }
+        public virtual int BlockSize { get; }
 
-        public virtual GeneratedValue Next(IProperty property, DbContextService<DataStoreServices> dataStoreServices)
+        public virtual object Next(IProperty property, DbContextService<DataStoreServices> dataStoreServices)
         {
             Check.NotNull(property, "property");
             Check.NotNull(dataStoreServices, "dataStoreServices");
@@ -63,7 +55,7 @@ namespace Microsoft.Data.Entity.Identity
                     if (newValue.Max == _currentValue.Max)
                     {
                         var newCurrent = GetNewCurrentValue(property, dataStoreServices);
-                        newValue = new SequenceValue(newCurrent, newCurrent + _blockSize);
+                        newValue = new SequenceValue(newCurrent, newCurrent + BlockSize);
                         _currentValue = newValue;
                     }
                     else
@@ -73,10 +65,10 @@ namespace Microsoft.Data.Entity.Identity
                 }
             }
 
-            return new GeneratedValue(Convert.ChangeType(newValue.Current, property.PropertyType.UnwrapNullableType()));
+            return Convert.ChangeType(newValue.Current, property.PropertyType.UnwrapNullableType());
         }
 
-        public virtual async Task<GeneratedValue> NextAsync(
+        public virtual async Task<object> NextAsync(
             IProperty property,
             DbContextService<DataStoreServices> dataStoreServices,
             CancellationToken cancellationToken = default(CancellationToken))
@@ -98,7 +90,7 @@ namespace Microsoft.Data.Entity.Identity
                     if (newValue.Max == _currentValue.Max)
                     {
                         var newCurrent = await GetNewCurrentValueAsync(property, dataStoreServices, cancellationToken);
-                        newValue = new SequenceValue(newCurrent, newCurrent + _blockSize);
+                        newValue = new SequenceValue(newCurrent, newCurrent + BlockSize);
                         _currentValue = newValue;
                     }
                     else
@@ -108,7 +100,7 @@ namespace Microsoft.Data.Entity.Identity
                 }
             }
 
-            return new GeneratedValue(Convert.ChangeType(newValue.Current, property.PropertyType.UnwrapNullableType()));
+            return Convert.ChangeType(newValue.Current, property.PropertyType.UnwrapNullableType());
         }
 
         protected abstract long GetNewCurrentValue(
@@ -119,6 +111,8 @@ namespace Microsoft.Data.Entity.Identity
             [NotNull] IProperty property,
             [NotNull] DbContextService<DataStoreServices> dataStoreServices,
             CancellationToken cancellationToken);
+
+        public virtual bool GeneratesTemporaryValues => false;
 
         private SequenceValue GetNextValue()
         {
@@ -136,28 +130,19 @@ namespace Microsoft.Data.Entity.Identity
 
         private class SequenceValue
         {
-            private readonly long _current;
-            private readonly long _max;
-
             public SequenceValue(long current, long max)
             {
-                _current = current;
-                _max = max;
+                Current = current;
+                Max = max;
             }
 
-            public long Current
-            {
-                get { return _current; }
-            }
+            public long Current { get; }
 
-            public long Max
-            {
-                get { return _max; }
-            }
+            public long Max { get; }
 
             public SequenceValue NextValue()
             {
-                return new SequenceValue(_current + 1, _max);
+                return new SequenceValue(Current + 1, Max);
             }
         }
     }

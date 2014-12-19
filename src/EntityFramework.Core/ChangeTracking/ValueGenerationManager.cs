@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -49,9 +50,11 @@ namespace Microsoft.Data.Entity.ChangeTracking
                     }
                     else
                     {
-                        var generatedValue = _valueGeneratorCache.Service.GetGenerator(property)?.Next(property, _dataStoreServices);
+                        var valueGenerator = _valueGeneratorCache.Service.GetGenerator(property);
+                        Debug.Assert(valueGenerator != null);
 
-                        SetGeneratedValue(entry, generatedValue, property);
+                        var generatedValue = valueGenerator.Next(property, _dataStoreServices);
+                        SetGeneratedValue(entry, property, generatedValue, valueGenerator.GeneratesTemporaryValues);
                     }
                 }
             }
@@ -75,23 +78,31 @@ namespace Microsoft.Data.Entity.ChangeTracking
                     else
                     {
                         var valueGenerator = _valueGeneratorCache.Service.GetGenerator(property);
-                        var generatedValue = valueGenerator == null
-                            ? null
-                            : await valueGenerator.NextAsync(property, _dataStoreServices, cancellationToken).WithCurrentCulture();
+                        Debug.Assert(valueGenerator != null);
 
-                        SetGeneratedValue(entry, generatedValue, property);
+                        var generatedValue = await valueGenerator.NextAsync(property, _dataStoreServices, cancellationToken).WithCurrentCulture();
+                        SetGeneratedValue(entry, property, generatedValue, valueGenerator.GeneratesTemporaryValues);
                     }
                 }
             }
         }
 
-        private static void SetGeneratedValue(StateEntry entry, GeneratedValue generatedValue, IProperty property)
+        public virtual bool MayGetTemporaryValue([NotNull] IProperty property)
+        {
+            Check.NotNull(property, "property");
+
+            return property.GenerateValueOnAdd 
+                && _valueGeneratorCache.Service.GetGenerator(property).GeneratesTemporaryValues;
+
+        }
+
+        private static void SetGeneratedValue(StateEntry entry, IProperty property, object generatedValue, bool isTemporary)
         {
             if (generatedValue != null)
             {
-                entry[property] = generatedValue.Value;
+                entry[property] = generatedValue;
 
-                if (generatedValue.IsTemporary)
+                if (isTemporary)
                 {
                     entry.MarkAsTemporary(property);
                 }

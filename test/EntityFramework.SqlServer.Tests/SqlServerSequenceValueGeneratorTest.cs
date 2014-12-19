@@ -42,66 +42,42 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             for (var i = 0; i < 15; i++)
             {
-                var generatedValue = generator.Next(intProperty, storeServices);
-
-                Assert.Equal(i, generatedValue.Value);
-                Assert.False(generatedValue.IsTemporary);
+                Assert.Equal(i, generator.Next(intProperty, storeServices));
             }
 
             for (var i = 15; i < 30; i++)
             {
-                var generatedValue = generator.Next(longProperty, storeServices);
-
-                Assert.Equal((long)i, generatedValue.Value);
-                Assert.False(generatedValue.IsTemporary);
+                Assert.Equal((long)i, generator.Next(longProperty, storeServices));
             }
 
             for (var i = 30; i < 45; i++)
             {
-                var generatedValue = generator.Next(shortProperty, storeServices);
-
-                Assert.Equal((short)i, generatedValue.Value);
-                Assert.False(generatedValue.IsTemporary);
+                Assert.Equal((short)i, generator.Next(shortProperty, storeServices));
             }
 
             for (var i = 45; i < 60; i++)
             {
-                var generatedValue = generator.Next(byteProperty, storeServices);
-
-                Assert.Equal((byte)i, generatedValue.Value);
-                Assert.False(generatedValue.IsTemporary);
+                Assert.Equal((byte)i, generator.Next(byteProperty, storeServices));
             }
 
             for (var i = 60; i < 75; i++)
             {
-                var generatedValue = generator.Next(nullableIntProperty, storeServices);
-
-                Assert.Equal((int?)i, generatedValue.Value);
-                Assert.False(generatedValue.IsTemporary);
+                Assert.Equal((int?)i, generator.Next(nullableIntProperty, storeServices));
             }
 
             for (var i = 75; i < 90; i++)
             {
-                var generatedValue = generator.Next(nullableLongProperty, storeServices);
-
-                Assert.Equal((long?)i, generatedValue.Value);
-                Assert.False(generatedValue.IsTemporary);
+                Assert.Equal((long?)i, generator.Next(nullableLongProperty, storeServices));
             }
 
             for (var i = 90; i < 105; i++)
             {
-                var generatedValue = generator.Next(nullableShortProperty, storeServices);
-
-                Assert.Equal((short?)i, generatedValue.Value);
-                Assert.False(generatedValue.IsTemporary);
+                Assert.Equal((short?)i, generator.Next(nullableShortProperty, storeServices));
             }
 
             for (var i = 105; i < 120; i++)
             {
-                var generatedValue = generator.Next(nullableByteProperty, storeServices);
-
-                Assert.Equal((byte?)i, generatedValue.Value);
-                Assert.False(generatedValue.IsTemporary);
+                Assert.Equal((byte?)i, generator.Next(nullableByteProperty, storeServices));
             }
         }
 
@@ -125,66 +101,42 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             for (var i = 0; i < 15; i++)
             {
-                var generatedValue = await generator.NextAsync(intProperty, storeServices);
-
-                Assert.Equal(i, generatedValue.Value);
-                Assert.False(generatedValue.IsTemporary);
+                Assert.Equal(i, await generator.NextAsync(intProperty, storeServices));
             }
 
             for (var i = 15; i < 30; i++)
             {
-                var generatedValue = await generator.NextAsync(longProperty, storeServices);
-
-                Assert.Equal((long)i, generatedValue.Value);
-                Assert.False(generatedValue.IsTemporary);
+                Assert.Equal((long)i, await generator.NextAsync(longProperty, storeServices));
             }
 
             for (var i = 30; i < 45; i++)
             {
-                var generatedValue = await generator.NextAsync(shortProperty, storeServices);
-
-                Assert.Equal((short)i, generatedValue.Value);
-                Assert.False(generatedValue.IsTemporary);
+                Assert.Equal((short)i, await generator.NextAsync(shortProperty, storeServices));
             }
 
             for (var i = 45; i < 60; i++)
             {
-                var generatedValue = await generator.NextAsync(byteProperty, storeServices);
-
-                Assert.Equal((byte)i, generatedValue.Value);
-                Assert.False(generatedValue.IsTemporary);
+                Assert.Equal((byte)i, await generator.NextAsync(byteProperty, storeServices));
             }
 
             for (var i = 60; i < 75; i++)
             {
-                var generatedValue = await generator.NextAsync(nullableIntProperty, storeServices);
-
-                Assert.Equal((int?)i, generatedValue.Value);
-                Assert.False(generatedValue.IsTemporary);
+                Assert.Equal((int?)i, await generator.NextAsync(nullableIntProperty, storeServices));
             }
 
             for (var i = 75; i < 90; i++)
             {
-                var generatedValue = await generator.NextAsync(nullableLongProperty, storeServices);
-
-                Assert.Equal((long?)i, generatedValue.Value);
-                Assert.False(generatedValue.IsTemporary);
+                Assert.Equal((long?)i, await generator.NextAsync(nullableLongProperty, storeServices));
             }
 
             for (var i = 90; i < 105; i++)
             {
-                var generatedValue = await generator.NextAsync(nullableShortProperty, storeServices);
-
-                Assert.Equal((short?)i, generatedValue.Value);
-                Assert.False(generatedValue.IsTemporary);
+                Assert.Equal((short?)i, await generator.NextAsync(nullableShortProperty, storeServices));
             }
 
             for (var i = 105; i < 120; i++)
             {
-                var generatedValue = await generator.NextAsync(nullableByteProperty, storeServices);
-
-                Assert.Equal((byte?)i, generatedValue.Value);
-                Assert.False(generatedValue.IsTemporary);
+                Assert.Equal((byte?)i, await generator.NextAsync(nullableByteProperty, storeServices));
             }
         }
 
@@ -215,7 +167,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
                         var generatedValue = generator.Next(property, storeServices);
 
-                        generatedValues[testNumber].Add((long)generatedValue.Value);
+                        generatedValues[testNumber].Add((long)generatedValue);
                     }
                 };
             }
@@ -263,7 +215,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
                         var generatedValue = await generator.NextAsync(property, storeServices);
 
-                        generatedValues[testNumber].Add((long)generatedValue.Value);
+                        generatedValues[testNumber].Add((long)generatedValue);
                     }
                 };
             }
@@ -287,6 +239,16 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             }
 
             Assert.True(checks.All(c => c));
+        }
+
+
+        [Fact]
+        public void Does_not_generate_temp_values()
+        {
+            var executor = new FakeSqlStatementExecutor(10);
+            var generator = new SqlServerSequenceValueGenerator(executor, "Foo", 10);
+
+            Assert.False(generator.GeneratesTemporaryValues);
         }
 
         private DbContextService<DataStoreServices> CreateStoreServices(IServiceProvider serviceProvider = null)

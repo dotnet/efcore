@@ -14,8 +14,6 @@ namespace Microsoft.Data.Entity.Relational.Update
 {
     public class ModificationCommand
     {
-        private readonly ParameterNameGenerator _parameterNameGenerator;
-        private readonly string _schemaQualifiedName;
         private readonly Func<IProperty, IRelationalPropertyExtensions> _getPropertyExtensions;
         private readonly List<StateEntry> _stateEntries = new List<StateEntry>();
 
@@ -42,35 +40,18 @@ namespace Microsoft.Data.Entity.Relational.Update
             Check.NotNull(parameterNameGenerator, "parameterNameGenerator");
             Check.NotNull(getPropertyExtensions, "getPropertyExtensions");
 
-            _schemaQualifiedName = schemaQualifiedName;
-            _parameterNameGenerator = parameterNameGenerator;
+            SchemaQualifiedName = schemaQualifiedName;
+            ParameterNameGenerator = parameterNameGenerator;
             _getPropertyExtensions = getPropertyExtensions;
         }
 
-        public virtual SchemaQualifiedName SchemaQualifiedName
-        {
-            get { return _schemaQualifiedName; }
-        }
+        public virtual SchemaQualifiedName SchemaQualifiedName { get; }
 
-        public virtual IReadOnlyList<StateEntry> StateEntries
-        {
-            get { return _stateEntries; }
-        }
+        public virtual IReadOnlyList<StateEntry> StateEntries => _stateEntries;
 
-        public virtual EntityState EntityState
-        {
-            get
-            {
-                var firstEntry = _stateEntries.FirstOrDefault();
+        public virtual EntityState EntityState => _stateEntries.FirstOrDefault()?.EntityState ?? EntityState.Unknown;
 
-                return firstEntry != null ? firstEntry.EntityState : EntityState.Unknown;
-            }
-        }
-
-        public virtual IReadOnlyList<ColumnModification> ColumnModifications
-        {
-            get { return _columnModifications.Value; }
-        }
+        public virtual IReadOnlyList<ColumnModification> ColumnModifications => _columnModifications.Value;
 
         public virtual bool RequiresResultPropagation
         {
@@ -82,10 +63,7 @@ namespace Microsoft.Data.Entity.Relational.Update
             }
         }
 
-        public virtual ParameterNameGenerator ParameterNameGenerator
-        {
-            get { return _parameterNameGenerator; }
-        }
+        public virtual ParameterNameGenerator ParameterNameGenerator { get; }
 
         public virtual ModificationCommand AddStateEntry([NotNull] StateEntry stateEntry)
         {
@@ -125,7 +103,7 @@ namespace Microsoft.Data.Entity.Relational.Update
                 {
                     var isKey = property.IsPrimaryKey();
                     var isCondition = !adding && (isKey || property.IsConcurrencyToken);
-                    var readValue = stateEntry.NeedsStoreValue(property);
+                    var readValue = stateEntry.StoreMustGenerateValue(property);
                     var writeValue = !readValue && (adding || stateEntry.IsPropertyModified(property));
 
                     if (readValue

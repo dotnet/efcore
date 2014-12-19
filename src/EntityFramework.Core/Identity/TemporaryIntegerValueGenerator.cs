@@ -12,15 +12,10 @@ namespace Microsoft.Data.Entity.Identity
     {
         private long _current;
 
-        public override GeneratedValue Next(IProperty property)
+        public override object Next(IProperty property)
         {
             Check.NotNull(property, "property");
 
-            return new GeneratedValue(GenerateValue(property), isTemporary: true);
-        }
-
-        private object GenerateValue(IProperty property)
-        {
             var generatedValue = Interlocked.Decrement(ref _current);
             var targetType = property.PropertyType.UnwrapNullableType();
 
@@ -46,5 +41,7 @@ namespace Microsoft.Data.Entity.Identity
 
             return Convert.ChangeType(generatedValue, targetType);
         }
+
+        public override bool GeneratesTemporaryValues => true;
     }
 }

@@ -19,50 +19,19 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         public async Task Creates_values()
         {
             var property = _model.GetEntityType(typeof(AnEntity)).GetProperty("Id");
-
             var generator = new InMemoryValueGenerator();
 
-            var generatedValue = await generator.NextAsync(property, new DbContextService<DataStoreServices>(() => null));
-
-            Assert.Equal(1, generatedValue.Value);
-            Assert.False(generatedValue.IsTemporary);
-
-            generatedValue = await generator.NextAsync(property, new DbContextService<DataStoreServices>(() => null));
-
-            Assert.Equal(2, generatedValue.Value);
-            Assert.False(generatedValue.IsTemporary);
-
-            generatedValue = await generator.NextAsync(property, new DbContextService<DataStoreServices>(() => null));
-
-            Assert.Equal(3, generatedValue.Value);
-            Assert.False(generatedValue.IsTemporary);
-
-            generatedValue = generator.Next(property, new DbContextService<DataStoreServices>(() => null));
-
-            Assert.Equal(4, generatedValue.Value);
-            Assert.False(generatedValue.IsTemporary);
-
-            generatedValue = generator.Next(property, new DbContextService<DataStoreServices>(() => null));
-
-            Assert.Equal(5, generatedValue.Value);
-            Assert.False(generatedValue.IsTemporary);
-
-            generatedValue = generator.Next(property, new DbContextService<DataStoreServices>(() => null));
-
-            Assert.Equal(6, generatedValue.Value);
-            Assert.False(generatedValue.IsTemporary);
+            Assert.Equal(1, await generator.NextAsync(property, new DbContextService<DataStoreServices>(() => null)));
+            Assert.Equal(2, await generator.NextAsync(property, new DbContextService<DataStoreServices>(() => null)));
+            Assert.Equal(3, await generator.NextAsync(property, new DbContextService<DataStoreServices>(() => null)));
+            Assert.Equal(4, generator.Next(property, new DbContextService<DataStoreServices>(() => null)));
+            Assert.Equal(5, generator.Next(property, new DbContextService<DataStoreServices>(() => null)));
+            Assert.Equal(6, generator.Next(property, new DbContextService<DataStoreServices>(() => null)));
 
             generator = new InMemoryValueGenerator();
 
-            generatedValue = await generator.NextAsync(property, new DbContextService<DataStoreServices>(() => null));
-
-            Assert.Equal(1, generatedValue.Value);
-            Assert.False(generatedValue.IsTemporary);
-
-            generatedValue = await generator.NextAsync(property, new DbContextService<DataStoreServices>(() => null));
-
-            Assert.Equal(2, generatedValue.Value);
-            Assert.False(generatedValue.IsTemporary);
+            Assert.Equal(1, await generator.NextAsync(property, new DbContextService<DataStoreServices>(() => null)));
+            Assert.Equal(2, await generator.NextAsync(property, new DbContextService<DataStoreServices>(() => null)));
         }
 
         [Fact]
@@ -81,85 +50,22 @@ namespace Microsoft.Data.Entity.InMemory.Tests
 
             var generator = new InMemoryValueGenerator();
 
-            var generatedValue = await generator.NextAsync(longProperty, new DbContextService<DataStoreServices>(() => null));
-
-            Assert.Equal(1L, generatedValue.Value);
-            Assert.False(generatedValue.IsTemporary);
-
-            generatedValue = await generator.NextAsync(intProperty, new DbContextService<DataStoreServices>(() => null));
-
-            Assert.Equal(2, generatedValue.Value);
-            Assert.False(generatedValue.IsTemporary);
-
-            generatedValue = await generator.NextAsync(shortProperty, new DbContextService<DataStoreServices>(() => null));
-
-            Assert.Equal((short)3, generatedValue.Value);
-            Assert.False(generatedValue.IsTemporary);
-
-            generatedValue = await generator.NextAsync(byteProperty, new DbContextService<DataStoreServices>(() => null));
-
-            Assert.Equal((byte)4, generatedValue.Value);
-            Assert.False(generatedValue.IsTemporary);
-
-            generatedValue = await generator.NextAsync(ulongProperty, new DbContextService<DataStoreServices>(() => null));
-
-            Assert.Equal((ulong)5, generatedValue.Value);
-            Assert.False(generatedValue.IsTemporary);
-
-            generatedValue = await generator.NextAsync(uintProperty, new DbContextService<DataStoreServices>(() => null));
-
-            Assert.Equal((uint)6, generatedValue.Value);
-            Assert.False(generatedValue.IsTemporary);
-
-            generatedValue = await generator.NextAsync(ushortProperty, new DbContextService<DataStoreServices>(() => null));
-
-            Assert.Equal((ushort)7, generatedValue.Value);
-            Assert.False(generatedValue.IsTemporary);
-
-            generatedValue = await generator.NextAsync(sbyteProperty, new DbContextService<DataStoreServices>(() => null));
-
-            Assert.Equal((sbyte)8, generatedValue.Value);
-            Assert.False(generatedValue.IsTemporary);
-
-            generatedValue = generator.Next(longProperty, new DbContextService<DataStoreServices>(() => null));
-
-            Assert.Equal(9L, generatedValue.Value);
-            Assert.False(generatedValue.IsTemporary);
-
-            generatedValue = generator.Next(intProperty, new DbContextService<DataStoreServices>(() => null));
-
-            Assert.Equal(10, generatedValue.Value);
-            Assert.False(generatedValue.IsTemporary);
-
-            generatedValue = generator.Next(shortProperty, new DbContextService<DataStoreServices>(() => null));
-
-            Assert.Equal((short)11, generatedValue.Value);
-            Assert.False(generatedValue.IsTemporary);
-
-            generatedValue = generator.Next(byteProperty, new DbContextService<DataStoreServices>(() => null));
-
-            Assert.Equal((byte)12, generatedValue.Value);
-            Assert.False(generatedValue.IsTemporary);
-
-            generatedValue = generator.Next(ulongProperty, new DbContextService<DataStoreServices>(() => null));
-
-            Assert.Equal((ulong)13, generatedValue.Value);
-            Assert.False(generatedValue.IsTemporary);
-
-            generatedValue = generator.Next(uintProperty, new DbContextService<DataStoreServices>(() => null));
-
-            Assert.Equal((uint)14, generatedValue.Value);
-            Assert.False(generatedValue.IsTemporary);
-
-            generatedValue = generator.Next(ushortProperty, new DbContextService<DataStoreServices>(() => null));
-
-            Assert.Equal((ushort)15, generatedValue.Value);
-            Assert.False(generatedValue.IsTemporary);
-
-            generatedValue = generator.Next(sbyteProperty, new DbContextService<DataStoreServices>(() => null));
-
-            Assert.Equal((sbyte)16, generatedValue.Value);
-            Assert.False(generatedValue.IsTemporary);
+            Assert.Equal(1L, await generator.NextAsync(longProperty, new DbContextService<DataStoreServices>(() => null)));
+            Assert.Equal(2, await generator.NextAsync(intProperty, new DbContextService<DataStoreServices>(() => null)));
+            Assert.Equal((short)3, await generator.NextAsync(shortProperty, new DbContextService<DataStoreServices>(() => null)));
+            Assert.Equal((byte)4, await generator.NextAsync(byteProperty, new DbContextService<DataStoreServices>(() => null)));
+            Assert.Equal((ulong)5, await generator.NextAsync(ulongProperty, new DbContextService<DataStoreServices>(() => null)));
+            Assert.Equal((uint)6, await generator.NextAsync(uintProperty, new DbContextService<DataStoreServices>(() => null)));
+            Assert.Equal((ushort)7, await generator.NextAsync(ushortProperty, new DbContextService<DataStoreServices>(() => null)));
+            Assert.Equal((sbyte)8, await generator.NextAsync(sbyteProperty, new DbContextService<DataStoreServices>(() => null)));
+            Assert.Equal(9L, generator.Next(longProperty, new DbContextService<DataStoreServices>(() => null)));
+            Assert.Equal(10, generator.Next(intProperty, new DbContextService<DataStoreServices>(() => null)));
+            Assert.Equal((short)11, generator.Next(shortProperty, new DbContextService<DataStoreServices>(() => null)));
+            Assert.Equal((byte)12, generator.Next(byteProperty, new DbContextService<DataStoreServices>(() => null)));
+            Assert.Equal((ulong)13, generator.Next(ulongProperty, new DbContextService<DataStoreServices>(() => null)));
+            Assert.Equal((uint)14, generator.Next(uintProperty, new DbContextService<DataStoreServices>(() => null)));
+            Assert.Equal((ushort)15, generator.Next(ushortProperty, new DbContextService<DataStoreServices>(() => null)));
+            Assert.Equal((sbyte)16, generator.Next(sbyteProperty, new DbContextService<DataStoreServices>(() => null)));
         }
 
         [Fact]
@@ -174,6 +80,12 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             }
 
             Assert.Throws<OverflowException>(() => generator.Next(property, new DbContextService<DataStoreServices>(() => null)));
+        }
+
+        [Fact]
+        public void Does_not_generate_temp_values()
+        {
+            Assert.False(new InMemoryValueGenerator().GeneratesTemporaryValues);
         }
 
         private static Property CreateProperty(Type propertyType)

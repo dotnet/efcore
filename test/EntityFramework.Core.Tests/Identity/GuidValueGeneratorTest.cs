@@ -42,12 +42,16 @@ namespace Microsoft.Data.Entity.Tests.Identity
                     ? await sequentialGuidIdentityGenerator.NextAsync(property, new DbContextService<DataStoreServices>(() => null))
                     : sequentialGuidIdentityGenerator.Next(property, new DbContextService<DataStoreServices>(() => null));
 
-                Assert.False(generatedValue.IsTemporary);
-
-                values.Add((Guid)generatedValue.Value);
+                values.Add((Guid)generatedValue);
             }
 
             Assert.Equal(100, values.Count);
+        }
+
+        [Fact]
+        public void Does_not_generate_temp_values()
+        {
+            Assert.False(new GuidValueGenerator().GeneratesTemporaryValues);
         }
 
         private class WithGuid

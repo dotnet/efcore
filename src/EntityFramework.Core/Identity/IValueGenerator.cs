@@ -12,13 +12,15 @@ namespace Microsoft.Data.Entity.Identity
 {
     public interface IValueGenerator
     {
-        GeneratedValue Next(
+        object Next(
             [NotNull] IProperty property,
             [NotNull] DbContextService<DataStoreServices> dataStoreServices);
 
-        Task<GeneratedValue> NextAsync(
+        Task<object> NextAsync(
             [NotNull] IProperty property,
             [NotNull] DbContextService<DataStoreServices> dataStoreServices,
             CancellationToken cancellationToken = default(CancellationToken));
+
+        bool GeneratesTemporaryValues { get; }
     }
 }

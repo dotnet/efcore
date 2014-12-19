@@ -9,11 +9,13 @@ namespace Microsoft.Data.Entity.Identity
 {
     public class TemporaryStringValueGenerator : SimpleValueGenerator
     {
-        public override GeneratedValue Next(IProperty property)
+        public override object Next(IProperty property)
         {
             Check.NotNull(property, "property");
 
-            return new GeneratedValue(Guid.NewGuid().ToString(), isTemporary: true);
+            return Guid.NewGuid().ToString();
         }
+
+        public override bool GeneratesTemporaryValues => true;
     }
 }

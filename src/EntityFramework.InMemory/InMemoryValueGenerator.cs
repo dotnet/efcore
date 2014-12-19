@@ -13,11 +13,13 @@ namespace Microsoft.Data.Entity.InMemory
     {
         private long _current;
 
-        public override GeneratedValue Next(IProperty property)
+        public override object Next(IProperty property)
         {
             Check.NotNull(property, "property");
 
-            return new GeneratedValue(Convert.ChangeType(Interlocked.Increment(ref _current), property.PropertyType.UnwrapNullableType()));
+            return Convert.ChangeType(Interlocked.Increment(ref _current), property.PropertyType.UnwrapNullableType());
         }
+
+        public override bool GeneratesTemporaryValues => false;
     }
 }

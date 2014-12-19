@@ -13,16 +13,16 @@ namespace Microsoft.Data.Entity.Identity
 {
     public abstract class SimpleValueGenerator : IValueGenerator
     {
-        public abstract GeneratedValue Next([NotNull] IProperty property);
+        public abstract object Next([NotNull] IProperty property);
 
-        public virtual GeneratedValue Next(IProperty property, DbContextService<DataStoreServices> dataStoreServices)
+        public virtual object Next(IProperty property, DbContextService<DataStoreServices> dataStoreServices)
         {
             Check.NotNull(property, "property");
 
             return Next(property);
         }
 
-        public virtual Task<GeneratedValue> NextAsync(
+        public virtual Task<object> NextAsync(
             IProperty property,
             DbContextService<DataStoreServices> dataStoreServices,
             CancellationToken cancellationToken = default(CancellationToken))
@@ -31,5 +31,7 @@ namespace Microsoft.Data.Entity.Identity
 
             return Task.FromResult(Next(property));
         }
+
+        public abstract bool GeneratesTemporaryValues { get; }
     }
 }

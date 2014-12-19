@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.ChangeTracking
@@ -195,7 +194,9 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             StateManager.Notify.StateChanging(this, newState);
 
-            if (!acceptChanges && newState == EntityState.Unchanged && oldState == EntityState.Modified)
+            if (!acceptChanges
+                && newState == EntityState.Unchanged
+                && oldState == EntityState.Modified)
             {
                 ResetToOriginalValue();
             }
@@ -223,7 +224,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             StateManager.Notify.StateChanged(this, oldState);
         }
-        
+
         public virtual EntityState EntityState => _stateData.EntityState;
 
         public virtual bool IsPropertyModified([NotNull] IProperty property)
@@ -247,7 +248,8 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             var currentState = _stateData.EntityState;
 
-            if (currentState == EntityState.Added || currentState == EntityState.Unknown)
+            if (currentState == EntityState.Added
+                || currentState == EntityState.Unknown)
             {
                 MarkAsTemporary(property, isTemporary: false);
                 OriginalValues.TakeSnapshot(property);
@@ -467,12 +469,43 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         public virtual StateEntry PrepareToSave()
         {
-            // TODO: Issue #1303
-            //if (EntityType.Properties.Any(NeedsStoreValue))
-
-            AddSidecar(_metadataServices.CreateStoreGeneratedValues(this));
+            var properties = MayGetStoreValue();
+            if (properties.Any())
+            {
+                AddSidecar(_metadataServices.CreateStoreGeneratedValues(this, properties));
+            }
 
             return this;
+        }
+
+        private IReadOnlyList<IProperty> MayGetStoreValue()
+        {
+            var properties = EntityType.Properties.Where(MayGetStoreValue).ToList();
+
+            foreach (var foreignKey in EntityType.ForeignKeys)
+            {
+                for (var propertyIndex = 0; propertyIndex < foreignKey.Properties.Count; propertyIndex++)
+                {
+                    var property = foreignKey.Properties[propertyIndex];
+
+                    if (!properties.Contains(property)
+                        && foreignKey.GetRootPrincipals(propertyIndex).Any(MayGetStoreValue))
+                    {
+                        properties.Add(property);
+                    }
+                }
+            }
+
+            return properties;
+        }
+
+        private bool MayGetStoreValue([NotNull] IProperty property)
+        {
+            Check.NotNull(property, "property");
+
+            return StateManager.ValueGeneration.MayGetTemporaryValue(property)
+                   || property.UseStoreDefault
+                   || property.IsStoreComputed;
         }
 
         public virtual void AutoRollbackSidecars()
@@ -508,11 +541,11 @@ namespace Microsoft.Data.Entity.ChangeTracking
             }
         }
 
-        public virtual bool NeedsStoreValue([NotNull] IProperty property)
+        public virtual bool StoreMustGenerateValue([NotNull] IProperty property)
         {
             Check.NotNull(property, "property");
 
-            return HasTemporaryValue(property)
+            return property.GenerateValueOnAdd && HasTemporaryValue(property)
                    || (property.UseStoreDefault && this.HasDefaultValue(property))
                    || (property.IsStoreComputed
                        && (EntityState == EntityState.Modified || EntityState == EntityState.Added)

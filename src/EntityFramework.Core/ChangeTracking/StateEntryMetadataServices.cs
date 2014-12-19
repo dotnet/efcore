@@ -70,11 +70,12 @@ namespace Microsoft.Data.Entity.ChangeTracking
             return _relationshipsSnapshotFactory.Create(stateEntry);
         }
 
-        public virtual Sidecar CreateStoreGeneratedValues([NotNull] StateEntry stateEntry)
+        public virtual Sidecar CreateStoreGeneratedValues([NotNull] StateEntry stateEntry, [NotNull] IReadOnlyList<IProperty> properties)
         {
             Check.NotNull(stateEntry, "stateEntry");
+            Check.NotNull(properties, "properties");
 
-            return _storeGeneratedValuesFactory.Create(stateEntry);
+            return _storeGeneratedValuesFactory.Create(stateEntry, properties);
         }
 
         public virtual EntityKey CreateKey(

@@ -23,8 +23,8 @@ namespace Microsoft.Data.Entity.Tests.Identity
 
             Assert.Same(generator.Property, property);
 
-            Assert.Equal(1, generatedValue.Value);
-            Assert.True(generatedValue.IsTemporary);
+            Assert.Equal(1, generatedValue);
+            Assert.True(generator.GeneratesTemporaryValues);
         }
 
         [Fact]
@@ -38,20 +38,22 @@ namespace Microsoft.Data.Entity.Tests.Identity
 
             Assert.Same(generator.Property, property);
 
-            Assert.Equal(1, generatedValue.Value);
-            Assert.True(generatedValue.IsTemporary);
+            Assert.Equal(1, generatedValue);
+            Assert.True(generator.GeneratesTemporaryValues);
         }
 
         private class TestValueGenerator : SimpleValueGenerator
         {
             public IProperty Property { get; set; }
 
-            public override GeneratedValue Next(IProperty property)
+            public override object Next(IProperty property)
             {
                 Property = property;
 
-                return new GeneratedValue(1, isTemporary: true);
+                return 1;
             }
+
+            public override bool GeneratesTemporaryValues => true;
         }
 
         private class AnEntity

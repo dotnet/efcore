@@ -7,11 +7,13 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Microsoft.Data.Entity.ChangeTracking;
-using Microsoft.Data.Entity.Internal;
+using Microsoft.Data.Entity.Identity;
+using Microsoft.Data.Entity.InMemory;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Framework.DependencyInjection;
 using Moq;
 using Xunit;
+using Strings = Microsoft.Data.Entity.Internal.Strings;
 
 namespace Microsoft.Data.Entity.Tests.ChangeTracking
 {
@@ -1188,8 +1190,29 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
-            var idProperty = entityType.GetProperty("Id");
-            var nameProperty = entityType.GetProperty("Name");
+
+            var customServices = new ServiceCollection()
+                .AddSingleton<SimpleValueGeneratorFactory<InMemoryValueGenerator>, InMemoryTemporaryValueGeneratorFactory>();
+
+            var entry = CreateStateEntry(
+                TestHelpers.CreateContextServices(customServices, model),
+                entityType,
+                new ObjectArrayValueReader(new object[] { 1, "Kool" }));
+
+            entry.SetEntityState(EntityState.Added);
+            entry.PrepareToSave();
+
+            var storeGenValues = entry.TryGetSidecar(Sidecar.WellKnownNames.StoreGeneratedValues);
+            Assert.NotNull(storeGenValues);
+            Assert.True(storeGenValues.CanStoreValue(entityType.GetProperty("Id")));
+            Assert.False(storeGenValues.CanStoreValue(entityType.GetProperty("Name")));
+        }
+
+        [Fact]
+        public void Sidecars_are_not_added_for_when_no_store_generated_values_will_be_used()
+        {
+            var model = BuildModel();
+            var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
 
             var entry = CreateStateEntry(
                 TestHelpers.CreateContextServices(model),
@@ -1197,15 +1220,143 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 new ObjectArrayValueReader(new object[] { 1, "Kool" }));
 
             entry.SetEntityState(EntityState.Added);
-            entry.MarkAsTemporary(idProperty);
+            entry.PrepareToSave();
 
+            Assert.Null(entry.TryGetSidecar(Sidecar.WellKnownNames.StoreGeneratedValues));
+        }
+
+        [Fact]
+        public void Sidecars_are_added_for_computed_properties_when_preparing_to_save()
+        {
+            var model = BuildModel();
+            var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
+            entityType.GetProperty("Name").IsStoreComputed = true;
+
+            var entry = CreateStateEntry(
+                TestHelpers.CreateContextServices(model),
+                entityType,
+                new ObjectArrayValueReader(new object[] { 1, "Kool" }));
+
+            entry.SetEntityState(EntityState.Added);
+            entry.PrepareToSave();
+
+            var storeGenValues = entry.TryGetSidecar(Sidecar.WellKnownNames.StoreGeneratedValues);
+            Assert.NotNull(storeGenValues);
+            Assert.False(storeGenValues.CanStoreValue(entityType.GetProperty("Id")));
+            Assert.True(storeGenValues.CanStoreValue(entityType.GetProperty("Name")));
+        }
+
+        [Fact]
+        public void Sidecars_are_added_for_store_default_properties_when_preparing_to_save()
+        {
+            var model = BuildModel();
+            var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
+            entityType.GetProperty("Name").UseStoreDefault = true;
+
+            var entry = CreateStateEntry(
+                TestHelpers.CreateContextServices(model),
+                entityType,
+                new ObjectArrayValueReader(new object[] { 1, "Kool" }));
+
+            entry.SetEntityState(EntityState.Added);
+            entry.PrepareToSave();
+
+            var storeGenValues = entry.TryGetSidecar(Sidecar.WellKnownNames.StoreGeneratedValues);
+            Assert.NotNull(storeGenValues);
+            Assert.False(storeGenValues.CanStoreValue(entityType.GetProperty("Id")));
+            Assert.True(storeGenValues.CanStoreValue(entityType.GetProperty("Name")));
+        }
+
+        [Fact]
+        public void Sidecars_are_added_for_foreign_key_properties_with_root_principals_that_may_get_store_generated_values()
+        {
+            var model = BuildOneToOneModel();
+            var entityType = model.GetEntityType(typeof(SecondDependent));
+
+            var customServices = new ServiceCollection()
+                .AddSingleton<SimpleValueGeneratorFactory<InMemoryValueGenerator>, InMemoryTemporaryValueGeneratorFactory>();
+
+            var entry = CreateStateEntry(
+                TestHelpers.CreateContextServices(customServices, model),
+                entityType,
+                new ObjectArrayValueReader(new object[] { 1 }));
+
+            entry.SetEntityState(EntityState.Added);
             entry.PrepareToSave();
 
             var storeGenValues = entry.TryGetSidecar(Sidecar.WellKnownNames.StoreGeneratedValues);
 
             Assert.NotNull(storeGenValues);
-            Assert.True(storeGenValues.CanStoreValue(idProperty));
-            Assert.False(storeGenValues.CanStoreValue(nameProperty));
+            Assert.True(storeGenValues.CanStoreValue(entityType.GetProperty("Id")));
+        }
+
+        [Fact]
+        public void Sidecars_are_not_added_for_foreign_key_properties_with_root_principals_that_will_not_get_store_generated_values()
+        {
+            var model = BuildOneToOneModel();
+            var entityType = model.GetEntityType(typeof(SecondDependent));
+
+            var entry = CreateStateEntry(
+                TestHelpers.CreateContextServices(model),
+                entityType,
+                new ObjectArrayValueReader(new object[] { 1 }));
+
+            entry.SetEntityState(EntityState.Added);
+            entry.PrepareToSave();
+
+            Assert.Null(entry.TryGetSidecar(Sidecar.WellKnownNames.StoreGeneratedValues));
+        }
+
+        private static IModel BuildOneToOneModel()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            modelBuilder
+                .Entity<FirstDependent>()
+                .OneToOne(e => e.Second, e => e.First)
+                .ForeignKey<SecondDependent>(e => e.Id);
+
+            modelBuilder
+                .Entity<Root>()
+                .OneToOne(e => e.First, e => e.Root)
+                .ForeignKey<FirstDependent>(e => e.Id);
+
+            modelBuilder.Entity<Root>().Property(e => e.Id).GenerateValueOnAdd();
+            modelBuilder.Entity<FirstDependent>().Property(e => e.Id).GenerateValueOnAdd(false);
+            modelBuilder.Entity<SecondDependent>().Property(e => e.Id).GenerateValueOnAdd(false);
+
+            return modelBuilder.Model;
+        }
+
+        private class InMemoryTemporaryValueGeneratorFactory : SimpleValueGeneratorFactory<InMemoryValueGenerator>
+        {
+            public override IValueGenerator Create(IProperty property)
+            {
+                return new TemporaryIntegerValueGenerator();
+            }
+        }
+
+        private class Root
+        {
+            public int Id { get; set; }
+
+            public FirstDependent First { get; set; }
+        }
+
+        private class FirstDependent
+        {
+            public int Id { get; set; }
+
+            public Root Root { get; set; }
+
+            public SecondDependent Second { get; set; }
+        }
+
+        private class SecondDependent
+        {
+            public int Id { get; set; }
+
+            public FirstDependent First { get; set; }
         }
 
         protected virtual StateEntry CreateStateEntry(IServiceProvider contextServices, IEntityType entityType, object entity)

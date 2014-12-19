@@ -58,11 +58,11 @@ namespace Microsoft.Data.Entity.Identity
             if (!TryPropagateValue(stateEntry, property)
                 && property.IsKey())
             {
-                var valueGenerator = TryGetValueGenerator(stateEntry, property);
+                var valueGenerator = TryGetValueGenerator(property);
 
                 if (valueGenerator != null)
                 {
-                    stateEntry[property] = valueGenerator.Next(property, _storeServices).Value;
+                    stateEntry[property] = valueGenerator.Next(property, _storeServices);
                 }
             }
         }
@@ -80,12 +80,12 @@ namespace Microsoft.Data.Entity.Identity
             if (!TryPropagateValue(stateEntry, property)
                 && property.IsKey())
             {
-                var valueGenerator = TryGetValueGenerator(stateEntry, property);
+                var valueGenerator = TryGetValueGenerator(property);
 
                 if (valueGenerator != null)
                 {
                     stateEntry[property] = 
-                        (await valueGenerator.NextAsync(property, _storeServices, cancellationToken).WithCurrentCulture()).Value;
+                        (await valueGenerator.NextAsync(property, _storeServices, cancellationToken).WithCurrentCulture());
                 }
             }
         }
@@ -136,7 +136,7 @@ namespace Microsoft.Data.Entity.Identity
             return false;
         }
 
-        private IValueGenerator TryGetValueGenerator(StateEntry stateEntry, IProperty property)
+        private IValueGenerator TryGetValueGenerator(IProperty property)
         {
             foreach (var foreignKey in property.EntityType.ForeignKeys)
             {
@@ -145,9 +145,9 @@ namespace Microsoft.Data.Entity.Identity
                     if (property == foreignKey.Properties[propertyIndex]
                         && property.IsKey())
                     {
-                        var generationProperty = foreignKey.FindRootValueGenerationProperty(propertyIndex);
+                        var generationProperty = foreignKey.GetRootPrincipals(propertyIndex).FirstOrDefault(p => p.GenerateValueOnAdd);
 
-                        if (generationProperty.GenerateValueOnAdd)
+                        if (generationProperty != null)
                         {
                             return _valueGeneratorCache.Service.GetGenerator(generationProperty);
                         }

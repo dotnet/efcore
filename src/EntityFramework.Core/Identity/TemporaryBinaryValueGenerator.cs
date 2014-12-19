@@ -9,11 +9,13 @@ namespace Microsoft.Data.Entity.Identity
 {
     public class TemporaryBinaryValueGenerator : SimpleValueGenerator
     {
-        public override GeneratedValue Next(IProperty property)
+        public override object Next(IProperty property)
         {
             Check.NotNull(property, "property");
 
-            return new GeneratedValue(Guid.NewGuid().ToByteArray(), isTemporary: true);
+            return Guid.NewGuid().ToByteArray();
         }
+
+        public override bool GeneratesTemporaryValues => true;
     }
 }

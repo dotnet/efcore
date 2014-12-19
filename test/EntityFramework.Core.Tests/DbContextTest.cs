@@ -1540,9 +1540,12 @@ namespace Microsoft.Data.Entity.Tests
                 .Callback<IEnumerable<StateEntry>>(passedEntries.AddRange)
                 .Returns(3);
 
+            var valueGenMock = new Mock<ValueGeneratorCache>();
+            valueGenMock.Setup(m => m.GetGenerator(It.IsAny<IProperty>())).Returns(Mock.Of<IValueGenerator>());
+
             var servicesMock = new Mock<DataStoreServices>();
             servicesMock.Setup(m => m.Store).Returns(store.Object);
-            servicesMock.Setup(m => m.ValueGeneratorCache).Returns(Mock.Of<ValueGeneratorCache>);
+            servicesMock.Setup(m => m.ValueGeneratorCache).Returns(valueGenMock.Object);
             servicesMock.Setup(m => m.ModelBuilderFactory).Returns(new ModelBuilderFactory());
 
             var sourceMock = new Mock<DataStoreSource>();
@@ -1585,9 +1588,12 @@ namespace Microsoft.Data.Entity.Tests
                 .Callback<IEnumerable<StateEntry>, CancellationToken>((e, c) => passedEntries.AddRange(e))
                 .Returns(Task.FromResult(3));
 
+            var valueGenMock = new Mock<ValueGeneratorCache>();
+            valueGenMock.Setup(m => m.GetGenerator(It.IsAny<IProperty>())).Returns(Mock.Of<IValueGenerator>());
+
             var servicesMock = new Mock<DataStoreServices>();
             servicesMock.Setup(m => m.Store).Returns(store.Object);
-            servicesMock.Setup(m => m.ValueGeneratorCache).Returns(Mock.Of<ValueGeneratorCache>);
+            servicesMock.Setup(m => m.ValueGeneratorCache).Returns(valueGenMock.Object);
             servicesMock.Setup(m => m.ModelBuilderFactory).Returns(new ModelBuilderFactory());
 
             var sourceMock = new Mock<DataStoreSource>();

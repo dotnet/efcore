@@ -445,7 +445,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
             for (var i = 0; i < foreignKey.Properties.Count; i++)
             {
-                if (!foreignKey.FindRootValueGenerationProperty(i).GenerateValueOnAdd
+                if (!foreignKey.GetRootPrincipals(i).Any(p => p.GenerateValueOnAdd)
                     || !foreignKey.ReferencedProperties[i].PropertyType.IsDefaultValue(principalValues[i]))
                 {
                     // TODO: Consider nullable/non-nullable assignment issues

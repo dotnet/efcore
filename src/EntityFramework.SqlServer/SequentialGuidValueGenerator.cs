@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.SqlServer
     {
         private long _counter = DateTime.UtcNow.Ticks;
 
-        public override GeneratedValue Next(IProperty property)
+        public override object Next(IProperty property)
         {
             Check.NotNull(property, "property");
 
@@ -34,7 +34,9 @@ namespace Microsoft.Data.Entity.SqlServer
             guidBytes[14] = counterBytes[3];
             guidBytes[15] = counterBytes[2];
 
-            return new GeneratedValue(new Guid(guidBytes));
+            return new Guid(guidBytes);
         }
+
+        public override bool GeneratesTemporaryValues => false;
     }
 }
