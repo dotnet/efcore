@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.22410.0
+VisualStudioVersion = 14.0.22310.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{E7D68B03-3A5D-4710-9A1F-20D198E41F78}"
 EndProject
@@ -42,8 +42,6 @@ EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFramework.Commands.FunctionalTests", "test\EntityFramework.Commands.FunctionalTests\EntityFramework.Commands.FunctionalTests.kproj", "{CCEAA6B7-9270-4F5D-8F50-F2773F2A87CE}"
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFramework.Microbenchmarks", "test\EntityFramework.Microbenchmarks\EntityFramework.Microbenchmarks.kproj", "{E800A5B3-8620-4826-8CE2-B8BE1F754DD1}"
-EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFramework.Microbenchmarks.EF6", "test\EntityFramework.Microbenchmarks.EF6\EntityFramework.Microbenchmarks.EF6.kproj", "{2F8FDC15-BD67-42D9-9773-9D014F9D9B52}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -123,10 +121,6 @@ Global
 		{E800A5B3-8620-4826-8CE2-B8BE1F754DD1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E800A5B3-8620-4826-8CE2-B8BE1F754DD1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E800A5B3-8620-4826-8CE2-B8BE1F754DD1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2F8FDC15-BD67-42D9-9773-9D014F9D9B52}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2F8FDC15-BD67-42D9-9773-9D014F9D9B52}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2F8FDC15-BD67-42D9-9773-9D014F9D9B52}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2F8FDC15-BD67-42D9-9773-9D014F9D9B52}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -150,6 +144,5 @@ Global
 		{C9370CB1-1295-4163-9BAB-6B5E9A35595B} = {C605BAB7-B06E-4BDF-80B2-E661B7670E25}
 		{CCEAA6B7-9270-4F5D-8F50-F2773F2A87CE} = {C605BAB7-B06E-4BDF-80B2-E661B7670E25}
 		{E800A5B3-8620-4826-8CE2-B8BE1F754DD1} = {C605BAB7-B06E-4BDF-80B2-E661B7670E25}
-		{2F8FDC15-BD67-42D9-9773-9D014F9D9B52} = {C605BAB7-B06E-4BDF-80B2-E661B7670E25}
 	EndGlobalSection
 EndGlobal
