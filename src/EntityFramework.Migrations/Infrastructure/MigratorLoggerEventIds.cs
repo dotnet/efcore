@@ -10,5 +10,6 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
         public static readonly int ApplyingMigration = 102;
         public static readonly int RevertingMigration = 103;
         public static readonly int UpToDate = 104;
+        public static readonly int CreatingDatabases = 105;
     }
 }

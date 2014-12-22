@@ -55,5 +55,14 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                 MigratorLoggerEventIds.UpToDate,
                 () => Strings.MigratorLoggerUpToDate);
         }
+
+        public static void CreatingDatabases([NotNull] this ILogger logger)
+        {
+            Check.NotNull(logger, "logger");
+
+            logger.WriteInformation(
+                MigratorLoggerEventIds.CreatingDatabases,
+                () => Strings.MigratorLoggerCreatingHistoryTable);
+        }
     }
 }

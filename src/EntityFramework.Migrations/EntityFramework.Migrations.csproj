@@ -119,8 +119,8 @@
     </Compile>
     <Compile Include="MigrationsOptionsExtension.cs" />
     <Compile Include="Utilities\AssemblyExtensions.cs" />
-    <Compile Include="..\Shared\Check.cs" >
-        <Link>Utilities\Check.cs</Link>
+    <Compile Include="..\Shared\Check.cs">
+      <Link>Utilities\Check.cs</Link>
     </Compile>
     <Compile Include="Utilities\EnumerableExtensions.cs" />
     <Compile Include="Utilities\MigrationExtensions.cs" />

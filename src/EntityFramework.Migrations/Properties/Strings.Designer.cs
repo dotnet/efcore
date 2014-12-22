@@ -100,6 +100,12 @@ namespace Microsoft.Data.Entity.Migrations
             get { return GetString("MigratorLoggerUpToDate"); }
         }
 
+        public static string MigratorCreatingDatabases
+        {
+            //TODO add resource
+            get { return "CreatingDatabases";  }
+        }
+
         /// <summary>
         /// Migrations-specific methods can only be used when the context is using a migrations-enabled data store.
         /// </summary>

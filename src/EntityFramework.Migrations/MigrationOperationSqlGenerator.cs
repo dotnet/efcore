@@ -10,8 +10,10 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Migrations.Utilities;
+using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Metadata;
+using Microsoft.Data.Entity.Relational.Query.Sql;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Migrations
@@ -117,9 +119,7 @@ namespace Microsoft.Data.Entity.Migrations
             Check.NotNull(createDatabaseOperation, "createDatabaseOperation");
             Check.NotNull(batchBuilder, "batchBuilder");
 
-            batchBuilder
-                .Append("CREATE DATABASE ")
-                .Append(DelimitIdentifier(createDatabaseOperation.DatabaseName));
+            // noop
         }
 
         public virtual void Generate([NotNull] DropDatabaseOperation dropDatabaseOperation, [NotNull] SqlBatchBuilder batchBuilder)

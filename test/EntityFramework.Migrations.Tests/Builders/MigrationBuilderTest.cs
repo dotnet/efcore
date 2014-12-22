@@ -31,14 +31,10 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Builders
         {
             var builder = new MigrationBuilder();
 
-            builder.CreateDatabase("MyDb");
+            builder.CreateDatabaseIfNotExists();
 
             Assert.Equal(1, builder.Operations.Count);
             Assert.IsType<CreateDatabaseOperation>(builder.Operations[0]);
-
-            var operation = (CreateDatabaseOperation)builder.Operations[0];
-
-            Assert.Equal("MyDb", operation.DatabaseName);
         }
 
         [Fact]
