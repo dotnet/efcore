@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using EntityFramework.Microbenchmarks.Core;
-using EntityFramework.Microbenchmarks.EF6.UpdatePipeline.Model;
+using EntityFramework.Microbenchmarks.EF6.Models.Orders;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,7 +29,7 @@ namespace EntityFramework.Microbenchmarks.EF6.UpdatePipeline
 
         private static void Insert(MetricCollector collector)
         {
-            using (var context = new UpdatePipelineContext(_connectionString))
+            using (var context = new OrdersContext(_connectionString))
             {
                 using (context.Database.BeginTransaction())
                 {
@@ -70,7 +70,7 @@ namespace EntityFramework.Microbenchmarks.EF6.UpdatePipeline
 
         private static void Update(MetricCollector collector)
         {
-            using (var context = new UpdatePipelineContext(_connectionString))
+            using (var context = new OrdersContext(_connectionString))
             {
                 using (context.Database.BeginTransaction())
                 {
@@ -107,7 +107,7 @@ namespace EntityFramework.Microbenchmarks.EF6.UpdatePipeline
 
         private static void Delete(MetricCollector collector)
         {
-            using (var context = new UpdatePipelineContext(_connectionString))
+            using (var context = new OrdersContext(_connectionString))
             {
                 using (context.Database.BeginTransaction())
                 {
@@ -143,7 +143,7 @@ namespace EntityFramework.Microbenchmarks.EF6.UpdatePipeline
 
         private static void Mixed(MetricCollector collector)
         {
-            using (var context = new UpdatePipelineContext(_connectionString))
+            using (var context = new OrdersContext(_connectionString))
             {
                 using (context.Database.BeginTransaction())
                 {
@@ -183,24 +183,12 @@ namespace EntityFramework.Microbenchmarks.EF6.UpdatePipeline
 
         private static void EnsureDatabaseSetup()
         {
-            using (var context = new UpdatePipelineContext(_connectionString))
-            {
-                context.Database.CreateIfNotExists();
-                if (!context.Set<Customer>().Any())
-                {
-                    for (var i = 0; i < 1000; i++)
-                    {
-                        var customer = new Customer { Name = "Customer" };
-                        context.Customers.Add(customer);
-                        context.SaveChanges();
-                    }
-                }
-
-                Assert.Equal(1000, context.Customers.Count());
-                Assert.False(context.Orders.Any());
-                Assert.False(context.OrderLines.Any());
-                Assert.False(context.Products.Any());
-            }
+            OrdersSeedData.EnsureCreated(
+                _connectionString,
+                productCount: 0,
+                customerCount: 1000,
+                ordersPerCustomer: 0,
+                linesPerOrder: 0);
         }
     }
 }

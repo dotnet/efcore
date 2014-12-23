@@ -55,12 +55,15 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Models\Orders\Customer.cs" />
+    <Compile Include="Models\Orders\OrdersContext.cs" />
+    <Compile Include="Models\Orders\OrdersSeedData.cs" />
+    <Compile Include="Models\Orders\Order.cs" />
+    <Compile Include="Models\Orders\OrderLine.cs" />
+    <Compile Include="Models\Orders\Product.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UpdatePipeline\Model\Customer.cs" />
-    <Compile Include="UpdatePipeline\Model\Order.cs" />
-    <Compile Include="UpdatePipeline\Model\OrderLine.cs" />
-    <Compile Include="UpdatePipeline\Model\Product.cs" />
-    <Compile Include="UpdatePipeline\Model\UpdatePipelineContext.cs" />
+    <Compile Include="Query\FuncletizationTests.cs" />
+    <Compile Include="Query\SimpleQueryTests.cs" />
     <Compile Include="UpdatePipeline\SimpleUpdatePipelineTests.cs" />
   </ItemGroup>
   <ItemGroup>

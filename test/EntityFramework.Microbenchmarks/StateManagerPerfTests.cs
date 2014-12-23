@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using EntityFramework.Microbenchmarks.Core;
-using EntityFramework.Microbenchmarks.QueryExecutionPerf;
 using EntityFramework.Microbenchmarks.StateManagerPerf;
 using Xunit;
 
