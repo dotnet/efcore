@@ -223,8 +223,8 @@ FROM [Customers] AS [c]",
             base.Queryable_nested_simple();
 
             Assert.Equal(
-                @"SELECT [c3].[Address], [c3].[City], [c3].[CompanyName], [c3].[ContactName], [c3].[ContactTitle], [c3].[Country], [c3].[CustomerID], [c3].[Fax], [c3].[Phone], [c3].[PostalCode], [c3].[Region]
-FROM [Customers] AS [c3]",
+                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]",
                 Sql);
         }
 
@@ -653,10 +653,10 @@ WHERE [c].[City] = @p0",
         {
             base.SelectMany_mixed();
 
-            Assert.Equal(3873, Sql.Length);
+            Assert.Equal(3866, Sql.Length);
             Assert.StartsWith(
-                @"SELECT [e1].[City], [e1].[Country], [e1].[EmployeeID], [e1].[FirstName], [e1].[ReportsTo], [e1].[Title]
-FROM [Employees] AS [e1]
+                @"SELECT [e].[City], [e].[Country], [e].[EmployeeID], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
 
 SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
@@ -682,10 +682,10 @@ CROSS JOIN [Customers] AS [c]",
             base.SelectMany_simple2();
 
             Assert.Equal(
-                @"SELECT [e1].[City], [e1].[Country], [e1].[EmployeeID], [e1].[FirstName], [e1].[ReportsTo], [e1].[Title], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e2].[FirstName]
-FROM [Employees] AS [e1]
+                @"SELECT [e].[City], [e].[Country], [e].[EmployeeID], [e].[FirstName], [e].[ReportsTo], [e].[Title], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e0].[FirstName]
+FROM [Employees] AS [e]
 CROSS JOIN [Customers] AS [c]
-CROSS JOIN [Employees] AS [e2]",
+CROSS JOIN [Employees] AS [e0]",
                 Sql);
         }
 
@@ -694,10 +694,10 @@ CROSS JOIN [Employees] AS [e2]",
             base.SelectMany_entity_deep();
 
             Assert.Equal(
-                @"SELECT [e1].[City], [e1].[Country], [e1].[EmployeeID], [e1].[FirstName], [e1].[ReportsTo], [e1].[Title], [e2].[City], [e2].[Country], [e2].[EmployeeID], [e2].[FirstName], [e2].[ReportsTo], [e2].[Title], [e3].[City], [e3].[Country], [e3].[EmployeeID], [e3].[FirstName], [e3].[ReportsTo], [e3].[Title]
-FROM [Employees] AS [e1]
-CROSS JOIN [Employees] AS [e2]
-CROSS JOIN [Employees] AS [e3]",
+                @"SELECT [e].[City], [e].[Country], [e].[EmployeeID], [e].[FirstName], [e].[ReportsTo], [e].[Title], [e0].[City], [e0].[Country], [e0].[EmployeeID], [e0].[FirstName], [e0].[ReportsTo], [e0].[Title], [e1].[City], [e1].[Country], [e1].[EmployeeID], [e1].[FirstName], [e1].[ReportsTo], [e1].[Title]
+FROM [Employees] AS [e]
+CROSS JOIN [Employees] AS [e0]
+CROSS JOIN [Employees] AS [e1]",
                 Sql);
         }
 
@@ -706,9 +706,9 @@ CROSS JOIN [Employees] AS [e3]",
             base.SelectMany_projection1();
 
             Assert.Equal(
-                @"SELECT [e1].[City], [e2].[Country]
-FROM [Employees] AS [e1]
-CROSS JOIN [Employees] AS [e2]",
+                @"SELECT [e].[City], [e0].[Country]
+FROM [Employees] AS [e]
+CROSS JOIN [Employees] AS [e0]",
                 Sql);
         }
 
@@ -717,10 +717,10 @@ CROSS JOIN [Employees] AS [e2]",
             base.SelectMany_projection2();
 
             Assert.Equal(
-                @"SELECT [e1].[City], [e2].[Country], [e3].[FirstName]
-FROM [Employees] AS [e1]
-CROSS JOIN [Employees] AS [e2]
-CROSS JOIN [Employees] AS [e3]",
+                @"SELECT [e].[City], [e0].[Country], [e1].[FirstName]
+FROM [Employees] AS [e]
+CROSS JOIN [Employees] AS [e0]
+CROSS JOIN [Employees] AS [e1]",
                 Sql);
         }
 
@@ -832,8 +832,8 @@ WHERE [c].[CustomerID] = @p0", Sql);
     EXISTS (
         SELECT 1
         FROM [Customers] AS [c]
-        INNER JOIN [Orders] AS [or] ON [c].[CustomerID] = [or].[CustomerID]
-        INNER JOIN [Order Details] AS [od] ON [or].[OrderID] = [od].[OrderID]
+        INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+        INNER JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
         WHERE [c].[City] = @p0
     )
 ) THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END", Sql);
@@ -1018,24 +1018,24 @@ ORDER BY [c].[Country], [c].[CustomerID]",
         {
             base.Where_subquery_recursive_trivial();
 
-            Assert.Equal(2632, Sql.Length);
+            Assert.Equal(2624, Sql.Length);
             Assert.StartsWith(
-                @"SELECT [e1].[City], [e1].[Country], [e1].[EmployeeID], [e1].[FirstName], [e1].[ReportsTo], [e1].[Title]
-FROM [Employees] AS [e1]
-ORDER BY [e1].[EmployeeID]
+                @"SELECT [e].[City], [e].[Country], [e].[EmployeeID], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+ORDER BY [e].[EmployeeID]
 
-SELECT [e2].[City], [e2].[Country], [e2].[EmployeeID], [e2].[FirstName], [e2].[ReportsTo], [e2].[Title]
-FROM [Employees] AS [e2]
+SELECT [e0].[City], [e0].[Country], [e0].[EmployeeID], [e0].[FirstName], [e0].[ReportsTo], [e0].[Title]
+FROM [Employees] AS [e0]
 
 SELECT CASE WHEN (
     EXISTS (
         SELECT 1
-        FROM [Employees] AS [e3]
+        FROM [Employees] AS [e1]
     )
 ) THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END
 
-SELECT [e2].[City], [e2].[Country], [e2].[EmployeeID], [e2].[FirstName], [e2].[ReportsTo], [e2].[Title]
-FROM [Employees] AS [e2]",
+SELECT [e0].[City], [e0].[Country], [e0].[EmployeeID], [e0].[FirstName], [e0].[ReportsTo], [e0].[Title]
+FROM [Employees] AS [e0]",
                 Sql);
         }
 
@@ -1320,6 +1320,29 @@ SELECT [o].[CustomerID], [o].[OrderDate], [o].[OrderID]
 FROM [Orders] AS [o]
 
 ",
+                Sql);
+        }
+
+        public override void Select_many_cross_join_same_collection()
+        {
+            base.Select_many_cross_join_same_collection();
+
+            Assert.Equal(
+                @"SELECT [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[CustomerID], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+FROM [Customers] AS [c]
+CROSS JOIN [Customers] AS [c0]",
+                Sql);
+        }
+
+        public override void Join_same_collection_multiple()
+        {
+            base.Join_same_collection_multiple();
+
+            Assert.Equal(
+                @"SELECT [c1].[Address], [c1].[City], [c1].[CompanyName], [c1].[ContactName], [c1].[ContactTitle], [c1].[Country], [c1].[CustomerID], [c1].[Fax], [c1].[Phone], [c1].[PostalCode], [c1].[Region]
+FROM [Customers] AS [c]
+INNER JOIN [Customers] AS [c0] ON [c].[CustomerID] = [c0].[CustomerID]
+INNER JOIN [Customers] AS [c1] ON [c].[CustomerID] = [c1].[CustomerID]",
                 Sql);
         }
 

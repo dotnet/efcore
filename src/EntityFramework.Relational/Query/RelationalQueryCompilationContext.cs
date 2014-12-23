@@ -3,15 +3,14 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Relational.Query.Expressions;
 using Microsoft.Data.Entity.Relational.Query.Methods;
 using Microsoft.Data.Entity.Relational.Query.Sql;
-using Microsoft.Data.Entity.Relational.Utilities;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
+using JetBrains.Annotations;
 using Remotion.Linq.Clauses;
 
 namespace Microsoft.Data.Entity.Relational.Query
@@ -23,6 +22,8 @@ namespace Microsoft.Data.Entity.Relational.Query
 
         private readonly List<RelationalQueryModelVisitor> _relationalQueryModelVisitors
             = new List<RelationalQueryModelVisitor>();
+
+        private Dictionary<char, int> _queryAliasesDictionary = new Dictionary<char, int>(); 
 
         public RelationalQueryCompilationContext(
             [NotNull] IModel model,
@@ -104,6 +105,26 @@ namespace Microsoft.Data.Entity.Relational.Query
             Check.NotNull(property, "property");
 
             return property.Relational().Column;
+        }
+
+        public virtual string CreateUniqueAlias([NotNull]string tableName)
+        {
+            Check.NotEmpty(tableName, "tableName");
+
+            var alias = tableName.ToLower().First();
+            int ordinal;
+            if (_queryAliasesDictionary.TryGetValue(alias, out ordinal))
+            {
+                _queryAliasesDictionary[alias]++;
+
+                return alias.ToString() + ordinal;
+            }
+            else
+            {
+                _queryAliasesDictionary[alias] = 0;
+
+                return alias.ToString();
+            }
         }
     }
 }

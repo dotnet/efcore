@@ -4,10 +4,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Query.Sql;
 using Microsoft.Data.Entity.Utilities;
+using JetBrains.Annotations;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Parsing;
 
