@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
-using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Query;
@@ -80,15 +79,14 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
             var selectExpression = new SelectExpression();
             var tableName = QueryModelVisitor.QueryCompilationContext.GetTableName(entityType);
+            var tableAlias = QueryModelVisitor.QueryCompilationContext.CreateUniqueAlias(tableName);
 
             selectExpression
                 .AddTable(
                     new TableExpression(
                         tableName,
                         QueryModelVisitor.QueryCompilationContext.GetSchema(entityType),
-                        _querySource.ItemName.StartsWith("<generated>_")
-                            ? tableName.First().ToString().ToLower()
-                            : _querySource.ItemName,
+                        tableAlias,
                         _querySource));
 
             QueryModelVisitor.AddQuery(_querySource, selectExpression);

@@ -1323,6 +1323,29 @@ FROM [Orders] AS [o]
                 Sql);
         }
 
+        public override void Select_many_cross_join_same_collection()
+        {
+            base.Select_many_cross_join_same_collection();
+
+            Assert.Equal(
+                @"SELECT [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[CustomerID], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+FROM [Customers] AS [c]
+CROSS JOIN [Customers] AS [c0]",
+                Sql);
+        }
+
+        public override void Join_same_collection_multiple()
+        {
+            base.Join_same_collection_multiple();
+
+            Assert.Equal(
+                @"SELECT [c1].[Address], [c1].[City], [c1].[CompanyName], [c1].[ContactName], [c1].[ContactTitle], [c1].[Country], [c1].[CustomerID], [c1].[Fax], [c1].[Phone], [c1].[PostalCode], [c1].[Region]
+FROM [Customers] AS [c]
+INNER JOIN [Customers] AS [c0] ON [c].[CustomerID] = [c0].[CustomerID]
+INNER JOIN [Customers] AS [c1] ON [c].[CustomerID] = [c1].[CustomerID]",
+                Sql);
+        }
+
         public SqlServerQueryTest(SqlServerNorthwindQueryFixture fixture)
             : base(fixture)
         {
