@@ -97,10 +97,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                 return await _reader.ReadAsync(cancellationToken).WithCurrentCulture();
             }
 
-            public T Current
-            {
-                get { return _current; }
-            }
+            public T Current => _current;
 
             public void Dispose()
             {
@@ -108,20 +105,9 @@ namespace Microsoft.Data.Entity.Relational.Query
                 {
                     _disposed = true;
 
-                    if (_reader != null)
-                    {
-                        _reader.Dispose();
-                    }
-
-                    if (_command != null)
-                    {
-                        _command.Dispose();
-                    }
-
-                    if (_enumerable._connection != null)
-                    {
-                        _enumerable._connection.Close();
-                    }
+                    _reader?.Dispose();
+                    _command?.Dispose();
+                    _enumerable._connection?.Close();
                 }
             }
         }

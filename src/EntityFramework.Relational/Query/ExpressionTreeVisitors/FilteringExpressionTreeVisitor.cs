@@ -4,7 +4,6 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Relational.Query.Expressions;
 using Microsoft.Data.Entity.Utilities;
@@ -26,10 +25,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             _queryModelVisitor = queryModelVisitor;
         }
 
-        public virtual bool RequiresClientEval
-        {
-            get { return _requiresClientEval; }
-        }
+        public virtual bool RequiresClientEval => _requiresClientEval;
 
         protected override Expression VisitBinaryExpression([NotNull] BinaryExpression binaryExpression)
         {
@@ -87,39 +83,28 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             return null;
         }
 
-        private Expression UnfoldStructuralComparison(ExpressionType expressionType, Expression expression)
+        private static Expression UnfoldStructuralComparison(ExpressionType expressionType, Expression expression)
         {
             var binaryExpression = expression as BinaryExpression;
+            var leftConstantExpression = binaryExpression?.Left as ConstantExpression;
+            var leftExpressions = leftConstantExpression?.Value as Expression[];
 
-            if (binaryExpression != null)
+            if (leftExpressions != null)
             {
-                var leftConstantExpression = binaryExpression.Left as ConstantExpression;
+                var rightConstantExpression = binaryExpression.Right as ConstantExpression;
 
-                if (leftConstantExpression != null)
+                var rightExpressions = rightConstantExpression?.Value as Expression[];
+
+                if (rightExpressions != null
+                    && leftExpressions.Length == rightExpressions.Length)
                 {
-                    var leftExpressions = leftConstantExpression.Value as Expression[];
-
-                    if (leftExpressions != null)
-                    {
-                        var rightConstantExpression = binaryExpression.Right as ConstantExpression;
-
-                        if (rightConstantExpression != null)
-                        {
-                            var rightExpressions = rightConstantExpression.Value as Expression[];
-
-                            if (rightExpressions != null
-                                && leftExpressions.Length == rightExpressions.Length)
-                            {
-                                return leftExpressions
-                                    .Zip(rightExpressions, (l, r) =>
-                                        Expression.MakeBinary(expressionType, l, r))
-                                    .Aggregate((e1, e2) =>
-                                        expressionType == ExpressionType.Equal
-                                            ? Expression.AndAlso(e1, e2)
-                                            : Expression.OrElse(e1, e2));
-                            }
-                        }
-                    }
+                    return leftExpressions
+                        .Zip(rightExpressions, (l, r) =>
+                            Expression.MakeBinary(expressionType, l, r))
+                        .Aggregate((e1, e2) =>
+                            expressionType == ExpressionType.Equal
+                                ? Expression.AndAlso(e1, e2)
+                                : Expression.OrElse(e1, e2));
                 }
             }
 
@@ -276,7 +261,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 }
             }
             else if (expression.NodeType == ExpressionType.Convert
-                && expression.Type.IsNullableType())
+                     && expression.Type.IsNullableType())
             {
                 var operand = VisitExpression(expression.Operand);
 

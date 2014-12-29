@@ -79,32 +79,15 @@ namespace Microsoft.Data.Entity.Relational.Query
                 return hasNext;
             }
 
-            public T Current
-            {
-                get { return _current; }
-            }
+            public T Current => _current;
 
-            object IEnumerator.Current
-            {
-                get { return Current; }
-            }
+            object IEnumerator.Current => Current;
 
             public void Dispose()
             {
-                if (_reader != null)
-                {
-                    _reader.Dispose();
-                }
-
-                if (_command != null)
-                {
-                    _command.Dispose();
-                }
-
-                if (_enumerable._connection != null)
-                {
-                    _enumerable._connection.Close();
-                }
+                _reader?.Dispose();
+                _command?.Dispose();
+                _enumerable._connection?.Close();
             }
 
             public void Reset()

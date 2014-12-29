@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Utilities;
@@ -70,18 +71,18 @@ namespace Microsoft.Data.Entity.Relational.Query
                 await _enumerable._queryContext.QueryBuffer
                     .IncludeAsync(
                         _enumerable._accessorLambda.Invoke(_enumerator.Current),
-                        _enumerable._navigation,
-                        _relatedValuesIterator.GetRelatedValues,
+                        new[] { _enumerable._navigation },
+                        new Func<EntityKey, Func<IValueReader, EntityKey>, IAsyncEnumerable<IValueReader>>[]
+                            {
+                                _relatedValuesIterator.GetRelatedValues
+                            },
                         cancellationToken)
                     .WithCurrentCulture();
 
                 return true;
             }
 
-            public TResult Current
-            {
-                get { return _enumerator.Current; }
-            }
+            public TResult Current => _enumerator.Current;
 
             public void Dispose()
             {

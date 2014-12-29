@@ -25,24 +25,20 @@ namespace Microsoft.Data.Entity.Query
         private sealed class BufferedEntity
         {
             private readonly IEntityType _entityType;
-            private readonly IValueReader _valueReader; // TODO: This only works with buffering value readers
 
             public BufferedEntity(IEntityType entityType, IValueReader valueReader)
             {
                 _entityType = entityType;
-                _valueReader = valueReader;
+                ValueReader = valueReader;
             }
 
             public object Instance { get; set; }
 
-            public IValueReader ValueReader
-            {
-                get { return _valueReader; }
-            }
+            public IValueReader ValueReader { get; }
 
             public void StartTracking(StateManager stateManager)
             {
-                stateManager.StartTracking(_entityType, Instance, _valueReader);
+                stateManager.StartTracking(_entityType, Instance, ValueReader);
             }
         }
 
@@ -149,14 +145,27 @@ namespace Microsoft.Data.Entity.Query
 
         public virtual void Include(
             object entity,
-            INavigation navigation,
-            Func<EntityKey, Func<IValueReader, EntityKey>, IEnumerable<IValueReader>> relatedValueReaders)
+            IReadOnlyList<INavigation> navigationPath,
+            IReadOnlyList<Func<EntityKey, Func<IValueReader, EntityKey>, IEnumerable<IValueReader>>> relatedValueReaders)
         {
-            Check.NotNull(navigation, "navigation");
+            Check.NotNull(navigationPath, "navigationPath");
             Check.NotNull(relatedValueReaders, "relatedValueReaders");
 
-            if (entity == null)
-            { 
+            Include(entity, navigationPath, relatedValueReaders, 0);
+        }
+
+        private void Include(
+            object entity,
+            IReadOnlyList<INavigation> navigationPath,
+            IReadOnlyList<Func<EntityKey, Func<IValueReader, EntityKey>, IEnumerable<IValueReader>>> relatedValueReaders,
+            int currentNavigationIndex)
+        {
+            Check.NotNull(navigationPath, "navigationPath");
+            Check.NotNull(relatedValueReaders, "relatedValueReaders");
+
+            if (entity == null
+                || currentNavigationIndex == navigationPath.Count)
+            {
                 return;
             }
 
@@ -165,28 +174,51 @@ namespace Microsoft.Data.Entity.Query
             Func<IValueReader, EntityKey> relatedKeyFactory;
 
             var targetEntityType
-                = IncludeCore(entity, navigation, out primaryKey, out bufferedEntities, out relatedKeyFactory);
+                = IncludeCore(
+                    entity,
+                    navigationPath[currentNavigationIndex],
+                    out primaryKey,
+                    out bufferedEntities,
+                    out relatedKeyFactory);
 
             LoadNavigationProperties(
                 entity,
-                navigation,
-                relatedValueReaders(primaryKey, relatedKeyFactory)
+                navigationPath,
+                e =>
+                    {
+                        Include(e, navigationPath, relatedValueReaders, currentNavigationIndex + 1);
+
+                        return Task.FromResult(0);
+                    },
+                currentNavigationIndex,
+                relatedValueReaders[currentNavigationIndex](primaryKey, relatedKeyFactory)
                     .Select(valueReader => GetTargetEntity(targetEntityType, valueReader, bufferedEntities))
                     .Where(e => e != null)
                     .ToList());
         }
 
-        public virtual async Task IncludeAsync(
+        public virtual Task IncludeAsync(
             object entity,
-            INavigation navigation,
-            Func<EntityKey, Func<IValueReader, EntityKey>, IAsyncEnumerable<IValueReader>> relatedValueReaders,
+            IReadOnlyList<INavigation> navigationPath,
+            IReadOnlyList<Func<EntityKey, Func<IValueReader, EntityKey>, IAsyncEnumerable<IValueReader>>> relatedValueReaders,
             CancellationToken cancellationToken)
         {
-            Check.NotNull(navigation, "navigation");
+            Check.NotNull(navigationPath, "navigationPath");
             Check.NotNull(relatedValueReaders, "relatedValueReaders");
 
-            if (entity == null)
-            { 
+            return IncludeAsync(entity, navigationPath, relatedValueReaders, cancellationToken, 0);
+        }
+
+        private async Task IncludeAsync(
+            object entity,
+            IReadOnlyList<INavigation> navigationPath,
+            IReadOnlyList<Func<EntityKey, Func<IValueReader, EntityKey>, IAsyncEnumerable<IValueReader>>> relatedValueReaders,
+            CancellationToken cancellationToken,
+            int currentNavigationIndex)
+        {
+            if (entity == null
+                || currentNavigationIndex == navigationPath.Count)
+            {
                 return;
             }
 
@@ -195,12 +227,19 @@ namespace Microsoft.Data.Entity.Query
             Func<IValueReader, EntityKey> relatedKeyFactory;
 
             var targetEntityType
-                = IncludeCore(entity, navigation, out primaryKey, out bufferedEntities, out relatedKeyFactory);
+                = IncludeCore(
+                    entity,
+                    navigationPath[currentNavigationIndex],
+                    out primaryKey,
+                    out bufferedEntities,
+                    out relatedKeyFactory);
 
             LoadNavigationProperties(
                 entity,
-                navigation,
-                await relatedValueReaders(primaryKey, relatedKeyFactory)
+                navigationPath,
+                async e => await IncludeAsync(e, navigationPath, relatedValueReaders, cancellationToken, currentNavigationIndex + 1),
+                currentNavigationIndex,
+                await relatedValueReaders[currentNavigationIndex](primaryKey, relatedKeyFactory)
                     .Select(valueReader => GetTargetEntity(targetEntityType, valueReader, bufferedEntities))
                     .Where(e => e != null)
                     .ToList(cancellationToken)
@@ -278,16 +317,20 @@ namespace Microsoft.Data.Entity.Query
         }
 
         private void LoadNavigationProperties(
-            object entity, INavigation navigation, IReadOnlyList<object> relatedEntities)
+            object entity,
+            IReadOnlyList<INavigation> navigationPath,
+            Func<object, Task> includeNextLevel,
+            int currentNavigationIndex,
+            IReadOnlyList<object> relatedEntities)
         {
-            if (navigation.PointsToPrincipal
+            if (navigationPath[currentNavigationIndex].PointsToPrincipal
                 && relatedEntities.Any())
             {
                 _clrPropertySetterSource
-                    .GetAccessor(navigation)
+                    .GetAccessor(navigationPath[currentNavigationIndex])
                     .SetClrValue(entity, relatedEntities[0]);
 
-                var inverseNavigation = navigation.TryGetInverse();
+                var inverseNavigation = navigationPath[currentNavigationIndex].TryGetInverse();
 
                 if (inverseNavigation != null)
                 {
@@ -304,16 +347,18 @@ namespace Microsoft.Data.Entity.Query
                             .SetClrValue(relatedEntities[0], entity);
                     }
                 }
+
+                includeNextLevel(relatedEntities[0]);
             }
             else
             {
-                if (navigation.IsCollection())
+                if (navigationPath[currentNavigationIndex].IsCollection())
                 {
                     _clrCollectionAccessorSource
-                        .GetAccessor(navigation)
+                        .GetAccessor(navigationPath[currentNavigationIndex])
                         .AddRange(entity, relatedEntities);
 
-                    var inverseNavigation = navigation.TryGetInverse();
+                    var inverseNavigation = navigationPath[currentNavigationIndex].TryGetInverse();
 
                     if (inverseNavigation != null)
                     {
@@ -330,10 +375,10 @@ namespace Microsoft.Data.Entity.Query
                 else if (relatedEntities.Any())
                 {
                     _clrPropertySetterSource
-                        .GetAccessor(navigation)
+                        .GetAccessor(navigationPath[currentNavigationIndex])
                         .SetClrValue(entity, relatedEntities[0]);
 
-                    var inverseNavigation = navigation.TryGetInverse();
+                    var inverseNavigation = navigationPath[currentNavigationIndex].TryGetInverse();
 
                     if (inverseNavigation != null)
                     {

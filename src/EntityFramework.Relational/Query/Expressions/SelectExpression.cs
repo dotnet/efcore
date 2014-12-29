@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -63,15 +64,9 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             return selectExpression;
         }
 
-        public virtual IReadOnlyList<TableExpressionBase> Tables
-        {
-            get { return _tables; }
-        }
+        public virtual IReadOnlyList<TableExpressionBase> Tables => _tables;
 
-        public virtual bool IsProjectStar
-        {
-            get { return _projectStar; }
-        }
+        public virtual bool IsProjectStar => _projectStar;
 
         public virtual void AddTable([NotNull] TableExpressionBase tableExpression)
         {
@@ -182,9 +177,10 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         private SelectExpression PushDownSubquery()
         {
-            _subqueryDepth = _subqueryDepth != null
-                ? _subqueryDepth + 1
-                : 0;
+            _subqueryDepth
+                = _subqueryDepth != null
+                    ? _subqueryDepth + 1
+                    : 0;
 
             var subquery
                 = new SelectExpression("t" + _subqueryDepth);
@@ -225,15 +221,9 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             return subquery;
         }
 
-        public virtual IReadOnlyList<ColumnExpression> Projection
-        {
-            get { return _projection; }
-        }
+        public virtual IReadOnlyList<ColumnExpression> Projection => _projection;
 
-        public virtual Expression ProjectionExpression
-        {
-            get { return _projectionExpression; }
-        }
+        public virtual Expression ProjectionExpression => _projectionExpression;
 
         public virtual void AddToProjection(
             [NotNull] string column,
@@ -297,7 +287,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
                 _projection.RemoveRange(index, _projection.Count - index);
             }
         }
-
+        
         public virtual void RemoveFromProjection([NotNull] IEnumerable<Ordering> orderBy)
         {
             Check.NotNull(orderBy, "orderBy");
@@ -346,10 +336,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             _orderBy.AddRange(orderings);
         }
 
-        public virtual IReadOnlyList<Ordering> OrderBy
-        {
-            get { return _orderBy; }
-        }
+        public virtual IReadOnlyList<Ordering> OrderBy => _orderBy;
 
         public virtual void ClearOrderBy()
         {

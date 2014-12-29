@@ -11,27 +11,18 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 {
     public abstract class TableExpressionBase : ExtensionExpression
     {
-        private readonly IQuerySource _querySource;
-        private readonly string _alias;
-
         protected TableExpressionBase(
             [CanBeNull] IQuerySource querySource,
             [CanBeNull] string alias)
             : base(typeof(object))
         {
-            _querySource = querySource;
-            _alias = alias;
+            QuerySource = querySource;
+            Alias = alias;
         }
 
-        public virtual IQuerySource QuerySource
-        {
-            get { return _querySource; }
-        }
+        public virtual IQuerySource QuerySource { get; }
 
-        public virtual string Alias
-        {
-            get { return _alias; }
-        }
+        public virtual string Alias { get; }
 
         protected override Expression VisitChildren(ExpressionTreeVisitor visitor)
         {

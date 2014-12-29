@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
 
@@ -13,10 +14,7 @@ namespace Microsoft.Data.Entity.Relational.Query
 {
     public class QueryMethodProvider : IQueryMethodProvider
     {
-        public virtual MethodInfo GetResultMethod
-        {
-            get { return _getResultMethodInfo; }
-        }
+        public virtual MethodInfo GetResultMethod => _getResultMethodInfo;
 
         private static readonly MethodInfo _getResultMethodInfo
             = typeof(QueryMethodProvider).GetTypeInfo()
@@ -38,10 +36,7 @@ namespace Microsoft.Data.Entity.Relational.Query
             return default(TResult);
         }
 
-        public virtual MethodInfo IncludeCollectionMethod
-        {
-            get { return _includeCollectionMethodInfo; }
-        }
+        public virtual MethodInfo IncludeCollectionMethod => _includeCollectionMethodInfo;
 
         private static readonly MethodInfo _includeCollectionMethodInfo
             = typeof(QueryMethodProvider).GetTypeInfo()
@@ -63,18 +58,18 @@ namespace Microsoft.Data.Entity.Relational.Query
                     queryContext.QueryBuffer
                         .Include(
                             accessorLambda.Invoke(result),
-                            navigation,
-                            relatedValuesIterator.GetRelatedValues);
+                            new[] { navigation },
+                            new Func<EntityKey, Func<IValueReader, EntityKey>, IEnumerable<IValueReader>>[]
+                                {
+                                    relatedValuesIterator.GetRelatedValues
+                                });
 
                     yield return result;
                 }
             }
         }
 
-        public virtual MethodInfo QueryMethod
-        {
-            get { return _queryMethodInfo; }
-        }
+        public virtual MethodInfo QueryMethod => _queryMethodInfo;
 
         private static readonly MethodInfo _queryMethodInfo
             = typeof(QueryMethodProvider).GetTypeInfo()

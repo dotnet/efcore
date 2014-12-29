@@ -9,7 +9,6 @@ using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Relational.Query.Expressions;
 using Microsoft.Data.Entity.Relational.Query.Methods;
 using Microsoft.Data.Entity.Relational.Query.Sql;
-using Microsoft.Data.Entity.Relational.Utilities;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 using Remotion.Linq.Clauses;
@@ -18,16 +17,13 @@ namespace Microsoft.Data.Entity.Relational.Query
 {
     public class RelationalQueryCompilationContext : QueryCompilationContext
     {
-        private readonly IQueryMethodProvider _queryMethodProvider;
-        private readonly IMethodCallTranslator _methodCallTranslator;
-
         private readonly List<RelationalQueryModelVisitor> _relationalQueryModelVisitors
             = new List<RelationalQueryModelVisitor>();
 
         public RelationalQueryCompilationContext(
             [NotNull] IModel model,
             [NotNull] ILogger logger,
-            [NotNull] ILinqOperatorProvider linqOperatorProvider, 
+            [NotNull] ILinqOperatorProvider linqOperatorProvider,
             [NotNull] IResultOperatorHandler resultOperatorHandler,
             [NotNull] EntityMaterializerSource entityMaterializerSource,
             [NotNull] IQueryMethodProvider queryMethodProvider,
@@ -42,8 +38,8 @@ namespace Microsoft.Data.Entity.Relational.Query
             Check.NotNull(queryMethodProvider, "queryMethodProvider");
             Check.NotNull(methodCallTranslator, "methodCallTranslator");
 
-            _queryMethodProvider = queryMethodProvider;
-            _methodCallTranslator = methodCallTranslator;
+            QueryMethodProvider = queryMethodProvider;
+            MethodCallTranslator = methodCallTranslator;
         }
 
         public override EntityQueryModelVisitor CreateQueryModelVisitor(
@@ -70,15 +66,9 @@ namespace Microsoft.Data.Entity.Relational.Query
                     .Single();
         }
 
-        public virtual IQueryMethodProvider QueryMethodProvider
-        {
-            get { return _queryMethodProvider; }
-        }
+        public virtual IQueryMethodProvider QueryMethodProvider { get; }
 
-        public virtual IMethodCallTranslator MethodCallTranslator
-        {
-            get { return _methodCallTranslator; }
-        }
+        public virtual IMethodCallTranslator MethodCallTranslator { get; }
 
         public virtual ISqlQueryGenerator CreateSqlQueryGenerator()
         {
@@ -98,7 +88,7 @@ namespace Microsoft.Data.Entity.Relational.Query
 
             return entityType.Relational().Schema;
         }
-        
+
         public virtual string GetColumnName([NotNull] IProperty property)
         {
             Check.NotNull(property, "property");

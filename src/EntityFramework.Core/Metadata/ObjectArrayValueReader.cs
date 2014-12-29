@@ -27,9 +27,6 @@ namespace Microsoft.Data.Entity.Metadata
             return (T)_valueBuffer[index];
         }
 
-        public virtual int Count
-        {
-            get { return _valueBuffer.Length; }
-        }
+        public virtual int Count => _valueBuffer.Length;
     }
 }

@@ -15,10 +15,7 @@ namespace Microsoft.Data.Entity.Relational.Query
 {
     public class AsyncQueryMethodProvider : IQueryMethodProvider
     {
-        public virtual MethodInfo GetResultMethod
-        {
-            get { return _getResultMethodInfo; }
-        }
+        public virtual MethodInfo GetResultMethod => _getResultMethodInfo;
 
         private static readonly MethodInfo _getResultMethodInfo
             = typeof(AsyncQueryMethodProvider).GetTypeInfo()
@@ -49,10 +46,7 @@ namespace Microsoft.Data.Entity.Relational.Query
             return default(TResult);
         }
 
-        public virtual MethodInfo IncludeCollectionMethod
-        {
-            get { return _includeCollectionMethodInfo; }
-        }
+        public virtual MethodInfo IncludeCollectionMethod => _includeCollectionMethodInfo;
 
         private static readonly MethodInfo _includeCollectionMethodInfo
             = typeof(AsyncQueryMethodProvider).GetTypeInfo()
@@ -74,10 +68,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                 accessorLambda);
         }
 
-        public virtual MethodInfo QueryMethod
-        {
-            get { return _queryMethodInfo; }
-        }
+        public virtual MethodInfo QueryMethod => _queryMethodInfo;
 
         private static readonly MethodInfo _queryMethodInfo
             = typeof(AsyncQueryMethodProvider).GetTypeInfo()

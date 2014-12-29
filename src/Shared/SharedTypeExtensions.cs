@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
 
 // ReSharper disable once CheckNamespace
@@ -47,6 +48,17 @@ namespace System
                    || type == typeof(ulong)
                    || type == typeof(ushort)
                    || type == typeof(sbyte);
+        }
+
+        public static PropertyInfo GetAnyProperty(this Type type, string name)
+        {
+            var props = type.GetRuntimeProperties().Where(p => p.Name == name).ToList();
+            if (props.Count() > 1)
+            {
+                throw new AmbiguousMatchException();
+            }
+
+            return props.SingleOrDefault();
         }
 
         private static bool IsNonIntegerPrimitive(this Type type)

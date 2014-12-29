@@ -10,12 +10,6 @@ namespace Microsoft.Data.Entity.Query
 {
     public abstract class QueryCompilationContext
     {
-        private readonly IModel _model;
-        private readonly ILogger _logger;
-        private readonly ILinqOperatorProvider _linqOperatorProvider;
-        private readonly IResultOperatorHandler _resultOperatorHandler;
-        private readonly EntityMaterializerSource _entityMaterializerSource;
-
         protected QueryCompilationContext(
             [NotNull] IModel model,
             [NotNull] ILogger logger,
@@ -29,37 +23,22 @@ namespace Microsoft.Data.Entity.Query
             Check.NotNull(resultOperatorHandler, "resultOperatorHandler");
             Check.NotNull(entityMaterializerSource, "entityMaterializerSource");
 
-            _model = model;
-            _logger = logger;
-            _linqOperatorProvider = linqOperatorProvider;
-            _resultOperatorHandler = resultOperatorHandler;
-            _entityMaterializerSource = entityMaterializerSource;
+            Model = model;
+            Logger = logger;
+            LinqOperatorProvider = linqOperatorProvider;
+            ResultOperatorHandler = resultOperatorHandler;
+            EntityMaterializerSource = entityMaterializerSource;
         }
 
-        public virtual IModel Model
-        {
-            get { return _model; }
-        }
+        public virtual IModel Model { get; }
 
-        public virtual ILogger Logger
-        {
-            get { return _logger; }
-        }
+        public virtual ILogger Logger { get; }
 
-        public virtual ILinqOperatorProvider LinqOperatorProvider
-        {
-            get { return _linqOperatorProvider; }
-        }
+        public virtual ILinqOperatorProvider LinqOperatorProvider { get; }
 
-        public virtual IResultOperatorHandler ResultOperatorHandler
-        {
-            get { return _resultOperatorHandler; }
-        }
+        public virtual IResultOperatorHandler ResultOperatorHandler { get; }
 
-        public virtual EntityMaterializerSource EntityMaterializerSource
-        {
-            get { return _entityMaterializerSource; }
-        }
+        public virtual EntityMaterializerSource EntityMaterializerSource { get; }
 
         public virtual EntityQueryModelVisitor CreateQueryModelVisitor()
         {
