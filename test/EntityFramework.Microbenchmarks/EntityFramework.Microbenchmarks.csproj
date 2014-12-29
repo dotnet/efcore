@@ -85,21 +85,15 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ChangeTracker\FixupTests.cs" />
     <Compile Include="Core\PerformanceCaseResult.cs" />
     <Compile Include="Core\Extensions.cs" />
     <Compile Include="Core\MetricCollector.cs" />
-    <Compile Include="DbContextPerf\DbContextAssociationPerfTests.cs" />
-    <Compile Include="DbContextPerf\DbContextPerfTests.cs" />
-    <Compile Include="DbContextPerf\DbContextPerfTestsBase.cs" />
-    <Compile Include="DbContextPerf\DbContextPerfTestsWithExistingDbContext.cs" />
-    <Compile Include="DbContextPerf\Model\AdvWorksDbContext.cs" />
-    <Compile Include="DbContextPerf\Model\AdvWorksEntities.cs" />
     <Compile Include="Core\IterationCounter.cs" />
     <Compile Include="Core\PerformanceMetric.cs" />
     <Compile Include="Core\PerfTestRunner.cs" />
     <Compile Include="Core\RunResult.cs" />
     <Compile Include="Core\TestDefinition.cs" />
-    <Compile Include="DbContextPerfTests.cs" />
     <Compile Include="Models\Orders\Customer.cs" />
     <Compile Include="Models\Orders\Order.cs" />
     <Compile Include="Models\Orders\OrderLine.cs" />
@@ -110,14 +104,6 @@
     <Compile Include="CalibrationTests.cs" />
     <Compile Include="Query\FuncletizationTests.cs" />
     <Compile Include="Query\SimpleQueryTests.cs" />
-    <Compile Include="StateManagerPerfTests.cs" />
-    <Compile Include="StateManagerPerf\FixupTests.cs" />
-    <Compile Include="StateManagerPerf\Model\AdventureWorks.cs" />
-    <Compile Include="StateManagerPerf\Model\Product.cs" />
-    <Compile Include="StateManagerPerf\Model\ProductCategory.cs" />
-    <Compile Include="StateManagerPerf\Model\ProductModel.cs" />
-    <Compile Include="StateManagerPerf\Model\ProductSubCategory.cs" />
-    <Compile Include="StateManagerPerf\StateManagerTestBase.cs" />
     <Compile Include="TestConfig.cs" />
     <Compile Include="UpdatePipeline\SimpleUpdatePipelineTests.cs" />
     <Compile Include="Utilities\ListExtensions.cs" />
