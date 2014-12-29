@@ -1905,6 +1905,28 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 select new { c.ContactName, o });
         }
 
+        [Fact]
+        public void Contains_with_subquery()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                cs.Where(c => os.Select(o => o.CustomerID).Contains(c.CustomerID)));
+        }
+
+        [Fact]
+        public void Contains_with_local_collection()
+        {
+            string[] ids = new[] { "ABCDE", "ALFKI" };
+            AssertQuery<Customer>(cs =>
+                cs.Where(c => ids.Contains(c.CustomerID)), stateEntryCount: 1);
+        }
+
+        [Fact]
+        public void Contains_top_level()
+        {
+            AssertQuery<Customer>(cs => 
+                cs.Select(c => c.CustomerID).Contains("ALFKI"));
+        }
+
         protected NorthwindContext CreateContext()
         {
             return Fixture.CreateContext();

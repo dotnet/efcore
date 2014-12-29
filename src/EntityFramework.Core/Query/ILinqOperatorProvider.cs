@@ -22,6 +22,7 @@ namespace Microsoft.Data.Entity.Query
         MethodInfo All { get; }
         MethodInfo Cast { get; }
         MethodInfo Count { get; }
+        MethodInfo Contains { get; }
         MethodInfo DefaultIfEmpty { get; }
         MethodInfo DefaultIfEmptyArg { get; }
         MethodInfo Distinct { get; }
