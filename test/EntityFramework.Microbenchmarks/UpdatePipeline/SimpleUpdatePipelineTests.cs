@@ -34,22 +34,14 @@ namespace EntityFramework.Microbenchmarks.UpdatePipeline
             {
                 using (context.Database.AsRelational().Connection.BeginTransaction())
                 {
-                    var customers = new List<Customer>();
                     for (int i = 0; i < 1000; i++)
                     {
-                        customers.Add(new Customer { Name = "Test Customer" });
+                        context.Customers.Add(new Customer { Name = "New Customer " + i });
                     }
 
-                    int records;
-                    using (collector.Start())
-                    {
-                        foreach (var customer in customers)
-                        {
-                            context.Customers.Add(customer);
-                        }
-
-                        records = context.SaveChanges();
-                    }
+                    collector.Start();
+                    var records = context.SaveChanges();
+                    collector.Stop();
 
                     Assert.Equal(1000, records);
                 }
@@ -75,18 +67,14 @@ namespace EntityFramework.Microbenchmarks.UpdatePipeline
             {
                 using (context.Database.AsRelational().Connection.BeginTransaction())
                 {
-                    int records;
-                    var customers = context.Customers.ToList();
-                    using (collector.Start())
+                    foreach (var customer in context.Customers)
                     {
-
-                        foreach (var customer in customers)
-                        {
-                            customer.Name += " Modified";
-                        }
-
-                        records = context.SaveChanges();
+                        customer.Name += " Modified";
                     }
+
+                    collector.Start();
+                    var records = context.SaveChanges();
+                    collector.Stop();
 
                     Assert.Equal(1000, records);
                 }
@@ -112,17 +100,14 @@ namespace EntityFramework.Microbenchmarks.UpdatePipeline
             {
                 using (context.Database.AsRelational().Connection.BeginTransaction())
                 {
-                    int records;
-                    var customers = context.Customers.ToList();
-                    using (collector.Start())
+                    foreach (var customer in context.Customers)
                     {
-                        foreach (var customer in customers)
-                        {
-                            context.Customers.Remove(customer);
-                        }
-
-                        records = context.SaveChanges();
+                        context.Customers.Remove(customer);
                     }
+
+                    collector.Start();
+                    var records = context.SaveChanges();
+                    collector.Stop();
 
                     Assert.Equal(1000, records);
                 }
@@ -148,34 +133,26 @@ namespace EntityFramework.Microbenchmarks.UpdatePipeline
             {
                 using (context.Database.AsRelational().Connection.BeginTransaction())
                 {
-                    int records;
                     var customers = context.Customers.ToArray();
-                    var newCustomers = new List<Customer>();
 
                     for (int i = 0; i < 333; i++)
                     {
-                        newCustomers.Add(new Customer { Name = "Test Customer" });
+                        context.Customers.Add(new Customer { Name = "New Customer " + i });
                     }
 
-                    using (collector.Start())
+                    for (int i = 0; i < 1000; i += 3)
                     {
-                        for (int i = 0; i < 1000; i += 3)
-                        {
-                            context.Customers.Remove(customers[i]);
-                        }
-
-                        for (int i = 1; i < 1000; i += 3)
-                        {
-                            customers[i].Name += " Modified";
-                        }
-
-                        foreach (var customer in newCustomers)
-                        {
-                            context.Customers.Add(customer);
-                        }
-
-                        records = context.SaveChanges();
+                        context.Customers.Remove(customers[i]);
                     }
+
+                    for (int i = 1; i < 1000; i += 3)
+                    {
+                        customers[i].Name += " Modified";
+                    }
+
+                    collector.Start();
+                    var records = context.SaveChanges();
+                    collector.Stop();
 
                     Assert.Equal(1000, records);
                 }
@@ -185,10 +162,10 @@ namespace EntityFramework.Microbenchmarks.UpdatePipeline
         private static void EnsureDatabaseSetup()
         {
             OrdersSeedData.EnsureCreated(
-                _connectionString, 
-                productCount: 0, 
-                customerCount: 1000, 
-                ordersPerCustomer: 0, 
+                _connectionString,
+                productCount: 0,
+                customerCount: 1000,
+                ordersPerCustomer: 0,
                 linesPerOrder: 0);
         }
     }
