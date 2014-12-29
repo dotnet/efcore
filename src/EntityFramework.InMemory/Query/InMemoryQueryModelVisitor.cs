@@ -7,6 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Query.ExpressionTreeVisitors;
@@ -32,28 +33,39 @@ namespace Microsoft.Data.Entity.InMemory.Query
             IQuerySource querySource,
             Type resultType,
             LambdaExpression accessorLambda,
-            INavigation navigation)
+            IReadOnlyList<INavigation> navigationPath)
         {
             Check.NotNull(querySource, "querySource");
             Check.NotNull(resultType, "resultType");
             Check.NotNull(accessorLambda, "accessorLambda");
-            Check.NotNull(navigation, "navigation");
+            Check.NotNull(navigationPath, "navigationPath");
 
             var inMemoryQueryCompilationContext
                 = ((InMemoryQueryCompilationContext)QueryCompilationContext);
 
-            var targetTable
-                = inMemoryQueryCompilationContext.Database
-                    .GetTable(navigation.GetTargetType());
+            var primaryKeyParameter = Expression.Parameter(typeof(EntityKey));
+            var relatedKeyFactoryParameter = Expression.Parameter(typeof(Func<IValueReader, EntityKey>));
 
             Expression
                 = Expression.Call(
                     _includeMethodInfo.MakeGenericMethod(resultType),
                     QueryContextParameter,
                     Expression,
-                    Expression.Constant(navigation),
-                    Expression.Constant(targetTable),
-                    accessorLambda);
+                    Expression.Constant(navigationPath),
+                    accessorLambda,
+                    Expression.NewArrayInit(
+                        typeof(Func<EntityKey, Func<IValueReader, EntityKey>, IEnumerable<IValueReader>>),
+                        navigationPath.Select(
+                            n => Expression.Lambda(
+                                Expression.Call(
+                                    _getRelatedValueReadersMethodInfo,
+                                    Expression.Constant(
+                                        inMemoryQueryCompilationContext.Database
+                                            .GetTable(n.GetTargetType())),
+                                    primaryKeyParameter,
+                                    relatedKeyFactoryParameter),
+                                primaryKeyParameter,
+                                relatedKeyFactoryParameter))));
         }
 
         private static readonly MethodInfo _includeMethodInfo
@@ -64,28 +76,37 @@ namespace Microsoft.Data.Entity.InMemory.Query
         private static IEnumerable<TResult> Include<TResult>(
             QueryContext queryContext,
             IEnumerable<TResult> source,
-            INavigation navigation,
-            InMemoryDatabase.InMemoryTable targetTable,
-            Func<TResult, object> accessorLambda)
+            IReadOnlyList<INavigation> navigationPath,
+            Func<TResult, object> accessorLambda,
+            IReadOnlyList<Func<EntityKey, Func<IValueReader, EntityKey>, IEnumerable<IValueReader>>> relatedValueReaders)
         {
-            var inMemoryQueryContext = ((InMemoryQueryContext)queryContext);
-
             return
                 source
                     .Select(result =>
-                        {
-                            inMemoryQueryContext.QueryBuffer
-                                .Include(
-                                    accessorLambda.Invoke(result),
-                                    navigation,
-                                    (primaryKey, relatedKeyFactory) =>
-                                        targetTable
-                                            .Select(vs => new ObjectArrayValueReader(vs))
-                                            .Where(valueReader => relatedKeyFactory(valueReader).Equals(primaryKey))
-                                );
+                    {
+                        queryContext.QueryBuffer
+                            .Include(
+                                accessorLambda.Invoke(result),
+                                navigationPath,
+                                relatedValueReaders);
 
-                            return result;
-                        });
+                        return result;
+                    });
+        }
+
+        private static readonly MethodInfo _getRelatedValueReadersMethodInfo
+            = typeof(InMemoryQueryModelVisitor).GetTypeInfo()
+                .GetDeclaredMethod("GetRelatedValueReaders");
+
+        [UsedImplicitly]
+        private static IEnumerable<IValueReader> GetRelatedValueReaders(
+            InMemoryDatabase.InMemoryTable targetTable,
+            EntityKey primaryKey,
+            Func<IValueReader, EntityKey> relatedKeyFactory)
+        {
+            return targetTable
+                .Select(vs => new ObjectArrayValueReader(vs))
+                .Where(valueReader => relatedKeyFactory(valueReader).Equals(primaryKey));
         }
 
         private static readonly MethodInfo _entityQueryMethodInfo
@@ -96,7 +117,7 @@ namespace Microsoft.Data.Entity.InMemory.Query
         private static IEnumerable<TEntity> EntityQuery<TEntity>(
             QueryContext queryContext,
             IEntityType entityType,
-            InMemoryDatabase.InMemoryTable inMemoryTable, 
+            InMemoryDatabase.InMemoryTable inMemoryTable,
             bool queryStateManager)
             where TEntity : class
         {
@@ -126,10 +147,7 @@ namespace Microsoft.Data.Entity.InMemory.Query
                 _querySource = querySource;
             }
 
-            private new InMemoryQueryModelVisitor QueryModelVisitor
-            {
-                get { return (InMemoryQueryModelVisitor)base.QueryModelVisitor; }
-            }
+            private new InMemoryQueryModelVisitor QueryModelVisitor => (InMemoryQueryModelVisitor)base.QueryModelVisitor;
 
             protected override Expression VisitEntityQueryable(Type elementType)
             {
@@ -149,7 +167,7 @@ namespace Microsoft.Data.Entity.InMemory.Query
                         _entityQueryMethodInfo.MakeGenericMethod(elementType),
                         QueryContextParameter,
                         Expression.Constant(entityType),
-                        Expression.Constant(inMemoryTable), 
+                        Expression.Constant(inMemoryTable),
                         Expression.Constant(QueryModelVisitor.QuerySourceRequiresTracking(_querySource)));
                 }
 

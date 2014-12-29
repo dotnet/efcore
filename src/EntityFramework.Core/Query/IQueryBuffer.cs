@@ -21,13 +21,13 @@ namespace Microsoft.Data.Entity.Query
 
         void Include(
             [CanBeNull] object entity,
-            [NotNull] INavigation navigation,
-            [NotNull] Func<EntityKey, Func<IValueReader, EntityKey>, IEnumerable<IValueReader>> relatedValueReaders);
+            [NotNull] IReadOnlyList<INavigation> navigationPath,
+            [NotNull] IReadOnlyList<Func<EntityKey, Func<IValueReader, EntityKey>, IEnumerable<IValueReader>>> relatedValueReaders);
 
         Task IncludeAsync(
             [CanBeNull] object entity,
-            [NotNull] INavigation navigation,
-            [NotNull] Func<EntityKey, Func<IValueReader, EntityKey>, IAsyncEnumerable<IValueReader>> relatedValueReaders,
+            [NotNull] IReadOnlyList<INavigation> navigationPath,
+            [NotNull] IReadOnlyList<Func<EntityKey, Func<IValueReader, EntityKey>, IAsyncEnumerable<IValueReader>>> relatedValueReaders,
             CancellationToken cancellationToken);
     }
 }

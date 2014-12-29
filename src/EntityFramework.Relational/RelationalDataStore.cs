@@ -62,15 +62,9 @@ namespace Microsoft.Data.Entity.Relational
             _options = options.Service;
         }
 
-        protected virtual RelationalValueReaderFactory ValueReaderFactory
-        {
-            get { return new RelationalTypedValueReaderFactory(); }
-        }
+        protected virtual RelationalValueReaderFactory ValueReaderFactory => new RelationalTypedValueReaderFactory();
 
-        public virtual IDbContextOptions DbContextOptions
-        {
-            get { return _options; }
-        }
+        public virtual IDbContextOptions DbContextOptions => _options;
 
         public override int SaveChanges(
             IReadOnlyList<StateEntry> stateEntries)

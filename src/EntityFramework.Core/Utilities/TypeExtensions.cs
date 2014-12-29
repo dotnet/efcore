@@ -70,17 +70,6 @@ namespace System
             }
         }
 
-        public static PropertyInfo GetAnyProperty(this Type type, string name)
-        {
-            var props = type.GetRuntimeProperties().Where(p => p.Name == name).ToList();
-            if (props.Count() > 1)
-            {
-                throw new AmbiguousMatchException();
-            }
-
-            return props.SingleOrDefault();
-        }
-
         public static ConstructorInfo GetDeclaredConstructor(this Type type, Type[] types)
         {
             types = types ?? new Type[0];

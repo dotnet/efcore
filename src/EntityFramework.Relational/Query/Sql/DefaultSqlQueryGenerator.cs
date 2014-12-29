@@ -31,10 +31,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             return _sql.ToString();
         }
 
-        protected virtual IndentedStringBuilder Sql
-        {
-            get { return _sql; }
-        }
+        protected virtual IndentedStringBuilder Sql => _sql;
 
         public virtual Expression VisitSelectExpression(SelectExpression selectExpression)
         {
@@ -382,10 +379,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             return binaryExpression;
         }
 
-        protected virtual string ConcatOperator
-        {
-            get { return "+"; }
-        }
+        protected virtual string ConcatOperator => "+";
 
         protected virtual string DelimitIdentifier([NotNull] string identifier)
         {
@@ -517,10 +511,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             return parameter.Name;
         }
 
-        public virtual IEnumerable<CommandParameter> Parameters
-        {
-            get { return _parameters; }
-        }
+        public virtual IEnumerable<CommandParameter> Parameters => _parameters;
 
         protected override Exception CreateUnhandledItemException<T>(T unhandledItem, string visitMethod)
         {

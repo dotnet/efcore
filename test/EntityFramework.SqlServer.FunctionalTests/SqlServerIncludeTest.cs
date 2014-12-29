@@ -48,12 +48,96 @@ ORDER BY [o].[OrderID]",
                 Sql);
         }
 
+        public override void Include_references_multi_level()
+        {
+            base.Include_references_multi_level();
+
+            Assert.Equal(
+                @"SELECT [od].[Discount], [od].[OrderID], [od].[ProductID], [od].[Quantity], [od].[UnitPrice], [o].[CustomerID], [o].[OrderDate], [o].[OrderID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Order Details] AS [od]
+INNER JOIN [Orders] AS [o] ON [od].[OrderID] = [o].[OrderID]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]",
+                Sql);
+        }
+
+        public override void Include_multiple_references_multi_level()
+        {
+            base.Include_multiple_references_multi_level();
+
+            Assert.Equal(
+                @"SELECT [od].[Discount], [od].[OrderID], [od].[ProductID], [od].[Quantity], [od].[UnitPrice], [o].[CustomerID], [o].[OrderDate], [o].[OrderID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [p].[Discontinued], [p].[ProductID], [p].[ProductName]
+FROM [Order Details] AS [od]
+INNER JOIN [Orders] AS [o] ON [od].[OrderID] = [o].[OrderID]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+INNER JOIN [Products] AS [p] ON [od].[ProductID] = [p].[ProductID]",
+                Sql);
+        }
+
+        public override void Include_multiple_references_multi_level_reverse()
+        {
+            base.Include_multiple_references_multi_level_reverse();
+
+            Assert.Equal(
+                @"SELECT [od].[Discount], [od].[OrderID], [od].[ProductID], [od].[Quantity], [od].[UnitPrice], [p].[Discontinued], [p].[ProductID], [p].[ProductName], [o].[CustomerID], [o].[OrderDate], [o].[OrderID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Order Details] AS [od]
+INNER JOIN [Products] AS [p] ON [od].[ProductID] = [p].[ProductID]
+INNER JOIN [Orders] AS [o] ON [od].[OrderID] = [o].[OrderID]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]",
+                Sql);
+        }
+
+        public override void Include_references_and_collection_multi_level()
+        {
+            base.Include_references_and_collection_multi_level();
+
+            Assert.Equal(
+                @"SELECT [od].[Discount], [od].[OrderID], [od].[ProductID], [od].[Quantity], [od].[UnitPrice], [o].[CustomerID], [o].[OrderDate], [o].[OrderID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Order Details] AS [od]
+INNER JOIN [Orders] AS [o] ON [od].[OrderID] = [o].[OrderID]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+ORDER BY [od].[OrderID], [od].[ProductID]
+
+SELECT [o0].[CustomerID], [o0].[OrderDate], [o0].[OrderID]
+FROM [Orders] AS [o0]
+INNER JOIN (
+    SELECT DISTINCT [od].[OrderID], [od].[ProductID], [c].[CustomerID]
+    FROM [Order Details] AS [od]
+    INNER JOIN [Orders] AS [o] ON [od].[OrderID] = [o].[OrderID]
+    LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+) AS [od] ON [o0].[CustomerID] = [od].[CustomerID]
+ORDER BY [od].[OrderID], [od].[ProductID]",
+                Sql);
+        }
+
+        public override void Include_multi_level_reference_and_collection_predicate()
+        {
+            base.Include_multi_level_reference_and_collection_predicate();
+
+            Assert.Equal(
+                @"SELECT TOP(@p0) [o].[CustomerID], [o].[OrderDate], [o].[OrderID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+WHERE [o].[OrderID] = @p1
+ORDER BY [o].[OrderID]
+
+SELECT [o0].[CustomerID], [o0].[OrderDate], [o0].[OrderID]
+FROM [Orders] AS [o0]
+INNER JOIN (
+    SELECT DISTINCT TOP(@p0) [o].[OrderID], [c].[CustomerID]
+    FROM [Orders] AS [o]
+    LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+    WHERE [o].[OrderID] = @p1
+) AS [o] ON [o0].[CustomerID] = [o].[CustomerID]
+ORDER BY [o].[OrderID]",
+                Sql);
+        }
+
         public override void Include_collection_alias_generation()
         {
             base.Include_collection_alias_generation();
 
             Assert.Equal(
-                 @"SELECT [o].[CustomerID], [o].[OrderDate], [o].[OrderID]
+                @"SELECT [o].[CustomerID], [o].[OrderDate], [o].[OrderID]
 FROM [Orders] AS [o]
 ORDER BY [o].[OrderID]
 
@@ -64,7 +148,7 @@ INNER JOIN (
     FROM [Orders] AS [o]
 ) AS [o] ON [o0].[OrderID] = [o].[OrderID]
 ORDER BY [o].[OrderID]",
-                 Sql);
+                Sql);
         }
 
         public override void Include_collection_order_by_key()
