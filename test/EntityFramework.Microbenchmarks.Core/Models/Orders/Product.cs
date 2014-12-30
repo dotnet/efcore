@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 
-namespace EntityFramework.Microbenchmarks.Models.Orders
+namespace EntityFramework.Microbenchmarks.Core.Models.Orders
 {
     public class Product
     {

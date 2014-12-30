@@ -57,12 +57,8 @@
   <ItemGroup>
     <Compile Include="ChangeTracker\DbSetOperationTests.cs" />
     <Compile Include="ChangeTracker\FixupTests.cs" />
-    <Compile Include="Models\Orders\Customer.cs" />
     <Compile Include="Models\Orders\OrdersContext.cs" />
     <Compile Include="Models\Orders\OrdersSeedData.cs" />
-    <Compile Include="Models\Orders\Order.cs" />
-    <Compile Include="Models\Orders\OrderLine.cs" />
-    <Compile Include="Models\Orders\Product.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Query\FuncletizationTests.cs" />
     <Compile Include="Query\SimpleQueryTests.cs" />
@@ -74,16 +70,15 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />
-    <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Diagnostics.Debug" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\EntityFramework.Microbenchmarks\EntityFramework.Microbenchmarks.csproj">
-      <Project>{f44dc472-86a1-4a60-b5c4-98d76d7b34af}</Project>
-      <Name>EntityFramework.Microbenchmarks</Name>
+    <ProjectReference Include="..\EntityFramework.Microbenchmarks.Core\EntityFramework.Microbenchmarks.Core.csproj">
+      <Project>{b8bccf52-9bf3-4a83-bc3d-4cb312dc9292}</Project>
+      <Name>EntityFramework.Microbenchmarks.Core</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

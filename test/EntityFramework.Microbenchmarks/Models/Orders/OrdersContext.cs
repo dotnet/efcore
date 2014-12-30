@@ -4,6 +4,7 @@
 using System;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Metadata;
+using EntityFramework.Microbenchmarks.Core.Models.Orders;
 
 namespace EntityFramework.Microbenchmarks.Models.Orders
 {

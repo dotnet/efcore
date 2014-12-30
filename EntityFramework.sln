@@ -47,6 +47,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.Microbenchm
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.Microbenchmarks.EF6", "test\EntityFramework.Microbenchmarks.EF6\EntityFramework.Microbenchmarks.EF6.csproj", "{CF26777E-6ADA-4AA8-96BA-96E43E4933A1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.Microbenchmarks.Core", "test\EntityFramework.Microbenchmarks.Core\EntityFramework.Microbenchmarks.Core.csproj", "{B8BCCF52-9BF3-4A83-BC3D-4CB312DC9292}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -133,6 +135,10 @@ Global
 		{CF26777E-6ADA-4AA8-96BA-96E43E4933A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CF26777E-6ADA-4AA8-96BA-96E43E4933A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CF26777E-6ADA-4AA8-96BA-96E43E4933A1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B8BCCF52-9BF3-4A83-BC3D-4CB312DC9292}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B8BCCF52-9BF3-4A83-BC3D-4CB312DC9292}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B8BCCF52-9BF3-4A83-BC3D-4CB312DC9292}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B8BCCF52-9BF3-4A83-BC3D-4CB312DC9292}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -158,5 +164,6 @@ Global
 		{A3DE8824-240C-4313-8C36-264BCCEF8B54} = {547020C0-976F-4542-81CE-7FD465595614}
 		{F44DC472-86A1-4A60-B5C4-98D76D7B34AF} = {547020C0-976F-4542-81CE-7FD465595614}
 		{CF26777E-6ADA-4AA8-96BA-96E43E4933A1} = {547020C0-976F-4542-81CE-7FD465595614}
+		{B8BCCF52-9BF3-4A83-BC3D-4CB312DC9292} = {547020C0-976F-4542-81CE-7FD465595614}
 	EndGlobalSection
 EndGlobal

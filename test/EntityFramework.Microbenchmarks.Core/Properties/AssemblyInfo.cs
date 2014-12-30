@@ -1,16 +1,15 @@
 ﻿using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using Xunit;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("EntityFramework.Microbenchmarks.EF6")]
+[assembly: AssemblyTitle("EntityFramework.Microbenchmarks.Core")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("EntityFramework.Microbenchmarks.EF6")]
+[assembly: AssemblyProduct("EntityFramework.Microbenchmarks.Core")]
 [assembly: AssemblyCopyright("Copyright ©  2014")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -21,7 +20,7 @@ using Xunit;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("cf26777e-6ada-4aa8-96ba-96e43e4933a1")]
+[assembly: Guid("b8bccf52-9bf3-4a83-bc3d-4cb312dc9292")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -35,6 +34,3 @@ using Xunit;
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
-
-[assembly: TestFramework("EntityFramework.Microbenchmarks.Core.PerfTestFramework", "EntityFramework.Microbenchmarks.Core")]
-

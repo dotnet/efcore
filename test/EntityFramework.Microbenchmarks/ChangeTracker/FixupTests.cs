@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using EntityFramework.Microbenchmarks.Core;
+using EntityFramework.Microbenchmarks.Core.Models.Orders;
 using EntityFramework.Microbenchmarks.Models.Orders;
 using System;
 using System.Collections.Generic;
@@ -207,7 +208,7 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
 
         private static void EnsureDatabaseSetup()
         {
-            OrdersSeedData.EnsureCreated(
+            new OrdersSeedData().EnsureCreated(
                 _connectionString,
                 productCount: 1000,
                 customerCount: 1000,

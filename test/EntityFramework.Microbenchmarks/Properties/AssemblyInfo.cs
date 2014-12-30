@@ -39,5 +39,5 @@ using Xunit;
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-[assembly: TestFramework("EntityFramework.Microbenchmarks.PerfTestFramework", "EntityFramework.Microbenchmarks")]
+[assembly: TestFramework("EntityFramework.Microbenchmarks.Core.PerfTestFramework", "EntityFramework.Microbenchmarks.Core")]
 

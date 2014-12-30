@@ -9,7 +9,7 @@ using Microsoft.Framework.Runtime;
 using Microsoft.Framework.Runtime.Infrastructure;
 #endif
 
-namespace EntityFramework.Microbenchmarks
+namespace EntityFramework.Microbenchmarks.Core
 {
     public class PerfTestFramework : XunitTestFramework
     {

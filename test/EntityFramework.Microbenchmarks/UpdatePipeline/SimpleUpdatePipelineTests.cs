@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using EntityFramework.Microbenchmarks.Core;
+using EntityFramework.Microbenchmarks.Core.Models.Orders;
 using EntityFramework.Microbenchmarks.Models.Orders;
 using Microsoft.Data.Entity;
 using System;
@@ -161,7 +162,7 @@ namespace EntityFramework.Microbenchmarks.UpdatePipeline
 
         private static void EnsureDatabaseSetup()
         {
-            OrdersSeedData.EnsureCreated(
+            new OrdersSeedData().EnsureCreated(
                 _connectionString,
                 productCount: 0,
                 customerCount: 1000,

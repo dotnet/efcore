@@ -119,7 +119,7 @@ namespace EntityFramework.Microbenchmarks.Query
 
         private static void EnsureDatabaseSetup()
         {
-            OrdersSeedData.EnsureCreated(
+            new OrdersSeedData().EnsureCreated(
                 _connectionString, 
                 productCount: 100, 
                 customerCount: 0, 

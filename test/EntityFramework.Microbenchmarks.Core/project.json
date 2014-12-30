@@ -1,9 +1,6 @@
 {
     "dependencies": {
-        "EntityFramework.SqlServer": "7.0.0-*",
-        "EntityFramework.Microbenchmarks.Core": "1.0.0-*",
         "Microsoft.Framework.ConfigurationModel.Json": "1.0.0-*",
-        "Microsoft.Framework.ConfigurationModel.Xml": "1.0.0-*",
         "xunit.runner.kre": "1.0.0-*"
     },
     "commands": {

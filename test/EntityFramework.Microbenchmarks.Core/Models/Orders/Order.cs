@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace EntityFramework.Microbenchmarks.EF6.Models.Orders
+namespace EntityFramework.Microbenchmarks.Core.Models.Orders
 {
     public class Order
     {

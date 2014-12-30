@@ -1,17 +1,17 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using EntityFramework.Microbenchmarks.Core.Models.Orders;
 using Microsoft.Data.Entity;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 
 namespace EntityFramework.Microbenchmarks.Models.Orders
 {
-    public class OrdersSeedData
+    public class OrdersSeedData : OrdersSeedDataBase
     {
-        public static void EnsureCreated(
+        public void EnsureCreated(
            string connectionString,
            int productCount,
            int customerCount,
@@ -33,7 +33,7 @@ namespace EntityFramework.Microbenchmarks.Models.Orders
             }
         }
 
-        public static void InsertSeedData(
+        public void InsertSeedData(
             string connectionString, 
             int productCount, 
             int customerCount, 
@@ -68,75 +68,6 @@ namespace EntityFramework.Microbenchmarks.Models.Orders
                 context.OrderLines.Add(lines.ToArray());
                 context.SaveChanges();
             }
-        }
-
-        private static List<OrderLine> CreateOrderLines(int linesPerOrder, List<Product> products, List<Order> orders)
-        {
-            var lines = new List<OrderLine>();
-            for (int o = 0; o < orders.Count; o++)
-            {
-                for (int l = 0; l < linesPerOrder; l++)
-                {
-                    var product = products[(o + l) % products.Count];
-                    var quantity = l + 1;
-                    lines.Add(new OrderLine
-                    {
-                        OrderId = orders[o].OrderId,
-                        ProductId = product.ProductId,
-                        Price = product.Retail * quantity,
-                        Quantity = quantity
-                    });
-                }
-            }
-
-            return lines;
-        }
-
-        private static List<Order> CreateOrders(int ordersPerCustomer, List<Customer> customers)
-        {
-            var orders = new List<Order>();
-            foreach (var customer in customers)
-            {
-                for (int i = 0; i < ordersPerCustomer; i++)
-                {
-                    orders.Add(new Order
-                    {
-                        CustomerId = customer.CustomerId,
-                        Date = new DateTime(2000, 1, 1)
-                    });
-                }
-            }
-
-            return orders;
-        }
-
-        private static List<Customer> CreateCustomers(int customerCount)
-        {
-            var customers = new List<Customer>();
-            for (var c = 0; c < customerCount; c++)
-            {
-                customers.Add(new Customer
-                {
-                    Name = "Customer " + c
-                });
-            }
-
-            return customers;
-        }
-
-        private static List<Product> CreateProducts(int productCount)
-        {
-            var products = new List<Product>();
-            for (var i = 0; i < productCount; i++)
-            {
-                products.Add(new Product
-                {
-                    Name = "Product " + i,
-                    Retail = (i % 10) + 10
-                });
-            }
-
-            return products;
         }
     }
 }
