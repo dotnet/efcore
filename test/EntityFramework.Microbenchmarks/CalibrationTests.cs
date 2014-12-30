@@ -17,7 +17,13 @@ namespace EntityFramework.Microbenchmarks
                 TestName = "Calibration_100ms",
                 IterationCount = 100,
                 WarmupCount = 5,
-                Run = () => Thread.Sleep(100)
+                Run = harness =>
+                {
+                    using (harness.StartCollection())
+                    {
+                        Thread.Sleep(100);
+                    }
+                }
             }.RunTest();
         }
 
@@ -29,10 +35,10 @@ namespace EntityFramework.Microbenchmarks
                 TestName = "Calibration_100ms_controlled",
                 IterationCount = 100,
                 WarmupCount = 5,
-                RunWithCollector = (collector) =>
+                Run = harness =>
                 {
                     Thread.Sleep(100);
-                    using (collector.Start())
+                    using (harness.StartCollection())
                     {
                         Thread.Sleep(100);
                     }

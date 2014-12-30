@@ -89,7 +89,7 @@
     <Compile Include="ChangeTracker\FixupTests.cs" />
     <Compile Include="Core\PerformanceCaseResult.cs" />
     <Compile Include="Core\Extensions.cs" />
-    <Compile Include="Core\MetricCollector.cs" />
+    <Compile Include="Core\TestHarness.cs" />
     <Compile Include="Core\IterationCounter.cs" />
     <Compile Include="Core\PerformanceMetric.cs" />
     <Compile Include="Core\PerfTestRunner.cs" />
@@ -107,7 +107,6 @@
     <Compile Include="Query\SimpleQueryTests.cs" />
     <Compile Include="TestConfig.cs" />
     <Compile Include="UpdatePipeline\SimpleUpdatePipelineTests.cs" />
-    <Compile Include="Utilities\ListExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\EntityFramework.Relational\EntityFramework.Relational.csproj">

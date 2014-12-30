@@ -22,7 +22,7 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
                 TestName = "ChangeTracker_DbSetOperation_Add_EF6",
                 IterationCount = 100,
                 WarmupCount = 5,
-                RunWithCollector = collector =>
+                Run = harness =>
                 {
                     using (var context = new OrdersContext(_connectionString))
                     {
@@ -32,7 +32,7 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
                             customers[i] = new Customer { Name = "Customer " + i };
                         }
 
-                        using (collector.Start())
+                        using (harness.StartCollection())
                         {
                             foreach (var customer in customers)
                             {
@@ -52,7 +52,7 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
                 TestName = "ChangeTracker_DbSetOperation_AddCollection_EF6",
                 IterationCount = 100,
                 WarmupCount = 5,
-                RunWithCollector = collector =>
+                Run = harness =>
                 {
                     using (var context = new OrdersContext(_connectionString))
                     {
@@ -62,7 +62,7 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
                             customers[i] = new Customer { Name = "Customer " + i };
                         }
 
-                        using (collector.Start())
+                        using (harness.StartCollection())
                         {
                             context.Customers.AddRange(customers);
                         }
@@ -80,14 +80,14 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
                 IterationCount = 100,
                 WarmupCount = 5,
                 Setup = EnsureDatabaseSetup,
-                RunWithCollector = collector =>
+                Run = harness =>
                 {
                     using (var context = new OrdersContext(_connectionString))
                     {
                         var customers = GetAllCustomersFromDatabase();
                         Assert.Equal(1000, customers.Length);
 
-                        using (collector.Start())
+                        using (harness.StartCollection())
                         {
                             foreach (var customer in customers)
                             {
@@ -111,14 +111,14 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
                 IterationCount = 100,
                 WarmupCount = 5,
                 Setup = EnsureDatabaseSetup,
-                RunWithCollector = collector =>
+                Run = harness =>
                 {
                     using (var context = new OrdersContext(_connectionString))
                     {
                         var customers = context.Customers.ToArray();
                         Assert.Equal(1000, customers.Length);
 
-                        using (collector.Start())
+                        using (harness.StartCollection())
                         {
                             foreach (var customer in customers)
                             {
@@ -139,14 +139,14 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
                 IterationCount = 100,
                 WarmupCount = 5,
                 Setup = EnsureDatabaseSetup,
-                RunWithCollector = collector =>
+                Run = harness =>
                 {
                     using (var context = new OrdersContext(_connectionString))
                     {
                         var customers = context.Customers.ToArray();
                         Assert.Equal(1000, customers.Length);
 
-                        using (collector.Start())
+                        using (harness.StartCollection())
                         {
                             context.Customers.RemoveRange(customers);
                         }
@@ -164,14 +164,14 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
                 IterationCount = 100,
                 WarmupCount = 5,
                 Setup = EnsureDatabaseSetup,
-                RunWithCollector = collector =>
+                Run = harness =>
                 {
                     using (var context = new OrdersContext(_connectionString))
                     {
                         var customers = GetAllCustomersFromDatabase();
                         Assert.Equal(1000, customers.Length);
 
-                        using (collector.Start())
+                        using (harness.StartCollection())
                         {
                             foreach (var customer in customers)
                             {

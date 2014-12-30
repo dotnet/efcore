@@ -23,7 +23,7 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
                 IterationCount = 10,
                 WarmupCount = 5,
                 Setup = EnsureDatabaseSetup,
-                RunWithCollector = collector =>
+                Run = harness =>
                 {
                     using (var context = new OrdersContext(_connectionString))
                     {
@@ -34,7 +34,7 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
                         {
                             var order = new Order { CustomerId = customer.CustomerId };
 
-                            using (collector.Start())
+                            using (harness.StartCollection())
                             {
                                 context.Orders.Add(order);
                             }
@@ -57,7 +57,7 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
                 TestName = "ChangeTracker_Fixup_AttachChildren_EF6",
                 IterationCount = 10,
                 WarmupCount = 5,
-                RunWithCollector = collector =>
+                Run = harness =>
                 {
                     List<Order> orders;
                     using (var context = new OrdersContext(_connectionString))
@@ -73,7 +73,7 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
 
                         foreach (var order in orders)
                         {
-                            using (collector.Start())
+                            using (harness.StartCollection())
                             {
                                 context.Orders.Attach(order);
                             }
@@ -93,7 +93,7 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
                 TestName = "ChangeTracker_Fixup_AttachParents_EF6",
                 IterationCount = 10,
                 WarmupCount = 5,
-                RunWithCollector = collector =>
+                Run = harness =>
                 {
                     List<Customer> customers;
                     using (var context = new OrdersContext(_connectionString))
@@ -109,7 +109,7 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
 
                         foreach (var customer in customers)
                         {
-                            using (collector.Start())
+                            using (harness.StartCollection())
                             {
                                 context.Customers.Attach(customer);
                             }
@@ -130,15 +130,15 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
                 IterationCount = 10,
                 WarmupCount = 5,
                 Setup = EnsureDatabaseSetup,
-                RunWithCollector = collector =>
+                Run = harness =>
                 {
                     using (var context = new OrdersContext(_connectionString))
                     {
                         context.Customers.ToList();
 
-                        collector.Start();
+                        harness.StartCollection();
                         var orders = context.Orders.ToList();
-                        collector.Stop();
+                        harness.StopCollection();
 
                         Assert.Equal(1000, context.ChangeTracker.Entries<Customer>().Count());
                         Assert.Equal(1000, context.ChangeTracker.Entries<Order>().Count());
@@ -157,15 +157,15 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
                 IterationCount = 10,
                 WarmupCount = 5,
                 Setup = EnsureDatabaseSetup,
-                RunWithCollector = collector =>
+                Run = harness =>
                 {
                     using (var context = new OrdersContext(_connectionString))
                     {
                         context.Orders.ToList();
 
-                        collector.Start();
+                        harness.StartCollection();
                         var customers = context.Customers.ToList();
-                        collector.Stop();
+                        harness.StopCollection();
 
                         Assert.Equal(1000, context.ChangeTracker.Entries<Customer>().Count());
                         Assert.Equal(1000, context.ChangeTracker.Entries<Order>().Count());

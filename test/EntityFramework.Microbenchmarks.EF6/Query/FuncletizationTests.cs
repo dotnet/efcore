@@ -23,11 +23,11 @@ namespace EntityFramework.Microbenchmarks.Query
                 IterationCount = 50,
                 WarmupCount = 5,
                 Setup = EnsureDatabaseSetup,
-                RunWithCollector = collector =>
+                Run = harness =>
                 {
                     using (var context = new OrdersContext(_connectionString))
                     {
-                        using (collector.Start())
+                        using (harness.StartCollection())
                         {
                             var val = 11;
                             for (int i = 0; i < _funcletizationIterationCount; i++)
@@ -51,11 +51,11 @@ namespace EntityFramework.Microbenchmarks.Query
                 IterationCount = 50,
                 WarmupCount = 5,
                 Setup = EnsureDatabaseSetup,
-                RunWithCollector = collector =>
+                Run = harness =>
                 {
                     using (var context = new OrdersContext(_connectionString))
                     {
-                        using (collector.Start())
+                        using (harness.StartCollection())
                         {
                             var val = 11;
                             var query = context.Products.Where(p => p.ProductId < val);
@@ -82,11 +82,11 @@ namespace EntityFramework.Microbenchmarks.Query
                 IterationCount = 50,
                 WarmupCount = 5,
                 Setup = EnsureDatabaseSetup,
-                RunWithCollector = collector =>
+                Run = harness =>
                 {
                     using (var context = new OrdersContext(_connectionString))
                     {
-                        using (collector.Start())
+                        using (harness.StartCollection())
                         {
                             var valueHolder = new ValueHolder();
                             for (int i = 0; i < _funcletizationIterationCount; i++)

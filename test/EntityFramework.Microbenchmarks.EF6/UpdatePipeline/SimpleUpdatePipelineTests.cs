@@ -22,12 +22,12 @@ namespace EntityFramework.Microbenchmarks.EF6.UpdatePipeline
                 TestName = "UpdatePipeline_Simple_Insert_EF6",
                 IterationCount = 100,
                 WarmupCount = 5,
-                RunWithCollector = Insert,
+                Run = Insert,
                 Setup = EnsureDatabaseSetup
             }.RunTest();
         }
 
-        private static void Insert(MetricCollector collector)
+        private static void Insert(TestHarness harness)
         {
             using (var context = new OrdersContext(_connectionString))
             {
@@ -38,9 +38,9 @@ namespace EntityFramework.Microbenchmarks.EF6.UpdatePipeline
                         context.Customers.Add(new Customer { Name = "New Customer " + i });
                     }
 
-                    collector.Start();
+                    harness.StartCollection();
                     var records = context.SaveChanges();
-                    collector.Stop();
+                    harness.StopCollection();
 
                     Assert.Equal(1000, records);
                 }
@@ -55,12 +55,12 @@ namespace EntityFramework.Microbenchmarks.EF6.UpdatePipeline
                 TestName = "UpdatePipeline_Simple_Update_EF6",
                 IterationCount = 100,
                 WarmupCount = 5,
-                RunWithCollector = Update,
+                Run = Update,
                 Setup = EnsureDatabaseSetup
             }.RunTest();
         }
 
-        private static void Update(MetricCollector collector)
+        private static void Update(TestHarness harness)
         {
             using (var context = new OrdersContext(_connectionString))
             {
@@ -71,9 +71,9 @@ namespace EntityFramework.Microbenchmarks.EF6.UpdatePipeline
                         customer.Name += " Modified";
                     }
 
-                    collector.Start();
+                    harness.StartCollection();
                     var records = context.SaveChanges();
-                    collector.Stop();
+                    harness.StopCollection();
 
                     Assert.Equal(1000, records);
                 }
@@ -88,12 +88,12 @@ namespace EntityFramework.Microbenchmarks.EF6.UpdatePipeline
                 TestName = "UpdatePipeline_Simple_Delete_EF6",
                 IterationCount = 100,
                 WarmupCount = 5,
-                RunWithCollector = Delete,
+                Run = Delete,
                 Setup = EnsureDatabaseSetup
             }.RunTest();
         }
 
-        private static void Delete(MetricCollector collector)
+        private static void Delete(TestHarness harness)
         {
             using (var context = new OrdersContext(_connectionString))
             {
@@ -104,9 +104,9 @@ namespace EntityFramework.Microbenchmarks.EF6.UpdatePipeline
                         context.Customers.Remove(customer);
                     }
 
-                    collector.Start();
+                    harness.StartCollection();
                     var records = context.SaveChanges();
-                    collector.Stop();
+                    harness.StopCollection();
 
                     Assert.Equal(1000, records);
                 }
@@ -121,12 +121,12 @@ namespace EntityFramework.Microbenchmarks.EF6.UpdatePipeline
                 TestName = "UpdatePipeline_Simple_Mixed_EF6",
                 IterationCount = 100,
                 WarmupCount = 5,
-                RunWithCollector = Mixed,
+                Run = Mixed,
                 Setup = EnsureDatabaseSetup
             }.RunTest();
         }
 
-        private static void Mixed(MetricCollector collector)
+        private static void Mixed(TestHarness harness)
         {
             using (var context = new OrdersContext(_connectionString))
             {
@@ -149,9 +149,9 @@ namespace EntityFramework.Microbenchmarks.EF6.UpdatePipeline
                         customers[i].Name += " Modified";
                     }
 
-                    collector.Start();
+                    harness.StartCollection();
                     var records = context.SaveChanges();
-                    collector.Stop();
+                    harness.StopCollection();
 
                     Assert.Equal(1000, records);
                 }

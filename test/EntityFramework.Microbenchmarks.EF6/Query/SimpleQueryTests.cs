@@ -23,13 +23,13 @@ namespace EntityFramework.Microbenchmarks.Query
                 IterationCount = 100,
                 WarmupCount = 5,
                 Setup = EnsureDatabaseSetup,
-                RunWithCollector = collector =>
+                Run = harness =>
                 {
                     using (var context = new OrdersContext(_connectionString))
                     {
-                        collector.Start();
+                        harness.StartCollection();
                         var result = context.Products.ToList();
-                        collector.Stop();
+                        harness.StopCollection();
                         Assert.Equal(1000, result.Count);
                     }
                 }
@@ -45,13 +45,13 @@ namespace EntityFramework.Microbenchmarks.Query
                 IterationCount = 100,
                 WarmupCount = 5,
                 Setup = EnsureDatabaseSetup,
-                RunWithCollector = collector =>
+                Run = harness =>
                 {
                     using (var context = new OrdersContext(_connectionString))
                     {
-                        collector.Start();
+                        harness.StartCollection();
                         var result = context.Products.Where(p => p.Retail < 15).ToList();
-                        collector.Stop();
+                        harness.StopCollection();
                         Assert.Equal(500, result.Count);
                     }
                 }
@@ -67,13 +67,13 @@ namespace EntityFramework.Microbenchmarks.Query
                 IterationCount = 100,
                 WarmupCount = 5,
                 Setup = EnsureDatabaseSetup,
-                RunWithCollector = collector =>
+                Run = harness =>
                 {
                     using (var context = new OrdersContext(_connectionString))
                     {
-                        collector.Start();
+                        harness.StartCollection();
                         var result = context.Products.OrderBy(p => p.Retail).ToList();
-                        collector.Stop();
+                        harness.StopCollection();
                         Assert.Equal(1000, result.Count);
                     }
                 }
@@ -89,13 +89,13 @@ namespace EntityFramework.Microbenchmarks.Query
                 IterationCount = 100,
                 WarmupCount = 5,
                 Setup = EnsureDatabaseSetup,
-                RunWithCollector = collector =>
+                Run = harness =>
                 {
                     using (var context = new OrdersContext(_connectionString))
                     {
-                        collector.Start();
+                        harness.StartCollection();
                         var result = context.Products.Count();
-                        collector.Stop();
+                        harness.StopCollection();
                         Assert.Equal(1000, result);
                     }
                 }
@@ -111,17 +111,17 @@ namespace EntityFramework.Microbenchmarks.Query
                 IterationCount = 100,
                 WarmupCount = 5,
                 Setup = EnsureDatabaseSetup,
-                RunWithCollector = collector =>
+                Run = harness =>
                 {
                     using (var context = new OrdersContext(_connectionString))
                     {
-                        collector.Start();
+                        harness.StartCollection();
                         var result = context.Products
                             .OrderBy(p => p.ProductId)
                             .Skip(500).Take(500)
                             .ToList();
 
-                        collector.Stop();
+                        harness.StopCollection();
                         Assert.Equal(500, result.Count);
                     }
                 }
@@ -137,11 +137,11 @@ namespace EntityFramework.Microbenchmarks.Query
                 IterationCount = 100,
                 WarmupCount = 5,
                 Setup = EnsureDatabaseSetup,
-                RunWithCollector = collector =>
+                Run = harness =>
                 {
                     using (var context = new OrdersContext(_connectionString))
                     {
-                        collector.Start();
+                        harness.StartCollection();
                         var result = context.Products
                             .GroupBy(p => p.Retail)
                             .Select(g => new
@@ -151,7 +151,7 @@ namespace EntityFramework.Microbenchmarks.Query
                             })
                             .ToList();
 
-                        collector.Stop();
+                        harness.StopCollection();
                         Assert.Equal(10, result.Count);
                         Assert.All(result, g => Assert.Equal(100, g.Products.Count()));
                     }
@@ -168,13 +168,13 @@ namespace EntityFramework.Microbenchmarks.Query
                 IterationCount = 100,
                 WarmupCount = 5,
                 Setup = EnsureDatabaseSetup,
-                RunWithCollector = collector =>
+                Run = harness =>
                 {
                     using (var context = new OrdersContext(_connectionString))
                     {
-                        collector.Start();
+                        harness.StartCollection();
                         var result = context.Customers.Include(c => c.Orders).ToList();
-                        collector.Stop();
+                        harness.StopCollection();
                         Assert.Equal(1000, result.Count);
                         Assert.Equal(2000, result.SelectMany(c => c.Orders).Count());
                     }
@@ -191,13 +191,13 @@ namespace EntityFramework.Microbenchmarks.Query
                 IterationCount = 100,
                 WarmupCount = 5,
                 Setup = EnsureDatabaseSetup,
-                RunWithCollector = collector =>
+                Run = harness =>
                 {
                     using (var context = new OrdersContext(_connectionString))
                     {
-                        collector.Start();
+                        harness.StartCollection();
                         var result = context.Products.Select(p => new { p.Name, p.Retail }).ToList();
-                        collector.Stop();
+                        harness.StopCollection();
                         Assert.Equal(1000, result.Count);
                     }
                 }
@@ -213,11 +213,11 @@ namespace EntityFramework.Microbenchmarks.Query
                 IterationCount = 100,
                 WarmupCount = 5,
                 Setup = EnsureDatabaseSetup,
-                RunWithCollector = collector =>
+                Run = harness =>
                 {
                     using (var context = new OrdersContext(_connectionString))
                     {
-                        collector.Start();
+                        harness.StartCollection();
                         var result = context.Orders.Select(o => new
                                 {
                                     CustomerName = o.Customer.Name,
@@ -225,7 +225,7 @@ namespace EntityFramework.Microbenchmarks.Query
                                 })
                             .ToList();
 
-                        collector.Stop();
+                        harness.StopCollection();
                         Assert.Equal(2000, result.Count);
                     }
                 }
@@ -241,13 +241,13 @@ namespace EntityFramework.Microbenchmarks.Query
                 IterationCount = 100,
                 WarmupCount = 5,
                 Setup = EnsureDatabaseSetup,
-                RunWithCollector = collector =>
+                Run = harness =>
                 {
                     using (var context = new OrdersContext(_connectionString))
                     {
-                        collector.Start();
+                        harness.StartCollection();
                         var result = context.Products.AsNoTracking().ToList();
-                        collector.Stop();
+                        harness.StopCollection();
                         Assert.Equal(1000, result.Count);
                     }
                 }

@@ -5,44 +5,18 @@ using System;
 
 namespace EntityFramework.Microbenchmarks.Core
 {
-    public abstract class TestDefinitionBase
+    public class TestDefinition
     {
+        public TestDefinition()
+        {
+            IterationCount = 100;
+        }
+
         public string TestName { get; set; }
         public Action Setup { get; set; }
         public Action Cleanup { get; set; }
-    }
-
-    public class TestDefinition : TestDefinitionBase
-    {
-        public int? IterationCount { get; set; }
-        public int? WarmupCount { get; set; }
-        public Action Run
-        {
-            set
-            {
-                RunWithCollector = (c) =>
-                {
-                    c.Start();
-
-                    value();
-
-                    c.Stop();
-                };
-            }
-        }
-        public Action<MetricCollector> RunWithCollector { get; set; }
-    }
-
-    public class ThreadedTestDefinition : TestDefinitionBase
-    {
-        public int? ThreadCount { get; set; }
-        public int? WarmupDuration { get; set; }
-        public int? TestDuration { get; set; }
-        public Action<object> Run { get; set; }
-        public Func<object> ThreadStateFactory { get; set; }
-    }
-
-    public class AsyncTestDefinition : ThreadedTestDefinition
-    {
+        public int IterationCount { get; set; }
+        public int WarmupCount { get; set; }
+        public Action<TestHarness> Run { get; set; }
     }
 }

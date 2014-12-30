@@ -6,21 +6,7 @@ using System.Collections.Generic;
 
 namespace EntityFramework.Microbenchmarks.Core
 {
-    public abstract class RunResultBase
-    {
-        public string TestName;
-        public long WorkingSet;
-        public Exception ReportedException;
-        public ICollection<IterationCounterBase> IterationCounters;
-        public long ElapsedMillis;
-
-        public bool Successful
-        {
-            get { return ReportedException == null; }
-        }
-    }
-
-    public class RunResult : RunResultBase
+    public class RunResult
     {
         public RunResult(string testName, long elapsedMillis, long workingSet)
         {
@@ -45,40 +31,19 @@ namespace EntityFramework.Microbenchmarks.Core
             TestName = testName;
             ElapsedMillis = elapsedMillis;
             WorkingSet = workingSet;
-            IterationCounters = new List<IterationCounterBase>(iterationCounters);
-            ReportedException = null;
-        }
-    }
-
-    public class ThreadedRunResult : RunResultBase
-    {
-        public long RequestsPerSecond;
-
-        public ThreadedRunResult(string testName, long requestsPerSecond, long workingSet)
-        {
-            TestName = testName;
-            RequestsPerSecond = requestsPerSecond;
-            WorkingSet = workingSet;
-            IterationCounters = null;
+            IterationCounters = new List<IterationCounter>(iterationCounters);
             ReportedException = null;
         }
 
-        public ThreadedRunResult(string testName, Exception exception)
-        {
-            TestName = testName;
-            RequestsPerSecond = 0;
-            WorkingSet = 0;
-            IterationCounters = null;
-            ReportedException = exception;
-        }
+        public string TestName { get; set; }
+        public long WorkingSet { get; set; }
+        public Exception ReportedException { get; set; }
+        public ICollection<IterationCounter> IterationCounters { get; set; }
+        public long ElapsedMillis { get; set; }
 
-        public ThreadedRunResult(string testName, long requestsPerSecond, long workingSet, IEnumerable<ThreadedIterationCounter> iterationCounters)
+        public bool Successful
         {
-            TestName = testName;
-            RequestsPerSecond = requestsPerSecond;
-            WorkingSet = workingSet;
-            IterationCounters = new List<IterationCounterBase>(iterationCounters);
-            ReportedException = null;
+            get { return ReportedException == null; }
         }
     }
 }
