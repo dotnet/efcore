@@ -85,6 +85,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ChangeTracker\DbSetOperationTests.cs" />
     <Compile Include="ChangeTracker\FixupTests.cs" />
     <Compile Include="Core\PerformanceCaseResult.cs" />
     <Compile Include="Core\Extensions.cs" />

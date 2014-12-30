@@ -55,6 +55,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ChangeTracker\DbSetOperationTests.cs" />
     <Compile Include="ChangeTracker\FixupTests.cs" />
     <Compile Include="Models\Orders\Customer.cs" />
     <Compile Include="Models\Orders\OrdersContext.cs" />
