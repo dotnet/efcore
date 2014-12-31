@@ -158,15 +158,9 @@ namespace Microsoft.Data.Entity.Query
                     _logger = logger;
                 }
 
-                public T Current
-                {
-                    get { return _inner.Current; }
-                }
+                public T Current => _inner.Current;
 
-                object IEnumerator.Current
-                {
-                    get { return _inner.Current; }
-                }
+                object IEnumerator.Current => _inner.Current;
 
                 public bool MoveNext()
                 {
@@ -231,10 +225,7 @@ namespace Microsoft.Data.Entity.Query
                     _logger = logger;
                 }
 
-                public T Current
-                {
-                    get { return _inner.Current; }
-                }
+                public T Current => _inner.Current;
 
                 public async Task<bool> MoveNext(CancellationToken cancellationToken)
                 {

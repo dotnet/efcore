@@ -13,23 +13,23 @@ namespace Microsoft.Data.Entity.Relational.Query
 {
     public class QueryingEnumerable<T> : IEnumerable<T>
     {
-        private readonly RelationalConnection _connection;
+        private readonly RelationalQueryContext _relationalQueryContext;
         private readonly CommandBuilder _commandBuilder;
         private readonly Func<DbDataReader, T> _shaper;
         private readonly ILogger _logger;
 
         public QueryingEnumerable(
-            [NotNull] RelationalConnection connection,
+            [NotNull] RelationalQueryContext relationalQueryContext,
             [NotNull] CommandBuilder commandBuilder,
             [NotNull] Func<DbDataReader, T> shaper,
             [NotNull] ILogger logger)
         {
-            Check.NotNull(connection, "connection");
-            Check.NotNull(connection, "commandBuilder");
-            Check.NotNull(connection, "shaper");
-            Check.NotNull(connection, "logger");
+            Check.NotNull(relationalQueryContext, "relationalQueryContext");
+            Check.NotNull(relationalQueryContext, "commandBuilder");
+            Check.NotNull(relationalQueryContext, "shaper");
+            Check.NotNull(relationalQueryContext, "logger");
 
-            _connection = connection;
+            _relationalQueryContext = relationalQueryContext;
             _commandBuilder = commandBuilder;
             _shaper = shaper;
             _logger = logger;
@@ -52,8 +52,6 @@ namespace Microsoft.Data.Entity.Relational.Query
             private DbCommand _command;
             private DbDataReader _reader;
 
-            private T _current;
-
             public Enumerator(QueryingEnumerable<T> enumerable)
             {
                 _enumerable = enumerable;
@@ -63,23 +61,27 @@ namespace Microsoft.Data.Entity.Relational.Query
             {
                 if (_reader == null)
                 {
-                    _enumerable._connection.Open();
+                    _enumerable._relationalQueryContext.Connection.Open();
 
-                    _command = _enumerable._commandBuilder.Build(_enumerable._connection);
+                    _command
+                        = _enumerable._commandBuilder
+                            .Build(_enumerable._relationalQueryContext.Connection);
 
                     _enumerable._logger.WriteSql(_command.CommandText);
 
                     _reader = _command.ExecuteReader();
+
+                    _enumerable._relationalQueryContext.RegisterDataReader(_reader);
                 }
 
                 var hasNext = _reader.Read();
 
-                _current = hasNext ? _enumerable._shaper(_reader) : default(T);
+                Current = hasNext ? _enumerable._shaper(_reader) : default(T);
 
                 return hasNext;
             }
 
-            public T Current => _current;
+            public T Current { get; private set; }
 
             object IEnumerator.Current => Current;
 
@@ -87,7 +89,7 @@ namespace Microsoft.Data.Entity.Relational.Query
             {
                 _reader?.Dispose();
                 _command?.Dispose();
-                _enumerable._connection?.Close();
+                _enumerable._relationalQueryContext.Connection?.Close();
             }
 
             public void Reset()

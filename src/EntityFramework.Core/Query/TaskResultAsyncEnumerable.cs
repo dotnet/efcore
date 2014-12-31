@@ -52,10 +52,7 @@ namespace Microsoft.Data.Entity.Query
                 return false;
             }
 
-            public T Current
-            {
-                get { return !_moved ? default(T) : _task.Result; }
-            }
+            public T Current => !_moved ? default(T) : _task.Result;
 
             void IDisposable.Dispose()
             {

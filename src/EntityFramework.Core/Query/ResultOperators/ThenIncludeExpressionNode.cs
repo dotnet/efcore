@@ -6,22 +6,23 @@ using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
+using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Parsing.Structure.IntermediateModel;
 
 namespace Microsoft.Data.Entity.Query.ResultOperators
 {
-    public class IncludeExpressionNode : ResultOperatorExpressionNodeBase
+    public class ThenIncludeExpressionNode : ResultOperatorExpressionNodeBase
     {
         public static readonly MethodInfo[] SupportedMethods =
             {
-                QueryableExtensions.IncludeMethodInfo,
-                QueryableExtensions.IncludeCollectionMethodInfo
+                QueryableExtensions.ThenIncludeMethodInfo,
+                QueryableExtensions.ThenIncludeCollectionMethodInfo
             };
 
         private readonly LambdaExpression _navigationPropertyPathLambda;
 
-        public IncludeExpressionNode(
+        public ThenIncludeExpressionNode(
             MethodCallExpressionParseInfo parseInfo,
             [NotNull] LambdaExpression navigationPropertyPathLambda)
             : base(parseInfo, null, null)
@@ -31,19 +32,22 @@ namespace Microsoft.Data.Entity.Query.ResultOperators
             _navigationPropertyPathLambda = navigationPropertyPathLambda;
         }
 
-        protected override ResultOperatorBase CreateResultOperator(ClauseGenerationContext clauseGenerationContext)
+        protected override QueryModel ApplyNodeSpecificSemantics(QueryModel queryModel, ClauseGenerationContext clauseGenerationContext)
         {
-            var navigationPropertyPath
-                = Source.Resolve(
-                    _navigationPropertyPathLambda.Parameters[0],
-                    _navigationPropertyPathLambda.Body,
-                    clauseGenerationContext);
+            var includeResultOperator
+                = (IncludeResultOperator)clauseGenerationContext.GetContextInfo(Source);
 
-            var includeResultOperator = new IncludeResultOperator(navigationPropertyPath);
+            includeResultOperator.AppendToNavigationPath(_navigationPropertyPathLambda.GetPropertyAccessList());
 
             clauseGenerationContext.AddContextInfo(this, includeResultOperator);
 
-            return includeResultOperator;
+            return queryModel;
+        }
+
+        protected override ResultOperatorBase CreateResultOperator(ClauseGenerationContext clauseGenerationContext)
+        {
+            // no-op
+            return null;
         }
 
         public override Expression Resolve(

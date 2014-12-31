@@ -79,8 +79,11 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                 }
                 else if (constantExpression.Value == _innerQuerySource)
                 {
-                    var newArguments = new List<Expression>(newExpression.Arguments);
-                    newArguments[2] = _outerShaperExpression;
+                    var newArguments
+                        = new List<Expression>(newExpression.Arguments)
+                            {
+                                [2] = _outerShaperExpression
+                            };
 
                     if (newArguments.Count == RelationalQueryModelVisitor.CreateEntityMethodInfo.GetParameters().Length)
                     {

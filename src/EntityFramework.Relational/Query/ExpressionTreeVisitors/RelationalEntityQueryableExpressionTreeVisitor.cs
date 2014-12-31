@@ -32,10 +32,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             _querySource = querySource;
         }
 
-        private new RelationalQueryModelVisitor QueryModelVisitor
-        {
-            get { return (RelationalQueryModelVisitor)base.QueryModelVisitor; }
-        }
+        private new RelationalQueryModelVisitor QueryModelVisitor => (RelationalQueryModelVisitor)base.QueryModelVisitor;
 
         protected override Expression VisitMemberExpression([NotNull] MemberExpression memberExpression)
         {

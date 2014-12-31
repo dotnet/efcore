@@ -30,9 +30,6 @@ namespace Microsoft.Data.Entity.Relational.Query
             return _valueReader.ReadValue<T>(_offset + index);
         }
 
-        public virtual int Count
-        {
-            get { return _valueReader.Count; }
-        }
+        public virtual int Count => _valueReader.Count;
     }
 }

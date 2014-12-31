@@ -26,34 +26,24 @@ namespace Microsoft.Data.Entity.Query
             where TOut : class
             where TIn : TOut
         {
-            foreach (var result in results)
+            return results.Select(result =>
             {
                 if (result != null)
                 {
-                    foreach (var entityAccessor in entityAccessors)
+                    foreach (var entity in entityAccessors
+                        .Select(entityAccessor => entityAccessor((TIn)result))
+                        .Where(entity => entity != null))
                     {
-                        var entity = entityAccessor((TIn)result);
-
-                        if (entity != null)
-                        {
-                            queryContext.QueryBuffer.StartTracking(entity);
-                        }
+                        queryContext.QueryBuffer.StartTracking(entity);
                     }
+                }
 
-                    yield return result;
-                }
-                else
-                {
-                    yield return null;
-                }
-            }
+                return result;
+            });
         }
 
-        public virtual MethodInfo TrackEntities
-        {
-            get { return _trackEntities; }
-        }
-
+        public virtual MethodInfo TrackEntities => _trackEntities;
+        
         private static readonly MethodInfo _toSequence
             = typeof(LinqOperatorProvider)
                 .GetTypeInfo().GetDeclaredMethod("_ToSequence");
@@ -64,10 +54,7 @@ namespace Microsoft.Data.Entity.Query
             return new[] { element };
         }
 
-        public virtual MethodInfo ToSequence
-        {
-            get { return _toSequence; }
-        }
+        public virtual MethodInfo ToSequence => _toSequence;
 
         private static readonly MethodInfo _asQueryable
             = typeof(LinqOperatorProvider)
@@ -79,10 +66,7 @@ namespace Microsoft.Data.Entity.Query
             return new EnumerableQuery<TSource>(source);
         }
 
-        public virtual MethodInfo AsQueryable
-        {
-            get { return _asQueryable; }
-        }
+        public virtual MethodInfo AsQueryable => _asQueryable;
 
         private static readonly MethodInfo _selectMany
             = typeof(LinqOperatorProvider)
@@ -95,10 +79,7 @@ namespace Microsoft.Data.Entity.Query
             return source.SelectMany(selector);
         }
 
-        public virtual MethodInfo SelectMany
-        {
-            get { return _selectMany; }
-        }
+        public virtual MethodInfo SelectMany => _selectMany;
 
         private static readonly MethodInfo _join
             = typeof(LinqOperatorProvider)
@@ -115,10 +96,7 @@ namespace Microsoft.Data.Entity.Query
             return outer.Join(inner, outerKeySelector, innerKeySelector, resultSelector);
         }
 
-        public virtual MethodInfo Join
-        {
-            get { return _join; }
-        }
+        public virtual MethodInfo Join => _join;
 
         private static readonly MethodInfo _groupJoin
             = typeof(LinqOperatorProvider)
@@ -135,10 +113,7 @@ namespace Microsoft.Data.Entity.Query
             return outer.GroupJoin(inner, outerKeySelector, innerKeySelector, resultSelector);
         }
 
-        public virtual MethodInfo GroupJoin
-        {
-            get { return _groupJoin; }
-        }
+        public virtual MethodInfo GroupJoin => _groupJoin;
 
         private static readonly MethodInfo _select
             = typeof(LinqOperatorProvider)
@@ -151,10 +126,7 @@ namespace Microsoft.Data.Entity.Query
             return source.Select(selector);
         }
 
-        public virtual MethodInfo Select
-        {
-            get { return _select; }
-        }
+        public virtual MethodInfo Select => _select;
 
         private static readonly MethodInfo _orderBy
             = typeof(LinqOperatorProvider)
@@ -169,10 +141,7 @@ namespace Microsoft.Data.Entity.Query
                 : source.OrderByDescending(expression);
         }
 
-        public virtual MethodInfo OrderBy
-        {
-            get { return _orderBy; }
-        }
+        public virtual MethodInfo OrderBy => _orderBy;
 
         private static readonly MethodInfo _thenBy
             = typeof(LinqOperatorProvider)
@@ -187,10 +156,7 @@ namespace Microsoft.Data.Entity.Query
                 : source.ThenByDescending(expression);
         }
 
-        public virtual MethodInfo ThenBy
-        {
-            get { return _thenBy; }
-        }
+        public virtual MethodInfo ThenBy => _thenBy;
 
         private static readonly MethodInfo _where
             = typeof(LinqOperatorProvider)
@@ -203,10 +169,7 @@ namespace Microsoft.Data.Entity.Query
             return source.Where(predicate);
         }
 
-        public virtual MethodInfo Where
-        {
-            get { return _where; }
-        }
+        public virtual MethodInfo Where => _where;
 
         // Result operators
 
@@ -221,55 +184,16 @@ namespace Microsoft.Data.Entity.Query
         private static readonly MethodInfo _first = GetMethod("First");
         private static readonly MethodInfo _firstOrDefault = GetMethod("FirstOrDefault");
 
-        public virtual MethodInfo Any
-        {
-            get { return _any; }
-        }
-
-        public virtual MethodInfo All
-        {
-            get { return _all; }
-        }
-
-        public virtual MethodInfo Cast
-        {
-            get { return _cast; }
-        }
-
-        public virtual MethodInfo Count
-        {
-            get { return _count; }
-        }
-
-        public virtual MethodInfo Contains
-        {
-            get { return _contains; }
-        }
-
-        public virtual MethodInfo DefaultIfEmpty
-        {
-            get { return _defaultIfEmpty; }
-        }
-
-        public virtual MethodInfo DefaultIfEmptyArg
-        {
-            get { return _defaultIfEmptyArg; }
-        }
-
-        public virtual MethodInfo Distinct
-        {
-            get { return _distinct; }
-        }
-
-        public virtual MethodInfo First
-        {
-            get { return _first; }
-        }
-
-        public virtual MethodInfo FirstOrDefault
-        {
-            get { return _firstOrDefault; }
-        }
+        public virtual MethodInfo Any => _any;
+        public virtual MethodInfo All => _all;
+        public virtual MethodInfo Cast => _cast;
+        public virtual MethodInfo Count => _count;
+        public virtual MethodInfo Contains => _contains;
+        public virtual MethodInfo DefaultIfEmpty => _defaultIfEmpty;
+        public virtual MethodInfo DefaultIfEmptyArg => _defaultIfEmptyArg;
+        public virtual MethodInfo Distinct => _distinct;
+        public virtual MethodInfo First => _first;
+        public virtual MethodInfo FirstOrDefault => _firstOrDefault;
 
         private static readonly MethodInfo _groupBy
             = typeof(LinqOperatorProvider).GetTypeInfo().GetDeclaredMethod("_GroupBy");
@@ -281,10 +205,7 @@ namespace Microsoft.Data.Entity.Query
             return source.GroupBy(keySelector, elementSelector);
         }
 
-        public virtual MethodInfo GroupBy
-        {
-            get { return _groupBy; }
-        }
+        public virtual MethodInfo GroupBy => _groupBy;
 
         private static readonly MethodInfo _last = GetMethod("Last");
         private static readonly MethodInfo _lastOrDefault = GetMethod("LastOrDefault");
@@ -294,40 +215,13 @@ namespace Microsoft.Data.Entity.Query
         private static readonly MethodInfo _skip = GetMethod("Skip", 1);
         private static readonly MethodInfo _take = GetMethod("Take", 1);
 
-        public virtual MethodInfo Last
-        {
-            get { return _last; }
-        }
-
-        public virtual MethodInfo LastOrDefault
-        {
-            get { return _lastOrDefault; }
-        }
-
-        public virtual MethodInfo LongCount
-        {
-            get { return _longCount; }
-        }
-
-        public virtual MethodInfo Single
-        {
-            get { return _single; }
-        }
-
-        public virtual MethodInfo SingleOrDefault
-        {
-            get { return _singleOrDefault; }
-        }
-
-        public virtual MethodInfo Skip
-        {
-            get { return _skip; }
-        }
-
-        public virtual MethodInfo Take
-        {
-            get { return _take; }
-        }
+        public virtual MethodInfo Last => _last;
+        public virtual MethodInfo LastOrDefault => _lastOrDefault;
+        public virtual MethodInfo LongCount => _longCount;
+        public virtual MethodInfo Single => _single;
+        public virtual MethodInfo SingleOrDefault => _singleOrDefault;
+        public virtual MethodInfo Skip => _skip;
+        public virtual MethodInfo Take => _take;
 
         public virtual MethodInfo GetAggregateMethod(string methodName, Type elementType)
         {

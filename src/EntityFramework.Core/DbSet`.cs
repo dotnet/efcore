@@ -133,24 +133,12 @@ namespace Microsoft.Data.Entity
             return _entityQueryable.Value.GetEnumerator();
         }
 
-        public virtual Type ElementType
-        {
-            get { return _entityQueryable.Value.ElementType; }
-        }
+        public virtual Type ElementType => _entityQueryable.Value.ElementType;
 
-        public virtual Expression Expression
-        {
-            get { return _entityQueryable.Value.Expression; }
-        }
+        public virtual Expression Expression => _entityQueryable.Value.Expression;
 
-        public virtual IQueryProvider Provider
-        {
-            get { return _entityQueryable.Value.Provider; }
-        }
+        public virtual IQueryProvider Provider => _entityQueryable.Value.Provider;
 
-        IAsyncEnumerable<TEntity> IAsyncEnumerableAccessor<TEntity>.AsyncEnumerable
-        {
-            get { return _entityQueryable.Value; }
-        }
+        IAsyncEnumerable<TEntity> IAsyncEnumerableAccessor<TEntity>.AsyncEnumerable => _entityQueryable.Value;
     }
 }

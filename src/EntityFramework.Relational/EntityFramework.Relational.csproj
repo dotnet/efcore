@@ -57,6 +57,9 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.tt</DependentUpon>
     </Compile>
+    <Compile Include="..\Shared\AsyncEnumerableExtensions.cs">
+      <Link>AsyncEnumerableExtensions.cs</Link>
+    </Compile>
     <Compile Include="..\Shared\LoggingExtensions.cs">
       <Link>LoggingExtensions.cs</Link>
     </Compile>
@@ -165,10 +168,11 @@
     <Compile Include="Query\Expressions\TableExpressionBase.cs" />
     <Compile Include="Query\ExpressionTreeVisitors\FilteringExpressionTreeVisitor.cs" />
     <Compile Include="Query\AsyncIncludeCollectionIterator.cs" />
-    <Compile Include="Query\IncludeCollectionAsyncEnumerable.cs" />
+    <Compile Include="Query\ExpressionTreeVisitors\IncludeExpressionTreeVisitor.cs" />
+    <Compile Include="Query\IAsyncIncludeRelatedValuesStrategy.cs" />
+    <Compile Include="Query\IIncludeRelatedValuesStrategy.cs" />
     <Compile Include="Query\IncludeCollectionIterator.cs" />
     <Compile Include="Query\ExpressionTreeVisitors\QueryFlatteningExpressionTreeVisitor.cs" />
-    <Compile Include="Query\ExpressionTreeVisitors\IncludeReferenceExpressionTreeVisitor.cs" />
     <Compile Include="Query\Methods\ContainsTranslator.cs" />
     <Compile Include="Query\OffsetValueReaderDecorator.cs" />
     <Compile Include="Query\QueryingEnumerable.cs" />
@@ -253,6 +257,7 @@
     <Compile Include="..\Shared\SharedTypeExtensions.cs" />
     <Compile Include="Migrations\Utilities\AssemblyExtensions.cs" />
     <Compile Include="Migrations\Utilities\EnumerableExtensions.cs" />
+    <Compile Include="Utilities\EnumerableExtensions.cs" />
     <Compile Include="Utilities\ExpressionExtensions.cs" />
     <Compile Include="Utilities\MethodInfoExtensions.cs" />
     <Compile Include="Metadata\RelationalNameBuilder.cs" />

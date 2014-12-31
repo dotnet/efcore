@@ -12,9 +12,6 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 {
     public class TableExpression : TableExpressionBase
     {
-        private readonly string _table;
-        private readonly string _schema;
-
         public TableExpression(
             [NotNull] string table,
             [CanBeNull] string schema,
@@ -27,19 +24,13 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             Check.NotEmpty(table, "table");
             Check.NotNull(querySource, "querySource");
 
-            _table = table;
-            _schema = schema;
+            Table = table;
+            Schema = schema;
         }
 
-        public virtual string Table
-        {
-            get { return _table; }
-        }
+        public virtual string Table { get; }
 
-        public virtual string Schema
-        {
-            get { return _schema; }
-        }
+        public virtual string Schema { get; }
 
         public override Expression Accept([NotNull] ExpressionTreeVisitor visitor)
         {
@@ -47,17 +38,14 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
             var specificVisitor = visitor as ISqlExpressionVisitor;
 
-            if (specificVisitor != null)
-            {
-                return specificVisitor.VisitTableExpression(this);
-            }
-
-            return base.Accept(visitor);
+            return specificVisitor != null
+                ? specificVisitor.VisitTableExpression(this)
+                : base.Accept(visitor);
         }
 
         public override string ToString()
         {
-            return _table + " " + Alias;
+            return Table + " " + Alias;
         }
     }
 }

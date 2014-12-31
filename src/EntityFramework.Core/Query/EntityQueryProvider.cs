@@ -36,6 +36,9 @@ namespace Microsoft.Data.Entity.Query
             methodInfoBasedNodeTypeRegistry
                 .Register(IncludeExpressionNode.SupportedMethods, typeof(IncludeExpressionNode));
 
+            methodInfoBasedNodeTypeRegistry
+                .Register(ThenIncludeExpressionNode.SupportedMethods, typeof(ThenIncludeExpressionNode));
+
             var innerProviders
                 = new INodeTypeProvider[]
                     {
