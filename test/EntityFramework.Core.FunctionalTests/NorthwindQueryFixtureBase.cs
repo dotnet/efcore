@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Linq;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
 using Microsoft.Data.Entity.Metadata;
 
@@ -11,10 +10,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
     {
         public virtual void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Customer>(e =>
-                {
-                    e.Ignore(c => c.IsLondon);
-                });
+            modelBuilder.Entity<Customer>(e => { e.Ignore(c => c.IsLondon); });
 
             modelBuilder.Entity<Employee>(e =>
                 {
@@ -30,6 +26,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     e.Ignore(em => em.PostalCode);
                     e.Ignore(em => em.Region);
                     e.Ignore(em => em.TitleOfCourtesy);
+                    //e.ForeignKey<Employee>(em => em.ReportsTo);
                 });
 
             modelBuilder.Entity<Product>(e =>

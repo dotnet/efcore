@@ -60,6 +60,9 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.tt</DependentUpon>
     </Compile>
+    <Compile Include="..\Shared\AsyncEnumerableExtensions.cs">
+      <Link>AsyncEnumerableExtensions.cs</Link>
+    </Compile>
     <Compile Include="..\Shared\Check.cs">
       <Link>Utilities\Check.cs</Link>
     </Compile>
@@ -83,6 +86,7 @@
     <Compile Include="DbContextConfiguration.cs" />
     <Compile Include="Identity\TemporaryBinaryValueGenerator.cs" />
     <Compile Include="Identity\TemporaryStringValueGenerator.cs" />
+    <Compile Include="IIncludableQueryable.cs" />
     <Compile Include="Infrastructure\DbContextService.cs" />
     <Compile Include="Infrastructure\DbContextActivator.cs" />
     <Compile Include="DbContextOptions.cs" />
@@ -162,6 +166,7 @@
     <Compile Include="Query\ResultOperators\AsNoTrackingExpressionNode.cs" />
     <Compile Include="Query\ResultOperators\AsNoTrackingResultOperator.cs" />
     <Compile Include="Query\ExpressionTreeVisitors\TaskBlockingExpressionTreeVisitor.cs" />
+    <Compile Include="Query\ResultOperators\ThenIncludeExpressionNode.cs" />
     <Compile Include="Storage\DataStoreErrorLogState.cs" />
     <Compile Include="Storage\DataStoreException.cs" />
     <Compile Include="Infrastructure\IDbContextOptions.cs" />

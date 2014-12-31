@@ -8,7 +8,7 @@ namespace Microsoft.Data.Entity.Query
 {
     public class QuerySourceScope<TResult> : QuerySourceScope
     {
-        public readonly TResult _result;
+        public readonly TResult Result;
 
         public QuerySourceScope(
             [NotNull] IQuerySource querySource,
@@ -16,7 +16,9 @@ namespace Microsoft.Data.Entity.Query
             [CanBeNull] QuerySourceScope parentScope)
             : base(querySource, parentScope)
         {
-            _result = result;
+            Result = result;
         }
+
+        public override object UntypedResult => Result;
     }
 }

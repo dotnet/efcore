@@ -207,7 +207,7 @@ namespace Microsoft.Data.Entity.Query
                     let navigationPath
                         = BindNavigationPathMemberExpression(
                             (MemberExpression)includeResultOperator.NavigationPropertyPath,
-                            (ns, _) => ns.ToArray())
+                            (ns, _) => BindChainedNavigations(ns, includeResultOperator.ChainedNavigationProperties).ToArray())
                     orderby navigationPath != null
                             && navigationPath.First().PointsToPrincipal
                     select new
@@ -239,7 +239,7 @@ namespace Microsoft.Data.Entity.Query
                                 include.navigationPath.Join("."),
                                 Strings.LogIncludingNavigation);
 
-                        IncludeNavigation(
+                        IncludeNavigations(
                             include.QuerySource,
                             resultType,
                             accessorLambda,
@@ -248,13 +248,40 @@ namespace Microsoft.Data.Entity.Query
                 }
                 else
                 {
-                    throw new NotImplementedException(
+                    throw new InvalidOperationException(
                         Strings.IncludeNonBindableExpression(include.NavigationPropertyPath));
                 }
             }
         }
 
-        protected virtual void IncludeNavigation(
+        private IEnumerable<INavigation> BindChainedNavigations(
+            IEnumerable<INavigation> boundNavigations, IReadOnlyList<PropertyInfo> chainedNavigationProperties)
+        {
+            var boundChainedNavigations = new List<INavigation>();
+
+            if (chainedNavigationProperties != null)
+            {
+                foreach (
+                    var navigation in 
+                        from propertyInfo in chainedNavigationProperties
+                        let entityType
+                            = QueryCompilationContext.Model
+                                .TryGetEntityType(propertyInfo.DeclaringType)
+                        select entityType?.TryGetNavigation(propertyInfo.Name))
+                {
+                    if (navigation == null)
+                    {
+                        return null;
+                    }
+
+                    boundChainedNavigations.Add(navigation);
+                }
+            }
+
+            return boundNavigations.Concat(boundChainedNavigations);
+        }
+
+        protected virtual void IncludeNavigations(
             [NotNull] IQuerySource querySource,
             [NotNull] Type resultType,
             [NotNull] LambdaExpression accessorLambda,

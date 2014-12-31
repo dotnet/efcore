@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Utilities;
@@ -1298,9 +1299,10 @@ namespace System.Linq
 
         public static readonly MethodInfo IncludeMethodInfo
             = typeof(QueryableExtensions)
-                .GetTypeInfo().GetDeclaredMethod("Include");
+                .GetTypeInfo().GetDeclaredMethods("Include")
+                .Single(mi => mi.GetParameters().Any(pi => pi.Name == "navigationPropertyPath"));
 
-        public static IQueryable<TEntity> Include<TEntity, TProperty>(
+        public static IIncludableQueryable<TEntity, TProperty> Include<TEntity, TProperty>(
             [NotNull] this IQueryable<TEntity> source,
             [NotNull] Expression<Func<TEntity, TProperty>> navigationPropertyPath)
             where TEntity : class
@@ -1308,11 +1310,75 @@ namespace System.Linq
             Check.NotNull(source, "source");
             Check.NotNull(navigationPropertyPath, "navigationPropertyPath");
 
-            return source.Provider.CreateQuery<TEntity>(
-                Expression.Call(
-                    null,
-                    IncludeMethodInfo.MakeGenericMethod(typeof(TEntity), typeof(TProperty)),
-                    new[] { source.Expression, Expression.Quote(navigationPropertyPath) }));
+            return (IIncludableQueryable<TEntity, TProperty>)
+                source.Provider.CreateQuery<TEntity>(
+                    Expression.Call(
+                        null,
+                        IncludeMethodInfo.MakeGenericMethod(typeof(TEntity), typeof(TProperty)),
+                        new[] { source.Expression, Expression.Quote(navigationPropertyPath) }));
+        }
+
+        public static readonly MethodInfo IncludeCollectionMethodInfo
+            = typeof(QueryableExtensions)
+                .GetTypeInfo().GetDeclaredMethods("Include")
+                .Single(mi => mi.GetParameters().Any(pi => pi.Name == "collectionNavigationPropertyPath"));
+
+        public static IIncludableQueryable<TEntity, TProperty> Include<TEntity, TProperty>(
+            [NotNull] this IQueryable<TEntity> source,
+            [NotNull] Expression<Func<TEntity, ICollection<TProperty>>> collectionNavigationPropertyPath)
+            where TEntity : class
+        {
+            Check.NotNull(source, "source");
+            Check.NotNull(collectionNavigationPropertyPath, "collectionNavigationPropertyPath");
+
+            return (IIncludableQueryable<TEntity, TProperty>)
+                source.Provider.CreateQuery<TEntity>(
+                    Expression.Call(
+                        null,
+                        IncludeCollectionMethodInfo.MakeGenericMethod(typeof(TEntity), typeof(TProperty)),
+                        new[] { source.Expression, Expression.Quote(collectionNavigationPropertyPath) }));
+        }
+
+        public static readonly MethodInfo ThenIncludeMethodInfo
+            = typeof(QueryableExtensions)
+                .GetTypeInfo().GetDeclaredMethods("ThenInclude")
+                .Single(mi => mi.GetParameters().Any(pi => pi.Name == "navigationPropertyPath"));
+
+        public static IIncludableQueryable<TEntity, TProperty> ThenInclude<TEntity, TPreviousProperty, TProperty>(
+            [NotNull] this IIncludableQueryable<TEntity, TPreviousProperty> source,
+            [NotNull] Expression<Func<TPreviousProperty, TProperty>> navigationPropertyPath)
+            where TEntity : class
+        {
+            Check.NotNull(source, "source");
+            Check.NotNull(navigationPropertyPath, "navigationPropertyPath");
+
+            return (IIncludableQueryable<TEntity, TProperty>)
+                source.Provider.CreateQuery<TEntity>(
+                    Expression.Call(
+                        null,
+                        ThenIncludeMethodInfo.MakeGenericMethod(typeof(TEntity), typeof(TPreviousProperty), typeof(TProperty)),
+                        new[] { source.Expression, Expression.Quote(navigationPropertyPath) }));
+        }
+
+        public static readonly MethodInfo ThenIncludeCollectionMethodInfo
+            = typeof(QueryableExtensions)
+                .GetTypeInfo().GetDeclaredMethods("ThenInclude")
+                .Single(mi => mi.GetParameters().Any(pi => pi.Name == "collectionNavigationPropertyPath"));
+
+        public static IIncludableQueryable<TEntity, TProperty> ThenInclude<TEntity, TPreviousProperty, TProperty>(
+            [NotNull] this IIncludableQueryable<TEntity, TPreviousProperty> source,
+            [NotNull] Expression<Func<TPreviousProperty, ICollection<TProperty>>> collectionNavigationPropertyPath)
+            where TEntity : class
+        {
+            Check.NotNull(source, "source");
+            Check.NotNull(collectionNavigationPropertyPath, "collectionNavigationPropertyPath");
+
+            return (IIncludableQueryable<TEntity, TProperty>)
+                source.Provider.CreateQuery<TEntity>(
+                    Expression.Call(
+                        null,
+                        ThenIncludeCollectionMethodInfo.MakeGenericMethod(typeof(TEntity), typeof(TPreviousProperty), typeof(TProperty)),
+                        new[] { source.Expression, Expression.Quote(collectionNavigationPropertyPath) }));
         }
 
         #endregion
@@ -1355,8 +1421,7 @@ namespace System.Linq
             return source.Provider.CreateQuery<TEntity>(
                 Expression.Call(
                     null,
-                    AsNoTrackingMethodInfo.MakeGenericMethod(typeof(TEntity)),
-                    new[] { source.Expression }));
+                    AsNoTrackingMethodInfo.MakeGenericMethod(typeof(TEntity)), source.Expression));
         }
 
         #endregion
@@ -1543,7 +1608,7 @@ namespace System.Linq
                 }
 
                 return provider.ExecuteAsync<TResult>(
-                    Expression.Call(null, operatorMethodInfo, new[] { source.Expression }),
+                    Expression.Call(null, operatorMethodInfo, source.Expression),
                     cancellationToken);
             }
 

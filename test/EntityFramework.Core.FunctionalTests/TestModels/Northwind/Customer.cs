@@ -21,10 +21,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind
 
         public virtual ICollection<Order> Orders { get; set; }
 
-        public bool IsLondon
-        {
-            get { return City == "London"; }
-        }
+        public bool IsLondon => City == "London";
 
         protected bool Equals(Customer other)
         {

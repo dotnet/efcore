@@ -184,15 +184,16 @@ namespace Microsoft.Data.Entity.Query
             LoadNavigationProperties(
                 entity,
                 navigationPath,
-                e =>
-                    {
-                        Include(e, navigationPath, relatedValueReaders, currentNavigationIndex + 1);
-
-                        return Task.FromResult(false);
-                    },
                 currentNavigationIndex,
                 relatedValueReaders[currentNavigationIndex](primaryKey, relatedKeyFactory)
-                    .Select(valueReader => GetTargetEntity(targetEntityType, valueReader, bufferedEntities))
+                    .Select(valueReader =>
+                        {
+                            var e = GetTargetEntity(targetEntityType, valueReader, bufferedEntities);
+
+                            Include(e, navigationPath, relatedValueReaders, currentNavigationIndex + 1);
+
+                            return e;
+                        })
                     .Where(e => e != null)
                     .ToList());
         }
@@ -237,10 +238,22 @@ namespace Microsoft.Data.Entity.Query
             LoadNavigationProperties(
                 entity,
                 navigationPath,
-                async e => await IncludeAsync(e, navigationPath, relatedValueReaders, cancellationToken, currentNavigationIndex + 1),
                 currentNavigationIndex,
                 await relatedValueReaders[currentNavigationIndex](primaryKey, relatedKeyFactory)
-                    .Select(valueReader => GetTargetEntity(targetEntityType, valueReader, bufferedEntities))
+                    .Select(async valueReader =>
+                        {
+                            var e = GetTargetEntity(targetEntityType, valueReader, bufferedEntities);
+
+                            await IncludeAsync(
+                                e,
+                                navigationPath,
+                                relatedValueReaders,
+                                cancellationToken,
+                                currentNavigationIndex + 1)
+                                .WithCurrentCulture();
+
+                            return e;
+                        })
                     .Where(e => e != null)
                     .ToList(cancellationToken)
                     .WithCurrentCulture());
@@ -319,7 +332,6 @@ namespace Microsoft.Data.Entity.Query
         private void LoadNavigationProperties(
             object entity,
             IReadOnlyList<INavigation> navigationPath,
-            Func<object, Task> includeNextLevel,
             int currentNavigationIndex,
             IReadOnlyList<object> relatedEntities)
         {
@@ -347,8 +359,6 @@ namespace Microsoft.Data.Entity.Query
                             .SetClrValue(relatedEntities[0], entity);
                     }
                 }
-
-                includeNextLevel(relatedEntities[0]);
             }
             else
             {

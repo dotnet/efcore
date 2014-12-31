@@ -358,7 +358,7 @@
     <value>The Include operator is not implemented by the current data store provider.</value>
   </data>
   <data name="IncludeNonBindableExpression" xml:space="preserve">
-    <value>The expression '{expression}' passed to the Include operator could not be bound. Only single-level navigation expressions are supported. </value>
+    <value>The expression '{expression}' passed to the Include operator could not be bound.</value>
   </data>
   <data name="LogCompilingQueryModel" xml:space="preserve">
     <value>Compiling query model: '{queryModel}'</value>

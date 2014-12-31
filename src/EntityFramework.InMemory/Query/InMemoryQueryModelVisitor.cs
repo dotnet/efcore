@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.InMemory.Query
             return new InMemoryEntityQueryableExpressionTreeVisitor(this, querySource);
         }
 
-        protected override void IncludeNavigation(
+        protected override void IncludeNavigations(
             IQuerySource querySource,
             Type resultType,
             LambdaExpression accessorLambda,
@@ -60,8 +60,7 @@ namespace Microsoft.Data.Entity.InMemory.Query
                                 Expression.Call(
                                     _getRelatedValueReadersMethodInfo,
                                     Expression.Constant(
-                                        inMemoryQueryCompilationContext.Database
-                                            .GetTable(n.GetTargetType())),
+                                        inMemoryQueryCompilationContext.Database.GetTable(n.GetTargetType())),
                                     primaryKeyParameter,
                                     relatedKeyFactoryParameter),
                                 primaryKeyParameter,

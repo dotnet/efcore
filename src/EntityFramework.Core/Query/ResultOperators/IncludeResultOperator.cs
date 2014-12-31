@@ -2,7 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq.Clauses;
@@ -16,6 +19,8 @@ namespace Microsoft.Data.Entity.Query.ResultOperators
     {
         private Expression _navigationPropertyPath;
 
+        private List<PropertyInfo> _chainedNavigationProperties;
+
         public IncludeResultOperator([NotNull] Expression navigationPropertyPath)
         {
             Check.NotNull(navigationPropertyPath, "navigationPropertyPath");
@@ -23,15 +28,17 @@ namespace Microsoft.Data.Entity.Query.ResultOperators
             _navigationPropertyPath = navigationPropertyPath;
         }
 
-        public virtual Expression NavigationPropertyPath
-        {
-            get { return _navigationPropertyPath; }
-        }
+        public virtual Expression NavigationPropertyPath => _navigationPropertyPath;
+
+        public virtual IReadOnlyList<PropertyInfo> ChainedNavigationProperties => _chainedNavigationProperties;
 
         public override string ToString()
         {
             return "Include("
                    + FormattingExpressionTreeVisitor.Format(NavigationPropertyPath)
+                   + (_chainedNavigationProperties != null
+                       ? "." + _chainedNavigationProperties.Select(p => p.Name).Join(".")
+                       : null)
                    + ")";
         }
 
@@ -39,7 +46,14 @@ namespace Microsoft.Data.Entity.Query.ResultOperators
         {
             Check.NotNull(cloneContext, "cloneContext");
 
-            return new IncludeResultOperator(_navigationPropertyPath);
+            var includeResultOperator = new IncludeResultOperator(_navigationPropertyPath);
+
+            if (_chainedNavigationProperties != null)
+            {
+                includeResultOperator.AppendToNavigationPath(_chainedNavigationProperties);
+            }
+
+            return includeResultOperator;
         }
 
         public override void TransformExpressions([NotNull] Func<Expression, Expression> transformation)
@@ -54,6 +68,15 @@ namespace Microsoft.Data.Entity.Query.ResultOperators
             Check.NotNull(input, "input");
 
             return input;
+        }
+
+        public virtual void AppendToNavigationPath([NotNull] IReadOnlyList<PropertyInfo> propertyInfos)
+        {
+            Check.NotNull(propertyInfos, "propertyInfos");
+
+            (_chainedNavigationProperties
+             ?? (_chainedNavigationProperties = new List<PropertyInfo>()))
+                .AddRange(propertyInfos);
         }
     }
 }

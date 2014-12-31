@@ -1,7 +1,10 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
+using System.Data.Common;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
@@ -10,8 +13,9 @@ namespace Microsoft.Data.Entity.Relational.Query
 {
     public class RelationalQueryContext : QueryContext
     {
-        private readonly RelationalConnection _connection;
-        private readonly RelationalValueReaderFactory _valueReaderFactory;
+        private readonly List<DbDataReader> _activeDataReaders = new List<DbDataReader>();
+
+        private int _activeReaderOffset;
 
         public RelationalQueryContext(
             [NotNull] ILogger logger,
@@ -25,18 +29,40 @@ namespace Microsoft.Data.Entity.Relational.Query
             Check.NotNull(connection, "connection");
             Check.NotNull(valueReaderFactory, "valueReaderFactory");
 
-            _connection = connection;
-            _valueReaderFactory = valueReaderFactory;
+            Connection = connection;
+            ValueReaderFactory = valueReaderFactory;
         }
 
-        public virtual RelationalValueReaderFactory ValueReaderFactory
+        // TODO: Move this to compilation context
+        public virtual RelationalValueReaderFactory ValueReaderFactory { get; }
+
+        public virtual RelationalConnection Connection { get; }
+
+        public virtual void RegisterDataReader([NotNull] DbDataReader dataReader)
         {
-            get { return _valueReaderFactory; }
+            Check.NotNull(dataReader, "dataReader");
+
+            _activeDataReaders.Add(dataReader);
         }
 
-        public virtual RelationalConnection Connection
+        public virtual IValueReader CreateValueReader(int readerIndex)
         {
-            get { return _connection; }
+            return ValueReaderFactory.Create(_activeDataReaders[_activeReaderOffset + readerIndex]);
+        }
+
+        public virtual void BeginIncludeScope()
+        {
+            _activeReaderOffset = _activeDataReaders.Count;
+        }
+
+        public virtual void EndIncludeScope()
+        {
+            for (var i = _activeDataReaders.Count - 1; i > _activeReaderOffset; i--)
+            {
+                _activeDataReaders.RemoveAt(i);
+            }
+
+            _activeReaderOffset = 0;
         }
     }
 }

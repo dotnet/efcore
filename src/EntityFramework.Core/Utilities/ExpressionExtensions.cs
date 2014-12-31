@@ -72,12 +72,7 @@ namespace System.Linq.Expressions
                         .Where(p => p != null)
                         .ToList();
 
-                if (propertyInfos.Count != newExpression.Arguments.Count)
-                {
-                    return null;
-                }
-
-                return propertyInfos;
+                return propertyInfos.Count != newExpression.Arguments.Count ? null : propertyInfos;
             }
 
             var propertyPath
@@ -105,12 +100,7 @@ namespace System.Linq.Expressions
             {
                 memberExpression = RemoveConvert(propertyAccessExpression) as MemberExpression;
 
-                if (memberExpression == null)
-                {
-                    return null;
-                }
-
-                var propertyInfo = memberExpression.Member as PropertyInfo;
+                var propertyInfo = memberExpression?.Member as PropertyInfo;
 
                 if (propertyInfo == null)
                 {

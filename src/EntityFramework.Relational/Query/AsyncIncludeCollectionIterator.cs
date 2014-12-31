@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.Relational.Query
         private readonly IAsyncEnumerator<IValueReader> _relatedValuesEnumerator;
 
         private bool _hasRemainingRows;
-        private bool _initialized;
+        private bool _moveNextPending = true;
 
         public AsyncIncludeCollectionIterator(
             [NotNull] IAsyncEnumerator<IValueReader> relatedValuesEnumerator)
@@ -61,7 +61,6 @@ namespace Microsoft.Data.Entity.Relational.Query
             private sealed class RelatedValuesEnumerator : IAsyncEnumerator<IValueReader>
             {
                 private readonly RelatedValuesEnumerable _relatedValuesEnumerable;
-                private IValueReader _current;
 
                 public RelatedValuesEnumerator(RelatedValuesEnumerable relatedValuesEnumerable)
                 {
@@ -70,14 +69,14 @@ namespace Microsoft.Data.Entity.Relational.Query
 
                 public async Task<bool> MoveNext(CancellationToken cancellationToken)
                 {
-                    if (!_relatedValuesEnumerable._iterator._initialized)
+                    if (_relatedValuesEnumerable._iterator._moveNextPending)
                     {
                         _relatedValuesEnumerable._iterator._hasRemainingRows
                             = await _relatedValuesEnumerable._iterator._relatedValuesEnumerator
                                 .MoveNext(cancellationToken)
                                 .WithCurrentCulture();
 
-                        _relatedValuesEnumerable._iterator._initialized = true;
+                        _relatedValuesEnumerable._iterator._moveNextPending = false;
                     }
 
                     if (_relatedValuesEnumerable._iterator._hasRemainingRows
@@ -85,12 +84,9 @@ namespace Microsoft.Data.Entity.Relational.Query
                             _relatedValuesEnumerable._iterator._relatedValuesEnumerator.Current)
                             .Equals(_relatedValuesEnumerable._primaryKey))
                     {
-                        _current = _relatedValuesEnumerable._iterator._relatedValuesEnumerator.Current;
-
-                        _relatedValuesEnumerable._iterator._hasRemainingRows
-                            = await _relatedValuesEnumerable._iterator._relatedValuesEnumerator
-                                .MoveNext(cancellationToken)
-                                .WithCurrentCulture();
+                        Current = _relatedValuesEnumerable._iterator._relatedValuesEnumerator.Current;
+                        
+                        _relatedValuesEnumerable._iterator._moveNextPending = true;
 
                         return true;
                     }
@@ -98,10 +94,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                     return false;
                 }
 
-                public IValueReader Current
-                {
-                    get { return _current; }
-                }
+                public IValueReader Current { get; private set; }
 
                 public void Dispose()
                 {

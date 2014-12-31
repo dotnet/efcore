@@ -10,9 +10,6 @@ namespace Microsoft.Data.Entity.Query
 {
     public class QueryContext
     {
-        private readonly ILogger _logger;
-        private readonly IQueryBuffer _queryBuffer;
-
         public QueryContext(
             [NotNull] ILogger logger,
             [NotNull] IQueryBuffer queryBuffer)
@@ -20,20 +17,14 @@ namespace Microsoft.Data.Entity.Query
             Check.NotNull(logger, "logger");
             Check.NotNull(queryBuffer, "queryBuffer");
 
-            _logger = logger;
-            _queryBuffer = queryBuffer;
+            Logger = logger;
+            QueryBuffer = queryBuffer;
         }
 
         // TODO: Move this to compilation context
-        public virtual ILogger Logger
-        {
-            get { return _logger; }
-        }
+        public virtual ILogger Logger { get; }
 
-        public virtual IQueryBuffer QueryBuffer
-        {
-            get { return _queryBuffer; }
-        }
+        public virtual IQueryBuffer QueryBuffer { get; }
 
         public virtual CancellationToken CancellationToken { get; set; }
     }

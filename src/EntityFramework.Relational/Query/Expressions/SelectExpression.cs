@@ -324,13 +324,22 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
         {
             Check.NotEmpty(column, "column");
             Check.NotNull(property, "property");
-            Check.NotNull(property, "querySource");
+            Check.NotNull(querySource, "querySource");
 
-            var columnExpression
-                = new ColumnExpression(
-                    column,
-                    property, 
-                    FindTableForQuerySource(querySource));
+            return AddToOrderBy(column, property, FindTableForQuerySource(querySource), orderingDirection);
+        }
+
+        public virtual ColumnExpression AddToOrderBy(
+            [NotNull] string column, 
+            [NotNull] IProperty property,
+            [NotNull] TableExpressionBase table,
+            OrderingDirection orderingDirection)
+        {
+            Check.NotEmpty(column, "column");
+            Check.NotNull(property, "property");
+            Check.NotNull(table, "table");
+
+            var columnExpression = new ColumnExpression(column, property, table);
 
             if (_orderBy.FindIndex(o => o.Expression.Equals(columnExpression)) == -1)
             {
