@@ -58,6 +58,7 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
                 TestName = "ChangeTracker_Fixup_AttachChildren_EF6",
                 IterationCount = 10,
                 WarmupCount = 5,
+                Setup = EnsureDatabaseSetup,
                 Run = harness =>
                 {
                     List<Order> orders;
@@ -94,6 +95,7 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
                 TestName = "ChangeTracker_Fixup_AttachParents_EF6",
                 IterationCount = 10,
                 WarmupCount = 5,
+                Setup = EnsureDatabaseSetup,
                 Run = harness =>
                 {
                     List<Customer> customers;

@@ -13,7 +13,7 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
 {
     public class DbSetOperationTests
     {
-        private static string _connectionString = String.Format(@"Server={0};Database=Perf_ChangeTracker_DbSetOperation;Integrated Security=True;MultipleActiveResultSets=true;", TestConfig.Instance.DataSource);
+        private static string _connectionString = String.Format(@"Server={0};Database=Perf_ChangeTracker_DbSetOperation_EF6;Integrated Security=True;MultipleActiveResultSets=true;", TestConfig.Instance.DataSource);
 
         [Fact]
         public void Add()
