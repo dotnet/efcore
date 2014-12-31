@@ -47,16 +47,7 @@ namespace EntityFramework.Microbenchmarks.Core
             Assert.False(failedRunResult.Any(), failedRunResult.Any() ? failedRunResult.First().Message : string.Empty);
             Assert.False(results.Count == 0, "tests returned no results");
 
-            var parsedData = JsonConvert.SerializeObject(performanceCaseResult, Formatting.Indented);
-
-            if (!Directory.Exists(resultDirectory))
-            {
-                Directory.CreateDirectory(resultDirectory);
-            }
-
-            var filename = string.Format("result_{0}_{1}.json", results.First().Scenario.Replace(' ', '_'), TestConfig.Instance.RuntimeFlavor);
-
-            File.WriteAllText(Path.Combine(resultDirectory, filename), parsedData);
+            WriteResultFiles(resultDirectory, results, performanceCaseResult);
         }
 
         private void PrintSummary(List<RunResult> results)
@@ -248,6 +239,36 @@ namespace EntityFramework.Microbenchmarks.Core
                 }
             }
             return metrics;
+        }
+
+        private static void WriteResultFiles(string resultDirectory, List<PerformanceMetric> results, PerformanceCaseResult performanceCaseResult)
+        {
+            if (!Directory.Exists(resultDirectory))
+            {
+                Directory.CreateDirectory(resultDirectory);
+            }
+
+            var jsonData = JsonConvert.SerializeObject(performanceCaseResult, Formatting.Indented);
+            var jsonFilename = string.Format("result_{0}_{1}.json", results.First().Scenario.Replace(' ', '_'), TestConfig.Instance.RuntimeFlavor);
+            File.WriteAllText(Path.Combine(resultDirectory, jsonFilename), jsonData);
+
+            var csvFilename = Path.Combine(resultDirectory, "results.csv");
+            if (!File.Exists(csvFilename))
+            {
+                File.WriteAllText(csvFilename, "StartTime,EndTime,Scenario,Metric,Unit,Value");
+            }
+
+            foreach (var item in performanceCaseResult.Metrics)
+            {
+                File.AppendAllText(csvFilename, String.Format(
+                    "\r\n{0},{1},{2},{3},{4},{5}",
+                    performanceCaseResult.StartTime,
+                    performanceCaseResult.EndTime,
+                    item.Scenario,
+                    item.Metric,
+                    item.Unit,
+                    item.Value));
+            }
         }
     }
 }
