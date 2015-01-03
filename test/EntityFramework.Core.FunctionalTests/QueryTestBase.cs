@@ -1906,6 +1906,20 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void Select_many_cross_join_same_collection()
+        {
+            AssertQuery<Customer, Customer>((cs1, cs2) =>
+                cs1.SelectMany(c => cs2));
+        }
+
+        [Fact]
+        public virtual void Join_same_collection_multiple()
+        {
+            AssertQuery<Customer, Customer, Customer>((cs1, cs2, cs3) =>
+                cs1.Join(cs2, o => o.CustomerID, i => i.CustomerID, (c1, c2) => new { c1, c2 }).Join(cs3, o => o.c1.CustomerID, i => i.CustomerID, (c12, c3) => c3));
+        }
+
+        [Fact]
         public void Contains_with_subquery()
         {
             AssertQuery<Customer, Order>((cs, os) =>
