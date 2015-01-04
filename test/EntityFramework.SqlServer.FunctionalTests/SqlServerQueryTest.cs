@@ -1275,6 +1275,60 @@ WHERE [c].[ContactName] LIKE '%' + @p0",
                 Sql);
         }
 
+        public override void String_Contains_Literal()
+        {
+            //base.String_Contains_Literal();
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.ContactName.Contains("M")), // case-insensitive
+                cs => cs.Where(c => c.ContactName.Contains("M") || c.ContactName.Contains("m")), // case-sensitive
+                stateEntryCount: 34);
+
+            Assert.Equal(
+                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[ContactName] LIKE '%' + @p0 + '%'",
+                Sql);
+        }
+
+        public override void String_Contains_Identity()
+        {
+            base.String_Contains_Identity();
+
+            Assert.Equal(
+                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[ContactName] LIKE '%' + [c].[ContactName] + '%'",
+                Sql);
+        }
+
+        public override void String_Contains_Column()
+        {
+            base.String_Contains_Column();
+
+            Assert.Equal(
+                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[ContactName] LIKE '%' + [c].[ContactName] + '%'",
+                Sql);
+        }
+
+        public override void String_Contains_MethodCall()
+        {
+            //base.String_Contains_MethodCall();
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.ContactName.Contains(LocalMethod1())), // case-insensitive
+                cs => cs.Where(c => c.ContactName.Contains(LocalMethod1()) || c.ContactName.Contains(LocalMethod2())), // case-sensitive
+                stateEntryCount: 34);
+
+            Assert.Equal(
+                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[ContactName] LIKE '%' + @p0 + '%'",
+                Sql);
+        }
+
         public override void Select_nested_collection()
         {
             base.Select_nested_collection();

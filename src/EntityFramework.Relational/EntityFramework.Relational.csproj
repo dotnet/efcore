@@ -169,6 +169,7 @@
     <Compile Include="Query\IncludeCollectionIterator.cs" />
     <Compile Include="Query\ExpressionTreeVisitors\QueryFlatteningExpressionTreeVisitor.cs" />
     <Compile Include="Query\ExpressionTreeVisitors\IncludeReferenceExpressionTreeVisitor.cs" />
+    <Compile Include="Query\Methods\ContainsTranslator.cs" />
     <Compile Include="Query\OffsetValueReaderDecorator.cs" />
     <Compile Include="Query\QueryingEnumerable.cs" />
     <Compile Include="Query\QueryMethodProvider.cs" />
