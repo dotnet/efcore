@@ -4,7 +4,7 @@
 using System;
 using Microsoft.Data.Entity.Commands.Migrations;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Migrations.Infrastructure;
+using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Utilities;
 using Xunit;
 
@@ -747,7 +747,7 @@ return builder.Model;",
                 @"using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Commands.Tests.Migrations;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Migrations.Infrastructure;
+using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
 using System;
 
 namespace MyNamespace
@@ -797,7 +797,7 @@ namespace MyNamespace
                         "mscorlib",
                         "System.Runtime",
                         "EntityFramework.Core",
-                        "EntityFramework.Migrations"
+                        "EntityFramework.Relational"
                     });
             var compiledModelSnapshot = (ModelSnapshot)
                 compiledAssembly.CreateInstance(@namespace + "." + className);

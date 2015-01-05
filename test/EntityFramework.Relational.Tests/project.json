@@ -9,6 +9,7 @@
         "**\\*.cs",
         "..\\Shared\\TestHelpers.cs",
         "..\\Shared\\ApiConsistencyTestBase.cs",
+        "..\\Shared\\MigrationsTestHelpers.cs",
         "..\\Shared\\RelationalTestHelpers.cs"
     ],
     "commands": {

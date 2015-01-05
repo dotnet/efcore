@@ -76,10 +76,6 @@
       <Project>{75c5a774-a3f3-43eb-97d3-dbe0cf2825d8}</Project>
       <Name>EntityFramework.Relational</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\src\EntityFramework.Migrations\EntityFramework.Migrations.csproj">
-      <Project>{6E38B72F-31DA-4AEF-8F34-B8269572EC6B}</Project>
-      <Name>EntityFramework.Migrations</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\src\EntityFramework.SqlServer\EntityFramework.SqlServer.csproj">
       <Project>{04E6620B-5B41-45FE-981A-F40EB7686B0E}</Project>
       <Name>EntityFramework.SqlServer</Name>

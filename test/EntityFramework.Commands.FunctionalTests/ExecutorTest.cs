@@ -57,7 +57,7 @@ namespace Microsoft.Data.Entity.Commands
                                 BuildReference.ByName("System.Runtime, Version=4.0.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"),
                                 BuildReference.ByName("EntityFramework.Core", copyLocal: true),
                                 BuildReference.ByName("EntityFramework.Commands", copyLocal: true),
-                                BuildReference.ByName("EntityFramework.Migrations", copyLocal: true),
+                                BuildReference.ByName("EntityFramework.Relational", copyLocal: true),
                                 BuildReference.ByName("Microsoft.Framework.Logging", copyLocal: true),
                                 BuildReference.ByName("Microsoft.Framework.Logging.Interfaces", copyLocal: true)
                             },
@@ -65,10 +65,10 @@ namespace Microsoft.Data.Entity.Commands
                         using System;
                         using Microsoft.Data.Entity;
                         using Microsoft.Data.Entity.Metadata;
-                        using Microsoft.Data.Entity.Migrations;
-                        using Microsoft.Data.Entity.Migrations.Builders;
-                        using Microsoft.Data.Entity.Migrations.Infrastructure;
-                        using Microsoft.Data.Entity.Migrations.Model;
+                        using Microsoft.Data.Entity.Relational.Migrations;
+                        using Microsoft.Data.Entity.Relational.Migrations.Builders;
+                        using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
+                        using Microsoft.Data.Entity.Relational.Migrations.MigrationsModel;
 
                         namespace SimpleProject
                         {
@@ -144,7 +144,7 @@ namespace Microsoft.Data.Entity.Commands
                             BuildReference.ByName("System.Runtime, Version=4.0.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"),
                             BuildReference.ByName("EntityFramework.Core", copyLocal: true),
                             BuildReference.ByName("EntityFramework.Commands", copyLocal: true),
-                            BuildReference.ByName("EntityFramework.Migrations", copyLocal: true),
+                            BuildReference.ByName("EntityFramework.Relational", copyLocal: true),
                             BuildReference.ByName("Microsoft.Framework.Logging", copyLocal: true),
                             BuildReference.ByName("Microsoft.Framework.Logging.Interfaces", copyLocal: true)
                         },
@@ -152,10 +152,10 @@ namespace Microsoft.Data.Entity.Commands
                         using System;
                         using Microsoft.Data.Entity;
                         using Microsoft.Data.Entity.Metadata;
-                        using Microsoft.Data.Entity.Migrations;
-                        using Microsoft.Data.Entity.Migrations.Builders;
-                        using Microsoft.Data.Entity.Migrations.Infrastructure;
-                        using Microsoft.Data.Entity.Migrations.Model;
+                        using Microsoft.Data.Entity.Relational.Migrations;
+                        using Microsoft.Data.Entity.Relational.Migrations.Builders;
+                        using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
+                        using Microsoft.Data.Entity.Relational.Migrations.MigrationsModel;
 
                         namespace MyProject
                         {
@@ -280,7 +280,7 @@ namespace Microsoft.Data.Entity.Commands
                         {
                             BuildReference.ByName("System.Runtime, Version=4.0.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"),
                             BuildReference.ByName("EntityFramework.Core"),
-                            BuildReference.ByName("EntityFramework.Migrations", copyLocal: true),
+                            BuildReference.ByName("EntityFramework.Relational", copyLocal: true),
                             BuildReference.ByName("Microsoft.Framework.Logging", copyLocal: true),
                             BuildReference.ByName("Microsoft.Framework.Logging.Interfaces", copyLocal: true),
                             BuildReference.ByPath(contextsBuild.TargetPath)
@@ -289,10 +289,10 @@ namespace Microsoft.Data.Entity.Commands
                         using System;
                         using Microsoft.Data.Entity;
                         using Microsoft.Data.Entity.Metadata;
-                        using Microsoft.Data.Entity.Migrations;
-                        using Microsoft.Data.Entity.Migrations.Builders;
-                        using Microsoft.Data.Entity.Migrations.Infrastructure;
-                        using Microsoft.Data.Entity.Migrations.Model;
+                        using Microsoft.Data.Entity.Relational.Migrations;
+                        using Microsoft.Data.Entity.Relational.Migrations.Builders;
+                        using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
+                        using Microsoft.Data.Entity.Relational.Migrations.MigrationsModel;
 
                         namespace MyProject
                         {

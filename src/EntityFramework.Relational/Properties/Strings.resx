@@ -186,4 +186,37 @@
   <data name="BadSequenceString" xml:space="preserve">
     <value>Unable to deserialize sequence from model metadata. See inner exception for details.</value>
   </data>
+  <data name="InvalidMigrationId" xml:space="preserve">
+    <value>'{migrationId}' is not a valid migration identifier.</value>
+  </data>
+  <data name="LocalMigrationNotFound" xml:space="preserve">
+    <value>The history repository includes a migration with the identifier '{migrationId}' but the migration assembly does not contain the corresponding migration class.</value>
+  </data>
+  <data name="MigrationsNotInUse" xml:space="preserve">
+    <value>Migrations-specific methods can only be used when the context is using a migrations-enabled data store.</value>
+  </data>
+  <data name="MigratorLoggerApplyingMigration" xml:space="preserve">
+    <value>Applying migration '{migrationId}'.</value>
+  </data>
+  <data name="MigratorLoggerCreatingHistoryTable" xml:space="preserve">
+    <value>Creating migration history table.</value>
+  </data>
+  <data name="MigratorLoggerDroppingHistoryTable" xml:space="preserve">
+    <value>Dropping migration history table.</value>
+  </data>
+  <data name="MigratorLoggerRevertingMigration" xml:space="preserve">
+    <value>Reverting migration '{migrationId}'.</value>
+  </data>
+  <data name="MigratorLoggerUpToDate" xml:space="preserve">
+    <value>The database is up to date.</value>
+  </data>
+  <data name="MissingMigrationMetadata" xml:space="preserve">
+    <value>'{migrationType}' does not implement IMigrationMetadata.</value>
+  </data>
+  <data name="TargetMigrationNotFound" xml:space="preserve">
+    <value>The target migration '{targetMigrationName}' was not found.</value>
+  </data>
+  <data name="UnknownOperation" xml:space="preserve">
+    <value>The current migration SQL generator '{sqlGeneratorType}' is unable to generate SQL for operations of type '{operationType}'.</value>
+  </data>
 </root>

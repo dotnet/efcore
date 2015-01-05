@@ -4,3 +4,8 @@
 using System.Resources;
 
 [assembly: NeutralResourcesLanguage("en-US")]
+
+#if VSBUILD
+
+[assembly: AssemblyInformationalVersion("7.0.0.0")]
+#endif

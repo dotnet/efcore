@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Migrations.Model;
+using Microsoft.Data.Entity.Relational.Migrations.MigrationsModel;
 using Microsoft.Data.Entity.SqlServer.Metadata;
 using Xunit;
 

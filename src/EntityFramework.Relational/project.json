@@ -12,6 +12,10 @@
     "frameworks": {
         "net451": { },
         "aspnet50": { },
-        "aspnetcore50": { }
+        "aspnetcore50": {
+            "dependencies": {
+                "Microsoft.CSharp": "4.0.0-beta-*"
+            }
+        }
     }
 }

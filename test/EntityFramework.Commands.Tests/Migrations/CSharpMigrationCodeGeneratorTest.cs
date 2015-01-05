@@ -5,9 +5,9 @@ using System;
 using System.Reflection;
 using Microsoft.Data.Entity.Commands.Migrations;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Migrations;
-using Microsoft.Data.Entity.Migrations.Infrastructure;
-using Microsoft.Data.Entity.Migrations.Model;
+using Microsoft.Data.Entity.Relational.Migrations;
+using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
+using Microsoft.Data.Entity.Relational.Migrations.MigrationsModel;
 using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Relational.Tests;
 using Microsoft.Data.Entity.Utilities;
@@ -616,9 +616,9 @@ namespace Microsoft.Data.Entity.Commands.Tests.Migrations
             codeGenerator.GenerateMigrationClass("MyNamespace", "MyClass", migration, stringBuilder);
 
             Assert.Equal(
-                @"using Microsoft.Data.Entity.Migrations;
-using Microsoft.Data.Entity.Migrations.Builders;
-using Microsoft.Data.Entity.Migrations.Model;
+                @"using Microsoft.Data.Entity.Relational.Migrations;
+using Microsoft.Data.Entity.Relational.Migrations.Builders;
+using Microsoft.Data.Entity.Relational.Migrations.MigrationsModel;
 using System;
 
 namespace MyNamespace
@@ -666,7 +666,7 @@ namespace MyNamespace
                 @"using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Commands.Tests.Migrations;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Migrations.Infrastructure;
+using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
 using System;
 
 namespace MyNamespace
@@ -768,8 +768,7 @@ namespace MyNamespace
                         "System.Linq.Expressions",
                         "System.Runtime",
                         "EntityFramework.Core",
-                        "EntityFramework.Relational",
-                        "EntityFramework.Migrations"
+                        "EntityFramework.Relational"
                     });
 
             var compiledMigration = new MigrationInfo(

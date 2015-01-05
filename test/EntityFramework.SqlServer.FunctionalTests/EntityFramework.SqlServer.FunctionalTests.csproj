@@ -120,10 +120,6 @@
       <Project>{71415CEC-8111-4C73-8751-512D22F10602}</Project>
       <Name>EntityFramework.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\src\EntityFramework.Migrations\EntityFramework.Migrations.csproj">
-      <Project>{6E38B72F-31DA-4AEF-8F34-B8269572EC6B}</Project>
-      <Name>EntityFramework.Migrations</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\src\EntityFramework.InMemory\EntityFramework.InMemory.csproj">
       <Project>{BA3F5DBC-EC16-4D5A-8298-8226E6C5ACCC}</Project>
       <Name>EntityFramework.InMemory</Name>

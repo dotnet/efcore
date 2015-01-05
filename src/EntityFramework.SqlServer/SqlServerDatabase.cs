@@ -4,7 +4,7 @@
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Migrations;
+using Microsoft.Data.Entity.Relational.Migrations;
 using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.SqlServer

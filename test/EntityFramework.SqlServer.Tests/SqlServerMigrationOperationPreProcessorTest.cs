@@ -4,8 +4,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Migrations;
-using Microsoft.Data.Entity.Migrations.Model;
+using Microsoft.Data.Entity.Relational.Migrations;
+using Microsoft.Data.Entity.Relational.Migrations.MigrationsModel;
 using Microsoft.Data.Entity.SqlServer.Metadata;
 using Xunit;
 

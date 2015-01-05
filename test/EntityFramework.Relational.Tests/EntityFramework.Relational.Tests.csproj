@@ -71,13 +71,60 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Shared\MigrationsTestHelpers.cs">
+      <Link>MigrationsTestHelpers.cs</Link>
+    </Compile>
     <Compile Include="..\Shared\RelationalTestHelpers.cs">
       <Link>RelationalTestHelpers.cs</Link>
     </Compile>
     <Compile Include="ApiConsistencyTest.cs" />
+    <Compile Include="Migrations\Builders\ColumnBuilderTest.cs" />
+    <Compile Include="Migrations\Builders\MigrationBuilderTest.cs" />
+    <Compile Include="Migrations\Builders\TableBuilderTest.cs" />
+    <Compile Include="Migrations\Infrastructure\ContextTypeAttributeTest.cs" />
+    <Compile Include="Migrations\Infrastructure\HistoryRepositoryTest.cs" />
+    <Compile Include="Migrations\Infrastructure\MigrationAssemblyTest.cs" />
+    <Compile Include="Migrations\Infrastructure\MigrationInfoTest.cs" />
+    <Compile Include="Migrations\Infrastructure\MigratorTest.cs" />
     <Compile Include="Metadata\RelationalMetadataExtensionsTest.cs" />
     <Compile Include="Metadata\RelationalNameBuilderTest.cs" />
     <Compile Include="Metadata\SequenceTest.cs" />
+    <Compile Include="Migrations\MigrationOperationFactoryTest.cs" />
+    <Compile Include="Migrations\MigrationOperationSqlGeneratorTest.cs" />
+    <Compile Include="Migrations\MigrationsDatabaseExtensionsTest.cs" />
+    <Compile Include="Migrations\MigrationsDbContextOptionsExtensionsTest.cs" />
+    <Compile Include="Migrations\MigrationsEntityServicesBuilderExtensionsTest.cs" />
+    <Compile Include="Migrations\MigrationsModel\AddColumnOperationTest.cs" />
+    <Compile Include="Migrations\MigrationsModel\AddDefaultConstraintOperationTest.cs" />
+    <Compile Include="Migrations\MigrationsModel\AddForeignKeyOperationTest.cs" />
+    <Compile Include="Migrations\MigrationsModel\AddPrimaryKeyOperationTest.cs" />
+    <Compile Include="Migrations\MigrationsModel\AddUniqueConstraintOperationTest.cs" />
+    <Compile Include="Migrations\MigrationsModel\AlterColumnOperationTest.cs" />
+    <Compile Include="Migrations\MigrationsModel\AlterSequenceOperationTest.cs" />
+    <Compile Include="Migrations\MigrationsModel\ColumnTest.cs" />
+    <Compile Include="Migrations\MigrationsModel\CopyDataOperationTest.cs" />
+    <Compile Include="Migrations\MigrationsModel\CreateDatabaseOperationTest.cs" />
+    <Compile Include="Migrations\MigrationsModel\CreateIndexOperationTest.cs" />
+    <Compile Include="Migrations\MigrationsModel\CreateSequenceOperationTest.cs" />
+    <Compile Include="Migrations\MigrationsModel\CreateTableOperationTest.cs" />
+    <Compile Include="Migrations\MigrationsModel\DropColumnOperationTest.cs" />
+    <Compile Include="Migrations\MigrationsModel\DropDatabaseOperationTest.cs" />
+    <Compile Include="Migrations\MigrationsModel\DropDefaultConstraintOperationTest.cs" />
+    <Compile Include="Migrations\MigrationsModel\DropForeignKeyOperation.cs" />
+    <Compile Include="Migrations\MigrationsModel\DropIndexOperationTest.cs" />
+    <Compile Include="Migrations\MigrationsModel\DropPrimaryKeyOperationTest.cs" />
+    <Compile Include="Migrations\MigrationsModel\DropSequenceOperationTest.cs" />
+    <Compile Include="Migrations\MigrationsModel\DropTableOperationTest.cs" />
+    <Compile Include="Migrations\MigrationsModel\DropUniqueConstraintOperationTest.cs" />
+    <Compile Include="Migrations\MigrationsModel\MoveSequenceOperationTest.cs" />
+    <Compile Include="Migrations\MigrationsModel\MoveTableOperationTest.cs" />
+    <Compile Include="Migrations\MigrationsModel\RenameColumnOperationTest.cs" />
+    <Compile Include="Migrations\MigrationsModel\RenameIndexOperationTest.cs" />
+    <Compile Include="Migrations\MigrationsModel\RenameSequenceOperationTest.cs" />
+    <Compile Include="Migrations\MigrationsModel\RenameTableOperationTest.cs" />
+    <Compile Include="Migrations\MigrationsModel\SqlOperationTest.cs" />
+    <Compile Include="Migrations\MigrationTest.cs" />
+    <Compile Include="Migrations\ModelDifferTest.cs" />
     <Compile Include="Model\RelationalTypeMappingTest.cs" />
     <Compile Include="Metadata\RelationalBuilderExtensionsTest.cs" />
     <Compile Include="RelationalConnectionTest.cs" />

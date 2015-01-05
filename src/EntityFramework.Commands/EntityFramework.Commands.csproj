@@ -71,8 +71,8 @@
       <DependentUpon>Strings.resx</DependentUpon>
     </Compile>
     <None Include="tools\Handlers.cs" />
-    <Compile Include="..\Shared\Check.cs" >
-        <Link>Utilities\Check.cs</Link>
+    <Compile Include="..\Shared\Check.cs">
+      <Link>Utilities\Check.cs</Link>
     </Compile>
     <Compile Include="Utilities\ColorScope.cs" />
     <Compile Include="Utilities\CommandLogger.cs" />
@@ -98,10 +98,6 @@
     <None Include="tools\init.ps1" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\EntityFramework.Migrations\EntityFramework.Migrations.csproj">
-      <Project>{6e38b72f-31da-4aef-8f34-b8269572ec6b}</Project>
-      <Name>EntityFramework.Migrations</Name>
-    </ProjectReference>
     <ProjectReference Include="..\EntityFramework.Relational\EntityFramework.Relational.csproj">
       <Project>{75c5a774-a3f3-43eb-97d3-dbe0cf2825d8}</Project>
       <Name>EntityFramework.Relational</Name>

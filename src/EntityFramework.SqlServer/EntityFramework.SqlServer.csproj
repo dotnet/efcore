@@ -126,8 +126,8 @@
     <Compile Include="Update\SqlServerModificationCommandBatch.cs" />
     <Compile Include="Utilities\EnumerableExtensions.cs" />
     <Compile Include="..\Shared\CodeAnnotations.cs" />
-    <Compile Include="..\Shared\Check.cs" >
-        <Link>Utilities\Check.cs</Link>
+    <Compile Include="..\Shared\Check.cs">
+      <Link>Utilities\Check.cs</Link>
     </Compile>
     <Compile Include="..\Shared\StringBuilderExtensions.cs" />
     <Compile Include="..\Shared\SharedTypeExtensions.cs" />
@@ -146,10 +146,6 @@
     <ProjectReference Include="..\EntityFramework.Core\EntityFramework.Core.csproj">
       <Project>{71415CEC-8111-4C73-8751-512D22F10602}</Project>
       <Name>EntityFramework.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\EntityFramework.Migrations\EntityFramework.Migrations.csproj">
-      <Project>{6E38B72F-31DA-4AEF-8F34-B8269572EC6B}</Project>
-      <Name>EntityFramework.Migrations</Name>
     </ProjectReference>
     <ProjectReference Include="..\EntityFramework.Relational\EntityFramework.Relational.csproj">
       <Project>{75C5A774-A3F3-43EB-97D3-DBE0CF2825D8}</Project>
