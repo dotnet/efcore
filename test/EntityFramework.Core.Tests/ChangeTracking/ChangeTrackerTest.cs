@@ -957,6 +957,89 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.Contains(orderDetails2b, orderDetails1b.Product.OrderDetails);
         }
 
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void Entries_calls_DetectChanges_by_default(bool useGenericOverload)
+        {
+            using (var context = new EarlyLearningCenter())
+            {
+                var entry = context.Attach(new Product { Id = 1, CategoryId = 66 });
+
+                entry.Entity.CategoryId = 77;
+
+                Assert.Equal(EntityState.Unchanged, entry.State);
+
+                if (useGenericOverload)
+                {
+                    context.ChangeTracker.Entries<Product>();
+                }
+                else
+                {
+                    context.ChangeTracker.Entries();
+                }
+
+                Assert.Equal(EntityState.Modified, entry.State);
+            }
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void Auto_DetectChanges_for_Entries_can_be_switched_off(bool useGenericOverload)
+        {
+            using (var context = new EarlyLearningCenter())
+            {
+                context.Configuration.AutoDetectChangesEnabled = false;
+
+                var entry = context.Attach(new Product { Id = 1, CategoryId = 66 });
+
+                entry.Entity.CategoryId = 77;
+
+                Assert.Equal(EntityState.Unchanged, entry.State);
+
+                if (useGenericOverload)
+                {
+                    context.ChangeTracker.Entries<Product>();
+                }
+                else
+                {
+                    context.ChangeTracker.Entries();
+                }
+
+                Assert.Equal(EntityState.Unchanged, entry.State);
+            }
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task Explicitly_calling_DetectChanges_works_even_if_auto_DetectChanges_is_switched_off(bool async)
+        {
+            using (var context = new EarlyLearningCenter())
+            {
+                context.Configuration.AutoDetectChangesEnabled = false;
+
+                var entry = context.Attach(new Product { Id = 1, CategoryId = 66 });
+
+                entry.Entity.CategoryId = 77;
+
+                Assert.Equal(EntityState.Unchanged, entry.State);
+
+                if (async)
+                {
+                    await context.ChangeTracker.DetectChangesAsync();
+                }
+                else
+                {
+                    context.ChangeTracker.DetectChanges();
+                }
+
+                Assert.Equal(EntityState.Modified, entry.State);
+            }
+        }
+
         private class Category
         {
             public int Id { get; set; }

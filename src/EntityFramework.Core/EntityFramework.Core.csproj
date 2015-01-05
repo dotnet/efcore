@@ -82,6 +82,7 @@
     <Compile Include="ChangeTracking\ValueGenerationManager.cs" />
     <Compile Include="DbContext.cs" />
     <Compile Include="Identity\GeneratedValue.cs" />
+    <Compile Include="DbContextConfiguration.cs" />
     <Compile Include="Identity\TemporaryBinaryValueGenerator.cs" />
     <Compile Include="Identity\TemporaryStringValueGenerator.cs" />
     <Compile Include="Infrastructure\DbContextService.cs" />

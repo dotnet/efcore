@@ -7,6 +7,8 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
@@ -116,6 +118,23 @@ namespace Microsoft.Data.Entity.ChangeTracking
             return foundChanges;
         }
 
+        public virtual async Task<bool> DetectChangesAsync(
+            [NotNull] StateManager stateManager, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Check.NotNull(stateManager, "stateManager");
+
+            var foundChanges = false;
+            foreach (var entry in stateManager.StateEntries.ToList())
+            {
+                if (await DetectChangesAsync(entry, cancellationToken).WithCurrentCulture())
+                {
+                    foundChanges = true;
+                }
+            }
+
+            return foundChanges;
+        }
+
         public virtual bool DetectChanges([NotNull] StateEntry entry)
         {
             Check.NotNull(entry, "entry");
@@ -163,6 +182,15 @@ namespace Microsoft.Data.Entity.ChangeTracking
             }
 
             return foundChanges;
+        }
+
+        public virtual Task<bool> DetectChangesAsync(
+            [NotNull] StateEntry entry, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Check.NotNull(entry, "entry");
+
+            // TODO: Need real async once adding entities
+            return Task.FromResult(DetectChanges(entry));
         }
 
         private bool DetectForeignKeyChange(StateEntry entry, IProperty property)

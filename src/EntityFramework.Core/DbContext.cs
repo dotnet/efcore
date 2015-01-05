@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity
     {
         private static readonly ThreadSafeDictionaryCache<Type, Type> _optionsTypes = new ThreadSafeDictionaryCache<Type, Type>();
 
-        private readonly LazyRef<DbContextServices> _configuration;
+        private readonly LazyRef<DbContextServices> _contextServices;
         private readonly LazyRef<ILogger> _logger;
         private readonly LazyRef<DbSetInitializer> _setInitializer;
 
@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity
             var options = GetOptions(serviceProvider);
 
             InitializeSets(serviceProvider, options);
-            _configuration = new LazyRef<DbContextServices>(() => Initialize(serviceProvider, options));
+            _contextServices = new LazyRef<DbContextServices>(() => Initialize(serviceProvider, options));
             _logger = new LazyRef<ILogger>(CreateLogger);
             _setInitializer = new LazyRef<DbSetInitializer>(GetSetInitializer);
         }
@@ -48,7 +48,7 @@ namespace Microsoft.Data.Entity
             var options = GetOptions(serviceProvider);
 
             InitializeSets(serviceProvider, options);
-            _configuration = new LazyRef<DbContextServices>(
+            _contextServices = new LazyRef<DbContextServices>(
                 () => Initialize(serviceProvider, options));
 
             _logger = new LazyRef<ILogger>(CreateLogger);
@@ -99,7 +99,7 @@ namespace Microsoft.Data.Entity
             var serviceProvider = DbContextActivator.ServiceProvider;
 
             InitializeSets(serviceProvider, options);
-            _configuration = new LazyRef<DbContextServices>(() => Initialize(serviceProvider, options));
+            _contextServices = new LazyRef<DbContextServices>(() => Initialize(serviceProvider, options));
             _logger = new LazyRef<ILogger>(CreateLogger);
             _setInitializer = new LazyRef<DbSetInitializer>(GetSetInitializer);
         }
@@ -112,29 +112,29 @@ namespace Microsoft.Data.Entity
             Check.NotNull(options, "options");
 
             InitializeSets(serviceProvider, options);
-            _configuration = new LazyRef<DbContextServices>(() => Initialize(serviceProvider, options));
+            _contextServices = new LazyRef<DbContextServices>(() => Initialize(serviceProvider, options));
             _logger = new LazyRef<ILogger>(CreateLogger);
             _setInitializer = new LazyRef<DbSetInitializer>(GetSetInitializer);
         }
 
         private ILogger CreateLogger()
         {
-            return _configuration.Value.ScopedServiceProvider.GetRequiredServiceChecked<ILoggerFactory>().Create<DbContext>();
+            return _contextServices.Value.ScopedServiceProvider.GetRequiredServiceChecked<ILoggerFactory>().Create<DbContext>();
         }
 
         private DbSetInitializer GetSetInitializer()
         {
-            return _configuration.Value.ScopedServiceProvider.GetRequiredServiceChecked<DbSetInitializer>();
+            return _contextServices.Value.ScopedServiceProvider.GetRequiredServiceChecked<DbSetInitializer>();
         }
 
         private ChangeDetector GetChangeDetector()
         {
-            return _configuration.Value.ScopedServiceProvider.GetRequiredServiceChecked<ChangeDetector>();
+            return _contextServices.Value.ScopedServiceProvider.GetRequiredServiceChecked<ChangeDetector>();
         }
 
         private StateManager GetStateManager()
         {
-            return _configuration.Value.ScopedServiceProvider.GetRequiredServiceChecked<StateManager>();
+            return _contextServices.Value.ScopedServiceProvider.GetRequiredServiceChecked<StateManager>();
         }
 
         private DbContextServices Initialize(IServiceProvider serviceProvider, DbContextOptions options)
@@ -180,10 +180,9 @@ namespace Microsoft.Data.Entity
             serviceProvider.GetRequiredServiceChecked<DbSetInitializer>().InitializeSets(this);
         }
 
-        IServiceProvider IDbContextServices.ScopedServiceProvider
-        {
-            get { return _configuration.Value.ScopedServiceProvider; }
-        }
+        IServiceProvider IDbContextServices.ScopedServiceProvider => _contextServices.Value.ScopedServiceProvider;
+
+        public virtual DbContextConfiguration Configuration { get; } = new DbContextConfiguration();
 
         protected internal virtual void OnConfiguring(DbContextOptions options)
         {
@@ -198,9 +197,7 @@ namespace Microsoft.Data.Entity
         {
             var stateManager = GetStateManager();
 
-            // TODO: Allow auto-detect changes to be switched off
-            // Issue #745
-            GetChangeDetector().DetectChanges(stateManager);
+            TryDetectChanges(stateManager);
 
             try
             {
@@ -218,13 +215,22 @@ namespace Microsoft.Data.Entity
             }
         }
 
+        private void TryDetectChanges(StateManager stateManager)
+        {
+            if (Configuration.AutoDetectChangesEnabled)
+            {
+                GetChangeDetector().DetectChanges(stateManager);
+            }
+        }
+
         public virtual async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var stateManager = GetStateManager();
 
-            // TODO: Allow auto-detect changes to be switched off
-            // Issue #745
-            GetChangeDetector().DetectChanges(stateManager);
+            if (Configuration.AutoDetectChangesEnabled)
+            {
+                await GetChangeDetector().DetectChangesAsync(stateManager, cancellationToken).WithCurrentCulture();
+            }
 
             try
             {
@@ -244,9 +250,9 @@ namespace Microsoft.Data.Entity
 
         public virtual void Dispose()
         {
-            if (_configuration.HasValue)
+            if (_contextServices.HasValue)
             {
-                _configuration.Value.Dispose();
+                _contextServices.Value.Dispose();
             }
         }
 
@@ -254,14 +260,22 @@ namespace Microsoft.Data.Entity
         {
             Check.NotNull(entity, "entity");
 
-            return new EntityEntry<TEntity>(this, GetStateManager().GetOrCreateEntry(entity));
+            var stateManager = GetStateManager();
+
+            TryDetectChanges(stateManager);
+
+            return new EntityEntry<TEntity>(this, stateManager.GetOrCreateEntry(entity));
         }
 
         public virtual EntityEntry Entry([NotNull] object entity)
         {
             Check.NotNull(entity, "entity");
 
-            return new EntityEntry(this, GetStateManager().GetOrCreateEntry(entity));
+            var stateManager = GetStateManager();
+
+            TryDetectChanges(stateManager);
+
+            return new EntityEntry(this, stateManager.GetOrCreateEntry(entity));
         }
 
         public virtual EntityEntry<TEntity> Add<TEntity>([NotNull] TEntity entity) where TEntity : class
@@ -394,7 +408,7 @@ namespace Microsoft.Data.Entity
         public virtual async Task<IReadOnlyList<EntityEntry<TEntity>>> AddAsync<TEntity>(
             [NotNull] TEntity[] entities,
             CancellationToken cancellationToken)
-             where TEntity : class
+            where TEntity : class
         {
             Check.NotNull(entities, "entities");
 
@@ -547,19 +561,13 @@ namespace Microsoft.Data.Entity
         }
 
         public virtual Database Database
-        {
-            get { return _configuration.Value.ScopedServiceProvider.GetRequiredServiceChecked<DbContextService<Database>>().Service; }
-        }
+            => _contextServices.Value.ScopedServiceProvider.GetRequiredServiceChecked<DbContextService<Database>>().Service;
 
         public virtual ChangeTracker ChangeTracker
-        {
-            get { return _configuration.Value.ScopedServiceProvider.GetRequiredServiceChecked<ChangeTracker>(); }
-        }
+            => _contextServices.Value.ScopedServiceProvider.GetRequiredServiceChecked<ChangeTracker>();
 
         public virtual IModel Model
-        {
-            get { return _configuration.Value.ScopedServiceProvider.GetRequiredServiceChecked<DbContextService<IModel>>().Service; }
-        }
+            => _contextServices.Value.ScopedServiceProvider.GetRequiredServiceChecked<DbContextService<IModel>>().Service;
 
         public virtual DbSet<TEntity> Set<TEntity>()
             where TEntity : class

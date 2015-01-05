@@ -159,6 +159,8 @@ namespace Microsoft.Data.Entity.Tests
 
             using (var context = new DbContext(serviceProvider, options))
             {
+                context.Configuration.AutoDetectChangesEnabled = false;
+
                 var stateManager = (FakeStateManager)((IDbContextServices)context).ScopedServiceProvider.GetRequiredService<StateManager>();
 
                 var entryMock = new Mock<StateEntry>();
@@ -2278,6 +2280,138 @@ namespace Microsoft.Data.Entity.Tests
                 Products.ToList();
 
                 base.OnConfiguring(options);
+            }
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task SaveChanges_calls_DetectChanges_by_default(bool async)
+        {
+            var provider = TestHelpers.CreateServiceProvider();
+
+            using (var context = new ButTheHedgehogContext(provider))
+            {
+                Assert.True(context.Configuration.AutoDetectChangesEnabled);
+
+                var product = context.Attach(new Product { Id = 1, Name = "Little Hedgehogs" }).Entity;
+
+                product.Name = "Cracked Cookies";
+
+                if (async)
+                {
+                    await context.SaveChangesAsync();
+                }
+                else
+                {
+                    context.SaveChanges();
+                }
+            }
+
+            using (var context = new ButTheHedgehogContext(provider))
+            {
+                Assert.Equal("Cracked Cookies", context.Products.Single().Name);
+            }
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task Auto_DetectChanges_for_SaveChanges_can_be_switched_off(bool async)
+        {
+            var provider = TestHelpers.CreateServiceProvider();
+
+            using (var context = new ButTheHedgehogContext(provider))
+            {
+                context.Configuration.AutoDetectChangesEnabled = false;
+                Assert.False(context.Configuration.AutoDetectChangesEnabled);
+
+                var product = context.Attach(new Product { Id = 1, Name = "Little Hedgehogs" }).Entity;
+
+                product.Name = "Cracked Cookies";
+
+                if (async)
+                {
+                    await context.SaveChangesAsync();
+                }
+                else
+                {
+                    context.SaveChanges();
+                }
+            }
+
+            using (var context = new ButTheHedgehogContext(provider))
+            {
+                Assert.Empty(context.Products);
+            }
+        }
+
+        private class ButTheHedgehogContext : DbContext
+        {
+            public ButTheHedgehogContext(IServiceProvider serviceProvider)
+                : base(serviceProvider)
+            {
+            }
+
+            public DbSet<Product> Products { get; set; }
+
+            protected internal override void OnConfiguring(DbContextOptions options)
+            {
+                options.UseInMemoryStore(persist: true);
+            }
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void Entry_calls_DetectChanges_by_default(bool useGenericOverload)
+        {
+            using (var context = new ButTheHedgehogContext(TestHelpers.CreateServiceProvider()))
+            {
+                var entry = context.Attach(new Product { Id = 1, Name = "Little Hedgehogs" });
+
+                entry.Entity.Name = "Cracked Cookies";
+
+                Assert.Equal(EntityState.Unchanged, entry.State);
+
+                if (useGenericOverload)
+                {
+                    context.Entry(entry.Entity);
+                }
+                else
+                {
+                    context.Entry((object)entry.Entity);
+                }
+
+                Assert.Equal(EntityState.Modified, entry.State);
+            }
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void Auto_DetectChanges_for_Entry_can_be_switched_off(bool useGenericOverload)
+        {
+            using (var context = new ButTheHedgehogContext(TestHelpers.CreateServiceProvider()))
+            {
+                context.Configuration.AutoDetectChangesEnabled = false;
+
+                var entry = context.Attach(new Product { Id = 1, Name = "Little Hedgehogs" });
+
+                entry.Entity.Name = "Cracked Cookies";
+
+                Assert.Equal(EntityState.Unchanged, entry.State);
+
+                if (useGenericOverload)
+                {
+                    context.Entry(entry.Entity);
+                }
+                else
+                {
+                    context.Entry((object)entry.Entity);
+                }
+
+                Assert.Equal(EntityState.Unchanged, entry.State);
             }
         }
     }

@@ -51,14 +51,26 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         public virtual IEnumerable<EntityEntry> Entries()
         {
+            TryDetectChanges();
+
             return StateManager.StateEntries.Select(e => new EntityEntry(_context.Service, e));
         }
 
         public virtual IEnumerable<EntityEntry<TEntity>> Entries<TEntity>() where TEntity : class
         {
+            TryDetectChanges();
+
             return StateManager.StateEntries
                 .Where(e => e.Entity is TEntity)
                 .Select(e => new EntityEntry<TEntity>(_context.Service, e));
+        }
+
+        private void TryDetectChanges()
+        {
+            if (_context.Service.Configuration.AutoDetectChangesEnabled)
+            {
+                DetectChanges();
+            }
         }
 
         public virtual StateManager StateManager { get; }
@@ -68,6 +80,11 @@ namespace Microsoft.Data.Entity.ChangeTracking
         public virtual bool DetectChanges()
         {
             return _changeDetector.DetectChanges(StateManager);
+        }
+
+        public virtual Task<bool> DetectChangesAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return _changeDetector.DetectChangesAsync(StateManager, cancellationToken);
         }
 
         public virtual void AttachGraph([NotNull] object rootEntity, [NotNull] Action<EntityEntry> callback)
