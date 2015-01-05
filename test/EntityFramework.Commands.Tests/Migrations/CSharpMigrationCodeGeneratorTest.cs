@@ -20,10 +20,10 @@ namespace Microsoft.Data.Entity.Commands.Tests.Migrations
         [Fact]
         public void Generate_when_create_database_operation()
         {
-            var operation = new CreateDatabaseOperation("MyDatabase");
+            var operation = new CreateDatabaseOperation();
 
             Assert.Equal(
-                @"CreateDatabase(""MyDatabase"")",
+                @"CreateDatabase()",
                 CSharpMigrationCodeGenerator.Generate(operation));
 
             GenerateAndValidateCode(operation);

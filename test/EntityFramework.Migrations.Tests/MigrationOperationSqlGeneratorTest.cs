@@ -18,8 +18,8 @@ namespace Microsoft.Data.Entity.Migrations.Tests
         public void Generate_when_create_database_operation()
         {
             Assert.Equal(
-                @"CREATE DATABASE ""MyDatabase""",
-                Generate(new CreateDatabaseOperation("MyDatabase")));
+                string.Empty,
+                Generate(new CreateDatabaseOperation()));
         }
 
         [Fact]
@@ -353,7 +353,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
 
             var operations = new List<MigrationOperation>
             {
-                new CreateDatabaseOperation("CustomeOrderDb"),
+                new CreateDatabaseOperation(),
                 OperationFactory().CreateTableOperation(model.GetEntityType("Customer")),
                 OperationFactory().CreateTableOperation(model.GetEntityType("Order")),
                 new DropDatabaseOperation("CustomeOrderDb"),
@@ -363,7 +363,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests
 
             Assert.Equal(1, batches.Count);
             Assert.Equal(
-@"CREATE DATABASE ""CustomeOrderDb"";
+@";
 CREATE TABLE ""dbo"".""Customers"" (
     ""FirstName"" varchar(4000),
     ""LastName"" varchar(4000),

@@ -64,11 +64,16 @@ namespace Microsoft.Data.Entity.Migrations
             get { return _operationProcessor; }
         }
 
-        public virtual IReadOnlyList<MigrationOperation> CreateSchema([NotNull] IModel model)
+        public virtual IReadOnlyList<MigrationOperation> CreateSchema([NotNull] IModel model, bool initialMigration = false)
         {
             Check.NotNull(model, "model");
 
             _operations = new MigrationOperationCollection();
+
+            if (initialMigration)
+            {
+                _operations.Add(new CreateDatabaseOperation());
+            }
 
             _operations.AddRange(GetSequences(model)
                 .Select(s => OperationFactory.CreateSequenceOperation(s)));

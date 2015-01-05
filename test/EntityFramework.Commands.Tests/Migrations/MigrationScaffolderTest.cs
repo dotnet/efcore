@@ -165,6 +165,7 @@ namespace MyNamespace.Migrations
     {
         public override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateDatabase();
         }
         
         public override void Down(MigrationBuilder migrationBuilder)
@@ -261,6 +262,8 @@ namespace MyNamespace.Migrations
     {
         public override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateDatabase();
+            
             migrationBuilder.CreateTable(""dbo.MyTable"",
                 c => new
                     {
@@ -381,6 +384,8 @@ namespace MyNamespace.Migrations
     {
         public override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateDatabase();
+            
             migrationBuilder.CreateTable(""[Ho!use[]]]"",
                 c => new
                     {
@@ -597,6 +602,8 @@ namespace MyNamespace.Migrations
     {
         public override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateDatabase();
+            
             migrationBuilder.CreateTable(""EntityWithNamedKey"",
                 c => new
                     {

@@ -89,7 +89,8 @@ namespace Microsoft.Data.Entity.Migrations
         public virtual IReadOnlyList<MigrationOperation> GetAll()
         {
             return
-                ((IEnumerable<MigrationOperation>)Get<DropSequenceOperation>())
+                ((IEnumerable<MigrationOperation>)Get<CreateDatabaseOperation>())
+                    .Concat(Get<DropSequenceOperation>())
                     .Concat(Get<MoveSequenceOperation>())
                     .Concat(Get<RenameSequenceOperation>())
                     .Concat(Get<AlterSequenceOperation>())

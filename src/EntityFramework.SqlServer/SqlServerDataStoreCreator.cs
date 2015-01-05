@@ -115,8 +115,24 @@ namespace Microsoft.Data.Entity.SqlServer
         {
             var databaseName = _connection.DbConnection.Database;
             var sqlGenerator = _sqlGeneratorFactory.Create();
+            var batchBuilder = new SqlBatchBuilder();
 
-            return sqlGenerator.Generate(new CreateDatabaseOperation(databaseName));
+            batchBuilder
+                .Append("CREATE DATABASE ")
+                .AppendLine(sqlGenerator.DelimitIdentifier(databaseName))
+                .EndBatch();
+
+            batchBuilder
+                .Append("IF SERVERPROPERTY('EngineEdition') <> 5 EXECUTE sp_executesql N")
+                .Append(
+                    sqlGenerator.GenerateLiteral(
+                        string.Concat(
+                            "ALTER DATABASE ",
+                            sqlGenerator.DelimitIdentifier(databaseName),
+                            " SET READ_COMMITTED_SNAPSHOT ON")))
+                .EndBatch();
+
+            return batchBuilder.SqlBatches;
         }
 
         public override bool Exists()

@@ -29,11 +29,10 @@ namespace Microsoft.Data.Entity.Migrations.Builders
             _operations.Add(operation);
         }
 
-        public virtual void CreateDatabase([NotNull] string databaseName)
-        {
-            Check.NotEmpty(databaseName, "databaseName");
 
-            AddOperation(new CreateDatabaseOperation(databaseName));
+        public virtual void CreateDatabase()
+        {
+            AddOperation(new CreateDatabaseOperation());
         }
 
         public virtual void DropDatabase([NotNull] string databaseName)

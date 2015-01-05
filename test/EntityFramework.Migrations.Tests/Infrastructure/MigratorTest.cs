@@ -666,7 +666,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                     {
                         new MigrationInfo("000000000000001_Migration1")
                             {
-                                UpgradeOperations = new[] { new SqlOperation("SomeSql") },
+                                UpgradeOperations = new MigrationOperation[] { new CreateDatabaseOperation(),  new SqlOperation("SomeSql") },
                                 TargetModel = new Metadata.Model()
                             }
                     };
@@ -684,6 +684,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
                 new[]
                     {
                         "Create__MigrationHistorySql",
+                        "CreateDatabaseOperationSql",
                         "SomeSql",
                         "Migration1InsertSql",
                     },
@@ -877,7 +878,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
         }
 
         [Fact]
-        public void ApplyMigrations_creates_database_if_no_migrations()
+        public void ApplyMigrations_does_not_create_database_if_no_migrations()
         {
             var contextServices = CreateContextServices(new MigrationInfo[0], new MigrationInfo[0], historyRepositoryExists: false);
             var migrator = contextServices.GetRequiredService<TestMigrator>();
@@ -889,8 +890,8 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             migrator.ApplyMigrations();
 
             Assert.Empty(executor.NonQueries);
-            Assert.True(creator.Created);
-            Assert.True(creator.ExistsState);
+            Assert.False(creator.Created);
+            Assert.False(creator.ExistsState);
 
             creator.ExistsState = false;
             creator.Created = false;
@@ -898,8 +899,8 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Infrastructure
             migrator.ApplyMigrations(Migrator.InitialDatabase);
 
             Assert.Empty(executor.NonQueries);
-            Assert.True(creator.Created);
-            Assert.True(creator.ExistsState);
+            Assert.False(creator.Created);
+            Assert.False(creator.ExistsState);
         }
 
         [Fact]

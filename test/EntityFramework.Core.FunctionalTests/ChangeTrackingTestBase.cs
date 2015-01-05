@@ -14,10 +14,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [Fact]
         public virtual void Entity_reverts_when_state_set_to_unchanged()
         {
-            Console.WriteLine("Entity_reverts_when_state_set_to_unchanged started");
             using (var context = CreateContext())
             {
-                Console.WriteLine("Context Created");
                 var customer = context.Customers.First();
                 var firstTrackedEntity = context.ChangeTracker.Entries<Customer>().Single();
                 var originalPhoneNumber = customer.Phone;

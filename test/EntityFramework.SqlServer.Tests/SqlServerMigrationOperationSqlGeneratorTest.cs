@@ -17,16 +17,6 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
     public class SqlServerMigrationOperationSqlGeneratorTest
     {
         [Fact]
-        public void Generate_when_create_database_operation()
-        {
-            var batches = SqlGenerator().Generate(new CreateDatabaseOperation("MyDatabase")).ToList();
-
-            Assert.Equal(2, batches.Count);
-            Assert.Equal(@"CREATE DATABASE [MyDatabase]", batches[0].Sql);
-            Assert.Equal(@"IF SERVERPROPERTY('EngineEdition') <> 5 EXECUTE sp_executesql N'ALTER DATABASE [MyDatabase] SET READ_COMMITTED_SNAPSHOT ON'", batches[1].Sql);
-        }
-
-        [Fact]
         public void Generate_when_drop_database_operation()
         {
             Assert.Equal(

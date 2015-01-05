@@ -128,7 +128,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             }
             else
             {
-                upgradeOperations = ModelDiffer.CreateSchema(targetModel);
+                upgradeOperations = ModelDiffer.CreateSchema(targetModel, initialMigration: true);
                 downgradeOperations = ModelDiffer.DropSchema(targetModel);
             }
 

@@ -30,25 +30,7 @@ namespace Microsoft.Data.Entity.SqlServer
         {
             get { return _generatedSchemas; }
         }
-
-        public override void Generate(CreateDatabaseOperation createDatabaseOperation, SqlBatchBuilder batchBuilder)
-        {
-            base.Generate(createDatabaseOperation, batchBuilder);
-
-            batchBuilder.EndBatch();
-
-            batchBuilder
-                .Append("IF SERVERPROPERTY('EngineEdition') <> 5 EXECUTE sp_executesql N")
-                .Append(
-                    GenerateLiteral(
-                        string.Concat(
-                            "ALTER DATABASE ",
-                            DelimitIdentifier(createDatabaseOperation.DatabaseName),
-                            " SET READ_COMMITTED_SNAPSHOT ON")));
-
-            batchBuilder.EndBatch();
-        }
-
+        
         public override void Generate(DropDatabaseOperation dropDatabaseOperation, SqlBatchBuilder batchBuilder)
         {
             batchBuilder

@@ -710,6 +710,22 @@ namespace Microsoft.Data.Entity.Migrations.Tests
             Assert.Equal("RenamedIndex", renameIndexOperation.NewIndexName);
         }
 
+
+
+        [Fact]
+        public void Initial_migration_scaffolds_create_database_command()
+        {
+            var targetModelBuilder = new BasicModelBuilder();
+            targetModelBuilder.Entity("A",
+                b =>
+                {
+                    b.Property<int>("Id");
+                    b.Key("Id");
+                });
+
+
+        }
+
         #endregion
 
         #region Transitive renames

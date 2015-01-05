@@ -8,6 +8,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Migrations.Model;
 using Microsoft.Data.Entity.Migrations.Utilities;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Utilities;
@@ -174,13 +175,17 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                     .Where(i => migrationPairs[i].HistoryRow == null)
                     .ToList();
 
-            if (!simulate
-                && !_storeCreator.Exists())
-            {
-                _storeCreator.Create();
-            }
-
             var batches = new List<SqlBatch>();
+
+            if (upgradeIndexes.Contains(0))
+            {
+                var createBatch = CreateDatabaseIfOperationSpecified(simulate);
+                if (createBatch != null)
+                {
+                    batches.AddRange(createBatch);
+                }
+            }
+            
 
             if (upgradeIndexes.Any()
                 && !historyTableExists)
@@ -200,6 +205,37 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             if (batches.Count == 0)
             {
                 Logger.UpToDate();
+            }
+
+            return batches;
+        }
+
+        protected virtual IReadOnlyList<SqlBatch> CreateDatabaseIfOperationSpecified(bool simulate)
+        {
+            var initialMigration = MigrationAssembly.Migrations[0];
+            var upgradeOperations = initialMigration.GetUpgradeOperations();
+            var createDatabaseOperation = upgradeOperations.SingleOrDefault(o => o is CreateDatabaseOperation);
+
+            if (createDatabaseOperation == null)
+            {
+                return null;
+            }
+
+            var targetModel = initialMigration.GetTargetModel();
+            var ddlSqlGenerator = DdlSqlGeneratorFactory.Create(targetModel);
+
+            var batches = ddlSqlGenerator.Generate(createDatabaseOperation).ToArray();
+
+            if (simulate)
+            {
+                return batches;
+            }
+
+            Logger.CreatingDatabases();
+
+            if (!_storeCreator.Exists())
+            {
+                _storeCreator.Create();
             }
 
             return batches;
@@ -242,7 +278,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
 
             return batches;
         }
-
+        
         protected virtual IReadOnlyList<SqlBatch> ApplyMigration(int index, bool simulate)
         {
             var migration = MigrationAssembly.Migrations[index];

@@ -9,18 +9,8 @@ namespace Microsoft.Data.Entity.Migrations.Model
 {
     public class CreateDatabaseOperation : MigrationOperation
     {
-        private readonly string _databaseName;
-
-        public CreateDatabaseOperation([NotNull] string databaseName)
+        public CreateDatabaseOperation()
         {
-            Check.NotEmpty(databaseName, "databaseName");
-
-            _databaseName = databaseName;
-        }
-
-        public virtual string DatabaseName
-        {
-            get { return _databaseName; }
         }
 
         public override void Accept<TVisitor, TContext>(TVisitor visitor, TContext context)

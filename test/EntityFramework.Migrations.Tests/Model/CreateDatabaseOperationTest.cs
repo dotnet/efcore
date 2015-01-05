@@ -13,16 +13,15 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Model
         [Fact]
         public void Create_and_initialize_operation()
         {
-            var createDatabaseOperation = new CreateDatabaseOperation("MyDatabase");
+            var createDatabaseOperation = new CreateDatabaseOperation();
 
-            Assert.Equal("MyDatabase", createDatabaseOperation.DatabaseName);
             Assert.False(createDatabaseOperation.IsDestructiveChange);
         }
 
         [Fact]
         public void Dispatches_visitor()
         {
-            var createDatabaseOperation = new CreateDatabaseOperation("MyDatabase");
+            var createDatabaseOperation = new CreateDatabaseOperation();
             var mockVisitor = MigrationsTestHelpers.MockSqlGenerator();
             var builder = new Mock<SqlBatchBuilder>();
             createDatabaseOperation.GenerateSql(mockVisitor.Object, builder.Object);

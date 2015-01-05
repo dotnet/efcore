@@ -238,9 +238,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             Check.NotNull(stringBuilder, "stringBuilder");
 
             stringBuilder
-                .Append("CreateDatabase(")
-                .Append(GenerateLiteral(createDatabaseOperation.DatabaseName))
-                .Append(")");
+                .Append("CreateDatabase()");
         }
 
         public override void Generate(DropDatabaseOperation dropDatabaseOperation, IndentedStringBuilder stringBuilder)
