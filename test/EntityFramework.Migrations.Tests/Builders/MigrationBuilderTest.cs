@@ -31,7 +31,7 @@ namespace Microsoft.Data.Entity.Migrations.Tests.Builders
         {
             var builder = new MigrationBuilder();
 
-            builder.CreateDatabaseIfNotExists();
+            builder.CreateDatabase();
 
             Assert.Equal(1, builder.Operations.Count);
             Assert.IsType<CreateDatabaseOperation>(builder.Operations[0]);

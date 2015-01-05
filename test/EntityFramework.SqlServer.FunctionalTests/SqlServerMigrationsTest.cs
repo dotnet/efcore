@@ -160,7 +160,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             public override void Up(MigrationBuilder migrationBuilder)
             {
-                migrationBuilder.CreateDatabaseIfNotExists();
+                migrationBuilder.CreateDatabase();
             }
 
             public override void Down(MigrationBuilder migrationBuilder)

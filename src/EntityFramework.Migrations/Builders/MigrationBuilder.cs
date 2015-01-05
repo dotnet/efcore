@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.Migrations.Builders
         }
 
 
-        public virtual void CreateDatabaseIfNotExists()
+        public virtual void CreateDatabase()
         {
             AddOperation(new CreateDatabaseOperation());
         }

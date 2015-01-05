@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.Commands.Tests.Migrations
             var operation = new CreateDatabaseOperation();
 
             Assert.Equal(
-                @"CreateDatabaseIfNotExists()",
+                @"CreateDatabase()",
                 CSharpMigrationCodeGenerator.Generate(operation));
 
             GenerateAndValidateCode(operation);
