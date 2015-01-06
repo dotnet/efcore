@@ -350,8 +350,13 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             Check.NotNull(tableExpression, "tableExpression");
             Check.NotNull(projection, "projection");
 
-            _tables.Add(new CrossJoinExpression(tableExpression));
+            var uniqueAlias = CreateUniqueAlias(tableExpression.Alias);
+            if (!string.Equals(tableExpression.Alias, uniqueAlias, StringComparison.OrdinalIgnoreCase))
+            {
+                tableExpression.Alias = uniqueAlias;
+            }
 
+            _tables.Add(new CrossJoinExpression(tableExpression));
             _projection.AddRange(projection);
         }
 
@@ -369,6 +374,12 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             Check.NotNull(tableExpression, "tableExpression");
             Check.NotNull(projection, "projection");
 
+            var uniqueAlias = CreateUniqueAlias(tableExpression.Alias);
+            if (!string.Equals(tableExpression.Alias, uniqueAlias, StringComparison.OrdinalIgnoreCase))
+            {
+                tableExpression.Alias = uniqueAlias;
+            }
+
             var innerJoinExpression = new InnerJoinExpression(tableExpression);
 
             _tables.Add(innerJoinExpression);
@@ -384,12 +395,31 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             Check.NotNull(tableExpression, "tableExpression");
             Check.NotNull(projection, "projection");
 
+            var uniqueAlias = CreateUniqueAlias(tableExpression.Alias);
+            if (!string.Equals(tableExpression.Alias, uniqueAlias, StringComparison.OrdinalIgnoreCase))
+            {
+                tableExpression.Alias = uniqueAlias;
+            }
+
             var outerJoinExpression = new LeftOuterJoinExpression(tableExpression);
 
             _tables.Add(outerJoinExpression);
             _projection.AddRange(projection);
 
             return outerJoinExpression;
+        }
+
+        private string CreateUniqueAlias(string currentAlias)
+        {
+            var uniqueAlias = currentAlias;
+            var counter = 0;
+
+            while (_tables.Any(t => string.Equals(t.Alias, uniqueAlias, StringComparison.OrdinalIgnoreCase)))
+            {
+                uniqueAlias = currentAlias + counter++;
+            }
+
+            return uniqueAlias;
         }
 
         public virtual void RemoveTable([NotNull] TableExpressionBase tableExpression)

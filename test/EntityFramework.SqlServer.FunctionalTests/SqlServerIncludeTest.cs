@@ -767,6 +767,27 @@ ORDER BY [c].[CustomerID]",
                 Sql);
         }
 
+        public override void Include_collection_force_alias_uniquefication()
+        {
+            base.Include_collection_force_alias_uniquefication();
+
+            Assert.Equal(
+                @"SELECT [o].[CustomerID], [o].[OrderDate], [o].[OrderID]
+FROM [Orders] AS [o]
+WHERE [o].[CustomerID] = @p0
+ORDER BY [o].[OrderID]
+
+SELECT [o0].[Discount], [o0].[OrderID], [o0].[ProductID], [o0].[Quantity], [o0].[UnitPrice]
+FROM [Order Details] AS [o0]
+INNER JOIN (
+    SELECT DISTINCT [o].[OrderID]
+    FROM [Orders] AS [o]
+    WHERE [o].[CustomerID] = @p0
+) AS [o] ON [o0].[OrderID] = [o].[OrderID]
+ORDER BY [o].[OrderID]",
+                Sql);
+        }
+
         public SqlServerIncludeTest(SqlServerNorthwindQueryFixture fixture)
             : base(fixture)
         {

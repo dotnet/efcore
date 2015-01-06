@@ -719,6 +719,21 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
+        public virtual void Include_collection_force_alias_uniquefication()
+        {
+            using (var context = CreateContext())
+            {
+                var result
+                    = (from o in context.Set<Order>().Include(o => o.OrderDetails)
+                       where o.CustomerID == "ALFKI"
+                       select o)
+                        .ToList();
+
+                Assert.Equal(6, result.Count());
+                Assert.True(result.SelectMany(r => r.OrderDetails).All(od => od.Order != null));
+            }
+        }
+
         [Fact]
         public virtual void Include_reference_as_no_tracking()
         {

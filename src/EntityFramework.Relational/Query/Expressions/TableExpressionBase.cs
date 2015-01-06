@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         public virtual IQuerySource QuerySource { get; }
 
-        public virtual string Alias { get; }
+        public virtual string Alias { get; [param: NotNull] set; }
 
         protected override Expression VisitChildren(ExpressionTreeVisitor visitor)
         {
