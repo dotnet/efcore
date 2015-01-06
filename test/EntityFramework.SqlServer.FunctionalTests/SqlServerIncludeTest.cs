@@ -38,12 +38,12 @@ FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 ORDER BY [o].[OrderID]
 
-SELECT [o0].[Discount], [o0].[OrderID], [o0].[ProductID], [o0].[Quantity], [o0].[UnitPrice]
-FROM [Order Details] AS [o0]
+SELECT [o].[Discount], [o].[OrderID], [o].[ProductID], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]
 INNER JOIN (
     SELECT DISTINCT [o].[OrderID]
     FROM [Orders] AS [o]
-) AS [o] ON [o0].[OrderID] = [o].[OrderID]
+) AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 ORDER BY [o].[OrderID]",
                 Sql);
         }
@@ -97,14 +97,14 @@ INNER JOIN [Orders] AS [o] ON [od].[OrderID] = [o].[OrderID]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 ORDER BY [od].[OrderID], [od].[ProductID]
 
-SELECT [o0].[CustomerID], [o0].[OrderDate], [o0].[OrderID]
-FROM [Orders] AS [o0]
+SELECT [o].[CustomerID], [o].[OrderDate], [o].[OrderID]
+FROM [Orders] AS [o]
 INNER JOIN (
     SELECT DISTINCT [od].[OrderID], [od].[ProductID], [c].[CustomerID]
     FROM [Order Details] AS [od]
     INNER JOIN [Orders] AS [o] ON [od].[OrderID] = [o].[OrderID]
     LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
-) AS [od] ON [o0].[CustomerID] = [od].[CustomerID]
+) AS [od] ON [o].[CustomerID] = [od].[CustomerID]
 ORDER BY [od].[OrderID], [od].[ProductID]",
                 Sql);
         }
@@ -120,14 +120,14 @@ LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 WHERE [o].[OrderID] = @p1
 ORDER BY [o].[OrderID]
 
-SELECT [o0].[CustomerID], [o0].[OrderDate], [o0].[OrderID]
-FROM [Orders] AS [o0]
+SELECT [o].[CustomerID], [o].[OrderDate], [o].[OrderID]
+FROM [Orders] AS [o]
 INNER JOIN (
     SELECT DISTINCT TOP(@p0) [o].[OrderID], [c].[CustomerID]
     FROM [Orders] AS [o]
     LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
     WHERE [o].[OrderID] = @p1
-) AS [o] ON [o0].[CustomerID] = [o].[CustomerID]
+) AS [o0] ON [o].[CustomerID] = [o0].[CustomerID]
 ORDER BY [o].[OrderID]",
                 Sql);
         }
@@ -141,12 +141,12 @@ ORDER BY [o].[OrderID]",
 FROM [Orders] AS [o]
 ORDER BY [o].[OrderID]
 
-SELECT [o0].[Discount], [o0].[OrderID], [o0].[ProductID], [o0].[Quantity], [o0].[UnitPrice]
-FROM [Order Details] AS [o0]
+SELECT [o].[Discount], [o].[OrderID], [o].[ProductID], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]
 INNER JOIN (
     SELECT DISTINCT [o].[OrderID]
     FROM [Orders] AS [o]
-) AS [o] ON [o0].[OrderID] = [o].[OrderID]
+) AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 ORDER BY [o].[OrderID]",
                 Sql);
         }
@@ -764,6 +764,27 @@ INNER JOIN (
     FROM [Customers] AS [c]
 ) AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 ORDER BY [c].[CustomerID]",
+                Sql);
+        }
+
+        public override void Include_collection_force_alias_uniquefication()
+        {
+            base.Include_collection_force_alias_uniquefication();
+
+            Assert.Equal(
+                @"SELECT [o].[CustomerID], [o].[OrderDate], [o].[OrderID]
+FROM [Orders] AS [o]
+WHERE [o].[CustomerID] = @p0
+ORDER BY [o].[OrderID]
+
+SELECT [o0].[Discount], [o0].[OrderID], [o0].[ProductID], [o0].[Quantity], [o0].[UnitPrice]
+FROM [Order Details] AS [o0]
+INNER JOIN (
+    SELECT DISTINCT [o].[OrderID]
+    FROM [Orders] AS [o]
+    WHERE [o].[CustomerID] = @p0
+) AS [o] ON [o0].[OrderID] = [o].[OrderID]
+ORDER BY [o].[OrderID]",
                 Sql);
         }
 
