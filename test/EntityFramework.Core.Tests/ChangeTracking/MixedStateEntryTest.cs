@@ -72,7 +72,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(ChangedOnlyEntity).FullName);
-            entityType.UseLazyOriginalValues = false;
+            entityType.UseEagerSnapshots = true;
 
             AllOriginalValuesTest(model, entityType);
         }

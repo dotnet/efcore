@@ -188,7 +188,7 @@ namespace Microsoft.Data.Entity.Query
                     {
                         Include(e, navigationPath, relatedValueReaders, currentNavigationIndex + 1);
 
-                        return Task.FromResult(0);
+                        return Task.FromResult(false);
                     },
                 currentNavigationIndex,
                 relatedValueReaders[currentNavigationIndex](primaryKey, relatedKeyFactory)

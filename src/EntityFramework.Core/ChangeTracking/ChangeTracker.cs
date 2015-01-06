@@ -77,12 +77,12 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         public virtual DbContext Context => _context.Service;
 
-        public virtual bool DetectChanges()
+        public virtual void DetectChanges()
         {
-            return _changeDetector.DetectChanges(StateManager);
+            _changeDetector.DetectChanges(StateManager);
         }
 
-        public virtual Task<bool> DetectChangesAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task DetectChangesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             return _changeDetector.DetectChangesAsync(StateManager, cancellationToken);
         }

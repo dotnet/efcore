@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using Microsoft.Data.Entity.Metadata;
 using Xunit;
@@ -125,6 +126,81 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             }
 
             return model;
+        }
+
+        [Fact]
+        public void IsNonNotifyingCollection_returns_false_for_reference_avigations()
+        {
+            var entry = TestHelpers.CreateStateEntry<Dependent>(BuildCollectionsModel());
+
+            Assert.False(entry.EntityType.GetNavigation("Principal1").IsNonNotifyingCollection(entry));
+        }
+
+        [Fact]
+        public void IsNonNotifyingCollection_returns_false_for_collections_typed_for_notifications()
+        {
+            var entry = TestHelpers.CreateStateEntry<Principal>(BuildCollectionsModel());
+
+            // TODO: The following assert should be changed to False once INotifyCollectionChanged is supported (Issue #445)
+            Assert.True(entry.EntityType.GetNavigation("Dependents2").IsNonNotifyingCollection(entry));
+        }
+
+        [Fact]
+        public void IsNonNotifyingCollection_returns_false_for_null_collections()
+        {
+            var entry = TestHelpers.CreateStateEntry<Principal>(BuildCollectionsModel());
+
+            // TODO: The following assert should be changed to False once INotifyCollectionChanged is supported (Issue #445)
+            Assert.True(entry.EntityType.GetNavigation("Dependents1").IsNonNotifyingCollection(entry));
+        }
+
+        [Fact]
+        public void IsNonNotifyingCollection_returns_false_for_notifying_instances()
+        {
+            var entry = TestHelpers.CreateStateEntry(
+                BuildCollectionsModel(), 
+                EntityState.Unknown, 
+                new Principal { Dependents1 = new ObservableCollection<Dependent>()});
+
+            // TODO: The following assert should be changed to False once INotifyCollectionChanged is supported (Issue #445)
+            Assert.True(entry.EntityType.GetNavigation("Dependents1").IsNonNotifyingCollection(entry));
+        }
+
+        [Fact]
+        public void IsNonNotifyingCollection_returns_true_for_non_notifying_instances()
+        {
+            var entry = TestHelpers.CreateStateEntry(
+                BuildCollectionsModel(),
+                EntityState.Unknown,
+                new Principal { Dependents1 = new List<Dependent>() });
+
+            Assert.True(entry.EntityType.GetNavigation("Dependents1").IsNonNotifyingCollection(entry));
+        }
+
+        private static IModel BuildCollectionsModel()
+        {
+            var builder = new ModelBuilder();
+
+            builder.Entity<Principal>().OneToMany(e => e.Dependents1, e => e.Principal1);
+            builder.Entity<Principal>().OneToMany(e => e.Dependents2, e => e.Principal2);
+
+            return builder.Model;
+        }
+
+        private class Principal
+        {
+            public int Id { get; set; }
+
+            public ICollection<Dependent> Dependents1 { get; set; }
+            public ObservableCollection<Dependent> Dependents2 { get; set; }
+        }
+
+        private class Dependent
+        {
+            public int Id { get; set; }
+
+            public Principal Principal1 { get; set; }
+            public Principal Principal2 { get; set; }
         }
     }
 }

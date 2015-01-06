@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Linq;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
 using Xunit;
@@ -14,10 +13,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [Fact]
         public virtual void Entity_reverts_when_state_set_to_unchanged()
         {
-            Console.WriteLine("Entity_reverts_when_state_set_to_unchanged started");
             using (var context = CreateContext())
             {
-                Console.WriteLine("Context Created");
                 var customer = context.Customers.First();
                 var firstTrackedEntity = context.ChangeTracker.Entries<Customer>().Single();
                 var originalPhoneNumber = customer.Phone;

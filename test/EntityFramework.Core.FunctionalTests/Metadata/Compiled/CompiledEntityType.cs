@@ -128,20 +128,20 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
 
         public int ShadowPropertyCount
         {
-            // TODO:
+            // TODO: Implement this appropriately rather than always just returning 0.
             get { return 0; }
         }
 
         public int OriginalValueCount
         {
-            // TODO:
+            // TODO: Implement this appropriately rather than always just returning 0.
             get { return 0; }
         }
 
-        public bool UseLazyOriginalValues
+        public bool UseEagerSnapshots
         {
-            // TODO:
-            get { return true; }
+            // TODO: Implement this appropriately rather than always just returning false.
+            get { return false; }
         }
 
         public bool HasClrType

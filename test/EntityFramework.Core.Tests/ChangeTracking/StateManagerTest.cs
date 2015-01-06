@@ -295,13 +295,13 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var changeDetector = new FakeChangeDetector();
 
-            Assert.False(changeDetector.DetectChanges(stateManager));
+            changeDetector.DetectChanges(stateManager);
 
             Assert.Equal(new[] { 77, 78, 79 }, changeDetector.Entries.Select(e => ((Category)e.Entity).Id).ToArray());
 
             ((Category)entry2.Entity).Name = "Snacks";
 
-            Assert.True(changeDetector.DetectChanges(stateManager));
+            changeDetector.DetectChanges(stateManager);
 
             Assert.Equal(new[] { 77, 78, 79, 77, 78, 79 }, changeDetector.Entries.Select(e => ((Category)e.Entity).Id).ToArray());
         }
@@ -315,11 +315,11 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 get { return _entries; }
             }
 
-            public override bool DetectChanges(StateEntry entry)
+            public override void DetectChanges(StateEntry entry)
             {
                 _entries.Add(entry);
 
-                return base.DetectChanges(entry);
+                base.DetectChanges(entry);
             }
         }
 

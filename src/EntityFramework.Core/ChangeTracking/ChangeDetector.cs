@@ -4,9 +4,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -92,74 +90,68 @@ namespace Microsoft.Data.Entity.ChangeTracking
             Check.NotNull(entry, "entry");
             Check.NotNull(propertyBase, "propertyBase");
 
-            if (entry.EntityType.UseLazyOriginalValues)
+            if (!entry.EntityType.UseEagerSnapshots)
             {
-                entry.OriginalValues.EnsureSnapshot(propertyBase);
+                var property = propertyBase as IProperty;
+                if (property != null
+                    && property.OriginalValueIndex >= 0)
+                {
+                    entry.OriginalValues.EnsureSnapshot(property);
+                }
 
-                // TODO: Consider making snapshot temporary here since it is no longer required after PropertyChanged is called
-                // See issue #730
-                entry.RelationshipsSnapshot.TakeSnapshot(propertyBase);
+                var navigation = propertyBase as INavigation;
+                if ((navigation != null && !navigation.IsCollection())
+                    || (property != null && (property.IsKey() || property.IsForeignKey())))
+                {
+                    // TODO: Consider making snapshot temporary here since it is no longer required after PropertyChanged is called
+                    // See issue #730
+                    entry.RelationshipsSnapshot.TakeSnapshot(propertyBase);
+                }
             }
         }
 
-        public virtual bool DetectChanges([NotNull] StateManager stateManager)
+        public virtual void DetectChanges([NotNull] StateManager stateManager)
         {
             Check.NotNull(stateManager, "stateManager");
 
-            var foundChanges = false;
             foreach (var entry in stateManager.StateEntries.ToList())
             {
-                if (DetectChanges(entry))
-                {
-                    foundChanges = true;
-                }
+                DetectChanges(entry);
             }
-
-            return foundChanges;
         }
 
-        public virtual async Task<bool> DetectChangesAsync(
+        public virtual async Task DetectChangesAsync(
             [NotNull] StateManager stateManager, CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(stateManager, "stateManager");
 
-            var foundChanges = false;
             foreach (var entry in stateManager.StateEntries.ToList())
             {
-                if (await DetectChangesAsync(entry, cancellationToken).WithCurrentCulture())
-                {
-                    foundChanges = true;
-                }
+                await DetectChangesAsync(entry, cancellationToken).WithCurrentCulture();
             }
-
-            return foundChanges;
         }
 
-        public virtual bool DetectChanges([NotNull] StateEntry entry)
+        public virtual void DetectChanges([NotNull] StateEntry entry)
         {
             Check.NotNull(entry, "entry");
 
             var entityType = entry.EntityType;
-            var originalValues = entry.TryGetSidecar(Sidecar.WellKnownNames.OriginalValues);
 
-            // TODO: Consider more efficient/higher-level/abstract mechanism for checking if DetectChanges is needed
-            // See issue #731
-            if (entityType.Type == null
-                || originalValues == null
-                || typeof(INotifyPropertyChanged).GetTypeInfo().IsAssignableFrom(entityType.Type.GetTypeInfo()))
+            if (!RequiresDetectChanges(entry))
             {
-                return false;
+                return;
             }
 
+            var originalValues = entry.TryGetSidecar(Sidecar.WellKnownNames.OriginalValues);
             var changedFkProperties = new List<IProperty>();
-            var foundChanges = false;
             foreach (var property in entityType.Properties)
             {
                 // TODO: Perf: don't lookup accessor twice
-                if (!Equals(entry[property], originalValues[property]))
+                if (originalValues != null
+                    && property.OriginalValueIndex >= 0
+                    && !Equals(entry[property], originalValues[property]))
                 {
                     entry.SetPropertyModified(property);
-                    foundChanges = true;
                 }
 
                 if (DetectForeignKeyChange(entry, property))
@@ -180,17 +172,27 @@ namespace Microsoft.Data.Entity.ChangeTracking
                     entry.RelationshipsSnapshot.TakeSnapshot(navigation);
                 }
             }
-
-            return foundChanges;
         }
 
-        public virtual Task<bool> DetectChangesAsync(
+        public virtual Task DetectChangesAsync(
             [NotNull] StateEntry entry, CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(entry, "entry");
 
             // TODO: Need real async once adding entities
-            return Task.FromResult(DetectChanges(entry));
+            DetectChanges(entry);
+
+            return Task.FromResult(false);
+        }
+
+        public virtual bool RequiresDetectChanges([NotNull] StateEntry entry)
+        {
+            Check.NotNull(entry, "entry");
+
+            var entityType = entry.EntityType;
+
+            return !entityType.HasPropertyChangedNotifications()
+                   || entityType.Navigations.Any(n => n.IsNonNotifyingCollection(entry));
         }
 
         private bool DetectForeignKeyChange(StateEntry entry, IProperty property)

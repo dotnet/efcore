@@ -2,7 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 
@@ -21,6 +23,18 @@ namespace Microsoft.Data.Entity.Metadata
         public static IEnumerable<IForeignKey> GetReferencingForeignKeys([NotNull] this IEntityType entityType)
         {
             return entityType.Model.GetReferencingForeignKeys(entityType);
+        }
+
+        public static bool HasPropertyChangingNotifications([NotNull] this IEntityType entityType)
+        {
+            return entityType.Type == null
+                   || typeof(INotifyPropertyChanging).GetTypeInfo().IsAssignableFrom(entityType.Type.GetTypeInfo());
+        }
+
+        public static bool HasPropertyChangedNotifications([NotNull] this IEntityType entityType)
+        {
+            return entityType.Type == null
+                   || typeof(INotifyPropertyChanged).GetTypeInfo().IsAssignableFrom(entityType.Type.GetTypeInfo());
         }
     }
 }

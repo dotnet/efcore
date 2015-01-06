@@ -1,12 +1,15 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
-using Moq;
+using Microsoft.Framework.DependencyInjection;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Tests.ChangeTracking
@@ -14,138 +17,264 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
     public class StateEntrySubscriberTest
     {
         [Fact]
-        public void Snapshot_is_performed_when_not_using_eager_original_values()
+        public void Snapshots_are_created_for_entities_without_changing_notifications()
         {
-            var entityTypeMock = new Mock<IEntityType>();
-            entityTypeMock.Setup(m => m.UseLazyOriginalValues).Returns(false);
+            var entry = TestHelpers.CreateStateEntry(
+                BuildModel(),
+                EntityState.Unchanged,
+                new ChangedOnlyNotificationEntity { Name = "Palmer", Id = 1 });
 
-            var originalValuesMock = new Mock<OriginalValues>();
-            var fkSnapshotMock = new Mock<RelationshipsSnapshot>();
-            var entryMock = new Mock<StateEntry>();
-            entryMock.Setup(m => m.EntityType).Returns(entityTypeMock.Object);
-            entryMock.Setup(m => m.OriginalValues).Returns(originalValuesMock.Object);
-            entryMock.Setup(m => m.RelationshipsSnapshot).Returns(fkSnapshotMock.Object);
-
-            CreateSubscriber().SnapshotAndSubscribe(entryMock.Object);
-
-            originalValuesMock.Verify(m => m.TakeSnapshot());
-            fkSnapshotMock.Verify(m => m.TakeSnapshot());
+            Assert.True(entry.TryGetSidecar(Sidecar.WellKnownNames.OriginalValues).HasValue(entry.EntityType.GetProperty("Name")));
+            Assert.Equal("Palmer", entry.TryGetSidecar(Sidecar.WellKnownNames.OriginalValues)[entry.EntityType.GetProperty("Name")]);
+            Assert.True(entry.TryGetSidecar(Sidecar.WellKnownNames.RelationshipsSnapshot).HasValue(entry.EntityType.GetProperty("Id")));
+            Assert.Equal(1, entry.TryGetSidecar(Sidecar.WellKnownNames.RelationshipsSnapshot)[entry.EntityType.GetProperty("Id")]);
         }
 
         [Fact]
-        public void Snapshot_is_not_performed_when_not_using_lazy_original_values()
+        public void Snapshots_are_not_created_for_full_notification_entities()
         {
-            var entityTypeMock = new Mock<IEntityType>();
-            entityTypeMock.Setup(m => m.UseLazyOriginalValues).Returns(true);
+            var entry = TestHelpers.CreateStateEntry<FullNotificationEntity>(BuildModel());
 
-            var originalValuesMock = new Mock<OriginalValues>();
-            var entryMock = new Mock<StateEntry>();
-            entryMock.Setup(m => m.EntityType).Returns(entityTypeMock.Object);
-            entryMock.Setup(m => m.OriginalValues).Returns(originalValuesMock.Object);
-
-            CreateSubscriber().SnapshotAndSubscribe(entryMock.Object);
-
-            originalValuesMock.Verify(m => m.TakeSnapshot(), Times.Never);
+            Assert.Null(entry.TryGetSidecar(Sidecar.WellKnownNames.OriginalValues));
+            // TODO: The following assert should be changed to Null once INotifyCollectionChanged is supported (Issue #445)
+            Assert.NotNull(entry.TryGetSidecar(Sidecar.WellKnownNames.RelationshipsSnapshot));
         }
 
         [Fact]
-        public void Entry_subscribes_to_INotifyPropertyChanging_and_INotifyPropertyChanged()
+        public void Relationship_snapshot_is_created_when_entity_has_non_notifying_collection_instance()
         {
-            var entityType = new Model().AddEntityType(typeof(FullNotificationEntity));
-            var property = entityType.GetOrAddProperty("Name", typeof(string));
+            var entry = TestHelpers.CreateStateEntry(
+                BuildModel(),
+                EntityState.Unchanged,
+                new FullNotificationEntity { Name = "Palmer", Id = 1, RelatedCollection = new List<ChangedOnlyNotificationEntity>() });
+
+            Assert.Null(entry.TryGetSidecar(Sidecar.WellKnownNames.OriginalValues));
+
+            Assert.False(entry.TryGetSidecar(Sidecar.WellKnownNames.RelationshipsSnapshot)
+                .HasValue(entry.EntityType.GetProperty("Id")));
+
+            Assert.True(entry.TryGetSidecar(Sidecar.WellKnownNames.RelationshipsSnapshot)
+                .HasValue(entry.EntityType.GetNavigation("RelatedCollection")));
+
+            Assert.NotNull(entry.TryGetSidecar(Sidecar.WellKnownNames.RelationshipsSnapshot)
+                [entry.EntityType.GetNavigation("RelatedCollection")]);
+        }
+
+        [Fact]
+        public void Relationship_snapshot_is_not_created_when_entity_has_notifying_collection()
+        {
+            var entry = TestHelpers.CreateStateEntry(
+                BuildModel(),
+                EntityState.Unchanged,
+                new FullNotificationEntity { Name = "Palmer", RelatedCollection = new ObservableCollection<ChangedOnlyNotificationEntity>() });
+
+            Assert.Null(entry.TryGetSidecar(Sidecar.WellKnownNames.OriginalValues));
+            // TODO: The following assert should be changed to Null once INotifyCollectionChanged is supported (Issue #445)
+            Assert.NotNull(entry.TryGetSidecar(Sidecar.WellKnownNames.RelationshipsSnapshot));
+        }
+
+        [Fact]
+        public void Entry_subscribes_to_INotifyPropertyChanging_and_INotifyPropertyChanged_for_properties()
+        {
+            var contextServices = TestHelpers.CreateContextServices(
+                new ServiceCollection().AddScoped<IPropertyListener, TestPropertyListener>(),
+                BuildModel());
+
+            var testListener = contextServices.GetRequiredService<IEnumerable<IPropertyListener>>().OfType<TestPropertyListener>().Single();
 
             var entity = new FullNotificationEntity();
+            var entry = contextServices.GetRequiredService<StateManager>().GetOrCreateEntry(entity);
 
-            var entryMock = new Mock<StateEntry>();
-            entryMock.Setup(m => m.EntityType).Returns(entityType);
-            entryMock.Setup(m => m.Entity).Returns(entity);
+            Assert.Null(testListener.Changing);
+            Assert.Null(testListener.Changed);
 
-            var notifierMock = new Mock<StateEntryNotifier>();
-            new StateEntrySubscriber(notifierMock.Object).SnapshotAndSubscribe(entryMock.Object);
+            entity.Name = "Palmer";
 
-            entity.Name = "George";
+            var property = entry.EntityType.GetProperty("Name");
+            Assert.Same(property, testListener.Changing);
+            Assert.Same(property, testListener.Changed);
+        }
 
-            notifierMock.Verify(m => m.PropertyChanging(entryMock.Object, property));
-            notifierMock.Verify(m => m.PropertyChanged(entryMock.Object, property));
+        [Fact]
+        public void Entry_subscribes_to_INotifyPropertyChanging_and_INotifyPropertyChanged_for_navigations()
+        {
+            var contextServices = TestHelpers.CreateContextServices(
+                new ServiceCollection().AddScoped<IPropertyListener, TestPropertyListener>(),
+                BuildModel());
+
+            var testListener = contextServices.GetRequiredService<IEnumerable<IPropertyListener>>().OfType<TestPropertyListener>().Single();
+
+            var entity = new FullNotificationEntity();
+            var entry = contextServices.GetRequiredService<StateManager>().GetOrCreateEntry(entity);
+
+            Assert.Null(testListener.Changing);
+            Assert.Null(testListener.Changed);
+
+            entity.RelatedCollection = new List<ChangedOnlyNotificationEntity>();
+
+            var property = entry.EntityType.GetNavigation("RelatedCollection");
+            Assert.Same(property, testListener.Changing);
+            Assert.Same(property, testListener.Changed);
         }
 
         [Fact]
         public void Subscriptions_to_INotifyPropertyChanging_and_INotifyPropertyChanged_ignore_unmapped_properties()
         {
-            var entityType = new Model().AddEntityType(typeof(FullNotificationEntity));
-            entityType.GetOrAddProperty("Name", typeof(string));
+            var contextServices = TestHelpers.CreateContextServices(
+                new ServiceCollection().AddScoped<IPropertyListener, TestPropertyListener>(),
+                BuildModel());
+
+            var testListener = contextServices.GetRequiredService<IEnumerable<IPropertyListener>>().OfType<TestPropertyListener>().Single();
 
             var entity = new FullNotificationEntity();
+            contextServices.GetRequiredService<StateManager>().GetOrCreateEntry(entity);
 
-            var entryMock = new Mock<StateEntry>();
-            entryMock.Setup(m => m.EntityType).Returns(entityType);
-            entryMock.Setup(m => m.Entity).Returns(entity);
+            Assert.Null(testListener.Changing);
+            Assert.Null(testListener.Changed);
 
-            var notifierMock = new Mock<StateEntryNotifier>();
-            new StateEntrySubscriber(notifierMock.Object).SnapshotAndSubscribe(entryMock.Object);
+            entity.NotMapped = "Luckey";
 
-            entity.NotMapped = "Formby";
-
-            notifierMock.Verify(m => m.PropertyChanging(It.IsAny<StateEntry>(), It.IsAny<IProperty>()), Times.Never);
-            notifierMock.Verify(m => m.PropertyChanged(It.IsAny<StateEntry>(), It.IsAny<IProperty>()), Times.Never);
+            Assert.Null(testListener.Changing);
+            Assert.Null(testListener.Changed);
         }
 
-        private static StateEntrySubscriber CreateSubscriber()
+        private class TestPropertyListener : IPropertyListener
         {
-            return new StateEntrySubscriber(Mock.Of<StateEntryNotifier>());
+            public IPropertyBase Changing { get; set; }
+            public IPropertyBase Changed { get; set; }
+
+            public void SidecarPropertyChanged(StateEntry entry, IPropertyBase property)
+            {
+            }
+
+            public void SidecarPropertyChanging(StateEntry entry, IPropertyBase property)
+            {
+            }
+
+            public void PropertyChanged(StateEntry entry, IPropertyBase property)
+            {
+                Changed = property;
+            }
+
+            public void PropertyChanging(StateEntry entry, IPropertyBase property)
+            {
+                Changing = property;
+            }
+        }
+
+        private static IModel BuildModel()
+        {
+            var builder = new ModelBuilder();
+
+            builder.Entity<FullNotificationEntity>(b =>
+                {
+                    b.Ignore(e => e.NotMapped);
+                    b.OneToMany(e => e.RelatedCollection, e => e.Related).ForeignKey(e => e.Fk);
+                });
+
+            return builder.Model;
         }
 
         private class FullNotificationEntity : INotifyPropertyChanging, INotifyPropertyChanged
         {
+            private int _id;
             private string _name;
+            private string _notMapped;
+            private ICollection<ChangedOnlyNotificationEntity> _relatedCollection;
+
+            public int Id
+            {
+                get { return _id; }
+                set { SetWithNotify(value, ref _id); }
+            }
 
             public string Name
             {
                 get { return _name; }
-                set
-                {
-                    if (_name != value)
-                    {
-                        NotifyChanging();
-                        _name = value;
-                        NotifyChanged();
-                    }
-                }
+                set { SetWithNotify(value, ref _name); }
             }
-
-            private string _notMapped;
 
             public string NotMapped
             {
                 get { return _notMapped; }
-                set
+                set { SetWithNotify(value, ref _notMapped); }
+            }
+
+            public ICollection<ChangedOnlyNotificationEntity> RelatedCollection
+            {
+                get { return _relatedCollection; }
+                set { SetWithNotify(value, ref _relatedCollection); }
+            }
+
+            private void SetWithNotify<T>(T value, ref T field, [CallerMemberName] string propertyName = "")
+            {
+                if (!StructuralComparisons.StructuralEqualityComparer.Equals(field, value))
                 {
-                    if (_notMapped != value)
-                    {
-                        NotifyChanging();
-                        _notMapped = value;
-                        NotifyChanged();
-                    }
+                    NotifyChanging(propertyName);
+                    field = value;
+                    NotifyChanged(propertyName);
                 }
             }
 
             public event PropertyChangingEventHandler PropertyChanging;
             public event PropertyChangedEventHandler PropertyChanged;
 
-            private void NotifyChanged([CallerMemberName] String propertyName = "")
+            private void NotifyChanged(string propertyName)
             {
-                if (PropertyChanged != null)
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            }
+
+            private void NotifyChanging(string propertyName)
+            {
+                PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(propertyName));
+            }
+        }
+
+        private class ChangedOnlyNotificationEntity : INotifyPropertyChanged
+        {
+            private int _id;
+            private string _name;
+            private int _fk;
+            private FullNotificationEntity _related;
+
+            public int Id
+            {
+                get { return _id; }
+                set { SetWithNotify(value, ref _id); }
+            }
+
+            public string Name
+            {
+                get { return _name; }
+                set { SetWithNotify(value, ref _name); }
+            }
+
+            public int Fk
+            {
+                get { return _fk; }
+                set { SetWithNotify(value, ref _fk); }
+            }
+
+            public FullNotificationEntity Related
+            {
+                get { return _related; }
+                set { SetWithNotify(value, ref _related); }
+            }
+
+            private void SetWithNotify<T>(T value, ref T field, [CallerMemberName] string propertyName = "")
+            {
+                if (!StructuralComparisons.StructuralEqualityComparer.Equals(field, value))
                 {
-                    PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+                    field = value;
+                    NotifyChanged(propertyName);
                 }
             }
 
-            private void NotifyChanging([CallerMemberName] String propertyName = "")
+            public event PropertyChangedEventHandler PropertyChanged;
+
+            private void NotifyChanged(string propertyName)
             {
-                if (PropertyChanging != null)
-                {
-                    PropertyChanging(this, new PropertyChangingEventArgs(propertyName));
-                }
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
             }
         }
     }

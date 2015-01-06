@@ -1085,49 +1085,49 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Lazy_original_values_are_used_for_full_notification_and_shadow_enties()
         {
-            Assert.True(new EntityType(typeof(FullNotificationEntity), new Model()).UseLazyOriginalValues);
+            Assert.False(new EntityType(typeof(FullNotificationEntity), new Model()).UseEagerSnapshots);
         }
 
         [Fact]
         public void Lazy_original_values_are_used_for_shadow_enties()
         {
-            Assert.True(new EntityType("Z'ha'dum", new Model()).UseLazyOriginalValues);
+            Assert.False(new EntityType("Z'ha'dum", new Model()).UseEagerSnapshots);
         }
 
         [Fact]
         public void Eager_original_values_are_used_for_enties_that_only_implement_INotifyPropertyChanged()
         {
-            Assert.False(new EntityType(typeof(ChangedOnlyEntity), new Model()).UseLazyOriginalValues);
+            Assert.True(new EntityType(typeof(ChangedOnlyEntity), new Model()).UseEagerSnapshots);
         }
 
         [Fact]
         public void Eager_original_values_are_used_for_enties_that_do_no_notification()
         {
-            Assert.False(new EntityType(typeof(Customer), new Model()).UseLazyOriginalValues);
+            Assert.True(new EntityType(typeof(Customer), new Model()).UseEagerSnapshots);
         }
 
         [Fact]
         public void Lazy_original_values_can_be_switched_off()
         {
-            Assert.False(new EntityType(typeof(FullNotificationEntity), new Model()) { UseLazyOriginalValues = false }.UseLazyOriginalValues);
+            Assert.False(new EntityType(typeof(FullNotificationEntity), new Model()) { UseEagerSnapshots = false }.UseEagerSnapshots);
         }
 
         [Fact]
         public void Lazy_original_values_can_be_switched_on_but_only_if_entity_does_not_require_eager_values()
         {
-            var entityType = new EntityType(typeof(FullNotificationEntity), new Model()) { UseLazyOriginalValues = false };
-            entityType.UseLazyOriginalValues = true;
-            Assert.True(entityType.UseLazyOriginalValues);
+            var entityType = new EntityType(typeof(FullNotificationEntity), new Model()) { UseEagerSnapshots = true };
+            entityType.UseEagerSnapshots = false;
+            Assert.False(entityType.UseEagerSnapshots);
 
             Assert.Equal(
                 Strings.EagerOriginalValuesRequired(typeof(ChangedOnlyEntity).FullName),
-                Assert.Throws<InvalidOperationException>(() => new EntityType(typeof(ChangedOnlyEntity), new Model()) { UseLazyOriginalValues = true }).Message);
+                Assert.Throws<InvalidOperationException>(() => new EntityType(typeof(ChangedOnlyEntity), new Model()) { UseEagerSnapshots = false }).Message);
         }
 
         [Fact]
         public void All_properties_have_original_value_indexes_when_using_eager_original_values()
         {
-            var entityType = new EntityType(typeof(FullNotificationEntity), new Model()) { UseLazyOriginalValues = false };
+            var entityType = new EntityType(typeof(FullNotificationEntity), new Model()) { UseEagerSnapshots = true };
 
             entityType.GetOrAddProperty("Name", typeof(string));
             entityType.GetOrAddProperty("Id", typeof(int));

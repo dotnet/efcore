@@ -44,6 +44,6 @@ namespace Microsoft.Data.Entity.Metadata
         int ShadowPropertyCount { get; }
         int OriginalValueCount { get; }
         bool HasClrType { get; }
-        bool UseLazyOriginalValues { get; }
+        bool UseEagerSnapshots { get; }
     }
 }

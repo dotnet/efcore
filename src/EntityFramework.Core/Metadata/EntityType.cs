@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         private int _shadowPropertyCount;
         private int _originalValueCount;
-        private bool _useLazyOriginalValues = true;
+        private bool _useEagerSnapshots;
         private static readonly char[] _simpleNameChars = { '.', '+' };
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             Model = model;
             _typeOrName = type;
-            _useLazyOriginalValues = CanUseLazyOriginalValues();
+            _useEagerSnapshots = !this.HasPropertyChangingNotifications();
         }
 
         /// <summary>
@@ -68,12 +68,9 @@ namespace Microsoft.Data.Entity.Metadata
             _typeOrName = name;
         }
 
-        public virtual Model Model { get; private set; }
+        public virtual Model Model { get; }
 
-        public virtual Type Type
-        {
-            get { return _typeOrName as Type; }
-        }
+        public virtual Type Type => _typeOrName as Type;
 
         public virtual string Name
         {
@@ -293,14 +290,11 @@ namespace Microsoft.Data.Entity.Metadata
 
         private void CheckKeyNotInUse(Key key)
         {
-            if (Model != null)
-            {
-                var foreignKey = Model.EntityTypes.SelectMany(e => e.ForeignKeys).FirstOrDefault(k => k.ReferencedKey == key);
+            var foreignKey = Model?.EntityTypes.SelectMany(e => e.ForeignKeys).FirstOrDefault(k => k.ReferencedKey == key);
 
-                if (foreignKey != null)
-                {
-                    throw new InvalidOperationException(Strings.KeyInUse(Property.Format(key.Properties), Name, foreignKey.EntityType.Name));
-                }
+            if (foreignKey != null)
+            {
+                throw new InvalidOperationException(Strings.KeyInUse(Property.Format(key.Properties), Name, foreignKey.EntityType.Name));
             }
         }
 
@@ -440,15 +434,9 @@ namespace Microsoft.Data.Entity.Metadata
             }
         }
 
-        public virtual IReadOnlyList<ForeignKey> ForeignKeys
-        {
-            get
-            {
-                return _foreignKeys.HasValue
-                    ? (IReadOnlyList<ForeignKey>)_foreignKeys.Value
-                    : ImmutableList<ForeignKey>.Empty;
-            }
-        }
+        public virtual IReadOnlyList<ForeignKey> ForeignKeys => _foreignKeys.HasValue
+            ? (IReadOnlyList<ForeignKey>)_foreignKeys.Value
+            : ImmutableList<ForeignKey>.Empty;
 
         #endregion
 
@@ -566,15 +554,9 @@ namespace Microsoft.Data.Entity.Metadata
             return navigation.Name == name;
         }
 
-        public virtual IReadOnlyList<Navigation> Navigations
-        {
-            get
-            {
-                return _navigations.HasValue
-                    ? (IReadOnlyList<Navigation>)_navigations.Value
-                    : ImmutableList<Navigation>.Empty;
-            }
-        }
+        public virtual IReadOnlyList<Navigation> Navigations => _navigations.HasValue
+            ? (IReadOnlyList<Navigation>)_navigations.Value
+            : ImmutableList<Navigation>.Empty;
 
         #endregion
 
@@ -669,15 +651,9 @@ namespace Microsoft.Data.Entity.Metadata
             return index.Properties.SequenceEqual(properties);
         }
 
-        public virtual IReadOnlyList<Index> Indexes
-        {
-            get
-            {
-                return _indexes.HasValue
-                    ? (IReadOnlyList<Index>)_indexes.Value
-                    : ImmutableList<Index>.Empty;
-            }
-        }
+        public virtual IReadOnlyList<Index> Indexes => _indexes.HasValue
+            ? (IReadOnlyList<Index>)_indexes.Value
+            : ImmutableList<Index>.Empty;
 
         #endregion
 
@@ -789,7 +765,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         private bool RequiresOriginalValue(Property addedOrRemovedProperty)
         {
-            return !_useLazyOriginalValues
+            return _useEagerSnapshots
                    || ((IProperty)addedOrRemovedProperty).IsConcurrencyToken
                    || ForeignKeys.SelectMany(k => k.Properties).Contains(addedOrRemovedProperty);
         }
@@ -872,46 +848,27 @@ namespace Microsoft.Data.Entity.Metadata
             return null;
         }
 
-        public virtual IReadOnlyList<Property> Properties
-        {
-            get { return _properties; }
-        }
+        public virtual IReadOnlyList<Property> Properties => _properties;
 
-        public virtual int ShadowPropertyCount
-        {
-            get { return _shadowPropertyCount; }
-        }
+        public virtual int ShadowPropertyCount => _shadowPropertyCount;
 
-        public virtual int OriginalValueCount
-        {
-            get { return _originalValueCount; }
-        }
+        public virtual int OriginalValueCount => _originalValueCount;
 
-        public virtual bool HasClrType
-        {
-            get { return Type != null; }
-        }
+        public virtual bool HasClrType => Type != null;
 
-        public virtual bool UseLazyOriginalValues
+        public virtual bool UseEagerSnapshots
         {
-            get { return _useLazyOriginalValues; }
+            get { return _useEagerSnapshots; }
             set
             {
-                if (value && !CanUseLazyOriginalValues())
+                if (!value && !this.HasPropertyChangingNotifications())
                 {
                     throw new InvalidOperationException(Strings.EagerOriginalValuesRequired(Name));
                 }
 
-                _useLazyOriginalValues = value;
+                _useEagerSnapshots = value;
                 UpdateOriginalValueIndexes();
             }
-        }
-
-        private bool CanUseLazyOriginalValues()
-        {
-            return Type == null
-                   || (typeof(INotifyPropertyChanging).GetTypeInfo().IsAssignableFrom(Type.GetTypeInfo())
-                       && typeof(INotifyPropertyChanged).GetTypeInfo().IsAssignableFrom(Type.GetTypeInfo()));
         }
 
         #endregion
@@ -958,30 +915,15 @@ namespace Microsoft.Data.Entity.Metadata
             return GetNavigation(name);
         }
 
-        IReadOnlyList<IProperty> IEntityType.Properties
-        {
-            get { return Properties; }
-        }
+        IReadOnlyList<IProperty> IEntityType.Properties => Properties;
 
-        IReadOnlyList<IForeignKey> IEntityType.ForeignKeys
-        {
-            get { return ForeignKeys; }
-        }
+        IReadOnlyList<IForeignKey> IEntityType.ForeignKeys => ForeignKeys;
 
-        IReadOnlyList<INavigation> IEntityType.Navigations
-        {
-            get { return Navigations; }
-        }
+        IReadOnlyList<INavigation> IEntityType.Navigations => Navigations;
 
-        IReadOnlyList<IIndex> IEntityType.Indexes
-        {
-            get { return Indexes; }
-        }
+        IReadOnlyList<IIndex> IEntityType.Indexes => Indexes;
 
-        IReadOnlyList<IKey> IEntityType.Keys
-        {
-            get { return Keys; }
-        }
+        IReadOnlyList<IKey> IEntityType.Keys => Keys;
 
         #endregion
 

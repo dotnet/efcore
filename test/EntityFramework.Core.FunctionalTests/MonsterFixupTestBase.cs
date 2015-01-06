@@ -131,14 +131,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
             Can_build_monster_model_and_seed_data_using_principal_navigations_test(p => CreateSnapshotMonsterContext(p, databaseName), databaseName);
         }
 
-        //[Fact] TODO: Support INotifyCollectionChanging so that collection change detection without DetectChanges works
+        //[Fact] TODO: Support INotifyCollectionChanged (Issue #445) so that collection change detection without DetectChanges works
         public virtual void Can_build_monster_model_with_full_notification_entities_and_seed_data_using_principal_navigations()
         {
             const string databaseName = FullNotifyDatabaseName + "_PrincipalNavs";
             Can_build_monster_model_and_seed_data_using_principal_navigations_test(p => CreateChangedChangingMonsterContext(p, databaseName), databaseName);
         }
 
-        //[Fact] TODO: Support INotifyCollectionChanging so that collection change detection without DetectChanges works
+        //[Fact] TODO: Support INotifyCollectionChanged (Issue #445) so that collection change detection without DetectChanges works
         public virtual void Can_build_monster_model_with_changed_only_notification_entities_and_seed_data_using_principal_navigations()
         {
             const string databaseName = ChangedOnlyDatabaseName + "_PrincipalNavs";
@@ -472,13 +472,13 @@ namespace Microsoft.Data.Entity.FunctionalTests
             await One_to_many_fixup_happens_when_collection_changes_test(p => CreateSnapshotMonsterContext(p), SnapshotDatabaseName, useDetectChanges: true);
         }
 
-        //[Fact] TODO: Support INotifyCollectionChanging so that collection change detection without DetectChanges works
+        //[Fact] TODO: Support INotifyCollectionChanged (Issue #445) so that collection change detection without DetectChanges works
         public virtual async Task One_to_many_fixup_happens_when_collection_changes_for_full_notification_entities()
         {
             await One_to_many_fixup_happens_when_collection_changes_test(p => CreateChangedChangingMonsterContext(p), FullNotifyDatabaseName, useDetectChanges: false);
         }
 
-        //[Fact] TODO: Support INotifyCollectionChanging so that collection change detection without DetectChanges works
+        //[Fact] TODO: Support INotifyCollectionChanged (Issue #445) so that collection change detection without DetectChanges works
         public virtual async Task One_to_many_fixup_happens_when_collection_changes_for_changed_only_notification_entities()
         {
             await One_to_many_fixup_happens_when_collection_changes_test(p => CreateChangedOnlyMonsterContext(p), ChangedOnlyDatabaseName, useDetectChanges: false);
@@ -893,13 +893,13 @@ namespace Microsoft.Data.Entity.FunctionalTests
             await Fixup_with_binary_keys_happens_when_FKs_or_navigations_change_test(p => CreateSnapshotMonsterContext(p), SnapshotDatabaseName, useDetectChanges: true);
         }
 
-        //[Fact] TODO: Support INotifyCollectionChanging so that collection change detection without DetectChanges works
+        //[Fact] TODO: Support INotifyCollectionChanged (Issue #445) so that collection change detection without DetectChanges works
         public virtual async Task Fixup_with_binary_keys_happens_when_FKs_or_navigations_change_for_full_notification_entities()
         {
             await Fixup_with_binary_keys_happens_when_FKs_or_navigations_change_test(p => CreateChangedChangingMonsterContext(p), FullNotifyDatabaseName, useDetectChanges: false);
         }
 
-        //[Fact] TODO: Support INotifyCollectionChanging so that collection change detection without DetectChanges works
+        //[Fact] TODO: Support INotifyCollectionChanged (Issue #445) so that collection change detection without DetectChanges works
         public virtual async Task Fixup_with_binary_keys_happens_when_FKs_or_navigations_change_for_changed_only_notification_entities()
         {
             await Fixup_with_binary_keys_happens_when_FKs_or_navigations_change_test(p => CreateChangedOnlyMonsterContext(p), ChangedOnlyDatabaseName, useDetectChanges: false);

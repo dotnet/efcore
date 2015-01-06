@@ -244,10 +244,9 @@ namespace Microsoft.Data.Entity.Tests
         {
             public bool DetectChangesCalled { get; set; }
 
-            public override bool DetectChanges(StateManager stateManager)
+            public override void DetectChanges(StateManager stateManager)
             {
                 DetectChangesCalled = true;
-                return false;
             }
         }
 
