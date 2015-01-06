@@ -317,6 +317,7 @@ namespace Microsoft.Data.Entity.Relational.Query
             return ((RelationalQueryContext)queryContext).ValueReaderFactory.Create(dataReader);
         }
 
+        // TODO: remove this?
         private static string CreateUniqueAlias(SelectExpression selectExpression, string preferredAlias)
         {
             var alias = preferredAlias;
