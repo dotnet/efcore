@@ -5,9 +5,7 @@
 
 using System;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.Data.Entity.Commands.TestUtilities;
-using Microsoft.Data.Entity.SqlServer.FunctionalTests;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Commands
@@ -31,34 +29,6 @@ namespace Microsoft.Data.Entity.Commands
             }
 
             [Fact]
-            public void AddMigration_works_cross_domain()
-            {
-                var artifacts = _project.Executor.AddMigration("EmptyMigration", "SimpleContext");
-                Assert.Equal(3, artifacts.Count());
-            }
-
-            [Fact]
-            public async Task ApplyMigration_works_cross_domain()
-            {
-                try
-                {
-                    _project.Executor.ApplyMigration("InitialCreate", "SimpleContext");
-                    Assert.True(await _project.TestStore.ExistsAsync());
-                }
-                finally
-                {
-                    await _project.TestStore.DeleteDatabaseAsync();
-                }
-            }
-
-            [Fact]
-            public void ScriptMigration_works_cross_domain()
-            {
-                var sql = _project.Executor.ScriptMigration(null, "InitialCreate", false, "SimpleContext");
-                Assert.NotEmpty(sql);
-            }
-
-            [Fact]
             public void GetContextTypes_works_cross_domain()
             {
                 var contextTypes = _project.Executor.GetContextTypes();
@@ -75,32 +45,21 @@ namespace Microsoft.Data.Entity.Commands
             public class SimpleProject : IDisposable
             {
                 private readonly TempDirectory _directory = new TempDirectory();
+                private readonly ExecutorWrapper _executor;
 
                 public SimpleProject()
                 {
-                    TestStore = SqlServerTestStore.CreateScratchAsync(createDatabase: false).Result;
-
                     var source = new BuildSource
                     {
                         TargetDir = TargetDir,
                         References =
                             {
-                                BuildReference.ByName("System.Collections.Immutable", copyLocal: true),
-                                BuildReference.ByName("System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
-                                BuildReference.ByName("System.Data.Common", copyLocal: true),
-                                BuildReference.ByName("System.Interactive.Async", copyLocal: true),
                                 BuildReference.ByName("System.Runtime, Version=4.0.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"),
                                 BuildReference.ByName("EntityFramework.Core", copyLocal: true),
                                 BuildReference.ByName("EntityFramework.Commands", copyLocal: true),
                                 BuildReference.ByName("EntityFramework.Migrations", copyLocal: true),
-                                BuildReference.ByName("EntityFramework.Relational", copyLocal: true),
-                                BuildReference.ByName("EntityFramework.SqlServer", copyLocal: true),
-                                BuildReference.ByName("Microsoft.Framework.ConfigurationModel", copyLocal: true),
-                                BuildReference.ByName("Microsoft.Framework.DependencyInjection", copyLocal: true),
                                 BuildReference.ByName("Microsoft.Framework.Logging", copyLocal: true),
-                                BuildReference.ByName("Microsoft.Framework.Logging.Interfaces", copyLocal: true),
-                                BuildReference.ByName("Microsoft.Framework.OptionsModel", copyLocal: true),
-                                BuildReference.ByName("Remotion.Linq", copyLocal: true)
+                                BuildReference.ByName("Microsoft.Framework.Logging.Interfaces", copyLocal: true)
                             },
                         Source = @"
                         using System;
@@ -115,11 +74,6 @@ namespace Microsoft.Data.Entity.Commands
                         {
                             internal class SimpleContext : DbContext
                             {
-                                protected override void OnConfiguring(DbContextOptions options)
-                                {
-                                    options.UseSqlServer(
-                                        @""" + TestStore.Connection.ConnectionString + @""");
-                                }
                             }
 
                             namespace Migrations
@@ -127,9 +81,20 @@ namespace Microsoft.Data.Entity.Commands
                                 [ContextType(typeof(SimpleContext))]
                                 public class InitialCreate : Migration, IMigrationMetadata
                                 {
-                                    public string MigrationId => ""201410102227260_InitialCreate"";
-                                    public string ProductVersion => ""7.0.0"";
-                                    public IModel TargetModel => new SimpleContext().Model;
+                                    public string MigrationId
+                                    {
+                                        get { return ""201410102227260_InitialCreate""; }
+                                    }
+
+                                    public string ProductVersion
+                                    {
+                                        get { throw new NotImplementedException(); }
+                                    }
+
+                                    public IModel TargetModel
+                                    {
+                                        get { throw new NotImplementedException(); }
+                                    }
 
                                     public override void Up(MigrationBuilder migrationBuilder)
                                     {
@@ -144,16 +109,22 @@ namespace Microsoft.Data.Entity.Commands
                     "
                     };
                     var build = source.Build();
-                    Executor = new ExecutorWrapper(TargetDir, build.TargetName + ".dll", TargetDir, "SimpleProject");
+                    _executor = new ExecutorWrapper(TargetDir, build.TargetName + ".dll", TargetDir, "SimpleProject");
                 }
 
-                public string TargetDir => _directory.Path;
-                public SqlServerTestStore TestStore { get; }
-                public ExecutorWrapper Executor { get; }
+                public string TargetDir
+                {
+                    get { return _directory.Path; }
+                }
+
+                public ExecutorWrapper Executor
+                {
+                    get { return _executor; }
+                }
 
                 public void Dispose()
                 {
-                    Executor.Dispose();
+                    _executor.Dispose();
                     _directory.Dispose();
                 }
             }
@@ -251,7 +222,7 @@ namespace Microsoft.Data.Entity.Commands
                                         public override void Up(MigrationBuilder migrationBuilder)
                                         {
                                         }
-
+        
                                         public override void Down(MigrationBuilder migrationBuilder)
                                         {
                                         }

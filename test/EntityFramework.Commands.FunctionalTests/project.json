@@ -1,7 +1,6 @@
 {
     "dependencies": {
         "EntityFramework.Commands": "7.0.0-*",
-        "EntityFramework.SqlServer.FunctionalTests": "1.0.0",
         "Microsoft.Framework.Runtime.Roslyn": "1.0.0-*",
         "xunit.runner.kre": "1.0.0-*"
     },
