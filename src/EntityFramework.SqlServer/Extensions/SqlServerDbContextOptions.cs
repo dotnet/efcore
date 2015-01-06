@@ -3,6 +3,7 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Relational;
 
 namespace Microsoft.Data.Entity.SqlServer.Extensions
 {
@@ -16,6 +17,14 @@ namespace Microsoft.Data.Entity.SqlServer.Extensions
         {
             ((IDbContextOptions)Options)
                 .AddOrUpdateExtension<SqlServerOptionsExtension>(x => x.MaxBatchSize = maxBatchSize);
+
+            return this;
+        }
+
+        public virtual SqlServerDbContextOptions CommandTimeout(int? commandTimeout)
+        {
+            ((IDbContextOptions)Options)
+                .AddOrUpdateExtension<SqlServerOptionsExtension>(x => x.CommandTimeout = commandTimeout);
 
             return this;
         }

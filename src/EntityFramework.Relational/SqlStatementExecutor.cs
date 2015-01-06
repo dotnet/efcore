@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.Relational
         }
 
         public virtual Task ExecuteNonQueryAsync(
-            [NotNull] DbConnection connection,
+            [NotNull] RelationalConnection connection,
             [CanBeNull] DbTransaction transaction,
             [NotNull] IEnumerable<SqlBatch> sqlBatches,
             CancellationToken cancellationToken = default(CancellationToken))
@@ -55,7 +55,7 @@ namespace Microsoft.Data.Entity.Relational
         }
 
         public virtual Task<object> ExecuteScalarAsync(
-            [NotNull] DbConnection connection,
+            [NotNull] RelationalConnection connection,
             [CanBeNull] DbTransaction transaction,
             [NotNull] string sql,
             CancellationToken cancellationToken = default(CancellationToken))
@@ -75,7 +75,7 @@ namespace Microsoft.Data.Entity.Relational
         }
 
         public virtual async Task<object> ExecuteAsync(
-            [NotNull] DbConnection connection,
+            [NotNull] RelationalConnection connection,
             [NotNull] Func<Task<object>> action,
             CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -83,7 +83,7 @@ namespace Microsoft.Data.Entity.Relational
 
             // TODO Deal with suppressing transactions etc.
 
-            var connectionWasOpen = connection.State == ConnectionState.Open;
+            var connectionWasOpen = connection.DbConnection.State == ConnectionState.Open;
             if (!connectionWasOpen)
             {
                 Logger.OpeningConnection(connection.ConnectionString);
@@ -107,7 +107,7 @@ namespace Microsoft.Data.Entity.Relational
         }
 
         public virtual void ExecuteNonQuery(
-            [NotNull] DbConnection connection,
+            [NotNull] RelationalConnection connection,
             [CanBeNull] DbTransaction transaction,
             [NotNull] IEnumerable<SqlBatch> sqlBatches)
         {
@@ -129,7 +129,7 @@ namespace Microsoft.Data.Entity.Relational
         }
 
         public virtual object ExecuteScalar(
-            [NotNull] DbConnection connection,
+            [NotNull] RelationalConnection connection,
             [CanBeNull] DbTransaction transaction,
             [NotNull] string sql)
         {
@@ -147,14 +147,14 @@ namespace Microsoft.Data.Entity.Relational
         }
 
         public virtual object Execute(
-            [NotNull] DbConnection connection,
+            [NotNull] RelationalConnection connection,
             [NotNull] Func<object> action)
         {
             Check.NotNull(connection, "connection");
 
             // TODO Deal with suppressing transactions etc.
 
-            var connectionWasOpen = connection.State == ConnectionState.Open;
+            var connectionWasOpen = connection.DbConnection.State == ConnectionState.Open;
             if (!connectionWasOpen)
             {
                 Logger.OpeningConnection(connection.ConnectionString);
@@ -178,13 +178,19 @@ namespace Microsoft.Data.Entity.Relational
         }
 
         protected virtual DbCommand CreateCommand(
-            DbConnection connection,
+            RelationalConnection connection,
             DbTransaction transaction,
             string sql)
         {
-            var command = connection.CreateCommand();
+            var command = connection.DbConnection.CreateCommand();
             command.CommandText = sql;
             command.Transaction = transaction;
+
+            if (connection.CommandTimeout != null)
+            {
+                command.CommandTimeout = (int)connection.CommandTimeout;
+            }
+
             return command;
         }
     }

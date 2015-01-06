@@ -238,20 +238,20 @@ namespace Microsoft.Data.Entity.Tests
 
     public class RecordingSqlStatementExecutor : SqlStatementExecutor
     {
-        private List<Tuple<DbConnection, DbTransaction, string[]>> _nonQueries
-            = new List<Tuple<DbConnection, DbTransaction, string[]>>();
+        private List<Tuple<RelationalConnection, DbTransaction, string[]>> _nonQueries
+            = new List<Tuple<RelationalConnection, DbTransaction, string[]>>();
 
         public RecordingSqlStatementExecutor(ILoggerFactory loggerFactory)
             : base(loggerFactory)
         {
         }
 
-        public List<Tuple<DbConnection, DbTransaction, string[]>> NonQueries
+        public List<Tuple<RelationalConnection, DbTransaction, string[]>> NonQueries
         {
             get { return _nonQueries; }
         }
 
-        public override void ExecuteNonQuery(DbConnection connection, DbTransaction transaction, IEnumerable<SqlBatch> statements)
+        public override void ExecuteNonQuery(RelationalConnection connection, DbTransaction transaction, IEnumerable<SqlBatch> statements)
         {
             _nonQueries.Add(Tuple.Create(connection, transaction, statements.Select(s => s.Sql).ToArray()));
 

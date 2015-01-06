@@ -36,6 +36,11 @@ namespace Microsoft.Data.Entity.Relational.Query
                 command.Transaction = connection.Transaction.DbTransaction;
             }
 
+            if (connection.CommandTimeout != null)
+            {
+                command.CommandTimeout = (int)connection.CommandTimeout;
+            }
+
             var sqlGenerator = _relationalQueryCompilationContext.CreateSqlQueryGenerator();
 
             command.CommandText = sqlGenerator.GenerateSql(_selectExpression);

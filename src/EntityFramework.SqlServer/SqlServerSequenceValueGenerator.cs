@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity.SqlServer
             Check.NotNull(dataStoreServices, "dataStoreServices");
 
             var commandInfo = PrepareCommand((RelationalConnection)dataStoreServices.Service.Connection);
-            var nextValue = _executor.ExecuteScalar(commandInfo.Item1.DbConnection, commandInfo.Item1.DbTransaction, commandInfo.Item2);
+            var nextValue = _executor.ExecuteScalar(commandInfo.Item1, commandInfo.Item1.DbTransaction, commandInfo.Item2);
 
             return (long)Convert.ChangeType(nextValue, typeof(long), CultureInfo.InvariantCulture);
         }
@@ -49,7 +49,7 @@ namespace Microsoft.Data.Entity.SqlServer
 
             var commandInfo = PrepareCommand((RelationalConnection)dataStoreServices.Service.Connection);
             var nextValue = await _executor
-                .ExecuteScalarAsync(commandInfo.Item1.DbConnection, commandInfo.Item1.DbTransaction, commandInfo.Item2, cancellationToken)
+                .ExecuteScalarAsync(commandInfo.Item1, commandInfo.Item1.DbTransaction, commandInfo.Item2, cancellationToken)
                 .WithCurrentCulture();
 
             return (long)Convert.ChangeType(nextValue, typeof(long), CultureInfo.InvariantCulture);

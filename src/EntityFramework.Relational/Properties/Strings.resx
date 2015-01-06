@@ -219,4 +219,7 @@
   <data name="UnknownOperation" xml:space="preserve">
     <value>The current migration SQL generator '{sqlGeneratorType}' is unable to generate SQL for operations of type '{operationType}'.</value>
   </data>
+  <data name="InvalidCommandTimeout" xml:space="preserve">
+    <value>The specified CommandTimeout value is not valid. It must be a positive number.</value>
+  </data>
 </root>

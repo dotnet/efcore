@@ -75,7 +75,7 @@ namespace Microsoft.Data.Entity.SqlServer
         {
             Check.NotNull(model, "model");
 
-            _statementExecutor.ExecuteNonQuery(_connection.DbConnection, _connection.DbTransaction, CreateSchemaCommands(model));
+            _statementExecutor.ExecuteNonQuery(_connection, _connection.DbTransaction, CreateSchemaCommands(model));
         }
 
         public override async Task CreateTablesAsync(IModel model, CancellationToken cancellationToken = default(CancellationToken))
@@ -83,19 +83,19 @@ namespace Microsoft.Data.Entity.SqlServer
             Check.NotNull(model, "model");
 
             await _statementExecutor
-                .ExecuteNonQueryAsync(_connection.DbConnection, _connection.DbTransaction, CreateSchemaCommands(model), cancellationToken)
+                .ExecuteNonQueryAsync(_connection, _connection.DbTransaction, CreateSchemaCommands(model), cancellationToken)
                 .WithCurrentCulture();
         }
 
         public override bool HasTables()
         {
-            return (int)_statementExecutor.ExecuteScalar(_connection.DbConnection, _connection.DbTransaction, CreateHasTablesCommand()) != 0;
+            return (int)_statementExecutor.ExecuteScalar(_connection, _connection.DbTransaction, CreateHasTablesCommand()) != 0;
         }
 
         public override async Task<bool> HasTablesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             return (int)(await _statementExecutor
-                .ExecuteScalarAsync(_connection.DbConnection, _connection.DbTransaction, CreateHasTablesCommand(), cancellationToken)
+                .ExecuteScalarAsync(_connection, _connection.DbTransaction, CreateHasTablesCommand(), cancellationToken)
                 .WithCurrentCulture()) != 0;
         }
 

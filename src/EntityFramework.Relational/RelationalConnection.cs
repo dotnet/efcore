@@ -20,6 +20,9 @@ namespace Microsoft.Data.Entity.Relational
         private readonly LazyRef<DbConnection> _connection;
         private readonly bool _connectionOwned;
         private int _openedCount;
+        private int? _commandTimeout;
+
+        protected ILoggerFactory LoggerFactory;
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
@@ -36,6 +39,9 @@ namespace Microsoft.Data.Entity.Relational
             Check.NotNull(options, "options");
 
             var storeConfig = RelationalOptionsExtension.Extract(options.Service);
+
+            LoggerFactory = loggerFactory;
+            _commandTimeout = storeConfig.CommandTimeout;
 
             if (storeConfig.Connection != null)
             {
@@ -73,6 +79,20 @@ namespace Microsoft.Data.Entity.Relational
         }
 
         public virtual RelationalTransaction Transaction { get; protected set; }
+
+        public virtual int? CommandTimeout
+        {
+            get { return _commandTimeout; }
+            set
+            {
+                if (value.HasValue && value < 0)
+                {
+                    throw new ArgumentException(Strings.InvalidCommandTimeout);
+                }
+
+                _commandTimeout = value;
+            }
+        }
 
         public virtual DbTransaction DbTransaction
         {

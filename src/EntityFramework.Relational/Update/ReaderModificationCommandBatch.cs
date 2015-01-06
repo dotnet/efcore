@@ -125,12 +125,18 @@ namespace Microsoft.Data.Entity.Relational.Update
         protected virtual DbCommand CreateStoreCommand(
             [NotNull] string commandText,
             [NotNull] DbTransaction transaction,
-            [NotNull] RelationalTypeMapper typeMapper)
+            [NotNull] RelationalTypeMapper typeMapper,
+            int? commandTimeout)
         {
             var command = transaction.Connection.CreateCommand();
             command.CommandType = CommandType.Text;
             command.CommandText = commandText;
             command.Transaction = transaction;
+
+            if (commandTimeout != null)
+            {
+                command.CommandTimeout = (int)commandTimeout;
+            }
 
             foreach (var columnModification in ModificationCommands.SelectMany(t => t.ColumnModifications))
             {
@@ -161,7 +167,7 @@ namespace Microsoft.Data.Entity.Relational.Update
             Debug.Assert(ResultSetEnds.Count == ModificationCommands.Count);
 
             var commandIndex = 0;
-            using (var storeCommand = CreateStoreCommand(commandText, transaction.DbTransaction, typeMapper))
+            using (var storeCommand = CreateStoreCommand(commandText, transaction.DbTransaction, typeMapper, transaction.Connection?.CommandTimeout))
             {
                 try
                 {
@@ -226,7 +232,7 @@ namespace Microsoft.Data.Entity.Relational.Update
             Debug.Assert(ResultSetEnds.Count == ModificationCommands.Count);
 
             var commandIndex = 0;
-            using (var storeCommand = CreateStoreCommand(commandText, transaction.DbTransaction, typeMapper))
+            using (var storeCommand = CreateStoreCommand(commandText, transaction.DbTransaction, typeMapper, transaction.Connection?.CommandTimeout))
             {
                 try
                 {

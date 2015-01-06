@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
@@ -32,7 +33,7 @@ namespace Microsoft.Data.Entity.SqlServer.Update
 
             var optionsExtension = options.Extensions.OfType<SqlServerOptionsExtension>().FirstOrDefault();
 
-            int? maxBatchSize = optionsExtension != null ? optionsExtension.MaxBatchSize : null;
+            int? maxBatchSize = optionsExtension?.MaxBatchSize;
 
             return new SqlServerModificationCommandBatch((SqlServerSqlGenerator)SqlGenerator, maxBatchSize);
         }

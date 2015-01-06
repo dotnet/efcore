@@ -284,6 +284,13 @@ namespace Microsoft.Data.Entity.Relational
             get { return GetString("MigrationsNotInUse"); }
         }
 
+        /// <summary>
+        /// The specified CommandTimeout value is not valid. It must be a positive number.
+        /// </summary>
+        public static string InvalidCommandTimeout
+        {
+            get { return GetString("InvalidCommandTimeout");}
+        }
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

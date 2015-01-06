@@ -157,11 +157,11 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             {
             }
 
-            public override void ExecuteNonQuery(DbConnection connection, DbTransaction transaction, IEnumerable<SqlBatch> sqlBatches)
+            public override void ExecuteNonQuery(RelationalConnection connection, DbTransaction transaction, IEnumerable<SqlBatch> sqlBatches)
             {
             }
 
-            public override Task ExecuteNonQueryAsync(DbConnection connection, DbTransaction transaction, IEnumerable<SqlBatch> sqlBatches, CancellationToken cancellationToken = new CancellationToken())
+            public override Task ExecuteNonQueryAsync(RelationalConnection connection, DbTransaction transaction, IEnumerable<SqlBatch> sqlBatches, CancellationToken cancellationToken = new CancellationToken())
             {
                 return Task.FromResult(0);
             }

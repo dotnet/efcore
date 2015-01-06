@@ -400,7 +400,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
             {
                 transaction = connection.BeginTransaction(IsolationLevel.Serializable);
 
-                SqlExecutor.ExecuteNonQuery(connection.DbConnection, transaction.DbTransaction, sqlStatements);
+                SqlExecutor.ExecuteNonQuery(connection, transaction.DbTransaction, sqlStatements);
 
                 transaction.Commit();
             }
@@ -419,7 +419,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
             Check.NotNull(sqlStatements, "sqlStatements");
             Check.NotNull(connection, "connection");
 
-            SqlExecutor.ExecuteNonQuery(connection.DbConnection, null, sqlStatements);
+            SqlExecutor.ExecuteNonQuery(connection, null, sqlStatements);
         }
 
         protected struct MigrationPair

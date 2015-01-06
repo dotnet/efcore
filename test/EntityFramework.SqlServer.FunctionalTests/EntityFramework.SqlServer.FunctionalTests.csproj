@@ -39,6 +39,9 @@
       <TargetFramework>net45</TargetFramework>
       <Assemblies>System.Interactive.Async</Assemblies>
     </PackageReference>
+    <PackageReference Include="Remotion.Linq">
+      <TargetFramework>portable-net45+wp80+wpa81+win</TargetFramework>
+    </PackageReference>
     <PackageReference Include="System.Data.Common">
       <TargetFramework>net451</TargetFramework>
     </PackageReference>
@@ -71,6 +74,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CommandConfigurationTests.cs" />
     <Compile Include="ComputedColumnTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SqlServerBuiltInDataTypesFixture.cs" />

@@ -34,11 +34,16 @@ namespace Microsoft.Data.Entity.SqlServer
             return new SqlConnection(ConnectionString);
         }
 
-        public virtual SqlConnection CreateMasterConnection()
+        public virtual SqlServerConnection CreateMasterConnection()
         {
             var builder = new SqlConnectionStringBuilder { ConnectionString = ConnectionString };
             builder.InitialCatalog = "master";
-            return new SqlConnection(builder.ConnectionString);
+
+            // TODO use clone connection method once implimented see #1406
+            var options = new DbContextOptions();
+            options.UseSqlServer(builder.ConnectionString).CommandTimeout(CommandTimeout);
+
+            return new SqlServerConnection(new DbContextService<IDbContextOptions>(() => options), LoggerFactory);
         }
     }
 }

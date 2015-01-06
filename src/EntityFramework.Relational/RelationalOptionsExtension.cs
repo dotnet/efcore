@@ -17,6 +17,7 @@ namespace Microsoft.Data.Entity.Relational
 
         private string _connectionString;
         private DbConnection _connection;
+        private int? _commandTimeout;
 
         public virtual string ConnectionString
         {
@@ -40,6 +41,20 @@ namespace Microsoft.Data.Entity.Relational
                 Check.NotNull(value, "value");
 
                 _connection = value;
+            }
+        }
+
+        public virtual int? CommandTimeout
+        {
+            get { return _commandTimeout; }
+            set
+            {
+                if (value.HasValue && value < 0)
+                {
+                    throw new ArgumentException(Strings.InvalidCommandTimeout);
+                }
+
+                _commandTimeout = value;
             }
         }
 

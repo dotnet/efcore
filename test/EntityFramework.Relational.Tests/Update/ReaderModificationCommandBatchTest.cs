@@ -349,7 +349,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
 
             var transaction = CreateMockDbTransaction();
 
-            var command = batch.CreateStoreCommandBase("foo", transaction, new RelationalTypeMapper());
+            var command = batch.CreateStoreCommandBase("foo", transaction, new RelationalTypeMapper(), null);
 
             Assert.Equal(CommandType.Text, command.CommandType);
             Assert.Equal("foo", command.CommandText);
@@ -635,14 +635,14 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
                 base.UpdateCachedCommandText(commandIndex);
             }
 
-            protected override DbCommand CreateStoreCommand(string commandText, DbTransaction transaction, RelationalTypeMapper typeMapper)
+            protected override DbCommand CreateStoreCommand(string commandText, DbTransaction transaction, RelationalTypeMapper typeMapper, int? commandTimeout)
             {
                 return CreateDbCommandMock(_reader).Object;
             }
 
-            public DbCommand CreateStoreCommandBase(string commandText, DbTransaction transaction, RelationalTypeMapper typeMapper)
-            {
-                return base.CreateStoreCommand(commandText, transaction, typeMapper);
+            public DbCommand CreateStoreCommandBase(string commandText, DbTransaction transaction, RelationalTypeMapper typeMapper, int? commandTimeout)
+             {
+                return base.CreateStoreCommand(commandText, transaction, typeMapper, commandTimeout);
             }
 
             public int PopulateParameterCalls { get; set; }
