@@ -81,14 +81,18 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             var selectExpression = new SelectExpression();
             var tableName = QueryModelVisitor.QueryCompilationContext.GetTableName(entityType);
 
+            var preferredAlias = _querySource.ItemName.StartsWith("<generated>_")
+                            ? tableName.First().ToString().ToLower()
+                            : _querySource.ItemName;
+
+            var alias = QueryModelVisitor.CreateUniqueAlias(preferredAlias);
+
             selectExpression
                 .AddTable(
                     new TableExpression(
                         tableName,
                         QueryModelVisitor.QueryCompilationContext.GetSchema(entityType),
-                        _querySource.ItemName.StartsWith("<generated>_")
-                            ? tableName.First().ToString().ToLower()
-                            : _querySource.ItemName,
+                        alias,
                         _querySource));
 
             QueryModelVisitor.AddQuery(_querySource, selectExpression);
