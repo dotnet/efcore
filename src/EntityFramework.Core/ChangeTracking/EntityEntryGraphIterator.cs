@@ -13,20 +13,24 @@ namespace Microsoft.Data.Entity.ChangeTracking
     public class EntityEntryGraphIterator
     {
         private readonly DbContextService<DbContext> _context;
+        private readonly StateManager _stateManager;
 
         public EntityEntryGraphIterator(
-            [NotNull] DbContextService<DbContext> context)
+            [NotNull] DbContextService<DbContext> context,
+            [NotNull] StateManager stateManager)
         {
             Check.NotNull(context, "context");
+            Check.NotNull(stateManager, "stateManager");
 
             _context = context;
+            _stateManager = stateManager;
         }
 
         public virtual IEnumerable<EntityEntry> TraverseGraph([NotNull] object entity)
         {
             Check.NotNull(entity, "entity");
 
-            var entry = _context.Service.Entry(entity);
+            var entry = new EntityEntry(_context.Service, _stateManager.GetOrCreateEntry(entity));
 
             if (entry.State != EntityState.Unknown)
             {

@@ -260,22 +260,32 @@ namespace Microsoft.Data.Entity
         {
             Check.NotNull(entity, "entity");
 
-            var stateManager = GetStateManager();
+            TryDetectChanges(GetStateManager());
 
-            TryDetectChanges(stateManager);
+            return EntryWithoutDetectChanges(entity);
+        }
 
-            return new EntityEntry<TEntity>(this, stateManager.GetOrCreateEntry(entity));
+        private EntityEntry<TEntity> EntryWithoutDetectChanges<TEntity>([NotNull] TEntity entity) where TEntity : class
+        {
+            Check.NotNull(entity, "entity");
+
+            return new EntityEntry<TEntity>(this, GetStateManager().GetOrCreateEntry(entity));
         }
 
         public virtual EntityEntry Entry([NotNull] object entity)
         {
             Check.NotNull(entity, "entity");
 
-            var stateManager = GetStateManager();
+            TryDetectChanges(GetStateManager());
 
-            TryDetectChanges(stateManager);
+            return EntryWithoutDetectChanges(entity);
+        }
 
-            return new EntityEntry(this, stateManager.GetOrCreateEntry(entity));
+        private EntityEntry EntryWithoutDetectChanges([NotNull] object entity)
+        {
+            Check.NotNull(entity, "entity");
+
+            return new EntityEntry(this, GetStateManager().GetOrCreateEntry(entity));
         }
 
         public virtual EntityEntry<TEntity> Add<TEntity>([NotNull] TEntity entity) where TEntity : class
@@ -291,7 +301,7 @@ namespace Microsoft.Data.Entity
         {
             Check.NotNull(entity, "entity");
 
-            var entry = Entry(entity);
+            var entry = EntryWithoutDetectChanges(entity);
 
             await entry.StateEntry
                 .SetEntityStateAsync(EntityState.Added, true, cancellationToken)
@@ -321,14 +331,14 @@ namespace Microsoft.Data.Entity
             // An Added entity does not yet exist in the database. If it is then marked as deleted there is
             // nothing to delete because it was not yet inserted, so just make sure it doesn't get inserted.
             return SetEntityState(
-                entity, Entry(entity).State == EntityState.Added
+                entity, EntryWithoutDetectChanges(entity).State == EntityState.Added
                     ? EntityState.Unknown
                     : EntityState.Deleted);
         }
 
         private EntityEntry<TEntity> SetEntityState<TEntity>(TEntity entity, EntityState entityState) where TEntity : class
         {
-            var entry = Entry(entity);
+            var entry = EntryWithoutDetectChanges(entity);
 
             entry.SetState(entityState);
 
@@ -347,7 +357,7 @@ namespace Microsoft.Data.Entity
         {
             Check.NotNull(entity, "entity");
 
-            var entry = Entry(entity);
+            var entry = EntryWithoutDetectChanges(entity);
 
             await entry.StateEntry
                 .SetEntityStateAsync(EntityState.Added, true, cancellationToken)
@@ -377,14 +387,14 @@ namespace Microsoft.Data.Entity
             // An Added entity does not yet exist in the database. If it is then marked as deleted there is
             // nothing to delete because it was not yet inserted, so just make sure it doesn't get inserted.
             return SetEntityState(
-                entity, Entry(entity).State == EntityState.Added
+                entity, EntryWithoutDetectChanges(entity).State == EntityState.Added
                     ? EntityState.Unknown
                     : EntityState.Deleted);
         }
 
         private EntityEntry SetEntityState(object entity, EntityState entityState)
         {
-            var entry = Entry(entity);
+            var entry = EntryWithoutDetectChanges(entity);
 
             entry.SetState(entityState);
 
