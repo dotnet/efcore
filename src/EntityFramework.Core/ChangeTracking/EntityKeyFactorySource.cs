@@ -50,7 +50,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                     return _cache.GetOrAdd(
                         keyType,
                         t => (EntityKeyFactory)(t.IsNullableType()
-                            ? Activator.CreateInstance(typeof(SimpleNullableEntityKeyFactory<,>).MakeGenericType(t.UnwrapNullableType(), t))
+                            ? Activator.CreateInstance(typeof(SimpleEntityKeyFactory<>).MakeGenericType(t.UnwrapNullableType()))
                             : Activator.CreateInstance(typeof(SimpleEntityKeyFactory<>).MakeGenericType(t))));
                 }
             }

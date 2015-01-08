@@ -26,8 +26,6 @@ namespace Microsoft.Data.Entity.ChangeTracking
         private readonly EntityKeyFactorySource _keyFactorySource;
         private readonly StateEntryFactory _factory;
         private readonly StateEntrySubscriber _subscriber;
-        private readonly StateEntryNotifier _notifier;
-        private readonly ValueGenerationManager _valueGeneration;
         private readonly DbContextService<IModel> _model;
         private readonly DbContextService<DataStore> _dataStore;
 
@@ -60,21 +58,15 @@ namespace Microsoft.Data.Entity.ChangeTracking
             _keyFactorySource = entityKeyFactorySource;
             _factory = factory;
             _subscriber = subscriber;
-            _notifier = notifier;
-            _valueGeneration = valueGeneration;
+            Notify = notifier;
+            ValueGeneration = valueGeneration;
             _model = model;
             _dataStore = dataStore;
         }
 
-        public virtual StateEntryNotifier Notify
-        {
-            get { return _notifier; }
-        }
+        public virtual StateEntryNotifier Notify { get; }
 
-        public virtual ValueGenerationManager ValueGeneration
-        {
-            get { return _valueGeneration; }
-        }
+        public virtual ValueGenerationManager ValueGeneration { get; }
 
         public virtual StateEntry CreateNewEntry([NotNull] IEntityType entityType)
         {
@@ -105,7 +97,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             return stateEntry;
         }
 
-        public virtual void StartTracking(
+        public virtual StateEntry StartTracking(
             [NotNull] IEntityType entityType, [NotNull] object entity, [NotNull] IValueReader valueReader)
         {
             Check.NotNull(entityType, "entityType");
@@ -116,45 +108,27 @@ namespace Microsoft.Data.Entity.ChangeTracking
             var keyProperties = entityType.GetPrimaryKey().Properties;
             var keyValue = _keyFactorySource.GetKeyFactory(keyProperties).Create(entityType, keyProperties, valueReader);
 
+            if (keyValue == EntityKey.NullEntityKey)
+            {
+                throw new InvalidOperationException(Strings.NullPrimaryKey(entityType.SimpleName));
+            }
+
             var existingEntry = TryGetEntry(keyValue);
 
             if (existingEntry != null)
             {
-                return;
+                if (existingEntry.Entity != entity)
+                {
+                    throw new InvalidOperationException(Strings.IdentityConflict(entityType.SimpleName));
+                }
+
+                return existingEntry;
             }
 
             var newEntry = _subscriber.SnapshotAndSubscribe(_factory.Create(this, entityType, entity, valueReader));
 
             _identityMap.Add(keyValue, newEntry);
             _entityReferenceMap[entity] = newEntry;
-
-            newEntry.SetEntityState(EntityState.Unchanged);
-        }
-
-        public virtual StateEntry GetOrMaterializeEntry([NotNull] IEntityType entityType, [NotNull] IValueReader valueReader)
-        {
-            Check.NotNull(entityType, "entityType");
-            Check.NotNull(valueReader, "valueReader");
-
-            // TODO: Perf: Pre-compute this for speed
-            var keyProperties = entityType.GetPrimaryKey().Properties;
-            var keyValue = _keyFactorySource.GetKeyFactory(keyProperties).Create(entityType, keyProperties, valueReader);
-
-            var existingEntry = TryGetEntry(keyValue);
-            if (existingEntry != null)
-            {
-                return existingEntry;
-            }
-
-            var newEntry = _subscriber.SnapshotAndSubscribe(_factory.Create(this, entityType, valueReader));
-
-            _identityMap.Add(keyValue, newEntry);
-
-            var entity = newEntry.Entity;
-            if (entity != null)
-            {
-                _entityReferenceMap[entity] = newEntry;
-            }
 
             newEntry.SetEntityState(EntityState.Unchanged);
 
@@ -179,10 +153,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             return entry;
         }
 
-        public virtual IEnumerable<StateEntry> StateEntries
-        {
-            get { return _identityMap.Values; }
-        }
+        public virtual IEnumerable<StateEntry> StateEntries => _identityMap.Values;
 
         public virtual StateEntry StartTracking([NotNull] StateEntry entry)
         {

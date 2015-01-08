@@ -94,6 +94,7 @@
     <Compile Include="SqlServerMigrationsTest.cs" />
     <Compile Include="SqlServerNorthwindQueryFixture.cs" />
     <Compile Include="SqlServerAsyncQueryTest.cs" />
+    <Compile Include="SqlServerNullKeysTest.cs" />
     <Compile Include="SqlServerOneToOneQueryFixture.cs" />
     <Compile Include="SqlServerQueryLoggingTest.cs" />
     <Compile Include="SqlServerQueryTest.cs" />

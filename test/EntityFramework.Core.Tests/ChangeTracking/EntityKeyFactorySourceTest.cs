@@ -21,12 +21,12 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Returns_a_simple_nullable_entity_key_factory_for_single_nullable_property()
+        public void Returns_a_simple_entity_key_factory_for_single_nullable_property()
         {
             var keyMock = new Mock<IProperty>();
             keyMock.Setup(m => m.PropertyType).Returns(typeof(int?));
 
-            Assert.IsType<SimpleNullableEntityKeyFactory<int, int?>>(CreateKeyFactorySource().GetKeyFactory(new[] { keyMock.Object }));
+            Assert.IsType<SimpleEntityKeyFactory<int>>(CreateKeyFactorySource().GetKeyFactory(new[] { keyMock.Object }));
         }
 
         [Fact]
@@ -72,12 +72,12 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Returns_a_simple_nullable_entity_key_factory_for_single_reference_property()
+        public void Returns_a_simple_entity_key_factory_for_single_reference_property()
         {
             var keyMock = new Mock<IProperty>();
             keyMock.Setup(m => m.PropertyType).Returns(typeof(string));
 
-            Assert.IsType<SimpleNullableEntityKeyFactory<string, string>>(CreateKeyFactorySource().GetKeyFactory(new[] { keyMock.Object }));
+            Assert.IsType<SimpleEntityKeyFactory<string>>(CreateKeyFactorySource().GetKeyFactory(new[] { keyMock.Object }));
         }
 
         [Fact]

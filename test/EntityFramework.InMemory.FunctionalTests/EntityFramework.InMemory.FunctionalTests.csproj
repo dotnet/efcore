@@ -69,6 +69,7 @@
     <Compile Include="InMemoryAsNoTrackingTest.cs" />
     <Compile Include="InMemoryChangeTrackingTest.cs" />
     <Compile Include="InMemoryFixture.cs" />
+    <Compile Include="InMemoryNullKeysTest.cs" />
     <Compile Include="InMemoryTestStore.cs" />
     <Compile Include="InMemoryBuiltInDataTypesFixture.cs" />
     <Compile Include="InMemoryBuiltInDataTypesTest.cs" />

@@ -32,23 +32,51 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Can_get_existing_entry_if_entity_in_value_buffer_is_already_tracked_otherwise_new_entry()
+        public void StartTracking_throws_if_different_instance_with_same_identity_is_already_tracked()
         {
             var model = BuildModel();
             var categoryType = model.GetEntityType(typeof(Category));
             var stateManager = CreateStateManager(model);
 
-            var stateEntry = stateManager.GetOrMaterializeEntry(categoryType, new ObjectArrayValueReader(new object[] { 77, "Bjork", null }));
+            var valueReader = new ObjectArrayValueReader(new object[] { 77, "Bjork", null });
 
-            Assert.Equal(EntityState.Unchanged, stateEntry.EntityState);
-            Assert.Same(stateEntry, stateManager.GetOrMaterializeEntry(categoryType, new ObjectArrayValueReader(new object[] { 77, "Bjork", null })));
+            stateManager.StartTracking(categoryType, new Category { Id = 77 }, valueReader);
 
-            stateEntry.SetEntityState(EntityState.Modified);
+            Assert.Equal(
+                Strings.IdentityConflict("Category"),
+                Assert.Throws<InvalidOperationException>(
+                    () => stateManager.StartTracking(categoryType, new Category { Id = 77 }, valueReader)).Message);
+            
+        }
 
-            Assert.Same(stateEntry, stateManager.GetOrMaterializeEntry(categoryType, new ObjectArrayValueReader(new object[] { 77, "Bjork", null })));
-            Assert.Equal(EntityState.Modified, stateEntry.EntityState);
+        [Fact]
+        public void StartTracking_is_no_op_if_entity_is_already_tracked()
+        {
+            var model = BuildModel();
+            var categoryType = model.GetEntityType(typeof(Category));
+            var stateManager = CreateStateManager(model);
 
-            Assert.NotSame(stateEntry, stateManager.GetOrMaterializeEntry(categoryType, new ObjectArrayValueReader(new object[] { 78, "Bjork", null })));
+            var category = new Category { Id = 77 };
+            var valueReader = new ObjectArrayValueReader(new object[] { 77, "Bjork", null });
+
+            var entry = stateManager.StartTracking(categoryType, category, valueReader);
+
+            Assert.Same(entry, stateManager.StartTracking(categoryType, category, valueReader));
+        }
+
+        [Fact]
+        public void StartTracking_throws_for_null_entity_key_in_value_reader()
+        {
+            var model = BuildModel();
+            var categoryType = model.GetEntityType(typeof(Category));
+            var stateManager = CreateStateManager(model);
+
+            var valueReader = new ObjectArrayValueReader(new object[] { null, "Bjork", null });
+
+            Assert.Equal(
+                Strings.NullPrimaryKey("Category"),
+                Assert.Throws<InvalidOperationException>(
+                    () => stateManager.StartTracking(categoryType, new Category { Id = 77 }, valueReader)).Message);
         }
 
         [Fact]

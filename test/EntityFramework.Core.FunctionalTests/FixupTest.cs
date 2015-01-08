@@ -48,7 +48,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public void Navigation_fixup_happens_when_entities_are_materialized()
+        public void Navigation_fixup_happens_when_entities_are_tracked_from_query()
         {
             using (var context = new FixupContext())
             {
@@ -58,30 +58,30 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                 var stateManager = context.ChangeTracker.StateManager;
 
-                stateManager.GetOrMaterializeEntry(categoryType, new ObjectArrayValueReader(new object[] { 11 }));
-                stateManager.GetOrMaterializeEntry(categoryType, new ObjectArrayValueReader(new object[] { 12 }));
-                stateManager.GetOrMaterializeEntry(categoryType, new ObjectArrayValueReader(new object[] { 13 }));
+                stateManager.StartTracking(categoryType, new Category { Id = 11 }, new ObjectArrayValueReader(new object[] { 11 }));
+                stateManager.StartTracking(categoryType, new Category { Id = 12 }, new ObjectArrayValueReader(new object[] { 12 }));
+                stateManager.StartTracking(categoryType, new Category { Id = 13 }, new ObjectArrayValueReader(new object[] { 13 }));
 
-                stateManager.GetOrMaterializeEntry(productType, new ObjectArrayValueReader(new object[] { 11, 21 }));
+                stateManager.StartTracking(productType, new Product { Id = 21, CategoryId = 11 }, new ObjectArrayValueReader(new object[] { 11, 21 }));
                 AssertAllFixedUp(context);
-                stateManager.GetOrMaterializeEntry(productType, new ObjectArrayValueReader(new object[] { 11, 22 }));
+                stateManager.StartTracking(productType, new Product { Id = 22, CategoryId = 11 }, new ObjectArrayValueReader(new object[] { 11, 22 }));
                 AssertAllFixedUp(context);
-                stateManager.GetOrMaterializeEntry(productType, new ObjectArrayValueReader(new object[] { 11, 23 }));
+                stateManager.StartTracking(productType, new Product { Id = 23, CategoryId = 11 }, new ObjectArrayValueReader(new object[] { 11, 23 }));
                 AssertAllFixedUp(context);
-                stateManager.GetOrMaterializeEntry(productType, new ObjectArrayValueReader(new object[] { 12, 24 }));
+                stateManager.StartTracking(productType, new Product { Id = 24, CategoryId = 12 }, new ObjectArrayValueReader(new object[] { 12, 24 }));
                 AssertAllFixedUp(context);
-                stateManager.GetOrMaterializeEntry(productType, new ObjectArrayValueReader(new object[] { 12, 25 }));
+                stateManager.StartTracking(productType, new Product { Id = 25, CategoryId = 12 }, new ObjectArrayValueReader(new object[] { 12, 25 }));
                 AssertAllFixedUp(context);
 
-                stateManager.GetOrMaterializeEntry(offerType, new ObjectArrayValueReader(new object[] { 31, 22 }));
+                stateManager.StartTracking(offerType, new SpecialOffer { Id = 31, ProductId  = 22 }, new ObjectArrayValueReader(new object[] { 31, 22 }));
                 AssertAllFixedUp(context);
-                stateManager.GetOrMaterializeEntry(offerType, new ObjectArrayValueReader(new object[] { 32, 22 }));
+                stateManager.StartTracking(offerType, new SpecialOffer { Id = 32, ProductId = 22 }, new ObjectArrayValueReader(new object[] { 32, 22 }));
                 AssertAllFixedUp(context);
-                stateManager.GetOrMaterializeEntry(offerType, new ObjectArrayValueReader(new object[] { 33, 24 }));
+                stateManager.StartTracking(offerType, new SpecialOffer { Id = 33, ProductId = 24 }, new ObjectArrayValueReader(new object[] { 33, 24 }));
                 AssertAllFixedUp(context);
-                stateManager.GetOrMaterializeEntry(offerType, new ObjectArrayValueReader(new object[] { 34, 24 }));
+                stateManager.StartTracking(offerType, new SpecialOffer { Id = 34, ProductId = 24 }, new ObjectArrayValueReader(new object[] { 34, 24 }));
                 AssertAllFixedUp(context);
-                stateManager.GetOrMaterializeEntry(offerType, new ObjectArrayValueReader(new object[] { 35, 24 }));
+                stateManager.StartTracking(offerType, new SpecialOffer { Id = 35, ProductId = 24 }, new ObjectArrayValueReader(new object[] { 35, 24 }));
                 AssertAllFixedUp(context);
 
                 Assert.Equal(3, context.ChangeTracker.Entries<Category>().Count());

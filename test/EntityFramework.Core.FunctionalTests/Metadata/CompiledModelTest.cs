@@ -104,28 +104,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         }
 
         [Fact]
-        public void Entity_can_be_materialized_using_compiled_metadata_without_reflection()
-        {
-            var options = new DbContextOptions().UseModel(new _OneTwoThreeContextModel());
-
-            using (var context = new DbContext(options))
-            {
-                var entityType = (_KoolEntity15EntityType)context.Model.GetEntityType(typeof(KoolEntity15));
-
-                var gu = Guid.NewGuid();
-                var stateEntry = context.ChangeTracker.StateManager.GetOrMaterializeEntry(
-                    entityType, new ObjectArrayValueReader(new object[] { "Foo", gu, 77 }));
-
-                var entity = (KoolEntity15)stateEntry.Entity;
-
-                Assert.True(entityType.CreateEntityWasUsed);
-                Assert.Equal(77, entity.Id);
-                Assert.Equal("Foo", entity.Foo15);
-                Assert.Equal(gu, entity.Goo15);
-            }
-        }
-
-        [Fact]
         public void Navigation_fixup_happens_with_compiled_metadata_when_new_entities_are_tracked()
         {
             FixupTest(new _OneTwoThreeContextModel());

@@ -15,10 +15,9 @@ namespace Microsoft.Data.Entity.ChangeTracking
             Check.NotNull(properties, "properties");
             Check.NotNull(valueReader, "valueReader");
 
-            return
-                valueReader.IsNull(properties[0].Index)
-                    ? EntityKey.NullEntityKey
-                    : new SimpleEntityKey<TKey>(entityType, valueReader.ReadValue<TKey>(properties[0].Index));
+            return valueReader.IsNull(properties[0].Index)
+                ? EntityKey.NullEntityKey
+                : new SimpleEntityKey<TKey>(entityType, valueReader.ReadValue<TKey>(properties[0].Index));
         }
 
         public override EntityKey Create(IEntityType entityType, IReadOnlyList<IProperty> properties, IPropertyBagEntry propertyBagEntry)
@@ -27,12 +26,11 @@ namespace Microsoft.Data.Entity.ChangeTracking
             Check.NotNull(properties, "properties");
             Check.NotNull(propertyBagEntry, "propertyBagEntry");
 
-            return Create(entityType, propertyBagEntry[properties[0]]);
-        }
+            var value = propertyBagEntry[properties[0]];
 
-        private static EntityKey Create(IEntityType entityType, object value)
-        {
-            return value == null ? EntityKey.NullEntityKey : new SimpleEntityKey<TKey>(entityType, (TKey)value);
+            return value == null
+                ? EntityKey.NullEntityKey
+                : new SimpleEntityKey<TKey>(entityType, (TKey)value);
         }
     }
 }

@@ -7,10 +7,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
     {
         public static readonly EntityKey NullEntityKey = new NullEntityKeySentinel();
 
-        public virtual object Value
-        {
-            get { return GetValue(); }
-        }
+        public virtual object Value => GetValue();
 
         protected abstract object GetValue();
 

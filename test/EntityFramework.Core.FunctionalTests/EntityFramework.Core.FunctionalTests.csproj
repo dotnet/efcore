@@ -97,6 +97,7 @@
     <Compile Include="Metadata\KoolModel.cs" />
     <Compile Include="ModelSourceTest.cs" />
     <Compile Include="MonsterFixupTestBase.cs" />
+    <Compile Include="NullKeysTestBase.cs" />
     <Compile Include="OneToOneQueryFixtureBase.cs" />
     <Compile Include="NorthwindQueryFixtureBase.cs" />
     <Compile Include="AsyncQueryTestBase.cs" />
