@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
@@ -1037,6 +1038,80 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 }
 
                 Assert.Equal(EntityState.Modified, entry.State);
+            }
+        }
+
+        [Fact]
+        public async Task AttachGraph_and_UpdateGraph_do_not_call_DetectChanges()
+        {
+            var provider = TestHelpers.CreateServiceProvider(new ServiceCollection().AddScoped<ChangeDetector, ChangeDetectorProxy>());
+            using (var context = new EarlyLearningCenter(provider))
+            {
+                var changeDetector = (ChangeDetectorProxy)((IDbContextServices)context).ScopedServiceProvider
+                    .GetRequiredService<ChangeDetector>();
+
+                changeDetector.DetectChangesCalled = false;
+
+                await context.ChangeTracker.AttachGraphAsync(CreateSimpleGraph(1));
+                await context.ChangeTracker.AttachGraphAsync(CreateSimpleGraph(2), (e, c) =>
+                    {
+                        e.SetState(EntityState.Unchanged);
+                        return Task.FromResult(0);
+                    });
+                await context.ChangeTracker.UpdateGraphAsync(CreateSimpleGraph(3));
+
+                context.ChangeTracker.AttachGraph(CreateSimpleGraph(4));
+                context.ChangeTracker.AttachGraph(CreateSimpleGraph(5), e => e.SetState(EntityState.Unchanged));
+                context.ChangeTracker.UpdateGraph(CreateSimpleGraph(6));
+
+                Assert.False(changeDetector.DetectChangesCalled);
+
+                context.ChangeTracker.DetectChanges();
+
+                Assert.True(changeDetector.DetectChangesCalled);
+            }
+        }
+
+        private static Product CreateSimpleGraph(int id)
+        {
+            return new Product { Id = id, Category = new Category { Id = id } };
+        }
+
+        private class ChangeDetectorProxy : ChangeDetector
+        {
+            public ChangeDetectorProxy(DbContextService<IModel> model)
+                : base(model)
+            {
+            }
+
+            public bool DetectChangesCalled { get; set; }
+
+            public override void DetectChanges(StateEntry entry)
+            {
+                DetectChangesCalled = true;
+
+                base.DetectChanges(entry);
+            }
+
+            public override void DetectChanges(StateManager stateManager)
+            {
+                DetectChangesCalled = true;
+
+                base.DetectChanges(stateManager);
+            }
+
+            public override Task DetectChangesAsync(StateEntry entry, CancellationToken cancellationToken = new CancellationToken())
+            {
+                DetectChangesCalled = true;
+
+                return base.DetectChangesAsync(entry, cancellationToken);
+            }
+
+            public override Task DetectChangesAsync(StateManager stateManager, CancellationToken cancellationToken = new CancellationToken())
+            {
+                DetectChangesCalled = true;
+
+                return base.DetectChangesAsync(stateManager, cancellationToken);
             }
         }
 

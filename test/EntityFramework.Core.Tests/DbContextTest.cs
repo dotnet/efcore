@@ -2413,5 +2413,85 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Equal(EntityState.Unchanged, entry.State);
             }
         }
+
+        [Fact]
+        public async Task Add_Attach_Remove_Update_do_not_call_DetectChanges()
+        {
+            var provider = TestHelpers.CreateServiceProvider(new ServiceCollection().AddScoped<ChangeDetector, ChangeDetectorProxy>());
+            using (var context = new ButTheHedgehogContext(provider))
+            {
+                var changeDetector = (ChangeDetectorProxy)((IDbContextServices)context).ScopedServiceProvider
+                    .GetRequiredService<ChangeDetector>();
+
+                var entity = new Product { Id = 1, Name = "Little Hedgehogs" };
+
+                changeDetector.DetectChangesCalled = false;
+
+                await context.AddAsync(entity);
+                await context.AddAsync((object)entity);
+                await context.AddAsync(new[] { entity });
+                await context.AddAsync(new object[] { entity });
+                context.Add(entity);
+                context.Add((object)entity);
+                context.Add(new[] { entity });
+                context.Add(new object[] { entity });
+                context.Attach(entity);
+                context.Attach((object)entity);
+                context.Attach(new[] { entity });
+                context.Attach(new object[] { entity });
+                context.Update(entity);
+                context.Update((object)entity);
+                context.Update(new[] { entity });
+                context.Update(new object[] { entity });
+                context.Remove(entity);
+                context.Remove((object)entity);
+                context.Remove(new[] { entity });
+                context.Remove(new object[] { entity });
+
+                Assert.False(changeDetector.DetectChangesCalled);
+
+                context.ChangeTracker.DetectChanges();
+
+                Assert.True(changeDetector.DetectChangesCalled);
+            }
+        }
+
+        private class ChangeDetectorProxy : ChangeDetector
+        {
+            public ChangeDetectorProxy(DbContextService<IModel> model)
+                : base(model)
+            {
+            }
+
+            public bool DetectChangesCalled { get; set; }
+
+            public override void DetectChanges(StateEntry entry)
+            {
+                DetectChangesCalled = true;
+
+                base.DetectChanges(entry);
+            }
+
+            public override void DetectChanges(StateManager stateManager)
+            {
+                DetectChangesCalled = true;
+
+                base.DetectChanges(stateManager);
+            }
+
+            public override Task DetectChangesAsync(StateEntry entry, CancellationToken cancellationToken = new CancellationToken())
+            {
+                DetectChangesCalled = true;
+
+                return base.DetectChangesAsync(entry, cancellationToken);
+            }
+
+            public override Task DetectChangesAsync(StateManager stateManager, CancellationToken cancellationToken = new CancellationToken())
+            {
+                DetectChangesCalled = true;
+
+                return base.DetectChangesAsync(stateManager, cancellationToken);
+            }
+        }
     }
 }
