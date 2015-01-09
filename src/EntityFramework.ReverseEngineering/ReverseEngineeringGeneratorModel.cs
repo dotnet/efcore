@@ -1,15 +1,15 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
+using System.Reflection;
 using Microsoft.Framework.CodeGeneration.CommandLine;
 
 namespace Microsoft.Data.Entity.ReverseEngineering
 {
     public class ReverseEngineeringGeneratorModel
     {
-        [Argument(Description = "The full path to the assembly containing an implementation of the IDatabaseMetadataModelProvider interface for the given provider.")]
-        public string ProviderAssembly { get; set; }
+        [Argument(Description = "The assembly containing an implementation of the IDatabaseMetadataModelProvider interface for the given provider.")]
+        public Assembly ProviderAssembly { get; set; }
 
         [Argument(Description = "The connection string of the database.")]
         public string ConnectionString { get; set; }

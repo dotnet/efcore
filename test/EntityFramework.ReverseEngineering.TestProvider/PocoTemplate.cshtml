@@ -1,0 +1,15 @@
+﻿@inherits Microsoft.Framework.CodeGeneration.Templating.RazorTemplateBase
+// Generated for
+//     Provider Assembly:  @Model.ProviderAssembly
+//     Connection String:  @Model.ConnectionString
+//     Filters:  @Model.Filters
+
+namespace @Model.Namespace
+{
+    public class @Model.EntityType.SimpleName
+    {
+@foreach (var p in @Model.EntityType.Properties) {
+@:        public @p.PropertyType @p.Name { get; set; }
+}
+    }
+}

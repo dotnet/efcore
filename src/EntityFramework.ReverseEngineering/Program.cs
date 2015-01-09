@@ -30,18 +30,14 @@ namespace Microsoft.Data.Entity.ReverseEngineering
         private readonly ICodeGeneratorActionsService _codeGeneratorActionsService;
         private CommandLineApplication _app;
 
-        public Program([JB.NotNull] IServiceProvider serviceProvider, [JB.NotNull] IApplicationEnvironment appEnv,
-            [JB.NotNull] ILibraryManager libraryManager, [JB.NotNull] ICodeGeneratorActionsService codeGeneratorActionsService)
+        public Program([JB.NotNull] IServiceProvider serviceProvider)
         {
             _serviceProvider = InitializeServices(serviceProvider);
-            _appEnv = appEnv;
+            _appEnv = _serviceProvider.GetRequiredService<IApplicationEnvironment>();
             //_projectDir = appEnv.ApplicationBasePath;
             //_rootNamespace = appEnv.ApplicationName;
-            _libraryManager = libraryManager;
+            _libraryManager = _serviceProvider.GetRequiredService<ILibraryManager>();
             _codeGeneratorActionsService = _serviceProvider.GetRequiredService<ICodeGeneratorActionsService>();
-
-            var assemblyName = new AssemblyName(appEnv.ApplicationName);
-            var assembly = Assembly.Load(assemblyName);
         }
 
         public virtual int Main([JB.NotNull] string[] args)
@@ -103,13 +99,12 @@ namespace Microsoft.Data.Entity.ReverseEngineering
         public IServiceProvider InitializeServices(IServiceProvider serviceProvider)
         {
             var fallbackServiceProvider = new FallbackServiceProvider(serviceProvider);
+            fallbackServiceProvider.Add(typeof(IServiceProvider), fallbackServiceProvider);
+
 
             //Ordering of services is important here
             var filesLocator = new FilesLocator();
             fallbackServiceProvider.Add(typeof(IFilesLocator), filesLocator);
-
-            //fallbackServiceProvider.Add(typeof(ICodeGeneratorAssemblyProvider),
-            //    new DefaultCodeGeneratorAssemblyProvider(libraryManager));
 
             var libraryManager =
                 serviceProvider.GetRequiredService<ILibraryManager>();
@@ -133,14 +128,14 @@ namespace Microsoft.Data.Entity.ReverseEngineering
         public virtual int ReverseEngineer(string providerAssemblyName, string connectionString,
             string outputPath, string codeNamespace, string contextClassName, string filters)
         {
-            var assembly = GetCandidateAssembly(providerAssemblyName);
-            if (assembly == null)
+            var providerAssembly = GetCandidateAssembly(providerAssemblyName);
+            if (providerAssembly == null)
             {
                 Console.WriteLine("No provider assembly was found with name " + providerAssemblyName);
                 return 1;
             }
 
-            var type = assembly.GetExportedTypes()
+            var type = providerAssembly.GetExportedTypes()
                 .FirstOrDefault(t => typeof(IDatabaseMetadataModelProvider).IsAssignableFrom(t));
             if (type == null)
             {
@@ -171,7 +166,7 @@ namespace Microsoft.Data.Entity.ReverseEngineering
 
             var commandLineModel = new ReverseEngineeringGeneratorModel()
                 {
-                ProviderAssembly = providerAssemblyName,
+                ProviderAssembly = providerAssembly,
                 ConnectionString = connectionString,
                 OutputPath = outputPath,
                 Namespace = codeNamespace,
@@ -184,9 +179,16 @@ namespace Microsoft.Data.Entity.ReverseEngineering
                 Console.WriteLine("_codeGeneratorActionsService == null");
                 return 3;
             }
-            var generator = new ReverseEngineeringGenerator(_libraryManager, _appEnv, _codeGeneratorActionsService);
 
-            generator.GenerateFromTemplate(commandLineModel, metadataModelProvider).Wait();
+            var libraryManager = _serviceProvider.GetRequiredService<ILibraryManager>();
+            var appEnv = _serviceProvider.GetRequiredService<IApplicationEnvironment>();
+            var codeGeneratorActionsService = _serviceProvider.GetRequiredService<ICodeGeneratorActionsService>();
+            var templatingService = _serviceProvider.GetRequiredService<ITemplating>();
+            var generator = new ReverseEngineeringGenerator(libraryManager, appEnv, codeGeneratorActionsService, templatingService);
+
+            // generator.GenerateFromTemplate(commandLineModel, metadataModelProvider).Wait();
+            generator.GenerateFromTemplateResource(commandLineModel,
+                metadataModelProvider, "ContextTemplate.cshtml", "PocoTemplate.cshtml").Wait();
 
             return 0;
         }
@@ -201,7 +203,9 @@ namespace Microsoft.Data.Entity.ReverseEngineering
             ////Console.WriteLine("Reflibs = " + string.Join(":::", refLibs.Select(l => l.Name)));
             ////return null;
 
-            return _libraryManager.GetReferencingLibraries("EntityFramework.ReverseEngineering")
+            var libraryManager = _serviceProvider.GetRequiredService<ILibraryManager>();
+
+            return libraryManager.GetReferencingLibraries("EntityFramework.ReverseEngineering")
                 .Distinct()
                 .Where(l => l.Name == providerAssemblyName)
                 .SelectMany(l => l.LoadableAssemblies)

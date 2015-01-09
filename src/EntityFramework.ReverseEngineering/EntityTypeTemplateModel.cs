@@ -7,6 +7,7 @@ namespace Microsoft.Data.Entity.ReverseEngineering
 {
     public class EntityTypeTemplateModel
     {
+        public string ClassName { get; set; }
         public string Namespace { get; set; }
         public string ProviderAssembly { get; set; }
         public string ConnectionString { get; set; }
