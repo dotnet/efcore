@@ -1,10 +1,12 @@
 {
     "dependencies": {
         "EntityFramework.ReverseEngineering": "7.0.0-*",
-        "EntityFramework.Core.FunctionalTests": "1.0.0"
+        "EntityFramework.Core.FunctionalTests": "1.0.0",
+        "EntityFramework.ReverseEngineering.TestProvider": "1.0.0"
     },
     "commands": {
-        "test": "Xunit.KRunner"
+        "test": "Xunit.KRunner",
+        "re":  "EntityFramework.ReverseEngineering"
     },
     "frameworks": {
         "aspnet50": { }

@@ -12,10 +12,10 @@ using Microsoft.Framework.Runtime;
 
 namespace Microsoft.Data.Entity.ReverseEngineering
 {
-    [Alias("reverseEngineer")]
-    public class ReverseEngineeringGenerator : ICodeGenerator
+    //[Alias("reverseEngineer")]
+    public class ReverseEngineeringGenerator // : ICodeGenerator
     {
-        public const string AssemblyName = "EntityFramework.ReverseEngineering";
+        //public const string AssemblyName = "EntityFramework.ReverseEngineering";
 
         private readonly ILibraryManager _libraryManager;
         private readonly IApplicationEnvironment _applicationEnvironment;
@@ -35,24 +35,26 @@ namespace Microsoft.Data.Entity.ReverseEngineering
         {
             get
             {
-                return TemplateFoldersUtilities.GetTemplateFolders(
-                    containingProject: "EntityFramework.ReverseEngineering",
-                    applicationBasePath: _applicationEnvironment.ApplicationBasePath,
-                    baseFolders: new[] { "ReverseEngineering" },
-                    libraryManager: _libraryManager);
+                var path = _applicationEnvironment.ApplicationBasePath + @"\Templates\ReverseEngineering";
+                return new[] { path };
+                //return TemplateFoldersUtilities.GetTemplateFolders(
+                //    containingProject: "EntityFramework.ReverseEngineering",
+                //    applicationBasePath: _applicationEnvironment.ApplicationBasePath,
+                //    baseFolders: new[] { "ReverseEngineering" },
+                //    libraryManager: _libraryManager);
             }
         }
 
-        public async Task GenerateCode(ReverseEngineeringGeneratorModel generatorModel)
-        {
-            CheckGeneratorModel(generatorModel);
+        //public async Task GenerateCode(ReverseEngineeringGeneratorModel generatorModel)
+        //{
+        //    CheckGeneratorModel(generatorModel);
 
-            var provider = GetFromAssembly(generatorModel.ProviderAssembly);
+        //    var provider = GetFromAssembly(generatorModel.ProviderAssembly);
 
-            await GenerateFromTemplate(generatorModel, provider);
-        }
+        //    await GenerateFromTemplate(generatorModel, provider);
+        //}
 
-        private async Task GenerateFromTemplate(
+        public async Task GenerateFromTemplate(
             ReverseEngineeringGeneratorModel commandLineModel,
             IDatabaseMetadataModelProvider provider)
         {
@@ -108,41 +110,41 @@ namespace Microsoft.Data.Entity.ReverseEngineering
             }
         }
 
-        private IDatabaseMetadataModelProvider GetFromAssembly(string assemblyFilePath)
-        {
-            var assemblies = GetCandidateAssemblies(assemblyFilePath);
-            if (assemblies == null)
-            {
-                return null;
-            }
+        //private IDatabaseMetadataModelProvider GetFromAssembly(string assemblyFilePath)
+        //{
+        //    var assemblies = GetCandidateAssemblies(assemblyFilePath);
+        //    if (assemblies == null)
+        //    {
+        //        return null;
+        //    }
 
-            var type = assemblies
-                .SelectMany(a => a.GetExportedTypes())
-                .FirstOrDefault(
-                    t => typeof(IDatabaseMetadataModelProvider).IsAssignableFrom(t));
-            if (type != null)
-            {
-                return (IDatabaseMetadataModelProvider)(Activator.CreateInstance(type));
-            }
+        //    var type = assemblies
+        //        .SelectMany(a => a.GetExportedTypes())
+        //        .FirstOrDefault(
+        //            t => typeof(IDatabaseMetadataModelProvider).IsAssignableFrom(t));
+        //    if (type != null)
+        //    {
+        //        return (IDatabaseMetadataModelProvider)(Activator.CreateInstance(type));
+        //    }
 
-            return null;
-        }
+        //    return null;
+        //}
 
-        private IEnumerable<Assembly> GetCandidateAssemblies(string assemblyFilePath)
-        {
-            var assembly = Assembly.LoadFrom(assemblyFilePath);
-            return new List<Assembly>() { assembly };
-            //return _libraryManager.GetReferencingLibraries(AssemblyName)
-            //    .Distinct()
-            //    .Where(l => l.Name == assemblyFilePath)
-            //    .SelectMany(l => l.LoadableAssemblies)
-            //    .Select(Load);
-        }
+        //private IEnumerable<Assembly> GetCandidateAssemblies(string assemblyFilePath)
+        //{
+        //    var assembly = Assembly.LoadFrom(assemblyFilePath);
+        //    return new List<Assembly>() { assembly };
+        //    //return _libraryManager.GetReferencingLibraries(AssemblyName)
+        //    //    .Distinct()
+        //    //    .Where(l => l.Name == assemblyFilePath)
+        //    //    .SelectMany(l => l.LoadableAssemblies)
+        //    //    .Select(Load);
+        //}
 
-        private static Assembly Load(AssemblyName assemblyName)
-        {
-            return Assembly.Load(assemblyName);
-        }
+        //private static Assembly Load(AssemblyName assemblyName)
+        //{
+        //    return Assembly.Load(assemblyName);
+        //}
 
         private static void CheckGeneratorModel(ReverseEngineeringGeneratorModel generatorModel)
         {

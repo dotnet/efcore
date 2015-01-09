@@ -1,0 +1,8 @@
+{
+    "dependencies": {
+        "EntityFramework.ReverseEngineering": "7.0.0-*"
+    },
+    "frameworks": {
+        "aspnet50": { }
+    }
+}
