@@ -2,14 +2,14 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
+//using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Framework.CodeGeneration;
 using Microsoft.Framework.CodeGeneration.Templating;
-using Microsoft.Framework.Runtime;
-using System.Text;
+//using Microsoft.Framework.Runtime;
 
 namespace Microsoft.Data.Entity.ReverseEngineering
 {
@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.ReverseEngineering
         }
 
         public async Task GenerateFromTemplateResource(
-            ReverseEngineeringGeneratorModel commandLineModel,
+            ReverseEngineeringCommandLineModel commandLineModel,
             IDatabaseMetadataModelProvider provider,
             string contextTemplateResourceName,
             string pocoTemplateResourceName)
@@ -110,7 +110,11 @@ namespace Microsoft.Data.Entity.ReverseEngineering
                     contextTemplateResult.ProcessingException.Message));
             }
 
-            //TODO - output result to file
+            // output context file
+            using (var sourceStream = new MemoryStream(Encoding.UTF8.GetBytes(contextTemplateResult.GeneratedText)))
+            {
+                await OutputFile(commandLineModel.OutputPath, commandLineModel.ContextClassName + ".cs", sourceStream);
+            }
 
             // generate poco class for each Entity Type
             var entityTypeTemplateModel = new EntityTypeTemplateModel()
@@ -133,7 +137,36 @@ namespace Microsoft.Data.Entity.ReverseEngineering
                         pocoTemplateResult.ProcessingException.Message));
                 }
 
-                //TODO - output result to file
+                // output poco file
+                using (var sourceStream = new MemoryStream(Encoding.UTF8.GetBytes(pocoTemplateResult.GeneratedText)))
+                {
+                    await OutputFile(commandLineModel.OutputPath, entityType.SimpleName + ".cs", sourceStream);
+                }
+            }
+        }
+
+        private async Task OutputFile(string outputDirectoryName, string outputFileName, Stream sourceStream)
+        {
+            if (!Directory.Exists(outputDirectoryName))
+            {
+                Directory.CreateDirectory(outputDirectoryName);
+            }
+
+            var fullFileName = Path.Combine(outputDirectoryName, outputFileName);
+            if (File.Exists(fullFileName))
+            {
+                //ensure file is writeable
+                FileAttributes attributes = File.GetAttributes(fullFileName);
+                if (attributes.HasFlag(FileAttributes.ReadOnly))
+                {
+                    File.SetAttributes(fullFileName, attributes & ~FileAttributes.ReadOnly);
+                }
+            }
+
+
+            using (var writeStream = new FileStream(fullFileName, FileMode.Create, FileAccess.Write))
+            {
+                await sourceStream.CopyToAsync(writeStream);
             }
         }
 
@@ -173,29 +206,29 @@ namespace Microsoft.Data.Entity.ReverseEngineering
         //    return Assembly.Load(assemblyName);
         //}
 
-        private static void CheckGeneratorModel(ReverseEngineeringGeneratorModel generatorModel)
+        private static void CheckGeneratorModel(ReverseEngineeringCommandLineModel commandLineModel)
         {
-            if (string.IsNullOrEmpty(generatorModel.ProviderAssembly.FullName))
+            if (commandLineModel.ProviderAssembly == null)
             {
                 throw new ArgumentException("ProviderAssembly is required to generate code.");
             }
 
-            if (string.IsNullOrEmpty(generatorModel.ConnectionString))
+            if (string.IsNullOrEmpty(commandLineModel.ConnectionString))
             {
                 throw new ArgumentException("ConnectionString is required to generate code.");
             }
 
-            if (string.IsNullOrEmpty(generatorModel.OutputPath))
+            if (string.IsNullOrEmpty(commandLineModel.OutputPath))
             {
                 throw new ArgumentException("OutputPath is required to generate code.");
             }
 
-            if (string.IsNullOrEmpty(generatorModel.Namespace))
+            if (string.IsNullOrEmpty(commandLineModel.Namespace))
             {
                 throw new ArgumentException("Namespace is required to generate code.");
             }
 
-            if (string.IsNullOrEmpty(generatorModel.ContextClassName))
+            if (string.IsNullOrEmpty(commandLineModel.ContextClassName))
             {
                 throw new ArgumentException("ContextClassName is required to generate code.");
             }
