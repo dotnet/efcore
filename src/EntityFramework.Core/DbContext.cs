@@ -24,33 +24,47 @@ namespace Microsoft.Data.Entity
     {
         private static readonly ThreadSafeDictionaryCache<Type, Type> _optionsTypes = new ThreadSafeDictionaryCache<Type, Type>();
 
-        private readonly LazyRef<DbContextServices> _contextServices;
-        private readonly LazyRef<ILogger> _logger;
-        private readonly LazyRef<DbSetInitializer> _setInitializer;
+        private LazyRef<DbContextServices> _contextServices;
+        private LazyRef<ILogger> _logger;
+        private LazyRef<DbSetInitializer> _setInitializer;
 
         private bool _initializing;
 
         protected DbContext()
         {
             var serviceProvider = DbContextActivator.ServiceProvider;
-            var options = GetOptions(serviceProvider);
 
-            InitializeSets(serviceProvider, options);
-            _contextServices = new LazyRef<DbContextServices>(() => Initialize(serviceProvider, options));
-            _logger = new LazyRef<ILogger>(CreateLogger);
-            _setInitializer = new LazyRef<DbSetInitializer>(GetSetInitializer);
+            Initialize(serviceProvider, GetOptions(serviceProvider));
         }
 
         public DbContext([NotNull] IServiceProvider serviceProvider)
         {
             Check.NotNull(serviceProvider, "serviceProvider");
 
-            var options = GetOptions(serviceProvider);
+            Initialize(serviceProvider, GetOptions(serviceProvider));
+        }
 
+        public DbContext([NotNull] DbContextOptions options)
+        {
+            Check.NotNull(options, "options");
+
+            Initialize(DbContextActivator.ServiceProvider, options);
+        }
+
+        // TODO: Consider removing this constructor if DbContextOptions should be obtained from serviceProvider
+        // Issue #192
+        public DbContext([NotNull] IServiceProvider serviceProvider, [NotNull] DbContextOptions options)
+        {
+            Check.NotNull(serviceProvider, "serviceProvider");
+            Check.NotNull(options, "options");
+
+            Initialize(serviceProvider, options);
+        }
+
+        private void Initialize(IServiceProvider serviceProvider, DbContextOptions options)
+        {
             InitializeSets(serviceProvider, options);
-            _contextServices = new LazyRef<DbContextServices>(
-                () => Initialize(serviceProvider, options));
-
+            _contextServices = new LazyRef<DbContextServices>(() => InitializeServices(serviceProvider, options));
             _logger = new LazyRef<ILogger>(CreateLogger);
             _setInitializer = new LazyRef<DbSetInitializer>(GetSetInitializer);
         }
@@ -92,31 +106,6 @@ namespace Microsoft.Data.Entity
             return new DbContextOptions();
         }
 
-        public DbContext([NotNull] DbContextOptions options)
-        {
-            Check.NotNull(options, "options");
-
-            var serviceProvider = DbContextActivator.ServiceProvider;
-
-            InitializeSets(serviceProvider, options);
-            _contextServices = new LazyRef<DbContextServices>(() => Initialize(serviceProvider, options));
-            _logger = new LazyRef<ILogger>(CreateLogger);
-            _setInitializer = new LazyRef<DbSetInitializer>(GetSetInitializer);
-        }
-
-        // TODO: Consider removing this constructor if DbContextOptions should be obtained from serviceProvider
-        // Issue #192
-        public DbContext([NotNull] IServiceProvider serviceProvider, [NotNull] DbContextOptions options)
-        {
-            Check.NotNull(serviceProvider, "serviceProvider");
-            Check.NotNull(options, "options");
-
-            InitializeSets(serviceProvider, options);
-            _contextServices = new LazyRef<DbContextServices>(() => Initialize(serviceProvider, options));
-            _logger = new LazyRef<ILogger>(CreateLogger);
-            _setInitializer = new LazyRef<DbSetInitializer>(GetSetInitializer);
-        }
-
         private ILogger CreateLogger()
         {
             return _contextServices.Value.ScopedServiceProvider.GetRequiredServiceChecked<ILoggerFactory>().Create<DbContext>();
@@ -137,7 +126,7 @@ namespace Microsoft.Data.Entity
             return _contextServices.Value.ScopedServiceProvider.GetRequiredServiceChecked<StateManager>();
         }
 
-        private DbContextServices Initialize(IServiceProvider serviceProvider, DbContextOptions options)
+        private DbContextServices InitializeServices(IServiceProvider serviceProvider, DbContextOptions options)
         {
             if (_initializing)
             {
