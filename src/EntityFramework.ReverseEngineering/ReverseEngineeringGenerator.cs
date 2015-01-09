@@ -15,86 +15,12 @@ namespace Microsoft.Data.Entity.ReverseEngineering
 {
     public class ReverseEngineeringGenerator
     {
-        private readonly ILibraryManager _libraryManager;
-        private readonly IApplicationEnvironment _applicationEnvironment;
-        private readonly ICodeGeneratorActionsService _codeGeneratorActionsService;
         private readonly ITemplating _templatingService;
 
         public ReverseEngineeringGenerator(
-            ILibraryManager libraryManager,
-            IApplicationEnvironment applicationEnvironment,
-            ICodeGeneratorActionsService codeGeneratorActionsService,
             ITemplating templatingService)
         {
-            _libraryManager = libraryManager;
-            _applicationEnvironment = applicationEnvironment;
-            _codeGeneratorActionsService = codeGeneratorActionsService;
             _templatingService = templatingService;
-        }
-
-        public virtual IEnumerable<string> TemplateFolders
-        {
-            get
-            {
-                var path = _applicationEnvironment.ApplicationBasePath + @"\Templates\ReverseEngineering";
-                return new[] { path };
-            }
-        }
-
-        public async Task GenerateFromTemplate(
-            ReverseEngineeringGeneratorModel commandLineModel,
-            IDatabaseMetadataModelProvider provider)
-        {
-            var metadataModel = provider.GenerateMetadataModel(commandLineModel.ConnectionString, commandLineModel.Filters);
-            if (metadataModel == null)
-            {
-                throw new InvalidProgramException("Model returned is null. Provider class " + provider.GetType()
-                    + ", connection string: " + commandLineModel.ConnectionString
-                    + ", filters " + commandLineModel.Filters);
-            }
-
-            if (metadataModel.EntityTypes.Count() == 0)
-            {
-                throw new InvalidProgramException("Model returned contains no EntityTypes. Provider class " + provider.GetType()
-                    + ", connection string: " + commandLineModel.ConnectionString
-                    + ", filters " + commandLineModel.Filters);
-            }
-
-            var contextTemplateModel = new ContextTemplateModel()
-                {
-                    ClassName = commandLineModel.ContextClassName,
-                    Namespace = commandLineModel.Namespace,
-                    ProviderAssembly = commandLineModel.ProviderAssembly.FullName,
-                    ConnectionString = commandLineModel.ConnectionString,
-                    Filters = (commandLineModel.Filters ?? ""),
-                    MetadataModel = metadataModel
-                };
-
-            // generate context class
-            await _codeGeneratorActionsService.AddFileFromTemplateAsync(
-                commandLineModel.OutputPath + @"\" + commandLineModel.ContextClassName + ".cs",
-                "ContextTemplate.cshtml",
-                TemplateFolders,
-                contextTemplateModel);
-
-            // generate poco class for each Entity Type
-            var entityTypeTemplateModel = new EntityTypeTemplateModel()
-            {
-                Namespace = commandLineModel.Namespace,
-                ProviderAssembly = commandLineModel.ProviderAssembly.FullName,
-                ConnectionString = commandLineModel.ConnectionString,
-                Filters = (commandLineModel.Filters ?? ""),
-            };
-            foreach (var entityType in metadataModel.EntityTypes)
-            {
-                entityTypeTemplateModel.EntityType = entityType;
-
-                await _codeGeneratorActionsService.AddFileFromTemplateAsync(
-                    commandLineModel.OutputPath + @"\" + entityType.SimpleName + ".cs",
-                    "PocoTemplate.cshtml",
-                    TemplateFolders,
-                    entityTypeTemplateModel);
-            }
         }
 
         public async Task GenerateFromTemplateResource(

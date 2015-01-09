@@ -26,8 +26,6 @@ namespace Microsoft.Data.Entity.ReverseEngineering
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly IApplicationEnvironment _appEnv;
-        private readonly ILibraryManager _libraryManager;
-        private readonly ICodeGeneratorActionsService _codeGeneratorActionsService;
         private CommandLineApplication _app;
 
         public Program([JB.NotNull] IServiceProvider serviceProvider)
@@ -36,8 +34,6 @@ namespace Microsoft.Data.Entity.ReverseEngineering
             _appEnv = _serviceProvider.GetRequiredService<IApplicationEnvironment>();
             //_projectDir = appEnv.ApplicationBasePath;
             //_rootNamespace = appEnv.ApplicationName;
-            _libraryManager = _serviceProvider.GetRequiredService<ILibraryManager>();
-            _codeGeneratorActionsService = _serviceProvider.GetRequiredService<ICodeGeneratorActionsService>();
         }
 
         public virtual int Main([JB.NotNull] string[] args)
@@ -119,9 +115,6 @@ namespace Microsoft.Data.Entity.ReverseEngineering
             var templating = new RazorTemplating(compilationService);
             fallbackServiceProvider.Add(typeof(ITemplating), templating);
 
-            var codeGeneratorActionsService = new CodeGeneratorActionsService(templating, filesLocator);
-            fallbackServiceProvider.Add(typeof(ICodeGeneratorActionsService), codeGeneratorActionsService);
-
             return fallbackServiceProvider;
         }
 
@@ -174,17 +167,8 @@ namespace Microsoft.Data.Entity.ReverseEngineering
                 Filters = filters
             };
 
-            if (_codeGeneratorActionsService == null)
-            {
-                Console.WriteLine("_codeGeneratorActionsService == null");
-                return 3;
-            }
-
-            var libraryManager = _serviceProvider.GetRequiredService<ILibraryManager>();
-            var appEnv = _serviceProvider.GetRequiredService<IApplicationEnvironment>();
-            var codeGeneratorActionsService = _serviceProvider.GetRequiredService<ICodeGeneratorActionsService>();
             var templatingService = _serviceProvider.GetRequiredService<ITemplating>();
-            var generator = new ReverseEngineeringGenerator(libraryManager, appEnv, codeGeneratorActionsService, templatingService);
+            var generator = new ReverseEngineeringGenerator(templatingService);
 
             // generator.GenerateFromTemplate(commandLineModel, metadataModelProvider).Wait();
             generator.GenerateFromTemplateResource(commandLineModel,
@@ -196,13 +180,6 @@ namespace Microsoft.Data.Entity.ReverseEngineering
 
         private Assembly GetCandidateAssembly(string providerAssemblyName)
         {
-            //var assembly = Assembly.LoadFrom(assemblyFilePath);
-            //return new List<Assembly>() { assembly };
-            ////var refLibs = _libraryManager.GetReferencingLibraries("EntityFramework.ReverseEngineering");
-            ////Console.WriteLine("AppName = " + _appEnv.ApplicationName);
-            ////Console.WriteLine("Reflibs = " + string.Join(":::", refLibs.Select(l => l.Name)));
-            ////return null;
-
             var libraryManager = _serviceProvider.GetRequiredService<ILibraryManager>();
 
             return libraryManager.GetReferencingLibraries("EntityFramework.ReverseEngineering")
@@ -212,76 +189,6 @@ namespace Microsoft.Data.Entity.ReverseEngineering
                 .Select((assemblyName, assembly) => Assembly.Load(assemblyName))
                 .FirstOrDefault();
         }
-
-        //public virtual int ListContexts()
-        //{
-        //    var contexts = _migrationTool.GetContextTypes();
-        //    var any = false;
-        //    foreach (var context in contexts)
-        //    {
-        //        // TODO: Show simple names
-        //        Console.WriteLine(context.FullName);
-        //        any = true;
-        //    }
-
-        //    if (!any)
-        //    {
-        //        Console.WriteLine("No DbContext was found.");
-        //    }
-
-        //    return 0;
-        //}
-
-        //public virtual int AddMigration([NotNull] string name, [CanBeNull] string context)
-        //{
-        //    Check.NotEmpty(name, "name");
-
-        //    var migration = _migrationTool.AddMigration(name, _rootNamespace, context);
-        //    _migrationTool.WriteMigration(_projectDir, migration).ToArray();
-
-        //    return 0;
-        //}
-
-        //public virtual int ApplyMigration([CanBeNull] string migration, [CanBeNull] string context)
-        //{
-        //    _migrationTool.ApplyMigration(migration, context);
-
-        //    return 0;
-        //}
-
-        //public virtual int ListMigrations([CanBeNull] string context)
-        //{
-        //    var migrations = _migrationTool.GetMigrations(context);
-        //    var any = false;
-        //    foreach (var migration in migrations)
-        //    {
-        //        // TODO: Show simple names
-        //        Console.WriteLine(migration.GetMigrationId());
-        //        any = true;
-        //    }
-
-        //    if (!any)
-        //    {
-        //        Console.WriteLine("No migrations were found.");
-        //    }
-
-        //    return 0;
-        //}
-
-        //public virtual int ScriptMigration(
-        //    [CanBeNull] string from,
-        //    [CanBeNull] string to,
-        //    bool idempotent,
-        //    [CanBeNull] string context)
-        //{
-        //    var sql = _migrationTool.ScriptMigration(from, to, idempotent, context);
-
-        //    // TODO: Write to file?
-        //    Console.WriteLine(sql);
-
-        //    return 0;
-        //}
-
         public virtual int ShowHelp(string command)
         {
             _app.ShowHelp(command);
