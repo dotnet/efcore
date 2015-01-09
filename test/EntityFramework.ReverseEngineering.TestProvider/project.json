@@ -4,5 +4,6 @@
     },
     "frameworks": {
         "aspnet50": { }
-    }
+    },
+    "resources": "*.cshtml"
 }

@@ -3,32 +3,33 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Framework.CodeGeneration;
-using Microsoft.Framework.CodeGeneration.CommandLine;
+using Microsoft.Framework.CodeGeneration.Templating;
 using Microsoft.Framework.Runtime;
+using System.Text;
 
 namespace Microsoft.Data.Entity.ReverseEngineering
 {
-    //[Alias("reverseEngineer")]
-    public class ReverseEngineeringGenerator // : ICodeGenerator
+    public class ReverseEngineeringGenerator
     {
-        //public const string AssemblyName = "EntityFramework.ReverseEngineering";
-
         private readonly ILibraryManager _libraryManager;
         private readonly IApplicationEnvironment _applicationEnvironment;
         private readonly ICodeGeneratorActionsService _codeGeneratorActionsService;
+        private readonly ITemplating _templatingService;
 
         public ReverseEngineeringGenerator(
             ILibraryManager libraryManager,
             IApplicationEnvironment applicationEnvironment,
-            ICodeGeneratorActionsService codeGeneratorActionsService)
+            ICodeGeneratorActionsService codeGeneratorActionsService,
+            ITemplating templatingService)
         {
             _libraryManager = libraryManager;
             _applicationEnvironment = applicationEnvironment;
             _codeGeneratorActionsService = codeGeneratorActionsService;
+            _templatingService = templatingService;
         }
 
         public virtual IEnumerable<string> TemplateFolders
@@ -37,22 +38,8 @@ namespace Microsoft.Data.Entity.ReverseEngineering
             {
                 var path = _applicationEnvironment.ApplicationBasePath + @"\Templates\ReverseEngineering";
                 return new[] { path };
-                //return TemplateFoldersUtilities.GetTemplateFolders(
-                //    containingProject: "EntityFramework.ReverseEngineering",
-                //    applicationBasePath: _applicationEnvironment.ApplicationBasePath,
-                //    baseFolders: new[] { "ReverseEngineering" },
-                //    libraryManager: _libraryManager);
             }
         }
-
-        //public async Task GenerateCode(ReverseEngineeringGeneratorModel generatorModel)
-        //{
-        //    CheckGeneratorModel(generatorModel);
-
-        //    var provider = GetFromAssembly(generatorModel.ProviderAssembly);
-
-        //    await GenerateFromTemplate(generatorModel, provider);
-        //}
 
         public async Task GenerateFromTemplate(
             ReverseEngineeringGeneratorModel commandLineModel,
@@ -77,7 +64,7 @@ namespace Microsoft.Data.Entity.ReverseEngineering
                 {
                     ClassName = commandLineModel.ContextClassName,
                     Namespace = commandLineModel.Namespace,
-                    ProviderAssembly = commandLineModel.ProviderAssembly,
+                    ProviderAssembly = commandLineModel.ProviderAssembly.FullName,
                     ConnectionString = commandLineModel.ConnectionString,
                     Filters = (commandLineModel.Filters ?? ""),
                     MetadataModel = metadataModel
@@ -94,7 +81,7 @@ namespace Microsoft.Data.Entity.ReverseEngineering
             var entityTypeTemplateModel = new EntityTypeTemplateModel()
             {
                 Namespace = commandLineModel.Namespace,
-                ProviderAssembly = commandLineModel.ProviderAssembly,
+                ProviderAssembly = commandLineModel.ProviderAssembly.FullName,
                 ConnectionString = commandLineModel.ConnectionString,
                 Filters = (commandLineModel.Filters ?? ""),
             };
@@ -107,6 +94,120 @@ namespace Microsoft.Data.Entity.ReverseEngineering
                     "PocoTemplate.cshtml",
                     TemplateFolders,
                     entityTypeTemplateModel);
+            }
+        }
+
+        public async Task GenerateFromTemplateResource(
+            ReverseEngineeringGeneratorModel commandLineModel,
+            IDatabaseMetadataModelProvider provider,
+            string contextTemplateResourceName,
+            string pocoTemplateResourceName)
+        {
+            var providerAssembly = commandLineModel.ProviderAssembly;
+            if (!providerAssembly.GetManifestResourceNames().Contains(contextTemplateResourceName))
+            {
+                throw new InvalidProgramException("Assembly " + providerAssembly.FullName +
+                    " does not contain template resource with name " + contextTemplateResourceName +
+                    ". It only contains [" + string.Join(",", providerAssembly.GetManifestResourceNames()) + "]");
+            }
+            if (!providerAssembly.GetManifestResourceNames().Contains(pocoTemplateResourceName))
+            {
+                throw new InvalidProgramException("Assembly " + providerAssembly.FullName +
+                    " does not contain template resource with name " + pocoTemplateResourceName +
+                    ". It only contains [" + string.Join(",", providerAssembly.GetManifestResourceNames()) + "]");
+            }
+
+            var metadataModel = provider.GenerateMetadataModel(commandLineModel.ConnectionString, commandLineModel.Filters);
+            if (metadataModel == null)
+            {
+                throw new InvalidProgramException("Model returned is null. Provider class " + provider.GetType()
+                    + ", connection string: " + commandLineModel.ConnectionString
+                    + ", filters " + commandLineModel.Filters);
+            }
+
+            if (metadataModel.EntityTypes.Count() == 0)
+            {
+                throw new InvalidProgramException("Model returned contains no EntityTypes. Provider class " + provider.GetType()
+                    + ", connection string: " + commandLineModel.ConnectionString
+                    + ", filters " + commandLineModel.Filters);
+            }
+
+            var contextTemplateModel = new ContextTemplateModel()
+            {
+                ClassName = commandLineModel.ContextClassName,
+                Namespace = commandLineModel.Namespace,
+                ProviderAssembly = commandLineModel.ProviderAssembly.FullName,
+                ConnectionString = commandLineModel.ConnectionString,
+                Filters = (commandLineModel.Filters ?? ""),
+                MetadataModel = metadataModel
+            };
+
+            // get context template content
+            string contextTemplateContent = null;
+            using (var templateStream = providerAssembly.GetManifestResourceStream(contextTemplateResourceName))
+            {
+                using (var reader = new StreamReader(templateStream, Encoding.UTF8))
+                {
+                    contextTemplateContent = reader.ReadToEnd();
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(contextTemplateContent))
+            {
+                throw new InvalidProgramException("Assembly " + providerAssembly.FullName +
+                    " template name " + contextTemplateResourceName + " is empty or contains only whitespace.");
+            }
+
+            // get poco template content
+            string pocoTemplateContent = null;
+            using (var templateStream = providerAssembly.GetManifestResourceStream(pocoTemplateResourceName))
+            {
+                using (var reader = new StreamReader(templateStream, Encoding.UTF8))
+                {
+                    pocoTemplateContent = reader.ReadToEnd();
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(pocoTemplateContent))
+            {
+                throw new InvalidProgramException("Assembly " + providerAssembly.FullName +
+                    " template name " + pocoTemplateResourceName + " is empty or contains only whitespace.");
+            }
+
+            // generate context class
+            var contextTemplateResult = await _templatingService.RunTemplateAsync(contextTemplateContent, contextTemplateModel);
+            if (contextTemplateResult.ProcessingException != null)
+            {
+                throw new InvalidOperationException(string.Format(
+                    "There was an error running the template named {0}: {1}",
+                    contextTemplateResourceName,
+                    contextTemplateResult.ProcessingException.Message));
+            }
+
+            //TODO - output result to file
+
+            // generate poco class for each Entity Type
+            var entityTypeTemplateModel = new EntityTypeTemplateModel()
+            {
+                Namespace = commandLineModel.Namespace,
+                ProviderAssembly = commandLineModel.ProviderAssembly.FullName,
+                ConnectionString = commandLineModel.ConnectionString,
+                Filters = (commandLineModel.Filters ?? ""),
+            };
+            foreach (var entityType in metadataModel.EntityTypes)
+            {
+                entityTypeTemplateModel.EntityType = entityType;
+
+                var pocoTemplateResult = await _templatingService.RunTemplateAsync(pocoTemplateContent, entityTypeTemplateModel);
+                if (pocoTemplateResult.ProcessingException != null)
+                {
+                    throw new InvalidOperationException(string.Format(
+                        "There was an error running the template named {0}: {1}",
+                        pocoTemplateResourceName,
+                        pocoTemplateResult.ProcessingException.Message));
+                }
+
+                //TODO - output result to file
             }
         }
 
@@ -148,7 +249,7 @@ namespace Microsoft.Data.Entity.ReverseEngineering
 
         private static void CheckGeneratorModel(ReverseEngineeringGeneratorModel generatorModel)
         {
-            if (string.IsNullOrEmpty(generatorModel.ProviderAssembly))
+            if (string.IsNullOrEmpty(generatorModel.ProviderAssembly.FullName))
             {
                 throw new ArgumentException("ProviderAssembly is required to generate code.");
             }
