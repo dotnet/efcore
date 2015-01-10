@@ -2,14 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-//using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Framework.CodeGeneration;
 using Microsoft.Framework.CodeGeneration.Templating;
-//using Microsoft.Framework.Runtime;
 
 namespace Microsoft.Data.Entity.ReverseEngineering
 {
@@ -67,6 +64,8 @@ namespace Microsoft.Data.Entity.ReverseEngineering
                 Filters = (commandLineModel.Filters ?? ""),
                 MetadataModel = metadataModel
             };
+            var contextTemplatingHelper = new ContextTemplatingHelper(contextTemplateModel);
+            contextTemplateModel.Helper = contextTemplatingHelper;
 
             // get context template content
             string contextTemplateContent = null;
@@ -124,6 +123,8 @@ namespace Microsoft.Data.Entity.ReverseEngineering
                 ConnectionString = commandLineModel.ConnectionString,
                 Filters = (commandLineModel.Filters ?? ""),
             };
+            var entityTypeTemplatingHelper = new EntityTypeTemplatingHelper(entityTypeTemplateModel);
+            entityTypeTemplateModel.Helper = entityTypeTemplatingHelper;
             foreach (var entityType in metadataModel.EntityTypes)
             {
                 entityTypeTemplateModel.EntityType = entityType;

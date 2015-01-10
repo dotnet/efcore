@@ -5,13 +5,8 @@ using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.ReverseEngineering
 {
-    public class ContextTemplateModel
+    public class ContextTemplateModel : BaseTemplateModel
     {
-        public string ClassName { get; set; }
-        public string Namespace { get; set; }
-        public string ProviderAssembly { get; set; }
-        public string ConnectionString { get; set; }
-        public string Filters { get; set; }
         public IModel MetadataModel { get; set; }
     }
 }

@@ -158,7 +158,7 @@ namespace Microsoft.Data.Entity.ReverseEngineering
 
 
             var commandLineModel = new ReverseEngineeringCommandLineModel()
-                {
+            {
                 ProviderAssembly = providerAssembly,
                 ConnectionString = connectionString,
                 OutputPath = outputPath,

@@ -5,14 +5,19 @@
 //     Filters:  @Model.Filters
 
 using Microsoft.Data.Entity;
-
-namespace @Model.Namespace
-{
+@Model.Helper.Usings()
+    namespace @Model.Namespace
+    {
     public partial class @Model.ClassName : DbContext
     {
+        public @Model.ClassName ()
+            : base("name=@Model.ConnectionString")
+        {
+        }
+
 @foreach (var et in @Model.MetadataModel.EntityTypes)
 {
-@:        public @et.Type @et.SimpleName { get; set; }
+@:        public DbSet<@et.Type.Name> @et.SimpleName { get; set; }
 }
     }
 }
