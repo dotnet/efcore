@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.ReverseEngineering
@@ -39,6 +40,34 @@ namespace Microsoft.Data.Entity.ReverseEngineering
         public IEnumerable<INavigation> SortedNavigations()
         {
             return EntityTypeTemplateModel.EntityType.Navigations.OrderBy(n => n.Name);
+        }
+
+        public string NavigationsCode(string indent)
+        {
+            var sb = new StringBuilder();
+            foreach (var nav in SortedNavigations())
+            {
+                sb.AppendLine();
+                sb.Append(indent);
+                if (nav.IsCollection())
+                {
+                    sb.Append("public virtual ICollection<");
+                    sb.Append(nav.GetTargetType().Type.Name);
+                    sb.Append("> ");
+                    sb.Append(nav.Name);
+                    sb.Append(" { get; set; }");
+                }
+                else
+                {
+                    sb.Append("public virtual ");
+                    sb.Append(nav.GetTargetType().Type.Name);
+                    sb.Append(" ");
+                    sb.Append(nav.Name);
+                    sb.Append(" { get; set; }");
+                }
+            }
+
+            return sb.ToString();
         }
     }
 }

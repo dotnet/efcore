@@ -1,6 +1,5 @@
 ﻿@inherits Microsoft.Framework.CodeGeneration.Templating.RazorTemplateBase
-@using System.Collections.Generic
-@using System.Linq
+@using Microsoft.Data.Entity.Metadata
 // Generated using Provider Assembly: @Model.ProviderAssembly
 // And Database Connection String: @Model.ConnectionString
 // With Database Filters: @Model.Filters
@@ -10,39 +9,10 @@ namespace @Model.Namespace
 {
     public class @Model.EntityType.SimpleName
     {
-@*
-    Properties (Key Properties First)
-*@
-@{
-    var sortedProperties = @Model.Helper.SortedProperties();
-    var sortedPropertiesCount = @sortedProperties.Count;
-}
-@if (@sortedPropertiesCount != 0)
+@foreach (var p in @Model.Helper.SortedProperties())
 {
-    @foreach (var p in @sortedProperties)
-    {
 @:        public @p.PropertyType.Name @p.Name { get; set; }
-    }
 }
-@*
-    Navigation Properties
-*@
-@{
-    var sortedNavigations = @Model.Helper.SortedNavigations();
-    var sortedNavigationsCount = @sortedNavigations.Count();
-}
-@if (@sortedNavigationsCount != 0)
-{
-    @foreach (var n in @sortedNavigations)
-    {
-        @if (@n.IsCollection) {
-@:        public virtual ICollection<@n.GetTargetType().Type.Name> @n.Name { get; set; }
-        }
-        else
-        {
-@:        public virtual @n.GetTargetType().Type.Name @n.Name { get; set; }
-        }
-    }
-}
+@Model.Helper.NavigationsCode("        ")
     }
 }
