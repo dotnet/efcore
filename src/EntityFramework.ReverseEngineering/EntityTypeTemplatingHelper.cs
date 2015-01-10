@@ -19,10 +19,12 @@ namespace Microsoft.Data.Entity.ReverseEngineering
 
         public string Usings()
         {
-            return UniqueSortedList(
-                EntityTypeTemplateModel.EntityType.Properties.Select(p => p.PropertyType.Namespace),
-                "using ",
-                ";" + Environment.NewLine);
+            var propertyTypeNamespaces =
+                EntityTypeTemplateModel.EntityType.Properties.Select(p => p.PropertyType.Namespace);
+            var navigationTypeNamespaces =
+                EntityTypeTemplateModel.EntityType.Navigations.Select(n => n.GetTargetType().Type.Namespace);
+
+            return ConstructUsings(propertyTypeNamespaces.Concat(navigationTypeNamespaces));
         }
 
         public IEnumerable<IProperty> SortedProperties()
@@ -32,6 +34,11 @@ namespace Microsoft.Data.Entity.ReverseEngineering
             return primaryKeyPropertiesList.Concat(
                 EntityTypeTemplateModel.EntityType.Properties
                 .Where(p => !primaryKeyPropertiesList.Contains(p)).OrderBy(p => p.Name));
+        }
+
+        public IEnumerable<INavigation> SortedNavigations()
+        {
+            return EntityTypeTemplateModel.EntityType.Navigations.OrderBy(n => n.Name);
         }
     }
 }

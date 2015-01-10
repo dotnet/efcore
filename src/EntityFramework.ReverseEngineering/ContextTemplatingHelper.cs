@@ -17,10 +17,10 @@ namespace Microsoft.Data.Entity.ReverseEngineering
 
         public string Usings()
         {
-            return UniqueSortedList(
-                ContextTemplateModel.MetadataModel.EntityTypes.Select(et => et.Type.Namespace),
-                "using ",
-                ";" + Environment.NewLine);
+            var entityTypeNamespaces =
+                ContextTemplateModel.MetadataModel.EntityTypes.Select(et => et.Type.Namespace);
+
+            return ConstructUsings(entityTypeNamespaces);
         }
     }
 }

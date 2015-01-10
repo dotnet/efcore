@@ -1,13 +1,12 @@
 ﻿@inherits Microsoft.Framework.CodeGeneration.Templating.RazorTemplateBase
-// Generated for
-//     Provider Assembly:  @Model.ProviderAssembly
-//     Connection String:  @Model.ConnectionString
-//     Filters:  @Model.Filters
+// Generated using Provider Assembly: @Model.ProviderAssembly
+// And Database Connection String: @Model.ConnectionString
+// With Database Filters: @Model.Filters
 
 using Microsoft.Data.Entity;
 @Model.Helper.Usings()
-    namespace @Model.Namespace
-    {
+namespace @Model.Namespace
+{
     public partial class @Model.ClassName : DbContext
     {
         public @(Model.ClassName)()
