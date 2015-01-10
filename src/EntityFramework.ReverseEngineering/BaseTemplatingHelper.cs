@@ -1,8 +1,9 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 
 namespace Microsoft.Data.Entity.ReverseEngineering
 {
@@ -23,29 +24,9 @@ namespace Microsoft.Data.Entity.ReverseEngineering
             get { return _model; }
         }
 
-        public static string UniqueSortedList(IEnumerable<string> objects, string pre, string post)
+        public static string ConstructUsings(IEnumerable<string> namespaces)
         {
-            var sortedSet = new SortedSet<string>();
-            foreach (var obj in objects)
-            {
-                sortedSet.Add(obj);
-            }
-
-            if (sortedSet.Count == 0)
-            {
-                return string.Empty;
-            }
-
-            var sb = new StringBuilder();
-            foreach (var item in sortedSet)
-            {
-                sb.Append(pre);
-                sb.Append(item);
-                sb.Append(post);
-            }
-
-            return sb.ToString();
+            return string.Join("", namespaces.Distinct().OrderBy(s => s).Select(s => "using " + s + ";" + Environment.NewLine));
         }
-
     }
 }
