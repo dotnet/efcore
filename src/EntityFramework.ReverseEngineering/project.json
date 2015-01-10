@@ -26,8 +26,5 @@
                 "Microsoft.Framework.CommandLineUtils": { "version": "1.0.0-*", "type": "build" }
             }
         }
-    },
-    "commands": { 
-        "gen":  "Microsoft.Framework.CodeGeneration"
     }
 }
