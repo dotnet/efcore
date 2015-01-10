@@ -10,7 +10,7 @@ using Microsoft.Data.Entity;
     {
     public partial class @Model.ClassName : DbContext
     {
-        public @Model.ClassName ()
+        public @(Model.ClassName)()
             : base("name=@Model.ConnectionString")
         {
         }
