@@ -2,6 +2,7 @@
     "dependencies": {
         "EntityFramework.ReverseEngineering": "7.0.0-*"
     },
+    "exclude": "Output\\**\\*.*",
     "frameworks": {
         "aspnet50": { }
     },
