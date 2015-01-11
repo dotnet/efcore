@@ -22,15 +22,14 @@ namespace Microsoft.Data.Entity.ReverseEngineering
             _templatingService = templatingService;
         }
 
-        public async Task GenerateFromTemplateResource(
-            ReverseEngineeringConfiguration configuration,
-            IDatabaseMetadataModelProvider provider,
-            string contextTemplateResourceName,
-            string entityTypeTemplateResourceName)
+        public async Task GenerateFromTemplateResource(ReverseEngineeringConfiguration configuration)
         {
-            CheckGeneratorModel(configuration);
+            CheckConfiguration(configuration);
 
             var providerAssembly = configuration.ProviderAssembly;
+            var provider = GetProvider(providerAssembly);
+            var contextTemplateResourceName = provider.GetContextTemplateResourceName();
+            var entityTypeTemplateResourceName = provider.GetEntityTypeTemplateResourceName();
             var contextTemplateContent = GetTemplateContent(providerAssembly, contextTemplateResourceName);
             var entityTypeTemplateContent = GetTemplateContent(providerAssembly, entityTypeTemplateResourceName);
 
@@ -46,7 +45,8 @@ namespace Microsoft.Data.Entity.ReverseEngineering
                 Filters = (configuration.Filters ?? ""),
                 MetadataModel = metadataModel
             };
-            var contextTemplatingHelper = new ContextTemplatingHelper(contextTemplateModel);
+            var contextTemplatingHelper = 
+                provider.GetContextTemplateHelper(contextTemplateModel) ?? new ContextTemplatingHelper(contextTemplateModel);
             contextTemplateModel.Helper = contextTemplatingHelper;
 
             var contextTemplateResult = await _templatingService.RunTemplateAsync(contextTemplateContent, contextTemplateModel);
@@ -75,21 +75,23 @@ namespace Microsoft.Data.Entity.ReverseEngineering
             foreach (var entityType in metadataModel.EntityTypes)
             {
                 entityTypeTemplateModel.EntityType = entityType;
-                var entityTypeTemplatingHelper = new EntityTypeTemplatingHelper(entityTypeTemplateModel);
+                var entityTypeTemplatingHelper =
+                    provider.GetEntityTypeTemplateHelper(entityTypeTemplateModel)
+                        ?? new EntityTypeTemplatingHelper(entityTypeTemplateModel);
                 entityTypeTemplateModel.Helper = entityTypeTemplatingHelper;
 
-                var pocoTemplateResult = await _templatingService
+                var entityTypeTemplateResult = await _templatingService
                     .RunTemplateAsync(entityTypeTemplateContent, entityTypeTemplateModel);
-                if (pocoTemplateResult.ProcessingException != null)
+                if (entityTypeTemplateResult.ProcessingException != null)
                 {
                     throw new InvalidOperationException(string.Format(
                         "There was an error running the template named {0}: {1}",
                         entityTypeTemplateResourceName,
-                        pocoTemplateResult.ProcessingException.Message));
+                        entityTypeTemplateResult.ProcessingException.Message));
                 }
 
-                // output poco file
-                using (var sourceStream = new MemoryStream(Encoding.UTF8.GetBytes(pocoTemplateResult.GeneratedText)))
+                // output EntityType poco file
+                using (var sourceStream = new MemoryStream(Encoding.UTF8.GetBytes(entityTypeTemplateResult.GeneratedText)))
                 {
                     await OutputFile(configuration.OutputPath, entityType.SimpleName + ".cs", sourceStream);
                 }
@@ -121,6 +123,55 @@ namespace Microsoft.Data.Entity.ReverseEngineering
             }
 
             return templateContent;
+        }
+
+        public static Type GetTemplateHelperClass(Assembly providerAssembly, string templateHelperClassName)
+        {
+            var type = providerAssembly.GetExportedTypes()
+                .FirstOrDefault(t => t.Name == templateHelperClassName);
+            if (type == null)
+            {
+                throw new InvalidProgramException(
+                    "Assembly " + providerAssembly.FullName
+                    + " does not contain a type matching name " + templateHelperClassName);
+            }
+
+            if (!typeof(BaseTemplatingHelper).IsAssignableFrom(type))
+            {
+                throw new InvalidProgramException(
+                    "Class " + templateHelperClassName
+                    + " from assembly " + providerAssembly.FullName
+                    + " does not extend " + typeof(BaseTemplatingHelper).FullName);
+            }
+
+            return type;
+        }
+
+        public static IDatabaseMetadataModelProvider GetProvider(Assembly providerAssembly)
+        {
+            var type = providerAssembly.GetExportedTypes()
+                .FirstOrDefault(t => typeof(IDatabaseMetadataModelProvider).IsAssignableFrom(t));
+            if (type == null)
+            {
+                throw new InvalidProgramException(
+                    "Assembly " + providerAssembly.FullName
+                    + " does not contain a type which extends "
+                    + typeof(IDatabaseMetadataModelProvider).FullName);
+            }
+
+            IDatabaseMetadataModelProvider metadataModelProvider = null;
+            try
+            {
+                metadataModelProvider = (IDatabaseMetadataModelProvider)Activator.CreateInstance(type);
+            }
+            catch (Exception)
+            {
+                throw new InvalidProgramException(
+                    "Unable to instantiate type " + type.FullName
+                    + " in assembly " + providerAssembly.FullName);
+            }
+
+            return metadataModelProvider;
         }
 
         public static IModel GetMetadataModel(
@@ -170,7 +221,7 @@ namespace Microsoft.Data.Entity.ReverseEngineering
             }
         }
 
-        private static void CheckGeneratorModel(ReverseEngineeringConfiguration configuration)
+        private static void CheckConfiguration(ReverseEngineeringConfiguration configuration)
         {
             if (configuration.ProviderAssembly == null)
             {

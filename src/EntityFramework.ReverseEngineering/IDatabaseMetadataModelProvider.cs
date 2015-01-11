@@ -8,5 +8,9 @@ namespace Microsoft.Data.Entity.ReverseEngineering
     public interface IDatabaseMetadataModelProvider
     {
         IModel GenerateMetadataModel(string connectionString, string filters);
+        string GetContextTemplateResourceName();
+        string GetEntityTypeTemplateResourceName();
+        ContextTemplatingHelper GetContextTemplateHelper(ContextTemplateModel contextTemplateModel);
+        EntityTypeTemplatingHelper GetEntityTypeTemplateHelper(EntityTypeTemplateModel entityTypeTemplateModel);
     }
 }
