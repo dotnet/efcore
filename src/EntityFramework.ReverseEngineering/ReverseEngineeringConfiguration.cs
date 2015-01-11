@@ -6,7 +6,7 @@ using Microsoft.Framework.CodeGeneration.CommandLine;
 
 namespace Microsoft.Data.Entity.ReverseEngineering
 {
-    public class ReverseEngineeringCommandLineModel
+    public class ReverseEngineeringConfiguration
     {
         [Argument(Description = "The assembly containing an implementation of the IDatabaseMetadataModelProvider interface for the given provider.")]
         public Assembly ProviderAssembly { get; set; }
