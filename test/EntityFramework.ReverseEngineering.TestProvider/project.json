@@ -4,7 +4,8 @@
     },
     "exclude": "Output\\**\\*.*",
     "frameworks": {
-        "aspnet50": { }
+        "aspnet50": { },
+        "aspnetcore50": { }
     },
     "resources": "*.cshtml"
 }

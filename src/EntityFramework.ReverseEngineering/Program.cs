@@ -2,13 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 
-#if ASPNET50 || ASPNETCORE50
+// #if ASPNET50 || ASPNETCORE50
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using JB = JetBrains.Annotations;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Runtime;
 using Microsoft.Framework.CodeGeneration.Templating;
@@ -21,16 +20,14 @@ namespace Microsoft.Data.Entity.ReverseEngineering
     public class Program
     {
         private readonly IServiceProvider _serviceProvider;
-        //private readonly IApplicationEnvironment _appEnv;
         private CommandLineApplication _app;
 
-        public Program([JB.NotNull] IServiceProvider serviceProvider)
+        public Program(IServiceProvider serviceProvider)
         {
             _serviceProvider = InitializeServices(serviceProvider);
-            // _appEnv = _serviceProvider.GetRequiredService<IApplicationEnvironment>();
         }
 
-        public virtual int Main([JB.NotNull] string[] args)
+        public virtual int Main(string[] args)
         {
             // TODO: Enable subcommands in help
             _app = new CommandLineApplication { Name = "ef" };
@@ -128,33 +125,12 @@ namespace Microsoft.Data.Entity.ReverseEngineering
                 return 1;
             }
 
-            var type = providerAssembly.GetExportedTypes()
-                .FirstOrDefault(t => typeof(IDatabaseMetadataModelProvider).IsAssignableFrom(t));
-            if (type == null)
-            {
-                Console.WriteLine("In assembly " + providerAssemblyName + 
-                    " no type was found which extends " + typeof(IDatabaseMetadataModelProvider).FullName);
-                return 2;
-            }
-
             Console.WriteLine("Args: providerAssemblyName: " + providerAssemblyName);
             Console.WriteLine("Args: connectionString: " + connectionString);
             Console.WriteLine("Args: outputPath: " + outputPath);
             Console.WriteLine("Args: codeNamespace: " + codeNamespace);
             Console.WriteLine("Args: contextClassName: " + contextClassName);
             Console.WriteLine("Args: filters: " + filters);
-
-            IDatabaseMetadataModelProvider metadataModelProvider = null;
-            try
-            {
-                metadataModelProvider = (IDatabaseMetadataModelProvider)Activator.CreateInstance(type);
-            }
-            catch (Exception)
-            {
-                Console.WriteLine("In assembly " + providerAssemblyName +
-                    " no type was found which extends " + typeof(IDatabaseMetadataModelProvider).FullName);
-                return 3;
-            }
 
             var configuration = new ReverseEngineeringConfiguration()
             {
@@ -169,9 +145,7 @@ namespace Microsoft.Data.Entity.ReverseEngineering
             var templatingService = _serviceProvider.GetRequiredService<ITemplating>();
             var generator = new ReverseEngineeringGenerator(templatingService);
 
-            // generator.GenerateFromTemplate(commandLineModel, metadataModelProvider).Wait();
-            generator.GenerateFromTemplateResource(configuration,
-                metadataModelProvider, "ContextTemplate.cshtml", "EntityTypeTemplate.cshtml").Wait();
+            generator.GenerateFromTemplateResource(configuration).Wait();
 
             return 0;
         }
@@ -191,4 +165,4 @@ namespace Microsoft.Data.Entity.ReverseEngineering
     }
 }
 
-#endif
+// #endif

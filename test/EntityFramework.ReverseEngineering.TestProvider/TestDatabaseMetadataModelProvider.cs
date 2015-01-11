@@ -2,15 +2,14 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.ReverseEngineering;
 
-namespace EntityFramework.ReverseEngineering.FunctionalTests
+namespace EntityFramework.ReverseEngineering.TestProvider
 {
     public class TestDatabaseMetadataModelProvider : IDatabaseMetadataModelProvider
     {
-        public IModel GenerateMetadataModel(string connectionString, string filters)
+        public virtual IModel GenerateMetadataModel(string connectionString, string filters)
         {
             var modelBuilder = new ModelBuilder(new Model());
 
@@ -31,6 +30,28 @@ namespace EntityFramework.ReverseEngineering.FunctionalTests
 
             return modelBuilder.Model;
         }
+
+        public string GetContextTemplateResourceName()
+        {
+            return "ContextTemplate.cshtml";
+        }
+
+        public string GetEntityTypeTemplateResourceName()
+        {
+            return "EntityTypeTemplate.cshtml";
+        }
+
+        public virtual ContextTemplatingHelper GetContextTemplateHelper(ContextTemplateModel contextTemplateModel)
+        {
+            return new TestProviderContextTemplateHelper(contextTemplateModel);
+        }
+
+        public virtual EntityTypeTemplatingHelper GetEntityTypeTemplateHelper(EntityTypeTemplateModel entityTypeTemplateModel)
+        {
+            // use default
+            return null;
+        }
+
     }
 
     public class RevEngEntity1

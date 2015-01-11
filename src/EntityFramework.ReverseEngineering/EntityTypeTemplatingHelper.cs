@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -49,22 +48,20 @@ namespace Microsoft.Data.Entity.ReverseEngineering
             {
                 sb.AppendLine();
                 sb.Append(indent);
+                sb.Append("public virtual ");
                 if (nav.IsCollection())
                 {
-                    sb.Append("public virtual ICollection<");
+                    sb.Append("ICollection<");
                     sb.Append(nav.GetTargetType().Type.Name);
-                    sb.Append("> ");
-                    sb.Append(nav.Name);
-                    sb.Append(" { get; set; }");
+                    sb.Append(">");
                 }
                 else
                 {
-                    sb.Append("public virtual ");
                     sb.Append(nav.GetTargetType().Type.Name);
-                    sb.Append(" ");
-                    sb.Append(nav.Name);
-                    sb.Append(" { get; set; }");
                 }
+                sb.Append(" ");
+                sb.Append(nav.Name);
+                sb.Append(" { get; set; }");
             }
 
             return sb.ToString();

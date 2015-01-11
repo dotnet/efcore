@@ -4,14 +4,20 @@
 // With Database Filters: @Model.Filters
 
 using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.Metadata;
 @Model.Helper.Usings()
 namespace @Model.Namespace
 {
     public partial class @Model.ClassName : DbContext
     {
-        public @(Model.ClassName)()
-            : base("name=@Model.ConnectionString")
+        protected override void OnConfiguring(DbContextOptions options)
         {
+@Model.Helper.OnConfiguringCode(indent: "            ")
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+@Model.Helper.OnModelCreatingCode(indent: "            ")
         }
 
 @foreach (var et in @Model.MetadataModel.EntityTypes)
