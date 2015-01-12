@@ -31,14 +31,14 @@ namespace EntityFramework.ReverseEngineering.TestProvider
             return modelBuilder.Model;
         }
 
-        public string GetContextTemplateResourceName()
+        public string GetContextTemplate()
         {
-            return "ContextTemplate.cshtml";
+            return ContextTemplate;
         }
 
-        public string GetEntityTypeTemplateResourceName()
+        public string GetEntityTypeTemplate()
         {
-            return "EntityTypeTemplate.cshtml";
+            return EntityTypeTemplate;
         }
 
         public virtual ContextTemplatingHelper GetContextTemplateHelper(ContextTemplateModel contextTemplateModel)
@@ -50,6 +50,54 @@ namespace EntityFramework.ReverseEngineering.TestProvider
         {
             return new TestProviderEntityTypeTemplateHelper(entityTypeTemplateModel);
         }
+
+        public static string ContextTemplate =
+@"@inherits Microsoft.Framework.CodeGeneration.Templating.RazorTemplateBase
+// Generated using Provider Assembly: @Model.ProviderAssembly
+// And Database Connection String: @Model.ConnectionString
+// With Database Filters: @Model.Filters
+
+using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.Metadata;
+@Model.Helper.Usings()
+namespace @Model.Namespace
+{
+    public partial class @Model.ClassName : DbContext
+    {
+        protected override void OnConfiguring(DbContextOptions options)
+        {
+@Model.Helper.OnConfiguringCode(indent: ""            "")
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+@Model.Helper.OnModelCreatingCode(indent: ""            "")
+        }
+
+@foreach(var et in @Model.MetadataModel.EntityTypes)
+{
+@:        public DbSet<@et.Type.Name> @et.SimpleName { get; set; }
+}
+    }
+}
+";
+
+        public static string EntityTypeTemplate =
+@"@inherits Microsoft.Framework.CodeGeneration.Templating.RazorTemplateBase
+@using Microsoft.Data.Entity.Metadata
+// Generated using Provider Assembly: @Model.ProviderAssembly
+// And Database Connection String: @Model.ConnectionString
+// With Database Filters: @Model.Filters
+
+@Model.Helper.Usings()
+namespace @Model.Namespace
+{
+    public class @Model.EntityType.SimpleName
+    {
+@Model.Helper.PropertiesCode(indent: ""        "")
+@Model.Helper.NavigationsCode(indent:  ""        "")
+    }
+}";
 
     }
 

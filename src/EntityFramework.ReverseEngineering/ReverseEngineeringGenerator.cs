@@ -28,10 +28,12 @@ namespace Microsoft.Data.Entity.ReverseEngineering
 
             var providerAssembly = configuration.ProviderAssembly;
             var provider = GetProvider(providerAssembly);
-            var contextTemplateResourceName = provider.GetContextTemplateResourceName();
-            var entityTypeTemplateResourceName = provider.GetEntityTypeTemplateResourceName();
-            var contextTemplateContent = GetTemplateContent(providerAssembly, contextTemplateResourceName);
-            var entityTypeTemplateContent = GetTemplateContent(providerAssembly, entityTypeTemplateResourceName);
+            //var contextTemplateResourceName = provider.GetContextTemplateResourceName();
+            //var entityTypeTemplateResourceName = provider.GetEntityTypeTemplateResourceName();
+            //var contextTemplateContent = GetTemplateContent(providerAssembly, contextTemplateResourceName);
+            //var entityTypeTemplateContent = GetTemplateContent(providerAssembly, entityTypeTemplateResourceName);
+            var contextTemplateContent = provider.GetContextTemplate();
+            var entityTypeTemplateContent = provider.GetEntityTypeTemplate();
 
             var metadataModel = GetMetadataModel(provider, configuration);
 
@@ -52,10 +54,9 @@ namespace Microsoft.Data.Entity.ReverseEngineering
             var contextTemplateResult = await _templatingService.RunTemplateAsync(contextTemplateContent, contextTemplateModel);
             if (contextTemplateResult.ProcessingException != null)
             {
-                throw new InvalidOperationException(string.Format(
-                    "There was an error running the template named {0}: {1}",
-                    contextTemplateResourceName,
-                    contextTemplateResult.ProcessingException.Message));
+                throw new InvalidOperationException(
+                    "There was an error running the context template. Error: "
+                    + contextTemplateResult.ProcessingException.Message);
             }
 
             // output context file
@@ -84,10 +85,9 @@ namespace Microsoft.Data.Entity.ReverseEngineering
                     .RunTemplateAsync(entityTypeTemplateContent, entityTypeTemplateModel);
                 if (entityTypeTemplateResult.ProcessingException != null)
                 {
-                    throw new InvalidOperationException(string.Format(
-                        "There was an error running the template named {0}: {1}",
-                        entityTypeTemplateResourceName,
-                        entityTypeTemplateResult.ProcessingException.Message));
+                    throw new InvalidOperationException(
+                        "There was an error running the EntityType template. Error: "
+                        + entityTypeTemplateResult.ProcessingException.Message);
                 }
 
                 // output EntityType poco file
