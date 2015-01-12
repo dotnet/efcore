@@ -9,10 +9,7 @@ namespace @Model.Namespace
 {
     public class @Model.EntityType.SimpleName
     {
-@foreach (var p in @Model.Helper.SortedProperties())
-{
-@:        public @p.PropertyType.Name @p.Name { get; set; }
-}
-@Model.Helper.NavigationsCode("        ")
+@Model.Helper.PropertiesCode(indent: "        ")
+@Model.Helper.NavigationsCode(indent:  "        ")
     }
 }
