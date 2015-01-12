@@ -5,7 +5,7 @@
         "warningsAsErrors": true
     },
     "dependencies": {
-        "EntityFramework": "",
+        "EntityFramework.Core": "7.0.0-*",
         "Microsoft.Framework.CodeGeneration": "1.0.0-*",
         "Microsoft.Framework.CodeGeneration.Core": "1.0.0-*",
         "Microsoft.Framework.CodeGeneration.Common": "1.0.0-*",
