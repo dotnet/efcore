@@ -182,9 +182,14 @@ namespace Microsoft.Data.Entity.Commands
             return 0;
         }
 
-        public virtual int AddMigration([NotNull] string name, [CanBeNull] string context)
+        public virtual int AddMigration([CanBeNull] string name, [CanBeNull] string context)
         {
-            Check.NotEmpty(name, "name");
+            if (string.IsNullOrEmpty(name))
+            {
+                _app.ShowHelp("migration add");
+                
+                return 1;
+            }
 
             _migrationTool.AddMigration(name, context, _rootNamespace, _projectDir).ToArray();
 
