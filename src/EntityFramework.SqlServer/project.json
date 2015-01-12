@@ -5,7 +5,9 @@
         "warningsAsErrors": true
     },
     "dependencies": {
-        "EntityFramework.Relational": "7.0.0-*"
+        "EntityFramework.Relational": "7.0.0-*",
+        "EntityFramework.ReverseEngineering": "7.0.0-*",
+        "System.Data.SqlClient": "1.0.0-*"
     },
     "code": [ "**\\*.cs", "..\\Shared\\*.cs" ],
     "frameworks": {
