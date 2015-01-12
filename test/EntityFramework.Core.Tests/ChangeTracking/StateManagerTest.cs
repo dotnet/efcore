@@ -4,7 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Framework.DependencyInjection;
@@ -310,7 +312,10 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void DetectChanges_is_called_for_all_tracked_entities_and_returns_true_if_any_changes_detected()
         {
-            var contextServices = TestHelpers.CreateContextServices(BuildModel());
+            var contextServices = TestHelpers.CreateContextServices(
+                new ServiceCollection().AddScoped<ChangeDetector, ChangeDetectorProxy>(),
+                BuildModel());
+
             var stateManager = contextServices.GetRequiredService<StateManager>();
 
             var entry1 = stateManager.GetOrCreateEntry(new Category { Id = 77, Name = "Beverages" });
@@ -321,7 +326,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             stateManager.StartTracking(entry2);
             stateManager.StartTracking(entry3);
 
-            var changeDetector = new FakeChangeDetector();
+            var changeDetector = (ChangeDetectorProxy)contextServices.GetRequiredService<ChangeDetector>();
 
             changeDetector.DetectChanges(stateManager);
 
@@ -334,9 +339,14 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.Equal(new[] { 77, 78, 79, 77, 78, 79 }, changeDetector.Entries.Select(e => ((Category)e.Entity).Id).ToArray());
         }
 
-        internal class FakeChangeDetector : ChangeDetector
+        internal class ChangeDetectorProxy : ChangeDetector
         {
             private readonly List<StateEntry> _entries = new List<StateEntry>();
+
+            public ChangeDetectorProxy([NotNull] DbContextService<IModel> model)
+                : base(model)
+            {
+            }
 
             public List<StateEntry> Entries
             {
