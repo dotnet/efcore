@@ -78,6 +78,7 @@ namespace Microsoft.Data.Entity.ReverseEngineering
             var sb = new StringBuilder();
             foreach (var nav in SortedNavigations())
             {
+                sb.Append(NavigationAttributesCode(indent, nav));
                 sb.AppendLine();
                 sb.Append(indent);
                 sb.Append("public virtual ");
@@ -97,6 +98,11 @@ namespace Microsoft.Data.Entity.ReverseEngineering
             }
 
             return sb.ToString();
+        }
+
+        public virtual string NavigationAttributesCode(string indent, INavigation navigation)
+        {
+            return string.Empty;
         }
     }
 }
