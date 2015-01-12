@@ -23,9 +23,9 @@ namespace EntityFramework.ReverseEngineering.TestProvider
 
             modelBuilder.Entity<RevEngEntity2>(e =>
                 {
-                    e.Key(entity => entity.Id);
-                    e.Property(entity => entity.Moniker);
-                    e.Property(entity => entity.FulsomePraise);
+                    e.Key(re2 => new { re2.Id1, re2.Id2 });
+                    e.Property(re2 => re2.Moniker);
+                    e.Property(re2 => re2.FulsomePraise);
                 });
 
             return modelBuilder.Model;
@@ -48,8 +48,7 @@ namespace EntityFramework.ReverseEngineering.TestProvider
 
         public virtual EntityTypeTemplatingHelper GetEntityTypeTemplateHelper(EntityTypeTemplateModel entityTypeTemplateModel)
         {
-            // use default
-            return null;
+            return new TestProviderEntityTypeTemplateHelper(entityTypeTemplateModel);
         }
 
     }
@@ -65,7 +64,8 @@ namespace EntityFramework.ReverseEngineering.TestProvider
 
     public class RevEngEntity2
     {
-        public int Id { get; set; }
+        public int Id1 { get; set; }
+        public int Id2 { get; set; }
         public string Moniker { get; set; }
         public string FulsomePraise { get; set; }
         public int RevEngEntity1Id { get; set; }

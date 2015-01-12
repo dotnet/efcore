@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.ReverseEngineering
             get { return Model as EntityTypeTemplateModel; }
         }
 
-        public string Usings()
+        public virtual string Usings()
         {
             var propertyTypeNamespaces =
                 EntityTypeTemplateModel.EntityType.Properties.Select(p => p.PropertyType.Namespace);
@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity.ReverseEngineering
             return ConstructUsings(propertyTypeNamespaces.Concat(navigationTypeNamespaces));
         }
 
-        public IEnumerable<IProperty> SortedProperties()
+        public virtual IEnumerable<IProperty> SortedProperties()
         {
             var primaryKeyPropertiesList = new List<IProperty>(
                 EntityTypeTemplateModel.EntityType.GetPrimaryKey().Properties.OrderBy(p => p.Name));
@@ -36,12 +36,44 @@ namespace Microsoft.Data.Entity.ReverseEngineering
                 .Where(p => !primaryKeyPropertiesList.Contains(p)).OrderBy(p => p.Name));
         }
 
-        public IEnumerable<INavigation> SortedNavigations()
+        public virtual IEnumerable<INavigation> SortedNavigations()
         {
             return EntityTypeTemplateModel.EntityType.Navigations.OrderBy(n => n.Name);
         }
 
-        public string NavigationsCode(string indent)
+        public virtual string PropertiesCode(string indent)
+        {
+            var sb = new StringBuilder();
+            var first = true;
+            foreach (var property in SortedProperties())
+            {
+                if (first)
+                {
+                    first = false;
+                }
+                else
+                {
+                    sb.AppendLine();
+                }
+
+                sb.Append(PropertyAttributesCode(indent, property));
+                sb.Append(indent);
+                sb.Append("public ");
+                sb.Append(property.PropertyType.Name);
+                sb.Append(" ");
+                sb.Append(property.Name);
+                sb.Append(" { get; set; }");
+            }
+
+            return sb.ToString();
+        }
+
+        public virtual string PropertyAttributesCode(string indent, IProperty property)
+        {
+            return string.Empty;
+        }
+
+        public virtual string NavigationsCode(string indent)
         {
             var sb = new StringBuilder();
             foreach (var nav in SortedNavigations())
