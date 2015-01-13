@@ -78,6 +78,8 @@
     <Compile Include="BuiltInDataTypesFixtureBase.cs" />
     <Compile Include="BuiltInDataTypesTestBase.cs" />
     <Compile Include="FixupTest.cs" />
+    <Compile Include="GearsOfWarQueryFixtureBase.cs" />
+    <Compile Include="GearsOfWarQueryTestBase.cs" />
     <Compile Include="IncludeAsyncTestBase.cs" />
     <Compile Include="IncludeOneToOneTestBase.cs" />
     <Compile Include="IncludeTestBase.cs" />

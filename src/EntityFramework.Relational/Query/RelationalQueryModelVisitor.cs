@@ -325,18 +325,9 @@ namespace Microsoft.Data.Entity.Relational.Query
                 var primaryKeyProperty = primaryKeyProperties[i];
                 var foreignKeyProperty = navigation.ForeignKey.Properties[i];
 
-                var foreignKeyColumnExpression
-                    = new ColumnExpression(
-                        QueryCompilationContext.GetColumnName(foreignKeyProperty),
-                        foreignKeyProperty,
-                        targetTableExpression);
+                var foreignKeyColumnExpression = BuildColumnExpression(targetTableExpression, foreignKeyProperty);
+                var primaryKeyColumnExpression = BuildColumnExpression(joinExpression, primaryKeyProperty);
 
-                var primaryKeyColumnExpression
-                    = new ColumnExpression(
-                        QueryCompilationContext.GetColumnName(primaryKeyProperty),
-                        primaryKeyProperty,
-                        joinExpression);
-                
                 Expression primaryKeyExpression = primaryKeyColumnExpression;
 
                 if (foreignKeyColumnExpression.Type != primaryKeyExpression.Type)
@@ -359,6 +350,45 @@ namespace Microsoft.Data.Entity.Relational.Query
             }
 
             return joinPredicateExpression;
+        }
+
+        private Expression BuildColumnExpression(TableExpressionBase tableExpression, IProperty property)
+        {
+            var projections = ExtractProjections(tableExpression);
+
+            if (projections.Count == 0)
+            {
+                return new ColumnExpression(
+                        QueryCompilationContext.GetColumnName(property),
+                        property,
+                        tableExpression);
+            }
+            else
+            {
+                var matchingColumnExpression = projections.Where(p => p.Property == property).Single();
+                return new ColumnExpression(
+                        matchingColumnExpression.Alias ?? matchingColumnExpression.Name,
+                        property,
+                        tableExpression);
+            }
+        }
+
+        private List<ColumnExpression> ExtractProjections(TableExpressionBase tableExpression)
+        {
+            var joinExpression = tableExpression as JoinExpressionBase;
+            var selectExpression = tableExpression as SelectExpression;
+
+            if (joinExpression != null)
+            {
+                return ExtractProjections(joinExpression.TableExpression);
+            }
+
+            if (selectExpression != null)
+            {
+                return selectExpression.Projection.ToList();
+            }
+
+            return new List<ColumnExpression>();
         }
 
         public override void VisitAdditionalFromClause(AdditionalFromClause fromClause, QueryModel queryModel, int index)

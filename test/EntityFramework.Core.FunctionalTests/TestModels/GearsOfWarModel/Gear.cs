@@ -22,6 +22,8 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.GearsOfWarModel
         public string CityOrBirthName { get; set; }
         public virtual City CityOfBirth { get; set; }
 
+        public virtual City AssignedCity { get; set; }
+
         public MilitaryRank Rank { get; set; }
 
         public virtual CogTag Tag { get; set; }
