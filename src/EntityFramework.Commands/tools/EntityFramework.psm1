@@ -250,6 +250,13 @@ function InvokeOperation($project, $operation, $arguments = @{}, [switch] $skipB
         Write-Verbose "Build succeeded."
     }
 
+    #Get startup project
+    $startupProject = Get-MigrationsStartUpProject $project
+    $startupProjectDirectoryObject = Get-ChildItem $startupProject.FileName | Select-Object Directory
+
+    $startupProjectName = $startupProject.ProjectName
+    $startupProjectDirectory = $startupProjectDirectoryObject.Directory.FullName
+
     if (![Type]::GetType('Microsoft.Data.Entity.Commands.ILogHandler')) {
         $componentModel = Get-VSComponentModel
         $packageInstaller = $componentModel.GetService([NuGet.VisualStudio.IVsPackageInstallerServices])
@@ -275,16 +282,44 @@ function InvokeOperation($project, $operation, $arguments = @{}, [switch] $skipB
     $fullPath = GetProperty $properties FullPath
     $targetDir = Join-Path $fullPath $outputPath
 
-    Write-Verbose "Using directory '$targetDir'."
+    $startupOutputPath = GetProperty $startupProject.ConfigurationManager.ActiveConfiguration.Properties OutputPath
+    $startupProperties = $startupProject.Properties
+    $startupFullPath = GetProperty $startupProperties FullPath
+    $startupTargetDir = Join-Path $startupFullPath $startupOutputPath
 
-    # TODO: Set ConfigurationFile
+    $webConfig = GetProjectItemByString $startupProject 'Web.Config'
+    $appConfig = GetProjectItemByString $startupProject 'App.Config'
+
+    Write-Verbose "Using application base '$targetDir'."
+
+    if ($webConfig)
+    {
+        $configurationFile = $webConfig.Properties.Item('LocalPath').Value
+        $dataDirectory = Join-Path $startupProjectDirectory 'App_Data'
+        Write-Verbose "Using application configuration '$configurationFile'"
+    }
+    elseif ($appConfig)
+    {
+        $configurationFile = $appConfig.Properties.Item('LocalPath').Value
+        $dataDirectory = $outputPath
+        Write-Verbose "Using application configuration '$configurationFile'"
+    }
+    else
+    {
+        Write-Verbose "No configuration file found."
+        $dataDirectory = $outputPath
+    }
+
+    Write-Verbose "Using data directory '$dataDirectory'"
+
     $info = New-Object AppDomainSetup -Property @{
         ApplicationBase = $targetDir
         ShadowCopyFiles = 'true'
+        ConfigurationFile = $configurationFile
     }
 
-    # TODO: Set DataDirectory
     $domain = [AppDomain]::CreateDomain('EntityFrameworkDesignDomain', $null, $info)
+    $domain.SetData("DataDirectory", $dataDirectory)
     try {
         $assemblyName = 'EntityFramework.Commands'
         $typeName = 'Microsoft.Data.Entity.Commands.Executor'
@@ -293,7 +328,6 @@ function InvokeOperation($project, $operation, $arguments = @{}, [switch] $skipB
         $rootNamespace = GetProperty $properties RootNamespace
 
         Write-Verbose "Using assembly '$targetFileName'."
-
         $executor = $domain.CreateInstanceAndUnwrap(
             $assemblyName,
             $typeName,
@@ -314,7 +348,9 @@ function InvokeOperation($project, $operation, $arguments = @{}, [switch] $skipB
         $resultHandler = New-Object Microsoft.Data.Entity.Commands.ResultHandler
         $currentDirectory = [IO.Directory]::GetCurrentDirectory()
 
-        [IO.Directory]::SetCurrentDirectory($targetDir)
+        Write-Verbose "Using current directory '$currentDirectory'."
+
+        [IO.Directory]::SetCurrentDirectory($startupTargetDir)
         try {
             $domain.CreateInstance(
                 $assemblyName,
@@ -354,18 +390,112 @@ function GetProperty($properties, $propertyName) {
 }
 
 function GetProjectItem($project, $path) {
-	$fullPath = GetProperty $project.Properties FullPath
-	$itemDirectory = (Split-Path $path.Substring($fullPath.Length) -Parent)
+    $fullPath = GetProperty $project.Properties FullPath
+    $itemDirectory = (Split-Path $path.Substring($fullPath.Length) -Parent)
 
-	$projectItems = $project.ProjectItems
-	if ($itemDirectory) {
-		$directories = $itemDirectory.Split('\')
-		$directories | %{
+    $projectItems = $project.ProjectItems
+    if ($itemDirectory) {
+        $directories = $itemDirectory.Split('\')
+        $directories | %{
             $projectItems = $projectItems.Item($_).ProjectItems
         }
-	}
+    }
 
-	$itemName = Split-Path $path -Leaf
+    $itemName = Split-Path $path -Leaf
 
-	return $projectItems.Item($itemName)
+    return $projectItems.Item($itemName)
+}
+
+function GetProjectItemByString($project, $itemName){
+    try
+    {
+        return $project.ProjectItems.Item($itemName)
+    }
+    catch [Exception]
+    {
+    }
+}
+
+function Get-MigrationsStartUpProject($fallbackProject)
+{    
+    $startUpProject = $null
+
+    $startupProjectPaths = $DTE.Solution.SolutionBuild.StartupProjects
+
+    if ($startupProjectPaths)
+    {
+        if ($startupProjectPaths.Length -eq 1)
+        {
+            $startupProjectPath = $startupProjectPaths[0]
+
+            if (!(Split-Path -IsAbsolute $startupProjectPath))
+            {
+                $solutionPath = Split-Path $DTE.Solution.Properties.Item('Path').Value
+                $startupProjectPath = Join-Path $solutionPath $startupProjectPath -Resolve
+            }
+
+            $startupProject = Get-SolutionProjects | ?{
+                try
+                {
+                    $fullName = $_.FullName
+                }
+                catch [NotImplementedException]
+                {
+                    return $false
+                }
+
+                if ($fullName -and $fullName.EndsWith('\'))
+                {
+                    $fullName = $fullName.Substring(0, $fullName.Length - 1)
+                }
+
+                return $fullName -eq $startupProjectPath
+            }
+        }
+        else
+        {
+            $errorMessage = 'More than one start-up project found.'
+        }
+    }
+    else
+    {
+        $errorMessage = 'No start-up project found.'
+    }
+
+    if (!$startUpProject)
+    {
+        $fallbackProjectName = $fallbackProject.Name
+        Write-Verbose "$errorMessage Using '$fallbackProjectName' instead."
+
+        return $fallbackProject
+    }
+
+    $startUpProjectName = $startUpProject.Name
+    Write-Verbose "Using start-up project '$startUpProjectName'."
+
+    return $startUpProject
+}
+
+function Get-SolutionProjects()
+{
+    $projects = New-Object System.Collections.Stack
+    
+    $DTE.Solution.Projects | %{
+        $projects.Push($_)
+    }
+    
+    while ($projects.Count -ne 0)
+    {
+        $project = $projects.Pop();
+        
+        # NOTE: This line is similar to doing a "yield return" in C#
+        $project
+
+        if ($project.ProjectItems)
+        {
+            $project.ProjectItems | ?{ $_.SubProject } | %{
+                $projects.Push($_.SubProject)
+            }
+        }
+    }
 }
