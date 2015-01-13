@@ -6,6 +6,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.SqlServer;
 using Microsoft.Data.Entity.Utilities;
+using Microsoft.Data.Entity.SqlServer.Extensions;
 
 // ReSharper disable once CheckNamespace
 
@@ -13,42 +14,48 @@ namespace Microsoft.Data.Entity
 {
     public static class SqlServerDbContextOptionsExtensions
     {
-        public static void UseSqlServer([NotNull] this DbContextOptions options)
+        public static SqlServerDbContextOptions UseSqlServer([NotNull] this DbContextOptions options)
         {
             Check.NotNull(options, "options");
 
             ((IDbContextOptions)options)
                 .AddOrUpdateExtension<SqlServerOptionsExtension>(x => { });
+
+            return new SqlServerDbContextOptions(options);
         }
 
-        public static void UseSqlServer([NotNull] this DbContextOptions options, [NotNull] string connectionString)
+        public static SqlServerDbContextOptions UseSqlServer([NotNull] this DbContextOptions options, [NotNull] string connectionString)
         {
             Check.NotNull(options, "options");
             Check.NotEmpty(connectionString, "connectionString");
 
             ((IDbContextOptions)options)
                 .AddOrUpdateExtension<SqlServerOptionsExtension>(x => x.ConnectionString = connectionString);
+
+            return new SqlServerDbContextOptions(options);
         }
 
-        public static void UseSqlServer<T>([NotNull] this DbContextOptions<T> options, [NotNull] string connectionString)
+        public static SqlServerDbContextOptions UseSqlServer<T>([NotNull] this DbContextOptions<T> options, [NotNull] string connectionString)
         {
-            UseSqlServer((DbContextOptions)options, connectionString);
+            return UseSqlServer((DbContextOptions)options, connectionString);
         }
 
         // Note: Decision made to use DbConnection not SqlConnection: Issue #772
-        public static void UseSqlServer([NotNull] this DbContextOptions options, [NotNull] DbConnection connection)
+        public static SqlServerDbContextOptions UseSqlServer([NotNull] this DbContextOptions options, [NotNull] DbConnection connection)
         {
             Check.NotNull(options, "options");
             Check.NotNull(connection, "connection");
 
             ((IDbContextOptions)options)
                 .AddOrUpdateExtension<SqlServerOptionsExtension>(x => x.Connection = connection);
+
+            return new SqlServerDbContextOptions(options);
         }
 
         // Note: Decision made to use DbConnection not SqlConnection: Issue #772
-        public static void UseSqlServer<T>([NotNull] this DbContextOptions<T> options, [NotNull] DbConnection connection)
+        public static SqlServerDbContextOptions UseSqlServer<T>([NotNull] this DbContextOptions<T> options, [NotNull] DbConnection connection)
         {
-            UseSqlServer((DbContextOptions)options, connection);
+            return UseSqlServer((DbContextOptions)options, connection);
         }
     }
 }
