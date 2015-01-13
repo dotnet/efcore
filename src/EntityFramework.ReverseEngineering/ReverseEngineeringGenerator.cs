@@ -47,8 +47,7 @@ namespace Microsoft.Data.Entity.ReverseEngineering
                 Filters = (configuration.Filters ?? ""),
                 MetadataModel = metadataModel
             };
-            var contextTemplatingHelper = 
-                provider.GetContextTemplateHelper(contextTemplateModel) ?? new ContextTemplatingHelper(contextTemplateModel);
+            var contextTemplatingHelper = provider.GetContextTemplateHelper(contextTemplateModel);
             contextTemplateModel.Helper = contextTemplatingHelper;
 
             var contextTemplateResult = await _templatingService.RunTemplateAsync(contextTemplateContent, contextTemplateModel);
@@ -76,9 +75,7 @@ namespace Microsoft.Data.Entity.ReverseEngineering
             foreach (var entityType in metadataModel.EntityTypes)
             {
                 entityTypeTemplateModel.EntityType = entityType;
-                var entityTypeTemplatingHelper =
-                    provider.GetEntityTypeTemplateHelper(entityTypeTemplateModel)
-                        ?? new EntityTypeTemplatingHelper(entityTypeTemplateModel);
+                var entityTypeTemplatingHelper = provider.GetEntityTypeTemplateHelper(entityTypeTemplateModel);
                 entityTypeTemplateModel.Helper = entityTypeTemplatingHelper;
 
                 var entityTypeTemplateResult = await _templatingService

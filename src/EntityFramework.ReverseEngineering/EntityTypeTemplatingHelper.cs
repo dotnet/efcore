@@ -29,8 +29,13 @@ namespace Microsoft.Data.Entity.ReverseEngineering
 
         public virtual IEnumerable<IProperty> SortedProperties()
         {
-            var primaryKeyPropertiesList = new List<IProperty>(
-                EntityTypeTemplateModel.EntityType.GetPrimaryKey().Properties.OrderBy(p => p.Name));
+            var primaryKeyPropertiesList = new List<IProperty>();
+            IKey key = EntityTypeTemplateModel.EntityType.TryGetPrimaryKey();
+            if (key != null)
+            {
+                primaryKeyPropertiesList.Concat(key.Properties.OrderBy(p => p.Name));
+            }
+
             return primaryKeyPropertiesList.Concat(
                 EntityTypeTemplateModel.EntityType.Properties
                 .Where(p => !primaryKeyPropertiesList.Contains(p)).OrderBy(p => p.Name));

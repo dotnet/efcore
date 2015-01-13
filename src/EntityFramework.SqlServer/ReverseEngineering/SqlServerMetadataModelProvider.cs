@@ -1,13 +1,13 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.ReverseEngineering;
-using System;
 
 namespace EntityFramework.SqlServer.ReverseEngineering
 {
@@ -21,7 +21,7 @@ namespace EntityFramework.SqlServer.ReverseEngineering
 
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Metadata;
-@Model.Helper.Usings()
+
 namespace @Model.Namespace
 {
     public partial class @Model.ClassName : DbContext
@@ -38,7 +38,7 @@ namespace @Model.Namespace
 
 @foreach(var et in @Model.MetadataModel.EntityTypes)
 {
-@:        public DbSet<@et.Type.Name> @et.SimpleName { get; set; }
+@:        public DbSet<@et.SimpleName> @et.SimpleName { get; set; }
 }
     }
 }
@@ -60,6 +60,59 @@ namespace @Model.Namespace
 @Model.Helper.NavigationsCode(indent:  ""        "")
     }
 }";
+
+        public static readonly Dictionary<string, Type> _sqlTypeToClrTypeMap
+            = new Dictionary<string, Type>()
+                {
+                    // exact numerics
+                    { "bigint", typeof(long) },
+                    { "bit", typeof(byte) },
+                    //TODO { "decimal", typeof(yyy) },
+                    { "int", typeof(int) },
+                    { "money", typeof(long) },
+                    //TODO { "numeric", typeof(yyy) },
+                    { "smallint", typeof(short) },
+                    { "smallmoney", typeof(int) },
+                    { "tinyint", typeof(byte) },
+
+                    // approximate numerics
+                    { "float", typeof(float) },
+                    { "real", typeof(double) },
+
+                    // date and time
+                    { "date", typeof(DateTime) },
+                    { "datetime", typeof(DateTime) },
+                    { "datetime2", typeof(DateTime) },
+                    { "datetimeoffset", typeof(DateTimeOffset) },
+                    { "smalldatetime", typeof(DateTime) },
+                    { "time", typeof(DateTime) },
+
+                    // character strings
+                    { "char", typeof(string) },
+                    { "text", typeof(string) },
+                    { "varchar", typeof(string) },
+
+                    // unicode character strings
+                    { "nchar", typeof(string) },
+                    { "ntext", typeof(string) },
+                    { "nvarchar", typeof(string) },
+
+                    // binary
+                    { "binary", typeof(byte[]) },
+                    { "image", typeof(byte[]) },
+                    { "varbinary", typeof(byte[]) },
+
+                    //TODO other
+                    //{ "cursor", typeof(yyy) },
+                    //{ "hierarchyid", typeof(yyy) },
+                    //{ "sql_variant", typeof(yyy) },
+                    //{ "table", typeof(yyy) },
+                    //{ "timestamp", typeof(yyy) },
+                    //{ "uniqueidentifier", typeof(yyy) },
+                    //{ "xml", typeof(yyy) },
+
+                    //TODO spatial
+                };
 
         public IModel GenerateMetadataModel(string connectionString, string filters)
         {
@@ -93,19 +146,20 @@ namespace @Model.Namespace
                 }
             }
 
-            Console.WriteLine("Tables");
-            foreach (var t in tables)
-            {
-                Console.WriteLine(t.Value.ToString());
-            }
+            //Console.WriteLine("Tables");
+            //foreach (var t in tables)
+            //{
+            //    var table = t.Value;
+            //    Console.WriteLine(table.ToString());
+            //}
 
-            Console.WriteLine("Columns");
-            foreach (var tc in tableColumns)
-            {
-                Console.WriteLine(tc.Value.ToString());
-            }
+            //Console.WriteLine("Columns");
+            //foreach (var tc in tableColumns)
+            //{
+            //    Console.WriteLine(tc.Value.ToString());
+            //}
 
-            return null;
+            return CreateModel(tables, tableColumns);
         }
 
         public static Dictionary<string, T> LoadData<T>(
@@ -125,6 +179,75 @@ namespace @Model.Namespace
             }
 
             return data;
+        }
+
+        public static IModel CreateModel(Dictionary<string, Table> tables, Dictionary<string, TableColumn> tableColumns)
+        {
+            var model = new Model();
+            foreach (var t in tables)
+            {
+                var table = t.Value;
+                var entityType = model.AddEntityType(EscapeForCSharp(table.SchemaName) + "." + EscapeForCSharp(table.TableName));
+                foreach (var tc in tableColumns.Values.Where(col => col.ParentId == table.Id))
+                {
+                    Type clrPropertyType;
+                    if (_sqlTypeToClrTypeMap.TryGetValue(tc.DataType, out clrPropertyType))
+                    {
+                        // have to add property in shadow state as we have no CLR type representing the EntityType at this stage
+                        var property = entityType.AddProperty(EscapeForCSharp(tc.ColumnName), clrPropertyType, true);
+                        ApplyPropertyProperties(property, tc);
+                    }
+                    // else skip this property
+                }
+            }
+
+            //return modelBuilder.Model;
+
+            return model;
+        }
+
+
+        public static void ApplyPropertyProperties(Property property, TableColumn tc)
+        {
+            property.IsNullable = tc.IsNullable;
+            property.MaxLength = tc.MaxLength == -1 ? null : tc.MaxLength;
+            if (tc.NumericPrecision.HasValue)
+            {
+                property.AddAnnotation("Precision", tc.NumericPrecision.Value.ToString());
+            }
+            if (tc.DateTimePrecision.HasValue)
+            {
+                property.AddAnnotation("Precision", tc.DateTimePrecision.Value.ToString());
+            }
+            if (tc.Scale.HasValue)
+            {
+                property.AddAnnotation("Scale", tc.Scale.Value.ToString());
+            }
+            if (tc.IsIdentity)
+            {
+                property.AddAnnotation("IsIdentity", tc.Scale.Value.ToString());
+            }
+            property.IsStoreComputed = tc.IsStoreGenerated;
+            if (tc.DefaultValue != null)
+            {
+                property.UseStoreDefault = true;
+            }
+        }
+        public static string EscapeForCSharp(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                return "_";
+            }
+
+            var cSharpName = name.Replace(".", "_");
+            char firstChar = cSharpName.ElementAt(0);
+            if (firstChar >= '0' && firstChar <= '9')
+            {
+                cSharpName = "_" + cSharpName;
+            }
+
+            return cSharpName;
         }
 
         public string GetContextTemplate() { return ContextTemplate; }
