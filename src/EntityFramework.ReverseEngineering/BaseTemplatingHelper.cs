@@ -26,7 +26,9 @@ namespace Microsoft.Data.Entity.ReverseEngineering
 
         public static string ConstructUsings(IEnumerable<string> namespaces)
         {
-            return string.Join("", namespaces.Distinct().OrderBy(s => s).Select(s => "using " + s + ";" + Environment.NewLine));
+            return namespaces == null || namespaces.Count() == 0
+                ? string.Empty
+                : string.Join("", namespaces.Distinct().OrderBy(s => s).Select(s => "using " + s + ";" + Environment.NewLine));
         }
     }
 }

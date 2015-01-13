@@ -15,13 +15,20 @@ namespace Microsoft.Data.Entity.ReverseEngineering
             get { return Model as ContextTemplateModel; }
         }
 
-        public virtual string Usings()
-        {
-            var entityTypeNamespaces =
-                ContextTemplateModel.MetadataModel.EntityTypes.Select(et => et.Type.Namespace);
+        //public virtual string Usings()
+        //{
+        //    var entityTypes = ContextTemplateModel.MetadataModel.EntityTypes;
+        //    if (entityTypes.Count == 0)
+        //    {
+        //        return "// No EntityTypes found in model";
+        //    }
+        //    else
+        //    {
+        //        var entityTypeNamespaces = entityTypes.Select(et => et.Type.Namespace);
 
-            return ConstructUsings(entityTypeNamespaces);
-        }
+        //        return ConstructUsings(entityTypeNamespaces);
+        //    }
+        //}
 
         public virtual string OnConfiguringCode(string indent)
         {
