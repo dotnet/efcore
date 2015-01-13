@@ -320,23 +320,17 @@ namespace Microsoft.Data.Entity.Relational.Query
         {
             Expression joinPredicateExpression = null;
 
+            var targetTableProjections = ExtractProjections(targetTableExpression).ToList();
+            var joinTableProjections = ExtractProjections(joinExpression).ToList();
+
             for (var i = 0; i < navigation.ForeignKey.Properties.Count; i++)
             {
                 var primaryKeyProperty = primaryKeyProperties[i];
                 var foreignKeyProperty = navigation.ForeignKey.Properties[i];
 
-                var foreignKeyColumnExpression
-                    = new ColumnExpression(
-                        QueryCompilationContext.GetColumnName(foreignKeyProperty),
-                        foreignKeyProperty,
-                        targetTableExpression);
+                var foreignKeyColumnExpression = BuildColumnExpression(targetTableProjections, targetTableExpression, foreignKeyProperty);
+                var primaryKeyColumnExpression = BuildColumnExpression(joinTableProjections, joinExpression, primaryKeyProperty);
 
-                var primaryKeyColumnExpression
-                    = new ColumnExpression(
-                        QueryCompilationContext.GetColumnName(primaryKeyProperty),
-                        primaryKeyProperty,
-                        joinExpression);
-                
                 Expression primaryKeyExpression = primaryKeyColumnExpression;
 
                 if (foreignKeyColumnExpression.Type != primaryKeyExpression.Type)
@@ -359,6 +353,42 @@ namespace Microsoft.Data.Entity.Relational.Query
             }
 
             return joinPredicateExpression;
+        }
+
+        private Expression BuildColumnExpression(List<ColumnExpression> projections, TableExpressionBase tableExpression, IProperty property)
+        {
+            if (projections.Count == 0)
+            {
+                return new ColumnExpression(
+                        QueryCompilationContext.GetColumnName(property),
+                        property,
+                        tableExpression);
+            }
+            else
+            {
+                var matchingColumnExpression = projections.Where(p => p.Property == property).Single();
+                return new ColumnExpression(
+                        matchingColumnExpression.Alias ?? matchingColumnExpression.Name,
+                        property,
+                        tableExpression);
+            }
+        }
+
+        private IEnumerable<ColumnExpression> ExtractProjections(TableExpressionBase tableExpression)
+        {
+            var selectExpression = tableExpression as SelectExpression;
+            if (selectExpression != null)
+            {
+                return selectExpression.Projection.ToList();
+            }
+
+            var joinExpression = tableExpression as JoinExpressionBase;
+            if (joinExpression != null)
+            {
+                return ExtractProjections(joinExpression.TableExpression);
+            }
+
+            return Enumerable.Empty<ColumnExpression>();
         }
 
         public override void VisitAdditionalFromClause(AdditionalFromClause fromClause, QueryModel queryModel, int index)

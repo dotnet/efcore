@@ -250,6 +250,17 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
                     ce.Property == columnExpression.Property
                     && ce.TableAlias == columnExpression.TableAlias) == -1)
             {
+                if (Alias != null)
+                {
+                    var currentAlias = columnExpression.Alias ?? columnExpression.Name;
+                    var uniqueAlias = CreateUniqueProjectionAlias(currentAlias);
+
+                    if (!string.Equals(currentAlias, uniqueAlias, StringComparison.OrdinalIgnoreCase))
+                    {
+                        columnExpression.Alias = uniqueAlias;
+                    }
+                }
+
                 _projection.Add(columnExpression);
             }
         }
@@ -350,7 +361,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             Check.NotNull(tableExpression, "tableExpression");
             Check.NotNull(projection, "projection");
 
-            tableExpression.Alias = CreateUniqueAlias(tableExpression.Alias);
+            tableExpression.Alias = CreateUniqueTableAlias(tableExpression.Alias);
             _tables.Add(new CrossJoinExpression(tableExpression));
             _projection.AddRange(projection);
         }
@@ -369,7 +380,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             Check.NotNull(tableExpression, "tableExpression");
             Check.NotNull(projection, "projection");
 
-            tableExpression.Alias = CreateUniqueAlias(tableExpression.Alias);
+            tableExpression.Alias = CreateUniqueTableAlias(tableExpression.Alias);
 
             var innerJoinExpression = new InnerJoinExpression(tableExpression);
             _tables.Add(innerJoinExpression);
@@ -385,7 +396,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             Check.NotNull(tableExpression, "tableExpression");
             Check.NotNull(projection, "projection");
 
-            tableExpression.Alias = CreateUniqueAlias(tableExpression.Alias);
+            tableExpression.Alias = CreateUniqueTableAlias(tableExpression.Alias);
 
             var outerJoinExpression = new LeftOuterJoinExpression(tableExpression);
 
@@ -395,12 +406,25 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             return outerJoinExpression;
         }
 
-        private string CreateUniqueAlias(string currentAlias)
+        private string CreateUniqueTableAlias(string currentAlias)
         {
             var uniqueAlias = currentAlias;
             var counter = 0;
 
             while (_tables.Any(t => string.Equals(t.Alias, uniqueAlias, StringComparison.OrdinalIgnoreCase)))
+            {
+                uniqueAlias = currentAlias + counter++;
+            }
+
+            return uniqueAlias;
+        }
+
+        private string CreateUniqueProjectionAlias(string currentAlias)
+        {
+            var uniqueAlias = currentAlias;
+            var counter = 0;
+
+            while (_projection.Any(p => string.Equals(p.Alias ?? p.Name, uniqueAlias, StringComparison.OrdinalIgnoreCase)))
             {
                 uniqueAlias = currentAlias + counter++;
             }
