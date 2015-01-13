@@ -37,4 +37,5 @@ using Xunit;
 [assembly: AssemblyFileVersion("1.0.0.0")]
 
 [assembly: TestFramework("EntityFramework.Microbenchmarks.Core.PerfTestFramework", "EntityFramework.Microbenchmarks.Core")]
+[assembly: CollectionBehavior(DisableTestParallelization = true)]
 
