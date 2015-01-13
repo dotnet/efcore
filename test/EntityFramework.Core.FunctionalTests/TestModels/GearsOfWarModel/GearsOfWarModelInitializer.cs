@@ -53,9 +53,16 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.GearsOfWarModel
                     Name = "Hanover",
                 };
 
+                var unknown = new City
+                {
+                    Location = "Unknown",
+                    Name = "Unknown",
+                };
+
                 await context.Cities.AddAsync(jacinto);
                 await context.Cities.AddAsync(ephyra);
                 await context.Cities.AddAsync(hanover);
+                await context.Cities.AddAsync(unknown);
 
                 await context.SaveChangesAsync();
 
@@ -166,6 +173,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.GearsOfWarModel
                     FullName = "Dominic Santiago",
                     SquadId = deltaSquad.Id,
                     Rank = MilitaryRank.Corporal,
+                    AssignedCity = ephyra,
                     CityOrBirthName = ephyra.Name,
                     Tag = domsTag,
                     Reports = new List<Gear>(),
@@ -179,6 +187,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.GearsOfWarModel
                     SquadId = deltaSquad.Id,
                     Rank = MilitaryRank.Private,
                     CityOrBirthName = hanover.Name,
+                    AssignedCity = jacinto,
                     Tag = colesTag,
                     Reports = new List<Gear>(),
                     Weapons = new List<Weapon> { colesGnasher, colesMulcher }
@@ -190,6 +199,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.GearsOfWarModel
                     FullName = "Garron Paduk",
                     SquadId = kiloSquad.Id,
                     Rank = MilitaryRank.Private,
+                    CityOrBirthName = unknown.Name,
                     Tag = paduksTag,
                     Reports = new List<Gear>(),
                     Weapons = new List<Weapon> { paduksMarkza },
@@ -201,6 +211,8 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.GearsOfWarModel
                     FullName = "Damon Baird",
                     SquadId = deltaSquad.Id,
                     Rank = MilitaryRank.Corporal,
+                    CityOrBirthName = unknown.Name,
+                    AssignedCity = jacinto,
                     Tag = bairdsTag,
                     Reports = new List<Gear>() { paduk },
                     Weapons = new List<Weapon> { bairdsLancer, bairdsGnasher }
