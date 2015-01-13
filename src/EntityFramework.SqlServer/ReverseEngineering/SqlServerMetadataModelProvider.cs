@@ -1,9 +1,13 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
+using System.Linq;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.ReverseEngineering;
+using System;
 
 namespace EntityFramework.SqlServer.ReverseEngineering
 {
@@ -59,7 +63,68 @@ namespace @Model.Namespace
 
         public IModel GenerateMetadataModel(string connectionString, string filters)
         {
+            Dictionary<string, Table> tables;
+            Dictionary<string, TableColumn> tableColumns;
+            using (var conn = new SqlConnection(connectionString))
+            {
+                try
+                {
+                    conn.Open();
+
+                    tables = LoadData<Table>(conn, Table.Query, Table.CreateFromReader, t => t.Id);
+                    tableColumns = LoadData<TableColumn>(conn, TableColumn.Query, TableColumn.CreateFromReader, tc => tc.Id);
+                }
+                finally
+                {
+                    if (conn != null)
+                    {
+                        if (conn.State == ConnectionState.Open)
+                        {
+                            try
+                            {
+                                conn.Close();
+                            }
+                            catch (SqlException)
+                            {
+                                // do nothing if attempt to close connection fails
+                            }
+                        }
+                    }
+                }
+            }
+
+            Console.WriteLine("Tables");
+            foreach (var t in tables)
+            {
+                Console.WriteLine(t.Value.ToString());
+            }
+
+            Console.WriteLine("Columns");
+            foreach (var tc in tableColumns)
+            {
+                Console.WriteLine(tc.Value.ToString());
+            }
+
             return null;
+        }
+
+        public static Dictionary<string, T> LoadData<T>(
+            SqlConnection conn, string query, Func<SqlDataReader, T> createFromReader, Func<T, string> identifier)
+        {
+            var data = new Dictionary<string, T>();
+            var sqlCommand = new SqlCommand(query);
+            sqlCommand.Connection = conn;
+
+            using (var reader = sqlCommand.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    var item = createFromReader(reader);
+                    data.Add(identifier(item), item);
+                }
+            }
+
+            return data;
         }
 
         public string GetContextTemplate() { return ContextTemplate; }
