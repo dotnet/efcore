@@ -1,20 +1,21 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
+using EntityFramework.Microbenchmarks.Core.Models.Orders;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Metadata;
-using EntityFramework.Microbenchmarks.Core.Models.Orders;
 
 namespace EntityFramework.Microbenchmarks.Models.Orders
 {
     public class OrdersContext : DbContext
     {
         private readonly string _connectionString;
+        private readonly bool _disableBatching;
 
-        public OrdersContext(string connectionString)
+        public OrdersContext(string connectionString, bool disableBatching = false)
         {
             _connectionString = connectionString;
+            _disableBatching = disableBatching;
         }
 
         public DbSet<Customer> Customers { get; set; }
@@ -24,7 +25,12 @@ namespace EntityFramework.Microbenchmarks.Models.Orders
 
         protected override void OnConfiguring(DbContextOptions builder)
         {
-            builder.UseSqlServer(_connectionString);
+            var sqlBuilder = builder.UseSqlServer(_connectionString);
+
+            if (_disableBatching)
+            {
+                sqlBuilder.MaxBatchSize(1);
+            }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

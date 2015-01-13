@@ -6,7 +6,6 @@ using EntityFramework.Microbenchmarks.Core.Models.Orders;
 using EntityFramework.Microbenchmarks.Models.Orders;
 using Microsoft.Data.Entity;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 
@@ -24,14 +23,27 @@ namespace EntityFramework.Microbenchmarks.UpdatePipeline
                 TestName = "UpdatePipeline_Simple_Insert",
                 IterationCount = 100,
                 WarmupCount = 5,
-                Run = Insert,
+                Run = harness => Insert(harness, false),
                 Setup = EnsureDatabaseSetup
             }.RunTest();
         }
 
-        private static void Insert(TestHarness harness)
+        [Fact]
+        public void Insert_WithoutBatching()
         {
-            using (var context = new OrdersContext(_connectionString))
+            new TestDefinition
+            {
+                TestName = "UpdatePipeline_Simple_Insert_WithoutBatching",
+                IterationCount = 100,
+                WarmupCount = 5,
+                Run = harness => Insert(harness, true),
+                Setup = EnsureDatabaseSetup
+            }.RunTest();
+        }
+
+        private static void Insert(TestHarness harness, bool disableBatching)
+        {
+            using (var context = new OrdersContext(_connectionString, disableBatching))
             {
                 using (context.Database.AsRelational().Connection.BeginTransaction())
                 {
@@ -57,14 +69,27 @@ namespace EntityFramework.Microbenchmarks.UpdatePipeline
                 TestName = "UpdatePipeline_Simple_Update",
                 IterationCount = 100,
                 WarmupCount = 5,
-                Run = Update,
+                Run = harness => Insert(harness, false),
                 Setup = EnsureDatabaseSetup
             }.RunTest();
         }
 
-        private static void Update(TestHarness harness)
+        [Fact]
+        public void Update_WithoutBatching()
         {
-            using (var context = new OrdersContext(_connectionString))
+            new TestDefinition
+            {
+                TestName = "UpdatePipeline_Simple_Update_WithoutBatching",
+                IterationCount = 100,
+                WarmupCount = 5,
+                Run = harness => Insert(harness, true),
+                Setup = EnsureDatabaseSetup
+            }.RunTest();
+        }
+
+        private static void Update(TestHarness harness, bool disableBatching)
+        {
+            using (var context = new OrdersContext(_connectionString, disableBatching))
             {
                 using (context.Database.AsRelational().Connection.BeginTransaction())
                 {
@@ -90,14 +115,27 @@ namespace EntityFramework.Microbenchmarks.UpdatePipeline
                 TestName = "UpdatePipeline_Simple_Delete",
                 IterationCount = 100,
                 WarmupCount = 5,
-                Run = Delete,
+                Run = harness => Insert(harness, false),
                 Setup = EnsureDatabaseSetup
             }.RunTest();
         }
 
-        private static void Delete(TestHarness harness)
+        [Fact]
+        public void Delete_WithoutBatching()
         {
-            using (var context = new OrdersContext(_connectionString))
+            new TestDefinition
+            {
+                TestName = "UpdatePipeline_Simple_Delete_WithoutBatching",
+                IterationCount = 100,
+                WarmupCount = 5,
+                Run = harness => Insert(harness, true),
+                Setup = EnsureDatabaseSetup
+            }.RunTest();
+        }
+
+        private static void Delete(TestHarness harness, bool disableBatching)
+        {
+            using (var context = new OrdersContext(_connectionString, disableBatching))
             {
                 using (context.Database.AsRelational().Connection.BeginTransaction())
                 {
@@ -123,14 +161,27 @@ namespace EntityFramework.Microbenchmarks.UpdatePipeline
                 TestName = "UpdatePipeline_Simple_Mixed",
                 IterationCount = 100,
                 WarmupCount = 5,
-                Run = Mixed,
+                Run = harness => Insert(harness, false),
                 Setup = EnsureDatabaseSetup
             }.RunTest();
         }
 
-        private static void Mixed(TestHarness harness)
+        [Fact]
+        public void Mixed_WithoutBatching()
         {
-            using (var context = new OrdersContext(_connectionString))
+            new TestDefinition
+            {
+                TestName = "UpdatePipeline_Simple__WithoutBatching",
+                IterationCount = 100,
+                WarmupCount = 5,
+                Run = harness => Insert(harness, true),
+                Setup = EnsureDatabaseSetup
+            }.RunTest();
+        }
+
+        private static void Mixed(TestHarness harness, bool disableBatching)
+        {
+            using (var context = new OrdersContext(_connectionString, disableBatching))
             {
                 using (context.Database.AsRelational().Connection.BeginTransaction())
                 {
