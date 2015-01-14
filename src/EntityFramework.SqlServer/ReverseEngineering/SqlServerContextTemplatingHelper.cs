@@ -3,6 +3,7 @@
 
 using System.Linq;
 using System.Text;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.ReverseEngineering;
 
 namespace EntityFramework.SqlServer.ReverseEngineering
@@ -30,7 +31,7 @@ namespace @Model.Namespace
 
         protected override void OnConfiguring(DbContextOptions options)
         {
-@Model.Helper. (indent: ""            "")
+@Model.Helper.OnConfiguringCode(indent: ""            "")
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -53,34 +54,43 @@ namespace @Model.Namespace
             var sb = new StringBuilder();
             sb.Append(indent);
             sb.AppendLine("modelBuilder.AddSqlServer();");
+            sb.AppendLine();
             foreach (var entity in ContextTemplateModel.MetadataModel.EntityTypes)
             {
+                sb.AppendLine();
                 sb.Append(indent);
                 sb.Append("modelBuilder.Entity<");
                 sb.Append(entity.SimpleName);
-                sb.Append(">()");
-                var key = entity.TryGetPrimaryKey();
-                if (key != null && key.Properties.Count > 0)
-                {
-                    sb.AppendLine();
-                    sb.Append(indent + "    ");
-                    sb.Append(".Key(e => ");
-                    if (key.Properties.Count > 1)
-                    {
-                        sb.Append("new { ");
-                        sb.Append(string.Join(", ", key.Properties.OrderBy(p => int.Parse(p["PrimaryKeyOrdinalPosition"])).Select(p => "e." + p.Name)));
-                        sb.Append(" }");
-                    }
-                    else
-                    {
-                        sb.Append("e." + key.Properties[0].Name);
-                    }
-                    sb.Append(")");
-                }
-                sb.AppendLine(";");
+                sb.Append(">(");
+                AddKeyToOnModelCreating(sb, indent, entity);
+                sb.Append(");");
             }
 
             return sb.ToString();
+        }
+
+        public static void AddKeyToOnModelCreating(StringBuilder sb, string indent, IEntityType entity)
+        {
+            var key = entity.TryGetPrimaryKey();
+            if (key != null && key.Properties.Count > 0)
+            {
+                sb.AppendLine("entity =>");
+                sb.AppendLine(indent + "{");
+                sb.Append(indent + "    ");
+                sb.Append("entity.Key( e => ");
+                if (key.Properties.Count > 1)
+                {
+                    sb.Append("new { ");
+                    sb.Append(string.Join(", ", key.Properties.OrderBy(p => int.Parse(p["PrimaryKeyOrdinalPosition"])).Select(p => "e." + p.Name)));
+                    sb.Append(" }");
+                }
+                else
+                {
+                    sb.Append("e." + key.Properties[0].Name);
+                }
+                sb.AppendLine(" );");
+                sb.Append(indent + "}");
+            }
         }
     }
 }
