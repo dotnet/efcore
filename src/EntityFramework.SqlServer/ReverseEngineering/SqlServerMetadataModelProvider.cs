@@ -8,71 +8,24 @@ using System.Data.SqlClient;
 using System.Linq;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.ReverseEngineering;
+using EntityFramework.SqlServer.ReverseEngineering.Model;
 
 namespace EntityFramework.SqlServer.ReverseEngineering
 {
     public class SqlServerMetadataModelProvider : IDatabaseMetadataModelProvider
     {
-        public static readonly string ContextTemplate =
-@"@inherits Microsoft.Framework.CodeGeneration.Templating.RazorTemplateBase
-// Generated using Provider Assembly: @Model.ProviderAssembly
-// And Database Connection String: @Model.ConnectionString
-// With Database Filters: @Model.Filters
-
-using Microsoft.Data.Entity;
-using Microsoft.Data.Entity.Metadata;
-
-namespace @Model.Namespace
-{
-    public partial class @Model.ClassName : DbContext
-    {
-        protected override void OnConfiguring(DbContextOptions options)
-        {
-@Model.Helper.OnConfiguringCode(indent: ""            "")
-        }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-@Model.Helper.OnModelCreatingCode(indent: ""            "")
-        }
-
-@foreach(var et in @Model.MetadataModel.EntityTypes)
-{
-@:        public DbSet<@et.SimpleName> @et.SimpleName { get; set; }
-}
-    }
-}
-";
-
-        public static readonly string EntityTypeTemplate =
-@"@inherits Microsoft.Framework.CodeGeneration.Templating.RazorTemplateBase
-@using Microsoft.Data.Entity.Metadata
-// Generated using Provider Assembly: @Model.ProviderAssembly
-// And Database Connection String: @Model.ConnectionString
-// With Database Filters: @Model.Filters
-
-@Model.Helper.Usings()
-namespace @Model.Namespace
-{
-    public class @Model.EntityType.SimpleName
-    {
-@Model.Helper.PropertiesCode(indent: ""        "")
-@Model.Helper.NavigationsCode(indent:  ""        "")
-    }
-}";
-
         public static readonly Dictionary<string, Type> _sqlTypeToClrTypeMap
             = new Dictionary<string, Type>()
                 {
                     // exact numerics
                     { "bigint", typeof(long) },
                     { "bit", typeof(byte) },
-                    //TODO { "decimal", typeof(yyy) },
+                    { "decimal", typeof(decimal) },
                     { "int", typeof(int) },
-                    { "money", typeof(long) },
-                    //TODO { "numeric", typeof(yyy) },
+                    //TODO { "money", typeof(decimal) },
+                    { "numeric", typeof(decimal) },
                     { "smallint", typeof(short) },
-                    { "smallmoney", typeof(int) },
+                    //TODO{ "smallmoney", typeof(decimal) },
                     { "tinyint", typeof(byte) },
 
                     // approximate numerics
@@ -118,6 +71,7 @@ namespace @Model.Namespace
         {
             Dictionary<string, Table> tables;
             Dictionary<string, TableColumn> tableColumns;
+            Dictionary<string, TableConstraintColumn> tableConstraintColumns;
             using (var conn = new SqlConnection(connectionString))
             {
                 try
@@ -126,6 +80,8 @@ namespace @Model.Namespace
 
                     tables = LoadData<Table>(conn, Table.Query, Table.CreateFromReader, t => t.Id);
                     tableColumns = LoadData<TableColumn>(conn, TableColumn.Query, TableColumn.CreateFromReader, tc => tc.Id);
+                    tableConstraintColumns = LoadData<TableConstraintColumn>(
+                        conn, TableConstraintColumn.Query, TableConstraintColumn.CreateFromReader, tc => tc.Id);
                 }
                 finally
                 {
@@ -159,7 +115,13 @@ namespace @Model.Namespace
             //    Console.WriteLine(tc.Value.ToString());
             //}
 
-            return CreateModel(tables, tableColumns);
+            //Console.WriteLine("Constraint Columns");
+            //foreach (var tc in tableConstraintColumns)
+            //{
+            //    Console.WriteLine(tc.Value.ToString());
+            //}
+
+            return CreateModel(tables, tableColumns, tableConstraintColumns);
         }
 
         public static Dictionary<string, T> LoadData<T>(
@@ -181,13 +143,17 @@ namespace @Model.Namespace
             return data;
         }
 
-        public static IModel CreateModel(Dictionary<string, Table> tables, Dictionary<string, TableColumn> tableColumns)
+        public static IModel CreateModel(
+            Dictionary<string, Table> tables,
+            Dictionary<string, TableColumn> tableColumns,
+            Dictionary<string, TableConstraintColumn> tableConstraintColumns)
         {
-            var model = new Model();
+            var model = new Microsoft.Data.Entity.Metadata.Model();
             foreach (var t in tables)
             {
                 var table = t.Value;
                 var entityType = model.AddEntityType(EscapeForCSharp(table.SchemaName) + "." + EscapeForCSharp(table.TableName));
+                var primaryKeys = new List<Property>();
                 foreach (var tc in tableColumns.Values.Where(col => col.ParentId == table.Id))
                 {
                     Type clrPropertyType;
@@ -195,10 +161,23 @@ namespace @Model.Namespace
                     {
                         // have to add property in shadow state as we have no CLR type representing the EntityType at this stage
                         var property = entityType.AddProperty(EscapeForCSharp(tc.ColumnName), clrPropertyType, true);
+
+                        // make column a primary key if it appears in the PK constraint
+                        var primaryKeyConstrainColumn =
+                            tableConstraintColumns.Values
+                            .FirstOrDefault(c => c.ParentId == table.Id && c.ColumnName == tc.ColumnName && c.ConstraintType == "PRIMARY KEY");
+                        if (primaryKeyConstrainColumn != null)
+                        {
+                            primaryKeys.Add(property);
+                            property.AddAnnotation("PrimaryKeyOrdinalPosition", primaryKeyConstrainColumn.Ordinal.ToString());
+                        }
+
                         ApplyPropertyProperties(property, tc);
                     }
                     // else skip this property
                 }
+
+                entityType.SetPrimaryKey(primaryKeys);
             }
 
             //return modelBuilder.Model;
@@ -250,9 +229,9 @@ namespace @Model.Namespace
             return cSharpName;
         }
 
-        public string GetContextTemplate() { return ContextTemplate; }
+        public string GetContextTemplate() { return SqlServerContextTemplatingHelper.ContextTemplate; }
 
-        public string GetEntityTypeTemplate() { return EntityTypeTemplate; }
+        public string GetEntityTypeTemplate() { return SqlServerEntityTypeTemplatingHelper.EntityTypeTemplate; }
 
         public ContextTemplatingHelper GetContextTemplateHelper(ContextTemplateModel contextTemplateModel)
         {
