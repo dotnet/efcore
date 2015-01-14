@@ -1,4 +1,7 @@
-﻿using System.Linq.Expressions;
+﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.Data.Entity.Relational.Query.Expressions;
 
@@ -16,9 +19,15 @@ namespace Microsoft.Data.Entity.Relational.Query.Methods
         {
             if (ReferenceEquals(methodCallExpression.Method, _methodInfo))
             {
-                var pattern = Expression.Add(new LiteralExpression("%"), methodCallExpression.Arguments[0], _concat);
-                pattern = Expression.Add(pattern, new LiteralExpression("%"), _concat);
-                return new LikeExpression(methodCallExpression.Object, pattern);
+                return new LikeExpression(
+                    methodCallExpression.Object,
+                    Expression.Add(
+                        Expression.Add(
+                            new LiteralExpression("%"),
+                            methodCallExpression.Arguments[0],
+                            _concat),
+                        new LiteralExpression("%"),
+                        _concat));
             }
 
             return null;

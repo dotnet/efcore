@@ -1277,8 +1277,6 @@ WHERE [c].[ContactName] LIKE '%' + @p0",
 
         public override void String_Contains_Literal()
         {
-            //base.String_Contains_Literal();
-
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.ContactName.Contains("M")), // case-insensitive
                 cs => cs.Where(c => c.ContactName.Contains("M") || c.ContactName.Contains("m")), // case-sensitive
@@ -1315,8 +1313,6 @@ WHERE [c].[ContactName] LIKE '%' + [c].[ContactName] + '%'",
 
         public override void String_Contains_MethodCall()
         {
-            //base.String_Contains_MethodCall();
-
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.ContactName.Contains(LocalMethod1())), // case-insensitive
                 cs => cs.Where(c => c.ContactName.Contains(LocalMethod1()) || c.ContactName.Contains(LocalMethod2())), // case-sensitive
