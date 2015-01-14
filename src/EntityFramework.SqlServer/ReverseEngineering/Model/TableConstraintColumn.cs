@@ -16,8 +16,8 @@ namespace EntityFramework.SqlServer.ReverseEngineering.Model
   , kcu.COLUMN_NAME [ColumnName]
   , kcu.ORDINAL_POSITION [Ordinal]
 " + // commented out below - unnecessary
-    //  , CAST(CASE tc.IS_DEFERRABLE WHEN 'NO' THEN 0 ELSE 1 END as bit)[IsDeferrable]
-    //  , CAST(CASE tc.INITIALLY_DEFERRED WHEN 'NO' THEN 0 ELSE 1 END as bit)[IsInitiallyDeferred]
+    //  , CAST(CASE tc.IS_DEFERRABLE WHEN 'NO' THEN 0 ELSE 1 END as bit) [IsDeferrable]
+    //  , CAST(CASE tc.INITIALLY_DEFERRED WHEN 'NO' THEN 0 ELSE 1 END as bit) [IsInitiallyDeferred]
 @"FROM
   INFORMATION_SCHEMA.TABLE_CONSTRAINTS tc
   INNER JOIN

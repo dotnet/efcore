@@ -1,7 +1,8 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
+using System.Linq;
+using System.Text;
 using Microsoft.Data.Entity.ReverseEngineering;
 
 namespace EntityFramework.SqlServer.ReverseEngineering
@@ -21,20 +22,21 @@ namespace @Model.Namespace
 {
     public partial class @Model.ClassName : DbContext
     {
+
+@foreach(var et in @Model.MetadataModel.EntityTypes)
+{
+@:        public virtual DbSet<@et.SimpleName> @et.SimpleName { get; set; }
+}
+
         protected override void OnConfiguring(DbContextOptions options)
         {
-@Model.Helper.OnConfiguringCode(indent: ""            "")
+@Model.Helper. (indent: ""            "")
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
 @Model.Helper.OnModelCreatingCode(indent: ""            "")
         }
-
-@foreach(var et in @Model.MetadataModel.EntityTypes)
-{
-@:        public DbSet<@et.SimpleName> @et.SimpleName { get; set; }
-}
     }
 }
 ";
@@ -48,7 +50,37 @@ namespace @Model.Namespace
 
         public override string OnModelCreatingCode(string indent)
         {
-            return indent + "builder.AddSqlServer();";
+            var sb = new StringBuilder();
+            sb.Append(indent);
+            sb.Append("modelBuilder.AddSqlServer();");
+            foreach (var entity in ContextTemplateModel.MetadataModel.EntityTypes)
+            {
+                sb.Append(indent);
+                sb.Append("modelBuilder.Entity<");
+                sb.Append(entity.SimpleName);
+                sb.AppendLine(">");
+                var key = entity.TryGetPrimaryKey();
+                if (key != null)
+                {
+                    indent += "    ";
+                    sb.Append(indent);
+                    sb.Append(".Key(e => ");
+                    if (key.Properties.Count > 1)
+                    {
+                        sb.Append("new { ");
+                        sb.Append(string.Join(", ", key.Properties.Select(p => "e." + p.Name)));
+                        sb.Append(" }");
+                    }
+                    else
+                    {
+                        sb.Append("e." + key.Properties[0].Name);
+                    }
+                    sb.Append(")");
+                }
+                sb.Append(";");
+            }
+
+            return sb.ToString();
         }
     }
 }
