@@ -29,11 +29,18 @@ namespace @Model.Namespace
 
         public override string PropertyAttributesCode(string indent, IProperty property)
         {
-            if (property.IsKey())
+            var prop = (Property)property;
+            if (prop.IsKey())
             {
-                return indent + "[Key]" + Environment.NewLine;
+                string ordinal = string.Empty;
+                Annotation primaryKeyOrdinalPositionAnnotation;
+                if ((primaryKeyOrdinalPositionAnnotation = prop.TryGetAnnotation("PrimaryKeyOrdinalPosition")) != null)
+                {
+                    ordinal = "(Ordinal = " + primaryKeyOrdinalPositionAnnotation.Value + ")";
+                }
+                return indent + "[Key" + ordinal + "]" + Environment.NewLine;
             }
-            if (property.IsForeignKey())
+            if (prop.IsForeignKey())
             {
                 return indent + "[ForeignKey]" + Environment.NewLine;
             }

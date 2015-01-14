@@ -52,23 +52,23 @@ namespace @Model.Namespace
         {
             var sb = new StringBuilder();
             sb.Append(indent);
-            sb.Append("modelBuilder.AddSqlServer();");
+            sb.AppendLine("modelBuilder.AddSqlServer();");
             foreach (var entity in ContextTemplateModel.MetadataModel.EntityTypes)
             {
                 sb.Append(indent);
                 sb.Append("modelBuilder.Entity<");
                 sb.Append(entity.SimpleName);
-                sb.AppendLine(">");
+                sb.Append(">()");
                 var key = entity.TryGetPrimaryKey();
-                if (key != null)
+                if (key != null && key.Properties.Count > 0)
                 {
-                    indent += "    ";
-                    sb.Append(indent);
+                    sb.AppendLine();
+                    sb.Append(indent + "    ");
                     sb.Append(".Key(e => ");
                     if (key.Properties.Count > 1)
                     {
                         sb.Append("new { ");
-                        sb.Append(string.Join(", ", key.Properties.Select(p => "e." + p.Name)));
+                        sb.Append(string.Join(", ", key.Properties.OrderBy(p => int.Parse(p["PrimaryKeyOrdinalPosition"])).Select(p => "e." + p.Name)));
                         sb.Append(" }");
                     }
                     else
@@ -77,7 +77,7 @@ namespace @Model.Namespace
                     }
                     sb.Append(")");
                 }
-                sb.Append(";");
+                sb.AppendLine(";");
             }
 
             return sb.ToString();

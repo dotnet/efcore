@@ -61,7 +61,7 @@ namespace EntityFramework.SqlServer.ReverseEngineering
                     //{ "sql_variant", typeof(yyy) },
                     //{ "table", typeof(yyy) },
                     //{ "timestamp", typeof(yyy) },
-                    //{ "uniqueidentifier", typeof(yyy) },
+                    { "uniqueidentifier", typeof(Guid) },
                     //{ "xml", typeof(yyy) },
 
                     //TODO spatial
