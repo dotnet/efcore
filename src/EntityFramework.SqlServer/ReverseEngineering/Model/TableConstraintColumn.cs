@@ -11,7 +11,7 @@ namespace EntityFramework.SqlServer.ReverseEngineering.Model
 @"SELECT
   quotename(tc.CONSTRAINT_SCHEMA) + quotename(tc.CONSTRAINT_NAME) + quotename(kcu.COLUMN_NAME) [Id]
   , quotename(tc.TABLE_SCHEMA) + quotename(tc.TABLE_NAME) [ParentId]
-  , tc.CONSTRAINT_NAME [Name]
+  , quotename(tc.CONSTRAINT_SCHEMA) + quotename(tc.CONSTRAINT_NAME) [ConstraintId]
   , tc.CONSTRAINT_TYPE [ConstraintType]
   , kcu.COLUMN_NAME [ColumnName]
   , kcu.ORDINAL_POSITION [Ordinal]
@@ -33,7 +33,7 @@ namespace EntityFramework.SqlServer.ReverseEngineering.Model
 
         public string Id { get; set; }
         public string ParentId { get; set; }
-        public string ConstraintName { get; set; }
+        public string ConstraintId { get; set; }
         public string ConstraintType { get; set; }
         public string ColumnName { get; set; }
         public int Ordinal { get; set; }
@@ -43,7 +43,7 @@ namespace EntityFramework.SqlServer.ReverseEngineering.Model
             var tableConstraintColumn = new TableConstraintColumn();
             tableConstraintColumn.Id = reader.IsDBNull(0) ? null : reader.GetString(0);
             tableConstraintColumn.ParentId = reader.IsDBNull(1) ? null : reader.GetString(1);
-            tableConstraintColumn.ConstraintName = reader.IsDBNull(2) ? null : reader.GetString(2);
+            tableConstraintColumn.ConstraintId = reader.IsDBNull(2) ? null : reader.GetString(2);
             tableConstraintColumn.ConstraintType = reader.IsDBNull(3) ? null : reader.GetString(3);
             tableConstraintColumn.ColumnName = reader.IsDBNull(4) ? null : reader.GetString(4);
             tableConstraintColumn.Ordinal = reader.GetInt32(5);
@@ -55,9 +55,9 @@ namespace EntityFramework.SqlServer.ReverseEngineering.Model
         {
             return "TCon[Id=" + Id
                 + ", ParentId=" + ParentId
-                + ", ConstraintName=" + ConstraintName
+                + ", ConstraintId=" + ConstraintId
                 + ", ConstraintType=" + ConstraintType
-                + ", ColumnName=" + ConstraintName
+                + ", ColumnName=" + ColumnName
                 + ", Ordinal=" + Ordinal
                 + "]";
         }

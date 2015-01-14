@@ -18,7 +18,6 @@ namespace EntityFramework.ReverseEngineering.TestProvider
                     e.Key(re1 => re1.Id);
                     e.Property(re1 => re1.Name);
                     e.Property(re1 => re1.Description);
-                    e.OneToMany(re1 => re1.Entity2s, re2 => re2.RevEngEntity1);
                 });
 
             modelBuilder.Entity<RevEngEntity2>(e =>
@@ -26,6 +25,9 @@ namespace EntityFramework.ReverseEngineering.TestProvider
                     e.Key(re2 => new { re2.Id1, re2.Id2 });
                     e.Property(re2 => re2.Moniker);
                     e.Property(re2 => re2.FulsomePraise);
+                    e.ForeignKey<RevEngEntity1>(re2 => re2.RevEngEntity1Id);
+                    e.ManyToOne("RevEngEntity1", "RevEngEntity1Id", null);
+                    // e.ForeignKey<RevEngEntity1>(k => k.RevEngEntity1Id);
                 });
 
             return modelBuilder.Model;
