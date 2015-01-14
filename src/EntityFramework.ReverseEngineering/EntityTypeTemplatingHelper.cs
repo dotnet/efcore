@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -64,7 +65,14 @@ namespace Microsoft.Data.Entity.ReverseEngineering
                 sb.Append(PropertyAttributesCode(indent, property));
                 sb.Append(indent);
                 sb.Append("public ");
-                sb.Append(property.PropertyType.Name);
+                if (property.PropertyType.IsGenericType && property.PropertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
+                {
+                    sb.Append(Nullable.GetUnderlyingType(property.PropertyType).Name + "?");
+                }
+                else
+                {
+                    sb.Append(property.PropertyType.Name);
+                }
                 sb.Append(" ");
                 sb.Append(property.Name);
                 sb.Append(" { get; set; }");

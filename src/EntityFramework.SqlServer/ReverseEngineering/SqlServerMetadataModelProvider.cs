@@ -159,6 +159,10 @@ namespace EntityFramework.SqlServer.ReverseEngineering
                     Type clrPropertyType;
                     if (_sqlTypeToClrTypeMap.TryGetValue(tc.DataType, out clrPropertyType))
                     {
+                        if (tc.IsNullable)
+                        {
+                            clrPropertyType = clrPropertyType.MakeNullable();
+                        }
                         // have to add property in shadow state as we have no CLR type representing the EntityType at this stage
                         var property = entityType.AddProperty(EscapeForCSharp(tc.ColumnName), clrPropertyType, true);
 
