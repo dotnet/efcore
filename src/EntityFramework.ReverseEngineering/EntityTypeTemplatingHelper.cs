@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity.ReverseEngineering
             IKey key = EntityTypeTemplateModel.EntityType.TryGetPrimaryKey();
             if (key != null)
             {
-                primaryKeyPropertiesList.Concat(key.Properties.OrderBy(p => p.Name));
+                primaryKeyPropertiesList = new List<IProperty>(key.Properties.OrderBy(p => p.Name));
             }
 
             return primaryKeyPropertiesList.Concat(
