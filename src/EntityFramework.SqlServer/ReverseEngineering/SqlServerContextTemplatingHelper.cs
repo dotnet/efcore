@@ -25,7 +25,6 @@ namespace @Model.Namespace
 {
     public partial class @Model.ClassName : DbContext
     {
-
 @foreach(var et in @Model.MetadataModel.EntityTypes)
 {
 @:        public virtual DbSet<@et.SimpleName> @et.SimpleName { get; set; }
@@ -56,7 +55,6 @@ namespace @Model.Namespace
             var sb = new StringBuilder();
             sb.Append(indent);
             sb.AppendLine("modelBuilder.AddSqlServer();");
-            sb.AppendLine();
             foreach (var entity in ContextTemplateModel.MetadataModel.EntityTypes)
             {
                 sb.AppendLine();

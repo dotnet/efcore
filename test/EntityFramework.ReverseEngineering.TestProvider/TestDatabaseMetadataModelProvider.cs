@@ -27,7 +27,6 @@ namespace EntityFramework.ReverseEngineering.TestProvider
                     e.Property(re2 => re2.FulsomePraise);
                     e.ForeignKey<RevEngEntity1>(re2 => re2.RevEngEntity1Id);
                     e.ManyToOne("RevEngEntity1", "RevEngEntity1Id", null);
-                    // e.ForeignKey<RevEngEntity1>(k => k.RevEngEntity1Id);
                 });
 
             return modelBuilder.Model;
