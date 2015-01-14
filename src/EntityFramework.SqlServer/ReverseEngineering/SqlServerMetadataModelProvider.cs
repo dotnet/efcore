@@ -163,13 +163,13 @@ namespace EntityFramework.SqlServer.ReverseEngineering
                         var property = entityType.AddProperty(EscapeForCSharp(tc.ColumnName), clrPropertyType, true);
 
                         // make column a primary key if it appears in the PK constraint
-                        var primaryKeyConstrainColumn =
+                        var primaryKeyConstraintColumn =
                             tableConstraintColumns.Values
                             .FirstOrDefault(c => c.ParentId == table.Id && c.ColumnName == tc.ColumnName && c.ConstraintType == "PRIMARY KEY");
-                        if (primaryKeyConstrainColumn != null)
+                        if (primaryKeyConstraintColumn != null)
                         {
                             primaryKeys.Add(property);
-                            property.AddAnnotation("PrimaryKeyOrdinalPosition", primaryKeyConstrainColumn.Ordinal.ToString());
+                            property.AddAnnotation("PrimaryKeyOrdinalPosition", primaryKeyConstraintColumn.Ordinal.ToString());
                         }
 
                         ApplyPropertyProperties(property, tc);
