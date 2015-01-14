@@ -13,6 +13,6 @@ namespace Microsoft.Data.Entity.Relational.Query.Methods
                    ?? new StartsWithTranslator().Translate(methodCallExpression)
                    ?? new EndsWithTranslator().Translate(methodCallExpression)
                    ?? new ContainsTranslator().Translate(methodCallExpression);
-		}
+        }
     }
 }
