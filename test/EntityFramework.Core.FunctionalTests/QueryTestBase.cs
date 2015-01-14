@@ -1867,12 +1867,44 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 stateEntryCount: 1);
         }
 
-        private static string LocalMethod1()
+        [Fact]
+        public virtual void String_Contains_Literal()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.ContactName.Contains("M")),
+                stateEntryCount: 19);
+        }
+
+        [Fact]
+        public virtual void String_Contains_Identity()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.ContactName.Contains(c.ContactName)),
+                stateEntryCount: 91);
+        }
+
+        [Fact]
+        public virtual void String_Contains_Column()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.ContactName.Contains(c.ContactName)),
+                stateEntryCount: 91);
+        }
+
+        [Fact]
+        public virtual void String_Contains_MethodCall()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.ContactName.Contains(LocalMethod1())),
+                stateEntryCount: 19);
+        }
+
+        protected static string LocalMethod1()
         {
             return "M";
         }
 
-        private static string LocalMethod2()
+        protected static string LocalMethod2()
         {
             return "m";
         }
@@ -2055,15 +2087,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             int stateEntryCount = 0)
             where TItem : class
         {
-            using (var context = CreateContext())
-            {
-                AssertResults(
-                    query(NorthwindData.Set<TItem>()).ToArray(),
-                    query(context.Set<TItem>()).ToArray(),
-                    assertOrder);
-
-                Assert.Equal(stateEntryCount, context.ChangeTracker.Entries().Count());
-            }
+            AssertQuery(query, query, assertOrder, stateEntryCount);
         }
 
         private void AssertQuery<TItem1, TItem2>(
@@ -2122,6 +2146,24 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     query(NorthwindData.Set<TItem>()).ToArray(),
                     query(context.Set<TItem>()).ToArray(),
                     assertOrder);
+            }
+        }
+
+        protected void AssertQuery<TItem>(
+            Func<IQueryable<TItem>, IQueryable<object>> efQuery,
+            Func<IQueryable<TItem>, IQueryable<object>> l2oQuery,
+            bool assertOrder = false,
+            int stateEntryCount = 0)
+            where TItem : class
+        {
+            using (var context = CreateContext())
+            {
+                AssertResults(
+                    l2oQuery(NorthwindData.Set<TItem>()).ToArray(),
+                    efQuery(context.Set<TItem>()).ToArray(),
+                    assertOrder);
+
+                Assert.Equal(stateEntryCount, context.ChangeTracker.Entries().Count());
             }
         }
 
