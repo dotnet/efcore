@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Text;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.ReverseEngineering;
 
@@ -29,23 +30,26 @@ namespace @Model.Namespace
 
         public override string PropertyAttributesCode(string indent, IProperty property)
         {
+            var sb = new StringBuilder();
             var prop = (Property)property;
             if (prop.IsKey())
             {
                 string ordinal = string.Empty;
                 Annotation primaryKeyOrdinalPositionAnnotation;
-                if ((primaryKeyOrdinalPositionAnnotation = prop.TryGetAnnotation("PrimaryKeyOrdinalPosition")) != null)
+                if ((primaryKeyOrdinalPositionAnnotation = prop.TryGetAnnotation(SqlServerMetadataModelProvider.AnnotationNamePrimaryKeyOrdinal)) != null)
                 {
                     ordinal = "(Ordinal = " + primaryKeyOrdinalPositionAnnotation.Value + ")";
                 }
-                return indent + "[Key" + ordinal + "]" + Environment.NewLine;
-            }
-            if (prop.IsForeignKey())
-            {
-                return indent + "[ForeignKey]" + Environment.NewLine;
+                sb.AppendLine(indent + "[Key" + ordinal + "]");
             }
 
-            return null;
+            foreach(var annotation in prop.Annotations)
+            {
+                sb.AppendLine(indent + "// Annotation[" + annotation.Name + "] = >>>" + annotation.Value + "<<<");
+            }
+
+            var result = sb.ToString();
+            return string.IsNullOrEmpty(result) ? null : result;
         }
     }
 }
