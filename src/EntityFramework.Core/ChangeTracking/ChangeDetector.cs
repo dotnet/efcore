@@ -82,7 +82,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 if (navigation != null
                     && snapshot != null)
                 {
-                    DetectNavigationChange(entry, navigation, snapshot);
+                    TrackAddedEntities(entry.StateManager, DetectNavigationChange(entry, navigation, snapshot));
                 }
             }
         }
@@ -146,10 +146,9 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
             Check.NotNull(entry, "entry");
 
-            // TODO: Need real async once adding entities
-            DetectChanges(entry);
+            DetectPropertyChanges(entry);
 
-            return Task.FromResult(false);
+            return DetectRelationshipChangesAsync(entry, cancellationToken);
         }
 
         private void DetectPropertyChanges(StateEntry entry)
@@ -179,29 +178,66 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         private void DetectRelationshipChanges(StateEntry entry)
         {
-            var entityType = entry.EntityType;
+            var snapshot = entry.TryGetSidecar(Sidecar.WellKnownNames.RelationshipsSnapshot);
+            if (snapshot != null)
+            {
+                DetectKeyChanges(entry, snapshot);
+                DetectNavigationChanges(entry, snapshot);
+            }
+        }
 
+        private Task DetectRelationshipChangesAsync(StateEntry entry, CancellationToken cancellationToken = default(CancellationToken))
+        {
             var snapshot = entry.TryGetSidecar(Sidecar.WellKnownNames.RelationshipsSnapshot);
             if (snapshot == null)
             {
-                return;
+                return Task.FromResult(0);
             }
 
-            var hasPropertyNotifications = entityType.HasPropertyChangedNotifications();
-            if (!hasPropertyNotifications)
+            DetectKeyChanges(entry, snapshot);
+
+            return DetectNavigationChangesAsync(entry, snapshot, cancellationToken);
+        }
+
+        private void DetectKeyChanges(StateEntry entry, Sidecar snapshot)
+        {
+            var entityType = entry.EntityType;
+
+            if (!entityType.HasPropertyChangedNotifications())
             {
                 foreach (var property in entityType.Properties)
                 {
                     DetectKeyChange(entry, property, snapshot);
                 }
             }
+        }
 
-            if (!hasPropertyNotifications
+        private void DetectNavigationChanges(StateEntry entry, Sidecar snapshot)
+        {
+            var entityType = entry.EntityType;
+
+            if (!entityType.HasPropertyChangedNotifications()
                 || entityType.Navigations.Any(n => n.IsNonNotifyingCollection(entry)))
             {
                 foreach (var navigation in entityType.Navigations)
                 {
-                    DetectNavigationChange(entry, navigation, snapshot);
+                    TrackAddedEntities(entry.StateManager, DetectNavigationChange(entry, navigation, snapshot));
+                }
+            }
+        }
+
+        private async Task DetectNavigationChangesAsync(
+            StateEntry entry, Sidecar snapshot, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var entityType = entry.EntityType;
+
+            if (!entityType.HasPropertyChangedNotifications()
+                || entityType.Navigations.Any(n => n.IsNonNotifyingCollection(entry)))
+            {
+                foreach (var navigation in entityType.Navigations)
+                {
+                    await TrackAddedEntitiesAsync(entry.StateManager, DetectNavigationChange(entry, navigation, snapshot), cancellationToken)
+                        .WithCurrentCulture();
                 }
             }
         }
@@ -213,15 +249,14 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 return;
             }
 
-            // TODO: Perf: make it fast to check if a property is part of the primary key
+            // TODO: Perf: make it fast to check if a property is part of any key
             var isPrimaryKey = property.IsPrimaryKey();
-
-            // TODO: Perf: make it faster to check if the property is at the principal end or not
             var isPrincipalKey = _model.Service.GetReferencingForeignKeys(property).Any();
+            var isForeignKey = property.IsForeignKey();
 
             if (isPrimaryKey
                 || isPrincipalKey
-                || property.IsForeignKey())
+                || isForeignKey)
             {
                 var snapshotValue = snapshot[property];
                 var currentValue = entry[property];
@@ -230,7 +265,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 // of byte[] with the same content must be detected as equal.
                 if (!StructuralComparisons.StructuralEqualityComparer.Equals(currentValue, snapshotValue))
                 {
-                    if (property.IsForeignKey())
+                    if (isForeignKey)
                     {
                         entry.StateManager.Notify.ForeignKeyPropertyChanged(entry, property, snapshotValue, currentValue);
                     }
@@ -250,17 +285,18 @@ namespace Microsoft.Data.Entity.ChangeTracking
             }
         }
 
-        private void DetectNavigationChange(StateEntry entry, INavigation navigation, Sidecar snapshot)
+        private IEnumerable<object> DetectNavigationChange(StateEntry entry, INavigation navigation, Sidecar snapshot)
         {
             var snapshotValue = snapshot[navigation];
             var currentValue = entry[navigation];
+            var stateManager = entry.StateManager;
+
+            var added = new HashSet<object>(ReferenceEqualityComparer.Instance);
 
             if (navigation.IsCollection())
             {
                 var snapshotCollection = (IEnumerable)snapshotValue;
                 var currentCollection = (IEnumerable)currentValue;
-
-                var added = new HashSet<object>(ReferenceEqualityComparer.Instance);
 
                 var removed = new HashSet<object>(ReferenceEqualityComparer.Instance);
                 if (snapshotCollection != null)
@@ -285,16 +321,51 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 if (added.Any()
                     || removed.Any())
                 {
-                    entry.StateManager.Notify.NavigationCollectionChanged(entry, navigation, added, removed);
+                    stateManager.Notify.NavigationCollectionChanged(entry, navigation, added, removed);
 
                     snapshot.TakeSnapshot(navigation);
                 }
             }
             else if (!ReferenceEquals(currentValue, snapshotValue))
             {
-                entry.StateManager.Notify.NavigationReferenceChanged(entry, navigation, snapshotValue, currentValue);
+                stateManager.Notify.NavigationReferenceChanged(entry, navigation, snapshotValue, currentValue);
+
+                if (currentValue != null)
+                {
+                    added.Add(currentValue);
+                }
 
                 snapshot.TakeSnapshot(navigation);
+            }
+
+            return added;
+        }
+
+        private void TrackAddedEntities(StateManager stateManager, IEnumerable<object> addedEntities)
+        {
+            foreach (var addedEntity in addedEntities)
+            {
+                var addedEntry = stateManager.GetOrCreateEntry(addedEntity);
+                if (addedEntry.EntityState == EntityState.Unknown)
+                {
+                    addedEntry.SetEntityState(EntityState.Added);
+                }
+            }
+        }
+
+        private async Task TrackAddedEntitiesAsync(
+            StateManager stateManager,
+            IEnumerable<object> addedEntities,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            foreach (var addedEntity in addedEntities)
+            {
+                var addedEntry = stateManager.GetOrCreateEntry(addedEntity);
+                if (addedEntry.EntityState == EntityState.Unknown)
+                {
+                    await addedEntry.SetEntityStateAsync(
+                        EntityState.Added, acceptChanges: false, cancellationToken: cancellationToken).WithCurrentCulture();
+                }
             }
         }
     }
