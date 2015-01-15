@@ -3,8 +3,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.ConfigurationModel;
 
@@ -13,7 +15,7 @@ namespace Microsoft.Data.Entity.Infrastructure
     public class DbContextOptionsParser
     {
         private const string EntityFrameworkKey = "EntityFramework";
-        private const string KeySuffix = "Key";
+        private const string ConnectionStringKey = "ConnectionString";
 
         public virtual IReadOnlyDictionary<string, string> ReadRawOptions<TContext>(
             [NotNull] IConfiguration configuration,
@@ -63,10 +65,26 @@ namespace Microsoft.Data.Entity.Infrastructure
                     continue;
                 }
 
-                if (key.EndsWith(KeySuffix, StringComparison.Ordinal)
-                    && configuration.TryGet(value, out value))
+                if (key.Equals(ConnectionStringKey, StringComparison.OrdinalIgnoreCase))
                 {
-                    key = key.Substring(0, key.Length - KeySuffix.Length);
+                    var redirectionKey = string.Empty;
+                    // Check if the value is redirection to other key
+                    var firstequals = value.IndexOf('=');
+                    if (firstequals < 0)
+                    {
+                        redirectionKey = value;
+                    }
+                    else if ((value.IndexOf('=', firstequals + 1) < 0)
+                        && (value.Substring(0, firstequals).Trim().Equals(
+                          "name", StringComparison.OrdinalIgnoreCase)))
+                    {
+                        redirectionKey = value.Substring(firstequals + 1).Trim();
+                    }
+
+                    if (!string.IsNullOrEmpty(redirectionKey) && !configuration.TryGet(redirectionKey, out value))
+                    {
+                        throw new InvalidOperationException(Strings.ConnectionStringNotFound(redirectionKey));
+                    }
                 }
 
                 options[string.Concat(keyPrefix, key)] = value;

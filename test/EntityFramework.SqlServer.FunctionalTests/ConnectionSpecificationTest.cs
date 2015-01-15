@@ -122,7 +122,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                                 "Data:DefaultConnection:ConnectionString", SqlServerNorthwindContext.ConnectionString
                             },
                             {
-                                "EntityFramework:" + typeof(StringInConfigContext).Name + ":ConnectionStringKey", "Data:DefaultConnection:ConnectionString"
+                                "EntityFramework:" + typeof(StringInConfigContext).Name + ":ConnectionString", "Name=Data:DefaultConnection:ConnectionString"
                             }
                         }
                 };
@@ -247,7 +247,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                                 "Data:DefaultConnection:ConnectionString", SqlServerNorthwindContext.ConnectionString
                             },
                             {
-                                "EntityFramework:" + typeof(NoUseSqlServerContext).Name + ":ConnectionStringKey", "Data:DefaultConnection:ConnectionString"
+                                "EntityFramework:" + typeof(NoUseSqlServerContext).Name + ":ConnectionString", "Name=Data:DefaultConnection:ConnectionString"
                             }
                         }
                 };

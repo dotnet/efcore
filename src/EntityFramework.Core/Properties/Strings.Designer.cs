@@ -29,14 +29,6 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// The value for the configuration entry '{configurationKey}' is '{invalidValue}', but an integer is expected.
-        /// </summary>
-        public static string IntegerConfigurationValueFormatError([CanBeNull] object configurationKey, [CanBeNull] object invalidValue)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("IntegerConfigurationValueFormatError", "configurationKey", "invalidValue"), configurationKey, invalidValue);
-        }
-
-        /// <summary>
         /// The value provided for argument '{argumentName}' must be a valid value of enum type '{enumType}'.
         /// </summary>
         public static string InvalidEnumValue([CanBeNull] object argumentName, [CanBeNull] object enumType)
@@ -818,6 +810,22 @@ namespace Microsoft.Data.Entity.Internal
         public static string InvalidEntityType([CanBeNull] object type, [CanBeNull] object argumentName)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("InvalidEntityType", "type", "argumentName"), type, argumentName);
+        }
+
+        /// <summary>
+        /// The value for the configuration entry '{configurationKey}' is '{invalidValue}', but an integer is expected.
+        /// </summary>
+        public static string IntegerConfigurationValueFormatError([CanBeNull] object configurationKey, [CanBeNull] object invalidValue)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("IntegerConfigurationValueFormatError", "configurationKey", "invalidValue"), configurationKey, invalidValue);
+        }
+
+        /// <summary>
+        /// No connection string named '{connectionString}' could be found in configuration.
+        /// </summary>
+        public static string ConnectionStringNotFound([CanBeNull] object connectionString)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ConnectionStringNotFound", "connectionString"), connectionString);
         }
 
         private static string GetString(string name, params string[] formatterNames)
