@@ -524,8 +524,8 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCode
 
 builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCodeGeneratorTest+Order"", b =>
     {
-        b.ForeignKey(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCodeGeneratorTest+Customer"", ""CustomerId"", ""CustomerName"");
         b.ForeignKey(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCodeGeneratorTest+Product"", ""ProductId"");
+        b.ForeignKey(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCodeGeneratorTest+Customer"", ""CustomerId"", ""CustomerName"");
     });
 
 return builder.Model;",
@@ -600,12 +600,12 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCode
 
 builder.Entity(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCodeGeneratorTest+Order"", b =>
     {
-        b.ForeignKey(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCodeGeneratorTest+Customer"", ""CustomerId"", ""CustomerName"")
-            .Annotation(""A1"", ""V1"")
-            .Annotation(""A2"", ""V2"");
         b.ForeignKey(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCodeGeneratorTest+Product"", ""ProductId"")
             .Annotation(""A3"", ""V3"")
             .Annotation(""A4"", ""V4"");
+        b.ForeignKey(""Microsoft.Data.Entity.Commands.Tests.Migrations.CSharpModelCodeGeneratorTest+Customer"", ""CustomerId"", ""CustomerName"")
+            .Annotation(""A1"", ""V1"")
+            .Annotation(""A2"", ""V2"");
     });
 
 return builder.Model;",

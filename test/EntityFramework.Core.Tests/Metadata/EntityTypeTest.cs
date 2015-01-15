@@ -181,7 +181,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.NotNull(key2);
             Assert.Same(key2, entityType.GetKey(idProperty));
-            Assert.Equal(new[] { key1, key2 }, entityType.Keys.ToArray());
+            Assert.Equal(2, entityType.Keys.Count());
+            Assert.Contains(key1, entityType.Keys);
+            Assert.Contains(key2, entityType.Keys);
         }
 
         [Fact]
@@ -268,6 +270,22 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Equal(
                 Strings.KeyInUse("'" + Customer.IdProperty.Name + "'", typeof(Customer).FullName, typeof(Order).FullName),
                 Assert.Throws<InvalidOperationException>(() => customerType.RemoveKey(customerKey)).Message);
+        }
+
+        [Fact]
+        public void Keys_are_ordered_by_property_count_then_property_names()
+        {
+            var customerType = new EntityType(typeof(Customer), new Model());
+            var idProperty = customerType.GetOrAddProperty(Customer.IdProperty);
+            var nameProperty = customerType.GetOrAddProperty(Customer.NameProperty);
+            var otherNameProperty = customerType.GetOrAddProperty("OtherNameProperty", typeof(string), shadowProperty: true);
+
+            var k2 = customerType.GetOrAddKey(nameProperty);
+            var k4 = customerType.GetOrAddKey(new[] { idProperty, otherNameProperty });
+            var k3 = customerType.GetOrAddKey(new[] { idProperty, nameProperty });
+            var k1 = customerType.GetOrAddKey(idProperty);
+
+            Assert.True(new[] { k1, k2, k3, k4 }.SequenceEqual(customerType.Keys));
         }
 
         [Fact]
@@ -642,6 +660,30 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         }
 
         [Fact]
+        public void Foreign_keys_are_ordered_by_property_count_then_property_names()
+        {
+            var customerType = new EntityType(typeof(Customer), new Model());
+            var idProperty = customerType.GetOrAddProperty(Customer.IdProperty);
+            var nameProperty = customerType.GetOrAddProperty(Customer.NameProperty);
+            var customerKey = customerType.GetOrAddKey(idProperty);
+            var otherCustomerKey = customerType.GetOrAddKey(new[] { idProperty, nameProperty });
+
+            var orderType = new EntityType(typeof(Order), new Model());
+            var customerFk1 = orderType.GetOrAddProperty(Order.CustomerIdProperty);
+            var customerFk2 = orderType.GetOrAddProperty("IdAgain", typeof(int), shadowProperty: true);
+            var customerFk3A = orderType.GetOrAddProperty("OtherId1", typeof(int), shadowProperty: true);
+            var customerFk3B = orderType.GetOrAddProperty("OtherId2", typeof(string), shadowProperty: true);
+            var customerFk4B = orderType.GetOrAddProperty("OtherId3", typeof(string), shadowProperty: true);
+
+            var fk2 = orderType.AddForeignKey(customerFk2, customerKey);
+            var fk4 = orderType.AddForeignKey(new[] { customerFk3A, customerFk4B }, otherCustomerKey);
+            var fk3 = orderType.AddForeignKey(new[] { customerFk3A, customerFk3B }, otherCustomerKey);
+            var fk1 = orderType.AddForeignKey(customerFk1, customerKey);
+
+            Assert.True(new[] { fk1, fk2, fk3, fk4 }.SequenceEqual(orderType.ForeignKeys));
+        }
+
+        [Fact]
         public void Can_add_and_remove_navigations()
         {
             var customerType = new EntityType(typeof(Customer), new Model());
@@ -884,6 +926,27 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Same(fk.GetNavigationToDependent(), navigationToDependent);
             Assert.Same(fk.GetNavigationToPrincipal(), navigationToPrincipal);
+        }
+
+        [Fact]
+        public void Navigations_are_ordered_by_name()
+        {
+            var customerType = new EntityType(typeof(Customer), new Model());
+            var customerKey = customerType.GetOrAddKey(customerType.GetOrAddProperty(Customer.IdProperty));
+
+            var orderType = new EntityType(typeof(Order), new Model());
+            var customerForeignKeyProperty = orderType.AddProperty(Order.CustomerIdProperty);
+            var customerForeignKey = orderType.AddForeignKey(customerForeignKeyProperty, customerKey);
+
+            var specialOrderType = new EntityType(typeof(SpecialOrder), new Model());
+            var specialCustomerForeignKeyProperty = specialOrderType.AddProperty(SpecialOrder.CustomerIdProperty);
+            var specialCustomerForeignKey = specialOrderType.AddForeignKey(specialCustomerForeignKeyProperty, customerKey);
+
+
+            var navigation2 = customerType.AddNavigation("Orders", customerForeignKey, pointsToPrincipal: false);
+            var navigation1 = customerType.AddNavigation("DerivedOrders", specialCustomerForeignKey, pointsToPrincipal: false);
+
+            Assert.True(new[] { navigation1, navigation2 }.SequenceEqual(customerType.Navigations));
         }
 
         [Fact]
@@ -1298,6 +1361,23 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Equal(3, entityType.ShadowPropertyCount);
             Assert.Equal(3, entityType.OriginalValueCount);
         }
+
+        [Fact]
+        public void Indexes_are_ordered_by_property_count_then_property_names()
+        {
+            var customerType = new EntityType(typeof(Customer), new Model());
+            var idProperty = customerType.GetOrAddProperty(Customer.IdProperty);
+            var nameProperty = customerType.GetOrAddProperty(Customer.NameProperty);
+            var otherProperty = customerType.GetOrAddProperty("OtherProperty", typeof(string), shadowProperty: true);
+
+            var i2 = customerType.AddIndex(nameProperty);
+            var i4 = customerType.AddIndex(new[] { idProperty, otherProperty });
+            var i3 = customerType.AddIndex(new[] { idProperty, nameProperty });
+            var i1 = customerType.AddIndex(idProperty);
+
+            Assert.True(new[] { i1, i2, i3, i4 }.SequenceEqual(customerType.Indexes));
+        }
+
 
         [Fact]
         public void Lazy_original_values_are_used_for_full_notification_and_shadow_enties()
