@@ -30,5 +30,22 @@ namespace Microsoft.Data.Entity.ReverseEngineering
                 ? string.Empty
                 : string.Join("", namespaces.Distinct().OrderBy(s => s).Select(s => "using " + s + ";" + Environment.NewLine));
         }
+
+        public static string EscapeForCSharp(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                return "_";
+            }
+
+            var cSharpName = name.Replace(".", "_").Replace(" ", "_");
+            char firstChar = cSharpName.ElementAt(0);
+            if (firstChar >= '0' && firstChar <= '9')
+            {
+                cSharpName = "_" + cSharpName;
+            }
+
+            return cSharpName;
+        }
     }
 }

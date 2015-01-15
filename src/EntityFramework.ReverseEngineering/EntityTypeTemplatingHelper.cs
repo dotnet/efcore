@@ -65,7 +65,18 @@ namespace Microsoft.Data.Entity.ReverseEngineering
                 sb.Append(PropertyAttributesCode(indent, property));
                 sb.Append(indent);
                 sb.Append("public ");
-                if (property.PropertyType.IsGenericType && property.PropertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
+
+                //TODO workaround for property.PropertyType.IsGenericType being missing in ASPNETCORE50
+                bool isNullableType;
+                try
+                {
+                    isNullableType = (typeof(Nullable<>) == property.PropertyType.GetGenericTypeDefinition());
+                }
+                catch(InvalidOperationException)
+                {
+                    isNullableType = false;
+                }
+                if (isNullableType)
                 {
                     sb.Append(Nullable.GetUnderlyingType(property.PropertyType).Name + "?");
                 }

@@ -47,14 +47,12 @@ namespace @Model.Namespace
 
         public override string OnConfiguringCode(string indent)
         {
-            return indent + "options.UseSqlServer(\"" + ContextTemplateModel.ConnectionString + "\");";
+            return indent + "options.UseSqlServer(@\"" + ContextTemplateModel.ConnectionString + "\");";
         }
 
         public override string OnModelCreatingCode(string indent)
         {
             var sb = new StringBuilder();
-            sb.Append(indent);
-            sb.AppendLine("modelBuilder.AddSqlServer();");
             foreach (var entity in ContextTemplateModel.MetadataModel.EntityTypes)
             {
                 sb.AppendLine();

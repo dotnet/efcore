@@ -135,17 +135,17 @@ namespace EntityFramework.SqlServer.ReverseEngineering
             //    Console.WriteLine(tc.Value.ToString());
             //}
 
-            Console.WriteLine(Environment.NewLine + "Constraint Columns");
-            foreach (var tc in tableConstraintColumns)
-            {
-                Console.WriteLine(tc.Value.ToString());
-            }
+            //Console.WriteLine(Environment.NewLine + "Constraint Columns");
+            //foreach (var tc in tableConstraintColumns)
+            //{
+            //    Console.WriteLine(tc.Value.ToString());
+            //}
 
-            Console.WriteLine(Environment.NewLine + "Foreign Key Column Mappings");
-            foreach (var fkcm in foreignKeyColumnMappings)
-            {
-                Console.WriteLine(fkcm.Value.ToString());
-            }
+            //Console.WriteLine(Environment.NewLine + "Foreign Key Column Mappings");
+            //foreach (var fkcm in foreignKeyColumnMappings)
+            //{
+            //    Console.WriteLine(fkcm.Value.ToString());
+            //}
 
             return CreateModel(tables, tableColumns, tableConstraintColumns, foreignKeyColumnMappings);
         }
@@ -180,7 +180,9 @@ namespace EntityFramework.SqlServer.ReverseEngineering
             foreach (var t in tables)
             {
                 var table = t.Value;
-                var escapedTableName = EscapeForCSharp(table.SchemaName) + AnnotationNameTableIdSchemaTableSeparator + EscapeForCSharp(table.TableName);
+                var escapedTableName = BaseTemplatingHelper.EscapeForCSharp(table.SchemaName)
+                    + AnnotationNameTableIdSchemaTableSeparator
+                    + BaseTemplatingHelper.EscapeForCSharp(table.TableName);
                 var entityType = model.AddEntityType(escapedTableName);
                 entityType.AddAnnotation(AnnotationNameTableId, table.Id);
 
@@ -196,7 +198,7 @@ namespace EntityFramework.SqlServer.ReverseEngineering
                             clrPropertyType = clrPropertyType.MakeNullable();
                         }
                         // have to add property in shadow state as we have no CLR type representing the EntityType at this stage
-                        var property = entityType.AddProperty(EscapeForCSharp(tc.ColumnName), clrPropertyType, true);
+                        var property = entityType.AddProperty(BaseTemplatingHelper.EscapeForCSharp(tc.ColumnName), clrPropertyType, true);
                         property.AddAnnotation(AnnotationNameColumnId, tc.Id);
                         columnIdToProperty.Add(tc.Id, property);
 
@@ -234,22 +236,6 @@ namespace EntityFramework.SqlServer.ReverseEngineering
                             property.AddAnnotation(
                                 GetForeignKeyOrdinalPositionAnnotationName(foreignKeyConstraintColumn.ConstraintId),
                                 foreignKeyConstraintColumn.Ordinal.ToString());
-
-
-                            //if (foreignKeyConstraintColumn != null)
-                            //{
-                            //    List<Property> foreignKeyColumns;
-                            //    if (!foreignKeys.TryGetValue(foreignKeyConstraintColumn.ConstraintId, out foreignKeyColumns))
-                            //    {
-                            //        foreignKeyColumns = new List<Property>();
-                            //        foreignKeys.Add(foreignKeyConstraintColumn.ConstraintId, foreignKeyColumns);
-                            //    }
-
-                            //    foreignKeyColumns.Add(property);
-                            //    property.AddAnnotation(
-                            //        GetForeignKeyOrdinalPositionAnnotationName(foreignKeyConstraintColumn.ConstraintId),
-                            //        foreignKeyConstraintColumn.Ordinal.ToString());
-                            //}
                         }
 
                         ApplyPropertyProperties(property, tc);
@@ -258,13 +244,6 @@ namespace EntityFramework.SqlServer.ReverseEngineering
                 }
 
                 entityType.SetPrimaryKey(primaryKeys);
-
-                //foreach (var foreignKey in foreignKeys)
-                //{
-                //    var annotationName = GetForeignKeyOrdinalPositionAnnotationName(foreignKey.Key);
-                //    var foreignKeyProps = foreignKey.Value;
-                //    entityType.AddForeignKey();
-                //}
             }
 
             // loop over all properties adding TargetEntityType and TargetProperty for ForeignKeys
@@ -321,16 +300,19 @@ namespace EntityFramework.SqlServer.ReverseEngineering
             var workingString = input;
             int firstIndex = -1;
             do {
-                firstIndex = input.IndexOfAny(delimiters);
+                firstIndex = workingString.IndexOfAny(delimiters);
                 if (firstIndex < 0)
                 {
+                    // Console.WriteLine("FirstIndex = " + firstIndex + ". Output = >>>" + workingString + "<<<");
                     output.Add(workingString);
                 }
                 else
                 {
+                    // Console.WriteLine("FirstIndex = " + firstIndex + ". Output = >>>" + workingString.Substring(0, firstIndex) + "<<<");
                     output.Add(workingString.Substring(0, firstIndex));
                 }
                 workingString = workingString.Substring(firstIndex + 1);
+                // Console.WriteLine("workingString = >>>" + workingString + "<<<");
             }
             while (firstIndex >= 0 && !string.IsNullOrEmpty(workingString));
 
@@ -388,22 +370,6 @@ namespace EntityFramework.SqlServer.ReverseEngineering
             {
                 property.UseStoreDefault = true;
             }
-        }
-        public static string EscapeForCSharp(string name)
-        {
-            if (string.IsNullOrEmpty(name))
-            {
-                return "_";
-            }
-
-            var cSharpName = name.Replace(".", "_");
-            char firstChar = cSharpName.ElementAt(0);
-            if (firstChar >= '0' && firstChar <= '9')
-            {
-                cSharpName = "_" + cSharpName;
-            }
-
-            return cSharpName;
         }
 
         public string GetContextTemplate() { return SqlServerContextTemplatingHelper.ContextTemplate; }
