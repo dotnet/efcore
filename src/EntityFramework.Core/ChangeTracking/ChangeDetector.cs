@@ -40,10 +40,18 @@ namespace Microsoft.Data.Entity.ChangeTracking
             Check.NotNull(propertyBase, "propertyBase");
 
             var property = propertyBase as IProperty;
-            if (property != null)
+            if (property == null)
             {
-                DetectPrincipalKeyChange(entry, property);
+                return;
             }
+
+            var snapshot = entry.TryGetSidecar(Sidecar.WellKnownNames.RelationshipsSnapshot);
+            if (snapshot == null)
+            {
+                return;
+            }
+
+            DetectKeyChange(entry, property, snapshot);
         }
 
         public virtual void SidecarPropertyChanging(StateEntry entry, IPropertyBase propertyBase)
@@ -56,31 +64,25 @@ namespace Microsoft.Data.Entity.ChangeTracking
             Check.NotNull(entry, "entry");
             Check.NotNull(propertyBase, "propertyBase");
 
-            var property = propertyBase as IProperty;
+            var snapshot = entry.TryGetSidecar(Sidecar.WellKnownNames.RelationshipsSnapshot);
 
+            var property = propertyBase as IProperty;
             if (property != null)
             {
                 entry.SetPropertyModified(property);
 
-                // Note: Make sure DetectPrincipalKeyChange is called even if DetectForeignKeyChange has returned true
-                var foreignKeyChange = DetectForeignKeyChange(entry, property);
-                var principalKeyChange = DetectPrincipalKeyChange(entry, property);
-                if (foreignKeyChange
-                    || principalKeyChange)
+                if (snapshot != null)
                 {
-                    entry.RelationshipsSnapshot.TakeSnapshot(property);
+                    DetectKeyChange(entry, property, snapshot);
                 }
             }
             else
             {
                 var navigation = propertyBase as INavigation;
-
-                if (navigation != null)
+                if (navigation != null
+                    && snapshot != null)
                 {
-                    if (DetectNavigationChange(entry, navigation))
-                    {
-                        entry.RelationshipsSnapshot.TakeSnapshot(navigation);
-                    }
+                    DetectNavigationChange(entry, navigation, snapshot);
                 }
             }
         }
@@ -135,43 +137,8 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
             Check.NotNull(entry, "entry");
 
-            var entityType = entry.EntityType;
-
-            if (!RequiresDetectChanges(entry))
-            {
-                return;
-            }
-
-            var originalValues = entry.TryGetSidecar(Sidecar.WellKnownNames.OriginalValues);
-            var changedFkProperties = new List<IProperty>();
-            foreach (var property in entityType.Properties)
-            {
-                // TODO: Perf: don't lookup accessor twice
-                if (originalValues != null
-                    && property.OriginalValueIndex >= 0
-                    && !Equals(entry[property], originalValues[property]))
-                {
-                    entry.SetPropertyModified(property);
-                }
-
-                if (DetectForeignKeyChange(entry, property))
-                {
-                    changedFkProperties.Add(property);
-                }
-            }
-
-            foreach (var property in changedFkProperties)
-            {
-                entry.RelationshipsSnapshot.TakeSnapshot(property);
-            }
-
-            foreach (var navigation in entityType.Navigations)
-            {
-                if (DetectNavigationChange(entry, navigation))
-                {
-                    entry.RelationshipsSnapshot.TakeSnapshot(navigation);
-                }
-            }
+            DetectPropertyChanges(entry);
+            DetectRelationshipChanges(entry);
         }
 
         public virtual Task DetectChangesAsync(
@@ -185,39 +152,107 @@ namespace Microsoft.Data.Entity.ChangeTracking
             return Task.FromResult(false);
         }
 
-        public virtual bool RequiresDetectChanges([NotNull] StateEntry entry)
+        private void DetectPropertyChanges(StateEntry entry)
         {
-            Check.NotNull(entry, "entry");
-
             var entityType = entry.EntityType;
 
-            return !entityType.HasPropertyChangedNotifications()
-                   || entityType.Navigations.Any(n => n.IsNonNotifyingCollection(entry));
+            if (entityType.HasPropertyChangedNotifications())
+            {
+                return;
+            }
+
+            var snapshot = entry.TryGetSidecar(Sidecar.WellKnownNames.OriginalValues);
+            if (snapshot == null)
+            {
+                return;
+            }
+
+            foreach (var property in entityType.Properties)
+            {
+                if (property.OriginalValueIndex >= 0
+                    && !Equals(entry[property], snapshot[property]))
+                {
+                    entry.SetPropertyModified(property);
+                }
+            }
         }
 
-        private bool DetectForeignKeyChange(StateEntry entry, IProperty property)
+        private void DetectRelationshipChanges(StateEntry entry)
         {
-            if (property.IsForeignKey())
+            var entityType = entry.EntityType;
+
+            var snapshot = entry.TryGetSidecar(Sidecar.WellKnownNames.RelationshipsSnapshot);
+            if (snapshot == null)
             {
-                var snapshotValue = entry.RelationshipsSnapshot[property];
+                return;
+            }
+
+            var hasPropertyNotifications = entityType.HasPropertyChangedNotifications();
+            if (!hasPropertyNotifications)
+            {
+                foreach (var property in entityType.Properties)
+                {
+                    DetectKeyChange(entry, property, snapshot);
+                }
+            }
+
+            if (!hasPropertyNotifications
+                || entityType.Navigations.Any(n => n.IsNonNotifyingCollection(entry)))
+            {
+                foreach (var navigation in entityType.Navigations)
+                {
+                    DetectNavigationChange(entry, navigation, snapshot);
+                }
+            }
+        }
+
+        private void DetectKeyChange(StateEntry entry, IProperty property, Sidecar snapshot)
+        {
+            if (!snapshot.HasValue(property))
+            {
+                return;
+            }
+
+            // TODO: Perf: make it fast to check if a property is part of the primary key
+            var isPrimaryKey = property.IsPrimaryKey();
+
+            // TODO: Perf: make it faster to check if the property is at the principal end or not
+            var isPrincipalKey = _model.Service.GetReferencingForeignKeys(property).Any();
+
+            if (isPrimaryKey
+                || isPrincipalKey
+                || property.IsForeignKey())
+            {
+                var snapshotValue = snapshot[property];
                 var currentValue = entry[property];
 
                 // Note that mutation of a byte[] key is not supported or detected, but two different instances
                 // of byte[] with the same content must be detected as equal.
                 if (!StructuralComparisons.StructuralEqualityComparer.Equals(currentValue, snapshotValue))
                 {
-                    entry.StateManager.Notify.ForeignKeyPropertyChanged(entry, property, snapshotValue, currentValue);
+                    if (property.IsForeignKey())
+                    {
+                        entry.StateManager.Notify.ForeignKeyPropertyChanged(entry, property, snapshotValue, currentValue);
+                    }
 
-                    return true;
+                    if (isPrimaryKey)
+                    {
+                        entry.StateManager.UpdateIdentityMap(entry, snapshot.GetPrimaryKeyValue());
+                    }
+
+                    if (isPrincipalKey)
+                    {
+                        entry.StateManager.Notify.PrincipalKeyPropertyChanged(entry, property, snapshotValue, currentValue);
+                    }
+
+                    snapshot.TakeSnapshot(property);
                 }
             }
-
-            return false;
         }
 
-        private bool DetectNavigationChange(StateEntry entry, INavigation navigation)
+        private void DetectNavigationChange(StateEntry entry, INavigation navigation, Sidecar snapshot)
         {
-            var snapshotValue = entry.RelationshipsSnapshot[navigation];
+            var snapshotValue = snapshot[navigation];
             var currentValue = entry[navigation];
 
             if (navigation.IsCollection())
@@ -252,48 +287,15 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 {
                     entry.StateManager.Notify.NavigationCollectionChanged(entry, navigation, added, removed);
 
-                    return true;
+                    snapshot.TakeSnapshot(navigation);
                 }
             }
             else if (!ReferenceEquals(currentValue, snapshotValue))
             {
                 entry.StateManager.Notify.NavigationReferenceChanged(entry, navigation, snapshotValue, currentValue);
 
-                return true;
+                snapshot.TakeSnapshot(navigation);
             }
-
-            return false;
-        }
-
-        private bool DetectPrincipalKeyChange(StateEntry entry, IProperty property)
-        {
-            // TODO: Perf: make it fast to check if a property is part of the primary key
-            var isPrimaryKey = property.IsPrimaryKey();
-
-            // TODO: Perf: make it faster to check if the property is at the principal end or not
-            var foreignKeys = _model.Service.GetReferencingForeignKeys(property).ToList();
-
-            if (isPrimaryKey || foreignKeys.Count > 0)
-            {
-                var snapshotValue = entry.RelationshipsSnapshot[property];
-                var currentValue = entry[property];
-
-                if (!StructuralComparisons.StructuralEqualityComparer.Equals(currentValue, snapshotValue))
-                {
-                    if (isPrimaryKey)
-                    {
-                        entry.StateManager.UpdateIdentityMap(entry, entry.RelationshipsSnapshot.GetPrimaryKeyValue());
-                    }
-
-                    entry.StateManager.Notify.PrincipalKeyPropertyChanged(entry, property, snapshotValue, currentValue);
-
-                    entry.RelationshipsSnapshot.TakeSnapshot(property);
-
-                    return true;
-                }
-            }
-
-            return false;
         }
     }
 }
