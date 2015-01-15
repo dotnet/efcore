@@ -76,8 +76,7 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
                 .Table("TitleSponsors");
 
             modelBuilder
-                .Entity<Team>()
-                .OneToOne(e => e.Chassis, e => e.Team);
+                .Entity<Team>().HasOne(e => e.Chassis).WithOne(e => e.Team);
         }
     }
 }

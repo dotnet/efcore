@@ -114,13 +114,15 @@ namespace Microsoft.Data.Entity.Tests
 
             modelBuilder
                 .Entity<Category>()
-                .OneToMany(e => e.Products, e => e.Category);
+                .HasMany(e => e.Products)
+                .WithOne(e => e.Category);
 
             modelBuilder
                 .Entity<ProductDetailsTag>(b =>
                     {
                         b.Key(e => new { e.Id1, e.Id2 });
-                        b.OneToOne(e => e.TagDetails, e => e.Tag)
+                        b.HasOne(e => e.TagDetails)
+                            .WithOne(e => e.Tag)
                             .ReferencedKey<ProductDetailsTag>(e => e.Id2)
                             .ForeignKey<ProductDetailsTagDetails>(e => e.Id);
                     });
@@ -129,20 +131,26 @@ namespace Microsoft.Data.Entity.Tests
                 .Entity<ProductDetails>(b =>
                     {
                         b.Key(e => new { e.Id1, e.Id2 });
-                        b.OneToOne(e => e.Tag, e => e.Details)
+                        b.HasOne(e => e.Tag)
+                            .WithOne(e => e.Details)
                             .ForeignKey<ProductDetailsTag>(e => new { e.Id1, e.Id2 });
                     });
 
             modelBuilder
                 .Entity<Product>()
-                .OneToOne(e => e.Details, e => e.Product)
+                .HasOne(e => e.Details)
+                .WithOne(e => e.Product)
                 .ForeignKey<ProductDetails>(e => new { e.Id1 });
 
             modelBuilder.Entity<OrderDetails>(b =>
                 {
                     b.Key(e => new { e.OrderId, e.ProductId });
-                    b.ManyToOne(e => e.Order, e => e.OrderDetails).ForeignKey(e => e.OrderId);
-                    b.ManyToOne(e => e.Product, e => e.OrderDetails).ForeignKey(e => e.ProductId);
+                    b.HasOne(e => e.Order)
+                        .WithMany(e => e.OrderDetails)
+                        .ForeignKey(e => e.OrderId);
+                    b.HasOne(e => e.Product)
+                        .WithMany(e => e.OrderDetails)
+                        .ForeignKey(e => e.ProductId);
                 });
 
             return modelBuilder.Model;

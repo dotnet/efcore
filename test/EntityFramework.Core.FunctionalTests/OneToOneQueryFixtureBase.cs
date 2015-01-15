@@ -13,8 +13,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             var modelBuilder = new ModelBuilder(model);
 
             modelBuilder
-                .Entity<Person>(
-                    e => e.OneToOne(p => p.Address, a => a.Resident));
+                .Entity<Address>(e => e.HasOne(a => a.Resident).WithOne(p => p.Address));
 
             // TODO: Bug #1116
             modelBuilder.Entity<Address>().Property(a => a.Id).GenerateValueOnAdd(false);
@@ -23,7 +22,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             modelBuilder
                 .Entity<Person2>(
-                    e => e.OneToOne(p => p.Address, a => a.Resident)
+                    e => e.HasOne(p => p.Address).WithOne(a => a.Resident)
                         .ForeignKey(typeof(Address2), "PersonId"));
 
             return model;

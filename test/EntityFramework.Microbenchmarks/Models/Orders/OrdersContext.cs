@@ -35,16 +35,13 @@ namespace EntityFramework.Microbenchmarks.Models.Orders
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Customer>()
-                .OneToMany(c => c.Orders, o => o.Customer)
+            modelBuilder.Entity<Customer>().HasMany(c => c.Orders).WithOne(o => o.Customer)
                 .ForeignKey(o => o.CustomerId);
 
-            modelBuilder.Entity<Order>()
-                .OneToMany(o => o.OrderLines, ol => ol.Order)
+            modelBuilder.Entity<Order>().HasMany(o => o.OrderLines).WithOne(ol => ol.Order)
                 .ForeignKey(ol => ol.OrderId);
 
-            modelBuilder.Entity<Product>()
-                .OneToMany(p => p.OrderLines, ol => ol.Product)
+            modelBuilder.Entity<Product>().HasMany(p => p.OrderLines).WithOne(ol => ol.Product)
                 .ForeignKey(ol => ol.ProductId);
         }
     }

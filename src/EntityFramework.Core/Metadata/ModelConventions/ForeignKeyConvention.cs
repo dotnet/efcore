@@ -101,7 +101,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             [CanBeNull] string navigationToPrincipal,
             [CanBeNull] IReadOnlyList<Property> foreignKeyProperties,
             [CanBeNull] IReadOnlyList<Property> referencedProperties,
-            bool isUnique)
+            bool? isUnique)
         {
             Check.NotNull(principalType, "principalType");
             Check.NotNull(dependentType, "dependentType");
@@ -142,7 +142,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             [CanBeNull] string navigationToPrincipal,
             [CanBeNull] IReadOnlyList<Property> foreignKeyProperties,
             [CanBeNull] IReadOnlyList<Property> referencedProperties,
-            bool isUnique)
+            bool? isUnique)
         {
             foreignKeyProperties = foreignKeyProperties ?? ImmutableList<Property>.Empty;
 
@@ -174,7 +174,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             // Create foreign key properties in shadow state if no properties are specified
             if (!foreignKeyProperties.Any())
             {
-                var baseName = (navigationToPrincipal ?? principalType.SimpleName) + "Id";
+                var baseName = (string.IsNullOrEmpty(navigationToPrincipal) ? principalType.SimpleName : navigationToPrincipal) + "Id";
                 var isComposite = principalKey.Properties.Count > 1;
 
                 var fkProperties = new List<Property>();
@@ -202,7 +202,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
         }
 
         private IReadOnlyList<IReadOnlyList<Property>> GetCandidateForeignKeyProperties(
-            EntityType principalType, EntityType dependentType, string navigationToPrincipal, bool isUnique)
+            EntityType principalType, EntityType dependentType, string navigationToPrincipal, bool? isUnique)
         {
             var pk = principalType.TryGetPrimaryKey();
             if (pk == null)
@@ -242,7 +242,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
                 }
             }
 
-            if (isUnique)
+            if (isUnique.HasValue && isUnique.Value)
             {
                 var dependentPk = dependentType.TryGetPrimaryKey();
                 if (dependentPk != null)

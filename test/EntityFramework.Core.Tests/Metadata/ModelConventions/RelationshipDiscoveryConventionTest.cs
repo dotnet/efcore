@@ -112,16 +112,16 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             var entityType = entityBuilder.Metadata;
             var fk = entityType.ForeignKeys.Single();
             Assert.Null(fk.IsRequired);
-            Assert.False(fk.IsUnique.Value);
+            Assert.False(((IForeignKey)fk).IsUnique);
 
             fk.IsRequired = true;
             fk.IsUnique = true;
 
             new RelationshipDiscoveryConvention().Apply(entityBuilder);
 
-            var newFk = entityType.ForeignKeys.Single();
-            Assert.True(newFk.IsRequired.Value);
-            Assert.True(newFk.IsUnique.Value);
+            var newFk = (IForeignKey)entityType.ForeignKeys.Single();
+            Assert.True(newFk.IsRequired);
+            Assert.True(newFk.IsUnique);
         }
 
         [Fact]

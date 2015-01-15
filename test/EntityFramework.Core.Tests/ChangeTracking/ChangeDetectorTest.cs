@@ -431,7 +431,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 {
                     b.Property(e => e.Id).GenerateValueOnAdd(false);
 
-                    b.OneToMany(e => e.Products, e => e.Category)
+                    b.HasMany(e => e.Products).WithOne(e => e.Category)
                         .ForeignKey(e => e.DependentId)
                         .ReferencedKey(e => e.PrincipalId);
                 });
@@ -474,7 +474,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             builder.Entity<CategoryWithChanging>(b =>
                 {
                     b.Property(e => e.Id).GenerateValueOnAdd(false);
-                    b.OneToMany(e => e.Products, e => e.Category).ForeignKey(e => e.DependentId);
+                    b.HasMany(e => e.Products).WithOne(e => e.Category).ForeignKey(e => e.DependentId);
                 });
 
             return builder.Model;
@@ -515,7 +515,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             builder.Entity<CategoryWithChanged>(b =>
                 {
                     b.Property(e => e.Id).GenerateValueOnAdd(false);
-                    b.OneToMany(e => e.Products, e => e.Category).ForeignKey(e => e.DependentId);
+                    b.HasMany(e => e.Products).WithOne(e => e.Category).ForeignKey(e => e.DependentId);
                 });
 
             return builder.Model;

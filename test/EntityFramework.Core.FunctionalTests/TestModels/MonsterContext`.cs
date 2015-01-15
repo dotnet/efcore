@@ -259,9 +259,10 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
 
             modelBuilder.Entity<TAnOrder>(b =>
                 {
-                    b.OneToMany(e => (IEnumerable<TOrderLine>)e.OrderLines, e => (TAnOrder)e.Order);
+                    b.HasMany(e => (IEnumerable<TOrderLine>)e.OrderLines).WithOne(e => (TAnOrder)e.Order)
+                        .ForeignKey(e => e.OrderId);
 
-                    b.OneToMany(e => (IEnumerable<TOrderNote>)e.Notes, e => (TAnOrder)e.Order)
+                    b.HasMany(e => (IEnumerable<TOrderNote>)e.Notes).WithOne(e => (TAnOrder)e.Order)
                         .ReferencedKey(e => e.AlternateId);
                 });
 
@@ -269,44 +270,45 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
                 {
                     b.Key(e => e.OrderId);
 
-                    b.OneToOne(e => (TAnOrder)e.Order)
+                    b.HasOne(e => (TAnOrder)e.Order).WithOne()
                         .ForeignKey<TOrderQualityCheck>(e => e.OrderId)
                         .ReferencedKey<TAnOrder>(e => e.AlternateId);
                 });
 
             modelBuilder.Entity<TProduct>(b =>
                 {
-                    b.OneToMany(e => (IEnumerable<TProductReview>)e.Reviews, e => (TProduct)e.Product);
-                    b.OneToMany(e => (IEnumerable<TBarcode>)e.Barcodes, e => (TProduct)e.Product);
-                    b.OneToMany(e => (IEnumerable<TProductPhoto>)e.Photos);
-                    b.OneToOne(e => (TProductDetail)e.Detail, e => (TProduct)e.Product);
-                    b.OneToOne<TProductWebFeature>();
+                    b.HasMany(e => (IEnumerable<TProductReview>)e.Reviews).WithOne(e => (TProduct)e.Product);
+                    b.HasMany(e => (IEnumerable<TBarcode>)e.Barcodes).WithOne(e => (TProduct)e.Product);
+                    b.HasMany(e => (IEnumerable<TProductPhoto>)e.Photos).WithOne();
+                    b.HasOne(e => (TProductDetail)e.Detail).WithOne(e => (TProduct)e.Product)
+                        .ForeignKey<TProductDetail>(e => e.ProductId);
                 });
 
             modelBuilder.Entity<TOrderLine>(b =>
                 {
                     b.Key(e => new { e.OrderId, e.ProductId });
-                    b.ManyToOne(e => (TProduct)e.Product);
+                    b.HasOne(e => (TProduct)e.Product).WithMany().ForeignKey(e => e.ProductId);
                 });
 
-            modelBuilder.Entity<TSupplier>().OneToOne(e => (TSupplierLogo)e.Logo);
+            modelBuilder.Entity<TSupplier>().HasOne(e => (TSupplierLogo)e.Logo).WithOne().ForeignKey<TSupplierLogo>(e => e.SupplierId);
 
             modelBuilder.Entity<TCustomer>(b =>
                 {
-                    b.OneToMany(e => (IEnumerable<TAnOrder>)e.Orders, e => (TCustomer)e.Customer);
-                    b.OneToMany(e => (IEnumerable<TLogin>)e.Logins, e => (TCustomer)e.Customer);
-                    b.OneToOne(e => (TCustomerInfo)e.Info);
+                    b.HasMany(e => (IEnumerable<TAnOrder>)e.Orders).WithOne(e => (TCustomer)e.Customer);
+                    b.HasMany(e => (IEnumerable<TLogin>)e.Logins).WithOne(e => (TCustomer)e.Customer);
+                    b.HasOne(e => (TCustomerInfo)e.Info).WithOne().ForeignKey<TCustomerInfo>(e => e.CustomerInfoId);
 
-                    b.OneToOne(e => (TCustomer)e.Wife, e => (TCustomer)e.Husband)
+                    b.HasOne(e => (TCustomer)e.Husband).WithOne(e => (TCustomer)e.Wife)
                         .ForeignKey<TCustomer>(e => e.HusbandId);
                 });
 
             modelBuilder.Entity<TComplaint>(b =>
                 {
-                    b.ManyToOne(e => (TCustomer)e.Customer)
+                    b.HasOne(e => (TCustomer)e.Customer)
+                        .WithMany()
                         .ForeignKey(e => e.CustomerId);
 
-                    b.OneToOne(e => (TResolution)e.Resolution, e => (TComplaint)e.Complaint)
+                    b.HasOne(e => (TResolution)e.Resolution).WithOne(e => (TComplaint)e.Complaint)
                         .ReferencedKey<TComplaint>(e => e.AlternateId);
                 });
 
@@ -316,7 +318,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
                     // TODO: Key should get by-convention value generation even if key is not discovered by convention
                     b.Property(e => e.PhotoId).GenerateValueOnAdd();
 
-                    b.OneToMany(e => (IEnumerable<TProductWebFeature>)e.Features, e => (TProductPhoto)e.Photo)
+                    b.HasMany(e => (IEnumerable<TProductWebFeature>)e.Features).WithOne(e => (TProductPhoto)e.Photo)
                         .ForeignKey(e => new { e.ProductId, e.PhotoId })
                         .ReferencedKey(e => new { e.ProductId, e.PhotoId });
                 });
@@ -327,81 +329,84 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
                     // TODO: Key should get by-convention value generation even if key is not discovered by convention
                     b.Property(e => e.ReviewId).GenerateValueOnAdd();
 
-                    b.OneToMany(e => (IEnumerable<TProductWebFeature>)e.Features, e => (TProductReview)e.Review)
+                    b.HasMany(e => (IEnumerable<TProductWebFeature>)e.Features).WithOne(e => (TProductReview)e.Review)
                         .ForeignKey(e => new { e.ProductId, e.ReviewId });
                 });
 
             modelBuilder.Entity<TLogin>(b =>
                 {
-                    b.Key(e => e.Username);
+                    var key = b.Key(e => e.Username);
 
-                    b.OneToMany(e => (IEnumerable<TMessage>)e.SentMessages, e => (TLogin)e.Sender)
+                    b.HasMany(e => (IEnumerable<TMessage>)e.SentMessages).WithOne(e => (TLogin)e.Sender)
                         .ForeignKey(e => e.FromUsername);
 
-                    b.OneToMany(e => (IEnumerable<TMessage>)e.ReceivedMessages, e => (TLogin)e.Recipient)
+                    b.HasMany(e => (IEnumerable<TMessage>)e.ReceivedMessages).WithOne(e => (TLogin)e.Recipient)
                         .ForeignKey(e => e.ToUsername);
 
-                    b.OneToMany(e => (IEnumerable<TAnOrder>)e.Orders, e => (TLogin)e.Login)
+                    b.HasMany(e => (IEnumerable<TAnOrder>)e.Orders).WithOne(e => (TLogin)e.Login)
                         .ForeignKey(e => e.Username);
 
-                    b.OneToMany<TSuspiciousActivity>()
-                        .ForeignKey(e => e.Username);
+                    var entityType = b.Metadata;
+                    var activityEntityType = entityType.Model.GetEntityType(typeof(TSuspiciousActivity));
+                    activityEntityType.AddForeignKey(activityEntityType.GetProperty("Username"), key.Metadata);
 
-                    b.OneToOne(e => (TLastLogin)e.LastLogin, e => (TLogin)e.Login);
+                    b.HasOne(e => (TLastLogin)e.LastLogin).WithOne(e => (TLogin)e.Login)
+                        .ForeignKey<TLastLogin>(e => e.Username);
                 });
 
             modelBuilder.Entity<TPasswordReset>(b =>
                 {
                     b.Key(e => new { e.ResetNo, e.Username });
 
-                    b.ManyToOne(e => (TLogin)e.Login)
+                    b.HasOne(e => (TLogin)e.Login).WithMany()
                         .ForeignKey(e => e.Username)
                         .ReferencedKey(e => e.AlternateUsername);
                 });
 
-            modelBuilder.Entity<TPageView>()
-                .ManyToOne(e => (TLogin)e.Login)
+            modelBuilder.Entity<TPageView>().HasOne(e => (TLogin)e.Login).WithMany()
                 .ForeignKey(e => e.Username);
 
             modelBuilder.Entity<TBarcode>(b =>
                 {
                     b.Key(e => e.Code);
 
-                    b.OneToMany(e => (IEnumerable<TIncorrectScan>)e.BadScans, e => (TBarcode)e.ExpectedBarcode)
+                    b.HasMany(e => (IEnumerable<TIncorrectScan>)e.BadScans).WithOne(e => (TBarcode)e.ExpectedBarcode)
                         .ForeignKey(e => e.ExpectedCode);
 
-                    b.OneToOne(e => (TBarcodeDetail)e.Detail);
+                    b.HasOne(e => (TBarcodeDetail)e.Detail).WithOne()
+                        .ForeignKey<TBarcodeDetail>(e => e.Code);
                 });
 
-            modelBuilder.Entity<TIncorrectScan>()
-                .ManyToOne(e => (TBarcode)e.ActualBarcode)
+            modelBuilder.Entity<TIncorrectScan>().HasOne(e => (TBarcode)e.ActualBarcode).WithMany()
                 .ForeignKey(e => e.ActualCode);
 
-            modelBuilder.Entity<TSupplierInfo>().ManyToOne(e => (TSupplier)e.Supplier);
+            modelBuilder.Entity<TSupplierInfo>().HasOne(e => (TSupplier)e.Supplier).WithMany();
 
-            modelBuilder.Entity<TComputer>().OneToOne(e => (TComputerDetail)e.ComputerDetail, e => (TComputer)e.Computer);
+            modelBuilder.Entity<TComputer>().HasOne(e => (TComputerDetail)e.ComputerDetail).WithOne(e => (TComputer)e.Computer)
+                .ForeignKey<TComputerDetail>(e => e.ComputerDetailId);
 
             modelBuilder.Entity<TDriver>(b =>
                 {
                     b.Key(e => e.Name);
-                    b.OneToOne(e => (TLicense)e.License, e => (TDriver)e.Driver);
+                    b.HasOne(e => (TLicense)e.License).WithOne(e => (TDriver)e.Driver)
+                        .ReferencedKey<TDriver>(e => e.Name);
                 });
 
             modelBuilder.Entity<TSmartCard>(b =>
                 {
                     b.Key(e => e.Username);
 
-                    b.OneToOne(e => (TLogin)e.Login)
+                    b.HasOne(e => (TLogin)e.Login).WithOne()
                         .ForeignKey<TSmartCard>(e => e.Username);
 
-                    b.OneToOne(e => (TLastLogin)e.LastLogin)
+                    b.HasOne(e => (TLastLogin)e.LastLogin).WithOne()
                         .ForeignKey<TLastLogin>(e => e.SmartcardUsername);
                 });
 
             modelBuilder.Entity<TRsaToken>(b =>
                 {
                     b.Key(e => e.Serial);
-                    b.OneToOne(e => (TLogin)e.Login)
+                    b.HasOne(e => (TLogin)e.Login).WithOne()
                         .ForeignKey<TRsaToken>(e => e.Username);
                 });
 

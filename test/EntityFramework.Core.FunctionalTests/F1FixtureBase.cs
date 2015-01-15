@@ -45,8 +45,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 b.Property(e => e.EngineSupplierId).ConcurrencyToken();
                 b.Property(e => e.Name).ConcurrencyToken();
-                b.OneToMany(e => e.Teams, e => e.Engine);
-                b.OneToMany(e => e.Gearboxes);
+                b.HasMany(e => e.Teams).WithOne(e => e.Engine);
+                b.HasMany(e => e.Gearboxes).WithOne();
             });
 
             // TODO: Complex type
@@ -56,7 +56,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             modelBuilder.Entity<EngineSupplier>(b =>
             {
                 b.Property(e => e.Name);
-                b.OneToMany(e => e.Engines, e => e.EngineSupplier);
+                b.HasMany(e => e.Engines).WithOne(e => e.EngineSupplier);
             });
 
             modelBuilder.Entity<Gearbox>(b =>
@@ -100,8 +100,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     .StoreComputed()
                     .ConcurrencyToken();
 
-                b.OneToMany(e => e.Drivers, e => e.Team);
-                b.OneToOne(e => e.Gearbox).ForeignKey<Team>(e => e.GearboxId);
+                b.HasMany(e => e.Drivers).WithOne(e => e.Team);
+                b.HasOne(e => e.Gearbox).WithOne().ForeignKey<Team>(e => e.GearboxId);
             });
 
             modelBuilder.Entity<TestDriver>();

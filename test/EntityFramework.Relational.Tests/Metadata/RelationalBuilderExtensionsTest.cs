@@ -422,8 +422,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
             var modelBuilder = new ModelBuilder();
 
             modelBuilder
-                .Entity<Customer>()
-                .OneToMany(e => e.Orders, e => e.Customer)
+                .Entity<Customer>().HasMany(e => e.Orders).WithOne(e => e.Customer)
                 .ForRelational()
                 .Name("LemonSupreme");
 
@@ -432,8 +431,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
             Assert.Equal("LemonSupreme", foreignKey.Relational().Name);
 
             modelBuilder
-                .Entity<Customer>()
-                .OneToMany(e => e.Orders, e => e.Customer)
+                .Entity<Customer>().HasMany(e => e.Orders).WithOne(e => e.Customer)
                 .ForRelational()
                 .Name(null);
 
@@ -446,8 +444,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
             var modelBuilder = new ModelBuilder();
 
             modelBuilder
-                .Entity<Customer>()
-                .OneToMany(e => e.Orders, e => e.Customer)
+                .Entity<Customer>().HasMany(e => e.Orders).WithOne(e => e.Customer)
                 .ForeignKey(e => e.CustomerId)
                 .ForRelational()
                 .Name("LemonSupreme");
@@ -463,8 +460,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
             var modelBuilder = new ModelBuilder();
 
             modelBuilder
-                .Entity<Customer>()
-                .OneToMany(e => e.Orders, e => e.Customer)
+                .Entity<Customer>().HasMany(e => e.Orders).WithOne(e => e.Customer)
                 .ForRelational(b => { b.Name("LemonSupreme"); });
 
             var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).ForeignKeys.Single(fk => fk.ReferencedEntityType.Type == typeof(Customer));
@@ -478,8 +474,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
             var modelBuilder = new ModelBuilder();
 
             modelBuilder
-                .Entity<Customer>()
-                .OneToMany(e => e.Orders, e => e.Customer)
+                .Entity<Customer>().HasMany(e => e.Orders).WithOne(e => e.Customer)
                 .ForeignKey(e => e.CustomerId)
                 .ForRelational(b => { b.Name("LemonSupreme"); });
 
@@ -494,8 +489,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
             var modelBuilder = new ModelBuilder();
 
             modelBuilder
-                .Entity<Order>()
-                .ManyToOne(e => e.Customer, e => e.Orders)
+                .Entity<Order>().HasOne(e => e.Customer).WithMany(e => e.Orders)
                 .ForRelational()
                 .Name("LemonSupreme");
 
@@ -504,8 +498,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
             Assert.Equal("LemonSupreme", foreignKey.Relational().Name);
 
             modelBuilder
-                .Entity<Order>()
-                .ManyToOne(e => e.Customer, e => e.Orders)
+                .Entity<Order>().HasOne(e => e.Customer).WithMany(e => e.Orders)
                 .ForRelational()
                 .Name(null);
 
@@ -518,8 +511,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
             var modelBuilder = new ModelBuilder();
 
             modelBuilder
-                .Entity<Order>()
-                .ManyToOne(e => e.Customer, e => e.Orders)
+                .Entity<Order>().HasOne(e => e.Customer).WithMany(e => e.Orders)
                 .ForeignKey(e => e.CustomerId)
                 .ForRelational()
                 .Name("LemonSupreme");
@@ -535,8 +527,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
             var modelBuilder = new ModelBuilder();
 
             modelBuilder
-                .Entity<Order>()
-                .ManyToOne(e => e.Customer, e => e.Orders)
+                .Entity<Order>().HasOne(e => e.Customer).WithMany(e => e.Orders)
                 .ForRelational(b => { b.Name("LemonSupreme"); });
 
             var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).ForeignKeys.Single(fk => fk.ReferencedEntityType.Type == typeof(Customer));
@@ -550,8 +541,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
             var modelBuilder = new ModelBuilder();
 
             modelBuilder
-                .Entity<Order>()
-                .ManyToOne(e => e.Customer, e => e.Orders)
+                .Entity<Order>().HasOne(e => e.Customer).WithMany(e => e.Orders)
                 .ForeignKey(e => e.CustomerId)
                 .ForRelational(b => { b.Name("LemonSupreme"); });
 
@@ -566,8 +556,8 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
             var modelBuilder = new ModelBuilder();
 
             modelBuilder
-                .Entity<Order>()
-                .OneToOne(e => e.Details, e => e.Order)
+                .Entity<Order>().HasOne(e => e.Details).WithOne(e => e.Order)
+                .ReferencedKey<Order>(e => e.OrderId)
                 .ForRelational()
                 .Name("LemonSupreme");
 
@@ -576,8 +566,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
             Assert.Equal("LemonSupreme", foreignKey.Relational().Name);
 
             modelBuilder
-                .Entity<Order>()
-                .OneToOne(e => e.Details, e => e.Order)
+                .Entity<Order>().HasOne(e => e.Details).WithOne(e => e.Order)
                 .ForRelational()
                 .Name(null);
 
@@ -590,8 +579,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
             var modelBuilder = new ModelBuilder();
 
             modelBuilder
-                .Entity<Order>()
-                .OneToOne(e => e.Details, e => e.Order)
+                .Entity<Order>().HasOne(e => e.Details).WithOne(e => e.Order)
                 .ForeignKey<OrderDetails>(e => e.Id)
                 .ForRelational()
                 .Name("LemonSupreme");
@@ -607,8 +595,8 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
             var modelBuilder = new ModelBuilder();
 
             modelBuilder
-                .Entity<Order>()
-                .OneToOne(e => e.Details, e => e.Order)
+                .Entity<Order>().HasOne(e => e.Details).WithOne(e => e.Order)
+                .ReferencedKey<Order>(e => e.OrderId)
                 .ForRelational(b => { b.Name("LemonSupreme"); });
 
             var foreignKey = modelBuilder.Model.GetEntityType(typeof(OrderDetails)).ForeignKeys.Single();
@@ -622,8 +610,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
             var modelBuilder = new ModelBuilder();
 
             modelBuilder
-                .Entity<Order>()
-                .OneToOne(e => e.Details, e => e.Order)
+                .Entity<Order>().HasOne(e => e.Details).WithOne(e => e.Order)
                 .ForeignKey<OrderDetails>(e => e.Id)
                 .ForRelational(b => { b.Name("LemonSupreme"); });
 

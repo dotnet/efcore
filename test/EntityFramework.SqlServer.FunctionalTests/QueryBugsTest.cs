@@ -208,7 +208,7 @@ LEFT JOIN [Customer] AS [c] ON ([o].[CustomerId0] = [c].[FirstName] AND [o].[Cus
                 modelBuilder.Entity<Customer>(m =>
                     {
                         m.Key(c => new { c.FirstName, c.LastName });
-                        m.OneToMany(c => c.Orders, o => o.Customer);
+                        m.HasMany(c => c.Orders).WithOne(o => o.Customer);
                     });
             }
         }
@@ -345,8 +345,8 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
                 modelBuilder.Entity<Targaryen>(m =>
                     {
                         m.Key(t => t.Id);
-                        m.OneToMany(t => t.Dragons, d => d.Mother).ForeignKey(d => d.MotherId);
-                        m.OneToOne(t => t.Details, d => d.Targaryen).ForeignKey<Details>(d => d.TargaryenId);
+                        m.HasMany(t => t.Dragons).WithOne(d => d.Mother).ForeignKey(d => d.MotherId);
+                        m.HasOne(t => t.Details).WithOne(d => d.Targaryen).ForeignKey<Details>(d => d.TargaryenId);
                     });
             }
         }

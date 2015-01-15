@@ -146,15 +146,17 @@ namespace Microsoft.Data.Entity.FunctionalTests
             public virtual void OnModelCreating(ModelBuilder modelBuilder)
             {
                 modelBuilder.Entity<WithStringKey>()
-                    .OneToMany(e => e.Dependents, e => e.Principal)
+                    .HasMany(e => e.Dependents).WithOne(e => e.Principal)
                     .ForeignKey(e => e.Fk);
 
                 modelBuilder.Entity<WithStringFk>()
-                    .OneToOne(e => e.Self)
+                    .HasOne(e => e.Self)
+                    .WithOne()
                     .ForeignKey<WithStringFk>(e => e.SelfFk);
 
                 modelBuilder.Entity<WithIntKey>()
-                    .OneToMany(e => e.Dependents, e => e.Principal)
+                    .HasMany(e => e.Dependents)
+                    .WithOne(e => e.Principal)
                     .ForeignKey(e => e.Fk);
             }
 

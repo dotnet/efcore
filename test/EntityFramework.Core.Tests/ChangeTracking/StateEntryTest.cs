@@ -1313,12 +1313,14 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             modelBuilder
                 .Entity<FirstDependent>()
-                .OneToOne(e => e.Second, e => e.First)
+                .HasOne(e => e.Second)
+                .WithOne(e => e.First)
                 .ForeignKey<SecondDependent>(e => e.Id);
 
             modelBuilder
                 .Entity<Root>()
-                .OneToOne(e => e.First, e => e.Root)
+                .HasOne(e => e.First)
+                .WithOne(e => e.Root)
                 .ForeignKey<FirstDependent>(e => e.Id);
 
             modelBuilder.Entity<Root>().Property(e => e.Id).GenerateValueOnAdd();

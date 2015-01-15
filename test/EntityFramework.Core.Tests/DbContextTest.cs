@@ -1920,8 +1920,7 @@ namespace Microsoft.Data.Entity.Tests
             protected internal override void OnModelCreating(ModelBuilder modelBuilder)
             {
                 modelBuilder
-                    .Entity<Category>()
-                    .OneToMany(e => e.Products, e => e.Category);
+                    .Entity<Category>().HasMany(e => e.Products).WithOne(e => e.Category);
             }
         }
 

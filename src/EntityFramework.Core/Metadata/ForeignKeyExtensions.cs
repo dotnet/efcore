@@ -40,13 +40,13 @@ namespace Microsoft.Data.Entity.Metadata
             [NotNull] this ForeignKey foreignKey,
             [NotNull] EntityType principalType,
             [NotNull] EntityType dependentType,
-            bool isUnique)
+            bool? isUnique)
         {
             Check.NotNull(foreignKey, "foreignKey");
             Check.NotNull(principalType, "principalType");
             Check.NotNull(dependentType, "dependentType");
 
-            return ((IForeignKey)foreignKey).IsUnique == isUnique
+            return (isUnique == null || ((IForeignKey)foreignKey).IsUnique == isUnique)
                    && foreignKey.ReferencedEntityType == principalType
                    && foreignKey.EntityType == dependentType;
         }

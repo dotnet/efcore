@@ -276,22 +276,22 @@ namespace Microsoft.Data.Entity.Tests.Identity
 
             builder.Entity<Product>(b =>
             {
-                b.OneToMany(e => e.OrderLines, e => e.Product);
-                b.OneToOne(e => e.Detail, e => e.Product);
+                b.HasMany(e => e.OrderLines).WithOne(e => e.Product);
+                b.HasOne(e => e.Detail).WithOne(e => e.Product).ForeignKey<ProductDetail>(e => e.Id);
             });
 
-            builder.Entity<Category>().OneToMany(e => e.Products, e => e.Category);
+            builder.Entity<Category>().HasMany(e => e.Products).WithOne(e => e.Category);
 
             builder.Entity<ProductDetail>();
 
-            builder.Entity<Order>().OneToMany(e => e.OrderLines, e => e.Order);
+            builder.Entity<Order>().HasMany(e => e.OrderLines).WithOne(e => e.Order);
 
             builder.Entity<OrderLineDetail>().Key(e => new { e.OrderId, e.ProductId });
 
             builder.Entity<OrderLine>(b =>
             {
                 b.Key(e => new { e.OrderId, e.ProductId });
-                b.OneToOne(e => e.Detail, e => e.OrderLine)
+                b.HasOne(e => e.Detail).WithOne(e => e.OrderLine)
                 // TODO: Remove this line when ForeignKeyConvention handles composite fks
                 .ForeignKey<OrderLineDetail>(e => new {e.OrderId, e.ProductId});
             });

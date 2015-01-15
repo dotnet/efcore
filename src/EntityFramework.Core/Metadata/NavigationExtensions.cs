@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Collections.Specialized;
-using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Utilities;
@@ -52,6 +50,32 @@ namespace Microsoft.Data.Entity.Metadata
             return navigation.PointsToPrincipal
                 ? navigation.ForeignKey.ReferencedEntityType
                 : navigation.ForeignKey.EntityType;
+        }
+
+        public static bool IsCompatible(
+            [NotNull] this Navigation navigation,
+            [NotNull] EntityType principalType,
+            [NotNull] EntityType dependentType,
+            bool? shouldPointToPrincipal,
+            bool? oneToOne)
+        {
+            Check.NotNull(navigation, "navigation");
+            Check.NotNull(principalType, "principalType");
+            Check.NotNull(dependentType, "dependentType");
+
+            if ((!shouldPointToPrincipal.HasValue || navigation.PointsToPrincipal == shouldPointToPrincipal.Value)
+                && navigation.ForeignKey.IsCompatible(principalType, dependentType, oneToOne))
+            {
+                return true;
+            }
+
+            if (!shouldPointToPrincipal.HasValue
+                && navigation.ForeignKey.IsCompatible(dependentType, principalType, oneToOne))
+            {
+                return true;
+            }
+
+            return false;
         }
 
         public static bool IsNonNotifyingCollection([NotNull] this INavigation navigation, [NotNull] StateEntry entry)

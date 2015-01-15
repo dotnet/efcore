@@ -957,28 +957,29 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var builder = new ModelBuilder(model);
 
             builder.Entity<Product>(b =>
-            {
-                b.OneToOne(e => e.OriginalProduct, e => e.AlternateProduct)
-                    .ForeignKey<Product>(e => e.AlternateProductId);
+                {
+                    b.HasOne(e => e.AlternateProduct).WithOne(e => e.OriginalProduct)
+                        .ForeignKey<Product>(e => e.AlternateProductId);
 
-                b.OneToOne(e => e.Detail, e => e.Product);
+                b.HasOne(e => e.Detail).WithOne(e => e.Product)
+                    .ForeignKey<ProductDetail>(e => e.Id);
             });
 
-            builder.Entity<Category>().OneToMany(e => e.Products, e => e.Category);
+            builder.Entity<Category>().HasMany(e => e.Products).WithOne(e => e.Category);
 
             builder.Entity<ProductDetail>();
 
             builder.Entity<ProductPhoto>(b =>
             {
                 b.Key(e => new { e.ProductId, e.PhotoId });
-                b.OneToMany(e => e.ProductTags, e => e.Photo)
+                b.HasMany(e => e.ProductTags).WithOne(e => e.Photo)
                     .ForeignKey(e => new { e.ProductId, e.PhotoId });
             });
 
             builder.Entity<ProductReview>(b =>
             {
                 b.Key(e => new { e.ProductId, e.ReviewId });
-                b.OneToMany(e => e.ProductTags, e => e.Review)
+                b.HasMany(e => e.ProductTags).WithOne(e => e.Review)
                     .ForeignKey(e => new { e.ProductId, e.ReviewId });
             });
 

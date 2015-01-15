@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata.Internal;
@@ -238,100 +239,78 @@ namespace Microsoft.Data.Entity.Metadata
                 return new IndexBuilder(Builder.Index(propertyNames, ConfigurationSource.Explicit));
             }
 
-            public virtual OneToManyBuilder OneToMany(
-                [NotNull] Type relatedEntityType,
-                [CanBeNull] string collection = null,
+            public virtual ReferenceNavigationBuilder HasOne(
+                [NotNull] Type relatedType,
                 [CanBeNull] string reference = null)
             {
-                Check.NotNull(relatedEntityType, "relatedEntityType");
+                Check.NotNull(relatedType, "relatedType");
 
-                return new OneToManyBuilder(Builder.Relationship(
-                    Metadata,
-                    Builder.ModelBuilder.Entity(relatedEntityType, ConfigurationSource.Explicit).Metadata,
+                var relatedEntityType = Builder.ModelBuilder.Entity(relatedType, ConfigurationSource.Explicit).Metadata;
+
+                return new ReferenceNavigationBuilder(
+                    relatedEntityType,
                     reference,
-                    collection,
-                    oneToOne: false,
-                    configurationSource: ConfigurationSource.Explicit));
+                    Builder.Relationship(
+                        relatedEntityType,
+                        Metadata,
+                        reference ?? "",
+                        navigationToDependentName: null,
+                        configurationSource: ConfigurationSource.Explicit,
+                        strictPrincipal: false));
             }
 
-            public virtual ManyToOneBuilder ManyToOne(
+            public virtual CollectionNavigationBuilder HasMany(
                 [NotNull] Type relatedEntityType,
-                [CanBeNull] string reference = null,
                 [CanBeNull] string collection = null)
             {
                 Check.NotNull(relatedEntityType, "relatedEntityType");
 
-                return new ManyToOneBuilder(Builder.Relationship(
-                    Builder.ModelBuilder.Entity(relatedEntityType, ConfigurationSource.Explicit).Metadata,
-                    Metadata,
-                    reference,
-                    collection,
-                    oneToOne: false,
-                    configurationSource: ConfigurationSource.Explicit));
+                return new CollectionNavigationBuilder(
+                    collection ?? "",
+                    Builder.Relationship(
+                        Metadata,
+                        Builder.ModelBuilder.Entity(relatedEntityType, ConfigurationSource.Explicit).Metadata,
+                        null,
+                        collection ?? "",
+                        ConfigurationSource.Explicit,
+                        oneToOne: false));
             }
 
-            public virtual OneToOneBuilder OneToOne(
-                [NotNull] Type relatedEntityType,
-                [CanBeNull] string navigationToDependent = null,
-                [CanBeNull] string navigationToPrincipal = null)
-            {
-                Check.NotNull(relatedEntityType, "relatedEntityType");
-
-                return new OneToOneBuilder(Builder.Relationship(
-                    Metadata,
-                    Builder.ModelBuilder.Entity(relatedEntityType, ConfigurationSource.Explicit).Metadata,
-                    navigationToPrincipal,
-                    navigationToDependent,
-                    oneToOne: true,
-                    configurationSource: ConfigurationSource.Explicit));
-            }
-
-            public virtual OneToManyBuilder OneToMany(
+            public virtual ReferenceNavigationBuilder HasOne(
                 [NotNull] string relatedEntityTypeName,
-                [CanBeNull] string collection = null,
                 [CanBeNull] string reference = null)
             {
                 Check.NotEmpty(relatedEntityTypeName, "relatedEntityTypeName");
 
-                return new OneToManyBuilder(Builder.Relationship(
-                    Metadata,
-                    Builder.ModelBuilder.Metadata.GetEntityType(relatedEntityTypeName),
+                var relatedEntityType = Builder.ModelBuilder.Metadata.GetEntityType(relatedEntityTypeName);
+
+                return new ReferenceNavigationBuilder(
+                    relatedEntityType,
                     reference,
-                    collection,
-                    oneToOne: false,
-                    configurationSource: ConfigurationSource.Explicit));
+                    Builder.Relationship(
+                        relatedEntityType,
+                        Metadata,
+                        reference ?? "",
+                        navigationToDependentName: null,
+                        configurationSource: ConfigurationSource.Explicit,
+                        strictPrincipal: false));
             }
 
-            public virtual ManyToOneBuilder ManyToOne(
+            public virtual CollectionNavigationBuilder HasMany(
                 [NotNull] string relatedEntityTypeName,
-                [CanBeNull] string reference = null,
                 [CanBeNull] string collection = null)
             {
                 Check.NotEmpty(relatedEntityTypeName, "relatedEntityTypeName");
 
-                return new ManyToOneBuilder(Builder.Relationship(
-                    Builder.ModelBuilder.Metadata.GetEntityType(relatedEntityTypeName),
-                    Metadata,
-                    reference,
-                    collection,
-                    oneToOne: false,
-                    configurationSource: ConfigurationSource.Explicit));
-            }
-
-            public virtual OneToOneBuilder OneToOne(
-                [NotNull] string relatedEntityTypeName,
-                [CanBeNull] string navigationToDependent = null,
-                [CanBeNull] string navigationToPrincipal = null)
-            {
-                Check.NotEmpty(relatedEntityTypeName, "relatedEntityTypeName");
-
-                return new OneToOneBuilder(Builder.Relationship(
-                    Metadata,
-                    Builder.ModelBuilder.Metadata.GetEntityType(relatedEntityTypeName),
-                    navigationToPrincipal,
-                    navigationToDependent,
-                    oneToOne: true,
-                    configurationSource: ConfigurationSource.Explicit));
+                return new CollectionNavigationBuilder(
+                    collection ?? "",
+                    Builder.Relationship(
+                        Metadata,
+                        Builder.ModelBuilder.Metadata.GetEntityType(relatedEntityTypeName),
+                        null,
+                        collection ?? "",
+                        ConfigurationSource.Explicit,
+                        oneToOne: false));
             }
 
             public class KeyBuilder : IKeyBuilder<KeyBuilder>
@@ -520,6 +499,117 @@ namespace Microsoft.Data.Entity.Metadata
                     Builder.IsUnique(isUnique, ConfigurationSource.Explicit);
 
                     return this;
+                }
+            }
+
+            public class ReferenceNavigationBuilder
+            {
+                public ReferenceNavigationBuilder(
+                    [NotNull] EntityType relatedEntityType,
+                    [CanBeNull] string reference,
+                    [NotNull] InternalRelationshipBuilder builder)
+                {
+                    Check.NotNull(relatedEntityType, "relatedEntityType");
+                    Check.NotNull(builder, "builder");
+
+                    RelatedEntityType = relatedEntityType;
+                    Reference = reference;
+                    Builder = builder;
+                }
+
+                protected string Reference { get; set; }
+
+                protected EntityType RelatedEntityType { get; set; }
+
+                public virtual ForeignKey Metadata => Builder.Metadata;
+
+                protected virtual InternalRelationshipBuilder Builder { get; }
+
+                public virtual ManyToOneBuilder WithMany([CanBeNull] string collection = null)
+                {
+                    return new ManyToOneBuilder(WithManyBuilder(collection));
+                }
+
+                protected InternalRelationshipBuilder WithManyBuilder(string collection)
+                {
+                    var needToInvert = Metadata.ReferencedEntityType != RelatedEntityType;
+                    Debug.Assert((needToInvert && Metadata.EntityType == RelatedEntityType)
+                                 || Metadata.ReferencedEntityType == RelatedEntityType);
+
+                    var builder = Builder;
+                    if (needToInvert)
+                    {
+                        builder = builder.Invert(ConfigurationSource.Explicit);
+                    }
+                    if (((IForeignKey)Metadata).IsUnique)
+                    {
+                        builder = builder.NavigationToDependent(null, ConfigurationSource.Explicit);
+                        builder = builder.Unique(false, ConfigurationSource.Explicit);
+                    }
+
+                    return builder.NavigationToDependent(collection, ConfigurationSource.Explicit, strictPreferExisting: true);
+                }
+
+                public virtual OneToOneBuilder WithOne([CanBeNull] string inverseReference = null)
+                {
+                    return new OneToOneBuilder(WithOneBuilder(inverseReference));
+                }
+
+                protected InternalRelationshipBuilder WithOneBuilder(string inverseReferenceName)
+                {
+                    var inverseToPrincipal = Metadata.EntityType == RelatedEntityType
+                                             && (string.IsNullOrEmpty(Reference) || Metadata.GetNavigationToDependent()?.Name == Reference);
+
+                    Debug.Assert(inverseToPrincipal
+                                 || (Metadata.ReferencedEntityType == RelatedEntityType
+                                     && (string.IsNullOrEmpty(Reference) || Metadata.GetNavigationToPrincipal()?.Name == Reference)));
+
+                    var builder = Builder;
+                    if (!((IForeignKey)Metadata).IsUnique)
+                    {
+                        Debug.Assert(!inverseToPrincipal);
+
+                        builder = builder.NavigationToDependent(null, ConfigurationSource.Explicit);
+                        builder = builder.Unique(true, ConfigurationSource.Explicit);
+                    }
+
+                    builder = inverseToPrincipal
+                        ? builder.NavigationToPrincipal(inverseReferenceName, ConfigurationSource.Explicit, strictPreferExisting: false)
+                        : builder.NavigationToDependent(inverseReferenceName, ConfigurationSource.Explicit, strictPreferExisting: false);
+
+                    return builder;
+                }
+            }
+
+            public class CollectionNavigationBuilder
+            {
+                public CollectionNavigationBuilder(
+                    [CanBeNull] string collection,
+                    [NotNull] InternalRelationshipBuilder builder)
+                {
+                    Check.NotNull(builder, "builder");
+
+                    Collection = collection;
+                    Builder = builder;
+                }
+
+                protected string Collection { get; set; }
+
+                public virtual ForeignKey Metadata => Builder.Metadata;
+
+                protected virtual InternalRelationshipBuilder Builder { get; }
+
+                public virtual OneToManyBuilder WithOne([CanBeNull] string reference = null)
+                {
+                    return new OneToManyBuilder(WithOneBuilder(reference));
+                }
+
+                protected InternalRelationshipBuilder WithOneBuilder(string reference)
+                {
+                    return Builder.NavigationToPrincipal(
+                        reference,
+                        ConfigurationSource.Explicit,
+                        strictPreferExisting: true);
                 }
             }
 
@@ -726,7 +816,8 @@ namespace Microsoft.Data.Entity.Metadata
             }
         }
 
-        public class EntityBuilder<TEntity> : EntityBuilder, IEntityBuilder<TEntity, EntityBuilder<TEntity>> where TEntity : class
+        public class EntityBuilder<TEntity> : EntityBuilder, IEntityBuilder<TEntity, EntityBuilder<TEntity>>
+            where TEntity : class
         {
             public EntityBuilder([NotNull] InternalEntityBuilder builder)
                 : base(builder)
@@ -782,42 +873,75 @@ namespace Microsoft.Data.Entity.Metadata
                 return new IndexBuilder(Builder.Index(indexExpression.GetPropertyAccessList(), ConfigurationSource.Explicit));
             }
 
-            public virtual OneToManyBuilder<TRelatedEntity> OneToMany<TRelatedEntity>(
-                [CanBeNull] Expression<Func<TEntity, IEnumerable<TRelatedEntity>>> collection = null,
-                [CanBeNull] Expression<Func<TRelatedEntity, TEntity>> reference = null)
+            public virtual ReferenceNavigationBuilder<TRelatedEntity> HasOne<TRelatedEntity>(
+                [CanBeNull] Expression<Func<TEntity, TRelatedEntity>> reference = null)
             {
-                return new OneToManyBuilder<TRelatedEntity>(BuildRelationship(collection, reference));
+                var relatedEntityType = Builder.ModelBuilder.Entity(typeof(TRelatedEntity), ConfigurationSource.Explicit).Metadata;
+                var referenceName = reference?.GetPropertyAccess().Name ?? "";
+
+                return new ReferenceNavigationBuilder<TRelatedEntity>(
+                    relatedEntityType,
+                    referenceName,
+                    Builder.Relationship(
+                        relatedEntityType,
+                        Metadata,
+                        referenceName,
+                        navigationToDependentName: null,
+                        configurationSource: ConfigurationSource.Explicit,
+                        strictPrincipal: false));
             }
 
-            public virtual ManyToOneBuilder<TRelatedEntity> ManyToOne<TRelatedEntity>(
-                [CanBeNull] Expression<Func<TEntity, TRelatedEntity>> reference = null,
-                [CanBeNull] Expression<Func<TRelatedEntity, IEnumerable<TEntity>>> collection = null)
+            public virtual CollectionNavigationBuilder<TRelatedEntity> HasMany<TRelatedEntity>(
+                [CanBeNull] Expression<Func<TEntity, IEnumerable<TRelatedEntity>>> collection = null)
             {
-                return new ManyToOneBuilder<TRelatedEntity>(BuildRelationship(collection, reference));
+                var collectionName = collection?.GetPropertyAccess().Name ?? "";
+
+                return new CollectionNavigationBuilder<TRelatedEntity>(
+                    collectionName,
+                    Builder.Relationship(
+                        typeof(TEntity),
+                        typeof(TRelatedEntity),
+                        null,
+                        collectionName,
+                        configurationSource: ConfigurationSource.Explicit,
+                        oneToOne: false));
             }
 
-            private InternalRelationshipBuilder BuildRelationship<TPrincipalEntity, TDependentEntity>(
-                Expression<Func<TPrincipalEntity, IEnumerable<TDependentEntity>>> collection,
-                Expression<Func<TDependentEntity, TPrincipalEntity>> reference)
+            public class ReferenceNavigationBuilder<TRelatedEntity> : ReferenceNavigationBuilder
             {
-                // Find either navigation that already exists
-                var navNameToDependent = collection != null ? collection.GetPropertyAccess().Name : null;
-                var navNameToPrincipal = reference != null ? reference.GetPropertyAccess().Name : null;
+                public ReferenceNavigationBuilder(
+                    [NotNull] EntityType relatedEntityType,
+                    [CanBeNull] string reference,
+                    [NotNull] InternalRelationshipBuilder builder)
+                    : base(relatedEntityType, reference, builder)
+                {
+                }
 
-                return Builder.Relationship(
-                    typeof(TPrincipalEntity), typeof(TDependentEntity), navNameToPrincipal, navNameToDependent, /*oneToOne:*/ false, ConfigurationSource.Explicit);
+                public virtual ManyToOneBuilder<TRelatedEntity> WithMany(
+                    [CanBeNull] Expression<Func<TRelatedEntity, IEnumerable<TEntity>>> collection = null)
+                {
+                    return new ManyToOneBuilder<TRelatedEntity>(WithManyBuilder(collection?.GetPropertyAccess().Name));
+                }
+
+                public virtual OneToOneBuilder WithOne([CanBeNull] Expression<Func<TRelatedEntity, TEntity>> inverseReference = null)
+                {
+                    return new OneToOneBuilder(WithOneBuilder(inverseReference?.GetPropertyAccess().Name));
+                }
             }
 
-            public virtual OneToOneBuilder OneToOne<TRelatedEntity>(
-                [CanBeNull] Expression<Func<TEntity, TRelatedEntity>> navigationToDependent = null,
-                [CanBeNull] Expression<Func<TRelatedEntity, TEntity>> navigationToPrincipal = null)
+            public class CollectionNavigationBuilder<TRelatedEntity> : CollectionNavigationBuilder
             {
-                // Find either navigation that already exists
-                var navNameToDependent = navigationToDependent != null ? navigationToDependent.GetPropertyAccess().Name : null;
-                var navNameToPrincipal = navigationToPrincipal != null ? navigationToPrincipal.GetPropertyAccess().Name : null;
+                public CollectionNavigationBuilder(
+                    [CanBeNull] string collection,
+                    [NotNull] InternalRelationshipBuilder builder)
+                    : base(collection, builder)
+                {
+                }
 
-                return new OneToOneBuilder(Builder.Relationship(
-                    typeof(TEntity), typeof(TRelatedEntity), navNameToPrincipal, navNameToDependent, /*oneToOne:*/ true, ConfigurationSource.Explicit));
+                public virtual OneToManyBuilder<TRelatedEntity> WithOne([CanBeNull] Expression<Func<TRelatedEntity, TEntity>> reference = null)
+                {
+                    return new OneToManyBuilder<TRelatedEntity>(WithOneBuilder(reference?.GetPropertyAccess().Name));
+                }
             }
 
             public class OneToManyBuilder<TRelatedEntity> : OneToManyBuilder

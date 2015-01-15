@@ -526,14 +526,12 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var modelBuilder = new ModelBuilder();
 
             modelBuilder
-                .Entity<Customer>()
-                .OneToMany(e => e.Orders, e => e.Customer)
+                .Entity<Customer>().HasMany(e => e.Orders).WithOne(e => e.Customer)
                 .ForRelational()
                 .Name("LemonSupreme");
 
             modelBuilder
-                .Entity<Customer>()
-                .OneToMany(e => e.Orders, e => e.Customer)
+                .Entity<Customer>().HasMany(e => e.Orders).WithOne(e => e.Customer)
                 .ForSqlServer()
                 .Name("ChocolateLimes");
 
@@ -543,8 +541,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             Assert.Equal("ChocolateLimes", foreignKey.SqlServer().Name);
 
             modelBuilder
-                .Entity<Customer>()
-                .OneToMany(e => e.Orders, e => e.Customer)
+                .Entity<Customer>().HasMany(e => e.Orders).WithOne(e => e.Customer)
                 .ForSqlServer()
                 .Name(null);
 
@@ -558,15 +555,13 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var modelBuilder = new ModelBuilder();
 
             modelBuilder
-                .Entity<Customer>()
-                .OneToMany(e => e.Orders, e => e.Customer)
+                .Entity<Customer>().HasMany(e => e.Orders).WithOne(e => e.Customer)
                 .ForeignKey(e => e.CustomerId)
                 .ForRelational()
                 .Name("LemonSupreme");
 
             modelBuilder
-                .Entity<Customer>()
-                .OneToMany(e => e.Orders, e => e.Customer)
+                .Entity<Customer>().HasMany(e => e.Orders).WithOne(e => e.Customer)
                 .ForeignKey(e => e.CustomerId)
                 .ForSqlServer()
                 .Name("ChocolateLimes");
@@ -583,8 +578,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var modelBuilder = new ModelBuilder();
 
             modelBuilder
-                .Entity<Customer>()
-                .OneToMany(e => e.Orders, e => e.Customer)
+                .Entity<Customer>().HasMany(e => e.Orders).WithOne(e => e.Customer)
                 .ForRelational(b => { b.Name("LemonSupreme"); })
                 .ForSqlServer(b => { b.Name("ChocolateLimes"); });
 
@@ -600,8 +594,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var modelBuilder = new ModelBuilder();
 
             modelBuilder
-                .Entity<Customer>()
-                .OneToMany(e => e.Orders, e => e.Customer)
+                .Entity<Customer>().HasMany(e => e.Orders).WithOne(e => e.Customer)
                 .ForeignKey(e => e.CustomerId)
                 .ForRelational(b => { b.Name("LemonSupreme"); })
                 .ForSqlServer(b => { b.Name("ChocolateLimes"); });
@@ -618,14 +611,12 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var modelBuilder = new ModelBuilder();
 
             modelBuilder
-                .Entity<Order>()
-                .ManyToOne(e => e.Customer, e => e.Orders)
+                .Entity<Order>().HasOne(e => e.Customer).WithMany(e => e.Orders)
                 .ForRelational()
                 .Name("LemonSupreme");
 
             modelBuilder
-                .Entity<Order>()
-                .ManyToOne(e => e.Customer, e => e.Orders)
+                .Entity<Order>().HasOne(e => e.Customer).WithMany(e => e.Orders)
                 .ForSqlServer()
                 .Name("ChocolateLimes");
 
@@ -635,8 +626,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             Assert.Equal("ChocolateLimes", foreignKey.SqlServer().Name);
 
             modelBuilder
-                .Entity<Order>()
-                .ManyToOne(e => e.Customer, e => e.Orders)
+                .Entity<Order>().HasOne(e => e.Customer).WithMany(e => e.Orders)
                 .ForSqlServer()
                 .Name(null);
 
@@ -650,15 +640,13 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var modelBuilder = new ModelBuilder();
 
             modelBuilder
-                .Entity<Order>()
-                .ManyToOne(e => e.Customer, e => e.Orders)
+                .Entity<Order>().HasOne(e => e.Customer).WithMany(e => e.Orders)
                 .ForeignKey(e => e.CustomerId)
                 .ForRelational()
                 .Name("LemonSupreme");
 
             modelBuilder
-                .Entity<Order>()
-                .ManyToOne(e => e.Customer, e => e.Orders)
+                .Entity<Order>().HasOne(e => e.Customer).WithMany(e => e.Orders)
                 .ForeignKey(e => e.CustomerId)
                 .ForSqlServer()
                 .Name("ChocolateLimes");
@@ -675,8 +663,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var modelBuilder = new ModelBuilder();
 
             modelBuilder
-                .Entity<Order>()
-                .ManyToOne(e => e.Customer, e => e.Orders)
+                .Entity<Order>().HasOne(e => e.Customer).WithMany(e => e.Orders)
                 .ForRelational(b => { b.Name("LemonSupreme"); })
                 .ForSqlServer(b => { b.Name("ChocolateLimes"); });
 
@@ -692,8 +679,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var modelBuilder = new ModelBuilder();
 
             modelBuilder
-                .Entity<Order>()
-                .ManyToOne(e => e.Customer, e => e.Orders)
+                .Entity<Order>().HasOne(e => e.Customer).WithMany(e => e.Orders)
                 .ForeignKey(e => e.CustomerId)
                 .ForRelational(b => { b.Name("LemonSupreme"); })
                 .ForSqlServer(b => { b.Name("ChocolateLimes"); });
@@ -710,14 +696,13 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var modelBuilder = new ModelBuilder();
 
             modelBuilder
-                .Entity<Order>()
-                .OneToOne(e => e.Details, e => e.Order)
+                .Entity<Order>().HasOne(e => e.Details).WithOne(e => e.Order)
+                .ReferencedKey<Order>(e => e.OrderId)
                 .ForRelational()
                 .Name("LemonSupreme");
 
             modelBuilder
-                .Entity<Order>()
-                .OneToOne(e => e.Details, e => e.Order)
+                .Entity<Order>().HasOne(e => e.Details).WithOne(e => e.Order)
                 .ForSqlServer()
                 .Name("ChocolateLimes");
 
@@ -727,8 +712,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             Assert.Equal("ChocolateLimes", foreignKey.SqlServer().Name);
 
             modelBuilder
-                .Entity<Order>()
-                .OneToOne(e => e.Details, e => e.Order)
+                .Entity<Order>().HasOne(e => e.Details).WithOne(e => e.Order)
                 .ForSqlServer()
                 .Name(null);
 
@@ -742,15 +726,13 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var modelBuilder = new ModelBuilder();
 
             modelBuilder
-                .Entity<Order>()
-                .OneToOne(e => e.Details, e => e.Order)
+                .Entity<Order>().HasOne(e => e.Details).WithOne(e => e.Order)
                 .ForeignKey<OrderDetails>(e => e.Id)
                 .ForRelational()
                 .Name("LemonSupreme");
 
             modelBuilder
-                .Entity<Order>()
-                .OneToOne(e => e.Details, e => e.Order)
+                .Entity<Order>().HasOne(e => e.Details).WithOne(e => e.Order)
                 .ForeignKey<OrderDetails>(e => e.Id)
                 .ForSqlServer()
                 .Name("ChocolateLimes");
@@ -767,8 +749,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var modelBuilder = new ModelBuilder();
 
             modelBuilder
-                .Entity<Order>()
-                .OneToOne(e => e.Details, e => e.Order)
+                .Entity<Order>().HasOne(e => e.Details).WithOne(e => e.Order)
+                .ReferencedKey<Order>(e => e.OrderId)
                 .ForRelational(b => { b.Name("LemonSupreme"); })
                 .ForSqlServer(b => { b.Name("ChocolateLimes"); });
 
@@ -784,8 +766,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var modelBuilder = new ModelBuilder();
 
             modelBuilder
-                .Entity<Order>()
-                .OneToOne(e => e.Details, e => e.Order)
+                .Entity<Order>().HasOne(e => e.Details).WithOne(e => e.Order)
                 .ForeignKey<OrderDetails>(e => e.Id)
                 .ForRelational(b => { b.Name("LemonSupreme"); })
                 .ForSqlServer(b => { b.Name("ChocolateLimes"); });

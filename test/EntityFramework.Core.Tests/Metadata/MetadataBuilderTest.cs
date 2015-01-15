@@ -342,8 +342,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var builder = new ModelBuilder();
 
             var returnedBuilder = builder
-                .Entity<Gunter>()
-                .OneToMany(e => e.Gates, e => e.Gunter)
+                .Entity<Gunter>().HasMany(e => e.Gates).WithOne(e => e.Gunter)
                 .OneToManyBuilderExtension("V1")
                 .OneToManyBuilderExtension("V2");
 
@@ -363,8 +362,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var builder = new ModelBuilder();
 
             var returnedBuilder = builder
-                .Entity<Gate>()
-                .ManyToOne(e => e.Gunter, e => e.Gates)
+                .Entity<Gate>().HasOne(e => e.Gunter).WithMany(e => e.Gates)
                 .ManyToOneBuilderExtension("V1")
                 .ManyToOneBuilderExtension("V2");
 
@@ -384,8 +382,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var builder = new ModelBuilder();
 
             var returnedBuilder = builder
-                .Entity<Gunter>()
-                .OneToOne<Avatar>(e => e.Avatar, e => e.Gunter)
+                .Entity<Avatar>().HasOne(e => e.Gunter).WithOne(e => e.Avatar)
                 .OneToOneBuilderExtension("V1")
                 .OneToOneBuilderExtension("V2");
 
@@ -731,8 +728,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var builder = new ModelBuilder();
 
             var returnedBuilder = builder
-                .Entity<Gunter>()
-                .OneToMany(e => e.Gates, e => e.Gunter)
+                .Entity<Gunter>().HasMany(e => e.Gates).WithOne(e => e.Gunter)
                 .SharedNameExtension("V1")
                 .SharedNameExtension("V2");
 
@@ -752,8 +748,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var builder = new ModelBuilder();
 
             var returnedBuilder = builder
-                .Entity<Gate>()
-                .ManyToOne(e => e.Gunter, e => e.Gates)
+                .Entity<Gate>().HasOne(e => e.Gunter).WithMany(e => e.Gates)
                 .SharedNameExtension("V1")
                 .SharedNameExtension("V2");
 
@@ -773,8 +768,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var builder = new ModelBuilder();
 
             var returnedBuilder = builder
-                .Entity<Gunter>()
-                .OneToOne<Avatar>(e => e.Avatar, e => e.Gunter)
+                .Entity<Avatar>().HasOne(e => e.Gunter).WithOne(e => e.Avatar)
                 .SharedNameExtension("V1")
                 .SharedNameExtension("V2");
 

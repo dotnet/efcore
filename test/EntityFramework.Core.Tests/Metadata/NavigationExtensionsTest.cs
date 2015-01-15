@@ -181,8 +181,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             var builder = new ModelBuilder();
 
-            builder.Entity<Principal>().OneToMany(e => e.Dependents1, e => e.Principal1);
-            builder.Entity<Principal>().OneToMany(e => e.Dependents2, e => e.Principal2);
+            builder.Entity<Principal>().HasMany(e => e.Dependents1).WithOne(e => e.Principal1);
+            builder.Entity<Principal>().HasMany(e => e.Dependents2).WithOne(e => e.Principal2);
 
             return builder.Model;
         }
