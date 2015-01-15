@@ -350,6 +350,25 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
+        public void Modified_values_are_reset_when_entity_is_changed_to_Added()
+        {
+            var model = BuildModel();
+            var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
+            var property = entityType.GetProperty("Name");
+            var configuration = TestHelpers.CreateContextServices(model);
+
+            var entry = CreateStateEntry(configuration, entityType, new SomeEntity());
+            entry[entityType.GetProperty("Id")] = 1;
+
+            entry.SetEntityState(EntityState.Modified);
+            entry.SetPropertyModified(property);
+
+            entry.SetEntityState(EntityState.Added);
+
+            Assert.False(entry.HasTemporaryValue(property));
+        }
+
+        [Fact]
         public void Changing_state_to_Added_triggers_value_generation_for_any_property()
         {
             var model = BuildModel();

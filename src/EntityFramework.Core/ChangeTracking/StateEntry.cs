@@ -145,11 +145,14 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 return false;
             }
 
+            if (EntityState == EntityState.Modified)
+            {
+                _stateData.FlagAllProperties(EntityType.Properties.Count(), isFlagged: false);
+            }
+
             // Temporarily change the internal state to unknown so that key generation, including setting key values
             // can happen without constraints on changing read-only values kicking in
             _stateData.EntityState = EntityState.Unknown;
-
-            _stateData.FlagAllProperties(EntityType.Properties.Count(), isFlagged: false);
 
             return true;
         }
