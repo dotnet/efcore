@@ -5,13 +5,9 @@
         "warningsAsErrors": true
     },
     "dependencies": {
-        "EntityFramework.Core": "7.0.0-*",
         "EntityFramework.Relational": "7.0.0-*",
-        "Microsoft.Framework.CodeGeneration": "1.0.0-*",
         "Microsoft.Framework.CodeGeneration.Core": "1.0.0-*",
-        "Microsoft.Framework.CodeGeneration.Common": "1.0.0-*",
         "Microsoft.Framework.DependencyInjection": "1.0.0-*",
-        "Microsoft.Framework.Runtime.Interfaces": "1.0.0-*"
     },
     "code": [ "**\\*.cs", "..\\Shared\\CodeAnnotations.cs" ],
     "frameworks": {
