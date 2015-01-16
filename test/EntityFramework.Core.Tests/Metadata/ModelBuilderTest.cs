@@ -814,151 +814,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .Required();
         }
 
-        [Fact]
-        public void Can_add_foreign_key()
-        {
-            var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
-            modelBuilder.Entity<Customer>();
-            modelBuilder
-                .Entity<Order>()
-                .ForeignKey<Customer>(c => c.CustomerId);
-            modelBuilder.Ignore<OrderDetails>();
-
-            var entityType = model.GetEntityType(typeof(Order));
-
-            Assert.Equal(1, entityType.ForeignKeys.Count());
-        }
-
-        [Fact]
-        public void Can_add_foreign_key_when_no_clr_property()
-        {
-            var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
-            modelBuilder.Entity<Customer>();
-            modelBuilder.Entity<Order>(b => b.ForeignKey(typeof(Customer).FullName, "CustomerId"));
-            modelBuilder.Ignore<OrderDetails>();
-
-            var entityType = model.GetEntityType(typeof(Order));
-
-            Assert.Equal(1, entityType.ForeignKeys.Count());
-        }
-
-        [Fact]
-        public void Can_add_foreign_key_when_no_clr_type_on_both_ends()
-        {
-            var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
-            modelBuilder.Entity(typeof(Customer).FullName, b =>
-                {
-                    b.Property<int>(Customer.IdProperty.Name);
-                    b.Key(Customer.IdProperty.Name);
-                });
-            modelBuilder.Entity(typeof(Order).FullName, b =>
-                {
-                    b.Property<int>("CustomerId");
-                    b.ForeignKey(typeof(Customer).FullName, "CustomerId");
-                });
-            modelBuilder.Ignore<CustomerDetails>();
-
-            var entityType = model.GetEntityType(typeof(Order));
-
-            Assert.Equal(1, entityType.ForeignKeys.Count());
-        }
-
-        [Fact]
-        public void Can_add_multiple_foreign_keys()
-        {
-            var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
-            modelBuilder.Entity<Customer>();
-            modelBuilder.Entity<Order>(b =>
-                {
-                    b.ForeignKey<Customer>(c => c.CustomerId);
-                    b.ForeignKey<Customer>(c => c.AnotherCustomerId).IsUnique();
-                });
-            modelBuilder.Ignore<CustomerDetails>();
-            modelBuilder.Ignore<OrderDetails>();
-
-            var entityType = (IEntityType)model.GetEntityType(typeof(Order));
-
-            Assert.Equal(2, entityType.ForeignKeys.Count());
-            Assert.True(entityType.ForeignKeys.Last().IsUnique);
-        }
-
-        [Fact]
-        public void Can_add_multiple_foreign_keys_when_mixed_properties()
-        {
-            var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
-
-            modelBuilder.Entity<Customer>();
-            modelBuilder.Entity<Order>(b =>
-                {
-                    b.ForeignKey<Customer>(c => c.CustomerId);
-                    b.ForeignKey(typeof(Customer).FullName, "AnotherCustomerId").IsUnique();
-                });
-            modelBuilder.Ignore<CustomerDetails>();
-            modelBuilder.Ignore<OrderDetails>();
-
-            var entityType = (IEntityType)model.GetEntityType(typeof(Order));
-
-            Assert.Equal(2, entityType.ForeignKeys.Count());
-            Assert.True(entityType.ForeignKeys.Last().IsUnique);
-        }
-
-        [Fact]
-        public void Can_add_multiple_foreign_keys_when_no_clr_type()
-        {
-            var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
-
-            modelBuilder.Entity<Customer>();
-            modelBuilder
-                .Entity(typeof(Order).FullName, b =>
-                    {
-                        b.Property<int>("CustomerId");
-                        b.Property<int>("AnotherCustomerId");
-                        b.ForeignKey(typeof(Customer).FullName, "CustomerId");
-                        b.ForeignKey(typeof(Customer).FullName, "AnotherCustomerId").IsUnique();
-                    });
-            modelBuilder.Ignore<CustomerDetails>();
-            modelBuilder.Ignore<OrderDetails>();
-
-            var entityType = (IEntityType)model.GetEntityType(typeof(Order).FullName);
-
-            Assert.Equal(2, entityType.ForeignKeys.Count());
-            Assert.True(entityType.ForeignKeys.Last().IsUnique);
-        }
-
-        [Fact]
-        public void Can_add_multiple_foreign_keys_when_no_clr_type_on_both_ends()
-        {
-            var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
-
-            modelBuilder.Entity(typeof(Customer).FullName, b =>
-                {
-                    b.Property<int>(Customer.IdProperty.Name);
-                    b.Key(Customer.IdProperty.Name);
-                });
-            modelBuilder.Entity(typeof(Order).FullName, b =>
-                {
-                    b.Property<int>("CustomerId");
-                    b.Property<int>("AnotherCustomerId");
-                    b.ForeignKey(typeof(Customer).FullName, "CustomerId");
-                    b.ForeignKey(typeof(Customer).FullName, "AnotherCustomerId").IsUnique();
-                });
-            modelBuilder.Ignore<CustomerDetails>();
-            modelBuilder.Ignore<OrderDetails>();
-
-            var entityType = (IEntityType)model.GetEntityType(typeof(Order));
-
-            Assert.Equal(2, entityType.ForeignKeys.Count());
-            Assert.True(entityType.ForeignKeys.Last().IsUnique);
-        }
-
-        [Fact]
+       [Fact]
         public void Can_add_index()
         {
             var model = new Model();
@@ -1113,9 +969,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);
             modelBuilder.Entity<Customer>();
-            modelBuilder
-                .Entity<Order>()
-                .ForeignKey<Customer>(c => c.CustomerId);
+            modelBuilder.Entity<Order>().Metadata.GetOrAddForeignKey(
+                model.GetEntityType(typeof(Order)).GetProperty("CustomerId"),
+                model.GetEntityType(typeof(Customer)).GetPrimaryKey());
             modelBuilder.Ignore<OrderDetails>();
             modelBuilder.Ignore<CustomerDetails>();
 
@@ -2126,9 +1982,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);
             modelBuilder.Entity<Customer>();
-            modelBuilder
-                .Entity<Order>()
-                .ForeignKey<Customer>(c => c.CustomerId);
+            modelBuilder.Entity<Order>().Metadata.GetOrAddForeignKey(
+                model.GetEntityType(typeof(Order)).GetProperty("CustomerId"),
+                model.GetEntityType(typeof(Customer)).GetPrimaryKey());
             modelBuilder.Ignore<OrderDetails>();
             modelBuilder.Ignore<CustomerDetails>();
 
@@ -2200,10 +2056,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);
-            modelBuilder.Entity<Customer>()
-                .HasMany(e => e.Orders)
-                .WithOne()
-                .ForeignKey(c => c.CustomerId);
+            modelBuilder.Entity<Customer>();
+            modelBuilder.Entity<Order>().Metadata.GetOrAddForeignKey(
+                model.GetEntityType(typeof(Order)).GetProperty("CustomerId"),
+                model.GetEntityType(typeof(Customer)).GetPrimaryKey());
             modelBuilder.Ignore<OrderDetails>();
             modelBuilder.Ignore<CustomerDetails>();
 
@@ -2237,9 +2093,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);
             modelBuilder.Entity<Customer>();
-            modelBuilder
-                .Entity<Order>()
-                .ForeignKey<Customer>(c => c.CustomerId);
+            modelBuilder.Entity<Order>().HasOne<Customer>().WithMany().ForeignKey(e => e.CustomerId);
             modelBuilder.Ignore<OrderDetails>();
             modelBuilder.Ignore<CustomerDetails>();
 
@@ -3319,6 +3173,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .HasOne(e => e.Details)
                 .WithOne()
                 .ForeignKey<CustomerDetails>(e => e.Id);
+            modelBuilder.Entity<CustomerDetails>();
             modelBuilder.Ignore<Order>();
 
             var dependentType = model.GetEntityType(typeof(CustomerDetails));
@@ -3644,9 +3499,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);
             modelBuilder.Entity<BigMak>();
-            modelBuilder
-                .Entity<Bun>()
-                .ForeignKey<BigMak>(c => c.BurgerId);
+            modelBuilder.Entity<Bun>().Metadata.AddForeignKey(
+                model.GetEntityType(typeof(Bun)).GetProperty("BurgerId"),
+                model.GetEntityType(typeof(BigMak)).GetPrimaryKey());
             modelBuilder.Ignore<Pickle>();
 
             var dependentType = model.GetEntityType(typeof(Bun));
@@ -3821,9 +3676,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);
             modelBuilder.Entity<BigMak>();
-            modelBuilder
-                .Entity<Bun>()
-                .ForeignKey<BigMak>(c => c.BurgerId);
+            modelBuilder.Entity<Bun>().Metadata.AddForeignKey(
+                model.GetEntityType(typeof(Bun)).GetProperty("BurgerId"),
+                model.GetEntityType(typeof(BigMak)).GetPrimaryKey());
             modelBuilder.Ignore<Pickle>();
 
             var dependentType = (IEntityType)model.GetEntityType(typeof(Bun));
@@ -3843,7 +3698,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.False(fk.IsUnique);
             Assert.True(newFk.IsUnique);
 
-            Assert.Equal(fk.Properties, newFk.Properties);
+            Assert.Equal(fk.Properties.ToList(), newFk.Properties.ToList());
             Assert.Equal("BigMak", dependentType.Navigations.Single().Name);
             Assert.Equal("Bun", principalType.Navigations.Single().Name);
             Assert.Same(newFk, dependentType.Navigations.Single().ForeignKey);
@@ -4343,9 +4198,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var modelBuilder = new ModelBuilder(model);
             modelBuilder.Entity<Order>();
             modelBuilder.Entity<OrderDetails>();
-            modelBuilder
-                .Entity<OrderDetails>()
-                .ForeignKey<Order>(c => c.Id);
+            modelBuilder.Entity<OrderDetails>().Metadata.AddForeignKey(
+                model.GetEntityType(typeof(OrderDetails)).GetProperty("Id"),
+                model.GetEntityType(typeof(Order)).GetPrimaryKey());
             modelBuilder.Ignore<Customer>();
             modelBuilder.Ignore<CustomerDetails>();
 
@@ -5230,13 +5085,13 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);
             modelBuilder.Entity<Whoopper>().Key(c => new { c.Id1, c.Id2 });
-            modelBuilder
-                .Entity<ToastedBun>()
-                .ForeignKey<Whoopper>(c => new { c.BurgerId1, c.BurgerId2 });
+            var dependentType = model.GetEntityType(typeof(ToastedBun));
+            modelBuilder.Entity<ToastedBun>().Metadata.AddForeignKey(
+                new[] { dependentType.GetProperty("BurgerId1"), dependentType.GetProperty("BurgerId2") },
+                model.GetEntityType(typeof(Whoopper)).GetPrimaryKey());
             modelBuilder.Ignore<Tomato>();
             modelBuilder.Ignore<Moostard>();
 
-            var dependentType = model.GetEntityType(typeof(ToastedBun));
             var principalType = model.GetEntityType(typeof(Whoopper));
             var fk = dependentType.ForeignKeys.Single();
             fk.IsUnique = true;

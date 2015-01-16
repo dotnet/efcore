@@ -224,14 +224,6 @@ namespace Microsoft.Data.Entity.Metadata
                 Builder.Ignore(propertyName, ConfigurationSource.Explicit);
             }
 
-            public virtual ForeignKeyBuilder ForeignKey([NotNull] string referencedEntityTypeName, [NotNull] params string[] propertyNames)
-            {
-                Check.NotNull(referencedEntityTypeName, "referencedEntityTypeName");
-                Check.NotNull(propertyNames, "propertyNames");
-
-                return new ForeignKeyBuilder(Builder.ForeignKey(referencedEntityTypeName, propertyNames, ConfigurationSource.Explicit));
-            }
-
             public virtual IndexBuilder Index([NotNull] params string[] propertyNames)
             {
                 Check.NotNull(propertyNames, "propertyNames");
@@ -423,43 +415,6 @@ namespace Microsoft.Data.Entity.Metadata
                     Builder.UseStoreDefault(useDefault, ConfigurationSource.Explicit);
 
                     return this;
-                }
-            }
-
-            public class ForeignKeyBuilder : IForeignKeyBuilder<ForeignKeyBuilder>
-            {
-                public ForeignKeyBuilder([NotNull] InternalRelationshipBuilder builder)
-                {
-                    Check.NotNull(builder, "builder");
-
-                    Builder = builder;
-                }
-
-                protected virtual InternalRelationshipBuilder Builder { get; }
-
-                public virtual ForeignKey Metadata
-                {
-                    get { return Builder.Metadata; }
-                }
-
-                Model IMetadataBuilder<ForeignKey, ForeignKeyBuilder>.Model
-                {
-                    get { return Builder.ModelBuilder.Metadata; }
-                }
-
-                public virtual ForeignKeyBuilder Annotation(string annotation, string value)
-                {
-                    Check.NotEmpty(annotation, "annotation");
-                    Check.NotEmpty(value, "value");
-
-                    Builder.Annotation(annotation, value, ConfigurationSource.Explicit);
-
-                    return this;
-                }
-
-                public virtual ForeignKeyBuilder IsUnique(bool isUnique = true)
-                {
-                    return new ForeignKeyBuilder(Builder.Unique(isUnique, ConfigurationSource.Explicit));
                 }
             }
 
@@ -857,13 +812,6 @@ namespace Microsoft.Data.Entity.Metadata
 
                 var propertyName = propertyExpression.GetPropertyAccess().Name;
                 Builder.Ignore(propertyName, ConfigurationSource.Explicit);
-            }
-
-            public virtual ForeignKeyBuilder ForeignKey<TReferencedEntityType>([NotNull] Expression<Func<TEntity, object>> foreignKeyExpression)
-            {
-                Check.NotNull(foreignKeyExpression, "foreignKeyExpression");
-
-                return new ForeignKeyBuilder(Builder.ForeignKey(typeof(TReferencedEntityType), foreignKeyExpression.GetPropertyAccessList(), ConfigurationSource.Explicit));
             }
 
             public virtual IndexBuilder Index([NotNull] Expression<Func<TEntity, object>> indexExpression)

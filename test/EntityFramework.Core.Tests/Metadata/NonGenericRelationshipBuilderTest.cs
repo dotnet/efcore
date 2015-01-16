@@ -21,9 +21,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);
             modelBuilder.Entity<Customer>().Key(c => c.Id);
-            modelBuilder
-                .Entity<Order>()
-                .ForeignKey<Customer>(c => c.CustomerId);
+            modelBuilder.Entity<Order>().Metadata.AddForeignKey(
+                model.GetEntityType(typeof(Order)).GetProperty("CustomerId"),
+                model.GetEntityType(typeof(Customer)).GetPrimaryKey());
 
             var dependentType = model.GetEntityType(typeof(Order));
             var principalType = model.GetEntityType(typeof(Customer));
@@ -59,9 +59,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);
             modelBuilder.Entity<Customer>().Key(c => c.Id);
-            modelBuilder
-                .Entity<Order>()
-                .ForeignKey<Customer>(c => c.CustomerId);
+            modelBuilder.Entity<Order>().Metadata.AddForeignKey(
+                model.GetEntityType(typeof(Order)).GetProperty("CustomerId"),
+                model.GetEntityType(typeof(Customer)).GetPrimaryKey());
 
             var dependentType = model.GetEntityType(typeof(Order));
             var principalType = model.GetEntityType(typeof(Customer));
@@ -96,9 +96,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);
             modelBuilder.Entity<Customer>().Key(c => c.Id);
-            modelBuilder
-                .Entity<Order>()
-                .ForeignKey<Customer>(c => c.CustomerId);
+            modelBuilder.Entity<Order>().Metadata.AddForeignKey(
+                model.GetEntityType(typeof(Order)).GetProperty("CustomerId"),
+                model.GetEntityType(typeof(Customer)).GetPrimaryKey());
 
             var dependentType = model.GetEntityType(typeof(Order));
             var principalType = model.GetEntityType(typeof(Customer));
@@ -133,9 +133,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);
             modelBuilder.Entity<Customer>().Key(c => c.Id);
-            modelBuilder
-                .Entity<Order>()
-                .ForeignKey<Customer>(c => c.CustomerId);
+            modelBuilder.Entity<Order>().Metadata.AddForeignKey(
+                model.GetEntityType(typeof(Order)).GetProperty("CustomerId"),
+                model.GetEntityType(typeof(Customer)).GetPrimaryKey());
 
             var dependentType = model.GetEntityType(typeof(Order));
             var principalType = model.GetEntityType(typeof(Customer));
@@ -347,9 +347,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);
             modelBuilder.Entity<BigMak>().Key(c => c.Id);
-            modelBuilder
-                .Entity<Pickle>()
-                .ForeignKey<BigMak>(c => c.BurgerId);
+            modelBuilder.Entity<Pickle>().Metadata.AddForeignKey(
+                model.GetEntityType(typeof(Pickle)).GetProperty("BurgerId"),
+                model.GetEntityType(typeof(BigMak)).GetPrimaryKey());
 
             var dependentType = model.GetEntityType(typeof(Pickle));
             var principalType = model.GetEntityType(typeof(BigMak));
@@ -720,10 +720,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);
             modelBuilder.Entity<BigMak>().Key(c => c.Id);
-            modelBuilder
-                .Entity<Pickle>()
-                .ForeignKey<BigMak>(c => c.BurgerId)
-                .IsUnique();
+            modelBuilder.Entity<Pickle>().Metadata.AddForeignKey(
+                model.GetEntityType(typeof(Pickle)).GetProperty("BurgerId"),
+                model.GetEntityType(typeof(BigMak)).GetPrimaryKey()).IsUnique = true;
 
             var dependentType = (IEntityType)model.GetEntityType(typeof(Pickle));
             var principalType = model.GetEntityType(typeof(BigMak));
@@ -1142,9 +1141,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);
             modelBuilder.Entity<Customer>().Key(c => c.Id);
-            modelBuilder
-                .Entity<Order>()
-                .ForeignKey<Customer>(c => c.CustomerId);
+            modelBuilder.Entity<Order>().Metadata.AddForeignKey(
+                model.GetEntityType(typeof(Order)).GetProperty("CustomerId"),
+                model.GetEntityType(typeof(Customer)).GetPrimaryKey());
 
             var dependentType = model.GetEntityType(typeof(Order));
             var principalType = model.GetEntityType(typeof(Customer));
@@ -1180,9 +1179,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);
             modelBuilder.Entity<Customer>().Key(c => c.Id);
-            modelBuilder
-                .Entity<Order>()
-                .ForeignKey<Customer>(c => c.CustomerId);
+            modelBuilder.Entity<Order>().Metadata.AddForeignKey(
+                model.GetEntityType(typeof(Order)).GetProperty("CustomerId"),
+                model.GetEntityType(typeof(Customer)).GetPrimaryKey());
 
             var dependentType = model.GetEntityType(typeof(Order));
             var principalType = model.GetEntityType(typeof(Customer));
@@ -1217,9 +1216,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);
             modelBuilder.Entity<Customer>().Key(c => c.Id);
-            modelBuilder
-                .Entity<Order>()
-                .ForeignKey<Customer>(c => c.CustomerId);
+            modelBuilder.Entity<Order>().Metadata.AddForeignKey(
+                model.GetEntityType(typeof(Order)).GetProperty("CustomerId"),
+                model.GetEntityType(typeof(Customer)).GetPrimaryKey());
 
             var dependentType = model.GetEntityType(typeof(Order));
             var principalType = model.GetEntityType(typeof(Customer));
@@ -1254,9 +1253,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);
             modelBuilder.Entity<Customer>().Key(c => c.Id);
-            modelBuilder
-                .Entity<Order>()
-                .ForeignKey<Customer>(c => c.CustomerId);
+            modelBuilder.Entity<Order>().Metadata.AddForeignKey(
+                model.GetEntityType(typeof(Order)).GetProperty("CustomerId"),
+                model.GetEntityType(typeof(Customer)).GetPrimaryKey());
 
             var dependentType = model.GetEntityType(typeof(Order));
             var principalType = model.GetEntityType(typeof(Customer));
@@ -1468,9 +1467,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);
             modelBuilder.Entity<BigMak>().Key(c => c.Id);
-            modelBuilder
-                .Entity<Pickle>()
-                .ForeignKey<BigMak>(c => c.BurgerId);
+            modelBuilder.Entity<Pickle>().Metadata.AddForeignKey(
+                model.GetEntityType(typeof(Pickle)).GetProperty("BurgerId"),
+                model.GetEntityType(typeof(BigMak)).GetPrimaryKey());
 
             var dependentType = model.GetEntityType(typeof(Pickle));
             var principalType = model.GetEntityType(typeof(BigMak));
@@ -1841,10 +1840,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);
             modelBuilder.Entity<BigMak>().Key(c => c.Id);
-            modelBuilder
-                .Entity<Pickle>()
-                .ForeignKey<BigMak>(c => c.BurgerId)
-                .IsUnique();
+            modelBuilder.Entity<Pickle>().Metadata.AddForeignKey(
+                model.GetEntityType(typeof(Pickle)).GetProperty("BurgerId"),
+                model.GetEntityType(typeof(BigMak)).GetPrimaryKey()).IsUnique = true;
 
             var dependentType = (IEntityType)model.GetEntityType(typeof(Pickle));
             var principalType = model.GetEntityType(typeof(BigMak));
@@ -2263,9 +2261,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);
             modelBuilder.Entity<Customer>().Key(c => c.Id);
-            modelBuilder
-                .Entity<CustomerDetails>()
-                .ForeignKey<Customer>(c => c.Id);
+            modelBuilder.Entity<CustomerDetails>().Metadata.AddForeignKey(
+                model.GetEntityType(typeof(CustomerDetails)).GetProperty("Id"),
+                model.GetEntityType(typeof(Customer)).GetPrimaryKey());
 
             var dependentType = model.GetEntityType(typeof(CustomerDetails));
             var principalType = model.GetEntityType(typeof(Customer));
@@ -2302,9 +2300,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);
             modelBuilder.Entity<Customer>().Key(c => c.Id);
-            modelBuilder
-                .Entity<CustomerDetails>()
-                .ForeignKey<Customer>(c => c.Id);
+            modelBuilder.Entity<CustomerDetails>().Metadata.AddForeignKey(
+                model.GetEntityType(typeof(CustomerDetails)).GetProperty("Id"),
+                model.GetEntityType(typeof(Customer)).GetPrimaryKey());
 
             var dependentType = model.GetEntityType(typeof(CustomerDetails));
             var principalType = model.GetEntityType(typeof(Customer));
@@ -2340,9 +2338,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);
             modelBuilder.Entity<Customer>().Key(c => c.Id);
-            modelBuilder
-                .Entity<CustomerDetails>()
-                .ForeignKey<Customer>(c => c.Id);
+            modelBuilder.Entity<CustomerDetails>().Metadata.AddForeignKey(
+                model.GetEntityType(typeof(CustomerDetails)).GetProperty("Id"),
+                model.GetEntityType(typeof(Customer)).GetPrimaryKey());
 
             var dependentType = model.GetEntityType(typeof(CustomerDetails));
             var principalType = model.GetEntityType(typeof(Customer));
@@ -2379,9 +2377,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var modelBuilder = new ModelBuilder(model);
             modelBuilder.Entity<Customer>().Key(c => c.Id);
             modelBuilder.Entity<CustomerDetails>().Key(e => e.Id);
-            modelBuilder
-                .Entity<CustomerDetails>()
-                .ForeignKey<Customer>(c => c.Id);
+            modelBuilder.Entity<CustomerDetails>().Metadata.AddForeignKey(
+                model.GetEntityType(typeof(CustomerDetails)).GetProperty("Id"),
+                model.GetEntityType(typeof(Customer)).GetPrimaryKey());
 
             var dependentType = model.GetEntityType(typeof(CustomerDetails));
             var principalType = model.GetEntityType(typeof(Customer));
@@ -2452,9 +2450,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var modelBuilder = new ModelBuilder(model);
             modelBuilder.Entity<Order>().Key(c => c.OrderId);
             modelBuilder.Entity<OrderDetails>().Key(e => e.Id);
-            modelBuilder
-                .Entity<OrderDetails>()
-                .ForeignKey<Order>(c => c.Id);
+            modelBuilder.Entity<OrderDetails>().Metadata.AddForeignKey(
+                model.GetEntityType(typeof(OrderDetails)).GetProperty("Id"),
+                model.GetEntityType(typeof(Order)).GetPrimaryKey());
 
             var dependentType = model.GetEntityType(typeof(OrderDetails));
             var principalType = model.GetEntityType(typeof(Order));
@@ -2713,9 +2711,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);
             modelBuilder.Entity<BigMak>().Key(c => c.Id);
-            modelBuilder
-                .Entity<Bun>()
-                .ForeignKey<BigMak>(c => c.BurgerId);
+            modelBuilder.Entity<Bun>().Metadata.AddForeignKey(
+                model.GetEntityType(typeof(Bun)).GetProperty("BurgerId"),
+                model.GetEntityType(typeof(BigMak)).GetPrimaryKey());
 
             var dependentType = model.GetEntityType(typeof(Bun));
             var principalType = model.GetEntityType(typeof(BigMak));
@@ -2899,9 +2897,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);
             modelBuilder.Entity<BigMak>().Key(c => c.Id);
-            modelBuilder
-                .Entity<Bun>()
-                .ForeignKey<BigMak>(c => c.BurgerId);
+            modelBuilder.Entity<Bun>().Metadata.AddForeignKey(
+                model.GetEntityType(typeof(Bun)).GetProperty("BurgerId"),
+                model.GetEntityType(typeof(BigMak)).GetPrimaryKey());
 
             var dependentType = (IEntityType)model.GetEntityType(typeof(Bun));
             var principalType = model.GetEntityType(typeof(BigMak));
@@ -2942,9 +2940,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var modelBuilder = new ModelBuilder(model);
             modelBuilder.Entity<Order>().Key(c => c.OrderId);
             modelBuilder.Entity<OrderDetails>().Key(e => e.Id);
-            modelBuilder
-                .Entity<OrderDetails>()
-                .ForeignKey<Order>(c => c.Id);
+            modelBuilder.Entity<OrderDetails>().Metadata.AddForeignKey(
+                model.GetEntityType(typeof(OrderDetails)).GetProperty("Id"),
+                model.GetEntityType(typeof(Order)).GetPrimaryKey());
 
             var dependentType = model.GetEntityType(typeof(OrderDetails));
             var principalType = model.GetEntityType(typeof(Order));
@@ -3450,9 +3448,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var modelBuilder = new ModelBuilder(model);
             modelBuilder.Entity<Order>().Key(c => c.OrderId);
             modelBuilder.Entity<OrderDetails>().Key(e => e.Id);
-            modelBuilder
-                .Entity<OrderDetails>()
-                .ForeignKey<Order>(c => c.Id);
+            modelBuilder.Entity<OrderDetails>().Metadata.AddForeignKey(
+                model.GetEntityType(typeof(OrderDetails)).GetProperty("Id"),
+                model.GetEntityType(typeof(Order)).GetPrimaryKey());
 
             var dependentType = model.GetEntityType(typeof(OrderDetails));
             var principalType = model.GetEntityType(typeof(Order));
@@ -3752,9 +3750,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);
             modelBuilder.Entity<Whoopper>().Key(c => new { c.Id1, c.Id2 });
-            modelBuilder
-                .Entity<Tomato>()
-                .ForeignKey<Whoopper>(c => new { c.BurgerId1, c.BurgerId2 });
+            var tomatoType = model.GetEntityType(typeof(Tomato));
+            modelBuilder.Entity<Tomato>().Metadata.AddForeignKey(
+                new[] { tomatoType.GetProperty("BurgerId1"), tomatoType.GetProperty("BurgerId2") },
+                model.GetEntityType(typeof(Whoopper)).GetPrimaryKey());
 
             var dependentType = model.GetEntityType(typeof(Tomato));
             var principalType = model.GetEntityType(typeof(Whoopper));
@@ -4079,11 +4078,12 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);
             modelBuilder.Entity<Whoopper>().Key(c => new { c.Id1, c.Id2 });
-            modelBuilder
-                .Entity<Tomato>()
-                .ForeignKey<Whoopper>(c => new { c.BurgerId1, c.BurgerId2 });
+            var tomatoType = model.GetEntityType(typeof(Tomato));
+            modelBuilder.Entity<Tomato>().Metadata.AddForeignKey(
+                new[] { tomatoType.GetProperty("BurgerId1"), tomatoType.GetProperty("BurgerId2") },
+                model.GetEntityType(typeof(Whoopper)).GetPrimaryKey());
 
-            var dependentType = model.GetEntityType(typeof(Tomato));
+            var dependentType = tomatoType;
             var principalType = model.GetEntityType(typeof(Whoopper));
             var fk = dependentType.ForeignKeys.Single();
 
@@ -4406,9 +4406,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var model = new Model();
             var modelBuilder = new ModelBuilder(model);
             modelBuilder.Entity<Whoopper>().Key(c => new { c.Id1, c.Id2 });
-            modelBuilder
-                .Entity<ToastedBun>()
-                .ForeignKey<Whoopper>(c => new { c.BurgerId1, c.BurgerId2 });
+            var bunType = model.GetEntityType(typeof(ToastedBun));
+            modelBuilder.Entity<ToastedBun>().Metadata.AddForeignKey(
+                new[] { bunType.GetProperty("BurgerId1"), bunType.GetProperty("BurgerId2") },
+                model.GetEntityType(typeof(Whoopper)).GetPrimaryKey());
 
             var dependentType = model.GetEntityType(typeof(ToastedBun));
             var principalType = model.GetEntityType(typeof(Whoopper));

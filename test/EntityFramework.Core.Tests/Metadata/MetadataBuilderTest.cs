@@ -274,27 +274,6 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         }
 
         [Fact]
-        public void Can_write_convention_foreign_key_builder_extension()
-        {
-            var builder = new ModelBuilder();
-
-            var returnedBuilder = builder
-                .Entity<Gate>()
-                .ForeignKey<Gunter>(e => e.GunterId)
-                .ForeignKeyBuilderExtension("V1")
-                .ForeignKeyBuilderExtension("V2");
-
-            Assert.IsType<ModelBuilder.EntityBuilder.ForeignKeyBuilder>(returnedBuilder);
-
-            var model = builder.Model;
-            var foreignKey = model.GetEntityType(typeof(Gate)).ForeignKeys.Single();
-
-            Assert.Equal("V2.Annotation", foreignKey["Annotation"]);
-            Assert.Equal("V2.Metadata", foreignKey["Metadata"]);
-            Assert.Equal("V2.Model", model["Model"]);
-        }
-
-        [Fact]
         public void Can_write_basic_index_builder_extension()
         {
             var builder = new BasicModelBuilder();
@@ -650,27 +629,6 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .SharedNameExtension("V2");
 
             Assert.IsType<BasicModelBuilder.EntityBuilder.ForeignKeyBuilder>(returnedBuilder);
-
-            var model = builder.Model;
-            var foreignKey = model.GetEntityType(typeof(Gate)).ForeignKeys.Single();
-
-            Assert.Equal("V2.Annotation", foreignKey["Annotation"]);
-            Assert.Equal("V2.Metadata", foreignKey["Metadata"]);
-            Assert.Equal("V2.Model", model["Model"]);
-        }
-
-        [Fact]
-        public void Can_write_convention_foreign_key_builder_extension_with_common_name()
-        {
-            var builder = new ModelBuilder();
-
-            var returnedBuilder = builder
-                .Entity<Gate>()
-                .ForeignKey<Gunter>(e => e.GunterId)
-                .SharedNameExtension("V1")
-                .SharedNameExtension("V2");
-
-            Assert.IsType<ModelBuilder.EntityBuilder.ForeignKeyBuilder>(returnedBuilder);
 
             var model = builder.Model;
             var foreignKey = model.GetEntityType(typeof(Gate)).ForeignKeys.Single();
