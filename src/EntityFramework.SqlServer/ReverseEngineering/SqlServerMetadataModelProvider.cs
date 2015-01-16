@@ -7,7 +7,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.ReverseEngineering;
+using Microsoft.Data.Entity.Relational.Design.CodeGeneration;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
 using EntityFramework.SqlServer.ReverseEngineering.Model;
 
@@ -181,10 +181,11 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
             foreach (var t in tables)
             {
                 var table = t.Value;
-                var escapedTableName = BaseTemplatingHelper.EscapeForCSharp(table.SchemaName)
+                var entityTypeName =
+                    table.SchemaName
                     + AnnotationNameTableIdSchemaTableSeparator
-                    + BaseTemplatingHelper.EscapeForCSharp(table.TableName);
-                var entityType = model.AddEntityType(escapedTableName);
+                    + table.TableName;
+                var entityType = model.AddEntityType(entityTypeName);
                 entityType.AddAnnotation(AnnotationNameTableId, table.Id);
 
                 var primaryKeys = new List<Property>();
@@ -199,7 +200,7 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
                             clrPropertyType = clrPropertyType.MakeNullable();
                         }
                         // have to add property in shadow state as we have no CLR type representing the EntityType at this stage
-                        var property = entityType.AddProperty(BaseTemplatingHelper.EscapeForCSharp(tc.ColumnName), clrPropertyType, true);
+                        var property = entityType.AddProperty(tc.ColumnName, clrPropertyType, true);
                         property.AddAnnotation(AnnotationNameColumnId, tc.Id);
                         columnIdToProperty.Add(tc.Id, property);
 
@@ -371,20 +372,6 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
             {
                 property.UseStoreDefault = true;
             }
-        }
-
-        public string GetContextTemplate() { return SqlServerContextTemplatingHelper.ContextTemplate; }
-
-        public string GetEntityTypeTemplate() { return SqlServerEntityTypeTemplatingHelper.EntityTypeTemplate; }
-
-        public ContextTemplatingHelper GetContextTemplateHelper(ContextTemplateModel contextTemplateModel)
-        {
-            return new SqlServerContextTemplatingHelper(contextTemplateModel);
-        }
-
-        public EntityTypeTemplatingHelper GetEntityTypeTemplateHelper(EntityTypeTemplateModel entityTypeTemplateModel)
-        {
-            return new SqlServerEntityTypeTemplatingHelper(entityTypeTemplateModel);
         }
 
         public DbContextCodeGeneratorContext GetContextModelCodeGenerator(ContextTemplateModel contextTemplateModel)

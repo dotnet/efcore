@@ -8,7 +8,10 @@ using System.IO;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Commands.Utilities;
+using Microsoft.Data.Entity.Relational.Migrations.Utilities;
+using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
 using Microsoft.Data.Entity.Utilities;
+using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Runtime;
 using Microsoft.Framework.Runtime.Common.CommandLine;
 
@@ -17,17 +20,20 @@ namespace Microsoft.Data.Entity.Commands
     // TODO: Add verbose option
     public class Program
     {
+        private readonly IServiceProvider _serviceProvider;
         private readonly string _projectDir;
         private readonly string _rootNamespace;
         private readonly ILibraryManager _libraryManager;
         private readonly MigrationTool _migrationTool;
         private CommandLineApplication _app;
 
-        public Program([NotNull] IApplicationEnvironment appEnv, [NotNull] ILibraryManager libraryManager)
+        public Program([NotNull] IServiceProvider serviceProvider, [NotNull] IApplicationEnvironment appEnv, [NotNull] ILibraryManager libraryManager)
         {
-            Check.NotNull(appEnv, nameof(appEnv));
+            Check.NotNull(serviceProvider, "serviceProvider");
+            Check.NotNull(appEnv, "appEnv");
             Check.NotNull(libraryManager, nameof(libraryManager));
 
+            _serviceProvider = serviceProvider;
             _projectDir = appEnv.ApplicationBasePath;
             _rootNamespace = appEnv.ApplicationName;
 
@@ -311,6 +317,33 @@ namespace Microsoft.Data.Entity.Commands
             string connectionString, string providerAssemblyName, string outputPath,
             string codeNamespace, string contextClassName, string filters)
         {
+            var providerAssembly = GetCandidateAssembly(providerAssemblyName);
+            if (providerAssembly == null)
+            {
+                Console.WriteLine("No provider assembly was found with name " + providerAssemblyName);
+                return 1;
+            }
+
+            Console.WriteLine("Args: providerAssemblyName: " + providerAssemblyName);
+            Console.WriteLine("Args: connectionString: " + connectionString);
+            Console.WriteLine("Args: outputPath: " + outputPath);
+            Console.WriteLine("Args: codeNamespace: " + codeNamespace);
+            Console.WriteLine("Args: contextClassName: " + contextClassName);
+            Console.WriteLine("Args: filters: " + filters);
+
+            var configuration = new ReverseEngineeringConfiguration()
+            {
+                ProviderAssembly = providerAssembly,
+                ConnectionString = connectionString,
+                OutputPath = outputPath,
+                Namespace = codeNamespace,
+                ContextClassName = contextClassName,
+                Filters = filters
+            };
+
+            var generator = new ReverseEngineeringGenerator();
+            generator.Generate(configuration).Wait();
+
             return 0;
         }
 
@@ -367,6 +400,18 @@ namespace Microsoft.Data.Entity.Commands
             }
 
             return projectDir;
+        }
+
+        private Assembly GetCandidateAssembly(string providerAssemblyName)
+        {
+            var libraryManager = _serviceProvider.GetRequiredService<ILibraryManager>();
+
+            return libraryManager.GetReferencingLibraries("EntityFramework.Relational")
+                .Distinct()
+                .Where(l => l.Name == providerAssemblyName)
+                .SelectMany(l => l.LoadableAssemblies)
+                .Select((assemblyName, assembly) => Assembly.Load(assemblyName))
+                .FirstOrDefault();
         }
     }
 }

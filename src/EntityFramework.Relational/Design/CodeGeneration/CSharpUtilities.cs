@@ -120,7 +120,7 @@ namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
         }
 
         public virtual string GenerateCSharpIdentifier(
-            [NotNull] string identifier, ICollection<string> existingIdentifiers)
+            [NotNull] string identifier, [CanBeNull]ICollection<string> existingIdentifiers)
         {
             Check.NotEmpty(identifier, "identifier");
 
@@ -143,12 +143,15 @@ namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
                 proposedIdentifier = "_" + proposedIdentifier;
             }
 
-            var suffix = 1;
             string finalIdentifier = proposedIdentifier;
-            while(existingIdentifiers.Contains(proposedIdentifier))
+            if (existingIdentifiers != null)
             {
-                finalIdentifier = proposedIdentifier + suffix.ToString();
-                suffix++;
+                var suffix = 1;
+                while (existingIdentifiers.Contains(proposedIdentifier))
+                {
+                    finalIdentifier = proposedIdentifier + suffix.ToString();
+                    suffix++;
+                }
             }
 
             return finalIdentifier;
