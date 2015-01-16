@@ -6,7 +6,7 @@ using System.Text;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.ReverseEngineering;
 
-namespace EntityFramework.SqlServer.ReverseEngineering
+namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
 {
     public class SqlServerEntityTypeTemplatingHelper : EntityTypeTemplatingHelper
     {

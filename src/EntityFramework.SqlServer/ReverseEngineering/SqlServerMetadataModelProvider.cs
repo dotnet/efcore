@@ -8,9 +8,10 @@ using System.Data.SqlClient;
 using System.Linq;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.ReverseEngineering;
+using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
 using EntityFramework.SqlServer.ReverseEngineering.Model;
 
-namespace EntityFramework.SqlServer.ReverseEngineering
+namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
 {
     public class SqlServerMetadataModelProvider : IDatabaseMetadataModelProvider
     {
@@ -384,6 +385,17 @@ namespace EntityFramework.SqlServer.ReverseEngineering
         public EntityTypeTemplatingHelper GetEntityTypeTemplateHelper(EntityTypeTemplateModel entityTypeTemplateModel)
         {
             return new SqlServerEntityTypeTemplatingHelper(entityTypeTemplateModel);
+        }
+
+        public DbContextCodeGeneratorContext GetContextModelCodeGenerator(ContextTemplateModel contextTemplateModel)
+        {
+            return new SqlServerDbContextCodeGeneratorContext(
+                contextTemplateModel.MetadataModel, contextTemplateModel.Namespace,
+                contextTemplateModel.ClassName, contextTemplateModel.ConnectionString);
+        }
+        public EntityTypeCodeGeneratorContext GetEntityTypeModelCodeGenerator(EntityTypeTemplateModel entityTypeTemplateModel)
+        {
+            return null;
         }
     }
 }

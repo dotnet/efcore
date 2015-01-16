@@ -145,7 +145,8 @@ namespace Microsoft.Data.Entity.ReverseEngineering
             var templatingService = _serviceProvider.GetRequiredService<ITemplating>();
             var generator = new ReverseEngineeringGenerator(templatingService);
 
-            generator.GenerateFromTemplateResource(configuration).Wait();
+            // generator.GenerateFromTemplateResource(configuration).Wait();
+            generator.Generate(configuration).Wait();
 
             return 0;
         }
