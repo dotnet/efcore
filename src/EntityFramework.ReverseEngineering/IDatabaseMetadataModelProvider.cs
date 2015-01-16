@@ -16,6 +16,7 @@ namespace Microsoft.Data.Entity.ReverseEngineering
         EntityTypeTemplatingHelper GetEntityTypeTemplateHelper(EntityTypeTemplateModel entityTypeTemplateModel);
 
         DbContextCodeGeneratorContext GetContextModelCodeGenerator(ContextTemplateModel contextTemplateModel);
-        EntityTypeCodeGeneratorContext GetEntityTypeModelCodeGenerator(EntityTypeTemplateModel entityTypeTemplateModel);
+        EntityTypeCodeGeneratorContext GetEntityTypeModelCodeGenerator(
+            EntityTypeTemplateModel entityTypeTemplateModel, DbContextCodeGeneratorContext dbContextCodeGeneratorContext);
     }
 }

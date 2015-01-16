@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
@@ -11,19 +10,33 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 {
-    public class EntityTypeCodeGeneratorContext : ModelCodeGeneratorContext
+    public abstract class EntityTypeCodeGeneratorContext : ModelCodeGeneratorContext
     {
         private readonly IEntityType _entityType;
         private readonly string _namespaceName;
         private readonly DbContextCodeGeneratorContext _contextCodeGeneratorContext;
 
-        public EntityTypeCodeGeneratorContext([NotNull]IEntityType entityType,
+        protected Dictionary<IProperty, string> _propertyToPropertyNameMap = new Dictionary<IProperty, string>();
+
+        public EntityTypeCodeGeneratorContext(
+            [NotNull]IEntityType entityType,
             [CanBeNull]string namespaceName,
             [NotNull]DbContextCodeGeneratorContext contextCodeGeneratorContext)
         {
             _entityType = entityType;
             _namespaceName = namespaceName;
             _contextCodeGeneratorContext = contextCodeGeneratorContext;
+            InitializePropertyNames();
+        }
+
+        private void InitializePropertyNames()
+        {
+            foreach (var property in _entityType.Properties)
+            {
+                _propertyToPropertyNameMap[property] =
+                    CSharpUtilities.Instance.GenerateCSharpIdentifier(
+                        property.Name, _propertyToPropertyNameMap.Values);
+            }
         }
 
         public override string GetClassName()
@@ -35,7 +48,15 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         {
             return _namespaceName;
         }
-        
+
+        public Dictionary<IProperty, string> PropertyToPropertyNameMap
+        {
+            get
+            {
+                return _propertyToPropertyNameMap;
+            }
+        }
+
         public override void GenerateCommentHeader(IndentedStringBuilder sb)
         {
             sb.AppendLine("//");
@@ -46,8 +67,28 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 
         public override void GenerateProperties(IndentedStringBuilder sb)
         {
-            //TODO
+            GenerateEntityProperties(sb);
+            GenerateEntityNavigations(sb);
         }
+
+        public void GenerateEntityProperties(IndentedStringBuilder sb)
+        {
+            foreach(var property in OrderedEntityProperties())
+            {
+                GenerateEntityProperty(sb, property);
+            }
+        }
+        public abstract void GenerateEntityProperty(IndentedStringBuilder sb, IProperty property);
+
+        public void GenerateEntityNavigations(IndentedStringBuilder sb)
+        {
+            foreach (var navigation in OrderedEntityNavigations())
+            {
+                GenerateEntityNavigation(sb, navigation);
+            }
+        }
+
+        public abstract void GenerateEntityNavigation(IndentedStringBuilder sb, INavigation navigation);
 
         //
         // helper methods
@@ -59,19 +100,28 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 _entityType.Properties.Select(p => p.PropertyType.Namespace).Distinct().OrderBy(p => p));
         }
 
-        //public override IEnumerable<IProperty> SortedProperties()
-        //{
-        //    return _entityTypeToClassNameMap.Values
-        //    var primaryKeyPropertiesList = new List<IProperty>();
-        //    IKey key = entityType.TryGetPrimaryKey();
-        //    if (key != null)
-        //    {
-        //        primaryKeyPropertiesList = new List<IProperty>(key.Properties.OrderBy(p => p.Name));
-        //    }
 
-        //    return primaryKeyPropertiesList.Concat(
-        //        entityType.Properties
-        //        .Where(p => !primaryKeyPropertiesList.Contains(p)).OrderBy(p => p.Name));
-        //}
+        public virtual IEnumerable<IProperty> OrderedEntityProperties()
+        {
+            var primaryKeyPropertiesList = new List<IProperty>();
+            IKey key = _entityType.TryGetPrimaryKey();
+            if (key != null)
+            {
+                primaryKeyPropertiesList =
+                    new List<IProperty>(
+                        key.Properties.OrderBy(p => _propertyToPropertyNameMap[p]));
+            }
+
+            return primaryKeyPropertiesList.Concat(
+                _entityType.Properties
+                    .Where(p => !primaryKeyPropertiesList.Contains(p))
+                    .OrderBy(p => _propertyToPropertyNameMap[p]));
+        }
+
+        public virtual IEnumerable<INavigation> OrderedEntityNavigations()
+        {
+            //TODO - do we need a map to CSharp names?
+            return _entityType.Navigations.OrderBy(nav => nav.Name);
+        }
     }
 }

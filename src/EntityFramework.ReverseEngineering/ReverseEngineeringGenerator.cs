@@ -42,8 +42,18 @@ namespace Microsoft.Data.Entity.ReverseEngineering
                 Filters = (configuration.Filters ?? ""),
                 MetadataModel = metadataModel
             };
+
+            //TODO - check to see whether user has one in current project first
+            var dbContextCodeGeneratorContext =
+                provider.GetContextModelCodeGenerator(contextTemplateModel);
+            if (dbContextCodeGeneratorContext == null)
+            {
+                throw new InvalidProgramException(
+                    "Provider " + provider.GetType().FullName
+                    + " did not provide a ContextModelCodeGeneratorContext");
+            }
             var contextCodeGenerator = new CSharpModelCodeGenerator(
-                metadataModel, provider.GetContextModelCodeGenerator(contextTemplateModel));
+                metadataModel, dbContextCodeGeneratorContext);
 
             var contextStringBuilder = new IndentedStringBuilder();
             contextCodeGenerator.GenerateClassFromModel(contextStringBuilder);
@@ -54,35 +64,42 @@ namespace Microsoft.Data.Entity.ReverseEngineering
                 await OutputFile(configuration.OutputPath, configuration.ContextClassName + ".cs", sourceStream);
             }
 
-            //// run EntityType template for each Entity Type
-            //var entityTypeTemplateModel = new EntityTypeTemplateModel()
-            //{
-            //    Namespace = configuration.Namespace,
-            //    ProviderAssembly = configuration.ProviderAssembly.FullName,
-            //    ConnectionString = configuration.ConnectionString,
-            //    Filters = (configuration.Filters ?? ""),
-            //};
-            //foreach (var entityType in metadataModel.EntityTypes)
-            //{
-            //    entityTypeTemplateModel.EntityType = entityType;
-            //    var entityTypeTemplatingHelper = provider.GetEntityTypeTemplateHelper(entityTypeTemplateModel);
-            //    entityTypeTemplateModel.Helper = entityTypeTemplatingHelper;
+            // generate EntityType code for each Entity Type
+            foreach (var entityType in metadataModel.EntityTypes)
+            {
+                var entityTypeTemplateModel = new EntityTypeTemplateModel()
+                {
+                    EntityType = entityType,
+                    Namespace = configuration.Namespace,
+                    ProviderAssembly = configuration.ProviderAssembly.FullName,
+                    ConnectionString = configuration.ConnectionString,
+                    Filters = (configuration.Filters ?? ""),
+                };
 
-            //    var entityTypeTemplateResult = await _templatingService
-            //        .RunTemplateAsync(entityTypeTemplateContent, entityTypeTemplateModel);
-            //    if (entityTypeTemplateResult.ProcessingException != null)
-            //    {
-            //        throw new InvalidOperationException(
-            //            "There was an error running the EntityType template. Error: "
-            //            + entityTypeTemplateResult.ProcessingException.Message);
-            //    }
+                //TODO - check to see whether user has one in current project first
+                var entityTypeCodeGeneratorContext =
+                    provider.GetEntityTypeModelCodeGenerator(
+                        entityTypeTemplateModel
+                        , dbContextCodeGeneratorContext);
+                if (entityTypeCodeGeneratorContext == null)
+                {
+                    throw new InvalidProgramException(
+                        "Provider " + provider.GetType().FullName
+                        + " did not provide a EntityTypeModelCodeGeneratorContext");
+                }
+                var entityTypeCodeGenerator = 
+                    new CSharpModelCodeGenerator(
+                        metadataModel, entityTypeCodeGeneratorContext);
 
-            //    // output EntityType poco file
-            //    using (var sourceStream = new MemoryStream(Encoding.UTF8.GetBytes(entityTypeTemplateResult.GeneratedText)))
-            //    {
-            //        await OutputFile(configuration.OutputPath, entityType.SimpleName + ".cs", sourceStream);
-            //    }
-            //}
+                var entityTypeStringBuilder = new IndentedStringBuilder();
+                entityTypeCodeGenerator.GenerateClassFromModel(entityTypeStringBuilder);
+
+                // output EntityType poco file
+                using (var sourceStream = new MemoryStream(Encoding.UTF8.GetBytes(entityTypeStringBuilder.ToString())))
+                {
+                    await OutputFile(configuration.OutputPath, entityType.SimpleName + ".cs", sourceStream);
+                }
+            }
         }
 
         public async Task GenerateFromTemplateResource(ReverseEngineeringConfiguration configuration)
