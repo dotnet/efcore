@@ -7,8 +7,10 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Framework.CodeGeneration.Templating;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Relational.Design.CodeGeneration;
+using Microsoft.Data.Entity.Utilities;
+using Microsoft.Framework.CodeGeneration.Templating;
 
 namespace Microsoft.Data.Entity.ReverseEngineering
 {
@@ -20,6 +22,67 @@ namespace Microsoft.Data.Entity.ReverseEngineering
             ITemplating templatingService)
         {
             _templatingService = templatingService;
+        }
+
+        public async Task Generate(ReverseEngineeringConfiguration configuration)
+        {
+            CheckConfiguration(configuration);
+
+            var providerAssembly = configuration.ProviderAssembly;
+            var provider = GetProvider(providerAssembly);
+            var metadataModel = GetMetadataModel(provider, configuration);
+
+            // generate DbContext code
+            var contextTemplateModel = new ContextTemplateModel()
+            {
+                ClassName = configuration.ContextClassName,
+                Namespace = configuration.Namespace,
+                ProviderAssembly = configuration.ProviderAssembly.FullName,
+                ConnectionString = configuration.ConnectionString,
+                Filters = (configuration.Filters ?? ""),
+                MetadataModel = metadataModel
+            };
+            var contextCodeGenerator = new CSharpModelCodeGenerator(
+                metadataModel, provider.GetContextModelCodeGenerator(contextTemplateModel));
+
+            var contextStringBuilder = new IndentedStringBuilder();
+            contextCodeGenerator.GenerateClassFromModel(contextStringBuilder);
+
+            // output context file
+            using (var sourceStream = new MemoryStream(Encoding.UTF8.GetBytes(contextStringBuilder.ToString())))
+            {
+                await OutputFile(configuration.OutputPath, configuration.ContextClassName + ".cs", sourceStream);
+            }
+
+            //// run EntityType template for each Entity Type
+            //var entityTypeTemplateModel = new EntityTypeTemplateModel()
+            //{
+            //    Namespace = configuration.Namespace,
+            //    ProviderAssembly = configuration.ProviderAssembly.FullName,
+            //    ConnectionString = configuration.ConnectionString,
+            //    Filters = (configuration.Filters ?? ""),
+            //};
+            //foreach (var entityType in metadataModel.EntityTypes)
+            //{
+            //    entityTypeTemplateModel.EntityType = entityType;
+            //    var entityTypeTemplatingHelper = provider.GetEntityTypeTemplateHelper(entityTypeTemplateModel);
+            //    entityTypeTemplateModel.Helper = entityTypeTemplatingHelper;
+
+            //    var entityTypeTemplateResult = await _templatingService
+            //        .RunTemplateAsync(entityTypeTemplateContent, entityTypeTemplateModel);
+            //    if (entityTypeTemplateResult.ProcessingException != null)
+            //    {
+            //        throw new InvalidOperationException(
+            //            "There was an error running the EntityType template. Error: "
+            //            + entityTypeTemplateResult.ProcessingException.Message);
+            //    }
+
+            //    // output EntityType poco file
+            //    using (var sourceStream = new MemoryStream(Encoding.UTF8.GetBytes(entityTypeTemplateResult.GeneratedText)))
+            //    {
+            //        await OutputFile(configuration.OutputPath, entityType.SimpleName + ".cs", sourceStream);
+            //    }
+            //}
         }
 
         public async Task GenerateFromTemplateResource(ReverseEngineeringConfiguration configuration)
