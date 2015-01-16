@@ -131,29 +131,29 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
                 }
             }
 
-            //Console.WriteLine("Tables");
+            //_logger.WriteInformation("Tables");
             //foreach (var t in tables)
             //{
             //    var table = t.Value;
-            //    Console.WriteLine(table.ToString());
+            //    _logger.WriteInformation(table.ToString());
             //}
 
-            //Console.WriteLine(Environment.NewLine + "Columns");
+            //_logger.WriteInformation(Environment.NewLine + "Columns");
             //foreach (var tc in tableColumns)
             //{
-            //    Console.WriteLine(tc.Value.ToString());
+            //    _logger.WriteInformation(tc.Value.ToString());
             //}
 
-            //Console.WriteLine(Environment.NewLine + "Constraint Columns");
+            //_logger.WriteInformation(Environment.NewLine + "Constraint Columns");
             //foreach (var tc in tableConstraintColumns)
             //{
-            //    Console.WriteLine(tc.Value.ToString());
+            //    _logger.WriteInformation(tc.Value.ToString());
             //}
 
-            //Console.WriteLine(Environment.NewLine + "Foreign Key Column Mappings");
+            //_logger.WriteInformation(Environment.NewLine + "Foreign Key Column Mappings");
             //foreach (var fkcm in foreignKeyColumnMappings)
             //{
-            //    Console.WriteLine(fkcm.Value.ToString());
+            //    _logger.WriteInformation(fkcm.Value.ToString());
             //}
 
             return CreateModel(tables, tableColumns, tableConstraintColumns, foreignKeyColumnMappings);
@@ -276,7 +276,6 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
                             if (foreignKeyMapping == null)
                             {
                                 _logger.WriteError("Could not find foreignKeyMapping for ConstrantId " + foreignKeyConstraintId + " FromColumn " + columnId);
-                                //Console.WriteLine("Could not find foreignKeyMapping for ConstrantId " + foreignKeyConstraintId + " FromColumn " + columnId);
                                 break;
                             }
 
@@ -284,7 +283,6 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
                             if (!tableColumns.TryGetValue(foreignKeyMapping.ToColumnId, out toColumn))
                             {
                                 _logger.WriteError("Could not find toColumn with ColumnId " + foreignKeyMapping.ToColumnId);
-                                //Console.WriteLine("Could not find toColumn with ColumnId " + foreignKeyMapping.ToColumnId);
                                 break;
                             }
 
@@ -292,7 +290,6 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
                             if (!columnIdToProperty.TryGetValue(toColumn.Id, out toProperty))
                             {
                                 _logger.WriteError("Could not find mapping to a Property for ColumnId " + toColumn.Id);
-                                //Console.WriteLine("Could not find mapping to a Property for ColumnId " + toColumn.Id);
                                 break;
                             }
 
@@ -316,16 +313,13 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
                 firstIndex = workingString.IndexOfAny(delimiters);
                 if (firstIndex < 0)
                 {
-                    // Console.WriteLine("FirstIndex = " + firstIndex + ". Output = >>>" + workingString + "<<<");
                     output.Add(workingString);
                 }
                 else
                 {
-                    // Console.WriteLine("FirstIndex = " + firstIndex + ". Output = >>>" + workingString.Substring(0, firstIndex) + "<<<");
                     output.Add(workingString.Substring(0, firstIndex));
                 }
                 workingString = workingString.Substring(firstIndex + 1);
-                // Console.WriteLine("workingString = >>>" + workingString + "<<<");
             }
             while (firstIndex >= 0 && !string.IsNullOrEmpty(workingString));
 
