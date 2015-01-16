@@ -22,6 +22,8 @@ namespace Microsoft.Data.Entity.Commands
     // TODO: Add verbose option
     public class Program
     {
+        public static readonly string _defaultReverseEngineeringProviderAssembly = "EntityFramework.SqlServer";
+
         private readonly IServiceProvider _serviceProvider;
         private readonly string _projectDir;
         private readonly string _rootNamespace;
@@ -160,14 +162,13 @@ namespace Microsoft.Data.Entity.Commands
                 {
                     revEng.Description = "Command to reverse engineer code from a database";
                     revEng.HelpOption("-h|--help");
-
                     var connectionString = revEng.Argument(
                             "[connectionString]",
                             "The connection string of the database");
-                    var providerAssemblyName = revEng.Argument(
-                            "[providerAssemblyName]",
-                            "The name of the provider assembly which will interpret data from the database");
-
+                    var providerAssemblyName = revEng.Option(
+                        "-p|--providerAssembly <assembly_name>",
+                        "The name of the provider assembly which will interpret data from the database",
+                        CommandOptionType.SingleValue);
                     var outputPath = revEng.Option(
                         "-o|--outputPath <output_path>",
                         "The path of the directory in which to place the generated code",
@@ -185,8 +186,8 @@ namespace Microsoft.Data.Entity.Commands
                         "The name of the class to use for the generated DbContext class",
                         CommandOptionType.SingleValue);
 
-                    revEng.OnExecute(() => ReverseEngineerFromDatabase(
-                        connectionString.Value, providerAssemblyName.Value, outputPath.Value(),
+                    revEng.OnExecute(() => ReverseEngineer(
+                        connectionString.Value, providerAssemblyName.Value(), outputPath.Value(),
                         codeNamespace.Value(), contextClassName.Value(), filters.Value()));
                 },
                 addHelpCommand: false);
@@ -283,15 +284,33 @@ namespace Microsoft.Data.Entity.Commands
             return 0;
         }
 
-        public virtual int ReverseEngineerFromDatabase(
+        public virtual int ReverseEngineer(
             string connectionString, string providerAssemblyName, string outputPath,
             string codeNamespace, string contextClassName, string filters)
         {
+            if (providerAssemblyName == null)
+            {
+                providerAssemblyName = _defaultReverseEngineeringProviderAssembly;
+            }
+
             var providerAssembly = GetCandidateAssembly(providerAssemblyName);
             if (providerAssembly == null)
             {
                 Console.WriteLine("No provider assembly was found with name " + providerAssemblyName);
                 return 1;
+            }
+
+            if (outputPath == null)
+            {
+                outputPath = _projectDir;
+            }
+            if (codeNamespace == null)
+            {
+                codeNamespace = _rootNamespace;
+            }
+            if (contextClassName == null)
+            {
+                contextClassName = "ModelContext";
             }
 
             Console.WriteLine("Args: providerAssemblyName: " + providerAssemblyName);
@@ -311,7 +330,7 @@ namespace Microsoft.Data.Entity.Commands
                 Filters = filters
             };
 
-            var generator = new ReverseEngineeringGenerator();
+            var generator = new ReverseEngineeringGenerator(_serviceProvider);
             generator.Generate(configuration).Wait();
 
             return 0;
