@@ -9,7 +9,7 @@ namespace Microsoft.Data.Entity.Metadata
 {
     public class ClrPropertyGetterSource : ClrAccessorSource<IClrPropertyGetter>
     {
-        protected override IClrPropertyGetter CreateGeneric<TEntity, TValue>(PropertyInfo property)
+        protected override IClrPropertyGetter CreateGeneric<TEntity, TValue, TNonNullableEnumValue>(PropertyInfo property)
         {
             Check.NotNull(property, "property");
 

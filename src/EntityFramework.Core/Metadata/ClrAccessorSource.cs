@@ -42,11 +42,11 @@ namespace Microsoft.Data.Entity.Metadata
 
         private TAccessor Create(PropertyInfo property)
         {
-            var boundMethod = _genericCreate.MakeGenericMethod(property.DeclaringType, property.PropertyType);
+            var boundMethod = _genericCreate.MakeGenericMethod(property.DeclaringType, property.PropertyType, property.PropertyType.UnwrapNullableType());
 
             return (TAccessor)boundMethod.Invoke(this, new object[] { property });
         }
 
-        protected abstract TAccessor CreateGeneric<TEntity, TValue>([NotNull] PropertyInfo property) where TEntity : class;
+        protected abstract TAccessor CreateGeneric<TEntity, TValue, TNonNullableEnumValue>([NotNull] PropertyInfo property) where TEntity : class;
     }
 }

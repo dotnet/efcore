@@ -112,6 +112,7 @@
     <Compile Include="Infrastructure\IDbContextServices.cs" />
     <Compile Include="Infrastructure\ModelSourceHelpers.cs" />
     <Compile Include="Metadata\BasicModelBuilder.cs" />
+    <Compile Include="Metadata\NullableEnumClrPropertySetter.cs" />
     <Compile Include="Metadata\CollectionTypeFactory.cs" />
     <Compile Include="Metadata\ForeignKeyExtensions.cs" />
     <Compile Include="Metadata\IEntityBuilder.cs" />

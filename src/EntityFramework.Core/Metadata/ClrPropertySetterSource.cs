@@ -9,7 +9,7 @@ namespace Microsoft.Data.Entity.Metadata
 {
     public class ClrPropertySetterSource : ClrAccessorSource<IClrPropertySetter>
     {
-        protected override IClrPropertySetter CreateGeneric<TEntity, TValue>(PropertyInfo property)
+        protected override IClrPropertySetter CreateGeneric<TEntity, TValue, TNonNullableEnumValue>(PropertyInfo property)
         {
             Check.NotNull(property, "property");
 
@@ -17,7 +17,10 @@ namespace Microsoft.Data.Entity.Metadata
             // Issue #753
             var setterDelegate = (Action<TEntity, TValue>)property.SetMethod.CreateDelegate(typeof(Action<TEntity, TValue>));
 
-            return new ClrPropertySetter<TEntity, TValue>(setterDelegate);
+            return (property.PropertyType.IsNullableType()
+                && property.PropertyType.UnwrapNullableType().GetTypeInfo().IsEnum) ?
+                new NullableEnumClrPropertySetter<TEntity, TValue, TNonNullableEnumValue>(setterDelegate) :
+                (IClrPropertySetter) new ClrPropertySetter<TEntity, TValue>(setterDelegate);
         }
     }
 }

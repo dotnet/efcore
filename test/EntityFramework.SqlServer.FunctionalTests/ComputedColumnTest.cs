@@ -97,5 +97,68 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             public int P4 { get; set; }
             public int? P5 { get; set; }
         }
+
+        [Flags]
+        public enum FlagEnum
+        {
+            None = 0x0,
+            AValue = 0x1,
+            BValue = 0x2,
+        }
+
+        public class EnumItem
+        {
+            public int EnumItemId { get; set; }
+            public FlagEnum FlagEnum { get; set; }
+            public FlagEnum? OptionalFlagEnum { get; set; }
+            public FlagEnum? CalculatedFlagEnum { get; set; }
+        }
+
+        private class NullableContext : DbContext
+        {
+            private readonly string _databaseName;
+
+            public NullableContext(IServiceProvider serviceProvider, string databaseName)
+                : base(serviceProvider)
+            {
+                _databaseName = databaseName;
+            }
+
+            public DbSet<EnumItem> EnumItems { get; set; }
+
+            protected override void OnConfiguring(DbContextOptions options)
+            {
+                options.UseSqlServer(SqlServerTestStore.CreateConnectionString(_databaseName));
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<EnumItem>()
+                    .Property(entity => entity.CalculatedFlagEnum)
+                    .StoreComputed()
+                    .ForSqlServer().DefaultExpression("FlagEnum | OptionalFlagEnum");
+            }
+        }
+
+        [Fact]
+        public void Can_use_computed_columns_with_nullable_enum()
+        {
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFramework()
+                .AddSqlServer()
+                .ServiceCollection
+                .BuildServiceProvider();
+
+            using (var context = new NullableContext(serviceProvider, "NullableEnumComputedColumns"))
+            {
+                context.Database.EnsureDeleted();
+                context.Database.EnsureCreated();
+
+                var entity = context.EnumItems.Add(new EnumItem { FlagEnum = FlagEnum.AValue, OptionalFlagEnum = FlagEnum.BValue }).Entity;
+                context.SaveChanges();
+
+                Assert.Equal(FlagEnum.AValue | FlagEnum.BValue, entity.CalculatedFlagEnum);
+            }
+        }
     }
 }
