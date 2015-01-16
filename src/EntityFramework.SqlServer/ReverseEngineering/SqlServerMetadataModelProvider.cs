@@ -6,10 +6,11 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Relational.Design.CodeGeneration;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
-using EntityFramework.SqlServer.ReverseEngineering.Model;
+using Microsoft.Data.Entity.SqlServer.ReverseEngineering.Model;
+using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
 {
@@ -84,6 +85,13 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
         public static readonly string AnnotationNameScale = "Scale";
         public static readonly string AnnotationNameIsIdentity = "IsIdentity";
         public static readonly string AnnotationNameIsNullable = "IsNullable";
+
+        private ILogger _logger;
+
+        public SqlServerMetadataModelProvider([NotNull] IServiceProvider serviceProvider)
+        {
+            _logger = (ILogger)serviceProvider.GetService(typeof(ILogger));
+        }
 
         public IModel GenerateMetadataModel(string connectionString, string filters)
         {
@@ -170,7 +178,7 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
             return data;
         }
 
-        public static IModel CreateModel(
+        public IModel CreateModel(
             Dictionary<string, Table> tables,
             Dictionary<string, TableColumn> tableColumns,
             Dictionary<string, TableConstraintColumn> tableConstraintColumns,
@@ -267,21 +275,24 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
                                 .SingleOrDefault(fkcm => fkcm.ConstraintId == foreignKeyConstraintId && fkcm.FromColumnId == columnId);
                             if (foreignKeyMapping == null)
                             {
-                                Console.WriteLine("Could not find foreignKeyMapping for ConstrantId " + foreignKeyConstraintId + " FromColumn " + columnId);
+                                _logger.WriteError("Could not find foreignKeyMapping for ConstrantId " + foreignKeyConstraintId + " FromColumn " + columnId);
+                                //Console.WriteLine("Could not find foreignKeyMapping for ConstrantId " + foreignKeyConstraintId + " FromColumn " + columnId);
                                 break;
                             }
 
                             TableColumn toColumn;
                             if (!tableColumns.TryGetValue(foreignKeyMapping.ToColumnId, out toColumn))
                             {
-                                Console.WriteLine("Could not find toColumn with ColumnId " + foreignKeyMapping.ToColumnId);
+                                _logger.WriteError("Could not find toColumn with ColumnId " + foreignKeyMapping.ToColumnId);
+                                //Console.WriteLine("Could not find toColumn with ColumnId " + foreignKeyMapping.ToColumnId);
                                 break;
                             }
 
                             Property toProperty;
                             if (!columnIdToProperty.TryGetValue(toColumn.Id, out toProperty))
                             {
-                                Console.WriteLine("Could not find mapping to a Property for ColumnId " + toColumn.Id);
+                                _logger.WriteError("Could not find mapping to a Property for ColumnId " + toColumn.Id);
+                                //Console.WriteLine("Could not find mapping to a Property for ColumnId " + toColumn.Id);
                                 break;
                             }
 

@@ -15,6 +15,13 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 {
     public class ReverseEngineeringGenerator
     {
+        private readonly IServiceProvider _serviceProvider;
+
+        public ReverseEngineeringGenerator(IServiceProvider serviceProvider)
+        {
+            _serviceProvider = serviceProvider;
+        }
+
         public async Task Generate(ReverseEngineeringConfiguration configuration)
         {
             CheckConfiguration(configuration);
@@ -93,7 +100,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             }
         }
 
-        public static IDatabaseMetadataModelProvider GetProvider(Assembly providerAssembly)
+        public IDatabaseMetadataModelProvider GetProvider(Assembly providerAssembly)
         {
             var type = providerAssembly.GetExportedTypes()
                 .FirstOrDefault(t => typeof(IDatabaseMetadataModelProvider).IsAssignableFrom(t));
@@ -108,13 +115,14 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             IDatabaseMetadataModelProvider metadataModelProvider = null;
             try
             {
-                metadataModelProvider = (IDatabaseMetadataModelProvider)Activator.CreateInstance(type);
+                metadataModelProvider = (IDatabaseMetadataModelProvider)Activator.CreateInstance(type, _serviceProvider);
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 throw new InvalidProgramException(
                     "Unable to instantiate type " + type.FullName
-                    + " in assembly " + providerAssembly.FullName);
+                    + " in assembly " + providerAssembly.FullName
+                    + ". Exception message: " + e.Message);
             }
 
             return metadataModelProvider;
