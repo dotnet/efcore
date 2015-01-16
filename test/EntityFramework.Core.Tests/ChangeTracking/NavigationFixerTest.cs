@@ -45,8 +45,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var dependentEntry = manager.StartTracking(manager.GetOrCreateEntry(dependent));
 
-            var fixer = CreateNavigationFixer(contextServices);
-            fixer.StateChanged(dependentEntry, EntityState.Unknown);
+            dependentEntry.SetEntityState(EntityState.Added);
 
             Assert.Same(dependent.Category, principal2);
             Assert.Contains(dependent, principal2.Products);
@@ -105,12 +104,10 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var dependentEntry2 = manager.StartTracking(manager.GetOrCreateEntry(dependent2));
             var dependentEntry4 = manager.StartTracking(manager.GetOrCreateEntry(dependent4));
 
-            var fixer = CreateNavigationFixer(contextServices);
-
             Assert.Null(principal1.Detail);
             Assert.Null(dependent1.Product);
 
-            fixer.StateChanged(principalEntry1, EntityState.Unknown);
+            principalEntry1.SetEntityState(EntityState.Added);
 
             Assert.Same(principal1, dependent1.Product);
             Assert.Same(dependent1, principal1.Detail);
@@ -118,7 +115,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.Null(principal2.Detail);
             Assert.Null(dependent2.Product);
 
-            fixer.StateChanged(dependentEntry2, EntityState.Unknown);
+            dependentEntry2.SetEntityState(EntityState.Added);
 
             Assert.Same(principal2, dependent2.Product);
             Assert.Same(dependent2, principal2.Detail);
@@ -126,8 +123,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.Null(principal3.Detail);
             Assert.Null(dependent4.Product);
 
-            fixer.StateChanged(principalEntry3, EntityState.Unknown);
-            fixer.StateChanged(dependentEntry4, EntityState.Unknown);
+            principalEntry3.SetEntityState(EntityState.Added);
+            dependentEntry4.SetEntityState(EntityState.Added);
 
             Assert.Null(principal3.Detail);
             Assert.Null(dependent4.Product);
@@ -147,8 +144,6 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entry2 = manager.StartTracking(manager.GetOrCreateEntry(entity2));
             var entry3 = manager.StartTracking(manager.GetOrCreateEntry(entity3));
 
-            var fixer = CreateNavigationFixer(contextServices);
-
             Assert.Null(entity1.AlternateProduct);
             Assert.Null(entity1.OriginalProduct);
 
@@ -158,7 +153,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.Null(entity3.AlternateProduct);
             Assert.Null(entity3.OriginalProduct);
 
-            fixer.StateChanged(entry1, EntityState.Unknown);
+            entry1.SetEntityState(EntityState.Added);
 
             Assert.Same(entity2, entity1.AlternateProduct);
             Assert.Null(entity1.OriginalProduct);
@@ -169,7 +164,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.Null(entity3.AlternateProduct);
             Assert.Null(entity3.OriginalProduct);
 
-            fixer.StateChanged(entry3, EntityState.Unknown);
+            entry3.SetEntityState(EntityState.Added);
 
             Assert.Same(entity2, entity1.AlternateProduct);
             Assert.Null(entity1.OriginalProduct);
@@ -196,8 +191,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var dependentEntry = manager.StartTracking(manager.GetOrCreateEntry(dependent));
 
-            var fixer = CreateNavigationFixer(contextServices);
-            fixer.StateChanged(dependentEntry, EntityState.Unknown);
+            dependentEntry.SetEntityState(EntityState.Added);
 
             Assert.Equal(12, dependent.CategoryId);
             Assert.Same(dependent.Category, principal2);
@@ -222,8 +216,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var dependentEntry = manager.StartTracking(manager.GetOrCreateEntry(dependent));
 
-            var fixer = CreateNavigationFixer(contextServices);
-            fixer.StateChanged(dependentEntry, EntityState.Unknown);
+            dependentEntry.SetEntityState(EntityState.Added);
 
             Assert.Equal(12, dependent.CategoryId);
             Assert.Same(dependent.Category, principal2);
@@ -249,8 +242,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var principalEntry = manager.StartTracking(manager.GetOrCreateEntry(principal));
 
-            var fixer = CreateNavigationFixer(contextServices);
-            fixer.StateChanged(principalEntry, EntityState.Unknown);
+            principalEntry.SetEntityState(EntityState.Added);
 
             Assert.Equal(11, dependent1.CategoryId);
             Assert.Equal(0, dependent2.CategoryId);
@@ -286,8 +278,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var principalEntry = manager.StartTracking(manager.GetOrCreateEntry(principal));
 
-            var fixer = CreateNavigationFixer(contextServices);
-            fixer.StateChanged(principalEntry, EntityState.Unknown);
+            principalEntry.SetEntityState(EntityState.Added);
 
             Assert.Equal(11, dependent1.CategoryId);
             Assert.Equal(0, dependent2.CategoryId);
@@ -319,8 +310,6 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entry2 = manager.StartTracking(manager.GetOrCreateEntry(entity2));
             var entry3 = manager.StartTracking(manager.GetOrCreateEntry(entity3));
 
-            var fixer = CreateNavigationFixer(contextServices);
-
             Assert.Null(entity1.AlternateProductId);
             Assert.Null(entity2.AlternateProductId);
             Assert.Null(entity3.AlternateProductId);
@@ -334,7 +323,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.Null(entity3.AlternateProduct);
             Assert.Null(entity3.OriginalProduct);
 
-            fixer.StateChanged(entry1, EntityState.Unknown);
+            entry1.SetEntityState(EntityState.Added);
 
             Assert.Equal(22, entity1.AlternateProductId);
             Assert.Null(entity2.AlternateProductId);
@@ -349,7 +338,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.Null(entity3.AlternateProduct);
             Assert.Null(entity3.OriginalProduct);
 
-            fixer.StateChanged(entry3, EntityState.Unknown);
+            entry3.SetEntityState(EntityState.Added);
 
             Assert.Equal(22, entity1.AlternateProductId);
             Assert.Equal(23, entity2.AlternateProductId);
@@ -382,8 +371,6 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entry2 = manager.StartTracking(manager.GetOrCreateEntry(entity2));
             var entry3 = manager.StartTracking(manager.GetOrCreateEntry(entity3));
 
-            var fixer = CreateNavigationFixer(contextServices);
-
             Assert.Null(entity1.AlternateProductId);
             Assert.Null(entity2.AlternateProductId);
             Assert.Null(entity3.AlternateProductId);
@@ -397,7 +384,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.Null(entity3.AlternateProduct);
             Assert.Same(entity2, entity3.OriginalProduct);
 
-            fixer.StateChanged(entry1, EntityState.Unknown);
+            entry1.SetEntityState(EntityState.Added);
 
             Assert.Equal(22, entity1.AlternateProductId);
             Assert.Null(entity2.AlternateProductId);
@@ -412,7 +399,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.Null(entity3.AlternateProduct);
             Assert.Same(entity2, entity3.OriginalProduct);
 
-            fixer.StateChanged(entry3, EntityState.Unknown);
+            entry3.SetEntityState(EntityState.Added);
 
             Assert.Equal(22, entity1.AlternateProductId);
             Assert.Equal(23, entity2.AlternateProductId);
@@ -445,7 +432,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var dependentEntry = manager.StartTracking(manager.GetOrCreateEntry(dependent));
 
             var fixer = CreateNavigationFixer(contextServices);
-            fixer.StateChanged(dependentEntry, EntityState.Unknown);
+            dependentEntry.SetEntityState(EntityState.Added);
 
             Assert.Null(dependent.Category);
             Assert.DoesNotContain(dependent, principal2.Products);
@@ -477,7 +464,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var dependentEntry = manager.StartTracking(manager.GetOrCreateEntry(dependent));
 
             var fixer = CreateNavigationFixer(contextServices);
-            fixer.StateChanged(dependentEntry, EntityState.Unknown);
+            dependentEntry.SetEntityState(EntityState.Added);
 
             Assert.Same(dependent.Category, principal2);
             Assert.Contains(dependent, principal2.Products);
@@ -509,7 +496,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var dependentEntry = manager.StartTracking(manager.GetOrCreateEntry(dependent));
 
             var fixer = CreateNavigationFixer(contextServices);
-            fixer.StateChanged(dependentEntry, EntityState.Unknown);
+            dependentEntry.SetEntityState(EntityState.Added);
 
             Assert.Same(dependent.Category, principal2);
             Assert.Contains(dependent, principal2.Products);
@@ -541,7 +528,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var fixer = CreateNavigationFixer(contextServices);
 
-            fixer.StateChanged(principalEntry1, EntityState.Unknown);
+            principalEntry1.SetEntityState(EntityState.Added);
 
             Assert.Same(principal1, dependent.Product);
             Assert.Same(dependent, principal1.Detail);
@@ -571,7 +558,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var fixer = CreateNavigationFixer(contextServices);
 
-            fixer.StateChanged(principalEntry, EntityState.Unknown);
+            principalEntry.SetEntityState(EntityState.Added);
 
             Assert.Same(principal, dependent.Product);
             Assert.Same(dependent, principal.Detail);
@@ -599,7 +586,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var fixer = CreateNavigationFixer(contextServices);
 
-            fixer.StateChanged(principalEntry, EntityState.Unknown);
+            principalEntry.SetEntityState(EntityState.Added);
 
             Assert.Null(dependent.Product);
             Assert.Null(principal.Detail);
@@ -631,8 +618,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var fixer = CreateNavigationFixer(contextServices);
 
-            fixer.StateChanged(principalEntry1, EntityState.Unknown);
-            fixer.StateChanged(principalEntry2, EntityState.Unknown);
+            principalEntry1.SetEntityState(EntityState.Added);
+            principalEntry2.SetEntityState(EntityState.Added);
 
             Assert.Same(principal1, dependent1.Product);
             Assert.Same(dependent1, principal1.Detail);
@@ -666,9 +653,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var fixer = CreateNavigationFixer(contextServices);
 
-            fixer.StateChanged(entry1, EntityState.Unknown);
-            fixer.StateChanged(entry1, EntityState.Unknown);
-            fixer.StateChanged(entry3, EntityState.Unknown);
+            entry1.SetEntityState(EntityState.Added);
+            entry1.SetEntityState(EntityState.Added);
+            entry3.SetEntityState(EntityState.Added);
 
             Assert.Same(entity2, entity1.AlternateProduct);
             Assert.Null(entity1.OriginalProduct);
@@ -710,9 +697,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var fixer = CreateNavigationFixer(contextServices);
 
-            fixer.StateChanged(entry1, EntityState.Unknown);
-            fixer.StateChanged(entry1, EntityState.Unknown);
-            fixer.StateChanged(entry3, EntityState.Unknown);
+            entry1.SetEntityState(EntityState.Added);
+            entry1.SetEntityState(EntityState.Added);
+            entry3.SetEntityState(EntityState.Added);
 
             Assert.Same(entity2, entity1.AlternateProduct);
             Assert.Null(entity1.OriginalProduct);
@@ -788,22 +775,22 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var fixer = CreateNavigationFixer(contextServices);
 
-            fixer.StateChanged(photoEntry1, EntityState.Unknown);
-            fixer.StateChanged(photoEntry2, EntityState.Unknown);
-            fixer.StateChanged(photoEntry3, EntityState.Unknown);
-            fixer.StateChanged(photoEntry4, EntityState.Unknown);
-            fixer.StateChanged(reviewEntry1, EntityState.Unknown);
-            fixer.StateChanged(reviewEntry2, EntityState.Unknown);
-            fixer.StateChanged(reviewEntry3, EntityState.Unknown);
-            fixer.StateChanged(reviewEntry4, EntityState.Unknown);
-            fixer.StateChanged(tagEntry1, EntityState.Unknown);
-            fixer.StateChanged(tagEntry2, EntityState.Unknown);
-            fixer.StateChanged(tagEntry3, EntityState.Unknown);
-            fixer.StateChanged(tagEntry4, EntityState.Unknown);
-            fixer.StateChanged(tagEntry5, EntityState.Unknown);
-            fixer.StateChanged(tagEntry6, EntityState.Unknown);
-            fixer.StateChanged(tagEntry7, EntityState.Unknown);
-            fixer.StateChanged(tagEntry8, EntityState.Unknown);
+            photoEntry1.SetEntityState(EntityState.Added);
+            photoEntry2.SetEntityState(EntityState.Added);
+            photoEntry3.SetEntityState(EntityState.Added);
+            photoEntry4.SetEntityState(EntityState.Added);
+            reviewEntry1.SetEntityState(EntityState.Added);
+            reviewEntry2.SetEntityState(EntityState.Added);
+            reviewEntry3.SetEntityState(EntityState.Added);
+            reviewEntry4.SetEntityState(EntityState.Added);
+            tagEntry1.SetEntityState(EntityState.Added);
+            tagEntry2.SetEntityState(EntityState.Added);
+            tagEntry3.SetEntityState(EntityState.Added);
+            tagEntry4.SetEntityState(EntityState.Added);
+            tagEntry5.SetEntityState(EntityState.Added);
+            tagEntry6.SetEntityState(EntityState.Added);
+            tagEntry7.SetEntityState(EntityState.Added);
+            tagEntry8.SetEntityState(EntityState.Added);
 
             Assert.Equal(new[] { tag1, tag2 }, photo1.ProductTags.OrderBy(t => t.Id).ToArray());
             Assert.Equal(new[] { tag3, tag4 }, photo2.ProductTags.OrderBy(t => t.Id).ToArray());

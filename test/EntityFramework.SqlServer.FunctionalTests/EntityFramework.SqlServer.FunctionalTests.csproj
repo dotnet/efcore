@@ -93,6 +93,7 @@
     <Compile Include="SqlServerFixture.cs" />
     <Compile Include="SqlServerGearsOfWarQueryFixture.cs" />
     <Compile Include="SqlServerGearsOfWarQueryTest.cs" />
+    <Compile Include="SqlServerGraphUpdatesTest.cs" />
     <Compile Include="SqlServerIncludeAsyncTest.cs" />
     <Compile Include="SqlServerIncludeOneToOneTest.cs" />
     <Compile Include="SqlServerIncludeTest.cs" />
