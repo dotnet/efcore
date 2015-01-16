@@ -150,6 +150,42 @@ namespace Microsoft.Data.Entity.Commands
                 },
                 addHelpCommand: false);
             _app.Command(
+                "revEng",
+                revEng =>
+                {
+                    revEng.Description = "Command to reverse engineer code from a database";
+                    revEng.HelpOption("-h|--help");
+
+                    var connectionString = revEng.Argument(
+                            "[connectionString]",
+                            "The connection string of the database");
+                    var providerAssemblyName = revEng.Argument(
+                            "[providerAssemblyName]",
+                            "The name of the provider assembly which will interpret data from the database");
+
+                    var outputPath = revEng.Option(
+                        "-o|--outputPath <output_path>",
+                        "The path of the directory in which to place the generated code",
+                        CommandOptionType.SingleValue);
+                    var codeNamespace = revEng.Option(
+                        "-n|--namespace <namespace>",
+                        "The namespace to use in the generated code",
+                        CommandOptionType.SingleValue);
+                    var contextClassName = revEng.Option(
+                        "-c|--contextClassName <class_name>",
+                        "The name of the class to use for the generated DbContext class",
+                        CommandOptionType.SingleValue);
+                    var filters = revEng.Option(
+                        "-f|--filters <comma_separated_list>",
+                        "The name of the class to use for the generated DbContext class",
+                        CommandOptionType.SingleValue);
+
+                    revEng.OnExecute(() => ReverseEngineerFromDatabase(
+                        connectionString.Value, providerAssemblyName.Value, outputPath.Value(),
+                        codeNamespace.Value(), contextClassName.Value(), filters.Value()));
+                },
+                addHelpCommand: false);
+            _app.Command(
                 "help",
                 help =>
                 {
@@ -239,6 +275,13 @@ namespace Microsoft.Data.Entity.Commands
                 File.Delete(file);
             }
 
+            return 0;
+        }
+
+        public virtual int ReverseEngineerFromDatabase(
+            string connectionString, string providerAssemblyName, string outputPath,
+            string codeNamespace, string contextClassName, string filters)
+        {
             return 0;
         }
 

@@ -1,17 +1,12 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-
-// #if ASPNET50 || ASPNETCORE50
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Runtime;
-using Microsoft.Framework.CodeGeneration.Templating;
-using Microsoft.Framework.CodeGeneration.Templating.Compilation;
 using Microsoft.Framework.Runtime.Common.CommandLine;
 
 namespace Microsoft.Data.Entity.ReverseEngineering
@@ -24,7 +19,7 @@ namespace Microsoft.Data.Entity.ReverseEngineering
 
         public Program(IServiceProvider serviceProvider)
         {
-            _serviceProvider = InitializeServices(serviceProvider);
+            _serviceProvider = serviceProvider;
         }
 
         public virtual int Main(string[] args)
@@ -93,27 +88,6 @@ namespace Microsoft.Data.Entity.ReverseEngineering
             return 0;
         }
 
-        public static IServiceProvider InitializeServices(IServiceProvider serviceProvider)
-        {
-            var fallbackServiceProvider = new FallbackServiceProvider(serviceProvider);
-            fallbackServiceProvider.Add(typeof(IServiceProvider), fallbackServiceProvider);
-
-            var libraryManager =
-                serviceProvider.GetRequiredService<ILibraryManager>();
-            var applicationEnvironment =
-                serviceProvider.GetRequiredService<IApplicationEnvironment>();
-            var assemblyLoadContextAccessor =
-                serviceProvider.GetRequiredService<IAssemblyLoadContextAccessor>();
-            var compilationService =
-                new RoslynCompilationService(applicationEnvironment, assemblyLoadContextAccessor, libraryManager);
-            fallbackServiceProvider.Add(typeof(ICompilationService), compilationService);
-
-            var templating = new RazorTemplating(compilationService);
-            fallbackServiceProvider.Add(typeof(ITemplating), templating);
-
-            return fallbackServiceProvider;
-        }
-
         public virtual int ReverseEngineerFromDatabase(
             string connectionString, string providerAssemblyName, string outputPath,
             string codeNamespace, string contextClassName, string filters)
@@ -142,10 +116,7 @@ namespace Microsoft.Data.Entity.ReverseEngineering
                 Filters = filters
             };
 
-            var templatingService = _serviceProvider.GetRequiredService<ITemplating>();
-            var generator = new ReverseEngineeringGenerator(templatingService);
-
-            // generator.GenerateFromTemplateResource(configuration).Wait();
+            var generator = new ReverseEngineeringGenerator();
             generator.Generate(configuration).Wait();
 
             return 0;
@@ -165,5 +136,3 @@ namespace Microsoft.Data.Entity.ReverseEngineering
         }
     }
 }
-
-// #endif
