@@ -10,66 +10,13 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
 using Microsoft.Data.Entity.SqlServer.ReverseEngineering.Model;
+using Microsoft.Data.Entity.SqlServer.Utilities;
 using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
 {
     public class SqlServerMetadataModelProvider : IDatabaseMetadataModelProvider
     {
-        public static readonly Dictionary<string, Type> _sqlTypeToClrTypeMap
-            = new Dictionary<string, Type>()
-                {
-                    // exact numerics
-                    { "bigint", typeof(long) },
-                    { "bit", typeof(byte) },
-                    { "decimal", typeof(decimal) },
-                    { "int", typeof(int) },
-                    //TODO { "money", typeof(decimal) },
-                    { "numeric", typeof(decimal) },
-                    { "smallint", typeof(short) },
-                    //TODO{ "smallmoney", typeof(decimal) },
-                    { "tinyint", typeof(byte) },
-
-                    // approximate numerics
-                    { "float", typeof(float) },
-                    { "real", typeof(double) },
-
-                    // date and time
-                    { "date", typeof(DateTime) },
-                    { "datetime", typeof(DateTime) },
-                    { "datetime2", typeof(DateTime) },
-                    { "datetimeoffset", typeof(DateTimeOffset) },
-                    { "smalldatetime", typeof(DateTime) },
-                    { "time", typeof(DateTime) },
-
-                    // character strings
-                    { "char", typeof(string) },
-                    { "text", typeof(string) },
-                    { "varchar", typeof(string) },
-
-                    // unicode character strings
-                    { "nchar", typeof(string) },
-                    { "ntext", typeof(string) },
-                    { "nvarchar", typeof(string) },
-
-                    // binary
-                    { "binary", typeof(byte[]) },
-                    { "image", typeof(byte[]) },
-                    { "varbinary", typeof(byte[]) },
-
-                    //TODO other
-                    //{ "cursor", typeof(yyy) },
-                    //{ "hierarchyid", typeof(yyy) },
-                    //{ "sql_variant", typeof(yyy) },
-                    //{ "table", typeof(yyy) },
-                    //{ "timestamp", typeof(yyy) },
-                    { "uniqueidentifier", typeof(Guid) },
-                    //{ "xml", typeof(yyy) },
-
-                    //TODO spatial
-                };
-
-        // annotation names
         public static readonly string AnnotationNameTableId = "TableId";
         public static readonly string AnnotationNameTableIdSchemaTableSeparator = ".";
         public static readonly string AnnotationNameColumnId = "ColumnId";
@@ -250,7 +197,7 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
                 foreach (var tc in tableColumns.Values.Where(col => col.TableId == table.Id))
                 {
                     Type clrPropertyType;
-                    if (_sqlTypeToClrTypeMap.TryGetValue(tc.DataType, out clrPropertyType))
+                    if (SqlServerTypeMapping._sqlTypeToClrTypeMap.TryGetValue(tc.DataType, out clrPropertyType))
                     {
                         if (tc.IsNullable)
                         {
