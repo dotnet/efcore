@@ -39,14 +39,20 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             }
         }
 
-        public override string GetClassName()
+        public override string ClassName
         {
-            return _className;
+            get
+            {
+                return _className;
+            }
         }
 
-        public override string GetClassNamespace()
+        public override string ClassNamespace
         {
-            return _namespaceName;
+            get
+            {
+                return _namespaceName;
+            }
         }
 
         public virtual string ConnectionString
@@ -89,9 +95,9 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             {
                 sb.AppendLine();
             }
-    }
+        }
 
-    public override void GenerateMethods(IndentedStringBuilder sb)
+        public override void GenerateMethods(IndentedStringBuilder sb)
         {
             GenerateOnConfiguringCode(sb);
             GenerateOnModelCreatingCode(sb);

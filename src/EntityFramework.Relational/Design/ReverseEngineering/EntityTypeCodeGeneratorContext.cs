@@ -39,14 +39,20 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             }
         }
 
-        public override string GetClassName()
+        public override string ClassName
         {
-            return _contextCodeGeneratorContext.EntityTypeToClassNameMap[_entityType];
+            get
+            {
+                return _contextCodeGeneratorContext.EntityTypeToClassNameMap[_entityType];
+            }
         }
 
-        public override string GetClassNamespace()
+        public override string ClassNamespace
         {
-            return _namespaceName;
+            get
+            {
+                return _namespaceName;
+            }
         }
 
         public Dictionary<IProperty, string> PropertyToPropertyNameMap

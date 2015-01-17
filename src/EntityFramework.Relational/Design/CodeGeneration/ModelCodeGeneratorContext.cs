@@ -16,9 +16,9 @@ namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
                 };
 
 
-        public abstract string GetClassNamespace();
+        public abstract string ClassNamespace { get; }
 
-        public abstract string GetClassName();
+        public abstract string ClassName { get; }
 
         public string[] GetClassInheritsFrom()
         {
@@ -37,7 +37,7 @@ namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
         public virtual void GenerateClass(IndentedStringBuilder sb)
         {
             sb.Append("public class ");
-            sb.Append(GetClassName());
+            sb.Append(ClassName);
             GenerateClassInheritsFrom(sb);
             sb.AppendLine();
             sb.AppendLine("{");
@@ -60,7 +60,7 @@ namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
         }
 
         /// <summary>
-        /// Appends string of the form:
+        /// Appends lines of the form:
         ///     private const string MyString = "";
         ///     public static readonly int MyInt = "";
         /// if necessary.
