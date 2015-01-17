@@ -112,8 +112,9 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
                 primaryKeyOrdinals, foreignKeyOrdinals, foreignKeyColumnMappings);
         }
 
-        public static Dictionary<string, T> LoadData<T>(SqlConnection conn, string query
-            , Func<SqlDataReader, T> createFromReader, Func<T, string> identifier)
+        public static Dictionary<string, T> LoadData<T>(
+            SqlConnection conn, string query,
+            Func<SqlDataReader, T> createFromReader, Func<T, string> identifier)
         {
             var data = new Dictionary<string, T>();
             var sqlCommand = new SqlCommand(query);
@@ -182,6 +183,8 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
             Dictionary<string, ForeignKeyColumnMapping> foreignKeyColumnMappings)
         {
             var columnIdToProperty = new Dictionary<string, Property>();
+            var propertyToForeignKeyConstraintIds = new Dictionary<Property, List<string>>();
+
             var model = new Microsoft.Data.Entity.Metadata.Model();
             foreach (var table in tables.Values)
             {
@@ -197,7 +200,11 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
                 foreach (var tc in tableColumns.Values.Where(col => col.TableId == table.Id))
                 {
                     Type clrPropertyType;
-                    if (SqlServerTypeMapping._sqlTypeToClrTypeMap.TryGetValue(tc.DataType, out clrPropertyType))
+                    if (!SqlServerTypeMapping._sqlTypeToClrTypeMap.TryGetValue(tc.DataType, out clrPropertyType))
+                    {
+                        // _logger.WriteInformation("Could not find type mapping for SQL Server type " + tc.DataType);
+                    }
+                    else
                     {
                         if (tc.IsNullable)
                         {
@@ -224,10 +231,6 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
 
                         // make column a foreign key if it appears in an FK constraint
 
-                        // loop over constraints in which this column appears
-                        ////foreach (var foreignKeyConstraintColumn in
-                        ////    tableConstraintColumns.Values
-                        ////    .Where(c => c.ColumnId == table.Id && c.ColumnName == tc.ColumnName && c.ConstraintType == "FOREIGN KEY"))
                         Dictionary<string, int> constraintIdOrdinalKeyValuePairMap;
                         if (!foreignKeyOrdinals.TryGetValue(tc.Id, out constraintIdOrdinalKeyValuePairMap))
                         {
@@ -236,26 +239,22 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
                         }
                         else
                         {
-                            foreach (var constraintIdOrdinalKeyValuePair in constraintIdOrdinalKeyValuePairMap)
+                            // loop over constraints in which this column appears
+                            foreach (var keyValuePair in constraintIdOrdinalKeyValuePairMap)
                             {
-                                var constraintId = constraintIdOrdinalKeyValuePair.Key;
-                                var ordinal = constraintIdOrdinalKeyValuePair.Value;
-                                var foreignKeyConstraintsAnnotation = property.TryGetAnnotation(AnnotationNameForeignKeyConstraints);
-                                if (foreignKeyConstraintsAnnotation == null)
+                                var constraintId = keyValuePair.Key;
+                                var ordinal = keyValuePair.Value;
+                                List<string> constraintIds;
+                                if (!propertyToForeignKeyConstraintIds.TryGetValue(property, out constraintIds))
                                 {
-                                    foreignKeyConstraintsAnnotation =
-                                        property.AddAnnotation(
-                                            AnnotationNameForeignKeyConstraints, constraintId);
+                                    constraintIds = new List<string>();
+                                    propertyToForeignKeyConstraintIds[property] = constraintIds;
                                 }
-                                else
+                                if (!constraintIds.Contains(constraintId))
                                 {
-                                    string oldForeignKeyConstraintsAnnotationValue = foreignKeyConstraintsAnnotation.Value;
-                                    property.RemoveAnnotation(foreignKeyConstraintsAnnotation);
-                                    property.AddAnnotation(AnnotationNameForeignKeyConstraints,
-                                        oldForeignKeyConstraintsAnnotationValue
-                                        + AnnotationFormatForeignKeyConstraintSeparator
-                                        + constraintId);
+                                    constraintIds.Add(constraintId);
                                 }
+
                                 property.AddAnnotation(
                                     GetForeignKeyOrdinalPositionAnnotationName(constraintId),
                                     ordinal.ToString());
@@ -264,25 +263,24 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
 
                         ApplyPropertyProperties(property, tc);
                     }
-                    // else skip this property
-                }
+                } // end of loop over all columns for this table
 
                 entityType.SetPrimaryKey(primaryKeys);
-            }
+            } // end of loop over tables
 
             // loop over all properties adding TargetEntityType and TargetProperty for ForeignKeys
-            // this has to be done after all EntityTypes and their Properties have been created.
+            // this has to be done after all EntityTypes and their Properties have been created
             foreach (var fromEntityTpe in model.EntityTypes)
             {
                 foreach (var fromProperty in fromEntityTpe.Properties)
                 {
-                    var foreignKeyConstraintsAnnotation = fromProperty.TryGetAnnotation(AnnotationNameForeignKeyConstraints);
-                    if (foreignKeyConstraintsAnnotation != null)
+                    List<string> foreignKeyConstraintIds;
+                    if (propertyToForeignKeyConstraintIds.TryGetValue(fromProperty, out foreignKeyConstraintIds))
                     {
-                        var foreignKeyConstraintIds = SplitString(
-                            AnnotationFormatForeignKeyConstraintSeparator.ToCharArray()
-                            , foreignKeyConstraintsAnnotation.Value);
-                        foreach(var foreignKeyConstraintId in foreignKeyConstraintIds)
+                        fromProperty.AddAnnotation(AnnotationNameForeignKeyConstraints,
+                            string.Join(AnnotationFormatForeignKeyConstraintSeparator, foreignKeyConstraintIds));
+
+                        foreach (var foreignKeyConstraintId in foreignKeyConstraintIds)
                         {
                             var columnId = fromProperty[AnnotationNameColumnId];
                             ForeignKeyColumnMapping foreignKeyMapping;
