@@ -14,10 +14,13 @@ namespace Microsoft.Data.Entity.Relational
     public abstract class RelationalOptionsExtension : DbContextOptionsExtension
     {
         private const string ConnectionStringKey = "ConnectionString";
+        private const string CommandTimeoutKey = "CommandTimeout";
+        private const string MaxBatchSizeKey = "MaxBatchSize";
 
         private string _connectionString;
         private DbConnection _connection;
         private int? _commandTimeout;
+        private int? _maxBatchSize;
 
         public virtual string ConnectionString
         {
@@ -47,24 +50,54 @@ namespace Microsoft.Data.Entity.Relational
         public virtual int? CommandTimeout
         {
             get { return _commandTimeout; }
+            [param: CanBeNull]
             set
             {
-                if (value.HasValue && value < 0)
+                if (value.HasValue && value <= 0)
                 {
-                    throw new ArgumentException(Strings.InvalidCommandTimeout);
+                    throw new InvalidOperationException(Strings.InvalidCommandTimeout);
                 }
 
                 _commandTimeout = value;
             }
         }
 
+        public virtual int? MaxBatchSize
+        {
+            get { return _maxBatchSize; }
+            [param: CanBeNull]
+            set
+            {
+                if (value.HasValue && value <= 0)
+                {
+                    throw new InvalidOperationException(Strings.InvalidMaxBatchSize);
+                }
+
+                _maxBatchSize = value;
+            }
+        }
+
         protected override void Configure(IReadOnlyDictionary<string, string> rawOptions)
         {
-            Check.NotNull(rawOptions, "rawOptions");
+            base.Configure(rawOptions);
 
-            if (string.IsNullOrEmpty(_connectionString))
+            if (string.IsNullOrWhiteSpace(_connectionString))
             {
-                rawOptions.TryGetValue(ConnectionStringKey, out _connectionString);
+                var connectionString = GetSetting<string>(ConnectionStringKey);
+                if (!string.IsNullOrWhiteSpace(connectionString))
+                {
+                    ConnectionString = connectionString;
+                }
+            }
+
+            if (!_commandTimeout.HasValue)
+            {
+                CommandTimeout = GetSetting<int?>(CommandTimeoutKey);
+            }
+
+            if (!_maxBatchSize.HasValue)
+            {
+                MaxBatchSize = GetSetting<int?>(MaxBatchSizeKey);
             }
         }
 

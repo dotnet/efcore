@@ -29,6 +29,14 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
+        /// The value for the configuration entry '{configurationKey}' is '{invalidValue}', but an integer is expected.
+        /// </summary>
+        public static string IntegerConfigurationValueFormatError([CanBeNull] object configurationKey, [CanBeNull] object invalidValue)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("IntegerConfigurationValueFormatError", "configurationKey", "invalidValue"), configurationKey, invalidValue);
+        }
+
+        /// <summary>
         /// The value provided for argument '{argumentName}' must be a valid value of enum type '{enumType}'.
         /// </summary>
         public static string InvalidEnumValue([CanBeNull] object argumentName, [CanBeNull] object enumType)

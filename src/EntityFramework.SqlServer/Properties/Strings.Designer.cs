@@ -11,14 +11,6 @@ namespace Microsoft.Data.Entity.SqlServer
     {
         private static readonly ResourceManager _resourceManager
             = new ResourceManager("EntityFramework.SqlServer.Strings", typeof(Strings).GetTypeInfo().Assembly);
-        
-        /// <summary>
-        /// The value for the configuration entry '{configurationKey}' is '{invalidValue}', but an integer is expected.
-        /// </summary>
-        public static string IntegerConfigurationValueFormatError([CanBeNull] object configurationKey, [CanBeNull] object invalidValue)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("IntegerConfigurationValueFormatError", "configurationKey", "invalidValue"), configurationKey, invalidValue);
-        }
 
         /// <summary>
         /// The value provided for argument '{argumentName}' must be a valid value of enum type '{enumType}'.
@@ -26,14 +18,6 @@ namespace Microsoft.Data.Entity.SqlServer
         public static string InvalidEnumValue([CanBeNull] object argumentName, [CanBeNull] object enumType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("InvalidEnumValue", "argumentName", "enumType"), argumentName, enumType);
-        }
-
-        /// <summary>
-        /// The value provided for max batch size must be positive.
-        /// </summary>
-        public static string MaxBatchSizeMustBePositive
-        {
-            get { return GetString("MaxBatchSizeMustBePositive"); }
         }
 
         /// <summary>

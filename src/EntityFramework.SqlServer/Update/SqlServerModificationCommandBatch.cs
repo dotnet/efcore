@@ -9,6 +9,7 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Relational.Update;
 using Microsoft.Data.Entity.Utilities;
+using RelationalStrings = Microsoft.Data.Entity.Relational.Strings;
 
 namespace Microsoft.Data.Entity.SqlServer.Update
 {
@@ -38,7 +39,7 @@ namespace Microsoft.Data.Entity.SqlServer.Update
             if (maxBatchSize.HasValue
                 && maxBatchSize.Value <= 0)
             {
-                throw new ArgumentOutOfRangeException("maxBatchSize", Strings.MaxBatchSizeMustBePositive);
+                throw new ArgumentOutOfRangeException("maxBatchSize", RelationalStrings.InvalidCommandTimeout);
             }
 
             _maxBatchSize = Math.Min(maxBatchSize ?? Int32.MaxValue, MaxRowCount);

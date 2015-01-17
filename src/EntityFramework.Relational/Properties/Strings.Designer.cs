@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity.Relational
     {
         private static readonly ResourceManager _resourceManager
             = new ResourceManager("EntityFramework.Relational.Strings", typeof(Strings).GetTypeInfo().Assembly);
-        
+
         /// <summary>
         /// The value provided for argument '{argumentName}' must be a valid value of enum type '{enumType}'.
         /// </summary>
@@ -74,6 +74,22 @@ namespace Microsoft.Data.Entity.Relational
         public static string NoConnectionOrConnectionString
         {
             get { return GetString("NoConnectionOrConnectionString"); }
+        }
+
+        /// <summary>
+        /// The specified CommandTimeout value is not valid. It must be a positive number.
+        /// </summary>
+        public static string InvalidCommandTimeout
+        {
+            get { return GetString("InvalidCommandTimeout"); }
+        }
+
+        /// <summary>
+        /// The specified MaxBatchSize value is not valid. It must be a positive number.
+        /// </summary>
+        public static string InvalidMaxBatchSize
+        {
+            get { return GetString("InvalidMaxBatchSize"); }
         }
 
         /// <summary>
@@ -284,13 +300,6 @@ namespace Microsoft.Data.Entity.Relational
             get { return GetString("MigrationsNotInUse"); }
         }
 
-        /// <summary>
-        /// The specified CommandTimeout value is not valid. It must be a positive number.
-        /// </summary>
-        public static string InvalidCommandTimeout
-        {
-            get { return GetString("InvalidCommandTimeout");}
-        }
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

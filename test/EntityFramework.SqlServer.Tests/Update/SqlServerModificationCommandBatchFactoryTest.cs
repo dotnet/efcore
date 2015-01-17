@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Update
         {
             var factory = new SqlServerModificationCommandBatchFactory(new SqlServerSqlGenerator());
             IDbContextOptions options = new DbContextOptions();
-            options.RawOptions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { { "SqlServer:MaxBatchSize", "1" } };
+            options.RawOptions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { { "MaxBatchSize", "1" } };
             options.AddExtension(new SqlServerOptionsExtension());
 
             var batch = factory.Create(options);
@@ -59,7 +59,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Update
         {
             var factory = new SqlServerModificationCommandBatchFactory(new SqlServerSqlGenerator());
             IDbContextOptions options = new DbContextOptions();
-            options.RawOptions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { { "SqlServer:MaxBatchSize", "1" } };
+            options.RawOptions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { { "MaxBatchSize", "1" } };
 
             var batch = factory.Create(options);
 

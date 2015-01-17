@@ -13,9 +13,7 @@
     },
     "EntityFramework": {
         "CudContext": {
-            "SqlServer": {
-                "MaxBatchSize": "1"
-            }
+            "MaxBatchSize": "1"
         }
     }
 }

@@ -32,7 +32,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             public void Setting_CommandTimeout_to_negative_value_throws()
             {
                 var options = new SqlServerDbContextOptions(new DbContextOptions());
-                Assert.Throws<ArgumentException>(() => options.CommandTimeout(-55));
+                Assert.Throws<InvalidOperationException>(() => options.CommandTimeout(-55));
 
                 using (var context = new TimeoutContext())
                 {
