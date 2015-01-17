@@ -42,7 +42,7 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering.Model
 ";
 
         public string Id { get; set; }
-        public string ParentId { get; set; }
+        public string TableId { get; set; }
         public string ColumnName { get; set; }
         public int Ordinal { get; set; }
         public bool IsNullable { get; set; }
@@ -59,7 +59,7 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering.Model
         {
             var tableColumn = new TableColumn();
             tableColumn.Id = reader.IsDBNull(0) ? null : reader.GetString(0);
-            tableColumn.ParentId = reader.IsDBNull(1) ? null : reader.GetString(1);
+            tableColumn.TableId = reader.IsDBNull(1) ? null : reader.GetString(1);
             tableColumn.ColumnName = reader.IsDBNull(2) ? null : reader.GetString(2);
             tableColumn.Ordinal = reader.GetInt32(3);
             tableColumn.IsNullable = reader.GetBoolean(4);
@@ -78,7 +78,7 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering.Model
         public override string ToString()
         {
             return "TC[Id=" + Id
-                + ", ParentId=" + ParentId
+                + ", TableId=" + TableId
                 + ", ColumnName=" + ColumnName
                 + ", Ordinal=" + Ordinal
                 + ", IsNullable=" + IsNullable

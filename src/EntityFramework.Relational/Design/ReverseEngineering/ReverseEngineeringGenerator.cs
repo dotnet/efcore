@@ -95,7 +95,9 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 // output EntityType poco file
                 using (var sourceStream = new MemoryStream(Encoding.UTF8.GetBytes(entityTypeStringBuilder.ToString())))
                 {
-                    await OutputFile(configuration.OutputPath, entityType.SimpleName + ".cs", sourceStream);
+                    await OutputFile(configuration.OutputPath
+                        , dbContextCodeGeneratorContext.EntityTypeToClassNameMap[entityType] + ".cs"
+                        , sourceStream);
                 }
             }
         }

@@ -55,9 +55,8 @@ namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
 
         protected virtual void GenerateNamespace(IndentedStringBuilder sb)
         {
-            var @namespace = _codeGenerationContext.GetClassNamespace();
             sb.Append("namespace ");
-            sb.AppendLine(@namespace);
+            sb.AppendLine(_codeGenerationContext.ClassNamespace);
             sb.AppendLine("{");
             using (sb.Indent())
             {

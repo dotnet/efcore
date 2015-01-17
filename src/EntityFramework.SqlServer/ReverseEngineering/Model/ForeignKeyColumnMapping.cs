@@ -9,10 +9,11 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering.Model
     {
         public static readonly string Query =
 @"SELECT
-  quotename(SCHEMA_NAME(fk.schema_id)) + quotename(fk.name) + quotename(cast(fkc.constraint_column_id as nvarchar(30))) [Id]
-  ,   quotename(SCHEMA_NAME(toSchema.schema_id)) + quotename(OBJECT_NAME(fk.referenced_object_id)) + quotename(toCol.name) [ToColumnId]
-  ,   quotename(SCHEMA_NAME(fromSchema.schema_id)) + quotename(OBJECT_NAME(fk.parent_object_id)) + quotename(fromCol.name) [FromColumnId]
+" + //  quotename(SCHEMA_NAME(fk.schema_id)) + quotename(fk.name) + quotename(cast(fkc.constraint_column_id as nvarchar(30))) [Id]
+  @"  quotename(SCHEMA_NAME(fk.schema_id)) + quotename(fk.name) + quotename(SCHEMA_NAME(fromSchema.schema_id)) + quotename(OBJECT_NAME(fk.parent_object_id)) + quotename(fromCol.name) [Id]
   ,   quotename(SCHEMA_NAME(fk.schema_id)) + quotename(fk.name) [ConstraintId]
+  ,   quotename(SCHEMA_NAME(fromSchema.schema_id)) + quotename(OBJECT_NAME(fk.parent_object_id)) + quotename(fromCol.name) [FromColumnId]
+  ,   quotename(SCHEMA_NAME(toSchema.schema_id)) + quotename(OBJECT_NAME(fk.referenced_object_id)) + quotename(toCol.name) [ToColumnId]
   ,   fkc.constraint_column_id [Ordinal]
   FROM
   sys.foreign_keys fk
@@ -28,18 +29,18 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering.Model
   sys.objects fromSchema ON fromSchema.object_id = fk.parent_object_id
 ";
         public string Id { get; set; }
-        public string ToColumnId { get; set; }
-        public string FromColumnId { get; set; }
         public string ConstraintId { get; set; }
+        public string FromColumnId { get; set; }
+        public string ToColumnId { get; set; }
         public int Ordinal { get; set; }
 
         public static ForeignKeyColumnMapping CreateFromReader(SqlDataReader reader)
         {
             var tableColumn = new ForeignKeyColumnMapping();
             tableColumn.Id = reader.IsDBNull(0) ? null : reader.GetString(0);
-            tableColumn.ToColumnId = reader.IsDBNull(1) ? null : reader.GetString(1);
+            tableColumn.ConstraintId = reader.IsDBNull(1) ? null : reader.GetString(1);
             tableColumn.FromColumnId = reader.IsDBNull(2) ? null : reader.GetString(2);
-            tableColumn.ConstraintId = reader.IsDBNull(3) ? null : reader.GetString(3);
+            tableColumn.ToColumnId = reader.IsDBNull(3) ? null : reader.GetString(3);
             tableColumn.Ordinal = reader.GetInt32(4);
 
             return tableColumn;
@@ -48,9 +49,9 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering.Model
         public override string ToString()
         {
             return "FKCM[Id=" + Id
-                + ", ToColumnId=" + ToColumnId
-                + ", FromColumnId=" + FromColumnId
                 + ", ConstraintId=" + ConstraintId
+                + ", FromColumnId=" + FromColumnId
+                + ", ToColumnId=" + ToColumnId
                 + ", Ordinal=" + Ordinal
                 + "]";
         }
