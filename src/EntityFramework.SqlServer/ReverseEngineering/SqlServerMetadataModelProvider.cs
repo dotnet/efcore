@@ -230,7 +230,6 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
 
 
                         // make column a foreign key if it appears in an FK constraint
-
                         Dictionary<string, int> constraintIdOrdinalKeyValuePairMap;
                         if (!foreignKeyOrdinals.TryGetValue(tc.Id, out constraintIdOrdinalKeyValuePairMap))
                         {
@@ -239,7 +238,7 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
                         }
                         else
                         {
-                            // loop over constraints in which this column appears
+                            // store in which constraints this column appears
                             foreach (var keyValuePair in constraintIdOrdinalKeyValuePairMap)
                             {
                                 var constraintId = keyValuePair.Key;
