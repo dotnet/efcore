@@ -94,11 +94,11 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                             if (!File.Exists(scriptPath))
                             {
-                                var kAppBase = Environment.GetEnvironmentVariable("k_appbase");
+                                var appBase = Environment.GetEnvironmentVariable("DOTNET_APPBASE");
 
-                                if (kAppBase != null)
+                                if (appBase != null)
                                 {
-                                    scriptPath = Path.Combine(kAppBase, Path.GetFileName(scriptPath));
+                                    scriptPath = Path.Combine(appBase, Path.GetFileName(scriptPath));
                                 }
                             }
 
