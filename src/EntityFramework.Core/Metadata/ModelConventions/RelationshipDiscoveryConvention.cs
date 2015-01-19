@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
 {
     public class RelationshipDiscoveryConvention : IEntityTypeConvention
     {
-        public virtual void Apply(InternalEntityBuilder entityBuilder)
+        public virtual InternalEntityBuilder Apply(InternalEntityBuilder entityBuilder)
         {
             Check.NotNull(entityBuilder, "entityBuilder");
             var entityType = entityBuilder.Metadata;
@@ -77,13 +77,13 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
                         && reverseNavigationCandidates.Count > 0)
                     {
                         // Ambiguous navigations
-                        return;
+                        return entityBuilder;
                     }
 
                     if (reverseNavigationCandidates.Count > 1)
                     {
                         // Ambiguous navigations
-                        return;
+                        return entityBuilder;
                     }
 
                     foreach (var navigationCandidate in navigationCandidates)
@@ -92,6 +92,8 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
                     }
                 }
             }
+
+            return entityBuilder;
         }
 
         private static void TryBuildRelationship(

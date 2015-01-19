@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         {
             var entityBuilder = CreateInternalEntityBuilder<EntityWithNoId>();
 
-            new KeyConvention().Apply(entityBuilder);
+            Assert.Same(entityBuilder, new KeyConvention().Apply(entityBuilder));
 
             var key = entityBuilder.Metadata.TryGetPrimaryKey();
             Assert.Null(key);
@@ -41,7 +41,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             convention.Protected().Setup<IEnumerable<Property>>("DiscoverKeyProperties", ItExpr.IsAny<EntityType>())
                 .Returns<EntityType>(t => t.Properties);
 
-            convention.Object.Apply(entityBuilder);
+            Assert.Same(entityBuilder, convention.Object.Apply(entityBuilder));
 
             var key = entityBuilder.Metadata.TryGetPrimaryKey();
             Assert.NotNull(key);
@@ -58,7 +58,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         {
             var entityBuilder = CreateInternalEntityBuilder<EntityWithId>();
 
-            new KeyConvention().Apply(entityBuilder);
+            Assert.Same(entityBuilder, new KeyConvention().Apply(entityBuilder));
 
             var key = entityBuilder.Metadata.TryGetPrimaryKey();
             Assert.NotNull(key);
@@ -76,7 +76,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         {
             var entityBuilder = CreateInternalEntityBuilder<EntityWithTypeId>();
 
-            new KeyConvention().Apply(entityBuilder);
+            Assert.Same(entityBuilder, new KeyConvention().Apply(entityBuilder));
 
             var key = entityBuilder.Metadata.TryGetPrimaryKey();
             Assert.NotNull(key);
@@ -95,7 +95,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         {
             var entityBuilder = CreateInternalEntityBuilder<EntityWithIdAndTypeId>();
 
-            new KeyConvention().Apply(entityBuilder);
+            Assert.Same(entityBuilder, new KeyConvention().Apply(entityBuilder));
 
             var key = entityBuilder.Metadata.TryGetPrimaryKey();
             Assert.NotNull(key);
@@ -157,7 +157,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         {
             var entityBuilder = CreateInternalEntityBuilder<EntityWithGenericKey<T>>();
 
-            new KeyConvention().Apply(entityBuilder);
+            Assert.Same(entityBuilder, new KeyConvention().Apply(entityBuilder));
 
             var property = entityBuilder.Metadata.TryGetProperty("Id");
             Assert.NotNull(property);
@@ -175,7 +175,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             var property = entityBuilder.Metadata.TryGetProperty("Id");
             property.GenerateValueOnAdd = false;
 
-            new KeyConvention().Apply(entityBuilder);
+            Assert.Same(entityBuilder, new KeyConvention().Apply(entityBuilder));
 
             Assert.Equal(false, property.GenerateValueOnAdd);
         }

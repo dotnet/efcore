@@ -7,13 +7,14 @@ using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
+using Microsoft.Data.Entity.Metadata.ModelConventions;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
 {
     public class InternalModelBuilder : InternalMetadataBuilder<Model>
     {
-        private readonly IModelChangeListener _modelChangeListener;
+        private readonly ConventionsDispatcher _conventions;
 
         private readonly MetadataDictionary<EntityType, InternalEntityBuilder> _entityBuilders =
             new MetadataDictionary<EntityType, InternalEntityBuilder>();
@@ -21,10 +22,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         private readonly LazyRef<Dictionary<string, ConfigurationSource>> _ignoredEntityTypeNames =
             new LazyRef<Dictionary<string, ConfigurationSource>>(() => new Dictionary<string, ConfigurationSource>());
 
-        public InternalModelBuilder([NotNull] Model metadata, [CanBeNull] IModelChangeListener modelChangeListener)
+        public InternalModelBuilder([NotNull] Model metadata, [CanBeNull] ConventionsDispatcher conventions)
             : base(metadata)
         {
-            _modelChangeListener = modelChangeListener;
+            _conventions = conventions;
         }
 
         public override InternalModelBuilder ModelBuilder
@@ -88,12 +89,14 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return true;
         }
 
-        private void EntityTypeAdded(InternalEntityBuilder builder)
+        private InternalEntityBuilder EntityTypeAdded(InternalEntityBuilder builder)
         {
-            if (_modelChangeListener != null)
+            if (_conventions != null)
             {
-                _modelChangeListener.OnEntityTypeAdded(builder);
+                builder = _conventions.OnEntityTypeAdded(builder);
             }
+
+            return builder;
         }
 
         public virtual bool Ignore([NotNull] Type type, ConfigurationSource configurationSource)

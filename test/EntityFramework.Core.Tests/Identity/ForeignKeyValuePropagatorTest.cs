@@ -272,7 +272,7 @@ namespace Microsoft.Data.Entity.Tests.Identity
         private static IModel BuildModel()
         {
             var model = new Model();
-            var builder = new ModelBuilder(model);
+            var builder = TestHelpers.CreateConventionBuilder(model);
 
             builder.Entity<Product>(b =>
             {

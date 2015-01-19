@@ -31,7 +31,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_write_convention_model_builder_extension()
         {
-            var builder = new ModelBuilder();
+            var builder = CreateModelBuilder();
 
             var returnedBuilder = builder
                 .ModelBuilderExtension("V1")
@@ -69,7 +69,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_write_convention_entity_builder_extension()
         {
-            var builder = new ModelBuilder();
+            var builder = CreateModelBuilder();
 
             var returnedBuilder = builder
                 .Entity(typeof(Gunter))
@@ -109,7 +109,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_write_convention_entity_builder_extension_and_use_with_generic_builder()
         {
-            var builder = new ModelBuilder();
+            var builder = CreateModelBuilder();
 
             var returnedBuilder = builder
                 .Entity<Gunter>()
@@ -149,7 +149,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_write_generic_convention_entity_builder_extension()
         {
-            var builder = new ModelBuilder();
+            var builder = CreateModelBuilder();
 
             var returnedBuilder = builder
                 .Entity<Gunter>()
@@ -190,7 +190,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_write_convention_key_builder_extension()
         {
-            var builder = new ModelBuilder();
+            var builder = CreateModelBuilder();
 
             var returnedBuilder = builder
                 .Entity<Gunter>()
@@ -232,7 +232,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_write_convention_property_builder_extension()
         {
-            var builder = new ModelBuilder();
+            var builder = CreateModelBuilder();
 
             var returnedBuilder = builder
                 .Entity<Gunter>()
@@ -297,7 +297,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_write_convention_index_builder_extension()
         {
-            var builder = new ModelBuilder();
+            var builder = CreateModelBuilder();
 
             var returnedBuilder = builder
                 .Entity<Gunter>()
@@ -318,7 +318,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_write_convention_one_to_many_builder_extension()
         {
-            var builder = new ModelBuilder();
+            var builder = CreateModelBuilder();
 
             var returnedBuilder = builder
                 .Entity<Gunter>().HasMany(e => e.Gates).WithOne(e => e.Gunter)
@@ -338,7 +338,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_write_convention_many_to_one_builder_extension()
         {
-            var builder = new ModelBuilder();
+            var builder = CreateModelBuilder();
 
             var returnedBuilder = builder
                 .Entity<Gate>().HasOne(e => e.Gunter).WithMany(e => e.Gates)
@@ -358,7 +358,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_write_convention_ont_to_many_builder_extension()
         {
-            var builder = new ModelBuilder();
+            var builder = CreateModelBuilder();
 
             var returnedBuilder = builder
                 .Entity<Avatar>().HasOne(e => e.Gunter).WithOne(e => e.Avatar)
@@ -396,7 +396,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_write_convention_model_builder_extension_with_common_name()
         {
-            var builder = new ModelBuilder();
+            var builder = CreateModelBuilder();
 
             var returnedBuilder = builder
                 .SharedNameExtension("V1")
@@ -434,7 +434,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_write_convention_entity_builder_extension_with_common_name()
         {
-            var builder = new ModelBuilder();
+            var builder = CreateModelBuilder();
 
             var returnedBuilder = builder
                 .Entity(typeof(Gunter))
@@ -474,7 +474,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_write_convention_entity_builder_extension_and_use_with_generic_builder_with_common_name()
         {
-            var builder = new ModelBuilder();
+            var builder = CreateModelBuilder();
 
             var returnedBuilder = builder
                 .Entity<Gunter>()
@@ -514,7 +514,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_write_generic_convention_entity_builder_extension_with_common_name()
         {
-            var builder = new ModelBuilder();
+            var builder = CreateModelBuilder();
 
             var returnedBuilder = builder
                 .Entity<Gunter>()
@@ -555,7 +555,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_write_convention_key_builder_extension_with_common_name()
         {
-            var builder = new ModelBuilder();
+            var builder = CreateModelBuilder();
 
             var returnedBuilder = builder
                 .Entity<Gunter>()
@@ -597,7 +597,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_write_convention_property_builder_extension_with_common_name()
         {
-            var builder = new ModelBuilder();
+            var builder = CreateModelBuilder();
 
             var returnedBuilder = builder
                 .Entity<Gunter>()
@@ -662,7 +662,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_write_convention_index_builder_extension_with_common_name()
         {
-            var builder = new ModelBuilder();
+            var builder = CreateModelBuilder();
 
             var returnedBuilder = builder
                 .Entity<Gunter>()
@@ -683,7 +683,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_write_convention_one_to_many_builder_extension_with_common_name()
         {
-            var builder = new ModelBuilder();
+            var builder = CreateModelBuilder();
 
             var returnedBuilder = builder
                 .Entity<Gunter>().HasMany(e => e.Gates).WithOne(e => e.Gunter)
@@ -703,7 +703,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_write_convention_many_to_one_builder_extension_with_common_name()
         {
-            var builder = new ModelBuilder();
+            var builder = CreateModelBuilder();
 
             var returnedBuilder = builder
                 .Entity<Gate>().HasOne(e => e.Gunter).WithMany(e => e.Gates)
@@ -723,7 +723,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_write_convention_ont_to_many_builder_extension_with_common_name()
         {
-            var builder = new ModelBuilder();
+            var builder = CreateModelBuilder();
 
             var returnedBuilder = builder
                 .Entity<Avatar>().HasOne(e => e.Gunter).WithOne(e => e.Avatar)
@@ -740,6 +740,11 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Equal("V2.Model", model["Model"]);
         }
 
+        protected virtual ModelBuilder CreateModelBuilder()
+        {
+            return TestHelpers.CreateConventionBuilder();
+        }
+        
         private class Gunter
         {
             public int Id { get; set; }

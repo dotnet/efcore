@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         {
             var entityBuilder = CreateInternalEntityBuilder<OneToManyDependent>(OneToManyPrincipal.IgnoreNavigation);
 
-            new RelationshipDiscoveryConvention().Apply(entityBuilder);
+            Assert.Same(entityBuilder, new RelationshipDiscoveryConvention().Apply(entityBuilder));
 
             Assert.Empty(entityBuilder.Metadata.Properties);
             Assert.Empty(entityBuilder.Metadata.ForeignKeys);
@@ -37,7 +37,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         {
             var entityBuilder = CreateInternalEntityBuilder<OneToManyPrincipal>(OneToManyDependent.IgnoreNavigation);
 
-            new RelationshipDiscoveryConvention().Apply(entityBuilder);
+            Assert.Same(entityBuilder, new RelationshipDiscoveryConvention().Apply(entityBuilder));
 
             Assert.Empty(entityBuilder.Metadata.Properties);
             Assert.Empty(entityBuilder.Metadata.ForeignKeys);
@@ -55,7 +55,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             var entityBuilder = CreateInternalEntityBuilder<OneToManyDependent>();
             entityBuilder.ModelBuilder.Ignore(typeof(OneToManyPrincipal).FullName, ConfigurationSource.DataAnnotation);
 
-            new RelationshipDiscoveryConvention().Apply(entityBuilder);
+            Assert.Same(entityBuilder, new RelationshipDiscoveryConvention().Apply(entityBuilder));
 
             Assert.Empty(entityBuilder.Metadata.Properties);
             Assert.Empty(entityBuilder.Metadata.ForeignKeys);
@@ -69,7 +69,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             var entityBuilder = CreateInternalEntityBuilder<OneToManyDependent>();
             entityBuilder.Ignore(OneToManyDependent.NavigationProperty.Name, ConfigurationSource.DataAnnotation);
 
-            new RelationshipDiscoveryConvention().Apply(entityBuilder);
+            Assert.Same(entityBuilder, new RelationshipDiscoveryConvention().Apply(entityBuilder));
 
             Assert.Empty(entityBuilder.Metadata.Properties);
             Assert.Empty(entityBuilder.Metadata.ForeignKeys);
@@ -82,11 +82,12 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         {
             var entityBuilder = CreateInternalEntityBuilder<OneToOnePrincipal>(ConfigureKeys);
 
-            new RelationshipDiscoveryConvention().Apply(entityBuilder);
+            Assert.Same(entityBuilder, new RelationshipDiscoveryConvention().Apply(entityBuilder));
 
             VerifyOneToOne(entityBuilder.Metadata.Model);
 
-            new RelationshipDiscoveryConvention().Apply(entityBuilder.ModelBuilder.Entity(typeof(OneToOneDependent), ConfigurationSource.Convention));
+            Assert.NotSame(entityBuilder, new RelationshipDiscoveryConvention().Apply(
+                entityBuilder.ModelBuilder.Entity(typeof(OneToOneDependent), ConfigurationSource.Convention)));
 
             VerifyOneToOne(entityBuilder.Metadata.Model);
         }
@@ -97,7 +98,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             var entityBuilder = CreateInternalEntityBuilder<OneToManyDependent>(
                 ConfigureKeys, OneToManyPrincipal.IgnoreNavigation);
 
-            new RelationshipDiscoveryConvention().Apply(entityBuilder);
+            Assert.Same(entityBuilder, new RelationshipDiscoveryConvention().Apply(entityBuilder));
 
             VerifyOneToManyDependent(entityBuilder, unidirectional: true);
         }
@@ -108,7 +109,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             var entityBuilder = CreateInternalEntityBuilder<OneToManyDependent>(
                 ConfigureKeys, OneToManyPrincipal.IgnoreNavigation);
 
-            new RelationshipDiscoveryConvention().Apply(entityBuilder);
+            Assert.Same(entityBuilder, new RelationshipDiscoveryConvention().Apply(entityBuilder));
             var entityType = entityBuilder.Metadata;
             var fk = entityType.ForeignKeys.Single();
             Assert.Null(fk.IsRequired);
@@ -117,7 +118,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             fk.IsRequired = true;
             fk.IsUnique = true;
 
-            new RelationshipDiscoveryConvention().Apply(entityBuilder);
+            Assert.Same(entityBuilder, new RelationshipDiscoveryConvention().Apply(entityBuilder));
 
             var newFk = (IForeignKey)entityType.ForeignKeys.Single();
             Assert.True(newFk.IsRequired);
@@ -129,7 +130,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         {
             var entityBuilder = CreateInternalEntityBuilder<OneToManyDependent>();
 
-            new RelationshipDiscoveryConvention().Apply(entityBuilder);
+            Assert.Same(entityBuilder, new RelationshipDiscoveryConvention().Apply(entityBuilder));
 
             Assert.Empty(entityBuilder.Metadata.ForeignKeys);
             Assert.Empty(entityBuilder.Metadata.Navigations);
@@ -142,7 +143,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             var entityBuilder = CreateInternalEntityBuilder<OneToManyPrincipal>(
                 ConfigureKeys, OneToManyDependent.IgnoreNavigation);
 
-            new RelationshipDiscoveryConvention().Apply(entityBuilder);
+            Assert.Same(entityBuilder, new RelationshipDiscoveryConvention().Apply(entityBuilder));
 
             VerifyOneToManyPrincipal(entityBuilder, unidirectional: true);
         }
@@ -152,7 +153,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         {
             var entityBuilder = CreateInternalEntityBuilder<OneToManyPrincipal>(ConfigureKeys);
 
-            new RelationshipDiscoveryConvention().Apply(entityBuilder);
+            Assert.Same(entityBuilder, new RelationshipDiscoveryConvention().Apply(entityBuilder));
 
             VerifyOneToManyPrincipal(entityBuilder, unidirectional: false);
         }
@@ -162,7 +163,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         {
             var entityBuilder = CreateInternalEntityBuilder<ManyToManyFirst>(ConfigureKeys);
 
-            new RelationshipDiscoveryConvention().Apply(entityBuilder);
+            Assert.Same(entityBuilder, new RelationshipDiscoveryConvention().Apply(entityBuilder));
 
             // TODO: remove discovered entity types if no relationship discovered
             //VerifyModelUnchanged(entityBuilder);
@@ -174,7 +175,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             var entityBuilder = CreateInternalEntityBuilder<MultipleNavigationsFirst>(
                 ConfigureKeys, MultipleNavigationsSecond.IgnoreCollectionNavigation);
 
-            new RelationshipDiscoveryConvention().Apply(entityBuilder);
+            Assert.Same(entityBuilder, new RelationshipDiscoveryConvention().Apply(entityBuilder));
 
             // TODO: remove discovered entity types if no relationship discovered
             //VerifyModelUnchanged(entityBuilder);
@@ -186,8 +187,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             var entityBuilder = CreateInternalEntityBuilder<MultipleNavigationsSecond>(
                 ConfigureKeys, MultipleNavigationsSecond.IgnoreCollectionNavigation);
 
-            new RelationshipDiscoveryConvention().Apply(entityBuilder);
-
+            Assert.Same(entityBuilder, new RelationshipDiscoveryConvention().Apply(entityBuilder));
+            
             // TODO: remove discovered entity types if no relationship discovered
             //VerifyModelUnchanged(entityBuilder);
         }
@@ -198,7 +199,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             var entityBuilder = CreateInternalEntityBuilder<MultipleNavigationsFirst>(
                 ConfigureKeys, MultipleNavigationsSecond.IgnoreCollectionNavigation, MultipleNavigationsSecond.IgnoreNonCollectionNavigation);
 
-            new RelationshipDiscoveryConvention().Apply(entityBuilder);
+            Assert.Same(entityBuilder, new RelationshipDiscoveryConvention().Apply(entityBuilder));
 
             var model = (IModel)entityBuilder.Metadata.Model;
             Assert.Equal(2, model.EntityTypes.Count);
@@ -227,7 +228,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         {
             var entityBuilder = CreateInternalEntityBuilder<EntityWithNoValidNavigations>();
 
-            new RelationshipDiscoveryConvention().Apply(entityBuilder);
+            Assert.Same(entityBuilder, new RelationshipDiscoveryConvention().Apply(entityBuilder));
 
             Assert.Empty(entityBuilder.Metadata.ForeignKeys);
             Assert.Empty(entityBuilder.Metadata.Navigations);
@@ -355,7 +356,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             entityBuilder.Key(new[] { "Id" }, ConfigurationSource.Convention);
         }
 
-        private class TestModelChangeListener : IModelChangeListener
+        private class TestModelChangeListener : ConventionsDispatcher
         {
             private readonly Action<InternalEntityBuilder>[] _onEntityAdded;
 
@@ -364,12 +365,14 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
                 _onEntityAdded = onEntityAdded;
             }
 
-            public void OnEntityTypeAdded(InternalEntityBuilder entityBuilder)
+            public override InternalEntityBuilder OnEntityTypeAdded(InternalEntityBuilder entityBuilder)
             {
                 foreach (var action in _onEntityAdded)
                 {
                     action(entityBuilder);
                 }
+
+                return entityBuilder;
             }
         }
 

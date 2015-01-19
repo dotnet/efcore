@@ -7,6 +7,7 @@ using System.Linq;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.SqlServer.Metadata;
+using Microsoft.Data.Entity.Tests;
 using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
@@ -16,7 +17,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_column_name_with_basic_builder()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = CreateNonConventionModelBuilder();
 
             modelBuilder
                 .Entity<Customer>()
@@ -50,7 +51,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_column_name_with_basic_builder_using_nested_closure()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = CreateNonConventionModelBuilder();
 
             modelBuilder
                 .Entity<Customer>()
@@ -68,7 +69,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_column_name_with_convention_builder()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .Entity<Customer>()
@@ -92,7 +93,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_column_name_with_convention_builder_using_nested_closure()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .Entity<Customer>()
@@ -110,7 +111,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_column_type_with_basic_builder()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = CreateNonConventionModelBuilder();
 
             modelBuilder
                 .Entity<Customer>()
@@ -142,7 +143,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_column_type_with_basic_builder_using_nested_closure()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = CreateNonConventionModelBuilder();
 
             modelBuilder
                 .Entity<Customer>()
@@ -159,7 +160,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_column_type_with_convention_builder()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .Entity<Customer>()
@@ -182,7 +183,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_column_type_with_convention_builder_using_nested_closure()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .Entity<Customer>()
@@ -199,7 +200,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_column_default_expression_with_basic_builder()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = CreateNonConventionModelBuilder();
 
             modelBuilder
                 .Entity<Customer>()
@@ -231,7 +232,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_column_default_expression_with_basic_builder_using_nested_closure()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = CreateNonConventionModelBuilder();
 
             modelBuilder
                 .Entity<Customer>()
@@ -248,7 +249,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_column_default_expression_with_convention_builder()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .Entity<Customer>()
@@ -271,7 +272,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_column_default_expression_with_convention_builder_using_nested_closure()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .Entity<Customer>()
@@ -288,7 +289,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_column_default_value_with_basic_builder()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = CreateNonConventionModelBuilder();
 
             modelBuilder
                 .Entity<Customer>()
@@ -320,7 +321,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_column_default_value_with_basic_builder_using_nested_closure()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = CreateNonConventionModelBuilder();
 
             modelBuilder
                 .Entity<Customer>()
@@ -337,7 +338,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_column_default_value_with_convention_builder()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .Entity<Customer>()
@@ -360,7 +361,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_column_default_value_with_convention_builder_using_nested_closure()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .Entity<Customer>()
@@ -377,7 +378,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_key_name_with_basic_builder()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = CreateNonConventionModelBuilder();
 
             modelBuilder
                 .Entity<Customer>()
@@ -409,7 +410,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_key_name_with_basic_builder_using_nested_closure()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = CreateNonConventionModelBuilder();
 
             modelBuilder
                 .Entity<Customer>()
@@ -426,7 +427,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_key_name_with_convention_builder()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .Entity<Customer>()
@@ -449,7 +450,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_key_name_with_convention_builder_using_nested_closure()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .Entity<Customer>()
@@ -466,7 +467,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_foreign_key_name_with_basic_builder()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = CreateNonConventionModelBuilder();
 
             modelBuilder
                 .Entity<Customer>()
@@ -502,7 +503,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_foreign_key_name_with_basic_builder_using_nested_closure()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = CreateNonConventionModelBuilder();
 
             modelBuilder
                 .Entity<Customer>()
@@ -523,7 +524,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_foreign_key_name_for_one_to_many_with_convention_builder()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .Entity<Customer>().HasMany(e => e.Orders).WithOne(e => e.Customer)
@@ -552,7 +553,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_foreign_key_name_for_one_to_many_with_FK_specified_with_convention_builder()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .Entity<Customer>().HasMany(e => e.Orders).WithOne(e => e.Customer)
@@ -575,7 +576,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_foreign_key_name_for_one_to_many_with_convention_builder_using_nested_closure()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .Entity<Customer>().HasMany(e => e.Orders).WithOne(e => e.Customer)
@@ -591,7 +592,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_foreign_key_name_for_one_to_many_with_FK_specified_with_convention_builder_using_nested_closure()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .Entity<Customer>().HasMany(e => e.Orders).WithOne(e => e.Customer)
@@ -608,7 +609,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_foreign_key_name_for_many_to_one_with_convention_builder()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .Entity<Order>().HasOne(e => e.Customer).WithMany(e => e.Orders)
@@ -637,7 +638,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_foreign_key_name_for_many_to_one_with_FK_specified_with_convention_builder()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .Entity<Order>().HasOne(e => e.Customer).WithMany(e => e.Orders)
@@ -660,7 +661,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_foreign_key_name_for_many_to_one_with_convention_builder_using_nested_closure()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .Entity<Order>().HasOne(e => e.Customer).WithMany(e => e.Orders)
@@ -676,7 +677,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_foreign_key_name_for_many_to_one_with_FK_specified_with_convention_builder_using_nested_closure()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .Entity<Order>().HasOne(e => e.Customer).WithMany(e => e.Orders)
@@ -693,7 +694,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_foreign_key_name_for_one_to_one_with_convention_builder()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .Entity<Order>().HasOne(e => e.Details).WithOne(e => e.Order)
@@ -723,7 +724,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_foreign_key_name_for_one_to_one_with_FK_specified_with_convention_builder()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .Entity<Order>().HasOne(e => e.Details).WithOne(e => e.Order)
@@ -746,7 +747,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_foreign_key_name_for_one_to_one_with_convention_builder_using_nested_closure()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .Entity<Order>().HasOne(e => e.Details).WithOne(e => e.Order)
@@ -763,7 +764,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_foreign_key_name_for_one_to_one_with_FK_specified_with_convention_builder_using_nested_closure()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .Entity<Order>().HasOne(e => e.Details).WithOne(e => e.Order)
@@ -780,7 +781,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_index_name_with_basic_builder()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = CreateNonConventionModelBuilder();
 
             modelBuilder
                 .Entity<Customer>()
@@ -812,7 +813,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_index_name_with_basic_builder_using_nested_closure()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = CreateNonConventionModelBuilder();
 
             modelBuilder
                 .Entity<Customer>()
@@ -829,7 +830,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_index_name_with_convention_builder()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .Entity<Customer>()
@@ -852,7 +853,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_index_name_with_convention_builder_using_nested_closure()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .Entity<Customer>()
@@ -869,7 +870,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_table_name_with_basic_builder()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = CreateNonConventionModelBuilder();
 
             modelBuilder
                 .Entity<Customer>()
@@ -900,7 +901,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_table_name_with_basic_builder_using_nested_closure()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = CreateNonConventionModelBuilder();
 
             modelBuilder
                 .Entity<Customer>()
@@ -917,7 +918,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_table_name_with_convention_builder()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .Entity<Customer>()
@@ -939,7 +940,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_table_name_with_convention_builder_using_nested_closure()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .Entity<Customer>()
@@ -956,7 +957,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_table_name_with_basic_builder_non_generic()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = CreateNonConventionModelBuilder();
 
             modelBuilder
                 .Entity(typeof(Customer))
@@ -987,7 +988,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_table_name_with_basic_builder_using_nested_closure_non_generic()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = CreateNonConventionModelBuilder();
 
             modelBuilder
                 .Entity(typeof(Customer))
@@ -1004,7 +1005,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_table_name_with_convention_builder_non_generic()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .Entity(typeof(Customer))
@@ -1026,7 +1027,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_table_name_with_convention_builder_using_nested_closure_non_generic()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .Entity(typeof(Customer))
@@ -1043,7 +1044,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_table_and_schema_name_with_basic_builder()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = CreateNonConventionModelBuilder();
 
             modelBuilder
                 .Entity<Customer>()
@@ -1078,7 +1079,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_table_and_schema_name_with_basic_builder_using_nested_closure()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = CreateNonConventionModelBuilder();
 
             modelBuilder
                 .Entity<Customer>()
@@ -1097,7 +1098,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_table_and_schema_name_with_convention_builder()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .Entity<Customer>()
@@ -1121,7 +1122,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_table_and_schema_name_with_convention_builder_using_nested_closure()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .Entity<Customer>()
@@ -1140,7 +1141,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_table_and_schema_name_with_basic_builder_non_generic()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = CreateNonConventionModelBuilder();
 
             modelBuilder
                 .Entity(typeof(Customer))
@@ -1175,7 +1176,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_table_and_schema_name_with_basic_builder_using_nested_closure_non_generic()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = CreateNonConventionModelBuilder();
 
             modelBuilder
                 .Entity(typeof(Customer))
@@ -1194,7 +1195,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_table_and_schema_name_with_convention_builder_non_generic()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .Entity(typeof(Customer))
@@ -1218,7 +1219,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_table_and_schema_name_with_convention_builder_using_nested_closure_non_generic()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .Entity(typeof(Customer))
@@ -1237,7 +1238,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_index_clustering_with_basic_builder()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = CreateNonConventionModelBuilder();
 
             modelBuilder
                 .Entity<Customer>()
@@ -1261,7 +1262,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_index_clustering_with_basic_builder_using_nested_closure()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = CreateNonConventionModelBuilder();
 
             modelBuilder
                 .Entity<Customer>()
@@ -1276,7 +1277,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_index_clustering_with_convention_builder()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .Entity<Customer>()
@@ -1292,7 +1293,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_index_clustering_with_convention_builder_using_nested_closure()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .Entity<Customer>()
@@ -1307,7 +1308,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_key_clustering_with_basic_builder()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = CreateNonConventionModelBuilder();
 
             modelBuilder
                 .Entity<Customer>()
@@ -1331,7 +1332,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_key_clustering_with_basic_builder_using_nested_closure()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = CreateNonConventionModelBuilder();
 
             modelBuilder
                 .Entity<Customer>()
@@ -1346,7 +1347,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_key_clustering_with_convention_builder()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .Entity<Customer>()
@@ -1362,7 +1363,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_key_clustering_with_convention_builder_using_nested_closure()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .Entity<Customer>()
@@ -1377,7 +1378,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_sequences_for_model_with_basic_builder()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = CreateNonConventionModelBuilder();
 
             modelBuilder
                 .ForSqlServer()
@@ -1397,7 +1398,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_sequences_for_model_with_basic_builder_using_nested_closure()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = CreateNonConventionModelBuilder();
 
             modelBuilder
                 .ForSqlServer(b => { b.UseSequence(); });
@@ -1416,7 +1417,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_sequences_for_model_with_convention_builder()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .ForSqlServer()
@@ -1436,7 +1437,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_sequences_for_model_with_convention_builder_using_nested_closure()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .ForSqlServer(b => { b.UseSequence(); });
@@ -1464,7 +1465,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_sequences_with_name_for_model_with_basic_builder()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = CreateNonConventionModelBuilder();
 
             modelBuilder
                 .ForSqlServer()
@@ -1484,7 +1485,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_sequences_with_name_for_model_with_basic_builder_using_nested_closure()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = CreateNonConventionModelBuilder();
 
             modelBuilder
                 .ForSqlServer(b => { b.UseSequence("Snook"); });
@@ -1503,7 +1504,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_sequences_with_name_for_model_with_convention_builder()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .ForSqlServer()
@@ -1523,7 +1524,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_sequences_with_name_for_model_with_convention_builder_using_nested_closure()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .ForSqlServer(b => { b.UseSequence("Snook"); });
@@ -1553,7 +1554,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_sequences_with_schema_and_name_for_model_with_basic_builder()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = CreateNonConventionModelBuilder();
 
             modelBuilder
                 .ForSqlServer()
@@ -1573,7 +1574,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_sequences_with_schema_and_name_for_model_with_basic_builder_using_nested_closure()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = CreateNonConventionModelBuilder();
 
             modelBuilder
                 .ForSqlServer(b => { b.UseSequence("Snook", "Tasty"); });
@@ -1592,7 +1593,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_sequences_with_schema_and_name_for_model_with_convention_builder()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .ForSqlServer()
@@ -1612,7 +1613,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_sequences_with_schema_and_name_for_model_with_convention_builder_using_nested_closure()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .ForSqlServer(b => { b.UseSequence("Snook", "Tasty"); });
@@ -1642,7 +1643,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_use_of_existing_relational_sequence_for_model_with_basic_builder()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = CreateNonConventionModelBuilder();
 
             modelBuilder
                 .ForRelational()
@@ -1671,7 +1672,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_use_of_existing_relational_sequence_for_model_with_basic_builder_using_nested_closure()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = CreateNonConventionModelBuilder();
 
             modelBuilder
                 .ForRelational(b =>
@@ -1699,7 +1700,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_use_of_existing_relational_sequence_for_model_with_convention_builder()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .ForRelational()
@@ -1728,7 +1729,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_use_of_existing_relational_sequence_for_model_with_convention_builder_using_nested_closure()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .ForRelational(b =>
@@ -1756,7 +1757,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_use_of_existing_SQL_sequence_for_model_with_basic_builder()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = CreateNonConventionModelBuilder();
 
             modelBuilder
                 .ForSqlServer()
@@ -1785,7 +1786,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_use_of_existing_SQL_sequence_for_model_with_basic_builder_using_nested_closure()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = CreateNonConventionModelBuilder();
 
             modelBuilder
                 .ForSqlServer(b =>
@@ -1813,7 +1814,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_use_of_existing_SQL_sequence_for_model_with_convention_builder()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .ForSqlServer()
@@ -1842,7 +1843,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_use_of_existing_SQL_sequence_for_model_with_convention_builder_using_nested_closure()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .ForSqlServer(b =>
@@ -1881,7 +1882,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_identities_for_model_with_basic_builder()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = CreateNonConventionModelBuilder();
 
             modelBuilder
                 .ForSqlServer()
@@ -1901,7 +1902,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_identities_for_model_with_basic_builder_using_nested_closure()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = CreateNonConventionModelBuilder();
 
             modelBuilder
                 .ForSqlServer(b => { b.UseIdentity(); });
@@ -1920,7 +1921,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_identities_for_model_with_convention_builder()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .ForSqlServer()
@@ -1940,7 +1941,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_identities_for_model_with_convention_builder_using_nested_closure()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .ForSqlServer(b => { b.UseIdentity(); });
@@ -1959,7 +1960,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_sequence_for_property_with_basic_builder()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = CreateNonConventionModelBuilder();
 
             modelBuilder
                 .Entity<Customer>()
@@ -1980,7 +1981,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_sequence_for_property_with_basic_builder_using_nested_closure()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = CreateNonConventionModelBuilder();
 
             modelBuilder
                 .Entity<Customer>()
@@ -2000,7 +2001,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_sequence_for_property_with_convention_builder()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .Entity<Customer>()
@@ -2021,7 +2022,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_sequence_for_property_with_convention_builder_using_nested_closure()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .Entity<Customer>()
@@ -2041,7 +2042,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_sequences_with_name_for_property_with_basic_builder()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = CreateNonConventionModelBuilder();
 
             modelBuilder
                 .Entity<Customer>()
@@ -2063,7 +2064,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_sequences_with_name_for_property_with_basic_builder_using_nested_closure()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = CreateNonConventionModelBuilder();
 
             modelBuilder
                 .Entity<Customer>()
@@ -2084,7 +2085,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_sequences_with_name_for_property_with_convention_builder()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .Entity<Customer>()
@@ -2106,7 +2107,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_sequences_with_name_for_property_with_convention_builder_using_nested_closure()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .Entity<Customer>()
@@ -2127,7 +2128,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_sequences_with_schema_and_name_for_property_with_basic_builder()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = CreateNonConventionModelBuilder();
 
             modelBuilder
                 .Entity<Customer>()
@@ -2149,7 +2150,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_sequences_with_schema_and_name_for_property_with_basic_builder_using_nested_closure()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = CreateNonConventionModelBuilder();
 
             modelBuilder
                 .Entity<Customer>()
@@ -2170,7 +2171,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_sequences_with_schema_and_name_for_property_with_convention_builder()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .Entity<Customer>()
@@ -2192,7 +2193,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_sequences_with_schema_and_name_for_property_with_convention_builder_using_nested_closure()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .Entity<Customer>()
@@ -2213,7 +2214,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_use_of_existing_relational_sequence_for_property_with_basic_builder()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = CreateNonConventionModelBuilder();
 
             modelBuilder
                 .ForRelational()
@@ -2244,7 +2245,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_use_of_existing_relational_sequence_for_property_with_basic_builder_using_nested_closure()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = CreateNonConventionModelBuilder();
 
             modelBuilder
                 .ForRelational(b =>
@@ -2274,7 +2275,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_use_of_existing_relational_sequence_for_property_with_convention_builder()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .ForRelational()
@@ -2305,7 +2306,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_use_of_existing_relational_sequence_for_property_with_convention_builder_using_nested_closure()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .ForRelational(b =>
@@ -2335,7 +2336,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_use_of_existing_SQL_sequence_for_property_with_basic_builder()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = CreateNonConventionModelBuilder();
 
             modelBuilder
                 .ForSqlServer()
@@ -2366,7 +2367,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_use_of_existing_SQL_sequence_for_property_with_basic_builder_using_nested_closure()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = CreateNonConventionModelBuilder();
 
             modelBuilder
                 .ForSqlServer(b =>
@@ -2396,7 +2397,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_use_of_existing_SQL_sequence_for_property_with_convention_builder()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .ForSqlServer()
@@ -2427,7 +2428,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_use_of_existing_SQL_sequence_for_property_with_convention_builder_using_nested_closure()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .ForSqlServer(b =>
@@ -2457,7 +2458,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_identities_for_property_with_basic_builder()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = CreateNonConventionModelBuilder();
 
             modelBuilder
                 .Entity<Customer>()
@@ -2478,7 +2479,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_identities_for_property_with_basic_builder_using_nested_closure()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = CreateNonConventionModelBuilder();
 
             modelBuilder
                 .Entity<Customer>()
@@ -2498,7 +2499,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_identities_for_property_with_convention_builder()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .Entity<Customer>()
@@ -2519,7 +2520,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_set_identities_for_property_with_convention_builder_using_nested_closure()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .Entity<Customer>()
@@ -2539,7 +2540,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_create_default_sequence_with_basic_builder()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = CreateNonConventionModelBuilder();
 
             modelBuilder
                 .ForSqlServer()
@@ -2554,7 +2555,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_create_default_sequence_with_basic_builder_using_nested_closure()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = CreateNonConventionModelBuilder();
 
             modelBuilder
                 .ForSqlServer(b => { b.Sequence(); });
@@ -2568,7 +2569,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_create_default_sequence_with_convention_builder()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .ForSqlServer()
@@ -2583,7 +2584,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_create_default_sequence_with_convention_builder_using_nested_closure()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .ForSqlServer(b => { b.Sequence(); });
@@ -2597,7 +2598,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_create_named_sequence_with_basic_builder()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = CreateNonConventionModelBuilder();
 
             modelBuilder
                 .ForSqlServer()
@@ -2612,7 +2613,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_create_named_sequence_with_basic_builder_using_nested_closure()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = CreateNonConventionModelBuilder();
 
             modelBuilder
                 .ForSqlServer(b => { b.Sequence("Snook"); });
@@ -2626,7 +2627,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_create_named_sequence_with_convention_builder()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .ForSqlServer()
@@ -2641,7 +2642,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_create_named_sequence_with_convention_builder_using_nested_closure()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .ForSqlServer(b => { b.Sequence("Snook"); });
@@ -2655,7 +2656,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_create_schema_named_sequence_with_basic_builder()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = CreateNonConventionModelBuilder();
 
             modelBuilder
                 .ForSqlServer()
@@ -2670,7 +2671,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_create_schema_named_sequence_with_basic_builder_using_nested_closure()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = CreateNonConventionModelBuilder();
 
             modelBuilder
                 .ForSqlServer(b => { b.Sequence("Snook", "Tasty"); });
@@ -2684,7 +2685,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_create_schema_named_sequence_with_convention_builder()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .ForSqlServer()
@@ -2699,7 +2700,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_create_schema_named_sequence_with_convention_builder_using_nested_closure()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .ForSqlServer(b => { b.Sequence("Snook", "Tasty"); });
@@ -2713,7 +2714,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_create_default_sequence_with_specific_facets_with_basic_builder()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = CreateNonConventionModelBuilder();
 
             modelBuilder
                 .ForSqlServer()
@@ -2733,7 +2734,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_create_default_sequence_with_specific_facets_with_basic_builder_using_nested_closure()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = CreateNonConventionModelBuilder();
 
             modelBuilder
                 .ForSqlServer(b =>
@@ -2755,7 +2756,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_create_default_sequence_with_specific_facets_with_convention_builder()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .ForSqlServer()
@@ -2775,7 +2776,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_create_default_sequence_with_specific_facets_with_convention_builder_using_nested_closure()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .ForSqlServer(b =>
@@ -2808,7 +2809,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_create_named_sequence_with_specific_facets_with_basic_builder()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = CreateNonConventionModelBuilder();
 
             modelBuilder
                 .ForSqlServer()
@@ -2828,7 +2829,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_create_named_sequence_with_specific_facets_with_basic_builder_using_nested_closure()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = CreateNonConventionModelBuilder();
 
             modelBuilder
                 .ForSqlServer(b =>
@@ -2850,7 +2851,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_create_named_sequence_with_specific_facets_with_convention_builder()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .ForSqlServer()
@@ -2870,7 +2871,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_create_named_sequence_with_specific_facets_with_convention_builder_using_nested_closure()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .ForSqlServer(b =>
@@ -2903,7 +2904,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_create_schema_named_sequence_with_specific_facets_with_basic_builder()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = CreateNonConventionModelBuilder();
 
             modelBuilder
                 .ForSqlServer()
@@ -2923,7 +2924,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_create_schema_named_sequence_with_specific_facets_with_basic_builder_using_nested_closure()
         {
-            var modelBuilder = new BasicModelBuilder();
+            var modelBuilder = CreateNonConventionModelBuilder();
 
             modelBuilder
                 .ForSqlServer(b =>
@@ -2945,7 +2946,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_create_schema_named_sequence_with_specific_facets_with_convention_builder()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .ForSqlServer()
@@ -2965,7 +2966,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         [Fact]
         public void Can_create_schema_named_sequence_with_specific_facets_with_convention_builder_using_nested_closure()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .ForSqlServer(b =>
@@ -2982,6 +2983,16 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var sequence = modelBuilder.Model.SqlServer().TryGetSequence("Snook", "Tasty");
 
             ValidateSchemaNamedSpecificSequence(sequence);
+        }
+
+        protected virtual ModelBuilder CreateConventionModelBuilder()
+        {
+            return TestHelpers.CreateConventionBuilder();
+        }
+
+        protected virtual BasicModelBuilder CreateNonConventionModelBuilder()
+        {
+            return new BasicModelBuilder();
         }
 
         private class Customer

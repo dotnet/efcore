@@ -39,7 +39,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         {
             var entityBuilder = CreateInternalEntityBuilder<EntityWithInvalidProperties>();
 
-            new PropertiesConvention().Apply(entityBuilder);
+            Assert.Same(entityBuilder, new PropertiesConvention().Apply(entityBuilder));
 
             Assert.Empty(entityBuilder.Metadata.Properties);
         }
@@ -101,7 +101,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         {
             var entityBuilder = CreateInternalEntityBuilder<EntityWithEveryPrimitive>();
 
-            new PropertiesConvention().Apply(entityBuilder);
+            Assert.Same(entityBuilder, new PropertiesConvention().Apply(entityBuilder));
 
             Assert.Equal(
                 typeof(EntityWithEveryPrimitive)
@@ -120,7 +120,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         {
             var entityBuilder = CreateInternalEntityBuilder<EntityWithNoPrimitives>();
 
-            new PropertiesConvention().Apply(entityBuilder);
+            Assert.Same(entityBuilder, new PropertiesConvention().Apply(entityBuilder));
 
             Assert.Empty(entityBuilder.Metadata.Properties);
         }

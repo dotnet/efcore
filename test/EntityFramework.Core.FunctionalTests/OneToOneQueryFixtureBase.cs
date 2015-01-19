@@ -10,7 +10,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         protected static Model CreateModel()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new ModelBuilderFactory().CreateConventionBuilder(model);
 
             modelBuilder
                 .Entity<Address>(e => e.HasOne(a => a.Resident).WithOne(p => p.Address));

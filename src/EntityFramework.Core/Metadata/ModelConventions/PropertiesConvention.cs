@@ -10,7 +10,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
 {
     public class PropertiesConvention : IEntityTypeConvention
     {
-        public virtual void Apply(InternalEntityBuilder entityBuilder)
+        public virtual InternalEntityBuilder Apply(InternalEntityBuilder entityBuilder)
         {
             Check.NotNull(entityBuilder, "entityBuilder");
             var entityType = entityBuilder.Metadata;
@@ -25,6 +25,8 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
                     entityBuilder.Property(propertyInfo, ConfigurationSource.Convention);
                 }
             }
+
+            return entityBuilder;
         }
     }
 }

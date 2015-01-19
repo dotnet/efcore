@@ -12,12 +12,10 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
 {
-    public class ModelBuilder : IModelChangeListener, IModelBuilder<ModelBuilder>
+    public class ModelBuilder : IModelBuilder<ModelBuilder>
     {
         private readonly InternalModelBuilder _builder;
 
-        // TODO: Get the default convention list from DI
-        // Issue #213
         // TODO: Configure property facets, foreign keys & navigation properties
         // Issue #213
 
@@ -27,25 +25,18 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         public ModelBuilder([NotNull] Model model)
+            : this(model, new ConventionsDispatcher())
         {
             Check.NotNull(model, "model");
-
-            _builder = new InternalModelBuilder(model, this);
-            EntityTypeConventions = new List<IEntityTypeConvention>
-                {
-                    new PropertiesConvention(),
-                    new KeyConvention(),
-                    new RelationshipDiscoveryConvention()
-                };
         }
 
-        protected ModelBuilder([NotNull] Model model, [NotNull] IList<IEntityTypeConvention> entityTypeConventions)
+        public ModelBuilder([NotNull] Model model, [NotNull] ConventionsDispatcher conventions)
         {
             Check.NotNull(model, "model");
-            Check.NotNull(entityTypeConventions, "entityTypeConventions");
+            Check.NotNull(conventions, "conventions");
 
-            _builder = new InternalModelBuilder(model, this);
-            EntityTypeConventions = entityTypeConventions;
+            Conventions = conventions;
+            _builder = new InternalModelBuilder(model, conventions);
         }
 
         protected internal ModelBuilder([NotNull] InternalModelBuilder internalBuilder)
@@ -65,7 +56,7 @@ namespace Microsoft.Data.Entity.Metadata
             get { return Metadata; }
         }
 
-        public virtual IList<IEntityTypeConvention> EntityTypeConventions { get; }
+        public virtual ConventionsDispatcher Conventions { get; }
 
         public virtual ModelBuilder Annotation(string annotation, string value)
         {
@@ -81,22 +72,7 @@ namespace Microsoft.Data.Entity.Metadata
         {
             get { return _builder; }
         }
-
-        protected virtual void OnEntityTypeAdded([NotNull] InternalEntityBuilder entityBuilder)
-        {
-            Check.NotNull(entityBuilder, "entityBuilder");
-
-            foreach (var entityTypeConvention in EntityTypeConventions)
-            {
-                entityTypeConvention.Apply(entityBuilder);
-            }
-        }
-
-        void IModelChangeListener.OnEntityTypeAdded(InternalEntityBuilder entityBuilder)
-        {
-            OnEntityTypeAdded(entityBuilder);
-        }
-
+        
         public virtual EntityBuilder<TEntity> Entity<TEntity>() where TEntity : class
         {
             return new EntityBuilder<TEntity>(Builder.Entity(typeof(TEntity), ConfigurationSource.Explicit));

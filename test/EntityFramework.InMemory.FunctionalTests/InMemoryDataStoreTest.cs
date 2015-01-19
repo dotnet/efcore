@@ -105,7 +105,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
         private static Model CreateModel()
         {
             var model = new Model();
-            var modelBuilder = new ModelBuilder(model);
+            var modelBuilder = new ModelBuilderFactory().CreateConventionBuilder(model);
 
             modelBuilder.Entity<Customer>();
 

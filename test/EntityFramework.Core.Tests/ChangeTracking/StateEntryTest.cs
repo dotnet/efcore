@@ -1328,7 +1328,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
         private static IModel BuildOneToOneModel()
         {
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = TestHelpers.CreateConventionBuilder();
 
             modelBuilder
                 .Entity<FirstDependent>()

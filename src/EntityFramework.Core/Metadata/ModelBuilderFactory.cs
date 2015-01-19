@@ -1,6 +1,7 @@
-﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using Microsoft.Data.Entity.Metadata.ModelConventions;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
@@ -11,7 +12,17 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotNull(model, "model");
 
-            return new ModelBuilder(model);
+            return new ModelBuilder(model, CreateConventionsDispatcher());
+        }
+
+        protected virtual ConventionsDispatcher CreateConventionsDispatcher()
+        {
+            var conventions = new ConventionsDispatcher();
+            conventions.EntityTypeConventions.Add(new PropertiesConvention());
+            conventions.EntityTypeConventions.Add(new KeyConvention());
+            conventions.EntityTypeConventions.Add(new RelationshipDiscoveryConvention());
+
+            return conventions;
         }
     }
 }

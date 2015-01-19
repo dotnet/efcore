@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             [NotNull] Func<TKey> getKey,
             [NotNull] Func<TKey> createKey,
             [NotNull] Func<TKey, TValue> createValue,
-            [CanBeNull] Action<TValue> onNewKeyAdded,
+            [CanBeNull] Func<TValue, TValue> onNewKeyAdded,
             ConfigurationSource configurationSource)
         {
             Check.NotNull(getKey, "getKey");
@@ -59,9 +59,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             Add(key, value, configurationSource);
 
-            if (isNewKey)
+            if (isNewKey
+                && onNewKeyAdded != null)
             {
-                onNewKeyAdded?.Invoke(value);
+                value = onNewKeyAdded.Invoke(value);
             }
 
             return value;

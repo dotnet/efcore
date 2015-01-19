@@ -241,8 +241,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                var model = modelBuilder.Model;
-
                 modelBuilder.Entity<Product>(b =>
                     {
                         b.Property(e => e.Id).GenerateValueOnAdd(false);

@@ -95,7 +95,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             bool createFeaturedProductCategory = true, bool createFeaturedProduct = true)
         {
             var model = new Model();
-            var builder = new ModelBuilder(model);
+            var builder = TestHelpers.CreateConventionBuilder(model);
 
             builder.Entity<Product>();
             builder.Entity<Category>();
@@ -179,7 +179,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
         private static IModel BuildCollectionsModel()
         {
-            var builder = new ModelBuilder();
+            var builder = TestHelpers.CreateConventionBuilder();
 
             builder.Entity<Principal>().HasMany(e => e.Dependents1).WithOne(e => e.Principal1);
             builder.Entity<Principal>().HasMany(e => e.Dependents2).WithOne(e => e.Principal2);

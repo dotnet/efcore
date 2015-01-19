@@ -5173,7 +5173,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
         private ModelBuilder HobNobBuilder()
         {
-            var builder = new ModelBuilder();
+            var builder = TestHelpers.CreateConventionBuilder();
 
             builder.Entity<Hob>().Key(e => new { e.Id1, e.Id2 });
             builder.Entity<Nob>().Key(e => new { e.Id1, e.Id2 });

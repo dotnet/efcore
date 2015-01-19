@@ -2290,7 +2290,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
         private static IModel BuildModel()
         {
-            var builder = new ModelBuilder();
+            var builder = TestHelpers.CreateConventionBuilder();
 
             builder.Entity<Product>()
                 .HasOne(e => e.Tag).WithOne(e => e.Product)
@@ -2510,7 +2510,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
         private static IModel BuildNotifyingModel()
         {
-            var builder = new ModelBuilder();
+            var builder = TestHelpers.CreateConventionBuilder();
 
             builder.Entity<NotifyingProduct>()
                 .HasOne(e => e.Tag).WithOne(e => e.Product)
@@ -2564,7 +2564,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
         private static IModel BuildModelWithChanging()
         {
-            var builder = new ModelBuilder();
+            var builder = TestHelpers.CreateConventionBuilder();
 
             builder.Entity<ProductWithChanging>();
             builder.Entity<CategoryWithChanging>()
@@ -2603,7 +2603,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
         private static IModel BuildModelWithChanged()
         {
-            var builder = new ModelBuilder();
+            var builder = TestHelpers.CreateConventionBuilder();
 
             builder.Entity<ProductWithChanged>();
             builder.Entity<CategoryWithChanged>()

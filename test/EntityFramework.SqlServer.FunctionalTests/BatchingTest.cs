@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
 using Xunit;
@@ -15,14 +16,10 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         [Fact]
         public void Batches_are_divided_correctly_with_two_inserted_columns()
         {
-            var modelBuilder = new ModelBuilder(new Model());
-            modelBuilder.Entity<Blog>().Property(b => b.Id).GenerateValueOnAdd(generateValue: false);
-
-            var options = new DbContextOptions()
-                .UseModel(modelBuilder.Model);
+            var options = new DbContextOptions();
             options.UseSqlServer(_testStore.Connection);
 
-            using (var context = new DbContext(_serviceProvider, options))
+            using (var context = new BloggingContext(_serviceProvider, options))
             {
                 context.Database.EnsureCreated();
 
@@ -35,9 +32,22 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 context.SaveChanges();
             }
 
-            using (var context = new DbContext(_serviceProvider, options))
+            using (var context = new BloggingContext(_serviceProvider, options))
             {
                 Assert.Equal(1100, context.Set<Blog>().Count());
+            }
+        }
+
+        private class BloggingContext : DbContext
+        {
+            public BloggingContext(IServiceProvider serviceProvider, DbContextOptions options)
+                : base(serviceProvider, options)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Blog>().Property(b => b.Id).GenerateValueOnAdd(generateValue: false);
             }
         }
 

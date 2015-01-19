@@ -15,12 +15,11 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
     {
         private const string KeySuffix = "Id";
 
-        public virtual void Apply(InternalEntityBuilder entityBuilder)
+        public virtual InternalEntityBuilder Apply(InternalEntityBuilder entityBuilder)
         {
             Check.NotNull(entityBuilder, "entityBuilder");
             var entityType = entityBuilder.Metadata;
 
-            var name = entityType.Name;
             var keyProperties = DiscoverKeyProperties(entityType);
             if (keyProperties.Count != 0
                 && entityBuilder.Key(keyProperties.Select(p => p.Name).ToList(), ConfigurationSource.Convention) != null)
@@ -30,6 +29,8 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
                     ConfigureKeyProperty(entityBuilder.Property(property.PropertyType, property.Name, ConfigurationSource.Convention));
                 }
             }
+
+            return entityBuilder;
         }
 
         protected virtual IReadOnlyList<Property> DiscoverKeyProperties([NotNull] EntityType entityType)

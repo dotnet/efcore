@@ -164,7 +164,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
         private static IModel BuildModel()
         {
-            var builder = new ModelBuilder();
+            var builder = TestHelpers.CreateConventionBuilder();
 
             builder.Entity<FullNotificationEntity>(b =>
                 {

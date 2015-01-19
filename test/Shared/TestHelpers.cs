@@ -132,9 +132,14 @@ namespace Microsoft.Data.Entity.Tests
 
         public static Model BuildModelFor<TEntity>() where TEntity : class
         {
-            var builder = new ModelBuilder();
+            var builder = CreateConventionBuilder();
             builder.Entity<TEntity>();
             return builder.Model;
+        }
+
+        public static ModelBuilder CreateConventionBuilder(Model model = null)
+        {
+            return new ModelBuilderFactory().CreateConventionBuilder(model ?? new Model());
         }
 
         public static StateEntry CreateStateEntry<TEntity>(
