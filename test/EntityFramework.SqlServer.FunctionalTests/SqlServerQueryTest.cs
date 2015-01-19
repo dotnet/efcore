@@ -1407,6 +1407,16 @@ INNER JOIN [Orders] AS [o0] ON [o].[CustomerID] = [o0].[CustomerID]",
                 Sql);
         }
 
+        public override void Where_chain()
+        {
+            base.Where_chain();
+            Assert.Equal(
+                @"SELECT [o].[CustomerID], [o].[EmployeeID], [o].[Freight], [o].[OrderDate], [o].[OrderID], [o].[RequiredDate], [o].[ShipAddress], [o].[ShipCity], [o].[ShipCountry], [o].[ShipName], [o].[ShipPostalCode], [o].[ShipRegion], [o].[ShipVia], [o].[ShippedDate]
+FROM [Orders] AS [o]
+WHERE ([o].[CustomerID] = @p0 AND ([o].[OrderDate] IS NOT NULL AND [o].[OrderDate] > @p1))",
+                Sql);
+        }
+
         public SqlServerQueryTest(SqlServerNorthwindQueryFixture fixture)
             : base(fixture)
         {
