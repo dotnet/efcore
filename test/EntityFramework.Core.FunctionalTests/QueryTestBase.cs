@@ -1990,6 +1990,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 cs.Select(c => c.CustomerID).Contains("ALFKI"));
         }
 
+        [Fact]
+        public virtual void Where_chain()
+        {
+            AssertQuery<Order>(order => order
+                .Where(o => o.CustomerID == "QUICK")
+                .Where(o => o.OrderDate > new DateTime(1998, 1, 1)), stateEntryCount: 8);
+        }
+
         protected NorthwindContext CreateContext()
         {
             return Fixture.CreateContext();

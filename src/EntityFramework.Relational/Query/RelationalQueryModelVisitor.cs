@@ -226,8 +226,15 @@ namespace Microsoft.Data.Entity.Relational.Query
             foreach (var selectExpression in _queriesBySource.Values)
             {
                 var filteringVisitor = new FilteringExpressionTreeVisitor(this);
-
-                selectExpression.Predicate = filteringVisitor.VisitExpression(whereClause.Predicate);
+                var predicate = filteringVisitor.VisitExpression(whereClause.Predicate);
+                if (selectExpression.Predicate == null)
+                {
+                    selectExpression.Predicate = predicate;
+                }
+                else if (predicate != null)
+                {
+                    selectExpression.Predicate = Expression.AndAlso(selectExpression.Predicate, predicate);
+                }
 
                 _requiresClientFilter |= filteringVisitor.RequiresClientEval;
             }
