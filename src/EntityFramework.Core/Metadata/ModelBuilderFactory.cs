@@ -18,9 +18,12 @@ namespace Microsoft.Data.Entity.Metadata
         protected virtual ConventionsDispatcher CreateConventionsDispatcher()
         {
             var conventions = new ConventionsDispatcher();
-            conventions.EntityTypeConventions.Add(new PropertiesConvention());
-            conventions.EntityTypeConventions.Add(new KeyConvention());
-            conventions.EntityTypeConventions.Add(new RelationshipDiscoveryConvention());
+
+            conventions.EntityTypeAddedConventions.Add(new PropertiesConvention());
+            conventions.EntityTypeAddedConventions.Add(new KeyConvention());
+            conventions.EntityTypeAddedConventions.Add(new RelationshipDiscoveryConvention());
+
+            conventions.ForeignKeyAddedConventions.Add(new ForeignKeyPropertyDiscoveryConvention());
 
             return conventions;
         }

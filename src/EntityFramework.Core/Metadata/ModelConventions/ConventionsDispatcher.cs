@@ -12,16 +12,19 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
     {
         public ConventionsDispatcher()
         {
-            EntityTypeConventions = new List<IEntityTypeConvention>();
+            EntityTypeAddedConventions = new List<IEntityTypeConvention>();
+            ForeignKeyAddedConventions = new List<IRelationshipConvention>();
         }
 
-        public virtual IList<IEntityTypeConvention> EntityTypeConventions { get; }
+        public virtual IList<IEntityTypeConvention> EntityTypeAddedConventions { get; }
+
+        public virtual IList<IRelationshipConvention> ForeignKeyAddedConventions { get; }
 
         public virtual InternalEntityBuilder OnEntityTypeAdded([NotNull] InternalEntityBuilder entityBuilder)
         {
             Check.NotNull(entityBuilder, "entityBuilder");
 
-            foreach (var entityTypeConvention in EntityTypeConventions)
+            foreach (var entityTypeConvention in EntityTypeAddedConventions)
             {
                 entityBuilder = entityTypeConvention.Apply(entityBuilder);
                 if (entityBuilder == null)
@@ -31,6 +34,22 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             }
 
             return entityBuilder;
+        }
+
+        public virtual InternalRelationshipBuilder OnRelationshipAdded([NotNull] InternalRelationshipBuilder relationshipBuilder)
+        {
+            Check.NotNull(relationshipBuilder, "relationshipBuilder");
+
+            foreach (var relationshipConvention in ForeignKeyAddedConventions)
+            {
+                relationshipBuilder = relationshipConvention.Apply(relationshipBuilder);
+                if (relationshipBuilder == null)
+                {
+                    break;
+                }
+            }
+
+            return relationshipBuilder;
         }
     }
 }

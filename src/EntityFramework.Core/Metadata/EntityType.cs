@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
@@ -381,6 +380,28 @@ namespace Microsoft.Data.Entity.Metadata
             return _foreignKeys.HasValue
                 ? _foreignKeys.Value.FirstOrDefault(fk => Matches(fk, properties))
                 : null;
+        }
+
+        [CanBeNull]
+        public virtual ForeignKey TryGetForeignKey(
+            [NotNull] EntityType principalType,
+            [CanBeNull] string navigationToPrincipal,
+            [CanBeNull] string navigationToDependent,
+            [CanBeNull] IReadOnlyList<Property> foreignKeyProperties,
+            [CanBeNull] IReadOnlyList<Property> referencedProperties,
+            bool? isUnique)
+        {
+            Check.NotNull(principalType, "principalType");
+
+            return ForeignKeys.FirstOrDefault(fk =>
+                fk.IsCompatible(
+                    principalType,
+                    this,
+                    navigationToPrincipal,
+                    navigationToDependent,
+                    foreignKeyProperties,
+                    referencedProperties,
+                    isUnique));
         }
 
         public virtual ForeignKey GetForeignKey([NotNull] Property property)
@@ -861,7 +882,8 @@ namespace Microsoft.Data.Entity.Metadata
             get { return _useEagerSnapshots; }
             set
             {
-                if (!value && !this.HasPropertyChangingNotifications())
+                if (!value
+                    && !this.HasPropertyChangingNotifications())
                 {
                     throw new InvalidOperationException(Strings.EagerOriginalValuesRequired(Name));
                 }

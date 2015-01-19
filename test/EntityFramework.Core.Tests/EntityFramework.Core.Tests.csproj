@@ -110,7 +110,7 @@
     <Compile Include="Metadata\Internal\InternalRelationshipBuilderTest.cs" />
     <Compile Include="Metadata\MetadataBuilderTest.cs" />
     <Compile Include="Metadata\ModelConventions\ConventionsDispatcherTest.cs" />
-    <Compile Include="Metadata\ModelConventions\ForeignKeyConventionTest.cs" />
+    <Compile Include="Metadata\ModelConventions\ForeignKeyPropertyDiscoveryConventionTest.cs" />
     <Compile Include="Metadata\ModelConventions\RelationshipDiscoveryConventionTest.cs" />
     <Compile Include="Metadata\NavigationExtensionsTest.cs" />
     <Compile Include="Extensions\QueryableExtensionsTest.cs" />

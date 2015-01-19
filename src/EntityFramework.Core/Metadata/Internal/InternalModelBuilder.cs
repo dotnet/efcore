@@ -14,24 +14,23 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 {
     public class InternalModelBuilder : InternalMetadataBuilder<Model>
     {
-        private readonly ConventionsDispatcher _conventions;
-
         private readonly MetadataDictionary<EntityType, InternalEntityBuilder> _entityBuilders =
             new MetadataDictionary<EntityType, InternalEntityBuilder>();
 
         private readonly LazyRef<Dictionary<string, ConfigurationSource>> _ignoredEntityTypeNames =
             new LazyRef<Dictionary<string, ConfigurationSource>>(() => new Dictionary<string, ConfigurationSource>());
 
-        public InternalModelBuilder([NotNull] Model metadata, [CanBeNull] ConventionsDispatcher conventions)
+        public InternalModelBuilder([NotNull] Model metadata, [NotNull] ConventionsDispatcher conventions)
             : base(metadata)
         {
-            _conventions = conventions;
+            Check.NotNull(conventions, "conventions");
+
+            Conventions = conventions;
         }
 
-        public override InternalModelBuilder ModelBuilder
-        {
-            get { return this; }
-        }
+        public override InternalModelBuilder ModelBuilder => this;
+
+        public virtual ConventionsDispatcher Conventions { get; }
 
         public virtual InternalEntityBuilder Entity([NotNull] string name, ConfigurationSource configurationSource)
         {
@@ -46,7 +45,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 () => Metadata.TryGetEntityType(name),
                 () => Metadata.AddEntityType(name),
                 entityType => new InternalEntityBuilder(entityType, ModelBuilder),
-                EntityTypeAdded,
+                Conventions.OnEntityTypeAdded,
                 configurationSource);
         }
 
@@ -63,7 +62,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 () => Metadata.TryGetEntityType(type),
                 () => Metadata.AddEntityType(type),
                 entityType => new InternalEntityBuilder(entityType, ModelBuilder),
-                EntityTypeAdded,
+                Conventions.OnEntityTypeAdded,
                 configurationSource);
         }
 
@@ -87,16 +86,6 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             }
 
             return true;
-        }
-
-        private InternalEntityBuilder EntityTypeAdded(InternalEntityBuilder builder)
-        {
-            if (_conventions != null)
-            {
-                builder = _conventions.OnEntityTypeAdded(builder);
-            }
-
-            return builder;
         }
 
         public virtual bool Ignore([NotNull] Type type, ConfigurationSource configurationSource)
@@ -144,7 +133,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         private bool Remove(EntityType entityType, ConfigurationSource configurationSource, bool canOverrideSameSource = true)
         {
             var entityBuilder = _entityBuilders.TryGetValue(entityType, ConfigurationSource.Convention);
-            if (!_entityBuilders.Remove(entityType, configurationSource, canOverrideSameSource))
+            if (!_entityBuilders.Remove(entityType, configurationSource, canOverrideSameSource).HasValue)
             {
                 return false;
             }
@@ -152,13 +141,13 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             foreach (var foreignKey in entityType.ForeignKeys.ToList())
             {
                 var removed = entityBuilder.RemoveRelationship(foreignKey, configurationSource);
-                Debug.Assert(removed);
+                Debug.Assert(removed.HasValue);
             }
 
             foreach (var foreignKey in Metadata.GetReferencingForeignKeys(entityType).ToList())
             {
                 var removed = entityBuilder.RemoveRelationship(foreignKey, configurationSource);
-                Debug.Assert(removed);
+                Debug.Assert(removed.HasValue);
             }
 
             Metadata.RemoveEntityType(entityType);

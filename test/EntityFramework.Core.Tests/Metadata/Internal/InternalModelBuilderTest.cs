@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Data.Entity.Internal;
+using Microsoft.Data.Entity.Metadata.ModelConventions;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
@@ -15,7 +16,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public void Entity_returns_same_instance_for_entity_clr_type()
         {
             var model = new Model();
-            var modelBuilder = new InternalModelBuilder(model, null);
+            var modelBuilder = CreateModelBuilder(model);
 
             var entityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
 
@@ -28,7 +29,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public void Entity_returns_same_instance_for_entity_type_name()
         {
             var model = new Model();
-            var modelBuilder = new InternalModelBuilder(model, null);
+            var modelBuilder = CreateModelBuilder(model);
 
             var entityBuilder = modelBuilder.Entity(typeof(Customer).FullName, ConfigurationSource.DataAnnotation);
 
@@ -41,7 +42,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public void Can_ignore_lower_source_entity_type_using_entity_clr_type()
         {
             var model = new Model();
-            var modelBuilder = new InternalModelBuilder(model, null);
+            var modelBuilder = CreateModelBuilder(model);
             modelBuilder.Entity(typeof(Customer), ConfigurationSource.Convention);
 
             Assert.True(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.DataAnnotation));
@@ -56,7 +57,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public void Can_ignore_lower_source_entity_type_using_entity_type_name()
         {
             var model = new Model();
-            var modelBuilder = new InternalModelBuilder(model, null);
+            var modelBuilder = CreateModelBuilder(model);
             modelBuilder.Entity(typeof(Customer).FullName, ConfigurationSource.DataAnnotation);
 
             Assert.True(modelBuilder.Ignore(typeof(Customer).FullName, ConfigurationSource.Explicit));
@@ -74,7 +75,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public void Cannot_ignore_same_or_higher_source_entity_type_using_entity_clr_type()
         {
             var model = new Model();
-            var modelBuilder = new InternalModelBuilder(model, null);
+            var modelBuilder = CreateModelBuilder(model);
 
             Assert.True(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.DataAnnotation));
             Assert.NotNull(modelBuilder.Entity(typeof(Customer), ConfigurationSource.DataAnnotation));
@@ -89,7 +90,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public void Cannot_ignore_same_or_higher_source_entity_type_using_entity_type_name()
         {
             var model = new Model();
-            var modelBuilder = new InternalModelBuilder(model, null);
+            var modelBuilder = CreateModelBuilder(model);
 
             Assert.True(modelBuilder.Ignore(typeof(Customer).FullName, ConfigurationSource.Convention));
             Assert.NotNull(modelBuilder.Entity(typeof(Customer).FullName, ConfigurationSource.Convention));
@@ -105,7 +106,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         {
             var model = new Model();
             var entityType = model.AddEntityType(typeof(Customer));
-            var modelBuilder = new InternalModelBuilder(model, null);
+            var modelBuilder = CreateModelBuilder(model);
             Assert.Same(entityType, modelBuilder.Entity(typeof(Customer), ConfigurationSource.Convention).Metadata);
 
             Assert.False(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.DataAnnotation));
@@ -124,7 +125,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         {
             var model = new Model();
             var entityType = model.AddEntityType(typeof(Customer).FullName);
-            var modelBuilder = new InternalModelBuilder(model, null);
+            var modelBuilder = CreateModelBuilder(model);
             Assert.Same(entityType, modelBuilder.Entity(typeof(Customer).FullName, ConfigurationSource.Convention).Metadata);
 
             Assert.False(modelBuilder.Ignore(typeof(Customer).FullName, ConfigurationSource.DataAnnotation));
@@ -141,10 +142,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         [Fact]
         public void Can_ignore_entity_type_referenced_from_lower_source_foreign_key()
         {
-            var modelBuilder = new InternalModelBuilder(new Model(), null);
+            var modelBuilder = CreateModelBuilder();
             modelBuilder
                 .Entity(typeof(Customer), ConfigurationSource.Convention)
-                .Key(new[] { Customer.IdProperty }, ConfigurationSource.Convention);
+                .PrimaryKey(new[] { Customer.IdProperty }, ConfigurationSource.Convention);
             var orderEntityTypeBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
 
             Assert.NotNull(orderEntityTypeBuilder.ForeignKey(typeof(Customer), new[] { Order.CustomerIdProperty }, ConfigurationSource.Convention));
@@ -158,10 +159,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         [Fact]
         public void Cannot_ignore_entity_type_referenced_from_same_or_higher_source_foreign_key()
         {
-            var modelBuilder = new InternalModelBuilder(new Model(), null);
+            var modelBuilder = CreateModelBuilder();
             modelBuilder
                 .Entity(typeof(Customer), ConfigurationSource.Convention)
-                .Key(new[] { Customer.IdProperty }, ConfigurationSource.Convention);
+                .PrimaryKey(new[] { Customer.IdProperty }, ConfigurationSource.Convention);
             var orderEntityTypeBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Convention);
 
             Assert.NotNull(orderEntityTypeBuilder.ForeignKey(typeof(Customer), new[] { Order.CustomerIdProperty }, ConfigurationSource.Explicit));
@@ -175,13 +176,13 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         [Fact]
         public void Ignoring_an_entity_type_removes_lower_source_orphaned_entity_types()
         {
-            var modelBuilder = new InternalModelBuilder(new Model(), null);
+            var modelBuilder = CreateModelBuilder();
             modelBuilder
                 .Entity(typeof(Customer), ConfigurationSource.Convention)
-                .Key(new[] { Customer.IdProperty }, ConfigurationSource.Convention);
+                .PrimaryKey(new[] { Customer.IdProperty }, ConfigurationSource.Convention);
             modelBuilder
                 .Entity(typeof(Product), ConfigurationSource.Convention)
-                .Key(new[] { Product.IdProperty }, ConfigurationSource.Convention);
+                .PrimaryKey(new[] { Product.IdProperty }, ConfigurationSource.Convention);
 
             var orderEntityTypeBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Convention);
             orderEntityTypeBuilder.ForeignKey(typeof(Customer), new[] { Order.CustomerIdProperty }, ConfigurationSource.Convention);
@@ -195,13 +196,13 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         [Fact]
         public void Ignoring_an_entity_type_does_not_remove_referenced_lower_source_entity_types()
         {
-            var modelBuilder = new InternalModelBuilder(new Model(), null);
+            var modelBuilder = CreateModelBuilder();
             modelBuilder
                 .Entity(typeof(Customer), ConfigurationSource.Convention)
-                .Key(new[] { Customer.IdProperty }, ConfigurationSource.Convention);
+                .PrimaryKey(new[] { Customer.IdProperty }, ConfigurationSource.Convention);
             modelBuilder
                 .Entity(typeof(Product), ConfigurationSource.Convention)
-                .Key(new[] { Product.IdProperty }, ConfigurationSource.Convention);
+                .PrimaryKey(new[] { Product.IdProperty }, ConfigurationSource.Convention);
 
             var orderEntityTypeBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
             orderEntityTypeBuilder.ForeignKey(typeof(Customer), new[] { Order.CustomerIdProperty }, ConfigurationSource.Convention);
@@ -216,13 +217,13 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         [Fact]
         public void Ignoring_an_entity_type_does_not_remove_referencing_lower_source_entity_types()
         {
-            var modelBuilder = new InternalModelBuilder(new Model(), null);
+            var modelBuilder = CreateModelBuilder();
             modelBuilder
                 .Entity(typeof(Customer), ConfigurationSource.Convention)
-                .Key(new[] { Customer.IdProperty }, ConfigurationSource.Convention);
+                .PrimaryKey(new[] { Customer.IdProperty }, ConfigurationSource.Convention);
             modelBuilder
                 .Entity(typeof(Product), ConfigurationSource.Explicit)
-                .Key(new[] { Product.IdProperty }, ConfigurationSource.Convention);
+                .PrimaryKey(new[] { Product.IdProperty }, ConfigurationSource.Convention);
 
             var orderEntityTypeBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Convention);
             orderEntityTypeBuilder.ForeignKey(typeof(Customer), new[] { Order.CustomerIdProperty }, ConfigurationSource.Convention);
@@ -232,6 +233,11 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             Assert.Equal(new[] { typeof(Order), typeof(Product) }, modelBuilder.Metadata.EntityTypes.Select(et => et.Type));
             Assert.Equal(typeof(Product), orderEntityTypeBuilder.Metadata.ForeignKeys.Single().ReferencedEntityType.Type);
+        }
+
+        protected virtual InternalModelBuilder CreateModelBuilder(Model model = null)
+        {
+            return new InternalModelBuilder(model ?? new Model(), new ConventionsDispatcher());
         }
 
         private class Customer

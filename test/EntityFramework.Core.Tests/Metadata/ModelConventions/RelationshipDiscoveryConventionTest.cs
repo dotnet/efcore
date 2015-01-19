@@ -288,11 +288,12 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             Assert.Empty(principalEntityType.ForeignKeys);
             Assert.Equal(OneToOnePrincipal.NavigationProperty.Name, principalEntityType.Navigations.Single().Name);
 
-            Assert.Equal(1, dependentEntityType.Properties.Count);
+            Assert.Equal(2, dependentEntityType.Properties.Count);
             Assert.Equal(1, dependentEntityType.Keys.Count);
             var fk = dependentEntityType.ForeignKeys.Single();
-            Assert.True(fk.IsRequired);
+            Assert.False(fk.IsRequired);
             Assert.True(fk.IsUnique);
+            Assert.NotSame(fk.Properties.Single(), dependentEntityType.GetPrimaryKey().Properties.Single());
             Assert.Equal(OneToOneDependent.NavigationProperty.Name, dependentEntityType.Navigations.Single().Name);
         }
 
@@ -345,7 +346,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
 
         private static InternalEntityBuilder CreateInternalEntityBuilder<T>(params Action<InternalEntityBuilder>[] onEntityAdded)
         {
-            var modelBuilder = new InternalModelBuilder(new Model(), onEntityAdded == null ? null : new TestModelChangeListener(onEntityAdded));
+            var modelBuilder = new InternalModelBuilder(new Model(), onEntityAdded == null ? new ConventionsDispatcher() : new TestModelChangeListener(onEntityAdded));
             var entityBuilder = modelBuilder.Entity(typeof(T), ConfigurationSource.Convention);
 
             return entityBuilder;
@@ -353,7 +354,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
 
         private static void ConfigureKeys(InternalEntityBuilder entityBuilder)
         {
-            entityBuilder.Key(new[] { "Id" }, ConfigurationSource.Convention);
+            entityBuilder.PrimaryKey(new[] { "Id" }, ConfigurationSource.Convention);
         }
 
         private class TestModelChangeListener : ConventionsDispatcher

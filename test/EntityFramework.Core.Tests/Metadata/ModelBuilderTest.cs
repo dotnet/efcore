@@ -8,9 +8,6 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Metadata.Internal;
-using Microsoft.Data.Entity.Metadata.ModelConventions;
-using Moq;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Tests.Metadata
@@ -403,6 +400,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             modelBuilder.Entity<Customer>(b =>
                 {
+                    b.Property(e => e.Id);
                     b.Property(e => e.Name);
                     b.Property(e => e.AlternateKey);
                 });
@@ -814,7 +812,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .Required();
         }
 
-       [Fact]
+        [Fact]
         public void Can_add_index()
         {
             var model = new Model();
@@ -1036,7 +1034,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         }
 
         [Fact]
-        public void OneToMany_creates_both_navs_and_creates_new_FK()
+        public void OneToMany_creates_both_navs_and_new_FK()
         {
             var model = new Model();
             var modelBuilder = CreateModelBuilder(model);
@@ -1680,7 +1678,6 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var dependentType = model.GetEntityType(typeof(Order));
             var principalType = model.GetEntityType(typeof(Customer));
 
-            var fkProperty = dependentType.GetProperty("CustomerId");
             var principalProperty = principalType.GetProperty("AlternateKey");
 
             var principalKey = principalType.Keys.Single();
@@ -1691,7 +1688,6 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .ReferencedKey(e => e.AlternateKey);
 
             var fk = dependentType.ForeignKeys.Single();
-            Assert.Same(fkProperty, fk.Properties.Single());
             Assert.Same(principalProperty, fk.ReferencedProperties.Single());
 
             Assert.Equal("Customer", dependentType.Navigations.Single().Name);
@@ -2761,7 +2757,6 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var dependentType = model.GetEntityType(typeof(Order));
             var principalType = model.GetEntityType(typeof(Customer));
 
-            var fkProperty = dependentType.GetProperty("CustomerId");
             var principalProperty = principalType.GetProperty("AlternateKey");
 
             var principalKey = principalType.Keys.Single();
@@ -2772,7 +2767,6 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .ReferencedKey(e => e.AlternateKey);
 
             var fk = dependentType.ForeignKeys.Single();
-            Assert.Same(fkProperty, fk.Properties.Single());
             Assert.Same(principalProperty, fk.ReferencedProperties.Single());
 
             Assert.Equal("Customer", dependentType.Navigations.Single().Name);
@@ -2780,7 +2774,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Same(fk, dependentType.Navigations.Single().ForeignKey);
             Assert.Same(fk, principalType.Navigations.Single().ForeignKey);
             Assert.Equal(new[] { "AlternateKey", principalKey.Properties.Single().Name, Customer.NameProperty.Name }, principalType.Properties.Select(p => p.Name));
-            Assert.Equal(new[] { "AnotherCustomerId", fkProperty.Name, dependentKey.Properties.Single().Name }, dependentType.Properties.Select(p => p.Name));
+            Assert.Equal(new[] { "AnotherCustomerId", fk.Properties.Single().Name, dependentKey.Properties.Single().Name }, dependentType.Properties.Select(p => p.Name));
             Assert.Empty(principalType.ForeignKeys);
 
             Assert.Equal(2, principalType.Keys.Count);
@@ -4309,7 +4303,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         }
 
         [Fact]
-        public void OneToOne_principal_and_dependent_can_be_flipped_in_both_ways_in_any_order()
+        public void OneToOne_principal_and_dependent_can_be_flipped_in_both_ways_in_reverse_order()
         {
             var model = new Model();
             var modelBuilder = CreateModelBuilder(model);
@@ -4345,6 +4339,40 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Same(dependentKey, dependentType.Keys.Single());
             Assert.Same(principalKey, principalType.GetPrimaryKey());
             Assert.Same(dependentKey, dependentType.GetPrimaryKey());
+        }
+
+        [Fact]
+        public void OneToOne_principal_and_dependent_cannot_be_flipped_twice()
+        {
+            var model = new Model();
+            var modelBuilder = CreateModelBuilder(model);
+            modelBuilder.Entity<Order>();
+            modelBuilder.Entity<OrderDetails>();
+            modelBuilder.Ignore<Customer>();
+            modelBuilder.Ignore<CustomerDetails>();
+
+            Assert.Equal(Strings.RelationshipCannotBeInverted,
+                Assert.Throws<InvalidOperationException>(() => modelBuilder
+                    .Entity<OrderDetails>().HasOne(e => e.Order).WithOne(e => e.Details)
+                    .ForeignKey<OrderDetails>(e => e.OrderId)
+                    .ReferencedKey<OrderDetails>(e => e.OrderId)).Message);
+        }
+
+        [Fact]
+        public void OneToOne_principal_and_dependent_cannot_be_flipped_twice_in_reverse_order()
+        {
+            var model = new Model();
+            var modelBuilder = CreateModelBuilder(model);
+            modelBuilder.Entity<Order>();
+            modelBuilder.Entity<OrderDetails>();
+            modelBuilder.Ignore<Customer>();
+            modelBuilder.Ignore<CustomerDetails>();
+
+            Assert.Equal(Strings.RelationshipCannotBeInverted,
+                Assert.Throws<InvalidOperationException>(() => modelBuilder
+                    .Entity<OrderDetails>().HasOne(e => e.Order).WithOne(e => e.Details)
+                    .ReferencedKey<OrderDetails>(e => e.OrderId)
+                    .ForeignKey<OrderDetails>(e => e.OrderId)).Message);
         }
 
         [Fact]
@@ -5270,8 +5298,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var dependentType = model.GetEntityType(typeof(Moostard));
             var principalType = model.GetEntityType(typeof(Whoopper));
 
-            //var fkProperty1 = dependentType.GetProperty("Id1");
-            //var fkProperty2 = dependentType.GetProperty("Id2");
+            var fkProperty1 = dependentType.GetProperty("Id1");
+            var fkProperty2 = dependentType.GetProperty("Id2");
 
             var principalKey = principalType.Keys.Single();
             var dependentKey = dependentType.GetPrimaryKey();
@@ -5280,16 +5308,16 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .Entity<Moostard>().HasOne(e => e.Whoopper).WithOne(e => e.Moostard);
 
             var fk = dependentType.ForeignKeys.Single();
-            //TODO: Reenable when ForeignKeyConvention handles composite fks
-            //Assert.Same(fkProperty1, fk.Properties[0]);
-            //Assert.Same(fkProperty2, fk.Properties[1]);
+
+            Assert.Same(fkProperty1, fk.Properties[0]);
+            Assert.Same(fkProperty2, fk.Properties[1]);
 
             Assert.Equal("Whoopper", dependentType.Navigations.Single().Name);
             Assert.Equal("Moostard", principalType.Navigations.Single().Name);
             Assert.Same(fk, dependentType.Navigations.Single().ForeignKey);
             Assert.Same(fk, principalType.Navigations.Single().ForeignKey);
             Assert.Equal(new[] { "AlternateKey1", "AlternateKey2", principalKey.Properties[0].Name, principalKey.Properties[1].Name }, principalType.Properties.Select(p => p.Name));
-            Assert.Equal(new[] { dependentKey.Properties[0].Name, dependentKey.Properties[1].Name, fk.Properties[0].Name, fk.Properties[1].Name }, dependentType.Properties.Select(p => p.Name));
+            Assert.Equal(new[] { dependentKey.Properties[0].Name, dependentKey.Properties[1].Name }, dependentType.Properties.Select(p => p.Name));
             Assert.Empty(principalType.ForeignKeys);
             Assert.Same(principalKey, principalType.Keys.Single());
             Assert.Same(dependentKey, dependentType.Keys.Single());
@@ -5298,7 +5326,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         }
 
         [Fact]
-        public void OneToOne_can_be_flipped_and_composite_PK_is_still_used_by_convention()
+        public void OneToOne_principal_and_dependent_can_be_flipped_and_composite_PK_is_still_used_by_convention()
         {
             var model = new Model();
             var modelBuilder = CreateModelBuilder(model);
@@ -5338,7 +5366,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         }
 
         [Fact]
-        public void OneToOne_can_be_flipped_using_principal_and_composite_PK_is_still_used_by_convention()
+        public void OneToOne_principal_and_dependent_can_be_flipped_using_principal_and_composite_PK_is_still_used_by_convention()
         {
             var model = new Model();
             var modelBuilder = CreateModelBuilder(model);
@@ -5361,16 +5389,16 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 .ReferencedKey<Whoopper>(e => new { e.Id1, e.Id2 });
 
             var fk = dependentType.ForeignKeys.Single();
-            //TODO: Reenable when ForeignKeyConvention handles composite fks
-            //Assert.Same(fkProperty1, fk.Properties[0]);
-            //Assert.Same(fkProperty2, fk.Properties[1]);
+
+            Assert.Same(fkProperty1, fk.Properties[0]);
+            Assert.Same(fkProperty2, fk.Properties[1]);
 
             Assert.Equal("Whoopper", dependentType.Navigations.Single().Name);
             Assert.Equal("Moostard", principalType.Navigations.Single().Name);
             Assert.Same(fk, dependentType.Navigations.Single().ForeignKey);
             Assert.Same(fk, principalType.Navigations.Single().ForeignKey);
             Assert.Equal(new[] { "AlternateKey1", "AlternateKey2", principalKey.Properties[0].Name, principalKey.Properties[1].Name }, principalType.Properties.Select(p => p.Name));
-            Assert.Equal(new[] { dependentKey.Properties[0].Name, dependentKey.Properties[1].Name, fk.Properties[0].Name, fk.Properties[1].Name }, dependentType.Properties.Select(p => p.Name));
+            Assert.Equal(new[] { dependentKey.Properties[0].Name, dependentKey.Properties[1].Name }, dependentType.Properties.Select(p => p.Name));
             Assert.Empty(principalType.ForeignKeys);
             Assert.Same(principalKey, principalType.Keys.Single());
             Assert.Same(principalKey, principalType.GetPrimaryKey());
@@ -6062,7 +6090,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             public SelfRef SelfRef2 { get; set; }
             public int SelfRefId { get; set; }
         }
-        
+
         protected virtual ModelBuilder CreateModelBuilder()
         {
             return CreateModelBuilder(new Model());

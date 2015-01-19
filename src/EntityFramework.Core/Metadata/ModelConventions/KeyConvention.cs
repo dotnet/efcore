@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
 
             var keyProperties = DiscoverKeyProperties(entityType);
             if (keyProperties.Count != 0
-                && entityBuilder.Key(keyProperties.Select(p => p.Name).ToList(), ConfigurationSource.Convention) != null)
+                && entityBuilder.PrimaryKey(keyProperties.Select(p => p.Name).ToList(), ConfigurationSource.Convention) != null)
             {
                 foreach (var property in keyProperties)
                 {

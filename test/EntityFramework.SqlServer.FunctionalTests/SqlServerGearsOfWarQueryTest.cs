@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.Data.Entity.FunctionalTests;
@@ -40,12 +40,12 @@ ORDER BY [g].[Nickname], [g].[SquadId]",
             base.Include_multiple_one_to_one_and_one_to_many_self_reference();
 
             Assert.Equal(
-                @"SELECT [t].[GearNickName], [t].[GearSquadId], [t].[Id], [t].[Note], [g].[AssignedCityId], [g].[CityOrBirthName], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Nickname], [g].[Rank], [g].[SquadId]
+                @"SELECT [t].[GearNickName], [t].[GearSquadId], [t].[Id], [t].[Note], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Nickname], [g].[Rank], [g].[SquadId]
 FROM [CogTag] AS [t]
 LEFT JOIN [Gear] AS [g] ON ([t].[GearNickName] = [g].[Nickname] AND [t].[GearSquadId] = [g].[SquadId])
 ORDER BY [g].[Nickname], [g].[SquadId]
 
-SELECT [g].[AssignedCityId], [g].[CityOrBirthName], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Nickname], [g].[Rank], [g].[SquadId]
+SELECT [g].[AssignedCityName], [g].[CityOrBirthName], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Nickname], [g].[Rank], [g].[SquadId]
 FROM [Gear] AS [g]
 INNER JOIN (
     SELECT DISTINCT [g].[Nickname], [g].[SquadId]
@@ -77,18 +77,18 @@ ORDER BY [g0].[Nickname], [g0].[SquadId]",
             base.Include_multiple_circular();
 
             Assert.Equal(
-                @"SELECT [g].[AssignedCityId], [g].[CityOrBirthName], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Nickname], [g].[Rank], [g].[SquadId], [c].[Location], [c].[Name]
+                @"SELECT [g].[AssignedCityName], [g].[CityOrBirthName], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Nickname], [g].[Rank], [g].[SquadId], [c].[Location], [c].[Name]
 FROM [Gear] AS [g]
 INNER JOIN [City] AS [c] ON [g].[CityOrBirthName] = [c].[Name]
 ORDER BY [c].[Name]
 
-SELECT [g].[AssignedCityId], [g].[CityOrBirthName], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Nickname], [g].[Rank], [g].[SquadId]
+SELECT [g].[AssignedCityName], [g].[CityOrBirthName], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Nickname], [g].[Rank], [g].[SquadId]
 FROM [Gear] AS [g]
 INNER JOIN (
     SELECT DISTINCT [c].[Name]
     FROM [Gear] AS [g]
     INNER JOIN [City] AS [c] ON [g].[CityOrBirthName] = [c].[Name]
-) AS [c] ON [g].[AssignedCityId] = [c].[Name]
+) AS [c] ON [g].[AssignedCityName] = [c].[Name]
 ORDER BY [c].[Name]",
                 Sql);
         }
@@ -98,20 +98,20 @@ ORDER BY [c].[Name]",
             base.Include_multiple_circular_with_filter();
 
             Assert.Equal(
-                @"SELECT [g].[AssignedCityId], [g].[CityOrBirthName], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Nickname], [g].[Rank], [g].[SquadId], [c].[Location], [c].[Name]
+                @"SELECT [g].[AssignedCityName], [g].[CityOrBirthName], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Nickname], [g].[Rank], [g].[SquadId], [c].[Location], [c].[Name]
 FROM [Gear] AS [g]
 INNER JOIN [City] AS [c] ON [g].[CityOrBirthName] = [c].[Name]
 WHERE [g].[Nickname] = @p0
 ORDER BY [c].[Name]
 
-SELECT [g].[AssignedCityId], [g].[CityOrBirthName], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Nickname], [g].[Rank], [g].[SquadId]
+SELECT [g].[AssignedCityName], [g].[CityOrBirthName], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Nickname], [g].[Rank], [g].[SquadId]
 FROM [Gear] AS [g]
 INNER JOIN (
     SELECT DISTINCT [c].[Name]
     FROM [Gear] AS [g]
     INNER JOIN [City] AS [c] ON [g].[CityOrBirthName] = [c].[Name]
     WHERE [g].[Nickname] = @p0
-) AS [c] ON [g].[AssignedCityId] = [c].[Name]
+) AS [c] ON [g].[AssignedCityName] = [c].[Name]
 ORDER BY [c].[Name]",
                 Sql);
         }

@@ -34,18 +34,20 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         public override SqlServerTestStore CreateTestStore()
         {
             return SqlServerTestStore.GetOrCreateSharedAsync(DatabaseName, async () =>
-            {
-                var options = new DbContextOptions();
-                options.UseSqlServer(_connectionString);
-
-                using (var context = new GearsOfWarContext(_serviceProvider, options))
                 {
-                    if (await context.Database.EnsureCreatedAsync())
+                    var options = new DbContextOptions();
+                    options.UseSqlServer(_connectionString);
+
+                    using (var context = new GearsOfWarContext(_serviceProvider, options))
                     {
-                        await GearsOfWarModelInitializer.SeedAsync(context);
+                        // TODO: Only delete if model changed
+                        await context.Database.EnsureDeletedAsync();
+                        if (await context.Database.EnsureCreatedAsync())
+                        {
+                            await GearsOfWarModelInitializer.SeedAsync(context);
+                        }
                     }
-                }
-            }).Result;
+                }).Result;
         }
 
         public override GearsOfWarContext CreateContext(SqlServerTestStore testStore)

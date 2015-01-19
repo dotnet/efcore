@@ -5,6 +5,7 @@ using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata.Internal;
+using Microsoft.Data.Entity.Metadata.ModelConventions;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
@@ -22,7 +23,7 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotNull(model, "model");
 
-            _builder = new InternalModelBuilder(model, null);
+            _builder = new InternalModelBuilder(model, new ConventionsDispatcher());
         }
 
         protected internal BasicModelBuilder([NotNull] InternalModelBuilder internalBuilder)
@@ -145,7 +146,7 @@ namespace Microsoft.Data.Entity.Metadata
             {
                 Check.NotNull(propertyNames, "propertyNames");
 
-                return new KeyBuilder(Builder.Key(propertyNames, ConfigurationSource.Explicit));
+                return new KeyBuilder(Builder.PrimaryKey(propertyNames, ConfigurationSource.Explicit));
             }
 
             public virtual PropertyBuilder Property<TProperty>([NotNull] string name)
@@ -411,7 +412,7 @@ namespace Microsoft.Data.Entity.Metadata
             {
                 Check.NotNull(keyExpression, "keyExpression");
 
-                return new KeyBuilder(Builder.Key(keyExpression.GetPropertyAccessList(), ConfigurationSource.Explicit));
+                return new KeyBuilder(Builder.PrimaryKey(keyExpression.GetPropertyAccessList(), ConfigurationSource.Explicit));
             }
 
             public virtual PropertyBuilder Property([NotNull] Expression<Func<TEntity, object>> propertyExpression)

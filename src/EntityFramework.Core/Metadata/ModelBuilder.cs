@@ -72,7 +72,7 @@ namespace Microsoft.Data.Entity.Metadata
         {
             get { return _builder; }
         }
-        
+
         public virtual EntityBuilder<TEntity> Entity<TEntity>() where TEntity : class
         {
             return new EntityBuilder<TEntity>(Builder.Entity(typeof(TEntity), ConfigurationSource.Explicit));
@@ -175,7 +175,7 @@ namespace Microsoft.Data.Entity.Metadata
             {
                 Check.NotNull(propertyNames, "propertyNames");
 
-                return new KeyBuilder(Builder.Key(propertyNames, ConfigurationSource.Explicit));
+                return new KeyBuilder(Builder.PrimaryKey(propertyNames, ConfigurationSource.Explicit));
             }
 
             public virtual PropertyBuilder Property<TProperty>([NotNull] string propertyName)
@@ -472,11 +472,13 @@ namespace Microsoft.Data.Entity.Metadata
                     {
                         builder = builder.Invert(ConfigurationSource.Explicit);
                     }
+
                     if (((IForeignKey)Metadata).IsUnique)
                     {
                         builder = builder.NavigationToDependent(null, ConfigurationSource.Explicit);
-                        builder = builder.Unique(false, ConfigurationSource.Explicit);
                     }
+
+                    builder = builder.Unique(false, ConfigurationSource.Explicit);
 
                     return builder.NavigationToDependent(collection, ConfigurationSource.Explicit, strictPreferExisting: true);
                 }
@@ -501,8 +503,9 @@ namespace Microsoft.Data.Entity.Metadata
                         Debug.Assert(!inverseToPrincipal);
 
                         builder = builder.NavigationToDependent(null, ConfigurationSource.Explicit);
-                        builder = builder.Unique(true, ConfigurationSource.Explicit);
                     }
+
+                    builder = builder.Unique(true, ConfigurationSource.Explicit);
 
                     builder = inverseToPrincipal
                         ? builder.NavigationToPrincipal(inverseReferenceName, ConfigurationSource.Explicit, strictPreferExisting: false)
@@ -771,7 +774,7 @@ namespace Microsoft.Data.Entity.Metadata
             {
                 Check.NotNull(keyExpression, "keyExpression");
 
-                return new KeyBuilder(Builder.Key(keyExpression.GetPropertyAccessList(), ConfigurationSource.Explicit));
+                return new KeyBuilder(Builder.PrimaryKey(keyExpression.GetPropertyAccessList(), ConfigurationSource.Explicit));
             }
 
             public virtual PropertyBuilder Property([NotNull] Expression<Func<TEntity, object>> propertyExpression)

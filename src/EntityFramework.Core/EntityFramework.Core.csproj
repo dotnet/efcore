@@ -117,6 +117,7 @@
     <Compile Include="Infrastructure\ModelSourceHelpers.cs" />
     <Compile Include="Metadata\BasicModelBuilder.cs" />
     <Compile Include="Metadata\ModelConventions\ConventionsDispatcher.cs" />
+    <Compile Include="Metadata\ModelConventions\IRelationshipConvention.cs" />
     <Compile Include="Metadata\NullableEnumClrPropertySetter.cs" />
     <Compile Include="Metadata\CollectionTypeFactory.cs" />
     <Compile Include="Metadata\ForeignKeyExtensions.cs" />
@@ -176,7 +177,7 @@
     <Compile Include="Metadata\IModelBuilderFactory.cs" />
     <Compile Include="Metadata\Index.cs" />
     <Compile Include="Metadata\ModelBuilderFactory.cs" />
-    <Compile Include="Metadata\ModelConventions\ForeignKeyConvention.cs" />
+    <Compile Include="Metadata\ModelConventions\ForeignKeyPropertyDiscoveryConvention.cs" />
     <Compile Include="Metadata\NavigationExtensions.cs" />
     <Compile Include="Metadata\EntityTypeNameComparer.cs" />
     <Compile Include="Metadata\PropertyExtensions.cs" />
