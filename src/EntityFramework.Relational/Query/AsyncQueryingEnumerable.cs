@@ -67,17 +67,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                         : _reader.ReadAsync(cancellationToken))
                         .WithCurrentCulture();
 
-                if (!hasNext)
-                {
-                    // H.A.C.K.: Workaround https://github.com/Reactive-Extensions/Rx.NET/issues/5
-                    Dispose();
-
-                    _current = default(T);
-                }
-                else
-                {
-                    _current = _enumerable._shaper(_reader);
-                }
+                _current = !hasNext ? default(T) : _enumerable._shaper(_reader);
 
                 return hasNext;
             }
