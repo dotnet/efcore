@@ -14,9 +14,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
     {
         private readonly IEntityType _entityType;
         private readonly string _namespaceName;
-        private readonly DbContextCodeGeneratorContext _contextCodeGeneratorContext;
-
-        protected Dictionary<IProperty, string> _propertyToPropertyNameMap = new Dictionary<IProperty, string>();
+        protected readonly DbContextCodeGeneratorContext _contextCodeGeneratorContext;
 
         public EntityTypeCodeGeneratorContext(
             [NotNull]IEntityType entityType,
@@ -26,17 +24,6 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             _entityType = entityType;
             _namespaceName = namespaceName;
             _contextCodeGeneratorContext = contextCodeGeneratorContext;
-            InitializePropertyNames();
-        }
-
-        private void InitializePropertyNames()
-        {
-            foreach (var property in _entityType.Properties)
-            {
-                _propertyToPropertyNameMap[property] =
-                    CSharpUtilities.Instance.GenerateCSharpIdentifier(
-                        property.Name, _propertyToPropertyNameMap.Values);
-            }
         }
 
         public override string ClassName
@@ -52,14 +39,6 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             get
             {
                 return _namespaceName;
-            }
-        }
-
-        public Dictionary<IProperty, string> PropertyToPropertyNameMap
-        {
-            get
-            {
-                return _propertyToPropertyNameMap;
             }
         }
 
@@ -115,13 +94,13 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             {
                 primaryKeyPropertiesList =
                     new List<IProperty>(
-                        key.Properties.OrderBy(p => _propertyToPropertyNameMap[p]));
+                        key.Properties.OrderBy(p => _contextCodeGeneratorContext.PropertyToPropertyNameMap[p]));
             }
 
             return primaryKeyPropertiesList.Concat(
                 _entityType.Properties
                     .Where(p => !primaryKeyPropertiesList.Contains(p))
-                    .OrderBy(p => _propertyToPropertyNameMap[p]));
+                    .OrderBy(p => _contextCodeGeneratorContext.PropertyToPropertyNameMap[p]));
         }
 
         public virtual IEnumerable<INavigation> OrderedEntityNavigations()

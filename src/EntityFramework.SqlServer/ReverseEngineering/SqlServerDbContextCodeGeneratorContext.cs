@@ -53,14 +53,17 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
                 var propertyList = fkcEntry.Value;
                 if (propertyList.Count > 0)
                 {
-                    var targetEntity = propertyList.ElementAt(0)[SqlServerMetadataModelProvider.GetForeignKeyTargetEntityTypeAnnotationName(constraintId)];
-                    var targetEntityLastIndex = targetEntity.LastIndexOf(SqlServerMetadataModelProvider.AnnotationNameTableIdSchemaTableSeparator);
+                    var targetEntity = propertyList
+                        .ElementAt(0)[SqlServerMetadataModelProvider.GetForeignKeyTargetEntityTypeAnnotationName(constraintId)];
+                    var targetEntityLastIndex = targetEntity
+                        .LastIndexOf(SqlServerMetadataModelProvider.AnnotationNameTableIdSchemaTableSeparator);
                     if (targetEntityLastIndex > 0)
                     {
                         targetEntity = targetEntity.Substring(targetEntityLastIndex + 1);
                     }
 
-                    var ordinalAnnotationName = SqlServerMetadataModelProvider.GetForeignKeyOrdinalPositionAnnotationName(constraintId);
+                    var ordinalAnnotationName = SqlServerMetadataModelProvider
+                        .GetForeignKeyOrdinalPositionAnnotationName(constraintId);
 
                     sb.Append("entity.ForeignKey<");
                     sb.Append(targetEntity);
@@ -70,6 +73,37 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
                     sb.AppendLine(" );");
                 }
             }
+        }
+
+        public override void GeneratePropertyFacetsConfiguration(IndentedStringBuilder sb, IProperty property)
+        {
+            GenerateMaxLengthFacetConfiguration(sb, property);
+        }
+
+        public virtual void GenerateMaxLengthFacetConfiguration(IndentedStringBuilder sb, IProperty property)
+        {
+            Annotation maxLengthAnnotation = ((Property)property)
+                .TryGetAnnotation(SqlServerMetadataModelProvider.AnnotationNameMaxLength);
+            if (maxLengthAnnotation != null
+                && maxLengthAnnotation.Value != null
+                && int.Parse(maxLengthAnnotation.Value) > 0
+                && IsValidDataTypeForMaxLength(property))
+            {
+                sb.Append("entity.Property( e => e.");
+                sb.Append(PropertyToPropertyNameMap[property]);
+                sb.Append(" )");
+                using (sb.Indent())
+                {
+                    sb.Append(".MaxLength(");
+                    sb.Append(maxLengthAnnotation.Value);
+                    sb.AppendLine(");");
+                }
+            }
+        }
+
+        private static bool IsValidDataTypeForMaxLength(IProperty property)
+        {
+            return true;
         }
 
         public override int PrimaryKeyPropertyOrder(IProperty property)

@@ -16,7 +16,8 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         private readonly string _className;
         private readonly string _connectionString;
 
-        private Dictionary<IEntityType, string> _entityTypeToClassNameMap = new Dictionary<IEntityType, string>();
+        private Dictionary<IEntityType, string> _entityTypeToClassNameMap;
+        private Dictionary<IProperty, string> _propertyToPropertyNameMap = new Dictionary<IProperty, string>();
 
         public DbContextCodeGeneratorContext(
             IModel model, string namespaceName,
@@ -31,11 +32,34 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 
         private void InitializeEntityTypeNames()
         {
-            foreach(var entityType in _model.EntityTypes)
+            if (_entityTypeToClassNameMap == null)
             {
-                _entityTypeToClassNameMap[entityType] =
+                _entityTypeToClassNameMap = new Dictionary<IEntityType, string>();
+                foreach (var entityType in _model.EntityTypes)
+                {
+                    _entityTypeToClassNameMap[entityType] =
+                        CSharpUtilities.Instance.GenerateCSharpIdentifier(
+                            entityType.SimpleName, _entityTypeToClassNameMap.Values);
+                    InitializePropertyNames(entityType);
+                }
+            }
+        }
+
+        private void InitializePropertyNames(IEntityType entityType)
+        {
+            // use local propertyToPropertyNameMap to ensure no clashes in Property names
+            // within an EntityType but to allow them for different EntityTypes
+            var propertyToPropertyNameMap = new Dictionary<IProperty, string>();
+            foreach (var property in entityType.Properties)
+            {
+                propertyToPropertyNameMap[property] =
                     CSharpUtilities.Instance.GenerateCSharpIdentifier(
-                        entityType.SimpleName, _entityTypeToClassNameMap.Values);
+                        property.Name, propertyToPropertyNameMap.Values);
+            }
+
+            foreach (var keyValuePair in propertyToPropertyNameMap)
+            {
+                _propertyToPropertyNameMap.Add(keyValuePair.Key, keyValuePair.Value);
             }
         }
 
@@ -68,6 +92,14 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             get
             {
                 return _entityTypeToClassNameMap;
+            }
+        }
+
+        public Dictionary<IProperty, string> PropertyToPropertyNameMap
+        {
+            get
+            {
+                return _propertyToPropertyNameMap;
             }
         }
 
@@ -148,6 +180,10 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                     GenerateEntityKeyConfiguration(sb, key);
                 }
                 GenerateForeignKeysConfiguration(sb, entityType);
+                foreach (var property in entityType.Properties)
+                {
+                    GeneratePropertyFacetsConfiguration(sb, property);
+                }
             }
             sb.AppendLine("}");
         }
@@ -161,6 +197,10 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         }
 
         public abstract void GenerateForeignKeysConfiguration(IndentedStringBuilder sb, IEntityType entityType);
+
+        public virtual void GeneratePropertyFacetsConfiguration(IndentedStringBuilder sb, IProperty property)
+        {
+        }
 
 
         //

@@ -313,12 +313,12 @@ namespace Microsoft.Data.Entity.Commands
                 contextClassName = "ModelContext";
             }
 
-            Console.WriteLine("Args: providerAssemblyName: " + providerAssemblyName);
-            Console.WriteLine("Args: connectionString: " + connectionString);
-            Console.WriteLine("Args: outputPath: " + outputPath);
-            Console.WriteLine("Args: codeNamespace: " + codeNamespace);
-            Console.WriteLine("Args: contextClassName: " + contextClassName);
-            Console.WriteLine("Args: filters: " + filters);
+            //Console.WriteLine("Args: providerAssemblyName: " + providerAssemblyName);
+            //Console.WriteLine("Args: connectionString: " + connectionString);
+            //Console.WriteLine("Args: outputPath: " + outputPath);
+            //Console.WriteLine("Args: codeNamespace: " + codeNamespace);
+            //Console.WriteLine("Args: contextClassName: " + contextClassName);
+            //Console.WriteLine("Args: filters: " + filters);
 
             var configuration = new ReverseEngineeringConfiguration()
             {
