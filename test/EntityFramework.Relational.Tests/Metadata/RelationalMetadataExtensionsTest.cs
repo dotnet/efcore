@@ -375,6 +375,23 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
             Assert.Same(typeof(int), sequence.Type);
         }
 
+        [Fact]
+        public void Can_get_multiple_sequences()
+        {
+            var modelBuilder = new BasicModelBuilder();
+            var model = modelBuilder.Metadata;
+            var extensions = model.Relational();
+
+            extensions.AddOrReplaceSequence(new Sequence("Fibonacci"));
+            extensions.AddOrReplaceSequence(new Sequence("Golomb"));
+
+            var sequences = model.Relational().Sequences;
+
+            Assert.Equal(2, sequences.Count);
+            Assert.Contains(sequences, s => s.Name == "Fibonacci");
+            Assert.Contains(sequences, s => s.Name == "Golomb");
+        }
+
         private class Customer
         {
             public int Id { get; set; }

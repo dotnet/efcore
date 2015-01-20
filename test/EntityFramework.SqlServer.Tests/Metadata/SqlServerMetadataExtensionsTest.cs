@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.SqlServer.Metadata;
@@ -558,6 +559,42 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             Assert.Equal(2001, sequence.MinValue);
             Assert.Equal(2010, sequence.MaxValue);
             Assert.Same(typeof(int), sequence.Type);
+        }
+
+        [Fact]
+        public void Can_get_multiple_sequences()
+        {
+            var modelBuilder = new BasicModelBuilder();
+            var model = modelBuilder.Metadata;
+
+            model.Relational().AddOrReplaceSequence(new Sequence("Fibonacci"));
+            model.SqlServer().AddOrReplaceSequence(new Sequence("Golomb"));
+
+            var sequences = model.SqlServer().Sequences;
+
+            Assert.Equal(2, sequences.Count);
+            Assert.Contains(sequences, s => s.Name == "Fibonacci");
+            Assert.Contains(sequences, s => s.Name == "Golomb");
+        }
+
+        [Fact]
+        public void Can_get_multiple_sequences_when_overridden()
+        {
+            var modelBuilder = new BasicModelBuilder();
+            var model = modelBuilder.Metadata;
+
+            model.Relational().AddOrReplaceSequence(new Sequence("Fibonacci", startValue: 1));
+            model.SqlServer().AddOrReplaceSequence(new Sequence("Fibonacci", startValue: 3));
+            model.SqlServer().AddOrReplaceSequence(new Sequence("Golomb"));
+
+            var sequences = model.SqlServer().Sequences;
+
+            Assert.Equal(2, sequences.Count);
+            Assert.Contains(sequences, s => s.Name == "Golomb");
+
+            var sequence = sequences.FirstOrDefault(s => s.Name == "Fibonacci");
+            Assert.NotNull(sequence);
+            Assert.Equal(3, sequence.StartValue);
         }
 
         [Fact]

@@ -2,10 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Utilities;
+using System.Linq;
 
 namespace Microsoft.Data.Entity.SqlServer.Metadata
 {
@@ -39,6 +41,23 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
         public virtual string DefaultSequenceSchema
         {
             get { return Model[SqlServerDefaultSequenceSchemaAnnotation]; }
+        }
+
+        public override IReadOnlyList<Sequence> Sequences
+        {
+            get
+            {
+                var sqlServerSequences = (
+                        from a in Model.Annotations
+                        where a.Name.StartsWith(SqlServerSequenceAnnotation)
+                        select Sequence.Deserialize(a.Value))
+                    .ToList();
+
+                return base.Sequences
+                    .Where(rs => !sqlServerSequences.Any(ss => ss.Name == rs.Name && ss.Schema == rs.Schema))
+                    .Concat(sqlServerSequences)
+                    .ToList();
+            }
         }
 
         public override Sequence TryGetSequence(string name, string schema = null)

@@ -1,9 +1,11 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
+using System.Linq;
 
 namespace Microsoft.Data.Entity.Relational.Metadata
 {
@@ -24,6 +26,12 @@ namespace Microsoft.Data.Entity.Relational.Metadata
         {
             get { return _model; }
         }
+
+        public virtual IReadOnlyList<Sequence> Sequences => (
+                from a in _model.Annotations
+                where a.Name.StartsWith(RelationalSequenceAnnotation)
+                select Sequence.Deserialize(a.Value))
+            .ToList();
 
         public virtual Sequence TryGetSequence(string name, string schema = null)
         {
