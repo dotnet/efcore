@@ -42,7 +42,7 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
                 sb.Append(property.PropertyType.Name);
             }
             sb.Append(" ");
-            sb.Append(PropertyToPropertyNameMap[property]);
+            sb.Append(_contextCodeGeneratorContext.PropertyToPropertyNameMap[property]);
             sb.AppendLine(" { get; set; }");
         }
 
