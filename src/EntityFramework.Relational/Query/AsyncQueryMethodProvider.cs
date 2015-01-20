@@ -39,9 +39,6 @@ namespace Microsoft.Data.Entity.Relational.Query
                             : await enumerator.Current.GetFieldValueAsync<TResult>(0, cancellationToken)
                                 .WithCurrentCulture();
 
-                    // H.A.C.K.: Workaround https://github.com/Reactive-Extensions/Rx.NET/issues/5
-                    await enumerator.MoveNext(cancellationToken).WithCurrentCulture();
-
                     return result;
                 }
             }

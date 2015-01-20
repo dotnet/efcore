@@ -8,7 +8,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
-using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq.Clauses;
@@ -230,6 +229,8 @@ namespace Microsoft.Data.Entity.Query
         private static readonly MethodInfo _defaultIfEmpty = GetMethod("DefaultIfEmpty");
         private static readonly MethodInfo _defaultIfEmptyArg = GetMethod("DefaultIfEmpty", 1);
         private static readonly MethodInfo _distinct = GetMethod("Distinct");
+        private static readonly MethodInfo _first = GetMethod("First");
+        private static readonly MethodInfo _firstOrDefault = GetMethod("FirstOrDefault");
 
         public virtual MethodInfo Any => _any;
         public virtual MethodInfo All => _all;
@@ -240,54 +241,7 @@ namespace Microsoft.Data.Entity.Query
         public virtual MethodInfo DefaultIfEmptyArg => _defaultIfEmptyArg;
         public virtual MethodInfo Distinct => _distinct;
 
-        private static readonly MethodInfo _first
-            = typeof(AsyncLinqOperatorProvider).GetTypeInfo().GetDeclaredMethod("_First");
-
-        [UsedImplicitly]
-        private static async Task<TSource> _First<TSource>(
-            IAsyncEnumerable<TSource> source, CancellationToken cancellationToken)
-        {
-            using (var asyncEnumerator = source.GetEnumerator())
-            {
-                if (!await asyncEnumerator.MoveNext(cancellationToken))
-                {
-                    throw new InvalidOperationException();
-                }
-
-                var result = asyncEnumerator.Current;
-
-                // TODO: Workaround https://github.com/Reactive-Extensions/Rx.NET/issues/5
-                await asyncEnumerator.MoveNext(cancellationToken);
-
-                return result;
-            }
-        }
-
         public virtual MethodInfo First => _first;
-
-        private static readonly MethodInfo _firstOrDefault
-            = typeof(AsyncLinqOperatorProvider).GetTypeInfo().GetDeclaredMethod("_FirstOrDefault");
-
-        [UsedImplicitly]
-        private static async Task<TSource> _FirstOrDefault<TSource>(
-            IAsyncEnumerable<TSource> source, CancellationToken cancellationToken)
-        {
-            using (var asyncEnumerator = source.GetEnumerator())
-            {
-                var result = default(TSource);
-
-                if (await asyncEnumerator.MoveNext(cancellationToken))
-                {
-                    result = asyncEnumerator.Current;
-                }
-
-                // TODO: Workaround https://github.com/Reactive-Extensions/Rx.NET/issues/5
-                await asyncEnumerator.MoveNext(cancellationToken);
-
-                return result;
-            }
-        }
-
         public virtual MethodInfo FirstOrDefault => _firstOrDefault;
 
         private static readonly MethodInfo _groupBy
