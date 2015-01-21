@@ -1,69 +1,106 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
 using Microsoft.Data.Entity.Relational.Design.CodeGeneration;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 {
-    public abstract class DbContextCodeGeneratorContext : ModelCodeGeneratorContext
+    public abstract class DbContextCodeGeneratorContext
     {
+        private readonly ReverseEngineeringGenerator _generator;
         private readonly IModel _model;
         private readonly string _namespaceName;
         private readonly string _className;
         private readonly string _connectionString;
 
-        private Dictionary<IEntityType, string> _entityTypeToClassNameMap;
-        private Dictionary<IProperty, string> _propertyToPropertyNameMap = new Dictionary<IProperty, string>();
+        ////private Dictionary<IEntityType, string> _entityTypeToClassNameMap;
+        ////private Dictionary<IProperty, string> _propertyToPropertyNameMap = new Dictionary<IProperty, string>();
+        private List<string> _usedNamespaces = new List<string>() // initialize with default namespaces
+                {
+                    "System",
+                    "Microsoft.Data.Entity",
+                    "Microsoft.Data.Entity.Metadata"
+                };
 
         public DbContextCodeGeneratorContext(
-            IModel model, string namespaceName,
-            string className, string connectionString)
+            [NotNull]ReverseEngineeringGenerator generator,
+            [NotNull]IModel model, [NotNull]string namespaceName,
+            [NotNull]string className, [NotNull]string connectionString)
         {
+            _generator = generator;
             _model = model;
             _namespaceName = namespaceName;
             _className = className;
             _connectionString = connectionString;
-            InitializeEntityTypeNames();
+            ////InitializeMappingsToCSharpNames();
         }
 
-        private void InitializeEntityTypeNames()
+        ////private void InitializeMappingsToCSharpNames()
+        ////{
+        ////    if (_entityTypeToClassNameMap == null)
+        ////    {
+        ////        _entityTypeToClassNameMap = new Dictionary<IEntityType, string>();
+        ////        foreach (var entityType in _model.EntityTypes)
+        ////        {
+        ////            _entityTypeToClassNameMap[entityType] =
+        ////                CSharpUtilities.Instance.GenerateCSharpIdentifier(
+        ////                    entityType.SimpleName, _entityTypeToClassNameMap.Values);
+        ////            InitializePropertyNames(entityType);
+        ////        }
+        ////    }
+        ////}
+
+        ////private void InitializePropertyNames(IEntityType entityType)
+        ////{
+        ////    // use local propertyToPropertyNameMap to ensure no clashes in Property names
+        ////    // within an EntityType but to allow them for properties in different EntityTypes
+        ////    var propertyToPropertyNameMap = new Dictionary<IProperty, string>();
+        ////    foreach (var property in entityType.Properties)
+        ////    {
+        ////        propertyToPropertyNameMap[property] =
+        ////            CSharpUtilities.Instance.GenerateCSharpIdentifier(
+        ////                property.Name, propertyToPropertyNameMap.Values);
+
+        ////        var propertyNamespace = property.PropertyType.Namespace;
+        ////        if (!_usedNamespaces.Contains(propertyNamespace))
+        ////        {
+        ////            _usedNamespaces.Add(propertyNamespace);
+        ////        }
+        ////    }
+
+        ////    foreach (var keyValuePair in propertyToPropertyNameMap)
+        ////    {
+        ////        _propertyToPropertyNameMap.Add(keyValuePair.Key, keyValuePair.Value);
+        ////    }
+        ////}
+
+        public virtual void Generate(IndentedStringBuilder sb)
         {
-            if (_entityTypeToClassNameMap == null)
-            {
-                _entityTypeToClassNameMap = new Dictionary<IEntityType, string>();
-                foreach (var entityType in _model.EntityTypes)
-                {
-                    _entityTypeToClassNameMap[entityType] =
-                        CSharpUtilities.Instance.GenerateCSharpIdentifier(
-                            entityType.SimpleName, _entityTypeToClassNameMap.Values);
-                    InitializePropertyNames(entityType);
-                }
-            }
+            GenerateCommentHeader(sb);
+            GenerateUsings(sb);
+            CSharpCodeGeneratorHelper.Instance.BeginNamespace(sb, ClassNamespace);
+            CSharpCodeGeneratorHelper.Instance.BeginPublicPartialClass(sb, ClassName);
+            GenerateProperties(sb);
+            GenerateMethods(sb);
+            CSharpCodeGeneratorHelper.Instance.EndClass(sb);
+            CSharpCodeGeneratorHelper.Instance.EndNamespace(sb);
         }
 
-        private void InitializePropertyNames(IEntityType entityType)
+        public virtual ReverseEngineeringGenerator Generator
         {
-            // use local propertyToPropertyNameMap to ensure no clashes in Property names
-            // within an EntityType but to allow them for different EntityTypes
-            var propertyToPropertyNameMap = new Dictionary<IProperty, string>();
-            foreach (var property in entityType.Properties)
+            get
             {
-                propertyToPropertyNameMap[property] =
-                    CSharpUtilities.Instance.GenerateCSharpIdentifier(
-                        property.Name, propertyToPropertyNameMap.Values);
-            }
-
-            foreach (var keyValuePair in propertyToPropertyNameMap)
-            {
-                _propertyToPropertyNameMap.Add(keyValuePair.Key, keyValuePair.Value);
+                return _generator;
             }
         }
 
-        public override string ClassName
+        public virtual string ClassName
         {
             get
             {
@@ -71,7 +108,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             }
         }
 
-        public override string ClassNamespace
+        public virtual string ClassNamespace
         {
             get
             {
@@ -87,40 +124,52 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             }
         }
 
-        public Dictionary<IEntityType, string> EntityTypeToClassNameMap
-        {
-            get
-            {
-                return _entityTypeToClassNameMap;
-            }
-        }
+        ////public Dictionary<IEntityType, string> EntityTypeToClassNameMap
+        ////{
+        ////    get
+        ////    {
+        ////        return _entityTypeToClassNameMap;
+        ////    }
+        ////}
 
-        public Dictionary<IProperty, string> PropertyToPropertyNameMap
-        {
-            get
-            {
-                return _propertyToPropertyNameMap;
-            }
-        }
+        ////public Dictionary<IProperty, string> PropertyToPropertyNameMap
+        ////{
+        ////    get
+        ////    {
+        ////        return _propertyToPropertyNameMap;
+        ////    }
+        ////}
 
-        public override void GenerateCommentHeader(IndentedStringBuilder sb)
+        public virtual void GenerateCommentHeader(IndentedStringBuilder sb)
         {
-            sb.AppendLine("//");
-            sb.Append("// Generated using Connection String: ");
-            sb.AppendLine(ConnectionString);
-            sb.AppendLine("//");
+            CSharpCodeGeneratorHelper.Instance.Comment(sb, string.Empty);
+            CSharpCodeGeneratorHelper.Instance.Comment(sb, "Generated using Connection String: " + ConnectionString);
+            CSharpCodeGeneratorHelper.Instance.Comment(sb, string.Empty);
             sb.AppendLine();
         }
 
-        public override void GenerateProperties(IndentedStringBuilder sb)
+        public virtual void GenerateUsings(IndentedStringBuilder sb)
+        {
+            // TODO - add in other namespaces
+            foreach (var @namespace in _usedNamespaces)
+            {
+                CSharpCodeGeneratorHelper.Instance.AddUsingStatement(sb, @namespace);
+            }
+
+            if (_usedNamespaces.Any())
+            {
+                sb.AppendLine();
+            }
+        }
+
+        public virtual void GenerateProperties(IndentedStringBuilder sb)
         {
             foreach (var entityType in OrderedEntityTypes())
             {
-                sb.Append("public virtual DbSet<");
-                sb.Append(_entityTypeToClassNameMap[entityType]);
-                sb.Append("> ");
-                sb.Append(_entityTypeToClassNameMap[entityType]);
-                sb.AppendLine(" { get; set; }");
+                CSharpCodeGeneratorHelper.Instance.AddPublicVirtualProperty(
+                    sb
+                    , "DbSet<" + _generator.EntityTypeToClassNameMap[entityType] + ">"
+                    , _generator.EntityTypeToClassNameMap[entityType]);
             }
 
             if (_model.EntityTypes.Any())
@@ -129,63 +178,65 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             }
         }
 
-        public override void GenerateMethods(IndentedStringBuilder sb)
+        public virtual void GenerateMethods(IndentedStringBuilder sb)
         {
             GenerateOnConfiguringCode(sb);
+            sb.AppendLine();
             GenerateOnModelCreatingCode(sb);
         }
 
         public virtual void GenerateOnConfiguringCode(IndentedStringBuilder sb)
         {
-            sb.AppendLine("protected override void OnConfiguring(DbContextOptions options)");
-            sb.AppendLine("{");
-            using (sb.Indent())
-            {
-                sb.Append("options.UseSqlServer(");
-                sb.Append(CSharpUtilities.Instance.GenerateVerbatimStringLiteral(ConnectionString));
-                sb.AppendLine(");");
-            }
-            sb.AppendLine("}");
-            sb.AppendLine();
+            var onConfiguringMethodParameters = new List<Tuple<string, string>>()
+                {
+                    new Tuple<string, string>("DbContextOptions", "options")
+                };
+            CSharpCodeGeneratorHelper.Instance.BeginProtectedOverrideMethod(sb, "void", "OnConfiguring", onConfiguringMethodParameters);
+            sb.Append("options.UseSqlServer(");
+            sb.Append(CSharpUtilities.Instance.GenerateVerbatimStringLiteral(ConnectionString));
+            sb.AppendLine(");");
+            CSharpCodeGeneratorHelper.Instance.EndMethod(sb);
         }
 
         public virtual void GenerateOnModelCreatingCode(IndentedStringBuilder sb)
         {
-            sb.AppendLine("protected override void OnModelCreating(ModelBuilder modelBuilder)");
-            sb.AppendLine("{");
-            using (sb.Indent())
-            {
-                foreach (var entityType in OrderedEntityTypes())
+            var onModelCreatingMethodParameters = new List<Tuple<string, string>>()
                 {
-                    sb.Append("modelBuilder.Entity<");
-                    sb.Append(_entityTypeToClassNameMap[entityType]);
-                    sb.Append(">(");
-                    GenerateEntityConfiguration(sb, entityType);
-                    sb.AppendLine(");");
-                }
+                    new Tuple<string, string>("ModelBuilder", "modelBuilder")
+                };
+            CSharpCodeGeneratorHelper.Instance.BeginProtectedOverrideMethod(sb, "void", "OnModelCreating", onModelCreatingMethodParameters);
+            foreach (var entityType in OrderedEntityTypes())
+            {
+                sb.Append("modelBuilder.Entity<");
+                sb.Append(_generator.EntityTypeToClassNameMap[entityType]);
+                sb.Append(">(");
+                GenerateEntityConfiguration(sb, entityType);
+                sb.AppendLine(");");
             }
-            sb.AppendLine("}");
-            sb.AppendLine();
+            CSharpCodeGeneratorHelper.Instance.EndMethod(sb);
         }
 
         public virtual void GenerateEntityConfiguration(IndentedStringBuilder sb, IEntityType entityType)
         {
             sb.AppendLine("entity =>");
-            sb.AppendLine("{");
             using (sb.Indent())
             {
-                var key = entityType.TryGetPrimaryKey();
-                if (key != null && key.Properties.Count > 0)
+                sb.AppendLine("{");
+                using (sb.Indent())
                 {
-                    GenerateEntityKeyConfiguration(sb, key);
+                    var key = entityType.TryGetPrimaryKey();
+                    if (key != null && key.Properties.Count > 0)
+                    {
+                        GenerateEntityKeyConfiguration(sb, key);
+                    }
+                    GenerateForeignKeysConfiguration(sb, entityType);
+                    foreach (var property in entityType.Properties)
+                    {
+                        GeneratePropertyFacetsConfiguration(sb, property);
+                    }
                 }
-                GenerateForeignKeysConfiguration(sb, entityType);
-                foreach (var property in entityType.Properties)
-                {
-                    GeneratePropertyFacetsConfiguration(sb, property);
-                }
+                sb.AppendLine("}");
             }
-            sb.AppendLine("}");
         }
 
         public virtual void GenerateEntityKeyConfiguration(IndentedStringBuilder sb, IKey key)
@@ -210,7 +261,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 
         public virtual IEnumerable<IEntityType> OrderedEntityTypes()
         {
-            return _model.EntityTypes.OrderBy(e => _entityTypeToClassNameMap[e]);
+            return _model.EntityTypes.OrderBy(e => _generator.EntityTypeToClassNameMap[e]);
         }
     }
 }

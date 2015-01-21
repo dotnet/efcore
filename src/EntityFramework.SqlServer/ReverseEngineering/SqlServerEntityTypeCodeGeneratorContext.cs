@@ -12,10 +12,10 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
     public class SqlServerEntityTypeCodeGeneratorContext : EntityTypeCodeGeneratorContext
     {
         public SqlServerEntityTypeCodeGeneratorContext(
+            [NotNull]ReverseEngineeringGenerator generator,
             [NotNull]IEntityType entityType,
-            [CanBeNull]string namespaceName,
-            [NotNull]DbContextCodeGeneratorContext contextCodeGeneratorContext)
-            : base(entityType, namespaceName, contextCodeGeneratorContext)
+            [CanBeNull]string namespaceName)
+            : base(generator, entityType, namespaceName)
         {
         }
 
@@ -42,7 +42,7 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
                 sb.Append(property.PropertyType.Name);
             }
             sb.Append(" ");
-            sb.Append(_contextCodeGeneratorContext.PropertyToPropertyNameMap[property]);
+            sb.Append(Generator.PropertyToPropertyNameMap[property]);
             sb.AppendLine(" { get; set; }");
         }
 

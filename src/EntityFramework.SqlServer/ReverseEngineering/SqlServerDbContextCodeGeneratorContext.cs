@@ -12,9 +12,10 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
     public class SqlServerDbContextCodeGeneratorContext : DbContextCodeGeneratorContext
     {
         public SqlServerDbContextCodeGeneratorContext(
+            ReverseEngineeringGenerator generator,
             IModel model, string namespaceName,
             string className, string connectionString)
-            : base(model, namespaceName, className, connectionString)
+            : base(generator, model, namespaceName, className, connectionString)
         {
         }
 
@@ -90,7 +91,7 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
                 && IsValidDataTypeForMaxLength(property))
             {
                 sb.Append("entity.Property( e => e.");
-                sb.Append(PropertyToPropertyNameMap[property]);
+                sb.Append(Generator.PropertyToPropertyNameMap[property]);
                 sb.Append(" )");
                 using (sb.Indent())
                 {

@@ -9,8 +9,9 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
     public interface IDatabaseMetadataModelProvider
     {
         IModel GenerateMetadataModel(string connectionString, string filters);
-        DbContextCodeGeneratorContext GetContextModelCodeGenerator(ContextTemplateModel contextTemplateModel);
+        DbContextCodeGeneratorContext GetContextModelCodeGenerator(
+            ReverseEngineeringGenerator generator, ContextTemplateModel contextTemplateModel);
         EntityTypeCodeGeneratorContext GetEntityTypeModelCodeGenerator(
-            EntityTypeTemplateModel entityTypeTemplateModel, DbContextCodeGeneratorContext dbContextCodeGeneratorContext);
+            ReverseEngineeringGenerator generator, EntityTypeTemplateModel entityTypeTemplateModel);
     }
 }
