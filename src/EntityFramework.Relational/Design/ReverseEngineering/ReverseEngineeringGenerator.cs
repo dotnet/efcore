@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -17,9 +18,28 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
     {
         private readonly IServiceProvider _serviceProvider;
 
+        private Dictionary<IEntityType, string> _entityTypeToClassNameMap = new Dictionary<IEntityType, string>();
+        private Dictionary<IProperty, string> _propertyToPropertyNameMap = new Dictionary<IProperty, string>();
+
         public ReverseEngineeringGenerator(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
+        }
+
+        public Dictionary<IEntityType, string> EntityTypeToClassNameMap
+        {
+            get
+            {
+                return _entityTypeToClassNameMap;
+            }
+        }
+
+        public Dictionary<IProperty, string> PropertyToPropertyNameMap
+        {
+            get
+            {
+                return _propertyToPropertyNameMap;
+            }
         }
 
         public async Task Generate(ReverseEngineeringConfiguration configuration)
@@ -29,6 +49,8 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             var providerAssembly = configuration.ProviderAssembly;
             var provider = GetProvider(providerAssembly);
             var metadataModel = GetMetadataModel(provider, configuration);
+
+            ConstructGlobalNameMaps(metadataModel);
 
             // generate DbContext code
             var contextTemplateModel = new ContextTemplateModel()
@@ -43,18 +65,19 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 
             //TODO - check to see whether user has one in current project first
             var dbContextCodeGeneratorContext =
-                provider.GetContextModelCodeGenerator(contextTemplateModel);
+                provider.GetContextModelCodeGenerator(this, contextTemplateModel);
             if (dbContextCodeGeneratorContext == null)
             {
                 throw new InvalidProgramException(
                     "Provider " + provider.GetType().FullName
                     + " did not provide a ContextModelCodeGeneratorContext");
             }
-            var contextCodeGenerator = new CSharpModelCodeGenerator(
-                metadataModel, dbContextCodeGeneratorContext);
+            ////var contextCodeGenerator = new CSharpModelCodeGenerator(
+            ////    metadataModel, dbContextCodeGeneratorContext);
 
             var contextStringBuilder = new IndentedStringBuilder();
-            contextCodeGenerator.GenerateClassFromModel(contextStringBuilder);
+            ////contextCodeGenerator.GenerateClassFromModel(contextStringBuilder);
+            dbContextCodeGeneratorContext.Generate(contextStringBuilder);
 
             // output context file
             using (var sourceStream = new MemoryStream(Encoding.UTF8.GetBytes(contextStringBuilder.ToString())))
@@ -77,26 +100,27 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 //TODO - check to see whether user has one in current project first
                 var entityTypeCodeGeneratorContext =
                     provider.GetEntityTypeModelCodeGenerator(
-                        entityTypeTemplateModel
-                        , dbContextCodeGeneratorContext);
+                        this
+                        , entityTypeTemplateModel);
                 if (entityTypeCodeGeneratorContext == null)
                 {
                     throw new InvalidProgramException(
                         "Provider " + provider.GetType().FullName
                         + " did not provide a EntityTypeModelCodeGeneratorContext");
                 }
-                var entityTypeCodeGenerator = 
-                    new CSharpModelCodeGenerator(
-                        metadataModel, entityTypeCodeGeneratorContext);
+                ////var entityTypeCodeGenerator = 
+                ////    new CSharpModelCodeGenerator(
+                ////        metadataModel, entityTypeCodeGeneratorContext);
 
                 var entityTypeStringBuilder = new IndentedStringBuilder();
-                entityTypeCodeGenerator.GenerateClassFromModel(entityTypeStringBuilder);
+                ////entityTypeCodeGenerator.GenerateClassFromModel(entityTypeStringBuilder);
+                entityTypeCodeGeneratorContext.Generate(entityTypeStringBuilder);
 
                 // output EntityType poco file
                 using (var sourceStream = new MemoryStream(Encoding.UTF8.GetBytes(entityTypeStringBuilder.ToString())))
                 {
                     await OutputFile(configuration.OutputPath
-                        , dbContextCodeGeneratorContext.EntityTypeToClassNameMap[entityType] + ".cs"
+                        , EntityTypeToClassNameMap[entityType] + ".cs"
                         , sourceStream);
                 }
             }
@@ -150,6 +174,36 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             }
 
             return metadataModel;
+        }
+
+        private void ConstructGlobalNameMaps(IModel model)
+        {
+            _entityTypeToClassNameMap = new Dictionary<IEntityType, string>();
+            foreach (var entityType in model.EntityTypes)
+            {
+                _entityTypeToClassNameMap[entityType] =
+                    CSharpUtilities.Instance.GenerateCSharpIdentifier(
+                        entityType.SimpleName, _entityTypeToClassNameMap.Values);
+                InitializePropertyNames(entityType);
+            }
+        }
+
+        private void InitializePropertyNames(IEntityType entityType)
+        {
+            // use local propertyToPropertyNameMap to ensure no clashes in Property names
+            // within an EntityType but to allow them for properties in different EntityTypes
+            var propertyToPropertyNameMap = new Dictionary<IProperty, string>();
+            foreach (var property in entityType.Properties)
+            {
+                propertyToPropertyNameMap[property] =
+                    CSharpUtilities.Instance.GenerateCSharpIdentifier(
+                        property.Name, propertyToPropertyNameMap.Values);
+            }
+
+            foreach (var keyValuePair in propertyToPropertyNameMap)
+            {
+                _propertyToPropertyNameMap.Add(keyValuePair.Key, keyValuePair.Value);
+            }
         }
 
         private async Task OutputFile(string outputDirectoryName, string outputFileName, Stream sourceStream)

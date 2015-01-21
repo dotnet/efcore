@@ -47,6 +47,21 @@ namespace Microsoft.Data.Entity.Utilities
             return this;
         }
 
+        public virtual IndentedStringBuilder IncrementIndent()
+        {
+            _indent++;
+            return this;
+        }
+
+        public virtual IndentedStringBuilder DecrementIndent()
+        {
+            if (_indent > 0)
+            {
+                _indent--;
+            }
+            return this;
+        }
+
         public virtual IDisposable Indent()
         {
             return new Indenter(this);
