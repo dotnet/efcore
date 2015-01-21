@@ -22,10 +22,10 @@
     <Task>
       <Code Type="Fragment" Language="cs">
         <![CDATA[
-        var packagesFolder = Environment.GetEnvironmentVariable("KRE_PACKAGES")
+        var packagesFolder = Environment.GetEnvironmentVariable("DOTNET_PACKAGES")
             ?? Path.Combine(
                 Environment.GetEnvironmentVariable("USERPROFILE") ?? Environment.GetEnvironmentVariable("HOME"),
-                ".kpm",
+                ".dotnet",
                 "packages");
         
         if (!Directory.Exists(packagesFolder))
