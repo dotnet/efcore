@@ -17,13 +17,11 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
     public class ExistingConnectionTest
     {
         // See aspnet/Data#135
-#if !ASPNETCORE50
         [Fact]
         public async Task Can_use_an_existing_closed_connection()
         {
             await Can_use_an_existing_closed_connection_test(openConnection: false);
         }
-#endif
 
         [Fact]
         public async Task Can_use_an_existing_open_connection()
