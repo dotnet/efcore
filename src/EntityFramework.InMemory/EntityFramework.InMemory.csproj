@@ -38,7 +38,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Ix-Async">
-      <TargetFramework>portable-windows8+net45+wp8+wpa81</TargetFramework>
+      <TargetFramework>portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1</TargetFramework>
       <Assemblies>System.Interactive.Async</Assemblies>
     </PackageReference>
     <PackageReference Include="System.Collections.Immutable">
