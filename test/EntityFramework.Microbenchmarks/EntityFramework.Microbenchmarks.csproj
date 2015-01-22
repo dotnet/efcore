@@ -37,7 +37,7 @@
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Data" />
     <PackageReference Include="System.Data.Common">
-      <TargetFramework>net451</TargetFramework>
+      <TargetFramework>net45</TargetFramework>
     </PackageReference>
     <PackageReference Include="Ix-Async">
       <Assemblies>System.Interactive.Async</Assemblies>

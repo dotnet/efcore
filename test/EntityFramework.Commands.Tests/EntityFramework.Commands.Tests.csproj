@@ -35,7 +35,7 @@
   <ItemGroup>
     <Reference Include="System.Data" />
     <PackageReference Include="System.Data.Common">
-      <TargetFramework>net451</TargetFramework>
+      <TargetFramework>net45</TargetFramework>
     </PackageReference>
     <PackageReference Include="Microsoft.Framework.ConfigurationModel">
       <TargetFramework>net45</TargetFramework>

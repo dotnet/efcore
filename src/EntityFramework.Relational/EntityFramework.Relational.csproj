@@ -41,7 +41,9 @@
       <TargetFramework>portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1</TargetFramework>
       <Assemblies>System.Interactive.Async</Assemblies>
     </PackageReference>
-    <PackageReference Include="System.Data.Common" />
+    <PackageReference Include="System.Data.Common">
+      <TargetFramework>portable-wpa81+wp80+win80+net45+aspnetcore50</TargetFramework>
+    </PackageReference>
     <PackageReference Include="Microsoft.Framework.ConfigurationModel" />
     <PackageReference Include="Microsoft.Framework.DependencyInjection" />
     <PackageReference Include="Microsoft.Framework.Logging" />

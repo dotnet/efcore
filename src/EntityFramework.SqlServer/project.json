@@ -6,7 +6,7 @@
     },
     "dependencies": {
         "EntityFramework.Relational": "7.0.0-*",
-        "System.Data.SqlClient": "1.0.0-*"
+        "System.Data.SqlClient": "4.0.0-beta-*"
     },
     "code": [ "**\\*.cs", "..\\Shared\\*.cs" ],
     "frameworks": {
@@ -14,7 +14,8 @@
         "aspnet50": { },
         "aspnetcore50": {
             "dependencies": {
-                "System.Threading.Thread": "4.0.0-beta-*"
+                "System.Threading.Thread": "4.0.0-beta-*",
+                "System.Text.Encoding.CodePages": "4.0.0-beta-*"
             }
         }
     }
