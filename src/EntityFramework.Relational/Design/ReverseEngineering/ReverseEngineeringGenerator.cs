@@ -53,7 +53,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             ConstructGlobalNameMaps(metadataModel);
 
             // generate DbContext code
-            var contextTemplateModel = new ContextTemplateModel()
+            var dbContextGeneratorModel = new DbContextGeneratorModel()
             {
                 ClassName = configuration.ContextClassName,
                 Namespace = configuration.Namespace,
@@ -65,18 +65,15 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 
             //TODO - check to see whether user has one in current project first
             var dbContextCodeGeneratorContext =
-                provider.GetContextModelCodeGenerator(this, contextTemplateModel);
+                provider.GetContextModelCodeGenerator(this, dbContextGeneratorModel);
             if (dbContextCodeGeneratorContext == null)
             {
                 throw new InvalidProgramException(
                     "Provider " + provider.GetType().FullName
                     + " did not provide a ContextModelCodeGeneratorContext");
             }
-            ////var contextCodeGenerator = new CSharpModelCodeGenerator(
-            ////    metadataModel, dbContextCodeGeneratorContext);
 
             var contextStringBuilder = new IndentedStringBuilder();
-            ////contextCodeGenerator.GenerateClassFromModel(contextStringBuilder);
             dbContextCodeGeneratorContext.Generate(contextStringBuilder);
 
             // output context file
@@ -88,7 +85,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             // generate EntityType code for each Entity Type
             foreach (var entityType in metadataModel.EntityTypes)
             {
-                var entityTypeTemplateModel = new EntityTypeTemplateModel()
+                var entityTypeGeneratorModel = new EntityTypeGeneratorModel()
                 {
                     EntityType = entityType,
                     Namespace = configuration.Namespace,
@@ -101,19 +98,15 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 var entityTypeCodeGeneratorContext =
                     provider.GetEntityTypeModelCodeGenerator(
                         this
-                        , entityTypeTemplateModel);
+                        , entityTypeGeneratorModel);
                 if (entityTypeCodeGeneratorContext == null)
                 {
                     throw new InvalidProgramException(
                         "Provider " + provider.GetType().FullName
                         + " did not provide a EntityTypeModelCodeGeneratorContext");
                 }
-                ////var entityTypeCodeGenerator = 
-                ////    new CSharpModelCodeGenerator(
-                ////        metadataModel, entityTypeCodeGeneratorContext);
 
                 var entityTypeStringBuilder = new IndentedStringBuilder();
-                ////entityTypeCodeGenerator.GenerateClassFromModel(entityTypeStringBuilder);
                 entityTypeCodeGeneratorContext.Generate(entityTypeStringBuilder);
 
                 // output EntityType poco file

@@ -10,12 +10,11 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 {
-    public abstract class EntityTypeCodeGeneratorContext
+    public abstract class EntityTypeCodeGenerator
     {
         protected readonly ReverseEngineeringGenerator _generator;
         private readonly IEntityType _entityType;
         private readonly string _namespaceName;
-        ////protected readonly DbContextCodeGeneratorContext _contextCodeGeneratorContext;
 
         private List<string> _usedNamespaces = new List<string>() // initialize with default namespaces
                 {
@@ -24,7 +23,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                     "Microsoft.Data.Entity.Metadata"
                 };
 
-        public EntityTypeCodeGeneratorContext(
+        public EntityTypeCodeGenerator(
             [NotNull]ReverseEngineeringGenerator generator,
             [NotNull]IEntityType entityType,
             [CanBeNull]string namespaceName)
@@ -32,21 +31,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             _generator = generator;
             _entityType = entityType;
             _namespaceName = namespaceName;
-            ////_contextCodeGeneratorContext = contextCodeGeneratorContext;
-            ////InitializePropertyNames(_entityType);
         }
-
-        ////private void InitializePropertyNames()
-        ////{
-        ////    foreach (var property in _entityType.Properties)
-        ////    {
-        ////        var propertyNamespace = property.PropertyType.Namespace;
-        ////        if (!_usedNamespaces.Contains(propertyNamespace))
-        ////        {
-        ////            _usedNamespaces.Add(propertyNamespace);
-        ////        }
-        ////    }
-        ////}
 
         public virtual ReverseEngineeringGenerator Generator
         {
@@ -93,8 +78,10 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 
         public virtual void GenerateUsings(IndentedStringBuilder sb)
         {
+            var originalNamespaces = new List<string>(_usedNamespaces);
             foreach (var @namespace in _usedNamespaces.Concat(
-                _entityType.Properties.Select(p => p.PropertyType.Namespace).Distinct().OrderBy(ns => ns)))
+                _entityType.Properties.Select(p => p.PropertyType.Namespace)
+                    .Distinct().Where(ns => !originalNamespaces.Contains(ns)).OrderBy(ns => ns)))
             {
                 CSharpCodeGeneratorHelper.Instance.AddUsingStatement(sb, @namespace);
             }
@@ -129,17 +116,6 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         }
 
         public abstract void GenerateEntityNavigation(IndentedStringBuilder sb, INavigation navigation);
-
-        //
-        // helper methods
-        //
-
-        ////public override IEnumerable<string> GetUsedNamespaces()
-        ////{
-        ////    return base.GetUsedNamespaces().Concat(
-        ////        _entityType.Properties.Select(p => p.PropertyType.Namespace).Distinct().OrderBy(p => p));
-        ////}
-
 
         public virtual IEnumerable<IProperty> OrderedEntityProperties()
         {

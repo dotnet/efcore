@@ -391,22 +391,22 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
             }
         }
 
-        public DbContextCodeGeneratorContext GetContextModelCodeGenerator(ReverseEngineeringGenerator generator, ContextTemplateModel contextTemplateModel)
+        public DbContextCodeGenerator GetContextModelCodeGenerator(ReverseEngineeringGenerator generator, DbContextGeneratorModel dbContextGeneratorModel)
         {
             return new SqlServerDbContextCodeGeneratorContext(
                 generator
-                , contextTemplateModel.MetadataModel
-                , contextTemplateModel.Namespace
-                , contextTemplateModel.ClassName
-                , contextTemplateModel.ConnectionString);
+                , dbContextGeneratorModel.MetadataModel
+                , dbContextGeneratorModel.Namespace
+                , dbContextGeneratorModel.ClassName
+                , dbContextGeneratorModel.ConnectionString);
         }
-        public EntityTypeCodeGeneratorContext GetEntityTypeModelCodeGenerator(
-            ReverseEngineeringGenerator generator, EntityTypeTemplateModel entityTypeTemplateModel)
+        public EntityTypeCodeGenerator GetEntityTypeModelCodeGenerator(
+            ReverseEngineeringGenerator generator, EntityTypeGeneratorModel entityTypeGeneratorModel)
         {
             return new SqlServerEntityTypeCodeGeneratorContext(
                 generator
-                , entityTypeTemplateModel.EntityType
-                , entityTypeTemplateModel.Namespace);
+                , entityTypeGeneratorModel.EntityType
+                , entityTypeGeneratorModel.Namespace);
         }
     }
 }
