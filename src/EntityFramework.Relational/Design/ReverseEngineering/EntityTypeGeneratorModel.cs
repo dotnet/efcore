@@ -5,8 +5,8 @@ using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 {
-    public class ContextTemplateModel : BaseTemplateModel
+    public class EntityTypeGeneratorModel : BaseGeneratorModel
     {
-        public IModel MetadataModel { get; set; }
+        public IEntityType EntityType { get; set; }
     }
 }

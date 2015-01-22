@@ -9,7 +9,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
 {
-    public class SqlServerDbContextCodeGeneratorContext : DbContextCodeGeneratorContext
+    public class SqlServerDbContextCodeGeneratorContext : DbContextCodeGenerator
     {
         public SqlServerDbContextCodeGeneratorContext(
             ReverseEngineeringGenerator generator,

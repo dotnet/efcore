@@ -3,7 +3,7 @@
 
 namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 {
-    public class BaseTemplateModel
+    public class BaseGeneratorModel
     {
         public string ClassName { get; set; }
         public string Namespace { get; set; }
