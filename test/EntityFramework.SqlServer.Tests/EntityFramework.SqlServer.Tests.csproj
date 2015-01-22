@@ -40,7 +40,7 @@
       <Assemblies>System.Interactive.Async</Assemblies>
     </PackageReference>
     <PackageReference Include="System.Data.Common">
-      <TargetFramework>net451</TargetFramework>
+      <TargetFramework>net45</TargetFramework>
     </PackageReference>
     <PackageReference Include="Microsoft.Framework.ConfigurationModel">
       <TargetFramework>net45</TargetFramework>
