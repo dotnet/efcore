@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             {
                 using (var master = connection.CreateMasterConnection())
                 {
-                    Assert.Equal(@"Data Source=(localdb)\v11.0;Initial Catalog=master;Integrated Security=True", master.ConnectionString);
+                    Assert.Equal(@"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=master;Integrated Security=True", master.ConnectionString);
                 }
             }
         }
@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         public static DbContextService<IDbContextOptions> CreateOptions()
         {
             var options = new DbContextOptions();
-            options.UseSqlServer(@"Server=(localdb)\v11.0;Database=SqlServerConnectionTest;Trusted_Connection=True;");
+            options.UseSqlServer(@"Server=(localdb)\MSSQLLocalDB;Database=SqlServerConnectionTest;Trusted_Connection=True;");
 
             return new DbContextService<IDbContextOptions>(() => options);
         }

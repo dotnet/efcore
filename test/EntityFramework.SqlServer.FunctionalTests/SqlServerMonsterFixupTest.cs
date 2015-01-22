@@ -49,7 +49,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             return new SqlConnectionStringBuilder
                 {
-                    DataSource = @"(localdb)\v11.0",
+                    DataSource = @"(localdb)\MSSQLLocalDB",
                     MultipleActiveResultSets = true,
                     InitialCatalog = name,
                     IntegratedSecurity = true,

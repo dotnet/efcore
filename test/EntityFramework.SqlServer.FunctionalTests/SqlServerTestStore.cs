@@ -296,7 +296,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             return new SqlConnectionStringBuilder
                 {
-                    DataSource = @"(localdb)\v11.0",
+                    DataSource = @"(localdb)\MSSQLLocalDB",
                     // TODO: Currently nested queries are run while processing the results of outer queries
                     // This either requires MARS or creation of a new connection for each query. Currently using
                     // MARS since cloning connections is known to be problematic.
