@@ -4,9 +4,8 @@
 using System;
 using JetBrains.Annotations;
 
-#if !NET45 && !ASPNET50
-// TODO: This should be shipped in some other assembly/NuGet package with type-forwarding/unification for full .NET
-// Issue #346
+#if !NET45 && !ASPNET50 && !ASPNETCORE50
+// TODO: Remove this file when VS can build against ".NET Portable 5.0"
 
 namespace Microsoft.Data.Entity
 {
