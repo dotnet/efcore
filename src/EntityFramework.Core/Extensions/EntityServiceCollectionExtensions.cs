@@ -14,6 +14,7 @@ using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.ConfigurationModel;
 using Microsoft.Framework.Logging;
 using Microsoft.Framework.OptionsModel;
+using Remotion.Linq.Parsing.Structure;
 
 // ReSharper disable once CheckNamespace
 
@@ -60,6 +61,8 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddSingleton<StoreGeneratedValuesFactory>()
                 .AddSingleton<ValueGeneratorSelector>()
                 .AddSingleton<StateEntryMetadataServices>()
+                .AddSingleton<IQueryParser, EntityQueryParser>()
+                .AddSingleton<ICompiledQueryCache, CompiledQueryCache>()
                 .AddScoped<ForeignKeyValuePropagator>()
                 .AddScoped<DataStoreSelector>()
                 .AddScoped<StateEntryFactory>()
@@ -71,6 +74,7 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddScoped<StateManager>()
                 .AddScoped<ValueGenerationManager>()
                 .AddScoped<EntityQueryExecutor>()
+                .AddScoped<EntityQueryProvider>()
                 .AddScoped<ChangeTracker>()
                 .AddScoped<EntityEntryGraphIterator>()
                 .AddScoped(DbContextServices.ModelFactory)

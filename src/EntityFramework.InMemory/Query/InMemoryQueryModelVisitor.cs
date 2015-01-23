@@ -82,15 +82,15 @@ namespace Microsoft.Data.Entity.InMemory.Query
             return
                 source
                     .Select(result =>
-                    {
-                        queryContext.QueryBuffer
-                            .Include(
-                                accessorLambda.Invoke(result),
-                                navigationPath,
-                                relatedValueReaders);
+                        {
+                            queryContext.QueryBuffer
+                                .Include(
+                                    accessorLambda.Invoke(result),
+                                    navigationPath,
+                                    relatedValueReaders);
 
-                        return result;
-                    });
+                            return result;
+                        });
         }
 
         private static readonly MethodInfo _getRelatedValueReadersMethodInfo
@@ -116,12 +116,14 @@ namespace Microsoft.Data.Entity.InMemory.Query
         private static IEnumerable<TEntity> EntityQuery<TEntity>(
             QueryContext queryContext,
             IEntityType entityType,
-            InMemoryDatabase.InMemoryTable inMemoryTable,
+            InMemoryDatabase inMemoryDatabase,
             bool queryStateManager)
             where TEntity : class
         {
-            return inMemoryTable
-                .Select(t => (TEntity)queryContext.QueryBuffer
+            return inMemoryDatabase
+                .GetTable(entityType)
+                .Select(t => (TEntity)queryContext
+                    .QueryBuffer
                     .GetEntity(entityType, new ObjectArrayValueReader(t), queryStateManager));
         }
 
@@ -130,9 +132,11 @@ namespace Microsoft.Data.Entity.InMemory.Query
                 .GetDeclaredMethod("ProjectionQuery");
 
         [UsedImplicitly]
-        private static IEnumerable<IValueReader> ProjectionQuery(InMemoryDatabase.InMemoryTable inMemoryTable)
+        private static IEnumerable<IValueReader> ProjectionQuery(
+            IEntityType entityType,
+            InMemoryDatabase inMemoryDatabase)
         {
-            return inMemoryTable.Select(t => new ObjectArrayValueReader(t));
+            return inMemoryDatabase.GetTable(entityType).Select(t => new ObjectArrayValueReader(t));
         }
 
         private class InMemoryEntityQueryableExpressionTreeVisitor : EntityQueryableExpressionTreeVisitor
@@ -156,9 +160,10 @@ namespace Microsoft.Data.Entity.InMemory.Query
                     = QueryModelVisitor.QueryCompilationContext.Model
                         .GetEntityType(elementType);
 
-                var inMemoryTable
-                    = ((InMemoryQueryCompilationContext)QueryModelVisitor.QueryCompilationContext).Database
-                        .GetTable(entityType);
+                var inMemoryDatabase
+                    = ((InMemoryQueryCompilationContext)QueryModelVisitor
+                        .QueryCompilationContext)
+                        .Database;
 
                 if (QueryModelVisitor.QuerySourceRequiresMaterialization(_querySource))
                 {
@@ -166,11 +171,15 @@ namespace Microsoft.Data.Entity.InMemory.Query
                         _entityQueryMethodInfo.MakeGenericMethod(elementType),
                         QueryContextParameter,
                         Expression.Constant(entityType),
-                        Expression.Constant(inMemoryTable),
+                        Expression.Constant(
+                            inMemoryDatabase),
                         Expression.Constant(QueryModelVisitor.QuerySourceRequiresTracking(_querySource)));
                 }
 
-                return Expression.Call(_projectionQueryMethodInfo, Expression.Constant(inMemoryTable));
+                return Expression.Call(
+                    _projectionQueryMethodInfo,
+                    Expression.Constant(entityType),
+                    Expression.Constant(inMemoryDatabase));
             }
         }
     }

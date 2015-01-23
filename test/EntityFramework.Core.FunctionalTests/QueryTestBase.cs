@@ -230,6 +230,16 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 cs => cs.Where(c => c.City == "London"),
                 stateEntryCount: 6);
         }
+        
+        [Fact]
+        public virtual void Where_simple_closure()
+        {
+            var city = "London";
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.City == city),
+                stateEntryCount: 6);
+        }
 
         [Fact]
         public virtual void Where_simple_shadow()

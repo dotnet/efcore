@@ -37,11 +37,15 @@ namespace Microsoft.Data.Entity
             Check.NotNull(context, "context");
 
             _context = context;
+
             // Using context/service locator here so that the context will be initialized the first time the
             // set is used and services will be obtained from the correctly scoped container when this happens.
-            _entityQueryable = new LazyRef<EntityQueryable<TEntity>>(
-                () => new EntityQueryable<TEntity>(
-                    ((IDbContextServices)_context).ScopedServiceProvider.GetRequiredServiceChecked<EntityQueryExecutor>()));
+            _entityQueryable
+                = new LazyRef<EntityQueryable<TEntity>>(
+                    () => new EntityQueryable<TEntity>(
+                        ((IDbContextServices)_context)
+                            .ScopedServiceProvider
+                            .GetRequiredServiceChecked<EntityQueryProvider>()));
         }
 
         public virtual EntityEntry<TEntity> Add([NotNull] TEntity entity)

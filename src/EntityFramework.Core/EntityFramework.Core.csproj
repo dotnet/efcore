@@ -147,6 +147,8 @@
     <Compile Include="Metadata\ModelConventions\ConventionsPropertyInfoExtensions.cs" />
     <Compile Include="Metadata\ModelConventions\RelationshipDiscoveryConvention.cs" />
     <Compile Include="Metadata\TypedAnnotation.cs" />
+    <Compile Include="Query\EntityQueryParser.cs" />
+    <Compile Include="Query\ExpressionComparer.cs" />
     <Compile Include="Query\ExpressionTreeVisitors\EntityQueryableExpressionTreeVisitor.cs" />
     <Compile Include="Query\ExpressionTreeVisitors\DefaultQueryExpressionTreeVisitor.cs" />
     <Compile Include="Query\ExpressionTreeVisitors\EntityResultFindingExpressionTreeVisitor.cs" />
@@ -154,8 +156,10 @@
     <Compile Include="Query\IAsyncEnumerableAccessor.cs" />
     <Compile Include="Query\ExpressionTreeVisitors\PropertyAccessBindingExpressionTreeVisitor.cs" />
     <Compile Include="Query\ExpressionTreeVisitors\ProjectionExpressionTreeVisitor.cs" />
+    <Compile Include="Query\ICompiledQueryCache.cs" />
     <Compile Include="Query\QueryAnnotation.cs" />
     <Compile Include="Query\QueryAnnotationExtractor.cs" />
+    <Compile Include="Query\CompiledQueryCache.cs" />
     <Compile Include="Query\QueryExtensions.cs" />
     <Compile Include="Query\QueryOptimizer.cs" />
     <Compile Include="Query\ExpressionTreeVisitors\QuerySourceTracingExpressionTreeVisitor.cs" />

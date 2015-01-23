@@ -653,7 +653,7 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// The expression '{expression}' passed to the Include operator could not be bound. Only single-level navigation expressions are supported. 
+        /// The expression '{expression}' passed to the Include operator could not be bound.
         /// </summary>
         public static string IncludeNonBindableExpression([CanBeNull] object expression)
         {
@@ -826,6 +826,22 @@ namespace Microsoft.Data.Entity.Internal
         public static string ConnectionStringNotFound([CanBeNull] object connectionString)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("ConnectionStringNotFound", "connectionString"), connectionString);
+        }
+
+        /// <summary>
+        /// Unhandled binding type: '{type}'.
+        /// </summary>
+        public static string UnhandledBindingType([CanBeNull] object type)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("UnhandledBindingType", "type"), type);
+        }
+
+        /// <summary>
+        /// Unhandled expression type: '{type}'.
+        /// </summary>
+        public static string UnhandledExpressionType([CanBeNull] object type)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("UnhandledExpressionType", "type"), type);
         }
 
         private static string GetString(string name, params string[] formatterNames)

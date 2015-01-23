@@ -9,10 +9,11 @@ using Remotion.Linq;
 
 namespace Microsoft.Data.Entity.Query
 {
-    public class EntityQueryable<TResult> : QueryableBase<TResult>, IAsyncEnumerable<TResult>, IIncludableQueryable<TResult, object>
+    public class EntityQueryable<TResult> 
+        : QueryableBase<TResult>, IAsyncEnumerable<TResult>, IIncludableQueryable<TResult, object>
     {
-        public EntityQueryable([NotNull] EntityQueryExecutor entityQueryExecutor)
-            : base(new EntityQueryProvider(Check.NotNull(entityQueryExecutor, "entityQueryExecutor")))
+        public EntityQueryable([NotNull] EntityQueryProvider provider)
+            : base(Check.NotNull(provider, "provider"))
         {
         }
 

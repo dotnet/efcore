@@ -11,6 +11,7 @@ using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.InMemory.Query;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
@@ -33,17 +34,25 @@ namespace Microsoft.Data.Entity.InMemory
         }
 
         public InMemoryDataStore(
-             [NotNull] StateManager stateManager,
-             [NotNull] DbContextService<IModel> model,
-             [NotNull] EntityKeyFactorySource entityKeyFactorySource,
-             [NotNull] EntityMaterializerSource entityMaterializerSource,
-             [NotNull] ClrCollectionAccessorSource collectionAccessorSource,
-             [NotNull] ClrPropertySetterSource propertySetterSource,
-             [NotNull] InMemoryDatabase persistentDatabase,
-             [NotNull] DbContextService<IDbContextOptions> options,
-             [NotNull] ILoggerFactory loggerFactory)
-            : base(stateManager, model, entityKeyFactorySource, entityMaterializerSource,
-                collectionAccessorSource, propertySetterSource, loggerFactory)
+            [NotNull] StateManager stateManager,
+            [NotNull] DbContextService<IModel> model,
+            [NotNull] EntityKeyFactorySource entityKeyFactorySource,
+            [NotNull] EntityMaterializerSource entityMaterializerSource,
+            [NotNull] ClrCollectionAccessorSource collectionAccessorSource,
+            [NotNull] ClrPropertySetterSource propertySetterSource,
+            [NotNull] InMemoryDatabase persistentDatabase,
+            [NotNull] DbContextService<IDbContextOptions> options,
+            [NotNull] ILoggerFactory loggerFactory,
+            [NotNull] ICompiledQueryCache compiledQueryCache)
+            : base(
+                Check.NotNull(stateManager, "stateManager"),
+                Check.NotNull(model, "model"),
+                Check.NotNull(entityKeyFactorySource, "entityKeyFactorySource"),
+                Check.NotNull(entityMaterializerSource, "entityMaterializerSource"),
+                Check.NotNull(collectionAccessorSource, "collectionAccessorSource"),
+                Check.NotNull(propertySetterSource, "propertySetterSource"),
+                Check.NotNull(loggerFactory, "loggerFactory"),
+                Check.NotNull(compiledQueryCache, "compiledQueryCache"))
         {
             Check.NotNull(persistentDatabase, "persistentDatabase");
 
@@ -51,7 +60,7 @@ namespace Microsoft.Data.Entity.InMemory
                 .OfType<InMemoryOptionsExtension>()
                 .FirstOrDefault();
 
-            _persist = (storeConfig != null ? (bool?)storeConfig.Persist : null) ?? true;
+            _persist = storeConfig?.Persist ?? true;
 
             _database = new ThreadSafeLazyRef<InMemoryDatabase>(
                 () => _persist
@@ -59,10 +68,7 @@ namespace Microsoft.Data.Entity.InMemory
                     : new InMemoryDatabase(loggerFactory));
         }
 
-        public virtual InMemoryDatabase Database
-        {
-            get { return _database.Value; }
-        }
+        public virtual InMemoryDatabase Database => _database.Value;
 
         public override int SaveChanges(
             IReadOnlyList<StateEntry> stateEntries)
@@ -85,15 +91,22 @@ namespace Microsoft.Data.Entity.InMemory
         {
             Check.NotNull(queryModel, "queryModel");
 
-            var queryCompilationContext
-                = new InMemoryQueryCompilationContext(
-                    Model,
-                    Logger,
-                    EntityMaterializerSource,
-                    EntityKeyFactorySource,
-                    _database.Value);
+            var queryExecutor
+                = CompiledQueryCache.GetOrAdd(queryModel, qm =>
+                    {
+                        var queryCompilationContext
+                            = new InMemoryQueryCompilationContext(
+                                Model,
+                                Logger,
+                                EntityMaterializerSource,
+                                EntityKeyFactorySource,
+                                _database.Value);
 
-            var queryExecutor = queryCompilationContext.CreateQueryModelVisitor().CreateQueryExecutor<TResult>(queryModel);
+                        return queryCompilationContext
+                            .CreateQueryModelVisitor()
+                            .CreateQueryExecutor<TResult>(qm);
+                    });
+
             var queryContext = new InMemoryQueryContext(Logger, CreateQueryBuffer());
 
             return queryExecutor(queryContext);

@@ -39,16 +39,25 @@ namespace Microsoft.Data.Entity.SqlServer
             [NotNull] SqlServerCommandBatchPreparer batchPreparer,
             [NotNull] SqlServerBatchExecutor batchExecutor,
             [NotNull] DbContextService<IDbContextOptions> options,
-            [NotNull] ILoggerFactory loggerFactory)
-            : base(stateManager, model, entityKeyFactorySource, entityMaterializerSource,
-                collectionAccessorSource, propertySetterSource, connection, batchPreparer, batchExecutor, options, loggerFactory)
+            [NotNull] ILoggerFactory loggerFactory,
+            [NotNull] ICompiledQueryCache compiledQueryCache)
+            : base(
+                Check.NotNull(stateManager, "stateManager"),
+                Check.NotNull(model, "model"),
+                Check.NotNull(entityKeyFactorySource, "entityKeyFactorySource"),
+                Check.NotNull(entityMaterializerSource, "entityMaterializerSource"),
+                Check.NotNull(collectionAccessorSource, "collectionAccessorSource"),
+                Check.NotNull(propertySetterSource, "propertySetterSource"),
+                Check.NotNull(connection, "connection"),
+                Check.NotNull(batchPreparer, "batchPreparer"),
+                Check.NotNull(batchExecutor, "batchExecutor"),
+                Check.NotNull(options, "options"),
+                Check.NotNull(loggerFactory, "loggerFactory"),
+                Check.NotNull(compiledQueryCache, "compiledQueryCache"))
         {
         }
 
-        protected override RelationalValueReaderFactory ValueReaderFactory
-        {
-            get { return new RelationalObjectArrayValueReaderFactory(); }
-        }
+        protected override RelationalValueReaderFactory ValueReaderFactory => new RelationalObjectArrayValueReaderFactory();
 
         protected override RelationalQueryCompilationContext CreateQueryCompilationContext(
             ILinqOperatorProvider linqOperatorProvider,

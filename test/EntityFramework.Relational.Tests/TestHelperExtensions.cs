@@ -13,6 +13,7 @@ using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Relational.Migrations;
@@ -510,9 +511,11 @@ namespace Microsoft.Data.Entity.Tests
             FakeCommandBatchPreparer batchPreparer,
             BatchExecutor batchExecutor,
             DbContextService<IDbContextOptions> options,
-            ILoggerFactory loggerFactory)
+            ILoggerFactory loggerFactory,
+            ICompiledQueryCache compiledQueryCache)
             : base(stateManager, model, entityKeyFactorySource, entityMaterializerSource,
-                collectionAccessorSource, propertySetterSource, connection, batchPreparer, batchExecutor, options, loggerFactory)
+                collectionAccessorSource, propertySetterSource, connection, batchPreparer, batchExecutor, options, loggerFactory,
+                compiledQueryCache)
         {
         }
     }

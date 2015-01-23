@@ -47,9 +47,17 @@ namespace Microsoft.Data.Entity.Relational
             [NotNull] CommandBatchPreparer batchPreparer,
             [NotNull] BatchExecutor batchExecutor,
             [NotNull] DbContextService<IDbContextOptions> options,
-            [NotNull] ILoggerFactory loggerFactory)
-            : base(stateManager, model, entityKeyFactorySource, entityMaterializerSource,
-                collectionAccessorSource, propertySetterSource, loggerFactory)
+            [NotNull] ILoggerFactory loggerFactory,
+            [NotNull] ICompiledQueryCache compiledQueryCache)
+            : base(
+                Check.NotNull(stateManager, "stateManager"),
+                Check.NotNull(model, "model"),
+                Check.NotNull(entityKeyFactorySource, "entityKeyFactorySource"),
+                Check.NotNull(entityMaterializerSource, "entityMaterializerSource"),
+                Check.NotNull(collectionAccessorSource, "collectionAccessorSource"),
+                Check.NotNull(propertySetterSource, "propertySetterSource"),
+                Check.NotNull(loggerFactory, "loggerFactory"),
+                Check.NotNull(compiledQueryCache, "compiledQueryCache"))
         {
             Check.NotNull(connection, "connection");
             Check.NotNull(batchPreparer, "batchPreparer");
@@ -91,17 +99,20 @@ namespace Microsoft.Data.Entity.Relational
         {
             Check.NotNull(queryModel, "queryModel");
 
-            var queryCompilationContext
-                = CreateQueryCompilationContext(
-                    new LinqOperatorProvider(),
-                    new RelationalResultOperatorHandler(),
-                    new QueryMethodProvider(),
-                    new CompositeMethodCallTranslator());
-
             var queryExecutor
-                = queryCompilationContext
-                    .CreateQueryModelVisitor()
-                    .CreateQueryExecutor<TResult>(queryModel);
+                = CompiledQueryCache.GetOrAdd(queryModel, qm =>
+                    {
+                        var queryCompilationContext
+                            = CreateQueryCompilationContext(
+                                new LinqOperatorProvider(),
+                                new RelationalResultOperatorHandler(),
+                                new QueryMethodProvider(),
+                                new CompositeMethodCallTranslator());
+
+                        return queryCompilationContext
+                            .CreateQueryModelVisitor()
+                            .CreateQueryExecutor<TResult>(qm);
+                    });
 
             var queryContext
                 = new RelationalQueryContext(
@@ -135,9 +146,9 @@ namespace Microsoft.Data.Entity.Relational
                     CreateQueryBuffer(),
                     _connection,
                     ValueReaderFactory)
-                {
-                    CancellationToken = cancellationToken
-                };
+                    {
+                        CancellationToken = cancellationToken
+                    };
 
             return queryExecutor(queryContext);
         }

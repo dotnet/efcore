@@ -6,7 +6,6 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Parsing;
-using System;
 
 namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
 {
@@ -21,10 +20,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
             _entityQueryModelVisitor = entityQueryModelVisitor;
         }
 
-        public virtual EntityQueryModelVisitor QueryModelVisitor
-        {
-            get { return _entityQueryModelVisitor; }
-        }
+        public virtual EntityQueryModelVisitor QueryModelVisitor => _entityQueryModelVisitor;
 
         protected override Expression VisitSubQueryExpression(SubQueryExpression subQueryExpression)
         {

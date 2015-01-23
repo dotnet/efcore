@@ -423,4 +423,10 @@
   <data name="ConnectionStringNotFound" xml:space="preserve">
     <value>No connection string named '{connectionString}' could be found in configuration.</value>
   </data>
+  <data name="UnhandledBindingType" xml:space="preserve">
+    <value>Unhandled binding type: '{type}'.</value>
+  </data>
+  <data name="UnhandledExpressionType" xml:space="preserve">
+    <value>Unhandled expression type: '{type}'.</value>
+  </data>
 </root>

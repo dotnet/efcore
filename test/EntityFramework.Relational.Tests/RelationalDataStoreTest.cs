@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Relational.Update;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Tests;
@@ -84,9 +85,11 @@ namespace Microsoft.Data.Entity.Relational.Tests
                 CommandBatchPreparer batchPreparer,
                 BatchExecutor batchExecutor,
                 DbContextService<IDbContextOptions> options,
-                ILoggerFactory loggerFactory)
+                ILoggerFactory loggerFactory,
+                ICompiledQueryCache compiledQueryCache)
                 : base(stateManager, model, entityKeyFactorySource, entityMaterializerSource,
-                    collectionAccessorSource, propertySetterSource, connection, batchPreparer, batchExecutor, options, loggerFactory)
+                    collectionAccessorSource, propertySetterSource, connection, batchPreparer, batchExecutor, options, 
+                    loggerFactory, compiledQueryCache)
             {
             }
         }

@@ -20,8 +20,6 @@ namespace Microsoft.Data.Entity.Storage
     {
         private readonly StateManager _stateManager;
         private readonly DbContextService<IModel> _model;
-        private readonly EntityKeyFactorySource _entityKeyFactorySource;
-        private readonly EntityMaterializerSource _entityMaterializerSource;
         private readonly ClrCollectionAccessorSource _collectionAccessorSource;
         private readonly ClrPropertySetterSource _propertySetterSource;
         private readonly LazyRef<ILogger> _logger;
@@ -42,7 +40,8 @@ namespace Microsoft.Data.Entity.Storage
             [NotNull] EntityMaterializerSource entityMaterializerSource,
             [NotNull] ClrCollectionAccessorSource collectionAccessorSource,
             [NotNull] ClrPropertySetterSource propertySetterSource,
-            [NotNull] ILoggerFactory loggerFactory)
+            [NotNull] ILoggerFactory loggerFactory,
+            [NotNull] ICompiledQueryCache compiledQueryCache)
         {
             Check.NotNull(stateManager, "stateManager");
             Check.NotNull(model, "model");
@@ -51,35 +50,30 @@ namespace Microsoft.Data.Entity.Storage
             Check.NotNull(collectionAccessorSource, "collectionAccessorSource");
             Check.NotNull(propertySetterSource, "propertySetterSource");
             Check.NotNull(loggerFactory, "loggerFactory");
+            Check.NotNull(compiledQueryCache, "compiledQueryCache");
 
             _stateManager = stateManager;
             _model = model;
-            _entityKeyFactorySource = entityKeyFactorySource;
-            _entityMaterializerSource = entityMaterializerSource;
+
+            EntityKeyFactorySource = entityKeyFactorySource;
+            EntityMaterializerSource = entityMaterializerSource;
+
             _collectionAccessorSource = collectionAccessorSource;
             _propertySetterSource = propertySetterSource;
+            CompiledQueryCache = compiledQueryCache;
+
             _logger = new LazyRef<ILogger>(loggerFactory.Create<DataStore>);
         }
 
-        public virtual ILogger Logger
-        {
-            get { return _logger.Value; }
-        }
+        public virtual ILogger Logger => _logger.Value;
 
-        public virtual IModel Model
-        {
-            get { return _model.Service; }
-        }
+        public virtual IModel Model => _model.Service;
 
-        public virtual EntityKeyFactorySource EntityKeyFactorySource
-        {
-            get { return _entityKeyFactorySource; }
-        }
+        public virtual ICompiledQueryCache CompiledQueryCache { get; }
 
-        public virtual EntityMaterializerSource EntityMaterializerSource
-        {
-            get { return _entityMaterializerSource; }
-        }
+        public virtual EntityKeyFactorySource EntityKeyFactorySource { get; }
+
+        public virtual EntityMaterializerSource EntityMaterializerSource { get; }
 
         protected virtual IQueryBuffer CreateQueryBuffer()
         {

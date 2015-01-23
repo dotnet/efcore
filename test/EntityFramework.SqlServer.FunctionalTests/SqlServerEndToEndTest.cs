@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.FunctionalTests;
 using Microsoft.Data.Entity.SqlServer.FunctionalTests.TestModels;
@@ -103,9 +104,11 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 SqlServerCommandBatchPreparer batchPreparer,
                 SqlServerBatchExecutor batchExecutor,
                 DbContextService<IDbContextOptions> options,
-                ILoggerFactory loggerFactory)
+                ILoggerFactory loggerFactory,
+                ICompiledQueryCache compiledQueryCache)
                 : base(stateManager, model, entityKeyFactorySource, entityMaterializerSource,
-                    collectionAccessorSource, propertySetterSource, connection, batchPreparer, batchExecutor, options, loggerFactory)
+                    collectionAccessorSource, propertySetterSource, connection, batchPreparer,
+                    batchExecutor, options, loggerFactory, compiledQueryCache)
             {
             }
 
