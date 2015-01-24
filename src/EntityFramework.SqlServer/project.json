@@ -1,12 +1,12 @@
 {
-    "version": "7.0.0-*",
+    "version": "7.0.0-beta2",
     "description":  "Microsoft SQL Server data store for Entity Framework.",
     "compilationOptions": {
         "warningsAsErrors": true
     },
     "dependencies": {
-        "EntityFramework.Migrations": "7.0.0-*",
-        "System.Data.SqlClient": "1.0.0-*"
+        "EntityFramework.Migrations": "7.0.0-beta2",
+        "System.Data.SqlClient": "1.0.0-beta2"
     },
     "code": [ "**\\*.cs", "..\\Shared\\*.cs" ],
     "frameworks": {
@@ -14,7 +14,7 @@
         "aspnet50": { },
         "aspnetcore50": {
             "dependencies": {
-                "System.Threading.Thread": "4.0.0-beta-*"
+                "System.Threading.Thread": "4.0.0-beta-22416"
             }
         }
     }
