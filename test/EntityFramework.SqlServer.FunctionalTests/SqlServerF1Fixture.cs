@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Threading.Tasks;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.ConcurrencyModel;
 using Microsoft.Data.Entity.Metadata;
@@ -38,9 +39,10 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                     using (var context = new F1Context(_serviceProvider, options))
                     {
-                        if (await context.Database.EnsureCreatedAsync())
+                        // TODO: Delete DB if model changed
+                        if (await context.Database.EnsureCreatedAsync().WithCurrentCulture())
                         {
-                            await ConcurrencyModelInitializer.SeedAsync(context);
+                            await ConcurrencyModelInitializer.SeedAsync(context).WithCurrentCulture();
                         }
                     }
                 }).Result;

@@ -191,7 +191,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                                               DROP DATABASE [{0}];
                                           END", name);
 
-                    await command.ExecuteNonQueryAsync();
+                    await command.ExecuteNonQueryAsync().WithCurrentCulture();
 
                     var userFolder = Environment.GetEnvironmentVariable("USERPROFILE");
                     try

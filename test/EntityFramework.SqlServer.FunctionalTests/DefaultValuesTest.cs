@@ -10,18 +10,18 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
-    public class DefaultValuesTest
+    public class DefaultValuesTest : IDisposable
     {
+        private readonly IServiceProvider _serviceProvider = new ServiceCollection()
+            .AddEntityFramework()
+            .AddSqlServer()
+            .ServiceCollection
+            .BuildServiceProvider();
+
         [Fact]
         public void Can_use_SQL_Server_default_values()
         {
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer()
-                .ServiceCollection
-                .BuildServiceProvider();
-
-            using (var context = new ChipsContext(serviceProvider, "KettleChips"))
+            using (var context = new ChipsContext(_serviceProvider, "DefaultKettleChips"))
             {
                 context.Database.EnsureDeleted();
                 context.Database.EnsureCreated();
@@ -39,10 +39,18 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 Assert.Equal(new DateTime(2111, 1, 11), buffaloBleu.BestBuyDate);
             }
 
-            using (var context = new ChipsContext(serviceProvider, "KettleChips"))
+            using (var context = new ChipsContext(_serviceProvider, "DefaultKettleChips"))
             {
                 Assert.Equal(new DateTime(2035, 9, 25), context.Chips.Single(c => c.Name == "Honey Dijon").BestBuyDate);
                 Assert.Equal(new DateTime(2111, 1, 11), context.Chips.Single(c => c.Name == "Buffalo Bleu").BestBuyDate);
+            }
+        }
+
+        public void Dispose()
+        {
+            using (var context = new ChipsContext(_serviceProvider, "DefaultKettleChips"))
+            {
+                context.Database.EnsureDeleted();
             }
         }
 

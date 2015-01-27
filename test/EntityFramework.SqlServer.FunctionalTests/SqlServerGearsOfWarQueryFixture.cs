@@ -1,7 +1,8 @@
-﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Threading.Tasks;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.GearsOfWarModel;
 using Microsoft.Data.Entity.Metadata;
@@ -40,11 +41,11 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                     using (var context = new GearsOfWarContext(_serviceProvider, options))
                     {
-                        // TODO: Only delete if model changed
-                        await context.Database.EnsureDeletedAsync();
-                        if (await context.Database.EnsureCreatedAsync())
+                        // TODO: Delete DB if model changed
+
+                        if (await context.Database.EnsureCreatedAsync().WithCurrentCulture())
                         {
-                            await GearsOfWarModelInitializer.SeedAsync(context);
+                            await GearsOfWarModelInitializer.SeedAsync(context).WithCurrentCulture();
                         }
                     }
                 }).Result;

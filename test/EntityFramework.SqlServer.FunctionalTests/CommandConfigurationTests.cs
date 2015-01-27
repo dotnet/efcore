@@ -2,12 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
@@ -16,10 +12,7 @@ using Microsoft.Data.Entity.Relational.Query;
 using Microsoft.Data.Entity.Relational.Query.Expressions;
 using Microsoft.Data.Entity.Relational.Query.Methods;
 using Microsoft.Data.Entity.Relational.Update;
-using Microsoft.Data.Entity.SqlServer.Extensions;
-using Microsoft.Data.Entity.SqlServer.Query;
 using Microsoft.Data.Entity.SqlServer.Update;
-using Microsoft.Data.Entity.Storage;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
 using Microsoft.Framework.Logging;
@@ -27,18 +20,18 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
-    public class CommandConfigurationTests
+    public class CommandConfigurationTests : IDisposable
     {
+        private readonly IServiceProvider _serviceProvider = new ServiceCollection()
+            .AddEntityFramework()
+            .AddSqlServer()
+            .ServiceCollection
+            .BuildServiceProvider();
+
         [Fact]
         public void Constructed_select_query_uses_default_when_commandTimeout_not_configured_and_can_be_changed()
         {
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer()
-                .ServiceCollection
-                .BuildServiceProvider();
-
-            using (var context = new ChipsContext(serviceProvider, "KettleChips"))
+            using (var context = new ChipsContext(_serviceProvider, "KettleChips"))
             {
                 var commandBuilder = setupCommandBuilder(context);
 
@@ -57,13 +50,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         [Fact]
         public void Constructed_select_query_honors_configured_commandTimeout_configured_in_context()
         {
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer()
-                .ServiceCollection
-                .BuildServiceProvider();
-
-            using (var context = new ConfiguredChipsContext(serviceProvider, "KettleChips"))
+            using (var context = new ConfiguredChipsContext(_serviceProvider, "KettleChips"))
             {
                 var commandBuilder = setupCommandBuilder(context);
 
@@ -77,13 +64,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         [Fact]
         public void Constructed_select_query_honors_latest_configured_commandTimeout_configured_in_context()
         {
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer()
-                .ServiceCollection
-                .BuildServiceProvider();
-
-            using (var context = new ConfiguredChipsContext(serviceProvider, "KettleChips"))
+            using (var context = new ConfiguredChipsContext(_serviceProvider, "KettleChips"))
             {
                 var commandBuilder = setupCommandBuilder(context);
 
@@ -104,13 +85,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         [Fact]
         public void Constructed_select_query_CommandBuilder_throws_when_negative_CommandTimeout_is_used()
         {
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer()
-                .ServiceCollection
-                .BuildServiceProvider();
-
-            using (var context = new ConfiguredChipsContext(serviceProvider, "KettleChips"))
+            using (var context = new ConfiguredChipsContext(_serviceProvider, "KettleChips"))
             {
                 Assert.Throws<ArgumentException>(() => context.Database.AsRelational().Connection.CommandTimeout = -5);
             }
@@ -119,13 +94,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         [Fact]
         public void Constructed_select_query_CommandBuilder_uses_default_when_null()
         {
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer()
-                .ServiceCollection
-                .BuildServiceProvider();
-
-            using (var context = new ConfiguredChipsContext(serviceProvider, "KettleChips"))
+            using (var context = new ConfiguredChipsContext(_serviceProvider, "KettleChips"))
             {
                 var commandBuilder = setupCommandBuilder(context);
 
@@ -313,6 +282,14 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             }
         }
         
+        public void Dispose()
+        {
+            using (var context = new ChipsContext(_serviceProvider, "KettleChips"))
+            {
+                context.Database.EnsureDeleted();
+            }
+        }
+
         public static int? globalCommandTimeout;
 
         public class TestSqlServerModificationCommandBatch : SqlServerModificationCommandBatch
@@ -353,7 +330,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             public ChipsContext(IServiceProvider serviceProvider, string databaseName)
                 : base(serviceProvider)
             {
-                _databaseName = databaseName + DateTime.Now.Millisecond;
+                _databaseName = databaseName;
             }
 
             public DbSet<KettleChips> Chips { get; set; }

@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             base.Include_multiple_one_to_one_and_one_to_many();
 
             Assert.Equal(
-                @"SELECT [t].[GearNickName], [t].[GearSquadId], [t].[Id], [t].[Note], [g].[AssignedCityId], [g].[CityOrBirthName], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Nickname], [g].[Rank], [g].[SquadId]
+                @"SELECT [t].[GearNickName], [t].[GearSquadId], [t].[Id], [t].[Note], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Nickname], [g].[Rank], [g].[SquadId]
 FROM [CogTag] AS [t]
 LEFT JOIN [Gear] AS [g] ON ([t].[GearNickName] = [g].[Nickname] AND [t].[GearSquadId] = [g].[SquadId])
 ORDER BY [g].[Nickname], [g].[SquadId]

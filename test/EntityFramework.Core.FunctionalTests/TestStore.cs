@@ -22,11 +22,11 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 var asyncLock = _creationLocks.GetOrAdd(name, new AsyncLock());
 
-                using (await asyncLock.LockAsync())
+                using (await asyncLock.LockAsync().WithCurrentCulture())
                 {
                     if (!_createdDatabases.Contains(name))
                     {
-                        await initializeDatabase();
+                        await initializeDatabase().WithCurrentCulture();
 
                         _createdDatabases.Add(name);
 
