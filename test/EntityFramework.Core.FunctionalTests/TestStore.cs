@@ -37,6 +37,27 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
+        protected virtual void CreateShared(string name, Action initializeDatabase)
+        {
+            if (!_createdDatabases.Contains(name))
+            {
+                var asyncLock = _creationLocks.GetOrAdd(name, new AsyncLock());
+
+                using (asyncLock.Lock())
+                {
+                    if (!_createdDatabases.Contains(name))
+                    {
+                        initializeDatabase();
+
+                        _createdDatabases.Add(name);
+
+                        AsyncLock _;
+                        _creationLocks.TryRemove(name, out _);
+                    }
+                }
+            }
+        }
+
         public virtual void Dispose()
         {
         }

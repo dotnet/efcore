@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         public SqlServerNorthwindQueryFixture()
         {
-            _testStore = SqlServerNorthwindContext.GetSharedStoreAsync().Result;
+            _testStore = SqlServerNorthwindContext.GetSharedStore();
 
             _serviceProvider = new ServiceCollection()
                 .AddEntityFramework()

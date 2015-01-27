@@ -9,14 +9,14 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 {
     public class InMemoryTestStore : TestStore
     {
-        public static Task<InMemoryTestStore> GetOrCreateSharedAsync(string name, Func<Task> initializeDatabase)
+        public static InMemoryTestStore GetOrCreateShared(string name, Action initializeDatabase)
         {
-            return new InMemoryTestStore().CreateSharedAsync(name, initializeDatabase);
+            return new InMemoryTestStore().CreateShared(name, initializeDatabase);
         }
 
-        private new async Task<InMemoryTestStore> CreateSharedAsync(string name, Func<Task> initializeDatabase)
+        private new InMemoryTestStore CreateShared(string name, Action initializeDatabase)
         {
-            await base.CreateSharedAsync(typeof(InMemoryTestStore).Name + name, initializeDatabase);
+            base.CreateShared(typeof(InMemoryTestStore).Name + name, initializeDatabase);
 
             return this;
         }

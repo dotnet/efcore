@@ -26,6 +26,11 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             return new SqlServerTestStore(name).CreateSharedAsync(initializeDatabase);
         }
 
+        public static SqlServerTestStore GetOrCreateShared(string name, Action initializeDatabase)
+        {
+            return new SqlServerTestStore(name).CreateShared(initializeDatabase);
+        }
+
         /// <summary>
         ///     A non-transactional, transient, isolated test database. Use this in the case
         ///     where transactions are not appropriate.
@@ -54,6 +59,19 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             _connection = new SqlConnection(CreateConnectionString(_name));
 
             await _connection.OpenAsync();
+
+            _transaction = _connection.BeginTransaction();
+
+            return this;
+        }
+
+        private SqlServerTestStore CreateShared(Action initializeDatabase)
+        {
+            CreateShared(typeof(SqlServerTestStore).Name + _name, initializeDatabase);
+
+            _connection = new SqlConnection(CreateConnectionString(_name));
+
+            _connection.Open();
 
             _transaction = _connection.BeginTransaction();
 
@@ -118,6 +136,64 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             }
         }
 
+        public static void CreateDatabaseIfNotExists(string name, string scriptPath = null)
+        {
+            using (var master = new SqlConnection(CreateConnectionString("master")))
+            {
+                master.Open();
+
+                using (var command = master.CreateCommand())
+                {
+                    command.CommandTimeout = CommandTimeout;
+                    command.CommandText
+                        = string.Format(@"SELECT COUNT(*) FROM sys.databases WHERE name = N'{0}'", name);
+
+                    var exists = (int)command.ExecuteScalar() > 0;
+
+                    if (!exists)
+                    {
+                        if (scriptPath == null)
+                        {
+                            command.CommandText = string.Format(@"CREATE DATABASE [{0}]", name);
+
+                            command.ExecuteNonQuery();
+
+                            using (var newConnection = new SqlConnection(CreateConnectionString(name)))
+                            {
+                                WaitForExists(newConnection);
+                            }
+                        }
+                        else
+                        {
+                            // HACK: Probe for script file as current dir
+                            // is different between k build and VS run.
+
+                            if (!File.Exists(scriptPath))
+                            {
+                                var appBase = Environment.GetEnvironmentVariable("DOTNET_APPBASE");
+
+                                if (appBase != null)
+                                {
+                                    scriptPath = Path.Combine(appBase, Path.GetFileName(scriptPath));
+                                }
+                            }
+
+                            var script = File.ReadAllText(scriptPath);
+
+                            foreach (var batch
+                                in new Regex("^GO", RegexOptions.IgnoreCase | RegexOptions.Multiline)
+                                    .Split(script))
+                            {
+                                command.CommandText = batch;
+
+                                command.ExecuteNonQuery();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         private static async Task WaitForExistsAsync(SqlConnection connection)
         {
             var retryCount = 0;
@@ -126,6 +202,34 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 try
                 {
                     await connection.OpenAsync();
+
+                    connection.Close();
+
+                    return;
+                }
+                catch (SqlException e)
+                {
+                    if (++retryCount >= 30
+                        || (e.Number != 233 && e.Number != -2 && e.Number != 4060))
+                    {
+                        throw;
+                    }
+
+                    SqlConnection.ClearPool(connection);
+
+                    Thread.Sleep(100);
+                }
+            }
+        }
+
+        private static void WaitForExists(SqlConnection connection)
+        {
+            var retryCount = 0;
+            while (true)
+            {
+                try
+                {
+                    connection.Open();
 
                     connection.Close();
 

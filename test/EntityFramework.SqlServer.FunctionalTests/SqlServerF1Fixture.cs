@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Threading.Tasks;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.ConcurrencyModel;
 using Microsoft.Data.Entity.Metadata;
@@ -32,7 +31,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         public override SqlServerTestStore CreateTestStore()
         {
-            return SqlServerTestStore.GetOrCreateSharedAsync(DatabaseName, async () =>
+            return SqlServerTestStore.GetOrCreateShared(DatabaseName, () =>
                 {
                     var options = new DbContextOptions();
                     options.UseSqlServer(_connectionString);
@@ -40,12 +39,12 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     using (var context = new F1Context(_serviceProvider, options))
                     {
                         // TODO: Delete DB if model changed
-                        if (await context.Database.EnsureCreatedAsync().WithCurrentCulture())
+                        if (context.Database.EnsureCreated())
                         {
-                            await ConcurrencyModelInitializer.SeedAsync(context).WithCurrentCulture();
+                            ConcurrencyModelInitializer.Seed(context);
                         }
                     }
-                }).Result;
+                });
         }
 
         public override F1Context CreateContext(SqlServerTestStore testStore)

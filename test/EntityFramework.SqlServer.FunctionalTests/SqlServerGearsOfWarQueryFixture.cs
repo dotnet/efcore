@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         public override SqlServerTestStore CreateTestStore()
         {
-            return SqlServerTestStore.GetOrCreateSharedAsync(DatabaseName, async () =>
+            return SqlServerTestStore.GetOrCreateShared(DatabaseName, () =>
                 {
                     var options = new DbContextOptions();
                     options.UseSqlServer(_connectionString);
@@ -43,12 +43,12 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     {
                         // TODO: Delete DB if model changed
 
-                        if (await context.Database.EnsureCreatedAsync().WithCurrentCulture())
+                        if (context.Database.EnsureCreated())
                         {
-                            await GearsOfWarModelInitializer.SeedAsync(context).WithCurrentCulture();
+                            GearsOfWarModelInitializer.Seed(context);
                         }
                     }
-                }).Result;
+                });
         }
 
         public override GearsOfWarContext CreateContext(SqlServerTestStore testStore)

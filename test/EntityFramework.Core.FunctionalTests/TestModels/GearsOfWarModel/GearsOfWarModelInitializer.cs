@@ -3,19 +3,16 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Microsoft.Data.Entity.FunctionalTests.TestModels.GearsOfWarModel
 {
     public class GearsOfWarModelInitializer
     {
-        public static async Task SeedAsync(GearsOfWarContext context)
+        public static void Seed(GearsOfWarContext context)
         {
             // TODO: only delete if model has changed
-            await context.Database.EnsureDeletedAsync();
-            if (await context.Database.EnsureCreatedAsync())
+            context.Database.EnsureDeleted();
+            if (context.Database.EnsureCreated())
             {
                 var deltaSquad = new Squad
                 {
@@ -23,8 +20,8 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.GearsOfWarModel
                     Members = new List<Gear>(),
                 };
 
-                await context.Squads.AddAsync(deltaSquad);
-                await context.SaveChangesAsync();
+                context.Squads.Add(deltaSquad);
+                context.SaveChanges();
 
                 var kiloSquad = new Squad
                 {
@@ -32,8 +29,8 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.GearsOfWarModel
                     Members = new List<Gear>(),
                 };
 
-                await context.Squads.AddAsync(kiloSquad);
-                await context.SaveChangesAsync();
+                context.Squads.Add(kiloSquad);
+                context.SaveChanges();
 
                 var jacinto = new City
                 {
@@ -59,12 +56,12 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.GearsOfWarModel
                     Name = "Unknown",
                 };
 
-                await context.Cities.AddAsync(jacinto);
-                await context.Cities.AddAsync(ephyra);
-                await context.Cities.AddAsync(hanover);
-                await context.Cities.AddAsync(unknown);
+                context.Cities.Add(jacinto);
+                context.Cities.Add(ephyra);
+                context.Cities.Add(hanover);
+                context.Cities.Add(unknown);
 
-                await context.SaveChangesAsync();
+                context.SaveChanges();
 
                 var marcusLancer = new Weapon
                 {
@@ -112,16 +109,16 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.GearsOfWarModel
                     Name = "Paduk's Markza",
                 };
 
-                await context.Weapons.AddAsync(marcusLancer);
-                await context.Weapons.AddAsync(marcusGnasher);
-                await context.Weapons.AddAsync(domsHammerburst);
-                await context.Weapons.AddAsync(domsGnasher);
-                await context.Weapons.AddAsync(colesGnasher);
-                await context.Weapons.AddAsync(colesMulcher);
-                await context.Weapons.AddAsync(bairdsLancer);
-                await context.Weapons.AddAsync(bairdsGnasher);
-                await context.Weapons.AddAsync(paduksMarkza);
-                await context.SaveChangesAsync();
+                context.Weapons.Add(marcusLancer);
+                context.Weapons.Add(marcusGnasher);
+                context.Weapons.Add(domsHammerburst);
+                context.Weapons.Add(domsGnasher);
+                context.Weapons.Add(colesGnasher);
+                context.Weapons.Add(colesMulcher);
+                context.Weapons.Add(bairdsLancer);
+                context.Weapons.Add(bairdsGnasher);
+                context.Weapons.Add(paduksMarkza);
+                context.SaveChanges();
 
                 var marcusTag = new CogTag
                 {
@@ -159,13 +156,13 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.GearsOfWarModel
                     Note = "K.I.A.",
                 };
 
-                await context.Tags.AddAsync(marcusTag);
-                await context.Tags.AddAsync(domsTag);
-                await context.Tags.AddAsync(colesTag);
-                await context.Tags.AddAsync(bairdsTag);
-                await context.Tags.AddAsync(paduksTag);
-                await context.Tags.AddAsync(kiaTag);
-                await context.SaveChangesAsync();
+                context.Tags.Add(marcusTag);
+                context.Tags.Add(domsTag);
+                context.Tags.Add(colesTag);
+                context.Tags.Add(bairdsTag);
+                context.Tags.Add(paduksTag);
+                context.Tags.Add(kiaTag);
+                context.SaveChanges();
 
                 var dom = new Gear
                 {
@@ -230,13 +227,13 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.GearsOfWarModel
                     Weapons = new List<Weapon> { marcusLancer, marcusGnasher },
                 };
 
-                await context.Gears.AddAsync(marcus);
-                await context.Gears.AddAsync(dom);
-                await context.Gears.AddAsync(cole);
-                await context.Gears.AddAsync(baird);
-                await context.Gears.AddAsync(paduk);
+                context.Gears.Add(marcus);
+                context.Gears.Add(dom);
+                context.Gears.Add(cole);
+                context.Gears.Add(baird);
+                context.Gears.Add(paduk);
 
-                await context.SaveChangesAsync();
+                context.SaveChanges();
             }
         }
     }
