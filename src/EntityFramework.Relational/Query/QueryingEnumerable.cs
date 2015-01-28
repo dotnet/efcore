@@ -51,6 +51,7 @@ namespace Microsoft.Data.Entity.Relational.Query
 
             private DbCommand _command;
             private DbDataReader _reader;
+            private bool _disposed;
 
             public Enumerator(QueryingEnumerable<T> enumerable)
             {
@@ -87,9 +88,18 @@ namespace Microsoft.Data.Entity.Relational.Query
 
             public void Dispose()
             {
-                _reader?.Dispose();
-                _command?.Dispose();
-                _enumerable._relationalQueryContext.Connection?.Close();
+                if (!_disposed)
+                {
+                    if (_reader != null)
+                    {
+                        _enumerable._relationalQueryContext.Connection?.Close();
+                        _reader.Dispose();
+                    }
+
+                    _command?.Dispose();
+
+                    _disposed = true;
+                }
             }
 
             public void Reset()

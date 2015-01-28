@@ -95,11 +95,15 @@ namespace Microsoft.Data.Entity.Relational.Query
             {
                 if (!_disposed)
                 {
-                    _disposed = true;
+                    if (_reader != null)
+                    {
+                        _enumerable._relationalQueryContext.Connection?.Close();
+                        _reader.Dispose();
+                    }
 
-                    _reader?.Dispose();
                     _command?.Dispose();
-                    _enumerable._relationalQueryContext.Connection?.Close();
+
+                    _disposed = true;
                 }
             }
         }
