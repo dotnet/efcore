@@ -227,13 +227,11 @@ namespace Microsoft.Data.Entity.Relational.Query
             {
                 var filteringVisitor = new FilteringExpressionTreeVisitor(this);
                 var predicate = filteringVisitor.VisitExpression(whereClause.Predicate);
-                if (selectExpression.Predicate == null)
+                if (predicate != null)
                 {
-                    selectExpression.Predicate = predicate;
-                }
-                else if (predicate != null)
-                {
-                    selectExpression.Predicate = Expression.AndAlso(selectExpression.Predicate, predicate);
+                    selectExpression.Predicate = selectExpression.Predicate == null
+                        ? predicate
+                        : Expression.AndAlso(selectExpression.Predicate, predicate);
                 }
 
                 _requiresClientFilter |= filteringVisitor.RequiresClientEval;
