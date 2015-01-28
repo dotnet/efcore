@@ -49,8 +49,8 @@ namespace Microsoft.Data.Entity.Relational.Query
         {
             private readonly QueryingEnumerable<T> _enumerable;
 
-            private DbCommand _command;
             private DbDataReader _reader;
+            private bool _disposed;
 
             public Enumerator(QueryingEnumerable<T> enumerable)
             {
@@ -63,13 +63,12 @@ namespace Microsoft.Data.Entity.Relational.Query
                 {
                     _enumerable._relationalQueryContext.Connection.Open();
 
-                    _command
-                        = _enumerable._commandBuilder
-                            .Build(_enumerable._relationalQueryContext.Connection);
+                    using (var command = _enumerable._commandBuilder.Build(_enumerable._relationalQueryContext.Connection))
+                    {
+                        _enumerable._logger.WriteSql(command.CommandText);
 
-                    _enumerable._logger.WriteSql(_command.CommandText);
-
-                    _reader = _command.ExecuteReader();
+                        _reader = command.ExecuteReader();
+                    }
 
                     _enumerable._relationalQueryContext.RegisterDataReader(_reader);
                 }
@@ -87,9 +86,16 @@ namespace Microsoft.Data.Entity.Relational.Query
 
             public void Dispose()
             {
-                _reader?.Dispose();
-                _command?.Dispose();
-                _enumerable._relationalQueryContext.Connection?.Close();
+                if (!_disposed)
+                {
+                    if (_reader != null)
+                    {
+                        _reader.Dispose();
+                        _enumerable._relationalQueryContext.Connection?.Close();
+                    }
+
+                    _disposed = true;
+                }
             }
 
             public void Reset()
