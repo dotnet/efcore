@@ -41,6 +41,20 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void Include_list()
+        {
+            using (var context = CreateContext())
+            {
+                var products
+                    = context.Set<Product>()
+                        .Include(c => c.OrderDetails).ThenInclude(od => od.Order)
+                        .ToList();
+
+                Assert.Equal(77, products.Count);
+            }
+        }
+
+        [Fact]
         public virtual void Include_collection_alias_generation()
         {
             using (var context = CreateContext())
@@ -575,21 +589,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public virtual void Include_multi_level_reference_then_include_collection_predicate()
-        {
-            using (var context = CreateContext())
-            {
-                var order
-                    = context.Set<Order>()
-                        .Include(o => o.Customer).ThenInclude(c => c.Orders)
-                        .Single(o => o.OrderID == 10248);
-
-                Assert.NotNull(order.Customer);
-                Assert.True(order.Customer.Orders.All(o => o != null));
-            }
-        }
-
-        [Fact]
         public virtual void Include_multi_level_collection_and_then_include_reference_predicate()
         {
             using (var context = CreateContext())
@@ -642,23 +641,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public virtual void Include_multiple_references_then_include_collection_multi_level()
-        {
-            using (var context = CreateContext())
-            {
-                var orderDetails
-                    = context.Set<OrderDetail>()
-                        .Include(od => od.Order).ThenInclude(o => o.Customer).ThenInclude(c => c.Orders)
-                        .Include(od => od.Product)
-                        .ToList();
-
-                Assert.True(orderDetails.Count > 0);
-                Assert.True(orderDetails.All(od => od.Order.Customer != null));
-                Assert.True(orderDetails.All(od => od.Order.Customer.Orders != null));
-            }
-        }
-
-        [Fact]
         public virtual void Include_multiple_references_and_collection_multi_level_reverse()
         {
             using (var context = CreateContext())
@@ -667,23 +649,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     = context.Set<OrderDetail>()
                         .Include(od => od.Product)
                         .Include(od => od.Order.Customer.Orders)
-                        .ToList();
-
-                Assert.True(orderDetails.Count > 0);
-                Assert.True(orderDetails.All(od => od.Order.Customer != null));
-                Assert.True(orderDetails.All(od => od.Order.Customer.Orders != null));
-            }
-        }
-
-        [Fact]
-        public virtual void Include_multiple_references_then_include_collection_multi_level_reverse()
-        {
-            using (var context = CreateContext())
-            {
-                var orderDetails
-                    = context.Set<OrderDetail>()
-                        .Include(od => od.Product)
-                        .Include(od => od.Order).ThenInclude(o => o.Customer).ThenInclude(c => c.Orders)
                         .ToList();
 
                 Assert.True(orderDetails.Count > 0);
@@ -709,22 +674,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public virtual void Include_multiple_references_then_include_multi_level()
-        {
-            using (var context = CreateContext())
-            {
-                var orderDetails
-                    = context.Set<OrderDetail>()
-                        .Include(od => od.Order).ThenInclude(o => o.Customer)
-                        .Include(od => od.Product)
-                        .ToList();
-
-                Assert.True(orderDetails.Count > 0);
-                Assert.True(orderDetails.All(od => od.Order.Customer != null));
-            }
-        }
-
-        [Fact]
         public virtual void Include_multiple_references_multi_level_reverse()
         {
             using (var context = CreateContext())
@@ -733,22 +682,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     = context.Set<OrderDetail>()
                         .Include(od => od.Product)
                         .Include(od => od.Order.Customer)
-                        .ToList();
-
-                Assert.True(orderDetails.Count > 0);
-                Assert.True(orderDetails.All(od => od.Order.Customer != null));
-            }
-        }
-
-        [Fact]
-        public virtual void Include_multiple_references_then_include_multi_level_reverse()
-        {
-            using (var context = CreateContext())
-            {
-                var orderDetails
-                    = context.Set<OrderDetail>()
-                        .Include(od => od.Product)
-                        .Include(od => od.Order).ThenInclude(o => o.Customer)
                         .ToList();
 
                 Assert.True(orderDetails.Count > 0);
@@ -808,8 +741,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 var result
                     = (from o in context.Set<Order>().Include(o => o.OrderDetails)
-                       where o.CustomerID == "ALFKI"
-                       select o)
+                        where o.CustomerID == "ALFKI"
+                        select o)
                         .ToList();
 
                 Assert.Equal(6, result.Count());
@@ -940,22 +873,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public virtual void Include_references_then_include_collection_multi_level()
-        {
-            using (var context = CreateContext())
-            {
-                var orderDetails
-                    = context.Set<OrderDetail>()
-                        .Include(od => od.Order).ThenInclude(o => o.Customer).ThenInclude(c => c.Orders)
-                        .ToList();
-
-                Assert.True(orderDetails.Count > 0);
-                Assert.True(orderDetails.All(od => od.Order.Customer != null));
-                Assert.True(orderDetails.All(od => od.Order.Customer.Orders != null));
-            }
-        }
-
-        [Fact]
         public virtual void Include_collection_then_include_collection()
         {
             using (var context = CreateContext())
@@ -1021,23 +938,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public virtual void Include_references_then_include_collection_multi_level_predicate()
-        {
-            using (var context = CreateContext())
-            {
-                var orderDetails
-                    = context.Set<OrderDetail>()
-                        .Include(od => od.Order).ThenInclude(o => o.Customer).ThenInclude(c => c.Orders)
-                        .Where(od => od.OrderID == 10248)
-                        .ToList();
-
-                Assert.True(orderDetails.Count > 0);
-                Assert.True(orderDetails.All(od => od.Order.Customer != null));
-                Assert.True(orderDetails.All(od => od.Order.Customer.Orders != null));
-            }
-        }
-
-        [Fact]
         public virtual void Include_references_multi_level()
         {
             using (var context = CreateContext())
@@ -1045,21 +945,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 var orderDetails
                     = context.Set<OrderDetail>()
                         .Include(od => od.Order.Customer)
-                        .ToList();
-
-                Assert.True(orderDetails.Count > 0);
-                Assert.True(orderDetails.All(od => od.Order.Customer != null));
-            }
-        }
-
-        [Fact]
-        public virtual void Include_references_then_include_multi_level()
-        {
-            using (var context = CreateContext())
-            {
-                var orderDetails
-                    = context.Set<OrderDetail>()
-                        .Include(od => od.Order).ThenInclude(o => o.Customer)
                         .ToList();
 
                 Assert.True(orderDetails.Count > 0);

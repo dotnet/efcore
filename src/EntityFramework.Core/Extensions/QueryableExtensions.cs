@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -1310,75 +1311,59 @@ namespace System.Linq
             Check.NotNull(source, "source");
             Check.NotNull(navigationPropertyPath, "navigationPropertyPath");
 
-            return (IIncludableQueryable<TEntity, TProperty>)
+            return new IncludableQueryable<TEntity, TProperty>(
                 source.Provider.CreateQuery<TEntity>(
                     Expression.Call(
                         null,
                         IncludeMethodInfo.MakeGenericMethod(typeof(TEntity), typeof(TProperty)),
-                        new[] { source.Expression, Expression.Quote(navigationPropertyPath) }));
-        }
-
-        public static readonly MethodInfo IncludeCollectionMethodInfo
-            = typeof(QueryableExtensions)
-                .GetTypeInfo().GetDeclaredMethods("Include")
-                .Single(mi => mi.GetParameters().Any(pi => pi.Name == "collectionNavigationPropertyPath"));
-
-        public static IIncludableQueryable<TEntity, TProperty> Include<TEntity, TProperty>(
-            [NotNull] this IQueryable<TEntity> source,
-            [NotNull] Expression<Func<TEntity, ICollection<TProperty>>> collectionNavigationPropertyPath)
-            where TEntity : class
-        {
-            Check.NotNull(source, "source");
-            Check.NotNull(collectionNavigationPropertyPath, "collectionNavigationPropertyPath");
-
-            return (IIncludableQueryable<TEntity, TProperty>)
-                source.Provider.CreateQuery<TEntity>(
-                    Expression.Call(
-                        null,
-                        IncludeCollectionMethodInfo.MakeGenericMethod(typeof(TEntity), typeof(TProperty)),
-                        new[] { source.Expression, Expression.Quote(collectionNavigationPropertyPath) }));
+                        new[] { source.Expression, Expression.Quote(navigationPropertyPath) })));
         }
 
         public static readonly MethodInfo ThenIncludeMethodInfo
             = typeof(QueryableExtensions)
                 .GetTypeInfo().GetDeclaredMethods("ThenInclude")
-                .Single(mi => mi.GetParameters().Any(pi => pi.Name == "navigationPropertyPath"));
+                .Single();
 
         public static IIncludableQueryable<TEntity, TProperty> ThenInclude<TEntity, TPreviousProperty, TProperty>(
-            [NotNull] this IIncludableQueryable<TEntity, TPreviousProperty> source,
+            [NotNull] this IIncludableQueryable<TEntity, ICollection<TPreviousProperty>> source,
             [NotNull] Expression<Func<TPreviousProperty, TProperty>> navigationPropertyPath)
             where TEntity : class
         {
-            Check.NotNull(source, "source");
-            Check.NotNull(navigationPropertyPath, "navigationPropertyPath");
-
-            return (IIncludableQueryable<TEntity, TProperty>)
+            return new IncludableQueryable<TEntity, TProperty>(
                 source.Provider.CreateQuery<TEntity>(
                     Expression.Call(
                         null,
                         ThenIncludeMethodInfo.MakeGenericMethod(typeof(TEntity), typeof(TPreviousProperty), typeof(TProperty)),
-                        new[] { source.Expression, Expression.Quote(navigationPropertyPath) }));
+                        new[] { source.Expression, Expression.Quote(navigationPropertyPath) })));
         }
 
-        public static readonly MethodInfo ThenIncludeCollectionMethodInfo
-            = typeof(QueryableExtensions)
-                .GetTypeInfo().GetDeclaredMethods("ThenInclude")
-                .Single(mi => mi.GetParameters().Any(pi => pi.Name == "collectionNavigationPropertyPath"));
-
-        public static IIncludableQueryable<TEntity, TProperty> ThenInclude<TEntity, TPreviousProperty, TProperty>(
-            [NotNull] this IIncludableQueryable<TEntity, TPreviousProperty> source,
-            [NotNull] Expression<Func<TPreviousProperty, ICollection<TProperty>>> collectionNavigationPropertyPath)
-            where TEntity : class
+        private class IncludableQueryable<TEntity, TProperty> : IIncludableQueryable<TEntity, TProperty>, IAsyncEnumerable<TEntity>
         {
-            Check.NotNull(source, "source");
-            Check.NotNull(collectionNavigationPropertyPath, "collectionNavigationPropertyPath");
+            private readonly IQueryable<TEntity> _queryable;
 
-            return (IIncludableQueryable<TEntity, TProperty>)
-                source.Provider.CreateQuery<TEntity>(
-                    Expression.Call(
-                        null,
-                        ThenIncludeCollectionMethodInfo.MakeGenericMethod(typeof(TEntity), typeof(TPreviousProperty), typeof(TProperty)),
-                        new[] { source.Expression, Expression.Quote(collectionNavigationPropertyPath) }));
+            public IncludableQueryable(IQueryable<TEntity> queryable)
+            {
+                _queryable = queryable;
+            }
+
+            public Expression Expression => _queryable.Expression;
+            public Type ElementType => _queryable.ElementType;
+            public IQueryProvider Provider => _queryable.Provider;
+
+            public IEnumerator<TEntity> GetEnumerator()
+            {
+                return _queryable.GetEnumerator();
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return GetEnumerator();
+            }
+
+            IAsyncEnumerator<TEntity> IAsyncEnumerable<TEntity>.GetEnumerator()
+            {
+                return ((IAsyncEnumerable<TEntity>)_queryable).GetEnumerator();
+            }
         }
 
         #endregion

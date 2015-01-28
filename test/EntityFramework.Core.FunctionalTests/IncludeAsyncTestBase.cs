@@ -7,6 +7,8 @@ using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
 using Microsoft.Data.Entity.Utilities;
 using Xunit;
 
+// ReSharper disable AccessToDisposedClosure
+
 namespace Microsoft.Data.Entity.FunctionalTests
 {
     public abstract class IncludeAsyncTestBase<TFixture> : IClassFixture<TFixture>
@@ -575,21 +577,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public virtual async Task Include_multi_level_reference_then_include_collection_predicate()
-        {
-            using (var context = CreateContext())
-            {
-                var order
-                    = await context.Set<Order>()
-                        .Include(o => o.Customer).ThenInclude(c => c.Orders)
-                        .SingleAsync(o => o.OrderID == 10248);
-
-                Assert.NotNull(order.Customer);
-                Assert.True(order.Customer.Orders.All(o => o != null));
-            }
-        }
-
-        [Fact]
         public virtual async Task Include_multi_level_collection_and_then_include_reference_predicate()
         {
             using (var context = CreateContext())
@@ -642,23 +629,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public virtual async Task Include_multiple_references_then_include_collection_multi_level()
-        {
-            using (var context = CreateContext())
-            {
-                var orderDetails
-                    = await context.Set<OrderDetail>()
-                        .Include(od => od.Order).ThenInclude(o => o.Customer).ThenInclude(c => c.Orders)
-                        .Include(od => od.Product)
-                        .ToListAsync();
-
-                Assert.True(orderDetails.Count > 0);
-                Assert.True(orderDetails.All(od => od.Order.Customer != null));
-                Assert.True(orderDetails.All(od => od.Order.Customer.Orders != null));
-            }
-        }
-
-        [Fact]
         public virtual async Task Include_multiple_references_and_collection_multi_level_reverse()
         {
             using (var context = CreateContext())
@@ -667,23 +637,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     = await context.Set<OrderDetail>()
                         .Include(od => od.Product)
                         .Include(od => od.Order.Customer.Orders)
-                        .ToListAsync();
-
-                Assert.True(orderDetails.Count > 0);
-                Assert.True(orderDetails.All(od => od.Order.Customer != null));
-                Assert.True(orderDetails.All(od => od.Order.Customer.Orders != null));
-            }
-        }
-
-        [Fact]
-        public virtual async Task Include_multiple_references_then_include_collection_multi_level_reverse()
-        {
-            using (var context = CreateContext())
-            {
-                var orderDetails
-                    = await context.Set<OrderDetail>()
-                        .Include(od => od.Product)
-                        .Include(od => od.Order).ThenInclude(o => o.Customer).ThenInclude(c => c.Orders)
                         .ToListAsync();
 
                 Assert.True(orderDetails.Count > 0);
@@ -709,22 +662,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public virtual async Task Include_multiple_references_then_include_multi_level()
-        {
-            using (var context = CreateContext())
-            {
-                var orderDetails
-                    = await context.Set<OrderDetail>()
-                        .Include(od => od.Order).ThenInclude(o => o.Customer)
-                        .Include(od => od.Product)
-                        .ToListAsync();
-
-                Assert.True(orderDetails.Count > 0);
-                Assert.True(orderDetails.All(od => od.Order.Customer != null));
-            }
-        }
-
-        [Fact]
         public virtual async Task Include_multiple_references_multi_level_reverse()
         {
             using (var context = CreateContext())
@@ -733,22 +670,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     = await context.Set<OrderDetail>()
                         .Include(od => od.Product)
                         .Include(od => od.Order.Customer)
-                        .ToListAsync();
-
-                Assert.True(orderDetails.Count > 0);
-                Assert.True(orderDetails.All(od => od.Order.Customer != null));
-            }
-        }
-
-        [Fact]
-        public virtual async Task Include_multiple_references_then_include_multi_level_reverse()
-        {
-            using (var context = CreateContext())
-            {
-                var orderDetails
-                    = await context.Set<OrderDetail>()
-                        .Include(od => od.Product)
-                        .Include(od => od.Order).ThenInclude(o => o.Customer)
                         .ToListAsync();
 
                 Assert.True(orderDetails.Count > 0);
@@ -925,22 +846,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public virtual async Task Include_references_then_include_collection_multi_level()
-        {
-            using (var context = CreateContext())
-            {
-                var orderDetails
-                    = await context.Set<OrderDetail>()
-                        .Include(od => od.Order).ThenInclude(o => o.Customer).ThenInclude(c => c.Orders)
-                        .ToListAsync();
-
-                Assert.True(orderDetails.Count > 0);
-                Assert.True(orderDetails.All(od => od.Order.Customer != null));
-                Assert.True(orderDetails.All(od => od.Order.Customer.Orders != null));
-            }
-        }
-
-        [Fact]
         public virtual async Task Include_collection_then_include_collection()
         {
             using (var context = CreateContext())
@@ -1006,23 +911,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public virtual async Task Include_references_then_include_collection_multi_level_predicate()
-        {
-            using (var context = CreateContext())
-            {
-                var orderDetails
-                    = await context.Set<OrderDetail>()
-                        .Include(od => od.Order).ThenInclude(o => o.Customer).ThenInclude(c => c.Orders)
-                        .Where(od => od.OrderID == 10248)
-                        .ToListAsync();
-
-                Assert.True(orderDetails.Count > 0);
-                Assert.True(orderDetails.All(od => od.Order.Customer != null));
-                Assert.True(orderDetails.All(od => od.Order.Customer.Orders != null));
-            }
-        }
-
-        [Fact]
         public virtual async Task Include_references_multi_level()
         {
             using (var context = CreateContext())
@@ -1034,22 +922,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                 Assert.True(orderDetails.Count > 0);
                 Assert.True(orderDetails.All(od => od.Order.Customer != null));
-            }
-        }
-
-        [Fact]
-        public virtual async Task Include_references_then_include_multi_level()
-        {
-            using (var context = CreateContext())
-            {
-                var orderDetails
-                    = await context.Set<OrderDetail>()
-                        .Include(od => od.Order).ThenInclude(o => o.Customer)
-                        .ToListAsync();
-
-                Assert.True(orderDetails.Count > 0);
-                Assert.True(orderDetails.All(od => od.Order.Customer != null));
-            }
+            } 
         }
     }
 }

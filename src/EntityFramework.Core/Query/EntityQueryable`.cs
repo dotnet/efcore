@@ -9,8 +9,8 @@ using Remotion.Linq;
 
 namespace Microsoft.Data.Entity.Query
 {
-    public class EntityQueryable<TResult> 
-        : QueryableBase<TResult>, IAsyncEnumerable<TResult>, IIncludableQueryable<TResult, object>
+    public class EntityQueryable<TResult>
+        : QueryableBase<TResult>, IAsyncEnumerable<TResult>
     {
         public EntityQueryable([NotNull] EntityQueryProvider provider)
             : base(Check.NotNull(provider, "provider"))

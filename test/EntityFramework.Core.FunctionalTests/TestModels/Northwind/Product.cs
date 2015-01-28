@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind
         public short? ReorderLevel { get; set; }
         public bool Discontinued { get; set; }
 
-        public virtual ICollection<OrderDetail> OrderDetails { get; set; }
+        public virtual List<OrderDetail> OrderDetails { get; set; }
 
         protected bool Equals(Product other)
         {

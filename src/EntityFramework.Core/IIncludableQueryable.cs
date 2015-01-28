@@ -6,7 +6,7 @@ using System.Linq;
 namespace Microsoft.Data.Entity
 {
     // ReSharper disable once UnusedTypeParameter
-    public interface IIncludableQueryable<out TEntity, in TProperty> : IQueryable<TEntity>
+    public interface IIncludableQueryable<out TEntity, out TProperty> : IQueryable<TEntity>
     {
     }
 }
