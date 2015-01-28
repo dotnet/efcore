@@ -13,13 +13,27 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 {
     public abstract class DbContextCodeGenerator
     {
+        private static readonly List<Tuple<string, string>> _onConfiguringMethodParameters =
+            new List<Tuple<string, string>>()
+                {
+                    new Tuple<string, string>("DbContextOptions", "options")
+                };
+
+        private static readonly List<Tuple<string, string>> _onModelCreatingMethodParameters =
+            new List<Tuple<string, string>>()
+                {
+                    new Tuple<string, string>("ModelBuilder", "modelBuilder")
+                };
+
+
         private readonly ReverseEngineeringGenerator _generator;
         private readonly IModel _model;
         private readonly string _namespaceName;
         private readonly string _className;
         private readonly string _connectionString;
 
-        private List<string> _usedNamespaces = new List<string>() // initialize with default namespaces
+        // initialize default namespaces
+        private List<string> _usedNamespaces = new List<string>()
                 {
                     "System",
                     "Microsoft.Data.Entity",
@@ -129,11 +143,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 
         public virtual void GenerateOnConfiguringCode(IndentedStringBuilder sb)
         {
-            var onConfiguringMethodParameters = new List<Tuple<string, string>>()
-                {
-                    new Tuple<string, string>("DbContextOptions", "options")
-                };
-            CSharpCodeGeneratorHelper.Instance.BeginProtectedOverrideMethod(sb, "void", "OnConfiguring", onConfiguringMethodParameters);
+            CSharpCodeGeneratorHelper.Instance.BeginProtectedOverrideMethod(sb, "void", "OnConfiguring", _onConfiguringMethodParameters);
             sb.Append("options.UseSqlServer(");
             sb.Append(CSharpUtilities.Instance.GenerateVerbatimStringLiteral(ConnectionString));
             sb.AppendLine(");");
@@ -142,11 +152,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 
         public virtual void GenerateOnModelCreatingCode(IndentedStringBuilder sb)
         {
-            var onModelCreatingMethodParameters = new List<Tuple<string, string>>()
-                {
-                    new Tuple<string, string>("ModelBuilder", "modelBuilder")
-                };
-            CSharpCodeGeneratorHelper.Instance.BeginProtectedOverrideMethod(sb, "void", "OnModelCreating", onModelCreatingMethodParameters);
+            CSharpCodeGeneratorHelper.Instance.BeginProtectedOverrideMethod(sb, "void", "OnModelCreating", _onModelCreatingMethodParameters);
             var first = true;
             foreach (var entityType in OrderedEntityTypes())
             {
@@ -180,12 +186,14 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                     {
                         GenerateEntityKeyConfiguration(sb, key);
                     }
+                    GenerateEntityFacetsConfiguration(sb, entityType);
                     GenerateForeignKeysConfiguration(sb, entityType);
                     foreach (var property in entityType.Properties)
                     {
                         GeneratePropertyFacetsConfiguration(sb, property);
                     }
                 }
+                sb.AppendLine();
                 sb.AppendLine("}");
             }
         }
@@ -195,7 +203,11 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             sb.Append("entity.Key( e => ");
             sb.Append(ModelUtilities.Instance
                 .GenerateLambdaToKey(key.Properties, PrimaryKeyPropertyOrder, "e"));
-            sb.AppendLine(" );");
+            sb.Append(" );");
+        }
+
+        public virtual void GenerateEntityFacetsConfiguration(IndentedStringBuilder sb, IEntityType entityType)
+        {
         }
 
         public abstract void GenerateForeignKeysConfiguration(IndentedStringBuilder sb, IEntityType entityType);

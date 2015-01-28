@@ -147,7 +147,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             return metadataModelProvider;
         }
 
-        public static IModel GetMetadataModel(
+        public IModel GetMetadataModel(
             IDatabaseMetadataModelProvider provider, ReverseEngineeringConfiguration configuration)
         {
             var metadataModel = provider

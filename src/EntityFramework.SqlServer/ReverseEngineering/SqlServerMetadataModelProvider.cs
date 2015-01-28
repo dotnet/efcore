@@ -20,6 +20,7 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
         public static readonly string AnnotationNameTableId = "TableId";
         public static readonly string AnnotationNameTableIdSchemaTableSeparator = ".";
         public static readonly string AnnotationNameColumnId = "ColumnId";
+        public static readonly string AnnotationNameColumnName = "ColumnName";
         public static readonly string AnnotationNamePrimaryKeyOrdinal = "PrimaryKeyOrdinalPosition";
         public static readonly string AnnotationNameForeignKeyConstraints = "ForeignKeyConstraints";
         public static readonly string AnnotationFormatForeignKey = "ForeignKey[{0}]{1}"; // {O} = ConstraintId, {1} = Descriptor
