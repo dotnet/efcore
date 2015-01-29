@@ -57,7 +57,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             GenerateCommentHeader(sb);
             GenerateUsings(sb);
             CSharpCodeGeneratorHelper.Instance.BeginNamespace(sb, ClassNamespace);
-            CSharpCodeGeneratorHelper.Instance.BeginPublicPartialClass(sb, ClassName);
+            CSharpCodeGeneratorHelper.Instance.BeginClass(sb, AccessModifier.Public, ClassName, isPartial: true);
             GenerateProperties(sb);
             GenerateMethods(sb);
             CSharpCodeGeneratorHelper.Instance.EndClass(sb);
@@ -122,8 +122,10 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         {
             foreach (var entityType in OrderedEntityTypes())
             {
-                CSharpCodeGeneratorHelper.Instance.AddPublicVirtualProperty(
+                CSharpCodeGeneratorHelper.Instance.AddProperty(
                     sb
+                    , AccessModifier.Public
+                    , VirtualModifier.Virtual
                     , "DbSet<" + _generator.EntityTypeToClassNameMap[entityType] + ">"
                     , _generator.EntityTypeToClassNameMap[entityType]);
             }
@@ -143,7 +145,8 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 
         public virtual void GenerateOnConfiguringCode(IndentedStringBuilder sb)
         {
-            CSharpCodeGeneratorHelper.Instance.BeginProtectedOverrideMethod(sb, "void", "OnConfiguring", _onConfiguringMethodParameters);
+            CSharpCodeGeneratorHelper.Instance.BeginMethod(sb,
+                AccessModifier.Protected, VirtualModifier.Override, "void", "OnConfiguring", _onConfiguringMethodParameters);
             sb.Append("options.UseSqlServer(");
             sb.Append(CSharpUtilities.Instance.GenerateVerbatimStringLiteral(ConnectionString));
             sb.AppendLine(");");
@@ -152,7 +155,8 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 
         public virtual void GenerateOnModelCreatingCode(IndentedStringBuilder sb)
         {
-            CSharpCodeGeneratorHelper.Instance.BeginProtectedOverrideMethod(sb, "void", "OnModelCreating", _onModelCreatingMethodParameters);
+            CSharpCodeGeneratorHelper.Instance.BeginMethod(sb,
+                AccessModifier.Protected, VirtualModifier.Override, "void", "OnModelCreating", _onModelCreatingMethodParameters);
             var first = true;
             foreach (var entityType in OrderedEntityTypes())
             {

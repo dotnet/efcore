@@ -62,7 +62,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             GenerateCommentHeader(sb);
             GenerateUsings(sb);
             CSharpCodeGeneratorHelper.Instance.BeginNamespace(sb, ClassNamespace);
-            CSharpCodeGeneratorHelper.Instance.BeginPublicPartialClass(sb, ClassName);
+            CSharpCodeGeneratorHelper.Instance.BeginClass(sb, AccessModifier.Public, ClassName, isPartial: true);
             GenerateProperties(sb);
             CSharpCodeGeneratorHelper.Instance.EndClass(sb);
             CSharpCodeGeneratorHelper.Instance.EndNamespace(sb);

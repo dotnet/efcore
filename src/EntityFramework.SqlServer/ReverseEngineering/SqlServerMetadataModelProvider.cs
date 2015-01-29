@@ -17,22 +17,23 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
 {
     public class SqlServerMetadataModelProvider : IDatabaseMetadataModelProvider
     {
-        public static readonly string AnnotationNameTableId = "TableId";
+        public static readonly string AnnotationPrefix = "SqlServerMetadataModelProvider:";
+        public static readonly string AnnotationNameTableId = AnnotationPrefix + "TableId";
         public static readonly string AnnotationNameTableIdSchemaTableSeparator = ".";
-        public static readonly string AnnotationNameColumnId = "ColumnId";
-        public static readonly string AnnotationNameColumnName = "ColumnName";
-        public static readonly string AnnotationNamePrimaryKeyOrdinal = "PrimaryKeyOrdinalPosition";
-        public static readonly string AnnotationNameForeignKeyConstraints = "ForeignKeyConstraints";
-        public static readonly string AnnotationFormatForeignKey = "ForeignKey[{0}]{1}"; // {O} = ConstraintId, {1} = Descriptor
+        public static readonly string AnnotationNameColumnId = AnnotationPrefix + "ColumnId";
+        public static readonly string AnnotationNameColumnName = AnnotationPrefix + "ColumnName";
+        public static readonly string AnnotationNamePrimaryKeyOrdinal = AnnotationPrefix + "PrimaryKeyOrdinalPosition";
+        public static readonly string AnnotationNameForeignKeyConstraints = AnnotationPrefix + "ForeignKeyConstraints";
+        public static readonly string AnnotationFormatForeignKey = AnnotationPrefix + "ForeignKey[{0}]{1}"; // {O} = ConstraintId, {1} = Descriptor
         public static readonly string AnnotationFormatForeignKeyConstraintSeparator = ",";
         public static readonly string AnnotationDescriptorForeignKeyOrdinal = "Ordinal";
         public static readonly string AnnotationDescriptorForeignKeyTargetEntityType = "TargetEntityType";
         public static readonly string AnnotationDescriptorForeignKeyTargetProperty = "TargetProperty";
-        public static readonly string AnnotationNamePrecision = "Precision";
-        public static readonly string AnnotationNameMaxLength = "MaxLength";
-        public static readonly string AnnotationNameScale = "Scale";
-        public static readonly string AnnotationNameIsIdentity = "IsIdentity";
-        public static readonly string AnnotationNameIsNullable = "IsNullable";
+        public static readonly string AnnotationNamePrecision = AnnotationPrefix + "Precision";
+        public static readonly string AnnotationNameMaxLength = AnnotationPrefix + "MaxLength";
+        public static readonly string AnnotationNameScale = AnnotationPrefix + "Scale";
+        public static readonly string AnnotationNameIsIdentity = AnnotationPrefix + "IsIdentity";
+        public static readonly string AnnotationNameIsNullable = AnnotationPrefix + "IsNullable";
 
         private ILogger _logger;
 

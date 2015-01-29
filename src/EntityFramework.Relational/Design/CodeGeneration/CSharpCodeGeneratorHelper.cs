@@ -47,9 +47,15 @@ namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
             sb.AppendLine("}");
         }
 
-        public virtual void BeginPublicPartialClass(IndentedStringBuilder sb, string className, ICollection<string> inheritsFrom = null)
+        public virtual void BeginClass(IndentedStringBuilder sb, AccessModifier accessModifier,
+            string className, bool isPartial, ICollection<string> inheritsFrom = null)
         {
-            sb.Append("public partial class ");
+            AppendAccessModifier(sb, accessModifier);
+            if (isPartial)
+            {
+                sb.Append("partial ");
+            }
+            sb.Append("class ");
             sb.Append(className);
             if (inheritsFrom != null && inheritsFrom.Count > 0)
             {
@@ -67,18 +73,22 @@ namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
             sb.AppendLine("}");
         }
 
-        public virtual void AddPublicVirtualProperty(IndentedStringBuilder sb, string propertyTypeName, string propertyName)
+        public virtual void AddProperty(IndentedStringBuilder sb, AccessModifier accessModifier,
+            VirtualModifier virtualModifier, string propertyTypeName, string propertyName)
         {
-            sb.Append("public virtual ");
+            AppendAccessModifier(sb, accessModifier);
+            AppendVirtualModifier(sb, virtualModifier);
             sb.Append(propertyTypeName);
             sb.Append(" ");
             sb.Append(propertyName);
             sb.AppendLine(" { get; set; }");
         }
 
-        public virtual void BeginProtectedOverrideMethod(IndentedStringBuilder sb, string returnType, string methodName, ICollection<Tuple<string, string>> parameters = null)
+        public virtual void BeginMethod(IndentedStringBuilder sb, AccessModifier accessModifier,
+            VirtualModifier virtualModifier, string returnType, string methodName, ICollection<Tuple<string, string>> parameters = null)
         {
-            sb.Append("protected override ");
+            AppendAccessModifier(sb, accessModifier);
+            AppendVirtualModifier(sb, virtualModifier);
             sb.Append(returnType);
             sb.Append(" ");
             sb.Append(methodName);
@@ -97,5 +107,60 @@ namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
             sb.DecrementIndent();
             sb.AppendLine("}");
         }
+
+        public void AppendAccessModifier(IndentedStringBuilder sb, AccessModifier accessModifier)
+        {
+            switch (accessModifier)
+            {
+                case AccessModifier.Public:
+                    sb.Append("public ");
+                    break;
+                case AccessModifier.Private:
+                    sb.Append("private ");
+                    break;
+                case AccessModifier.Internal:
+                    sb.Append("internal ");
+                    break;
+                case AccessModifier.Protected:
+                    sb.Append("protected ");
+                    break;
+                case AccessModifier.ProtectedInternal:
+                    sb.Append("protected internal ");
+                    break;
+            }
+        }
+
+        public void AppendVirtualModifier(IndentedStringBuilder sb, VirtualModifier virtualModifier)
+        {
+            switch (virtualModifier)
+            {
+                case VirtualModifier.Virtual:
+                    sb.Append("virtual ");
+                    break;
+                case VirtualModifier.Override:
+                    sb.Append("override ");
+                    break;
+                case VirtualModifier.New:
+                    sb.Append("new ");
+                    break;
+            }
+        }
+    }
+
+    public enum AccessModifier : int
+    {
+        Public,
+        Private,
+        Internal,
+        Protected,
+        ProtectedInternal
+    }
+
+    public enum VirtualModifier : int
+    {
+        Virtual,
+        Override,
+        New,
+        None
     }
 }

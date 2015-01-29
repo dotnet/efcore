@@ -4,6 +4,7 @@
 using System;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Relational.Design.CodeGeneration;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
 using Microsoft.Data.Entity.Utilities;
 
@@ -22,7 +23,6 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
         public override void GenerateEntityProperty(IndentedStringBuilder sb, IProperty property)
         {
             GenerateEntityPropertyAttribues(sb, property);
-            sb.Append("public ");
             //TODO workaround for property.PropertyType.IsGenericType being missing in ASPNETCORE50
             bool isNullableType;
             try
@@ -33,17 +33,13 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
             {
                 isNullableType = false;
             }
-            if (isNullableType)
-            {
-                sb.Append(Nullable.GetUnderlyingType(property.PropertyType).Name + "?");
-            }
-            else
-            {
-                sb.Append(property.PropertyType.Name);
-            }
-            sb.Append(" ");
-            sb.Append(Generator.PropertyToPropertyNameMap[property]);
-            sb.AppendLine(" { get; set; }");
+
+            var propertyType = isNullableType
+                ? Nullable.GetUnderlyingType(property.PropertyType).Name + "?"
+                : property.PropertyType.Name;
+
+            CSharpCodeGeneratorHelper.Instance.AddProperty(sb,
+                AccessModifier.Public, VirtualModifier.None, propertyType, Generator.PropertyToPropertyNameMap[property]);
         }
 
         public override void GenerateEntityNavigation(IndentedStringBuilder sb, INavigation navigation)
