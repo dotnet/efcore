@@ -4,8 +4,8 @@
 using System;
 using System.Linq;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.InMemory;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
 using Xunit;
@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 .AddInMemoryStore()
                 .AddDbContext<JustSomeContext>()
                 .ServiceCollection
-                .AddSingleton<IModelSource, MyModelSource>()
+                .AddSingleton<InMemoryModelSource, MyModelSource>()
                 .BuildServiceProvider();
 
             using (var context = serviceProvider.GetRequiredService<JustSomeContext>())
@@ -35,33 +35,16 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        private class MyModelSource : IModelSource
+        private class MyModelSource : InMemoryModelSource
         {
-            private readonly ThreadSafeDictionaryCache<Type, IModel> _models = new ThreadSafeDictionaryCache<Type, IModel>();
-
-            private readonly DbSetFinder _setFinder;
-
             public MyModelSource(DbSetFinder setFinder)
+                : base(setFinder)
             {
-                _setFinder = setFinder;
             }
 
-            public virtual IModel GetModel(DbContext context, IModelBuilderFactory modelBuilderFactory)
+            protected override IModel CreateModel(DbContext context, IModelBuilderFactory modelBuilderFactory)
             {
-                return _models.GetOrAdd(context.GetType(), k => CreateModel(context, modelBuilderFactory));
-            }
-
-            private IModel CreateModel(DbContext context, IModelBuilderFactory modelBuilderFactory)
-            {
-                var model = new Model();
-                var modelBuilder = modelBuilderFactory.CreateConventionBuilder(model);
-
-                foreach (var setInfo in _setFinder.FindSets(context))
-                {
-                    modelBuilder.Entity(setInfo.EntityType);
-                }
-
-                ModelSourceHelpers.OnModelCreating(context, modelBuilder);
+                var model = base.CreateModel(context, modelBuilderFactory) as Model;
 
                 model["AllYourModelAreBelongTo"] = "Us!";
 

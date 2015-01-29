@@ -119,6 +119,7 @@
     <Compile Include="SqlServerTransactionFixture.cs" />
     <Compile Include="SqlServerTransactionTest.cs" />
     <Compile Include="TestModels\SqlServerNorthwindContext.cs" />
+    <Compile Include="TestSqlServerModelSource.cs" />
     <None Include="packages.config" />
     <None Include="project.json" />
   </ItemGroup>

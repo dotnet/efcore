@@ -97,6 +97,7 @@
     <Compile Include="SqlServerDatabaseExtensions.cs" />
     <Compile Include="SqlServerMetadataExtensions.cs" />
     <Compile Include="SqlServerModelDiffer.cs" />
+    <Compile Include="SqlServerModelSource.cs" />
     <Compile Include="Update\SqlServerBatchExecutor.cs" />
     <Compile Include="SqlServerDataStoreServices.cs" />
     <Compile Include="SqlServerMigrationOperationProcessor.cs" />

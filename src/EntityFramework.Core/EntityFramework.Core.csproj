@@ -116,7 +116,8 @@
     <Compile Include="Infrastructure\IDbContextServices.cs" />
     <Compile Include="Infrastructure\ModelSourceHelpers.cs" />
     <Compile Include="Metadata\BasicModelBuilder.cs" />
-    <Compile Include="Metadata\ModelConventions\ConventionsDispatcher.cs" />
+    <Compile Include="Metadata\ModelConventions\ConventionDispatcher.cs" />
+    <Compile Include="Metadata\ModelConventions\ConventionSet.cs" />
     <Compile Include="Metadata\ModelConventions\IRelationshipConvention.cs" />
     <Compile Include="Metadata\NullableEnumClrPropertySetter.cs" />
     <Compile Include="Metadata\CollectionTypeFactory.cs" />

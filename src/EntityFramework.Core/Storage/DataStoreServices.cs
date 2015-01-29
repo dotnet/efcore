@@ -19,6 +19,7 @@ namespace Microsoft.Data.Entity.Storage
         public abstract ValueGeneratorCache ValueGeneratorCache { get; }
         public abstract Database Database { get; }
         public abstract IModelBuilderFactory ModelBuilderFactory { get; }
+        public abstract IModelSource ModelSource { get; }
 
         public static Func<IServiceProvider, DbContextService<DataStoreServices>> DataStoreServicesFactory
         {

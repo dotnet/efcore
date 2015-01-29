@@ -3,6 +3,7 @@
 
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Framework.DependencyInjection;
 using Xunit;
@@ -18,7 +19,7 @@ namespace Microsoft.Data.Entity.Tests
             var contextServices1 = TestHelpers.CreateContextServices(provider);
             var contextServices2 = TestHelpers.CreateContextServices(provider);
 
-            Assert.Same(contextServices1.GetRequiredService<IModelSource>(), contextServices2.GetRequiredService<IModelSource>());
+            Assert.Same(contextServices1.GetRequiredService<MemberMapper>(), contextServices2.GetRequiredService<MemberMapper>());
         }
 
         [Fact]

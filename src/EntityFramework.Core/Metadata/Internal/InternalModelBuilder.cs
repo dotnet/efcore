@@ -20,17 +20,22 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         private readonly LazyRef<Dictionary<string, ConfigurationSource>> _ignoredEntityTypeNames =
             new LazyRef<Dictionary<string, ConfigurationSource>>(() => new Dictionary<string, ConfigurationSource>());
 
-        public InternalModelBuilder([NotNull] Model metadata, [NotNull] ConventionsDispatcher conventions)
+        public InternalModelBuilder([NotNull] Model metadata)
+            : this(metadata, new ConventionSet())
+        {
+        }
+
+        public InternalModelBuilder([NotNull] Model metadata, [NotNull] ConventionSet conventions)
             : base(metadata)
         {
             Check.NotNull(conventions, "conventions");
 
-            Conventions = conventions;
+            ConventionDispatcher = new ConventionDispatcher(conventions);
         }
 
         public override InternalModelBuilder ModelBuilder => this;
 
-        public virtual ConventionsDispatcher Conventions { get; }
+        public virtual ConventionDispatcher ConventionDispatcher { get; }
 
         public virtual InternalEntityBuilder Entity([NotNull] string name, ConfigurationSource configurationSource)
         {
@@ -45,7 +50,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 () => Metadata.TryGetEntityType(name),
                 () => Metadata.AddEntityType(name),
                 entityType => new InternalEntityBuilder(entityType, ModelBuilder),
-                Conventions.OnEntityTypeAdded,
+                ConventionDispatcher.OnEntityTypeAdded,
                 configurationSource);
         }
 
@@ -62,7 +67,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 () => Metadata.TryGetEntityType(type),
                 () => Metadata.AddEntityType(type),
                 entityType => new InternalEntityBuilder(entityType, ModelBuilder),
-                Conventions.OnEntityTypeAdded,
+                ConventionDispatcher.OnEntityTypeAdded,
                 configurationSource);
         }
 

@@ -5,7 +5,6 @@ using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata.Internal;
-using Microsoft.Data.Entity.Metadata.ModelConventions;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
@@ -23,7 +22,7 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotNull(model, "model");
 
-            _builder = new InternalModelBuilder(model, new ConventionsDispatcher());
+            _builder = new InternalModelBuilder(model);
         }
 
         protected internal BasicModelBuilder([NotNull] InternalModelBuilder internalBuilder)
@@ -108,19 +107,14 @@ namespace Microsoft.Data.Entity.Metadata
 
         public class EntityBuilder : IEntityBuilder<EntityBuilder>
         {
-            private readonly InternalEntityBuilder _builder;
-
             public EntityBuilder([NotNull] InternalEntityBuilder builder)
             {
                 Check.NotNull(builder, "builder");
 
-                _builder = builder;
+                Builder = builder;
             }
 
-            protected virtual InternalEntityBuilder Builder
-            {
-                get { return _builder; }
-            }
+            protected virtual InternalEntityBuilder Builder { get; }
 
             public virtual EntityBuilder Annotation(string annotation, string value)
             {
@@ -181,19 +175,14 @@ namespace Microsoft.Data.Entity.Metadata
 
             public class KeyBuilder : IKeyBuilder<KeyBuilder>
             {
-                private readonly InternalKeyBuilder _builder;
-
                 public KeyBuilder([NotNull] InternalKeyBuilder builder)
                 {
                     Check.NotNull(builder, "builder");
 
-                    _builder = builder;
+                    Builder = builder;
                 }
 
-                protected virtual InternalKeyBuilder Builder
-                {
-                    get { return _builder; }
-                }
+                protected virtual InternalKeyBuilder Builder { get; }
 
                 public virtual Key Metadata
                 {
@@ -218,19 +207,14 @@ namespace Microsoft.Data.Entity.Metadata
 
             public class PropertyBuilder : IPropertyBuilder<PropertyBuilder>
             {
-                private readonly InternalPropertyBuilder _builder;
-
                 public PropertyBuilder([NotNull] InternalPropertyBuilder builder)
                 {
                     Check.NotNull(builder, "builder");
 
-                    _builder = builder;
+                    Builder = builder;
                 }
 
-                protected virtual InternalPropertyBuilder Builder
-                {
-                    get { return _builder; }
-                }
+                protected virtual InternalPropertyBuilder Builder { get; }
 
                 public virtual Property Metadata
                 {
@@ -304,19 +288,14 @@ namespace Microsoft.Data.Entity.Metadata
 
             public class ForeignKeyBuilder : IForeignKeyBuilder<ForeignKeyBuilder>
             {
-                private readonly InternalRelationshipBuilder _builder;
-
                 public ForeignKeyBuilder([NotNull] InternalRelationshipBuilder builder)
                 {
                     Check.NotNull(builder, "builder");
 
-                    _builder = builder;
+                    Builder = builder;
                 }
 
-                protected virtual InternalRelationshipBuilder Builder
-                {
-                    get { return _builder; }
-                }
+                protected virtual InternalRelationshipBuilder Builder { get; }
 
                 public virtual ForeignKey Metadata
                 {
@@ -346,19 +325,14 @@ namespace Microsoft.Data.Entity.Metadata
 
             public class IndexBuilder : IIndexBuilder<IndexBuilder>
             {
-                private readonly InternalIndexBuilder _builder;
-
                 public IndexBuilder([NotNull] InternalIndexBuilder builder)
                 {
                     Check.NotNull(builder, "builder");
 
-                    _builder = builder;
+                    Builder = builder;
                 }
 
-                protected virtual InternalIndexBuilder Builder
-                {
-                    get { return _builder; }
-                }
+                protected virtual InternalIndexBuilder Builder { get; }
 
                 public virtual Index Metadata
                 {
@@ -389,7 +363,8 @@ namespace Microsoft.Data.Entity.Metadata
             }
         }
 
-        public class EntityBuilder<TEntity> : EntityBuilder, IEntityBuilder<TEntity, EntityBuilder<TEntity>> where TEntity : class
+        public class EntityBuilder<TEntity> : EntityBuilder, IEntityBuilder<TEntity, EntityBuilder<TEntity>>
+            where TEntity : class
         {
             public EntityBuilder([NotNull] InternalEntityBuilder builder)
                 : base(builder)

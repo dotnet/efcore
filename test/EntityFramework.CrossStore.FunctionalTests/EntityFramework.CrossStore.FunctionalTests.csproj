@@ -112,6 +112,7 @@
     <Compile Include="CrossStoreFixture.cs" />
     <Compile Include="EndToEndTest.cs" />
     <Compile Include="InMemoryCrossStoreFixture.cs" />
+    <Compile Include="SharedCrossStoreFixture.cs" />
     <Compile Include="SqlServerCrossStoreFixture.cs" />
     <Compile Include="TestModels\CrossStoreContext.cs" />
     <Compile Include="TestModels\SimpleEntity.cs" />

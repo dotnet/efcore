@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
-using Microsoft.Data.Entity.Metadata.ModelConventions;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Tests.Metadata.Internal
@@ -16,7 +15,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Internal
         [Fact]
         public void ForeignKey_returns_same_instance_if_no_navigations()
         {
-            var modelBuilder = new InternalModelBuilder(new Model(), new ConventionsDispatcher());
+            var modelBuilder = CreateInternalModelBuilder();
             var customerEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
             customerEntityBuilder.PrimaryKey(new[] { Customer.IdProperty, Customer.UniqueProperty }, ConfigurationSource.Explicit);
             var orderEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
@@ -35,7 +34,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Internal
         [Fact]
         public void ReferencedKey_does_not_return_same_instance_if_no_navigations_or_foreign_key()
         {
-            var modelBuilder = new InternalModelBuilder(new Model(), new ConventionsDispatcher());
+            var modelBuilder = CreateInternalModelBuilder();
             var customerEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
             customerEntityBuilder.PrimaryKey(new[] { Customer.IdProperty, Customer.UniqueProperty }, ConfigurationSource.Explicit);
             var orderEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
@@ -57,7 +56,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Internal
         [Fact]
         public void Can_only_override_lower_source_Unique()
         {
-            var modelBuilder = new InternalModelBuilder(new Model(), new ConventionsDispatcher());
+            var modelBuilder = CreateInternalModelBuilder();
             var customerEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
             customerEntityBuilder.PrimaryKey(new[] { Customer.IdProperty, Customer.UniqueProperty }, ConfigurationSource.Explicit);
             var orderEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
@@ -81,7 +80,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Internal
         [Fact]
         public void Can_only_override_existing_Unique_value_explicitly()
         {
-            var modelBuilder = new InternalModelBuilder(new Model(), new ConventionsDispatcher());
+            var modelBuilder = CreateInternalModelBuilder();
             var customerEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
             var customerKeyBuilder = customerEntityBuilder.PrimaryKey(new[] { Customer.IdProperty, Customer.UniqueProperty }, ConfigurationSource.Explicit);
             var orderEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
@@ -113,7 +112,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Internal
         [Fact]
         public void Can_only_override_lower_source_Required()
         {
-            var modelBuilder = new InternalModelBuilder(new Model(), new ConventionsDispatcher());
+            var modelBuilder = CreateInternalModelBuilder();
             var customerEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
             customerEntityBuilder.PrimaryKey(new[] { Customer.IdProperty, Customer.UniqueProperty }, ConfigurationSource.Explicit);
             var orderEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
@@ -135,7 +134,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Internal
         [Fact]
         public void Can_only_override_existing_Required_value_explicitly()
         {
-            var modelBuilder = new InternalModelBuilder(new Model(), new ConventionsDispatcher());
+            var modelBuilder = CreateInternalModelBuilder();
             var customerEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
             customerEntityBuilder.PrimaryKey(new[] { Customer.IdProperty, Customer.UniqueProperty }, ConfigurationSource.Explicit);
             var orderEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
@@ -158,6 +157,11 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Internal
             Assert.True(relationshipBuilder.Required(false, ConfigurationSource.Explicit));
             Assert.False(customerIdProperty.IsNullable.Value);
             Assert.True(customerUniqueProperty.IsNullable.Value);
+        }
+
+        private InternalModelBuilder CreateInternalModelBuilder()
+        {
+            return new InternalModelBuilder(new Model());
         }
 
         private class Order

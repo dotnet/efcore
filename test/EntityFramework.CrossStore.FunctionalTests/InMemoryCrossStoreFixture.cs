@@ -6,34 +6,35 @@ using Microsoft.Data.Entity.InMemory.FunctionalTests;
 using Microsoft.Data.Entity.FunctionalTests.TestModels;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
+using Xunit;
 
 namespace Microsoft.Data.Entity.FunctionalTests
 {
-    public class InMemoryCrossStoreFixture : CrossStoreFixture<InMemoryTestStore>
+    public class InMemoryCrossStoreFixture : CrossStoreFixture
     {
-        private readonly IServiceProvider _serviceProvider;
+        private readonly SharedCrossStoreFixture _sharedCrossStoreFixture;
 
         public InMemoryCrossStoreFixture()
         {
-            _serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddInMemoryStore()
-                .AddSqlServer()
-                .ServiceCollection
-                .BuildServiceProvider();
+            _sharedCrossStoreFixture = new SharedCrossStoreFixture(
+                new ServiceCollection()
+                    .AddEntityFramework()
+                    .AddInMemoryStore()
+                    .AddSqlServer()
+                    .ServiceCollection
+                    .BuildServiceProvider());
         }
 
-        public override InMemoryTestStore CreateTestStore()
+        public override TestStore CreateTestStore(Type testStoreType)
         {
-            return new InMemoryTestStore();
+            Assert.Equal(typeof(InMemoryTestStore), testStoreType);
+
+            return _sharedCrossStoreFixture.CreateTestStore(testStoreType);
         }
 
-        public override CrossStoreContext CreateContext(InMemoryTestStore testStore)
+        public override CrossStoreContext CreateContext(TestStore testStore)
         {
-            var options = new DbContextOptions();
-            options.UseInMemoryStore();
-
-            return new CrossStoreContext(_serviceProvider, options);
+            return _sharedCrossStoreFixture.CreateContext(testStore);
         }
     }
 }

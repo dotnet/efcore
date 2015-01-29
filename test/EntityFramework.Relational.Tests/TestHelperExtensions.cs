@@ -423,6 +423,7 @@ namespace Microsoft.Data.Entity.Tests
         private readonly FakeDatabase _database;
         private readonly ModelBuilderFactory _modelBuilderFactory;
         private readonly TestMigrator _migrator;
+        private readonly FakeModelSource _modelSource;
 
         public FakeDataStoreServices(
             FakeDataStore store,
@@ -431,7 +432,8 @@ namespace Microsoft.Data.Entity.Tests
             FakeValueGeneratorCache valueGeneratorCache,
             FakeDatabase database,
             ModelBuilderFactory modelBuilderFactory,
-            TestMigrator migrator)
+            TestMigrator migrator,
+            FakeModelSource modelSource)
         {
             _store = store;
             _creator = creator;
@@ -440,42 +442,24 @@ namespace Microsoft.Data.Entity.Tests
             _database = database;
             _modelBuilderFactory = modelBuilderFactory;
             _migrator = migrator;
+            _modelSource = modelSource;
         }
 
-        public override DataStore Store
-        {
-            get { return _store; }
-        }
+        public override DataStore Store => _store;
 
-        public override DataStoreCreator Creator
-        {
-            get { return _creator; }
-        }
+        public override DataStoreCreator Creator => _creator;
 
-        public override DataStoreConnection Connection
-        {
-            get { return _connection; }
-        }
+        public override DataStoreConnection Connection => _connection;
 
-        public override ValueGeneratorCache ValueGeneratorCache
-        {
-            get { return _valueGeneratorCache; }
-        }
+        public override ValueGeneratorCache ValueGeneratorCache => _valueGeneratorCache;
 
-        public override Database Database
-        {
-            get { return _database; }
-        }
+        public override Database Database => _database;
 
-        public override IModelBuilderFactory ModelBuilderFactory
-        {
-            get { return _modelBuilderFactory; }
-        }
+        public override IModelBuilderFactory ModelBuilderFactory => _modelBuilderFactory;
 
-        public override Migrator Migrator
-        {
-            get { return _migrator; }
-        }
+        public override Migrator Migrator => _migrator;
+
+        public override IModelSource ModelSource => _modelSource;
     }
 
     public class FakeDatabase : MigrationsEnabledDatabase
@@ -672,6 +656,14 @@ namespace Microsoft.Data.Entity.Tests
         public override object ExecuteScalar()
         {
             throw new NotImplementedException();
+        }
+    }
+
+    public class FakeModelSource : DefaultModelSource
+    {
+        public FakeModelSource(DbSetFinder setFinder)
+            : base(setFinder)
+        {
         }
     }
 }

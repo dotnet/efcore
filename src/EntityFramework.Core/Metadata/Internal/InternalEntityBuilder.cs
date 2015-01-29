@@ -808,7 +808,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 {
                     builder = onRelationshipAdded(builder);
                 }
-                builder = ModelBuilder.Conventions.OnRelationshipAdded(builder);
+                builder = ModelBuilder.ConventionDispatcher.OnRelationshipAdded(builder);
             }
 
             return builder;

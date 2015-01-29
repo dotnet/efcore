@@ -5,7 +5,6 @@ using System;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Metadata.ModelConventions;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
@@ -149,7 +148,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var orderEntityTypeBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
 
             Assert.NotNull(orderEntityTypeBuilder.ForeignKey(typeof(Customer), new[] { Order.CustomerIdProperty }, ConfigurationSource.Convention));
-            
+
             Assert.True(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.Explicit));
 
             Assert.Equal(typeof(Order), modelBuilder.Metadata.EntityTypes.Single().Type);
@@ -237,7 +236,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         protected virtual InternalModelBuilder CreateModelBuilder(Model model = null)
         {
-            return new InternalModelBuilder(model ?? new Model(), new ConventionsDispatcher());
+            return new InternalModelBuilder(model ?? new Model());
         }
 
         private class Customer

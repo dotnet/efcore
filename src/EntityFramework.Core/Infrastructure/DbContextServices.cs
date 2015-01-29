@@ -60,8 +60,7 @@ namespace Microsoft.Data.Entity.Infrastructure
             try
             {
                 _inOnModelCreating = true;
-                return _scopedProvider
-                    .GetRequiredServiceChecked<IModelSource>()
+                return _dataStoreServices.Value.ModelSource
                     .GetModel(_context, _dataStoreServices.Value.ModelBuilderFactory);
             }
             finally

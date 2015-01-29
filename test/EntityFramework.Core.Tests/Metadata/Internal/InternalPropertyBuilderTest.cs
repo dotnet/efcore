@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Reflection;
@@ -182,7 +182,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         [Fact]
         public void Can_only_override_existing_Shadow_value_explicitly()
         {
-            var modelBuilder = new InternalModelBuilder(new Model(), new ConventionsDispatcher());
+            var modelBuilder = new InternalModelBuilder(new Model());
             var entityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
             var builder = entityBuilder.Property(Customer.NameProperty.PropertyType, Customer.NameProperty.Name, ConfigurationSource.Explicit);
             var metadata = builder.Metadata;
@@ -229,7 +229,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         private InternalPropertyBuilder CreateInternalPropertyBuilder()
         {
-            var modelBuilder = new InternalModelBuilder(new Model(), new ConventionsDispatcher());
+            var modelBuilder = new InternalModelBuilder(new Model());
             var entityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Convention);
             return entityBuilder.Property(Customer.NameProperty, ConfigurationSource.Convention);
         }

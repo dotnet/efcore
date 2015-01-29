@@ -12,12 +12,12 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotNull(model, "model");
 
-            return new ModelBuilder(model, CreateConventionsDispatcher());
+            return new ModelBuilder(model, CreateConventionSet());
         }
 
-        protected virtual ConventionsDispatcher CreateConventionsDispatcher()
+        protected virtual ConventionSet CreateConventionSet()
         {
-            var conventions = new ConventionsDispatcher();
+            var conventions = new ConventionSet();
 
             conventions.EntityTypeAddedConventions.Add(new PropertiesConvention());
             conventions.EntityTypeAddedConventions.Add(new KeyConvention());

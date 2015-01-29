@@ -20,6 +20,7 @@ namespace Microsoft.Data.Entity.SqlServer
         private readonly SqlServerDatabase _database;
         private readonly ModelBuilderFactory _modelBuilderFactory;
         private readonly SqlServerMigrator _migrator;
+        private readonly SqlServerModelSource _modelSource;
 
         public SqlServerDataStoreServices(
             [NotNull] SqlServerDataStore store,
@@ -28,7 +29,8 @@ namespace Microsoft.Data.Entity.SqlServer
             [NotNull] SqlServerValueGeneratorCache valueGeneratorCache,
             [NotNull] SqlServerDatabase database,
             [NotNull] ModelBuilderFactory modelBuilderFactory,
-            [NotNull] SqlServerMigrator migrator)
+            [NotNull] SqlServerMigrator migrator,
+            [NotNull] SqlServerModelSource modelSource)
         {
             Check.NotNull(store, "store");
             Check.NotNull(creator, "creator");
@@ -36,7 +38,8 @@ namespace Microsoft.Data.Entity.SqlServer
             Check.NotNull(valueGeneratorCache, "valueGeneratorCache");
             Check.NotNull(database, "database");
             Check.NotNull(modelBuilderFactory, "modelBuilderFactory");
-            Check.NotNull(migrator, "migrator");
+            Check.NotNull(migrator, "modelSource");
+            Check.NotNull(modelSource, "migrator");
 
             _store = store;
             _creator = creator;
@@ -45,41 +48,23 @@ namespace Microsoft.Data.Entity.SqlServer
             _database = database;
             _modelBuilderFactory = modelBuilderFactory;
             _migrator = migrator;
+            _modelSource = modelSource;
         }
 
-        public override DataStore Store
-        {
-            get { return _store; }
-        }
+        public override DataStore Store => _store;
 
-        public override DataStoreCreator Creator
-        {
-            get { return _creator; }
-        }
+        public override DataStoreCreator Creator => _creator;
 
-        public override DataStoreConnection Connection
-        {
-            get { return _connection; }
-        }
+        public override DataStoreConnection Connection => _connection;
 
-        public override ValueGeneratorCache ValueGeneratorCache
-        {
-            get { return _valueGeneratorCache; }
-        }
+        public override ValueGeneratorCache ValueGeneratorCache => _valueGeneratorCache;
 
-        public override Database Database
-        {
-            get { return _database; }
-        }
+        public override Database Database => _database;
 
-        public override IModelBuilderFactory ModelBuilderFactory
-        {
-            get { return _modelBuilderFactory; }
-        }
+        public override IModelBuilderFactory ModelBuilderFactory => _modelBuilderFactory;
 
-        public override Migrator Migrator
-        {
-            get { return _migrator; }
-        }
+        public override Migrator Migrator => _migrator;
+
+        public override IModelSource ModelSource => _modelSource;
     }
 }

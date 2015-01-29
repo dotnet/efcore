@@ -8,13 +8,13 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Infrastructure
 {
-    public class DefaultModelSource : IModelSource
+    public abstract class DefaultModelSource : IModelSource
     {
         private readonly ThreadSafeDictionaryCache<Type, IModel> _models = new ThreadSafeDictionaryCache<Type, IModel>();
 
         private readonly DbSetFinder _setFinder;
 
-        public DefaultModelSource([NotNull] DbSetFinder setFinder)
+        protected DefaultModelSource([NotNull] DbSetFinder setFinder)
         {
             Check.NotNull(setFinder, "setFinder");
 
@@ -29,19 +29,24 @@ namespace Microsoft.Data.Entity.Infrastructure
             return _models.GetOrAdd(context.GetType(), k => CreateModel(context, modelBuilderFactory));
         }
 
-        private IModel CreateModel(DbContext context, IModelBuilderFactory modelBuilderFactory)
+        protected virtual IModel CreateModel(DbContext context, IModelBuilderFactory modelBuilderFactory)
         {
             var model = new Model();
             var modelBuilder = modelBuilderFactory.CreateConventionBuilder(model);
 
-            foreach (var setInfo in _setFinder.FindSets(context))
-            {
-                modelBuilder.Entity(setInfo.EntityType);
-            }
+            FindSets(modelBuilder, context);
 
             ModelSourceHelpers.OnModelCreating(context, modelBuilder);
 
             return model;
+        }
+
+        protected virtual void FindSets(ModelBuilder modelBuilder, DbContext context)
+        {
+            foreach (var setInfo in _setFinder.FindSets(context))
+            {
+                modelBuilder.Entity(setInfo.EntityType);
+            }
         }
     }
 }

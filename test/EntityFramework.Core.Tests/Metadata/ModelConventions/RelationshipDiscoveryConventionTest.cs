@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             Assert.Empty(entityBuilder.Metadata.ForeignKeys);
             Assert.Empty(entityBuilder.Metadata.Navigations);
             Assert.Equal(2, entityBuilder.Metadata.Model.EntityTypes.Count);
-            
+
             var principalEntityType = entityBuilder.Metadata.Model.EntityTypes.Single(e => e.Type == typeof(OneToManyPrincipal));
             Assert.Empty(principalEntityType.Properties);
             Assert.Empty(principalEntityType.ForeignKeys);
@@ -188,7 +188,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
                 ConfigureKeys, MultipleNavigationsSecond.IgnoreCollectionNavigation);
 
             Assert.Same(entityBuilder, new RelationshipDiscoveryConvention().Apply(entityBuilder));
-            
+
             // TODO: remove discovered entity types if no relationship discovered
             //VerifyModelUnchanged(entityBuilder);
         }
@@ -346,7 +346,12 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
 
         private static InternalEntityBuilder CreateInternalEntityBuilder<T>(params Action<InternalEntityBuilder>[] onEntityAdded)
         {
-            var modelBuilder = new InternalModelBuilder(new Model(), onEntityAdded == null ? new ConventionsDispatcher() : new TestModelChangeListener(onEntityAdded));
+            var conventions = new ConventionSet();
+            if (onEntityAdded != null)
+            {
+                conventions.EntityTypeAddedConventions.Add(new TestModelChangeListener(onEntityAdded));
+            }
+            var modelBuilder = new InternalModelBuilder(new Model(), conventions);
             var entityBuilder = modelBuilder.Entity(typeof(T), ConfigurationSource.Convention);
 
             return entityBuilder;
@@ -357,7 +362,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             entityBuilder.PrimaryKey(new[] { "Id" }, ConfigurationSource.Convention);
         }
 
-        private class TestModelChangeListener : ConventionsDispatcher
+        private class TestModelChangeListener : IEntityTypeConvention
         {
             private readonly Action<InternalEntityBuilder>[] _onEntityAdded;
 
@@ -366,7 +371,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
                 _onEntityAdded = onEntityAdded;
             }
 
-            public override InternalEntityBuilder OnEntityTypeAdded(InternalEntityBuilder entityBuilder)
+            public InternalEntityBuilder Apply(InternalEntityBuilder entityBuilder)
             {
                 foreach (var action in _onEntityAdded)
                 {
@@ -453,6 +458,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         {
             public static readonly PropertyInfo CollectionNavigationProperty =
                 typeof(MultipleNavigationsFirst).GetProperty("MultipleNavigationsSeconds", BindingFlags.Public | BindingFlags.Instance);
+
             public static readonly PropertyInfo NonCollectionNavigationProperty =
                 typeof(MultipleNavigationsFirst).GetProperty("MultipleNavigationsSecond", BindingFlags.Public | BindingFlags.Instance);
 
@@ -466,6 +472,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         {
             public static readonly PropertyInfo CollectionNavigationProperty =
                 typeof(MultipleNavigationsSecond).GetProperty("MultipleNavigationsFirsts", BindingFlags.Public | BindingFlags.Instance);
+
             public static readonly PropertyInfo NonCollectionNavigationProperty =
                 typeof(MultipleNavigationsSecond).GetProperty("MultipleNavigationsFirst", BindingFlags.Public | BindingFlags.Instance);
 
@@ -473,7 +480,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
 
             public IEnumerable<MultipleNavigationsFirst> MultipleNavigationsFirsts { get; set; }
             public MultipleNavigationsFirst MultipleNavigationsFirst { get; set; }
-            
+
             public static void IgnoreCollectionNavigation(InternalEntityBuilder entityBuilder)
             {
                 if (entityBuilder.Metadata.Type == typeof(MultipleNavigationsSecond))

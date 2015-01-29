@@ -37,7 +37,6 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddScoped<IPropertyListener>(p => p.GetService<ChangeDetector>());
 
             serviceCollection.TryAdd(new ServiceCollection()
-                .AddSingleton<IModelSource, DefaultModelSource>()
                 .AddSingleton<ModelBuilderFactory>()
                 .AddSingleton<SimpleValueGeneratorFactory<TemporaryIntegerValueGenerator>>()
                 .AddSingleton<SimpleValueGeneratorFactory<TemporaryStringValueGenerator>>()

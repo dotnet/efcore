@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.Data.Entity.Metadata;
@@ -14,8 +14,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         [Fact]
         public void OnEntityTypeAdded_calls_apply_on_conventions_in_order()
         {
-            var conventionDispatcher = new ConventionsDispatcher();
-            var builder = new InternalModelBuilder(new Model(), conventionDispatcher);
+            var conventions = new ConventionSet();
 
             InternalEntityBuilder entityBuilder = null;
             var convention = new Mock<IEntityTypeConvention>();
@@ -25,7 +24,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
                     entityBuilder = new InternalEntityBuilder(b.Metadata, b.ModelBuilder);
                     return entityBuilder;
                 });
-            conventionDispatcher.EntityTypeAddedConventions.Add(convention.Object);
+            conventions.EntityTypeAddedConventions.Add(convention.Object);
 
             var nullConvention = new Mock<IEntityTypeConvention>();
             nullConvention.Setup(c => c.Apply(It.IsAny<InternalEntityBuilder>())).Returns<InternalEntityBuilder>(b =>
@@ -33,7 +32,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
                     Assert.Same(entityBuilder, b);
                     return null;
                 });
-            conventionDispatcher.EntityTypeAddedConventions.Add(nullConvention.Object);
+            conventions.EntityTypeAddedConventions.Add(nullConvention.Object);
 
             var extraConvention = new Mock<IEntityTypeConvention>();
             extraConvention.Setup(c => c.Apply(It.IsAny<InternalEntityBuilder>())).Returns<InternalEntityBuilder>(b =>
@@ -41,8 +40,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
                 Assert.False(true);
                 return null;
             });
+            conventions.EntityTypeAddedConventions.Add(extraConvention.Object);
 
-            conventionDispatcher.EntityTypeAddedConventions.Add(extraConvention.Object);
+            var builder = new InternalModelBuilder(new Model(), conventions);
 
             Assert.Null(builder.Entity(typeof(Order), ConfigurationSource.Convention));
 
@@ -52,8 +52,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         [Fact]
         public void OnForeignKeyAdded_calls_apply_on_conventions_in_order()
         {
-            var conventionDispatcher = new ConventionsDispatcher();
-            var builder = new InternalModelBuilder(new Model(), conventionDispatcher);
+            var conventions = new ConventionSet();
 
             InternalRelationshipBuilder relationsipBuilder = null;
             var convention = new Mock<IRelationshipConvention>();
@@ -63,7 +62,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
                     relationsipBuilder = new InternalRelationshipBuilder(b.Metadata, b.ModelBuilder, null);
                     return relationsipBuilder;
                 });
-            conventionDispatcher.ForeignKeyAddedConventions.Add(convention.Object);
+            conventions.ForeignKeyAddedConventions.Add(convention.Object);
 
             var nullConvention = new Mock<IRelationshipConvention>();
             nullConvention.Setup(c => c.Apply(It.IsAny<InternalRelationshipBuilder>())).Returns<InternalRelationshipBuilder>(b =>
@@ -71,8 +70,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
                     Assert.Same(relationsipBuilder, b);
                     return null;
                 });
-
-            conventionDispatcher.ForeignKeyAddedConventions.Add(nullConvention.Object);
+            conventions.ForeignKeyAddedConventions.Add(nullConvention.Object);
             
             var extraConvention = new Mock<IRelationshipConvention>();
             extraConvention.Setup(c => c.Apply(It.IsAny<InternalRelationshipBuilder>())).Returns<InternalRelationshipBuilder>(b =>
@@ -80,8 +78,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
                 Assert.False(true);
                 return null;
             });
+            conventions.ForeignKeyAddedConventions.Add(extraConvention.Object);
 
-            conventionDispatcher.ForeignKeyAddedConventions.Add(extraConvention.Object);
+            var builder = new InternalModelBuilder(new Model(), conventions);
 
             var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
             entityBuilder.PrimaryKey(new[] { "OrderId" }, ConfigurationSource.Convention);
@@ -89,12 +88,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
 
             Assert.NotNull(relationsipBuilder);
         }
-
-        protected virtual ModelBuilder CreateModelBuilder()
-        {
-            return TestHelpers.CreateConventionBuilder();
-        }
-
+        
         private class Order
         {
             public int OrderId { get; set; }

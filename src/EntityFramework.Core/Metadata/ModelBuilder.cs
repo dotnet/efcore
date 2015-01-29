@@ -25,17 +25,16 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         public ModelBuilder([NotNull] Model model)
-            : this(model, new ConventionsDispatcher())
+            : this(model, new ConventionSet())
         {
             Check.NotNull(model, "model");
         }
 
-        public ModelBuilder([NotNull] Model model, [NotNull] ConventionsDispatcher conventions)
+        public ModelBuilder([NotNull] Model model, [NotNull] ConventionSet conventions)
         {
             Check.NotNull(model, "model");
             Check.NotNull(conventions, "conventions");
 
-            Conventions = conventions;
             _builder = new InternalModelBuilder(model, conventions);
         }
 
@@ -55,8 +54,6 @@ namespace Microsoft.Data.Entity.Metadata
         {
             get { return Metadata; }
         }
-
-        public virtual ConventionsDispatcher Conventions { get; }
 
         public virtual ModelBuilder Annotation(string annotation, string value)
         {

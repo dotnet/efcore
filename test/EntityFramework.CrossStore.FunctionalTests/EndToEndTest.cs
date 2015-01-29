@@ -11,9 +11,9 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.FunctionalTests
 {
-    public abstract class EndToEndTest<TTestStore, TFixture> : IClassFixture<TFixture>, IDisposable
+    public abstract class EndToEndTest<TTestStore, TFixture> : IDisposable
         where TTestStore : TestStore
-        where TFixture : CrossStoreFixture<TTestStore>, new()
+        where TFixture : CrossStoreFixture, new()
     {
         [Fact]
         public virtual void Can_save_changes_and_query()
@@ -22,10 +22,10 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 var first = context.SimpleEntities.Add(new SimpleEntity { StringProperty = "Entity 1" }).Entity;
                 SetPartitionId(first, context);
-                 
+
                 Assert.Equal(1, context.SaveChanges());
 
-                var second = context.SimpleEntities.Add(new SimpleEntity { Id = 42, StringProperty = "Entity 2"}).Entity;
+                var second = context.SimpleEntities.Add(new SimpleEntity { Id = 42, StringProperty = "Entity 2" }).Entity;
                 // TODO: Replace with
                 // context.ChangeTracker.Entry(entity).Property(SimpleEntity.ShadowPropertyName).CurrentValue = "shadow";
                 var property = context.Model.GetEntityType(typeof(SimpleEntity)).GetProperty(SimpleEntity.ShadowPropertyName);
@@ -71,12 +71,12 @@ namespace Microsoft.Data.Entity.FunctionalTests
         protected EndToEndTest(TFixture fixture)
         {
             Fixture = fixture;
-            TestStore = Fixture.CreateTestStore();
+            TestStore = (TTestStore)Fixture.CreateTestStore(typeof(TTestStore));
         }
 
-        protected TFixture Fixture { get; private set; }
+        protected TFixture Fixture { get; }
 
-        protected TTestStore TestStore { get; private set; }
+        protected TTestStore TestStore { get; }
 
         public void Dispose()
         {
@@ -89,7 +89,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
     }
 
-    public class InMemoryEndToEndTest : EndToEndTest<InMemoryTestStore, InMemoryCrossStoreFixture>
+    public class InMemoryEndToEndTest : EndToEndTest<InMemoryTestStore, InMemoryCrossStoreFixture>, IClassFixture<InMemoryCrossStoreFixture>
     {
         public InMemoryEndToEndTest(InMemoryCrossStoreFixture fixture)
             : base(fixture)
@@ -97,11 +97,34 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
     }
 
-    public class SqlServerEndToEndTest : EndToEndTest<SqlServerTestStore, SqlServerCrossStoreFixture>
+    public class SqlServerEndToEndTest : EndToEndTest<SqlServerTestStore, SqlServerCrossStoreFixture>, IClassFixture<SqlServerCrossStoreFixture>
     {
         public SqlServerEndToEndTest(SqlServerCrossStoreFixture fixture)
             : base(fixture)
         {
         }
+    }
+
+    [Collection("SharedEndToEndCollection")]
+    public class SharedInMemoryEndToEndTest : EndToEndTest<InMemoryTestStore, SharedCrossStoreFixture>
+    {
+        public SharedInMemoryEndToEndTest(SharedCrossStoreFixture fixture)
+            : base(fixture)
+        {
+        }
+    }
+
+    [Collection("SharedEndToEndCollection")]
+    public class SharedSqlServerEndToEndTest : EndToEndTest<SqlServerTestStore, SharedCrossStoreFixture>
+    {
+        public SharedSqlServerEndToEndTest(SharedCrossStoreFixture fixture)
+            : base(fixture)
+        {
+        }
+    }
+
+    [CollectionDefinition("SharedEndToEndCollection")]
+    public class EndToEndCollection : ICollectionFixture<SharedCrossStoreFixture>
+    {
     }
 }

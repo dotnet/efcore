@@ -13,22 +13,6 @@ namespace Microsoft.Data.Entity.Tests
     public class DefaultModelSourceTest
     {
         [Fact]
-        public void Members_check_arguments()
-        {
-            Assert.Equal(
-                "setFinder",
-                // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => new DefaultModelSource(null)).ParamName);
-
-            var modelSource = new DefaultModelSource(new Mock<DbSetFinder>().Object);
-
-            Assert.Equal(
-                "context",
-                // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => modelSource.GetModel(null, new ModelBuilderFactory())).ParamName);
-        }
-
-        [Fact]
         public void Adds_all_entities_based_on_all_distinct_entity_types_found()
         {
             var setFinderMock = new Mock<DbSetFinder>();
@@ -40,7 +24,7 @@ namespace Microsoft.Data.Entity.Tests
                         new DbSetFinder.DbSetProperty(typeof(JustAClass), "Three", typeof(Random), hasSetter: true)
                     });
 
-            var model = new DefaultModelSource(setFinderMock.Object).GetModel(new Mock<DbContext>().Object, new ModelBuilderFactory());
+            var model = CreateDefaultModelSource(setFinderMock.Object).GetModel(new Mock<DbContext>().Object, new ModelBuilderFactory());
 
             Assert.Equal(
                 new[] { typeof(object).FullName, typeof(Random).FullName },
@@ -58,7 +42,7 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Caches_model_by_context_type()
         {
-            var modelSource = new DefaultModelSource(new DbSetFinder());
+            var modelSource = CreateDefaultModelSource(new DbSetFinder());
 
             var model1 = modelSource.GetModel(new Context1(), new ModelBuilderFactory());
             var model2 = modelSource.GetModel(new Context2(), new ModelBuilderFactory());
@@ -74,6 +58,11 @@ namespace Microsoft.Data.Entity.Tests
 
         private class Context2 : DbContext
         {
+        }
+
+        private DefaultModelSource CreateDefaultModelSource(DbSetFinder setFinder)
+        {
+            return new Mock<DefaultModelSource>(setFinder) { CallBase = true }.Object;
         }
     }
 }
