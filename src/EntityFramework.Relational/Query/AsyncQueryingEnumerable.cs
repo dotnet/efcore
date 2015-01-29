@@ -45,7 +45,6 @@ namespace Microsoft.Data.Entity.Relational.Query
         {
             private readonly AsyncQueryingEnumerable<T> _enumerable;
 
-            private DbCommand _command;
             private DbDataReader _reader;
 
             private T _current;
@@ -78,11 +77,12 @@ namespace Microsoft.Data.Entity.Relational.Query
                     .OpenAsync(cancellationToken)
                     .WithCurrentCulture();
 
-                _command = _enumerable._commandBuilder.Build(_enumerable._relationalQueryContext.Connection);
+                using (var command = _enumerable._commandBuilder.Build(_enumerable._relationalQueryContext.Connection))
+                {
+                    _enumerable._logger.WriteSql(command.CommandText);
 
-                _enumerable._logger.WriteSql(_command.CommandText);
-
-                _reader = await _command.ExecuteReaderAsync(cancellationToken).WithCurrentCulture();
+                    _reader = await command.ExecuteReaderAsync(cancellationToken).WithCurrentCulture();
+                }
 
                 _enumerable._relationalQueryContext.RegisterDataReader(_reader);
 
@@ -95,11 +95,13 @@ namespace Microsoft.Data.Entity.Relational.Query
             {
                 if (!_disposed)
                 {
-                    _disposed = true;
+                    if (_reader != null)
+                    {
+                        _reader.Dispose();
+                        _enumerable._relationalQueryContext.Connection?.Close();
+                    }
 
-                    _reader?.Dispose();
-                    _command?.Dispose();
-                    _enumerable._relationalQueryContext.Connection?.Close();
+                    _disposed = true;
                 }
             }
         }
