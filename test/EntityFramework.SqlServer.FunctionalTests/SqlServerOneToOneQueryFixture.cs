@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     .BuildServiceProvider();
 
             var model = CreateModel();
-            var database = SqlServerTestStore.CreateScratchAsync().Result;
+            var database = SqlServerTestStore.CreateScratch();
 
             _options
                 = new DbContextOptions()

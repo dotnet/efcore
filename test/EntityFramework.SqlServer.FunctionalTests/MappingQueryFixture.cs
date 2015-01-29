@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 .AddInstance<ILoggerFactory>(new TestSqlLoggerFactory())
                 .BuildServiceProvider();
 
-            _testDatabase = SqlServerNorthwindContext.GetSharedStoreAsync().Result;
+            _testDatabase = SqlServerNorthwindContext.GetSharedStore();
 
             _options = new DbContextOptions()
                 .UseModel(CreateModel());

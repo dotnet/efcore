@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         protected override SqlServerTestDatabase CreateTestDatabase()
         {
-            return SqlServerTestDatabase.Scratch(createDatabase: false).Result;
+            return SqlServerTestDatabase.Scratch(createDatabase: false);
         }
 
         protected override DbContext CreateContext(SqlServerTestDatabase testDatabase)
