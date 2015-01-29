@@ -49,6 +49,8 @@ namespace Microsoft.Data.Entity.ChangeTracking
             _attacherFactory = attacherFactory;
         }
 
+        public virtual bool AutoDetectChangesEnabled { get; set; } = true;
+
         public virtual IEnumerable<EntityEntry> Entries()
         {
             TryDetectChanges();
@@ -67,7 +69,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         private void TryDetectChanges()
         {
-            if (_context.Service.Configuration.AutoDetectChangesEnabled)
+            if (AutoDetectChangesEnabled)
             {
                 DetectChanges();
             }
