@@ -5,7 +5,6 @@
         "warningsAsErrors": true
     },
     "dependencies": {
-        "System.Data.Common": "4.0.0-beta-*",
         "EntityFramework.Core": "7.0.0-*"
     },
     "code": [ "**\\*.cs", "..\\Shared\\*.cs" ],
@@ -23,6 +22,7 @@
         "aspnetcore50": {
             "dependencies": {
                 "Microsoft.CSharp": "4.0.0-beta-*",
+                "System.Data.Common": "4.0.0-beta-*",
                 "System.Text.RegularExpressions": "4.0.10-beta-*"
             }
         }
