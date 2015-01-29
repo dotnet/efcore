@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             TestStore.Dispose();
         }
 
-        [Fact(Skip = "Skipping to unblock CI")]
+        [Fact]
         public virtual void Include_multiple_one_to_one_and_one_to_many()
         {
             using (var context = CreateContext())
@@ -50,7 +50,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact(Skip = "Skipping to unblock CI")]
+        [Fact]
         public virtual void Include_multiple_one_to_one_and_one_to_many_self_reference()
         {
             using (var context = CreateContext())
@@ -94,7 +94,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
 
-        [Fact(Skip = "Skipping to unblock CI")]
+        [Fact]
         public virtual void Include_multiple_circular()
         {
             using (var context = CreateContext())
@@ -110,7 +110,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact(Skip = "Skipping to unblock CI")]
+        [Fact]
         public virtual void Include_multiple_circular_with_filter()
         {
             using (var context = CreateContext())
