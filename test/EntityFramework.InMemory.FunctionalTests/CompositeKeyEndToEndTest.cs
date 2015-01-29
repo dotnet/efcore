@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
             using (var context = new BronieContext(serviceProvider))
             {
-                await context.AddAsync(new Pegasus { Id1 = ticks, Id2 = ticks + 1, Name = "Rainbow Dash" });
+                context.Add(new Pegasus { Id1 = ticks, Id2 = ticks + 1, Name = "Rainbow Dash" });
                 await context.SaveChangesAsync();
             }
 
@@ -72,7 +72,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
             using (var context = new BronieContext(serviceProvider))
             {
-                var added = (await context.AddAsync(new Unicorn { Id2 = id2, Name = "Rarity" })).Entity;
+                var added = context.Add(new Unicorn { Id2 = id2, Name = "Rarity" }).Entity;
 
                 Assert.True(added.Id1 > 0);
                 Assert.NotEqual(Guid.Empty, added.Id3);
@@ -127,9 +127,9 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
             using (var context = new BronieContext(serviceProvider))
             {
-                var pony1 = (await context.AddAsync(new EarthPony { Id2 = 7, Name = "Apple Jack 1" })).Entity;
-                var pony2 = (await context.AddAsync(new EarthPony { Id2 = 7, Name = "Apple Jack 2" })).Entity;
-                var pony3 = (await context.AddAsync(new EarthPony { Id2 = 7, Name = "Apple Jack 3" })).Entity;
+                var pony1 = context.Add(new EarthPony { Id2 = 7, Name = "Apple Jack 1" }).Entity;
+                var pony2 = context.Add(new EarthPony { Id2 = 7, Name = "Apple Jack 2" }).Entity;
+                var pony3 = context.Add(new EarthPony { Id2 = 7, Name = "Apple Jack 3" }).Entity;
 
                 await context.SaveChangesAsync();
 

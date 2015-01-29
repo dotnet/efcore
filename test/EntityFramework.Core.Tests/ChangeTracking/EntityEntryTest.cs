@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Threading.Tasks;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Tests.ChangeTracking
@@ -54,29 +53,11 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 var entity = new Chunky();
                 var stateEntry = context.Add(entity).StateEntry;
 
-                context.Entry(entity).SetState(EntityState.Modified);
+                context.Entry(entity).State = EntityState.Modified;
                 Assert.Equal(EntityState.Modified, stateEntry.EntityState);
                 Assert.Equal(EntityState.Modified, context.Entry(entity).State);
 
-                context.Entry((object)entity).SetState(EntityState.Unchanged);
-                Assert.Equal(EntityState.Unchanged, stateEntry.EntityState);
-                Assert.Equal(EntityState.Unchanged, context.Entry((object)entity).State);
-            }
-        }
-
-        [Fact]
-        public async Task Can_get_and_change_state_async()
-        {
-            using (var context = new FreezerContext())
-            {
-                var entity = new Chunky();
-                var stateEntry = context.Add(entity).StateEntry;
-
-                await context.Entry(entity).SetStateAsync(EntityState.Modified);
-                Assert.Equal(EntityState.Modified, stateEntry.EntityState);
-                Assert.Equal(EntityState.Modified, context.Entry(entity).State);
-
-                await context.Entry((object)entity).SetStateAsync(EntityState.Unchanged);
+                context.Entry((object)entity).State = EntityState.Unchanged;
                 Assert.Equal(EntityState.Unchanged, stateEntry.EntityState);
                 Assert.Equal(EntityState.Unchanged, context.Entry((object)entity).State);
             }
@@ -138,8 +119,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             {
                 var entry = context.Add(new Chunky());
 
-                entry.SetState(initialState);
-                entry.SetState(expectedState);
+                entry.State = initialState;
+                entry.State = expectedState;
 
                 Assert.Equal(expectedState, entry.State);
             }

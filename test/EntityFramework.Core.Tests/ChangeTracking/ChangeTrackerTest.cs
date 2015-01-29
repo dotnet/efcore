@@ -4,8 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
@@ -88,7 +86,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                             }
                     };
 
-                context.ChangeTracker.AttachGraph(category, e => e.SetState(EntityState.Modified));
+                context.ChangeTracker.AttachGraph(category, e => e.State = EntityState.Modified);
 
                 Assert.Equal(4, context.ChangeTracker.Entries().Count());
 
@@ -114,7 +112,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             {
                 var product = new Product { Id = 1, Category = new Category { Id = 1 } };
 
-                context.ChangeTracker.AttachGraph(product, e => e.SetState(EntityState.Modified));
+                context.ChangeTracker.AttachGraph(product, e => e.State = EntityState.Modified);
 
                 Assert.Equal(2, context.ChangeTracker.Entries().Count());
 
@@ -133,7 +131,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             {
                 var product = new Product { Id = 1, Details = new ProductDetails { Id = 1, Tag = new ProductDetailsTag { Id = 1 } } };
 
-                context.ChangeTracker.AttachGraph(product, e => e.SetState(EntityState.Unchanged));
+                context.ChangeTracker.AttachGraph(product, e => e.State = EntityState.Unchanged);
 
                 Assert.Equal(3, context.ChangeTracker.Entries().Count());
 
@@ -153,7 +151,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             {
                 var tag = new ProductDetailsTag { Id = 1, Details = new ProductDetails { Id = 1, Product = new Product { Id = 1 } } };
 
-                context.ChangeTracker.AttachGraph(tag, e => e.SetState(EntityState.Unchanged));
+                context.ChangeTracker.AttachGraph(tag, e => e.State = EntityState.Unchanged);
 
                 Assert.Equal(3, context.ChangeTracker.Entries().Count());
 
@@ -173,7 +171,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             {
                 var details = new ProductDetails { Id = 1, Product = new Product { Id = 1 }, Tag = new ProductDetailsTag { Id = 1 } };
 
-                context.ChangeTracker.AttachGraph(details, e => e.SetState(EntityState.Unchanged));
+                context.ChangeTracker.AttachGraph(details, e => e.State = EntityState.Unchanged);
 
                 Assert.Equal(3, context.ChangeTracker.Entries().Count());
 
@@ -204,7 +202,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                             }
                     };
 
-                context.ChangeTracker.AttachGraph(category, e => e.SetState(EntityState.Modified));
+                context.ChangeTracker.AttachGraph(category, e => e.State = EntityState.Modified);
 
                 Assert.Equal(4, context.ChangeTracker.Entries().Count());
 
@@ -245,7 +243,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                         if (product == null
                             || product.Id != 2)
                         {
-                            e.SetState(EntityState.Unchanged);
+                            e.State = EntityState.Unchanged;
                         }
                     });
 
@@ -288,75 +286,33 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public async Task Can_attach_parent_with_some_new_and_some_existing_entities()
+        public void Can_attach_parent_with_some_new_and_some_existing_entities()
         {
-            await KeyValueAttachTestAsync((category, changeTracker) =>
+            KeyValueAttachTest((category, changeTracker) =>
                 {
                     changeTracker.AttachGraph(
                         category,
                         e =>
                             {
                                 var product = e.Entity as Product;
-                                e.SetState(product != null && product.Id == 0 ? EntityState.Added : EntityState.Unchanged);
+                                e.State = product != null && product.Id == 0 ? EntityState.Added : EntityState.Unchanged;
                             });
-
-                    return Task.FromResult(0);
                 });
         }
 
         [Fact]
-        public async Task Can_attach_parent_with_some_new_and_some_existing_entities_async()
+        public void Can_attach_graph_using_built_in_attacher()
         {
-            await KeyValueAttachTestAsync(async (category, changeTracker) =>
-                await changeTracker.AttachGraphAsync(
-                    category,
-                    async (e, c) =>
-                        {
-                            var product = e.Entity as Product;
-                            await e.SetStateAsync(product != null && product.Id == 0 ? EntityState.Added : EntityState.Unchanged, c);
-                        }));
+            KeyValueAttachTest((category, changeTracker) => changeTracker.AttachGraph(category));
         }
 
         [Fact]
-        public async Task Can_attach_graph_using_built_in_attacher()
+        public void Can_update_graph_using_built_in_attacher()
         {
-            await KeyValueAttachTestAsync((category, changeTracker) =>
-                {
-                    changeTracker.AttachGraph(category);
-
-                    return Task.FromResult(0);
-                });
+            KeyValueAttachTest((category, changeTracker) => changeTracker.UpdateGraph(category), expectModified: true);
         }
 
-        [Fact]
-        public async Task Can_attach_graph_using_built_in_attacher_async()
-        {
-            await KeyValueAttachTestAsync(
-                async (category, changeTracker) => await changeTracker.AttachGraphAsync(category));
-        }
-
-        [Fact]
-        public async Task Can_update_graph_using_built_in_attacher()
-        {
-            await KeyValueAttachTestAsync((category, changeTracker) =>
-                {
-                    changeTracker.UpdateGraph(category);
-
-                    return Task.FromResult(0);
-                }, expectModified: true);
-        }
-
-        [Fact]
-        public async Task Can_update_graph_using_built_in_attacher_async()
-        {
-            await KeyValueAttachTestAsync(
-                async (category, changeTracker) => await changeTracker.UpdateGraphAsync(category),
-                expectModified: true);
-        }
-
-        private static async Task KeyValueAttachTestAsync(
-            Func<Category, ChangeTracker, Task> attacher,
-            bool expectModified = false)
+        private static void KeyValueAttachTest(Action<Category, ChangeTracker> attacher, bool expectModified = false)
         {
             using (var context = new EarlyLearningCenter())
             {
@@ -371,7 +327,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                             }
                     };
 
-                await attacher(category, context.ChangeTracker);
+                attacher(category, context.ChangeTracker);
 
                 Assert.Equal(4, context.ChangeTracker.Entries().Count());
 
@@ -397,63 +353,23 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public async Task Can_attach_graph_using_custom_delegate()
+        public void Can_attach_graph_using_custom_delegate()
         {
             var attacher = new MyAttacher(updateExistingEntities: false);
 
-            await CustomAttacherTestAsync((category, changeTracker) =>
-                {
-                    changeTracker.AttachGraph(category, attacher.HandleEntity);
-
-                    return Task.FromResult(0);
-                });
+            CustomAttacherTest((category, changeTracker) => changeTracker.AttachGraph(category, attacher.HandleEntity));
         }
 
         [Fact]
-        public async Task Can_attach_graph_using_custom_delegate_async()
+        public void Can_attach_graph_using_custom_attacher()
         {
-            var attacher = new MyAttacher(updateExistingEntities: true);
-
-            await CustomAttacherTestAsync(
-                async (category, changeTracker) => await changeTracker.AttachGraphAsync(category, attacher.HandleEntityAsync),
-                expectModified: true);
+            CustomAttacherTest((category, changeTracker) => changeTracker.AttachGraph(category));
         }
 
         [Fact]
-        public async Task Can_attach_graph_using_custom_attacher()
+        public void Can_update_graph_using_custom_attacher()
         {
-            await CustomAttacherTestAsync((category, changeTracker) =>
-                {
-                    changeTracker.AttachGraph(category);
-
-                    return Task.FromResult(0);
-                });
-        }
-
-        [Fact]
-        public async Task Can_attach_graph_using_custom_attacher_async()
-        {
-            await CustomAttacherTestAsync(
-                async (category, changeTracker) => await changeTracker.AttachGraphAsync(category));
-        }
-
-        [Fact]
-        public async Task Can_update_graph_using_custom_attacher()
-        {
-            await CustomAttacherTestAsync((category, changeTracker) =>
-                {
-                    changeTracker.UpdateGraph(category);
-
-                    return Task.FromResult(0);
-                }, expectModified: true);
-        }
-
-        [Fact]
-        public async Task Can_update_graph_using_custom_attacher_async()
-        {
-            await CustomAttacherTestAsync(
-                async (category, changeTracker) => await changeTracker.UpdateGraphAsync(category),
-                expectModified: true);
+            CustomAttacherTest((category, changeTracker) => changeTracker.UpdateGraph(category), expectModified: true);
         }
 
         private class MyAttacher : KeyValueEntityAttacher
@@ -488,9 +404,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             }
         }
 
-        private static async Task CustomAttacherTestAsync(
-            Func<Category, ChangeTracker, Task> attacher,
-            bool expectModified = false)
+        private static void CustomAttacherTest(Action<Category, ChangeTracker> attacher, bool expectModified = false)
         {
             var customServices = new ServiceCollection().AddSingleton<EntityAttacherFactory, MyAttacherFactory>();
 
@@ -507,7 +421,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                             }
                     };
 
-                await attacher(category, context.ChangeTracker);
+                attacher(category, context.ChangeTracker);
 
                 Assert.Equal(4, context.ChangeTracker.Entries().Count());
 
@@ -1013,10 +927,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             }
         }
 
-        [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public async Task Explicitly_calling_DetectChanges_works_even_if_auto_DetectChanges_is_switched_off(bool async)
+        [Fact]
+        public void Explicitly_calling_DetectChanges_works_even_if_auto_DetectChanges_is_switched_off()
         {
             using (var context = new EarlyLearningCenter())
             {
@@ -1028,21 +940,14 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
                 Assert.Equal(EntityState.Unchanged, entry.State);
 
-                if (async)
-                {
-                    await context.ChangeTracker.DetectChangesAsync();
-                }
-                else
-                {
                     context.ChangeTracker.DetectChanges();
-                }
 
                 Assert.Equal(EntityState.Modified, entry.State);
             }
         }
 
         [Fact]
-        public async Task AttachGraph_and_UpdateGraph_do_not_call_DetectChanges()
+        public void AttachGraph_and_UpdateGraph_do_not_call_DetectChanges()
         {
             var provider = TestHelpers.CreateServiceProvider(new ServiceCollection().AddScoped<ChangeDetector, ChangeDetectorProxy>());
             using (var context = new EarlyLearningCenter(provider))
@@ -1052,16 +957,12 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
                 changeDetector.DetectChangesCalled = false;
 
-                await context.ChangeTracker.AttachGraphAsync(CreateSimpleGraph(1));
-                await context.ChangeTracker.AttachGraphAsync(CreateSimpleGraph(2), (e, c) =>
-                    {
-                        e.SetState(EntityState.Unchanged);
-                        return Task.FromResult(0);
-                    });
-                await context.ChangeTracker.UpdateGraphAsync(CreateSimpleGraph(3));
+                context.ChangeTracker.AttachGraph(CreateSimpleGraph(1));
+                context.ChangeTracker.AttachGraph(CreateSimpleGraph(2), e => e.State = EntityState.Unchanged);
+                context.ChangeTracker.UpdateGraph(CreateSimpleGraph(3));
 
                 context.ChangeTracker.AttachGraph(CreateSimpleGraph(4));
-                context.ChangeTracker.AttachGraph(CreateSimpleGraph(5), e => e.SetState(EntityState.Unchanged));
+                context.ChangeTracker.AttachGraph(CreateSimpleGraph(5), e => e.State = EntityState.Unchanged);
                 context.ChangeTracker.UpdateGraph(CreateSimpleGraph(6));
 
                 Assert.False(changeDetector.DetectChangesCalled);
@@ -1098,20 +999,6 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 DetectChangesCalled = true;
 
                 base.DetectChanges(stateManager);
-            }
-
-            public override Task DetectChangesAsync(StateEntry entry, CancellationToken cancellationToken = new CancellationToken())
-            {
-                DetectChangesCalled = true;
-
-                return base.DetectChangesAsync(entry, cancellationToken);
-            }
-
-            public override Task DetectChangesAsync(StateManager stateManager, CancellationToken cancellationToken = new CancellationToken())
-            {
-                DetectChangesCalled = true;
-
-                return base.DetectChangesAsync(stateManager, cancellationToken);
             }
         }
 

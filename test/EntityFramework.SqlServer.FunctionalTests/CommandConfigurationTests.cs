@@ -222,13 +222,13 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 context.Database.EnsureCreated();
 
-                await context.Chips.AddAsync(new KettleChips { BestBuyDate = DateTime.Now, Name = "Doritos Locos Tacos" });
+                context.Chips.Add(new KettleChips { BestBuyDate = DateTime.Now, Name = "Doritos Locos Tacos" });
                 await context.SaveChangesAsync();
                 Assert.Null(globalCommandTimeout);
 
                 context.Database.AsRelational().Connection.CommandTimeout = 88;
 
-                await context.Chips.AddAsync(new KettleChips { BestBuyDate = DateTime.Now, Name = "Doritos Locos Tacos" });
+                context.Chips.Add(new KettleChips { BestBuyDate = DateTime.Now, Name = "Doritos Locos Tacos" });
                 await context.SaveChangesAsync();
                 Assert.Equal(88, globalCommandTimeout);
             }
@@ -248,13 +248,13 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 context.Database.EnsureCreated(); 
 
-                await context.Chips.AddAsync(new KettleChips { BestBuyDate = DateTime.Now, Name = "Doritos Locos Tacos" });
+                context.Chips.Add(new KettleChips { BestBuyDate = DateTime.Now, Name = "Doritos Locos Tacos" });
                 await context.SaveChangesAsync();
                 Assert.Equal(77, globalCommandTimeout);
 
                 context.Database.AsRelational().Connection.CommandTimeout = 88;
 
-                await context.Chips.AddAsync(new KettleChips { BestBuyDate = DateTime.Now, Name = "Doritos Locos Tacos" });
+                context.Chips.Add(new KettleChips { BestBuyDate = DateTime.Now, Name = "Doritos Locos Tacos" });
                 await context.SaveChangesAsync();
                 Assert.Equal(88, globalCommandTimeout);
             }
@@ -276,7 +276,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                 context.Database.AsRelational().Connection.CommandTimeout = 88;
 
-                await context.Chips.AddAsync(new KettleChips { BestBuyDate = DateTime.Now, Name = "Doritos Locos Tacos" });
+                context.Chips.Add(new KettleChips { BestBuyDate = DateTime.Now, Name = "Doritos Locos Tacos" });
                 await context.SaveChangesAsync();
                 Assert.Equal(88, globalCommandTimeout);
             }

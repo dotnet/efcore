@@ -95,7 +95,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             var serviceProvider = TestHelpers.CreateContextServices(CreateModel());
             var customer = new Customer { Id = 42, Name = "Unikorn" };
             var entityEntry = serviceProvider.GetRequiredService<StateManager>().GetOrCreateEntry(customer);
-            await entityEntry.SetEntityStateAsync(EntityState.Added);
+            entityEntry.SetEntityState(EntityState.Added);
 
             var inMemoryDataStore = serviceProvider.GetRequiredService<InMemoryDataStore>();
 
@@ -112,14 +112,14 @@ namespace Microsoft.Data.Entity.InMemory.Tests
 
             var customer = new Customer { Id = 42, Name = "Unikorn" };
             var entityEntry = serviceProvider.GetRequiredService<StateManager>().GetOrCreateEntry(customer);
-            await entityEntry.SetEntityStateAsync(EntityState.Added);
+            entityEntry.SetEntityState(EntityState.Added);
 
             var inMemoryDataStore = serviceProvider.GetRequiredService<InMemoryDataStore>();
 
             await inMemoryDataStore.SaveChangesAsync(new[] { entityEntry });
 
             customer.Name = "Unikorn, The Return";
-            await entityEntry.SetEntityStateAsync(EntityState.Modified);
+            entityEntry.SetEntityState(EntityState.Modified);
 
             await inMemoryDataStore.SaveChangesAsync(new[] { entityEntry });
 
@@ -134,17 +134,17 @@ namespace Microsoft.Data.Entity.InMemory.Tests
 
             var customer = new Customer { Id = 42, Name = "Unikorn" };
             var entityEntry = serviceProvider.GetRequiredService<StateManager>().GetOrCreateEntry(customer);
-            await entityEntry.SetEntityStateAsync(EntityState.Added);
+            entityEntry.SetEntityState(EntityState.Added);
 
             var inMemoryDataStore = serviceProvider.GetRequiredService<InMemoryDataStore>();
 
             await inMemoryDataStore.SaveChangesAsync(new[] { entityEntry });
 
             // Because the data store is being used directly the entity state must be manually changed after saving.
-            await entityEntry.SetEntityStateAsync(EntityState.Unchanged);
+            entityEntry.SetEntityState(EntityState.Unchanged);
 
             customer.Name = "Unikorn, The Return";
-            await entityEntry.SetEntityStateAsync(EntityState.Deleted);
+            entityEntry.SetEntityState(EntityState.Deleted);
 
             await inMemoryDataStore.SaveChangesAsync(new[] { entityEntry });
 
@@ -168,7 +168,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
 
             var customer = new Customer { Id = 42, Name = "Unikorn" };
             var entityEntry = scopedServices.GetRequiredService<StateManager>().GetOrCreateEntry(customer);
-            await entityEntry.SetEntityStateAsync(EntityState.Added);
+            entityEntry.SetEntityState(EntityState.Added);
 
             var inMemoryDataStore = scopedServices.GetRequiredService<InMemoryDataStore>();
 

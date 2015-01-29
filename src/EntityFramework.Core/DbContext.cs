@@ -216,7 +216,7 @@ namespace Microsoft.Data.Entity
 
             if (ChangeTracker.AutoDetectChangesEnabled)
             {
-                await GetChangeDetector().DetectChangesAsync(stateManager, cancellationToken).WithCurrentCulture();
+                GetChangeDetector().DetectChanges(stateManager);
             }
 
             try
@@ -282,21 +282,6 @@ namespace Microsoft.Data.Entity
             return SetEntityState(entity, EntityState.Added);
         }
 
-        public virtual async Task<EntityEntry<TEntity>> AddAsync<TEntity>(
-            [NotNull] TEntity entity, CancellationToken cancellationToken = default(CancellationToken))
-            where TEntity : class
-        {
-            Check.NotNull(entity, "entity");
-
-            var entry = EntryWithoutDetectChanges(entity);
-
-            await entry.StateEntry
-                .SetEntityStateAsync(EntityState.Added, true, cancellationToken)
-                .WithCurrentCulture();
-
-            return entry;
-        }
-
         public virtual EntityEntry<TEntity> Attach<TEntity>([NotNull] TEntity entity) where TEntity : class
         {
             Check.NotNull(entity, "entity");
@@ -327,7 +312,7 @@ namespace Microsoft.Data.Entity
         {
             var entry = EntryWithoutDetectChanges(entity);
 
-            entry.SetState(entityState);
+            entry.State = entityState;
 
             return entry;
         }
@@ -337,20 +322,6 @@ namespace Microsoft.Data.Entity
             Check.NotNull(entity, "entity");
 
             return SetEntityState(entity, EntityState.Added);
-        }
-
-        public virtual async Task<EntityEntry> AddAsync(
-            [NotNull] object entity, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Check.NotNull(entity, "entity");
-
-            var entry = EntryWithoutDetectChanges(entity);
-
-            await entry.StateEntry
-                .SetEntityStateAsync(EntityState.Added, true, cancellationToken)
-                .WithCurrentCulture();
-
-            return entry;
         }
 
         public virtual EntityEntry Attach([NotNull] object entity)
@@ -383,7 +354,7 @@ namespace Microsoft.Data.Entity
         {
             var entry = EntryWithoutDetectChanges(entity);
 
-            entry.SetState(entityState);
+            entry.State = entityState;
 
             return entry;
         }
@@ -393,32 +364,6 @@ namespace Microsoft.Data.Entity
             Check.NotNull(entities, "entities");
 
             return SetEntityStates(entities, EntityState.Added);
-        }
-
-        public virtual Task<IReadOnlyList<EntityEntry<TEntity>>> AddAsync<TEntity>([NotNull] params TEntity[] entities) where TEntity : class
-        {
-            Check.NotNull(entities, "entities");
-
-            return AddAsync(entities, default(CancellationToken));
-        }
-
-        public virtual async Task<IReadOnlyList<EntityEntry<TEntity>>> AddAsync<TEntity>(
-            [NotNull] TEntity[] entities,
-            CancellationToken cancellationToken)
-            where TEntity : class
-        {
-            Check.NotNull(entities, "entities");
-
-            var entries = GetOrCreateEntries(entities);
-
-            foreach (var entry in entries)
-            {
-                await entry.StateEntry
-                    .SetEntityStateAsync(EntityState.Added, true, cancellationToken)
-                    .WithCurrentCulture();
-            }
-
-            return entries;
         }
 
         public virtual IReadOnlyList<EntityEntry<TEntity>> Attach<TEntity>([NotNull] params TEntity[] entities) where TEntity : class
@@ -445,10 +390,10 @@ namespace Microsoft.Data.Entity
             // nothing to delete because it was not yet inserted, so just make sure it doesn't get inserted.
             foreach (var entry in entries)
             {
-                entry.SetState(
+                entry.State = 
                     entry.State == EntityState.Added
                         ? EntityState.Unknown
-                        : EntityState.Deleted);
+                        : EntityState.Deleted;
             }
 
             return entries;
@@ -460,7 +405,7 @@ namespace Microsoft.Data.Entity
 
             foreach (var entry in entries)
             {
-                entry.SetState(entityState);
+                entry.State = entityState;
             }
 
             return entries;
@@ -478,31 +423,6 @@ namespace Microsoft.Data.Entity
             Check.NotNull(entities, "entities");
 
             return SetEntityStates(entities, EntityState.Added);
-        }
-
-        public virtual Task<IReadOnlyList<EntityEntry>> AddAsync([NotNull] params object[] entities)
-        {
-            Check.NotNull(entities, "entities");
-
-            return AddAsync(entities, default(CancellationToken));
-        }
-
-        public virtual async Task<IReadOnlyList<EntityEntry>> AddAsync(
-            [NotNull] object[] entities,
-            CancellationToken cancellationToken)
-        {
-            Check.NotNull(entities, "entities");
-
-            var entries = GetOrCreateEntries(entities);
-
-            foreach (var entry in entries)
-            {
-                await entry.StateEntry
-                    .SetEntityStateAsync(EntityState.Added, true, cancellationToken)
-                    .WithCurrentCulture();
-            }
-
-            return entries;
         }
 
         public virtual IReadOnlyList<EntityEntry> Attach([NotNull] params object[] entities)
@@ -529,10 +449,10 @@ namespace Microsoft.Data.Entity
             // nothing to delete because it was not yet inserted, so just make sure it doesn't get inserted.
             foreach (var entry in entries)
             {
-                entry.SetState(
+                entry.State = 
                     entry.State == EntityState.Added
                         ? EntityState.Unknown
-                        : EntityState.Deleted);
+                        : EntityState.Deleted;
             }
 
             return entries;
@@ -544,7 +464,7 @@ namespace Microsoft.Data.Entity
 
             foreach (var entry in entries)
             {
-                entry.SetState(entityState);
+                entry.State = entityState;
             }
 
             return entries;

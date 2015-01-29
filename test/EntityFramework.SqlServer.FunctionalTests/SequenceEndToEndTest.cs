@@ -113,8 +113,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 for (var i = 0; i < 10; i++)
                 {
-                    await context.AddAsync(new Pegasus { Name = "Rainbow Dash " + i });
-                    await context.AddAsync(new Pegasus { Name = "Fluttershy " + i });
+                    context.Add(new Pegasus { Name = "Rainbow Dash " + i });
+                    context.Add(new Pegasus { Name = "Fluttershy " + i });
                 }
 
                 await context.SaveChangesAsync();

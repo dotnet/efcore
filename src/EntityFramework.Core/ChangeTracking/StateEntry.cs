@@ -5,8 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
@@ -118,20 +116,6 @@ namespace Microsoft.Data.Entity.ChangeTracking
             if (PrepareForAdd(entityState))
             {
                 StateManager.ValueGeneration.Generate(this);
-            }
-
-            SetEntityState(oldState, entityState, acceptChanges);
-        }
-
-        public virtual async Task SetEntityStateAsync(EntityState entityState, bool acceptChanges = false, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Check.IsDefined(entityState, "entityState");
-
-            var oldState = _stateData.EntityState;
-
-            if (PrepareForAdd(entityState))
-            {
-                await StateManager.ValueGeneration.GenerateAsync(this, cancellationToken).WithCurrentCulture();
             }
 
             SetEntityState(oldState, entityState, acceptChanges);

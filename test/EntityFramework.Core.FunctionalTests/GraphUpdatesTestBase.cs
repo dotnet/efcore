@@ -686,7 +686,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 root = LoadFullGraph(context, e => e.Id != newRoot.Id);
 
-                context.Entry(newRoot).SetState(useExistingRoot ? EntityState.Unchanged : EntityState.Added);
+                context.Entry(newRoot).State = useExistingRoot ? EntityState.Unchanged : EntityState.Added;
 
                 old1 = root.OptionalSingle;
                 old2 = root.OptionalSingle.Single;
@@ -758,7 +758,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 var root = LoadFullGraph(context, e => e.Id != newRoot.Id);
 
-                context.Entry(newRoot).SetState(useExistingRoot ? EntityState.Unchanged : EntityState.Added);
+                context.Entry(newRoot).State = useExistingRoot ? EntityState.Unchanged : EntityState.Added;
 
                 switch (changeMechanism)
                 {
@@ -810,7 +810,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 root = LoadFullGraph(context, e => e.Id != newRoot.Id);
 
-                context.Entry(newRoot).SetState(useExistingRoot ? EntityState.Unchanged : EntityState.Added);
+                context.Entry(newRoot).State = useExistingRoot ? EntityState.Unchanged : EntityState.Added;
 
                 old1 = root.RequiredNonPkSingle;
                 old2 = root.RequiredNonPkSingle.Single;
@@ -1525,7 +1525,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 root = LoadFullGraph(context, e => e.Id != newRoot.Id);
 
-                context.Entry(newRoot).SetState(useExistingRoot ? EntityState.Unchanged : EntityState.Added);
+                context.Entry(newRoot).State = useExistingRoot ? EntityState.Unchanged : EntityState.Added;
 
                 old1 = root.OptionalSingleAk;
                 old2 = root.OptionalSingleAk.Single;
@@ -1597,7 +1597,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 var root = LoadFullGraph(context, e => e.Id != newRoot.Id);
 
-                context.Entry(newRoot).SetState(useExistingRoot ? EntityState.Unchanged : EntityState.Added);
+                context.Entry(newRoot).State = useExistingRoot ? EntityState.Unchanged : EntityState.Added;
 
                 switch (changeMechanism)
                 {
@@ -1649,7 +1649,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 root = LoadFullGraph(context, e => e.Id != newRoot.Id);
 
-                context.Entry(newRoot).SetState(useExistingRoot ? EntityState.Unchanged : EntityState.Added);
+                context.Entry(newRoot).State = useExistingRoot ? EntityState.Unchanged : EntityState.Added;
 
                 old1 = root.RequiredNonPkSingleAk;
                 old2 = root.RequiredNonPkSingleAk.Single;

@@ -257,12 +257,6 @@ namespace Microsoft.Data.Entity.Tests
         }
 
         [Fact]
-        public void Can_add_new_entities_to_context_async()
-        {
-            TrackEntitiesTest((c, e) => c.AddAsync(e).Result, (c, e) => c.AddAsync(e).Result, EntityState.Added);
-        }
-
-        [Fact]
         public void Can_add_existing_entities_to_context_to_be_attached()
         {
             TrackEntitiesTest((c, e) => c.Attach(e), (c, e) => c.Attach(e), EntityState.Unchanged);
@@ -322,16 +316,6 @@ namespace Microsoft.Data.Entity.Tests
         public void Can_add_multiple_new_entities_to_context()
         {
             TrackMultipleEntitiesTest((c, e) => c.Add(e[0], e[1]), (c, e) => c.Add(e[0], e[1]), EntityState.Added);
-        }
-
-        [Fact]
-        public void Can_add_multiple_new_entities_to_context_async()
-        {
-            TrackMultipleEntitiesTest((c, e) => c.AddAsync(e[0], e[1]).Result, (c, e) => c.AddAsync(e[0], e[1]).Result, EntityState.Added);
-
-            TrackMultipleEntitiesTest(
-                (c, e) => c.AddAsync(new[] { e[0], e[1] }, new CancellationToken()).Result,
-                (c, e) => c.AddAsync(new[] { e[0], e[1] }, new CancellationToken()).Result, EntityState.Added);
         }
 
         [Fact]
@@ -398,16 +382,6 @@ namespace Microsoft.Data.Entity.Tests
         }
 
         [Fact]
-        public void Can_add_no_new_entities_to_context_async()
-        {
-            TrackNoEntitiesTest(c => c.AddAsync(new Category[0]).Result, c => c.AddAsync(new Product[0]).Result, EntityState.Added);
-
-            TrackNoEntitiesTest(
-                c => c.AddAsync(new Category[0], new CancellationToken()).Result,
-                c => c.AddAsync(new Product[0], new CancellationToken()).Result, EntityState.Added);
-        }
-
-        [Fact]
         public void Can_add_no_existing_entities_to_context_to_be_attached()
         {
             TrackNoEntitiesTest(c => c.Attach(new Category[0]), c => c.Attach(new Product[0]), EntityState.Unchanged);
@@ -440,12 +414,6 @@ namespace Microsoft.Data.Entity.Tests
         public void Can_add_new_entities_to_context_non_generic()
         {
             TrackEntitiesTestNonGeneric((c, e) => c.Add(e), (c, e) => c.Add(e), EntityState.Added);
-        }
-
-        [Fact]
-        public void Can_add_new_entities_to_context_async_non_generic()
-        {
-            TrackEntitiesTestNonGeneric((c, e) => c.AddAsync(e).Result, (c, e) => c.AddAsync(e).Result, EntityState.Added);
         }
 
         [Fact]
@@ -508,16 +476,6 @@ namespace Microsoft.Data.Entity.Tests
         public void Can_add_multiple_new_entities_to_context_non_generic()
         {
             TrackMultipleEntitiesTestNonGeneric((c, e) => c.Add(e[0], e[1]), (c, e) => c.Add(e[0], e[1]), EntityState.Added);
-        }
-
-        [Fact]
-        public void Can_add_multiple_new_entities_to_context_async_non_generic()
-        {
-            TrackMultipleEntitiesTestNonGeneric((c, e) => c.AddAsync(e[0], e[1]).Result, (c, e) => c.AddAsync(e[0], e[1]).Result, EntityState.Added);
-
-            TrackMultipleEntitiesTestNonGeneric(
-                (c, e) => c.AddAsync(new[] { e[0], e[1] }, new CancellationToken()).Result,
-                (c, e) => c.AddAsync(new[] { e[0], e[1] }, new CancellationToken()).Result, EntityState.Added);
         }
 
         [Fact]
@@ -584,16 +542,6 @@ namespace Microsoft.Data.Entity.Tests
         }
 
         [Fact]
-        public void Can_add_no_new_entities_to_context_async_non_generic()
-        {
-            TrackNoEntitiesTestNonGeneric(c => c.AddAsync().Result, c => c.AddAsync().Result, EntityState.Added);
-
-            TrackNoEntitiesTestNonGeneric(
-                c => c.AddAsync(new object[0], new CancellationToken()).Result,
-                c => c.AddAsync(new object[0], new CancellationToken()).Result, EntityState.Added);
-        }
-
-        [Fact]
         public void Can_add_no_existing_entities_to_context_to_be_attached_non_generic()
         {
             TrackNoEntitiesTestNonGeneric(c => c.Attach(), c => c.Attach(), EntityState.Unchanged);
@@ -626,12 +574,6 @@ namespace Microsoft.Data.Entity.Tests
         public void Can_add_new_entities_to_context_with_key_generation()
         {
             TrackEntitiesWithKeyGenerationTest((c, e) => c.Add(e).Entity);
-        }
-
-        [Fact]
-        public void Can_add_new_entities_to_context_with_key_generation_async()
-        {
-            TrackEntitiesWithKeyGenerationTest((c, e) => c.AddAsync(e).Result.Entity);
         }
 
         private static void TrackEntitiesWithKeyGenerationTest(Func<DbContext, TheGu, TheGu> adder)
@@ -704,7 +646,7 @@ namespace Microsoft.Data.Entity.Tests
                 var entity = new Category { Name = "Beverages" };
                 var entry = context.Entry(entity);
 
-                entry.SetState(initialState);
+                entry.State = initialState;
 
                 action(context, entity);
 
@@ -887,7 +829,7 @@ namespace Microsoft.Data.Entity.Tests
                 var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
                 category.Products = new List<Product> { product };
 
-                context.Entry(category).SetState(EntityState.Unchanged);
+                context.Entry(category).State = EntityState.Unchanged;
 
                 Assert.Equal(1, product.CategoryId);
                 Assert.Same(product, category.Products.Single());
@@ -895,7 +837,7 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
                 Assert.Equal(EntityState.Unknown, context.Entry(product).State);
 
-                context.Entry(product).SetState(EntityState.Unchanged);
+                context.Entry(product).State = EntityState.Unchanged;
 
                 Assert.Equal(1, product.CategoryId);
                 Assert.Same(product, category.Products.Single());
@@ -916,7 +858,7 @@ namespace Microsoft.Data.Entity.Tests
                 var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
                 category.Products = new List<Product> { product };
 
-                context.Entry(product).SetState(EntityState.Unchanged);
+                context.Entry(product).State = EntityState.Unchanged;
 
                 Assert.Equal(1, product.CategoryId);
                 Assert.Same(product, category.Products.Single());
@@ -924,7 +866,7 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Equal(EntityState.Unknown, context.Entry(category).State);
                 Assert.Equal(EntityState.Modified, context.Entry(product).State);
 
-                context.Entry(category).SetState(EntityState.Unchanged);
+                context.Entry(category).State = EntityState.Unchanged;
 
                 Assert.Equal(1, product.CategoryId);
                 Assert.Same(product, category.Products.Single());
@@ -943,7 +885,7 @@ namespace Microsoft.Data.Entity.Tests
                 var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
                 category.Products = new List<Product>();
 
-                context.Entry(category).SetState(EntityState.Unchanged);
+                context.Entry(category).State = EntityState.Unchanged;
 
                 Assert.Equal(7, product.CategoryId);
                 Assert.Empty(category.Products);
@@ -951,7 +893,7 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
                 Assert.Equal(EntityState.Unknown, context.Entry(product).State);
 
-                context.Entry(product).SetState(EntityState.Unchanged);
+                context.Entry(product).State = EntityState.Unchanged;
 
                 Assert.Equal(1, product.CategoryId);
                 Assert.Same(product, category.Products.Single());
@@ -970,7 +912,7 @@ namespace Microsoft.Data.Entity.Tests
                 var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
                 category.Products = new List<Product>();
 
-                context.Entry(product).SetState(EntityState.Unchanged);
+                context.Entry(product).State = EntityState.Unchanged;
 
                 Assert.Equal(1, product.CategoryId);
                 Assert.Same(product, category.Products.Single());
@@ -978,7 +920,7 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Equal(EntityState.Unknown, context.Entry(category).State);
                 Assert.Equal(EntityState.Modified, context.Entry(product).State);
 
-                context.Entry(category).SetState(EntityState.Unchanged);
+                context.Entry(category).State = EntityState.Unchanged;
 
                 Assert.Equal(1, product.CategoryId);
                 Assert.Same(product, category.Products.Single());
@@ -997,7 +939,7 @@ namespace Microsoft.Data.Entity.Tests
                 var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite" };
                 category.Products = new List<Product> { product };
 
-                context.Entry(category).SetState(EntityState.Unchanged);
+                context.Entry(category).State = EntityState.Unchanged;
 
                 Assert.Equal(1, product.CategoryId);
                 Assert.Same(product, category.Products.Single());
@@ -1005,7 +947,7 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
                 Assert.Equal(EntityState.Unknown, context.Entry(product).State);
 
-                context.Entry(product).SetState(EntityState.Unchanged);
+                context.Entry(product).State = EntityState.Unchanged;
 
                 Assert.Equal(1, product.CategoryId);
                 Assert.Same(product, category.Products.Single());
@@ -1026,7 +968,7 @@ namespace Microsoft.Data.Entity.Tests
                 var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite" };
                 category.Products = new List<Product> { product };
 
-                context.Entry(product).SetState(EntityState.Unchanged);
+                context.Entry(product).State = EntityState.Unchanged;
 
                 Assert.Equal(7, product.CategoryId);
                 Assert.Same(product, category.Products.Single());
@@ -1034,7 +976,7 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Equal(EntityState.Unknown, context.Entry(category).State);
                 Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
 
-                context.Entry(category).SetState(EntityState.Unchanged);
+                context.Entry(category).State = EntityState.Unchanged;
 
                 Assert.Equal(1, product.CategoryId);
                 Assert.Same(product, category.Products.Single());
@@ -1245,7 +1187,7 @@ namespace Microsoft.Data.Entity.Tests
                 var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
                 category.Products = new List<Product> { product };
 
-                context.Entry(category).SetState(EntityState.Unchanged);
+                context.Entry(category).State = EntityState.Unchanged;
 
                 Assert.Equal(1, product.CategoryId);
                 Assert.Same(product, category.Products.Single());
@@ -1254,7 +1196,7 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
                 Assert.Equal(EntityState.Unknown, context.Entry(product).State);
 
-                context.Entry(product).SetState(EntityState.Unchanged);
+                context.Entry(product).State = EntityState.Unchanged;
 
                 Assert.Equal(1, product.CategoryId);
                 Assert.Same(product, category.Products.Single());
@@ -1278,7 +1220,7 @@ namespace Microsoft.Data.Entity.Tests
                 var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
                 category.Products = new List<Product> { product };
 
-                context.Entry(product).SetState(EntityState.Unchanged);
+                context.Entry(product).State = EntityState.Unchanged;
 
                 Assert.Equal(1, product.CategoryId);
                 Assert.Same(product, category.Products.Single());
@@ -1287,7 +1229,7 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Equal(EntityState.Unknown, context.Entry(category).State);
                 Assert.Equal(EntityState.Modified, context.Entry(product).State);
 
-                context.Entry(category).SetState(EntityState.Unchanged);
+                context.Entry(category).State = EntityState.Unchanged;
 
                 Assert.Equal(1, product.CategoryId);
                 Assert.Same(product, category.Products.Single());
@@ -1309,7 +1251,7 @@ namespace Microsoft.Data.Entity.Tests
                 var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
                 category.Products = new List<Product>();
 
-                context.Entry(category).SetState(EntityState.Unchanged);
+                context.Entry(category).State = EntityState.Unchanged;
 
                 Assert.Equal(7, product.CategoryId);
                 Assert.Empty(category.Products);
@@ -1318,7 +1260,7 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
                 Assert.Equal(EntityState.Unknown, context.Entry(product).State);
 
-                context.Entry(product).SetState(EntityState.Unchanged);
+                context.Entry(product).State = EntityState.Unchanged;
 
                 Assert.Equal(1, product.CategoryId);
                 Assert.Same(product, category.Products.Single());
@@ -1340,7 +1282,7 @@ namespace Microsoft.Data.Entity.Tests
                 var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
                 category.Products = new List<Product>();
 
-                context.Entry(product).SetState(EntityState.Unchanged);
+                context.Entry(product).State = EntityState.Unchanged;
 
                 Assert.Equal(1, product.CategoryId);
                 Assert.Same(product, category.Products.Single());
@@ -1349,7 +1291,7 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Equal(EntityState.Unknown, context.Entry(category).State);
                 Assert.Equal(EntityState.Modified, context.Entry(product).State);
 
-                context.Entry(category).SetState(EntityState.Unchanged);
+                context.Entry(category).State = EntityState.Unchanged;
 
                 Assert.Equal(1, product.CategoryId);
                 Assert.Same(product, category.Products.Single());
@@ -1371,7 +1313,7 @@ namespace Microsoft.Data.Entity.Tests
                 var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite" };
                 category.Products = new List<Product> { product };
 
-                context.Entry(category).SetState(EntityState.Unchanged);
+                context.Entry(category).State = EntityState.Unchanged;
 
                 Assert.Equal(1, product.CategoryId);
                 Assert.Same(product, category.Products.Single());
@@ -1380,7 +1322,7 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
                 Assert.Equal(EntityState.Unknown, context.Entry(product).State);
 
-                context.Entry(product).SetState(EntityState.Unchanged);
+                context.Entry(product).State = EntityState.Unchanged;
 
                 Assert.Equal(1, product.CategoryId);
                 Assert.Same(product, category.Products.Single());
@@ -1404,7 +1346,7 @@ namespace Microsoft.Data.Entity.Tests
                 var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite" };
                 category.Products = new List<Product> { product };
 
-                context.Entry(product).SetState(EntityState.Unchanged);
+                context.Entry(product).State = EntityState.Unchanged;
 
                 Assert.Equal(7, product.CategoryId);
                 Assert.Same(product, category.Products.Single());
@@ -1413,7 +1355,7 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Equal(EntityState.Unknown, context.Entry(category).State);
                 Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
 
-                context.Entry(category).SetState(EntityState.Unchanged);
+                context.Entry(category).State = EntityState.Unchanged;
 
                 Assert.Equal(1, product.CategoryId);
                 Assert.Same(product, category.Products.Single());
@@ -1520,8 +1462,8 @@ namespace Microsoft.Data.Entity.Tests
 
             using (var context = new EarlyLearningCenter(serviceProvider, options))
             {
-                context.Entry(new Category { Id = 1 }).SetState(EntityState.Unchanged);
-                context.Entry(new Category { Id = 2 }).SetState(EntityState.Unchanged);
+                context.Entry(new Category { Id = 1 }).State = EntityState.Unchanged;
+                context.Entry(new Category { Id = 2 }).State = EntityState.Unchanged;
                 Assert.Equal(2, context.ChangeTracker.Entries().Count());
 
                 context.SaveChanges();
@@ -1565,10 +1507,10 @@ namespace Microsoft.Data.Entity.Tests
 
             using (var context = new EarlyLearningCenter(serviceProvider, options))
             {
-                context.Entry(new Category { Id = 1 }).SetState(EntityState.Unchanged);
-                context.Entry(new Category { Id = 2 }).SetState(EntityState.Modified);
-                context.Entry(new Category { Id = 3 }).SetState(EntityState.Added);
-                context.Entry(new Category { Id = 4 }).SetState(EntityState.Deleted);
+                context.Entry(new Category { Id = 1 }).State = EntityState.Unchanged;
+                context.Entry(new Category { Id = 2 }).State = EntityState.Modified;
+                context.Entry(new Category { Id = 3 }).State = EntityState.Added;
+                context.Entry(new Category { Id = 4 }).State = EntityState.Deleted;
                 Assert.Equal(4, context.ChangeTracker.Entries().Count());
 
                 context.SaveChanges();
@@ -1614,10 +1556,10 @@ namespace Microsoft.Data.Entity.Tests
 
             using (var context = new EarlyLearningCenter(serviceProvider, options))
             {
-                context.Entry(new Category { Id = 1 }).SetState(EntityState.Unchanged);
-                context.Entry(new Category { Id = 2 }).SetState(EntityState.Modified);
-                context.Entry(new Category { Id = 3 }).SetState(EntityState.Added);
-                context.Entry(new Category { Id = 4 }).SetState(EntityState.Deleted);
+                context.Entry(new Category { Id = 1 }).State = EntityState.Unchanged;
+                context.Entry(new Category { Id = 2 }).State = EntityState.Modified;
+                context.Entry(new Category { Id = 3 }).State = EntityState.Added;
+                context.Entry(new Category { Id = 4 }).State = EntityState.Deleted;
                 Assert.Equal(4, context.ChangeTracker.Entries().Count());
 
                 await context.SaveChangesAsync();
@@ -2423,7 +2365,7 @@ namespace Microsoft.Data.Entity.Tests
         }
 
         [Fact]
-        public async Task Add_Attach_Remove_Update_do_not_call_DetectChanges()
+        public void Add_Attach_Remove_Update_do_not_call_DetectChanges()
         {
             var provider = TestHelpers.CreateServiceProvider(new ServiceCollection().AddScoped<ChangeDetector, ChangeDetectorProxy>());
             using (var context = new ButTheHedgehogContext(provider))
@@ -2435,10 +2377,10 @@ namespace Microsoft.Data.Entity.Tests
 
                 changeDetector.DetectChangesCalled = false;
 
-                await context.AddAsync(entity);
-                await context.AddAsync((object)entity);
-                await context.AddAsync(new[] { entity });
-                await context.AddAsync(new object[] { entity });
+                context.Add(entity);
+                context.Add((object)entity);
+                context.Add(new[] { entity });
+                context.Add(new object[] { entity });
                 context.Add(entity);
                 context.Add((object)entity);
                 context.Add(new[] { entity });
@@ -2485,20 +2427,6 @@ namespace Microsoft.Data.Entity.Tests
                 DetectChangesCalled = true;
 
                 base.DetectChanges(stateManager);
-            }
-
-            public override Task DetectChangesAsync(StateEntry entry, CancellationToken cancellationToken = new CancellationToken())
-            {
-                DetectChangesCalled = true;
-
-                return base.DetectChangesAsync(entry, cancellationToken);
-            }
-
-            public override Task DetectChangesAsync(StateManager stateManager, CancellationToken cancellationToken = new CancellationToken())
-            {
-                DetectChangesCalled = true;
-
-                return base.DetectChangesAsync(stateManager, cancellationToken);
             }
         }
     }

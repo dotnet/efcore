@@ -542,7 +542,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                             Name = "Larry David",
                             TeamId = Team.Ferrari
                         });
-                entry.SetState(EntityState.Unknown);
+                entry.State = EntityState.Unknown;
 
                 Assert.Equal("Can't reload an unknown entity",
                     Assert.Throws<InvalidOperationException>(() => entry.Reload(context)).Message);
@@ -573,7 +573,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 var larry = context.Drivers.Single(d => d.Name == "Jenson Button");
                 var entry = context.Entry(larry);
-                entry.SetState(state);
+                entry.State = state;
 
                 entry.Reload(context);
 
@@ -615,7 +615,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                             Name = "Larry David",
                             TeamId = Team.Ferrari
                         });
-                entry.SetState(EntityState.Unknown);
+                entry.State = EntityState.Unknown;
 
                 Assert.Equal("Can't reload an unknown entity",
                     (await Assert.ThrowsAsync<InvalidOperationException>(() => entry.ReloadAsync(context))).Message);
@@ -646,7 +646,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 var larry = context.Drivers.Single(d => d.Name == "Jenson Button");
                 var entry = context.Entry(larry);
-                entry.SetState(state);
+                entry.State = state;
 
                 await entry.ReloadAsync(context);
 

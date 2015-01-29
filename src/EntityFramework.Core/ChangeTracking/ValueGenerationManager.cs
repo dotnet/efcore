@@ -2,8 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Diagnostics;
-using System.Threading;
-using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Infrastructure;
@@ -54,33 +52,6 @@ namespace Microsoft.Data.Entity.ChangeTracking
                         Debug.Assert(valueGenerator != null);
 
                         var generatedValue = valueGenerator.Next(property, _dataStoreServices);
-                        SetGeneratedValue(entry, property, generatedValue, valueGenerator.GeneratesTemporaryValues);
-                    }
-                }
-            }
-        }
-
-        public virtual async Task GenerateAsync([NotNull] StateEntry entry, CancellationToken cancellationToken)
-        {
-            Check.NotNull(entry, "entry");
-
-            foreach (var property in entry.EntityType.Properties)
-            {
-                var isForeignKey = property.IsForeignKey();
-
-                if ((property.GenerateValueOnAdd || isForeignKey)
-                    && entry.HasDefaultValue(property))
-                {
-                    if (isForeignKey)
-                    {
-                        await _foreignKeyValuePropagator.PropagateValueAsync(entry, property, cancellationToken).WithCurrentCulture();
-                    }
-                    else
-                    {
-                        var valueGenerator = _valueGeneratorCache.Service.GetGenerator(property);
-                        Debug.Assert(valueGenerator != null);
-
-                        var generatedValue = await valueGenerator.NextAsync(property, _dataStoreServices, cancellationToken).WithCurrentCulture();
                         SetGeneratedValue(entry, property, generatedValue, valueGenerator.GeneratesTemporaryValues);
                     }
                 }

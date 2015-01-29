@@ -4,8 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Utilities;
@@ -84,11 +82,6 @@ namespace Microsoft.Data.Entity.ChangeTracking
             _changeDetector.DetectChanges(StateManager);
         }
 
-        public virtual Task DetectChangesAsync(CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return _changeDetector.DetectChangesAsync(StateManager, cancellationToken);
-        }
-
         public virtual void AttachGraph([NotNull] object rootEntity, [NotNull] Action<EntityEntry> callback)
         {
             Check.NotNull(rootEntity, "rootEntity");
@@ -100,20 +93,6 @@ namespace Microsoft.Data.Entity.ChangeTracking
             }
         }
 
-        public virtual async Task AttachGraphAsync(
-            [NotNull] object rootEntity,
-            [NotNull] Func<EntityEntry, CancellationToken, Task> callback,
-            CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Check.NotNull(rootEntity, "rootEntity");
-            Check.NotNull(callback, "callback");
-
-            foreach (var entry in _graphIterator.TraverseGraph(rootEntity))
-            {
-                await callback(entry, cancellationToken).WithCurrentCulture();
-            }
-        }
-
         public virtual void AttachGraph([NotNull] object rootEntity)
         {
             Check.NotNull(rootEntity, "rootEntity");
@@ -122,32 +101,12 @@ namespace Microsoft.Data.Entity.ChangeTracking
             AttachGraph(rootEntity, attacher.HandleEntity);
         }
 
-        public virtual Task AttachGraphAsync(
-            [NotNull] object rootEntity,
-            CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Check.NotNull(rootEntity, "rootEntity");
-
-            var attacher = _attacherFactory.CreateForAttach();
-            return AttachGraphAsync(rootEntity, attacher.HandleEntityAsync, cancellationToken);
-        }
-
         public virtual void UpdateGraph([NotNull] object rootEntity)
         {
             Check.NotNull(rootEntity, "rootEntity");
 
             var attacher = _attacherFactory.CreateForUpdate();
             AttachGraph(rootEntity, attacher.HandleEntity);
-        }
-
-        public virtual Task UpdateGraphAsync(
-            [NotNull] object rootEntity,
-            CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Check.NotNull(rootEntity, "rootEntity");
-
-            var attacher = _attacherFactory.CreateForUpdate();
-            return AttachGraphAsync(rootEntity, attacher.HandleEntityAsync, cancellationToken);
         }
     }
 }

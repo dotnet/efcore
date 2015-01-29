@@ -10,6 +10,5 @@ namespace Microsoft.Data.Entity.ChangeTracking
     public interface IEntityAttacher
     {
         void HandleEntity([NotNull] EntityEntry entry);
-        Task HandleEntityAsync([NotNull] EntityEntry entry, CancellationToken cancellationToken = default(CancellationToken));
     }
 }

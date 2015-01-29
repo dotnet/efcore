@@ -7,7 +7,6 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
@@ -137,10 +136,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.Null(entry.TryGetSidecar(Sidecar.WellKnownNames.RelationshipsSnapshot));
         }
 
-        [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public async Task Detects_scalar_property_change(bool async)
+        [Fact]
+        public void Detects_scalar_property_change()
         {
             var contextServices = TestHelpers.CreateContextServices(BuildModel());
 
@@ -152,23 +149,14 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             product.Name = "Gear VR";
 
-            if (async)
-            {
-                await changeDetector.DetectChangesAsync(entry);
-            }
-            else
-            {
-                changeDetector.DetectChanges(entry);
-            }
+            changeDetector.DetectChanges(entry);
 
             Assert.Equal(EntityState.Modified, entry.EntityState);
             Assert.True(entry.IsPropertyModified(entry.EntityType.GetProperty("Name")));
         }
 
-        [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public async Task Skips_detection_of_scalar_property_change_for_notification_entities(bool async)
+        [Fact]
+        public void Skips_detection_of_scalar_property_change_for_notification_entities()
         {
             var contextServices = TestHelpers.CreateContextServices(BuildModelWithChanged());
 
@@ -180,23 +168,14 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             product.Name = "Gear VR";
 
-            if (async)
-            {
-                await changeDetector.DetectChangesAsync(entry);
-            }
-            else
-            {
-                changeDetector.DetectChanges(entry);
-            }
+            changeDetector.DetectChanges(entry);
 
             Assert.Equal(EntityState.Unchanged, entry.EntityState);
             Assert.False(entry.IsPropertyModified(entry.EntityType.GetProperty("Name")));
         }
 
-        [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public async Task Detects_principal_key_change(bool async)
+        [Fact]
+        public void Detects_principal_key_change()
         {
             var contextServices = TestHelpers.CreateContextServices(
                 new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
@@ -213,14 +192,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             category.PrincipalId = 78;
 
-            if (async)
-            {
-                await changeDetector.DetectChangesAsync(entry);
-            }
-            else
-            {
-                changeDetector.DetectChanges(entry);
-            }
+            changeDetector.DetectChanges(entry);
 
             Assert.Equal(78, entry.RelationshipsSnapshot[entry.EntityType.GetProperty("PrincipalId")]);
             Assert.Same(entry, stateManager.TryGetEntry(new SimpleEntityKey<int>(entry.EntityType, -1)));
@@ -242,10 +214,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             AssertDetectChangesNoOp(changeDetector, stateManager, testListener);
         }
 
-        [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public async Task Detects_principal_key_changing_back_to_original_value(bool async)
+        [Fact]
+        public void Detects_principal_key_changing_back_to_original_value()
         {
             var contextServices = TestHelpers.CreateContextServices(
                 new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
@@ -260,25 +230,11 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             category.PrincipalId = 78;
 
-            if (async)
-            {
-                await changeDetector.DetectChangesAsync(entry);
-            }
-            else
-            {
-                changeDetector.DetectChanges(entry);
-            }
+            changeDetector.DetectChanges(entry);
 
             category.PrincipalId = 77;
 
-            if (async)
-            {
-                await changeDetector.DetectChangesAsync(entry);
-            }
-            else
-            {
-                changeDetector.DetectChanges(entry);
-            }
+            changeDetector.DetectChanges(entry);
 
             Assert.Equal(77, entry.RelationshipsSnapshot[entry.EntityType.GetProperty("PrincipalId")]);
 
@@ -299,10 +255,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             AssertDetectChangesNoOp(changeDetector, stateManager, testListener);
         }
 
-        [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public async Task Reacts_to_principal_key_change_in_sidecar(bool async)
+        [Fact]
+        public void Reacts_to_principal_key_change_in_sidecar()
         {
             var contextServices = TestHelpers.CreateContextServices(
                 new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
@@ -322,14 +276,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             sidecar[property] = 78;
 
-            if (async)
-            {
-                await changeDetector.DetectChangesAsync(entry);
-            }
-            else
-            {
-                changeDetector.DetectChanges(entry);
-            }
+            changeDetector.DetectChanges(entry);
 
             Assert.Equal(78, entry.RelationshipsSnapshot[property]);
 
@@ -350,10 +297,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             AssertDetectChangesNoOp(changeDetector, stateManager, testListener);
         }
 
-        [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public async Task Detects_primary_key_change(bool async)
+        [Fact]
+        public void Detects_primary_key_change()
         {
             var contextServices = TestHelpers.CreateContextServices(
                 new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
@@ -370,14 +315,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             category.Id = 78;
 
-            if (async)
-            {
-                await changeDetector.DetectChangesAsync(entry);
-            }
-            else
-            {
-                changeDetector.DetectChanges(entry);
-            }
+            changeDetector.DetectChanges(entry);
 
             Assert.Equal(78, entry.RelationshipsSnapshot[entry.EntityType.GetProperty("Id")]);
             Assert.Same(entry, stateManager.TryGetEntry(new SimpleEntityKey<int>(entry.EntityType, 78)));
@@ -395,10 +333,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             AssertDetectChangesNoOp(changeDetector, stateManager, testListener);
         }
 
-        [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public async Task Reacts_to_primary_key_change_in_sidecar(bool async)
+        [Fact]
+        public void Reacts_to_primary_key_change_in_sidecar()
         {
             var contextServices = TestHelpers.CreateContextServices(
                 new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
@@ -420,14 +356,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             sidecar[property] = 78;
 
-            if (async)
-            {
-                await changeDetector.DetectChangesAsync(entry);
-            }
-            else
-            {
-                changeDetector.DetectChanges(entry);
-            }
+            changeDetector.DetectChanges(entry);
 
             Assert.Equal(78, entry.RelationshipsSnapshot[property]);
 
@@ -446,10 +375,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             AssertDetectChangesNoOp(changeDetector, stateManager, testListener);
         }
 
-        [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public async Task Ignores_no_change_to_principal_key(bool async)
+        [Fact]
+        public void Ignores_no_change_to_principal_key()
         {
             var contextServices = TestHelpers.CreateContextServices(
                 new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
@@ -466,14 +393,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             category.PrincipalId = 77;
 
-            if (async)
-            {
-                await changeDetector.DetectChangesAsync(entry);
-            }
-            else
-            {
-                changeDetector.DetectChanges(entry);
-            }
+            changeDetector.DetectChanges(entry);
 
             Assert.Equal(77, entry.RelationshipsSnapshot[entry.EntityType.GetProperty("PrincipalId")]);
             Assert.Same(entry, stateManager.TryGetEntry(new SimpleEntityKey<int>(entry.EntityType, -1)));
@@ -491,10 +411,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             AssertDetectChangesNoOp(changeDetector, stateManager, testListener);
         }
 
-        [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public async Task Ignores_no_change_to_principal_key_in_sidecar(bool async)
+        [Fact]
+        public void Ignores_no_change_to_principal_key_in_sidecar()
         {
             var contextServices = TestHelpers.CreateContextServices(
                 new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
@@ -514,14 +432,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             sidecar[property] = 77;
 
-            if (async)
-            {
-                await changeDetector.DetectChangesAsync(entry);
-            }
-            else
-            {
-                changeDetector.DetectChanges(entry);
-            }
+            changeDetector.DetectChanges(entry);
 
             Assert.Equal(77, entry.RelationshipsSnapshot[property]);
 
@@ -538,10 +449,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             AssertDetectChangesNoOp(changeDetector, stateManager, testListener);
         }
 
-        [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public async Task Detects_foreign_key_change(bool async)
+        [Fact]
+        public void Detects_foreign_key_change()
         {
             var contextServices = TestHelpers.CreateContextServices(
                 new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
@@ -556,14 +465,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             product.DependentId = 78;
 
-            if (async)
-            {
-                await changeDetector.DetectChangesAsync(entry);
-            }
-            else
-            {
-                changeDetector.DetectChanges(entry);
-            }
+            changeDetector.DetectChanges(entry);
 
             Assert.Equal(EntityState.Modified, entry.EntityState);
             Assert.Equal(78, entry.RelationshipsSnapshot[entry.EntityType.GetProperty("DependentId")]);
@@ -585,10 +487,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             AssertDetectChangesNoOp(changeDetector, stateManager, testListener);
         }
 
-        [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public async Task Detects_foreign_key_changing_back_to_original_value(bool async)
+        [Fact]
+        public void Detects_foreign_key_changing_back_to_original_value()
         {
             var contextServices = TestHelpers.CreateContextServices(
                 new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
@@ -603,25 +503,11 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             product.DependentId = 78;
 
-            if (async)
-            {
-                await changeDetector.DetectChangesAsync(entry);
-            }
-            else
-            {
-                changeDetector.DetectChanges(entry);
-            }
+            changeDetector.DetectChanges(entry);
 
             product.DependentId = 77;
 
-            if (async)
-            {
-                await changeDetector.DetectChangesAsync(entry);
-            }
-            else
-            {
-                changeDetector.DetectChanges(entry);
-            }
+            changeDetector.DetectChanges(entry);
 
             Assert.Equal(EntityState.Modified, entry.EntityState);
             Assert.Equal(77, entry.RelationshipsSnapshot[entry.EntityType.GetProperty("DependentId")]);
@@ -643,10 +529,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             AssertDetectChangesNoOp(changeDetector, stateManager, testListener);
         }
 
-        [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public async Task Reacts_to_foreign_key_change_in_sidecar(bool async)
+        [Fact]
+        public void Reacts_to_foreign_key_change_in_sidecar()
         {
             var contextServices = TestHelpers.CreateContextServices(
                 new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
@@ -666,14 +550,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             sidecar[property] = 78;
 
-            if (async)
-            {
-                await changeDetector.DetectChangesAsync(entry);
-            }
-            else
-            {
-                changeDetector.DetectChanges(entry);
-            }
+            changeDetector.DetectChanges(entry);
 
             Assert.Equal(EntityState.Modified, entry.EntityState);
             Assert.Equal(78, entry.RelationshipsSnapshot[property]);
@@ -695,10 +572,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             AssertDetectChangesNoOp(changeDetector, stateManager, testListener);
         }
 
-        [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public async Task Ignores_no_change_to_foreign_key(bool async)
+        [Fact]
+        public void Ignores_no_change_to_foreign_key()
         {
             var contextServices = TestHelpers.CreateContextServices(
                 new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
@@ -713,14 +588,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             product.DependentId = 77;
 
-            if (async)
-            {
-                await changeDetector.DetectChangesAsync(entry);
-            }
-            else
-            {
-                changeDetector.DetectChanges(entry);
-            }
+            changeDetector.DetectChanges(entry);
 
             Assert.Equal(EntityState.Unchanged, entry.EntityState);
             Assert.Equal(77, entry.RelationshipsSnapshot[entry.EntityType.GetProperty("DependentId")]);
@@ -738,10 +606,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             AssertDetectChangesNoOp(changeDetector, stateManager, testListener);
         }
 
-        [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public async Task Ignores_no_change_to_foreign_key_in_sidecar(bool async)
+        [Fact]
+        public void Ignores_no_change_to_foreign_key_in_sidecar()
         {
             var contextServices = TestHelpers.CreateContextServices(
                 new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
@@ -761,14 +627,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             sidecar[property] = 77;
 
-            if (async)
-            {
-                await changeDetector.DetectChangesAsync(entry);
-            }
-            else
-            {
-                changeDetector.DetectChanges(entry);
-            }
+            changeDetector.DetectChanges(entry);
 
             Assert.Equal(EntityState.Unchanged, entry.EntityState);
             Assert.Equal(77, entry.RelationshipsSnapshot[property]);
@@ -786,10 +645,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             AssertDetectChangesNoOp(changeDetector, stateManager, testListener);
         }
 
-        [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public async Task Detects_reference_navigation_change(bool async)
+        [Fact]
+        public void Detects_reference_navigation_change()
         {
             var contextServices = TestHelpers.CreateContextServices(
                 new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
@@ -806,14 +663,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var newCategory = new Category { PrincipalId = 2 };
             product.Category = newCategory;
 
-            if (async)
-            {
-                await changeDetector.DetectChangesAsync(entry);
-            }
-            else
-            {
-                changeDetector.DetectChanges(entry);
-            }
+            changeDetector.DetectChanges(entry);
 
             Assert.Equal(EntityState.Modified, entry.EntityState);
             Assert.Equal(newCategory, entry.RelationshipsSnapshot[entry.EntityType.GetNavigation("Category")]);
@@ -839,10 +689,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             AssertDetectChangesNoOp(changeDetector, stateManager, testListener);
         }
 
-        [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public async Task Detects_reference_navigation_changing_back_to_original_value(bool async)
+        [Fact]
+        public void Detects_reference_navigation_changing_back_to_original_value()
         {
             var contextServices = TestHelpers.CreateContextServices(
                 new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
@@ -859,25 +707,11 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var newCategory = new Category { PrincipalId = 2 };
             product.Category = newCategory;
 
-            if (async)
-            {
-                await changeDetector.DetectChangesAsync(entry);
-            }
-            else
-            {
-                changeDetector.DetectChanges(entry);
-            }
+            changeDetector.DetectChanges(entry);
 
             product.Category = originalCategory;
 
-            if (async)
-            {
-                await changeDetector.DetectChangesAsync(entry);
-            }
-            else
-            {
-                changeDetector.DetectChanges(entry);
-            }
+            changeDetector.DetectChanges(entry);
 
             Assert.Equal(EntityState.Modified, entry.EntityState);
             Assert.Equal(originalCategory, entry.RelationshipsSnapshot[entry.EntityType.GetNavigation("Category")]);
@@ -903,10 +737,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             AssertDetectChangesNoOp(changeDetector, stateManager, testListener);
         }
 
-        [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public async Task Ignores_no_change_to_reference_navigation(bool async)
+        [Fact]
+        public void Ignores_no_change_to_reference_navigation()
         {
             var contextServices = TestHelpers.CreateContextServices(
                 new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
@@ -922,14 +754,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             product.Category = category;
 
-            if (async)
-            {
-                await changeDetector.DetectChangesAsync(entry);
-            }
-            else
-            {
-                changeDetector.DetectChanges(entry);
-            }
+            changeDetector.DetectChanges(entry);
 
             Assert.Equal(EntityState.Unchanged, entry.EntityState);
             Assert.Equal(category, entry.RelationshipsSnapshot[entry.EntityType.GetNavigation("Category")]);
@@ -947,10 +772,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             AssertDetectChangesNoOp(changeDetector, stateManager, testListener);
         }
 
-        [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public async Task Detects_adding_to_collection_navigation(bool async)
+        [Fact]
+        public void Detects_adding_to_collection_navigation()
         {
             var contextServices = TestHelpers.CreateContextServices(
                 new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
@@ -968,14 +791,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var product3 = new Product { DependentId = 77 };
             category.Products.Add(product3);
 
-            if (async)
-            {
-                await changeDetector.DetectChangesAsync(entry);
-            }
-            else
-            {
-                changeDetector.DetectChanges(entry);
-            }
+            changeDetector.DetectChanges(entry);
 
             Assert.Equal(EntityState.Unchanged, entry.EntityState);
             Assert.Equal(
@@ -1001,10 +817,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             AssertDetectChangesNoOp(changeDetector, stateManager, testListener);
         }
 
-        [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public async Task Detects_removing_from_collection_navigation(bool async)
+        [Fact]
+        public void Detects_removing_from_collection_navigation()
         {
             var contextServices = TestHelpers.CreateContextServices(
                 new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
@@ -1021,14 +835,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             category.Products.Remove(product1);
 
-            if (async)
-            {
-                await changeDetector.DetectChangesAsync(entry);
-            }
-            else
-            {
-                changeDetector.DetectChanges(entry);
-            }
+            changeDetector.DetectChanges(entry);
 
             Assert.Equal(EntityState.Unchanged, entry.EntityState);
             Assert.Equal(
@@ -1058,10 +865,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             AssertDetectChangesNoOp(changeDetector, stateManager, testListener);
         }
 
-        [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public async Task Ignores_no_change_to_collection_navigation(bool async)
+        [Fact]
+        public void Ignores_no_change_to_collection_navigation()
         {
             var contextServices = TestHelpers.CreateContextServices(
                 new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
@@ -1079,14 +884,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             category.Products.Remove(product1);
             category.Products.Add(product1);
 
-            if (async)
-            {
-                await changeDetector.DetectChangesAsync(entry);
-            }
-            else
-            {
-                changeDetector.DetectChanges(entry);
-            }
+            changeDetector.DetectChanges(entry);
 
             Assert.Equal(EntityState.Unchanged, entry.EntityState);
             Assert.Equal(
@@ -1108,10 +906,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             AssertDetectChangesNoOp(changeDetector, stateManager, testListener);
         }
 
-        [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public async Task Skips_detecting_changes_to_primary_principal_key_for_notification_entities(bool async)
+        [Fact]
+        public void Skips_detecting_changes_to_primary_principal_key_for_notification_entities()
         {
             var contextServices = TestHelpers.CreateContextServices(
                 new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
@@ -1128,14 +924,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             product.Id = 78;
 
-            if (async)
-            {
-                await changeDetector.DetectChangesAsync(entry);
-            }
-            else
-            {
-                changeDetector.DetectChanges(entry);
-            }
+            changeDetector.DetectChanges(entry);
 
             Assert.Equal(77, entry.RelationshipsSnapshot[entry.EntityType.GetProperty("Id")]);
             Assert.Same(entry, stateManager.TryGetEntry(new SimpleEntityKey<int>(entry.EntityType, 77)));
@@ -1153,10 +942,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             AssertDetectChangesNoOp(changeDetector, stateManager, testListener);
         }
 
-        [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public async Task Skips_detecting_changes_to_foreign_key_for_notification_entities(bool async)
+        [Fact]
+        public void Skips_detecting_changes_to_foreign_key_for_notification_entities()
         {
             var contextServices = TestHelpers.CreateContextServices(
                 new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
@@ -1171,14 +958,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             product.DependentId = 78;
 
-            if (async)
-            {
-                await changeDetector.DetectChangesAsync(entry);
-            }
-            else
-            {
-                changeDetector.DetectChanges(entry);
-            }
+            changeDetector.DetectChanges(entry);
 
             Assert.Equal(77, entry.RelationshipsSnapshot[entry.EntityType.GetProperty("DependentId")]);
 
@@ -1195,10 +975,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             AssertDetectChangesNoOp(changeDetector, stateManager, testListener);
         }
 
-        [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public async Task Skips_detecting_changes_to_reference_navigation_for_notification_entities(bool async)
+        [Fact]
+        public void Skips_detecting_changes_to_reference_navigation_for_notification_entities()
         {
             var contextServices = TestHelpers.CreateContextServices(
                 new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
@@ -1214,14 +992,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             product.Category = new CategoryWithChanged { Id = 2 };
 
-            if (async)
-            {
-                await changeDetector.DetectChangesAsync(entry);
-            }
-            else
-            {
-                changeDetector.DetectChanges(entry);
-            }
+            changeDetector.DetectChanges(entry);
 
             Assert.Equal(EntityState.Unchanged, entry.EntityState);
             Assert.Equal(category, entry.RelationshipsSnapshot[entry.EntityType.GetNavigation("Category")]);
@@ -1239,10 +1010,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             AssertDetectChangesNoOp(changeDetector, stateManager, testListener);
         }
 
-        [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public async Task Skips_detecting_changes_to_notifying_collections(bool async)
+        [Fact]
+        public void Skips_detecting_changes_to_notifying_collections()
         {
             var contextServices = TestHelpers.CreateContextServices(
                 new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
@@ -1264,14 +1033,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var product3 = new ProductWithChanged { DependentId = 77 };
             category.Products.Add(product3);
 
-            if (async)
-            {
-                await changeDetector.DetectChangesAsync(entry);
-            }
-            else
-            {
-                changeDetector.DetectChanges(entry);
-            }
+            changeDetector.DetectChanges(entry);
 
             // TODO: DetectChanges is actually used here until INotifyCollectionChanged is supported (Issue #445)
             Assert.Equal(EntityState.Unchanged, entry.EntityState);
@@ -1298,10 +1060,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             AssertDetectChangesNoOp(changeDetector, stateManager, testListener);
         }
 
-        [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public async Task Change_detection_still_happens_for_non_notifying_collections_on_notifying_entities(bool async)
+        [Fact]
+        public void Change_detection_still_happens_for_non_notifying_collections_on_notifying_entities()
         {
             var contextServices = TestHelpers.CreateContextServices(
                 new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
@@ -1323,14 +1083,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var product3 = new ProductWithChanged { DependentId = 77 };
             category.Products.Add(product3);
 
-            if (async)
-            {
-                await changeDetector.DetectChangesAsync(entry);
-            }
-            else
-            {
-                changeDetector.DetectChanges(entry);
-            }
+            changeDetector.DetectChanges(entry);
 
             Assert.Equal(EntityState.Unchanged, entry.EntityState);
             Assert.Equal(
@@ -1356,10 +1109,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             AssertDetectChangesNoOp(changeDetector, stateManager, testListener);
         }
 
-        [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public async Task Brings_in_single_new_entity_set_on_reference_navigation(bool async)
+        [Fact]
+        public void Brings_in_single_new_entity_set_on_reference_navigation()
         {
             var contextServices = TestHelpers.CreateContextServices(BuildModel());
 
@@ -1374,14 +1125,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var newCategory = new Category { PrincipalId = 2, Tag = new CategoryTag() };
             product.Category = newCategory;
 
-            if (async)
-            {
-                await changeDetector.DetectChangesAsync(entry);
-            }
-            else
-            {
-                changeDetector.DetectChanges(stateManager);
-            }
+            changeDetector.DetectChanges(stateManager);
 
             Assert.Equal(EntityState.Modified, entry.EntityState);
             Assert.Equal(newCategory, entry.RelationshipsSnapshot[entry.EntityType.GetNavigation("Category")]);
@@ -1395,22 +1139,13 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             Assert.Equal(EntityState.Unknown, stateManager.GetOrCreateEntry(newCategory.Tag).EntityState);
 
-            if (async)
-            {
-                await changeDetector.DetectChangesAsync(entry);
-            }
-            else
-            {
-                changeDetector.DetectChanges(stateManager);
-            }
+            changeDetector.DetectChanges(stateManager);
 
             Assert.Equal(EntityState.Unknown, stateManager.GetOrCreateEntry(newCategory.Tag).EntityState);
         }
 
-        [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public async Task Brings_in_new_entity_set_on_principal_of_one_to_one_navigation(bool async)
+        [Fact]
+        public void Brings_in_new_entity_set_on_principal_of_one_to_one_navigation()
         {
             var contextServices = TestHelpers.CreateContextServices(BuildModel());
 
@@ -1424,14 +1159,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var tag = new CategoryTag();
             category.Tag = tag;
 
-            if (async)
-            {
-                await changeDetector.DetectChangesAsync(entry);
-            }
-            else
-            {
-                changeDetector.DetectChanges(stateManager);
-            }
+            changeDetector.DetectChanges(stateManager);
 
             Assert.Equal(EntityState.Unchanged, entry.EntityState);
             Assert.Equal(tag, entry.RelationshipsSnapshot[entry.EntityType.GetNavigation("Tag")]);
@@ -1444,10 +1172,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.Equal(EntityState.Added, stateManager.GetOrCreateEntry(tag).EntityState);
         }
 
-        [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public async Task Brings_in_new_entity_set_on_dependent_of_one_to_one_navigation(bool async)
+        [Fact]
+        public void Brings_in_new_entity_set_on_dependent_of_one_to_one_navigation()
         {
             var contextServices = TestHelpers.CreateContextServices(BuildModel());
 
@@ -1461,14 +1187,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var category = new Category { TagId = 77 };
             tag.Category = category;
 
-            if (async)
-            {
-                await changeDetector.DetectChangesAsync(entry);
-            }
-            else
-            {
-                changeDetector.DetectChanges(stateManager);
-            }
+            changeDetector.DetectChanges(stateManager);
 
             Assert.Equal(EntityState.Modified, entry.EntityState);
             Assert.Equal(category, entry.RelationshipsSnapshot[entry.EntityType.GetNavigation("Category")]);
@@ -1481,10 +1200,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.Equal(EntityState.Added, stateManager.GetOrCreateEntry(category).EntityState);
         }
 
-        [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public async Task Brings_in_single_new_entity_set_on_collection_navigation(bool async)
+        [Fact]
+        public void Brings_in_single_new_entity_set_on_collection_navigation()
         {
             var contextServices = TestHelpers.CreateContextServices(BuildModel());
 
@@ -1500,14 +1217,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var product3 = new Product { Tag = new ProductTag() };
             category.Products.Add(product3);
 
-            if (async)
-            {
-                await changeDetector.DetectChangesAsync(entry);
-            }
-            else
-            {
-                changeDetector.DetectChanges(stateManager);
-            }
+            changeDetector.DetectChanges(stateManager);
 
             Assert.Equal(EntityState.Unchanged, entry.EntityState);
 
@@ -1519,22 +1229,13 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             Assert.Equal(EntityState.Unknown, stateManager.GetOrCreateEntry(product3.Tag).EntityState);
 
-            if (async)
-            {
-                await changeDetector.DetectChangesAsync(entry);
-            }
-            else
-            {
-                changeDetector.DetectChanges(stateManager);
-            }
+            changeDetector.DetectChanges(stateManager);
 
             Assert.Equal(EntityState.Unknown, stateManager.GetOrCreateEntry(product3.Tag).EntityState);
         }
 
-        [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public async Task Brings_in_new_entity_set_on_principal_of_one_to_one_self_ref(bool async)
+        [Fact]
+        public void Brings_in_new_entity_set_on_principal_of_one_to_one_self_ref()
         {
             var contextServices = TestHelpers.CreateContextServices(BuildModel());
 
@@ -1548,14 +1249,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var husband = new Person();
             wife.Husband = husband;
 
-            if (async)
-            {
-                await changeDetector.DetectChangesAsync(entry);
-            }
-            else
-            {
-                changeDetector.DetectChanges(stateManager);
-            }
+            changeDetector.DetectChanges(stateManager);
 
             Assert.Equal(EntityState.Added, entry.EntityState);
             Assert.Equal(husband, entry.RelationshipsSnapshot[entry.EntityType.GetNavigation("Husband")]);
@@ -1570,10 +1264,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.Equal(EntityState.Added, stateManager.GetOrCreateEntry(husband).EntityState);
         }
 
-        [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public async Task Brings_in_new_entity_set_on_dependent_of_one_to_one_self_ref(bool async)
+        [Fact]
+        public void Brings_in_new_entity_set_on_dependent_of_one_to_one_self_ref()
         {
             var contextServices = TestHelpers.CreateContextServices(BuildModel());
 
@@ -1587,14 +1279,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var wife = new Person();
             husband.Wife = wife;
 
-            if (async)
-            {
-                await changeDetector.DetectChangesAsync(entry);
-            }
-            else
-            {
-                changeDetector.DetectChanges(stateManager);
-            }
+            changeDetector.DetectChanges(stateManager);
 
             Assert.Equal(EntityState.Added, entry.EntityState);
             Assert.Equal(wife, entry.RelationshipsSnapshot[entry.EntityType.GetNavigation("Wife")]);

@@ -5,8 +5,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
@@ -82,7 +80,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 if (navigation != null
                     && snapshot != null)
                 {
-                    TrackAddedEntities(entry.StateManager, DetectNavigationChange(entry, navigation, snapshot));
+                    DetectNavigationChange(entry, navigation, snapshot);
                 }
             }
         }
@@ -122,33 +120,12 @@ namespace Microsoft.Data.Entity.ChangeTracking
             }
         }
 
-        public virtual async Task DetectChangesAsync(
-            [NotNull] StateManager stateManager, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Check.NotNull(stateManager, "stateManager");
-
-            foreach (var entry in stateManager.StateEntries.ToList())
-            {
-                await DetectChangesAsync(entry, cancellationToken).WithCurrentCulture();
-            }
-        }
-
         public virtual void DetectChanges([NotNull] StateEntry entry)
         {
             Check.NotNull(entry, "entry");
 
             DetectPropertyChanges(entry);
             DetectRelationshipChanges(entry);
-        }
-
-        public virtual Task DetectChangesAsync(
-            [NotNull] StateEntry entry, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Check.NotNull(entry, "entry");
-
-            DetectPropertyChanges(entry);
-
-            return DetectRelationshipChangesAsync(entry, cancellationToken);
         }
 
         private void DetectPropertyChanges(StateEntry entry)
@@ -186,19 +163,6 @@ namespace Microsoft.Data.Entity.ChangeTracking
             }
         }
 
-        private Task DetectRelationshipChangesAsync(StateEntry entry, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            var snapshot = entry.TryGetSidecar(Sidecar.WellKnownNames.RelationshipsSnapshot);
-            if (snapshot == null)
-            {
-                return Task.FromResult(false);
-            }
-
-            DetectKeyChanges(entry, snapshot);
-
-            return DetectNavigationChangesAsync(entry, snapshot, cancellationToken);
-        }
-
         private void DetectKeyChanges(StateEntry entry, Sidecar snapshot)
         {
             var entityType = entry.EntityType;
@@ -221,23 +185,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             {
                 foreach (var navigation in entityType.Navigations)
                 {
-                    TrackAddedEntities(entry.StateManager, DetectNavigationChange(entry, navigation, snapshot));
-                }
-            }
-        }
-
-        private async Task DetectNavigationChangesAsync(
-            StateEntry entry, Sidecar snapshot, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            var entityType = entry.EntityType;
-
-            if (!entityType.HasPropertyChangedNotifications()
-                || entityType.Navigations.Any(n => n.IsNonNotifyingCollection(entry)))
-            {
-                foreach (var navigation in entityType.Navigations)
-                {
-                    await TrackAddedEntitiesAsync(entry.StateManager, DetectNavigationChange(entry, navigation, snapshot), cancellationToken)
-                        .WithCurrentCulture();
+                    DetectNavigationChange(entry, navigation, snapshot);
                 }
             }
         }
@@ -285,7 +233,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             }
         }
 
-        private IEnumerable<object> DetectNavigationChange(StateEntry entry, INavigation navigation, Sidecar snapshot)
+        private void DetectNavigationChange(StateEntry entry, INavigation navigation, Sidecar snapshot)
         {
             var snapshotValue = snapshot[navigation];
             var currentValue = entry[navigation];
@@ -338,33 +286,12 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 snapshot.TakeSnapshot(navigation);
             }
 
-            return added;
-        }
-
-        private void TrackAddedEntities(StateManager stateManager, IEnumerable<object> addedEntities)
-        {
-            foreach (var addedEntity in addedEntities)
+            foreach (var addedEntity in added)
             {
                 var addedEntry = stateManager.GetOrCreateEntry(addedEntity);
                 if (addedEntry.EntityState == EntityState.Unknown)
                 {
                     addedEntry.SetEntityState(EntityState.Added);
-                }
-            }
-        }
-
-        private async Task TrackAddedEntitiesAsync(
-            StateManager stateManager,
-            IEnumerable<object> addedEntities,
-            CancellationToken cancellationToken = default(CancellationToken))
-        {
-            foreach (var addedEntity in addedEntities)
-            {
-                var addedEntry = stateManager.GetOrCreateEntry(addedEntity);
-                if (addedEntry.EntityState == EntityState.Unknown)
-                {
-                    await addedEntry.SetEntityStateAsync(
-                        EntityState.Added, acceptChanges: false, cancellationToken: cancellationToken).WithCurrentCulture();
                 }
             }
         }

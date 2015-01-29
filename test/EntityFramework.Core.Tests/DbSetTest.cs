@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using Microsoft.Data.Entity.ChangeTracking;
 using Xunit;
 
@@ -15,12 +14,6 @@ namespace Microsoft.Data.Entity.Tests
         public void Can_add_new_entities_to_context()
         {
             TrackEntitiesTest((c, e) => c.Add(e), (c, e) => c.Add(e), EntityState.Added);
-        }
-
-        [Fact]
-        public void Can_add_new_entities_to_context_async()
-        {
-            TrackEntitiesTest((c, e) => c.AddAsync(e).Result, (c, e) => c.AddAsync(e).Result, EntityState.Added);
         }
 
         [Fact]
@@ -86,16 +79,6 @@ namespace Microsoft.Data.Entity.Tests
         }
 
         [Fact]
-        public void Can_add_multiple_new_entities_to_context_async()
-        {
-            TrackMultipleEntitiesTest((c, e) => c.AddAsync(e[0], e[1]).Result, (c, e) => c.AddAsync(e[0], e[1]).Result, EntityState.Added);
-
-            TrackMultipleEntitiesTest(
-                (c, e) => c.AddAsync(new CancellationToken(), e[0], e[1]).Result,
-                (c, e) => c.AddAsync(new CancellationToken(), e[0], e[1]).Result, EntityState.Added);
-        }
-
-        [Fact]
         public void Can_add_multiple_existing_entities_to_context_to_be_attached()
         {
             TrackMultipleEntitiesTest((c, e) => c.Attach(e[0], e[1]), (c, e) => c.Attach(e[0], e[1]), EntityState.Unchanged);
@@ -153,16 +136,6 @@ namespace Microsoft.Data.Entity.Tests
         public void Can_add_no_new_entities_to_context()
         {
             TrackNoEntitiesTest(c => c.Add(new Category[0]), c => c.Add(new Product[0]), EntityState.Added);
-        }
-
-        [Fact]
-        public void Can_add_no_new_entities_to_context_async()
-        {
-            TrackNoEntitiesTest(c => c.AddAsync(new Category[0]).Result, c => c.AddAsync(new Product[0]).Result, EntityState.Added);
-
-            TrackNoEntitiesTest(
-                c => c.AddAsync(new CancellationToken(), new Category[0]).Result,
-                c => c.AddAsync(new CancellationToken(), new Product[0]).Result, EntityState.Added);
         }
 
         [Fact]
@@ -241,7 +214,7 @@ namespace Microsoft.Data.Entity.Tests
                 var entity = new Category { Name = "Beverages" };
                 var entry = context.Entry(entity);
 
-                entry.SetState(initialState);
+                entry.State = initialState;
 
                 action(context, entity);
 
@@ -253,12 +226,6 @@ namespace Microsoft.Data.Entity.Tests
         public void Can_add_new_entities_to_context_with_key_generation()
         {
             TrackEntitiesWithKeyGenerationTest((c, e) => c.Add(e).Entity);
-        }
-
-        [Fact]
-        public void Can_add_new_entities_to_context_with_key_generation_async()
-        {
-            TrackEntitiesWithKeyGenerationTest((c, e) => c.AddAsync(e).Result.Entity);
         }
 
         private static void TrackEntitiesWithKeyGenerationTest(Func<DbSet<TheGu>, TheGu, TheGu> adder)

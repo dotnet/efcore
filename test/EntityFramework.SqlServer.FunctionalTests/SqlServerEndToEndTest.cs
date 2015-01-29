@@ -167,8 +167,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     toDelete.Name = "Blog to delete";
                     var deletedId = toDelete.Id;
 
-                    db.Entry(toUpdate).SetState(EntityState.Modified);
-                    db.Entry(toDelete).SetState(EntityState.Deleted);
+                    db.Entry(toUpdate).State = EntityState.Modified;
+                    db.Entry(toDelete).State = EntityState.Deleted;
 
                     var toAdd = db.Add(new Blog
                     {
@@ -246,7 +246,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                         Away = 0.12345f,
                         AndChew = new byte[16]
                     }).Entity;
-                    db.Entry(toAdd).SetState(EntityState.Unknown);
+                    db.Entry(toAdd).State = EntityState.Unknown;
 
                     var blogs = await CreateBlogDatabaseAsync<Blog>(db);
 
@@ -258,7 +258,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     deletedId = toDelete.Id;
 
                     db.Remove(toDelete);
-                    db.Entry(toAdd).SetState(EntityState.Added);
+                    db.Entry(toAdd).State = EntityState.Added;
 
                     await db.SaveChangesAsync();
 
@@ -482,7 +482,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         private static async Task<TBlog[]> CreateBlogDatabaseAsync<TBlog>(DbContext context) where TBlog : class, IBlog, new()
         {
             await context.Database.EnsureCreatedAsync();
-            var blog1 = (await context.AddAsync(new TBlog
+            var blog1 = context.Add(new TBlog
             {
                 Name = "Blog1",
                 George = true,
@@ -499,8 +499,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 //OrUSkint = 8888888, // TODO: The parameter data type of UInt32 is invalid.
                 //OrUShort = 888888888888888, // TODO: The parameter data type of UInt64 is invalid.
                 AndChew = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }
-            })).Entity;
-            var blog2 = (await context.AddAsync(new TBlog
+            }).Entity;
+            var blog2 = context.Add(new TBlog
             {
                 Name = "Blog2",
                 George = false,
@@ -517,7 +517,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 //OrUSkint = 8888888, // TODO: The parameter data type of UInt32 is invalid.
                 //OrUShort = 888888888888888, // TODO: The parameter data type of UInt64 is invalid.
                 AndChew = new byte[16]
-            })).Entity;
+            }).Entity;
             await context.SaveChangesAsync();
 
             return new[] { blog1, blog2 };

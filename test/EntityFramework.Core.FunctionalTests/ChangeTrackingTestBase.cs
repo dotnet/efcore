@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 Assert.Equal(EntityState.Modified, firstTrackedEntity.State);
                 Assert.Equal("425-882-8080", firstTrackedEntity.Property(c => c.Phone).CurrentValue);
 
-                firstTrackedEntity.SetState(EntityState.Unchanged);
+                firstTrackedEntity.State = EntityState.Unchanged;
                 
                 Assert.Equal(customer.CustomerID, firstTrackedEntity.Property(c => c.CustomerID).CurrentValue);                
                 Assert.Equal(originalPhoneNumber, firstTrackedEntity.Property(c => c.Phone).CurrentValue);
@@ -55,7 +55,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                 foreach (var entityEntry in context.ChangeTracker.Entries())
                 {
-                    entityEntry.SetState(EntityState.Unchanged);
+                    entityEntry.State = EntityState.Unchanged;
                 }
 
                 var newCustomerPostalCodes = context.Customers.Select(c => c.PostalCode);

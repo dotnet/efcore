@@ -4,8 +4,6 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
@@ -63,29 +61,6 @@ namespace Microsoft.Data.Entity.Identity
                 if (valueGenerator != null)
                 {
                     stateEntry[property] = valueGenerator.Next(property, _storeServices);
-                }
-            }
-        }
-
-        public virtual async Task PropagateValueAsync(
-            [NotNull] StateEntry stateEntry,
-            [NotNull] IProperty property,
-            CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Check.NotNull(stateEntry, "stateEntry");
-            Check.NotNull(property, "property");
-
-            Debug.Assert(property.IsForeignKey());
-
-            if (!TryPropagateValue(stateEntry, property)
-                && property.IsKey())
-            {
-                var valueGenerator = TryGetValueGenerator(property);
-
-                if (valueGenerator != null)
-                {
-                    stateEntry[property] = 
-                        (await valueGenerator.NextAsync(property, _storeServices, cancellationToken).WithCurrentCulture());
                 }
             }
         }

@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Threading.Tasks;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
 using Xunit;
@@ -12,35 +11,24 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
     public class KeyValueEntityAttacherTest
     {
         [Fact]
-        public async Task Entities_with_default_value_object_key_values_are_made_Added_sync()
-        {
-            await Entities_with_default_value_object_key_values_are_made_Added(async: false);
-        }
-
-        [Fact]
-        public async Task Entities_with_default_value_object_key_values_are_made_Added_async()
-        {
-            await Entities_with_default_value_object_key_values_are_made_Added(async: true);
-        }
-
-        private static async Task Entities_with_default_value_object_key_values_are_made_Added(bool async)
+        public void Entities_with_default_value_object_key_values_are_made_Added()
         {
             using (var context = new StoteInTheSnow())
             {
                 var entry = context.Entry(new Stoat());
-                await HandleEntity(async, entry, updateExistingEntities: false);
+                HandleEntity(entry, updateExistingEntities: false);
 
                 Assert.Equal(EntityState.Added, entry.State);
                 Assert.Equal(1, entry.Entity.Id);
 
                 entry = context.Entry(new Stoat { Id = 77 });
-                await HandleEntity(async, entry, updateExistingEntities: false);
+                HandleEntity(entry, updateExistingEntities: false);
 
                 Assert.Equal(EntityState.Unchanged, entry.State);
                 Assert.Equal(77, entry.Entity.Id);
 
                 entry = context.Entry(new Stoat { Id = 78 });
-                await HandleEntity(async, entry, updateExistingEntities: true);
+                HandleEntity(entry, updateExistingEntities: true);
 
                 Assert.Equal(EntityState.Modified, entry.State);
                 Assert.Equal(78, entry.Entity.Id);
@@ -48,35 +36,24 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public async Task Entities_with_default_reference_key_values_are_made_Added_sync()
-        {
-            await Entities_with_default_reference_key_values_are_made_Added(async: false);
-        }
-
-        [Fact]
-        public async Task Entities_with_default_reference_key_values_are_made_Added_async()
-        {
-            await Entities_with_default_reference_key_values_are_made_Added(async: true);
-        }
-
-        private static async Task Entities_with_default_reference_key_values_are_made_Added(bool async)
+        public void Entities_with_default_reference_key_values_are_made_Added()
         {
             using (var context = new StoteInTheSnow())
             {
                 var entry = context.Entry(new StoatInACoat());
-                await HandleEntity(async, entry, updateExistingEntities: false);
+                HandleEntity(entry, updateExistingEntities: false);
 
                 Assert.Equal(EntityState.Added, entry.State);
                 Assert.NotEqual(Guid.NewGuid(), Guid.Parse(entry.Entity.Id));
 
                 entry = context.Entry(new StoatInACoat { Id = "Brrrr! It's chilly." });
-                await HandleEntity(async, entry, updateExistingEntities: false);
+                HandleEntity(entry, updateExistingEntities: false);
 
                 Assert.Equal(EntityState.Unchanged, entry.State);
                 Assert.Equal("Brrrr! It's chilly.", entry.Entity.Id);
 
                 entry = context.Entry(new StoatInACoat { Id = "Hot chocolate please!" });
-                await HandleEntity(async, entry, updateExistingEntities: true);
+                HandleEntity(entry, updateExistingEntities: true);
 
                 Assert.Equal(EntityState.Modified, entry.State);
                 Assert.Equal("Hot chocolate please!", entry.Entity.Id);
@@ -84,23 +61,12 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public async Task Entities_with_composite_key_with_any_default_values_are_made_Added_sync()
-        {
-            await Entities_with_composite_key_with_any_default_values_are_made_Added(async: false);
-        }
-
-        [Fact]
-        public async Task Entities_with_composite_key_with_any_default_values_are_made_Added_async()
-        {
-            await Entities_with_composite_key_with_any_default_values_are_made_Added(async: true);
-        }
-
-        private static async Task Entities_with_composite_key_with_any_default_values_are_made_Added(bool async)
+        public void Entities_with_composite_key_with_any_default_values_are_made_Added()
         {
             using (var context = new StoteInTheSnow())
             {
                 var entry = context.Entry(new CompositeStoat());
-                await HandleEntity(async, entry, updateExistingEntities: false);
+                HandleEntity(entry, updateExistingEntities: false);
 
                 Assert.Equal(EntityState.Added, entry.State);
                 Assert.NotEqual(Guid.NewGuid(), entry.Entity.Id1);
@@ -108,28 +74,28 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
                 var guid = Guid.NewGuid();
                 entry = context.Entry(new CompositeStoat { Id1 = guid });
-                await HandleEntity(async, entry, updateExistingEntities: false);
+                HandleEntity(entry, updateExistingEntities: false);
 
                 Assert.Equal(EntityState.Added, entry.State);
                 Assert.Equal(guid, entry.Entity.Id1);
                 Assert.NotEqual(Guid.NewGuid(), Guid.Parse(entry.Entity.Id2));
 
                 entry = context.Entry(new CompositeStoat { Id2 = "Ready for winter!" });
-                await HandleEntity(async, entry, updateExistingEntities: false);
+                HandleEntity(entry, updateExistingEntities: false);
 
                 Assert.Equal(EntityState.Added, entry.State);
                 Assert.NotEqual(Guid.NewGuid(), entry.Entity.Id1);
                 Assert.Equal("Ready for winter!", entry.Entity.Id2);
 
                 entry = context.Entry(new CompositeStoat { Id1 = guid, Id2 = "Ready for winter!" });
-                await HandleEntity(async, entry, updateExistingEntities: false);
+                HandleEntity(entry, updateExistingEntities: false);
 
                 Assert.Equal(EntityState.Unchanged, entry.State);
                 Assert.Equal(guid, entry.Entity.Id1);
                 Assert.Equal("Ready for winter!", entry.Entity.Id2);
 
                 entry = context.Entry(new CompositeStoat { Id1 = guid, Id2 = "Little black eyes" });
-                await HandleEntity(async, entry, updateExistingEntities: true);
+                HandleEntity(entry, updateExistingEntities: true);
 
                 Assert.Equal(EntityState.Modified, entry.State);
                 Assert.Equal(guid, entry.Entity.Id1);
@@ -137,18 +103,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             }
         }
 
-        private static async Task HandleEntity(bool async, EntityEntry entry, bool updateExistingEntities)
+        private void HandleEntity(EntityEntry entry, bool updateExistingEntities)
         {
-            var attacher = new KeyValueEntityAttacher(updateExistingEntities: updateExistingEntities);
-
-            if (async)
-            {
-                await attacher.HandleEntityAsync(entry);
-            }
-            else
-            {
-                attacher.HandleEntity(entry);
-            }
+            new KeyValueEntityAttacher(updateExistingEntities: updateExistingEntities).HandleEntity(entry);
         }
 
         private class Stoat
