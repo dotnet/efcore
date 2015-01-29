@@ -187,14 +187,18 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
             var columnIdToProperty = new Dictionary<string, Property>();
             var propertyToForeignKeyConstraintIds = new Dictionary<Property, List<string>>();
 
-            var model = new Microsoft.Data.Entity.Metadata.Model();
+            // the relationalModel is an IModel, but not the one that will be returned
+            // it's just directly from the database - EntiyType = table, Property = column
+            // etc with no attempt to hook up foreign key columns or make the
+            // names fit CSharp conventions etc.
+            var relationalModel = new Microsoft.Data.Entity.Metadata.Model();
             foreach (var table in tables.Values)
             {
                 var entityTypeName =
                     table.SchemaName
                     + AnnotationNameTableIdSchemaTableSeparator
                     + table.TableName;
-                var entityType = model.AddEntityType(entityTypeName);
+                var entityType = relationalModel.AddEntityType(entityTypeName);
                 entityType.AddAnnotation(AnnotationNameTableId, table.Id);
 
                 var primaryKeys = new List<Property>();
@@ -271,7 +275,7 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
 
             // loop over all properties adding TargetEntityType and TargetProperty for ForeignKeys
             // this has to be done after all EntityTypes and their Properties have been created
-            foreach (var fromEntityTpe in model.EntityTypes)
+            foreach (var fromEntityTpe in relationalModel.EntityTypes)
             {
                 foreach (var fromProperty in fromEntityTpe.Properties)
                 {
@@ -312,7 +316,7 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
                 }
             }
 
-            return model;
+            return relationalModel;
         }
 
         //TODO - this works around the fact that string.Split() does not exist in ASPNETCORE50
