@@ -67,23 +67,19 @@ namespace Microsoft.Data.Entity.Infrastructure
 
                 if (key.Equals(ConnectionStringKey, StringComparison.OrdinalIgnoreCase))
                 {
-                    var redirectionKey = string.Empty;
                     // Check if the value is redirection to other key
                     var firstequals = value.IndexOf('=');
-                    if (firstequals < 0)
-                    {
-                        redirectionKey = value;
-                    }
-                    else if ((value.IndexOf('=', firstequals + 1) < 0)
+                    if ((firstequals > 0)
+                        && (value.IndexOf('=', firstequals + 1) < 0)
                         && (value.Substring(0, firstequals).Trim().Equals(
-                          "name", StringComparison.OrdinalIgnoreCase)))
+                            "name", StringComparison.OrdinalIgnoreCase)))
                     {
-                        redirectionKey = value.Substring(firstequals + 1).Trim();
-                    }
-
-                    if (!string.IsNullOrEmpty(redirectionKey) && !configuration.TryGet(redirectionKey, out value))
-                    {
-                        throw new InvalidOperationException(Strings.ConnectionStringNotFound(redirectionKey));
+                        var redirectionKey = value.Substring(firstequals + 1).Trim();
+                        if (string.IsNullOrEmpty(redirectionKey)
+                            || !configuration.TryGet(redirectionKey, out value))
+                        {
+                            throw new InvalidOperationException(Strings.ConnectionStringNotFound(redirectionKey));
+                        }
                     }
                 }
 
