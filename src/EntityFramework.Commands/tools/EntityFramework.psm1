@@ -32,17 +32,18 @@ function Use-DbContext {
 Register-TabExpansion Add-Migration @{
     Context = { param ($context) GetContextTypes $context.Project }
     Project = { GetProjects }
+    StartupProject = { GetProjects }
 }
 
 function Add-Migration {
     [CmdletBinding()]
-    param ([Parameter(Mandatory = $true)] [string] $Name, [string] $Context, [string] $Project)
+    param ([Parameter(Mandatory = $true)] [string] $Name, [string] $Context, [string] $Project, [string] $StartupProject)
 
     $values = ProcessCommonParameters $Context $Project
     $dteProject = $values.Project
     $contextTypeName = $values.ContextTypeName
 
-    $artifacts = InvokeOperation $dteProject AddMigration @{
+    $artifacts = InvokeOperation $dteProject $StartupProject AddMigration @{
         migrationName = $Name
         contextTypeName = $contextTypeName
     }
@@ -60,12 +61,13 @@ Register-TabExpansion Apply-Migration @{
     Migration = { param ($context) GetMigrations $context.Context $context.Project }
     Context = { param ($context) GetContextTypes $context.Project }
     Project = { GetProjects }
+    StartupProject = { GetProjects }
 }
 
 # TODO: WhatIf
 function Apply-Migration {
     [CmdletBinding()]
-    param ([string] $Migration, [string] $Context, [string] $Project)
+    param ([string] $Migration, [string] $Context, [string] $Project, [string] $StartupProject)
 
     $values = ProcessCommonParameters $Context $Project
     $dteProject = $values.Project
@@ -77,7 +79,7 @@ function Apply-Migration {
         throw 'Apply-Migration should not be used with Phone/Store apps. Instead, call DbContext.Database.AsMigrationsEnabled().ApplyMigrations() at runtime.'
     }
 
-    InvokeOperation $dteProject ApplyMigration @{
+    InvokeOperation $dteProject $StartupProject ApplyMigration @{
         migrationName = $Migration
         contextTypeName = $contextTypeName
     }
@@ -91,15 +93,16 @@ Register-TabExpansion Update-Database @{
     Migration = { param ($context) GetMigrations $context.Context $context.Project }
     Context = { param ($context) GetContextTypes $context.Project }
     Project = { GetProjects }
+    StartupProject = { GetProjects }
 }
 
 function Update-Database {
     [CmdletBinding()]
-    param ([string] $Migration, [string] $Context, [string] $Project)
+    param ([string] $Migration, [string] $Context, [string] $Project, [string] $StartupProject)
 
     Write-Warning 'Update-Database is obsolete. Use Apply-Migration instead.'
 
-    Apply-Migration $Migration -Context $Context -Project $Project
+    Apply-Migration $Migration -Context $Context -Project $Project -StartupProject $StartupProject
 }
 
 #
@@ -111,17 +114,18 @@ Register-TabExpansion Script-Migration @{
     To = { param ($context) GetMigrations $context.Context $context.Project }
     Context = { param ($context) GetContextTypes $context.Project }
     Project = { GetProjects }
+    StartupProject = { GetProjects }
 }
 
 function Script-Migration {
     [CmdletBinding()]
-    param ([string] $From, [string] $To, [switch] $Idempotent, [string] $Context, [string] $Project)
+    param ([string] $From, [string] $To, [switch] $Idempotent, [string] $Context, [string] $Project, [string] $StartupProject)
 
     $values = ProcessCommonParameters $Context $Project
     $dteProject = $values.Project
     $contextTypeName = $values.ContextTypeName
 
-    $script = InvokeOperation $dteProject ScriptMigration @{
+    $script = InvokeOperation $dteProject $StartupProject ScriptMigration @{
         fromMigrationName = $From
         toMigrationName = $To
         idempotent = [bool]$Idempotent
@@ -156,17 +160,18 @@ function Script-Migration {
 Register-TabExpansion Remove-Migration @{
     Context = { param ($context) GetContextTypes $context.Project }
     Project = { GetProjects }
+    StartupProject = { GetProjects }
 }
 
 function Remove-Migration {
     [CmdletBinding()]
-    param ([string] $Context, [string] $Project)
+    param ([string] $Context, [string] $Project, [string] $StartupProject)
 
     $values = ProcessCommonParameters $Context $Project
     $dteProject = $values.Project
     $contextTypeName = $values.ContextTypeName
 
-    $filesToDelete = InvokeOperation $dteProject RemoveMigration @{ contextTypeName = $contextTypeName }
+    $filesToDelete = InvokeOperation $dteProject $StartupProject RemoveMigration @{ contextTypeName = $contextTypeName }
 
 	$filesToDelete | ?{ Test-Path $_ } | %{ (GetProjectItem $dteProject $_).Delete() }
 }
@@ -233,7 +238,7 @@ function ShowConsole {
     $powerConsoleWindow.Show()
 }
 
-function InvokeOperation($project, $operation, $arguments = @{}, [switch] $skipBuild) {
+function InvokeOperation($project, $startupProjectName, $operation, $arguments = @{}, [switch] $skipBuild) {
     $projectName = $project.ProjectName
 
     Write-Verbose "Using project '$projectName'"
@@ -251,7 +256,7 @@ function InvokeOperation($project, $operation, $arguments = @{}, [switch] $skipB
     }
 
     #Get startup project
-    $startupProject = Get-MigrationsStartUpProject $project
+    $startupProject = Get-MigrationsStartUpProject $startupProjectName $project
     $startupProjectDirectoryObject = Get-ChildItem $startupProject.FileName | Select-Object Directory
 
     $startupProjectName = $startupProject.ProjectName
@@ -416,50 +421,57 @@ function GetProjectItemByString($project, $itemName){
     }
 }
 
-function Get-MigrationsStartUpProject($fallbackProject)
+function Get-MigrationsStartUpProject($name, $fallbackProject)
 {    
     $startUpProject = $null
 
-    $startupProjectPaths = $DTE.Solution.SolutionBuild.StartupProjects
-
-    if ($startupProjectPaths)
+    if ($name)
     {
-        if ($startupProjectPaths.Length -eq 1)
+        $startupProject = Get-Project $name
+    }
+    else
+    {
+        $startupProjectPaths = $DTE.Solution.SolutionBuild.StartupProjects
+
+        if ($startupProjectPaths)
         {
-            $startupProjectPath = $startupProjectPaths[0]
-
-            if (!(Split-Path -IsAbsolute $startupProjectPath))
+            if ($startupProjectPaths.Length -eq 1)
             {
-                $solutionPath = Split-Path $DTE.Solution.Properties.Item('Path').Value
-                $startupProjectPath = Join-Path $solutionPath $startupProjectPath -Resolve
+                $startupProjectPath = $startupProjectPaths[0]
+
+                if (!(Split-Path -IsAbsolute $startupProjectPath))
+                {
+                    $solutionPath = Split-Path $DTE.Solution.Properties.Item('Path').Value
+                    $startupProjectPath = Join-Path $solutionPath $startupProjectPath -Resolve
+                }
+
+                $startupProject = Get-SolutionProjects | ?{
+                    try
+                    {
+                        $fullName = $_.FullName
+                    }
+                    catch [NotImplementedException]
+                    {
+                        return $false
+                    }
+
+                    if ($fullName -and $fullName.EndsWith('\'))
+                    {
+                        $fullName = $fullName.Substring(0, $fullName.Length - 1)
+                    }
+
+                    return $fullName -eq $startupProjectPath
+                }
             }
-
-            $startupProject = Get-SolutionProjects | ?{
-                try
-                {
-                    $fullName = $_.FullName
-                }
-                catch [NotImplementedException]
-                {
-                    return $false
-                }
-
-                if ($fullName -and $fullName.EndsWith('\'))
-                {
-                    $fullName = $fullName.Substring(0, $fullName.Length - 1)
-                }
-
-                return $fullName -eq $startupProjectPath
+            else
+            {
+                $errorMessage = 'More than one start-up project found.'
             }
         }
         else
         {
-            $errorMessage = 'More than one start-up project found.'
+            $errorMessage = 'No start-up project found.'
         }
-    }
-    else
-    {
-        $errorMessage = 'No start-up project found.'
     }
 
     if (!$startUpProject)
