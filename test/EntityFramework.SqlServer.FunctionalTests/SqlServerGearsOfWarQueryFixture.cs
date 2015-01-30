@@ -47,6 +47,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                         {
                             GearsOfWarModelInitializer.Seed(context);
                         }
+
+                        TestSqlLoggerFactory.SqlStatements.Clear();
                     }
                 });
         }

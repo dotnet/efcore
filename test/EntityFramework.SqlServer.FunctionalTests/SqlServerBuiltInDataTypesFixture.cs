@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         public override SqlServerTestStore CreateTestStore()
         {
-            return SqlServerTestStore.CreateScratchAsync().Result;
+            return SqlServerTestStore.CreateScratch();
         }
 
         public override DbContext CreateContext(SqlServerTestStore testStore)

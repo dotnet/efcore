@@ -992,7 +992,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             using (var context = new EarlyLearningCenter())
             {
-                context.Configuration.AutoDetectChangesEnabled = false;
+                context.ChangeTracker.AutoDetectChangesEnabled = false;
 
                 var entry = context.Attach(new Product { Id = 1, CategoryId = 66 });
 
@@ -1020,7 +1020,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             using (var context = new EarlyLearningCenter())
             {
-                context.Configuration.AutoDetectChangesEnabled = false;
+                context.ChangeTracker.AutoDetectChangesEnabled = false;
 
                 var entry = context.Attach(new Product { Id = 1, CategoryId = 66 });
 

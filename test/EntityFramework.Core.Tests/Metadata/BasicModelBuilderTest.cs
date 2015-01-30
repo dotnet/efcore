@@ -789,7 +789,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var entityType = (IEntityType)model.GetEntityType(typeof(Order));
 
             Assert.Equal(2, entityType.ForeignKeys.Count());
-            Assert.True(entityType.ForeignKeys.Last().IsUnique);
+            Assert.Equal(1, entityType.ForeignKeys.Count(fk => fk.IsUnique));
         }
 
         [Fact]
@@ -811,7 +811,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var entityType = (IEntityType)model.GetEntityType(typeof(Order));
 
             Assert.Equal(2, entityType.ForeignKeys.Count());
-            Assert.True(entityType.ForeignKeys.Last().IsUnique);
+            Assert.Equal(1, entityType.ForeignKeys.Count(fk => fk.IsUnique));
         }
 
         [Fact]
@@ -834,7 +834,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var entityType = (IEntityType)model.GetEntityType(typeof(Order));
 
             Assert.Equal(2, entityType.ForeignKeys.Count());
-            Assert.True(entityType.ForeignKeys.Last().IsUnique);
+            Assert.Equal(1, entityType.ForeignKeys.Count(fk => fk.IsUnique));
         }
 
         [Fact]
@@ -860,7 +860,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var entityType = (IEntityType)model.GetEntityType(typeof(Order));
 
             Assert.Equal(2, entityType.ForeignKeys.Count());
-            Assert.True(entityType.ForeignKeys.Last().IsUnique);
+            Assert.Equal(1, entityType.ForeignKeys.Count(fk => fk.IsUnique));
         }
 
         [Fact]

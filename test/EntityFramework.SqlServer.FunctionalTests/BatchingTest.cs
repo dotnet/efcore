@@ -63,7 +63,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         public BatchingTest()
         {
-            _testStore = SqlServerTestStore.CreateScratchAsync().Result;
+            _testStore = SqlServerTestStore.CreateScratch();
             _serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddSqlServer()

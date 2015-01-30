@@ -171,8 +171,6 @@ namespace Microsoft.Data.Entity
 
         IServiceProvider IDbContextServices.ScopedServiceProvider => _contextServices.Value.ScopedServiceProvider;
 
-        public virtual DbContextConfiguration Configuration { get; } = new DbContextConfiguration();
-
         protected internal virtual void OnConfiguring(DbContextOptions options)
         {
         }
@@ -206,7 +204,7 @@ namespace Microsoft.Data.Entity
 
         private void TryDetectChanges(StateManager stateManager)
         {
-            if (Configuration.AutoDetectChangesEnabled)
+            if (ChangeTracker.AutoDetectChangesEnabled)
             {
                 GetChangeDetector().DetectChanges(stateManager);
             }
@@ -216,7 +214,7 @@ namespace Microsoft.Data.Entity
         {
             var stateManager = GetStateManager();
 
-            if (Configuration.AutoDetectChangesEnabled)
+            if (ChangeTracker.AutoDetectChangesEnabled)
             {
                 await GetChangeDetector().DetectChangesAsync(stateManager, cancellationToken).WithCurrentCulture();
             }

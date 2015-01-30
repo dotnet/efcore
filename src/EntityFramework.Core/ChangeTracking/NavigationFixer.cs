@@ -120,7 +120,14 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
                 if (newValue != null)
                 {
-                    SetForeignKeyValue(foreignKey, entry.StateManager.GetOrCreateEntry(newValue), entry);
+                    var dependentEntry = entry.StateManager.GetOrCreateEntry(newValue);
+
+                    // Avoid eagerly setting FKs (which may be PKs) in un-tracked entities so as not to mess up
+                    // Attach behavior that is based on key values.
+                    if (dependentEntry.EntityState != EntityState.Unknown)
+                    {
+                        SetForeignKeyValue(foreignKey, dependentEntry, entry);
+                    }
                 }
 
                 if (oldValue != null)
@@ -182,6 +189,11 @@ namespace Microsoft.Data.Entity.ChangeTracking
             // We don't prevent recursive entry here because changed of principal key can have cascading effects
             // when principal key is also foreign key.
 
+            if (entry.EntityState == EntityState.Unknown)
+            {
+                return;
+            }
+
             foreach (var foreignKey in _model.Service.EntityTypes.SelectMany(
                 e => e.ForeignKeys.Where(f => f.ReferencedProperties.Contains(property))))
             {
@@ -211,10 +223,10 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 return;
             }
 
-            PerformFixup(() => InitialFixup(entry, oldState));
+            PerformFixup(() => InitialFixup(entry));
         }
 
-        private void InitialFixup(StateEntry entry, EntityState oldState)
+        private void InitialFixup(StateEntry entry)
         {
             var entityType = entry.EntityType;
 
@@ -393,6 +405,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             if (navigation.PointsToPrincipal)
             {
                 _setterSource.GetAccessor(navigation).SetClrValue(dependentEntry.Entity, null);
+
                 dependentEntry.RelationshipsSnapshot.TakeSnapshot(navigation);
             }
             else
@@ -491,6 +504,8 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             if (inverse != null)
             {
+                var inverseEntry = entry.StateManager.GetOrCreateEntry(entity);
+
                 if (inverse.IsCollection())
                 {
                     var collectionAccessor = _collectionAccessorSource.GetAccessor(inverse);
@@ -505,13 +520,22 @@ namespace Microsoft.Data.Entity.ChangeTracking
                     var oldEntity = _getterSource.GetAccessor(inverse).GetClrValue(entity);
                     if (oldEntity != null && oldEntity != entry.Entity)
                     {
-                        Unfixup(navigation, entry.StateManager.GetOrCreateEntry(oldEntity), entry.StateManager.GetOrCreateEntry(entity));
+                        var oldEntry = entry.StateManager.GetOrCreateEntry(oldEntity);
+                        if (navigation.PointsToPrincipal)
+                        {
+                            Unfixup(navigation, inverseEntry, oldEntry);
+                            SetNullForeignKey(oldEntry, navigation.ForeignKey.Properties);
+                        }
+                        else
+                        {
+                            Unfixup(navigation, oldEntry, inverseEntry);
+                        }
                     }
 
                     _setterSource.GetAccessor(inverse).SetClrValue(entity, entry.Entity);
                 }
 
-                entry.StateManager.GetOrCreateEntry(entity).RelationshipsSnapshot.TakeSnapshot(inverse);
+                inverseEntry.RelationshipsSnapshot.TakeSnapshot(inverse);
             }
         }
 

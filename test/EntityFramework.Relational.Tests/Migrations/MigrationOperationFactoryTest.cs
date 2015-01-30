@@ -39,7 +39,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Migrations
             var createTableOperationB = OperationFactory().CreateTableOperation(modelBuider.Entity("B").Metadata);
 
             Assert.Equal(new[] { "Px", "Py" }, createTableOperationA.Columns.Select(c => c.Name));
-            Assert.Equal(new[] { "P5", "P2", "P1", "P3", "P6", "P4" }, createTableOperationB.Columns.Select(c => c.Name));
+            Assert.Equal(new[] { "P5", "P2", "P1", "P3", "P4", "P6" }, createTableOperationB.Columns.Select(c => c.Name));
         }
 
         private static MigrationOperationFactory OperationFactory()

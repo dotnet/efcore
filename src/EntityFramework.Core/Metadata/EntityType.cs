@@ -16,11 +16,24 @@ namespace Microsoft.Data.Entity.Metadata
     public class EntityType : MetadataBase, IEntityType
     {
         private readonly object _typeOrName;
-        private readonly LazyRef<List<ForeignKey>> _foreignKeys = new LazyRef<List<ForeignKey>>(() => new List<ForeignKey>());
-        private readonly LazyRef<List<Navigation>> _navigations = new LazyRef<List<Navigation>>(() => new List<Navigation>());
-        private readonly LazyRef<List<Index>> _indexes = new LazyRef<List<Index>>(() => new List<Index>());
-        private readonly List<Property> _properties = new List<Property>();
-        private readonly LazyRef<List<Key>> _keys = new LazyRef<List<Key>>(() => new List<Key>());
+        private readonly LazyRef<SortedDictionary<IReadOnlyList<Property>, ForeignKey>> _foreignKeys
+            = new LazyRef<SortedDictionary<IReadOnlyList<Property>, ForeignKey>>(()
+                => new SortedDictionary<IReadOnlyList<Property>, ForeignKey>(PropertyListComparer.Instance));
+
+        private readonly LazyRef<SortedDictionary<string, Navigation>> _navigations
+            = new LazyRef<SortedDictionary<string, Navigation>>(() =>
+            new SortedDictionary<string, Navigation>(StringComparer.Ordinal));
+
+        private readonly LazyRef<SortedDictionary<IReadOnlyList<Property>, Index>> _indexes
+            = new LazyRef<SortedDictionary<IReadOnlyList<Property>, Index>>(() =>
+            new SortedDictionary<IReadOnlyList<Property>, Index>(PropertyListComparer.Instance));
+
+        private readonly SortedDictionary<string, Property> _properties
+            = new SortedDictionary<string, Property>(StringComparer.Ordinal);
+
+        private readonly LazyRef<SortedDictionary<IReadOnlyList<Property>, Key>> _keys
+            = new LazyRef<SortedDictionary<IReadOnlyList<Property>, Key>>(() =>
+            new SortedDictionary<IReadOnlyList<Property>, Key>(PropertyListComparer.Instance));
 
         private Key _primaryKey;
 
@@ -116,7 +129,7 @@ namespace Microsoft.Data.Entity.Metadata
 
                 if (key != null)
                 {
-                    _keys.Value.Remove(key);
+                    _keys.Value.Remove(properties);
                 }
                 else
                 {
@@ -178,13 +191,12 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotNull(properties, "properties");
 
-            if (_primaryKey == null
-                || !Matches(_primaryKey, properties))
+            if (_primaryKey != null && PropertyListComparer.Instance.Compare(_primaryKey.Properties, properties) == 0)
             {
-                return null;
+                return _primaryKey;
             }
 
-            return _primaryKey;
+            return null;
         }
 
         public virtual Key AddKey([NotNull] Property property)
@@ -205,11 +217,10 @@ namespace Microsoft.Data.Entity.Metadata
             key = new Key(properties);
             if (key.EntityType != this)
             {
-                throw new ArgumentException(
-                    Strings.KeyPropertiesWrongEntity(Property.Format(properties), Name));
+                throw new ArgumentException(Strings.KeyPropertiesWrongEntity(Property.Format(properties), Name));
             }
 
-            _keys.Value.Add(key);
+            _keys.Value.Add(properties, key);
 
             return key;
         }
@@ -242,7 +253,12 @@ namespace Microsoft.Data.Entity.Metadata
                 return key;
             }
 
-            return Keys.FirstOrDefault(k => Matches(k, properties));
+            if (_keys.HasValue && _keys.Value.TryGetValue(properties, out key))
+            {
+                return key;
+            }
+
+            return null;
         }
 
         public virtual Key GetKey([NotNull] Property property)
@@ -257,6 +273,7 @@ namespace Microsoft.Data.Entity.Metadata
             {
                 throw new ModelItemNotFoundException(Strings.KeyNotFound(Property.Format(properties), Name));
             }
+
             return key;
         }
 
@@ -271,17 +288,13 @@ namespace Microsoft.Data.Entity.Metadata
                 return primaryKey;
             }
 
-            if (_keys.HasValue)
+            Key removedKey;
+            if (_keys.HasValue && _keys.Value.TryGetValue(key.Properties, out removedKey))
             {
-                var index = _keys.Value.FindIndex(k => Matches(k, key.Properties));
-                if (index >= 0)
-                {
-                    var removedKey = _keys.Value[index];
-                    CheckKeyNotInUse(removedKey);
+                CheckKeyNotInUse(removedKey);
 
-                    _keys.Value.RemoveAt(index);
-                    return removedKey;
-                }
+                _keys.Value.Remove(key.Properties);
+                return removedKey;
             }
 
             return null;
@@ -297,11 +310,6 @@ namespace Microsoft.Data.Entity.Metadata
             }
         }
 
-        private static bool Matches(Key key, IEnumerable<Property> properties)
-        {
-            return key.Properties.SequenceEqual(properties);
-        }
-
         public virtual IReadOnlyList<Key> Keys
         {
             get
@@ -310,7 +318,7 @@ namespace Microsoft.Data.Entity.Metadata
 
                 if (_keys.HasValue)
                 {
-                    keys.AddRange(_keys.Value);
+                    keys.AddRange(_keys.Value.Values);
                 }
 
                 return keys;
@@ -333,19 +341,18 @@ namespace Microsoft.Data.Entity.Metadata
             Check.NotEmpty(properties, "properties");
             Check.NotNull(referencedKey, "referencedKey");
 
-            var foreignKey = TryGetForeignKey(properties);
-            if (foreignKey != null)
+            if (_foreignKeys.Value.ContainsKey(properties))
             {
-                throw new InvalidOperationException(Strings.DuplicateForeignKey(Property.Format(foreignKey.Properties), Name));
+                throw new InvalidOperationException(Strings.DuplicateForeignKey(Property.Format(properties), Name));
             }
 
-            foreignKey = new ForeignKey(properties, referencedKey);
+            var foreignKey = new ForeignKey(properties, referencedKey);
             if (foreignKey.EntityType != this)
             {
                 throw new ArgumentException(Strings.ForeignKeyPropertiesWrongEntity(Property.Format(properties), Name));
             }
 
-            _foreignKeys.Value.Add(foreignKey);
+            _foreignKeys.Value.Add(properties, foreignKey);
 
             UpdateOriginalValueIndexes();
 
@@ -377,9 +384,13 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotEmpty(properties, "properties");
 
-            return _foreignKeys.HasValue
-                ? _foreignKeys.Value.FirstOrDefault(fk => Matches(fk, properties))
-                : null;
+            ForeignKey foreignKey;
+            if (_foreignKeys.HasValue && _foreignKeys.Value.TryGetValue(properties, out foreignKey))
+            {
+                return foreignKey;
+            }
+
+            return null;
         }
 
         [CanBeNull]
@@ -424,25 +435,16 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotNull(foreignKey, "foreignKey");
 
-            if (_foreignKeys.HasValue)
+            ForeignKey removedFk;
+            if (_foreignKeys.HasValue && _foreignKeys.Value.TryGetValue(foreignKey.Properties, out removedFk))
             {
-                var index = _foreignKeys.Value.FindIndex(fk => Matches(fk, foreignKey.Properties));
-                if (index >= 0)
-                {
-                    var removedFk = _foreignKeys.Value[index];
-                    CheckForeignKeyNotInUse(removedFk);
+                CheckForeignKeyNotInUse(removedFk);
 
-                    _foreignKeys.Value.RemoveAt(index);
-                    return removedFk;
-                }
+                _foreignKeys.Value.Remove(removedFk.Properties);
+                return removedFk;
             }
 
             return null;
-        }
-
-        private static bool Matches(ForeignKey foreignKey, IEnumerable<Property> properties)
-        {
-            return foreignKey.Properties.SequenceEqual(properties);
         }
 
         private void CheckForeignKeyNotInUse(ForeignKey foreignKey)
@@ -456,7 +458,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         public virtual IReadOnlyList<ForeignKey> ForeignKeys => _foreignKeys.HasValue
-            ? (IReadOnlyList<ForeignKey>)_foreignKeys.Value
+            ? (IReadOnlyList<ForeignKey>)_foreignKeys.Value.Values.ToList()
             : ImmutableList<ForeignKey>.Empty;
 
         #endregion
@@ -468,17 +470,17 @@ namespace Microsoft.Data.Entity.Metadata
             Check.NotEmpty(name, "name");
             Check.NotNull(foreignKey, "foreignKey");
 
+            if (_navigations.HasValue && _navigations.Value.ContainsKey(name))
+            {
+                throw new InvalidOperationException(Strings.DuplicateNavigation(name, Name));
+            }
+
             var navigation = new Navigation(name, foreignKey, pointsToPrincipal);
 
             if (navigation.EntityType != null
                 && navigation.EntityType != this)
             {
                 throw new InvalidOperationException(Strings.NavigationAlreadyOwned(navigation.Name, Name, navigation.EntityType.Name));
-            }
-
-            if (TryGetNavigation(name) != null)
-            {
-                throw new InvalidOperationException(Strings.DuplicateNavigation(navigation.Name, Name));
             }
 
             if (!HasClrType)
@@ -517,14 +519,14 @@ namespace Microsoft.Data.Entity.Metadata
                     navigation.Name, Name, clrProperty.PropertyType.FullName, targetClrType.FullName));
             }
 
-            var otherNavigation = _navigations.Value.FirstOrDefault(n => n.ForeignKey == navigation.ForeignKey
+            var otherNavigation = _navigations.Value.Values.FirstOrDefault(n => n.ForeignKey == navigation.ForeignKey
                                                                          && navigation.PointsToPrincipal == n.PointsToPrincipal);
             if (otherNavigation != null)
             {
                 throw new InvalidOperationException(Strings.MultipleNavigations(navigation.Name, otherNavigation.Name, Name));
             }
 
-            _navigations.Value.Add(navigation);
+            _navigations.Value.Add(name, navigation);
 
             return navigation;
         }
@@ -539,7 +541,12 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotEmpty(name, "name");
 
-            return Navigations.FirstOrDefault(n => Matches(n, name));
+            Navigation navigation;
+            if (_navigations.HasValue && _navigations.Value.TryGetValue(name, out navigation))
+            {
+                return navigation;
+            }
+            return null;
         }
 
         public virtual Navigation GetNavigation([NotNull] string name)
@@ -556,27 +563,18 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotNull(navigation, "navigation");
 
-            if (_navigations.HasValue)
+            Navigation removedNavigation;
+            if (_navigations.HasValue & _navigations.Value.TryGetValue(navigation.Name, out removedNavigation))
             {
-                var index = _navigations.Value.FindIndex(n => Matches(n, navigation.Name));
-                if (index >= 0)
-                {
-                    var removedNavigation = _navigations.Value[index];
-                    _navigations.Value.RemoveAt(index);
-                    return removedNavigation;
-                }
+                _navigations.Value.Remove(navigation.Name);
+                return removedNavigation;
             }
 
             return null;
         }
 
-        private static bool Matches(Navigation navigation, string name)
-        {
-            return navigation.Name == name;
-        }
-
         public virtual IReadOnlyList<Navigation> Navigations => _navigations.HasValue
-            ? (IReadOnlyList<Navigation>)_navigations.Value
+            ? (IReadOnlyList<Navigation>)_navigations.Value.Values.ToList()
             : ImmutableList<Navigation>.Empty;
 
         #endregion
@@ -592,20 +590,19 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotEmpty(properties, "properties");
 
-            var index = TryGetIndex(properties);
-            if (index != null)
+            if (_indexes.Value.ContainsKey(properties))
             {
-                throw new InvalidOperationException(Strings.DuplicateIndex(Property.Format(index.Properties), Name));
+                throw new InvalidOperationException(Strings.DuplicateIndex(Property.Format(properties), Name));
             }
 
-            index = new Index(properties);
+            var index = new Index(properties);
+
             if (index.EntityType != this)
             {
-                throw new ArgumentException(
-                    Strings.IndexPropertiesWrongEntity(Property.Format(properties), Name));
+                throw new ArgumentException(Strings.IndexPropertiesWrongEntity(Property.Format(properties), Name));
             }
 
-            _indexes.Value.Add(index);
+            _indexes.Value.Add(properties, index);
 
             return index;
         }
@@ -631,7 +628,12 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotEmpty(properties, "properties");
 
-            return Indexes.FirstOrDefault(i => Matches(i, properties));
+            Index index;
+            if (_indexes.HasValue && _indexes.Value.TryGetValue(properties, out index))
+            {
+                return index;
+            }
+            return null;
         }
 
         public virtual Index GetIndex([NotNull] Property property)
@@ -653,27 +655,18 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotNull(index, "index");
 
-            if (_indexes.HasValue)
+            Index removedIndex;
+            if (_indexes.HasValue && _indexes.Value.TryGetValue(index.Properties, out removedIndex))
             {
-                var indexIndex = _indexes.Value.FindIndex(i => Matches(i, index.Properties));
-                if (indexIndex >= 0)
-                {
-                    var removedIndex = _indexes.Value[indexIndex];
-                    _indexes.Value.RemoveAt(indexIndex);
-                    return removedIndex;
-                }
+                _indexes.Value.Remove(index.Properties);
+                return removedIndex;
             }
 
             return null;
         }
 
-        private static bool Matches(Index index, IEnumerable<Property> properties)
-        {
-            return index.Properties.SequenceEqual(properties);
-        }
-
         public virtual IReadOnlyList<Index> Indexes => _indexes.HasValue
-            ? (IReadOnlyList<Index>)_indexes.Value
+            ? (IReadOnlyList<Index>)_indexes.Value.Values.ToList()
             : ImmutableList<Index>.Empty;
 
         #endregion
@@ -695,20 +688,17 @@ namespace Microsoft.Data.Entity.Metadata
             Check.NotNull(name, "name");
             Check.NotNull(propertyType, "propertyType");
 
-            var property = new Property(name, propertyType, this, shadowProperty);
-
-            var currentIndex = _properties.BinarySearch(property, PropertyComparer.Instance);
-            if (currentIndex >= 0)
+            if (_properties.ContainsKey(name))
             {
-                throw new InvalidOperationException(Strings.DuplicateProperty(property.Name, Name));
+                throw new InvalidOperationException(Strings.DuplicateProperty(name, Name));
             }
+
+            var property = new Property(name, propertyType, this, shadowProperty);
 
             ValidateAgainstClrProperty(property);
 
-            var newIndex = ~currentIndex;
-            _properties.Insert(newIndex, property);
-
-            UpdateIndexes(property, newIndex);
+            _properties.Add(name, property);
+            UpdateIndexes(property);
 
             return property;
         }
@@ -738,11 +728,12 @@ namespace Microsoft.Data.Entity.Metadata
             }
         }
 
-        private void UpdateIndexes(Property addedOrRemovedProperty, int startingIndex)
+        private void UpdateIndexes(Property addedOrRemovedProperty)
         {
-            for (var i = startingIndex; i < _properties.Count; i++)
+            int index = 0;
+            foreach (var property in _properties.Values)
             {
-                _properties[i].Index = i;
+                property.Index = index++;
             }
 
             PropertyMetadataChanged(addedOrRemovedProperty);
@@ -759,7 +750,7 @@ namespace Microsoft.Data.Entity.Metadata
         private void UpdateShadowIndexes()
         {
             var shadowIndex = 0;
-            foreach (var property in _properties.Where(p => p.IsShadowProperty))
+            foreach (var property in _properties.Values.Where(p => p.IsShadowProperty))
             {
                 property.ShadowIndex = shadowIndex++;
             }
@@ -777,7 +768,7 @@ namespace Microsoft.Data.Entity.Metadata
         private void UpdateOriginalValueIndexes()
         {
             var originalValueIndex = 0;
-            foreach (var property in _properties)
+            foreach (var property in _properties.Values)
             {
                 property.OriginalValueIndex = RequiresOriginalValue(property) ? originalValueIndex++ : -1;
             }
@@ -819,11 +810,13 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotEmpty(propertyName, "propertyName");
 
-            // TODO: Perf: This should be O(log(n)) but an additional index could be created
-            // TODO: if this is too slow or if creating the surrogate Property object is too expensive
-            var surrogate = new Property(propertyName, typeof(object), this);
-            var index = _properties.BinarySearch(surrogate, PropertyComparer.Instance);
-            return index >= 0 ? _properties[index] : null;
+            Property property;
+            if (_properties.TryGetValue(propertyName, out property))
+            {
+                return property;
+            }
+
+            return null;
         }
 
         public virtual Property GetProperty([NotNull] PropertyInfo propertyInfo)
@@ -849,8 +842,8 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotNull(property, "property");
 
-            var currentIndex = _properties.BinarySearch(property, PropertyComparer.Instance);
-            if (currentIndex >= 0)
+            Property removedProperty;
+            if (_properties.TryGetValue(property.Name, out removedProperty))
             {
                 if (Keys.Any(k => k.Properties.Contains(property))
                     || ForeignKeys.Any(k => k.Properties.Contains(property))
@@ -859,9 +852,8 @@ namespace Microsoft.Data.Entity.Metadata
                     throw new InvalidOperationException(Strings.PropertyInUse(property.Name, Name));
                 }
 
-                var removedProperty = _properties[currentIndex];
-                _properties.RemoveAt(currentIndex);
-                UpdateIndexes(property, currentIndex);
+                _properties.Remove(property.Name);
+                UpdateIndexes(property);
 
                 return removedProperty;
             }
@@ -869,7 +861,7 @@ namespace Microsoft.Data.Entity.Metadata
             return null;
         }
 
-        public virtual IReadOnlyList<Property> Properties => _properties;
+        public virtual IReadOnlyList<Property> Properties => _properties.Values.ToList();
 
         public virtual int ShadowPropertyCount => _shadowPropertyCount;
 
@@ -949,17 +941,30 @@ namespace Microsoft.Data.Entity.Metadata
 
         #endregion
 
-        private class PropertyComparer : IComparer<Property>
+        private class PropertyListComparer : IComparer<IReadOnlyList<Property>>
         {
-            public static readonly PropertyComparer Instance = new PropertyComparer();
+            public static readonly PropertyListComparer Instance = new PropertyListComparer();
 
-            private PropertyComparer()
+            private PropertyListComparer()
             {
             }
 
-            public int Compare(Property x, Property y)
+            public int Compare(IReadOnlyList<Property> x, IReadOnlyList<Property> y)
             {
-                return StringComparer.Ordinal.Compare(x.Name, y.Name);
+                var result = x.Count - y.Count;
+
+                if (result != 0)
+                {
+                    return result;
+                }
+
+                var index = 0;
+                while (result == 0 && index < x.Count)
+                {
+                    result = StringComparer.Ordinal.Compare(x[index].Name, y[index].Name);
+                    index++;
+                }
+                return result;
             }
         }
     }

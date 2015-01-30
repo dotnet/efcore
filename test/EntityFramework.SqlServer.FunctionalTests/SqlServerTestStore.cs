@@ -41,6 +41,12 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             return new SqlServerTestStore(name).CreateTransientAsync(createDatabase);
         }
 
+        public static SqlServerTestStore CreateScratch(bool createDatabase = true)
+        {
+            var name = "Microsoft.Data.SqlServer.Scratch_" + Interlocked.Increment(ref _scratchCount);
+            return new SqlServerTestStore(name).CreateTransient(createDatabase);
+        }
+
         private SqlConnection _connection;
         private SqlTransaction _transaction;
         private readonly string _name;
@@ -277,6 +283,33 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             return this;
         }
 
+        private SqlServerTestStore CreateTransient(bool createDatabase)
+        {
+            DeleteDatabase(_name);
+
+            _connection = new SqlConnection(CreateConnectionString(_name));
+
+            if (createDatabase)
+            {
+                using (var master = new SqlConnection(CreateConnectionString("master")))
+                {
+                    master.Open();
+                    using (var command = master.CreateCommand())
+                    {
+                        command.CommandText = string.Format("{0}CREATE DATABASE [{1}]", Environment.NewLine, _name);
+
+                        command.ExecuteNonQuery();
+
+                        WaitForExists(_connection);
+                    }
+                }
+                _connection.Open();
+            }
+
+            _deleteDatabase = createDatabase;
+            return this;
+        }
+
         private async Task DeleteDatabaseAsync(string name)
         {
             using (var master = new SqlConnection(CreateConnectionString("master")))
@@ -296,6 +329,46 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                                           END", name);
 
                     await command.ExecuteNonQueryAsync().WithCurrentCulture();
+
+                    var userFolder = Environment.GetEnvironmentVariable("USERPROFILE");
+                    try
+                    {
+                        File.Delete(Path.Combine(userFolder, name + ".mdf"));
+                    }
+                    catch (Exception)
+                    {
+                    }
+
+                    try
+                    {
+                        File.Delete(Path.Combine(userFolder, name + "_log.ldf"));
+                    }
+                    catch (Exception)
+                    {
+                    }
+                }
+            }
+        }
+
+        private void DeleteDatabase(string name)
+        {
+            using (var master = new SqlConnection(CreateConnectionString("master")))
+            {
+                master.Open();
+
+                using (var command = master.CreateCommand())
+                {
+                    command.CommandTimeout = CommandTimeout; // Query will take a few seconds if (and only if) there are active connections
+
+                    // SET SINGLE_USER will close any open connections that would prevent the drop
+                    command.CommandText
+                        = string.Format(@"IF EXISTS (SELECT * FROM sys.databases WHERE name = N'{0}')
+                                          BEGIN
+                                              ALTER DATABASE [{0}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+                                              DROP DATABASE [{0}];
+                                          END", name);
+
+                    command.ExecuteNonQuery();
 
                     var userFolder = Environment.GetEnvironmentVariable("USERPROFILE");
                     try
