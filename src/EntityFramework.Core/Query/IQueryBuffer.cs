@@ -13,8 +13,12 @@ namespace Microsoft.Data.Entity.Query
 {
     public interface IQueryBuffer
     {
-        object GetEntity([NotNull] IEntityType entityType, [NotNull] IValueReader valueReader);
-        object GetEntity([NotNull] IEntityType entityType, [NotNull] IValueReader valueReader, bool queryStateManager);
+        object GetEntity(
+            [NotNull] IEntityType entityType,
+            [NotNull] EntityKey entityKey,
+            [NotNull] IValueReader valueReader,
+            bool queryStateManager);
+
         object GetPropertyValue([NotNull] object entity, [NotNull] IProperty property);
 
         void StartTracking([NotNull] object entity);

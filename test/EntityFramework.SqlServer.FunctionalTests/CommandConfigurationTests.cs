@@ -4,6 +4,7 @@
 using System;
 using System.Data.Common;
 using System.Linq;
+using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
@@ -119,6 +120,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 new LinqOperatorProvider(),
                 new RelationalResultOperatorHandler(),
                 source,
+                new EntityKeyFactorySource(new CompositeEntityKeyFactory()),
                 new AsyncQueryMethodProvider(),
                 new CompositeMethodCallTranslator());
 

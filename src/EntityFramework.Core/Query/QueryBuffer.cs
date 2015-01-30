@@ -68,34 +68,28 @@ namespace Microsoft.Data.Entity.Query
             _clrPropertySetterSource = clrPropertySetterSource;
         }
 
-        public virtual object GetEntity(IEntityType entityType, IValueReader valueReader)
-        {
-            return GetEntity(entityType, valueReader, queryStateManager: true);
-        }
-
-        public virtual object GetEntity(IEntityType entityType, IValueReader valueReader, bool queryStateManager)
+        public virtual object GetEntity(
+            IEntityType entityType,
+            EntityKey entityKey,
+            IValueReader valueReader,
+            bool queryStateManager)
         {
             Check.NotNull(entityType, "entityType");
             Check.NotNull(valueReader, "valueReader");
-
-            var keyProperties
-                = entityType.GetPrimaryKey().Properties;
-
-            var entityKey
-                = _entityKeyFactorySource
-                    .GetKeyFactory(keyProperties)
-                    .Create(entityType, keyProperties, valueReader);
 
             if (entityKey == EntityKey.NullEntityKey)
             {
                 return null;
             }
 
-            var stateEntry = _stateManager.TryGetEntry(entityKey);
-
-            if (queryStateManager && stateEntry != null)
+            if (queryStateManager)
             {
-                return stateEntry.Entity;
+                var stateEntry = _stateManager.TryGetEntry(entityKey);
+
+                if (stateEntry != null)
+                {
+                    return stateEntry.Entity;
+                }
             }
 
             BufferedEntity bufferedEntity;
@@ -180,6 +174,12 @@ namespace Microsoft.Data.Entity.Query
                     out primaryKey,
                     out bufferedEntities,
                     out relatedKeyFactory);
+            var keyProperties
+                = targetEntityType.GetPrimaryKey().Properties;
+
+            var entityKeyFactory
+                = _entityKeyFactorySource
+                    .GetKeyFactory(keyProperties);
 
             LoadNavigationProperties(
                 entity,
@@ -188,11 +188,17 @@ namespace Microsoft.Data.Entity.Query
                 relatedValueReaders[currentNavigationIndex](primaryKey, relatedKeyFactory)
                     .Select(valueReader =>
                         {
-                            var e = GetTargetEntity(targetEntityType, valueReader, bufferedEntities);
+                            var targetEntity
+                                = GetTargetEntity(
+                                    targetEntityType,
+                                    entityKeyFactory,
+                                    keyProperties,
+                                    valueReader,
+                                    bufferedEntities);
 
-                            Include(e, navigationPath, relatedValueReaders, currentNavigationIndex + 1);
+                            Include(targetEntity, navigationPath, relatedValueReaders, currentNavigationIndex + 1);
 
-                            return e;
+                            return targetEntity;
                         })
                     .Where(e => e != null)
                     .ToList());
@@ -235,6 +241,13 @@ namespace Microsoft.Data.Entity.Query
                     out bufferedEntities,
                     out relatedKeyFactory);
 
+            var keyProperties
+                = targetEntityType.GetPrimaryKey().Properties;
+
+            var entityKeyFactory
+                = _entityKeyFactorySource
+                    .GetKeyFactory(keyProperties);
+
             LoadNavigationProperties(
                 entity,
                 navigationPath,
@@ -242,17 +255,23 @@ namespace Microsoft.Data.Entity.Query
                 await relatedValueReaders[currentNavigationIndex](primaryKey, relatedKeyFactory)
                     .Select(async valueReader =>
                         {
-                            var e = GetTargetEntity(targetEntityType, valueReader, bufferedEntities);
+                            var targetEntity
+                                = GetTargetEntity(
+                                    targetEntityType,
+                                    entityKeyFactory,
+                                    keyProperties,
+                                    valueReader,
+                                    bufferedEntities);
 
                             await IncludeAsync(
-                                e,
+                                targetEntity,
                                 navigationPath,
                                 relatedValueReaders,
                                 cancellationToken,
                                 currentNavigationIndex + 1)
                                 .WithCurrentCulture();
 
-                            return e;
+                            return targetEntity;
                         })
                     .Where(e => e != null)
                     .ToList(cancellationToken)
@@ -401,9 +420,18 @@ namespace Microsoft.Data.Entity.Query
         }
 
         private object GetTargetEntity(
-            IEntityType targetEntityType, IValueReader valueReader, ICollection<BufferedEntity> bufferedEntities)
+            IEntityType targetEntityType,
+            EntityKeyFactory entityKeyFactory,
+            IReadOnlyList<IProperty> keyProperties,
+            IValueReader valueReader,
+            ICollection<BufferedEntity> bufferedEntities)
         {
-            var targetEntity = GetEntity(targetEntityType, valueReader);
+            var entityKey
+                = entityKeyFactory
+                    .Create(targetEntityType, keyProperties, valueReader);
+
+            var targetEntity
+                = GetEntity(targetEntityType, entityKey, valueReader, queryStateManager: true);
 
             if (targetEntity != null)
             {

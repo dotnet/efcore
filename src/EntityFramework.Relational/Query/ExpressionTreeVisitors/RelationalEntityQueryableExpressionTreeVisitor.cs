@@ -112,9 +112,22 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
                 queryMethodInfo = RelationalQueryModelVisitor.CreateEntityMethodInfo.MakeGenericMethod(elementType);
 
-                queryMethodArguments.Add(Expression.Constant(0));
-                queryMethodArguments.Add(Expression.Constant(entityType));
-                queryMethodArguments.Add(Expression.Constant(QueryModelVisitor.QuerySourceRequiresTracking(_querySource)));
+                var keyProperties
+                    = entityType.GetPrimaryKey().Properties;
+
+                var keyFactory
+                    = QueryModelVisitor.QueryCompilationContext.EntityKeyFactorySource
+                        .GetKeyFactory(keyProperties);
+
+                queryMethodArguments.AddRange(
+                    new Expression[]
+                        {
+                            Expression.Constant(0),
+                            Expression.Constant(entityType),
+                            Expression.Constant(QueryModelVisitor.QuerySourceRequiresTracking(_querySource)),
+                            Expression.Constant(keyFactory),
+                            Expression.Constant(keyProperties)
+                        });
             }
 
             return Expression.Call(

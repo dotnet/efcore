@@ -170,6 +170,7 @@ namespace Microsoft.Data.Entity.Relational
                 linqOperatorProvider,
                 resultOperatorHandler,
                 EntityMaterializerSource,
+                EntityKeyFactorySource, 
                 queryMethodProvider,
                 methodCallTranslator);
         }

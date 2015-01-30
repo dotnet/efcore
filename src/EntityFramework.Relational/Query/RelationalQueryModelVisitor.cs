@@ -9,6 +9,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Relational.Query.Expressions;
@@ -467,7 +468,9 @@ namespace Microsoft.Data.Entity.Relational.Query
             DbDataReader dataReader,
             int readerOffset,
             IEntityType entityType,
-            bool queryStateManager)
+            bool queryStateManager,
+            EntityKeyFactory entityKeyFactory,
+            IReadOnlyList<IProperty> keyProperties)
             where TEntity : class
         {
             var valueReader
@@ -479,9 +482,11 @@ namespace Microsoft.Data.Entity.Relational.Query
                 valueReader = new OffsetValueReaderDecorator(valueReader, readerOffset);
             }
 
+            var entityKey = entityKeyFactory.Create(entityType, keyProperties, valueReader);
+
             return new QuerySourceScope<TEntity>(
                 querySource,
-                (TEntity)queryContext.QueryBuffer.GetEntity(entityType, valueReader, queryStateManager),
+                (TEntity)queryContext.QueryBuffer.GetEntity(entityType, entityKey, valueReader, queryStateManager),
                 parentQuerySourceScope);
         }
     }
