@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.Tests.Identity
         [Fact]
         public void Next_with_services_delegates_to_non_services_method()
         {
-            var property = TestHelpers.BuildModelFor<AnEntity>().GetEntityType(typeof(AnEntity)).GetProperty("Id");
+            var property = TestHelpers.Instance.BuildModelFor<AnEntity>().GetEntityType(typeof(AnEntity)).GetProperty("Id");
 
             var generator = new TestValueGenerator();
 
@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.Tests.Identity
         [Fact]
         public async Task NextAsync_delegates_to_sync_method()
         {
-            var property = TestHelpers.BuildModelFor<AnEntity>().GetEntityType(typeof(AnEntity)).GetProperty("Id");
+            var property = TestHelpers.Instance.BuildModelFor<AnEntity>().GetEntityType(typeof(AnEntity)).GetProperty("Id");
 
             var generator = new TestValueGenerator();
 

@@ -158,7 +158,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         private class FreezerContext : DbContext
         {
             public FreezerContext()
-                : base(TestHelpers.CreateServiceProvider())
+                : base(TestHelpers.Instance.CreateServiceProvider())
             {
             }
 

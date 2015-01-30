@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.Tests.Identity
 {
     public class TemporaryStringValueGeneratorTest
     {
-        private static readonly Model _model = TestHelpers.BuildModelFor<WithString>();
+        private static readonly Model _model = TestHelpers.Instance.BuildModelFor<WithString>();
 
         [Fact]
         public async Task Creates_GUID_strings()
@@ -32,7 +32,7 @@ namespace Microsoft.Data.Entity.Tests.Identity
         {
             var generator = new TemporaryStringValueGenerator();
 
-            var stateEntry = TestHelpers.CreateStateEntry<WithString>(_model);
+            var stateEntry = TestHelpers.Instance.CreateStateEntry<WithString>(_model);
             var property = stateEntry.EntityType.GetProperty("Id");
 
             var values = new HashSet<Guid>();

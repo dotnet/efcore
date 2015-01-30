@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.Tests
             var customServices = new ServiceCollection()
                 .AddInstance(new DbSetInitializer(setFinderMock.Object, new ClrPropertySetterSource(), new DbSetSource()));
 
-            var serviceProvider = TestHelpers.CreateServiceProvider(customServices);
+            var serviceProvider = TestHelpers.Instance.CreateServiceProvider(customServices);
 
             var options = new DbContextOptions();
 

@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         public void Entity_is_null()
         {
             var model = BuildModel();
-            var configuration = TestHelpers.CreateContextServices(model);
+            var configuration = TestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateStateEntry(configuration, model.GetEntityType(typeof(SomeEntity).FullName), (object)null);
 
@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
             var idProperty = entityType.GetProperty("Id");
-            var configuration = TestHelpers.CreateContextServices(model);
+            var configuration = TestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateStateEntry(configuration, entityType, new ObjectArrayValueReader(new object[] { 1, "Kool" }));
 

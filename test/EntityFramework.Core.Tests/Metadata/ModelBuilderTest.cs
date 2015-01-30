@@ -6098,7 +6098,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
         protected virtual ModelBuilder CreateModelBuilder(Model model)
         {
-            return TestHelpers.CreateConventionBuilder(model);
+            return TestHelpers.Instance.CreateConventionBuilder(model);
         }
     }
 }

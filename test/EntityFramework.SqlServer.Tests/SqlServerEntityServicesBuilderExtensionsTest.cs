@@ -68,8 +68,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         [Fact]
         public void Services_wire_up_correctly()
         {
-            var serviceProvider = TestHelpers.CreateServiceProvider();
-            using (var context = TestHelpers.CreateContext(serviceProvider))
+            var serviceProvider = SqlServerTestHelpers.Instance.CreateServiceProvider();
+            using (var context = SqlServerTestHelpers.Instance.CreateContext(serviceProvider))
             {
                 var scopedProvider = ((IDbContextServices)context).ScopedServiceProvider;
 
@@ -174,7 +174,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 Assert.Same(historyRepository, scopedProvider.GetService<HistoryRepository>());
                 Assert.Same(migrator, scopedProvider.GetService<DbContextService<Migrator>>().Service);
 
-                using (var secondContext = TestHelpers.CreateContext(serviceProvider))
+                using (var secondContext = SqlServerTestHelpers.Instance.CreateContext(serviceProvider))
                 {
                     scopedProvider = ((IDbContextServices)secondContext).ScopedServiceProvider;
 

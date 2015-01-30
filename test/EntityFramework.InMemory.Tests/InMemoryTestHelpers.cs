@@ -5,14 +5,20 @@ using Microsoft.Framework.DependencyInjection;
 
 namespace Microsoft.Data.Entity.Tests
 {
-    public static class TestHelperExtensions
+    public class InMemoryTestHelpers : TestHelpers
     {
-        public static EntityServicesBuilder AddProviderServices(this EntityServicesBuilder entityServicesBuilder)
+        protected InMemoryTestHelpers()
+        {
+        }
+
+        public new static InMemoryTestHelpers Instance { get; } = new InMemoryTestHelpers();
+
+        protected override EntityServicesBuilder AddProviderServices(EntityServicesBuilder entityServicesBuilder)
         {
             return entityServicesBuilder.AddInMemoryStore();
         }
 
-        public static DbContextOptions UseProviderOptions(this DbContextOptions options)
+        protected override DbContextOptions UseProviderOptions(DbContextOptions options)
         {
             return options;
         }

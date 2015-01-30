@@ -10,24 +10,35 @@ using Microsoft.Framework.DependencyInjection.Fallback;
 
 namespace Microsoft.Data.Entity.Tests
 {
-    public static class TestHelpers
+    public class TestHelpers
     {
-        public static DbContextOptions CreateOptions(IModel model)
+        protected TestHelpers()
         {
-            return new DbContextOptions().UseModel(model).UseProviderOptions();
         }
 
-        public static DbContextOptions CreateOptions()
+        public static TestHelpers Instance { get; } = new TestHelpers();
+
+        public DbContextOptions CreateOptions(IModel model)
         {
-            return new DbContextOptions().UseProviderOptions();
+            return UseProviderOptions(new DbContextOptions().UseModel(model));
         }
 
-        public static IServiceProvider CreateServiceProvider(IServiceCollection customServices = null)
+        public DbContextOptions CreateOptions()
+        {
+            return UseProviderOptions(new DbContextOptions());
+        }
+
+        public IServiceProvider CreateServiceProvider(IServiceCollection customServices = null)
+        {
+            return CreateServiceProvider(customServices, AddProviderServices);
+        }
+
+        public IServiceProvider CreateServiceProvider(
+            IServiceCollection customServices,
+            Func<EntityServicesBuilder, EntityServicesBuilder> addProviderServices)
         {
             var services = new ServiceCollection();
-            services
-                .AddEntityFramework()
-                .AddProviderServices();
+            addProviderServices(services.AddEntityFramework());
 
             if (customServices != null)
             {
@@ -40,109 +51,119 @@ namespace Microsoft.Data.Entity.Tests
             return services.BuildServiceProvider();
         }
 
-        public static DbContext CreateContext(IServiceProvider serviceProvider, IModel model)
+        protected virtual EntityServicesBuilder AddProviderServices(EntityServicesBuilder entityServicesBuilder)
+        {
+            return entityServicesBuilder.AddInMemoryStore();
+        }
+
+        protected virtual DbContextOptions UseProviderOptions(DbContextOptions options)
+        {
+            return options;
+        }
+
+        public DbContext CreateContext(IServiceProvider serviceProvider, IModel model)
         {
             return new DbContext(serviceProvider, CreateOptions(model));
         }
 
-        public static DbContext CreateContext(IServiceProvider serviceProvider, DbContextOptions options)
+        public DbContext CreateContext(IServiceProvider serviceProvider, DbContextOptions options)
         {
             return new DbContext(serviceProvider, options);
         }
 
-        public static DbContext CreateContext(IServiceProvider serviceProvider)
+        public DbContext CreateContext(IServiceProvider serviceProvider)
         {
             return new DbContext(serviceProvider, CreateOptions());
         }
 
-        public static DbContext CreateContext(IModel model)
+        public DbContext CreateContext(IModel model)
         {
             return new DbContext(CreateServiceProvider(), CreateOptions(model));
         }
 
-        public static DbContext CreateContext(DbContextOptions options)
+        public DbContext CreateContext(DbContextOptions options)
         {
             return new DbContext(CreateServiceProvider(), options);
         }
 
-        public static DbContext CreateContext()
+        public DbContext CreateContext()
         {
             return new DbContext(CreateServiceProvider(), CreateOptions());
         }
 
-        public static DbContext CreateContext(IServiceCollection customServices, IModel model)
+        public DbContext CreateContext(IServiceCollection customServices, IModel model)
         {
             return new DbContext(CreateServiceProvider(customServices), CreateOptions(model));
         }
 
-        public static DbContext CreateContext(IServiceCollection customServices, DbContextOptions options)
+        public DbContext CreateContext(IServiceCollection customServices, DbContextOptions options)
         {
             return new DbContext(CreateServiceProvider(customServices), options);
         }
 
-        public static DbContext CreateContext(IServiceCollection customServices)
+        public DbContext CreateContext(IServiceCollection customServices)
         {
             return new DbContext(CreateServiceProvider(customServices), CreateOptions());
         }
 
-        public static IServiceProvider CreateContextServices(IServiceProvider serviceProvider, IModel model)
+        public IServiceProvider CreateContextServices(IServiceProvider serviceProvider, IModel model)
         {
             return ((IDbContextServices)CreateContext(serviceProvider, model)).ScopedServiceProvider;
         }
 
-        public static IServiceProvider CreateContextServices(IServiceProvider serviceProvider, DbContextOptions options)
+        public IServiceProvider CreateContextServices(IServiceProvider serviceProvider, DbContextOptions options)
         {
             return ((IDbContextServices)CreateContext(serviceProvider, options)).ScopedServiceProvider;
         }
 
-        public static IServiceProvider CreateContextServices(IServiceProvider serviceProvider)
+        public IServiceProvider CreateContextServices(IServiceProvider serviceProvider)
         {
             return ((IDbContextServices)CreateContext(serviceProvider)).ScopedServiceProvider;
         }
 
-        public static IServiceProvider CreateContextServices(IModel model)
+        public IServiceProvider CreateContextServices(IModel model)
         {
             return ((IDbContextServices)CreateContext(model)).ScopedServiceProvider;
         }
 
-        public static IServiceProvider CreateContextServices(DbContextOptions options)
+        public IServiceProvider CreateContextServices(DbContextOptions options)
         {
             return ((IDbContextServices)CreateContext(options)).ScopedServiceProvider;
         }
 
-        public static IServiceProvider CreateContextServices()
+        public IServiceProvider CreateContextServices()
         {
             return ((IDbContextServices)CreateContext()).ScopedServiceProvider;
         }
 
-        public static IServiceProvider CreateContextServices(IServiceCollection customServices, IModel model)
+        public IServiceProvider CreateContextServices(IServiceCollection customServices, IModel model)
         {
             return ((IDbContextServices)CreateContext(customServices, model)).ScopedServiceProvider;
         }
 
-        public static IServiceProvider CreateContextServices(IServiceCollection customServices, DbContextOptions options)
+        public IServiceProvider CreateContextServices(IServiceCollection customServices, DbContextOptions options)
         {
             return ((IDbContextServices)CreateContext(customServices, options)).ScopedServiceProvider;
         }
 
-        public static IServiceProvider CreateContextServices(IServiceCollection customServices)
+        public IServiceProvider CreateContextServices(IServiceCollection customServices)
         {
             return ((IDbContextServices)CreateContext(customServices)).ScopedServiceProvider;
         }
 
-        public static Model BuildModelFor<TEntity>() where TEntity : class
+        public Model BuildModelFor<TEntity>() where TEntity : class
         {
             var builder = CreateConventionBuilder();
             builder.Entity<TEntity>();
             return builder.Model;
         }
 
-        public static ModelBuilder CreateConventionBuilder(Model model = null)
+        public ModelBuilder CreateConventionBuilder(Model model = null)
         {
             return new ModelBuilderFactory().CreateConventionBuilder(model ?? new Model());
         }
 
-        public static StateEntry CreateStateEntry<TEntity>(
+        public StateEntry CreateStateEntry<TEntity>(
             IModel model, EntityState entityState = EntityState.Unknown, TEntity entity = null)
             where TEntity : class, new()
         {

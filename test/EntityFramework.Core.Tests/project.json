@@ -4,7 +4,6 @@
         "Moq": "4.2.1312.1622",
         "xunit.runner.kre": "1.0.0-*"
     },
-    "code": [ "**\\*.cs", "..\\Shared\\ApiConsistencyTestBase.cs", "..\\Shared\\TestHelpers.cs" ],
     "commands": {
         "test": "xunit.runner.kre"
     },

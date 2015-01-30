@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
             var keyProperty = entityType.GetProperty("Id");
 
-            var contextServices = TestHelpers.CreateContextServices(model);
+            var contextServices = TestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateStateEntry(contextServices, entityType, new SomeEntity());
             entry[keyProperty] = 1;
@@ -44,7 +44,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
             var keyProperty = entityType.GetProperty("Id");
 
-            var contextServices = TestHelpers.CreateContextServices(model);
+            var contextServices = TestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateStateEntry(contextServices, entityType, new SomeEntity());
             entry[keyProperty] = 1;
@@ -63,7 +63,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
             var keyProperty = entityType.GetProperty("Id");
 
-            var contextServices = TestHelpers.CreateContextServices(model);
+            var contextServices = TestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateStateEntry(contextServices, entityType, new SomeEntity());
             entry[keyProperty] = 1;
@@ -82,7 +82,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
             var keyProperty = entityType.GetProperty("Id");
             var nonKeyProperty = entityType.GetProperty("Name");
-            var configuration = TestHelpers.CreateContextServices(model);
+            var configuration = TestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateStateEntry(configuration, entityType, new SomeEntity());
             entry[keyProperty] = 1;
@@ -115,7 +115,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var keyProperty = entityType.GetProperty("Id");
             var nonKeyProperty = entityType.GetProperty("Name");
             nonKeyProperty.IsReadOnly = true;
-            var configuration = TestHelpers.CreateContextServices(model);
+            var configuration = TestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateStateEntry(configuration, entityType, new SomeEntity());
 
@@ -164,7 +164,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
             var keyProperty = entityType.GetProperty("Id");
             var nonKeyProperty = entityType.GetProperty("Name");
-            var configuration = TestHelpers.CreateContextServices(model);
+            var configuration = TestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateStateEntry(configuration, entityType, new SomeEntity());
             entry[keyProperty] = 1;
@@ -230,7 +230,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
             var keyProperty = entityType.GetProperty("Id");
-            var configuration = TestHelpers.CreateContextServices(model);
+            var configuration = TestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateStateEntry(configuration, entityType, new SomeEntity());
 
@@ -248,7 +248,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
             var keyProperty = entityType.GetProperty("Id");
-            var configuration = TestHelpers.CreateContextServices(model);
+            var configuration = TestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateStateEntry(configuration, entityType, new SomeEntity());
 
@@ -270,7 +270,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
             var keyProperty = entityType.GetProperty("Id");
-            var configuration = TestHelpers.CreateContextServices(model);
+            var configuration = TestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateStateEntry(configuration, entityType, new SomeEntity());
 
@@ -292,7 +292,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
             var keyProperty = entityType.GetProperty("Id");
-            var configuration = TestHelpers.CreateContextServices(model);
+            var configuration = TestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateStateEntry(configuration, entityType, new SomeEntity());
 
@@ -317,7 +317,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
             var keyProperty = entityType.GetProperty("Id");
-            var configuration = TestHelpers.CreateContextServices(model);
+            var configuration = TestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateStateEntry(configuration, entityType, new SomeEntity());
 
@@ -334,7 +334,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
             var keyProperty = entityType.GetProperty("Id");
-            var configuration = TestHelpers.CreateContextServices(model);
+            var configuration = TestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateStateEntry(configuration, entityType, new SomeEntity());
 
@@ -355,7 +355,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
             var property = entityType.GetProperty("Name");
-            var configuration = TestHelpers.CreateContextServices(model);
+            var configuration = TestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateStateEntry(configuration, entityType, new SomeEntity());
             entry[entityType.GetProperty("Id")] = 1;
@@ -376,7 +376,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var keyProperties = new[] { entityType.GetProperty("Id1"), entityType.GetProperty("Id2") };
             var fkProperty = entityType.GetProperty("SomeEntityId");
             var property = entityType.GetProperty("JustAProperty");
-            var configuration = TestHelpers.CreateContextServices(model);
+            var configuration = TestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateStateEntry(configuration, entityType, new SomeDependentEntity());
             entry[keyProperties[0]] = 77;
@@ -404,7 +404,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
             var keyProperty = entityType.GetProperty("Id");
-            var configuration = TestHelpers.CreateContextServices(model);
+            var configuration = TestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateStateEntry(configuration, entityType, new SomeEntity());
             entry[keyProperty] = 77;
@@ -420,7 +420,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeDependentEntity).FullName);
             var keyProperties = new[] { entityType.GetProperty("Id1"), entityType.GetProperty("Id2") };
-            var configuration = TestHelpers.CreateContextServices(model);
+            var configuration = TestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateStateEntry(configuration, entityType, new SomeDependentEntity());
             entry[keyProperties[0]] = 77;
@@ -437,7 +437,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeDependentEntity).FullName);
             var fkProperty = entityType.GetProperty("SomeEntityId");
-            var configuration = TestHelpers.CreateContextServices(model);
+            var configuration = TestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateStateEntry(configuration, entityType, new SomeDependentEntity());
             entry[fkProperty] = 77;
@@ -454,7 +454,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeDependentEntity).FullName);
             var fkProperty = entityType.GetProperty("SomeEntityId");
-            var configuration = TestHelpers.CreateContextServices(model);
+            var configuration = TestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateStateEntry(configuration, entityType, new SomeDependentEntity());
             entry[fkProperty] = 77;
@@ -471,7 +471,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeDependentEntity).FullName);
             var fkProperty = entityType.GetProperty("SomeEntityId");
-            var configuration = TestHelpers.CreateContextServices(model);
+            var configuration = TestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateStateEntry(configuration, entityType, new SomeDependentEntity());
             entry[fkProperty] = 77;
@@ -487,7 +487,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeDependentEntity).FullName);
             var fkProperty = entityType.GetProperty("SomeEntityId");
-            var configuration = TestHelpers.CreateContextServices(model);
+            var configuration = TestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateStateEntry(configuration, entityType, new SomeDependentEntity());
             entry[fkProperty] = 77;
@@ -506,7 +506,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeDependentEntity).FullName);
             var fkProperty = entityType.GetProperty("SomeEntityId");
-            var configuration = TestHelpers.CreateContextServices(model);
+            var configuration = TestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateStateEntry(configuration, entityType, new SomeDependentEntity());
             entry[fkProperty] = 77;
@@ -526,7 +526,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var principalType = model.GetEntityType(typeof(SomeEntity).FullName);
             var dependentType = model.GetEntityType(typeof(SomeDependentEntity).FullName);
             var key = principalType.GetProperty("Id");
-            var configuration = TestHelpers.CreateContextServices(model);
+            var configuration = TestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateStateEntry(configuration, principalType, new SomeEntity());
             entry[key] = 77;
@@ -542,7 +542,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeMoreDependentEntity).FullName);
             var fkProperties = new[] { entityType.GetProperty("Fk1"), entityType.GetProperty("Fk2") };
-            var configuration = TestHelpers.CreateContextServices(model);
+            var configuration = TestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateStateEntry(configuration, entityType, new SomeMoreDependentEntity());
             entry[fkProperties[0]] = 77;
@@ -560,7 +560,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var principalType = model.GetEntityType(typeof(SomeDependentEntity).FullName);
             var dependentType = model.GetEntityType(typeof(SomeMoreDependentEntity).FullName);
             var keyProperties = new[] { principalType.GetProperty("Id1"), principalType.GetProperty("Id2") };
-            var configuration = TestHelpers.CreateContextServices(model);
+            var configuration = TestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateStateEntry(configuration, principalType, new SomeDependentEntity());
             entry[keyProperties[0]] = 77;
@@ -578,7 +578,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var principalType = model.GetEntityType(typeof(SomeDependentEntity).FullName);
             var dependentType = model.GetEntityType(typeof(SomeMoreDependentEntity).FullName);
             var keyProperties = new[] { principalType.GetProperty("Id1"), principalType.GetProperty("Id2") };
-            var configuration = TestHelpers.CreateContextServices(model);
+            var configuration = TestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateStateEntry(configuration, principalType, new SomeDependentEntity());
             entry[keyProperties[0]] = 77;
@@ -593,7 +593,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
             var keyProperty = entityType.GetProperty("Id");
-            var configuration = TestHelpers.CreateContextServices(model);
+            var configuration = TestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateStateEntry(configuration, entityType, new ObjectArrayValueReader(new object[] { 1, "Kool" }));
 
@@ -606,7 +606,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
             var keyProperty = entityType.GetProperty("Id");
-            var configuration = TestHelpers.CreateContextServices(model);
+            var configuration = TestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateStateEntry(configuration, entityType, new ObjectArrayValueReader(new object[] { 1, "Kool" }));
 
@@ -622,7 +622,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
             var keyProperty = entityType.GetProperty("Id");
             var nonKeyProperty = entityType.GetProperty("Name");
-            var configuration = TestHelpers.CreateContextServices(model);
+            var configuration = TestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateStateEntry(configuration, entityType, new SomeEntity());
 
@@ -640,7 +640,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
             var keyProperty = entityType.GetProperty("Id");
             var nonKeyProperty = entityType.GetProperty("Name");
-            var configuration = TestHelpers.CreateContextServices(model);
+            var configuration = TestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateStateEntry(configuration, entityType, new SomeEntity());
 
@@ -664,7 +664,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var idProperty = entityType.GetProperty("Id");
             var nameProperty = entityType.GetProperty("Name");
-            var configuration = TestHelpers.CreateContextServices(model);
+            var configuration = TestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateStateEntry(configuration, entityType, new ObjectArrayValueReader(new object[] { 1, "Kool" }));
             entry.SetEntityState(EntityState.Unchanged);
@@ -714,7 +714,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         protected void OriginalValuesTest(IModel model, IEntityType entityType)
         {
             var nameProperty = entityType.GetProperty("Name");
-            var configuration = TestHelpers.CreateContextServices(model);
+            var configuration = TestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateStateEntry(configuration, entityType, new ObjectArrayValueReader(new object[] { 1, "Kool" }));
             entry.SetEntityState(EntityState.Unchanged);
@@ -757,7 +757,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         protected void NullOriginalValuesTest(IModel model, IEntityType entityType)
         {
             var nameProperty = entityType.GetProperty("Name");
-            var configuration = TestHelpers.CreateContextServices(model);
+            var configuration = TestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateStateEntry(configuration, entityType, new ObjectArrayValueReader(new object[] { 1, null }));
             entry.SetEntityState(EntityState.Unchanged);
@@ -795,7 +795,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var idProperty = entityType.GetProperty("Id");
             var nameProperty = entityType.GetProperty("Name");
-            var configuration = TestHelpers.CreateContextServices(model);
+            var configuration = TestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateStateEntry(configuration, entityType, new ObjectArrayValueReader(new object[] { 1, "Kool" }));
             entry.SetEntityState(EntityState.Unchanged);
@@ -824,7 +824,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(TEntity));
             var nameProperty = entityType.GetProperty("Name");
-            var configuration = TestHelpers.CreateContextServices(model);
+            var configuration = TestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateStateEntry(configuration, entityType, new ObjectArrayValueReader(new object[] { 1, "Kool" }));
             entry.SetEntityState(EntityState.Unchanged);
@@ -869,7 +869,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
-            var configuration = TestHelpers.CreateContextServices(model);
+            var configuration = TestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateStateEntry(configuration, entityType, new ObjectArrayValueReader(new object[] { 1, "Kool" }));
             entry.SetEntityState(entityState);
@@ -896,7 +896,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
             var nameProperty = entityType.GetProperty("Name");
-            var configuration = TestHelpers.CreateContextServices(model);
+            var configuration = TestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateStateEntry(configuration, entityType, new ObjectArrayValueReader(new object[] { 1, "Kool" }));
             entry.SetEntityState(entityState);
@@ -917,7 +917,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
             var nameProperty = entityType.GetProperty("Name");
-            var configuration = TestHelpers.CreateContextServices(model);
+            var configuration = TestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateStateEntry(configuration, entityType, new ObjectArrayValueReader(new object[] { 1, "Kool" }));
             entry.SetEntityState(EntityState.Modified);
@@ -936,7 +936,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
-            var configuration = TestHelpers.CreateContextServices(model);
+            var configuration = TestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateStateEntry(configuration, entityType, new ObjectArrayValueReader(new object[] { 1, "Kool" }));
             entry.SetEntityState(EntityState.Deleted);
@@ -951,7 +951,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var model = BuildModel();
             var entry = CreateStateEntry(
-                TestHelpers.CreateContextServices(model),
+                TestHelpers.Instance.CreateContextServices(model),
                 model.GetEntityType(typeof(SomeEntity).FullName),
                 new ObjectArrayValueReader(new object[] { 1, "Kool" }));
 
@@ -1018,7 +1018,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var nameProperty = entityType.GetProperty("Name");
 
             var entry = CreateStateEntry(
-                TestHelpers.CreateContextServices(model),
+                TestHelpers.Instance.CreateContextServices(model),
                 entityType,
                 new ObjectArrayValueReader(new object[] { 1, "Kool" }));
 
@@ -1047,7 +1047,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var nameProperty = entityType.GetProperty("Name");
 
             var entry = CreateStateEntry(
-                TestHelpers.CreateContextServices(model),
+                TestHelpers.Instance.CreateContextServices(model),
                 entityType,
                 new ObjectArrayValueReader(new object[] { 1, "Kool" }));
 
@@ -1084,7 +1084,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var nameProperty = entityType.GetProperty("Name");
 
             var entry = CreateStateEntry(
-                TestHelpers.CreateContextServices(model),
+                TestHelpers.Instance.CreateContextServices(model),
                 entityType,
                 new ObjectArrayValueReader(new object[] { 1, "Kool" }));
 
@@ -1120,7 +1120,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var nameProperty = entityType.GetProperty("Name");
 
             var entry = CreateStateEntry(
-                TestHelpers.CreateContextServices(model),
+                TestHelpers.Instance.CreateContextServices(model),
                 entityType,
                 new ObjectArrayValueReader(new object[] { 1, "Kool" }));
 
@@ -1148,7 +1148,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var nameProperty = entityType.GetProperty("Name");
 
             var entry = CreateStateEntry(
-                TestHelpers.CreateContextServices(model),
+                TestHelpers.Instance.CreateContextServices(model),
                 entityType,
                 new ObjectArrayValueReader(new object[] { 1, "Kool" }));
 
@@ -1214,7 +1214,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 .AddSingleton<SimpleValueGeneratorFactory<InMemoryValueGenerator>, InMemoryTemporaryValueGeneratorFactory>();
 
             var entry = CreateStateEntry(
-                TestHelpers.CreateContextServices(customServices, model),
+                TestHelpers.Instance.CreateContextServices(customServices, model),
                 entityType,
                 new ObjectArrayValueReader(new object[] { 1, "Kool" }));
 
@@ -1234,7 +1234,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
 
             var entry = CreateStateEntry(
-                TestHelpers.CreateContextServices(model),
+                TestHelpers.Instance.CreateContextServices(model),
                 entityType,
                 new ObjectArrayValueReader(new object[] { 1, "Kool" }));
 
@@ -1252,7 +1252,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entityType.GetProperty("Name").IsStoreComputed = true;
 
             var entry = CreateStateEntry(
-                TestHelpers.CreateContextServices(model),
+                TestHelpers.Instance.CreateContextServices(model),
                 entityType,
                 new ObjectArrayValueReader(new object[] { 1, "Kool" }));
 
@@ -1273,7 +1273,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entityType.GetProperty("Name").UseStoreDefault = true;
 
             var entry = CreateStateEntry(
-                TestHelpers.CreateContextServices(model),
+                TestHelpers.Instance.CreateContextServices(model),
                 entityType,
                 new ObjectArrayValueReader(new object[] { 1, "Kool" }));
 
@@ -1296,7 +1296,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 .AddSingleton<SimpleValueGeneratorFactory<InMemoryValueGenerator>, InMemoryTemporaryValueGeneratorFactory>();
 
             var entry = CreateStateEntry(
-                TestHelpers.CreateContextServices(customServices, model),
+                TestHelpers.Instance.CreateContextServices(customServices, model),
                 entityType,
                 new ObjectArrayValueReader(new object[] { 1 }));
 
@@ -1316,7 +1316,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entityType = model.GetEntityType(typeof(SecondDependent));
 
             var entry = CreateStateEntry(
-                TestHelpers.CreateContextServices(model),
+                TestHelpers.Instance.CreateContextServices(model),
                 entityType,
                 new ObjectArrayValueReader(new object[] { 1 }));
 
@@ -1328,7 +1328,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
         private static IModel BuildOneToOneModel()
         {
-            var modelBuilder = TestHelpers.CreateConventionBuilder();
+            var modelBuilder = TestHelpers.Instance.CreateConventionBuilder();
 
             modelBuilder
                 .Entity<FirstDependent>()

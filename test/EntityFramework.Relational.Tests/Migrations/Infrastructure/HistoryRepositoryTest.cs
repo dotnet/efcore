@@ -8,7 +8,6 @@ using System.Text;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Relational.Update;
-using Microsoft.Data.Entity.Tests;
 using Microsoft.Framework.DependencyInjection;
 using Moq;
 using Moq.Protected;
@@ -21,7 +20,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Migrations.Infrastructure
         [Fact]
         public void Get_table_name()
         {
-            var serviceProvider = TestHelpers.CreateServiceProvider();
+            var serviceProvider = RelationalTestHelpers.Instance.CreateServiceProvider();
 
             using (var context = new Context(serviceProvider))
             {
@@ -37,7 +36,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Migrations.Infrastructure
         [Fact]
         public void Create_and_cache_history_model()
         {
-            var serviceProvider = TestHelpers.CreateServiceProvider();
+            var serviceProvider = RelationalTestHelpers.Instance.CreateServiceProvider();
 
             using (var context = new Context(serviceProvider))
             {
@@ -66,7 +65,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Migrations.Infrastructure
         [Fact]
         public void Create_history_context_from_user_context()
         {
-            var serviceProvider = TestHelpers.CreateServiceProvider();
+            var serviceProvider = RelationalTestHelpers.Instance.CreateServiceProvider();
 
             using (var context = new Context(serviceProvider))
             {
@@ -98,7 +97,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Migrations.Infrastructure
         [Fact]
         public void Get_migrations_query()
         {
-            var serviceProvider = TestHelpers.CreateServiceProvider();
+            var serviceProvider = RelationalTestHelpers.Instance.CreateServiceProvider();
 
             using (var context = new Context(serviceProvider))
             {
@@ -136,7 +135,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Migrations.Infrastructure
         [Fact]
         public void Get_migrations()
         {
-            var serviceProvider = TestHelpers.CreateServiceProvider();
+            var serviceProvider = RelationalTestHelpers.Instance.CreateServiceProvider();
 
             using (var context = new Context(serviceProvider))
             {
@@ -170,7 +169,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Migrations.Infrastructure
         [Fact]
         public void Generate_insert_migration_sql()
         {
-            var serviceProvider = TestHelpers.CreateServiceProvider();
+            var serviceProvider = RelationalTestHelpers.Instance.CreateServiceProvider();
 
             using (var context = new Context(serviceProvider))
             {
@@ -192,7 +191,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Migrations.Infrastructure
         [Fact]
         public void Generate_insert_migration_sql_with_custom_context_key()
         {
-            var serviceProvider = TestHelpers.CreateServiceProvider();
+            var serviceProvider = RelationalTestHelpers.Instance.CreateServiceProvider();
 
             using (var context = new Context(serviceProvider))
             {
@@ -217,7 +216,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Migrations.Infrastructure
         [Fact]
         public void Generate_delete_migration_sql()
         {
-            var serviceProvider = TestHelpers.CreateServiceProvider();
+            var serviceProvider = RelationalTestHelpers.Instance.CreateServiceProvider();
 
             using (var context = new Context(serviceProvider))
             {

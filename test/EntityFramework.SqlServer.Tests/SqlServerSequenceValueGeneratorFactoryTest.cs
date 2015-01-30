@@ -388,7 +388,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
         protected virtual ModelBuilder CreateConventionModelBuilder()
         {
-            return TestHelpers.CreateConventionBuilder();
+            return SqlServerTestHelpers.Instance.CreateConventionBuilder();
         }
 
         private static Property CreateProperty()

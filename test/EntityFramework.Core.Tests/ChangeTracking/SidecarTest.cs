@@ -341,7 +341,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entityType = _model.GetEntityType(typeof(SomeMoreDependentEntity).FullName);
             var foreignKey = entityType.ForeignKeys.Single();
 
-            var entry = TestHelpers.CreateStateEntry<SomeMoreDependentEntity>(_model);
+            var entry = TestHelpers.Instance.CreateStateEntry<SomeMoreDependentEntity>(_model);
             var sidecar = CreateSidecar(entry);
             sidecar[foreignKey.Properties[0]] = 77;
             sidecar[foreignKey.Properties[1]] = "CheeseAndOnion";
@@ -357,7 +357,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var dependentType = _model.GetEntityType(typeof(SomeMoreDependentEntity).FullName);
             var foreignKey = dependentType.ForeignKeys.Single();
 
-            var entry = TestHelpers.CreateStateEntry<SomeDependentEntity>(_model);
+            var entry = TestHelpers.Instance.CreateStateEntry<SomeDependentEntity>(_model);
             var sidecar = CreateSidecar(entry);
             sidecar[foreignKey.ReferencedProperties[0]] = 77;
             sidecar[foreignKey.ReferencedProperties[1]] = "PrawnCocktail";
@@ -376,7 +376,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var customServices = new ServiceCollection()
                 .AddSingleton<SimpleValueGeneratorFactory<InMemoryValueGenerator>, InMemoryTemporaryValueGeneratorFactory>();
 
-            var stateEntry = TestHelpers.CreateContextServices(customServices, _model)
+            var stateEntry = TestHelpers.Instance.CreateContextServices(customServices, _model)
                 .GetRequiredService<StateManager>()
                 .GetOrCreateEntry(entity);
 

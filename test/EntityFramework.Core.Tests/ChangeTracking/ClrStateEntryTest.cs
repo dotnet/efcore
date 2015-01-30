@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         public void Can_get_entity()
         {
             var model = BuildModel();
-            var configuration = TestHelpers.CreateContextServices(model);
+            var configuration = TestHelpers.Instance.CreateContextServices(model);
 
             var entity = new SomeEntity();
             var entry = CreateStateEntry(configuration, model.GetEntityType(typeof(SomeEntity).FullName), entity);
@@ -31,7 +31,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
             var keyProperty = entityType.GetProperty("Id");
             var nonKeyProperty = entityType.GetProperty("Name");
-            var configuration = TestHelpers.CreateContextServices(model);
+            var configuration = TestHelpers.Instance.CreateContextServices(model);
 
             var entity = new SomeEntity { Id = 77, Name = "Magic Tree House" };
             var entry = CreateStateEntry(configuration, entityType, entity);
@@ -51,7 +51,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
-            var configuration = TestHelpers.CreateContextServices(model);
+            var configuration = TestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateStateEntry(configuration, entityType, new ObjectArrayValueReader(new object[] { 1, "Kool" }));
 
@@ -103,7 +103,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(FullNotificationEntity).FullName);
             var idProperty = entityType.GetProperty("Id");
-            var configuration = TestHelpers.CreateContextServices(model);
+            var configuration = TestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateStateEntry(configuration, entityType, new ObjectArrayValueReader(new object[] { 1, "Kool" }));
 
@@ -122,7 +122,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
             var keyProperty = entityType.GetProperty("Id");
-            var configuration = TestHelpers.CreateContextServices(model);
+            var configuration = TestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateStateEntry(configuration, entityType, new SomeEntity());
 

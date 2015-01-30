@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
                 .AddInstance(batchExecutorMock.Object)
                 .AddSingleton<FakeRelationalDataStore>();
 
-            var contextServices = TestHelpers.CreateContextServices(customServices);
+            var contextServices = RelationalTestHelpers.Instance.CreateContextServices(customServices);
 
             var relationalDataStore = contextServices.GetRequiredService<FakeRelationalDataStore>();
 
@@ -60,7 +60,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
                 .AddInstance(batchExecutorMock.Object)
                 .AddSingleton<FakeRelationalDataStore>();
 
-            var contextServices = TestHelpers.CreateContextServices(customServices);
+            var contextServices = RelationalTestHelpers.Instance.CreateContextServices(customServices);
 
             var relationalDataStore = contextServices.GetRequiredService<FakeRelationalDataStore>();
 

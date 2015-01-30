@@ -95,7 +95,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             bool createFeaturedProductCategory = true, bool createFeaturedProduct = true)
         {
             var model = new Model();
-            var builder = TestHelpers.CreateConventionBuilder(model);
+            var builder = TestHelpers.Instance.CreateConventionBuilder(model);
 
             builder.Entity<Product>();
             builder.Entity<Category>();
@@ -131,7 +131,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void IsNonNotifyingCollection_returns_false_for_reference_avigations()
         {
-            var entry = TestHelpers.CreateStateEntry<Dependent>(BuildCollectionsModel());
+            var entry = TestHelpers.Instance.CreateStateEntry<Dependent>(BuildCollectionsModel());
 
             Assert.False(entry.EntityType.GetNavigation("Principal1").IsNonNotifyingCollection(entry));
         }
@@ -139,7 +139,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void IsNonNotifyingCollection_returns_false_for_collections_typed_for_notifications()
         {
-            var entry = TestHelpers.CreateStateEntry<Principal>(BuildCollectionsModel());
+            var entry = TestHelpers.Instance.CreateStateEntry<Principal>(BuildCollectionsModel());
 
             // TODO: The following assert should be changed to False once INotifyCollectionChanged is supported (Issue #445)
             Assert.True(entry.EntityType.GetNavigation("Dependents2").IsNonNotifyingCollection(entry));
@@ -148,7 +148,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void IsNonNotifyingCollection_returns_false_for_null_collections()
         {
-            var entry = TestHelpers.CreateStateEntry<Principal>(BuildCollectionsModel());
+            var entry = TestHelpers.Instance.CreateStateEntry<Principal>(BuildCollectionsModel());
 
             // TODO: The following assert should be changed to False once INotifyCollectionChanged is supported (Issue #445)
             Assert.True(entry.EntityType.GetNavigation("Dependents1").IsNonNotifyingCollection(entry));
@@ -157,7 +157,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void IsNonNotifyingCollection_returns_false_for_notifying_instances()
         {
-            var entry = TestHelpers.CreateStateEntry(
+            var entry = TestHelpers.Instance.CreateStateEntry(
                 BuildCollectionsModel(), 
                 EntityState.Unknown, 
                 new Principal { Dependents1 = new ObservableCollection<Dependent>()});
@@ -169,7 +169,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void IsNonNotifyingCollection_returns_true_for_non_notifying_instances()
         {
-            var entry = TestHelpers.CreateStateEntry(
+            var entry = TestHelpers.Instance.CreateStateEntry(
                 BuildCollectionsModel(),
                 EntityState.Unknown,
                 new Principal { Dependents1 = new List<Dependent>() });
@@ -179,7 +179,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
         private static IModel BuildCollectionsModel()
         {
-            var builder = TestHelpers.CreateConventionBuilder();
+            var builder = TestHelpers.Instance.CreateConventionBuilder();
 
             builder.Entity<Principal>().HasMany(e => e.Dependents1).WithOne(e => e.Principal1);
             builder.Entity<Principal>().HasMany(e => e.Dependents2).WithOne(e => e.Principal2);

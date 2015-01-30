@@ -15,9 +15,9 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Requesting_a_singleton_always_returns_same_instance()
         {
-            var provider = TestHelpers.CreateServiceProvider();
-            var contextServices1 = TestHelpers.CreateContextServices(provider);
-            var contextServices2 = TestHelpers.CreateContextServices(provider);
+            var provider = TestHelpers.Instance.CreateServiceProvider();
+            var contextServices1 = TestHelpers.Instance.CreateContextServices(provider);
+            var contextServices2 = TestHelpers.Instance.CreateContextServices(provider);
 
             Assert.Same(contextServices1.GetRequiredService<MemberMapper>(), contextServices2.GetRequiredService<MemberMapper>());
         }
@@ -25,8 +25,8 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Requesting_a_scoped_service_always_returns_same_instance_in_scope()
         {
-            var provider = TestHelpers.CreateServiceProvider();
-            var contextServices = TestHelpers.CreateContextServices(provider);
+            var provider = TestHelpers.Instance.CreateServiceProvider();
+            var contextServices = TestHelpers.Instance.CreateContextServices(provider);
 
             Assert.Same(contextServices.GetRequiredService<StateManager>(), contextServices.GetRequiredService<StateManager>());
         }
@@ -34,9 +34,9 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Requesting_a_scoped_service_always_returns_a_different_instance_in_a_different_scope()
         {
-            var provider = TestHelpers.CreateServiceProvider();
-            var contextServices1 = TestHelpers.CreateContextServices(provider);
-            var contextServices2 = TestHelpers.CreateContextServices(provider);
+            var provider = TestHelpers.Instance.CreateServiceProvider();
+            var contextServices1 = TestHelpers.Instance.CreateContextServices(provider);
+            var contextServices2 = TestHelpers.Instance.CreateContextServices(provider);
 
             Assert.NotSame(contextServices1.GetRequiredService<StateManager>(), contextServices2.GetRequiredService<StateManager>());
         }
@@ -44,7 +44,7 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Scoped_data_store_services_can_be_obtained_from_configuration()
         {
-            var serviceProvider = TestHelpers.CreateServiceProvider();
+            var serviceProvider = TestHelpers.Instance.CreateServiceProvider();
 
             DataStore store;
             DataStoreCreator creator;

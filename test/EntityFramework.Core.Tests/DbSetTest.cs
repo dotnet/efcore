@@ -273,7 +273,7 @@ namespace Microsoft.Data.Entity.Tests
         private class EarlyLearningCenter : DbContext
         {
             public EarlyLearningCenter()
-                : base(TestHelpers.CreateServiceProvider())
+                : base(TestHelpers.Instance.CreateServiceProvider())
             {
             }
 

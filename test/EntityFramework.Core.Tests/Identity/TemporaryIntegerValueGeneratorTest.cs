@@ -12,7 +12,7 @@ namespace Microsoft.Data.Entity.Tests.Identity
 {
     public class TemporaryIntegerValueGeneratorTest
     {
-        private static readonly Model _model = TestHelpers.BuildModelFor<AnEntity>();
+        private static readonly Model _model = TestHelpers.Instance.BuildModelFor<AnEntity>();
 
         [Fact]
         public async Task Creates_negative_values()

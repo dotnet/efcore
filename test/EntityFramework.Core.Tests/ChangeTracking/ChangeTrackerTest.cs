@@ -408,7 +408,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var customServices = new ServiceCollection().AddSingleton<EntityAttacherFactory, MyAttacherFactory>();
 
-            using (var context = new EarlyLearningCenter(TestHelpers.CreateServiceProvider(customServices)))
+            using (var context = new EarlyLearningCenter(TestHelpers.Instance.CreateServiceProvider(customServices)))
             {
                 var category = new Category
                     {
@@ -949,7 +949,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void AttachGraph_and_UpdateGraph_do_not_call_DetectChanges()
         {
-            var provider = TestHelpers.CreateServiceProvider(new ServiceCollection().AddScoped<ChangeDetector, ChangeDetectorProxy>());
+            var provider = TestHelpers.Instance.CreateServiceProvider(new ServiceCollection().AddScoped<ChangeDetector, ChangeDetectorProxy>());
             using (var context = new EarlyLearningCenter(provider))
             {
                 var changeDetector = (ChangeDetectorProxy)((IDbContextServices)context).ScopedServiceProvider
@@ -1065,7 +1065,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         private class EarlyLearningCenter : DbContext
         {
             public EarlyLearningCenter()
-                : this(TestHelpers.CreateServiceProvider())
+                : this(TestHelpers.Instance.CreateServiceProvider())
             {
             }
 

@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         [Fact]
         public void EnsureCreated_returns_true_for_first_use_of_persistent_database_and_false_thereafter()
         {
-            var serviceProvider = TestHelpers.CreateServiceProvider();
+            var serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider();
             var model = CreateModel();
             var creator = new InMemoryDataStoreCreator(CreateStore(serviceProvider, persist: true));
 
@@ -32,7 +32,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         [Fact]
         public void EnsureCreated_returns_true_for_first_use_of_non_persistent_database_and_false_thereafter()
         {
-            var serviceProvider = TestHelpers.CreateServiceProvider();
+            var serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider();
             var model = CreateModel();
             var creator = new InMemoryDataStoreCreator(CreateStore(serviceProvider, persist: false));
 
@@ -50,7 +50,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         [Fact]
         public async Task EnsureCreatedAsync_returns_true_for_first_use_of_persistent_database_and_false_thereafter()
         {
-            var serviceProvider = TestHelpers.CreateServiceProvider();
+            var serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider();
             var model = CreateModel();
             var creator = new InMemoryDataStoreCreator(CreateStore(serviceProvider, persist: true));
 
@@ -66,7 +66,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         [Fact]
         public async Task EnsureCreatedAsync_returns_true_for_first_use_of_non_persistent_database_and_false_thereafter()
         {
-            var serviceProvider = TestHelpers.CreateServiceProvider();
+            var serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider();
             var model = CreateModel();
             var creator = new InMemoryDataStoreCreator(CreateStore(serviceProvider, persist: false));
 
@@ -86,7 +86,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             var options = new DbContextOptions();
             options.UseInMemoryStore(persist: persist);
 
-            return TestHelpers.CreateContextServices(serviceProvider, options).GetRequiredService<InMemoryDataStore>();
+            return InMemoryTestHelpers.Instance.CreateContextServices(serviceProvider, options).GetRequiredService<InMemoryDataStore>();
         }
 
         [Fact]

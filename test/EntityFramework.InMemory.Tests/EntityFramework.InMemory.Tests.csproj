@@ -65,15 +65,17 @@
     <Compile Include="InMemoryDataStoreSourceTest.cs" />
     <Compile Include="InMemoryDataStoreTest.cs" />
     <Compile Include="InMemoryEntityServicesBuilderExtensionsTest.cs" />
-    <Compile Include="..\Shared\ApiConsistencyTestBase.cs" />
-    <Compile Include="..\Shared\TestHelpers.cs" />
     <Compile Include="InMemoryValueGeneratorSelectorTest.cs" />
     <Compile Include="InMemoryValueGeneratorTest.cs" />
-    <Compile Include="TestHelperExtensions.cs" />
+    <Compile Include="InMemoryTestHelpers.cs" />
     <None Include="packages.config" />
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\src\EntityFramework.Commands\EntityFramework.Commands.csproj">
+      <Project>{10ca97eb-e724-4f08-86af-f301f2b0bfff}</Project>
+      <Name>EntityFramework.Commands</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\src\EntityFramework.Core\EntityFramework.Core.csproj">
       <Project>{71415CEC-8111-4C73-8751-512D22F10602}</Project>
       <Name>EntityFramework.Core</Name>
@@ -81,6 +83,10 @@
     <ProjectReference Include="..\..\src\EntityFramework.InMemory\EntityFramework.InMemory.csproj">
       <Project>{BA3F5DBC-EC16-4D5A-8298-8226E6C5ACCC}</Project>
       <Name>EntityFramework.InMemory</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EntityFramework.Core.Tests\EntityFramework.Core.Tests.csproj">
+      <Project>{ef361118-7d0d-453e-ada4-2f24fbee196c}</Project>
+      <Name>EntityFramework.Core.Tests</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

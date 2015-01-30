@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(AnEntity));
 
-            var selector = TestHelpers.CreateContextServices(model).GetRequiredService<SqlServerValueGeneratorSelector>();
+            var selector = SqlServerTestHelpers.Instance.CreateContextServices(model).GetRequiredService<SqlServerValueGeneratorSelector>();
 
             Assert.IsType<SimpleValueGeneratorFactory<TemporaryIntegerValueGenerator>>(selector.Select(entityType.GetProperty("Id")));
             Assert.IsType<SimpleValueGeneratorFactory<TemporaryIntegerValueGenerator>>(selector.Select(entityType.GetProperty("Long")));
@@ -52,7 +52,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             model.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Sequence;
             var entityType = model.GetEntityType(typeof(AnEntity));
 
-            var selector = TestHelpers.CreateContextServices(model).GetRequiredService<SqlServerValueGeneratorSelector>();
+            var selector = SqlServerTestHelpers.Instance.CreateContextServices(model).GetRequiredService<SqlServerValueGeneratorSelector>();
 
             Assert.IsType<SqlServerSequenceValueGeneratorFactory>(selector.Select(entityType.GetProperty("Id")));
             Assert.IsType<SqlServerSequenceValueGeneratorFactory>(selector.Select(entityType.GetProperty("Long")));
@@ -83,7 +83,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(AnEntity));
 
-            var selector = TestHelpers.CreateContextServices(model).GetRequiredService<SqlServerValueGeneratorSelector>();
+            var selector = SqlServerTestHelpers.Instance.CreateContextServices(model).GetRequiredService<SqlServerValueGeneratorSelector>();
 
             Assert.Equal(
                 CoreStrings.NoValueGenerator("Float", "AnEntity", typeof(float).Name),
@@ -92,7 +92,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
         private static Model BuildModel(bool generateValues = true)
         {
-            var model = TestHelpers.BuildModelFor<AnEntity>();
+            var model = SqlServerTestHelpers.Instance.BuildModelFor<AnEntity>();
             var entityType = model.GetEntityType(typeof(AnEntity));
 
             entityType.GetProperty("AlwaysIdentity").SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Identity;;

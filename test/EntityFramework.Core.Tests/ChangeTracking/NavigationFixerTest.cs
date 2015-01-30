@@ -854,7 +854,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
         private static IServiceProvider CreateContextServices(IModel model = null)
         {
-            return TestHelpers.CreateContextServices(model ?? BuildModel());
+            return TestHelpers.Instance.CreateContextServices(model ?? BuildModel());
         }
 
         private class Category

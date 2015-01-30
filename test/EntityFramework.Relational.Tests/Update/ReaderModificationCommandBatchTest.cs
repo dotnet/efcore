@@ -583,7 +583,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         {
             var model = BuildModel(generateKeyValues, computeNonKeyValue);
 
-            return TestHelpers.CreateStateEntry(model, entityState, new T1 { Id = 1, Name = "Test" });
+            return RelationalTestHelpers.Instance.CreateStateEntry(model, entityState, new T1 { Id = 1, Name = "Test" });
         }
 
         private class ModificationCommandBatchFake : ReaderModificationCommandBatch

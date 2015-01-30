@@ -127,7 +127,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         private class StoteInTheSnow : DbContext
         {
             public StoteInTheSnow()
-                : base(TestHelpers.CreateServiceProvider())
+                : base(TestHelpers.Instance.CreateServiceProvider())
             {
             }
 

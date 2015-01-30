@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 {
     public class SqlServerSequenceValueGeneratorTest
     {
-        private static readonly Model _model = TestHelpers.BuildModelFor<AnEntity>();
+        private static readonly Model _model = SqlServerTestHelpers.Instance.BuildModelFor<AnEntity>();
 
         [Fact]
         public void Generates_sequential_values()
@@ -143,7 +143,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         [Fact]
         public void Multiple_threads_can_use_the_same_generator()
         {
-            var serviceProvider = TestHelpers.CreateServiceProvider();
+            var serviceProvider = SqlServerTestHelpers.Instance.CreateServiceProvider();
 
             var property = _model.GetEntityType(typeof(AnEntity)).GetProperty("Long");
 
@@ -191,7 +191,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         [Fact]
         public async Task Multiple_threads_can_use_the_same_generator_async()
         {
-            var serviceProvider = TestHelpers.CreateServiceProvider();
+            var serviceProvider = SqlServerTestHelpers.Instance.CreateServiceProvider();
 
             var property = _model.GetEntityType(typeof(AnEntity)).GetProperty("Long");
 
@@ -253,9 +253,9 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
         private DbContextService<DataStoreServices> CreateStoreServices(IServiceProvider serviceProvider = null)
         {
-            serviceProvider = serviceProvider ?? TestHelpers.CreateServiceProvider();
+            serviceProvider = serviceProvider ?? SqlServerTestHelpers.Instance.CreateServiceProvider();
 
-            return TestHelpers.CreateContextServices(serviceProvider, _model).GetRequiredService<DbContextService<DataStoreServices>>();
+            return SqlServerTestHelpers.Instance.CreateContextServices(serviceProvider, _model).GetRequiredService<DbContextService<DataStoreServices>>();
         }
 
         private class FakeSqlStatementExecutor : SqlStatementExecutor

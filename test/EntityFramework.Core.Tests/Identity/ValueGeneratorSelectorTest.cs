@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.Tests.Identity
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(AnEntity));
 
-            var contextServices = TestHelpers.CreateContextServices(new ServiceCollection().AddSingleton<ValueGeneratorSelector>(), model);
+            var contextServices = TestHelpers.Instance.CreateContextServices(new ServiceCollection().AddSingleton<ValueGeneratorSelector>(), model);
             var selector = contextServices.GetRequiredService<ValueGeneratorSelector>();
 
             Assert.IsType<SimpleValueGeneratorFactory<TemporaryIntegerValueGenerator>>(selector.Select(entityType.GetProperty("Id")));
@@ -48,7 +48,7 @@ namespace Microsoft.Data.Entity.Tests.Identity
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(AnEntity));
 
-            var contextServices = TestHelpers.CreateContextServices(new ServiceCollection().AddSingleton<ValueGeneratorSelector>(), model);
+            var contextServices = TestHelpers.Instance.CreateContextServices(new ServiceCollection().AddSingleton<ValueGeneratorSelector>(), model);
             var selector = contextServices.GetRequiredService<ValueGeneratorSelector>();
 
             Assert.Equal(
@@ -58,7 +58,7 @@ namespace Microsoft.Data.Entity.Tests.Identity
 
         private static Model BuildModel(bool generateValues = true)
         {
-            var model = TestHelpers.BuildModelFor<AnEntity>();
+            var model = TestHelpers.Instance.BuildModelFor<AnEntity>();
             var entityType = model.GetEntityType(typeof(AnEntity));
 
             foreach (var property in entityType.Properties)

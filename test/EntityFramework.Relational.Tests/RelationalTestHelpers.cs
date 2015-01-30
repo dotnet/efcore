@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -14,25 +14,28 @@ using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
-using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Relational.Migrations;
 using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Relational.Migrations.MigrationsModel;
-using Microsoft.Data.Entity.Relational.Tests;
 using Microsoft.Data.Entity.Relational.Update;
 using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Tests;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
 
-// ReSharper disable once CheckNamespace
-
-namespace Microsoft.Data.Entity.Tests
+namespace Microsoft.Data.Entity.Relational.Tests
 {
-    public static class TestHelperExtensions
+    public class RelationalTestHelpers : TestHelpers
     {
-        public static EntityServicesBuilder AddProviderServices(this EntityServicesBuilder entityServicesBuilder)
+        protected RelationalTestHelpers()
+        {
+        }
+
+        public new static RelationalTestHelpers Instance { get; } = new RelationalTestHelpers();
+
+        protected override EntityServicesBuilder AddProviderServices(EntityServicesBuilder entityServicesBuilder)
         {
             entityServicesBuilder
                 .AddRelational().ServiceCollection
@@ -62,11 +65,63 @@ namespace Microsoft.Data.Entity.Tests
             return entityServicesBuilder;
         }
 
-        public static DbContextOptions UseProviderOptions(this DbContextOptions options)
+        protected override DbContextOptions UseProviderOptions(DbContextOptions options)
         {
             ((IDbContextOptions)options).AddOrUpdateExtension<FakeRelationalOptionsExtension>(e => e.Connection = new FakeDbConnection());
 
             return options;
+        }
+
+        public static IRelationalMetadataExtensionProvider ExtensionProvider()
+        {
+            return new RelationalMetadataExtensionProvider();
+        }
+
+        public class RelationalMetadataExtensionProvider : IRelationalMetadataExtensionProvider
+        {
+            private RelationalNameBuilder _nameBuilder;
+
+            public RelationalMetadataExtensionProvider()
+            {
+                _nameBuilder = new RelationalNameBuilder(this);
+            }
+
+            public virtual IRelationalModelExtensions Extensions(IModel model)
+            {
+                return model.Relational();
+            }
+
+            public virtual IRelationalEntityTypeExtensions Extensions(IEntityType entityType)
+            {
+                return entityType.Relational();
+            }
+
+            public virtual IRelationalPropertyExtensions Extensions(IProperty property)
+            {
+                return property.Relational();
+            }
+
+            public virtual IRelationalKeyExtensions Extensions(IKey key)
+            {
+                return key.Relational();
+            }
+
+            public virtual IRelationalForeignKeyExtensions Extensions(IForeignKey foreignKey)
+            {
+                return foreignKey.Relational();
+            }
+
+            public virtual IRelationalIndexExtensions Extensions(IIndex index)
+            {
+                return index.Relational();
+            }
+
+            public virtual RelationalNameBuilder NameBuilder
+            {
+                get { return _nameBuilder ?? (_nameBuilder = new RelationalNameBuilder(this)); }
+                
+                protected set { _nameBuilder = value; }
+            }
         }
     }
 

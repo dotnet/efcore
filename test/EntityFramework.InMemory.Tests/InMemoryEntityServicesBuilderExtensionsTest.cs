@@ -39,8 +39,8 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         [Fact]
         public void Services_wire_up_correctly()
         {
-            var serviceProvider = TestHelpers.CreateServiceProvider();
-            using (var context = TestHelpers.CreateContext(serviceProvider))
+            var serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider();
+            using (var context = InMemoryTestHelpers.Instance.CreateContext(serviceProvider))
             {
                 var scopedProvider = ((IDbContextServices)context).ScopedServiceProvider;
 
@@ -85,7 +85,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
                 Assert.Same(inMemoryConnection, scopedProvider.GetRequiredService<InMemoryConnection>());
                 Assert.Same(inMemoryDataStoreCreator, scopedProvider.GetRequiredService<InMemoryDataStoreCreator>());
 
-                using (var secondContext = TestHelpers.CreateContext(serviceProvider))
+                using (var secondContext = InMemoryTestHelpers.Instance.CreateContext(serviceProvider))
                 {
                     scopedProvider = ((IDbContextServices)secondContext).ScopedServiceProvider;
 

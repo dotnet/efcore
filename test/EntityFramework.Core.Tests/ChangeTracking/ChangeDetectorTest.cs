@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void PropertyChanging_does_not_snapshot_if_eager_snapshots_are_in_use()
         {
-            var contextServices = TestHelpers.CreateContextServices(BuildModel());
+            var contextServices = TestHelpers.Instance.CreateContextServices(BuildModel());
             var entry = CreateStateEntry<Product>(contextServices);
 
             Assert.True(entry.EntityType.UseEagerSnapshots);
@@ -38,7 +38,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void PropertyChanging_snapshots_original_and_FK_value_if_lazy_snapshots_are_in_use()
         {
-            var contextServices = TestHelpers.CreateContextServices(BuildModelWithChanging());
+            var contextServices = TestHelpers.Instance.CreateContextServices(BuildModelWithChanging());
             var entry = CreateStateEntry(contextServices, new ProductWithChanging { DependentId = 77 });
 
             Assert.False(entry.EntityType.UseEagerSnapshots);
@@ -60,7 +60,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void PropertyChanging_does_not_snapshot_original_values_for_properties_with_no_original_value_tracking()
         {
-            var contextServices = TestHelpers.CreateContextServices(BuildModelWithChanging());
+            var contextServices = TestHelpers.Instance.CreateContextServices(BuildModelWithChanging());
             var entry = CreateStateEntry<ProductWithChanging>(contextServices);
 
             Assert.False(entry.EntityType.UseEagerSnapshots);
@@ -78,7 +78,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void PropertyChanging_snapshots_reference_navigations_if_lazy_snapshots_are_in_use()
         {
-            var contextServices = TestHelpers.CreateContextServices(BuildModelWithChanging());
+            var contextServices = TestHelpers.Instance.CreateContextServices(BuildModelWithChanging());
             var category = new CategoryWithChanging();
             var entry = CreateStateEntry(contextServices, new ProductWithChanging { Category = category });
 
@@ -100,7 +100,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void PropertyChanging_snapshots_PK_for_relationships_if_lazy_snapshots_are_in_use()
         {
-            var contextServices = TestHelpers.CreateContextServices(BuildModelWithChanging());
+            var contextServices = TestHelpers.Instance.CreateContextServices(BuildModelWithChanging());
             var entry = CreateStateEntry(contextServices, new ProductWithChanging { Id = 77 });
 
             Assert.False(entry.EntityType.UseEagerSnapshots);
@@ -121,7 +121,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void PropertyChanging_does_not_snapshot_notification_collections()
         {
-            var contextServices = TestHelpers.CreateContextServices(BuildModelWithChanging());
+            var contextServices = TestHelpers.Instance.CreateContextServices(BuildModelWithChanging());
             var entry = CreateStateEntry<CategoryWithChanging>(contextServices);
 
             Assert.False(entry.EntityType.UseEagerSnapshots);
@@ -139,7 +139,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Detects_scalar_property_change()
         {
-            var contextServices = TestHelpers.CreateContextServices(BuildModel());
+            var contextServices = TestHelpers.Instance.CreateContextServices(BuildModel());
 
             var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
 
@@ -158,7 +158,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Skips_detection_of_scalar_property_change_for_notification_entities()
         {
-            var contextServices = TestHelpers.CreateContextServices(BuildModelWithChanged());
+            var contextServices = TestHelpers.Instance.CreateContextServices(BuildModelWithChanged());
 
             var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
 
@@ -177,7 +177,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Detects_principal_key_change()
         {
-            var contextServices = TestHelpers.CreateContextServices(
+            var contextServices = TestHelpers.Instance.CreateContextServices(
                 new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
                 BuildModel());
 
@@ -217,7 +217,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Detects_principal_key_changing_back_to_original_value()
         {
-            var contextServices = TestHelpers.CreateContextServices(
+            var contextServices = TestHelpers.Instance.CreateContextServices(
                 new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
                 BuildModel());
 
@@ -258,7 +258,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Reacts_to_principal_key_change_in_sidecar()
         {
-            var contextServices = TestHelpers.CreateContextServices(
+            var contextServices = TestHelpers.Instance.CreateContextServices(
                 new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
                 BuildModel());
 
@@ -300,7 +300,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Detects_primary_key_change()
         {
-            var contextServices = TestHelpers.CreateContextServices(
+            var contextServices = TestHelpers.Instance.CreateContextServices(
                 new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
                 BuildModel());
 
@@ -336,7 +336,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Reacts_to_primary_key_change_in_sidecar()
         {
-            var contextServices = TestHelpers.CreateContextServices(
+            var contextServices = TestHelpers.Instance.CreateContextServices(
                 new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
                 BuildModel());
 
@@ -378,7 +378,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Ignores_no_change_to_principal_key()
         {
-            var contextServices = TestHelpers.CreateContextServices(
+            var contextServices = TestHelpers.Instance.CreateContextServices(
                 new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
                 BuildModel());
 
@@ -414,7 +414,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Ignores_no_change_to_principal_key_in_sidecar()
         {
-            var contextServices = TestHelpers.CreateContextServices(
+            var contextServices = TestHelpers.Instance.CreateContextServices(
                 new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
                 BuildModel());
 
@@ -452,7 +452,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Detects_foreign_key_change()
         {
-            var contextServices = TestHelpers.CreateContextServices(
+            var contextServices = TestHelpers.Instance.CreateContextServices(
                 new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
                 BuildModel());
 
@@ -490,7 +490,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Detects_foreign_key_changing_back_to_original_value()
         {
-            var contextServices = TestHelpers.CreateContextServices(
+            var contextServices = TestHelpers.Instance.CreateContextServices(
                 new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
                 BuildModel());
 
@@ -532,7 +532,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Reacts_to_foreign_key_change_in_sidecar()
         {
-            var contextServices = TestHelpers.CreateContextServices(
+            var contextServices = TestHelpers.Instance.CreateContextServices(
                 new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
                 BuildModel());
 
@@ -575,7 +575,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Ignores_no_change_to_foreign_key()
         {
-            var contextServices = TestHelpers.CreateContextServices(
+            var contextServices = TestHelpers.Instance.CreateContextServices(
                 new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
                 BuildModel());
 
@@ -609,7 +609,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Ignores_no_change_to_foreign_key_in_sidecar()
         {
-            var contextServices = TestHelpers.CreateContextServices(
+            var contextServices = TestHelpers.Instance.CreateContextServices(
                 new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
                 BuildModel());
 
@@ -648,7 +648,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Detects_reference_navigation_change()
         {
-            var contextServices = TestHelpers.CreateContextServices(
+            var contextServices = TestHelpers.Instance.CreateContextServices(
                 new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
                 BuildModel());
 
@@ -692,7 +692,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Detects_reference_navigation_changing_back_to_original_value()
         {
-            var contextServices = TestHelpers.CreateContextServices(
+            var contextServices = TestHelpers.Instance.CreateContextServices(
                 new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
                 BuildModel());
 
@@ -740,7 +740,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Ignores_no_change_to_reference_navigation()
         {
-            var contextServices = TestHelpers.CreateContextServices(
+            var contextServices = TestHelpers.Instance.CreateContextServices(
                 new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
                 BuildModel());
 
@@ -775,7 +775,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Detects_adding_to_collection_navigation()
         {
-            var contextServices = TestHelpers.CreateContextServices(
+            var contextServices = TestHelpers.Instance.CreateContextServices(
                 new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
                 BuildModel());
 
@@ -820,7 +820,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Detects_removing_from_collection_navigation()
         {
-            var contextServices = TestHelpers.CreateContextServices(
+            var contextServices = TestHelpers.Instance.CreateContextServices(
                 new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
                 BuildModel());
 
@@ -868,7 +868,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Ignores_no_change_to_collection_navigation()
         {
-            var contextServices = TestHelpers.CreateContextServices(
+            var contextServices = TestHelpers.Instance.CreateContextServices(
                 new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
                 BuildModel());
 
@@ -909,7 +909,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Skips_detecting_changes_to_primary_principal_key_for_notification_entities()
         {
-            var contextServices = TestHelpers.CreateContextServices(
+            var contextServices = TestHelpers.Instance.CreateContextServices(
                 new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
                 BuildModelWithChanged());
 
@@ -945,7 +945,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Skips_detecting_changes_to_foreign_key_for_notification_entities()
         {
-            var contextServices = TestHelpers.CreateContextServices(
+            var contextServices = TestHelpers.Instance.CreateContextServices(
                 new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
                 BuildModelWithChanged());
 
@@ -978,7 +978,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Skips_detecting_changes_to_reference_navigation_for_notification_entities()
         {
-            var contextServices = TestHelpers.CreateContextServices(
+            var contextServices = TestHelpers.Instance.CreateContextServices(
                 new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
                 BuildModelWithChanged());
 
@@ -1013,7 +1013,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Skips_detecting_changes_to_notifying_collections()
         {
-            var contextServices = TestHelpers.CreateContextServices(
+            var contextServices = TestHelpers.Instance.CreateContextServices(
                 new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
                 BuildModelWithChanged());
 
@@ -1063,7 +1063,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Change_detection_still_happens_for_non_notifying_collections_on_notifying_entities()
         {
-            var contextServices = TestHelpers.CreateContextServices(
+            var contextServices = TestHelpers.Instance.CreateContextServices(
                 new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
                 BuildModelWithChanged());
 
@@ -1112,7 +1112,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Brings_in_single_new_entity_set_on_reference_navigation()
         {
-            var contextServices = TestHelpers.CreateContextServices(BuildModel());
+            var contextServices = TestHelpers.Instance.CreateContextServices(BuildModel());
 
             var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
             var stateManager = contextServices.GetRequiredService<StateManager>();
@@ -1147,7 +1147,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Brings_in_new_entity_set_on_principal_of_one_to_one_navigation()
         {
-            var contextServices = TestHelpers.CreateContextServices(BuildModel());
+            var contextServices = TestHelpers.Instance.CreateContextServices(BuildModel());
 
             var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
             var stateManager = contextServices.GetRequiredService<StateManager>();
@@ -1175,7 +1175,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Brings_in_new_entity_set_on_dependent_of_one_to_one_navigation()
         {
-            var contextServices = TestHelpers.CreateContextServices(BuildModel());
+            var contextServices = TestHelpers.Instance.CreateContextServices(BuildModel());
 
             var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
             var stateManager = contextServices.GetRequiredService<StateManager>();
@@ -1203,7 +1203,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Brings_in_single_new_entity_set_on_collection_navigation()
         {
-            var contextServices = TestHelpers.CreateContextServices(BuildModel());
+            var contextServices = TestHelpers.Instance.CreateContextServices(BuildModel());
 
             var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
             var stateManager = contextServices.GetRequiredService<StateManager>();
@@ -1237,7 +1237,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Brings_in_new_entity_set_on_principal_of_one_to_one_self_ref()
         {
-            var contextServices = TestHelpers.CreateContextServices(BuildModel());
+            var contextServices = TestHelpers.Instance.CreateContextServices(BuildModel());
 
             var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
             var stateManager = contextServices.GetRequiredService<StateManager>();
@@ -1267,7 +1267,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Brings_in_new_entity_set_on_dependent_of_one_to_one_self_ref()
         {
-            var contextServices = TestHelpers.CreateContextServices(BuildModel());
+            var contextServices = TestHelpers.Instance.CreateContextServices(BuildModel());
 
             var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
             var stateManager = contextServices.GetRequiredService<StateManager>();
@@ -1297,7 +1297,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Handles_notification_of_principal_key_change()
         {
-            var contextServices = TestHelpers.CreateContextServices(
+            var contextServices = TestHelpers.Instance.CreateContextServices(
                 new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
                 BuildNotifyingModel());
 
@@ -1335,7 +1335,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Handles_notification_of_principal_key_changing_back_to_original_value()
         {
-            var contextServices = TestHelpers.CreateContextServices(
+            var contextServices = TestHelpers.Instance.CreateContextServices(
                 new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
                 BuildNotifyingModel());
 
@@ -1371,7 +1371,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Handles_notification_of_primary_key_change()
         {
-            var contextServices = TestHelpers.CreateContextServices(
+            var contextServices = TestHelpers.Instance.CreateContextServices(
                 new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
                 BuildNotifyingModel());
 
@@ -1405,7 +1405,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Handles_notification_of_no_change_to_principal_key()
         {
-            var contextServices = TestHelpers.CreateContextServices(
+            var contextServices = TestHelpers.Instance.CreateContextServices(
                 new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
                 BuildNotifyingModel());
 
@@ -1439,7 +1439,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Handles_notification_of_foreign_key_change()
         {
-            var contextServices = TestHelpers.CreateContextServices(
+            var contextServices = TestHelpers.Instance.CreateContextServices(
                 new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
                 BuildNotifyingModel());
 
@@ -1475,7 +1475,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Handles_notification_of_foreign_key_changing_back_to_original_value()
         {
-            var contextServices = TestHelpers.CreateContextServices(
+            var contextServices = TestHelpers.Instance.CreateContextServices(
                 new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
                 BuildNotifyingModel());
 
@@ -1512,7 +1512,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Handles_notification_of_no_change_to_foreign_key()
         {
-            var contextServices = TestHelpers.CreateContextServices(
+            var contextServices = TestHelpers.Instance.CreateContextServices(
                 new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
                 BuildNotifyingModel());
 
@@ -1544,7 +1544,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Handles_notification_of_reference_navigation_change()
         {
-            var contextServices = TestHelpers.CreateContextServices(
+            var contextServices = TestHelpers.Instance.CreateContextServices(
                 new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
                 BuildNotifyingModel());
 
@@ -1586,7 +1586,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Handles_notification_of_reference_navigation_changing_back_to_original_value()
         {
-            var contextServices = TestHelpers.CreateContextServices(
+            var contextServices = TestHelpers.Instance.CreateContextServices(
                 new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
                 BuildNotifyingModel());
 
@@ -1630,7 +1630,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Handles_notification_of_no_change_to_reference_navigation()
         {
-            var contextServices = TestHelpers.CreateContextServices(
+            var contextServices = TestHelpers.Instance.CreateContextServices(
                 new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
                 BuildNotifyingModel());
 
@@ -1663,7 +1663,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Handles_notification_of_adding_to_collection_navigation()
         {
-            var contextServices = TestHelpers.CreateContextServices(
+            var contextServices = TestHelpers.Instance.CreateContextServices(
                 new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
                 BuildNotifyingModel());
 
@@ -1713,7 +1713,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Handles_notification_of_removing_from_collection_navigation()
         {
-            var contextServices = TestHelpers.CreateContextServices(
+            var contextServices = TestHelpers.Instance.CreateContextServices(
                 new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
                 BuildNotifyingModel());
 
@@ -1766,7 +1766,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Brings_in_single_new_entity_on_notification_of_set_on_reference_navigation()
         {
-            var contextServices = TestHelpers.CreateContextServices(BuildNotifyingModel());
+            var contextServices = TestHelpers.Instance.CreateContextServices(BuildNotifyingModel());
 
             var stateManager = contextServices.GetRequiredService<StateManager>();
 
@@ -1793,7 +1793,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Brings_in_new_entity_on_notification_of_set_on_principal_of_one_to_one_navigation()
         {
-            var contextServices = TestHelpers.CreateContextServices(BuildNotifyingModel());
+            var contextServices = TestHelpers.Instance.CreateContextServices(BuildNotifyingModel());
 
             var stateManager = contextServices.GetRequiredService<StateManager>();
 
@@ -1818,7 +1818,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Brings_in_new_entity_on_notification_of_set_on_dependent_of_one_to_one_navigation()
         {
-            var contextServices = TestHelpers.CreateContextServices(BuildNotifyingModel());
+            var contextServices = TestHelpers.Instance.CreateContextServices(BuildNotifyingModel());
 
             var stateManager = contextServices.GetRequiredService<StateManager>();
 
@@ -1843,7 +1843,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Brings_in_single_new_entity_on_notification_of_set_on_collection_navigation()
         {
-            var contextServices = TestHelpers.CreateContextServices(BuildNotifyingModel());
+            var contextServices = TestHelpers.Instance.CreateContextServices(BuildNotifyingModel());
 
             var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
             var stateManager = contextServices.GetRequiredService<StateManager>();
@@ -1873,7 +1873,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Brings_in_new_entity_on_notification_of_set_on_principal_of_one_to_one_self_ref()
         {
-            var contextServices = TestHelpers.CreateContextServices(BuildNotifyingModel());
+            var contextServices = TestHelpers.Instance.CreateContextServices(BuildNotifyingModel());
 
             var stateManager = contextServices.GetRequiredService<StateManager>();
 
@@ -1900,7 +1900,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Brings_in_new_entity_on_notification_of_set_on_dependent_of_one_to_one_self_ref()
         {
-            var contextServices = TestHelpers.CreateContextServices(BuildNotifyingModel());
+            var contextServices = TestHelpers.Instance.CreateContextServices(BuildNotifyingModel());
 
             var stateManager = contextServices.GetRequiredService<StateManager>();
 
@@ -1975,7 +1975,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
         private static IModel BuildModel()
         {
-            var builder = TestHelpers.CreateConventionBuilder();
+            var builder = TestHelpers.Instance.CreateConventionBuilder();
 
             builder.Entity<Product>()
                 .HasOne(e => e.Tag).WithOne(e => e.Product)
@@ -2195,7 +2195,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
         private static IModel BuildNotifyingModel()
         {
-            var builder = TestHelpers.CreateConventionBuilder();
+            var builder = TestHelpers.Instance.CreateConventionBuilder();
 
             builder.Entity<NotifyingProduct>()
                 .HasOne(e => e.Tag).WithOne(e => e.Product)
@@ -2249,7 +2249,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
         private static IModel BuildModelWithChanging()
         {
-            var builder = TestHelpers.CreateConventionBuilder();
+            var builder = TestHelpers.Instance.CreateConventionBuilder();
 
             builder.Entity<ProductWithChanging>();
             builder.Entity<CategoryWithChanging>()
@@ -2288,7 +2288,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
         private static IModel BuildModelWithChanged()
         {
-            var builder = TestHelpers.CreateConventionBuilder();
+            var builder = TestHelpers.Instance.CreateConventionBuilder();
 
             builder.Entity<ProductWithChanged>();
             builder.Entity<CategoryWithChanged>()

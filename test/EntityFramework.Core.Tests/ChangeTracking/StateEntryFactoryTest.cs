@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entityType.GetOrAddProperty("Long", typeof(int), shadowProperty: true);
             entityType.GetOrAddProperty("Hammer", typeof(string), shadowProperty: true);
 
-            var contextServices = TestHelpers.CreateContextServices(model);
+            var contextServices = TestHelpers.Instance.CreateContextServices(model);
             var stateManager = contextServices.GetRequiredService<StateManager>();
             var factory = contextServices.GetRequiredService<StateEntryFactory>();
 
@@ -40,7 +40,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entityType.GetOrAddProperty("Long", typeof(int));
             entityType.GetOrAddProperty("Hammer", typeof(string));
 
-            var contextServices = TestHelpers.CreateContextServices(model);
+            var contextServices = TestHelpers.Instance.CreateContextServices(model);
             var stateManager = contextServices.GetRequiredService<StateManager>();
             var factory = contextServices.GetRequiredService<StateEntryFactory>();
 
@@ -62,7 +62,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entityType.GetOrAddProperty("Long", typeof(int));
             entityType.GetOrAddProperty("Hammer", typeof(string), shadowProperty: true);
 
-            var contextServices = TestHelpers.CreateContextServices(model);
+            var contextServices = TestHelpers.Instance.CreateContextServices(model);
             var stateManager = contextServices.GetRequiredService<StateManager>();
             var factory = contextServices.GetRequiredService<StateEntryFactory>();
 
@@ -84,7 +84,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var property1 = entityType.GetOrAddProperty("Long", typeof(int), shadowProperty: true);
             var property2 = entityType.GetOrAddProperty("Hammer", typeof(string), shadowProperty: true);
 
-            var contextServices = TestHelpers.CreateContextServices(model);
+            var contextServices = TestHelpers.Instance.CreateContextServices(model);
             var stateManager = contextServices.GetRequiredService<StateManager>();
             var factory = contextServices.GetRequiredService<StateEntryFactory>();
             var entry = factory.Create(stateManager, entityType, new ObjectArrayValueReader(new object[] { "Green", 77 }));
@@ -106,7 +106,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var property1 = entityType.GetOrAddProperty("Long", typeof(int));
             var property2 = entityType.GetOrAddProperty("Hammer", typeof(string));
 
-            var contextServices = TestHelpers.CreateContextServices(model);
+            var contextServices = TestHelpers.Instance.CreateContextServices(model);
             var stateManager = contextServices.GetRequiredService<StateManager>();
             var factory = contextServices.GetRequiredService<StateEntryFactory>();
 
@@ -132,7 +132,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var property1 = entityType.GetOrAddProperty("Long", typeof(int));
             var property2 = entityType.GetOrAddProperty("Hammer", typeof(string), shadowProperty: true);
 
-            var contextServices = TestHelpers.CreateContextServices(model);
+            var contextServices = TestHelpers.Instance.CreateContextServices(model);
             var stateManager = contextServices.GetRequiredService<StateManager>();
             var factory = contextServices.GetRequiredService<StateEntryFactory>();
 

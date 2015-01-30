@@ -19,10 +19,10 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         [Fact]
         public void Uses_persistent_database_by_default()
         {
-            var serviceProvider = TestHelpers.CreateServiceProvider();
+            var serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider();
 
-            var store1 = TestHelpers.CreateContextServices(serviceProvider, CreateModel()).GetRequiredService<InMemoryDataStore>();
-            var store2 = TestHelpers.CreateContextServices(serviceProvider, CreateModel()).GetRequiredService<InMemoryDataStore>();
+            var store1 = InMemoryTestHelpers.Instance.CreateContextServices(serviceProvider, CreateModel()).GetRequiredService<InMemoryDataStore>();
+            var store2 = InMemoryTestHelpers.Instance.CreateContextServices(serviceProvider, CreateModel()).GetRequiredService<InMemoryDataStore>();
 
             Assert.Same(store1.Database, store2.Database);
         }
@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         [Fact]
         public void Uses_persistent_database_if_configured_as_persistent()
         {
-            var serviceProvider = TestHelpers.CreateServiceProvider();
+            var serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider();
 
             Assert.Same(
                 CreateStore(serviceProvider, persist: true).Database,
@@ -40,7 +40,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         [Fact]
         public void Uses_transient_database_if_not_configured_as_persistent()
         {
-            var serviceProvider = TestHelpers.CreateServiceProvider();
+            var serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider();
 
             Assert.NotSame(
                 CreateStore(serviceProvider, persist: false).Database,
@@ -50,7 +50,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         [Fact]
         public void EnsureDatabaseCreated_returns_true_for_first_use_of_persistent_database_and_false_thereafter()
         {
-            var serviceProvider = TestHelpers.CreateServiceProvider();
+            var serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider();
             var model = CreateModel();
             var store = CreateStore(serviceProvider, persist: true);
 
@@ -66,7 +66,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         [Fact]
         public void EnsureDatabaseCreated_returns_true_for_first_use_of_non_persistent_database_and_false_thereafter()
         {
-            var serviceProvider = TestHelpers.CreateServiceProvider();
+            var serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider();
             var model = CreateModel();
             var store = CreateStore(serviceProvider, persist: false);
 
@@ -86,13 +86,13 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             var options = new DbContextOptions();
             options.UseInMemoryStore(persist: persist);
 
-            return TestHelpers.CreateContextServices(serviceProvider, options).GetRequiredService<InMemoryDataStore>();
+            return InMemoryTestHelpers.Instance.CreateContextServices(serviceProvider, options).GetRequiredService<InMemoryDataStore>();
         }
 
         [Fact]
         public async Task Save_changes_adds_new_objects_to_store()
         {
-            var serviceProvider = TestHelpers.CreateContextServices(CreateModel());
+            var serviceProvider = InMemoryTestHelpers.Instance.CreateContextServices(CreateModel());
             var customer = new Customer { Id = 42, Name = "Unikorn" };
             var entityEntry = serviceProvider.GetRequiredService<StateManager>().GetOrCreateEntry(customer);
             entityEntry.SetEntityState(EntityState.Added);
@@ -108,7 +108,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         [Fact]
         public async Task Save_changes_updates_changed_objects_in_store()
         {
-            var serviceProvider = TestHelpers.CreateContextServices(CreateModel());
+            var serviceProvider = InMemoryTestHelpers.Instance.CreateContextServices(CreateModel());
 
             var customer = new Customer { Id = 42, Name = "Unikorn" };
             var entityEntry = serviceProvider.GetRequiredService<StateManager>().GetOrCreateEntry(customer);
@@ -130,7 +130,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         [Fact]
         public async Task Save_changes_removes_deleted_objects_from_store()
         {
-            var serviceProvider = TestHelpers.CreateContextServices(CreateModel());
+            var serviceProvider = InMemoryTestHelpers.Instance.CreateContextServices(CreateModel());
 
             var customer = new Customer { Id = 42, Name = "Unikorn" };
             var entityEntry = serviceProvider.GetRequiredService<StateManager>().GetOrCreateEntry(customer);
@@ -164,7 +164,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             serviceCollection
                 .AddInstance(mockFactory.Object);
 
-            var scopedServices = TestHelpers.CreateContextServices(serviceCollection, CreateModel());
+            var scopedServices = InMemoryTestHelpers.Instance.CreateContextServices(serviceCollection, CreateModel());
 
             var customer = new Customer { Id = 42, Name = "Unikorn" };
             var entityEntry = scopedServices.GetRequiredService<StateManager>().GetOrCreateEntry(customer);

@@ -286,7 +286,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             entity = entity ?? new Banana { Id = 77 };
 
-            var contextServices = TestHelpers.CreateContextServices(_model);
+            var contextServices = TestHelpers.Instance.CreateContextServices(_model);
 
             return contextServices.GetRequiredService<StateManager>().GetOrCreateEntry(entity);
         }

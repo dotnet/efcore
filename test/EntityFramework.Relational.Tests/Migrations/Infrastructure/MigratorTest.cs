@@ -1076,7 +1076,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Migrations.Infrastructure
                 .AddInstance<HistoryRepository>(new FakeHistoryRepository(databaseMigrations, historyRepositoryExists))
                 .AddInstance<MigrationAssembly>(new FakeMigrationAssembly(localMigrations));
 
-            var contextServices = TestHelpers.CreateContextServices(customServices);
+            var contextServices = RelationalTestHelpers.Instance.CreateContextServices(customServices);
             return contextServices;
         }
 

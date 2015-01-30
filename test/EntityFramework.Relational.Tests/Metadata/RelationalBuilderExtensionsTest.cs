@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Tests;
+using Microsoft.Data.Entity.Relational.Tests;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Relational.Metadata.Tests
@@ -1420,7 +1420,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
 
         protected virtual ModelBuilder CreateConventionModelBuilder()
         {
-            return TestHelpers.CreateConventionBuilder();
+            return RelationalTestHelpers.Instance.CreateConventionBuilder();
         }
 
         protected virtual BasicModelBuilder CreateNonConventionModelBuilder()

@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Snapshots_are_created_for_entities_without_changing_notifications()
         {
-            var entry = TestHelpers.CreateStateEntry(
+            var entry = TestHelpers.Instance.CreateStateEntry(
                 BuildModel(),
                 EntityState.Unchanged,
                 new ChangedOnlyNotificationEntity { Name = "Palmer", Id = 1 });
@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Snapshots_are_not_created_for_full_notification_entities()
         {
-            var entry = TestHelpers.CreateStateEntry<FullNotificationEntity>(BuildModel());
+            var entry = TestHelpers.Instance.CreateStateEntry<FullNotificationEntity>(BuildModel());
 
             Assert.Null(entry.TryGetSidecar(Sidecar.WellKnownNames.OriginalValues));
             // TODO: The following assert should be changed to Null once INotifyCollectionChanged is supported (Issue #445)
@@ -43,7 +43,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Relationship_snapshot_is_created_when_entity_has_non_notifying_collection_instance()
         {
-            var entry = TestHelpers.CreateStateEntry(
+            var entry = TestHelpers.Instance.CreateStateEntry(
                 BuildModel(),
                 EntityState.Unchanged,
                 new FullNotificationEntity { Name = "Palmer", Id = 1, RelatedCollection = new List<ChangedOnlyNotificationEntity>() });
@@ -63,7 +63,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Relationship_snapshot_is_not_created_when_entity_has_notifying_collection()
         {
-            var entry = TestHelpers.CreateStateEntry(
+            var entry = TestHelpers.Instance.CreateStateEntry(
                 BuildModel(),
                 EntityState.Unchanged,
                 new FullNotificationEntity { Name = "Palmer", RelatedCollection = new ObservableCollection<ChangedOnlyNotificationEntity>() });
@@ -76,7 +76,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Entry_subscribes_to_INotifyPropertyChanging_and_INotifyPropertyChanged_for_properties()
         {
-            var contextServices = TestHelpers.CreateContextServices(
+            var contextServices = TestHelpers.Instance.CreateContextServices(
                 new ServiceCollection().AddScoped<IPropertyListener, TestPropertyListener>(),
                 BuildModel());
 
@@ -98,7 +98,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Entry_subscribes_to_INotifyPropertyChanging_and_INotifyPropertyChanged_for_navigations()
         {
-            var contextServices = TestHelpers.CreateContextServices(
+            var contextServices = TestHelpers.Instance.CreateContextServices(
                 new ServiceCollection().AddScoped<IPropertyListener, TestPropertyListener>(),
                 BuildModel());
 
@@ -120,7 +120,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Subscriptions_to_INotifyPropertyChanging_and_INotifyPropertyChanged_ignore_unmapped_properties()
         {
-            var contextServices = TestHelpers.CreateContextServices(
+            var contextServices = TestHelpers.Instance.CreateContextServices(
                 new ServiceCollection().AddScoped<IPropertyListener, TestPropertyListener>(),
                 BuildModel());
 
@@ -164,7 +164,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
         private static IModel BuildModel()
         {
-            var builder = TestHelpers.CreateConventionBuilder();
+            var builder = TestHelpers.Instance.CreateConventionBuilder();
 
             builder.Entity<FullNotificationEntity>(b =>
                 {

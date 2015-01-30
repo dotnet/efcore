@@ -110,7 +110,7 @@ namespace Microsoft.Data.Entity.Tests
 
         private IModel BuildModel()
         {
-            var modelBuilder = TestHelpers.CreateConventionBuilder();
+            var modelBuilder = TestHelpers.Instance.CreateConventionBuilder();
 
             modelBuilder
                 .Entity<Category>()

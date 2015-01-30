@@ -280,7 +280,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 .AddInstance(listeners[1].Object)
                 .AddInstance(listeners[2].Object);
 
-            var contextServices = TestHelpers.CreateContextServices(services, BuildModel());
+            var contextServices = TestHelpers.Instance.CreateContextServices(services, BuildModel());
 
             var stateManager = contextServices.GetRequiredService<StateManager>();
 
@@ -311,7 +311,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void DetectChanges_is_called_for_all_tracked_entities_and_returns_true_if_any_changes_detected()
         {
-            var contextServices = TestHelpers.CreateContextServices(
+            var contextServices = TestHelpers.Instance.CreateContextServices(
                 new ServiceCollection().AddScoped<ChangeDetector, ChangeDetectorProxy>(),
                 BuildModel());
 
@@ -417,7 +417,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
         private static StateManager CreateStateManager(IModel model)
         {
-            return TestHelpers.CreateContextServices(model).GetRequiredService<StateManager>();
+            return TestHelpers.Instance.CreateContextServices(model).GetRequiredService<StateManager>();
         }
 
         private class Category
@@ -443,7 +443,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         private static IModel BuildModel()
         {
             var model = new Model();
-            var builder = TestHelpers.CreateConventionBuilder(model);
+            var builder = TestHelpers.Instance.CreateConventionBuilder(model);
 
             builder.Entity<Product>();
             builder.Entity<Category>();

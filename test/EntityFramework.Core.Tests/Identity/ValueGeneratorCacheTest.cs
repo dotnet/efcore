@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.Tests.Identity
             var model = CreateModel();
             var property1 = GetProperty1(model);
             var property2 = GetProperty2(model);
-            var cache = TestHelpers.CreateContextServices(model).GetRequiredService<InMemoryValueGeneratorCache>();
+            var cache = TestHelpers.Instance.CreateContextServices(model).GetRequiredService<InMemoryValueGeneratorCache>();
 
             var generator1 = cache.GetGenerator(property1);
             Assert.NotNull(generator1);
@@ -37,7 +37,7 @@ namespace Microsoft.Data.Entity.Tests.Identity
             var property1 = GetProperty1(model);
             var property2 = GetProperty2(model);
 
-            var customServices = TestHelpers.CreateContextServices(
+            var customServices = TestHelpers.Instance.CreateContextServices(
                 new ServiceCollection()
                     .AddInstance<SimpleValueGeneratorFactory<GuidValueGenerator>>(new FakeGuidValueGeneratorFactory()),
                 model);

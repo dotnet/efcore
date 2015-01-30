@@ -72,12 +72,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApiConsistencyTest.cs" />
-    <Compile Include="..\Shared\ApiConsistencyTestBase.cs" />
-    <Compile Include="..\Shared\TestHelpers.cs" />
     <Compile Include="Metadata\SqlServerBuilderExtensionsTest.cs" />
     <Compile Include="Metadata\SqlServerMetadataExtensionsTest.cs" />
     <Compile Include="SequentialGuidValueGeneratorTest.cs" />
-    <Compile Include="..\EntityFramework.Relational.Tests\SqlGeneratorTestBase.cs" />
     <Compile Include="CommandConfigurationTests.cs" />
     <Compile Include="SqlServerDataStoreCreatorTest.cs" />
     <Compile Include="SqlServerDbContextOptionsExtensionsTest.cs" />
@@ -95,13 +92,17 @@
     <Compile Include="SqlServerSqlGeneratorTest.cs" />
     <Compile Include="SqlServerTypeMapperTest.cs" />
     <Compile Include="SqlServerValueGeneratorSelectorTest.cs" />
-    <Compile Include="TestHelperExtensions.cs" />
+    <Compile Include="SqlServerTestHelpers.cs" />
     <Compile Include="Update\SqlServerModificationCommandBatchFactoryTest.cs" />
     <Compile Include="Update\SqlServerModificationCommandBatchTest.cs" />
     <None Include="packages.config" />
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\src\EntityFramework.Commands\EntityFramework.Commands.csproj">
+      <Project>{10ca97eb-e724-4f08-86af-f301f2b0bfff}</Project>
+      <Name>EntityFramework.Commands</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\src\EntityFramework.Core\EntityFramework.Core.csproj">
       <Project>{71415CEC-8111-4C73-8751-512D22F10602}</Project>
       <Name>EntityFramework.Core</Name>
@@ -113,6 +114,14 @@
     <ProjectReference Include="..\..\src\EntityFramework.SqlServer\EntityFramework.SqlServer.csproj">
       <Project>{04E6620B-5B41-45FE-981A-F40EB7686B0E}</Project>
       <Name>EntityFramework.SqlServer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EntityFramework.Core.Tests\EntityFramework.Core.Tests.csproj">
+      <Project>{ef361118-7d0d-453e-ada4-2f24fbee196c}</Project>
+      <Name>EntityFramework.Core.Tests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EntityFramework.Relational.Tests\EntityFramework.Relational.Tests.csproj">
+      <Project>{001005b3-d16f-4399-9265-a67d619652bd}</Project>
+      <Name>EntityFramework.Relational.Tests</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

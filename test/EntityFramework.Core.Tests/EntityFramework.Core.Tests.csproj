@@ -68,6 +68,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApiConsistencyTest.cs" />
+    <Compile Include="ApiConsistencyTestBase.cs" />
     <Compile Include="ChangeTracking\ChangeDetectorTest.cs" />
     <Compile Include="ChangeTracking\KeyValueEntityAttacherTest.cs" />
     <Compile Include="ChangeTracking\RelationshipsSnapshotTest.cs" />
@@ -117,7 +118,6 @@
     <Compile Include="Metadata\NonGenericRelationshipBuilderTest.cs" />
     <Compile Include="Metadata\StringRelationshipBuilderTest.cs" />
     <Compile Include="Metadata\TypedAnnotationTest.cs" />
-    <Compile Include="TestHelperExtensions.cs" />
     <Compile Include="ServiceProviderCacheTest.cs" />
     <Compile Include="ChangeTracking\ChangeTrackerTest.cs" />
     <Compile Include="ChangeTracking\ClrStateEntryTest.cs" />
@@ -160,6 +160,7 @@
     <Compile Include="Metadata\ModelConventions\PropertiesConventionTest.cs" />
     <Compile Include="Query\TaskResultAsyncEnumerableTest.cs" />
     <Compile Include="Storage\DataStoreSelectorTest.cs" />
+    <Compile Include="TestHelpers.cs" />
     <Compile Include="Utilities\BidirectionalAdjacencyListGraphTest.cs" />
     <Compile Include="Utilities\CheckTest.cs" />
     <Compile Include="Utilities\EnumerableExtensionsTest.cs" />
@@ -170,8 +171,6 @@
     <Compile Include="Utilities\ThreadSafeDictionaryCacheTest.cs" />
     <Compile Include="Utilities\ThreadSafeLazyRefTest.cs" />
     <Compile Include="Utilities\TypeExtensionsTest.cs" />
-    <Compile Include="..\Shared\ApiConsistencyTestBase.cs" />
-    <Compile Include="..\Shared\TestHelpers.cs" />
     <None Include="packages.config" />
     <None Include="project.json" />
   </ItemGroup>

@@ -2987,7 +2987,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
         protected virtual ModelBuilder CreateConventionModelBuilder()
         {
-            return TestHelpers.CreateConventionBuilder();
+            return SqlServerTestHelpers.Instance.CreateConventionBuilder();
         }
 
         protected virtual BasicModelBuilder CreateNonConventionModelBuilder()

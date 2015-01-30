@@ -6,14 +6,20 @@ using Microsoft.Framework.DependencyInjection;
 
 namespace Microsoft.Data.Entity.Tests
 {
-    public static class TestHelperExtensions
+    public class SqlServerTestHelpers : TestHelpers
     {
-        public static EntityServicesBuilder AddProviderServices(this EntityServicesBuilder entityServicesBuilder)
+        protected SqlServerTestHelpers()
+        {
+        }
+
+        public new static SqlServerTestHelpers Instance { get; } = new SqlServerTestHelpers();
+        
+        protected override EntityServicesBuilder AddProviderServices(EntityServicesBuilder entityServicesBuilder)
         {
             return entityServicesBuilder.AddSqlServer();
         }
 
-        public static DbContextOptions UseProviderOptions(this DbContextOptions options)
+        protected override DbContextOptions UseProviderOptions(DbContextOptions options)
         {
             options.UseSqlServer(new SqlConnection("Database=DummyDatabase"));
 

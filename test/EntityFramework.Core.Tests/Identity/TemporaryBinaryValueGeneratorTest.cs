@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.Tests.Identity
 {
     public class TemporaryBinaryValueGeneratorTest
     {
-        private static readonly Model _model = TestHelpers.BuildModelFor<WithBinary>();
+        private static readonly Model _model = TestHelpers.Instance.BuildModelFor<WithBinary>();
 
         [Fact]
         public async Task Creates_GUID_arrays()
@@ -32,7 +32,7 @@ namespace Microsoft.Data.Entity.Tests.Identity
         {
             var generator = new TemporaryBinaryValueGenerator();
 
-            var stateEntry = TestHelpers.CreateStateEntry<WithBinary>(_model);
+            var stateEntry = TestHelpers.Instance.CreateStateEntry<WithBinary>(_model);
             var property = stateEntry.EntityType.GetProperty("Id");
 
             var values = new HashSet<Guid>();

@@ -86,17 +86,10 @@
     <Compile Include="..\..\src\EntityFramework.Commands\tools\Handlers.cs">
       <Link>Handlers.cs</Link>
     </Compile>
-    <Compile Include="..\Shared\MigrationsTestHelpers.cs">
-      <Link>MigrationsTestHelpers.cs</Link>
-    </Compile>
-    <Compile Include="..\Shared\RelationalTestHelpers.cs">
-      <Link>RelationalTestHelpers.cs</Link>
-    </Compile>
     <Compile Include="ApiConsistencyTest.cs" />
     <Compile Include="Migrations\CodeGeneratorTestHelper.cs" />
     <Compile Include="Migrations\CSharpMigrationCodeGeneratorTest.cs" />
     <Compile Include="Migrations\CSharpModelCodeGeneratorTest.cs" />
-    <Compile Include="..\Shared\ApiConsistencyTestBase.cs" />
     <Compile Include="Migrations\MigrationScaffolderTest.cs" />
     <Compile Include="ExecutorTest.cs" />
     <Compile Include="HandlerTest.cs" />
@@ -116,6 +109,14 @@
     <ProjectReference Include="..\..\src\EntityFramework.Core\EntityFramework.Core.csproj">
       <Project>{71415cec-8111-4c73-8751-512d22f10602}</Project>
       <Name>EntityFramework.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EntityFramework.Core.Tests\EntityFramework.Core.Tests.csproj">
+      <Project>{ef361118-7d0d-453e-ada4-2f24fbee196c}</Project>
+      <Name>EntityFramework.Core.Tests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EntityFramework.Relational.Tests\EntityFramework.Relational.Tests.csproj">
+      <Project>{001005b3-d16f-4399-9265-a67d619652bd}</Project>
+      <Name>EntityFramework.Relational.Tests</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

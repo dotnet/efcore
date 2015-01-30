@@ -71,13 +71,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\Shared\MigrationsTestHelpers.cs">
-      <Link>MigrationsTestHelpers.cs</Link>
-    </Compile>
-    <Compile Include="..\Shared\RelationalTestHelpers.cs">
-      <Link>RelationalTestHelpers.cs</Link>
-    </Compile>
     <Compile Include="ApiConsistencyTest.cs" />
+    <Compile Include="MigrationsTestHelpers.cs" />
     <Compile Include="Migrations\Builders\ColumnBuilderTest.cs" />
     <Compile Include="Migrations\Builders\MigrationBuilderTest.cs" />
     <Compile Include="Migrations\Builders\TableBuilderTest.cs" />
@@ -135,6 +130,7 @@
     <Compile Include="RelationalObjectArrayValueReaderFactoryTest.cs" />
     <Compile Include="RelationalObjectArrayValueReaderTest.cs" />
     <Compile Include="RelationalOptionsExtensionTest.cs" />
+    <Compile Include="RelationalTestHelpers.cs" />
     <Compile Include="RelationalTypedValueReaderFactoryTest.cs" />
     <Compile Include="RelationalTypedValueReaderTest.cs" />
     <Compile Include="SchemaQualifiedNameTest.cs" />
@@ -142,7 +138,6 @@
     <Compile Include="SqlGeneratorTest.cs" />
     <Compile Include="SqlGeneratorTestBase.cs" />
     <Compile Include="Model\RelationalTypeMapperTest.cs" />
-    <Compile Include="TestHelperExtensions.cs" />
     <Compile Include="Update\BatchExecutorTest.cs" />
     <Compile Include="Update\ColumnModificationTest.cs" />
     <Compile Include="Update\CommandBatchPreparerTest.cs" />
@@ -151,12 +146,14 @@
     <Compile Include="Update\ModificationCommandComparerTest.cs" />
     <Compile Include="Update\ModificationCommandTest.cs" />
     <Compile Include="Utilities\StringBuilderExtensionsTest.cs" />
-    <Compile Include="..\Shared\ApiConsistencyTestBase.cs" />
-    <Compile Include="..\Shared\TestHelpers.cs" />
     <None Include="packages.config" />
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\src\EntityFramework.Commands\EntityFramework.Commands.csproj">
+      <Project>{10ca97eb-e724-4f08-86af-f301f2b0bfff}</Project>
+      <Name>EntityFramework.Commands</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\src\EntityFramework.Core\EntityFramework.Core.csproj">
       <Project>{71415CEC-8111-4C73-8751-512D22F10602}</Project>
       <Name>EntityFramework.Core</Name>
@@ -168,6 +165,10 @@
     <ProjectReference Include="..\..\src\EntityFramework.InMemory\EntityFramework.InMemory.csproj">
       <Project>{BA3F5DBC-EC16-4D5A-8298-8226E6C5ACCC}</Project>
       <Name>EntityFramework.InMemory</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EntityFramework.Core.Tests\EntityFramework.Core.Tests.csproj">
+      <Project>{ef361118-7d0d-453e-ada4-2f24fbee196c}</Project>
+      <Name>EntityFramework.Core.Tests</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

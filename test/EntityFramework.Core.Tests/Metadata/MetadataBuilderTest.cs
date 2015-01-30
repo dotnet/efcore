@@ -742,7 +742,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
         protected virtual ModelBuilder CreateModelBuilder()
         {
-            return TestHelpers.CreateConventionBuilder();
+            return TestHelpers.Instance.CreateConventionBuilder();
         }
         
         private class Gunter

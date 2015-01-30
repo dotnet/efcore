@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.Tests.Identity
 {
     public class GuidValueGeneratorTest
     {
-        private static readonly Model _model = TestHelpers.BuildModelFor<WithGuid>();
+        private static readonly Model _model = TestHelpers.Instance.BuildModelFor<WithGuid>();
 
         [Fact]
         public async Task Creates_GUIDs()
@@ -32,7 +32,7 @@ namespace Microsoft.Data.Entity.Tests.Identity
         {
             var sequentialGuidIdentityGenerator = new GuidValueGenerator();
 
-            var stateEntry = TestHelpers.CreateStateEntry<WithGuid>(_model);
+            var stateEntry = TestHelpers.Instance.CreateStateEntry<WithGuid>(_model);
             var property = stateEntry.EntityType.GetProperty("Id");
 
             var values = new HashSet<Guid>();
