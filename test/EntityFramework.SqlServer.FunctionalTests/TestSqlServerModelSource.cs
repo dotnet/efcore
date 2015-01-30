@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             _onModelCreating = onModelCreating;
         }
 
-        protected override IModel CreateModel(DbContext context, IModelBuilderFactory modelBuilderFactory)
+        protected override IModel CreateModel(DbContext context, ModelBuilderFactory modelBuilderFactory)
         {
             var model = new Model();
             var modelBuilder = modelBuilderFactory.CreateConventionBuilder(model);

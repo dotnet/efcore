@@ -56,6 +56,9 @@
     <PackageReference Include="Moq">
       <TargetFramework>net40</TargetFramework>
     </PackageReference>
+    <PackageReference Include="Remotion.Linq">
+      <TargetFramework>portable-net45+wp80+wpa81+win</TargetFramework>
+    </PackageReference>
     <Reference Include="xunit.abstractions, Version=2.0.0.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
       <HintPath>..\..\packages\xunit.abstractions.2.0.0-beta5-build2785\lib\net35\xunit.abstractions.dll</HintPath>
     </Reference>
@@ -80,7 +83,6 @@
     <Compile Include="DbSetInitializerTest.cs" />
     <Compile Include="DbSetTest.cs" />
     <Compile Include="DbSetySourceTest.cs" />
-    <Compile Include="DefaultModelSourceTest.cs" />
     <Compile Include="DbContextOptionsTest.cs" />
     <Compile Include="EntitySetFinderTest.cs" />
     <Compile Include="Extensions\EntityServiceCollectionExtensionsTest.cs" />
@@ -118,6 +120,7 @@
     <Compile Include="Metadata\NonGenericRelationshipBuilderTest.cs" />
     <Compile Include="Metadata\StringRelationshipBuilderTest.cs" />
     <Compile Include="Metadata\TypedAnnotationTest.cs" />
+    <Compile Include="ModelSourceBaseTest.cs" />
     <Compile Include="ServiceProviderCacheTest.cs" />
     <Compile Include="ChangeTracking\ChangeTrackerTest.cs" />
     <Compile Include="ChangeTracking\ClrStateEntryTest.cs" />

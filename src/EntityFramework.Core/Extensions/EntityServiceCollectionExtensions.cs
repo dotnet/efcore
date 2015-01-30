@@ -37,7 +37,6 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddScoped<IPropertyListener>(p => p.GetService<ChangeDetector>());
 
             serviceCollection.TryAdd(new ServiceCollection()
-                .AddSingleton<ModelBuilderFactory>()
                 .AddSingleton<SimpleValueGeneratorFactory<TemporaryIntegerValueGenerator>>()
                 .AddSingleton<SimpleValueGeneratorFactory<TemporaryStringValueGenerator>>()
                 .AddSingleton<SimpleValueGeneratorFactory<TemporaryBinaryValueGenerator>>()
@@ -47,46 +46,46 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddSingleton<DbSetInitializer>()
                 .AddSingleton<DbSetSource>()
                 .AddSingleton<EntityKeyFactorySource>()
+                .AddSingleton<CompositeEntityKeyFactory>()
                 .AddSingleton<ClrPropertyGetterSource>()
                 .AddSingleton<ClrPropertySetterSource>()
                 .AddSingleton<ClrCollectionAccessorSource>()
                 .AddSingleton<CollectionTypeFactory>()
                 .AddSingleton<EntityMaterializerSource>()
-                .AddSingleton<CompositeEntityKeyFactory>()
                 .AddSingleton<MemberMapper>()
                 .AddSingleton<FieldMatcher>()
                 .AddSingleton<OriginalValuesFactory>()
                 .AddSingleton<RelationshipsSnapshotFactory>()
                 .AddSingleton<StoreGeneratedValuesFactory>()
-                .AddSingleton<ValueGeneratorSelector>()
                 .AddSingleton<StateEntryMetadataServices>()
                 .AddSingleton<IQueryParser, EntityQueryParser>()
                 .AddSingleton<ICompiledQueryCache, CompiledQueryCache>()
+                .AddSingleton<ILoggerFactory, LoggerFactory>()
+                .AddTypeActivator()
                 .AddScoped<ForeignKeyValuePropagator>()
-                .AddScoped<DataStoreSelector>()
-                .AddScoped<StateEntryFactory>()
                 .AddScoped<NavigationFixer>()
-                .AddScoped<ChangeDetector>()
+                .AddScoped<StateManager>()
+                .AddScoped<StateEntryFactory>()
                 .AddScoped<StateEntryNotifier>()
                 .AddScoped<StateEntrySubscriber>()
-                .AddScoped<DbContextServices>()
-                .AddScoped<StateManager>()
                 .AddScoped<ValueGenerationManager>()
                 .AddScoped<EntityQueryExecutor>()
                 .AddScoped<EntityQueryProvider>()
                 .AddScoped<ChangeTracker>()
+                .AddScoped<ChangeDetector>()
                 .AddScoped<EntityEntryGraphIterator>()
+                .AddScoped<DbContextServices>()
                 .AddScoped(DbContextServices.ModelFactory)
                 .AddScoped(DbContextServices.ContextFactory)
                 .AddScoped(DbContextServices.ContextOptionsFactory)
+                .AddScoped<DataStoreSelector>()
                 .AddScoped(DataStoreServices.DataStoreServicesFactory)
                 .AddScoped(DataStoreServices.DataStoreFactory)
                 .AddScoped(DataStoreServices.ConnectionFactory)
                 .AddScoped(DataStoreServices.DatabaseFactory)
                 .AddScoped(DataStoreServices.ValueGeneratorCacheFactory)
                 .AddScoped(DataStoreServices.DataStoreCreatorFactory)
-                .AddSingleton<ILoggerFactory, LoggerFactory>()
-                .AddTypeActivator()
+                .AddScoped(DataStoreServices.ModelBuilderFactoryFactory)
                 .AddOptions());
 
             return new EntityServicesBuilder(serviceCollection, configuration);
@@ -117,7 +116,7 @@ namespace Microsoft.Framework.DependencyInjection
                 builder.ServiceCollection.Configure<DbContextOptions<TContext>>(optionsAction);
             }
 
-            ServiceCollectionExtensions.AddScoped(builder.ServiceCollection, typeof(TContext), (Func<IServiceProvider, object>)(DbContextActivator.CreateInstance<TContext>));
+            ServiceCollectionExtensions.AddScoped(builder.ServiceCollection, typeof(TContext), DbContextActivator.CreateInstance<TContext>);
 
             return builder;
         }

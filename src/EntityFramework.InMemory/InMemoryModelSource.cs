@@ -6,7 +6,7 @@ using Microsoft.Data.Entity.Infrastructure;
 
 namespace Microsoft.Data.Entity.InMemory
 {
-    public class InMemoryModelSource : DefaultModelSource
+    public class InMemoryModelSource : ModelSourceBase
     {
         public InMemoryModelSource([NotNull] DbSetFinder setFinder)
             : base(setFinder)

@@ -510,11 +510,11 @@ namespace Microsoft.Data.Entity.Relational.Tests
 
         public override Database Database => _database;
 
-        public override IModelBuilderFactory ModelBuilderFactory => _modelBuilderFactory;
+        public override ModelBuilderFactory ModelBuilderFactory => _modelBuilderFactory;
 
         public override Migrator Migrator => _migrator;
 
-        public override IModelSource ModelSource => _modelSource;
+        public override ModelSource ModelSource => _modelSource;
     }
 
     public class FakeDatabase : MigrationsEnabledDatabase
@@ -714,7 +714,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
         }
     }
 
-    public class FakeModelSource : DefaultModelSource
+    public class FakeModelSource : ModelSourceBase
     {
         public FakeModelSource(DbSetFinder setFinder)
             : base(setFinder)

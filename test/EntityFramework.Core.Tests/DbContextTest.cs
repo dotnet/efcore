@@ -1445,7 +1445,7 @@ namespace Microsoft.Data.Entity.Tests
             var servicesMock = new Mock<DataStoreServices>();
             servicesMock.Setup(m => m.Store).Returns(store.Object);
             servicesMock.Setup(m => m.ModelBuilderFactory).Returns(new ModelBuilderFactory());
-            servicesMock.Setup(m => m.ModelSource).Returns(new Mock<DefaultModelSource>(new DbSetFinder()) { CallBase = true }.Object);
+            servicesMock.Setup(m => m.ModelSource).Returns(new Mock<ModelSourceBase>(new DbSetFinder()) { CallBase = true }.Object);
 
             var sourceMock = new Mock<DataStoreSource>();
             sourceMock.Setup(m => m.IsAvailable).Returns(true);
@@ -1490,7 +1490,7 @@ namespace Microsoft.Data.Entity.Tests
             servicesMock.Setup(m => m.Store).Returns(store.Object);
             servicesMock.Setup(m => m.ValueGeneratorCache).Returns(valueGenMock.Object);
             servicesMock.Setup(m => m.ModelBuilderFactory).Returns(new ModelBuilderFactory());
-            servicesMock.Setup(m => m.ModelSource).Returns(new Mock<DefaultModelSource>(new DbSetFinder()) { CallBase = true }.Object);
+            servicesMock.Setup(m => m.ModelSource).Returns(new Mock<ModelSourceBase>(new DbSetFinder()) { CallBase = true }.Object);
 
             var sourceMock = new Mock<DataStoreSource>();
             sourceMock.Setup(m => m.IsAvailable).Returns(true);
@@ -1539,7 +1539,7 @@ namespace Microsoft.Data.Entity.Tests
             servicesMock.Setup(m => m.Store).Returns(store.Object);
             servicesMock.Setup(m => m.ValueGeneratorCache).Returns(valueGenMock.Object);
             servicesMock.Setup(m => m.ModelBuilderFactory).Returns(new ModelBuilderFactory());
-            servicesMock.Setup(m => m.ModelSource).Returns(new Mock<DefaultModelSource>(new DbSetFinder()) { CallBase = true }.Object);
+            servicesMock.Setup(m => m.ModelSource).Returns(new Mock<ModelSourceBase>(new DbSetFinder()) { CallBase = true }.Object);
 
             var sourceMock = new Mock<DataStoreSource>();
             sourceMock.Setup(m => m.IsAvailable).Returns(true);
@@ -1711,7 +1711,7 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Can_set_known_singleton_services_using_instance_sugar()
         {
-            var modelSource = Mock.Of<IModelSource>();
+            var modelSource = Mock.Of<ModelSource>();
 
             var services = new ServiceCollection()
                 .AddInstance(modelSource);
@@ -1722,7 +1722,7 @@ namespace Microsoft.Data.Entity.Tests
             {
                 var contextServices = ((IAccessor<IServiceProvider>)context).Service;
 
-                Assert.Same(modelSource, contextServices.GetRequiredService<IModelSource>());
+                Assert.Same(modelSource, contextServices.GetRequiredService<ModelSource>());
             }
         }
 
@@ -1730,7 +1730,7 @@ namespace Microsoft.Data.Entity.Tests
         public void Can_set_known_singleton_services_using_type_activation()
         {
             var services = new ServiceCollection()
-                .AddSingleton<IModelSource, FakeModelSource>();
+                .AddSingleton<ModelSource, FakeModelSource>();
 
             var provider = TestHelpers.Instance.CreateServiceProvider(services);
 
@@ -1738,7 +1738,7 @@ namespace Microsoft.Data.Entity.Tests
             {
                 var contextServices = ((IAccessor<IServiceProvider>)context).Service;
 
-                Assert.IsType<FakeModelSource>(contextServices.GetRequiredService<IModelSource>());
+                Assert.IsType<FakeModelSource>(contextServices.GetRequiredService<ModelSource>());
             }
         }
 
@@ -1764,7 +1764,7 @@ namespace Microsoft.Data.Entity.Tests
             var services = new ServiceCollection();
             services
                 .AddEntityFramework().ServiceCollection
-                .AddSingleton<IModelSource, FakeModelSource>()
+                .AddSingleton<ModelSource, FakeModelSource>()
                 .AddScoped<StateManager, FakeStateManager>();
 
             var provider = services.BuildServiceProvider();
@@ -1772,7 +1772,7 @@ namespace Microsoft.Data.Entity.Tests
             var context = new EarlyLearningCenter(provider);
             var contextServices = ((IAccessor<IServiceProvider>)context).Service;
 
-            var modelSource = contextServices.GetRequiredService<IModelSource>();
+            var modelSource = contextServices.GetRequiredService<ModelSource>();
 
             context.Dispose();
 
@@ -1783,7 +1783,7 @@ namespace Microsoft.Data.Entity.Tests
 
             Assert.Same(stateManager, contextServices.GetRequiredService<StateManager>());
 
-            Assert.Same(modelSource, contextServices.GetRequiredService<IModelSource>());
+            Assert.Same(modelSource, contextServices.GetRequiredService<ModelSource>());
 
             context.Dispose();
 
@@ -1792,7 +1792,7 @@ namespace Microsoft.Data.Entity.Tests
 
             Assert.NotSame(stateManager, contextServices.GetRequiredService<StateManager>());
 
-            Assert.Same(modelSource, contextServices.GetRequiredService<IModelSource>());
+            Assert.Same(modelSource, contextServices.GetRequiredService<ModelSource>());
 
             context.Dispose();
         }
@@ -1885,9 +1885,9 @@ namespace Microsoft.Data.Entity.Tests
             }
         }
 
-        private class FakeModelSource : IModelSource
+        private class FakeModelSource : ModelSource
         {
-            public IModel GetModel(DbContext context, IModelBuilderFactory modelBuilder = null)
+            public override IModel GetModel(DbContext context, ModelBuilderFactory modelBuilder = null)
             {
                 return null;
             }

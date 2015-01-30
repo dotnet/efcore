@@ -42,7 +42,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
             }
 
-            protected override IModel CreateModel(DbContext context, IModelBuilderFactory modelBuilderFactory)
+            protected override IModel CreateModel(DbContext context, ModelBuilderFactory modelBuilderFactory)
             {
                 var model = base.CreateModel(context, modelBuilderFactory) as Model;
 

@@ -4,7 +4,7 @@
 using JetBrains.Annotations;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Identity;
-using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Migrations;
 using Microsoft.Data.Entity.SqlServer;
@@ -26,6 +26,7 @@ namespace Microsoft.Framework.DependencyInjection
             builder.AddMigrations().ServiceCollection
                 .AddScoped<DataStoreSource, SqlServerDataStoreSource>()
                 .TryAdd(new ServiceCollection()
+                    .AddSingleton<SqlServerModelBuilderFactory>()
                     .AddSingleton<SqlServerValueGeneratorCache>()
                     .AddSingleton<SqlServerValueGeneratorSelector>()
                     .AddSingleton<SimpleValueGeneratorFactory<SequentialGuidValueGenerator>>()

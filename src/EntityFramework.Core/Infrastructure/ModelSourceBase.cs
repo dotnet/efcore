@@ -8,20 +8,20 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Infrastructure
 {
-    public abstract class DefaultModelSource : IModelSource
+    public class ModelSourceBase : ModelSource
     {
         private readonly ThreadSafeDictionaryCache<Type, IModel> _models = new ThreadSafeDictionaryCache<Type, IModel>();
 
         private readonly DbSetFinder _setFinder;
 
-        protected DefaultModelSource([NotNull] DbSetFinder setFinder)
+        public ModelSourceBase([NotNull] DbSetFinder setFinder)
         {
             Check.NotNull(setFinder, "setFinder");
 
             _setFinder = setFinder;
         }
 
-        public virtual IModel GetModel(DbContext context, IModelBuilderFactory modelBuilderFactory)
+        public override IModel GetModel(DbContext context, ModelBuilderFactory modelBuilderFactory)
         {
             Check.NotNull(context, "context");
             Check.NotNull(modelBuilderFactory, "modelBuilderFactory");
@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.Infrastructure
             return _models.GetOrAdd(context.GetType(), k => CreateModel(context, modelBuilderFactory));
         }
 
-        protected virtual IModel CreateModel(DbContext context, IModelBuilderFactory modelBuilderFactory)
+        protected virtual IModel CreateModel(DbContext context, ModelBuilderFactory modelBuilderFactory)
         {
             var model = new Model();
             var modelBuilder = modelBuilderFactory.CreateConventionBuilder(model);

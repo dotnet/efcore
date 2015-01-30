@@ -18,8 +18,8 @@ namespace Microsoft.Data.Entity.Storage
         public abstract DataStoreConnection Connection { get; }
         public abstract ValueGeneratorCache ValueGeneratorCache { get; }
         public abstract Database Database { get; }
-        public abstract IModelBuilderFactory ModelBuilderFactory { get; }
-        public abstract IModelSource ModelSource { get; }
+        public abstract ModelBuilderFactory ModelBuilderFactory { get; }
+        public abstract ModelSource ModelSource { get; }
 
         public static Func<IServiceProvider, DbContextService<DataStoreServices>> DataStoreServicesFactory
         {
@@ -49,6 +49,11 @@ namespace Microsoft.Data.Entity.Storage
         public static Func<IServiceProvider, DbContextService<DataStoreConnection>> ConnectionFactory
         {
             get { return p => new DbContextService<DataStoreConnection>(() => GetStoreServices(p).Connection); }
+        }
+
+        public static Func<IServiceProvider, DbContextService<ModelBuilderFactory>> ModelBuilderFactoryFactory
+        {
+            get { return p => new DbContextService<ModelBuilderFactory>(() => GetStoreServices(p).ModelBuilderFactory); }
         }
 
         protected static DataStoreServices GetStoreServices([NotNull] IServiceProvider serviceProvider)

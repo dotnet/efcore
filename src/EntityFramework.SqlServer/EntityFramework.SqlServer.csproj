@@ -96,6 +96,7 @@
     <Compile Include="SqlServerDatabase.cs" />
     <Compile Include="SqlServerDatabaseExtensions.cs" />
     <Compile Include="SqlServerMetadataExtensions.cs" />
+    <Compile Include="SqlServerModelBuilderFactory.cs" />
     <Compile Include="SqlServerModelDiffer.cs" />
     <Compile Include="SqlServerModelSource.cs" />
     <Compile Include="Update\SqlServerBatchExecutor.cs" />

@@ -6,7 +6,7 @@ using Microsoft.Data.Entity.Infrastructure;
 
 namespace Microsoft.Data.Entity.SqlServer
 {
-    public class SqlServerModelSource : DefaultModelSource
+    public class SqlServerModelSource : ModelSourceBase
     {
         public SqlServerModelSource([NotNull] DbSetFinder setFinder)
             : base(setFinder)

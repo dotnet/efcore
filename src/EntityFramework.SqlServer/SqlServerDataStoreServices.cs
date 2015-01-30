@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.SqlServer
         private readonly SqlServerConnection _connection;
         private readonly SqlServerValueGeneratorCache _valueGeneratorCache;
         private readonly SqlServerDatabase _database;
-        private readonly ModelBuilderFactory _modelBuilderFactory;
+        private readonly SqlServerModelBuilderFactory _modelBuilderFactory;
         private readonly SqlServerMigrator _migrator;
         private readonly SqlServerModelSource _modelSource;
 
@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.SqlServer
             [NotNull] SqlServerConnection connection,
             [NotNull] SqlServerValueGeneratorCache valueGeneratorCache,
             [NotNull] SqlServerDatabase database,
-            [NotNull] ModelBuilderFactory modelBuilderFactory,
+            [NotNull] SqlServerModelBuilderFactory modelBuilderFactory,
             [NotNull] SqlServerMigrator migrator,
             [NotNull] SqlServerModelSource modelSource)
         {
@@ -61,10 +61,10 @@ namespace Microsoft.Data.Entity.SqlServer
 
         public override Database Database => _database;
 
-        public override IModelBuilderFactory ModelBuilderFactory => _modelBuilderFactory;
+        public override ModelBuilderFactory ModelBuilderFactory => _modelBuilderFactory;
 
         public override Migrator Migrator => _migrator;
 
-        public override IModelSource ModelSource => _modelSource;
+        public override ModelSource ModelSource => _modelSource;
     }
 }

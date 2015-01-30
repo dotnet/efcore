@@ -64,6 +64,7 @@
     <Compile Include="InMemoryDatabaseExtensions.cs" />
     <Compile Include="InMemoryDatabaseFacade.cs" />
     <Compile Include="InMemoryDataStoreServices.cs" />
+    <Compile Include="InMemoryModelBuilderFactory.cs" />
     <Compile Include="InMemoryModelSource.cs" />
     <Compile Include="InMemoryOptionsExtension.cs" />
     <Compile Include="InMemoryConnection.cs" />

@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.InMemory
         private readonly InMemoryConnection _connection;
         private readonly InMemoryValueGeneratorCache _valueGeneratorCache;
         private readonly InMemoryDatabaseFacade _database;
-        private readonly ModelBuilderFactory _modelBuilderFactory;
+        private readonly InMemoryModelBuilderFactory _modelBuilderFactory;
         private readonly InMemoryModelSource _modelSource;
 
         public InMemoryDataStoreServices(
@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.InMemory
             [NotNull] InMemoryConnection connection,
             [NotNull] InMemoryValueGeneratorCache valueGeneratorCache,
             [NotNull] InMemoryDatabaseFacade database,
-            [NotNull] ModelBuilderFactory modelBuilderFactory,
+            [NotNull] InMemoryModelBuilderFactory modelBuilderFactory,
             [NotNull] InMemoryModelSource modelSource)
         {
             Check.NotNull(store, "store");
@@ -56,8 +56,8 @@ namespace Microsoft.Data.Entity.InMemory
 
         public override Database Database => _database;
 
-        public override IModelBuilderFactory ModelBuilderFactory => _modelBuilderFactory;
+        public override ModelBuilderFactory ModelBuilderFactory => _modelBuilderFactory;
 
-        public override IModelSource ModelSource => _modelSource;
+        public override ModelSource ModelSource => _modelSource;
     }
 }
