@@ -22,12 +22,14 @@ namespace Microsoft.Data.Entity.Commands
     {
         private readonly string _projectDir;
         private readonly string _rootNamespace;
+        private readonly ILibraryManager _libraryManager;
         private readonly MigrationTool _migrationTool;
         private CommandLineApplication _app;
 
-        public Program([NotNull] IApplicationEnvironment appEnv)
+        public Program([NotNull] IApplicationEnvironment appEnv, [NotNull] ILibraryManager libraryManager)
         {
             Check.NotNull(appEnv, "appEnv");
+            Check.NotNull(libraryManager, "libraryManager");
 
             _projectDir = appEnv.ApplicationBasePath;
             _rootNamespace = appEnv.ApplicationName;
@@ -36,6 +38,7 @@ namespace Microsoft.Data.Entity.Commands
             var assemblyName = new AssemblyName(appEnv.ApplicationName);
             var assembly = Assembly.Load(assemblyName);
             _migrationTool = new MigrationTool(loggerProvider, assembly);
+            _libraryManager = libraryManager;
         }
 
         public virtual int Main([NotNull] string[] args)
@@ -83,8 +86,12 @@ namespace Microsoft.Data.Entity.Commands
                                 "-c|--context <context>",
                                 "The context class to use",
                                 CommandOptionType.SingleValue);
+                            var startupProject = add.Option(
+                                "-s|--startupProjectName <projectName>",
+                                "The name of the project to use as the startup project",
+                                CommandOptionType.SingleValue);
                             add.HelpOption("-h|--help");
-                            add.OnExecute(() => AddMigration(name.Value, context.Value()));
+                            add.OnExecute(() => AddMigration(name.Value, context.Value(), startupProject.Value()));
                         },
                         addHelpCommand: false);
                     migration.Command(
@@ -97,8 +104,12 @@ namespace Microsoft.Data.Entity.Commands
                                 "-c|--context <context>",
                                 "The context class to use",
                                 CommandOptionType.SingleValue);
+                            var startupProject = apply.Option(
+                                "-s|--startupProjectName <projectName>",
+                                "The name of the project to use as the startup project",
+                                CommandOptionType.SingleValue);
                             apply.HelpOption("-h|--help");
-                            apply.OnExecute(() => ApplyMigration(migrationName.Value, context.Value()));
+                            apply.OnExecute(() => ApplyMigration(migrationName.Value, context.Value(), startupProject.Value()));
                         },
                         addHelpCommand: false);
                     migration.Command(
@@ -129,8 +140,12 @@ namespace Microsoft.Data.Entity.Commands
                                 "-c|--context <context>",
                                 "The context class to use",
                                 CommandOptionType.SingleValue);
+                            var startupProject = script.Option(
+                                "-s|--startupProjectName <projectName>",
+                                "The name of the project to use as the startup project",
+                                CommandOptionType.SingleValue);
                             script.HelpOption("-h|--help");
-                            script.OnExecute(() => ScriptMigration(from.Value, to.Value, idempotent.HasValue(), context.Value()));
+                            script.OnExecute(() => ScriptMigration(from.Value, to.Value, idempotent.HasValue(), context.Value(), startupProject.Value()));
                         },
                         addHelpCommand: false);
                     migration.Command(
@@ -160,7 +175,9 @@ namespace Microsoft.Data.Entity.Commands
                 addHelpCommand: false);
             _app.OnExecute(() => ShowHelp(command: null));
 
-            return _app.Execute(args);
+            var returnValue = _app.Execute(args);
+
+            return returnValue;
         }
 
         public virtual int ListContexts()
@@ -182,25 +199,35 @@ namespace Microsoft.Data.Entity.Commands
             return 0;
         }
 
-        public virtual int AddMigration([CanBeNull] string name, [CanBeNull] string context)
+        public virtual int AddMigration([CanBeNull] string name, [CanBeNull] string context, [CanBeNull] string startupProject)
         {
             if (string.IsNullOrEmpty(name))
             {
                 _app.ShowHelp("migration add");
-                
+
                 return 1;
             }
 
-            _migrationTool.AddMigration(name, context, _rootNamespace, _projectDir).ToArray();
+            return ExecuteInDirectory(
+                startupProject,
+                () =>
+                {
+                    _migrationTool.AddMigration(name, context, _rootNamespace, _projectDir).ToArray();
 
-            return 0;
+                    return 0;
+                });
         }
 
-        public virtual int ApplyMigration([CanBeNull] string migration, [CanBeNull] string context)
+        public virtual int ApplyMigration([CanBeNull] string migration, [CanBeNull] string context, [CanBeNull] string startupProject)
         {
-            _migrationTool.ApplyMigration(migration, context);
+            return ExecuteInDirectory(
+                startupProject,
+                () =>
+                {
+                    _migrationTool.ApplyMigration(migration, context);
 
-            return 0;
+                    return 0;
+                });
         }
 
         public virtual int ListMigrations([CanBeNull] string context)
@@ -226,14 +253,20 @@ namespace Microsoft.Data.Entity.Commands
             [CanBeNull] string from,
             [CanBeNull] string to,
             bool idempotent,
-            [CanBeNull] string context)
+            [CanBeNull] string context,
+            [CanBeNull] string startupProject)
         {
-            var sql = _migrationTool.ScriptMigration(from, to, idempotent, context);
+            return ExecuteInDirectory(
+                startupProject,
+                () =>
+                {
+                    var sql = _migrationTool.ScriptMigration(from, to, idempotent, context);
 
-            // TODO: Write to file?
-            Console.WriteLine(sql);
+                    // TODO: Write to file?
+                    Console.WriteLine(sql);
 
-            return 0;
+                    return 0;
+                });
         }
 
         public virtual int RemoveMigration([CanBeNull] string context)
@@ -262,6 +295,48 @@ namespace Microsoft.Data.Entity.Commands
             _app.ShowHelp(command);
 
             return 0;
+        }
+
+        private int ExecuteInDirectory(string startupProject, Func<int> invoke)
+        {
+            var returnDirectory = Directory.GetCurrentDirectory();
+            int result = 1;
+            try
+            {
+                var startupProjectDir = GetProjectPath(startupProject);
+                if (startupProjectDir != null)
+                {
+                    Console.WriteLine("Executing in startup Directory: {0}", startupProjectDir);
+                    Directory.SetCurrentDirectory(startupProjectDir);
+                }
+
+                result = invoke.Invoke();
+            }
+
+            finally
+            {
+                Directory.SetCurrentDirectory(returnDirectory);
+            }
+
+            return result;
+        }
+
+        private string GetProjectPath(string projectName)
+        {
+            if (projectName == null)
+            {
+                return null;
+            }
+
+            string projectDir = null;
+            var library = _libraryManager.GetLibraryInformation(projectName);
+            var libraryPath = library.Path;
+            if (library.Type == "Project")
+            {
+                projectDir = Path.GetDirectoryName(libraryPath);
+            }
+
+            return projectDir;
         }
     }
 }
