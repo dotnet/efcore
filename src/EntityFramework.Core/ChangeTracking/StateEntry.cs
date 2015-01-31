@@ -181,11 +181,17 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             StateManager.Notify.StateChanging(this, newState);
 
-            if (!acceptChanges
-                && newState == EntityState.Unchanged
+            if (newState == EntityState.Unchanged
                 && oldState == EntityState.Modified)
             {
-                ResetToOriginalValue();
+                if (acceptChanges)
+                {
+                    SetOriginalValue();
+                }
+                else
+                {
+                    ResetToOriginalValue();
+                }
             }
             _stateData.EntityState = newState;
 
@@ -505,6 +511,25 @@ namespace Microsoft.Data.Entity.ChangeTracking
                     {
                         sidecar.Rollback();
                     }
+                }
+            }
+        }
+
+        public virtual void SetOriginalValue()
+        {
+            var entityType = EntityType;
+            var originalValues = TryGetSidecar(Sidecar.WellKnownNames.OriginalValues);
+
+            if (originalValues == null)
+            {
+                return;
+            }
+
+            foreach (var property in entityType.Properties)
+            {
+                if (originalValues.HasValue(property) && !Equals(originalValues[property], this[property]))
+                {
+                    originalValues[property] = this[property];
                 }
             }
         }

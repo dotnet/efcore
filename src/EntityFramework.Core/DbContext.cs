@@ -455,7 +455,11 @@ namespace Microsoft.Data.Entity
         {
             Check.NotNull(entity, "entity");
 
-            return SetEntityState(entity, EntityState.Unchanged);
+            var entry = EntryWithoutDetectChanges(entity);
+            var stateEntry = entry.StateEntry;
+            stateEntry.SetEntityState(EntityState.Unchanged, acceptChanges: true);
+
+            return new EntityEntry<TEntity>(entry.Context, stateEntry);
         }
 
         /// <summary>
@@ -519,6 +523,7 @@ namespace Microsoft.Data.Entity
 
             return entry;
         }
+
 
         /// <summary>
         /// Begins tracking the given entity in the <see cref="EntityState.Added"/> state such that it will
@@ -645,7 +650,7 @@ namespace Microsoft.Data.Entity
         {
             Check.NotNull(entities, "entities");
 
-            SetEntityStates(entities, EntityState.Unchanged);
+            SetEntityStates(entities, EntityState.Unchanged, acceptChanges: true);
         }
 
         /// <summary>
@@ -684,13 +689,13 @@ namespace Microsoft.Data.Entity
             RemoveRange((IEnumerable<object>)entities);
         }
 
-        private void SetEntityStates(IEnumerable<object> entities, EntityState entityState)
+        private void SetEntityStates(IEnumerable<object> entities, EntityState entityState, bool acceptChanges = false)
         {
             var stateManager = GetStateManager();
 
             foreach (var entity in entities)
             {
-                stateManager.GetOrCreateEntry(entity).SetEntityState(entityState);
+                stateManager.GetOrCreateEntry(entity).SetEntityState(entityState, acceptChanges);
             }
         }
 
@@ -715,7 +720,7 @@ namespace Microsoft.Data.Entity
         {
             Check.NotNull(entities, "entities");
 
-            SetEntityStates(entities, EntityState.Unchanged);
+            SetEntityStates(entities, EntityState.Unchanged, acceptChanges: true);
         }
         
         /// <summary>
