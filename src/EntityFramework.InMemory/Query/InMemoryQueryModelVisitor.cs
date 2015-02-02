@@ -117,6 +117,7 @@ namespace Microsoft.Data.Entity.InMemory.Query
             QueryContext queryContext,
             IEntityType entityType,
             EntityKeyFactorySource entityKeyFactorySource,
+            EntityMaterializerSource entityMaterializerSource,
             InMemoryDatabase inMemoryDatabase,
             bool queryStateManager)
             where TEntity : class
@@ -130,6 +131,9 @@ namespace Microsoft.Data.Entity.InMemory.Query
             Func<IValueReader, EntityKey> entityKeyFactory
                 = vr => keyFactory.Create(entityType, keyProperties, vr);
 
+            var materializer
+                = entityMaterializerSource.GetMaterializer(entityType);
+
             return inMemoryDatabase
                 .GetTable(entityType)
                 .Select(t =>
@@ -139,7 +143,7 @@ namespace Microsoft.Data.Entity.InMemory.Query
 
                     return (TEntity)queryContext
                         .QueryBuffer
-                        .GetEntity(entityType, entityKey, valueReader, queryStateManager);
+                        .GetEntity(entityType, entityKey, valueReader, materializer, queryStateManager);
                 });
         }
 
@@ -188,8 +192,8 @@ namespace Microsoft.Data.Entity.InMemory.Query
                         QueryContextParameter,
                         Expression.Constant(entityType),
                         Expression.Constant(QueryModelVisitor.QueryCompilationContext.EntityKeyFactorySource),
-                        Expression.Constant(
-                            inMemoryDatabase),
+                        Expression.Constant(QueryModelVisitor.QueryCompilationContext.EntityMaterializerSource),
+                        Expression.Constant(inMemoryDatabase),
                         Expression.Constant(QueryModelVisitor.QuerySourceRequiresTracking(_querySource)));
                 }
 

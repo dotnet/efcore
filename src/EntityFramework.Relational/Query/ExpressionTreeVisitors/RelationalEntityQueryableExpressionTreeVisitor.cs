@@ -119,6 +119,10 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                     = QueryModelVisitor.QueryCompilationContext.EntityKeyFactorySource
                         .GetKeyFactory(keyProperties);
 
+                var materializer
+                    = QueryModelVisitor.QueryCompilationContext.EntityMaterializerSource
+                        .GetMaterializer(entityType);
+
                 queryMethodArguments.AddRange(
                     new Expression[]
                         {
@@ -126,7 +130,8 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                             Expression.Constant(entityType),
                             Expression.Constant(QueryModelVisitor.QuerySourceRequiresTracking(_querySource)),
                             Expression.Constant(keyFactory),
-                            Expression.Constant(keyProperties)
+                            Expression.Constant(keyProperties),
+                            Expression.Constant(materializer)
                         });
             }
 

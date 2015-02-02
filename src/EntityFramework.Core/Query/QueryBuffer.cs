@@ -72,6 +72,7 @@ namespace Microsoft.Data.Entity.Query
             IEntityType entityType,
             EntityKey entityKey,
             IValueReader valueReader,
+            Func<IValueReader, object> materializer,
             bool queryStateManager)
         {
             Check.NotNull(entityType, "entityType");
@@ -100,7 +101,7 @@ namespace Microsoft.Data.Entity.Query
                         {
                             // TODO: Optimize this by not materializing when not required for query execution. i.e.
                             //       entity is only needed in final results
-                            Instance = _materializerSource.GetMaterializer(entityType)(valueReader)
+                            Instance = materializer(valueReader)
                         };
 
                 _byEntityKey.Add(entityKey, bufferedEntity);
@@ -431,7 +432,12 @@ namespace Microsoft.Data.Entity.Query
                     .Create(targetEntityType, keyProperties, valueReader);
 
             var targetEntity
-                = GetEntity(targetEntityType, entityKey, valueReader, queryStateManager: true);
+                = GetEntity(
+                    targetEntityType,
+                    entityKey,
+                    valueReader,
+                    _materializerSource.GetMaterializer(targetEntityType), // TODO: Flow materializer
+                    queryStateManager: true);
 
             if (targetEntity != null)
             {

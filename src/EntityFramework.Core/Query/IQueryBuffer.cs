@@ -17,6 +17,7 @@ namespace Microsoft.Data.Entity.Query
             [NotNull] IEntityType entityType,
             [NotNull] EntityKey entityKey,
             [NotNull] IValueReader valueReader,
+            [NotNull] Func<IValueReader, object> materializer,
             bool queryStateManager);
 
         object GetPropertyValue([NotNull] object entity, [NotNull] IProperty property);

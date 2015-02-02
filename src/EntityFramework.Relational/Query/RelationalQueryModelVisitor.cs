@@ -470,7 +470,8 @@ namespace Microsoft.Data.Entity.Relational.Query
             IEntityType entityType,
             bool queryStateManager,
             EntityKeyFactory entityKeyFactory,
-            IReadOnlyList<IProperty> keyProperties)
+            IReadOnlyList<IProperty> keyProperties,
+            Func<IValueReader, object> materializer)
             where TEntity : class
         {
             var valueReader
@@ -482,11 +483,18 @@ namespace Microsoft.Data.Entity.Relational.Query
                 valueReader = new OffsetValueReaderDecorator(valueReader, readerOffset);
             }
 
-            var entityKey = entityKeyFactory.Create(entityType, keyProperties, valueReader);
+            var entityKey 
+                = entityKeyFactory.Create(entityType, keyProperties, valueReader);
 
             return new QuerySourceScope<TEntity>(
                 querySource,
-                (TEntity)queryContext.QueryBuffer.GetEntity(entityType, entityKey, valueReader, queryStateManager),
+                (TEntity)queryContext.QueryBuffer
+                    .GetEntity(
+                        entityType,
+                        entityKey,
+                        valueReader,
+                        materializer,
+                        queryStateManager),
                 parentQuerySourceScope);
         }
     }
