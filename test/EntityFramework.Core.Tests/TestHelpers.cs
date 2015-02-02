@@ -3,7 +3,7 @@
 
 using System;
 using Microsoft.Data.Entity.ChangeTracking;
-using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
@@ -108,47 +108,47 @@ namespace Microsoft.Data.Entity.Tests
 
         public IServiceProvider CreateContextServices(IServiceProvider serviceProvider, IModel model)
         {
-            return ((IDbContextServices)CreateContext(serviceProvider, model)).ScopedServiceProvider;
+            return ((IAccessor<IServiceProvider>)CreateContext(serviceProvider, model)).Service;
         }
 
         public IServiceProvider CreateContextServices(IServiceProvider serviceProvider, DbContextOptions options)
         {
-            return ((IDbContextServices)CreateContext(serviceProvider, options)).ScopedServiceProvider;
+            return ((IAccessor<IServiceProvider>)CreateContext(serviceProvider, options)).Service;
         }
 
         public IServiceProvider CreateContextServices(IServiceProvider serviceProvider)
         {
-            return ((IDbContextServices)CreateContext(serviceProvider)).ScopedServiceProvider;
+            return ((IAccessor<IServiceProvider>)CreateContext(serviceProvider)).Service;
         }
 
         public IServiceProvider CreateContextServices(IModel model)
         {
-            return ((IDbContextServices)CreateContext(model)).ScopedServiceProvider;
+            return ((IAccessor<IServiceProvider>)CreateContext(model)).Service;
         }
 
         public IServiceProvider CreateContextServices(DbContextOptions options)
         {
-            return ((IDbContextServices)CreateContext(options)).ScopedServiceProvider;
+            return ((IAccessor<IServiceProvider>)CreateContext(options)).Service;
         }
 
         public IServiceProvider CreateContextServices()
         {
-            return ((IDbContextServices)CreateContext()).ScopedServiceProvider;
+            return ((IAccessor<IServiceProvider>)CreateContext()).Service;
         }
 
         public IServiceProvider CreateContextServices(IServiceCollection customServices, IModel model)
         {
-            return ((IDbContextServices)CreateContext(customServices, model)).ScopedServiceProvider;
+            return ((IAccessor<IServiceProvider>)CreateContext(customServices, model)).Service;
         }
 
         public IServiceProvider CreateContextServices(IServiceCollection customServices, DbContextOptions options)
         {
-            return ((IDbContextServices)CreateContext(customServices, options)).ScopedServiceProvider;
+            return ((IAccessor<IServiceProvider>)CreateContext(customServices, options)).Service;
         }
 
         public IServiceProvider CreateContextServices(IServiceCollection customServices)
         {
-            return ((IDbContextServices)CreateContext(customServices)).ScopedServiceProvider;
+            return ((IAccessor<IServiceProvider>)CreateContext(customServices)).Service;
         }
 
         public Model BuildModelFor<TEntity>() where TEntity : class

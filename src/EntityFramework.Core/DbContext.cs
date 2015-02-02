@@ -20,7 +20,7 @@ using Microsoft.Framework.OptionsModel;
 
 namespace Microsoft.Data.Entity
 {
-    public class DbContext : IDisposable, IDbContextServices
+    public class DbContext : IDisposable, IAccessor<IServiceProvider>
     {
         private static readonly ThreadSafeDictionaryCache<Type, Type> _optionsTypes = new ThreadSafeDictionaryCache<Type, Type>();
 
@@ -169,7 +169,7 @@ namespace Microsoft.Data.Entity
             serviceProvider.GetRequiredServiceChecked<DbSetInitializer>().InitializeSets(this);
         }
 
-        IServiceProvider IDbContextServices.ScopedServiceProvider => _contextServices.Value.ScopedServiceProvider;
+        IServiceProvider IAccessor<IServiceProvider>.Service => _contextServices.Value.ScopedServiceProvider;
 
         protected internal virtual void OnConfiguring(DbContextOptions options)
         {

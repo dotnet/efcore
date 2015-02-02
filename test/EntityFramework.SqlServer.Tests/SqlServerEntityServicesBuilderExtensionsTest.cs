@@ -1,8 +1,10 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
@@ -71,7 +73,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var serviceProvider = SqlServerTestHelpers.Instance.CreateServiceProvider();
             using (var context = SqlServerTestHelpers.Instance.CreateContext(serviceProvider))
             {
-                var scopedProvider = ((IDbContextServices)context).ScopedServiceProvider;
+                var scopedProvider = ((IAccessor<IServiceProvider>)context).Service;
 
                 var arrayReaderFactory = serviceProvider.GetService<RelationalObjectArrayValueReaderFactory>();
                 var typedReaderFactory = serviceProvider.GetService<RelationalTypedValueReaderFactory>();
@@ -176,7 +178,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
                 using (var secondContext = SqlServerTestHelpers.Instance.CreateContext(serviceProvider))
                 {
-                    scopedProvider = ((IDbContextServices)secondContext).ScopedServiceProvider;
+                    scopedProvider = ((IAccessor<IServiceProvider>)secondContext).Service;
 
                     Assert.NotSame(sqlServerDataStoreSource, scopedProvider.GetService<DataStoreSource>());
                     Assert.NotSame(sqlServerBatchExecutor, scopedProvider.GetService<SqlServerBatchExecutor>());

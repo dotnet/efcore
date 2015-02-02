@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Relational.Update;
@@ -237,7 +238,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
                 .UseModel(model);
             options.UseInMemoryStore(persist: false);
 
-            return ((IDbContextServices)new DbContext(options)).ScopedServiceProvider;
+            return ((IAccessor<IServiceProvider>)new DbContext(options)).Service;
         }
 
         private static CommandBatchPreparer CreateCommandBatchPreparer(ModificationCommandBatchFactory modificationCommandBatchFactory = null)

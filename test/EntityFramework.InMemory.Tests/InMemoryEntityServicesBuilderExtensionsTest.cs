@@ -1,8 +1,9 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
-using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Tests;
@@ -42,7 +43,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             var serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider();
             using (var context = InMemoryTestHelpers.Instance.CreateContext(serviceProvider))
             {
-                var scopedProvider = ((IDbContextServices)context).ScopedServiceProvider;
+                var scopedProvider = ((IAccessor<IServiceProvider>)context).Service;
 
                 var inMemoryValueGeneratorCache = serviceProvider.GetRequiredService<InMemoryValueGeneratorCache>();
                 var inMemoryValueGeneratorSelector = serviceProvider.GetRequiredService<InMemoryValueGeneratorSelector>();
@@ -87,7 +88,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
 
                 using (var secondContext = InMemoryTestHelpers.Instance.CreateContext(serviceProvider))
                 {
-                    scopedProvider = ((IDbContextServices)secondContext).ScopedServiceProvider;
+                    scopedProvider = ((IAccessor<IServiceProvider>)secondContext).Service;
 
                     Assert.NotSame(dataStoreSource, scopedProvider.GetRequiredService<DataStoreSource>());
                     Assert.NotSame(inMemoryDataStoreServices, scopedProvider.GetRequiredService<InMemoryDataStoreServices>());

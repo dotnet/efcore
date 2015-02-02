@@ -32,13 +32,13 @@ namespace Microsoft.Data.Entity.Tests
             IServiceProvider contextServices;
             using (var context = new DbContext(serviceProvider))
             {
-                contextServices = ((IDbContextServices)context).ScopedServiceProvider;
-                Assert.Same(contextServices, ((IDbContextServices)context).ScopedServiceProvider);
+                contextServices = ((IAccessor<IServiceProvider>)context).Service;
+                Assert.Same(contextServices, ((IAccessor<IServiceProvider>)context).Service);
             }
 
             using (var context = new DbContext(serviceProvider))
             {
-                Assert.NotSame(contextServices, ((IDbContextServices)context).ScopedServiceProvider);
+                Assert.NotSame(contextServices, ((IAccessor<IServiceProvider>)context).Service);
             }
         }
 
@@ -48,13 +48,13 @@ namespace Microsoft.Data.Entity.Tests
             IServiceProvider contextServices;
             using (var context = new Mock<DbContext> { CallBase = true }.Object)
             {
-                contextServices = ((IDbContextServices)context).ScopedServiceProvider;
-                Assert.Same(contextServices, ((IDbContextServices)context).ScopedServiceProvider);
+                contextServices = ((IAccessor<IServiceProvider>)context).Service;
+                Assert.Same(contextServices, ((IAccessor<IServiceProvider>)context).Service);
             }
 
             using (var context = new Mock<DbContext> { CallBase = true }.Object)
             {
-                Assert.NotSame(contextServices, ((IDbContextServices)context).ScopedServiceProvider);
+                Assert.NotSame(contextServices, ((IAccessor<IServiceProvider>)context).Service);
             }
         }
 
@@ -68,13 +68,13 @@ namespace Microsoft.Data.Entity.Tests
             IServiceProvider contextServices;
             using (var context = new DbContext(serviceProvider, options))
             {
-                contextServices = ((IDbContextServices)context).ScopedServiceProvider;
-                Assert.Same(contextServices, ((IDbContextServices)context).ScopedServiceProvider);
+                contextServices = ((IAccessor<IServiceProvider>)context).Service;
+                Assert.Same(contextServices, ((IAccessor<IServiceProvider>)context).Service);
             }
 
             using (var context = new DbContext(serviceProvider, options))
             {
-                Assert.NotSame(contextServices, ((IDbContextServices)context).ScopedServiceProvider);
+                Assert.NotSame(contextServices, ((IAccessor<IServiceProvider>)context).Service);
             }
         }
 
@@ -86,13 +86,13 @@ namespace Microsoft.Data.Entity.Tests
             IServiceProvider contextServices;
             using (var context = new DbContext(options))
             {
-                contextServices = ((IDbContextServices)context).ScopedServiceProvider;
-                Assert.Same(contextServices, ((IDbContextServices)context).ScopedServiceProvider);
+                contextServices = ((IAccessor<IServiceProvider>)context).Service;
+                Assert.Same(contextServices, ((IAccessor<IServiceProvider>)context).Service);
             }
 
             using (var context = new DbContext(options))
             {
-                Assert.NotSame(contextServices, ((IDbContextServices)context).ScopedServiceProvider);
+                Assert.NotSame(contextServices, ((IAccessor<IServiceProvider>)context).Service);
             }
         }
 
@@ -109,7 +109,7 @@ namespace Microsoft.Data.Entity.Tests
 
             using (var context = new DbContext(serviceProvider, options))
             {
-                var changeDetector = (FakeChangeDetector)((IDbContextServices)context).ScopedServiceProvider.GetRequiredService<ChangeDetector>();
+                var changeDetector = (FakeChangeDetector)((IAccessor<IServiceProvider>)context).Service.GetRequiredService<ChangeDetector>();
 
                 Assert.False(changeDetector.DetectChangesCalled);
 
@@ -132,7 +132,7 @@ namespace Microsoft.Data.Entity.Tests
 
             using (var context = new DbContext(serviceProvider, options))
             {
-                var stateManager = (FakeStateManager)((IDbContextServices)context).ScopedServiceProvider.GetRequiredService<StateManager>();
+                var stateManager = (FakeStateManager)((IAccessor<IServiceProvider>)context).Service.GetRequiredService<StateManager>();
 
                 var entryMock = new Mock<StateEntry>();
                 entryMock.Setup(m => m.EntityState).Returns(EntityState.Modified);
@@ -161,7 +161,7 @@ namespace Microsoft.Data.Entity.Tests
             {
                 context.ChangeTracker.AutoDetectChangesEnabled = false;
 
-                var stateManager = (FakeStateManager)((IDbContextServices)context).ScopedServiceProvider.GetRequiredService<StateManager>();
+                var stateManager = (FakeStateManager)((IAccessor<IServiceProvider>)context).Service.GetRequiredService<StateManager>();
 
                 var entryMock = new Mock<StateEntry>();
                 entryMock.Setup(m => m.EntityState).Returns(EntityState.Modified);
@@ -1577,7 +1577,7 @@ namespace Microsoft.Data.Entity.Tests
         {
             using (var context = new EarlyLearningCenter())
             {
-                var contextServices = ((IDbContextServices)context).ScopedServiceProvider;
+                var contextServices = ((IAccessor<IServiceProvider>)context).Service;
 
                 Assert.IsType<EntityKeyFactorySource>(contextServices.GetRequiredService<EntityKeyFactorySource>());
             }
@@ -1588,7 +1588,7 @@ namespace Microsoft.Data.Entity.Tests
         {
             using (var context = new EarlyLearningCenter())
             {
-                var contextServices = ((IDbContextServices)context).ScopedServiceProvider;
+                var contextServices = ((IAccessor<IServiceProvider>)context).Service;
 
                 Assert.IsType<StateEntryFactory>(contextServices.GetRequiredService<StateEntryFactory>());
             }
@@ -1599,7 +1599,7 @@ namespace Microsoft.Data.Entity.Tests
         {
             using (var context = new EarlyLearningCenter())
             {
-                var contextServices = ((IDbContextServices)context).ScopedServiceProvider;
+                var contextServices = ((IAccessor<IServiceProvider>)context).Service;
 
                 Assert.IsType<StateManager>(contextServices.GetRequiredService<StateManager>());
             }
@@ -1627,7 +1627,7 @@ namespace Microsoft.Data.Entity.Tests
 
             using (var context = new EarlyLearningCenter(provider))
             {
-                var contextServices = ((IDbContextServices)context).ScopedServiceProvider;
+                var contextServices = ((IAccessor<IServiceProvider>)context).Service;
 
                 Assert.Same(factory, contextServices.GetRequiredService<OriginalValuesFactory>());
             }
@@ -1702,7 +1702,7 @@ namespace Microsoft.Data.Entity.Tests
 
             using (var context = new EarlyLearningCenter(provider))
             {
-                var contextServices = ((IDbContextServices)context).ScopedServiceProvider;
+                var contextServices = ((IAccessor<IServiceProvider>)context).Service;
 
                 Assert.Same(factory, contextServices.GetRequiredService<OriginalValuesFactory>());
             }
@@ -1720,7 +1720,7 @@ namespace Microsoft.Data.Entity.Tests
 
             using (var context = new EarlyLearningCenter(provider))
             {
-                var contextServices = ((IDbContextServices)context).ScopedServiceProvider;
+                var contextServices = ((IAccessor<IServiceProvider>)context).Service;
 
                 Assert.Same(modelSource, contextServices.GetRequiredService<IModelSource>());
             }
@@ -1736,7 +1736,7 @@ namespace Microsoft.Data.Entity.Tests
 
             using (var context = new EarlyLearningCenter(provider))
             {
-                var contextServices = ((IDbContextServices)context).ScopedServiceProvider;
+                var contextServices = ((IAccessor<IServiceProvider>)context).Service;
 
                 Assert.IsType<FakeModelSource>(contextServices.GetRequiredService<IModelSource>());
             }
@@ -1752,7 +1752,7 @@ namespace Microsoft.Data.Entity.Tests
 
             using (var context = new EarlyLearningCenter(provider))
             {
-                var contextServices = ((IDbContextServices)context).ScopedServiceProvider;
+                var contextServices = ((IAccessor<IServiceProvider>)context).Service;
 
                 Assert.IsType<FakeStateManager>(contextServices.GetRequiredService<StateManager>());
             }
@@ -1770,14 +1770,14 @@ namespace Microsoft.Data.Entity.Tests
             var provider = services.BuildServiceProvider();
 
             var context = new EarlyLearningCenter(provider);
-            var contextServices = ((IDbContextServices)context).ScopedServiceProvider;
+            var contextServices = ((IAccessor<IServiceProvider>)context).Service;
 
             var modelSource = contextServices.GetRequiredService<IModelSource>();
 
             context.Dispose();
 
             context = new EarlyLearningCenter(provider);
-            contextServices = ((IDbContextServices)context).ScopedServiceProvider;
+            contextServices = ((IAccessor<IServiceProvider>)context).Service;
 
             var stateManager = contextServices.GetRequiredService<StateManager>();
 
@@ -1788,7 +1788,7 @@ namespace Microsoft.Data.Entity.Tests
             context.Dispose();
 
             context = new EarlyLearningCenter(provider);
-            contextServices = ((IDbContextServices)context).ScopedServiceProvider;
+            contextServices = ((IAccessor<IServiceProvider>)context).Service;
 
             Assert.NotSame(stateManager, contextServices.GetRequiredService<StateManager>());
 
@@ -1807,7 +1807,7 @@ namespace Microsoft.Data.Entity.Tests
 
             using (var context = new EarlyLearningCenter(provider))
             {
-                var contextServices = ((IDbContextServices)context).ScopedServiceProvider;
+                var contextServices = ((IAccessor<IServiceProvider>)context).Service;
 
                 Assert.IsType<FakeEntityMaterializerSource>(contextServices.GetRequiredService<EntityMaterializerSource>());
             }
@@ -1908,7 +1908,7 @@ namespace Microsoft.Data.Entity.Tests
 
             using (var context = serviceProvider.GetRequiredService<ContextWithDefaults>())
             {
-                var contextServices = ((IDbContextServices)context).ScopedServiceProvider;
+                var contextServices = ((IAccessor<IServiceProvider>)context).Service;
 
                 Assert.NotNull(serviceProvider.GetRequiredService<FakeService>());
                 Assert.NotSame(serviceProvider, contextServices);
@@ -1931,7 +1931,7 @@ namespace Microsoft.Data.Entity.Tests
 
             using (var context = serviceProvider.GetRequiredService<ContextWithDefaults>())
             {
-                var contextServices = ((IDbContextServices)context).ScopedServiceProvider;
+                var contextServices = ((IAccessor<IServiceProvider>)context).Service;
                 var options = contextServices.GetRequiredService<DbContextService<IDbContextOptions>>().Service;
 
                 Assert.NotNull(contextServices.GetRequiredService<FakeService>());
@@ -1955,7 +1955,7 @@ namespace Microsoft.Data.Entity.Tests
 
             using (var context = serviceProvider.GetRequiredService<ContextWithServiceProvider>())
             {
-                var contextServices = ((IDbContextServices)context).ScopedServiceProvider;
+                var contextServices = ((IAccessor<IServiceProvider>)context).Service;
                 var options = contextServices.GetRequiredService<DbContextService<IDbContextOptions>>().Service;
 
                 Assert.NotNull(contextServices.GetRequiredService<FakeService>());
@@ -1979,7 +1979,7 @@ namespace Microsoft.Data.Entity.Tests
 
             using (var context = serviceProvider.GetRequiredService<ContextWithOptions>())
             {
-                var contextServices = ((IDbContextServices)context).ScopedServiceProvider;
+                var contextServices = ((IAccessor<IServiceProvider>)context).Service;
                 var options = contextServices.GetRequiredService<DbContextService<IDbContextOptions>>().Service;
 
                 Assert.NotNull(contextServices.GetRequiredService<FakeService>());
@@ -2024,7 +2024,7 @@ namespace Microsoft.Data.Entity.Tests
 
             using (var context = serviceProvider.GetRequiredService<ContextT>())
             {
-                var contextServices = ((IDbContextServices)context).ScopedServiceProvider;
+                var contextServices = ((IAccessor<IServiceProvider>)context).Service;
                 var contextOptions = (DbContextOptions<ContextT>)contextServices.GetRequiredService<DbContextService<IDbContextOptions>>().Service;
 
                 Assert.NotNull(contextOptions);
@@ -2056,7 +2056,7 @@ namespace Microsoft.Data.Entity.Tests
 
             using (var context = serviceProvider.GetRequiredService<ContextWithDefaults>())
             {
-                var contextServices = ((IDbContextServices)context).ScopedServiceProvider;
+                var contextServices = ((IAccessor<IServiceProvider>)context).Service;
                 var contextOptions = (DbContextOptions<ContextWithDefaults>)contextServices.GetRequiredService<DbContextService<IDbContextOptions>>().Service;
 
                 Assert.NotNull(contextOptions);
@@ -2085,7 +2085,7 @@ namespace Microsoft.Data.Entity.Tests
 
             using (var context = serviceProvider.GetRequiredService<ContextWithDefaults>())
             {
-                var contextServices = ((IDbContextServices)context).ScopedServiceProvider;
+                var contextServices = ((IAccessor<IServiceProvider>)context).Service;
                 var contextOptions = (DbContextOptions<ContextWithDefaults>)contextServices.GetRequiredService<DbContextService<IDbContextOptions>>().Service;
 
                 Assert.NotNull(contextOptions);
@@ -2370,7 +2370,7 @@ namespace Microsoft.Data.Entity.Tests
             var provider = TestHelpers.Instance.CreateServiceProvider(new ServiceCollection().AddScoped<ChangeDetector, ChangeDetectorProxy>());
             using (var context = new ButTheHedgehogContext(provider))
             {
-                var changeDetector = (ChangeDetectorProxy)((IDbContextServices)context).ScopedServiceProvider
+                var changeDetector = (ChangeDetectorProxy)((IAccessor<IServiceProvider>)context).Service
                     .GetRequiredService<ChangeDetector>();
 
                 var entity = new Product { Id = 1, Name = "Little Hedgehogs" };

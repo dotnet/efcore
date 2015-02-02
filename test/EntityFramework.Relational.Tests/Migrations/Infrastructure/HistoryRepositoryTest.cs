@@ -6,6 +6,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Relational.Update;
 using Microsoft.Framework.DependencyInjection;
@@ -78,8 +79,8 @@ namespace Microsoft.Data.Entity.Relational.Tests.Migrations.Infrastructure
                 {
                     Assert.Same(historyRepository.HistoryModel, historyContext.Model);
 
-                    var options = ((IDbContextServices)context).ScopedServiceProvider.GetRequiredService<DbContextService<IDbContextOptions>>();
-                    var historyOptions = ((IDbContextServices)historyContext).ScopedServiceProvider.GetRequiredService<DbContextService<IDbContextOptions>>();
+                    var options = ((IAccessor<IServiceProvider>)context).Service.GetRequiredService<DbContextService<IDbContextOptions>>();
+                    var historyOptions = ((IAccessor<IServiceProvider>)context).Service.GetRequiredService<DbContextService<IDbContextOptions>>();
 
                     var extensions = options.Service.Extensions;
                     var historyExtensions = historyOptions.Service.Extensions;

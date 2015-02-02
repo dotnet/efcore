@@ -112,8 +112,9 @@
     <Compile Include="Infrastructure\DbContextConfigureOptions.cs" />
     <Compile Include="Infrastructure\DbContextOptionsParser.cs" />
     <Compile Include="Infrastructure\IDatabaseInternals.cs" />
-    <Compile Include="Infrastructure\IDbContextServices.cs" />
     <Compile Include="Infrastructure\ModelSourceHelpers.cs" />
+    <Compile Include="Internal\IAccessor.cs" />
+    <Compile Include="Internal\InternalDbSet.cs" />
     <Compile Include="Metadata\BasicModelBuilder.cs" />
     <Compile Include="Metadata\ModelConventions\ConventionDispatcher.cs" />
     <Compile Include="Metadata\ModelConventions\ConventionSet.cs" />

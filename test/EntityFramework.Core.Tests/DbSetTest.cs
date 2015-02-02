@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.Internal;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Tests
@@ -248,6 +249,17 @@ namespace Microsoft.Data.Entity.Tests
                 categoryEntry = context.Entry(gu2);
                 Assert.Same(gu2, categoryEntry.Entity);
                 Assert.Equal(EntityState.Added, categoryEntry.State);
+            }
+        }
+
+        [Fact]
+        public void Can_get_scoped_service_provider()
+        {
+            using (var context = new EarlyLearningCenter())
+            {
+                Assert.Same(
+                    ((IAccessor<IServiceProvider>)context).Service,
+                    ((IAccessor<IServiceProvider>)context.Products).Service);
             }
         }
 

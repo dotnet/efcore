@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Framework.DependencyInjection;
 using Xunit;
@@ -55,7 +56,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             using (var context = new EarlyLearningCenter())
             {
-                var stateManger = ((IDbContextServices)context).ScopedServiceProvider.GetRequiredService<StateManager>();
+                var stateManger = ((IAccessor<IServiceProvider>)context).Service.GetRequiredService<StateManager>();
 
                 Assert.Same(stateManger, context.ChangeTracker.StateManager);
             }
@@ -952,7 +953,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var provider = TestHelpers.Instance.CreateServiceProvider(new ServiceCollection().AddScoped<ChangeDetector, ChangeDetectorProxy>());
             using (var context = new EarlyLearningCenter(provider))
             {
-                var changeDetector = (ChangeDetectorProxy)((IDbContextServices)context).ScopedServiceProvider
+                var changeDetector = (ChangeDetectorProxy)((IAccessor<IServiceProvider>)context).Service
                     .GetRequiredService<ChangeDetector>();
 
                 changeDetector.DetectChangesCalled = false;

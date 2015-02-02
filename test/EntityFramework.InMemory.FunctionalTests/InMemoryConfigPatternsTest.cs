@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
 using Xunit;
@@ -450,7 +451,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             public void Test()
             {
                 Assert.IsType<DbContextOptions<InjectDifferentConfigurationsBlogContext>>(
-                    ((IDbContextServices)_context).ScopedServiceProvider.GetRequiredService<DbContextService<IDbContextOptions>>().Service);
+                    ((IAccessor<IServiceProvider>)_context).Service.GetRequiredService<DbContextService<IDbContextOptions>>().Service);
 
                 _context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
                 _context.SaveChanges();
@@ -476,7 +477,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             public void Test()
             {
                 Assert.IsType<DbContextOptions<InjectDifferentConfigurationsAccountContext>>(
-                    ((IDbContextServices)_context).ScopedServiceProvider.GetRequiredService<DbContextService<IDbContextOptions>>().Service);
+                    ((IAccessor<IServiceProvider>)_context).Service.GetRequiredService<DbContextService<IDbContextOptions>>().Service);
 
                 _context.Accounts.Add(new Account { Name = "Eeky Bear" });
                 _context.SaveChanges();
@@ -551,7 +552,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             public void Test()
             {
                 Assert.IsType<DbContextOptions<InjectDifferentConfigurationsNoConstructorBlogContext>>(
-                    ((IDbContextServices)_context).ScopedServiceProvider.GetRequiredService<DbContextService<IDbContextOptions>>().Service);
+                    ((IAccessor<IServiceProvider>)_context).Service.GetRequiredService<DbContextService<IDbContextOptions>>().Service);
 
                 _context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
                 _context.SaveChanges();
@@ -577,7 +578,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             public void Test()
             {
                 Assert.IsType<DbContextOptions<InjectDifferentConfigurationsNoConstructorAccountContext>>(
-                    ((IDbContextServices)_context).ScopedServiceProvider.GetRequiredService<DbContextService<IDbContextOptions>>().Service);
+                    ((IAccessor<IServiceProvider>)_context).Service.GetRequiredService<DbContextService<IDbContextOptions>>().Service);
 
                 _context.Accounts.Add(new Account { Name = "Eeky Bear" });
                 _context.SaveChanges();

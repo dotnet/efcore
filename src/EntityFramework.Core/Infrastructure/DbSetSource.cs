@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Infrastructure
@@ -35,7 +36,7 @@ namespace Microsoft.Data.Entity.Infrastructure
         [UsedImplicitly]
         private static Func<DbContext, object> CreateConstructor<TEntity>() where TEntity : class
         {
-            return c => new DbSet<TEntity>(c);
+            return c => new InternalDbSet<TEntity>(c);
         }
     }
 }
