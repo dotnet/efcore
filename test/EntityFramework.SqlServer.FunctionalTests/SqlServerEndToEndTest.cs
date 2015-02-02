@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Relational;
@@ -84,7 +85,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     Assert.Equal("(5) 555-3745", results[2].Fax);
                     Assert.Equal("030-0076545", results[3].Fax);
 
-                    var contextServices = ((IDbContextServices)db).ScopedServiceProvider;
+                    var contextServices = ((IAccessor<IServiceProvider>)db).Service;
 
                     Assert.IsType<SqlStoreWithBufferReader>(contextServices.GetRequiredService<DbContextService<DataStore>>().Service);
                 }

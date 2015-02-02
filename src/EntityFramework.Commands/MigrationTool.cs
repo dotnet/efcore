@@ -9,6 +9,7 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Commands.Migrations;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Migrations;
 using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
@@ -270,7 +271,7 @@ namespace Microsoft.Data.Entity.Commands
         {
             var context = ContextTool.CreateContext(type);
 
-            var scopedServiceProvider = ((IDbContextServices)context).ScopedServiceProvider;
+            var scopedServiceProvider = ((IAccessor<IServiceProvider>)context).Service;
             var options = scopedServiceProvider.GetRequiredService<DbContextService<IDbContextOptions>>();
 
             var loggerFactory = scopedServiceProvider.GetRequiredService<ILoggerFactory>();
@@ -288,12 +289,12 @@ namespace Microsoft.Data.Entity.Commands
 
         private Migrator CreateMigrator(DbContext context)
         {
-            return ((IDbContextServices)context).ScopedServiceProvider.GetRequiredService<DbContextService<Migrator>>().Service;
+            return ((IAccessor<IServiceProvider>)context).Service.GetRequiredService<DbContextService<Migrator>>().Service;
         }
 
         private MigrationScaffolder CreateScaffolder(DbContext context)
         {
-            var scopedServiceProvider = ((IDbContextServices)context).ScopedServiceProvider;
+            var scopedServiceProvider = ((IAccessor<IServiceProvider>)context).Service;
             var options = scopedServiceProvider.GetRequiredService<DbContextService<IDbContextOptions>>();
             var model = scopedServiceProvider.GetRequiredService<DbContextService<IModel>>();
             var migrator = CreateMigrator(context);

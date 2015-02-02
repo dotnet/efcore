@@ -1,8 +1,10 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Framework.DependencyInjection;
@@ -52,7 +54,7 @@ namespace Microsoft.Data.Entity.Tests
 
             using (var context = new DbContext(serviceProvider))
             {
-                var contextServices = ((IDbContextServices)context).ScopedServiceProvider;
+                var contextServices = ((IAccessor<IServiceProvider>)context).Service;
 
                 store = contextServices.GetRequiredService<DbContextService<DataStore>>().Service;
                 creator = contextServices.GetRequiredService<DbContextService<DataStoreCreator>>().Service;
@@ -65,7 +67,7 @@ namespace Microsoft.Data.Entity.Tests
 
             using (var context = new DbContext(serviceProvider))
             {
-                var contextServices = ((IDbContextServices)context).ScopedServiceProvider;
+                var contextServices = ((IAccessor<IServiceProvider>)context).Service;
 
                 Assert.NotSame(store, contextServices.GetRequiredService<DbContextService<DataStore>>().Service);
                 Assert.NotSame(creator, contextServices.GetRequiredService<DbContextService<DataStoreCreator>>().Service);
@@ -82,7 +84,7 @@ namespace Microsoft.Data.Entity.Tests
 
             using (var context = new GiddyupContext())
             {
-                var contextServices = ((IDbContextServices)context).ScopedServiceProvider;
+                var contextServices = ((IAccessor<IServiceProvider>)context).Service;
 
                 store = contextServices.GetRequiredService<DbContextService<DataStore>>().Service;
                 creator = contextServices.GetRequiredService<DbContextService<DataStoreCreator>>().Service;
@@ -95,7 +97,7 @@ namespace Microsoft.Data.Entity.Tests
 
             using (var context = new GiddyupContext())
             {
-                var contextServices = ((IDbContextServices)context).ScopedServiceProvider;
+                var contextServices = ((IAccessor<IServiceProvider>)context).Service;
 
                 Assert.NotSame(store, contextServices.GetRequiredService<DbContextService<DataStore>>().Service);
                 Assert.NotSame(creator, contextServices.GetRequiredService<DbContextService<DataStoreCreator>>().Service);

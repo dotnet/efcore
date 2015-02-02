@@ -6,120 +6,89 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Threading;
-using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
-using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Query;
-using Microsoft.Data.Entity.Utilities;
-using Microsoft.Framework.DependencyInjection;
 
 namespace Microsoft.Data.Entity
 {
-    public class DbSet<TEntity> : IOrderedQueryable<TEntity>, IAsyncEnumerableAccessor<TEntity>
+    public abstract class DbSet<TEntity> : IOrderedQueryable<TEntity>, IAsyncEnumerableAccessor<TEntity>, IAccessor<IServiceProvider>
         where TEntity : class
     {
-        private readonly DbContext _context;
-        private readonly LazyRef<EntityQueryable<TEntity>> _entityQueryable;
-
-        /// <summary>
-        ///     This constructor is intended only for use when creating test doubles that will override members
-        ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
-        ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
-        /// </summary>
-        protected DbSet()
-        {
-        }
-
-        public DbSet([NotNull] DbContext context)
-        {
-            Check.NotNull(context, "context");
-
-            _context = context;
-
-            // Using context/service locator here so that the context will be initialized the first time the
-            // set is used and services will be obtained from the correctly scoped container when this happens.
-            _entityQueryable
-                = new LazyRef<EntityQueryable<TEntity>>(
-                    () => new EntityQueryable<TEntity>(
-                        ((IDbContextServices)_context)
-                            .ScopedServiceProvider
-                            .GetRequiredServiceChecked<EntityQueryProvider>()));
-        }
-
         public virtual EntityEntry<TEntity> Add([NotNull] TEntity entity)
         {
-            Check.NotNull(entity, "entity");
-
-            return _context.Add(entity);
+            throw new NotImplementedException();
         }
 
         public virtual EntityEntry<TEntity> Attach([NotNull] TEntity entity)
         {
-            Check.NotNull(entity, "entity");
-
-            return _context.Attach(entity);
+            throw new NotImplementedException();
         }
 
         public virtual EntityEntry<TEntity> Remove([NotNull] TEntity entity)
         {
-            Check.NotNull(entity, "entity");
-
-            return _context.Remove(entity);
+            throw new NotImplementedException();
         }
 
         public virtual EntityEntry<TEntity> Update([NotNull] TEntity entity)
         {
-            Check.NotNull(entity, "entity");
-
-            return _context.Update(entity);
+            throw new NotImplementedException();
         }
 
         public virtual IReadOnlyList<EntityEntry<TEntity>> Add([NotNull] params TEntity[] entities)
         {
-            Check.NotNull(entities, "entities");
-
-            return _context.Add(entities);
+            throw new NotImplementedException();
         }
 
         public virtual IReadOnlyList<EntityEntry<TEntity>> Attach([NotNull] params TEntity[] entities)
         {
-            Check.NotNull(entities, "entities");
-
-            return _context.Attach(entities);
+            throw new NotImplementedException();
         }
 
         public virtual IReadOnlyList<EntityEntry<TEntity>> Remove([NotNull] params TEntity[] entities)
         {
-            Check.NotNull(entities, "entities");
-
-            return _context.Remove(entities);
+            throw new NotImplementedException();
         }
 
         public virtual IReadOnlyList<EntityEntry<TEntity>> Update([NotNull] params TEntity[] entities)
         {
-            Check.NotNull(entities, "entities");
-
-            return _context.Update(entities);
+            throw new NotImplementedException();
         }
 
         IEnumerator<TEntity> IEnumerable<TEntity>.GetEnumerator()
         {
-            return _entityQueryable.Value.GetEnumerator();
+            throw new NotImplementedException();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return _entityQueryable.Value.GetEnumerator();
+            throw new NotImplementedException();
         }
 
-        public virtual Type ElementType => _entityQueryable.Value.ElementType;
+        IAsyncEnumerable<TEntity> IAsyncEnumerableAccessor<TEntity>.AsyncEnumerable
+        {
+            get { throw new NotImplementedException(); }
+        }
 
-        public virtual Expression Expression => _entityQueryable.Value.Expression;
+        Type IQueryable.ElementType
+        {
+            get { throw new NotImplementedException(); }
+        }
 
-        public virtual IQueryProvider Provider => _entityQueryable.Value.Provider;
+        Expression IQueryable.Expression
+        {
+            get { throw new NotImplementedException(); }
+        }
 
-        IAsyncEnumerable<TEntity> IAsyncEnumerableAccessor<TEntity>.AsyncEnumerable => _entityQueryable.Value;
+        IQueryProvider IQueryable.Provider
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        IServiceProvider IAccessor<IServiceProvider>.Service
+        {
+            get { throw new NotImplementedException(); }
+        }
     }
 }

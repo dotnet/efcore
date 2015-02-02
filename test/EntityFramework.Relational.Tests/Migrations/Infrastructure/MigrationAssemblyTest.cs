@@ -1,8 +1,10 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Reflection;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Migrations;
 using Microsoft.Data.Entity.Relational.Migrations.Builders;
@@ -20,7 +22,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Migrations.Infrastructure
         {
             using (var context = new Context())
             {
-                var migrationAssembly = ((IDbContextServices)context).ScopedServiceProvider.GetRequiredService<MigrationAssembly>();
+                var migrationAssembly = ((IAccessor<IServiceProvider>)context).Service.GetRequiredService<MigrationAssembly>();
 
                 Assert.Equal("EntityFramework.Relational.Tests", migrationAssembly.Assembly.GetName().Name);
             }
@@ -34,7 +36,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Migrations.Infrastructure
                 MigrationAssembly = new MockAssembly()
             })
             {
-                var migrationAssembly = ((IDbContextServices)context).ScopedServiceProvider.GetRequiredService<MigrationAssembly>();
+                var migrationAssembly = ((IAccessor<IServiceProvider>)context).Service.GetRequiredService<MigrationAssembly>();
 
                 Assert.Equal("MockAssembly", migrationAssembly.Assembly.FullName);
             }
@@ -45,7 +47,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Migrations.Infrastructure
         {
             using (var context = new Context())
             {
-                var migrationAssembly = ((IDbContextServices)context).ScopedServiceProvider.GetRequiredService<MigrationAssembly>();
+                var migrationAssembly = ((IAccessor<IServiceProvider>)context).Service.GetRequiredService<MigrationAssembly>();
 
                 var migrations1 = migrationAssembly.Migrations;
                 var migrations2 = migrationAssembly.Migrations;
@@ -62,7 +64,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Migrations.Infrastructure
         {
             using (var context = new Context())
             {
-                var migrationAssembly = ((IDbContextServices)context).ScopedServiceProvider.GetRequiredService<MigrationAssembly>();
+                var migrationAssembly = ((IAccessor<IServiceProvider>)context).Service.GetRequiredService<MigrationAssembly>();
 
                 var model1 = migrationAssembly.ModelSnapshot;
                 var model2 = migrationAssembly.ModelSnapshot;

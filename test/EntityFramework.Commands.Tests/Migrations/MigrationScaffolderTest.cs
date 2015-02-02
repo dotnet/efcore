@@ -4,6 +4,7 @@
 using System;
 using Microsoft.Data.Entity.Commands.Migrations;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Migrations;
@@ -22,7 +23,7 @@ namespace Microsoft.Data.Entity.Commands.Tests.Migrations
         {
             using (var context = new Context(new Model()))
             {
-                var contextServices = ((IDbContextServices)context).ScopedServiceProvider;
+                var contextServices = ((IAccessor<IServiceProvider>)context).Service;
                 var options = contextServices.GetRequiredService<DbContextService<IDbContextOptions>>();
                 var model = contextServices.GetRequiredService<DbContextService<IModel>>().Service;
 
@@ -47,7 +48,7 @@ namespace Microsoft.Data.Entity.Commands.Tests.Migrations
         {
             using (var context = new Context(CreateModel()))
             {
-                var contextServices = ((IDbContextServices)context).ScopedServiceProvider;
+                var contextServices = ((IAccessor<IServiceProvider>)context).Service;
                 var options = contextServices.GetRequiredService<DbContextService<IDbContextOptions>>();
                 var model = contextServices.GetRequiredService<DbContextService<IModel>>().Service;
 
@@ -72,7 +73,7 @@ namespace Microsoft.Data.Entity.Commands.Tests.Migrations
         {
             using (var context = new Context(CreateModelWithForeignKeys()))
             {
-                var contextServices = ((IDbContextServices)context).ScopedServiceProvider;
+                var contextServices = ((IAccessor<IServiceProvider>)context).Service;
                 var options = contextServices.GetRequiredService<DbContextService<IDbContextOptions>>();
                 var model = contextServices.GetRequiredService<DbContextService<IModel>>().Service;
 
@@ -97,7 +98,7 @@ namespace Microsoft.Data.Entity.Commands.Tests.Migrations
         {
             using (var context = new Context(CreateModelWithCompositeKeys()))
             {
-                var contextServices = ((IDbContextServices)context).ScopedServiceProvider;
+                var contextServices = ((IAccessor<IServiceProvider>)context).Service;
                 var options = contextServices.GetRequiredService<DbContextService<IDbContextOptions>>();
                 var model = contextServices.GetRequiredService<DbContextService<IModel>>().Service;
 

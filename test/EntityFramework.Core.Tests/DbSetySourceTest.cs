@@ -3,6 +3,7 @@
 
 using System;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
 using Moq;
 using Xunit;
 
@@ -19,7 +20,7 @@ namespace Microsoft.Data.Entity.Tests
 
             var set = factorySource.Create(context, typeof(Random));
 
-            Assert.IsType<DbSet<Random>>(set);
+            Assert.IsType<InternalDbSet<Random>>(set);
         }
 
         [Fact]
