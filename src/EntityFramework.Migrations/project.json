@@ -1,11 +1,11 @@
 {
-    "version": "7.0.0-*",
+    "version": "7.0.0-beta2",
     "description":  "Shared Entity Framework migrations components for relational data stores.",
     "compilationOptions": {
         "warningsAsErrors": true
     },
     "dependencies": {
-        "EntityFramework.Relational": "7.0.0-*"
+        "EntityFramework.Relational": "7.0.0-beta2"
     },
     "code": [ "**\\*.cs", "..\\Shared\\*.cs" ],
     "frameworks": {
@@ -13,7 +13,7 @@
         "aspnet50": { },
         "aspnetcore50": {
             "dependencies": {
-                "Microsoft.CSharp": "4.0.0-beta-*"
+                "Microsoft.CSharp": "4.0.0-beta-22416"
             }
         }
     }

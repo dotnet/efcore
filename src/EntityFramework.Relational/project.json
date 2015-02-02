@@ -1,12 +1,12 @@
 {
-    "version": "7.0.0-*",
+    "version": "7.0.0-beta2",
     "description":  "Shared Entity Framework components for relational data stores.",
     "compilationOptions": {
         "warningsAsErrors": true
     },
     "dependencies": {
-        "System.Data.Common": "1.0.0-*",
-        "EntityFramework.Core": "7.0.0-*"
+        "System.Data.Common": "1.0.0-beta2",
+        "EntityFramework.Core": "7.0.0-beta2"
     },
     "code": [ "**\\*.cs", "..\\Shared\\*.cs" ],
     "frameworks": {

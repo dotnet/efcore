@@ -1,16 +1,16 @@
 {
     "dependencies": {
-        "EntityFramework.InMemory": "7.0.0-*",
-        "Xunit.KRunner": "1.0.0-*"
+        "EntityFramework.InMemory": "7.0.0-beta2",
+        "xunit.runner.kre": "1.0.0-*"
     },
     "commands": {
-        "test": "Xunit.KRunner"
+        "test": "xunit.runner.kre"
     },
     "frameworks": {
         "aspnet50": { },
         "aspnetcore50": {
             "dependencies": {
-                "Microsoft.CSharp": "4.0.0-beta-*"
+                "Microsoft.CSharp": "4.0.0-beta-22416"
             }
         }
     }
