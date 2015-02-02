@@ -116,15 +116,31 @@ namespace Microsoft.Data.Entity.InMemory.Query
         private static IEnumerable<TEntity> EntityQuery<TEntity>(
             QueryContext queryContext,
             IEntityType entityType,
+            EntityKeyFactorySource entityKeyFactorySource,
             InMemoryDatabase inMemoryDatabase,
             bool queryStateManager)
             where TEntity : class
         {
+            var keyProperties
+                = entityType.GetPrimaryKey().Properties;
+
+            var keyFactory
+                = entityKeyFactorySource.GetKeyFactory(keyProperties);
+
+            Func<IValueReader, EntityKey> entityKeyFactory
+                = vr => keyFactory.Create(entityType, keyProperties, vr);
+
             return inMemoryDatabase
                 .GetTable(entityType)
-                .Select(t => (TEntity)queryContext
-                    .QueryBuffer
-                    .GetEntity(entityType, new ObjectArrayValueReader(t), queryStateManager));
+                .Select(t =>
+                {
+                    var valueReader = new ObjectArrayValueReader(t);
+                    var entityKey = entityKeyFactory(valueReader);
+
+                    return (TEntity)queryContext
+                        .QueryBuffer
+                        .GetEntity(entityType, entityKey, valueReader, queryStateManager);
+                });
         }
 
         private static readonly MethodInfo _projectionQueryMethodInfo
@@ -171,6 +187,7 @@ namespace Microsoft.Data.Entity.InMemory.Query
                         _entityQueryMethodInfo.MakeGenericMethod(elementType),
                         QueryContextParameter,
                         Expression.Constant(entityType),
+                        Expression.Constant(QueryModelVisitor.QueryCompilationContext.EntityKeyFactorySource),
                         Expression.Constant(
                             inMemoryDatabase),
                         Expression.Constant(QueryModelVisitor.QuerySourceRequiresTracking(_querySource)));

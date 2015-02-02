@@ -12,9 +12,6 @@ namespace Microsoft.Data.Entity.InMemory.Query
 {
     public class InMemoryQueryCompilationContext : QueryCompilationContext
     {
-        private readonly InMemoryDatabase _database;
-        private readonly EntityKeyFactorySource _entityKeyFactorySource;
-
         public InMemoryQueryCompilationContext(
             [NotNull] IModel model,
             [NotNull] ILogger logger,
@@ -26,13 +23,13 @@ namespace Microsoft.Data.Entity.InMemory.Query
                 Check.NotNull(logger, "logger"),
                 new LinqOperatorProvider(),
                 new ResultOperatorHandler(),
-                Check.NotNull(entityMaterializerSource, "entityMaterializerSource"))
+                Check.NotNull(entityMaterializerSource, "entityMaterializerSource"),
+                Check.NotNull(entityKeyFactorySource, "entityKeyFactorySource"))
         {
             Check.NotNull(entityKeyFactorySource, "entityKeyFactorySource");
             Check.NotNull(database, "database");
 
-            _entityKeyFactorySource = entityKeyFactorySource;
-            _database = database;
+            Database = database;
         }
 
         public override EntityQueryModelVisitor CreateQueryModelVisitor(
@@ -41,14 +38,6 @@ namespace Microsoft.Data.Entity.InMemory.Query
             return new InMemoryQueryModelVisitor(this);
         }
 
-        public virtual EntityKeyFactorySource EntityKeyFactorySource
-        {
-            get { return _entityKeyFactorySource; }
-        }
-
-        public virtual InMemoryDatabase Database
-        {
-            get { return _database; }
-        }
+        public virtual InMemoryDatabase Database { get; }
     }
 }

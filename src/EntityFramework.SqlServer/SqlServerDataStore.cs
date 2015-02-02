@@ -76,6 +76,7 @@ namespace Microsoft.Data.Entity.SqlServer
                 linqOperatorProvider,
                 resultOperatorHandler,
                 EntityMaterializerSource,
+                EntityKeyFactorySource, 
                 enumerableMethodProvider,
                 methodCallTranslator);
         }
