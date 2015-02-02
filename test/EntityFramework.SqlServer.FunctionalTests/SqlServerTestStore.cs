@@ -118,7 +118,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                             if (!File.Exists(scriptPath))
                             {
-                                var appBase = Environment.GetEnvironmentVariable("DOTNET_APPBASE");
+                                var appBase = Environment.GetEnvironmentVariable("KRE_APPBASE");
 
                                 if (appBase != null)
                                 {
@@ -176,7 +176,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                             if (!File.Exists(scriptPath))
                             {
-                                var appBase = Environment.GetEnvironmentVariable("DOTNET_APPBASE");
+                                var appBase = Environment.GetEnvironmentVariable(KRE_APPBASE");
 
                                 if (appBase != null)
                                 {
