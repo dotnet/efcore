@@ -75,8 +75,11 @@ namespace Microsoft.Data.Entity.Query
             Func<IValueReader, object> materializer,
             bool queryStateManager)
         {
-            Check.NotNull(entityType, "entityType");
-            Check.NotNull(valueReader, "valueReader");
+            // hot path
+            Debug.Assert(entityType != null);
+            Debug.Assert(entityKey != null);
+            Debug.Assert(valueReader != null);
+            Debug.Assert(materializer != null);
 
             if (entityKey == EntityKey.NullEntityKey)
             {
