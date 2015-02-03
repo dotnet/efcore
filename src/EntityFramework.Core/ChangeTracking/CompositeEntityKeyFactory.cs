@@ -10,18 +10,32 @@ namespace Microsoft.Data.Entity.ChangeTracking
 {
     public class CompositeEntityKeyFactory : EntityKeyFactory
     {
-        public override EntityKey Create(IEntityType entityType, IReadOnlyList<IProperty> properties, IValueReader valueReader)
+        public override EntityKey Create(
+            IEntityType entityType, IReadOnlyList<IProperty> properties, IValueReader valueReader)
         {
             Check.NotNull(entityType, "entityType");
             Check.NotNull(properties, "properties");
             Check.NotNull(valueReader, "valueReader");
 
-            // TODO: Consider using strongly typed ReadValue instead of always object
-            // See issue #736
-            return Create(entityType, properties.Select(p => valueReader.ReadValue<object>(p.Index)).ToArray());
+            var components = new object[properties.Count];
+
+            for (var i = 0; i < properties.Count; i++)
+            {
+                if (valueReader.IsNull(properties[i].Index))
+                {
+                    return EntityKey.NullEntityKey;
+                }
+
+                // TODO: Consider using strongly typed ReadValue instead of always object
+                // See issue #736
+                components[i] = valueReader.ReadValue<object>(properties[i].Index);
+            }
+
+            return new CompositeEntityKey(entityType, components);
         }
 
-        public override EntityKey Create(IEntityType entityType, IReadOnlyList<IProperty> properties, IPropertyBagEntry propertyBagEntry)
+        public override EntityKey Create(
+            IEntityType entityType, IReadOnlyList<IProperty> properties, IPropertyBagEntry propertyBagEntry)
         {
             Check.NotNull(entityType, "entityType");
             Check.NotNull(properties, "properties");

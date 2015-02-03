@@ -3,34 +3,39 @@
 
 using System;
 using System.Data.Common;
+using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational
 {
-    public class RelationalObjectArrayValueReader : ObjectArrayValueReader
+    public class RelationalObjectArrayValueReader : IValueReader
     {
+        private readonly object[] _values;
+
         public RelationalObjectArrayValueReader([NotNull] DbDataReader dataReader)
-            : base(Check.NotNull(CreateBuffer(dataReader), "dataReader"))
         {
+            Debug.Assert(dataReader != null); // hot path
+
+            _values = new object[dataReader.FieldCount];
+
+            dataReader.GetValues(_values);
         }
 
-        private static object[] CreateBuffer(DbDataReader dataReader)
+        public virtual bool IsNull(int index)
         {
-            var values = new object[dataReader.FieldCount];
+            Debug.Assert(index >= 0 && index < Count);
 
-            dataReader.GetValues(values);
-
-            for (var i = 0; i < values.Length; i++)
-            {
-                if (ReferenceEquals(values[i], DBNull.Value))
-                {
-                    values[i] = null;
-                }
-            }
-
-            return values;
+            return ReferenceEquals(_values[index], DBNull.Value);
         }
+
+        public virtual T ReadValue<T>(int index)
+        {
+            Debug.Assert(index >= 0 && index < Count);
+
+            return (T)_values[index];
+        }
+
+        public virtual int Count => _values.Length;
     }
 }

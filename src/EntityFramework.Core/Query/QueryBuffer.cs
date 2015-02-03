@@ -118,10 +118,16 @@ namespace Microsoft.Data.Entity.Query
 
             var stateEntry = _stateManager.TryGetEntry(entity);
 
-            return stateEntry != null
-                ? stateEntry[property]
-                : _byEntityInstance[entity][0].ValueReader
-                    .ReadValue<object>(property.Index);
+            if (stateEntry != null)
+            {
+                return stateEntry[property];
+            }
+
+            var valueReader = _byEntityInstance[entity][0].ValueReader;
+
+            return valueReader.IsNull(property.Index)
+                ? null
+                : valueReader.ReadValue<object>(property.Index);
         }
 
         public virtual void StartTracking(object entity)

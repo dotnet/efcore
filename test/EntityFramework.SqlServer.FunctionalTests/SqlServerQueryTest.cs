@@ -17,6 +17,18 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
     public class SqlServerQueryTest : QueryTestBase<SqlServerNorthwindQueryFixture>
     {
+//        [Fact]
+//        public void Materialization_Perf()
+//        {
+//            using (var context = CreateContext())
+//            {
+//                for (var i = 0; i < 1; i++)
+//                {
+//                    context.Orders.AsNoTracking().ToList();
+//                }
+//            }
+//        }
+
         public override void Count_with_predicate()
         {
             base.Count_with_predicate();
