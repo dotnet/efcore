@@ -96,7 +96,16 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
                 VisitJoin(selectExpression.OrderBy, t =>
                     {
-                        VisitExpression(t.Expression);
+                        var columnExpression = t.Expression as ColumnExpression;
+                        if (columnExpression != null)
+                        {
+                            // strip column expression from alias - it should not be generated for ORDER BY clause
+                            VisitExpression(new ColumnExpression(columnExpression.Name, columnExpression.Property, columnExpression.Table));
+                        }
+                        else
+                        {
+                            VisitExpression(t.Expression);
+                        }
 
                         if (t.OrderingDirection == OrderingDirection.Desc)
                         {

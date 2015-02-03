@@ -208,7 +208,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
                         targetSelectExpression
                             .AddToOrderBy(
-                                columnExpression.Name,
+                                columnExpression.Alias ?? columnExpression.Name,
                                 columnExpression.Property,
                                 innerJoinExpression,
                                 ordering.OrderingDirection);
@@ -318,7 +318,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             }
 
             var matchingColumnExpression
-                = projections.Single(p => p.Property == property);
+                = projections.Last(p => p.Property == property);
 
             return new ColumnExpression(
                 matchingColumnExpression.Alias ?? matchingColumnExpression.Name,
