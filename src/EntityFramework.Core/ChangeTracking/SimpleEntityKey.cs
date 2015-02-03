@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using JetBrains.Annotations;
@@ -11,6 +12,8 @@ namespace Microsoft.Data.Entity.ChangeTracking
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class SimpleEntityKey<TKey> : EntityKey
     {
+        private static readonly IEqualityComparer _equalityComparer = EqualityComparer<TKey>.Default;
+
         private readonly IEntityType _entityType;
         private readonly TKey _keyValue;
 
@@ -29,12 +32,6 @@ namespace Microsoft.Data.Entity.ChangeTracking
             return _keyValue;
         }
 
-        private bool Equals(SimpleEntityKey<TKey> other)
-        {
-            return _entityType == other._entityType
-                   && EqualityComparer<TKey>.Default.Equals(_keyValue, other._keyValue);
-        }
-
         public override bool Equals([CanBeNull] object obj)
         {
             if (ReferenceEquals(null, obj))
@@ -43,18 +40,24 @@ namespace Microsoft.Data.Entity.ChangeTracking
             }
 
             return ReferenceEquals(this, obj)
-                   || obj.GetType() == GetType()
-                   && Equals((SimpleEntityKey<TKey>)obj);
+                   || (obj.GetType() == GetType()
+                       && Equals((SimpleEntityKey<TKey>)obj));
+        }
+
+        private bool Equals(SimpleEntityKey<TKey> other)
+        {
+            return _entityType == other._entityType
+                   && _equalityComparer.Equals(_keyValue, other._keyValue);
         }
 
         public override int GetHashCode()
         {
             return (_entityType.GetHashCode() * 397)
-                   ^ EqualityComparer<TKey>.Default.GetHashCode(_keyValue);
+                   ^ _equalityComparer.GetHashCode(_keyValue);
         }
 
         [UsedImplicitly]
-        private string DebuggerDisplay 
+        private string DebuggerDisplay
             => string.Format("{0}({1})", _entityType.Name, string.Join(", ", _keyValue));
     }
 }
