@@ -1,25 +1,25 @@
-// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.Data.Entity.FunctionalTests.TestModels.GearsOfWarModel;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.FunctionalTests;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
 using Microsoft.Framework.Logging;
+using Microsoft.Data.Entity.FunctionalTests.TestModels.ComplexNavigationsModel;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
-    public class SqlServerGearsOfWarQueryFixture : RelationalGearsOfWarQueryFixture<SqlServerTestStore>
+    public class SqlServerComplexNavigationsQueryFixture : RelationalComplexNavigationsQueryFixture<SqlServerTestStore>
     {
-        public static readonly string DatabaseName = "GearsOfWarQueryTest";
+        public static readonly string DatabaseName = "ComplexNavigations";
 
         private readonly IServiceProvider _serviceProvider;
 
         private readonly string _connectionString = SqlServerTestStore.CreateConnectionString(DatabaseName);
 
-        public SqlServerGearsOfWarQueryFixture()
+        public SqlServerComplexNavigationsQueryFixture()
         {
             _serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
@@ -33,30 +33,30 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         public override SqlServerTestStore CreateTestStore()
         {
             return SqlServerTestStore.GetOrCreateShared(DatabaseName, () =>
+            {
+                var options = new DbContextOptions();
+                options.UseSqlServer(_connectionString);
+
+                using (var context = new ComplexNavigationsContext(_serviceProvider, options))
                 {
-                    var options = new DbContextOptions();
-                    options.UseSqlServer(_connectionString);
+                    // TODO: Delete DB if model changed
 
-                    using (var context = new GearsOfWarContext(_serviceProvider, options))
+                    if (context.Database.EnsureCreated())
                     {
-                        // TODO: Delete DB if model changed
-
-                        if (context.Database.EnsureCreated())
-                        {
-                            GearsOfWarModelInitializer.Seed(context);
-                        }
-
-                        TestSqlLoggerFactory.SqlStatements.Clear();
+                        ComplexNavigationsModelInitializer.Seed(context);
                     }
-                });
+
+                    TestSqlLoggerFactory.SqlStatements.Clear();
+                }
+            });
         }
 
-        public override GearsOfWarContext CreateContext(SqlServerTestStore testStore)
+        public override ComplexNavigationsContext CreateContext(SqlServerTestStore testStore)
         {
             var options = new DbContextOptions();
             options.UseSqlServer(testStore.Connection);
 
-            var context = new GearsOfWarContext(_serviceProvider, options);
+            var context = new ComplexNavigationsContext(_serviceProvider, options);
             context.Database.AsRelational().Connection.UseTransaction(testStore.Transaction);
             return context;
         }

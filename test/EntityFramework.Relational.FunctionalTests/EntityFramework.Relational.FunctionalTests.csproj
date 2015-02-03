@@ -70,6 +70,7 @@
   <ItemGroup>
     <Compile Include="MappingQueryTestBase.cs" />
     <Compile Include="MappingQueryFixtureBase.cs" />
+    <Compile Include="RelationalComplexNavigationsQueryFixture.cs" />
     <Compile Include="RelationalF1Fixture.cs" />
     <Compile Include="RelationalGearsOfWarQueryFixture.cs" />
     <Compile Include="RelationalNorthwindQueryFixture.cs" />
