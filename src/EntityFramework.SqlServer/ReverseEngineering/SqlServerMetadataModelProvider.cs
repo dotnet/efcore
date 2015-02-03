@@ -8,6 +8,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Relational.Design.CodeGeneration;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
 using Microsoft.Data.Entity.SqlServer.ReverseEngineering.Model;
 using Microsoft.Data.Entity.SqlServer.Utilities;
@@ -34,6 +35,9 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
         public static readonly string AnnotationNameScale = AnnotationPrefix + "Scale";
         public static readonly string AnnotationNameIsIdentity = AnnotationPrefix + "IsIdentity";
         public static readonly string AnnotationNameIsNullable = AnnotationPrefix + "IsNullable";
+
+        private Dictionary<IEntityType, string> _entityTypeToClassNameMap = new Dictionary<IEntityType, string>();
+        private Dictionary<IProperty, string> _propertyToPropertyNameMap = new Dictionary<IProperty, string>();
 
         private ILogger _logger;
 
@@ -184,9 +188,6 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
             Dictionary<string, Dictionary<string, int>> foreignKeyOrdinals,
             Dictionary<string, ForeignKeyColumnMapping> foreignKeyColumnMappings)
         {
-            var columnIdToProperty = new Dictionary<string, Property>();
-            var propertyToForeignKeyConstraintIds = new Dictionary<Property, List<string>>();
-
             // the relationalModel is an IModel, but not the one that will be returned
             // it's just directly from the database - EntiyType = table, Property = column
             // etc with no attempt to hook up foreign key columns or make the
@@ -194,129 +195,184 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
             var relationalModel = new Microsoft.Data.Entity.Metadata.Model();
             foreach (var table in tables.Values)
             {
-                var entityTypeName =
-                    table.SchemaName
-                    + AnnotationNameTableIdSchemaTableSeparator
-                    + table.TableName;
-                var entityType = relationalModel.AddEntityType(entityTypeName);
-                entityType.AddAnnotation(AnnotationNameTableId, table.Id);
-
-                var primaryKeys = new List<Property>();
-                var foreignKeys = new Dictionary<string, List<Property>>();
-                foreach (var tc in tableColumns.Values.Where(col => col.TableId == table.Id))
-                {
-                    Type clrPropertyType;
-                    if (!SqlServerTypeMapping._sqlTypeToClrTypeMap.TryGetValue(tc.DataType, out clrPropertyType))
-                    {
-                        // _logger.WriteInformation("Could not find type mapping for SQL Server type " + tc.DataType);
-                    }
-                    else
-                    {
-                        if (tc.IsNullable)
-                        {
-                            clrPropertyType = clrPropertyType.MakeNullable();
-                        }
-                        // have to add property in shadow state as we have no CLR type representing the EntityType at this stage
-                        var property = entityType.AddProperty(tc.ColumnName, clrPropertyType, true);
-                        property.AddAnnotation(AnnotationNameColumnId, tc.Id);
-                        columnIdToProperty.Add(tc.Id, property);
-
-                        // make column a primary key if it appears in the PK constraint
-                        int primaryKeyOrdinal;
-                        if (!primaryKeyOrdinals.TryGetValue(tc.Id, out primaryKeyOrdinal))
-                        {
-                            //TODO - only if _logger != null
-                            // _logger.WriteInformation("Could not find PKOrdinal mapping for " + tc);
-                        }
-                        else
-                        {
-                            primaryKeys.Add(property);
-                            property.AddAnnotation(AnnotationNamePrimaryKeyOrdinal, primaryKeyOrdinal.ToString());
-                        }
-
-
-                        // make column a foreign key if it appears in an FK constraint
-                        Dictionary<string, int> constraintIdOrdinalKeyValuePairMap;
-                        if (!foreignKeyOrdinals.TryGetValue(tc.Id, out constraintIdOrdinalKeyValuePairMap))
-                        {
-                            //TODO - only if _logger != null
-                            // _logger.WriteInformation("Could not find FKOrdinal mapping for " + tc);
-                        }
-                        else
-                        {
-                            // store in which constraints this column appears
-                            foreach (var keyValuePair in constraintIdOrdinalKeyValuePairMap)
-                            {
-                                var constraintId = keyValuePair.Key;
-                                var ordinal = keyValuePair.Value;
-                                List<string> constraintIds;
-                                if (!propertyToForeignKeyConstraintIds.TryGetValue(property, out constraintIds))
-                                {
-                                    constraintIds = new List<string>();
-                                    propertyToForeignKeyConstraintIds[property] = constraintIds;
-                                }
-                                if (!constraintIds.Contains(constraintId))
-                                {
-                                    constraintIds.Add(constraintId);
-                                }
-
-                                property.AddAnnotation(
-                                    GetForeignKeyOrdinalPositionAnnotationName(constraintId),
-                                    ordinal.ToString());
-                            }
-                        }
-
-                        ApplyPropertyProperties(property, tc);
-                    }
-                } // end of loop over all columns for this table
-
-                entityType.SetPrimaryKey(primaryKeys);
-            } // end of loop over tables
-
-            // loop over all properties adding TargetEntityType and TargetProperty for ForeignKeys
-            // this has to be done after all EntityTypes and their Properties have been created
-            foreach (var fromEntityTpe in relationalModel.EntityTypes)
-            {
-                foreach (var fromProperty in fromEntityTpe.Properties)
-                {
-                    List<string> foreignKeyConstraintIds;
-                    if (propertyToForeignKeyConstraintIds.TryGetValue(fromProperty, out foreignKeyConstraintIds))
-                    {
-                        fromProperty.AddAnnotation(AnnotationNameForeignKeyConstraints,
-                            string.Join(AnnotationFormatForeignKeyConstraintSeparator, foreignKeyConstraintIds));
-
-                        foreach (var foreignKeyConstraintId in foreignKeyConstraintIds)
-                        {
-                            var columnId = fromProperty[AnnotationNameColumnId];
-                            ForeignKeyColumnMapping foreignKeyMapping;
-                            if (!foreignKeyColumnMappings.TryGetValue(foreignKeyConstraintId + columnId, out foreignKeyMapping))
-                            {
-                                _logger.WriteError("Could not find foreignKeyMapping for ConstraintId " + foreignKeyConstraintId + " FromColumn " + columnId);
-                                break;
-                            }
-
-                            TableColumn toColumn;
-                            if (!tableColumns.TryGetValue(foreignKeyMapping.ToColumnId, out toColumn))
-                            {
-                                _logger.WriteError("Could not find toColumn with ColumnId " + foreignKeyMapping.ToColumnId);
-                                break;
-                            }
-
-                            Property toProperty;
-                            if (!columnIdToProperty.TryGetValue(toColumn.Id, out toProperty))
-                            {
-                                _logger.WriteError("Could not find mapping to a Property for ColumnId " + toColumn.Id);
-                                break;
-                            }
-
-                            fromProperty.AddAnnotation(GetForeignKeyTargetPropertyAnnotationName(foreignKeyConstraintId), toProperty.Name);
-                            fromProperty.AddAnnotation(GetForeignKeyTargetEntityTypeAnnotationName(foreignKeyConstraintId), toProperty.EntityType.Name);
-                        }
-                    }
-                }
+                relationalModel.AddEntityType(table.Id);
             }
 
-            return relationalModel;
+            var relationalColumnIdToRelationalPropertyMap = new Dictionary<string, Property>();
+            foreach (var tc in tableColumns.Values)
+            {
+                var entityType = relationalModel.TryGetEntityType(tc.TableId);
+                if (entityType == null)
+                {
+                    _logger.WriteError("Could not find table with TableId " + tc.TableId);
+                    continue;
+                }
+
+                // IModel will not allow Properties to be created without a Type, so map to CLR type here.
+                // This means if we come across a column with a SQL Server type which we can't map we will ignore it.
+                // Note: foreign key properties appear just like any other property in the relational model.
+                Type clrPropertyType;
+                if (!SqlServerTypeMapping._sqlTypeToClrTypeMap.TryGetValue(tc.DataType, out clrPropertyType))
+                {
+                    // _logger.WriteError("Could not find type mapping for SQL Server type " + tc.DataType);
+                    continue;
+                }
+
+                if (tc.IsNullable)
+                {
+                    clrPropertyType = clrPropertyType.MakeNullable();
+                }
+
+                var relationalProperty = entityType.AddProperty(tc.Id, clrPropertyType, shadowProperty: true);
+                relationalColumnIdToRelationalPropertyMap[tc.Id] = relationalProperty;
+            }
+
+            // construct maps mapping of relationalModel's IEntityTypes to the names they will have in the CodeGen Model
+            var nameMapper = new SqlServerNameMapper(relationalModel, entity => entity.SimpleName, property => property.Name);
+
+            // create all codeGenModel EntityTypes and Properties
+            var relationalEntityTypeToCodeGenEntityTypeMap = new Dictionary<EntityType, EntityType>();
+            var relationalPropertyToCodeGenPropertyMap = new Dictionary<Property, Property>();
+            var relationalEntityTypeToForeignKeyConstraintsMap = new Dictionary<EntityType, Dictionary<string, List<Property>>>(); // string is ConstraintId
+            var codeGenModel = new Microsoft.Data.Entity.Metadata.Model();
+            foreach (var relationalEntityType in relationalModel.EntityTypes.Cast<EntityType>())
+            {
+                var codeGenEntityType = codeGenModel.AddEntityType(nameMapper.EntityTypeToClassNameMap[relationalEntityType]);
+                relationalEntityTypeToCodeGenEntityTypeMap[relationalEntityType] = codeGenEntityType;
+
+                // Loop over properties in each relational EntityType.
+                // If property is part of a foreign key (and not part of a primary key)
+                // add to list of constraints to be added in later.
+                // Otherwise construct matching property.
+                var primaryKeyProperties = new List<Property>();
+                var constraints = new Dictionary<string, List<Property>>();
+                relationalEntityTypeToForeignKeyConstraintsMap[relationalEntityType] = constraints;
+                foreach (var relationalProperty in relationalEntityType.Properties.OrderBy(p => nameMapper.PropertyToPropertyNameMap[p]))
+                {
+                    var isPartOfPrimaryKey = false;
+                    int primaryKeyOrdinal;
+                    if ((isPartOfPrimaryKey =
+                        primaryKeyOrdinals.TryGetValue(relationalProperty.Name, out primaryKeyOrdinal)))
+                    {
+                        // add _relational_ property so we can order on the ordinal later
+                        primaryKeyProperties.Add(relationalProperty);
+                    }
+
+                    var isPartOfForeignKey = false;
+                    Dictionary<string, int> foreignKeyConstraintIdOrdinalMap;
+                    if ((isPartOfForeignKey =
+                        foreignKeyOrdinals.TryGetValue(relationalProperty.Name, out foreignKeyConstraintIdOrdinalMap)))
+                    {
+                        // relationalProperty represents (part of) a foreign key 
+                        foreach (var constraintId in foreignKeyOrdinals.Keys)
+                        {
+                            List<Property> constraintProperties;
+                            if (!constraints.TryGetValue(constraintId, out constraintProperties))
+                            {
+                                constraintProperties = new List<Property>();
+                                constraints.Add(constraintId, constraintProperties);
+                            }
+                            constraintProperties.Add(relationalProperty);
+                        }
+                    }
+
+                    if (!isPartOfForeignKey || isPartOfPrimaryKey)
+                    {
+                        var codeGenProperty = codeGenEntityType.AddProperty(
+                            nameMapper.PropertyToPropertyNameMap[relationalProperty],
+                            relationalProperty.PropertyType,
+                            shadowProperty: true);
+                        relationalPropertyToCodeGenPropertyMap[relationalProperty] = codeGenProperty;
+                    }
+                } // end of loop over all relational properties for given EntityType
+
+                if (primaryKeyProperties.Count() > 0)
+                {
+                    // order the relational properties by their primaryKeyOrdinal, then return a list
+                    // of the codeGen properties mapped to each relational property in that order
+                    codeGenEntityType.SetPrimaryKey(
+                        primaryKeyProperties
+                        .OrderBy(p => primaryKeyOrdinals[p.Name]) // note: for relational property p.Name is its columnId
+                        .Select(p => relationalPropertyToCodeGenPropertyMap[p])
+                        .ToList());
+                }
+            } // end of loop over all relational EntityTypes
+
+            // Loop over all FK constraints adding in ForeignKeys
+            foreach(var keyValuePair in relationalEntityTypeToForeignKeyConstraintsMap)
+            {
+                var fromColumnrelationalEntityType = keyValuePair.Key;
+                var codeGenEntityType = relationalEntityTypeToCodeGenEntityTypeMap[fromColumnrelationalEntityType];
+                foreach (var foreignKeyConstraintMap in keyValuePair.Value)
+                {
+                    var foreignKeyConstraintId = foreignKeyConstraintMap.Key;
+                    var foreignKeyConstraintRelationalPropertyList = foreignKeyConstraintMap.Value;
+
+                    var targetRelationalProperty = FindTargetColumn(
+                        foreignKeyColumnMappings,
+                        tableColumns,
+                        relationalColumnIdToRelationalPropertyMap,
+                        foreignKeyConstraintId,
+                        foreignKeyConstraintRelationalPropertyList[0].Name);
+                    if (targetRelationalProperty != null)
+                    {
+                        var targetRelationalEntityType = targetRelationalProperty.EntityType;
+                        var targetCodeGenEntityType = relationalEntityTypeToCodeGenEntityTypeMap[targetRelationalEntityType];
+                        var targetPrimaryKey = targetCodeGenEntityType.GetPrimaryKey();
+
+                        // to construct foreign key need the properties representing the foreign key columns in the codeGen model
+                        // in the order they appear in the target's key
+                        var foreignKeyCodeGenProperties =
+                            foreignKeyConstraintRelationalPropertyList
+                                .OrderBy(p => foreignKeyOrdinals[p.Name][foreignKeyConstraintId]) // relational property's name is the columnId
+                                .Select(p => relationalPropertyToCodeGenPropertyMap[p])
+                                .ToList();
+
+                        var codeGenForeignKey = codeGenEntityType.AddForeignKey(foreignKeyCodeGenProperties, targetPrimaryKey);
+                        //TODO: make ForeignKey unique based on constraints
+
+                        // try without navigation property - add in CodeGen
+                        //////TODO: what if multiple Navs to same target?
+                        ////codeGenEntityType.AddNavigation(targetCodeGenEntityType.Name, codeGenForeignKey, pointsToPrincipal: false);
+                    }
+                }
+
+            }
+
+            return codeGenModel;
+        }
+
+        private Property FindTargetColumn(
+            Dictionary<string, ForeignKeyColumnMapping> foreignKeyColumnMappings,
+            Dictionary<string, TableColumn> tableColumns,
+            Dictionary<string, Property> relationalColumnIdToRelationalPropertyMap,
+            string foreignKeyConstraintId,
+            string fromColumnId)
+        {
+            ForeignKeyColumnMapping foreignKeyColumnMapping;
+            if (!foreignKeyColumnMappings.TryGetValue(
+                foreignKeyConstraintId + fromColumnId, out foreignKeyColumnMapping))
+            {
+                //_logger.WriteError("Could not find foreignKeyMapping for ConstraintId " + foreignKeyConstraintId
+                //    + " FromColumn " + fromColumnId);
+                return null;
+            }
+
+            TableColumn toColumn;
+            if (!tableColumns.TryGetValue(foreignKeyColumnMapping.ToColumnId, out toColumn))
+            {
+                //_logger.WriteError("Could not find toColumn with ColumnId " + foreignKeyColumnMapping.ToColumnId);
+                return null;
+            }
+
+            Property toColumnRelationalProperty;
+            if (!relationalColumnIdToRelationalPropertyMap.TryGetValue(toColumn.Id, out toColumnRelationalProperty))
+            {
+                //_logger.WriteError("Could not find relational property for toColumn with ColumnId " + toColumn.Id);
+                return null;
+            }
+
+            return toColumnRelationalProperty;
         }
 
         //TODO - this works around the fact that string.Split() does not exist in ASPNETCORE50
