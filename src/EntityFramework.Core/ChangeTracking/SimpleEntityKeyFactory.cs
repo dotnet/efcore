@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Diagnostics;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
@@ -9,18 +10,21 @@ namespace Microsoft.Data.Entity.ChangeTracking
 {
     public class SimpleEntityKeyFactory<TKey> : EntityKeyFactory
     {
-        public override EntityKey Create(IEntityType entityType, IReadOnlyList<IProperty> properties, IValueReader valueReader)
+        public override EntityKey Create(
+            IEntityType entityType, IReadOnlyList<IProperty> properties, IValueReader valueReader)
         {
-            Check.NotNull(entityType, "entityType");
-            Check.NotNull(properties, "properties");
-            Check.NotNull(valueReader, "valueReader");
+            // hot path
+            Debug.Assert(entityType != null);
+            Debug.Assert(properties != null);
+            Debug.Assert(valueReader != null);
 
             return valueReader.IsNull(properties[0].Index)
                 ? EntityKey.NullEntityKey
                 : new SimpleEntityKey<TKey>(entityType, valueReader.ReadValue<TKey>(properties[0].Index));
         }
 
-        public override EntityKey Create(IEntityType entityType, IReadOnlyList<IProperty> properties, IPropertyBagEntry propertyBagEntry)
+        public override EntityKey Create(
+            IEntityType entityType, IReadOnlyList<IProperty> properties, IPropertyBagEntry propertyBagEntry)
         {
             Check.NotNull(entityType, "entityType");
             Check.NotNull(properties, "properties");

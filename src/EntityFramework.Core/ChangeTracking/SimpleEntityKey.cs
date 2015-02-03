@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.ChangeTracking
 {
@@ -17,16 +16,13 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         public SimpleEntityKey([NotNull] IEntityType entityType, [CanBeNull] TKey keyValue)
         {
-            Check.NotNull(entityType, "entityType");
+            Debug.Assert(entityType != null); // hot path
 
             _entityType = entityType;
             _keyValue = keyValue;
         }
 
-        public new virtual TKey Value
-        {
-            get { return _keyValue; }
-        }
+        public new virtual TKey Value => _keyValue;
 
         protected override object GetValue()
         {
@@ -58,9 +54,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         }
 
         [UsedImplicitly]
-        private string DebuggerDisplay
-        {
-            get { return string.Format("{0}({1})", _entityType.Name, string.Join(", ", _keyValue)); }
-        }
+        private string DebuggerDisplay 
+            => string.Format("{0}({1})", _entityType.Name, string.Join(", ", _keyValue));
     }
 }
