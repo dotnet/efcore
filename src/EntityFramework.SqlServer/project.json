@@ -14,6 +14,7 @@
         "aspnetcore50": {
             "dependencies": {
                 "System.Data.SqlClient": "4.0.0-beta-*",
+                "System.Security.Principal.Windows": "4.0.0-beta-*",
                 "System.Threading.Thread": "4.0.0-beta-*",
                 "System.Text.Encoding.CodePages": "4.0.0-beta-*"
             }
