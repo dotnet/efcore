@@ -8,6 +8,7 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.FunctionalTests;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
+using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
@@ -26,6 +27,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 .AddSqlServer()
                 .ServiceCollection
                 .AddSingleton(typeof(SqlServerModelSource), p => new TestSqlServerModelSource(OnModelCreating))
+                .AddInstance<ILoggerFactory>(new TestSqlLoggerFactory())
                 .BuildServiceProvider();
         }
 
@@ -43,6 +45,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                         {
                             ConcurrencyModelInitializer.Seed(context);
                         }
+
+                        TestSqlLoggerFactory.SqlStatements.Clear();
                     }
                 });
         }

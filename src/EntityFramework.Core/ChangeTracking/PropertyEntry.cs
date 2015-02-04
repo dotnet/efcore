@@ -41,5 +41,15 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 _stateEntry[_property] = value;
             }
         }
+
+        public virtual object OriginalValue
+        {
+            get { return _stateEntry.OriginalValues[_property]; }
+            [param: CanBeNull]
+            set
+            {
+                _stateEntry.OriginalValues[_property] = value;
+            }
+        }
     }
 }

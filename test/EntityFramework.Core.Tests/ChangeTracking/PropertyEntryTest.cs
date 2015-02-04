@@ -73,6 +73,43 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
+        public void Can_get_original_value()
+        {
+            var stateEntryMock = CreateStateEntryMock(new Mock<IProperty>());
+            stateEntryMock.Setup(m => m.OriginalValues[It.IsAny<IProperty>()]).Returns("Chimp");
+
+            Assert.Equal("Chimp", new PropertyEntry(stateEntryMock.Object, "Monkey").OriginalValue);
+        }
+
+        [Fact]
+        public void Can_set_original_value()
+        {
+            var property = new Mock<IProperty>();
+            var stateEntryMock = CreateStateEntryMock(property);
+
+            var sideCarMock = new Mock<Sidecar>();
+            stateEntryMock.Setup(m => m.OriginalValues).Returns(sideCarMock.Object);
+
+            new PropertyEntry(stateEntryMock.Object, "Monkey").OriginalValue = "Chimp";
+
+            sideCarMock.VerifySet(m => m[property.Object] = "Chimp");
+        }
+
+        [Fact]
+        public void Can_set_original_value_to_null()
+        {
+            var property = new Mock<IProperty>();
+            var stateEntryMock = CreateStateEntryMock(property);
+
+            var sideCarMock = new Mock<Sidecar>();
+            stateEntryMock.Setup(m => m.OriginalValues).Returns(sideCarMock.Object);
+
+            new PropertyEntry(stateEntryMock.Object, "Monkey").OriginalValue = null;
+
+            sideCarMock.VerifySet(m => m[property.Object] = null);
+        }
+
+        [Fact]
         public void IsModified_delegates_to_state_object()
         {
             var propertyMock = new Mock<IProperty>();
