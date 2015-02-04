@@ -8,8 +8,8 @@ using System.Data.SqlClient;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Relational.Design.CodeGeneration;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
+using Microsoft.Data.Entity.SqlServer.Metadata;
 using Microsoft.Data.Entity.SqlServer.ReverseEngineering.Model;
 using Microsoft.Data.Entity.SqlServer.Utilities;
 using Microsoft.Framework.Logging;
@@ -36,10 +36,26 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
         public static readonly string AnnotationNameIsIdentity = AnnotationPrefix + "IsIdentity";
         public static readonly string AnnotationNameIsNullable = AnnotationPrefix + "IsNullable";
 
+        private ILogger _logger;
+
+        // data loaded from database
+        private Dictionary<string, Table> _tables;
+        private Dictionary<string, TableColumn> _tableColumns;
+        private Dictionary<string, TableConstraintColumn> _tableConstraintColumns;
+        private Dictionary<string, ForeignKeyColumnMapping> _foreignKeyColumnMappings;
+
+        // dictionaries constructed from database data
+        private Dictionary<string, int> _primaryKeyOrdinals = new Dictionary<string, int>();
+        private Dictionary<string, Dictionary<string, int>> _foreignKeyOrdinals =
+            new Dictionary<string, Dictionary<string, int>>();
         private Dictionary<IEntityType, string> _entityTypeToClassNameMap = new Dictionary<IEntityType, string>();
         private Dictionary<IProperty, string> _propertyToPropertyNameMap = new Dictionary<IProperty, string>();
-
-        private ILogger _logger;
+        private Dictionary<EntityType, EntityType> _relationalEntityTypeToCodeGenEntityTypeMap =
+            new Dictionary<EntityType, EntityType>();
+        private Dictionary<string, Property> _relationalColumnIdToRelationalPropertyMap = new Dictionary<string, Property>();
+        private Dictionary<Property, Property> _relationalPropertyToCodeGenPropertyMap = new Dictionary<Property, Property>();
+        private Dictionary<EntityType, Dictionary<string, List<Property>>> _relationalEntityTypeToForeignKeyConstraintsMap =
+            new Dictionary<EntityType, Dictionary<string, List<Property>>>(); // string is ConstraintId
 
         public SqlServerMetadataModelProvider([NotNull] IServiceProvider serviceProvider)
         {
@@ -48,21 +64,17 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
 
         public IModel GenerateMetadataModel(string connectionString, string filters)
         {
-            Dictionary<string, Table> tables;
-            Dictionary<string, TableColumn> tableColumns;
-            Dictionary<string, TableConstraintColumn> tableConstraintColumns;
-            Dictionary<string, ForeignKeyColumnMapping> foreignKeyColumnMappings;
             using (var conn = new SqlConnection(connectionString))
             {
                 try
                 {
                     conn.Open();
 
-                    tables = LoadData<Table>(conn, Table.Query, Table.CreateFromReader, t => t.Id);
-                    tableColumns = LoadData<TableColumn>(conn, TableColumn.Query, TableColumn.CreateFromReader, tc => tc.Id);
-                    tableConstraintColumns = LoadData<TableConstraintColumn>(
+                    _tables = LoadData<Table>(conn, Table.Query, Table.CreateFromReader, t => t.Id);
+                    _tableColumns = LoadData<TableColumn>(conn, TableColumn.Query, TableColumn.CreateFromReader, tc => tc.Id);
+                    _tableConstraintColumns = LoadData<TableConstraintColumn>(
                         conn, TableConstraintColumn.Query, TableConstraintColumn.CreateFromReader, tcc => tcc.Id);
-                    foreignKeyColumnMappings = LoadData<ForeignKeyColumnMapping>(
+                    _foreignKeyColumnMappings = LoadData<ForeignKeyColumnMapping>(
                         conn, ForeignKeyColumnMapping.Query, ForeignKeyColumnMapping.CreateFromReader, fkcm => fkcm.Id);
                 }
                 finally
@@ -109,13 +121,9 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
             //    _logger.WriteInformation(fkcm.Value.ToString());
             //}
 
-            Dictionary<string, int> primaryKeyOrdinals;
-            Dictionary<string, Dictionary<string, int>> foreignKeyOrdinals;
-            CreatePrimaryAndForeignKeyMaps(
-                tableConstraintColumns, out primaryKeyOrdinals, out foreignKeyOrdinals);
+            CreatePrimaryAndForeignKeyMaps();
 
-            return CreateModel(tables, tableColumns,
-                primaryKeyOrdinals, foreignKeyOrdinals, foreignKeyColumnMappings);
+            return CreateModel();
         }
 
         public static Dictionary<string, T> LoadData<T>(
@@ -149,27 +157,21 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
         /// 
         /// </summary>
         /// <returns></returns>
-        public void CreatePrimaryAndForeignKeyMaps(
-            Dictionary<string, TableConstraintColumn> tableConstraintColumns,
-            out Dictionary<string, int> primaryKeyOrdinals,
-            out Dictionary<string, Dictionary<string, int>> foreignKeyOrdinals)
+        public void CreatePrimaryAndForeignKeyMaps()
         {
-            primaryKeyOrdinals = new Dictionary<string, int>();
-            foreignKeyOrdinals = new Dictionary<string, Dictionary<string, int>>();
-
-            foreach (var tableConstraintColumn in tableConstraintColumns.Values)
+            foreach (var tableConstraintColumn in _tableConstraintColumns.Values)
             {
                 if (tableConstraintColumn.ConstraintType == "PRIMARY KEY")
                 {
-                    primaryKeyOrdinals.Add(tableConstraintColumn.ColumnId, tableConstraintColumn.Ordinal);
+                    _primaryKeyOrdinals.Add(tableConstraintColumn.ColumnId, tableConstraintColumn.Ordinal);
                 }
                 else if (tableConstraintColumn.ConstraintType == "FOREIGN KEY")
                 {
                     Dictionary<string, int> constraintNameToOrdinalMap;
-                    if (!foreignKeyOrdinals.TryGetValue(tableConstraintColumn.ColumnId, out constraintNameToOrdinalMap))
+                    if (!_foreignKeyOrdinals.TryGetValue(tableConstraintColumn.ColumnId, out constraintNameToOrdinalMap))
                     {
                         constraintNameToOrdinalMap = new Dictionary<string, int>();
-                        foreignKeyOrdinals[tableConstraintColumn.ColumnId] = constraintNameToOrdinalMap;
+                        _foreignKeyOrdinals[tableConstraintColumn.ColumnId] = constraintNameToOrdinalMap;
                     }
 
                     constraintNameToOrdinalMap[tableConstraintColumn.ConstraintId] = tableConstraintColumn.Ordinal;
@@ -181,25 +183,33 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
             }
         }
 
-        public IModel CreateModel(
-            Dictionary<string, Table> tables,
-            Dictionary<string, TableColumn> tableColumns,
-            Dictionary<string, int> primaryKeyOrdinals,
-            Dictionary<string, Dictionary<string, int>> foreignKeyOrdinals,
-            Dictionary<string, ForeignKeyColumnMapping> foreignKeyColumnMappings)
+        public IModel CreateModel()
         {
             // the relationalModel is an IModel, but not the one that will be returned
             // it's just directly from the database - EntiyType = table, Property = column
             // etc with no attempt to hook up foreign key columns or make the
             // names fit CSharp conventions etc.
+            var relationalModel = ConstructRelationalModel();
+
+            // construct maps mapping of relationalModel's IEntityTypes to the names they will have in the CodeGen Model
+            var nameMapper = new SqlServerNameMapper(
+                relationalModel,
+                entity => _tables[entity.Name].TableName,
+                property => _tableColumns[property.Name].ColumnName);
+
+            // create all codeGenModel EntityTypes and Properties
+            return ConstructCodeGenModel(relationalModel, nameMapper);
+        }
+
+        private IModel ConstructRelationalModel()
+        {
             var relationalModel = new Microsoft.Data.Entity.Metadata.Model();
-            foreach (var table in tables.Values)
+            foreach (var table in _tables.Values)
             {
                 relationalModel.AddEntityType(table.Id);
             }
 
-            var relationalColumnIdToRelationalPropertyMap = new Dictionary<string, Property>();
-            foreach (var tc in tableColumns.Values)
+            foreach (var tc in _tableColumns.Values)
             {
                 var entityType = relationalModel.TryGetEntityType(tc.TableId);
                 if (entityType == null)
@@ -224,21 +234,22 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
                 }
 
                 var relationalProperty = entityType.AddProperty(tc.Id, clrPropertyType, shadowProperty: true);
-                relationalColumnIdToRelationalPropertyMap[tc.Id] = relationalProperty;
+                _relationalColumnIdToRelationalPropertyMap[tc.Id] = relationalProperty;
             }
 
-            // construct maps mapping of relationalModel's IEntityTypes to the names they will have in the CodeGen Model
-            var nameMapper = new SqlServerNameMapper(relationalModel, entity => entity.SimpleName, property => property.Name);
+            return relationalModel;
+        }
 
-            // create all codeGenModel EntityTypes and Properties
-            var relationalEntityTypeToCodeGenEntityTypeMap = new Dictionary<EntityType, EntityType>();
-            var relationalPropertyToCodeGenPropertyMap = new Dictionary<Property, Property>();
-            var relationalEntityTypeToForeignKeyConstraintsMap = new Dictionary<EntityType, Dictionary<string, List<Property>>>(); // string is ConstraintId
+        private IModel ConstructCodeGenModel(
+            IModel relationalModel, SqlServerNameMapper nameMapper)
+        {
             var codeGenModel = new Microsoft.Data.Entity.Metadata.Model();
             foreach (var relationalEntityType in relationalModel.EntityTypes.Cast<EntityType>())
             {
                 var codeGenEntityType = codeGenModel.AddEntityType(nameMapper.EntityTypeToClassNameMap[relationalEntityType]);
-                relationalEntityTypeToCodeGenEntityTypeMap[relationalEntityType] = codeGenEntityType;
+                _relationalEntityTypeToCodeGenEntityTypeMap[relationalEntityType] = codeGenEntityType;
+                codeGenEntityType.SqlServer().Table = _tables[relationalEntityType.Name].TableName;
+                codeGenEntityType.SqlServer().Schema = _tables[relationalEntityType.Name].SchemaName;
 
                 // Loop over properties in each relational EntityType.
                 // If property is part of a foreign key (and not part of a primary key)
@@ -246,13 +257,13 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
                 // Otherwise construct matching property.
                 var primaryKeyProperties = new List<Property>();
                 var constraints = new Dictionary<string, List<Property>>();
-                relationalEntityTypeToForeignKeyConstraintsMap[relationalEntityType] = constraints;
-                foreach (var relationalProperty in relationalEntityType.Properties.OrderBy(p => nameMapper.PropertyToPropertyNameMap[p]))
+                _relationalEntityTypeToForeignKeyConstraintsMap[relationalEntityType] = constraints;
+                foreach (var relationalProperty in relationalEntityType.Properties)
                 {
                     var isPartOfPrimaryKey = false;
                     int primaryKeyOrdinal;
                     if ((isPartOfPrimaryKey =
-                        primaryKeyOrdinals.TryGetValue(relationalProperty.Name, out primaryKeyOrdinal)))
+                        _primaryKeyOrdinals.TryGetValue(relationalProperty.Name, out primaryKeyOrdinal)))
                     {
                         // add _relational_ property so we can order on the ordinal later
                         primaryKeyProperties.Add(relationalProperty);
@@ -261,10 +272,10 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
                     var isPartOfForeignKey = false;
                     Dictionary<string, int> foreignKeyConstraintIdOrdinalMap;
                     if ((isPartOfForeignKey =
-                        foreignKeyOrdinals.TryGetValue(relationalProperty.Name, out foreignKeyConstraintIdOrdinalMap)))
+                        _foreignKeyOrdinals.TryGetValue(relationalProperty.Name, out foreignKeyConstraintIdOrdinalMap)))
                     {
                         // relationalProperty represents (part of) a foreign key 
-                        foreach (var constraintId in foreignKeyOrdinals.Keys)
+                        foreach (var constraintId in _foreignKeyOrdinals.Keys)
                         {
                             List<Property> constraintProperties;
                             if (!constraints.TryGetValue(constraintId, out constraintProperties))
@@ -282,7 +293,8 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
                             nameMapper.PropertyToPropertyNameMap[relationalProperty],
                             relationalProperty.PropertyType,
                             shadowProperty: true);
-                        relationalPropertyToCodeGenPropertyMap[relationalProperty] = codeGenProperty;
+                        _relationalPropertyToCodeGenPropertyMap[relationalProperty] = codeGenProperty;
+                        ApplyPropertyProperties(codeGenProperty, _tableColumns[relationalProperty.Name]);
                     }
                 } // end of loop over all relational properties for given EntityType
 
@@ -292,40 +304,46 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
                     // of the codeGen properties mapped to each relational property in that order
                     codeGenEntityType.SetPrimaryKey(
                         primaryKeyProperties
-                        .OrderBy(p => primaryKeyOrdinals[p.Name]) // note: for relational property p.Name is its columnId
-                        .Select(p => relationalPropertyToCodeGenPropertyMap[p])
+                        .OrderBy(p => _primaryKeyOrdinals[p.Name]) // note: for relational property p.Name is its columnId
+                        .Select(p => _relationalPropertyToCodeGenPropertyMap[p])
                         .ToList());
                 }
             } // end of loop over all relational EntityTypes
 
-            // Loop over all FK constraints adding in ForeignKeys
-            foreach(var keyValuePair in relationalEntityTypeToForeignKeyConstraintsMap)
+            AddForeignKeysToCodeGenModel(codeGenModel);
+
+            return codeGenModel;
+        }
+
+        private void AddForeignKeysToCodeGenModel(IModel codeGenModel)
+        {
+            foreach (var keyValuePair in _relationalEntityTypeToForeignKeyConstraintsMap)
             {
-                var fromColumnrelationalEntityType = keyValuePair.Key;
-                var codeGenEntityType = relationalEntityTypeToCodeGenEntityTypeMap[fromColumnrelationalEntityType];
+                var fromColumnRelationalEntityType = keyValuePair.Key;
+                var codeGenEntityType = _relationalEntityTypeToCodeGenEntityTypeMap[fromColumnRelationalEntityType];
                 foreach (var foreignKeyConstraintMap in keyValuePair.Value)
                 {
                     var foreignKeyConstraintId = foreignKeyConstraintMap.Key;
                     var foreignKeyConstraintRelationalPropertyList = foreignKeyConstraintMap.Value;
 
                     var targetRelationalProperty = FindTargetColumn(
-                        foreignKeyColumnMappings,
-                        tableColumns,
-                        relationalColumnIdToRelationalPropertyMap,
+                        _foreignKeyColumnMappings,
+                        _tableColumns,
+                        _relationalColumnIdToRelationalPropertyMap,
                         foreignKeyConstraintId,
                         foreignKeyConstraintRelationalPropertyList[0].Name);
                     if (targetRelationalProperty != null)
                     {
                         var targetRelationalEntityType = targetRelationalProperty.EntityType;
-                        var targetCodeGenEntityType = relationalEntityTypeToCodeGenEntityTypeMap[targetRelationalEntityType];
+                        var targetCodeGenEntityType = _relationalEntityTypeToCodeGenEntityTypeMap[targetRelationalEntityType];
                         var targetPrimaryKey = targetCodeGenEntityType.GetPrimaryKey();
 
                         // to construct foreign key need the properties representing the foreign key columns in the codeGen model
                         // in the order they appear in the target's key
                         var foreignKeyCodeGenProperties =
                             foreignKeyConstraintRelationalPropertyList
-                                .OrderBy(p => foreignKeyOrdinals[p.Name][foreignKeyConstraintId]) // relational property's name is the columnId
-                                .Select(p => relationalPropertyToCodeGenPropertyMap[p])
+                                .OrderBy(p => _foreignKeyOrdinals[p.Name][foreignKeyConstraintId]) // relational property's name is the columnId
+                                .Select(p => _relationalPropertyToCodeGenPropertyMap[p])
                                 .ToList();
 
                         var codeGenForeignKey = codeGenEntityType.AddForeignKey(foreignKeyCodeGenProperties, targetPrimaryKey);
@@ -336,10 +354,7 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
                         ////codeGenEntityType.AddNavigation(targetCodeGenEntityType.Name, codeGenForeignKey, pointsToPrincipal: false);
                     }
                 }
-
             }
-
-            return codeGenModel;
         }
 
         private Property FindTargetColumn(
@@ -421,35 +436,76 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
             return string.Format(AnnotationFormatForeignKey, foreignKeyConstraintId, descriptor);
         }
 
-        public static void ApplyPropertyProperties(Property property, TableColumn tc)
+        private List<string> DataTypesForMax = new List<string>() { "varchar", "nvarchar", "varbinary" };
+        private List<string> DataTypesForPrecisionAndScale = new List<string>() { "decimal", "numeric" };
+
+        public void ApplyPropertyProperties(Property property, TableColumn tc)
         {
-            property.IsNullable = tc.IsNullable;
-            property.AddAnnotation(AnnotationNameIsNullable, tc.IsNullable.ToString());
-            property.MaxLength = tc.MaxLength == -1 ? null : tc.MaxLength;
-            if (property.MaxLength != null)
+            if (property.Name != tc.ColumnName)
             {
-                property.AddAnnotation(AnnotationNameMaxLength, property.MaxLength.Value.ToString());
+                property.SqlServer().Column = tc.ColumnName;
             }
-            if (tc.NumericPrecision.HasValue)
+
+            //TODO - only apply attribute when necessary
+            string columnType = tc.DataType;
+            if (tc.MaxLength.HasValue)
             {
-                property.AddAnnotation(AnnotationNamePrecision, tc.NumericPrecision.Value.ToString());
+                if (tc.MaxLength > 0)
+                {
+                    property.MaxLength = tc.MaxLength;
+                }
+
+                if (tc.MaxLength.Value >= Int32.MaxValue / 2
+                    && DataTypesForMax.Contains(columnType))
+                {
+                    columnType += "(max)";
+                }
+                else
+                {
+                    columnType += "(" + tc.MaxLength + ")";
+                }
             }
-            if (tc.DateTimePrecision.HasValue)
+            else if (DataTypesForPrecisionAndScale.Contains(tc.DataType))
             {
-                property.AddAnnotation(AnnotationNamePrecision, tc.DateTimePrecision.Value.ToString());
+                if (tc.NumericPrecision.HasValue)
+                {
+                    if (tc.Scale.HasValue)
+                    {
+                        columnType += "(" + tc.NumericPrecision.Value + ", " + tc.Scale.Value + ")";
+                    }
+                    else
+                    {
+                        columnType += "(" + tc.NumericPrecision.Value + ")";
+                    }
+                }
             }
-            if (tc.Scale.HasValue)
-            {
-                property.AddAnnotation(AnnotationNameScale, tc.Scale.Value.ToString());
-            }
+            property.SqlServer().ColumnType = columnType;
+
+            ////property.IsNullable = tc.IsNullable;
+            ////property.AddAnnotation(AnnotationNameIsNullable, tc.IsNullable.ToString());
+            ////if (tc.NumericPrecision.HasValue)
+            ////{
+            ////    property.AddAnnotation(AnnotationNamePrecision, tc.NumericPrecision.Value.ToString());
+            ////}
+            ////if (tc.DateTimePrecision.HasValue)
+            ////{
+            ////    property.AddAnnotation(AnnotationNamePrecision, tc.DateTimePrecision.Value.ToString());
+            ////}
+            ////if (tc.Scale.HasValue)
+            ////{
+            ////    property.AddAnnotation(AnnotationNameScale, tc.Scale.Value.ToString());
+            ////}
             if (tc.IsIdentity)
             {
-                property.AddAnnotation(AnnotationNameIsIdentity, tc.IsIdentity.ToString());
+                property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Identity;
             }
-            property.IsStoreComputed = tc.IsStoreGenerated;
+            if (tc.IsStoreGenerated)
+            {
+                property.IsStoreComputed = tc.IsStoreGenerated;
+            }
             if (tc.DefaultValue != null)
             {
-                property.UseStoreDefault = true;
+                property.SqlServer().DefaultValue = tc.DefaultValue;
             }
         }
 

@@ -125,15 +125,30 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
             {
                 facetsConfig.Add(tableNameFacetConfig);
             }
+            var schemaNameFacetConfig = GenerateSchemaNameFacetConfiguration(entityType);
+            if (schemaNameFacetConfig != null)
+            {
+                facetsConfig.Add(schemaNameFacetConfig);
+            }
 
             return facetsConfig;
         }
 
         public virtual string GenerateTableNameFacetConfiguration(IEntityType entityType)
         {
-            if (Generator.EntityTypeToClassNameMap[entityType] != entityType.SimpleName)
+            if (entityType.SqlServer().Table != null)
             {
-                return string.Format(CultureInfo.InvariantCulture, ".Table(\"{0}\")", entityType.Name);
+                return string.Format(CultureInfo.InvariantCulture, ".Table(\"{0}\")", entityType.SqlServer().Table);
+            }
+
+            return null;
+        }
+
+        public virtual string GenerateSchemaNameFacetConfiguration(IEntityType entityType)
+        {
+            if (entityType.SqlServer().Schema != null)
+            {
+                return string.Format(CultureInfo.InvariantCulture, ".Schema(\"{0}\")", entityType.SqlServer().Schema);
             }
 
             return null;
@@ -195,20 +210,30 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
             {
                 facetsConfig.Add(columnNameFacetConfig);
             }
+            var columnTypeFacetConfig = GenerateColumnTypeFacetConfiguration(property);
+            if (columnTypeFacetConfig != null)
+            {
+                facetsConfig.Add(columnTypeFacetConfig);
+            }
 
             return facetsConfig;
         }
 
         public virtual string GenerateMaxLengthFacetConfiguration(IProperty property)
         {
-            Annotation maxLengthAnnotation = ((Property)property)
-                .TryGetAnnotation(SqlServerMetadataModelProvider.AnnotationNameMaxLength);
-            if (maxLengthAnnotation != null
-                && maxLengthAnnotation.Value != null
-                && int.Parse(maxLengthAnnotation.Value) > 0
-                && IsValidDataTypeForMaxLength(property))
+            //Annotation maxLengthAnnotation = ((Property)property)
+            //    .TryGetAnnotation(SqlServerMetadataModelProvider.AnnotationNameMaxLength);
+            //if (maxLengthAnnotation != null
+            //    && maxLengthAnnotation.Value != null
+            //    && int.Parse(maxLengthAnnotation.Value) > 0
+            //    && IsValidDataTypeForMaxLength(property))
+            //{
+            //    return string.Format(CultureInfo.InvariantCulture, ".MaxLength({0})", maxLengthAnnotation.Value);
+            //}
+
+            if (((Property)property).MaxLength.HasValue)
             {
-                return string.Format(CultureInfo.InvariantCulture, ".MaxLength({0})", maxLengthAnnotation.Value);
+                return string.Format(CultureInfo.InvariantCulture, ".MaxLength({0})", ((Property)property).MaxLength.Value);
             }
 
             return null;
@@ -216,12 +241,22 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
 
         public virtual string GenerateColumnNameFacetConfiguration(IProperty property)
         {
-            //if (Generator.PropertyToPropertyNameMap[property] != property.Name)
-            //{
-                return string.Format(CultureInfo.InvariantCulture, ".Column(\"{0}\")", property.Name);
-            //}
+            if (property.SqlServer().Column != null)
+            {
+                return string.Format(CultureInfo.InvariantCulture, ".Column(\"{0}\")", property.SqlServer().Column);
+            }
 
-            //return null;
+            return null;
+        }
+
+        public virtual string GenerateColumnTypeFacetConfiguration(IProperty property)
+        {
+            if (property.SqlServer().ColumnType != null)
+            {
+                return string.Format(CultureInfo.InvariantCulture, ".ColumnType(\"{0}\")", property.SqlServer().ColumnType);
+            }
+
+            return null;
         }
 
         private static bool IsValidDataTypeForMaxLength(IProperty property)
@@ -229,9 +264,9 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
             return true;
         }
 
-        public override int PrimaryKeyPropertyOrder(IProperty property)
-        {
-            return int.Parse(property[SqlServerMetadataModelProvider.AnnotationNamePrimaryKeyOrdinal]);
-        }
+        //public override int PrimaryKeyPropertyOrder(IProperty property)
+        //{
+        //    return int.Parse(property[SqlServerMetadataModelProvider.AnnotationNamePrimaryKeyOrdinal]);
+        //}
     }
 }

@@ -206,7 +206,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         {
             sb.Append("entity.Key( e => ");
             sb.Append(ModelUtilities.Instance
-                .GenerateLambdaToKey(key.Properties, PrimaryKeyPropertyOrder, "e"));
+                .GenerateLambdaToKey(key.Properties, "e"));
             sb.Append(" );");
         }
 
@@ -220,11 +220,9 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         {
         }
 
-        public abstract int PrimaryKeyPropertyOrder(IProperty property);
-
         public virtual IEnumerable<IEntityType> OrderedEntityTypes()
         {
-            return _model.EntityTypes.OrderBy(e => _generator.EntityTypeToClassNameMap[e]);
+            return _model.EntityTypes.OrderBy(e => e.Name);
         }
     }
 }
