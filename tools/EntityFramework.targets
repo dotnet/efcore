@@ -22,12 +22,12 @@
     <Task>
       <Code Type="Fragment" Language="cs">
         <![CDATA[
-        var packagesFolder = Environment.GetEnvironmentVariable("DOTNET_PACKAGES")
+        var packagesFolder = Environment.GetEnvironmentVariable("KRE_PACKAGES")
             ?? Path.Combine(
                 Environment.GetEnvironmentVariable("USERPROFILE") ?? Environment.GetEnvironmentVariable("HOME"),
-                ".dotnet",
+                ".k",
                 "packages");
-        
+
         if (!Directory.Exists(packagesFolder))
         {
             Log.LogError("No packages found.");
@@ -57,7 +57,7 @@
 
                     continue;
                 }
-                
+
                 var latestVersion = Directory.EnumerateDirectories(Path.Combine(packagesFolder, id))
                     .OrderByDescending(p => p).FirstOrDefault();
                 if (latestVersion == null)
