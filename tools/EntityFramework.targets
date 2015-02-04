@@ -27,7 +27,7 @@
                 Environment.GetEnvironmentVariable("USERPROFILE") ?? Environment.GetEnvironmentVariable("HOME"),
                 ".k",
                 "packages");
-        
+
         if (!Directory.Exists(packagesFolder))
         {
             Log.LogError("No packages found.");
@@ -57,7 +57,7 @@
 
                     continue;
                 }
-                
+
                 var latestVersion = Directory.EnumerateDirectories(Path.Combine(packagesFolder, id))
                     .OrderByDescending(p => p).FirstOrDefault();
                 if (latestVersion == null)
