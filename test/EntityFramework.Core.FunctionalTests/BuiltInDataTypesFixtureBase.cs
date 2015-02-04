@@ -22,8 +22,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         public virtual void Cleanup(DbContext context)
         {
-            context.Set<BuiltInNonNullableDataTypes>().Remove(context.Set<BuiltInNonNullableDataTypes>().ToArray());
-            context.Set<BuiltInNullableDataTypes>().Remove(context.Set<BuiltInNullableDataTypes>().ToArray());
+            context.Set<BuiltInNonNullableDataTypes>().RemoveRange(context.Set<BuiltInNonNullableDataTypes>());
+            context.Set<BuiltInNullableDataTypes>().RemoveRange(context.Set<BuiltInNullableDataTypes>());
 
             context.SaveChanges();
         }

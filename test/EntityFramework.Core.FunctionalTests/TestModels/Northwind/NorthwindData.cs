@@ -48,7 +48,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind
 
         public static void Seed(NorthwindContext context)
         {
-            context.Set<Customer>().Add(CreateCustomers());
+            context.Set<Customer>().AddRange(CreateCustomers());
 
             var titleProperty = context.Model.GetEntityType(typeof(Employee)).GetProperty("Title");
             foreach (var employee in NorthwindData.CreateEmployees())
@@ -57,9 +57,9 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind
                 context.Entry(employee).StateEntry[titleProperty] = employee.Title;
             }
 
-            context.Set<Order>().Add(CreateOrders());
-            context.Set<Product>().Add(CreateProducts());
-            context.Set<OrderDetail>().Add(CreateOrderDetails());
+            context.Set<Order>().AddRange(CreateOrders());
+            context.Set<Product>().AddRange(CreateProducts());
+            context.Set<OrderDetail>().AddRange(CreateOrderDetails());
 
             context.SaveChanges();
         }
@@ -80,11 +80,11 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind
 
         private static void RemoveAllEntities(NorthwindContext context)
         {
-            context.Set<OrderDetail>().Remove(context.Set<OrderDetail>().ToArray());
-            context.Set<Product>().Remove(context.Set<Product>().ToArray());
-            context.Set<Order>().Remove(context.Set<Order>().ToArray());
-            context.Set<Employee>().Remove(context.Set<Employee>().ToArray());
-            context.Set<Customer>().Remove(context.Set<Customer>().ToArray());
+            context.Set<OrderDetail>().RemoveRange(context.Set<OrderDetail>());
+            context.Set<Product>().RemoveRange(context.Set<Product>());
+            context.Set<Order>().RemoveRange(context.Set<Order>());
+            context.Set<Employee>().RemoveRange(context.Set<Employee>());
+            context.Set<Customer>().RemoveRange(context.Set<Customer>());
         }
 
         private class AsyncEnumerable<T> : EnumerableQuery<T>, IAsyncQueryProvider

@@ -63,10 +63,10 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.ComplexNavigationsMod
                 var l3s = new[] { l3_01, l3_02, l3_03, l3_04, l3_05, l3_06, l3_07, l3_08, l3_09, l3_10 };
                 var l4s = new[] { l4_01, l4_02, l4_03, l4_04, l4_05, l4_06, l4_07, l4_08, l4_09, l4_10 };
 
-                context.LevelOne.Add(l1s);
-                context.LevelTwo.Add(l2s);
-                context.LevelThree.Add(l3s);
-                context.LevelFour.Add(l4s);
+                context.LevelOne.AddRange(l1s);
+                context.LevelTwo.AddRange(l2s);
+                context.LevelThree.AddRange(l3s);
+                context.LevelFour.AddRange(l4s);
 
                 l1s[0].OneToOne_Required_PK = l2s[0];
                 l1s[1].OneToOne_Required_PK = l2s[1];

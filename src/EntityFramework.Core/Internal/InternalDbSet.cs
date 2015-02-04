@@ -34,60 +34,88 @@ namespace Microsoft.Data.Entity.Internal
                         ((IAccessor<IServiceProvider>)_context).Service.GetRequiredServiceChecked<EntityQueryProvider>()));
         }
 
-        public override EntityEntry<TEntity> Add([NotNull] TEntity entity)
+        public override EntityEntry<TEntity> Add(TEntity entity)
         {
             Check.NotNull(entity, "entity");
 
             return _context.Add(entity);
         }
 
-        public override EntityEntry<TEntity> Attach([NotNull] TEntity entity)
+        public override EntityEntry<TEntity> Attach(TEntity entity)
         {
             Check.NotNull(entity, "entity");
 
             return _context.Attach(entity);
         }
 
-        public override EntityEntry<TEntity> Remove([NotNull] TEntity entity)
+        public override EntityEntry<TEntity> Remove(TEntity entity)
         {
             Check.NotNull(entity, "entity");
 
             return _context.Remove(entity);
         }
 
-        public override EntityEntry<TEntity> Update([NotNull] TEntity entity)
+        public override EntityEntry<TEntity> Update(TEntity entity)
         {
             Check.NotNull(entity, "entity");
 
             return _context.Update(entity);
         }
 
-        public override IReadOnlyList<EntityEntry<TEntity>> Add([NotNull] params TEntity[] entities)
+        public override void AddRange([NotNull] params TEntity[] entities)
         {
             Check.NotNull(entities, "entities");
 
-            return _context.Add(entities);
+            _context.AddRange(entities);
         }
 
-        public override IReadOnlyList<EntityEntry<TEntity>> Attach([NotNull] params TEntity[] entities)
+        public override void AttachRange([NotNull] params TEntity[] entities)
         {
             Check.NotNull(entities, "entities");
 
-            return _context.Attach(entities);
+            _context.AttachRange(entities);
         }
 
-        public override IReadOnlyList<EntityEntry<TEntity>> Remove([NotNull] params TEntity[] entities)
+        public override void RemoveRange([NotNull] params TEntity[] entities)
         {
             Check.NotNull(entities, "entities");
 
-            return _context.Remove(entities);
+            _context.RemoveRange(entities);
         }
 
-        public override IReadOnlyList<EntityEntry<TEntity>> Update([NotNull] params TEntity[] entities)
+        public override void UpdateRange([NotNull] params TEntity[] entities)
         {
             Check.NotNull(entities, "entities");
 
-            return _context.Update(entities);
+            _context.UpdateRange(entities);
+        }
+
+        public override void AddRange([NotNull] IEnumerable<TEntity> entities)
+        {
+            Check.NotNull(entities, "entities");
+
+            _context.AddRange(entities);
+        }
+
+        public override void AttachRange([NotNull] IEnumerable<TEntity> entities)
+        {
+            Check.NotNull(entities, "entities");
+
+            _context.AttachRange(entities);
+        }
+
+        public override void RemoveRange([NotNull] IEnumerable<TEntity> entities)
+        {
+            Check.NotNull(entities, "entities");
+
+            _context.RemoveRange(entities);
+        }
+
+        public override void UpdateRange([NotNull] IEnumerable<TEntity> entities)
+        {
+            Check.NotNull(entities, "entities");
+
+            _context.UpdateRange(entities);
         }
 
         IEnumerator<TEntity> IEnumerable<TEntity>.GetEnumerator() => _entityQueryable.Value.GetEnumerator();

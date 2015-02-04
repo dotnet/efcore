@@ -74,32 +74,32 @@ namespace Microsoft.Data.Entity.Tests
         }
 
         [Fact]
-        public void Can_add_multiple_new_entities_to_context()
+        public void Can_add_multiple_new_entities_to_set()
         {
-            TrackMultipleEntitiesTest((c, e) => c.Add(e[0], e[1]), (c, e) => c.Add(e[0], e[1]), EntityState.Added);
+            TrackMultipleEntitiesTest((c, e) => c.Categories.AddRange(e[0], e[1]), (c, e) => c.Products.AddRange(e[0], e[1]), EntityState.Added);
         }
 
         [Fact]
-        public void Can_add_multiple_existing_entities_to_context_to_be_attached()
+        public void Can_add_multiple_existing_entities_to_set_to_be_attached()
         {
-            TrackMultipleEntitiesTest((c, e) => c.Attach(e[0], e[1]), (c, e) => c.Attach(e[0], e[1]), EntityState.Unchanged);
+            TrackMultipleEntitiesTest((c, e) => c.Categories.AttachRange(e[0], e[1]), (c, e) => c.Products.AttachRange(e[0], e[1]), EntityState.Unchanged);
         }
 
         [Fact]
-        public void Can_add_multiple_existing_entities_to_context_to_be_updated()
+        public void Can_add_multiple_existing_entities_to_set_to_be_updated()
         {
-            TrackMultipleEntitiesTest((c, e) => c.Update(e[0], e[1]), (c, e) => c.Update(e[0], e[1]), EntityState.Modified);
+            TrackMultipleEntitiesTest((c, e) => c.Categories.UpdateRange(e[0], e[1]), (c, e) => c.Products.UpdateRange(e[0], e[1]), EntityState.Modified);
         }
 
         [Fact]
-        public void Can_add_multiple_existing_entities_to_context_to_be_deleted()
+        public void Can_add_multiple_existing_entities_to_set_to_be_deleted()
         {
-            TrackMultipleEntitiesTest((c, e) => c.Remove(e[0], e[1]), (c, e) => c.Remove(e[0], e[1]), EntityState.Deleted);
+            TrackMultipleEntitiesTest((c, e) => c.Categories.RemoveRange(e[0], e[1]), (c, e) => c.Products.RemoveRange(e[0], e[1]), EntityState.Deleted);
         }
 
         private static void TrackMultipleEntitiesTest(
-            Func<DbSet<Category>, Category[], IReadOnlyList<EntityEntry<Category>>> categoryAdder,
-            Func<DbSet<Product>, Product[], IReadOnlyList<EntityEntry<Product>>> productAdder, EntityState expectedState)
+            Action<EarlyLearningCenter, Category[]> categoryAdder,
+            Action<EarlyLearningCenter, Product[]> productAdder, EntityState expectedState)
         {
             using (var context = new EarlyLearningCenter())
             {
@@ -108,63 +108,148 @@ namespace Microsoft.Data.Entity.Tests
                 var product1 = new Product { Id = 1, Name = "Marmite", Price = 7.99m };
                 var product2 = new Product { Id = 2, Name = "Bovril", Price = 4.99m };
 
-                var categoryEntries = categoryAdder(context.Categories, new[] { category1, category2 });
-                var productEntries = productAdder(context.Products, new[] { product1, product2 });
+                categoryAdder(context, new[] { category1, category2 });
+                productAdder(context, new[] { product1, product2 });
 
-                Assert.Same(category1, categoryEntries[0].Entity);
-                Assert.Same(category2, categoryEntries[1].Entity);
-                Assert.Same(product1, productEntries[0].Entity);
-                Assert.Same(product2, productEntries[1].Entity);
+                Assert.Same(category1, context.Entry(category1).Entity);
+                Assert.Same(category2, context.Entry(category2).Entity);
+                Assert.Same(product1, context.Entry(product1).Entity);
+                Assert.Same(product2, context.Entry(product2).Entity);
 
-                Assert.Same(category1, categoryEntries[0].Entity);
-                Assert.Equal(expectedState, categoryEntries[0].State);
-                Assert.Same(category2, categoryEntries[1].Entity);
-                Assert.Equal(expectedState, categoryEntries[1].State);
+                Assert.Same(category1, context.Entry(category1).Entity);
+                Assert.Equal(expectedState, context.Entry(category1).State);
+                Assert.Same(category2, context.Entry(category2).Entity);
+                Assert.Equal(expectedState, context.Entry(category2).State);
 
-                Assert.Same(product1, productEntries[0].Entity);
-                Assert.Equal(expectedState, productEntries[0].State);
-                Assert.Same(product2, productEntries[1].Entity);
-                Assert.Equal(expectedState, productEntries[1].State);
-
-                Assert.Same(categoryEntries[0].StateEntry, context.Entry(category1).StateEntry);
-                Assert.Same(categoryEntries[1].StateEntry, context.Entry(category2).StateEntry);
-                Assert.Same(productEntries[0].StateEntry, context.Entry(product1).StateEntry);
-                Assert.Same(productEntries[1].StateEntry, context.Entry(product2).StateEntry);
+                Assert.Same(product1, context.Entry(product1).Entity);
+                Assert.Equal(expectedState, context.Entry(product1).State);
+                Assert.Same(product2, context.Entry(product2).Entity);
+                Assert.Equal(expectedState, context.Entry(product2).State);
             }
         }
 
         [Fact]
-        public void Can_add_no_new_entities_to_context()
+        public void Can_add_no_new_entities_to_set()
         {
-            TrackNoEntitiesTest(c => c.Add(new Category[0]), c => c.Add(new Product[0]), EntityState.Added);
+            TrackNoEntitiesTest(c => c.Categories.AddRange(), c => c.Products.AddRange());
         }
 
         [Fact]
-        public void Can_add_no_existing_entities_to_context_to_be_attached()
+        public void Can_add_no_existing_entities_to_set_to_be_attached()
         {
-            TrackNoEntitiesTest(c => c.Attach(new Category[0]), c => c.Attach(new Product[0]), EntityState.Unchanged);
+            TrackNoEntitiesTest(c => c.Categories.AttachRange(), c => c.Products.AttachRange());
         }
 
         [Fact]
-        public void Can_add_no_existing_entities_to_context_to_be_updated()
+        public void Can_add_no_existing_entities_to_set_to_be_updated()
         {
-            TrackNoEntitiesTest(c => c.Update(new Category[0]), c => c.Update(new Product[0]), EntityState.Modified);
+            TrackNoEntitiesTest(c => c.Categories.UpdateRange(), c => c.Products.UpdateRange());
         }
 
         [Fact]
-        public void Can_add_no_existing_entities_to_context_to_be_deleted()
+        public void Can_add_no_existing_entities_to_set_to_be_deleted()
         {
-            TrackNoEntitiesTest(c => c.Remove(new Category[0]), c => c.Remove(new Product[0]), EntityState.Deleted);
+            TrackNoEntitiesTest(c => c.Categories.RemoveRange(), c => c.Products.RemoveRange());
         }
 
-        private static void TrackNoEntitiesTest(
-            Func<DbSet<Category>, IReadOnlyList<EntityEntry<Category>>> categoryAdder,
-            Func<DbSet<Product>, IReadOnlyList<EntityEntry<Product>>> productAdder, EntityState expectedState)
+        private static void TrackNoEntitiesTest(Action<EarlyLearningCenter> categoryAdder, Action<EarlyLearningCenter> productAdder)
         {
             using (var context = new EarlyLearningCenter())
             {
-                Assert.Empty(categoryAdder(context.Categories));
-                Assert.Empty(productAdder(context.Products));
+                categoryAdder(context);
+                productAdder(context);
+                Assert.Empty(context.ChangeTracker.Entries());
+            }
+        }
+
+        [Fact]
+        public void Can_add_multiple_new_entities_to_set_Enumerable()
+        {
+            TrackMultipleEntitiesTestEnumerable((c, e) => c.Categories.AddRange(e), (c, e) => c.Products.AddRange(e), EntityState.Added);
+        }
+
+        [Fact]
+        public void Can_add_multiple_existing_entities_to_set_to_be_attached_Enumerable()
+        {
+            TrackMultipleEntitiesTestEnumerable((c, e) => c.Categories.AttachRange(e), (c, e) => c.Products.AttachRange(e), EntityState.Unchanged);
+        }
+
+        [Fact]
+        public void Can_add_multiple_existing_entities_to_set_to_be_updated_Enumerable()
+        {
+            TrackMultipleEntitiesTestEnumerable((c, e) => c.Categories.UpdateRange(e), (c, e) => c.Products.UpdateRange(e), EntityState.Modified);
+        }
+
+        [Fact]
+        public void Can_add_multiple_existing_entities_to_set_to_be_deleted_Enumerable()
+        {
+            TrackMultipleEntitiesTestEnumerable((c, e) => c.Categories.RemoveRange(e), (c, e) => c.Products.RemoveRange(e), EntityState.Deleted);
+        }
+
+        private static void TrackMultipleEntitiesTestEnumerable(
+            Action<EarlyLearningCenter, IEnumerable<Category>> categoryAdder,
+            Action<EarlyLearningCenter, IEnumerable<Product>> productAdder, EntityState expectedState)
+        {
+            using (var context = new EarlyLearningCenter())
+            {
+                var category1 = new Category { Id = 1, Name = "Beverages" };
+                var category2 = new Category { Id = 2, Name = "Foods" };
+                var product1 = new Product { Id = 1, Name = "Marmite", Price = 7.99m };
+                var product2 = new Product { Id = 2, Name = "Bovril", Price = 4.99m };
+
+                categoryAdder(context, new List<Category> { category1, category2 });
+                productAdder(context, new List<Product> { product1, product2 });
+
+                Assert.Same(category1, context.Entry(category1).Entity);
+                Assert.Same(category2, context.Entry(category2).Entity);
+                Assert.Same(product1, context.Entry(product1).Entity);
+                Assert.Same(product2, context.Entry(product2).Entity);
+
+                Assert.Same(category1, context.Entry(category1).Entity);
+                Assert.Equal(expectedState, context.Entry(category1).State);
+                Assert.Same(category2, context.Entry(category2).Entity);
+                Assert.Equal(expectedState, context.Entry(category2).State);
+
+                Assert.Same(product1, context.Entry(product1).Entity);
+                Assert.Equal(expectedState, context.Entry(product1).State);
+                Assert.Same(product2, context.Entry(product2).Entity);
+                Assert.Equal(expectedState, context.Entry(product2).State);
+            }
+        }
+
+        [Fact]
+        public void Can_add_no_new_entities_to_set_Enumerable()
+        {
+            TrackNoEntitiesTestEnumerable((c, e) => c.Categories.AddRange(e), (c, e) => c.Products.AddRange(e));
+        }
+
+        [Fact]
+        public void Can_add_no_existing_entities_to_set_to_be_attached_Enumerable()
+        {
+            TrackNoEntitiesTestEnumerable((c, e) => c.Categories.AttachRange(e), (c, e) => c.Products.AttachRange(e));
+        }
+
+        [Fact]
+        public void Can_add_no_existing_entities_to_set_to_be_updated_Enumerable()
+        {
+            TrackNoEntitiesTestEnumerable((c, e) => c.Categories.UpdateRange(e), (c, e) => c.Products.UpdateRange(e));
+        }
+
+        [Fact]
+        public void Can_add_no_existing_entities_to_set_to_be_deleted_Enumerable()
+        {
+            TrackNoEntitiesTestEnumerable((c, e) => c.Categories.RemoveRange(e), (c, e) => c.Products.RemoveRange(e));
+        }
+
+        private static void TrackNoEntitiesTestEnumerable(
+            Action<EarlyLearningCenter, IEnumerable<Category>> categoryAdder,
+            Action<EarlyLearningCenter, IEnumerable<Product>> productAdder)
+        {
+            using (var context = new EarlyLearningCenter())
+            {
+                categoryAdder(context, new HashSet<Category>());
+                productAdder(context, new HashSet<Product>());
+                Assert.Empty(context.ChangeTracker.Entries());
             }
         }
 

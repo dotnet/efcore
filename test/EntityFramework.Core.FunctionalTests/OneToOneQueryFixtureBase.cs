@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             var address2 = new Address { Street = "42 Castle Black", City = "The Wall" };
             var address3 = new Address { Street = "House of Black and White", City = "Braavos" };
 
-            context.Set<Person>().Add(
+            context.Set<Person>().AddRange(
                 new[]
                     {
                         new Person { Name = "Daenerys Targaryen", Address = address1 },
@@ -44,7 +44,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     }
                 );
 
-            context.Set<Address>().Add(
+            context.Set<Address>().AddRange(
                 new[]
                     {
                         address1,
@@ -57,7 +57,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             var address22 = new Address2 { Id = "2", Street = "42 Castle Black", City = "The Wall" };
             var address23 = new Address2 { Id = "3", Street = "House of Black and White", City = "Braavos" };
 
-            context.Set<Person2>().Add(
+            context.Set<Person2>().AddRange(
                 new[]
                     {
                         new Person2 { Name = "Daenerys Targaryen", Address = address21 },
@@ -66,7 +66,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     }
                 );
 
-            context.Set<Address2>().Add(
+            context.Set<Address2>().AddRange(
                 new[]
                     {
                         address21,

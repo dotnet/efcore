@@ -42,7 +42,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
 
         public static void RemoveAllEntities(CrossStoreContext context)
         {
-            context.SimpleEntities.Remove(context.SimpleEntities.ToArray());
+            context.SimpleEntities.RemoveRange(context.SimpleEntities);
         }
     }
 }

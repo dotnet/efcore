@@ -56,7 +56,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 Assert.Equal("first", context.SimpleEntities.Single().StringProperty);
 
-                context.SimpleEntities.Remove(context.SimpleEntities.ToArray());
+                context.SimpleEntities.RemoveRange(context.SimpleEntities);
                 context.SaveChanges();
             }
         }

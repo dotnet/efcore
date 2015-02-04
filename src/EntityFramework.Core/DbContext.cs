@@ -605,122 +605,90 @@ namespace Microsoft.Data.Entity
             return entry;
         }
 
-        public virtual IReadOnlyList<EntityEntry<TEntity>> Add<TEntity>([NotNull] params TEntity[] entities) where TEntity : class
-        {
-            Check.NotNull(entities, "entities");
-
-            return SetEntityStates(entities, EntityState.Added);
-        }
-
-        public virtual IReadOnlyList<EntityEntry<TEntity>> Attach<TEntity>([NotNull] params TEntity[] entities) where TEntity : class
-        {
-            Check.NotNull(entities, "entities");
-
-            return SetEntityStates(entities, EntityState.Unchanged);
-        }
-
-        public virtual IReadOnlyList<EntityEntry<TEntity>> Update<TEntity>([NotNull] params TEntity[] entities) where TEntity : class
-        {
-            Check.NotNull(entities, "entities");
-
-            return SetEntityStates(entities, EntityState.Modified);
-        }
-
-        public virtual IReadOnlyList<EntityEntry<TEntity>> Remove<TEntity>([NotNull] params TEntity[] entities) where TEntity : class
-        {
-            Check.NotNull(entities, "entities");
-
-            var entries = GetOrCreateEntries(entities);
-
-            // An Added entity does not yet exist in the database. If it is then marked as deleted there is
-            // nothing to delete because it was not yet inserted, so just make sure it doesn't get inserted.
-            foreach (var entry in entries)
-            {
-                entry.State = 
-                    entry.State == EntityState.Added
-                        ? EntityState.Unknown
-                        : EntityState.Deleted;
-            }
-
-            return entries;
-        }
-
-        private List<EntityEntry<TEntity>> SetEntityStates<TEntity>(TEntity[] entities, EntityState entityState) where TEntity : class
-        {
-            var entries = GetOrCreateEntries(entities);
-
-            foreach (var entry in entries)
-            {
-                entry.State = entityState;
-            }
-
-            return entries;
-        }
-
-        private List<EntityEntry<TEntity>> GetOrCreateEntries<TEntity>(IEnumerable<TEntity> entities) where TEntity : class
+        private void SetEntityStates(object[] entities, EntityState entityState)
         {
             var stateManager = GetStateManager();
 
-            return entities.Select(e => new EntityEntry<TEntity>(this, stateManager.GetOrCreateEntry(e))).ToList();
-        }
-
-        public virtual IReadOnlyList<EntityEntry> Add([NotNull] params object[] entities)
-        {
-            Check.NotNull(entities, "entities");
-
-            return SetEntityStates(entities, EntityState.Added);
-        }
-
-        public virtual IReadOnlyList<EntityEntry> Attach([NotNull] params object[] entities)
-        {
-            Check.NotNull(entities, "entities");
-
-            return SetEntityStates(entities, EntityState.Unchanged);
-        }
-
-        public virtual IReadOnlyList<EntityEntry> Update([NotNull] params object[] entities)
-        {
-            Check.NotNull(entities, "entities");
-
-            return SetEntityStates(entities, EntityState.Modified);
-        }
-
-        public virtual IReadOnlyList<EntityEntry> Remove([NotNull] params object[] entities)
-        {
-            Check.NotNull(entities, "entities");
-
-            var entries = GetOrCreateEntries(entities);
-
-            // An Added entity does not yet exist in the database. If it is then marked as deleted there is
-            // nothing to delete because it was not yet inserted, so just make sure it doesn't get inserted.
-            foreach (var entry in entries)
+            foreach (var entity in entities)
             {
-                entry.State = 
-                    entry.State == EntityState.Added
-                        ? EntityState.Unknown
-                        : EntityState.Deleted;
+                stateManager.GetOrCreateEntry(entity).SetEntityState(entityState);
             }
-
-            return entries;
         }
 
-        private List<EntityEntry> SetEntityStates(object[] entities, EntityState entityState)
+        public virtual void AddRange([NotNull] params object[] entities)
         {
-            var entries = GetOrCreateEntries(entities);
+            Check.NotNull(entities, "entities");
 
-            foreach (var entry in entries)
-            {
-                entry.State = entityState;
-            }
-
-            return entries;
+            SetEntityStates(entities, EntityState.Added);
         }
 
-        private List<EntityEntry> GetOrCreateEntries(IEnumerable<object> entities)
+        public virtual void AttachRange([NotNull] params object[] entities)
+        {
+            Check.NotNull(entities, "entities");
+
+            SetEntityStates(entities, EntityState.Unchanged);
+        }
+
+        public virtual void UpdateRange([NotNull] params object[] entities)
+        {
+            Check.NotNull(entities, "entities");
+
+            SetEntityStates(entities, EntityState.Modified);
+        }
+
+        public virtual void RemoveRange([NotNull] params object[] entities)
+        {
+            Check.NotNull(entities, "entities");
+
+            RemoveRange((IEnumerable<object>)entities);
+        }
+
+        private void SetEntityStates(IEnumerable<object> entities, EntityState entityState)
         {
             var stateManager = GetStateManager();
 
-            return entities.Select(e => new EntityEntry(this, stateManager.GetOrCreateEntry(e))).ToList();
+            foreach (var entity in entities)
+            {
+                stateManager.GetOrCreateEntry(entity).SetEntityState(entityState);
+            }
+        }
+
+        public virtual void AddRange([NotNull] IEnumerable<object> entities)
+        {
+            Check.NotNull(entities, "entities");
+
+            SetEntityStates(entities, EntityState.Added);
+        }
+
+        public virtual void AttachRange([NotNull] IEnumerable<object> entities)
+        {
+            Check.NotNull(entities, "entities");
+
+            SetEntityStates(entities, EntityState.Unchanged);
+        }
+
+        public virtual void UpdateRange([NotNull] IEnumerable<object> entities)
+        {
+            Check.NotNull(entities, "entities");
+
+            SetEntityStates(entities, EntityState.Modified);
+        }
+
+        public virtual void RemoveRange([NotNull] IEnumerable<object> entities)
+        {
+            Check.NotNull(entities, "entities");
+
+            var stateManager = GetStateManager();
+
+            // An Added entity does not yet exist in the database. If it is then marked as deleted there is
+            // nothing to delete because it was not yet inserted, so just make sure it doesn't get inserted.
+            foreach (var entity in entities)
+            {
+                var entry = stateManager.GetOrCreateEntry(entity);
+                entry.SetEntityState(entry.EntityState == EntityState.Added
+                    ? EntityState.Unknown
+                    : EntityState.Deleted);
+            }
         }
 
         /// <summary>

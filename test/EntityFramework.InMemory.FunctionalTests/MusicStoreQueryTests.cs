@@ -30,9 +30,9 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             {
                 var albums = GetAlbums("~/Images/placeholder.png", Genres, Artists);
 
-                db.Genres.Add(Genres.Values.ToArray());
-                db.Artists.Add(Artists.Values.ToArray());
-                db.Albums.Add(albums);
+                db.Genres.AddRange(Genres.Values);
+                db.Artists.AddRange(Artists.Values);
+                db.Albums.AddRange(albums);
 
                 db.SaveChanges();
             }

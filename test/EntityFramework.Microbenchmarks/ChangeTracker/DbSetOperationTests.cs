@@ -64,7 +64,7 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
 
                         using (harness.StartCollection())
                         {
-                            context.Customers.Add(customers);
+                            context.Customers.AddRange(customers);
                         }
                     }
                 }
@@ -117,7 +117,7 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
 
                         using (harness.StartCollection())
                         {
-                            context.Customers.Attach(customers);
+                            context.Customers.AttachRange(customers);
                         }
                     }
                 }
@@ -170,7 +170,7 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
 
                         using (harness.StartCollection())
                         {
-                            context.Customers.Remove(customers);
+                            context.Customers.RemoveRange(customers);
                         }
                     }
                 }
@@ -223,7 +223,7 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
 
                         using (harness.StartCollection())
                         {
-                            context.Customers.Update(customers);
+                            context.Customers.UpdateRange(customers);
                         }
                     }
                 }

@@ -168,8 +168,8 @@ LEFT JOIN [Customer] AS [c] ON ([o].[CustomerFirstName] = [c].[FirstName] AND [o
                 var customer1 = new Customer { FirstName = "Customer", LastName = "One", Orders = new List<Order> { order11, order12 } };
                 var customer2 = new Customer { FirstName = "Customer", LastName = "Two", Orders = new List<Order> { order21, order22, order23 } };
 
-                context.Customers.Add(customer1, customer2);
-                context.Orders.Add(order11, order12, order21, order22, order23);
+                context.Customers.AddRange(customer1, customer2);
+                context.Orders.AddRange(order11, order12, order21, order22, order23);
                 context.SaveChanges();
             }
         }
@@ -290,8 +290,8 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
                     };
 
                 var daenerys = new Targaryen { Name = "Daenerys", Details = details, Dragons = new List<Dragon> { drogon, rhaegal, viserion } };
-                context.Targaryens.Add(daenerys, aerys);
-                context.Dragons.Add(drogon, rhaegal, viserion, balerion);
+                context.Targaryens.AddRange(daenerys, aerys);
+                context.Dragons.AddRange(drogon, rhaegal, viserion, balerion);
                 context.Details.Add(details);
 
                 context.SaveChanges();

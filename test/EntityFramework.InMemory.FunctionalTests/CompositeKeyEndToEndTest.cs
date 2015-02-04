@@ -161,7 +161,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 Assert.Equal("Pinky Pie 2", ponies.Single(e => e.Id1 == ids[1]).Name);
                 Assert.Equal("Apple Jack 3", ponies.Single(e => e.Id1 == ids[2]).Name);
 
-                context.EarthPonies.Remove(ponies);
+                context.EarthPonies.RemoveRange(ponies);
 
                 await context.SaveChangesAsync();
             }

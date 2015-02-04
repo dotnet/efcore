@@ -43,21 +43,21 @@ namespace EntityFramework.Microbenchmarks.Models.Orders
             List<Product> products = CreateProducts(productCount);
             using (var context = new OrdersContext(connectionString))
             {
-                context.Products.Add(products.ToArray());
+                context.Products.AddRange(products);
                 context.SaveChanges();
             }
 
             List<Customer> customers = CreateCustomers(customerCount);
             using (var context = new OrdersContext(connectionString))
             {
-                context.Customers.Add(customers.ToArray());
+                context.Customers.AddRange(customers);
                 context.SaveChanges();
             }
 
             List<Order> orders = CreateOrders(ordersPerCustomer, customers);
             using (var context = new OrdersContext(connectionString))
             {
-                context.Orders.Add(orders.ToArray());
+                context.Orders.AddRange(orders);
                 context.SaveChanges();
             }
 
@@ -65,7 +65,7 @@ namespace EntityFramework.Microbenchmarks.Models.Orders
 
             using (var context = new OrdersContext(connectionString))
             {
-                context.OrderLines.Add(lines.ToArray());
+                context.OrderLines.AddRange(lines);
                 context.SaveChanges();
             }
         }

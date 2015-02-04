@@ -36,22 +36,42 @@ namespace Microsoft.Data.Entity
             throw new NotImplementedException();
         }
 
-        public virtual IReadOnlyList<EntityEntry<TEntity>> Add([NotNull] params TEntity[] entities)
+        public virtual void AddRange([NotNull] params TEntity[] entities)
         {
             throw new NotImplementedException();
         }
 
-        public virtual IReadOnlyList<EntityEntry<TEntity>> Attach([NotNull] params TEntity[] entities)
+        public virtual void AttachRange([NotNull] params TEntity[] entities)
         {
             throw new NotImplementedException();
         }
 
-        public virtual IReadOnlyList<EntityEntry<TEntity>> Remove([NotNull] params TEntity[] entities)
+        public virtual void RemoveRange([NotNull] params TEntity[] entities)
         {
             throw new NotImplementedException();
         }
 
-        public virtual IReadOnlyList<EntityEntry<TEntity>> Update([NotNull] params TEntity[] entities)
+        public virtual void UpdateRange([NotNull] params TEntity[] entities)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual void AddRange([NotNull] IEnumerable<TEntity> entities)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual void AttachRange([NotNull] IEnumerable<TEntity> entities)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual void RemoveRange([NotNull] IEnumerable<TEntity> entities)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual void UpdateRange([NotNull] IEnumerable<TEntity> entities)
         {
             throw new NotImplementedException();
         }

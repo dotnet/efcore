@@ -915,13 +915,13 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.ConcurrencyModel
 
         private static void RemoveAllEntities(F1Context context)
         {
-            context.Sponsors.Remove(context.Sponsors.ToArray());
-            context.Set<TitleSponsor>().Remove(context.Set<TitleSponsor>().ToArray());
-            context.Drivers.Remove(context.Drivers.ToArray());
-            context.Set<TestDriver>().Remove(context.Set<TestDriver>().ToArray());
-            context.Teams.Remove(context.Teams.ToArray());
-            context.Engines.Remove(context.Engines.ToArray());
-            context.EngineSuppliers.Remove(context.EngineSuppliers.ToArray());
+            context.Sponsors.RemoveRange(context.Sponsors);
+            context.Set<TitleSponsor>().RemoveRange(context.Set<TitleSponsor>());
+            context.Drivers.RemoveRange(context.Drivers);
+            context.Set<TestDriver>().RemoveRange(context.Set<TestDriver>());
+            context.Teams.RemoveRange(context.Teams);
+            context.Engines.RemoveRange(context.Engines);
+            context.EngineSuppliers.RemoveRange(context.EngineSuppliers);
         }
     }
 }

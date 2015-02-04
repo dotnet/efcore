@@ -97,45 +97,6 @@ namespace Microsoft.Data.Entity.Tests
         public class NotANormalSet<TEntity> : DbSet<TEntity>
             where TEntity : class
         {
-            public override IReadOnlyList<EntityEntry<TEntity>> Add([NotNull] params TEntity[] entities)
-            {
-                throw new NotImplementedException();
-            }
-
-            public override EntityEntry<TEntity> Add([NotNull] TEntity entity)
-            {
-                throw new NotImplementedException();
-            }
-
-            public override IReadOnlyList<EntityEntry<TEntity>> Attach([NotNull] params TEntity[] entities)
-            {
-                throw new NotImplementedException();
-            }
-
-            public override EntityEntry<TEntity> Attach([NotNull] TEntity entity)
-            {
-                throw new NotImplementedException();
-            }
-
-            public override IReadOnlyList<EntityEntry<TEntity>> Remove([NotNull] params TEntity[] entities)
-            {
-                throw new NotImplementedException();
-            }
-
-            public override EntityEntry<TEntity> Remove([NotNull] TEntity entity)
-            {
-                throw new NotImplementedException();
-            }
-
-            public override IReadOnlyList<EntityEntry<TEntity>> Update([NotNull] params TEntity[] entities)
-            {
-                throw new NotImplementedException();
-            }
-
-            public override EntityEntry<TEntity> Update([NotNull] TEntity entity)
-            {
-                throw new NotImplementedException();
-            }
         }
 
         #endregion
