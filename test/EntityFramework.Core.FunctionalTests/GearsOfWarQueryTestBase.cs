@@ -67,8 +67,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        // blocked by issue #1393
-        ////[Fact]
+        [Fact]
         public virtual void Include_multiple_one_to_one_optional_and_one_to_one_required()
         {
             using (var context = CreateContext())
@@ -80,8 +79,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        // blocked by issue #1393
-        ////[Fact]
+        [Fact]
         public virtual void Include_multiple_one_to_one_and_one_to_one_and_one_to_many()
         {
             using (var context = CreateContext())
@@ -92,7 +90,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 Assert.Equal(6, result.Count);
             }
         }
-
 
         [Fact]
         public virtual void Include_multiple_circular()
