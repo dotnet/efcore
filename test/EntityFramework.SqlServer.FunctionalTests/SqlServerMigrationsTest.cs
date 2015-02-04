@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 using (var context = CreateContext(testDatabase))
                 {
-                    context.Database.AsMigrationsEnabled().ApplyMigrations();
+                    context.Database.AsRelational().ApplyMigrations();
 
                     Assert.True(context.Database.AsRelational().Exists());
                 }

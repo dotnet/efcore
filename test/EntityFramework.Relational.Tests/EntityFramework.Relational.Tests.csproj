@@ -86,7 +86,6 @@
     <Compile Include="Metadata\SequenceTest.cs" />
     <Compile Include="Migrations\MigrationOperationFactoryTest.cs" />
     <Compile Include="Migrations\MigrationOperationSqlGeneratorTest.cs" />
-    <Compile Include="Migrations\MigrationsDatabaseExtensionsTest.cs" />
     <Compile Include="Migrations\MigrationsDbContextOptionsExtensionsTest.cs" />
     <Compile Include="Migrations\MigrationsEntityServicesBuilderExtensionsTest.cs" />
     <Compile Include="Migrations\MigrationsModel\AddColumnOperationTest.cs" />

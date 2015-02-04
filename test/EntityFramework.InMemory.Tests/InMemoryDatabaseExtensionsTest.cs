@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         public void Returns_typed_database_object()
         {
             var database = new InMemoryDatabaseFacade(
-                new DbContextService<IModel>(() => null), 
+                new DbContextService<DbContext>(() => null), 
                 Mock.Of<InMemoryDataStoreCreator>(), 
                 Mock.Of<InMemoryConnection>(), 
                 new LoggerFactory());
@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         public void Throws_when_non_relational_provider_is_in_use()
         {
             var database = new ConcreteDatabase(
-                new DbContextService<IModel>(() => null),
+                new DbContextService<DbContext>(() => null),
                 Mock.Of<DataStoreCreator>(),
                 Mock.Of<DataStoreConnection>(),
                 new LoggerFactory());
@@ -42,11 +42,11 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         private class ConcreteDatabase : Database
         {
             public ConcreteDatabase(
-                DbContextService<IModel> model,
+                DbContextService<DbContext> context,
                 DataStoreCreator dataStoreCreator,
                 DataStoreConnection connection,
                 ILoggerFactory loggerFactory)
-                : base(model, dataStoreCreator, connection, loggerFactory)
+                : base(context, dataStoreCreator, connection, loggerFactory)
             {
             }
         }

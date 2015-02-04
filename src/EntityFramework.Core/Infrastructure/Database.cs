@@ -5,6 +5,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
@@ -12,96 +13,61 @@ using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Infrastructure
 {
-    public abstract class Database : IDatabaseInternals
+    public abstract class Database : IAccessor<DataStoreCreator>, IAccessor<ILogger>, IAccessor<IModel>, IAccessor<IServiceProvider>
     {
-        private readonly DbContextService<IModel> _model;
+        private readonly DbContextService<DbContext> _context;
         private readonly DataStoreCreator _dataStoreCreator;
-        private readonly DataStoreConnection _connection;
         private readonly LazyRef<ILogger> _logger;
 
-        /// <summary>
-        ///     This constructor is intended only for use when creating test doubles that will override members
-        ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
-        ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
-        /// </summary>
-        protected Database()
-        {
-        }
-
         protected Database(
-            [NotNull] DbContextService<IModel> model,
+            [NotNull] DbContextService<DbContext> context,
             [NotNull] DataStoreCreator dataStoreCreator,
             [NotNull] DataStoreConnection connection,
             [NotNull] ILoggerFactory loggerFactory)
         {
-            Check.NotNull(model, "model");
-            Check.NotNull(dataStoreCreator, "dataStoreCreator");
-            Check.NotNull(connection, "connection");
-            Check.NotNull(loggerFactory, "loggerFactory");
+            Check.NotNull(context, nameof(context));
+            Check.NotNull(dataStoreCreator, nameof(dataStoreCreator));
+            Check.NotNull(connection, nameof(connection));
+            Check.NotNull(loggerFactory, nameof(loggerFactory));
 
-            _model = model;
+            _context = context;
             _dataStoreCreator = dataStoreCreator;
-            _connection = connection;
+            Connection = connection;
             _logger = new LazyRef<ILogger>(loggerFactory.Create<Database>);
         }
 
-        public virtual DataStoreConnection Connection
-        {
-            get { return _connection; }
-        }
+        public virtual DataStoreConnection Connection { get; }
 
         // TODO: Make sure API docs say that return value indicates whether or not the database or tables were created
         public virtual bool EnsureCreated()
         {
-            return DataStoreCreator.EnsureCreated(Model);
+            return _dataStoreCreator.EnsureCreated(_context.Service.Model);
         }
 
         // TODO: Make sure API docs say that return value indicates whether or not the database or tables were created
         public virtual Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            return DataStoreCreator.EnsureCreatedAsync(Model, cancellationToken);
+            return _dataStoreCreator.EnsureCreatedAsync(_context.Service.Model, cancellationToken);
         }
 
         // TODO: Make sure API docs say that return value indicates whether or not the database was deleted
         public virtual bool EnsureDeleted()
         {
-            return DataStoreCreator.EnsureDeleted(Model);
+            return _dataStoreCreator.EnsureDeleted(_context.Service.Model);
         }
 
         // TODO: Make sure API docs say that return value indicates whether or not the database was deleted
         public virtual Task<bool> EnsureDeletedAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            return DataStoreCreator.EnsureDeletedAsync(Model, cancellationToken);
+            return _dataStoreCreator.EnsureDeletedAsync(_context.Service.Model, cancellationToken);
         }
 
-        protected virtual DataStoreCreator DataStoreCreator
-        {
-            get { return _dataStoreCreator; }
-        }
+        DataStoreCreator IAccessor<DataStoreCreator>.Service => _dataStoreCreator;
 
-        protected virtual ILogger Logger
-        {
-            get { return _logger.Value; }
-        }
+        ILogger IAccessor<ILogger>.Service => _logger.Value;
 
-        protected virtual IModel Model
-        {
-            get { return _model.Service; }
-        }
+        IModel IAccessor<IModel>.Service => _context.Service.Model;
 
-        DataStoreCreator IDatabaseInternals.DataStoreCreator
-        {
-            get { return DataStoreCreator; }
-        }
-
-        ILogger IDatabaseInternals.Logger
-        {
-            get { return Logger; }
-        }
-
-        IModel IDatabaseInternals.Model
-        {
-            get { return Model; }
-        }
+        IServiceProvider IAccessor<IServiceProvider>.Service => ((IAccessor<IServiceProvider>)_context.Service).Service;
     }
 }

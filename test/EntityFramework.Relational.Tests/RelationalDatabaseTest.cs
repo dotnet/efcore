@@ -5,8 +5,8 @@ using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
+using Microsoft.Data.Entity.Tests;
 using Microsoft.Framework.Logging;
 using Moq;
 using Xunit;
@@ -18,7 +18,8 @@ namespace Microsoft.Data.Entity.Relational.Tests
         [Fact]
         public void Methods_delegate_to_configured_store_creator()
         {
-            var model = Mock.Of<IModel>();
+            var context = TestHelpers.Instance.CreateContext();
+            var model = context.Model;
             var creatorMock = new Mock<RelationalDataStoreCreator>();
             creatorMock.Setup(m => m.Exists()).Returns(true);
             creatorMock.Setup(m => m.HasTables()).Returns(true);
@@ -31,9 +32,10 @@ namespace Microsoft.Data.Entity.Relational.Tests
             dbConnectionMock.SetupGet(m => m.Database).Returns("MyDb");
 
             var database = new ConcreteRelationalDatabase(
-                new DbContextService<IModel>(model),
+                new DbContextService<DbContext>(context),
                 creatorMock.Object,
                 connectionMock.Object,
+                Mock.Of<Migrator>(),
                 new LoggerFactory());
 
             Assert.True(database.Exists());
@@ -63,7 +65,8 @@ namespace Microsoft.Data.Entity.Relational.Tests
         [Fact]
         public async void Async_methods_delegate_to_configured_store_creator()
         {
-            var model = Mock.Of<IModel>();
+            var context = TestHelpers.Instance.CreateContext();
+            var model = context.Model;
             var cancellationToken = new CancellationTokenSource().Token;
 
             var creatorMock = new Mock<RelationalDataStoreCreator>();
@@ -78,9 +81,10 @@ namespace Microsoft.Data.Entity.Relational.Tests
             dbConnectionMock.SetupGet(m => m.Database).Returns("MyDb");
 
             var database = new ConcreteRelationalDatabase(
-                new DbContextService<IModel>(model),
+                new DbContextService<DbContext>(context),
                 creatorMock.Object,
                 connectionMock.Object,
+                Mock.Of<Migrator>(),
                 new LoggerFactory());
 
             Assert.True(await database.ExistsAsync(cancellationToken));
@@ -108,11 +112,12 @@ namespace Microsoft.Data.Entity.Relational.Tests
         private class ConcreteRelationalDatabase : RelationalDatabase
         {
             public ConcreteRelationalDatabase(
-                DbContextService<IModel> model,
-                DataStoreCreator dataStoreCreator,
-                DataStoreConnection connection,
+                DbContextService<DbContext> context,
+                RelationalDataStoreCreator dataStoreCreator,
+                RelationalConnection connection,
+                Migrator migrator,
                 ILoggerFactory loggerFactory)
-                : base(model, dataStoreCreator, connection, loggerFactory)
+                : base(context, dataStoreCreator, connection, migrator, loggerFactory)
             {
             }
         }

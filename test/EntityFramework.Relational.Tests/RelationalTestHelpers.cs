@@ -517,15 +517,15 @@ namespace Microsoft.Data.Entity.Relational.Tests
         public override ModelSource ModelSource => _modelSource;
     }
 
-    public class FakeDatabase : MigrationsEnabledDatabase
+    public class FakeDatabase : RelationalDatabase
     {
         public FakeDatabase(
-            DbContextService<IModel> model,
+            DbContextService<DbContext> context,
             RecordingDataStoreCreator dataStoreCreator,
             FakeRelationalConnection connection,
             TestMigrator migrator,
             ILoggerFactory loggerFactory)
-            : base(model, dataStoreCreator, connection, migrator, loggerFactory)
+            : base(context, dataStoreCreator, connection, migrator, loggerFactory)
         {
         }
     }

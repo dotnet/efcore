@@ -3,27 +3,23 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Relational.Migrations;
+using Microsoft.Data.Entity.Relational;
 using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.SqlServer
 {
-    public class SqlServerDatabase : MigrationsEnabledDatabase
+    public class SqlServerDatabase : RelationalDatabase
     {
         public SqlServerDatabase(
-            [NotNull] DbContextService<IModel> model,
+            [NotNull] DbContextService<DbContext> context,
             [NotNull] SqlServerDataStoreCreator dataStoreCreator,
             [NotNull] SqlServerConnection connection,
             [NotNull] SqlServerMigrator migrator,
             [NotNull] ILoggerFactory loggerFactory)
-            : base(model, dataStoreCreator, connection, migrator, loggerFactory)
+            : base(context, dataStoreCreator, connection, migrator, loggerFactory)
         {
         }
 
-        public new virtual SqlServerConnection Connection
-        {
-            get { return (SqlServerConnection)base.Connection; }
-        }
+        public new virtual SqlServerConnection Connection => (SqlServerConnection)base.Connection;
     }
 }

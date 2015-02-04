@@ -114,7 +114,6 @@
     <Compile Include="Identity\ValueGeneratorSelector.cs" />
     <Compile Include="Infrastructure\DbContextConfigureOptions.cs" />
     <Compile Include="Infrastructure\DbContextOptionsParser.cs" />
-    <Compile Include="Infrastructure\IDatabaseInternals.cs" />
     <Compile Include="Infrastructure\ModelSourceHelpers.cs" />
     <Compile Include="Internal\IAccessor.cs" />
     <Compile Include="Internal\InternalDbSet.cs" />

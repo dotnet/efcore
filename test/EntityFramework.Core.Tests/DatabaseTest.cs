@@ -1,11 +1,14 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
+using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
 using Moq;
 using Xunit;
@@ -17,7 +20,9 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Methods_delegate_to_configured_store_creator()
         {
-            var model = Mock.Of<IModel>();
+            var context = TestHelpers.Instance.CreateContext();
+            var model = context.Model;
+
             var creatorMock = new Mock<DataStoreCreator>();
             creatorMock.Setup(m => m.EnsureCreated(model)).Returns(true);
             creatorMock.Setup(m => m.EnsureDeleted(model)).Returns(true);
@@ -25,10 +30,10 @@ namespace Microsoft.Data.Entity.Tests
             var connection = Mock.Of<DataStoreConnection>();
 
             var database = new ConcreteDatabase(
-                    new DbContextService<IModel>(() => model),
-                    creatorMock.Object,
-                    connection,
-                    new LoggerFactory());
+                new DbContextService<DbContext>(() => context),
+                creatorMock.Object,
+                connection,
+                new LoggerFactory());
 
             Assert.True(database.EnsureCreated());
             creatorMock.Verify(m => m.EnsureCreated(model), Times.Once);
@@ -42,7 +47,8 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public async void Async_methods_delegate_to_configured_store_creator()
         {
-            var model = Mock.Of<IModel>();
+            var context = TestHelpers.Instance.CreateContext();
+            var model = context.Model;
             var cancellationToken = new CancellationTokenSource().Token;
 
             var creatorMock = new Mock<DataStoreCreator>();
@@ -50,10 +56,10 @@ namespace Microsoft.Data.Entity.Tests
             creatorMock.Setup(m => m.EnsureDeletedAsync(model, cancellationToken)).Returns(Task.FromResult(true));
 
             var database = new ConcreteDatabase(
-                    new DbContextService<IModel>(() => model),
-                    creatorMock.Object,
-                    Mock.Of<DataStoreConnection>(),
-                    new LoggerFactory());
+                new DbContextService<DbContext>(() => context),
+                creatorMock.Object,
+                Mock.Of<DataStoreConnection>(),
+                new LoggerFactory());
 
             Assert.True(await database.EnsureCreatedAsync(cancellationToken));
             creatorMock.Verify(m => m.EnsureCreatedAsync(model, cancellationToken), Times.Once);
@@ -62,14 +68,56 @@ namespace Microsoft.Data.Entity.Tests
             creatorMock.Verify(m => m.EnsureDeletedAsync(model, cancellationToken), Times.Once);
         }
 
+        [Fact]
+        public void Can_get_IServiceProvider()
+        {
+            using (var context = TestHelpers.Instance.CreateContext())
+            {
+                Assert.Same(
+                    ((IAccessor<IServiceProvider>)context).Service,
+                    ((IAccessor<IServiceProvider>)context.Database).Service);
+            }
+        }
+
+        [Fact]
+        public void Can_get_DataStoreCreator()
+        {
+            using (var context = TestHelpers.Instance.CreateContext())
+            {
+                Assert.Same(
+                    ((IAccessor<IServiceProvider>)context).Service.GetRequiredService<DbContextService<DataStoreCreator>>().Service,
+                    ((IAccessor<DataStoreCreator>)context.Database).Service);
+            }
+        }
+
+        [Fact]
+        public void Can_get_Model()
+        {
+            using (var context = TestHelpers.Instance.CreateContext())
+            {
+                Assert.Same(
+                    ((IAccessor<IServiceProvider>)context).Service.GetRequiredService<DbContextService<IModel>>().Service,
+                    ((IAccessor<IModel>)context.Database).Service);
+            }
+        }
+
+        [Fact]
+        public void Can_get_Logger()
+        {
+            using (var context = TestHelpers.Instance.CreateContext())
+            {
+                Assert.NotNull(((IAccessor<ILogger>)context.Database).Service);
+            }
+        }
+
         private class ConcreteDatabase : Database
         {
             public ConcreteDatabase(
-                DbContextService<IModel> model,
+                DbContextService<DbContext> context,
                 DataStoreCreator dataStoreCreator,
                 DataStoreConnection connection,
                 ILoggerFactory loggerFactory)
-                : base(model, dataStoreCreator, connection, loggerFactory)
+                : base(context, dataStoreCreator, connection, loggerFactory)
             {
             }
         }

@@ -3,8 +3,7 @@
 
 using System;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
 using Microsoft.Framework.Logging;
 using Moq;
 using Xunit;
@@ -17,9 +16,10 @@ namespace Microsoft.Data.Entity.Relational.Tests
         public void Returns_typed_database_object()
         {
             var database = new ConcreteRelationalDatabase(
-                new DbContextService<IModel>(() => null),
-                Mock.Of<DataStoreCreator>(),
-                Mock.Of<DataStoreConnection>(),
+                new DbContextService<DbContext>(() => null),
+                Mock.Of<RelationalDataStoreCreator>(),
+                Mock.Of<RelationalConnection>(),
+                Mock.Of<Migrator>(),
                 new LoggerFactory());
 
             Assert.Same(database, database.AsRelational());
@@ -29,9 +29,9 @@ namespace Microsoft.Data.Entity.Relational.Tests
         public void Throws_when_non_relational_provider_is_in_use()
         {
             var database = new ConcreteDatabase(
-                new DbContextService<IModel>(() => null),
-                Mock.Of<DataStoreCreator>(),
-                Mock.Of<DataStoreConnection>(),
+                new DbContextService<DbContext>(() => null),
+                Mock.Of<RelationalDataStoreCreator>(),
+                Mock.Of<RelationalConnection>(),
                 new LoggerFactory());
 
             Assert.Equal(
@@ -42,11 +42,11 @@ namespace Microsoft.Data.Entity.Relational.Tests
         private class ConcreteDatabase : Database
         {
             public ConcreteDatabase(
-                DbContextService<IModel> model,
-                DataStoreCreator dataStoreCreator,
-                DataStoreConnection connection,
+                DbContextService<DbContext> context,
+                RelationalDataStoreCreator dataStoreCreator,
+                RelationalConnection connection,
                 ILoggerFactory loggerFactory)
-                : base(model, dataStoreCreator, connection, loggerFactory)
+                : base(context, dataStoreCreator, connection, loggerFactory)
             {
             }
         }
@@ -54,11 +54,12 @@ namespace Microsoft.Data.Entity.Relational.Tests
         private class ConcreteRelationalDatabase : RelationalDatabase
         {
             public ConcreteRelationalDatabase(
-                DbContextService<IModel> model,
-                DataStoreCreator dataStoreCreator,
-                DataStoreConnection connection,
+                DbContextService<DbContext> context,
+                RelationalDataStoreCreator dataStoreCreator,
+                RelationalConnection connection,
+                Migrator migrator,
                 ILoggerFactory loggerFactory)
-                : base(model, dataStoreCreator, connection, loggerFactory)
+                : base(context, dataStoreCreator, connection, migrator, loggerFactory)
             {
             }
         }

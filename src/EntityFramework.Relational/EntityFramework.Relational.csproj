@@ -71,7 +71,6 @@
     <Compile Include="Migrations\Extensions\MigrationsDbContextOptionsExtensions.cs" />
     <Compile Include="IDbCommandExecutor.cs" />
     <Compile Include="Migrations\IMigrationOperationSqlGeneratorFactory.cs" />
-    <Compile Include="Migrations\IMigrationsEnabledDatabaseInternals.cs" />
     <Compile Include="Migrations\Infrastructure\ContextTypeAttribute.cs" />
     <Compile Include="Migrations\Infrastructure\HistoryRepository.cs" />
     <Compile Include="Migrations\Infrastructure\HistoryRow.cs" />
@@ -119,8 +118,6 @@
     <Compile Include="Migrations\MigrationOperationFactory.cs" />
     <Compile Include="Migrations\MigrationOperationProcessor.cs" />
     <Compile Include="Migrations\MigrationOperationSqlGenerator.cs" />
-    <Compile Include="Migrations\MigrationsDatabaseExtensions.cs" />
-    <Compile Include="Migrations\MigrationsEnabledDatabase.cs" />
     <Compile Include="Migrations\MigrationsEntityServicesBuilderExtensions.cs" />
     <Compile Include="Migrations\MigrationsOptionsExtension.cs" />
     <Compile Include="Migrations\ModelCodeGenerator.cs" />
