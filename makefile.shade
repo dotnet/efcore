@@ -15,10 +15,10 @@ k-standard-goals
     exec program='${buildProgram}' commandline='${projectFile} /t:WritePackageReferences /v:m /nologo'
 
 @{
-    var packagesDir = Environment.GetEnvironmentVariable("DOTNET_PACKAGES")
+    var packagesDir = Environment.GetEnvironmentVariable("KRE_PACKAGES")
         ?? Path.Combine(
             Environment.GetEnvironmentVariable("USERPROFILE") ?? Environment.GetEnvironmentVariable("HOME"),
-            ".dotnet",
+            ".k",
             "packages");
 }
 
