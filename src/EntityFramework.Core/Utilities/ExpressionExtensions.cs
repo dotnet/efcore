@@ -89,6 +89,34 @@ namespace System.Linq.Expressions
             return propertyInfos != null && propertyInfos.Length == 1 ? propertyInfos[0] : null;
         }
 
+        public static PropertyInfo[] GetComplexPropertyAccess([NotNull]this LambdaExpression propertyAccessExpression)
+        {
+            Debug.Assert(propertyAccessExpression.Parameters.Count == 1);
+
+            var propertyPath
+                = propertyAccessExpression
+                    .Parameters
+                    .Single()
+                    .MatchComplexPropertyAccess(propertyAccessExpression.Body);
+
+            if (propertyPath == null)
+            {
+                throw new ArgumentException(
+                    Strings.InvalidPropertiesExpression(propertyAccessExpression),
+                    "propertyAccessExpression");
+            }
+
+            return propertyPath;
+        }
+
+        private static PropertyInfo[] MatchComplexPropertyAccess(
+            this Expression parameterExpression, Expression propertyAccessExpression)
+        {
+            var propertyPath = MatchPropertyAccess(parameterExpression, propertyAccessExpression);
+
+            return propertyPath;
+        }
+
         private static PropertyInfo[] MatchPropertyAccess(
             this Expression parameterExpression, Expression propertyAccessExpression)
         {
