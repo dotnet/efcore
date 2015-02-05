@@ -79,9 +79,9 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 
         public virtual void GenerateCommentHeader(IndentedStringBuilder sb)
         {
-            CSharpCodeGeneratorHelper.Instance.Comment(sb, string.Empty);
-            CSharpCodeGeneratorHelper.Instance.Comment(sb, "Generated code");
-            CSharpCodeGeneratorHelper.Instance.Comment(sb, string.Empty);
+            CSharpCodeGeneratorHelper.Instance.SingleLineComment(sb, string.Empty);
+            CSharpCodeGeneratorHelper.Instance.SingleLineComment(sb, "Generated code");
+            CSharpCodeGeneratorHelper.Instance.SingleLineComment(sb, string.Empty);
             sb.AppendLine();
         }
 
@@ -114,6 +114,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 GenerateEntityProperty(sb, property);
             }
         }
+
         public abstract void GenerateEntityProperty(IndentedStringBuilder sb, IProperty property);
 
         public virtual void GenerateEntityNavigations(IndentedStringBuilder sb)

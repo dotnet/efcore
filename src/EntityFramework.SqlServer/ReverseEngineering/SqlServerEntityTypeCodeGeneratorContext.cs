@@ -22,6 +22,12 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
         {
         }
 
+        public override void GenerateEntityProperties(IndentedStringBuilder sb)
+        {
+            CSharpCodeGeneratorHelper.Instance.SingleLineComment(sb, "Properties");
+            base.GenerateEntityProperties(sb);
+        }
+
         public override void GenerateEntityProperty(IndentedStringBuilder sb, IProperty property)
         {
             GenerateEntityPropertyAttribues(sb, property);
@@ -46,6 +52,9 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
 
         public override void GenerateEntityNavigations(IndentedStringBuilder sb)
         {
+            sb.AppendLine();
+            CSharpCodeGeneratorHelper.Instance.SingleLineComment(sb, "Navigation Properties");
+
             var existingIdentifiers = new List<string>();
             existingIdentifiers.Add(EntityType.Name);
             existingIdentifiers.AddRange(EntityType.Properties.Select(p => p.Name));

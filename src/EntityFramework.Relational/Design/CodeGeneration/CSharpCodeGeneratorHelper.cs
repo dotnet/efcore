@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
             }
         }
 
-        public virtual void Comment(IndentedStringBuilder sb, string comment)
+        public virtual void SingleLineComment(IndentedStringBuilder sb, string comment)
         {
             sb.Append("// ");
             sb.AppendLine(comment);

@@ -98,9 +98,9 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 
         public virtual void GenerateCommentHeader(IndentedStringBuilder sb)
         {
-            CSharpCodeGeneratorHelper.Instance.Comment(sb, string.Empty);
-            CSharpCodeGeneratorHelper.Instance.Comment(sb, "Generated using Connection String: " + ConnectionString);
-            CSharpCodeGeneratorHelper.Instance.Comment(sb, string.Empty);
+            CSharpCodeGeneratorHelper.Instance.SingleLineComment(sb, string.Empty);
+            CSharpCodeGeneratorHelper.Instance.SingleLineComment(sb, "Generated using Connection String: " + ConnectionString);
+            CSharpCodeGeneratorHelper.Instance.SingleLineComment(sb, string.Empty);
             sb.AppendLine();
         }
 
