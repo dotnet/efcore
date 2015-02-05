@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                         .ToList();
 
                 Assert.NotNull(customers);
-                Assert.Equal(@"Compiling query model: 'value(Microsoft.Data.Entity.Query.EntityQueryable`1[Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind.Customer])'
+                Assert.Equal(@"    Compiling query model: 'value(Microsoft.Data.Entity.Query.EntityQueryable`1[Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind.Customer])'
     Optimized query model: 'value(Microsoft.Data.Entity.Query.EntityQueryable`1[Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind.Customer])'
     Tracking query sources: [<generated>_0]
     Compiled query expression.
@@ -43,7 +43,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                         .ToList();
 
                 Assert.NotNull(customers);
-                Assert.Equal(@"Compiling query model: 'value(Microsoft.Data.Entity.Query.EntityQueryable`1[Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind.Customer]) => Include([c].Orders)'
+                Assert.Equal(@"    Compiling query model: 'value(Microsoft.Data.Entity.Query.EntityQueryable`1[Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind.Customer]) => Include([c].Orders)'
     Optimized query model: 'value(Microsoft.Data.Entity.Query.EntityQueryable`1[Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind.Customer])'
     Including navigation: 'Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind.Customer.Orders'
     Tracking query sources: [c]

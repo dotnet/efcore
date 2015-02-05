@@ -151,7 +151,6 @@
     <Compile Include="Metadata\ModelConventions\ConventionsPropertyInfoExtensions.cs" />
     <Compile Include="Metadata\ModelConventions\RelationshipDiscoveryConvention.cs" />
     <Compile Include="Metadata\TypedAnnotation.cs" />
-    <Compile Include="Query\EntityQueryParser.cs" />
     <Compile Include="Query\ExpressionComparer.cs" />
     <Compile Include="Query\ExpressionTreeVisitors\EntityQueryableExpressionTreeVisitor.cs" />
     <Compile Include="Query\ExpressionTreeVisitors\DefaultQueryExpressionTreeVisitor.cs" />
@@ -279,7 +278,6 @@
     </Compile>
     <Compile Include="Query\AsyncLinqOperatorProvider.cs" />
     <Compile Include="Query\EntityQueryable`.cs" />
-    <Compile Include="Query\EntityQueryExecutor.cs" />
     <Compile Include="Query\EntityQueryModelVisitor.cs" />
     <Compile Include="Query\EntityQueryProvider.cs" />
     <Compile Include="Query\IAsyncQueryProvider.cs" />

@@ -11,12 +11,16 @@ namespace Microsoft.Data.Entity.InMemory.Query
     public class InMemoryQueryContext : QueryContext
     {
         public InMemoryQueryContext(
-            [NotNull] ILogger logger,
-            [NotNull] IQueryBuffer queryBuffer)
+            [NotNull] ILogger logger, 
+            [NotNull] IQueryBuffer queryBuffer,
+            [NotNull] InMemoryDatabase database)
             : base(
                 Check.NotNull(logger, "logger"),
                 Check.NotNull(queryBuffer, "queryBuffer"))
         {
+            Database = database;
         }
+
+        public virtual InMemoryDatabase Database { get; }
     }
 }

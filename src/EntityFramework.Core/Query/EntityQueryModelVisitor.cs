@@ -87,6 +87,8 @@ namespace Microsoft.Data.Entity.Query
 
             using (QueryCompilationContext.Logger.BeginScope(this))
             {
+                QueryCompilationContext.Logger.WriteInformation(queryModel, Strings.LogCompilingQueryModel);
+
                 _blockTaskExpressions = false;
 
                 _queryAnnotations = ExtractQueryAnnotations(queryModel);
@@ -101,6 +103,8 @@ namespace Microsoft.Data.Entity.Query
 
                 TrackEntitiesInResults<TResult>(queryModel);
 
+                InterceptExceptions(typeof(TResult));
+
                 return CreateExecutorLambda<IEnumerable<TResult>>();
             }
         }
@@ -111,6 +115,8 @@ namespace Microsoft.Data.Entity.Query
 
             using (QueryCompilationContext.Logger.BeginScope(this))
             {
+                QueryCompilationContext.Logger.WriteInformation(queryModel, Strings.LogCompilingQueryModel);
+
                 _blockTaskExpressions = false;
 
                 _queryAnnotations = ExtractQueryAnnotations(queryModel);
@@ -125,8 +131,22 @@ namespace Microsoft.Data.Entity.Query
 
                 TrackEntitiesInResults<TResult>(queryModel);
 
+                InterceptExceptions(typeof(TResult));
+
                 return CreateExecutorLambda<IAsyncEnumerable<TResult>>();
             }
+        }
+
+        protected virtual void InterceptExceptions([NotNull] Type resultType)
+        {
+            Check.NotNull(resultType, "resultType");
+
+            _expression
+                = Expression.Call(
+                    LinqOperatorProvider.InterceptExceptions
+                        .MakeGenericMethod(resultType),
+                    Expression.Lambda(_expression),
+                    QueryContextParameter);
         }
 
         protected virtual ICollection<QueryAnnotation> ExtractQueryAnnotations([NotNull] QueryModel queryModel)
@@ -1005,9 +1025,6 @@ namespace Microsoft.Data.Entity.Query
             return BindMethodCallExpression(methodCallExpression, null, methodCallBinder);
         }
 
-        private static readonly MethodInfo _propertyMethodInfo
-            = typeof(QueryExtensions).GetTypeInfo().GetDeclaredMethod("Property");
-
         public virtual TResult BindMethodCallExpression<TResult>(
             [NotNull] MethodCallExpression methodCallExpression,
             [CanBeNull] IQuerySource querySource,
@@ -1019,7 +1036,7 @@ namespace Microsoft.Data.Entity.Query
             if (methodCallExpression.Method.IsGenericMethod
                 && ReferenceEquals(
                     methodCallExpression.Method.GetGenericMethodDefinition(),
-                    _propertyMethodInfo))
+                    QueryExtensions.PropertyMethodInfo))
             {
                 var querySourceReferenceExpression
                     = methodCallExpression.Arguments[0] as QuerySourceReferenceExpression;

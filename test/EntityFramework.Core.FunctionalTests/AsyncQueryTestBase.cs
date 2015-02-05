@@ -16,6 +16,16 @@ namespace Microsoft.Data.Entity.FunctionalTests
         where TFixture : NorthwindQueryFixtureBase, new()
     {
         [Fact]
+        public virtual async Task Mixed_sync_async_in_query_cache()
+        {
+            using (var context = CreateContext())
+            {
+                Assert.Equal(91, context.Customers.AsNoTracking().ToList().Count);
+                Assert.Equal(91, (await context.Customers.AsNoTracking().ToListAsync()).Count);
+            }
+        }
+        
+        [Fact]
         public virtual async Task Queryable_simple()
         {
             Assert.Equal(91,
@@ -779,7 +789,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
         public virtual async Task SelectMany_simple2()
         {
             await AssertQuery<Employee, Customer>(
-                (es, cs) => from e1 in es
+                (es, cs) => 
+                    from e1 in es
                     from c in cs
                     from e2 in es
                     select new { e1, c, e2.FirstName });

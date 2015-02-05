@@ -4,10 +4,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Data.Entity.FunctionalTests.TestModels;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
 using Microsoft.Data.Entity.Query;
 using Xunit;
+
+// ReSharper disable AccessToModifiedClosure
 
 namespace Microsoft.Data.Entity.FunctionalTests
 {
@@ -230,15 +231,76 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 cs => cs.Where(c => c.City == "London"),
                 stateEntryCount: 6);
         }
-        
+
         [Fact]
         public virtual void Where_simple_closure()
+        {
+            // ReSharper disable once ConvertToConstant.Local
+            var city = "London";
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.City == city),
+                stateEntryCount: 6);
+        }
+        
+        [Fact]
+        public virtual void Where_simple_closure_via_query_cache()
         {
             var city = "London";
 
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.City == city),
                 stateEntryCount: 6);
+
+            city = "Seattle";
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.City == city),
+                stateEntryCount: 1);
+        }
+
+        [Fact]
+        public virtual void Where_simple_closure_via_query_cache_nullable_type()
+        {
+            int? reportsTo = 2;
+
+            AssertQuery<Employee>(
+                es => es.Where(e => e.ReportsTo == reportsTo),
+                stateEntryCount: 5);
+
+            reportsTo = 5;
+
+            AssertQuery<Employee>(
+                es => es.Where(e => e.ReportsTo == reportsTo),
+                stateEntryCount: 3);
+
+            reportsTo = null;
+
+            AssertQuery<Employee>(
+                es => es.Where(e => e.ReportsTo == reportsTo),
+                stateEntryCount: 1);
+        }
+
+        [Fact]
+        public virtual void Where_simple_closure_via_query_cache_nullable_type_reverse()
+        {
+            int? reportsTo = null;
+
+            AssertQuery<Employee>(
+                es => es.Where(e => e.ReportsTo == reportsTo),
+                stateEntryCount: 1); 
+
+            reportsTo = 5;
+
+            AssertQuery<Employee>(
+                es => es.Where(e => e.ReportsTo == reportsTo),
+                stateEntryCount: 3);
+
+            reportsTo = 2;
+
+            AssertQuery<Employee>(
+                es => es.Where(e => e.ReportsTo == reportsTo),
+                stateEntryCount: 5);
         }
 
         [Fact]
@@ -416,25 +478,25 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 es =>
                     es.Select(e => e.EmployeeID).Take(9).Where(i => i == 5));
         }
-        
+
         [Fact]
         public virtual void Where_bool_member()
         {
             AssertQuery<Product>(ps => ps.Where(p => p.Discontinued), stateEntryCount: 8);
         }
-        
+
         [Fact]
         public virtual void Where_bool_member_false()
         {
             AssertQuery<Product>(ps => ps.Where(p => !p.Discontinued), stateEntryCount: 69);
         }
-        
+
         [Fact]
         public virtual void Where_bool_member_shadow()
         {
             AssertQuery<Product>(ps => ps.Where(p => p.Property<bool>("Discontinued")), stateEntryCount: 8);
         }
-        
+
         [Fact]
         public virtual void Where_bool_member_false_shadow()
         {
@@ -609,22 +671,19 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [Fact]
         public virtual void Select_anonymous_literal()
         {
-            AssertQuery<Customer>(
-                cs => cs.Select(c => new { X = 10 }));
+            AssertQuery<Customer>(cs => cs.Select(c => new { X = 10 }));
         }
 
         [Fact]
         public virtual void Select_constant_int()
         {
-            AssertQuery<Customer>(
-                cs => cs.Select(c => 0));
+            AssertQuery<Customer>(cs => cs.Select(c => 0));
         }
 
         [Fact]
         public virtual void Select_constant_null_string()
         {
-            AssertQuery<Customer>(
-                cs => cs.Select(c => (string)null));
+            AssertQuery<Customer>(cs => cs.Select(c => (string)null));
         }
 
         [Fact]
@@ -633,8 +692,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             // ReSharper disable once ConvertToConstant.Local
             var x = 10;
 
-            AssertQuery<Customer>(
-                cs => cs.Select(c => x));
+            AssertQuery<Customer>(cs => cs.Select(c => x));
         }
 
         [Fact]
@@ -1138,9 +1196,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             AssertQuery<Customer, Order>((cs, os) =>
                 (from c in cs
-                 join o in os on c.CustomerID equals o.CustomerID
-                 orderby c.CustomerID
-                 select c).Count());
+                    join o in os on c.CustomerID equals o.CustomerID
+                    orderby c.CustomerID
+                    select c).Count());
         }
 
         private class Foo
@@ -1202,8 +1260,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             AssertQuery<Customer, Order>((cs, os) =>
                 (from c in cs
-                 from o in os
-                 select c.CustomerID).Count());
+                    from o in os
+                    select c.CustomerID).Count());
         }
 
         [Fact]
@@ -1211,11 +1269,10 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             AssertQuery<Customer, Order>((cs, os) =>
                 (from c in cs
-                 from o in os
-                 orderby c.CustomerID, c.City
-                 select c).Any());
+                    from o in os
+                    orderby c.CustomerID, c.City
+                    select c).Any());
         }
-
 
         // TODO: Composite keys, slow..
 
@@ -1958,7 +2015,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         public virtual void Join_same_collection_multiple()
         {
             AssertQuery<Customer, Customer, Customer>((cs1, cs2, cs3) =>
-                cs1.Join(cs2, o => o.CustomerID, i => i.CustomerID, (c1, c2) => new { c1, c2}).Join(cs3, o => o.c1.CustomerID, i => i.CustomerID, (c12, c3) => c3));
+                cs1.Join(cs2, o => o.CustomerID, i => i.CustomerID, (c1, c2) => new { c1, c2 }).Join(cs3, o => o.c1.CustomerID, i => i.CustomerID, (c12, c3) => c3));
         }
 
         [Fact]
@@ -1969,24 +2026,24 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public void Contains_with_subquery()
+        public virtual void Contains_with_subquery()
         {
             AssertQuery<Customer, Order>((cs, os) =>
                 cs.Where(c => os.Select(o => o.CustomerID).Contains(c.CustomerID)));
         }
 
         [Fact]
-        public void Contains_with_local_collection()
+        public virtual void Contains_with_local_collection()
         {
-            string[] ids = new[] { "ABCDE", "ALFKI" };
+            string[] ids = { "ABCDE", "ALFKI" };
             AssertQuery<Customer>(cs =>
                 cs.Where(c => ids.Contains(c.CustomerID)), stateEntryCount: 1);
         }
 
         [Fact]
-        public void Contains_top_level()
+        public virtual void Contains_top_level()
         {
-            AssertQuery<Customer>(cs => 
+            AssertQuery<Customer>(cs =>
                 cs.Select(c => c.CustomerID).Contains("ALFKI"));
         }
 
@@ -2008,7 +2065,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             Fixture = fixture;
         }
 
-        protected TFixture Fixture { get; private set; }
+        protected TFixture Fixture { get; }
 
         private void AssertQuery<TItem>(
             Func<IQueryable<TItem>, int> query,

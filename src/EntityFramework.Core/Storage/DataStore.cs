@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -40,8 +41,7 @@ namespace Microsoft.Data.Entity.Storage
             [NotNull] EntityMaterializerSource entityMaterializerSource,
             [NotNull] ClrCollectionAccessorSource collectionAccessorSource,
             [NotNull] ClrPropertySetterSource propertySetterSource,
-            [NotNull] ILoggerFactory loggerFactory,
-            [NotNull] ICompiledQueryCache compiledQueryCache)
+            [NotNull] ILoggerFactory loggerFactory)
         {
             Check.NotNull(stateManager, "stateManager");
             Check.NotNull(model, "model");
@@ -50,7 +50,6 @@ namespace Microsoft.Data.Entity.Storage
             Check.NotNull(collectionAccessorSource, "collectionAccessorSource");
             Check.NotNull(propertySetterSource, "propertySetterSource");
             Check.NotNull(loggerFactory, "loggerFactory");
-            Check.NotNull(compiledQueryCache, "compiledQueryCache");
 
             _stateManager = stateManager;
             _model = model;
@@ -60,7 +59,6 @@ namespace Microsoft.Data.Entity.Storage
 
             _collectionAccessorSource = collectionAccessorSource;
             _propertySetterSource = propertySetterSource;
-            CompiledQueryCache = compiledQueryCache;
 
             _logger = new LazyRef<ILogger>(loggerFactory.Create<DataStore>);
         }
@@ -68,9 +66,7 @@ namespace Microsoft.Data.Entity.Storage
         public virtual ILogger Logger => _logger.Value;
 
         public virtual IModel Model => _model.Service;
-
-        public virtual ICompiledQueryCache CompiledQueryCache { get; }
-
+        
         public virtual EntityKeyFactorySource EntityKeyFactorySource { get; }
 
         public virtual EntityMaterializerSource EntityMaterializerSource { get; }
@@ -92,10 +88,19 @@ namespace Microsoft.Data.Entity.Storage
             [NotNull] IReadOnlyList<StateEntry> stateEntries,
             CancellationToken cancellationToken = default(CancellationToken));
 
-        public abstract IEnumerable<TResult> Query<TResult>([NotNull] QueryModel queryModel);
+        public static readonly MethodInfo CompileQueryMethod
+            = typeof(DataStore).GetTypeInfo().GetDeclaredMethod("CompileQuery");
 
-        public abstract IAsyncEnumerable<TResult> AsyncQuery<TResult>(
-            [NotNull] QueryModel queryModel,
-            CancellationToken cancellationToken);
+        public abstract Func<QueryContext, IEnumerable<TResult>> CompileQuery<TResult>([NotNull] QueryModel queryModel);
+
+        public static readonly MethodInfo CompileAsyncQueryMethod
+            = typeof(DataStore).GetTypeInfo().GetDeclaredMethod("CompileAsyncQuery");
+
+        public virtual Func<QueryContext, IAsyncEnumerable<TResult>> CompileAsyncQuery<TResult>([NotNull] QueryModel queryModel)
+        {
+            throw new NotImplementedException();
+        }
+
+        public abstract QueryContext CreateQueryContext();
     }
 }

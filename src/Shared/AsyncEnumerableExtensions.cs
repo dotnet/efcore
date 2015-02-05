@@ -11,11 +11,11 @@ using Microsoft.Data.Entity.Utilities;
 namespace System.Linq
 {
     [DebuggerStepThrough]
-    internal static class AsyncSelectExtensions
+    internal static class AsyncEnumerableExtensions
     {
         public static IAsyncEnumerable<TResult> Select<TSource, TResult>(
             [NotNull] this IAsyncEnumerable<TSource> source,
-            [NotNull] Func<TSource, Task<TResult>> selector)
+            [NotNull] Func<TSource, CancellationToken, Task<TResult>> selector)
         {
             Check.NotNull(source, "source");
             Check.NotNull(selector, "selector");
@@ -26,10 +26,11 @@ namespace System.Linq
         private class AsyncSelectEnumerable<TSource, TResult> : IAsyncEnumerable<TResult>
         {
             private readonly IAsyncEnumerable<TSource> _source;
-            private readonly Func<TSource, Task<TResult>> _selector;
+            private readonly Func<TSource, CancellationToken, Task<TResult>> _selector;
 
             public AsyncSelectEnumerable(
-                [NotNull] IAsyncEnumerable<TSource> source, [NotNull] Func<TSource, Task<TResult>> selector)
+                [NotNull] IAsyncEnumerable<TSource> source, 
+                [NotNull] Func<TSource, CancellationToken, Task<TResult>> selector)
             {
                 Check.NotNull(source, "source");
                 Check.NotNull(selector, "selector");
@@ -46,7 +47,7 @@ namespace System.Linq
             private class AsyncSelectEnumerator : IAsyncEnumerator<TResult>
             {
                 private readonly IAsyncEnumerator<TSource> _enumerator;
-                private readonly Func<TSource, Task<TResult>> _selector;
+                private readonly Func<TSource, CancellationToken, Task<TResult>> _selector;
 
                 public AsyncSelectEnumerator(AsyncSelectEnumerable<TSource, TResult> enumerable)
                 {
@@ -61,7 +62,7 @@ namespace System.Linq
                         return false;
                     }
 
-                    Current = await _selector(_enumerator.Current).WithCurrentCulture();
+                    Current = await _selector(_enumerator.Current, cancellationToken).WithCurrentCulture();
 
                     return true;
                 }

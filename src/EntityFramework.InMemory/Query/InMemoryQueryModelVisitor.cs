@@ -40,9 +40,6 @@ namespace Microsoft.Data.Entity.InMemory.Query
             Check.NotNull(accessorLambda, "accessorLambda");
             Check.NotNull(navigationPath, "navigationPath");
 
-            var inMemoryQueryCompilationContext
-                = ((InMemoryQueryCompilationContext)QueryCompilationContext);
-
             var primaryKeyParameter = Expression.Parameter(typeof(EntityKey));
             var relatedKeyFactoryParameter = Expression.Parameter(typeof(Func<IValueReader, EntityKey>));
 
@@ -59,8 +56,8 @@ namespace Microsoft.Data.Entity.InMemory.Query
                             n => Expression.Lambda(
                                 Expression.Call(
                                     _getRelatedValueReadersMethodInfo,
-                                    Expression.Constant(
-                                        inMemoryQueryCompilationContext.Database.GetTable(n.GetTargetType())),
+                                    QueryContextParameter,
+                                    Expression.Constant(n.GetTargetType()),
                                     primaryKeyParameter,
                                     relatedKeyFactoryParameter),
                                 primaryKeyParameter,
@@ -99,10 +96,14 @@ namespace Microsoft.Data.Entity.InMemory.Query
 
         [UsedImplicitly]
         private static IEnumerable<IValueReader> GetRelatedValueReaders(
-            InMemoryDatabase.InMemoryTable targetTable,
+            QueryContext queryContext,
+            IEntityType targetType,
             EntityKey primaryKey,
             Func<IValueReader, EntityKey> relatedKeyFactory)
         {
+            var inMemoryQueryContext = (InMemoryQueryContext)queryContext;
+            var targetTable = inMemoryQueryContext.Database.GetTable(targetType);
+            
             return targetTable
                 .Select(vs => new ObjectArrayValueReader(vs))
                 .Where(valueReader => relatedKeyFactory(valueReader).Equals(primaryKey));
@@ -118,10 +119,11 @@ namespace Microsoft.Data.Entity.InMemory.Query
             IEntityType entityType,
             EntityKeyFactorySource entityKeyFactorySource,
             EntityMaterializerSource entityMaterializerSource,
-            InMemoryDatabase inMemoryDatabase,
             bool queryStateManager)
             where TEntity : class
         {
+            var inMemoryQueryContext = (InMemoryQueryContext)queryContext;
+
             var keyProperties
                 = entityType.GetPrimaryKey().Properties;
 
@@ -134,7 +136,7 @@ namespace Microsoft.Data.Entity.InMemory.Query
             var materializer
                 = entityMaterializerSource.GetMaterializer(entityType);
 
-            return inMemoryDatabase
+            return inMemoryQueryContext.Database
                 .GetTable(entityType)
                 .Select(t =>
                 {
@@ -153,10 +155,12 @@ namespace Microsoft.Data.Entity.InMemory.Query
 
         [UsedImplicitly]
         private static IEnumerable<IValueReader> ProjectionQuery(
-            IEntityType entityType,
-            InMemoryDatabase inMemoryDatabase)
+            QueryContext queryContext, 
+            IEntityType entityType)
         {
-            return inMemoryDatabase.GetTable(entityType).Select(t => new ObjectArrayValueReader(t));
+            var inMemoryQueryContext = (InMemoryQueryContext)queryContext;
+
+            return inMemoryQueryContext.Database.GetTable(entityType).Select(t => new ObjectArrayValueReader(t));
         }
 
         private class InMemoryEntityQueryableExpressionTreeVisitor : EntityQueryableExpressionTreeVisitor
@@ -180,11 +184,6 @@ namespace Microsoft.Data.Entity.InMemory.Query
                     = QueryModelVisitor.QueryCompilationContext.Model
                         .GetEntityType(elementType);
 
-                var inMemoryDatabase
-                    = ((InMemoryQueryCompilationContext)QueryModelVisitor
-                        .QueryCompilationContext)
-                        .Database;
-
                 if (QueryModelVisitor.QuerySourceRequiresMaterialization(_querySource))
                 {
                     return Expression.Call(
@@ -193,14 +192,13 @@ namespace Microsoft.Data.Entity.InMemory.Query
                         Expression.Constant(entityType),
                         Expression.Constant(QueryModelVisitor.QueryCompilationContext.EntityKeyFactorySource),
                         Expression.Constant(QueryModelVisitor.QueryCompilationContext.EntityMaterializerSource),
-                        Expression.Constant(inMemoryDatabase),
                         Expression.Constant(QueryModelVisitor.QuerySourceRequiresTracking(_querySource)));
                 }
 
                 return Expression.Call(
                     _projectionQueryMethodInfo,
-                    Expression.Constant(entityType),
-                    Expression.Constant(inMemoryDatabase));
+                    QueryContextParameter,
+                    Expression.Constant(entityType));
             }
         }
     }

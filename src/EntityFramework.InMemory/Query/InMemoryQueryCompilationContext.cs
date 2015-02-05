@@ -16,8 +16,7 @@ namespace Microsoft.Data.Entity.InMemory.Query
             [NotNull] IModel model,
             [NotNull] ILogger logger,
             [NotNull] EntityMaterializerSource entityMaterializerSource,
-            [NotNull] EntityKeyFactorySource entityKeyFactorySource,
-            [NotNull] InMemoryDatabase database)
+            [NotNull] EntityKeyFactorySource entityKeyFactorySource)
             : base(
                 Check.NotNull(model, "model"),
                 Check.NotNull(logger, "logger"),
@@ -27,9 +26,6 @@ namespace Microsoft.Data.Entity.InMemory.Query
                 Check.NotNull(entityKeyFactorySource, "entityKeyFactorySource"))
         {
             Check.NotNull(entityKeyFactorySource, "entityKeyFactorySource");
-            Check.NotNull(database, "database");
-
-            Database = database;
         }
 
         public override EntityQueryModelVisitor CreateQueryModelVisitor(
@@ -37,7 +33,5 @@ namespace Microsoft.Data.Entity.InMemory.Query
         {
             return new InMemoryQueryModelVisitor(this);
         }
-
-        public virtual InMemoryDatabase Database { get; }
     }
 }

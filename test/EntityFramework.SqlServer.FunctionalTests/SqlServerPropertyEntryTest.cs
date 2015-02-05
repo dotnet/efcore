@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             base.Property_entry_original_value_is_set();
 
             Assert.Equal(
-@"SELECT TOP(@p0) [e].[EngineSupplierId], [e].[Id], [e].[Name]
+@"SELECT TOP(1) [e].[EngineSupplierId], [e].[Id], [e].[Name]
 FROM [Engines] AS [e]
 
 SET NOCOUNT OFF;

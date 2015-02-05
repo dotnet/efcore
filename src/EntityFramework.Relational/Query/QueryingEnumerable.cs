@@ -63,7 +63,11 @@ namespace Microsoft.Data.Entity.Relational.Query
                 {
                     _enumerable._relationalQueryContext.Connection.Open();
 
-                    using (var command = _enumerable._commandBuilder.Build(_enumerable._relationalQueryContext.Connection))
+                    using (var command
+                        = _enumerable._commandBuilder
+                            .Build(
+                                _enumerable._relationalQueryContext.Connection,
+                                _enumerable._relationalQueryContext.ParameterValues))
                     {
                         _enumerable._logger.WriteSql(command.CommandText);
 

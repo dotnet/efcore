@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using Microsoft.Data.Entity.ChangeTracking;
@@ -37,12 +38,12 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 var commandBuilder = setupCommandBuilder(context);
 
                 var relationalConnection = (RelationalConnection)context.Database.Connection;
-                var command = commandBuilder.Build(relationalConnection);
+                var command = commandBuilder.Build(relationalConnection, new Dictionary<string, object>());
 
                 Assert.Equal(30, command.CommandTimeout);
 
                 context.Database.AsRelational().Connection.CommandTimeout = 77;
-                var command2 = commandBuilder.Build(relationalConnection);
+                var command2 = commandBuilder.Build(relationalConnection, new Dictionary<string, object>());
 
                 Assert.Equal(77, command2.CommandTimeout);
             }
@@ -55,8 +56,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 var commandBuilder = setupCommandBuilder(context);
 
-                var relationalConnection = (RelationalConnection) context.Database.Connection;
-                var command = commandBuilder.Build(relationalConnection);
+                var relationalConnection = (RelationalConnection)context.Database.Connection;
+                var command = commandBuilder.Build(relationalConnection, new Dictionary<string, object>());
 
                 Assert.Equal(77, command.CommandTimeout);
             }
@@ -70,14 +71,14 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 var commandBuilder = setupCommandBuilder(context);
 
                 context.Database.AsRelational().Connection.CommandTimeout = 88;
-                var relationalConnection = (RelationalConnection) context.Database.Connection;
-                var command = commandBuilder.Build(relationalConnection);
+                var relationalConnection = (RelationalConnection)context.Database.Connection;
+                var command = commandBuilder.Build(relationalConnection, new Dictionary<string, object>());
 
                 Assert.Equal(88, command.CommandTimeout);
 
                 context.Database.AsRelational().Connection.CommandTimeout = 99;
                 relationalConnection = (RelationalConnection)context.Database.Connection;
-                var command2 = commandBuilder.Build(relationalConnection);
+                var command2 = commandBuilder.Build(relationalConnection, new Dictionary<string, object>());
 
                 Assert.Equal(99, command2.CommandTimeout);
             }
@@ -101,7 +102,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                 var relationalConnection = (RelationalConnection)context.Database.Connection;
                 context.Database.AsRelational().Connection.CommandTimeout = null;
-                var command = commandBuilder.Build(relationalConnection);
+                var command = commandBuilder.Build(relationalConnection, new Dictionary<string, object>());
 
                 Assert.Equal(30, command.CommandTimeout);
             }
@@ -109,7 +110,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         private CommandBuilder setupCommandBuilder(DbContext context)
         {
-            EntityMaterializerSource source = new EntityMaterializerSource(new MemberMapper(new FieldMatcher()));
+            var source = new EntityMaterializerSource(new MemberMapper(new FieldMatcher()));
 
             var loggerFactory = new LoggerFactory();
 
@@ -126,7 +127,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             return new CommandBuilder(selectExpression, queryCompilationContext);
         }
-
 
         [Fact]
         public void Constructed_update_statement_uses_default_when_commandTimeout_not_configured()
@@ -209,7 +209,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 Assert.Equal(88, globalCommandTimeout);
             }
         }
-        
+
         [Fact]
         public async void Constructed_update_statement_uses_default_commandTimeout_can_override_not_configured_in_context_async()
         {
@@ -248,7 +248,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             using (var context = new ConfiguredChipsContext(serviceProvider, "KettleChips"))
             {
-                context.Database.EnsureCreated(); 
+                context.Database.EnsureCreated();
 
                 context.Chips.Add(new KettleChips { BestBuyDate = DateTime.Now, Name = "Doritos Locos Tacos" });
                 await context.SaveChangesAsync();
@@ -283,7 +283,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 Assert.Equal(88, globalCommandTimeout);
             }
         }
-        
+
         public void Dispose()
         {
             using (var context = new ChipsContext(_serviceProvider, "KettleChips"))
@@ -319,7 +319,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 var optionsExtension = options.Extensions.OfType<SqlServerOptionsExtension>().FirstOrDefault();
 
-                int? maxBatchSize = optionsExtension?.MaxBatchSize;
+                var maxBatchSize = optionsExtension?.MaxBatchSize;
 
                 return new TestSqlServerModificationCommandBatch((SqlServerSqlGenerator)SqlGenerator, maxBatchSize);
             }

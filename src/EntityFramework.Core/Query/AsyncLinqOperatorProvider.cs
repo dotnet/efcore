@@ -4,18 +4,96 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
+using Microsoft.Framework.Logging;
 using Remotion.Linq.Clauses;
+using Microsoft.Data.Entity.Internal;
 
 namespace Microsoft.Data.Entity.Query
 {
     public class AsyncLinqOperatorProvider : ILinqOperatorProvider
     {
+        private static readonly MethodInfo _interceptExceptions
+            = typeof(AsyncLinqOperatorProvider)
+                .GetTypeInfo().GetDeclaredMethod("_InterceptExceptions");
+
+        [UsedImplicitly]
+        private static IAsyncEnumerable<T> _InterceptExceptions<T>(
+            Func<IAsyncEnumerable<T>> source, QueryContext queryContext)
+        {
+            return new ExceptionInterceptor<T>(source, queryContext);
+        }
+
+        public virtual MethodInfo InterceptExceptions => _interceptExceptions;
+
+        private sealed class ExceptionInterceptor<T> : IAsyncEnumerable<T>
+        {
+            private readonly Func<IAsyncEnumerable<T>> _innerFactory;
+            private readonly QueryContext _queryContext;
+
+            public ExceptionInterceptor(Func<IAsyncEnumerable<T>> innerFactory, QueryContext queryContext)
+            {
+                _innerFactory = innerFactory;
+                _queryContext = queryContext;
+            }
+
+            public IAsyncEnumerator<T> GetEnumerator()
+            {
+                return new EnumeratorExceptionInterceptor(this);
+            }
+
+            [DebuggerStepThrough]
+            private sealed class EnumeratorExceptionInterceptor : IAsyncEnumerator<T>
+            {
+                private readonly ExceptionInterceptor<T> _exceptionInterceptor;
+
+                private IAsyncEnumerator<T> _inner;
+
+                public EnumeratorExceptionInterceptor(ExceptionInterceptor<T> exceptionInterceptor)
+                {
+                    _exceptionInterceptor = exceptionInterceptor;
+                }
+
+                public T Current => _inner.Current;
+
+                public async Task<bool> MoveNext(CancellationToken cancellationToken)
+                {
+                    try
+                    {
+                        if (_inner == null)
+                        {
+                            _inner = _exceptionInterceptor._innerFactory().GetEnumerator();
+                        }
+
+                        return await _inner.MoveNext(cancellationToken).WithCurrentCulture();
+                    }
+                    catch (Exception e)
+                    {
+                        _exceptionInterceptor._queryContext.Logger.WriteError(
+                            new DataStoreErrorLogState(_exceptionInterceptor._queryContext.ContextType),
+                            e,
+                            (state, exception) =>
+                                Strings.LogExceptionDuringQueryIteration(Environment.NewLine, exception));
+
+                        throw;
+                    }
+                }
+
+                public void Dispose()
+                {
+                    _inner?.Dispose();
+                }
+            }
+        }
+
         private static readonly MethodInfo _trackEntities
             = typeof(AsyncLinqOperatorProvider)
                 .GetTypeInfo().GetDeclaredMethod("_TrackEntities");

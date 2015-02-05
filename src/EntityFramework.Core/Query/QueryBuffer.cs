@@ -263,7 +263,7 @@ namespace Microsoft.Data.Entity.Query
                 navigationPath,
                 currentNavigationIndex,
                 await relatedValueReaders[currentNavigationIndex](primaryKey, relatedKeyFactory)
-                    .Select(async valueReader =>
+                    .Select(async (valueReader, ct) =>
                         {
                             var targetEntity
                                 = GetTargetEntity(
@@ -277,7 +277,7 @@ namespace Microsoft.Data.Entity.Query
                                 targetEntity,
                                 navigationPath,
                                 relatedValueReaders,
-                                cancellationToken,
+                                ct,
                                 currentNavigationIndex + 1)
                                 .WithCurrentCulture();
 

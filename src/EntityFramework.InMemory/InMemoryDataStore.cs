@@ -42,8 +42,7 @@ namespace Microsoft.Data.Entity.InMemory
             [NotNull] ClrPropertySetterSource propertySetterSource,
             [NotNull] InMemoryDatabase persistentDatabase,
             [NotNull] DbContextService<IDbContextOptions> options,
-            [NotNull] ILoggerFactory loggerFactory,
-            [NotNull] ICompiledQueryCache compiledQueryCache)
+            [NotNull] ILoggerFactory loggerFactory)
             : base(
                 Check.NotNull(stateManager, "stateManager"),
                 Check.NotNull(model, "model"),
@@ -51,8 +50,7 @@ namespace Microsoft.Data.Entity.InMemory
                 Check.NotNull(entityMaterializerSource, "entityMaterializerSource"),
                 Check.NotNull(collectionAccessorSource, "collectionAccessorSource"),
                 Check.NotNull(propertySetterSource, "propertySetterSource"),
-                Check.NotNull(loggerFactory, "loggerFactory"),
-                Check.NotNull(compiledQueryCache, "compiledQueryCache"))
+                Check.NotNull(loggerFactory, "loggerFactory"))
         {
             Check.NotNull(persistentDatabase, "persistentDatabase");
 
@@ -87,35 +85,30 @@ namespace Microsoft.Data.Entity.InMemory
             return Task.FromResult(_database.Value.ExecuteTransaction(stateEntries));
         }
 
-        public override IEnumerable<TResult> Query<TResult>(QueryModel queryModel)
+        public override Func<QueryContext, IEnumerable<TResult>> CompileQuery<TResult>(QueryModel queryModel)
         {
-            Check.NotNull(queryModel, "queryModel");
+            var queryCompilationContext
+                = new InMemoryQueryCompilationContext(
+                    Model,
+                    Logger,
+                    EntityMaterializerSource,
+                    EntityKeyFactorySource);
 
-            var queryExecutor
-                = CompiledQueryCache.GetOrAdd(queryModel, qm =>
-                    {
-                        var queryCompilationContext
-                            = new InMemoryQueryCompilationContext(
-                                Model,
-                                Logger,
-                                EntityMaterializerSource,
-                                EntityKeyFactorySource,
-                                _database.Value);
-
-                        return queryCompilationContext
-                            .CreateQueryModelVisitor()
-                            .CreateQueryExecutor<TResult>(qm);
-                    });
-
-            var queryContext = new InMemoryQueryContext(Logger, CreateQueryBuffer());
-
-            return queryExecutor(queryContext);
+            return queryCompilationContext
+                .CreateQueryModelVisitor()
+                .CreateQueryExecutor<TResult>(queryModel);
         }
 
-        public override IAsyncEnumerable<TResult> AsyncQuery<TResult>(
-            QueryModel queryModel, CancellationToken cancellationToken)
+        public override Func<QueryContext, IAsyncEnumerable<TResult>> CompileAsyncQuery<TResult>(QueryModel queryModel)
         {
-            return Query<TResult>(queryModel).ToAsyncEnumerable();
+            var syncQueryExecutor = CompileQuery<TResult>(queryModel);
+
+            return qc => syncQueryExecutor(qc).ToAsyncEnumerable();
+        }
+
+        public override QueryContext CreateQueryContext()
+        {
+            return new InMemoryQueryContext(Logger, CreateQueryBuffer(), _database.Value);
         }
 
         public virtual bool EnsureDatabaseCreated([NotNull] IModel model)

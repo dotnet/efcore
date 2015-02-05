@@ -105,11 +105,10 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 SqlServerCommandBatchPreparer batchPreparer,
                 SqlServerBatchExecutor batchExecutor,
                 DbContextService<IDbContextOptions> options,
-                ILoggerFactory loggerFactory,
-                ICompiledQueryCache compiledQueryCache)
+                ILoggerFactory loggerFactory)
                 : base(stateManager, model, entityKeyFactorySource, entityMaterializerSource,
                     collectionAccessorSource, propertySetterSource, connection, batchPreparer,
-                    batchExecutor, options, loggerFactory, compiledQueryCache)
+                    batchExecutor, options, loggerFactory)
             {
             }
 

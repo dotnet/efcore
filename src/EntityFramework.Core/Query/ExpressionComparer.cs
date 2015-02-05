@@ -4,61 +4,36 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
+using Microsoft.Data.Entity.Utilities;
 
 // ReSharper disable PossibleUnintendedReferenceComparison
 
 namespace Microsoft.Data.Entity.Query
 {
-    public class ExpressionComparer : IEqualityComparer<Expression>
+    public class ExpressionComparer
     {
-        private class ScopedDictionary<TKey, TValue>
+        public static bool AreEqual([NotNull] Expression a, [NotNull] Expression b)
         {
-            private readonly ScopedDictionary<TKey, TValue> _previous;
-            private readonly Dictionary<TKey, TValue> _map;
+            Check.NotNull(a, "a");
+            Check.NotNull(b, "b");
 
-            public ScopedDictionary(ScopedDictionary<TKey, TValue> previous)
-            {
-                _previous = previous;
-                _map = new Dictionary<TKey, TValue>();
-            }
-
-            public void Add(TKey key, TValue value)
-            {
-                _map.Add(key, value);
-            }
-
-            public bool TryGetValue(TKey key, out TValue value)
-            {
-                for (var scope = this; scope != null; scope = scope._previous)
-                {
-                    if (scope._map.TryGetValue(key, out value))
-                    {
-                        return true;
-                    }
-                }
-
-                value = default(TValue);
-
-                return false;
-            }
+            return new ExpressionComparer(null).Compare(a, b);
         }
 
         private ScopedDictionary<ParameterExpression, ParameterExpression> _parameterScope;
 
-        public virtual bool Equals(Expression x, Expression y)
+        private ExpressionComparer(
+            ScopedDictionary<ParameterExpression, ParameterExpression> parameterScope)
         {
-            return Compare(x, y);
+            _parameterScope = parameterScope;
         }
 
-        public virtual int GetHashCode(Expression obj)
-        {
-            return 0;
-        }
-
-        protected virtual bool Compare(Expression a, Expression b)
+        private bool Compare(Expression a, Expression b)
         {
             if (a == b)
             {
@@ -144,11 +119,11 @@ namespace Microsoft.Data.Entity.Query
                 case ExpressionType.ListInit:
                     return CompareListInit((ListInitExpression)a, (ListInitExpression)b);
                 default:
-                    throw new InvalidOperationException(Strings.UnhandledExpressionType(a.NodeType));
+                    throw new Exception(string.Format("Unhandled expression type: '{0}'", a.NodeType));
             }
         }
 
-        protected virtual bool CompareUnary(UnaryExpression a, UnaryExpression b)
+        private bool CompareUnary(UnaryExpression a, UnaryExpression b)
         {
             return a.NodeType == b.NodeType
                    && a.Method == b.Method
@@ -157,7 +132,7 @@ namespace Microsoft.Data.Entity.Query
                    && Compare(a.Operand, b.Operand);
         }
 
-        protected virtual bool CompareBinary(BinaryExpression a, BinaryExpression b)
+        private bool CompareBinary(BinaryExpression a, BinaryExpression b)
         {
             return a.NodeType == b.NodeType
                    && a.Method == b.Method
@@ -167,52 +142,72 @@ namespace Microsoft.Data.Entity.Query
                    && Compare(a.Right, b.Right);
         }
 
-        protected virtual bool CompareTypeIs(TypeBinaryExpression a, TypeBinaryExpression b)
+        private bool CompareTypeIs(TypeBinaryExpression a, TypeBinaryExpression b)
         {
             return a.TypeOperand == b.TypeOperand
                    && Compare(a.Expression, b.Expression);
         }
 
-        protected virtual bool CompareConditional(ConditionalExpression a, ConditionalExpression b)
+        private bool CompareConditional(ConditionalExpression a, ConditionalExpression b)
         {
             return Compare(a.Test, b.Test)
                    && Compare(a.IfTrue, b.IfTrue)
                    && Compare(a.IfFalse, b.IfFalse);
         }
 
-        protected virtual bool CompareConstant(ConstantExpression a, ConstantExpression b)
+        private static bool CompareConstant(ConstantExpression a, ConstantExpression b)
         {
+            if (a.Value == b.Value)
+            {
+                return true;
+            }
+
+            if (a.Value == null
+                || b.Value == null)
+            {
+                return false;
+            }
+
+            if (a.Value is IQueryable
+                && b.Value is IQueryable
+                && a.Value.GetType() == b.Value.GetType())
+            {
+                return true;
+            }
+
             return Equals(a.Value, b.Value);
         }
 
-        protected virtual bool CompareParameter(ParameterExpression a, ParameterExpression b)
+        private bool CompareParameter(ParameterExpression a, ParameterExpression b)
         {
             if (_parameterScope != null)
             {
                 ParameterExpression mapped;
                 if (_parameterScope.TryGetValue(a, out mapped))
                 {
-                    return mapped == b;
+                    return mapped.Name == b.Name
+                           && mapped.Type == b.Type;
                 }
             }
 
-            return a == b;
+            return a.Name == b.Name
+                   && a.Type == b.Type;
         }
 
-        protected virtual bool CompareMemberAccess(MemberExpression a, MemberExpression b)
+        private bool CompareMemberAccess(MemberExpression a, MemberExpression b)
         {
             return a.Member == b.Member
                    && Compare(a.Expression, b.Expression);
         }
 
-        protected virtual bool CompareMethodCall(MethodCallExpression a, MethodCallExpression b)
+        private bool CompareMethodCall(MethodCallExpression a, MethodCallExpression b)
         {
             return a.Method == b.Method
                    && Compare(a.Object, b.Object)
                    && CompareExpressionList(a.Arguments, b.Arguments);
         }
 
-        protected virtual bool CompareLambda(LambdaExpression a, LambdaExpression b)
+        private bool CompareLambda(LambdaExpression a, LambdaExpression b)
         {
             var n = a.Parameters.Count;
 
@@ -231,6 +226,7 @@ namespace Microsoft.Data.Entity.Query
             }
 
             var save = _parameterScope;
+
             _parameterScope = new ScopedDictionary<ParameterExpression, ParameterExpression>(_parameterScope);
 
             try
@@ -239,6 +235,7 @@ namespace Microsoft.Data.Entity.Query
                 {
                     _parameterScope.Add(a.Parameters[i], b.Parameters[i]);
                 }
+
                 return Compare(a.Body, b.Body);
             }
             finally
@@ -247,14 +244,14 @@ namespace Microsoft.Data.Entity.Query
             }
         }
 
-        protected virtual bool CompareNew(NewExpression a, NewExpression b)
+        private bool CompareNew(NewExpression a, NewExpression b)
         {
             return a.Constructor == b.Constructor
                    && CompareExpressionList(a.Arguments, b.Arguments)
                    && CompareMemberList(a.Members, b.Members);
         }
 
-        protected virtual bool CompareExpressionList(ReadOnlyCollection<Expression> a, ReadOnlyCollection<Expression> b)
+        private bool CompareExpressionList(ReadOnlyCollection<Expression> a, ReadOnlyCollection<Expression> b)
         {
             if (a == b)
             {
@@ -283,7 +280,7 @@ namespace Microsoft.Data.Entity.Query
             return true;
         }
 
-        protected virtual bool CompareMemberList(ReadOnlyCollection<MemberInfo> a, ReadOnlyCollection<MemberInfo> b)
+        private static bool CompareMemberList(ReadOnlyCollection<MemberInfo> a, ReadOnlyCollection<MemberInfo> b)
         {
             if (a == b)
             {
@@ -312,24 +309,24 @@ namespace Microsoft.Data.Entity.Query
             return true;
         }
 
-        protected virtual bool CompareNewArray(NewArrayExpression a, NewArrayExpression b)
+        private bool CompareNewArray(NewArrayExpression a, NewArrayExpression b)
         {
             return CompareExpressionList(a.Expressions, b.Expressions);
         }
 
-        protected virtual bool CompareInvocation(InvocationExpression a, InvocationExpression b)
+        private bool CompareInvocation(InvocationExpression a, InvocationExpression b)
         {
             return Compare(a.Expression, b.Expression)
                    && CompareExpressionList(a.Arguments, b.Arguments);
         }
 
-        protected virtual bool CompareMemberInit(MemberInitExpression a, MemberInitExpression b)
+        private bool CompareMemberInit(MemberInitExpression a, MemberInitExpression b)
         {
             return Compare(a.NewExpression, b.NewExpression)
                    && CompareBindingList(a.Bindings, b.Bindings);
         }
 
-        protected virtual bool CompareBindingList(ReadOnlyCollection<MemberBinding> a, ReadOnlyCollection<MemberBinding> b)
+        private bool CompareBindingList(ReadOnlyCollection<MemberBinding> a, ReadOnlyCollection<MemberBinding> b)
         {
             if (a == b)
             {
@@ -358,7 +355,7 @@ namespace Microsoft.Data.Entity.Query
             return true;
         }
 
-        protected virtual bool CompareBinding(MemberBinding a, MemberBinding b)
+        private bool CompareBinding(MemberBinding a, MemberBinding b)
         {
             if (a == b)
             {
@@ -390,35 +387,35 @@ namespace Microsoft.Data.Entity.Query
                 case MemberBindingType.MemberBinding:
                     return CompareMemberMemberBinding((MemberMemberBinding)a, (MemberMemberBinding)b);
                 default:
-                    throw new InvalidOperationException(Strings.UnhandledBindingType(a.BindingType));
+                    throw new Exception(Strings.UnhandledBindingType(a.BindingType));
             }
         }
 
-        protected virtual bool CompareMemberAssignment(MemberAssignment a, MemberAssignment b)
+        private bool CompareMemberAssignment(MemberAssignment a, MemberAssignment b)
         {
             return a.Member == b.Member
                    && Compare(a.Expression, b.Expression);
         }
 
-        protected virtual bool CompareMemberListBinding(MemberListBinding a, MemberListBinding b)
+        private bool CompareMemberListBinding(MemberListBinding a, MemberListBinding b)
         {
             return a.Member == b.Member
                    && CompareElementInitList(a.Initializers, b.Initializers);
         }
 
-        protected virtual bool CompareMemberMemberBinding(MemberMemberBinding a, MemberMemberBinding b)
+        private bool CompareMemberMemberBinding(MemberMemberBinding a, MemberMemberBinding b)
         {
             return a.Member == b.Member
                    && CompareBindingList(a.Bindings, b.Bindings);
         }
 
-        protected virtual bool CompareListInit(ListInitExpression a, ListInitExpression b)
+        private bool CompareListInit(ListInitExpression a, ListInitExpression b)
         {
             return Compare(a.NewExpression, b.NewExpression)
                    && CompareElementInitList(a.Initializers, b.Initializers);
         }
 
-        protected virtual bool CompareElementInitList(ReadOnlyCollection<ElementInit> a, ReadOnlyCollection<ElementInit> b)
+        private bool CompareElementInitList(ReadOnlyCollection<ElementInit> a, ReadOnlyCollection<ElementInit> b)
         {
             if (a == b)
             {
@@ -447,10 +444,42 @@ namespace Microsoft.Data.Entity.Query
             return true;
         }
 
-        protected virtual bool CompareElementInit(ElementInit a, ElementInit b)
+        private bool CompareElementInit(ElementInit a, ElementInit b)
         {
             return a.AddMethod == b.AddMethod
                    && CompareExpressionList(a.Arguments, b.Arguments);
+        }
+
+        private class ScopedDictionary<TKey, TValue>
+        {
+            private readonly ScopedDictionary<TKey, TValue> _previous;
+            private readonly Dictionary<TKey, TValue> _map;
+
+            public ScopedDictionary(ScopedDictionary<TKey, TValue> previous)
+            {
+                _previous = previous;
+                _map = new Dictionary<TKey, TValue>();
+            }
+
+            public void Add(TKey key, TValue value)
+            {
+                _map.Add(key, value);
+            }
+
+            public bool TryGetValue(TKey key, out TValue value)
+            {
+                for (var scope = this; scope != null; scope = scope._previous)
+                {
+                    if (scope._map.TryGetValue(key, out value))
+                    {
+                        return true;
+                    }
+                }
+
+                value = default(TValue);
+
+                return false;
+            }
         }
     }
 }

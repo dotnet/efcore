@@ -228,6 +228,7 @@ namespace Microsoft.Data.Entity.Relational.Query
             {
                 var filteringVisitor = new FilteringExpressionTreeVisitor(this);
                 var predicate = filteringVisitor.VisitExpression(whereClause.Predicate);
+
                 if (predicate != null)
                 {
                     selectExpression.Predicate = selectExpression.Predicate == null

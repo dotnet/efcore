@@ -1,14 +1,31 @@
-﻿using System;
+﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
 using System.Collections.Generic;
+using System.Linq.Expressions;
+using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Remotion.Linq;
+using Microsoft.Data.Entity.Storage;
 
 namespace Microsoft.Data.Entity.Query
 {
     public interface ICompiledQueryCache
     {
-        Func<QueryContext, IEnumerable<TResult>> GetOrAdd<TResult>(
-            [NotNull] QueryModel queryModel,
-            [NotNull] Func<QueryModel, Func<QueryContext, IEnumerable<TResult>>> queryCompiler);
+        TResult Execute<TResult>(
+            [NotNull] Expression query,
+            [NotNull] DataStore dataStore,
+            [NotNull] QueryContext queryContext);
+
+        IAsyncEnumerable<TResult> ExecuteAsync<TResult>(
+            [NotNull] Expression query,
+            [NotNull] DataStore dataStore,
+            [NotNull] QueryContext queryContext);
+
+        Task<TResult> ExecuteAsync<TResult>(
+            [NotNull] Expression query,
+            [NotNull] DataStore dataStore,
+            [NotNull] QueryContext queryContext,
+            CancellationToken cancellationToken);
     }
 }

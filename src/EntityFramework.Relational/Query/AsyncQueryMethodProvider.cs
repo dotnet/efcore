@@ -95,16 +95,16 @@ namespace Microsoft.Data.Entity.Relational.Query
 
             return
                 innerResults.Select(
-                    async qss =>
+                    async (querySourceScope, cancellationToken) =>
                         {
                             await queryContext.QueryBuffer
                                 .IncludeAsync(
-                                    qss.GetResult(querySource),
+                                    querySourceScope.GetResult(querySource),
                                     navigationPath,
                                     relatedValueReaders,
-                                    queryContext.CancellationToken);
+                                    cancellationToken);
 
-                            return qss;
+                            return querySourceScope;
                         })
                     .Finally(() =>
                         {

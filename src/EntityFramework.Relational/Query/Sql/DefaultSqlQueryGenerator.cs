@@ -3,8 +3,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Text;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Relational.Query.Expressions;
 using Microsoft.Data.Entity.Utilities;
@@ -16,22 +18,32 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
     public class DefaultSqlQueryGenerator : ThrowingExpressionTreeVisitor, ISqlExpressionVisitor, ISqlQueryGenerator
     {
         private IndentedStringBuilder _sql;
-        private List<CommandParameter> _parameters;
         private Expression _binaryExpression;
+        private List<string> _parameters;
+        private IDictionary<string, object> _parameterValues;
 
-        public virtual string GenerateSql(SelectExpression selectExpression)
+        public virtual string GenerateSql(
+            SelectExpression selectExpression, IDictionary<string, object> parameterValues)
         {
             Check.NotNull(selectExpression, "selectExpression");
+            Check.NotNull(parameterValues, "parameterValues");
 
             _sql = new IndentedStringBuilder();
-            _parameters = new List<CommandParameter>();
+            _parameters = new List<string>();
+            _parameterValues = parameterValues;
 
             selectExpression.Accept(this);
 
             return _sql.ToString();
         }
 
+        public virtual IEnumerable<string> Parameters => _parameters;
+
         protected virtual IndentedStringBuilder Sql => _sql;
+
+        protected virtual string ConcatOperator => "+";
+
+        protected virtual string ParameterPrefix => "@";
 
         public virtual Expression VisitSelectExpression(SelectExpression selectExpression)
         {
@@ -265,7 +277,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                 && selectExpression.Offset == null)
             {
                 _sql.Append("TOP(")
-                    .Append(CreateParameter(selectExpression.Limit))
+                    .Append(selectExpression.Limit)
                     .Append(") ");
             }
         }
@@ -282,13 +294,13 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                 }
 
                 _sql.Append(" OFFSET ")
-                    .Append(CreateParameter(selectExpression.Offset))
+                    .Append(selectExpression.Offset)
                     .Append(" ROWS");
 
                 if (selectExpression.Limit != null)
                 {
                     _sql.Append(" FETCH NEXT ")
-                        .Append(CreateParameter(selectExpression.Limit))
+                        .Append(selectExpression.Limit)
                         .Append(" ROWS ONLY");
                 }
             }
@@ -333,55 +345,64 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
             _binaryExpression = binaryExpression;
 
-            if (binaryExpression.IsLogicalOperation())
+            var maybeNullComparisonExpression = TransformNullComparison(binaryExpression);
+
+            if (maybeNullComparisonExpression != null)
             {
-                _sql.Append("(");
+                VisitExpression(maybeNullComparisonExpression);
             }
-
-            VisitExpression(binaryExpression.Left);
-
-            string op;
-
-            switch (binaryExpression.NodeType)
+            else
             {
-                case ExpressionType.Equal:
-                    op = " = ";
-                    break;
-                case ExpressionType.NotEqual:
-                    op = " <> ";
-                    break;
-                case ExpressionType.GreaterThan:
-                    op = " > ";
-                    break;
-                case ExpressionType.GreaterThanOrEqual:
-                    op = " >= ";
-                    break;
-                case ExpressionType.LessThan:
-                    op = " < ";
-                    break;
-                case ExpressionType.LessThanOrEqual:
-                    op = " <= ";
-                    break;
-                case ExpressionType.AndAlso:
-                    op = " AND ";
-                    break;
-                case ExpressionType.OrElse:
-                    op = " OR ";
-                    break;
-                case ExpressionType.Add:
-                    op = " " + ConcatOperator + " ";
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+                if (binaryExpression.IsLogicalOperation())
+                {
+                    _sql.Append("(");
+                }
 
-            _sql.Append(op);
+                VisitExpression(binaryExpression.Left);
 
-            VisitExpression(binaryExpression.Right);
+                string op;
 
-            if (binaryExpression.IsLogicalOperation())
-            {
-                _sql.Append(")");
+                switch (binaryExpression.NodeType)
+                {
+                    case ExpressionType.Equal:
+                        op = " = ";
+                        break;
+                    case ExpressionType.NotEqual:
+                        op = " <> ";
+                        break;
+                    case ExpressionType.GreaterThan:
+                        op = " > ";
+                        break;
+                    case ExpressionType.GreaterThanOrEqual:
+                        op = " >= ";
+                        break;
+                    case ExpressionType.LessThan:
+                        op = " < ";
+                        break;
+                    case ExpressionType.LessThanOrEqual:
+                        op = " <= ";
+                        break;
+                    case ExpressionType.AndAlso:
+                        op = " AND ";
+                        break;
+                    case ExpressionType.OrElse:
+                        op = " OR ";
+                        break;
+                    case ExpressionType.Add:
+                        op = " " + ConcatOperator + " ";
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+
+                _sql.Append(op);
+
+                VisitExpression(binaryExpression.Right);
+
+                if (binaryExpression.IsLogicalOperation())
+                {
+                    _sql.Append(")");
+                }
             }
 
             _binaryExpression = null;
@@ -389,20 +410,35 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             return binaryExpression;
         }
 
-        protected virtual string ConcatOperator => "+";
-
-        protected virtual string DelimitIdentifier([NotNull] string identifier)
+        private Expression TransformNullComparison(BinaryExpression binaryExpression)
         {
-            Check.NotEmpty(identifier, "identifier");
+            if (binaryExpression.NodeType == ExpressionType.Equal
+                || binaryExpression.NodeType == ExpressionType.NotEqual)
+            {
+                var parameter
+                    = binaryExpression.Right as ParameterExpression
+                      ?? binaryExpression.Left as ParameterExpression;
 
-            return "\"" + identifier + "\"";
-        }
+                object parameterValue;
+                if (parameter != null
+                    && _parameterValues.TryGetValue(parameter.Name, out parameterValue)
+                    && parameterValue == null)
+                {
+                    var columnExpression
+                        = binaryExpression.Left as ColumnExpression
+                          ?? binaryExpression.Right as ColumnExpression;
 
-        protected virtual string GenerateLiteral([NotNull] string literal)
-        {
-            Check.NotEmpty(literal, "literal");
+                    if (columnExpression != null)
+                    {
+                        return
+                            binaryExpression.NodeType == ExpressionType.Equal
+                                ? (Expression)new IsNullExpression(columnExpression)
+                                : new IsNotNullExpression(columnExpression);
+                    }
+                }
+            }
 
-            return "'" + literal.Replace("'", "''") + "'";
+            return null;
         }
 
         public virtual Expression VisitColumnExpression(ColumnExpression columnExpression)
@@ -500,32 +536,92 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
             }
             else
             {
-                _sql.Append(CreateParameter(constantExpression.Value));
+                _sql.Append(GenerateLiteral((dynamic)constantExpression.Value));
             }
 
             return constantExpression;
         }
 
-        protected virtual string CreateParameter([NotNull] object value)
+        protected override Expression VisitParameterExpression(ParameterExpression parameterExpression)
         {
-            Check.NotNull(value, "value");
+            _sql.Append(ParameterPrefix + parameterExpression.Name);
 
-            var parameter
-                = _parameters.SingleOrDefault(kv => Equals(kv.Value, value));
+            _parameters.Add(parameterExpression.Name);
 
-            if (parameter == null)
-            {
-                _parameters.Add(parameter = new CommandParameter("@p" + _parameters.Count, value));
-            }
-
-            return parameter.Name;
+            return parameterExpression;
         }
-
-        public virtual IEnumerable<CommandParameter> Parameters => _parameters;
 
         protected override Exception CreateUnhandledItemException<T>(T unhandledItem, string visitMethod)
         {
             return new NotImplementedException(visitMethod);
+        }
+
+        // TODO: Share the code below (#1559)
+
+        private const string DateTimeFormat = "yyyy-MM-ddTHH:mm:ss.fffK";
+        private const string DateTimeOffsetFormat = "yyyy-MM-ddTHH:mm:ss.fffzzz";
+
+        protected virtual string GenerateLiteral([NotNull] object value)
+        {
+            return string.Format(CultureInfo.InvariantCulture, "{0}", value);
+        }
+
+        protected virtual string GenerateLiteral(bool value)
+        {
+            return value ? "1" : "0";
+        }
+
+        protected virtual string GenerateLiteral([NotNull] string value)
+        {
+            Check.NotNull(value, "value");
+
+            return "'" + EscapeLiteral(value) + "'";
+        }
+
+        protected virtual string GenerateLiteral(Guid value)
+        {
+            return "'" + value + "'";
+        }
+
+        protected virtual string GenerateLiteral(DateTime value)
+        {
+            return "'" + value.ToString(DateTimeFormat, CultureInfo.InvariantCulture) + "'";
+        }
+
+        protected virtual string GenerateLiteral(DateTimeOffset value)
+        {
+            return "'" + value.ToString(DateTimeOffsetFormat, CultureInfo.InvariantCulture) + "'";
+        }
+
+        protected virtual string GenerateLiteral(TimeSpan value)
+        {
+            return "'" + value + "'";
+        }
+
+        protected virtual string GenerateLiteral([NotNull] byte[] value)
+        {
+            var stringBuilder = new StringBuilder("0x");
+
+            foreach (var @byte in value)
+            {
+                stringBuilder.Append(@byte.ToString("X2", CultureInfo.InvariantCulture));
+            }
+
+            return stringBuilder.ToString();
+        }
+
+        protected virtual string EscapeLiteral([NotNull] string literal)
+        {
+            Check.NotNull(literal, "literal");
+
+            return literal.Replace("'", "''");
+        }
+
+        protected virtual string DelimitIdentifier([NotNull] string identifier)
+        {
+            Check.NotEmpty(identifier, "identifier");
+
+            return "\"" + identifier + "\"";
         }
     }
 }

@@ -2,18 +2,108 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Internal;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
+using Microsoft.Framework.Logging;
 using Remotion.Linq.Clauses;
 
 namespace Microsoft.Data.Entity.Query
 {
     public class LinqOperatorProvider : ILinqOperatorProvider
     {
+        private static readonly MethodInfo _interceptExceptions
+            = typeof(LinqOperatorProvider)
+                .GetTypeInfo().GetDeclaredMethod("_InterceptExceptions");
+
+        [UsedImplicitly]
+        private static IEnumerable<T> _InterceptExceptions<T>(
+            Func<IEnumerable<T>> source, QueryContext queryContext)
+        {
+            return new ExceptionInterceptor<T>(source, queryContext);
+        }
+
+        public virtual MethodInfo InterceptExceptions => _interceptExceptions;
+
+        private sealed class ExceptionInterceptor<T> : IEnumerable<T>
+        {
+            private readonly Func<IEnumerable<T>> _innerFactory;
+            private readonly QueryContext _queryContext;
+
+            public ExceptionInterceptor(Func<IEnumerable<T>> innerFactory, QueryContext queryContext)
+            {
+                _innerFactory = innerFactory;
+                _queryContext = queryContext;
+            }
+
+            public IEnumerator<T> GetEnumerator()
+            {
+                return new EnumeratorExceptionInterceptor(this);
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return GetEnumerator();
+            }
+
+            [DebuggerStepThrough]
+            private sealed class EnumeratorExceptionInterceptor : IEnumerator<T>
+            {
+                private readonly ExceptionInterceptor<T> _exceptionInterceptor;
+
+                private IEnumerator<T> _inner;
+
+                public EnumeratorExceptionInterceptor(ExceptionInterceptor<T> exceptionInterceptor)
+                {
+                    _exceptionInterceptor = exceptionInterceptor;
+                }
+
+                public T Current => _inner.Current;
+
+                object IEnumerator.Current => _inner.Current;
+
+                public bool MoveNext()
+                {
+                    try
+                    {
+                        if (_inner == null)
+                        {
+                            _inner = _exceptionInterceptor._innerFactory().GetEnumerator();
+                        }
+
+                        return _inner.MoveNext();
+                    }
+                    catch (Exception e)
+                    {
+                        _exceptionInterceptor._queryContext.Logger.WriteError(
+                            new DataStoreErrorLogState(_exceptionInterceptor._queryContext.ContextType),
+                            e,
+                            (state, exception) =>
+                                Strings.LogExceptionDuringQueryIteration(Environment.NewLine, exception));
+
+                        throw;
+                    }
+                }
+
+                public void Reset()
+                {
+                    _inner?.Reset();
+                }
+
+                public void Dispose()
+                {
+                    _inner?.Dispose();
+                }
+            }
+        }
+
         private static readonly MethodInfo _trackEntities
             = typeof(LinqOperatorProvider)
                 .GetTypeInfo().GetDeclaredMethod("_TrackEntities");
@@ -27,23 +117,23 @@ namespace Microsoft.Data.Entity.Query
             where TIn : TOut
         {
             return results.Select(result =>
-            {
-                if (result != null)
                 {
-                    foreach (var entity in entityAccessors
-                        .Select(entityAccessor => entityAccessor((TIn)result))
-                        .Where(entity => entity != null))
+                    if (result != null)
                     {
-                        queryContext.QueryBuffer.StartTracking(entity);
+                        foreach (var entity in entityAccessors
+                            .Select(entityAccessor => entityAccessor((TIn)result))
+                            .Where(entity => entity != null))
+                        {
+                            queryContext.QueryBuffer.StartTracking(entity);
+                        }
                     }
-                }
 
-                return result;
-            });
+                    return result;
+                });
         }
 
         public virtual MethodInfo TrackEntities => _trackEntities;
-        
+
         private static readonly MethodInfo _toSequence
             = typeof(LinqOperatorProvider)
                 .GetTypeInfo().GetDeclaredMethod("_ToSequence");

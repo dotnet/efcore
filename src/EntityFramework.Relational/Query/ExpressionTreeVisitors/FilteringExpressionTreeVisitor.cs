@@ -125,36 +125,32 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             var nullExpression
                 = TransformNullComparison(leftExpression, rightExpression, binaryExpression.NodeType);
 
-            if (nullExpression != null)
-            {
-                return nullExpression;
-            }
-
-            return Expression.MakeBinary(binaryExpression.NodeType, leftExpression, rightExpression);
+            return nullExpression 
+                ?? Expression.MakeBinary(binaryExpression.NodeType, leftExpression, rightExpression);
         }
 
-        private Expression TransformNullComparison(
+        private static Expression TransformNullComparison(
             Expression left, Expression right, ExpressionType expressionType)
         {
             if (expressionType == ExpressionType.Equal
                 || expressionType == ExpressionType.NotEqual)
             {
-                var constant
+                var constantExpression
                     = right as ConstantExpression
                       ?? left as ConstantExpression;
 
-                if (constant != null
-                    && constant.Value == null)
+                if (constantExpression != null
+                    && constantExpression.Value == null)
                 {
-                    var propertyAccess
+                    var columnExpression
                         = left as ColumnExpression
                           ?? right as ColumnExpression;
 
-                    if (propertyAccess != null)
+                    if (columnExpression != null)
                     {
                         return expressionType == ExpressionType.Equal
-                            ? (Expression)new IsNullExpression(propertyAccess)
-                            : new IsNotNullExpression(propertyAccess);
+                            ? (Expression)new IsNullExpression(columnExpression)
+                            : new IsNotNullExpression(columnExpression);
                     }
                 }
             }
@@ -249,7 +245,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             return null;
         }
 
-        protected override Expression VisitUnaryExpression(UnaryExpression expression)
+        protected override Expression VisitUnaryExpression([NotNull] UnaryExpression expression)
         {
             if (expression.NodeType == ExpressionType.Not)
             {
@@ -336,6 +332,22 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             if (_supportedConstantTypes.Contains(underlyingType))
             {
                 return constantExpression;
+            }
+
+            _requiresClientEval = true;
+
+            return null;
+        }
+
+        protected override Expression VisitParameterExpression([NotNull] ParameterExpression parameterExpression)
+        {
+            Check.NotNull(parameterExpression, "parameterExpression");
+
+            var underlyingType = parameterExpression.Type.UnwrapNullableType().UnwrapEnumType();
+
+            if (_supportedConstantTypes.Contains(underlyingType))
+            {
+                return parameterExpression;
             }
 
             _requiresClientEval = true;

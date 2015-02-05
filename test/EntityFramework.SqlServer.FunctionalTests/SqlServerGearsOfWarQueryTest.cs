@@ -119,7 +119,7 @@ ORDER BY [c].[Name]",
 @"SELECT [g].[AssignedCityName], [g].[CityOrBirthName], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Nickname], [g].[Rank], [g].[SquadId], [c].[Location], [c].[Name]
 FROM [Gear] AS [g]
 INNER JOIN [City] AS [c] ON [g].[CityOrBirthName] = [c].[Name]
-WHERE [g].[Nickname] = @p0
+WHERE [g].[Nickname] = 'Marcus'
 ORDER BY [c].[Name]
 
 SELECT [g].[AssignedCityName], [g].[CityOrBirthName], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Nickname], [g].[Rank], [g].[SquadId]
@@ -128,7 +128,7 @@ INNER JOIN (
     SELECT DISTINCT [c].[Name]
     FROM [Gear] AS [g]
     INNER JOIN [City] AS [c] ON [g].[CityOrBirthName] = [c].[Name]
-    WHERE [g].[Nickname] = @p0
+    WHERE [g].[Nickname] = 'Marcus'
 ) AS [c] ON [g].[AssignedCityName] = [c].[Name]
 ORDER BY [c].[Name]",
                 Sql);

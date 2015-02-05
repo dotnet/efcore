@@ -39,8 +39,7 @@ namespace Microsoft.Data.Entity.SqlServer
             [NotNull] SqlServerCommandBatchPreparer batchPreparer,
             [NotNull] SqlServerBatchExecutor batchExecutor,
             [NotNull] DbContextService<IDbContextOptions> options,
-            [NotNull] ILoggerFactory loggerFactory,
-            [NotNull] ICompiledQueryCache compiledQueryCache)
+            [NotNull] ILoggerFactory loggerFactory)
             : base(
                 Check.NotNull(stateManager, "stateManager"),
                 Check.NotNull(model, "model"),
@@ -52,8 +51,7 @@ namespace Microsoft.Data.Entity.SqlServer
                 Check.NotNull(batchPreparer, "batchPreparer"),
                 Check.NotNull(batchExecutor, "batchExecutor"),
                 Check.NotNull(options, "options"),
-                Check.NotNull(loggerFactory, "loggerFactory"),
-                Check.NotNull(compiledQueryCache, "compiledQueryCache"))
+                Check.NotNull(loggerFactory, "loggerFactory"))
         {
         }
 
@@ -76,7 +74,7 @@ namespace Microsoft.Data.Entity.SqlServer
                 linqOperatorProvider,
                 resultOperatorHandler,
                 EntityMaterializerSource,
-                EntityKeyFactorySource, 
+                EntityKeyFactorySource,
                 enumerableMethodProvider,
                 methodCallTranslator);
         }

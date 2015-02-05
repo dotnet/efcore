@@ -85,11 +85,10 @@ namespace Microsoft.Data.Entity.Relational.Tests
                 CommandBatchPreparer batchPreparer,
                 BatchExecutor batchExecutor,
                 DbContextService<IDbContextOptions> options,
-                ILoggerFactory loggerFactory,
-                ICompiledQueryCache compiledQueryCache)
+                ILoggerFactory loggerFactory)
                 : base(stateManager, model, entityKeyFactorySource, entityMaterializerSource,
                     collectionAccessorSource, propertySetterSource, connection, batchPreparer, batchExecutor, options, 
-                    loggerFactory, compiledQueryCache)
+                    loggerFactory)
             {
             }
         }

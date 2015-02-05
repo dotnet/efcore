@@ -47,8 +47,6 @@ namespace Microsoft.Data.Entity.Relational.Query
 
             private DbDataReader _reader;
 
-            private T _current;
-
             private bool _disposed;
 
             public AsyncEnumerator(AsyncQueryingEnumerable<T> enumerable)
@@ -66,7 +64,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                         : _reader.ReadAsync(cancellationToken))
                         .WithCurrentCulture();
 
-                _current = !hasNext ? default(T) : _enumerable._shaper(_reader);
+                Current = !hasNext ? default(T) : _enumerable._shaper(_reader);
 
                 return hasNext;
             }
@@ -77,7 +75,11 @@ namespace Microsoft.Data.Entity.Relational.Query
                     .OpenAsync(cancellationToken)
                     .WithCurrentCulture();
 
-                using (var command = _enumerable._commandBuilder.Build(_enumerable._relationalQueryContext.Connection))
+                using (var command
+                    = _enumerable._commandBuilder
+                        .Build(
+                            _enumerable._relationalQueryContext.Connection,
+                            _enumerable._relationalQueryContext.ParameterValues))
                 {
                     _enumerable._logger.WriteSql(command.CommandText);
 
@@ -89,7 +91,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                 return await _reader.ReadAsync(cancellationToken).WithCurrentCulture();
             }
 
-            public T Current => _current;
+            public T Current { get; private set; }
 
             public void Dispose()
             {

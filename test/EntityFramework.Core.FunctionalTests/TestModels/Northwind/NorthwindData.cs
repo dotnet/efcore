@@ -99,14 +99,15 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind
             {
             }
 
-            public Task<object> ExecuteAsync(Expression expression, CancellationToken cancellationToken)
+            public IAsyncEnumerable<TResult> ExecuteAsync<TResult>(Expression expression)
             {
-                return Task.FromResult(((IQueryProvider)this).Execute(RewriteShadowPropertyAccess(expression)));
+                throw new NotImplementedException();
+                //return ((IQueryProvider)this).Execute<TResult>(RewriteShadowPropertyAccess(expression))
             }
 
-            public Task<S> ExecuteAsync<S>(Expression expression, CancellationToken cancellationToken)
+            public Task<TResult> ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken)
             {
-                return Task.FromResult(((IQueryProvider)this).Execute<S>(RewriteShadowPropertyAccess(expression)));
+                return Task.FromResult(((IQueryProvider)this).Execute<TResult>(RewriteShadowPropertyAccess(expression)));
             }
 
             public IQueryable<TElement> CreateQuery<TElement>(Expression expression)

@@ -466,7 +466,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         public override string ToString()
         {
-            return new DefaultSqlQueryGenerator().GenerateSql(this);
+            return new DefaultSqlQueryGenerator().GenerateSql(this, new Dictionary<string, object>());
         }
     }
 }
