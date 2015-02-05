@@ -62,7 +62,21 @@ ORDER BY [g0].[Nickname], [g0].[SquadId]",
             base.Include_multiple_one_to_one_and_one_to_one_and_one_to_many();
 
             Assert.Equal(
-                @"TBD", Sql);
+@"SELECT [t].[GearNickName], [t].[GearSquadId], [t].[Id], [t].[Note], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Nickname], [g].[Rank], [g].[SquadId], [s].[Id], [s].[InternalNumber], [s].[Name]
+FROM [CogTag] AS [t]
+LEFT JOIN [Gear] AS [g] ON ([t].[GearNickName] = [g].[Nickname] AND [t].[GearSquadId] = [g].[SquadId])
+LEFT JOIN [Squad] AS [s] ON [g].[SquadId] = [s].[Id]
+ORDER BY [s].[Id]
+
+SELECT [g].[AssignedCityName], [g].[CityOrBirthName], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Nickname], [g].[Rank], [g].[SquadId]
+FROM [Gear] AS [g]
+INNER JOIN (
+    SELECT DISTINCT [s].[Id]
+    FROM [CogTag] AS [t]
+    LEFT JOIN [Gear] AS [g] ON ([t].[GearNickName] = [g].[Nickname] AND [t].[GearSquadId] = [g].[SquadId])
+    LEFT JOIN [Squad] AS [s] ON [g].[SquadId] = [s].[Id]
+) AS [s] ON [g].[SquadId] = [s].[Id]
+ORDER BY [s].[Id]", Sql);
         }
 
         public override void Include_multiple_one_to_one_optional_and_one_to_one_required()
@@ -70,7 +84,10 @@ ORDER BY [g0].[Nickname], [g0].[SquadId]",
             base.Include_multiple_one_to_one_optional_and_one_to_one_required();
 
             Assert.Equal(
-                @"TBD", Sql);
+@"SELECT [t].[GearNickName], [t].[GearSquadId], [t].[Id], [t].[Note], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Nickname], [g].[Rank], [g].[SquadId], [s].[Id], [s].[InternalNumber], [s].[Name]
+FROM [CogTag] AS [t]
+LEFT JOIN [Gear] AS [g] ON ([t].[GearNickName] = [g].[Nickname] AND [t].[GearSquadId] = [g].[SquadId])
+LEFT JOIN [Squad] AS [s] ON [g].[SquadId] = [s].[Id]", Sql);
         }
 
         public override void Include_multiple_circular()

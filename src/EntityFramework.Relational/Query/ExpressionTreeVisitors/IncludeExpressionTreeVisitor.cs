@@ -88,6 +88,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
             var readerIndex = 0;
 
+            var canProduceInnerJoin = true;
             foreach (var navigation in navigationPath)
             {
                 if (!navigation.IsCollection())
@@ -112,9 +113,8 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                                 p,
                                 joinedTableExpression));
 
-                    var joinExpression
-                        = navigation.ForeignKey.IsRequired
-                          && navigation.PointsToPrincipal
+                    canProduceInnerJoin = canProduceInnerJoin && (navigation.ForeignKey.IsRequired && navigation.PointsToPrincipal);
+                    var joinExpression = canProduceInnerJoin
                             ? selectExpression
                                 .AddInnerJoin(joinedTableExpression, columnExpressions)
                             : selectExpression
