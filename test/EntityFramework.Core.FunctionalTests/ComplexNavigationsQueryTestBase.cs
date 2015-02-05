@@ -33,8 +33,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             TestStore.Dispose();
         }
 
-        // blockec by 1528
-        //[Fact]
+        [Fact]
         public virtual void Data_reader_is_closed_correct_number_of_times_for_include_queries_on_optional_navigations()
         {
             using (var context = CreateContext())
@@ -75,8 +74,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
 
-        // blockec by 1528
-        //[Fact]
+        [Fact]
         public virtual void Multi_level_include_correct_PK_is_chosen_as_the_join_predicate_for_queries_that_join_same_table_multiple_times()
         {
             using (var context = CreateContext())
