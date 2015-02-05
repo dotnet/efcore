@@ -4,7 +4,9 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Text;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Relational.Design.CodeGeneration;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
 using Microsoft.Data.Entity.Utilities;
 
@@ -22,20 +24,6 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
 
         public override void GenerateForeignKeysConfiguration(IndentedStringBuilder sb, IEntityType entityType)
         {
-            //foreach (var otherEntityType in entityType.Model.EntityTypes.Where(et => et != entityType))
-            //{
-            //    foreach(var foreignKey in otherEntityType.ForeignKeys.Where(fk => fk.ReferencedEntityType == entityType))
-            //    {
-            //        // found a foreign key which references me
-            //        sb.AppendLine();
-            //        sb.Append("entity.HasMany<");
-            //        sb.Append(otherEntityType.Name);
-            //        sb.Append(">( e => e.");
-            //        sb.Append(otherEntityType.Name);
-            //        sb.Append(" );");
-            //    }
-            //}
-
             foreach (var foreignKey in entityType.ForeignKeys.Cast<ForeignKey>())
             {
                 var navigationPropertyName = foreignKey
@@ -45,68 +33,15 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
                 sb.Append(foreignKey.ReferencedEntityType.Name);
                 sb.Append(">( e => e.");
                 sb.Append(navigationPropertyName);
-                sb.Append(" );");
-
+                sb.AppendLine(" )");
+                using (sb.Indent())
+                {
+                    sb.Append(".ForeignKey( new string[] { ");
+                    sb.Append(GenerateForeignKeyPropertyNamesAsParams(foreignKey));
+                    sb.Append(" } )");
+                }
+                sb.Append(";");
             }
-
-            ////// construct dictionary mapping foreignKeyConstraintId to the list of Properties which constitute that foreign key
-            ////var allForeignKeyConstraints = new Dictionary<string, List<Property>>(); // maps foreignKeyConstraintId to Properties 
-            ////foreach (var prop in entityType.Properties.Cast<Property>())
-            ////{
-            ////    var foreignKeyConstraintsAnnotation = prop.TryGetAnnotation(SqlServerMetadataModelProvider.AnnotationNameForeignKeyConstraints);
-            ////    if (foreignKeyConstraintsAnnotation != null)
-            ////    {
-            ////        var foreignKeyConstraintIds = SqlServerMetadataModelProvider.SplitString(
-            ////            SqlServerMetadataModelProvider.AnnotationFormatForeignKeyConstraintSeparator.ToCharArray()
-            ////            , foreignKeyConstraintsAnnotation.Value);
-            ////        foreach (var fkcId in foreignKeyConstraintIds)
-            ////        {
-            ////            List<Property> properties;
-            ////            if (!allForeignKeyConstraints.TryGetValue(fkcId, out properties))
-            ////            {
-            ////                properties = new List<Property>();
-            ////                allForeignKeyConstraints.Add(fkcId, properties);
-            ////            }
-            ////            if (!properties.Contains(prop))
-            ////            {
-            ////                properties.Add(prop);
-            ////            }
-            ////        }
-            ////    }
-            ////}
-
-            ////// loop over all constraints constructing foreign key entry in OnModelCreating()
-            ////if (allForeignKeyConstraints.Count > 0)
-            ////{
-            ////    foreach (var fkcEntry in allForeignKeyConstraints)
-            ////    {
-            ////        var constraintId = fkcEntry.Key;
-            ////        var propertyList = fkcEntry.Value;
-            ////        if (propertyList.Count > 0)
-            ////        {
-            ////            var targetEntity = propertyList
-            ////                .ElementAt(0)[SqlServerMetadataModelProvider.GetForeignKeyTargetEntityTypeAnnotationName(constraintId)];
-            ////            var targetEntityLastIndex = targetEntity
-            ////                .LastIndexOf(SqlServerMetadataModelProvider.AnnotationNameTableIdSchemaTableSeparator);
-            ////            if (targetEntityLastIndex > 0)
-            ////            {
-            ////                targetEntity = targetEntity.Substring(targetEntityLastIndex + 1);
-            ////            }
-
-            ////            var ordinalAnnotationName = SqlServerMetadataModelProvider
-            ////                .GetForeignKeyOrdinalPositionAnnotationName(constraintId);
-
-            ////            sb.AppendLine();
-            ////            sb.Append("entity.ForeignKey<");
-            ////            sb.Append(targetEntity);
-            ////            sb.Append(">( e => ");
-            ////            sb.Append(ModelUtilities.Instance
-            ////                .GenerateLambdaToKey(propertyList, p => int.Parse(p[ordinalAnnotationName]), "e"));
-            ////            sb.Append(" );");
-            ////        }
-            ////    }
-            ////    sb.AppendLine();
-            ////}
         }
 
         public override void GenerateEntityFacetsConfiguration(IndentedStringBuilder sb, IEntityType entityType)
@@ -284,6 +219,29 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
             }
 
             return null;
+        }
+
+        public virtual string GenerateForeignKeyPropertyNamesAsParams(ForeignKey foreignKey)
+        {
+            var sb = new StringBuilder();
+            var first = true;
+            foreach (var property in foreignKey.Properties)
+            {
+                if (first)
+                {
+                    first = false;
+                }
+                else
+                {
+                    sb.Append(", ");
+                }
+
+                sb.Append(
+                    CSharpUtilities.Instance.DelimitString(
+                        property.SqlServer().Column ?? property.Name));
+            }
+
+            return sb.ToString();
         }
 
         private static bool IsValidDataTypeForMaxLength(IProperty property)

@@ -68,7 +68,7 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
                     var navigationPropertyName = foreignKey
                         .GetAnnotation(SqlServerMetadataModelProvider.AnnotationNamePrincipalEndNavPropName).Value;
                     CSharpCodeGeneratorHelper.Instance.AddProperty(sb,
-                        AccessModifier.Public, VirtualModifier.None, "ICollection<" + otherEntityType.Name + ">", navigationPropertyName);
+                        AccessModifier.Public, VirtualModifier.Virtual, "ICollection<" + otherEntityType.Name + ">", navigationPropertyName);
                 }
             }
 
@@ -78,7 +78,7 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
                 var navigationPropertyName = foreignKey
                     .GetAnnotation(SqlServerMetadataModelProvider.AnnotationNameDependentEndNavPropName).Value;
                 CSharpCodeGeneratorHelper.Instance.AddProperty(sb,
-                    AccessModifier.Public, VirtualModifier.None, foreignKey.ReferencedEntityType.Name, navigationPropertyName);
+                    AccessModifier.Public, VirtualModifier.Virtual, foreignKey.ReferencedEntityType.Name, navigationPropertyName);
             }
         }
 
