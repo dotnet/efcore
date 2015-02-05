@@ -111,7 +111,7 @@
     <Compile Include="DbContextOptionsTest.cs" />
     <Compile Include="EntitySetFinderTest.cs" />
     <Compile Include="Extensions\EntityFrameworkServiceCollectionExtensionsTest.cs" />
-    <Compile Include="Extensions\ForeignKeyExtensionsTest.cs" />
+    <Compile Include="Extensions\PropertyExtensionsTest.cs" />
     <Compile Include="Extensions\ServiceProviderExtensionsTest.cs" />
     <Compile Include="Extensions\TaskExtensionsTest.cs" />
     <Compile Include="Infrastructure\ModelValidatorTest.cs" />

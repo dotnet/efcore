@@ -423,9 +423,10 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         private static void SetForeignKeyValue(IForeignKey foreignKey, InternalEntityEntry dependentEntry, IReadOnlyList<object> principalValues)
         {
+
             for (var i = 0; i < foreignKey.Properties.Count; i++)
             {
-                if (!foreignKey.GetRootPrincipals(i).Any(p => p.GenerateValueOnAdd)
+                if (foreignKey.Properties[i].GetGenerationProperty() == null
                     || !foreignKey.ReferencedProperties[i].IsSentinelValue(principalValues[i]))
                 {
                     var dependentProperty = foreignKey.Properties[i];

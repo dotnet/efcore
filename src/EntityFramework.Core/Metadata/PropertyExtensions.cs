@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
@@ -38,6 +39,41 @@ namespace Microsoft.Data.Entity.Metadata
             Check.NotNull(property, nameof(property));
 
             return value == null || value.Equals(property.SentinelValue);
+        }
+
+        public static IProperty GetGenerationProperty([NotNull] this IProperty property)
+        {
+            Check.NotNull(property, nameof(property));
+
+            var traversalList = new List<IProperty> { property };
+
+            var index = 0;
+            while (index < traversalList.Count)
+            {
+                var currentProperty = traversalList[index];
+
+                if (currentProperty.GenerateValueOnAdd)
+                {
+                    return currentProperty;
+                }
+
+                foreach (var foreignKey in currentProperty.EntityType.ForeignKeys)
+                {
+                    for (var propertyIndex = 0; propertyIndex < foreignKey.Properties.Count; propertyIndex++)
+                    {
+                        if (currentProperty == foreignKey.Properties[propertyIndex])
+                        {
+                            var nextProperty = foreignKey.ReferencedProperties[propertyIndex];
+                            if (!traversalList.Contains(nextProperty))
+                            {
+                                traversalList.Add(nextProperty);
+                            }
+                        }
+                    }
+                }
+                index++;
+            }
+            return null;
         }
     }
 }

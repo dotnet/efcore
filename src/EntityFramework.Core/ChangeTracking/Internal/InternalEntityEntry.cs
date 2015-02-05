@@ -412,25 +412,23 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
             foreach (var foreignKey in EntityType.ForeignKeys)
             {
-                for (var propertyIndex = 0; propertyIndex < foreignKey.Properties.Count; propertyIndex++)
+                foreach (var property in foreignKey.Properties)
                 {
-                    var property = foreignKey.Properties[propertyIndex];
-
                     if (!properties.Contains(property)
-                        && foreignKey.GetRootPrincipals(propertyIndex).Any(MayGetStoreValue))
+                        && MayGetStoreValue(property.GetGenerationProperty()))
                     {
                         properties.Add(property);
                     }
                 }
             }
-
             return properties;
         }
 
-        private bool MayGetStoreValue([NotNull] IProperty property)
-            => StateManager.ValueGeneration.MayGetTemporaryValue(property)
-               || property.UseStoreDefault
-               || property.IsStoreComputed;
+        private bool MayGetStoreValue([CanBeNull] IProperty property)
+            => property != null
+                && (StateManager.ValueGeneration.MayGetTemporaryValue(property)
+                   || property.UseStoreDefault
+                   || property.IsStoreComputed);
 
         public virtual void AutoRollbackSidecars()
         {

@@ -92,34 +92,5 @@ namespace Microsoft.Data.Entity.Metadata
                    && (existingNavigationToPrincipal == null || existingNavigationToPrincipal.Name == navigationToPrincipal)
                    && (existingNavigationToDependent == null || existingNavigationToDependent.Name == navigationToDependent);
         }
-
-        public static IEnumerable<IProperty> GetRootPrincipals(
-            [NotNull] this IForeignKey foreignKey, int propertyIndex)
-        {
-            Check.NotNull(foreignKey, nameof(foreignKey));
-
-            var principalProperty = foreignKey.ReferencedProperties[propertyIndex];
-            var isForeignKey = false;
-            foreach (var nextForeignKey in principalProperty.EntityType.ForeignKeys)
-            {
-                for (var nextIndex = 0; nextIndex < nextForeignKey.Properties.Count; nextIndex++)
-                {
-                    if (principalProperty == nextForeignKey.Properties[nextIndex])
-                    {
-                        isForeignKey = true;
-
-                        foreach (var rootPrincipal in GetRootPrincipals(nextForeignKey, nextIndex))
-                        {
-                            yield return rootPrincipal;
-                        }
-                    }
-                }
-            }
-
-            if (!isForeignKey)
-            {
-                yield return principalProperty;
-            }
-        }
     }
 }
