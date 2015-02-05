@@ -19,6 +19,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         private List<string> _usedNamespaces = new List<string>() // initialize with default namespaces
                 {
                     "System",
+                    "System.Collections.Generic",
                     "Microsoft.Data.Entity",
                     "Microsoft.Data.Entity.Metadata"
                 };
@@ -38,6 +39,14 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             get
             {
                 return _generator;
+            }
+        }
+
+        public virtual IEntityType EntityType
+        {
+            get
+            {
+                return _entityType;
             }
         }
 
@@ -98,7 +107,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             GenerateEntityNavigations(sb);
         }
 
-        public void GenerateEntityProperties(IndentedStringBuilder sb)
+        public virtual void GenerateEntityProperties(IndentedStringBuilder sb)
         {
             foreach(var property in OrderedEntityProperties())
             {
@@ -107,7 +116,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         }
         public abstract void GenerateEntityProperty(IndentedStringBuilder sb, IProperty property);
 
-        public void GenerateEntityNavigations(IndentedStringBuilder sb)
+        public virtual void GenerateEntityNavigations(IndentedStringBuilder sb)
         {
             foreach (var navigation in OrderedEntityNavigations())
             {
@@ -117,21 +126,39 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 
         public abstract void GenerateEntityNavigation(IndentedStringBuilder sb, INavigation navigation);
 
+        //public virtual IEnumerable<IProperty> OrderedEntityProperties()
+        //{
+        //    var primaryKeyPropertiesList = new List<IProperty>();
+        //    IKey key = _entityType.TryGetPrimaryKey();
+        //    if (key != null)
+        //    {
+        //        primaryKeyPropertiesList =
+        //            new List<IProperty>(
+        //                key.Properties.OrderBy(p => _generator.PropertyToPropertyNameMap[p]));
+        //    }
+
+        //    return primaryKeyPropertiesList.Concat(
+        //        _entityType.Properties
+        //            .Where(p => !primaryKeyPropertiesList.Contains(p))
+        //            .OrderBy(p => _generator.PropertyToPropertyNameMap[p]));
+        //}
+
         public virtual IEnumerable<IProperty> OrderedEntityProperties()
         {
-            var primaryKeyPropertiesList = new List<IProperty>();
-            IKey key = _entityType.TryGetPrimaryKey();
-            if (key != null)
+            var primaryKeyProperties = _entityType.GetPrimaryKey().Properties.ToList();
+            foreach (var property in primaryKeyProperties)
             {
-                primaryKeyPropertiesList =
-                    new List<IProperty>(
-                        key.Properties.OrderBy(p => _generator.PropertyToPropertyNameMap[p]));
+                yield return property;
             }
 
-            return primaryKeyPropertiesList.Concat(
+            var foreignKeyProperties = _entityType.ForeignKeys.SelectMany(fk => fk.Properties).Distinct().ToList();
+            foreach (var property in
                 _entityType.Properties
-                    .Where(p => !primaryKeyPropertiesList.Contains(p))
-                    .OrderBy(p => _generator.PropertyToPropertyNameMap[p]));
+                    .Where(p => !primaryKeyProperties.Contains(p) && !foreignKeyProperties.Contains(p))
+                    .OrderBy(p => p.Name))
+            {
+                yield return property;
+            }
         }
 
         public virtual IEnumerable<INavigation> OrderedEntityNavigations()

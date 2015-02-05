@@ -147,7 +147,7 @@ namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
             if (existingIdentifiers != null)
             {
                 var suffix = 1;
-                while (existingIdentifiers.Contains(proposedIdentifier))
+                while (existingIdentifiers.Contains(finalIdentifier))
                 {
                     finalIdentifier = proposedIdentifier + suffix.ToString();
                     suffix++;

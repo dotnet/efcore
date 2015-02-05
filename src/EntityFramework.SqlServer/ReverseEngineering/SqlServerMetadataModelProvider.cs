@@ -275,7 +275,7 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
                         _foreignKeyOrdinals.TryGetValue(relationalProperty.Name, out foreignKeyConstraintIdOrdinalMap)))
                     {
                         // relationalProperty represents (part of) a foreign key 
-                        foreach (var constraintId in _foreignKeyOrdinals.Keys)
+                        foreach (var constraintId in foreignKeyConstraintIdOrdinalMap.Keys)
                         {
                             List<Property> constraintProperties;
                             if (!constraints.TryGetValue(constraintId, out constraintProperties))
@@ -287,15 +287,15 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
                         }
                     }
 
-                    if (!isPartOfForeignKey || isPartOfPrimaryKey)
-                    {
+                    ////if (!isPartOfForeignKey || isPartOfPrimaryKey)
+                    ////{
                         var codeGenProperty = codeGenEntityType.AddProperty(
                             nameMapper.PropertyToPropertyNameMap[relationalProperty],
                             relationalProperty.PropertyType,
                             shadowProperty: true);
                         _relationalPropertyToCodeGenPropertyMap[relationalProperty] = codeGenProperty;
                         ApplyPropertyProperties(codeGenProperty, _tableColumns[relationalProperty.Name]);
-                    }
+                    ////}
                 } // end of loop over all relational properties for given EntityType
 
                 if (primaryKeyProperties.Count() > 0)
@@ -343,10 +343,17 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
                         var foreignKeyCodeGenProperties =
                             foreignKeyConstraintRelationalPropertyList
                                 .OrderBy(p => _foreignKeyOrdinals[p.Name][foreignKeyConstraintId]) // relational property's name is the columnId
-                                .Select(p => _relationalPropertyToCodeGenPropertyMap[p])
+                                .Select(p =>
+                                    {
+                                        Property codeGenProperty;
+                                        return _relationalPropertyToCodeGenPropertyMap.TryGetValue(p, out codeGenProperty)
+                                            ? codeGenProperty : null; 
+                                    })
                                 .ToList();
 
-                        var codeGenForeignKey = codeGenEntityType.AddForeignKey(foreignKeyCodeGenProperties, targetPrimaryKey);
+                        //TODO: SQL Server allows more than 1 foreign key on the same set of properties
+                        // how should we react?
+                        var codeGenForeignKey = codeGenEntityType.GetOrAddForeignKey(foreignKeyCodeGenProperties, targetPrimaryKey);
                         //TODO: make ForeignKey unique based on constraints
 
                         // try without navigation property - add in CodeGen

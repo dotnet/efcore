@@ -57,7 +57,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             GenerateCommentHeader(sb);
             GenerateUsings(sb);
             CSharpCodeGeneratorHelper.Instance.BeginNamespace(sb, ClassNamespace);
-            CSharpCodeGeneratorHelper.Instance.BeginClass(sb, AccessModifier.Public, ClassName, isPartial: true);
+            CSharpCodeGeneratorHelper.Instance.BeginClass(sb, AccessModifier.Public, ClassName, isPartial: true, inheritsFrom: new string[] { "DbContext" });
             GenerateProperties(sb);
             GenerateMethods(sb);
             CSharpCodeGeneratorHelper.Instance.EndClass(sb);
@@ -192,7 +192,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                     }
                     GenerateEntityFacetsConfiguration(sb, entityType);
                     GenerateForeignKeysConfiguration(sb, entityType);
-                    foreach (var property in entityType.Properties)
+                    foreach (var property in OrderedProperties(entityType))
                     {
                         GeneratePropertyFacetsConfiguration(sb, property);
                     }
@@ -223,6 +223,25 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         public virtual IEnumerable<IEntityType> OrderedEntityTypes()
         {
             return _model.EntityTypes.OrderBy(e => e.Name);
+        }
+
+        public virtual IEnumerable<IProperty> OrderedProperties(IEntityType entityType)
+        {
+            var primaryKeyProperties = entityType.GetPrimaryKey().Properties.ToList();
+            foreach (var property in primaryKeyProperties)
+            {
+                yield return property;
+            }
+
+            var foreignKeyProperties = entityType.ForeignKeys.SelectMany(fk => fk.Properties).Distinct().ToList();
+            foreach (var property in
+                entityType
+                .Properties
+                .Where(p => !primaryKeyProperties.Contains(p) && !foreignKeyProperties.Contains(p))
+                .OrderBy(p => p.Name))
+            {
+                yield return property;
+            }
         }
     }
 }

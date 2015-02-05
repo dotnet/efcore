@@ -24,34 +24,13 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 
         public string GenerateLambdaToKey(
             [NotNull]IEnumerable<IProperty> properties,
-            [NotNull]Func<IProperty, int> orderingExpression,
             [NotNull]string lambdaIdentifier)
         {
             var sb = new StringBuilder();
 
             if (properties.Count() > 1)
             {
-                sb.Append("new { ");
-                sb.Append(string.Join(", ", properties.OrderBy(orderingExpression).Select(p => lambdaIdentifier + "." + p.Name)));
-                sb.Append(" }");
-            }
-            else
-            {
-                sb.Append(lambdaIdentifier + "." + properties.ElementAt(0).Name);
-            }
-
-            return sb.ToString();
-        }
-
-        public string GenerateLambdaToKey(
-            [NotNull]IEnumerable<IProperty> properties,
-            [NotNull]string lambdaIdentifier)
-        {
-            var sb = new StringBuilder();
-
-            if (properties.Count() > 1)
-            {
-                sb.Append("new [] { ");
+                sb.Append("new object[] { ");
                 sb.Append(string.Join(", ", properties.Select(p => lambdaIdentifier + "." + p.Name)));
                 sb.Append(" }");
             }
