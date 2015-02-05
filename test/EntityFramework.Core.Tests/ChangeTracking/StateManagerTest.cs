@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         public void Can_get_existing_entry_if_entity_is_already_tracked_otherwise_new_entry()
         {
             var stateManager = CreateStateManager(BuildModel());
-            var category = new Category();
+            var category = new Category { Id = 1 };
 
             var stateEntry = stateManager.GetOrCreateEntry(category);
 
@@ -75,7 +75,39 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var valueReader = new ObjectArrayValueReader(new object[] { null, "Bjork", null });
 
             Assert.Equal(
-                Strings.NullPrimaryKey("Category"),
+                Strings.InvalidPrimaryKey("Category"),
+                Assert.Throws<InvalidOperationException>(
+                    () => stateManager.StartTracking(categoryType, new Category { Id = 77 }, valueReader)).Message);
+        }
+
+        [Fact]
+        public void StartTracking_throws_for_sentinel_entity_key_in_value_reader()
+        {
+            var model = BuildModel();
+            var categoryType = model.GetEntityType(typeof(Category));
+            var stateManager = CreateStateManager(model);
+
+            var valueReader = new ObjectArrayValueReader(new object[] { 0, "Bjork", null });
+
+            Assert.Equal(
+                Strings.InvalidPrimaryKey("Category"),
+                Assert.Throws<InvalidOperationException>(
+                    () => stateManager.StartTracking(categoryType, new Category { Id = 77 }, valueReader)).Message);
+        }
+
+
+        [Fact]
+        public void StartTracking_throws_for_non_default_sentinel_entity_key_in_value_reader()
+        {
+            var model = BuildModel();
+            var categoryType = model.GetEntityType(typeof(Category));
+            categoryType.GetProperty("Id").SentinelValue = 7;
+            var stateManager = CreateStateManager(model);
+
+            var valueReader = new ObjectArrayValueReader(new object[] { 7, "Bjork", null });
+
+            Assert.Equal(
+                Strings.InvalidPrimaryKey("Category"),
                 Assert.Throws<InvalidOperationException>(
                     () => stateManager.StartTracking(categoryType, new Category { Id = 77 }, valueReader)).Message);
         }
@@ -110,6 +142,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.IsType<Category>(stateEntry.Entity);
             Assert.Equal(0, stateManager.StateEntries.Count());
 
+            ((Category)stateEntry.Entity).Id = 1;
             stateManager.StartTracking(stateEntry);
 
             Assert.Equal(1, stateManager.StateEntries.Count());
@@ -119,7 +152,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         public void Can_get_existing_entry_even_if_state_not_yet_set()
         {
             var stateManager = CreateStateManager(BuildModel());
-            var category = new Category();
+            var category = new Category { Id = 1 };
 
             var stateEntry = stateManager.GetOrCreateEntry(category);
             var stateEntry2 = stateManager.GetOrCreateEntry(category);
@@ -132,7 +165,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         public void Can_stop_tracking_and_then_start_tracking_again()
         {
             var stateManager = CreateStateManager(BuildModel());
-            var category = new Category();
+            var category = new Category { Id = 1 };
 
             var stateEntry = stateManager.GetOrCreateEntry(category);
             stateManager.StartTracking(stateEntry);
@@ -147,7 +180,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         public void Can_stop_tracking_and_then_start_tracking_using_a_new_state_entry()
         {
             var stateManager = CreateStateManager(BuildModel());
-            var category = new Category();
+            var category = new Category { Id = 1 };
 
             var stateEntry = stateManager.GetOrCreateEntry(category);
             stateManager.StartTracking(stateEntry);
@@ -163,7 +196,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         public void Throws_on_attempt_to_start_tracking_same_entity_with_two_entries()
         {
             var stateManager = CreateStateManager(BuildModel());
-            var category = new Category();
+            var category = new Category { Id = 1 };
 
             var stateEntry = stateManager.GetOrCreateEntry(category);
             stateManager.StartTracking(stateEntry);
@@ -195,7 +228,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Throws_on_attempt_to_start_tracking_different_entity_with_null_key()
+        public void Throws_on_attempt_to_start_tracking_entity_with_null_key()
         {
             var stateManager = CreateStateManager(BuildModel());
             var entity = new Dogegory();
@@ -203,7 +236,36 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var stateEntry = stateManager.GetOrCreateEntry(entity);
 
             Assert.Equal(
-                Strings.NullPrimaryKey(typeof(Dogegory).FullName),
+                Strings.InvalidPrimaryKey(typeof(Dogegory).FullName),
+                Assert.Throws<InvalidOperationException>(() => stateManager.StartTracking(stateEntry)).Message);
+        }
+
+        [Fact]
+        public void Throws_on_attempt_to_start_tracking_entity_with_sentinel_key()
+        {
+            var stateManager = CreateStateManager(BuildModel());
+            var entity = new Category();
+
+            var stateEntry = stateManager.GetOrCreateEntry(entity);
+
+            Assert.Equal(
+                Strings.InvalidPrimaryKey(typeof(Category).FullName),
+                Assert.Throws<InvalidOperationException>(() => stateManager.StartTracking(stateEntry)).Message);
+        }
+
+        [Fact]
+        public void Throws_on_attempt_to_start_tracking_entity_with_non_default_sentinel_key()
+        {
+            var model = BuildModel();
+            model.GetEntityType(typeof(Category)).GetProperty("Id").SentinelValue = 7;
+
+            var stateManager = CreateStateManager(model);
+            var entity = new Category { Id = 7 };
+
+            var stateEntry = stateManager.GetOrCreateEntry(entity);
+
+            Assert.Equal(
+                Strings.InvalidPrimaryKey(typeof(Category).FullName),
                 Assert.Throws<InvalidOperationException>(() => stateManager.StartTracking(stateEntry)).Message);
         }
 
@@ -440,7 +502,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             public string Id { get; set; }
         }
 
-        private static IModel BuildModel()
+        private static Model BuildModel()
         {
             var model = new Model();
             var builder = TestHelpers.Instance.CreateConventionBuilder(model);

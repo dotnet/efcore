@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Returns_same_simple_entity_key_factory_for_same_key_type()
+        public void Returns_different_simple_entity_key_factory_for_different_properties()
         {
             var keyMock1 = new Mock<IProperty>();
             keyMock1.Setup(m => m.PropertyType).Returns(typeof(Guid));
@@ -39,11 +39,11 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             keyMock2.Setup(m => m.PropertyType).Returns(typeof(Guid));
 
             var factorySource = CreateKeyFactorySource();
-            Assert.Same(factorySource.GetKeyFactory(new[] { keyMock1.Object }), factorySource.GetKeyFactory(new[] { keyMock2.Object }));
+            Assert.NotSame(factorySource.GetKeyFactory(new[] { keyMock1.Object }), factorySource.GetKeyFactory(new[] { keyMock2.Object }));
         }
 
         [Fact]
-        public void Returns_same_nullable_simple_entity_key_factory_for_same_key_type()
+        public void Returns_different_simple_nullable_entity_key_factory_for_different_properties()
         {
             var keyMock1 = new Mock<IProperty>();
             keyMock1.Setup(m => m.PropertyType).Returns(typeof(Guid?));
@@ -52,7 +52,27 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             keyMock2.Setup(m => m.PropertyType).Returns(typeof(Guid?));
 
             var factorySource = CreateKeyFactorySource();
-            Assert.Same(factorySource.GetKeyFactory(new[] { keyMock1.Object }), factorySource.GetKeyFactory(new[] { keyMock2.Object }));
+            Assert.NotSame(factorySource.GetKeyFactory(new[] { keyMock1.Object }), factorySource.GetKeyFactory(new[] { keyMock2.Object }));
+        }
+
+        [Fact]
+        public void Returns_same_simple_entity_key_factory_for_same_property()
+        {
+            var keyMock = new Mock<IProperty>();
+            keyMock.Setup(m => m.PropertyType).Returns(typeof(Guid));
+
+            var factorySource = CreateKeyFactorySource();
+            Assert.Same(factorySource.GetKeyFactory(new[] { keyMock.Object }), factorySource.GetKeyFactory(new[] { keyMock.Object }));
+        }
+
+        [Fact]
+        public void Returns_same_nullable_simple_entity_key_factory_for_same_property()
+        {
+            var keyMock = new Mock<IProperty>();
+            keyMock.Setup(m => m.PropertyType).Returns(typeof(Guid?));
+
+            var factorySource = CreateKeyFactorySource();
+            Assert.Same(factorySource.GetKeyFactory(new[] { keyMock.Object }), factorySource.GetKeyFactory(new[] { keyMock.Object }));
         }
 
         [Fact]
@@ -60,15 +80,6 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             Assert.IsType<CompositeEntityKeyFactory>(
                 CreateKeyFactorySource().GetKeyFactory(new[] { new Mock<IProperty>().Object, new Mock<IProperty>().Object }));
-        }
-
-        [Fact]
-        public void Returns_same_composite_entity_key_factory_every_time()
-        {
-            var factorySource = CreateKeyFactorySource();
-            Assert.Same(
-                factorySource.GetKeyFactory(new[] { new Mock<IProperty>().Object, new Mock<IProperty>().Object }),
-                factorySource.GetKeyFactory(new[] { new Mock<IProperty>().Object, new Mock<IProperty>().Object }));
         }
 
         [Fact]
@@ -91,7 +102,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
         private static EntityKeyFactorySource CreateKeyFactorySource()
         {
-            return new EntityKeyFactorySource(new CompositeEntityKeyFactory());
+            return new EntityKeyFactorySource();
         }
     }
 }

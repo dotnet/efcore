@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entity = new Banana { P1 = 7, P2 = 8 };
             var entry = stateManager.GetOrCreateEntry(entity);
 
-            var key = (SimpleEntityKey<int>)new SimpleEntityKeyFactory<int>().Create(type, type.GetPrimaryKey().Properties, entry);
+            var key = (SimpleEntityKey<int>)new SimpleEntityKeyFactory<int>(0).Create(type, type.GetPrimaryKey().Properties, entry);
 
             Assert.Equal(7, key.Value);
         }
@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entity = new Banana { P1 = 7, P2 = 8 };
             var entry = stateManager.GetOrCreateEntry(entity);
 
-            var key = (SimpleEntityKey<int>)new SimpleEntityKeyFactory<int>().Create(
+            var key = (SimpleEntityKey<int>)new SimpleEntityKeyFactory<int>(0).Create(
                 type, new[] { type.GetProperty("P2") }, entry);
 
             Assert.Equal(8, key.Value);
@@ -51,16 +51,86 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entity = new Banana { P1 = 7, P2 = null };
             var entry = stateManager.GetOrCreateEntry(entity);
 
-            Assert.Equal(EntityKey.NullEntityKey, new SimpleEntityKeyFactory<string>().Create(type, new[] { type.GetProperty("P2") }, entry));
+            Assert.Equal(EntityKey.InvalidEntityKey, new SimpleEntityKeyFactory<int>(0).Create(type, new[] { type.GetProperty("P2") }, entry));
+        }
+
+        [Fact]
+        public void Returns_null_if_key_value_is_default_sentinel()
+        {
+            var model = BuildModel();
+            var type = model.GetEntityType(typeof(Banana));
+            var stateManager = TestHelpers.Instance.CreateContextServices(model).GetRequiredService<StateManager>();
+
+            var entity = new Banana { P1 = 0, P2 = 8 };
+            var entry = stateManager.GetOrCreateEntry(entity);
+
+            Assert.Equal(EntityKey.InvalidEntityKey, new SimpleEntityKeyFactory<int>(0).Create(type, new[] { type.GetProperty("P1") }, entry));
+        }
+
+        [Fact]
+        public void Returns_null_if_key_value_is_default_sentinel_even_on_nullable_property()
+        {
+            var model = BuildModel();
+            var type = model.GetEntityType(typeof(Banana));
+            var stateManager = TestHelpers.Instance.CreateContextServices(model).GetRequiredService<StateManager>();
+
+            var entity = new Banana { P1 = 7, P2 = 0 };
+            var entry = stateManager.GetOrCreateEntry(entity);
+
+            Assert.Equal(EntityKey.InvalidEntityKey, new SimpleEntityKeyFactory<int>(0).Create(type, new[] { type.GetProperty("P2") }, entry));
+        }
+
+        [Fact]
+        public void Creates_a_new_key_for_CLR_defaults_of_nullable_types()
+        {
+            var model = BuildModel();
+            var type = model.GetEntityType(typeof(Banana));
+            var stateManager = TestHelpers.Instance.CreateContextServices(model).GetRequiredService<StateManager>();
+
+            var entity = new Banana { P1 = 7, P2 = 0 };
+            var entry = stateManager.GetOrCreateEntry(entity);
+
+            var key = (SimpleEntityKey<int?>)new SimpleEntityKeyFactory<int?>(null).Create(
+                type, new[] { type.GetProperty("P2") }, entry);
+
+            Assert.Equal(0, key.Value);
+        }
+
+        [Fact]
+        public void Returns_null_if_key_value_is_non_default_sentinel()
+        {
+            var model = BuildModel();
+            var type = model.GetEntityType(typeof(Banana));
+            var stateManager = TestHelpers.Instance.CreateContextServices(model).GetRequiredService<StateManager>();
+
+            var entity = new Banana { P1 = 7, P2 = 8 };
+            var entry = stateManager.GetOrCreateEntry(entity);
+
+            Assert.Equal(EntityKey.InvalidEntityKey, new SimpleEntityKeyFactory<int>(7).Create(type, new[] { type.GetProperty("P1") }, entry));
+        }
+
+        [Fact]
+        public void Creates_a_new_key_for_CLR_defaults_when_non_default_sentinel()
+        {
+            var model = BuildModel();
+            var type = model.GetEntityType(typeof(Banana));
+            var stateManager = TestHelpers.Instance.CreateContextServices(model).GetRequiredService<StateManager>();
+
+            var entity = new Banana { P1 = 0, P2 = 8 };
+            var entry = stateManager.GetOrCreateEntry(entity);
+
+            var key = (SimpleEntityKey<int>)new SimpleEntityKeyFactory<int>(7).Create(
+                type, new[] { type.GetProperty("P1") }, entry);
+
+            Assert.Equal(0, key.Value);
         }
 
         [Fact]
         public void Creates_a_new_primary_key_for_key_values_in_the_given_value_buffer()
         {
-            var model = BuildModel();
-            var type = model.GetEntityType(typeof(Banana));
+            var type = BuildModel().GetEntityType(typeof(Banana));
 
-            var key = (SimpleEntityKey<int>)new SimpleEntityKeyFactory<int>().Create(
+            var key = (SimpleEntityKey<int>)new SimpleEntityKeyFactory<int>(0).Create(
                 type, type.GetPrimaryKey().Properties, new ObjectArrayValueReader(new object[] { 7, "Ate" }));
 
             Assert.Equal(7, key.Value);
@@ -69,13 +139,86 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Creates_a_new_key_for_non_primary_key_values_in_the_given_value_buffer()
         {
-            var model = BuildModel();
-            var type = model.GetEntityType(typeof(Banana));
+            var type = BuildModel().GetEntityType(typeof(Banana));
 
-            var key = (SimpleEntityKey<string>)new SimpleEntityKeyFactory<string>().Create(
-                type, new[] { type.GetProperty("P2") }, new ObjectArrayValueReader(new object[] { 7, "Ate" }));
+            var key = (SimpleEntityKey<int>)new SimpleEntityKeyFactory<int>(0).Create(
+                type, new[] { type.GetProperty("P2") }, new ObjectArrayValueReader(new object[] { 7, 8 }));
+
+            Assert.Equal(8, key.Value);
+        }
+
+        [Fact]
+        public void Creates_a_new_primary_key_for_reference_key_values_in_the_given_value_buffer()
+        {
+            var type = BuildModel().GetEntityType(typeof(Kiwi));
+
+            var key = (SimpleEntityKey<string>)new SimpleEntityKeyFactory<string>(null).Create(
+                type, type.GetPrimaryKey().Properties, new ObjectArrayValueReader(new object[] { "7", "Ate" }));
+
+            Assert.Equal("7", key.Value);
+        }
+
+        [Fact]
+        public void Creates_a_new_key_for_non_primary_reference_key_values_in_the_given_value_buffer()
+        {
+            var type = BuildModel().GetEntityType(typeof(Kiwi));
+
+            var key = (SimpleEntityKey<string>)new SimpleEntityKeyFactory<string>(null).Create(
+                type, new[] { type.GetProperty("P2") }, new ObjectArrayValueReader(new object[] { "7", "Ate" }));
 
             Assert.Equal("Ate", key.Value);
+        }
+
+        [Fact]
+        public void Returns_null_if_key_value_is_default_sentinel_using_value_reader()
+        {
+            var type = BuildModel().GetEntityType(typeof(Banana));
+
+            Assert.Equal(
+                EntityKey.InvalidEntityKey, 
+                new SimpleEntityKeyFactory<int>(0).Create(type, new[] { type.GetProperty("P1") }, new ObjectArrayValueReader(new object[] { 0, 8 })));
+        }
+
+        [Fact]
+        public void Returns_null_if_key_value_is_default_sentinel_even_on_nullable_property_using_value_reader()
+        {
+            var type = BuildModel().GetEntityType(typeof(Banana));
+
+            Assert.Equal(
+                EntityKey.InvalidEntityKey, 
+                new SimpleEntityKeyFactory<int>(0).Create(type, new[] { type.GetProperty("P2") }, new ObjectArrayValueReader(new object[] { 7, 0 })));
+        }
+
+        [Fact]
+        public void Creates_a_new_key_for_CLR_defaults_of_nullable_types_using_value_reader()
+        {
+            var type = BuildModel().GetEntityType(typeof(Banana));
+
+            var key = (SimpleEntityKey<int?>)new SimpleEntityKeyFactory<int?>(null).Create(
+                type, new[] { type.GetProperty("P2") }, new ObjectArrayValueReader(new object[] { 7, 0 }));
+
+            Assert.Equal(0, key.Value);
+        }
+
+        [Fact]
+        public void Returns_null_if_key_value_is_non_default_sentinel_using_value_reader()
+        {
+            var type = BuildModel().GetEntityType(typeof(Banana));
+
+            Assert.Equal(
+                EntityKey.InvalidEntityKey, 
+                new SimpleEntityKeyFactory<int>(7).Create(type, new[] { type.GetProperty("P1") }, new ObjectArrayValueReader(new object[] { 7, 8 })));
+        }
+
+        [Fact]
+        public void Creates_a_new_key_for_CLR_defaults_when_non_default_sentinel_using_value_reader()
+        {
+            var type = BuildModel().GetEntityType(typeof(Banana));
+
+            var key = (SimpleEntityKey<int>)new SimpleEntityKeyFactory<int>(7).Create(
+                type, new[] { type.GetProperty("P1") }, new ObjectArrayValueReader(new object[] { 0, 8 }));
+
+            Assert.Equal(0, key.Value);
         }
 
         [Fact]
@@ -91,7 +234,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var sidecar = new RelationshipsSnapshot(entry);
             sidecar[type.GetProperty("P2")] = "Eaten";
 
-            var key = (SimpleEntityKey<string>)new SimpleEntityKeyFactory<string>().Create(
+            var key = (SimpleEntityKey<string>)new SimpleEntityKeyFactory<string>(null).Create(
                 type, new[] { type.GetProperty("P2") }, sidecar);
 
             Assert.Equal("Eaten", key.Value);
@@ -109,7 +252,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var sidecar = new RelationshipsSnapshot(entry);
 
-            var key = (SimpleEntityKey<int>)new SimpleEntityKeyFactory<int>().Create(
+            var key = (SimpleEntityKey<int>)new SimpleEntityKeyFactory<int>(0).Create(
                 type, new[] { type.GetProperty("P2") }, sidecar);
 
             Assert.Equal(8, key.Value);
@@ -126,6 +269,13 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entityType.GetOrSetPrimaryKey(property1);
             entityType.GetOrAddForeignKey(property2, entityType.GetPrimaryKey());
 
+            entityType = model.AddEntityType(typeof(Kiwi));
+            property1 = entityType.GetOrAddProperty("P1", typeof(string));
+            property2 = entityType.GetOrAddProperty("P2", typeof(string));
+
+            entityType.GetOrSetPrimaryKey(property1);
+            entityType.GetOrAddForeignKey(property2, entityType.GetPrimaryKey());
+
             return model;
         }
 
@@ -133,6 +283,12 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             public int P1 { get; set; }
             public int? P2 { get; set; }
+        }
+
+        private class Kiwi
+        {
+            public string P1 { get; set; }
+            public string P2 { get; set; }
         }
     }
 }

@@ -251,6 +251,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var configuration = TestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateStateEntry(configuration, entityType, new SomeEntity());
+            entry[keyProperty] = 1;
 
             entry.SetEntityState(EntityState.Added);
             entry.MarkAsTemporary(keyProperty);
@@ -259,6 +260,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             Assert.False(entry.HasTemporaryValue(keyProperty));
 
+            entry[keyProperty] = 1;
             entry.SetEntityState(EntityState.Unchanged);
 
             Assert.False(entry.HasTemporaryValue(keyProperty));
@@ -584,7 +586,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entry[keyProperties[0]] = 77;
             entry[keyProperties[1]] = null;
 
-            Assert.Same(EntityKey.NullEntityKey, entry.GetPrincipalKeyValue(dependentType.ForeignKeys.Single()));
+            Assert.Same(EntityKey.InvalidEntityKey, entry.GetPrincipalKeyValue(dependentType.ForeignKeys.Single()));
         }
 
         [Fact]

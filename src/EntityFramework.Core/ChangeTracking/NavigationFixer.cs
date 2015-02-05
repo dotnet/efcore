@@ -200,11 +200,14 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 var newKeyValues = foreignKey.ReferencedProperties.Select(p => entry[p]).ToList();
                 var oldKey = entry.RelationshipsSnapshot.GetPrincipalKeyValue(foreignKey);
 
-                foreach (var dependent in entry.StateManager.StateEntries.Where(
-                    e => e.EntityType == foreignKey.EntityType
-                         && oldKey.Equals(e.GetDependentKeyValue(foreignKey))).ToList())
+                if (oldKey != EntityKey.InvalidEntityKey)
                 {
-                    SetForeignKeyValue(foreignKey, dependent, newKeyValues);
+                    foreach (var dependent in entry.StateManager.StateEntries.Where(
+                        e => e.EntityType == foreignKey.EntityType
+                             && oldKey.Equals(e.GetDependentKeyValue(foreignKey))).ToList())
+                    {
+                        SetForeignKeyValue(foreignKey, dependent, newKeyValues);
+                    }
                 }
             }
         }
@@ -459,7 +462,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             for (var i = 0; i < foreignKey.Properties.Count; i++)
             {
                 if (!foreignKey.GetRootPrincipals(i).Any(p => p.GenerateValueOnAdd)
-                    || !foreignKey.ReferencedProperties[i].PropertyType.IsDefaultValue(principalValues[i]))
+                    || !foreignKey.ReferencedProperties[i].IsSentinelValue(principalValues[i]))
                 {
                     var dependentProperty = foreignKey.Properties[i];
                     dependentEntry[dependentProperty] = principalValues[i];

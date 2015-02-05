@@ -14,8 +14,6 @@ namespace Microsoft.Data.Entity.Metadata
     [DebuggerDisplay("{EntityType.Name,nq}.{Name,nq} ({PropertyType.Name,nq})")]
     public class Property : PropertyBase, IProperty
     {
-        private readonly Type _propertyType;
-        private readonly EntityType _entityType;
         private PropertyFlags _flags;
         // TODO: Remove this once the model is readonly Issue #868
         private PropertyFlags _setFlags;
@@ -27,28 +25,19 @@ namespace Microsoft.Data.Entity.Metadata
         public Property([NotNull] string name, [NotNull] Type propertyType, [NotNull] EntityType entityType, bool shadowProperty = false)
             : base(name)
         {
-            Check.NotNull(propertyType, "propertyType");
-            Check.NotNull(entityType, "entityType");
+            Check.NotNull(propertyType, nameof(propertyType));
+            Check.NotNull(entityType, nameof(entityType));
 
-            _propertyType = propertyType;
-            _entityType = entityType;
+            PropertyType = propertyType;
+            EntityType = entityType;
             _shadowIndex = shadowProperty ? 0 : -1;
         }
 
-        public virtual Type PropertyType
-        {
-            get { return _propertyType; }
-        }
+        public virtual Type PropertyType { get; }
 
-        public override EntityType EntityType
-        {
-            get { return _entityType; }
-        }
+        public override EntityType EntityType { get; }
 
-        public virtual Type UnderlyingType
-        {
-            get { return _propertyType.UnwrapNullableType(); }
-        }
+        public virtual Type UnderlyingType => PropertyType.UnwrapNullableType();
 
         public virtual bool? IsNullable
         {
@@ -57,19 +46,16 @@ namespace Microsoft.Data.Entity.Metadata
             {
                 if (value.HasValue
                     && value.Value
-                    && !_propertyType.IsNullableType())
+                    && !PropertyType.IsNullableType())
                 {
-                    throw new InvalidOperationException(Strings.CannotBeNullable(Name, EntityType.SimpleName, _propertyType.Name));
+                    throw new InvalidOperationException(Strings.CannotBeNullable(Name, EntityType.SimpleName, PropertyType.Name));
                 }
 
                 SetFlag(value, PropertyFlags.IsNullable);
             }
         }
 
-        protected virtual bool DefaultIsNullable
-        {
-            get { return _propertyType.IsNullableType(); }
-        }
+        protected virtual bool DefaultIsNullable => PropertyType.IsNullableType();
 
         public virtual bool? UseStoreDefault
         {
@@ -77,10 +63,7 @@ namespace Microsoft.Data.Entity.Metadata
             set { SetFlag(value, PropertyFlags.UseStoreDefault); }
         }
 
-        protected virtual bool DefaultUseStoreDefault
-        {
-            get { return false; }
-        }
+        protected virtual bool DefaultUseStoreDefault => false;
 
         public virtual int? MaxLength
         {
@@ -108,10 +91,7 @@ namespace Microsoft.Data.Entity.Metadata
             }
         }
 
-        protected virtual int DefaultMaxLength
-        {
-            get { return 0; }
-        }
+        protected virtual int DefaultMaxLength => 0;
 
         public virtual bool? IsReadOnly
         {
@@ -128,10 +108,7 @@ namespace Microsoft.Data.Entity.Metadata
             }
         }
 
-        protected virtual bool DefaultIsReadOnly
-        {
-            get { return this.IsKey(); }
-        }
+        protected virtual bool DefaultIsReadOnly => this.IsKey();
 
         public virtual bool? IsStoreComputed
         {
@@ -139,10 +116,7 @@ namespace Microsoft.Data.Entity.Metadata
             set { SetFlag(value, PropertyFlags.IsStoreComputed); }
         }
 
-        protected virtual bool DefaultIsStoreComputed
-        {
-            get { return false; }
-        }
+        protected virtual bool DefaultIsStoreComputed => false;
 
         public virtual bool? GenerateValueOnAdd
         {
@@ -150,10 +124,7 @@ namespace Microsoft.Data.Entity.Metadata
             set { SetFlag(value, PropertyFlags.GenerateValueOnAdd); }
         }
 
-        protected virtual bool DefaultGenerateValueOnAdd
-        {
-            get { return false; }
-        }
+        protected virtual bool DefaultGenerateValueOnAdd => false;
 
         public virtual bool IsShadowProperty
         {
@@ -183,10 +154,7 @@ namespace Microsoft.Data.Entity.Metadata
             }
         }
 
-        protected virtual bool DefaultIsConcurrencyToken
-        {
-            get { return false; }
-        }
+        protected virtual bool DefaultIsConcurrencyToken => false;
 
         public virtual int Index
         {
@@ -195,7 +163,7 @@ namespace Microsoft.Data.Entity.Metadata
             {
                 if (value < 0)
                 {
-                    throw new ArgumentOutOfRangeException("value");
+                    throw new ArgumentOutOfRangeException(nameof(value));
                 }
                 _index = value;
             }
@@ -209,7 +177,7 @@ namespace Microsoft.Data.Entity.Metadata
                 if (value < 0
                     || !IsShadowProperty)
                 {
-                    throw new ArgumentOutOfRangeException("value");
+                    throw new ArgumentOutOfRangeException(nameof(value));
                 }
 
                 _shadowIndex = value;
@@ -223,17 +191,16 @@ namespace Microsoft.Data.Entity.Metadata
             {
                 if (value < -1)
                 {
-                    throw new ArgumentOutOfRangeException("value");
+                    throw new ArgumentOutOfRangeException(nameof(value));
                 }
 
                 _originalValueIndex = value;
             }
         }
 
-        private bool? GetFlag(PropertyFlags flag)
-        {
-            return (_setFlags & flag) != 0 ? (_flags & flag) != 0 : (bool?)null;
-        }
+        public virtual object SentinelValue { get; [param: CanBeNull] set; }
+
+        private bool? GetFlag(PropertyFlags flag) => (_setFlags & flag) != 0 ? (_flags & flag) != 0 : (bool?)null;
 
         private void SetFlag(bool? value, PropertyFlags flag)
         {
@@ -241,45 +208,23 @@ namespace Microsoft.Data.Entity.Metadata
             _flags = value.HasValue && value.Value ? (_flags | flag) : (_flags & ~flag);
         }
 
-        internal static string Format(IEnumerable<Property> properties)
-        {
-            return string.Join(", ", properties.Select(p => "'" + p.Name + "'"));
-        }
+        internal static string Format(IEnumerable<Property> properties) => string.Join(", ", properties.Select(p => "'" + p.Name + "'"));
 
-        bool IProperty.IsNullable
-        {
-            get { return IsNullable ?? DefaultIsNullable; }
-        }
+        bool IProperty.IsNullable => IsNullable ?? DefaultIsNullable;
 
-        bool IProperty.UseStoreDefault
-        {
-            get { return UseStoreDefault ?? DefaultUseStoreDefault; }
-        }
+        bool IProperty.UseStoreDefault => UseStoreDefault ?? DefaultUseStoreDefault;
 
-        int IProperty.MaxLength
-        {
-            get { return MaxLength ?? DefaultMaxLength; }
-        }
+        int IProperty.MaxLength => MaxLength ?? DefaultMaxLength;
 
-        bool IProperty.IsReadOnly
-        {
-            get { return IsReadOnly ?? DefaultIsReadOnly; }
-        }
+        bool IProperty.IsReadOnly => IsReadOnly ?? DefaultIsReadOnly;
 
-        bool IProperty.IsStoreComputed
-        {
-            get { return IsStoreComputed ?? DefaultIsStoreComputed; }
-        }
+        bool IProperty.IsStoreComputed => IsStoreComputed ?? DefaultIsStoreComputed;
 
-        bool IProperty.GenerateValueOnAdd
-        {
-            get { return GenerateValueOnAdd ?? DefaultGenerateValueOnAdd; }
-        }
+        bool IProperty.GenerateValueOnAdd => GenerateValueOnAdd ?? DefaultGenerateValueOnAdd;
 
-        bool IProperty.IsConcurrencyToken
-        {
-            get { return IsConcurrencyToken ?? DefaultIsConcurrencyToken; }
-        }
+        bool IProperty.IsConcurrencyToken => IsConcurrencyToken ?? DefaultIsConcurrencyToken;
+
+        object IProperty.SentinelValue => SentinelValue == null && !PropertyType.IsNullableType() ? PropertyType.GetDefaultValue() : SentinelValue;
 
         [Flags]
         private enum PropertyFlags : ushort

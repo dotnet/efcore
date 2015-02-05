@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Diagnostics;
+using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
@@ -10,6 +11,13 @@ namespace Microsoft.Data.Entity.ChangeTracking
 {
     public class SimpleEntityKeyFactory<TKey> : EntityKeyFactory
     {
+        private readonly TKey _sentinel;
+
+        public SimpleEntityKeyFactory([CanBeNull] TKey sentinel)
+        {
+            _sentinel = sentinel;
+        }
+
         public override EntityKey Create(
             IEntityType entityType, IReadOnlyList<IProperty> properties, IValueReader valueReader)
         {
@@ -18,9 +26,17 @@ namespace Microsoft.Data.Entity.ChangeTracking
             Debug.Assert(properties != null);
             Debug.Assert(valueReader != null);
 
-            return valueReader.IsNull(properties[0].Index)
-                ? EntityKey.NullEntityKey
-                : new SimpleEntityKey<TKey>(entityType, valueReader.ReadValue<TKey>(properties[0].Index));
+            var index = properties[0].Index;
+            if (!valueReader.IsNull(index))
+            {
+                var value = valueReader.ReadValue<TKey>(index);
+                if (!EqualityComparer<TKey>.Default.Equals(value, _sentinel))
+                {
+                    return new SimpleEntityKey<TKey>(entityType, value);
+                }
+            }
+
+            return EntityKey.InvalidEntityKey;
         }
 
         public override EntityKey Create(
@@ -32,9 +48,16 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             var value = propertyBagEntry[properties[0]];
 
-            return value == null
-                ? EntityKey.NullEntityKey
-                : new SimpleEntityKey<TKey>(entityType, (TKey)value);
+            if (value != null)
+            {
+                var typedValue = (TKey)value;
+                if (!EqualityComparer<TKey>.Default.Equals(typedValue, _sentinel))
+                {
+                    return new SimpleEntityKey<TKey>(entityType, typedValue);
+                }
+            }
+
+            return EntityKey.InvalidEntityKey;
         }
     }
 }

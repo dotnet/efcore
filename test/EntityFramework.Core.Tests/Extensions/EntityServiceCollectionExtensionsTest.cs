@@ -32,7 +32,6 @@ namespace Microsoft.Data.Entity.Tests
             VerifySingleton<DbSetInitializer>();
             VerifySingleton<DbSetSource>();
             VerifySingleton<EntityKeyFactorySource>();
-            VerifySingleton<CompositeEntityKeyFactory>();
             VerifySingleton<ClrPropertyGetterSource>();
             VerifySingleton<ClrPropertySetterSource>();
             VerifySingleton<ClrCollectionAccessorSource>();

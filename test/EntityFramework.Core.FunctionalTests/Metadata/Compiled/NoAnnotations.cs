@@ -3,28 +3,15 @@
 
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata.Compiled
 {
     public class NoAnnotations
     {
-        public IEnumerable<IAnnotation> Annotations
-        {
-            get { return ImmutableList<IAnnotation>.Empty; }
-        }
+        public IEnumerable<IAnnotation> Annotations => ImmutableList<IAnnotation>.Empty;
 
-        public string this[string annotationName]
-        {
-            get
-            {
-                return null;
-            }
-        }
+        public string this[string annotationName] => null;
 
-        public virtual string StorageName
-        {
-            get { return null; }
-        }
+        public virtual string StorageName => null;
     }
 }

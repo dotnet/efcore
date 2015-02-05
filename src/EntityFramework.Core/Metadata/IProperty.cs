@@ -20,5 +20,6 @@ namespace Microsoft.Data.Entity.Metadata
         bool IsShadowProperty { get; }
         bool IsConcurrencyToken { get; }
         int MaxLength { get; }
+        object SentinelValue { get; }
     }
 }

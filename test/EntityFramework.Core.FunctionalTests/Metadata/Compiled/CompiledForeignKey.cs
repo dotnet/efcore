@@ -17,40 +17,19 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
 
         protected abstract ForeignKeyDefinition Definition { get; }
 
-        public IReadOnlyList<IProperty> Properties
-        {
-            get { return Definition.DependentPropertyIndexes.Select(i => EntityType.Properties[i]).ToArray(); }
-        }
+        public IReadOnlyList<IProperty> Properties => Definition.DependentPropertyIndexes.Select(i => EntityType.Properties[i]).ToArray();
 
-        public IReadOnlyList<IProperty> ReferencedProperties
-        {
-            get { return Definition.PrincipalPropertyIndexes.Select(i => ReferencedEntityType.Properties[i]).ToArray(); }
-        }
+        public IReadOnlyList<IProperty> ReferencedProperties => Definition.PrincipalPropertyIndexes.Select(i => ReferencedEntityType.Properties[i]).ToArray();
 
-        public IKey ReferencedKey
-        {
-            get { return ReferencedEntityType.GetPrimaryKey(); }
-        }
+        public IKey ReferencedKey => ReferencedEntityType.GetPrimaryKey();
 
-        public IEntityType ReferencedEntityType
-        {
-            get { return _model.EntityTypes[Definition.PrincipalIndex]; }
-        }
+        public IEntityType ReferencedEntityType => _model.EntityTypes[Definition.PrincipalIndex];
 
-        public IEntityType EntityType
-        {
-            get { return _model.EntityTypes[Definition.DependentIndex]; }
-        }
+        public IEntityType EntityType => _model.EntityTypes[Definition.DependentIndex];
 
-        public bool IsRequired
-        {
-            get { return Properties.Any(p => !p.IsNullable); }
-        }
+        public bool IsRequired => Properties.Any(p => !p.IsNullable);
 
-        public bool IsUnique
-        {
-            get { return false; }
-        }
+        public bool IsUnique => false;
 
         protected struct ForeignKeyDefinition
         {

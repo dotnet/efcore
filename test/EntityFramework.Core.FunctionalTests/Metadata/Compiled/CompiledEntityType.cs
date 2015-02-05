@@ -10,7 +10,6 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
 {
     public abstract class CompiledEntityType<TEntity> : CompiledMetadataBase where TEntity : class
     {
-        private readonly IModel _model;
         private IKey _key;
         private IProperty[] _properties;
         private IForeignKey[] _foreignKeys;
@@ -19,13 +18,10 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
 
         protected CompiledEntityType(IModel model)
         {
-            _model = model;
+            Model = model;
         }
 
-        public IProperty TryGetProperty(string name)
-        {
-            return Properties.FirstOrDefault(p => p.Name == name);
-        }
+        public IProperty TryGetProperty(string name) => Properties.FirstOrDefault(p => p.Name == name);
 
         public IProperty GetProperty(string name)
         {
@@ -37,10 +33,7 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
             return property;
         }
 
-        public INavigation TryGetNavigation(string name)
-        {
-            return Navigations.FirstOrDefault(p => p.Name == name);
-        }
+        public INavigation TryGetNavigation(string name) => Navigations.FirstOrDefault(p => p.Name == name);
 
         public INavigation GetNavigation(string name)
         {
@@ -52,34 +45,19 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
             return navigation;
         }
 
-        public Type Type
-        {
-            get { return typeof(TEntity); }
-        }
+        public Type Type => typeof(TEntity);
 
-        public string SimpleName
-        {
-            get { return typeof(TEntity).Name; }
-        }
+        public string SimpleName => typeof(TEntity).Name;
 
         protected abstract IKey LoadKey();
 
         protected abstract IProperty[] LoadProperties();
 
-        protected virtual IForeignKey[] LoadForeignKeys()
-        {
-            return Empty.ForeignKeys;
-        }
+        protected virtual IForeignKey[] LoadForeignKeys() => Empty.ForeignKeys;
 
-        protected virtual INavigation[] LoadNavigations()
-        {
-            return Empty.Navigations;
-        }
+        protected virtual INavigation[] LoadNavigations() => Empty.Navigations;
 
-        protected virtual IIndex[] LoadIndexes()
-        {
-            return Empty.Indexes;
-        }
+        protected virtual IIndex[] LoadIndexes() => Empty.Indexes;
 
         public IKey TryGetPrimaryKey()
         {
@@ -91,67 +69,28 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
             return _key;
         }
 
-        public IKey GetPrimaryKey()
-        {
-            return LazyInitializer.EnsureInitialized(ref _key, LoadKey);
-        }
+        public IKey GetPrimaryKey() => LazyInitializer.EnsureInitialized(ref _key, LoadKey);
 
-        public IReadOnlyList<IKey> Keys
-        {
-            get { return new[] { GetPrimaryKey() }; }
-        }
+        public IReadOnlyList<IKey> Keys => new[] { GetPrimaryKey() };
 
-        public IReadOnlyList<IForeignKey> ForeignKeys
-        {
-            get { return LazyInitializer.EnsureInitialized(ref _foreignKeys, LoadForeignKeys); }
-        }
+        public IReadOnlyList<IForeignKey> ForeignKeys => LazyInitializer.EnsureInitialized(ref _foreignKeys, LoadForeignKeys);
 
-        public IReadOnlyList<INavigation> Navigations
-        {
-            get { return LazyInitializer.EnsureInitialized(ref _navigations, LoadNavigations); }
-        }
+        public IReadOnlyList<INavigation> Navigations => LazyInitializer.EnsureInitialized(ref _navigations, LoadNavigations);
 
-        public IReadOnlyList<IIndex> Indexes
-        {
-            get { return LazyInitializer.EnsureInitialized(ref _indexes, LoadIndexes); }
-        }
+        public IReadOnlyList<IIndex> Indexes => LazyInitializer.EnsureInitialized(ref _indexes, LoadIndexes);
 
-        public IReadOnlyList<IProperty> Properties
-        {
-            get { return EnsurePropertiesInitialized(); }
-        }
+        public IReadOnlyList<IProperty> Properties => EnsurePropertiesInitialized();
 
-        private IProperty[] EnsurePropertiesInitialized()
-        {
-            return LazyInitializer.EnsureInitialized(ref _properties, LoadProperties);
-        }
+        private IProperty[] EnsurePropertiesInitialized() => LazyInitializer.EnsureInitialized(ref _properties, LoadProperties);
 
-        public int ShadowPropertyCount
-        {
-            // TODO: Implement this appropriately rather than always just returning 0.
-            get { return 0; }
-        }
+        public int ShadowPropertyCount => 0;
 
-        public int OriginalValueCount
-        {
-            // TODO: Implement this appropriately rather than always just returning 0.
-            get { return 0; }
-        }
+        public int OriginalValueCount => 0;
 
-        public bool UseEagerSnapshots
-        {
-            // TODO: Implement this appropriately rather than always just returning false.
-            get { return false; }
-        }
+        public bool UseEagerSnapshots => false;
 
-        public bool HasClrType
-        {
-            get { return true; }
-        }
+        public bool HasClrType => true;
 
-        public IModel Model
-        {
-            get { return _model; }
-        }
+        public IModel Model { get; }
     }
 }

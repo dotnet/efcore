@@ -46,7 +46,6 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddSingleton<DbSetInitializer>()
                 .AddSingleton<DbSetSource>()
                 .AddSingleton<EntityKeyFactorySource>()
-                .AddSingleton<CompositeEntityKeyFactory>()
                 .AddSingleton<ClrPropertyGetterSource>()
                 .AddSingleton<ClrPropertySetterSource>()
                 .AddSingleton<ClrCollectionAccessorSource>()

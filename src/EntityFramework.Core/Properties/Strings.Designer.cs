@@ -61,11 +61,11 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// The instance of entity type '{entityType}' cannot be tracked because it has a null primary key. Either set the key explicitly or consider using an IValueGenerator to generate unique key values.
+        /// The instance of entity type '{entityType}' cannot be tracked because it has an invalid (e.g. null or CLR default) primary key. Either set the key explicitly or consider using an IValueGenerator to generate unique key values.
         /// </summary>
-        public static string NullPrimaryKey([CanBeNull] object entityType)
+        public static string InvalidPrimaryKey([CanBeNull] object entityType)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("NullPrimaryKey", "entityType"), entityType);
+            return string.Format(CultureInfo.CurrentCulture, GetString("InvalidPrimaryKey", "entityType"), entityType);
         }
 
         /// <summary>

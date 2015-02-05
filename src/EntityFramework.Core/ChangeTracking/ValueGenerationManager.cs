@@ -40,7 +40,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 var isForeignKey = property.IsForeignKey();
 
                 if ((property.GenerateValueOnAdd || isForeignKey)
-                    && entry.HasDefaultValue(property))
+                    && property.IsSentinelValue(entry[property]))
                 {
                     if (isForeignKey)
                     {

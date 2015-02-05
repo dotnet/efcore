@@ -41,6 +41,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     using (var context = new F1Context(_serviceProvider, options))
                     {
                         // TODO: Delete DB if model changed
+                        context.Database.EnsureDeleted();
                         if (context.Database.EnsureCreated())
                         {
                             ConcurrencyModelInitializer.Seed(context);

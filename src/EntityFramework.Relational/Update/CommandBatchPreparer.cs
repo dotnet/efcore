@@ -132,7 +132,7 @@ namespace Microsoft.Data.Entity.Relational.Update
                             {
                                 var principalKeyValue = CreatePrincipalKeyValue(stateEntry, foreignKey, ValueType.Current);
 
-                                if (principalKeyValue.Key != EntityKey.NullEntityKey)
+                                if (principalKeyValue.Key != EntityKey.InvalidEntityKey)
                                 {
                                     List<ModificationCommand> predecessorCommands;
                                     if (!predecessorsMap.TryGetValue(principalKeyValue, out predecessorCommands))
@@ -165,7 +165,7 @@ namespace Microsoft.Data.Entity.Relational.Update
                             {
                                 var dependentKeyValue = CreateDependentKeyValue(stateEntry.OriginalValues, foreignKey, ValueType.Original);
 
-                                if (dependentKeyValue.Key != EntityKey.NullEntityKey)
+                                if (dependentKeyValue.Key != EntityKey.InvalidEntityKey)
                                 {
                                     List<ModificationCommand> predecessorCommands;
                                     if (!predecessorsMap.TryGetValue(dependentKeyValue, out predecessorCommands))
@@ -198,7 +198,7 @@ namespace Microsoft.Data.Entity.Relational.Update
                         {
                             var dependentKeyValue = CreateDependentKeyValue(stateEntry, foreignKey, ValueType.Current);
 
-                            if (dependentKeyValue.Key != EntityKey.NullEntityKey)
+                            if (dependentKeyValue.Key != EntityKey.InvalidEntityKey)
                             {
                                 List<ModificationCommand> predecessorCommands;
                                 if (predecessorsMap.TryGetValue(dependentKeyValue, out predecessorCommands))
@@ -225,7 +225,7 @@ namespace Microsoft.Data.Entity.Relational.Update
                         {
                             var principalKeyValue = CreatePrincipalKeyValue(stateEntry.OriginalValues, foreignKey, ValueType.Original);
 
-                            if (principalKeyValue.Key != EntityKey.NullEntityKey)
+                            if (principalKeyValue.Key != EntityKey.InvalidEntityKey)
                             {
                                 List<ModificationCommand> predecessorCommands;
                                 if (predecessorsMap.TryGetValue(principalKeyValue, out predecessorCommands))

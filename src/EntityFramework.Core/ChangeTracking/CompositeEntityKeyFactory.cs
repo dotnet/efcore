@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using System.Linq;
+using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
@@ -10,25 +10,43 @@ namespace Microsoft.Data.Entity.ChangeTracking
 {
     public class CompositeEntityKeyFactory : EntityKeyFactory
     {
+        private readonly IReadOnlyList<object> _sentinels;
+
+        public CompositeEntityKeyFactory([NotNull] IReadOnlyList<object> sentinels)
+        {
+            Check.NotNull(sentinels, nameof(sentinels));
+
+            _sentinels = sentinels;
+        }
+
         public override EntityKey Create(
             IEntityType entityType, IReadOnlyList<IProperty> properties, IValueReader valueReader)
         {
-            Check.NotNull(entityType, "entityType");
-            Check.NotNull(properties, "properties");
-            Check.NotNull(valueReader, "valueReader");
+            Check.NotNull(entityType, nameof(entityType));
+            Check.NotNull(properties, nameof(properties));
+            Check.NotNull(valueReader, nameof(valueReader));
 
             var components = new object[properties.Count];
 
             for (var i = 0; i < properties.Count; i++)
             {
-                if (valueReader.IsNull(properties[i].Index))
+                var index = properties[i].Index;
+
+                if (valueReader.IsNull(index))
                 {
-                    return EntityKey.NullEntityKey;
+                    return EntityKey.InvalidEntityKey;
                 }
 
                 // TODO: Consider using strongly typed ReadValue instead of always object
                 // See issue #736
-                components[i] = valueReader.ReadValue<object>(properties[i].Index);
+                var value = valueReader.ReadValue<object>(index);
+
+                if (Equals(value, _sentinels[i]))
+                {
+                    return EntityKey.InvalidEntityKey;
+                }
+
+                components[i] = value;
             }
 
             return new CompositeEntityKey(entityType, components);
@@ -37,16 +55,26 @@ namespace Microsoft.Data.Entity.ChangeTracking
         public override EntityKey Create(
             IEntityType entityType, IReadOnlyList<IProperty> properties, IPropertyBagEntry propertyBagEntry)
         {
-            Check.NotNull(entityType, "entityType");
-            Check.NotNull(properties, "properties");
-            Check.NotNull(propertyBagEntry, "propertyBagEntry");
+            Check.NotNull(entityType, nameof(entityType));
+            Check.NotNull(properties, nameof(properties));
+            Check.NotNull(propertyBagEntry, nameof(propertyBagEntry));
 
-            return Create(entityType, properties.Select(p => propertyBagEntry[p]).ToArray());
-        }
+            var components = new object[properties.Count];
 
-        private static EntityKey Create(IEntityType entityType, object[] values)
-        {
-            return values.Any(v => v == null) ? EntityKey.NullEntityKey : new CompositeEntityKey(entityType, values);
+            for (var i = 0; i < properties.Count; i++)
+            {
+                var value = propertyBagEntry[properties[i]];
+
+                if (value == null
+                    || Equals(value, _sentinels[i]))
+                {
+                    return EntityKey.InvalidEntityKey;
+                }
+
+                components[i] = value;
+            }
+
+            return new CompositeEntityKey(entityType, components);
         }
     }
 }

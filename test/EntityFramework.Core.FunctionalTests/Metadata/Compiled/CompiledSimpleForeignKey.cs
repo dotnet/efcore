@@ -17,40 +17,19 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
 
         protected abstract ForeignKeyDefinition Definition { get; }
 
-        public IReadOnlyList<IProperty> Properties
-        {
-            get { return new[] { EntityType.Properties[Definition.DependentPropertyIndex] }; }
-        }
+        public IReadOnlyList<IProperty> Properties => new[] { EntityType.Properties[Definition.DependentPropertyIndex] };
 
-        public IReadOnlyList<IProperty> ReferencedProperties
-        {
-            get { return ReferencedEntityType.GetPrimaryKey().Properties; }
-        }
+        public IReadOnlyList<IProperty> ReferencedProperties => ReferencedEntityType.GetPrimaryKey().Properties;
 
-        public IKey ReferencedKey
-        {
-            get { return ReferencedEntityType.GetPrimaryKey(); }
-        }
+        public IKey ReferencedKey => ReferencedEntityType.GetPrimaryKey();
 
-        public IEntityType ReferencedEntityType
-        {
-            get { return _model.EntityTypes[Definition.PrincipalIndex]; }
-        }
+        public IEntityType ReferencedEntityType => _model.EntityTypes[Definition.PrincipalIndex];
 
-        public IEntityType EntityType
-        {
-            get { return _model.EntityTypes[Definition.DependentIndex]; }
-        }
+        public IEntityType EntityType => _model.EntityTypes[Definition.DependentIndex];
 
-        public bool IsRequired
-        {
-            get { return Properties.Any(p => !p.IsNullable); }
-        }
+        public bool IsRequired => Properties.Any(p => !p.IsNullable);
 
-        public bool IsUnique
-        {
-            get { return false; }
-        }
+        public bool IsUnique => false;
 
         protected struct ForeignKeyDefinition
         {

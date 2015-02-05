@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                var first = context.SimpleEntities.Add(new SimpleEntity { StringProperty = "Entity 1" }).Entity;
+                var first = context.SimpleEntities.Add(new SimpleEntity { Id = 420, StringProperty = "Entity 1" }).Entity;
                 SetPartitionId(first, context);
 
                 Assert.Equal(1, context.SaveChanges());

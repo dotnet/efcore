@@ -105,13 +105,13 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
             public string Information { get; set; }
         }
 
-        public class DiscontinuedProduct : Product
-        {
-            public DateTime Discontinued { get; set; }
-            public int? ReplacementProductId { get; set; }
+        //public class DiscontinuedProduct : Product
+        //{
+        //    public DateTime Discontinued { get; set; }
+        //    public int? ReplacementProductId { get; set; }
 
-            public virtual IProduct ReplacedBy { get; set; }
-        }
+        //    public virtual IProduct ReplacedBy { get; set; }
+        //}
 
         public class Driver : IDriver
         {
@@ -276,7 +276,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
             public void InitializeCollections()
             {
                 Suppliers = Suppliers ?? new HashSet<ISupplier>();
-                Replaces = Replaces ?? new HashSet<DiscontinuedProduct>();
+                //Replaces = Replaces ?? new HashSet<DiscontinuedProduct>();
                 Reviews = Reviews ?? new HashSet<IProductReview>();
                 Photos = Photos ?? new HashSet<IProductPhoto>();
                 Barcodes = Barcodes ?? new HashSet<IBarcode>();
@@ -291,7 +291,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
             public AuditInfo NestedComplexConcurrency { get; set; }
 
             public virtual ICollection<ISupplier> Suppliers { get; set; }
-            public virtual ICollection<DiscontinuedProduct> Replaces { get; set; }
+            //public virtual ICollection<DiscontinuedProduct> Replaces { get; set; }
             public virtual IProductDetail Detail { get; set; }
             public virtual ICollection<IProductReview> Reviews { get; set; }
             public virtual ICollection<IProductPhoto> Photos { get; set; }

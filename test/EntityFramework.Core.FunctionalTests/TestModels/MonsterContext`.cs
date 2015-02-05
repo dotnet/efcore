@@ -310,6 +310,9 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
 
                     b.HasOne(e => (TResolution)e.Resolution).WithOne(e => (TComplaint)e.Complaint)
                         .ReferencedKey<TComplaint>(e => e.AlternateId);
+
+                    // Should not be needed: see Issue #1271
+                    b.Property(e => e.AlternateId).GenerateValueOnAdd();
                 });
 
             modelBuilder.Entity<TProductPhoto>(b =>

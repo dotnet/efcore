@@ -4,6 +4,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
@@ -13,34 +14,17 @@ namespace Microsoft.Data.Entity.ChangeTracking
 {
     public class EntityKeyFactorySource
     {
-        private readonly CompositeEntityKeyFactory _compositeKeyFactory;
-
-        private readonly ThreadSafeDictionaryCache<Type, EntityKeyFactory> _cache
-            = new ThreadSafeDictionaryCache<Type, EntityKeyFactory>();
-
-        /// <summary>
-        ///     This constructor is intended only for use when creating test doubles that will override members
-        ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
-        ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
-        /// </summary>
-        protected EntityKeyFactorySource()
-        {
-        }
-
-        public EntityKeyFactorySource([NotNull] CompositeEntityKeyFactory compositeKeyFactory)
-        {
-            Check.NotNull(compositeKeyFactory, "compositeKeyFactory");
-
-            _compositeKeyFactory = compositeKeyFactory;
-        }
+        private readonly ThreadSafeDictionaryCache<IProperty, EntityKeyFactory> _cache
+            = new ThreadSafeDictionaryCache<IProperty, EntityKeyFactory>();
 
         public virtual EntityKeyFactory GetKeyFactory([NotNull] IReadOnlyList<IProperty> keyProperties)
         {
-            Check.NotNull(keyProperties, "keyProperties");
+            Check.NotNull(keyProperties, nameof(keyProperties));
 
             if (keyProperties.Count == 1)
             {
-                var keyType = keyProperties[0].PropertyType;
+                var keyProperty = keyProperties[0];
+                var keyType = keyProperty.PropertyType;
 
                 // Use composite key for anything with structural (e.g. byte[]) properties even if they are
                 // not composite because it is setup to do structural comparisons and the generic typing
@@ -48,14 +32,20 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 if (!typeof(IStructuralEquatable).GetTypeInfo().IsAssignableFrom(keyType.GetTypeInfo()))
                 {
                     return _cache.GetOrAdd(
-                        keyType,
-                        t => (EntityKeyFactory)(t.IsNullableType()
-                            ? Activator.CreateInstance(typeof(SimpleEntityKeyFactory<>).MakeGenericType(t.UnwrapNullableType()))
-                            : Activator.CreateInstance(typeof(SimpleEntityKeyFactory<>).MakeGenericType(t))));
+                        keyProperty,
+                        t =>
+                            {
+                                var sentinel = keyProperty.SentinelValue;
+
+                                return (EntityKeyFactory)(keyType.IsNullableType()
+                                    ? Activator.CreateInstance(typeof(SimpleEntityKeyFactory<>).MakeGenericType(keyType.UnwrapNullableType()), sentinel)
+                                    : Activator.CreateInstance(typeof(SimpleEntityKeyFactory<>).MakeGenericType(keyType), sentinel));
+                            });
                 }
             }
 
-            return _compositeKeyFactory;
+            // Consider caching these factories for perf
+            return new CompositeEntityKeyFactory(keyProperties.Select(k => k.SentinelValue).ToList());
         }
     }
 }

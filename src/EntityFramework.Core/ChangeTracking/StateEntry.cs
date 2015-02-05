@@ -199,13 +199,11 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 {
                     foreach (var property in EntityType.Properties.Where(p => _stateData.IsPropertyFlagged(p.Index)))
                     {
-                        this[property] = property.PropertyType.GetDefaultValue();
+                        this[property] = property.SentinelValue;
                     }
                 }
                 _stateData.FlagAllProperties(EntityType.Properties.Count(), isFlagged: false);
 
-                // TODO: Does changing to Unknown really mean stop tracking?
-                // Issue #323
                 StateManager.StopTracking(this);
             }
 
@@ -533,13 +531,13 @@ namespace Microsoft.Data.Entity.ChangeTracking
             Check.NotNull(property, "property");
 
             return property.GenerateValueOnAdd && HasTemporaryValue(property)
-                   || (property.UseStoreDefault && this.HasDefaultValue(property))
+                   || (property.UseStoreDefault && property.IsSentinelValue(this[property]))
                    || (property.IsStoreComputed
                        && (EntityState == EntityState.Modified || EntityState == EntityState.Added)
                        && !IsPropertyModified(property));
         }
 
-        public virtual bool IsKeySet => !EntityType.GetPrimaryKey().Properties.Any(this.HasDefaultValue);
+        public virtual bool IsKeySet => !EntityType.GetPrimaryKey().Properties.Any(p => p.IsSentinelValue(this[p]));
 
         [UsedImplicitly]
         private string DebuggerDisplay => this.GetPrimaryKeyValue() + " - " + EntityState;

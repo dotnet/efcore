@@ -91,7 +91,7 @@ namespace Microsoft.Data.Entity.Identity
                                 var principalProperty = foreignKey.ReferencedProperties[propertyIndex];
 
                                 var principalValue = principalEntry[principalProperty];
-                                if (!principalProperty.PropertyType.IsDefaultValue(principalValue))
+                                if (!principalProperty.IsSentinelValue(principalValue))
                                 {
                                     valueToPropagte = principalValue;
                                     break;

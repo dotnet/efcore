@@ -11,30 +11,12 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
     {
         private IAnnotation[] _annotations;
 
-        public IEnumerable<IAnnotation> Annotations
-        {
-            get { return LazyInitializer.EnsureInitialized(ref _annotations, LoadAnnotations); }
-        }
+        public IEnumerable<IAnnotation> Annotations => LazyInitializer.EnsureInitialized(ref _annotations, LoadAnnotations);
 
-        public string this[string annotationName]
-        {
-            get
-            {
-                var annotation = Annotations.FirstOrDefault(a => a.Name == annotationName);
-                return annotation == null ? null : annotation.Value;
-            }
-        }
+        public string this[string annotationName] => Annotations.FirstOrDefault(a => a.Name == annotationName)?.Value;
 
         protected abstract IAnnotation[] LoadAnnotations();
 
-        protected static IEnumerable<IAnnotation> ZipAnnotations(string[] names, string[] values)
-        {
-            return names.Zip(values, (n, v) => new Annotation(n, v)).ToArray();
-        }
-
-        public virtual string StorageName
-        {
-            get { return null; }
-        }
+        protected static IEnumerable<IAnnotation> ZipAnnotations(string[] names, string[] values) => names.Zip(values, (n, v) => new Annotation(n, v)).ToArray();
     }
 }

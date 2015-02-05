@@ -297,7 +297,7 @@ namespace Microsoft.Data.Entity.Tests
         {
             using (var context = new EarlyLearningCenter())
             {
-                var entity = new Category { Name = "Beverages" };
+                var entity = new Category { Id = 1, Name = "Beverages" };
                 var entry = context.Entry(entity);
 
                 entry.State = initialState;

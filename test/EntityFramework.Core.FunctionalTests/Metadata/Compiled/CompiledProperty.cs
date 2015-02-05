@@ -8,32 +8,18 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
 {
     public abstract class CompiledProperty<TProperty> : CompiledMetadataBase
     {
-        private readonly IEntityType _entityType;
-
         protected CompiledProperty(IEntityType entityType)
         {
-            _entityType = entityType;
+            EntityType = entityType;
         }
 
-        public Type PropertyType
-        {
-            get { return typeof(TProperty); }
-        }
+        public Type PropertyType => typeof(TProperty);
 
-        public Type UnderlyingType
-        {
-            get { return Nullable.GetUnderlyingType(typeof(TProperty)) ?? typeof(TProperty); }
-        }
+        public Type UnderlyingType => Nullable.GetUnderlyingType(typeof(TProperty)) ?? typeof(TProperty);
 
-        public virtual bool IsStoreComputed
-        {
-            get { return false; }
-        }
+        public virtual bool IsStoreComputed => false;
 
-        public virtual bool GenerateValueOnAdd
-        {
-            get { return false; }
-        }
+        public virtual bool GenerateValueOnAdd => false;
 
         public bool IsNullable
         {
@@ -43,43 +29,20 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
             }
         }
 
-        public bool IsReadOnly
-        {
-            // TODO:
-            get { return false; }
-        }
+        public bool IsReadOnly => false;
 
-        public int MaxLength
-        {
-            // TODO:
-            get { return 0; }
-        }
+        public int MaxLength => 0;
 
-        public bool UseStoreDefault
-        {
-            get { return false; }
-        }
+        public bool UseStoreDefault => false;
 
-        public IEntityType EntityType
-        {
-            get { return _entityType; }
-        }
+        public IEntityType EntityType { get; }
 
-        public bool IsShadowProperty
-        {
-            get { return false; }
-        }
+        public bool IsShadowProperty => false;
 
-        public bool IsConcurrencyToken
-        {
-            // TODO:
-            get { return true; }
-        }
+        public bool IsConcurrencyToken => true;
 
-        public int OriginalValueIndex
-        {
-            // TODO:
-            get { return -1; }
-        }
+        public int OriginalValueIndex => -1;
+
+        public object SentinelValue => null;
     }
 }

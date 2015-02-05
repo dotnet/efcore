@@ -121,7 +121,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 new LinqOperatorProvider(),
                 new RelationalResultOperatorHandler(),
                 source,
-                new EntityKeyFactorySource(new CompositeEntityKeyFactory()),
+                new EntityKeyFactorySource(),
                 new AsyncQueryMethodProvider(),
                 new CompositeMethodCallTranslator());
 

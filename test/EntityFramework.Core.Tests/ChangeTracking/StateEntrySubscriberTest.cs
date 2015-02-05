@@ -66,7 +66,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entry = TestHelpers.Instance.CreateStateEntry(
                 BuildModel(),
                 EntityState.Unchanged,
-                new FullNotificationEntity { Name = "Palmer", RelatedCollection = new ObservableCollection<ChangedOnlyNotificationEntity>() });
+                new FullNotificationEntity { Id = -1, Name = "Palmer", RelatedCollection = new ObservableCollection<ChangedOnlyNotificationEntity>() });
 
             Assert.Null(entry.TryGetSidecar(Sidecar.WellKnownNames.OriginalValues));
             // TODO: The following assert should be changed to Null once INotifyCollectionChanged is supported (Issue #445)

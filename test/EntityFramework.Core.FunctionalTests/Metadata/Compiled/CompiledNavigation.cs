@@ -14,21 +14,11 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
 
         protected abstract NavigationDefinition Definition { get; }
 
-        public IEntityType EntityType
-        {
-            get { return _model.EntityTypes[Definition.EntityTypeIndex]; }
-        }
+        public IEntityType EntityType => _model.EntityTypes[Definition.EntityTypeIndex];
 
-        public IForeignKey ForeignKey
-        {
-            get { return _model.EntityTypes[Definition.ForeignKeyTypeIndex].ForeignKeys[Definition.ForeignKeyIndex]; }
-        }
+        public IForeignKey ForeignKey => _model.EntityTypes[Definition.ForeignKeyTypeIndex].ForeignKeys[Definition.ForeignKeyIndex];
 
-        public bool PointsToPrincipal
-        {
-            // TODO: Make sure this can be overriden when necessary
-            get { return ForeignKey.EntityType == EntityType; }
-        }
+        public bool PointsToPrincipal => ForeignKey.EntityType == EntityType;
 
         protected struct NavigationDefinition
         {

@@ -108,9 +108,9 @@ namespace Microsoft.Data.Entity.ChangeTracking
             var keyProperties = entityType.GetPrimaryKey().Properties;
             var keyValue = _keyFactorySource.GetKeyFactory(keyProperties).Create(entityType, keyProperties, valueReader);
 
-            if (keyValue == EntityKey.NullEntityKey)
+            if (keyValue == EntityKey.InvalidEntityKey)
             {
-                throw new InvalidOperationException(Strings.NullPrimaryKey(entityType.SimpleName));
+                throw new InvalidOperationException(Strings.InvalidPrimaryKey(entityType.SimpleName));
             }
 
             var existingEntry = TryGetEntry(keyValue);
@@ -224,7 +224,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             var dependentKeyValue = dependentEntry.GetDependentKeyValue(foreignKey);
 
-            if (dependentKeyValue == EntityKey.NullEntityKey)
+            if (dependentKeyValue == EntityKey.InvalidEntityKey)
             {
                 return null;
             }
@@ -280,9 +280,9 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
             var keyValue = entry.GetPrimaryKeyValue();
 
-            if (keyValue == EntityKey.NullEntityKey)
+            if (keyValue == EntityKey.InvalidEntityKey)
             {
-                throw new InvalidOperationException(Strings.NullPrimaryKey(entry.EntityType.Name));
+                throw new InvalidOperationException(Strings.InvalidPrimaryKey(entry.EntityType.Name));
             }
 
             return keyValue;
@@ -296,7 +296,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             var principalKeyValue = principalEntry.GetPrincipalKeyValue(foreignKey);
 
             // TODO: Perf: Add additional indexes so that this isn't a linear lookup
-            return principalKeyValue == EntityKey.NullEntityKey
+            return principalKeyValue == EntityKey.InvalidEntityKey
                 ? Enumerable.Empty<StateEntry>()
                 : StateEntries.Where(
                     e => e.EntityType == foreignKey.EntityType

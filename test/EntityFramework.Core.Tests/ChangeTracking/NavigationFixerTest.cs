@@ -579,7 +579,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var manager = contextServices.GetRequiredService<StateManager>();
 
             var principal = new Product { Id = 21 };
-            var dependent = new ProductDetail { Id = 0 };
+            var dependent = new ProductDetail { Id = 7 };
 
             var principalEntry = manager.StartTracking(manager.GetOrCreateEntry(principal));
             var dependentEntry = manager.StartTracking(manager.GetOrCreateEntry(dependent));
@@ -593,7 +593,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             dependent.Id = 21;
 
-            fixer.ForeignKeyPropertyChanged(dependentEntry, model.GetEntityType(typeof(ProductDetail)).GetProperty("Id"), 0, 21);
+            fixer.ForeignKeyPropertyChanged(dependentEntry, model.GetEntityType(typeof(ProductDetail)).GetProperty("Id"), 7, 21);
 
             Assert.Same(principal, dependent.Product);
             Assert.Same(dependent, principal.Detail);

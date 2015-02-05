@@ -81,7 +81,7 @@ namespace Microsoft.Data.Entity.Query
             Debug.Assert(valueReader != null);
             Debug.Assert(materializer != null);
 
-            if (entityKey == EntityKey.NullEntityKey)
+            if (entityKey == EntityKey.InvalidEntityKey)
             {
                 return null;
             }

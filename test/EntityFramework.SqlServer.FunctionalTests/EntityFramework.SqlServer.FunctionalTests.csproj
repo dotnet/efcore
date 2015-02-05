@@ -96,6 +96,7 @@
     <Compile Include="SqlServerGearsOfWarQueryFixture.cs" />
     <Compile Include="SqlServerGearsOfWarQueryTest.cs" />
     <Compile Include="SqlServerGraphUpdatesTest.cs" />
+    <Compile Include="SqlServerGraphUpdatesTestBase.cs" />
     <Compile Include="SqlServerIncludeAsyncTest.cs" />
     <Compile Include="SqlServerIncludeOneToOneTest.cs" />
     <Compile Include="SqlServerIncludeTest.cs" />
@@ -117,6 +118,7 @@
     <Compile Include="SqlServerDatabaseCreationTest.cs" />
     <Compile Include="SqlServerDataStoreCreatorTest.cs" />
     <Compile Include="SqlServerEndToEndTest.cs" />
+    <Compile Include="SqlServerSentinelGraphUpdatesTest.cs" />
     <Compile Include="SqlServerSimpleCommandExecutorTest.cs" />
     <Compile Include="SqlServerMonsterFixupTest.cs" />
     <Compile Include="SqlServerTestStore.cs" />

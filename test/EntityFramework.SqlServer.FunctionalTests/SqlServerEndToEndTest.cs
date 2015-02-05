@@ -323,8 +323,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 {
                     context.Connection = testDatabase.Connection;
 
-                    context.Add(new Jack());
-                    context.Add(new Black());
+                    context.Add(new Jack { MyKey = 1 });
+                    context.Add(new Black { MyKey = 2 });
                     context.SaveChanges();
                 }
 

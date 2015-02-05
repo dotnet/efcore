@@ -17,15 +17,9 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
 
         protected abstract KeyDefinition Definition { get; }
 
-        public IEntityType EntityType
-        {
-            get { return _model.EntityTypes[Definition.EntityTypeIndex]; }
-        }
+        public IEntityType EntityType => _model.EntityTypes[Definition.EntityTypeIndex];
 
-        public IReadOnlyList<IProperty> Properties
-        {
-            get { return Definition.PropertyIndexes.Select(i => EntityType.Properties[i]).ToArray(); }
-        }
+        public IReadOnlyList<IProperty> Properties => Definition.PropertyIndexes.Select(i => EntityType.Properties[i]).ToArray();
 
         protected struct KeyDefinition
         {

@@ -5,23 +5,17 @@ namespace Microsoft.Data.Entity.ChangeTracking
 {
     public abstract class EntityKey
     {
-        public static readonly EntityKey NullEntityKey = new NullEntityKeySentinel();
+        public static readonly EntityKey InvalidEntityKey = new InvalidEntityKeySentinel();
 
         public virtual object Value => GetValue();
 
         protected abstract object GetValue();
 
-        private sealed class NullEntityKeySentinel : EntityKey
+        private sealed class InvalidEntityKeySentinel : EntityKey
         {
-            protected override object GetValue()
-            {
-                return null;
-            }
+            protected override object GetValue() => null;
 
-            public override int GetHashCode()
-            {
-                return 0;
-            }
+            public override int GetHashCode() => 0;
         }
     }
 }

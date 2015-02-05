@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var entry = stateManager.GetOrCreateEntry(entity);
 
-            var key = (CompositeEntityKey)new CompositeEntityKeyFactory().Create(type, type.GetPrimaryKey().Properties, entry);
+            var key = (CompositeEntityKey)new CompositeEntityKeyFactory(new object[] { 0, null, null }).Create(type, type.GetPrimaryKey().Properties, entry);
 
             Assert.Equal(new object[] { 7, "Ate", random }, key.Value);
         }
@@ -40,7 +40,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var entry = stateManager.GetOrCreateEntry(entity);
 
-            var key = (CompositeEntityKey)new CompositeEntityKeyFactory().Create(
+            var key = (CompositeEntityKey)new CompositeEntityKeyFactory(new object[] { 0, null, null }).Create(
                 type, new[] { type.GetProperty("P6"), type.GetProperty("P5") }, entry);
 
             Assert.Equal(new object[] { random, "Ate" }, key.Value);
@@ -61,7 +61,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var sidecar = new RelationshipsSnapshot(entry);
             sidecar[type.GetProperty("P4")] = 77;
 
-            var key = (CompositeEntityKey)new CompositeEntityKeyFactory().Create(
+            var key = (CompositeEntityKey)new CompositeEntityKeyFactory(new object[] { 0, null, null }).Create(
                 type, new[] { type.GetProperty("P6"), type.GetProperty("P4"), type.GetProperty("P5") }, sidecar);
 
             Assert.Equal(new object[] { random, 77, "Ate" }, key.Value);
@@ -79,7 +79,61 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var entry = stateManager.GetOrCreateEntry(entity);
 
-            Assert.Equal(EntityKey.NullEntityKey, new CompositeEntityKeyFactory().Create(type, type.GetPrimaryKey().Properties, entry));
+            Assert.Equal(EntityKey.InvalidEntityKey, new CompositeEntityKeyFactory(new object[] { 0, null, null }).Create(type, type.GetPrimaryKey().Properties, entry));
+        }
+
+        [Fact]
+        public void Returns_null_if_any_value_in_the_entry_properties_are_the_default_sentinel()
+        {
+            var model = BuildModel();
+            var type = model.GetEntityType(typeof(Banana));
+            var stateManager = TestHelpers.Instance.CreateContextServices(model).GetRequiredService<StateManager>();
+
+            var entity = new Banana { P1 = 0, P2 = "Ate", P3 = new Random() };
+
+            var entry = stateManager.GetOrCreateEntry(entity);
+
+            Assert.Equal(
+                EntityKey.InvalidEntityKey,
+                new CompositeEntityKeyFactory(new object[] { 0, null, null }).Create(type, type.GetPrimaryKey().Properties, entry));
+        }
+
+        [Fact]
+        public void Returns_null_if_any_value_in_the_entry_properties_are_the_set_sentinel()
+        {
+            var model = BuildModel();
+            var type = model.GetEntityType(typeof(Banana));
+            var stateManager = TestHelpers.Instance.CreateContextServices(model).GetRequiredService<StateManager>();
+
+            var entity = new Banana { P1 = 7, P2 = "Ate", P3 = new Random() };
+
+            var entry = stateManager.GetOrCreateEntry(entity);
+
+            Assert.Equal(
+                EntityKey.InvalidEntityKey,
+                new CompositeEntityKeyFactory(new object[] { 7, null, null }).Create(type, type.GetPrimaryKey().Properties, entry));
+        }
+
+        [Fact]
+        public void Returns_null_if_any_value_in_the_entry_properties_are_the_default_sentinel_using_value_reader()
+        {
+            var type = BuildModel().GetEntityType(typeof(Banana));
+
+            Assert.Equal(
+                EntityKey.InvalidEntityKey,
+                new CompositeEntityKeyFactory(new object[] { 0, null, null })
+                    .Create(type, type.GetPrimaryKey().Properties, new ObjectArrayValueReader(new object[] { 0, "Ate", new Random() })));
+        }
+
+        [Fact]
+        public void Returns_null_if_any_value_in_the_entry_properties_are_the_set_sentinel_using_value_reader()
+        {
+            var type = BuildModel().GetEntityType(typeof(Banana));
+
+            Assert.Equal(
+                EntityKey.InvalidEntityKey,
+                new CompositeEntityKeyFactory(new object[] { 7, null, null })
+                    .Create(type, type.GetPrimaryKey().Properties, new ObjectArrayValueReader(new object[] { 7, "Ate", new Random() })));
         }
 
         [Fact]
@@ -90,7 +144,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var random = new Random();
 
-            var key = (CompositeEntityKey)new CompositeEntityKeyFactory().Create(
+            var key = (CompositeEntityKey)new CompositeEntityKeyFactory(new object[] { 0, null, null }).Create(
                 type, type.GetPrimaryKey().Properties, new ObjectArrayValueReader(new object[] { 7, "Ate", random }));
 
             Assert.Equal(new object[] { 7, "Ate", random }, key.Value);
@@ -104,7 +158,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var random = new Random();
 
-            var key = (CompositeEntityKey)new CompositeEntityKeyFactory().Create(
+            var key = (CompositeEntityKey)new CompositeEntityKeyFactory(new object[] { 0, null, null }).Create(
                 type,
                 new[] { type.GetProperty("P6"), type.GetProperty("P5") },
                 new ObjectArrayValueReader(new object[] { null, null, null, null, "Ate", random }));
@@ -120,12 +174,12 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var random = new Random();
 
-            var key = new CompositeEntityKeyFactory().Create(
+            var key = new CompositeEntityKeyFactory(new object[] { 0, null, null }).Create(
                 type,
                 new[] { type.GetProperty("P6"), type.GetProperty("P5") },
                 new ObjectArrayValueReader(new object[] { 7, "Ate", random, 77, null, random }));
 
-            Assert.Equal(EntityKey.NullEntityKey, key);
+            Assert.Equal(EntityKey.InvalidEntityKey, key);
         }
 
         private static Model BuildModel()

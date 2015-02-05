@@ -201,6 +201,62 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 Assert.Throws<ArgumentOutOfRangeException>(() => property.ShadowIndex = -1).ParamName);
         }
 
+        [Fact]
+        public void Nullable_property_has_null_sentinel_by_default()
+        {
+            var property = new Property("Name", typeof(string), new Model().AddEntityType(typeof(object)));
+
+            Assert.Null(property.SentinelValue);
+            Assert.Null(((IProperty)property).SentinelValue);
+        }
+
+        [Fact]
+        public void Non_nullable_property_has_CLR_default_sentinel_by_default()
+        {
+            var property = new Property("Name", typeof(int), new Model().AddEntityType(typeof(object)));
+
+            Assert.Null(property.SentinelValue);
+            Assert.Equal(0, ((IProperty)property).SentinelValue);
+        }
+
+        [Fact]
+        public void Can_set_sentinel_for_nullable_property()
+        {
+            var property = new Property("Name", typeof(string), new Model().AddEntityType(typeof(object))) { SentinelValue = "Void" };
+
+            Assert.Equal("Void", property.SentinelValue);
+            Assert.Equal("Void", ((IProperty)property).SentinelValue);
+        }
+
+        [Fact]
+        public void Can_set_sentinel_for_non_nullable_property()
+        {
+            var property = new Property("Name", typeof(int), new Model().AddEntityType(typeof(object))) { SentinelValue = -1 };
+
+            Assert.Equal(-1, property.SentinelValue);
+            Assert.Equal(-1, ((IProperty)property).SentinelValue);
+        }
+
+        [Fact]
+        public void IsSentinelValue_on_nullable_propertyalways_returns_true_for_null_or_sentinel()
+        {
+            var property = new Property("Name", typeof(string), new Model().AddEntityType(typeof(object))) { SentinelValue = "Void" };
+
+            Assert.True(property.IsSentinelValue(null));
+            Assert.True(property.IsSentinelValue("Void"));
+            Assert.False(property.IsSentinelValue("Ether"));
+        }
+
+        [Fact]
+        public void IsSentinelValue_on_non_nullable_propertyalways_returns_true_for_null_or_sentinel()
+        {
+            var property = new Property("Name", typeof(int), new Model().AddEntityType(typeof(object))) { SentinelValue = -1 };
+
+            Assert.True(property.IsSentinelValue(null));
+            Assert.True(property.IsSentinelValue(-1));
+            Assert.False(property.IsSentinelValue(0));
+        }
+
         private class Entity
         {
             public string Name { get; set; }
