@@ -36,13 +36,15 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
             //    }
             //}
 
-            foreach (var foreignKey in entityType.ForeignKeys)
+            foreach (var foreignKey in entityType.ForeignKeys.Cast<ForeignKey>())
             {
+                var navigationPropertyName = foreignKey
+                    .GetAnnotation(SqlServerMetadataModelProvider.AnnotationNameDependentEndNavPropName).Value;
                 sb.AppendLine();
                 sb.Append("entity.ManyToOne<");
                 sb.Append(foreignKey.ReferencedEntityType.Name);
                 sb.Append(">( e => e.");
-                sb.Append(foreignKey.ReferencedEntityType.Name);
+                sb.Append(navigationPropertyName);
                 sb.Append(" );");
 
             }

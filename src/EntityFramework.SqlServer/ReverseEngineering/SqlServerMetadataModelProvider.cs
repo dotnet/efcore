@@ -8,6 +8,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Relational.Design.CodeGeneration;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
 using Microsoft.Data.Entity.SqlServer.Metadata;
 using Microsoft.Data.Entity.SqlServer.ReverseEngineering.Model;
@@ -18,23 +19,28 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
 {
     public class SqlServerMetadataModelProvider : IDatabaseMetadataModelProvider
     {
+        private List<string> DataTypesForMax = new List<string>() { "varchar", "nvarchar", "varbinary" };
+        private List<string> DataTypesForPrecisionAndScale = new List<string>() { "decimal", "numeric" };
+
         public static readonly string AnnotationPrefix = "SqlServerMetadataModelProvider:";
-        public static readonly string AnnotationNameTableId = AnnotationPrefix + "TableId";
-        public static readonly string AnnotationNameTableIdSchemaTableSeparator = ".";
-        public static readonly string AnnotationNameColumnId = AnnotationPrefix + "ColumnId";
-        public static readonly string AnnotationNameColumnName = AnnotationPrefix + "ColumnName";
-        public static readonly string AnnotationNamePrimaryKeyOrdinal = AnnotationPrefix + "PrimaryKeyOrdinalPosition";
-        public static readonly string AnnotationNameForeignKeyConstraints = AnnotationPrefix + "ForeignKeyConstraints";
-        public static readonly string AnnotationFormatForeignKey = AnnotationPrefix + "ForeignKey[{0}]{1}"; // {O} = ConstraintId, {1} = Descriptor
-        public static readonly string AnnotationFormatForeignKeyConstraintSeparator = ",";
-        public static readonly string AnnotationDescriptorForeignKeyOrdinal = "Ordinal";
-        public static readonly string AnnotationDescriptorForeignKeyTargetEntityType = "TargetEntityType";
-        public static readonly string AnnotationDescriptorForeignKeyTargetProperty = "TargetProperty";
-        public static readonly string AnnotationNamePrecision = AnnotationPrefix + "Precision";
-        public static readonly string AnnotationNameMaxLength = AnnotationPrefix + "MaxLength";
-        public static readonly string AnnotationNameScale = AnnotationPrefix + "Scale";
-        public static readonly string AnnotationNameIsIdentity = AnnotationPrefix + "IsIdentity";
-        public static readonly string AnnotationNameIsNullable = AnnotationPrefix + "IsNullable";
+        public static readonly string AnnotationNameDependentEndNavPropName = AnnotationPrefix + "DependentEndNavPropName";
+        public static readonly string AnnotationNamePrincipalEndNavPropName = AnnotationPrefix + "PrincipalEndNavPropName";
+        ////public static readonly string AnnotationNameTableId = AnnotationPrefix + "TableId";
+        ////public static readonly string AnnotationNameTableIdSchemaTableSeparator = ".";
+        ////public static readonly string AnnotationNameColumnId = AnnotationPrefix + "ColumnId";
+        ////public static readonly string AnnotationNameColumnName = AnnotationPrefix + "ColumnName";
+        ////public static readonly string AnnotationNamePrimaryKeyOrdinal = AnnotationPrefix + "PrimaryKeyOrdinalPosition";
+        ////public static readonly string AnnotationNameForeignKeyConstraints = AnnotationPrefix + "ForeignKeyConstraints";
+        ////public static readonly string AnnotationFormatForeignKey = AnnotationPrefix + "ForeignKey[{0}]{1}"; // {O} = ConstraintId, {1} = Descriptor
+        ////public static readonly string AnnotationFormatForeignKeyConstraintSeparator = ",";
+        ////public static readonly string AnnotationDescriptorForeignKeyOrdinal = "Ordinal";
+        ////public static readonly string AnnotationDescriptorForeignKeyTargetEntityType = "TargetEntityType";
+        ////public static readonly string AnnotationDescriptorForeignKeyTargetProperty = "TargetProperty";
+        ////public static readonly string AnnotationNamePrecision = AnnotationPrefix + "Precision";
+        ////public static readonly string AnnotationNameMaxLength = AnnotationPrefix + "MaxLength";
+        ////public static readonly string AnnotationNameScale = AnnotationPrefix + "Scale";
+        ////public static readonly string AnnotationNameIsIdentity = AnnotationPrefix + "IsIdentity";
+        ////public static readonly string AnnotationNameIsNullable = AnnotationPrefix + "IsNullable";
 
         private ILogger _logger;
 
@@ -355,10 +361,44 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
                         // how should we react?
                         var codeGenForeignKey = codeGenEntityType.GetOrAddForeignKey(foreignKeyCodeGenProperties, targetPrimaryKey);
                         //TODO: make ForeignKey unique based on constraints
+                        //TODO: what if multiple Navs to same target?
+                    }
+                }
+            }
 
-                        // try without navigation property - add in CodeGen
-                        //////TODO: what if multiple Navs to same target?
-                        ////codeGenEntityType.AddNavigation(targetCodeGenEntityType.Name, codeGenForeignKey, pointsToPrincipal: false);
+            AddDependentAndPrincipalNavigationPropertyAnnotations(codeGenModel);
+        }
+
+        private void AddDependentAndPrincipalNavigationPropertyAnnotations(IModel codeGenModel)
+        {
+            var entityTypeToExistingIdentifiers = new Dictionary<IEntityType, List<string>>();
+            foreach (var entityType in codeGenModel.EntityTypes)
+            {
+                var existingIdentifiers = new List<string>();
+                entityTypeToExistingIdentifiers.Add(entityType, existingIdentifiers);
+                existingIdentifiers.Add(entityType.Name);
+                existingIdentifiers.AddRange(entityType.Properties.Select(p => p.Name));
+            }
+
+            foreach (var entityType in codeGenModel.EntityTypes)
+            {
+                var dependentEndExistingIdentifiers = entityTypeToExistingIdentifiers[entityType];
+                foreach (var foreignKey in entityType.ForeignKeys.Cast<ForeignKey>())
+                {
+                    // set up the name of the navigation property on the dependent end of the foreign key
+                    var dependentEndNavigationPropertyName = CSharpUtilities.Instance.GenerateCSharpIdentifier(
+                        foreignKey.ReferencedEntityType.Name, dependentEndExistingIdentifiers);
+                    foreignKey.AddAnnotation(AnnotationNameDependentEndNavPropName, dependentEndNavigationPropertyName);
+                    dependentEndExistingIdentifiers.Add(dependentEndNavigationPropertyName);
+
+                    if (foreignKey.ReferencedEntityType != foreignKey.EntityType) // if not self-referencing
+                    {
+                        // set up the name of the navigation property on the principal end of the foreign key
+                        var principalEndExistingIdentifiers = entityTypeToExistingIdentifiers[foreignKey.ReferencedEntityType];
+                        var principalEndNavigationPropertyName = CSharpUtilities.Instance.GenerateCSharpIdentifier(
+                            entityType.Name, principalEndExistingIdentifiers);
+                        foreignKey.AddAnnotation(AnnotationNamePrincipalEndNavPropName, principalEndNavigationPropertyName);
+                        principalEndExistingIdentifiers.Add(principalEndNavigationPropertyName);
                     }
                 }
             }
@@ -422,29 +462,26 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
             return output.ToArray();
         }
 
-        public static string GetForeignKeyOrdinalPositionAnnotationName(string foreignKeyConstraintId)
-        {
-            return GetForeignKeyAnnotationName(AnnotationDescriptorForeignKeyOrdinal, foreignKeyConstraintId);
-        }
+        ////public static string GetForeignKeyOrdinalPositionAnnotationName(string foreignKeyConstraintId)
+        ////{
+        ////    return GetForeignKeyAnnotationName(AnnotationDescriptorForeignKeyOrdinal, foreignKeyConstraintId);
+        ////}
 
 
-        public static string GetForeignKeyTargetPropertyAnnotationName(string foreignKeyConstraintId)
-        {
-            return GetForeignKeyAnnotationName(AnnotationDescriptorForeignKeyTargetProperty, foreignKeyConstraintId);
-        }
+        ////public static string GetForeignKeyTargetPropertyAnnotationName(string foreignKeyConstraintId)
+        ////{
+        ////    return GetForeignKeyAnnotationName(AnnotationDescriptorForeignKeyTargetProperty, foreignKeyConstraintId);
+        ////}
 
-        public static string GetForeignKeyTargetEntityTypeAnnotationName(string foreignKeyConstraintId)
-        {
-            return GetForeignKeyAnnotationName(AnnotationDescriptorForeignKeyTargetEntityType, foreignKeyConstraintId);
-        }
+        ////public static string GetForeignKeyTargetEntityTypeAnnotationName(string foreignKeyConstraintId)
+        ////{
+        ////    return GetForeignKeyAnnotationName(AnnotationDescriptorForeignKeyTargetEntityType, foreignKeyConstraintId);
+        ////}
 
-        public static string GetForeignKeyAnnotationName(string descriptor, string foreignKeyConstraintId)
-        {
-            return string.Format(AnnotationFormatForeignKey, foreignKeyConstraintId, descriptor);
-        }
-
-        private List<string> DataTypesForMax = new List<string>() { "varchar", "nvarchar", "varbinary" };
-        private List<string> DataTypesForPrecisionAndScale = new List<string>() { "decimal", "numeric" };
+        ////public static string GetForeignKeyAnnotationName(string descriptor, string foreignKeyConstraintId)
+        ////{
+        ////    return string.Format(AnnotationFormatForeignKey, foreignKeyConstraintId, descriptor);
+        ////}
 
         public void ApplyPropertyProperties(Property property, TableColumn tc)
         {

@@ -53,21 +53,21 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
             // construct navigations from foreign keys
             foreach (var otherEntityType in EntityType.Model.EntityTypes.Where(et => et != EntityType))
             {
-                foreach (var foreignKey in otherEntityType.ForeignKeys.Where(fk => fk.ReferencedEntityType == EntityType))
+                // set up the navigation properties for foreign keys from another EntityType which reference this EntityType
+                foreach (var foreignKey in otherEntityType.ForeignKeys.Where(fk => fk.ReferencedEntityType == EntityType).Cast<ForeignKey>())
                 {
-                    // set up the navigation property where this EntityType is the target of a foreign key on another EntityType
-                    var navigationPropertyName = CSharpUtilities.Instance.GenerateCSharpIdentifier(
-                        otherEntityType.Name, existingIdentifiers);
+                    var navigationPropertyName = foreignKey
+                        .GetAnnotation(SqlServerMetadataModelProvider.AnnotationNamePrincipalEndNavPropName).Value;
                     CSharpCodeGeneratorHelper.Instance.AddProperty(sb,
                         AccessModifier.Public, VirtualModifier.None, "ICollection<" + otherEntityType.Name + ">", navigationPropertyName);
                 }
             }
 
-            foreach (var foreignKey in EntityType.ForeignKeys)
+            foreach (var foreignKey in EntityType.ForeignKeys.Cast<ForeignKey>())
             {
                 // set up the navigation property on this end of foreign keys on this EntityType
-                var navigationPropertyName = CSharpUtilities.Instance.GenerateCSharpIdentifier(
-                    foreignKey.ReferencedEntityType.Name, existingIdentifiers);
+                var navigationPropertyName = foreignKey
+                    .GetAnnotation(SqlServerMetadataModelProvider.AnnotationNameDependentEndNavPropName).Value;
                 CSharpCodeGeneratorHelper.Instance.AddProperty(sb,
                     AccessModifier.Public, VirtualModifier.None, foreignKey.ReferencedEntityType.Name, navigationPropertyName);
             }
