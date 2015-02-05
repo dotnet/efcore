@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity.Query.ResultOperators
             var includeResultOperator
                 = (IncludeResultOperator)clauseGenerationContext.GetContextInfo(Source);
 
-            includeResultOperator.AppendToNavigationPath(_navigationPropertyPathLambda.GetPropertyAccessList());
+            includeResultOperator.AppendToNavigationPath(_navigationPropertyPathLambda.GetComplexPropertyAccess());
 
             clauseGenerationContext.AddContextInfo(this, includeResultOperator);
 
