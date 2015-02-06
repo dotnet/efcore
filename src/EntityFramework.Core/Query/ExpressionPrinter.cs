@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.Query
 
             var visitor = new ExpressionPrintingVisitor();
             var nodePrinter = new TreeNodePrinter();
-            var node = visitor.VisitExpression(expression);
+            var node = visitor.BuildTreeNode(expression);
 
             return nodePrinter.Print(node);
         }
@@ -127,134 +127,100 @@ namespace Microsoft.Data.Entity.Query
             }
         }
 
-        internal class ExpressionPrintingVisitor
+        internal class ExpressionPrintingVisitor : ExpressionVisitor
         {
-            public virtual TreeNode VisitExpression(Expression expression)
+            private TreeNode _rootNode;
+
+            public TreeNode BuildTreeNode(Expression expression)
             {
-                if (expression == null)
-                    return null;
+                Visit(expression);
 
-                var extensionExpression = expression as ExtensionExpression;
-                if (extensionExpression != null)
-                {
-                    // TODO: Handle
-                    throw new NotSupportedException();
-                }
-
-                switch (expression.NodeType)
-                {
-                    case ExpressionType.ArrayLength:
-                    case ExpressionType.Convert:
-                    case ExpressionType.ConvertChecked:
-                    case ExpressionType.Negate:
-                    case ExpressionType.NegateChecked:
-                    case ExpressionType.Not:
-                    case ExpressionType.Quote:
-                    case ExpressionType.TypeAs:
-                    case ExpressionType.UnaryPlus:
-                        return VisitUnaryExpression((UnaryExpression)expression);
-
-                    case ExpressionType.Add:
-                    case ExpressionType.AddChecked:
-                    case ExpressionType.Divide:
-                    case ExpressionType.Modulo:
-                    case ExpressionType.Multiply:
-                    case ExpressionType.MultiplyChecked:
-                    case ExpressionType.Power:
-                    case ExpressionType.Subtract:
-                    case ExpressionType.SubtractChecked:
-                    case ExpressionType.And:
-                    case ExpressionType.Or:
-                    case ExpressionType.ExclusiveOr:
-                    case ExpressionType.LeftShift:
-                    case ExpressionType.RightShift:
-                    case ExpressionType.AndAlso:
-                    case ExpressionType.OrElse:
-                    case ExpressionType.Equal:
-                    case ExpressionType.NotEqual:
-                    case ExpressionType.GreaterThanOrEqual:
-                    case ExpressionType.GreaterThan:
-                    case ExpressionType.LessThan:
-                    case ExpressionType.LessThanOrEqual:
-                    case ExpressionType.Coalesce:
-                    case ExpressionType.ArrayIndex:
-                        return VisitBinaryExpression((BinaryExpression)expression);
-
-                    case ExpressionType.Constant:
-                        return VisitConstantExpression((ConstantExpression)expression);
-
-                    case ExpressionType.Lambda:
-                        return VisitLambdaExpression((LambdaExpression)expression);
-
-                    case ExpressionType.MemberAccess:
-                        return VisitMemberExpression((MemberExpression)expression);
-
-                    case ExpressionType.Call:
-                        return VisitMethodCallExpression((MethodCallExpression)expression);
-
-                    case ExpressionType.Parameter:
-                        return VisitParameterExpression((ParameterExpression)expression);
-
-                    case QuerySourceReferenceExpression.ExpressionType:
-                        return VisitQuerySourceReferenceExpression((QuerySourceReferenceExpression)expression);
-
-                    default:
-                        throw new NotSupportedException();
-                }
+                return _rootNode;
             }
 
-            public virtual TreeNode VisitUnaryExpression(UnaryExpression expression)
+            protected override Expression VisitUnary(UnaryExpression node)
             {
-                var operand = VisitExpression(expression.Operand);
+                Visit(node.Operand);
 
-                return new TreeNode(expression.Method.Name, operand);
+                _rootNode = new TreeNode(ExpressionType.Convert.ToString(), _rootNode);
+
+                return node;
             }
 
-            public virtual TreeNode VisitBinaryExpression(BinaryExpression expression)
+            protected override Expression VisitBinary(BinaryExpression node)
             {
-                var left = VisitExpression(expression.Left);
-                var right = VisitExpression(expression.Right);
+                Visit(node.Left);
+                var left = _rootNode;
 
-                return new TreeNode(expression.Method.Name, left, right);
+                Visit(node.Right);
+                var right = _rootNode;
+
+                _rootNode = new TreeNode(node.Method.Name, left, right);
+
+                return node;
             }
 
-            public virtual TreeNode VisitConstantExpression(ConstantExpression expression)
+            protected override Expression VisitConstant(ConstantExpression node)
             {
-                return new TreeNode(expression.ToString());
+                _rootNode = new TreeNode(node.ToString());
+
+                return node;
             }
 
-            public virtual TreeNode VisitLambdaExpression(LambdaExpression expression)
+            protected override Expression VisitLambda<T>(Expression<T> node)
             {
-                var body = VisitExpression(expression.Body);
+                Visit(node.Body);
+
+                _rootNode = new TreeNode("Lambda", _rootNode);
+
                 // TODO: handle parameters
-
-                return new TreeNode("Lambda", body);
+                return node;
             }
 
-            public virtual TreeNode VisitMemberExpression(MemberExpression expression)
+            protected override Expression VisitMember(MemberExpression node)
             {
-                var parent = VisitExpression(expression.Expression);
+                Visit(node.Expression);
+                _rootNode = new TreeNode("." + node.Member.Name, _rootNode);
 
-                return new TreeNode("." + expression.Member.Name, parent);
+                return node;
             }
 
-            public virtual TreeNode VisitMethodCallExpression(MethodCallExpression expression)
+            protected override Expression VisitMethodCall(MethodCallExpression node)
             {
-                var arguments = expression.Arguments.Select(VisitExpression).ToList();
-                var parameters = string.Join(", ", expression.Method.GetParameters().Select(p => PrintType(p.ParameterType)));
-                var methodSignature = PrintType(expression.Method.ReturnType) + " " + expression.Method.Name + "(" + parameters + ")";
+                var argumentNodes = new List<TreeNode>();
+                var parameterNodes = new List<TreeNode>();
 
-                return new TreeNode("MethodCall: " + methodSignature, arguments);
+                foreach (var argument in node.Arguments)
+                {
+                    Visit(argument);
+                    argumentNodes.Add(_rootNode);
+                }
+
+                var parameters = string.Join(", ", node.Method.GetParameters().Select(p => PrintType(p.ParameterType)));
+                var methodSignature = PrintType(node.Method.ReturnType) + " " + node.Method.Name + "(" + parameters + ")";
+
+                _rootNode = new TreeNode("MethodCall: " + methodSignature, argumentNodes);
+
+                return node;
             }
 
-            public virtual TreeNode VisitParameterExpression(ParameterExpression expression)
+            protected override Expression VisitParameter(ParameterExpression node)
             {
-                return new TreeNode("Parameter(Name='" + expression.Name + "' Type='" + expression.Type + "')");
+                _rootNode = new TreeNode("Parameter(Name='" + node.Name + "' Type='" + node.Type + "')");
+
+                return node;
             }
 
-            public virtual TreeNode VisitQuerySourceReferenceExpression(QuerySourceReferenceExpression expression)
+            protected override Expression VisitExtension(Expression node)
             {
-                return new TreeNode("QuerySource(" + expression.ReferencedQuerySource.ToString() + ")");
+                var querySourceExpression = node as QuerySourceReferenceExpression;
+
+                if (querySourceExpression != null)
+                {
+                    _rootNode = new TreeNode("QuerySource(" + querySourceExpression.ReferencedQuerySource.ToString() + ")");
+                }
+
+                return node;
             }
 
             private string PrintType(Type type)
