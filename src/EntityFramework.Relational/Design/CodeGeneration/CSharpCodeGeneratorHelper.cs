@@ -84,6 +84,62 @@ namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
             sb.AppendLine(" { get; set; }");
         }
 
+        public virtual void AddProperty(IndentedStringBuilder sb, AccessModifier accessModifier,
+            VirtualModifier virtualModifier, Type propertyType, string propertyName)
+        {
+            AddProperty(sb, accessModifier, virtualModifier, GetTypeName(propertyType), propertyName);
+        }
+
+
+        private static Dictionary<Type, string> _primitiveTypeNames = new Dictionary<Type, string>()
+            {
+                { typeof(bool), "bool" },
+                { typeof(byte), "byte" },
+                { typeof(byte[]), "byte[]" },
+                { typeof(sbyte), "sbyte" },
+                { typeof(short), "short" },
+                { typeof(ushort), "ushort" },
+                { typeof(int), "int" },
+                { typeof(uint), "uint" },
+                { typeof(long), "long" },
+                { typeof(ulong), "ulong" },
+                { typeof(char), "char" },
+                { typeof(float), "float" },
+                { typeof(double), "double" },
+                { typeof(string), "string" },
+                { typeof(decimal), "decimal" },
+            };
+        private string GetTypeName(Type propertyType)
+        {
+            //TODO workaround for property.PropertyType.IsGenericType being missing in ASPNETCORE50
+            bool isNullableType;
+            try
+            {
+                isNullableType = (typeof(Nullable<>) == propertyType.GetGenericTypeDefinition());
+            }
+            catch (InvalidOperationException)
+            {
+                isNullableType = false;
+            }
+
+            var type = isNullableType
+                ? Nullable.GetUnderlyingType(propertyType)
+                : propertyType;
+
+            string typeName;
+            if (!_primitiveTypeNames.TryGetValue(type, out typeName))
+            {
+                typeName = type.Name;
+            }
+
+            if (isNullableType)
+            {
+                typeName += "?";
+            }
+
+            return typeName;
+        }
+
         public virtual void BeginMethod(IndentedStringBuilder sb, AccessModifier accessModifier,
             VirtualModifier virtualModifier, string returnType, string methodName, ICollection<Tuple<string, string>> parameters = null)
         {

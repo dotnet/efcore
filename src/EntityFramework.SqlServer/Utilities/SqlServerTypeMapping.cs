@@ -13,13 +13,13 @@ namespace Microsoft.Data.Entity.SqlServer.Utilities
                 {
                     // exact numerics
                     { "bigint", typeof(long) },
-                    { "bit", typeof(byte) },
+                    { "bit", typeof(bool) },
                     { "decimal", typeof(decimal) },
                     { "int", typeof(int) },
-                    //TODO { "money", typeof(decimal) },
+                    { "money", typeof(decimal) },
                     { "numeric", typeof(decimal) },
                     { "smallint", typeof(short) },
-                    //TODO{ "smallmoney", typeof(decimal) },
+                    { "smallmoney", typeof(decimal) },
                     { "tinyint", typeof(byte) },
 
                     // approximate numerics

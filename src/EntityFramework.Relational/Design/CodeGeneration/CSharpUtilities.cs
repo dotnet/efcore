@@ -127,7 +127,7 @@ namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
             var invalidCharsRegex
                 = new Regex(@"[^\p{Ll}\p{Lu}\p{Lt}\p{Lo}\p{Nd}\p{Nl}\p{Mn}\p{Mc}\p{Cf}\p{Pc}\p{Lm}]");
 
-            var proposedIdentifier = invalidCharsRegex.Replace(identifier, string.Empty);
+            var proposedIdentifier = invalidCharsRegex.Replace(identifier, "_");
             if (string.IsNullOrEmpty(proposedIdentifier))
             {
                 proposedIdentifier = "_";

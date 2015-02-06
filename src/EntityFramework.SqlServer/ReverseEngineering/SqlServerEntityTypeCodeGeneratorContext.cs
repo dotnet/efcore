@@ -31,23 +31,9 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
         public override void GenerateEntityProperty(IndentedStringBuilder sb, IProperty property)
         {
             GenerateEntityPropertyAttribues(sb, property);
-            //TODO workaround for property.PropertyType.IsGenericType being missing in ASPNETCORE50
-            bool isNullableType;
-            try
-            {
-                isNullableType = (typeof(Nullable<>) == property.PropertyType.GetGenericTypeDefinition());
-            }
-            catch (InvalidOperationException)
-            {
-                isNullableType = false;
-            }
-
-            var propertyType = isNullableType
-                ? Nullable.GetUnderlyingType(property.PropertyType).Name + "?"
-                : property.PropertyType.Name;
 
             CSharpCodeGeneratorHelper.Instance.AddProperty(sb,
-                AccessModifier.Public, VirtualModifier.None, propertyType, Generator.PropertyToPropertyNameMap[property]);
+                AccessModifier.Public, VirtualModifier.None, property.PropertyType, property.Name);
         }
 
         public override void GenerateEntityNavigations(IndentedStringBuilder sb)

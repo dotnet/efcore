@@ -33,9 +33,10 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
                 sb.Append(foreignKey.ReferencedEntityType.Name);
                 sb.Append(">( e => e.");
                 sb.Append(navigationPropertyName);
-                sb.AppendLine(" )");
+                sb.Append(" )");
                 using (sb.Indent())
                 {
+                    sb.AppendLine();
                     sb.Append(".ForeignKey( new string[] { ");
                     sb.Append(GenerateForeignKeyPropertyNamesAsParams(foreignKey));
                     sb.Append(" } )");
