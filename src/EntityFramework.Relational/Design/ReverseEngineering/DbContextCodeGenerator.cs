@@ -126,8 +126,8 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                     sb
                     , AccessModifier.Public
                     , VirtualModifier.Virtual
-                    , "DbSet<" + _generator.EntityTypeToClassNameMap[entityType] + ">"
-                    , _generator.EntityTypeToClassNameMap[entityType]);
+                    , "DbSet<" + entityType.Name + ">"
+                    , entityType.Name);
             }
 
             if (_model.EntityTypes.Any())
@@ -169,7 +169,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                     sb.AppendLine();
                 }
                 sb.Append("modelBuilder.Entity<");
-                sb.Append(_generator.EntityTypeToClassNameMap[entityType]);
+                sb.Append(entityType.Name);
                 sb.Append(">(");
                 GenerateEntityConfiguration(sb, entityType);
                 sb.AppendLine(");");

@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
@@ -68,30 +67,9 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
             }
         }
 
-        public override void GenerateEntityNavigation(IndentedStringBuilder sb, INavigation navigation)
-        {
-            // not used
-            throw new NotImplementedException();
-        }
-
         public virtual void GenerateEntityPropertyAttribues(IndentedStringBuilder sb, IProperty property)
         {
-            //if (property.IsKey())
-            //{
-            //    string ordinal = string.Empty;
-            //    var primaryKeyOrdinalPositionAnnotation =
-            //          ((Property)property).TryGetAnnotation(SqlServerMetadataModelProvider.AnnotationNamePrimaryKeyOrdinal);
-            //    if (primaryKeyOrdinalPositionAnnotation != null)
-            //    {
-            //        ordinal = "(Ordinal = " + primaryKeyOrdinalPositionAnnotation.Value + ")";
-            //    }
-            //    sb.AppendLine("[Key" + ordinal + "]");
-            //}
-
-            //foreach (var annotation in property.Annotations)
-            //{
-            //    sb.AppendLine("// Annotation[" + annotation.Name + "] = >>>" + annotation.Value + "<<<");
-            //}
+            //TODO: to use when we the runtime recognizes and uses DataAnnotations
         }
     }
 }

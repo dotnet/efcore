@@ -90,7 +90,6 @@ namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
             AddProperty(sb, accessModifier, virtualModifier, GetTypeName(propertyType), propertyName);
         }
 
-
         private static Dictionary<Type, string> _primitiveTypeNames = new Dictionary<Type, string>()
             {
                 { typeof(bool), "bool" },

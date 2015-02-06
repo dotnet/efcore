@@ -25,22 +25,6 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
         public static readonly string AnnotationPrefix = "SqlServerMetadataModelProvider:";
         public static readonly string AnnotationNameDependentEndNavPropName = AnnotationPrefix + "DependentEndNavPropName";
         public static readonly string AnnotationNamePrincipalEndNavPropName = AnnotationPrefix + "PrincipalEndNavPropName";
-        ////public static readonly string AnnotationNameTableId = AnnotationPrefix + "TableId";
-        ////public static readonly string AnnotationNameTableIdSchemaTableSeparator = ".";
-        ////public static readonly string AnnotationNameColumnId = AnnotationPrefix + "ColumnId";
-        ////public static readonly string AnnotationNameColumnName = AnnotationPrefix + "ColumnName";
-        ////public static readonly string AnnotationNamePrimaryKeyOrdinal = AnnotationPrefix + "PrimaryKeyOrdinalPosition";
-        ////public static readonly string AnnotationNameForeignKeyConstraints = AnnotationPrefix + "ForeignKeyConstraints";
-        ////public static readonly string AnnotationFormatForeignKey = AnnotationPrefix + "ForeignKey[{0}]{1}"; // {O} = ConstraintId, {1} = Descriptor
-        ////public static readonly string AnnotationFormatForeignKeyConstraintSeparator = ",";
-        ////public static readonly string AnnotationDescriptorForeignKeyOrdinal = "Ordinal";
-        ////public static readonly string AnnotationDescriptorForeignKeyTargetEntityType = "TargetEntityType";
-        ////public static readonly string AnnotationDescriptorForeignKeyTargetProperty = "TargetProperty";
-        ////public static readonly string AnnotationNamePrecision = AnnotationPrefix + "Precision";
-        ////public static readonly string AnnotationNameMaxLength = AnnotationPrefix + "MaxLength";
-        ////public static readonly string AnnotationNameScale = AnnotationPrefix + "Scale";
-        ////public static readonly string AnnotationNameIsIdentity = AnnotationPrefix + "IsIdentity";
-        ////public static readonly string AnnotationNameIsNullable = AnnotationPrefix + "IsNullable";
 
         private ILogger _logger;
 
@@ -266,19 +250,15 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
                 _relationalEntityTypeToForeignKeyConstraintsMap[relationalEntityType] = constraints;
                 foreach (var relationalProperty in relationalEntityType.Properties)
                 {
-                    var isPartOfPrimaryKey = false;
                     int primaryKeyOrdinal;
-                    if ((isPartOfPrimaryKey =
-                        _primaryKeyOrdinals.TryGetValue(relationalProperty.Name, out primaryKeyOrdinal)))
+                    if (_primaryKeyOrdinals.TryGetValue(relationalProperty.Name, out primaryKeyOrdinal))
                     {
                         // add _relational_ property so we can order on the ordinal later
                         primaryKeyProperties.Add(relationalProperty);
                     }
 
-                    var isPartOfForeignKey = false;
                     Dictionary<string, int> foreignKeyConstraintIdOrdinalMap;
-                    if ((isPartOfForeignKey =
-                        _foreignKeyOrdinals.TryGetValue(relationalProperty.Name, out foreignKeyConstraintIdOrdinalMap)))
+                    if (_foreignKeyOrdinals.TryGetValue(relationalProperty.Name, out foreignKeyConstraintIdOrdinalMap))
                     {
                         // relationalProperty represents (part of) a foreign key 
                         foreach (var constraintId in foreignKeyConstraintIdOrdinalMap.Keys)
@@ -293,15 +273,12 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
                         }
                     }
 
-                    ////if (!isPartOfForeignKey || isPartOfPrimaryKey)
-                    ////{
-                        var codeGenProperty = codeGenEntityType.AddProperty(
-                            nameMapper.PropertyToPropertyNameMap[relationalProperty],
-                            relationalProperty.PropertyType,
-                            shadowProperty: true);
-                        _relationalPropertyToCodeGenPropertyMap[relationalProperty] = codeGenProperty;
-                        ApplyPropertyProperties(codeGenProperty, _tableColumns[relationalProperty.Name]);
-                    ////}
+                    var codeGenProperty = codeGenEntityType.AddProperty(
+                        nameMapper.PropertyToPropertyNameMap[relationalProperty],
+                        relationalProperty.PropertyType,
+                        shadowProperty: true);
+                    _relationalPropertyToCodeGenPropertyMap[relationalProperty] = codeGenProperty;
+                    ApplyPropertyProperties(codeGenProperty, _tableColumns[relationalProperty.Name]);
                 } // end of loop over all relational properties for given EntityType
 
                 if (primaryKeyProperties.Count() > 0)
@@ -462,27 +439,6 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
             return output.ToArray();
         }
 
-        ////public static string GetForeignKeyOrdinalPositionAnnotationName(string foreignKeyConstraintId)
-        ////{
-        ////    return GetForeignKeyAnnotationName(AnnotationDescriptorForeignKeyOrdinal, foreignKeyConstraintId);
-        ////}
-
-
-        ////public static string GetForeignKeyTargetPropertyAnnotationName(string foreignKeyConstraintId)
-        ////{
-        ////    return GetForeignKeyAnnotationName(AnnotationDescriptorForeignKeyTargetProperty, foreignKeyConstraintId);
-        ////}
-
-        ////public static string GetForeignKeyTargetEntityTypeAnnotationName(string foreignKeyConstraintId)
-        ////{
-        ////    return GetForeignKeyAnnotationName(AnnotationDescriptorForeignKeyTargetEntityType, foreignKeyConstraintId);
-        ////}
-
-        ////public static string GetForeignKeyAnnotationName(string descriptor, string foreignKeyConstraintId)
-        ////{
-        ////    return string.Format(AnnotationFormatForeignKey, foreignKeyConstraintId, descriptor);
-        ////}
-
         public void ApplyPropertyProperties(Property property, TableColumn tc)
         {
             if (property.Name != tc.ColumnName)
@@ -523,22 +479,9 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
                     }
                 }
             }
+
             property.SqlServer().ColumnType = columnType;
 
-            ////property.IsNullable = tc.IsNullable;
-            ////property.AddAnnotation(AnnotationNameIsNullable, tc.IsNullable.ToString());
-            ////if (tc.NumericPrecision.HasValue)
-            ////{
-            ////    property.AddAnnotation(AnnotationNamePrecision, tc.NumericPrecision.Value.ToString());
-            ////}
-            ////if (tc.DateTimePrecision.HasValue)
-            ////{
-            ////    property.AddAnnotation(AnnotationNamePrecision, tc.DateTimePrecision.Value.ToString());
-            ////}
-            ////if (tc.Scale.HasValue)
-            ////{
-            ////    property.AddAnnotation(AnnotationNameScale, tc.Scale.Value.ToString());
-            ////}
             if (tc.IsIdentity)
             {
                 property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Identity;

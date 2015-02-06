@@ -127,7 +127,7 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
             {
                 sb.AppendLine();
                 sb.Append("entity.Property( e => e.");
-                sb.Append(Generator.PropertyToPropertyNameMap[property]);
+                sb.Append(property.Name);
                 sb.Append(" )");
                 sb.IncrementIndent();
                 foreach(var facetConfig in nonForSqlServerPropertyFacetsConfiguration)
@@ -184,16 +184,6 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
 
         public virtual string GenerateMaxLengthFacetConfiguration(IProperty property)
         {
-            //Annotation maxLengthAnnotation = ((Property)property)
-            //    .TryGetAnnotation(SqlServerMetadataModelProvider.AnnotationNameMaxLength);
-            //if (maxLengthAnnotation != null
-            //    && maxLengthAnnotation.Value != null
-            //    && int.Parse(maxLengthAnnotation.Value) > 0
-            //    && IsValidDataTypeForMaxLength(property))
-            //{
-            //    return string.Format(CultureInfo.InvariantCulture, ".MaxLength({0})", maxLengthAnnotation.Value);
-            //}
-
             if (((Property)property).MaxLength.HasValue)
             {
                 return string.Format(CultureInfo.InvariantCulture, ".MaxLength({0})", ((Property)property).MaxLength.Value);
@@ -249,10 +239,5 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
         {
             return true;
         }
-
-        //public override int PrimaryKeyPropertyOrder(IProperty property)
-        //{
-        //    return int.Parse(property[SqlServerMetadataModelProvider.AnnotationNamePrimaryKeyOrdinal]);
-        //}
     }
 }

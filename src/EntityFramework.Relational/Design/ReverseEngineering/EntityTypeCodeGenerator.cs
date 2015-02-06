@@ -54,7 +54,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         {
             get
             {
-                return _generator.EntityTypeToClassNameMap[_entityType];
+                return _entityType.Name;
             }
         }
 
@@ -117,32 +117,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 
         public abstract void GenerateEntityProperty(IndentedStringBuilder sb, IProperty property);
 
-        public virtual void GenerateEntityNavigations(IndentedStringBuilder sb)
-        {
-            foreach (var navigation in OrderedEntityNavigations())
-            {
-                GenerateEntityNavigation(sb, navigation);
-            }
-        }
-
-        public abstract void GenerateEntityNavigation(IndentedStringBuilder sb, INavigation navigation);
-
-        //public virtual IEnumerable<IProperty> OrderedEntityProperties()
-        //{
-        //    var primaryKeyPropertiesList = new List<IProperty>();
-        //    IKey key = _entityType.TryGetPrimaryKey();
-        //    if (key != null)
-        //    {
-        //        primaryKeyPropertiesList =
-        //            new List<IProperty>(
-        //                key.Properties.OrderBy(p => _generator.PropertyToPropertyNameMap[p]));
-        //    }
-
-        //    return primaryKeyPropertiesList.Concat(
-        //        _entityType.Properties
-        //            .Where(p => !primaryKeyPropertiesList.Contains(p))
-        //            .OrderBy(p => _generator.PropertyToPropertyNameMap[p]));
-        //}
+        public abstract void GenerateEntityNavigations(IndentedStringBuilder sb);
 
         public virtual IEnumerable<IProperty> OrderedEntityProperties()
         {
@@ -160,12 +135,6 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             {
                 yield return property;
             }
-        }
-
-        public virtual IEnumerable<INavigation> OrderedEntityNavigations()
-        {
-            //TODO - do we need a map to CSharp names?
-            return _entityType.Navigations.OrderBy(nav => nav.Name);
         }
     }
 }

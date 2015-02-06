@@ -18,28 +18,9 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
     {
         private readonly IServiceProvider _serviceProvider;
 
-        private Dictionary<IEntityType, string> _entityTypeToClassNameMap = new Dictionary<IEntityType, string>();
-        private Dictionary<IProperty, string> _propertyToPropertyNameMap = new Dictionary<IProperty, string>();
-
         public ReverseEngineeringGenerator(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
-        }
-
-        public Dictionary<IEntityType, string> EntityTypeToClassNameMap
-        {
-            get
-            {
-                return _entityTypeToClassNameMap;
-            }
-        }
-
-        public Dictionary<IProperty, string> PropertyToPropertyNameMap
-        {
-            get
-            {
-                return _propertyToPropertyNameMap;
-            }
         }
 
         public async Task Generate(ReverseEngineeringConfiguration configuration)
@@ -49,8 +30,6 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             var providerAssembly = configuration.ProviderAssembly;
             var provider = GetProvider(providerAssembly);
             var metadataModel = GetMetadataModel(provider, configuration);
-
-            ConstructGlobalNameMaps(metadataModel);
 
             // generate DbContext code
             var dbContextGeneratorModel = new DbContextGeneratorModel()
@@ -113,7 +92,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 using (var sourceStream = new MemoryStream(Encoding.UTF8.GetBytes(entityTypeStringBuilder.ToString())))
                 {
                     await OutputFile(configuration.OutputPath
-                        , EntityTypeToClassNameMap[entityType] + ".cs"
+                        , entityType.Name + ".cs"
                         , sourceStream);
                 }
             }
@@ -167,36 +146,6 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             }
 
             return metadataModel;
-        }
-
-        private void ConstructGlobalNameMaps(IModel model)
-        {
-            _entityTypeToClassNameMap = new Dictionary<IEntityType, string>();
-            foreach (var entityType in model.EntityTypes)
-            {
-                _entityTypeToClassNameMap[entityType] =
-                    CSharpUtilities.Instance.GenerateCSharpIdentifier(
-                        entityType.SimpleName, _entityTypeToClassNameMap.Values);
-                InitializePropertyNames(entityType);
-            }
-        }
-
-        private void InitializePropertyNames(IEntityType entityType)
-        {
-            // use local propertyToPropertyNameMap to ensure no clashes in Property names
-            // within an EntityType but to allow them for properties in different EntityTypes
-            var propertyToPropertyNameMap = new Dictionary<IProperty, string>();
-            foreach (var property in entityType.Properties)
-            {
-                propertyToPropertyNameMap[property] =
-                    CSharpUtilities.Instance.GenerateCSharpIdentifier(
-                        property.Name, propertyToPropertyNameMap.Values);
-            }
-
-            foreach (var keyValuePair in propertyToPropertyNameMap)
-            {
-                _propertyToPropertyNameMap.Add(keyValuePair.Key, keyValuePair.Value);
-            }
         }
 
         private async Task OutputFile(string outputDirectoryName, string outputFileName, Stream sourceStream)
