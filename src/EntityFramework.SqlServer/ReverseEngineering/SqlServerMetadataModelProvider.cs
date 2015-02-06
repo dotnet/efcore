@@ -50,6 +50,10 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
         public SqlServerMetadataModelProvider([NotNull] IServiceProvider serviceProvider)
         {
             _logger = (ILogger)serviceProvider.GetService(typeof(ILogger));
+            if (_logger == null)
+            {
+                throw new ArgumentException(typeof(SqlServerMetadataModelProvider).Name + " cannot find a service of type " + typeof(ILogger).Name);
+            }
         }
 
         public IModel GenerateMetadataModel(string connectionString, string filters)
@@ -87,28 +91,28 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
             }
 
             //_logger.WriteInformation("Tables");
-            //foreach (var t in tables)
+            //foreach (var t in _tables)
             //{
             //    var table = t.Value;
             //    _logger.WriteInformation(table.ToString());
             //}
 
             //_logger.WriteInformation(Environment.NewLine + "Columns");
-            //foreach (var tc in tableColumns)
+            //foreach (var tc in _tableColumns)
             //{
             //    _logger.WriteInformation(tc.Value.ToString());
             //}
 
             //_logger.WriteInformation(Environment.NewLine + "Constraint Columns");
-            //foreach (var tc in tableConstraintColumns)
+            //foreach (var tc in _tableConstraintColumns)
             //{
             //    _logger.WriteInformation(tc.Value.ToString());
             //}
 
             //_logger.WriteInformation(Environment.NewLine + "Foreign Key Column Mappings");
-            //foreach (var fkcm in foreignKeyColumnMappings)
+            //foreach (var fkcm in _foreignKeyColumnMappings)
             //{
-            //    _logger.WriteInformation(fkcm.Value.ToString());
+            //    _logger.WriteWarning(fkcm.Value.ToString());
             //}
 
             CreatePrimaryAndForeignKeyMaps();
@@ -214,7 +218,7 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
                 Type clrPropertyType;
                 if (!SqlServerTypeMapping._sqlTypeToClrTypeMap.TryGetValue(tc.DataType, out clrPropertyType))
                 {
-                    // _logger.WriteError("Could not find type mapping for SQL Server type " + tc.DataType);
+                    _logger.WriteError("Could not find type mapping for SQL Server type " + tc.DataType);
                     continue;
                 }
 
@@ -392,22 +396,22 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
             if (!foreignKeyColumnMappings.TryGetValue(
                 foreignKeyConstraintId + fromColumnId, out foreignKeyColumnMapping))
             {
-                //_logger.WriteError("Could not find foreignKeyMapping for ConstraintId " + foreignKeyConstraintId
-                //    + " FromColumn " + fromColumnId);
+                _logger.WriteError("Could not find foreignKeyMapping for ConstraintId " + foreignKeyConstraintId
+                    + " FromColumn " + fromColumnId);
                 return null;
             }
 
             TableColumn toColumn;
             if (!tableColumns.TryGetValue(foreignKeyColumnMapping.ToColumnId, out toColumn))
             {
-                //_logger.WriteError("Could not find toColumn with ColumnId " + foreignKeyColumnMapping.ToColumnId);
+                _logger.WriteError("Could not find toColumn with ColumnId " + foreignKeyColumnMapping.ToColumnId);
                 return null;
             }
 
             Property toColumnRelationalProperty;
             if (!relationalColumnIdToRelationalPropertyMap.TryGetValue(toColumn.Id, out toColumnRelationalProperty))
             {
-                //_logger.WriteError("Could not find relational property for toColumn with ColumnId " + toColumn.Id);
+                _logger.WriteError("Could not find relational property for toColumn with ColumnId " + toColumn.Id);
                 return null;
             }
 

@@ -12,6 +12,7 @@ using Microsoft.Data.Entity.Relational.Migrations.Utilities;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
+using Microsoft.Framework.Logging;
 using Microsoft.Framework.Runtime;
 using Microsoft.Framework.Runtime.Common.CommandLine;
 
@@ -343,13 +344,6 @@ namespace Microsoft.Data.Entity.Commands
                 contextClassName = "ModelContext";
             }
 
-            //Console.WriteLine("Args: providerAssemblyName: " + providerAssemblyName);
-            //Console.WriteLine("Args: connectionString: " + connectionString);
-            //Console.WriteLine("Args: outputPath: " + outputPath);
-            //Console.WriteLine("Args: codeNamespace: " + codeNamespace);
-            //Console.WriteLine("Args: contextClassName: " + contextClassName);
-            //Console.WriteLine("Args: filters: " + filters);
-
             var configuration = new ReverseEngineeringConfiguration()
             {
                 ProviderAssembly = providerAssembly,
@@ -360,7 +354,13 @@ namespace Microsoft.Data.Entity.Commands
                 Filters = filters
             };
 
-            var generator = new ReverseEngineeringGenerator(_serviceProvider);
+            var serviceProvider = new ServiceProvider(_serviceProvider);
+            var loggerFactory = new LoggerFactory();
+            var loggerProvider = new LoggerProvider(name => new ConsoleCommandLogger(name, verbose: true));
+            loggerFactory.AddProvider(loggerProvider);
+            var logger = loggerFactory.Create<ReverseEngineeringGenerator>();
+            serviceProvider.AddService(typeof(ILogger), logger);
+            var generator = new ReverseEngineeringGenerator(serviceProvider);
             generator.Generate(configuration).Wait();
 
             return 0;

@@ -8,6 +8,8 @@ using System.Text;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Commands.Migrations;
 using Microsoft.Data.Entity.Relational.Migrations;
+using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
+using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 
@@ -20,6 +22,7 @@ namespace Microsoft.Data.Entity.Commands.Utilities
             typeof(MigrationTool).FullName,
             typeof(Migrator).FullName,
             typeof(MigrationScaffolder).FullName
+            typeof(ReverseEngineeringGenerator).FullName
         };
 
         private readonly string _name;

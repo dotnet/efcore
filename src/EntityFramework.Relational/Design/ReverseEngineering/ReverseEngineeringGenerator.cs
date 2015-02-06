@@ -166,7 +166,6 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 }
             }
 
-
             using (var writeStream = new FileStream(fullFileName, FileMode.Create, FileAccess.Write))
             {
                 await sourceStream.CopyToAsync(writeStream);
