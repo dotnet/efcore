@@ -290,6 +290,12 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                         primaryKeyExpression
                             = Expression.Convert(primaryKeyExpression, foreignKeyColumnExpression.Type);
                     }
+                    else if (primaryKeyExpression.Type.IsNullableType()
+                        && !foreignKeyColumnExpression.Type.IsNullableType())
+                    {
+                        foreignKeyColumnExpression
+                            = Expression.Convert(foreignKeyColumnExpression, primaryKeyColumnExpression.Type);
+                    }
                 }
 
                 var equalExpression

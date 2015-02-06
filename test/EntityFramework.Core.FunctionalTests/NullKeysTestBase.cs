@@ -52,6 +52,30 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
+        [Fact]
+        public virtual void Include_with_non_nullable_FKs_and_nullable_PK()
+        {
+            using (var context = CreateContext())
+            {
+                var results = context.Set<WithIntFk>()
+                    .OrderBy(e => e.Id)
+                    .Include(e => e.Principal)
+                    .ToList();
+
+                Assert.Equal(
+                    new[] { 1, 2, 3 },
+                    results.Select(e => e.Id));
+
+                Assert.Equal(
+                    new int[] { 1, 1, 3 },
+                    results.Select(e => e.Fk));
+
+                Assert.Equal(
+                    new int?[] { 1, 1, 3 },
+                    results.Select(e => e.Principal.Id));
+            }
+        }
+
         [Fact] // Issue #1093
         public virtual void Include_with_null_fKs_and_non_nullable_PK()
         {
@@ -139,6 +163,21 @@ namespace Microsoft.Data.Entity.FunctionalTests
             public WithIntKey Principal { get; set; }
         }
 
+        protected class WithNullableIntKey
+        {
+            public int? Id { get; set; }
+
+            public ICollection<WithIntFk> Dependents { get; set; }
+        }
+
+        protected class WithIntFk
+        {
+            public int Id { get; set; }
+
+            public int Fk { get; set; }
+            public WithNullableIntKey Principal { get; set; }
+        }
+
         public abstract class NullKeysFixtureBase : IDisposable
         {
             public abstract DbContext CreateContext();
@@ -155,6 +194,11 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     .ForeignKey<WithStringFk>(e => e.SelfFk);
 
                 modelBuilder.Entity<WithIntKey>()
+                    .HasMany(e => e.Dependents)
+                    .WithOne(e => e.Principal)
+                    .ForeignKey(e => e.Fk);
+
+                modelBuilder.Entity<WithNullableIntKey>()
                     .HasMany(e => e.Dependents)
                     .WithOne(e => e.Principal)
                     .ForeignKey(e => e.Fk);
@@ -187,6 +231,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         context.Add(new WithNullableIntFk { Id = 4, Fk = 2 });
                         context.Add(new WithNullableIntFk { Id = 5 });
                         context.Add(new WithNullableIntFk { Id = 6 });
+
+                        context.Add(new WithNullableIntKey { Id = 1 });
+                        context.Add(new WithNullableIntKey { Id = 2 });
+                        context.Add(new WithNullableIntKey { Id = 3 });
+
+                        context.Add(new WithIntFk { Id = 1, Fk = 1 });
+                        context.Add(new WithIntFk { Id = 2, Fk = 1 });
+                        context.Add(new WithIntFk { Id = 3, Fk = 3 });
 
                         context.SaveChanges();
                     }

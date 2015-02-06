@@ -461,8 +461,6 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 if (!foreignKey.GetRootPrincipals(i).Any(p => p.GenerateValueOnAdd)
                     || !foreignKey.ReferencedProperties[i].PropertyType.IsDefaultValue(principalValues[i]))
                 {
-                    // TODO: Consider nullable/non-nullable assignment issues
-                    // Issue #740
                     var dependentProperty = foreignKey.Properties[i];
                     dependentEntry[dependentProperty] = principalValues[i];
                     dependentEntry.RelationshipsSnapshot.TakeSnapshot(dependentProperty);
