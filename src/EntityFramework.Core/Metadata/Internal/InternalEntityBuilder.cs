@@ -353,6 +353,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 }
 
                 RemoveForeignKeyIfUnused(navigation.ForeignKey, configurationSource);
+                ModelBuilder.RemoveEntityTypesUnreachableByNavigations(configurationSource);
             }
 
             _ignoredProperties.Value[propertyName] = configurationSource;
@@ -403,8 +404,9 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             foreach (var foreignKey in Metadata.ForeignKeys.Where(i => i.Properties.Contains(property)).ToList())
             {
-                var removed = RemoveRelationship(foreignKey, configurationSource);
-                Debug.Assert(removed.HasValue);
+                var relationship = Relationship(foreignKey, true, ConfigurationSource.Convention)
+                    .ForeignKey(new Property[0], configurationSource);
+                Debug.Assert(relationship != null);
             }
 
             foreach (var key in Metadata.Keys.Where(i => i.Properties.Contains(property)).ToList())

@@ -298,7 +298,8 @@
     <Compile Include="Update\DbUpdateConcurrencyException.cs" />
     <Compile Include="Update\DbUpdateException.cs" />
     <Compile Include="Utilities\AsyncLock.cs" />
-    <Compile Include="Utilities\ModelUndirectedGraphAdapter.cs" />
+    <Compile Include="Utilities\ModelNavigationsGraphAdapter.cs" />
+    <Compile Include="Utilities\ModelForeignKeyUndirectedGraphAdapter.cs" />
     <Compile Include="Utilities\EnumerableExtensions.cs" />
     <Compile Include="Utilities\ExpressionExtensions.cs" />
     <Compile Include="Utilities\Graph.cs" />

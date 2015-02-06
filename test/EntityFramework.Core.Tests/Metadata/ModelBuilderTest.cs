@@ -517,6 +517,40 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                             b.Property<string>("Shadow");
                         })).Message);
         }
+        
+        [Fact]
+        public void Ignoring_a_navigation_property_removes_discovered_entity_types()
+        {
+            var model = new Model();
+            var modelBuilder = CreateModelBuilder(model);
+            modelBuilder.Entity<Customer>(b =>
+                {
+                    b.Ignore(c => c.Details);
+                    b.Ignore(c => c.Orders);
+                });
+
+            Assert.Equal(1, model.EntityTypes.Count);
+        }
+
+        [Fact]
+        public void Ignoring_a_navigation_property_removes_discovered_relationship()
+        {
+            var model = new Model();
+            var modelBuilder = CreateModelBuilder(model);
+            modelBuilder.Entity<Customer>(b =>
+            {
+                b.Ignore(c => c.Details);
+                b.Ignore(c => c.Orders);
+            });
+            modelBuilder.Entity<CustomerDetails>(b =>
+            {
+                b.Ignore(c => c.Customer);
+            });
+
+            Assert.Equal(2, model.EntityTypes.Count);
+            Assert.Equal(0, model.EntityTypes[0].ForeignKeys.Count);
+            Assert.Equal(0, model.EntityTypes[1].ForeignKeys.Count);
+        }
 
         [Fact]
         public void Properties_can_be_made_required()
