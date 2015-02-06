@@ -8,11 +8,11 @@ using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.Utilities
 {
-    public class ModelUndirectedGraphAdapter : Graph<EntityType>
+    public class ModelNavigationsGraphAdapter : Graph<EntityType>
     {
         private readonly Model _model;
 
-        public ModelUndirectedGraphAdapter([NotNull] Model model)
+        public ModelNavigationsGraphAdapter([NotNull] Model model)
         {
             Check.NotNull(model, "model");
 
@@ -26,13 +26,14 @@ namespace Microsoft.Data.Entity.Utilities
 
         public override IEnumerable<EntityType> GetOutgoingNeighbours(EntityType from)
         {
-            return from.ForeignKeys.Select(fk => fk.ReferencedEntityType)
-                .Union(_model.GetReferencingForeignKeys(from).Select(fk => fk.EntityType));
+            return from.ForeignKeys.Where(fk => fk.GetNavigationToPrincipal() != null).Select(fk => fk.ReferencedEntityType)
+                .Union(_model.GetReferencingForeignKeys(from).Where(fk => fk.GetNavigationToDependent() != null).Select(fk => fk.EntityType));
         }
 
         public override IEnumerable<EntityType> GetIncomingNeighbours(EntityType to)
         {
-            return GetOutgoingNeighbours(to);
+            return to.ForeignKeys.Where(fk => fk.GetNavigationToDependent() != null).Select(fk => fk.ReferencedEntityType)
+                .Union(_model.GetReferencingForeignKeys(to).Where(fk => fk.GetNavigationToPrincipal() != null).Select(fk => fk.EntityType));
         }
     }
 }

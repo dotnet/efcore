@@ -127,7 +127,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     return false;
                 }
 
-                RemoveUnreachableEntityTypes(configurationSource);
+                RemoveEntityTypesUnreachableByForeignKeys(configurationSource);
             }
 
             _ignoredEntityTypeNames.Value[name] = configurationSource;
@@ -160,7 +160,23 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return true;
         }
 
-        private void RemoveUnreachableEntityTypes(ConfigurationSource configurationSource)
+        public virtual void RemoveEntityTypesUnreachableByForeignKeys(ConfigurationSource configurationSource)
+        {
+            foreach (var orphan in new ModelForeignKeyUndirectedGraphAdapter(Metadata).GetUnreachableVertices(GetRoots(configurationSource)))
+            {
+                Remove(orphan, configurationSource);
+            }
+        }
+
+        public virtual void RemoveEntityTypesUnreachableByNavigations(ConfigurationSource configurationSource)
+        {
+            foreach (var orphan in new ModelNavigationsGraphAdapter(Metadata).GetUnreachableVertices(GetRoots(configurationSource)))
+            {
+                Remove(orphan, configurationSource);
+            }
+        }
+
+        private IReadOnlyList<EntityType> GetRoots(ConfigurationSource configurationSource)
         {
             var roots = new List<EntityType>();
             // ReSharper disable once LoopCanBeConvertedToQuery
@@ -173,10 +189,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 }
             }
 
-            foreach (var orphan in new ModelUndirectedGraphAdapter(Metadata).GetUnreachableVertices(roots))
-            {
-                Remove(orphan, configurationSource);
-            }
-        }
+            return roots;
+        } 
     }
 }

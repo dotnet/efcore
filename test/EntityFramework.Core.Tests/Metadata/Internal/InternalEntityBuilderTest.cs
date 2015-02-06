@@ -739,32 +739,36 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         }
 
         [Fact]
-        public void Can_ignore_property_that_is_part_of_lower_source_foreign_key()
+        public void Can_ignore_property_that_is_part_of_lower_source_foreign_key_preserving_the_relationship()
         {
             var modelBuilder = CreateModelBuilder();
             var principalEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
             var key = principalEntityBuilder.PrimaryKey(new[] { Customer.IdProperty, Customer.UniqueProperty }, ConfigurationSource.Explicit);
             var dependentEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
-            
-            dependentEntityBuilder.Relationship(
-                 principalEntityBuilder,
-                 dependentEntityBuilder,
-                 null,
-                 null,
-                 new[]
-                {
-                    dependentEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention).Metadata,
-                    dependentEntityBuilder.Property(Order.CustomerUniqueProperty, ConfigurationSource.Convention).Metadata
-                },
-                 key.Metadata.Properties,
-                 ConfigurationSource.Convention);
+
+            var relationship = dependentEntityBuilder.Relationship(
+                principalEntityBuilder,
+                dependentEntityBuilder,
+                null,
+                null,
+                new[]
+                    {
+                        dependentEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention).Metadata,
+                        dependentEntityBuilder.Property(Order.CustomerUniqueProperty, ConfigurationSource.Convention).Metadata
+                    },
+                key.Metadata.Properties,
+                ConfigurationSource.Convention);
 
             Assert.True(dependentEntityBuilder.Ignore(Order.CustomerIdProperty.Name, ConfigurationSource.DataAnnotation));
 
             Assert.Empty(dependentEntityBuilder.Metadata.Properties.Where(p => p.Name == Order.CustomerIdProperty.Name));
-            Assert.Empty(dependentEntityBuilder.Metadata.ForeignKeys);
+            var newFk = dependentEntityBuilder.Metadata.ForeignKeys.Single();
+            Assert.Equal(relationship.Metadata.EntityType, newFk.EntityType);
+            Assert.Equal(relationship.Metadata.ReferencedEntityType, newFk.ReferencedEntityType);
+            Assert.NotEqual(relationship.Metadata.Properties, newFk.EntityType.Properties);
+            Assert.Equal(relationship.Metadata.ReferencedKey, newFk.ReferencedKey);
         }
-        
+
         [Fact]
         public void Cannot_ignore_property_that_is_part_of_same_or_higher_source_foreign_key()
         {
