@@ -21,6 +21,20 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
         {
         }
 
+        public override void Generate(IndentedStringBuilder sb)
+        {
+            var errorMessageAnnotation = ((EntityType)EntityType).TryGetAnnotation(SqlServerMetadataModelProvider.AnnotationNamePrincipalEntityTypeError);
+            if (errorMessageAnnotation != null)
+            {
+                GenerateCommentHeader(sb);
+                CSharpCodeGeneratorHelper.Instance.SingleLineComment(sb, errorMessageAnnotation.Value);
+            }
+            else
+            {
+                base.Generate(sb);
+            }
+        }
+
         public override void GenerateEntityProperties(IndentedStringBuilder sb)
         {
             CSharpCodeGeneratorHelper.Instance.SingleLineComment(sb, "Properties");
@@ -52,8 +66,15 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
                 {
                     var navigationPropertyName = foreignKey
                         .GetAnnotation(SqlServerMetadataModelProvider.AnnotationNamePrincipalEndNavPropName).Value;
-                    CSharpCodeGeneratorHelper.Instance.AddProperty(sb,
-                        AccessModifier.Public, VirtualModifier.Virtual, "ICollection<" + otherEntityType.Name + ">", navigationPropertyName);
+                    if (((EntityType)otherEntityType).TryGetAnnotation(SqlServerMetadataModelProvider.AnnotationNamePrincipalEntityTypeError) != null)
+                    {
+                        CSharpCodeGeneratorHelper.Instance.SingleLineComment(sb, "Unable to add Navigation to type " + otherEntityType.Name +" because of errors generating that EntityType.");
+                    }
+                    else
+                    {
+                        CSharpCodeGeneratorHelper.Instance.AddProperty(sb,
+                            AccessModifier.Public, VirtualModifier.Virtual, "ICollection<" + otherEntityType.Name + ">", navigationPropertyName);
+                    }
                 }
             }
 

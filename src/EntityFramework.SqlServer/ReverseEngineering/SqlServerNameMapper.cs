@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Design.CodeGeneration;
@@ -67,13 +68,18 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
         private void ConstructPropertyNameMap(IEntityType entityType)
         {
             // use local propertyToPropertyNameMap to ensure no clashes in Property names
-            // within an EntityType but to allow them for properties in different EntityTypes
+            // within an EntityType but to allow them for properties in different EntityTypes.
+            // Also name of Property cannot be the same as the name of the enclosing EntityType.
+            var entityTypeName = new string[] { _entityTypeToClassNameMap[entityType] };
             var propertyToPropertyNameMap = new Dictionary<IProperty, string>();
             foreach (var property in entityType.Properties)
             {
+                var existingNames = propertyToPropertyNameMap.Values
+                                        .Concat(entityTypeName).ToList();
                 propertyToPropertyNameMap[property] =
                     CSharpUtilities.Instance.GenerateCSharpIdentifier(
-                        _defaultPropertyNameFunc(property), propertyToPropertyNameMap.Values);
+                        _defaultPropertyNameFunc(property)
+                        , existingNames);
             }
 
             foreach (var keyValuePair in propertyToPropertyNameMap)

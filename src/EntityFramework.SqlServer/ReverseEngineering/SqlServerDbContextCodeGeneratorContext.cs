@@ -45,6 +45,14 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
             }
         }
 
+        public override IEnumerable<IEntityType> OrderedEntityTypes()
+        {
+            // do not configure EntityTypes which we had an error generating
+            return Model.EntityTypes.OrderBy(e => e.Name)
+                .Where(e => ((EntityType)e).TryGetAnnotation(SqlServerMetadataModelProvider.AnnotationNamePrincipalEntityTypeError) == null);
+        }
+
+
         public override void GenerateEntityFacetsConfiguration(IndentedStringBuilder sb, IEntityType entityType)
         {
             var nonForSqlServerEntityFacetsConfiguration = GenerateNonForSqlServerEntityFacetsConfiguration(entityType);
@@ -88,30 +96,23 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
             {
                 facetsConfig.Add(tableNameFacetConfig);
             }
-            var schemaNameFacetConfig = GenerateSchemaNameFacetConfiguration(entityType);
-            if (schemaNameFacetConfig != null)
-            {
-                facetsConfig.Add(schemaNameFacetConfig);
-            }
 
             return facetsConfig;
         }
 
         public virtual string GenerateTableNameFacetConfiguration(IEntityType entityType)
         {
-            if (entityType.SqlServer().Table != null && entityType.SqlServer().Table != entityType.Name)
-            {
-                return string.Format(CultureInfo.InvariantCulture, ".Table(\"{0}\")", entityType.SqlServer().Table);
-            }
-
-            return null;
-        }
-
-        public virtual string GenerateSchemaNameFacetConfiguration(IEntityType entityType)
-        {
             if (entityType.SqlServer().Schema != null && entityType.SqlServer().Schema != "dbo")
             {
-                return string.Format(CultureInfo.InvariantCulture, ".Schema(\"{0}\")", entityType.SqlServer().Schema);
+                return string.Format(CultureInfo.InvariantCulture, ".Table({0}, {1})", 
+                    CSharpUtilities.Instance.DelimitString(entityType.SqlServer().Table),
+                    CSharpUtilities.Instance.DelimitString(entityType.SqlServer().Schema));
+            }
+
+            if (entityType.SqlServer().Table != null && entityType.SqlServer().Table != entityType.Name)
+            {
+                return string.Format(CultureInfo.InvariantCulture, ".Table({0})",
+                    CSharpUtilities.Instance.DelimitString(entityType.SqlServer().Table));
             }
 
             return null;

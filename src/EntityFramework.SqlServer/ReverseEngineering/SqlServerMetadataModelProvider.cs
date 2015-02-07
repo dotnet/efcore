@@ -25,6 +25,7 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
         public static readonly string AnnotationPrefix = "SqlServerMetadataModelProvider:";
         public static readonly string AnnotationNameDependentEndNavPropName = AnnotationPrefix + "DependentEndNavPropName";
         public static readonly string AnnotationNamePrincipalEndNavPropName = AnnotationPrefix + "PrincipalEndNavPropName";
+        public static readonly string AnnotationNamePrincipalEntityTypeError = AnnotationPrefix + "EntityTypeError";
 
         private ILogger _logger;
 
@@ -172,7 +173,7 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
                 }
                 else
                 {
-                    _logger.WriteInformation("Unknown Constraint Type for " + tableConstraintColumn);
+                    _logger.WriteWarning("Unknown Constraint Type " + tableConstraintColumn.ConstraintType + " for " + tableConstraintColumn);
                 }
             }
         }
@@ -208,7 +209,7 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
                 var entityType = relationalModel.TryGetEntityType(tc.TableId);
                 if (entityType == null)
                 {
-                    _logger.WriteError("Could not find table with TableId " + tc.TableId);
+                    _logger.WriteWarning("Could not find table with TableId " + tc.TableId);
                     continue;
                 }
 
@@ -218,7 +219,8 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
                 Type clrPropertyType;
                 if (!SqlServerTypeMapping._sqlTypeToClrTypeMap.TryGetValue(tc.DataType, out clrPropertyType))
                 {
-                    _logger.WriteError("Could not find type mapping for SQL Server type " + tc.DataType);
+                    _logger.WriteWarning("For columnId: " + tc.Id
+                        + " Could not find type mapping for SQL Server type " + tc.DataType + ". Skipping column.");
                     continue;
                 }
 
@@ -294,6 +296,13 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
                         .OrderBy(p => _primaryKeyOrdinals[p.Name]) // note: for relational property p.Name is its columnId
                         .Select(p => _relationalPropertyToCodeGenPropertyMap[p])
                         .ToList());
+                }
+                else
+                {
+                    codeGenEntityType.AddAnnotation(
+                        AnnotationNamePrincipalEntityTypeError, "Attempt to generate EntityType " + codeGenEntityType.Name
+                        + " failed. We could identify no primary key columns in the underlying SQL Server table "
+                        + _tables[relationalEntityType.Name].SchemaName + "." + _tables[relationalEntityType.Name].TableName + ".");
                 }
             } // end of loop over all relational EntityTypes
 
@@ -396,7 +405,7 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
             if (!foreignKeyColumnMappings.TryGetValue(
                 foreignKeyConstraintId + fromColumnId, out foreignKeyColumnMapping))
             {
-                _logger.WriteError("Could not find foreignKeyMapping for ConstraintId " + foreignKeyConstraintId
+                _logger.WriteWarning("Could not find foreignKeyMapping for ConstraintId " + foreignKeyConstraintId
                     + " FromColumn " + fromColumnId);
                 return null;
             }
@@ -404,14 +413,14 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
             TableColumn toColumn;
             if (!tableColumns.TryGetValue(foreignKeyColumnMapping.ToColumnId, out toColumn))
             {
-                _logger.WriteError("Could not find toColumn with ColumnId " + foreignKeyColumnMapping.ToColumnId);
+                _logger.WriteWarning("Could not find toColumn with ColumnId " + foreignKeyColumnMapping.ToColumnId);
                 return null;
             }
 
             Property toColumnRelationalProperty;
             if (!relationalColumnIdToRelationalPropertyMap.TryGetValue(toColumn.Id, out toColumnRelationalProperty))
             {
-                _logger.WriteError("Could not find relational property for toColumn with ColumnId " + toColumn.Id);
+                _logger.WriteWarning("Could not find relational property for toColumn with ColumnId " + toColumn.Id);
                 return null;
             }
 
@@ -488,7 +497,16 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
 
             if (tc.IsIdentity)
             {
-                property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Identity;
+                if (typeof(byte) == SqlServerTypeMapping._sqlTypeToClrTypeMap[tc.DataType])
+                {
+                    _logger.WriteWarning("For columnId: " + tc.Id + " SQL Server data type is " + tc.DataType
+                        + ". Unable to set ValueGenerationStrategy to Identity because this column "
+                        + "will be mapped to CLR type byte which does not allow ValueGenerationStrategy Identity");
+                }
+                else
+                {
+                    property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Identity;
+                }
             }
             if (tc.IsStoreGenerated)
             {

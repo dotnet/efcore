@@ -72,6 +72,14 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             }
         }
 
+        public virtual IModel Model
+        {
+            get
+            {
+                return _model;
+            }
+        }
+
         public virtual string ClassName
         {
             get
