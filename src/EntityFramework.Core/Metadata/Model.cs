@@ -131,31 +131,31 @@ namespace Microsoft.Data.Entity.Metadata
             get { return _entities; }
         }
 
-        public virtual IEnumerable<ForeignKey> GetReferencingForeignKeys([NotNull] IEntityType entityType)
+        public virtual IReadOnlyList<ForeignKey> GetReferencingForeignKeys([NotNull] IEntityType entityType)
         {
             Check.NotNull(entityType, "entityType");
 
             // TODO: Perf: Add additional indexes so that this isn't a linear lookup
             // Issue #1179
-            return EntityTypes.SelectMany(et => et.ForeignKeys).Where(fk => fk.ReferencedEntityType == entityType);
+            return EntityTypes.SelectMany(et => et.ForeignKeys).Where(fk => fk.ReferencedEntityType == entityType).ToList();
         }
 
-        public virtual IEnumerable<ForeignKey> GetReferencingForeignKeys([NotNull] Key key)
+        public virtual IReadOnlyList<ForeignKey> GetReferencingForeignKeys([NotNull] Key key)
         {
             Check.NotNull(key, "key");
 
             // TODO: Perf: Add additional indexes so that this isn't a linear lookup
             // Issue #1179
-            return EntityTypes.SelectMany(e => e.ForeignKeys).Where(fk => fk.ReferencedKey == key).ToArray();
+            return EntityTypes.SelectMany(e => e.ForeignKeys).Where(fk => fk.ReferencedKey == key).ToList();
         }
 
-        public virtual IEnumerable<ForeignKey> GetReferencingForeignKeys([NotNull] IProperty property)
+        public virtual IReadOnlyList<ForeignKey> GetReferencingForeignKeys([NotNull] IProperty property)
         {
             Check.NotNull(property, "property");
 
             // TODO: Perf: Add additional indexes so that this isn't a linear lookup
             // Issue #1179
-            return EntityTypes.SelectMany(e => e.ForeignKeys.Where(f => f.ReferencedProperties.Contains(property))).ToArray();
+            return EntityTypes.SelectMany(e => e.ForeignKeys.Where(f => f.ReferencedProperties.Contains(property))).ToList();
         }
 
         public virtual string StorageName { get; [param: CanBeNull] set; }
