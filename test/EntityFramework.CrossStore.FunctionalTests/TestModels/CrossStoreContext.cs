@@ -30,7 +30,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
                             .ForRelational(b => b.Table("RelationalSimpleEntity")) // TODO: specify schema when #948 is fixed
                             .ForSqlServer(b =>
                                 {
-                                    b.Table("SqlServerSimpleEntity"); // TODO: specify schema when #948 is fixed
                                     eb.Property(e => e.Id).ForSqlServer().UseSequence();
                                 });
 
