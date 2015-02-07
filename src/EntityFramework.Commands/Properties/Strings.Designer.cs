@@ -13,14 +13,6 @@ namespace Microsoft.Data.Entity.Commands
             = new ResourceManager("EntityFramework.Commands.Strings", typeof(Strings).GetTypeInfo().Assembly);
 
         /// <summary>
-        /// The value provided for argument '{argumentName}' must be a valid value of enum type '{enumType}'.
-        /// </summary>
-        public static string InvalidEnumValue([CanBeNull] object argumentName, [CanBeNull] object enumType)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("InvalidEnumValue", "argumentName", "enumType"), argumentName, enumType);
-        }
-
-        /// <summary>
         /// The name '{migrationName}' is used by an existing migration.
         /// </summary>
         public static string DuplicateMigrationName([CanBeNull] object migrationName)
@@ -146,6 +138,22 @@ namespace Microsoft.Data.Entity.Commands
         public static string UnapplyMigration([CanBeNull] object name)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("UnapplyMigration", "name"), name);
+        }
+
+        /// <summary>
+        /// The current CSharpMigrationOperationGenerator cannot scaffold operations of type '{operationType}'. Configure your services to use one that can.
+        /// </summary>
+        public static string UnknownOperation([CanBeNull] object operationType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("UnknownOperation", "operationType"), operationType);
+        }
+
+        /// <summary>
+        /// The current CSharpHelper cannot scaffold literals of type '{literalType}'. Configure your services to use one that can.
+        /// </summary>
+        public static string UnknownLiteral([CanBeNull] object literalType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("UnknownLiteral", "literalType"), literalType);
         }
 
         private static string GetString(string name, params string[] formatterNames)

@@ -8,7 +8,7 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Migrations;
 using Microsoft.Data.Entity.SqlServer;
-using Microsoft.Data.Entity.SqlServer.Metadata;
+using Microsoft.Data.Entity.SqlServer.Migrations;
 using Microsoft.Data.Entity.SqlServer.Update;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
@@ -23,7 +23,7 @@ namespace Microsoft.Framework.DependencyInjection
         {
             Check.NotNull(builder, "builder");
 
-            builder.AddMigrations().ServiceCollection
+            builder.AddRelational().ServiceCollection
                 .AddScoped<DataStoreSource, SqlServerDataStoreSource>()
                 .TryAdd(new ServiceCollection()
                     .AddSingleton<SqlServerModelBuilderFactory>()
@@ -36,19 +36,16 @@ namespace Microsoft.Framework.DependencyInjection
                     .AddSingleton<SqlServerTypeMapper>()
                     .AddSingleton<SqlServerModificationCommandBatchFactory>()
                     .AddSingleton<SqlServerCommandBatchPreparer>()
-                    .AddSingleton<SqlServerMetadataExtensionProvider>()
-                    .AddSingleton<SqlServerMigrationOperationFactory>()
                     .AddSingleton<SqlServerModelSource>()
                     .AddScoped<SqlServerBatchExecutor>()
                     .AddScoped<SqlServerDataStoreServices>()
                     .AddScoped<SqlServerDataStore>()
                     .AddScoped<SqlServerConnection>()
-                    .AddScoped<SqlServerMigrationOperationProcessor>()
                     .AddScoped<SqlServerModelDiffer>()
                     .AddScoped<SqlServerDatabase>()
-                    .AddScoped<SqlServerMigrationOperationSqlGeneratorFactory>()
+                    .AddScoped<SqlServerMigrationSqlGenerator>()
                     .AddScoped<SqlServerDataStoreCreator>()
-                    .AddScoped<SqlServerMigrator>());
+                    .AddScoped<SqlServerHistoryRepository>());
 
             return builder;
         }

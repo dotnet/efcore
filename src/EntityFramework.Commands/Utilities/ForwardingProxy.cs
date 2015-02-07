@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-#if NET451 || ASPNET50
+#if NET451
 
 using System;
 using System.Runtime.Remoting;
@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.Commands.Utilities
         public ForwardingProxy([NotNull] object target)
             : base(typeof(T))
         {
-            Check.NotNull(target, "target");
+            Check.NotNull(target, nameof(target));
 
             _target = (MarshalByRefObject)target;
         }
@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity.Commands.Utilities
         /// </summary>
         public override IMessage Invoke([NotNull] IMessage msg)
         {
-            Check.NotNull(msg, "msg");
+            Check.NotNull(msg, nameof(msg));
 
             // NOTE: This sets the wrapped message's Uri
             new MethodCallMessageWrapper((IMethodCallMessage)msg).Uri = RemotingServices.GetObjectUri(_target);
@@ -44,10 +44,7 @@ namespace Microsoft.Data.Entity.Commands.Utilities
             return RemotingServices.GetEnvoyChainForProxy(_target).SyncProcessMessage(msg);
         }
 
-        public new virtual T GetTransparentProxy()
-        {
-            return (T)base.GetTransparentProxy();
-        }
+        public new virtual T GetTransparentProxy() => (T)base.GetTransparentProxy();
     }
 }
 

@@ -3,234 +3,280 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Relational.Migrations;
+using Microsoft.Data.Entity.Relational.Migrations.History;
 using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
-using Microsoft.Data.Entity.Relational.Migrations.MigrationsModel;
-using Microsoft.Data.Entity.Relational.Migrations.Utilities;
+using Microsoft.Data.Entity.Relational.Migrations.Operations;
 using Microsoft.Data.Entity.Utilities;
+using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Commands.Migrations
 {
     public class MigrationScaffolder
     {
-        private readonly DbContext _context;
-        private readonly IDbContextOptions _options;
+        private readonly Type _contextType;
         private readonly IModel _model;
         private readonly MigrationAssembly _migrationAssembly;
         private readonly ModelDiffer _modelDiffer;
+        private readonly MigrationIdGenerator _idGenerator;
         private readonly MigrationCodeGenerator _migrationCodeGenerator;
-
-        /// <summary>
-        ///     This constructor is intended only for use when creating test doubles that will override members
-        ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
-        ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
-        /// </summary>
-        protected MigrationScaffolder()
-        {
-        }
+        private readonly IHistoryRepository _historyRepository;
+        private readonly LazyRef<ILogger> _logger;
 
         public MigrationScaffolder(
-            [NotNull] DbContext context,
-            [NotNull] IDbContextOptions options,
-            [NotNull] IModel model,
+            [NotNull] DbContextService<DbContext> context,
+            [NotNull] DbContextService<IModel> model,
             [NotNull] MigrationAssembly migrationAssembly,
-            [NotNull] ModelDiffer modelDiffer,
-            [NotNull] MigrationCodeGenerator migrationCodeGenerator)
+            [NotNull] DbContextService<ModelDiffer> modelDiffer,
+            [NotNull] MigrationIdGenerator idGenerator,
+            [NotNull] MigrationCodeGenerator migrationCodeGenerator,
+            [NotNull] DbContextService<IHistoryRepository> historyRepository,
+            [NotNull] ILoggerFactory loggerFactory)
         {
-            Check.NotNull(context, "context");
-            Check.NotNull(options, "options");
-            Check.NotNull(model, "model");
-            Check.NotNull(migrationAssembly, "migrationAssembly");
-            Check.NotNull(modelDiffer, "modelDiffer");
-            Check.NotNull(migrationCodeGenerator, "migrationCodeGenerator");
+            Check.NotNull(context, nameof(context));
+            Check.NotNull(model, nameof(model));
+            Check.NotNull(migrationAssembly, nameof(migrationAssembly));
+            Check.NotNull(modelDiffer, nameof(modelDiffer));
+            Check.NotNull(idGenerator, nameof(idGenerator));
+            Check.NotNull(migrationCodeGenerator, nameof(migrationCodeGenerator));
+            Check.NotNull(historyRepository, nameof(historyRepository));
+            Check.NotNull(loggerFactory, nameof(loggerFactory));
 
-            _context = context;
-            _options = options;
-            _model = model;
+            _contextType = context.Service.GetType();
+            _model = model.Service;
             _migrationAssembly = migrationAssembly;
-            _modelDiffer = modelDiffer;
+            _modelDiffer = modelDiffer.Service;
+            _idGenerator = idGenerator;
             _migrationCodeGenerator = migrationCodeGenerator;
+            _historyRepository = historyRepository.Service;
+            _logger = new LazyRef<ILogger>(() => loggerFactory.Create<MigrationScaffolder>());
         }
 
-        protected MigrationAssembly MigrationAssembly
-        {
-            get { return _migrationAssembly; }
-        }
-
-        protected ModelDiffer ModelDiffer
-        {
-            get { return _modelDiffer; }
-        }
-
-        protected virtual MigrationCodeGenerator MigrationCodeGenerator
-        {
-            get { return _migrationCodeGenerator; }
-        }
+        protected virtual string ProductVersion =>
+            typeof(MigrationScaffolder).GetTypeInfo().Assembly
+                .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
 
         public virtual ScaffoldedMigration ScaffoldMigration(
             [NotNull] string migrationName,
             [NotNull] string rootNamespace)
         {
-            Check.NotEmpty(migrationName, "migrationName");
+            Check.NotEmpty(migrationName, nameof(migrationName));
+            Check.NotEmpty(rootNamespace, nameof(rootNamespace));
 
-            var existingMigrations = MigrationAssembly.Migrations.OrderBy(m => m.GetMigrationId()).ToList();
-
-            if (existingMigrations.Any(m => m.GetMigrationName() == migrationName))
+            if (_migrationAssembly.Migrations.Any(
+                m => _idGenerator.GetName(m.Id).Equals(migrationName, StringComparison.OrdinalIgnoreCase)))
             {
                 throw new InvalidOperationException(Strings.DuplicateMigrationName(migrationName));
             }
 
-            var lastMigration = existingMigrations.LastOrDefault();
-            var contextType = _context.GetType();
-            var migrationNamespace = GetNamespace(lastMigration, rootNamespace, contextType);
-            var lastModelSnapshot = MigrationAssembly.ModelSnapshot;
-            var modelSnapshotNamespace = GetNamespace(lastModelSnapshot, migrationNamespace);
-            var migration = CreateMigration(migrationName);
+            var lastMigration = _migrationAssembly.Migrations.LastOrDefault();
+            var migrationNamespace = lastMigration?.GetType().Namespace ?? rootNamespace + ".Migrations";
+            var modelSnapshot = _migrationAssembly.ModelSnapshot;
+            var lastModel = modelSnapshot?.Model;
+            var upOperations = _modelDiffer.GetDifferences(lastModel, _model);
+            var downOperations = upOperations.Any()
+                ? _modelDiffer.GetDifferences(_model, lastModel)
+                : new List<MigrationOperation>();
+            var migrationId = _idGenerator.CreateId(migrationName);
+            var modelSnapshotNamespace = modelSnapshot?.GetType().Namespace ?? migrationNamespace;
+            var modelSnapshotName = modelSnapshot?.GetType().Name ?? _contextType.Name + "ModelSnapshot";
 
-            var migrationCode = new IndentedStringBuilder();
-            var migrationMetadataCode = new IndentedStringBuilder();
-            var snapshotModelCode = new IndentedStringBuilder();
+            var migrationCode = _migrationCodeGenerator.Generate(
+                migrationNamespace,
+                migrationName,
+                upOperations,
+                downOperations);
+            var migrationMetadataCode = _migrationCodeGenerator.GenerateMetadata(
+                migrationNamespace,
+                _contextType,
+                migrationName,
+                migrationId,
+                ProductVersion,
+                _model);
+            var modelSnapshotCode = _migrationCodeGenerator.GenerateSnapshot(
+                modelSnapshotNamespace,
+                _contextType,
+                modelSnapshotName,
+                _model);
 
-            ScaffoldMigration(migrationNamespace, migration, contextType, migrationCode, migrationMetadataCode);
-            ScaffoldSnapshotModel(modelSnapshotNamespace, migration.TargetModel, contextType, snapshotModelCode);
-
-            return
-                new ScaffoldedMigration(migration.MigrationId)
-                {
-                    MigrationNamespace = migrationNamespace,
-                    ModelSnapshotNamespace = modelSnapshotNamespace,
-                    SnapshotModelClass = GetClassName(migration.TargetModel),
-                    Language = _migrationCodeGenerator.Language,
-                    MigrationCode = migrationCode.ToString(),
-                    MigrationMetadataCode = migrationMetadataCode.ToString(),
-                    SnapshotModelCode = snapshotModelCode.ToString(),
-                    LastMigration = lastMigration,
-                    LastModelSnapshot = lastModelSnapshot
-                };
+            return new ScaffoldedMigration(
+                _migrationCodeGenerator.Language,
+                lastMigration?.Id,
+                migrationCode,
+                migrationId,
+                migrationMetadataCode,
+                GetSubnamespace(rootNamespace, migrationNamespace),
+                modelSnapshotCode,
+                modelSnapshotName,
+                GetSubnamespace(rootNamespace, modelSnapshotNamespace));
         }
 
-        protected virtual MigrationInfo CreateMigration([NotNull] string migrationName)
+        protected virtual string GetSubnamespace([NotNull] string rootNamespace, [NotNull] string @namespace) =>
+            @namespace == rootNamespace
+                ? string.Empty
+                : @namespace.StartsWith(rootNamespace + '.')
+                    ? @namespace.Substring(rootNamespace.Length + 1)
+                    : @namespace;
+
+        // TODO: DRY (file names)
+        public virtual MigrationFiles RemoveMigration([NotNull] string projectDir, [NotNull] string rootNamespace)
         {
-            Check.NotEmpty(migrationName, "migrationName");
+            Check.NotEmpty(projectDir, nameof(projectDir));
+            Check.NotEmpty(rootNamespace, nameof(rootNamespace));
 
-            var sourceModel = MigrationAssembly.ModelSnapshot?.Model;
-            var targetModel = _model;
+            var files = new MigrationFiles();
 
-            IReadOnlyList<MigrationOperation> upgradeOperations, downgradeOperations;
-            if (sourceModel != null)
+            var modelSnapshot = _migrationAssembly.ModelSnapshot;
+            if (modelSnapshot == null)
             {
-                upgradeOperations = ModelDiffer.Diff(sourceModel, targetModel);
-                downgradeOperations = ModelDiffer.Diff(targetModel, sourceModel);
+                throw new InvalidOperationException(Strings.NoSnapshot);
+            }
+
+            var language = _migrationCodeGenerator.Language;
+
+            IModel model = null;
+            var migrations = _migrationAssembly.Migrations;
+            if (migrations.Count != 0)
+            {
+                var migration = migrations.Last();
+                model = migration.Target;
+
+                if (!_modelDiffer.HasDifferences(model, modelSnapshot.Model))
+                {
+                    if (_historyRepository.GetAppliedMigrations().Any(
+                        e => e.MigrationId.Equals(migration.Id, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        throw new InvalidOperationException(Strings.UnapplyMigration(migration.Id));
+                    }
+
+                    var migrationFileName = migration.Id + language;
+                    var migrationFile = TryGetProjectFile(projectDir, migrationFileName);
+                    if (migrationFile != null)
+                    {
+                        _logger.Value.WriteInformation(Strings.RemovingMigration(migration.Id));
+                        // TODO: Test version control. If broken, delete and write files in the commands
+                        File.Delete(migrationFile);
+                        files.MigrationFile = migrationFile;
+                    }
+                    else
+                    {
+                        _logger.Value.WriteWarning(Strings.NoMigrationFile(migrationFileName, migration.GetType().FullName));
+                    }
+
+                    var migrationMetadataFileName = migration.Id + ".Designer" + language;
+                    var migrationMetadataFile = TryGetProjectFile(projectDir, migrationMetadataFileName);
+                    if (migrationMetadataFile != null)
+                    {
+                        File.Delete(migrationMetadataFile);
+                        files.MigrationMetadataFile = migrationMetadataFile;
+                    }
+                    else
+                    {
+                        _logger.Value.WriteVerbose(Strings.NoMigrationMetadataFile(migrationMetadataFileName));
+                    }
+
+                    model = migrations.Count > 1 ? migrations[migrations.Count - 2].Target : null;
+                }
+                else
+                {
+                    _logger.Value.WriteVerbose(Strings.ManuallyDeleted);
+                }
+            }
+
+            var modelSnapshotName = modelSnapshot.GetType().Name;
+            var modelSnapshotFileName = modelSnapshotName + language;
+            var modelSnapshotFile = TryGetProjectFile(projectDir, modelSnapshotFileName);
+            if (model == null)
+            {
+                if (modelSnapshotFile != null)
+                {
+                    _logger.Value.WriteInformation(Strings.RemovingSnapshot);
+                    File.Delete(modelSnapshotFile);
+                    files.ModelSnapshotFile = modelSnapshotFile;
+                }
+                else
+                {
+                    _logger.Value.WriteWarning(
+                        Strings.NoSnapshotFile(modelSnapshotFileName, modelSnapshot.GetType().FullName));
+                }
             }
             else
             {
-                upgradeOperations = ModelDiffer.CreateSchema(targetModel);
-                downgradeOperations = ModelDiffer.DropSchema(targetModel);
-            }
+                var modelSnapshotNamespace = modelSnapshot.GetType().Namespace;
+                var modelSnapshotCode = _migrationCodeGenerator.GenerateSnapshot(
+                    modelSnapshotNamespace,
+                    _contextType,
+                    modelSnapshotName,
+                    model);
 
-            return
-                new MigrationInfo(CreateMigrationId(migrationName))
+                if (modelSnapshotFile == null)
                 {
-                    TargetModel = targetModel,
-                    UpgradeOperations = upgradeOperations,
-                    DowngradeOperations = downgradeOperations
-                };
-        }
+                    modelSnapshotFile = Path.Combine(
+                        GetDirectory(projectDir, null, GetSubnamespace(rootNamespace, modelSnapshotNamespace)),
+                        modelSnapshotFileName);
+                }
 
-        protected virtual string CreateMigrationId(string migrationName)
-        {
-            return MigrationMetadataExtensions.CreateMigrationId(migrationName);
-        }
-
-        protected virtual void ScaffoldMigration(
-            [NotNull] string migrationNamespace,
-            [NotNull] MigrationInfo migration,
-            [NotNull] Type contextType,
-            [NotNull] IndentedStringBuilder migrationCode,
-            [NotNull] IndentedStringBuilder migrationMetadataCode)
-        {
-            Check.NotEmpty(migrationNamespace, "migrationNamespace");
-            Check.NotNull(migration, "migration");
-            Check.NotNull(migrationCode, "migrationCode");
-            Check.NotNull(migrationMetadataCode, "migrationMetadataCode");
-
-            var className = GetClassName(migration);
-
-            MigrationCodeGenerator.GenerateMigrationClass(migrationNamespace, className, migration, migrationCode);
-            MigrationCodeGenerator.GenerateMigrationMetadataClass(migrationNamespace, className, migration, contextType, migrationMetadataCode);
-        }
-
-        public virtual void ScaffoldSnapshotModel(
-            [NotNull] string modelSnapshotNamespace,
-            [NotNull] IModel model,
-            [NotNull] Type contextType,
-            [NotNull] IndentedStringBuilder snapshotModelCode)
-        {
-            Check.NotEmpty(modelSnapshotNamespace, "modelSnapshotNamespace");
-            Check.NotNull(model, "model");
-            Check.NotNull(contextType, "contextType");
-            Check.NotNull(snapshotModelCode, "snapshotModelCode");
-
-            var className = GetClassName(model);
-
-            MigrationCodeGenerator.ModelCodeGenerator.GenerateModelSnapshotClass(modelSnapshotNamespace, className, model, contextType, snapshotModelCode);
-        }
-
-        protected virtual string GetClassName([NotNull] MigrationInfo migration)
-        {
-            Check.NotNull(migration, "migration");
-
-            // TODO: Generate valid C# class name from migration name.
-            return migration.GetMigrationName();
-        }
-
-        protected virtual string GetClassName([NotNull] IModel model)
-        {
-            Check.NotNull(model, "model");
-
-            return _context.GetType().Name + "ModelSnapshot";
-        }
-
-        // Internal for testing
-        protected internal virtual string GetNamespace(
-            [CanBeNull] Migration lastMigration,
-            [NotNull] string rootNamespace,
-            [NotNull] Type contextType)
-        {
-            Check.NotEmpty(rootNamespace, "rootNamespace");
-            Check.NotNull(contextType, "contextType");
-
-            if (lastMigration != null)
-            {
-                return lastMigration.GetType().Namespace;
+                _logger.Value.WriteInformation(Strings.RevertingSnapshot);
+                File.WriteAllText(modelSnapshotFile, modelSnapshotCode);
             }
 
-            var @namespace = rootNamespace + ".Migrations";
+            return files;
+        }
 
-            var existingMigrations =
-                from t in MigrationAssembly.GetMigrationTypes(MigrationAssembly.Assembly)
-                where t.Namespace == @namespace && MigrationAssembly.TryGetContextType(t) != contextType
-                select t;
-            if (existingMigrations.Any())
+        public virtual MigrationFiles Write([NotNull] string projectDir, [NotNull] ScaffoldedMigration migration)
+        {
+            Check.NotEmpty(projectDir, nameof(projectDir));
+            Check.NotNull(migration, nameof(migration));
+
+            var lastMigrationFileName = migration.LastMigrationId + migration.Language;
+            var migrationDirectory = GetDirectory(projectDir, lastMigrationFileName, migration.MigrationSubnamespace);
+            var migrationFile = Path.Combine(migrationDirectory, migration.MigrationId + migration.Language);
+            var migrationMetadataFile = Path.Combine(migrationDirectory, migration.MigrationId + ".Designer" + migration.Language);
+            var modelSnapshotFileName = migration.ModelSnapshotName + migration.Language;
+            var modelSnapshotDirectory = GetDirectory(projectDir, modelSnapshotFileName, migration.ModelSnapshotSubnamespace);
+            var modelSnapshotFile = Path.Combine(modelSnapshotDirectory, modelSnapshotFileName);
+
+            // TODO: Test version control. If broken, determine paths in Scaffold and write files in the commands
+            Directory.CreateDirectory(migrationDirectory);
+            File.WriteAllText(migrationFile, migration.MigrationCode);
+            File.WriteAllText(migrationMetadataFile, migration.MigrationMetadataCode);
+            Directory.CreateDirectory(modelSnapshotDirectory);
+            File.WriteAllText(modelSnapshotFile, migration.ModelSnapshotCode);
+
+            return new MigrationFiles
             {
-                return @namespace + "." + contextType.Name;
+                MigrationFile = migrationFile,
+                MigrationMetadataFile = migrationMetadataFile,
+                ModelSnapshotFile = modelSnapshotFile
+            };
+        }
+
+        protected virtual string GetDirectory(
+            [NotNull] string projectDir,
+            [CanBeNull] string siblingFileName,
+            [NotNull] string subnamespace)
+        {
+            Check.NotEmpty(projectDir, nameof(projectDir));
+            Check.NotEmpty(subnamespace, nameof(subnamespace));
+
+            if (siblingFileName != null)
+            {
+                var siblingPath = TryGetProjectFile(projectDir, siblingFileName);
+                if (siblingPath != null)
+                {
+                    return Path.GetDirectoryName(siblingPath);
+                }
             }
 
-            return @namespace;
+            return Path.Combine(projectDir, Path.Combine(subnamespace.Split('.')));
         }
 
-        // Internal for testing
-        protected internal virtual string GetNamespace(
-            [CanBeNull] ModelSnapshot modelSnapshot,
-            [NotNull] string migrationNamespace)
-        {
-            Check.NotEmpty(migrationNamespace, "migrationNamespace");
-
-            return modelSnapshot?.GetType().Namespace ?? migrationNamespace;
-        }
+        protected virtual string TryGetProjectFile([NotNull] string projectDir, [NotNull] string fileName) =>
+            Directory.EnumerateFiles(projectDir, fileName, SearchOption.AllDirectories).FirstOrDefault();
     }
 }

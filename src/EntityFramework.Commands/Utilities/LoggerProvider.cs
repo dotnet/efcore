@@ -14,14 +14,11 @@ namespace Microsoft.Data.Entity.Commands.Utilities
 
         public LoggerProvider([NotNull] Func<string, ILogger> creator)
         {
-            Check.NotNull(creator, "creator");
+            Check.NotNull(creator, nameof(creator));
 
             _creator = creator;
         }
 
-        public virtual ILogger Create(string name)
-        {
-            return _creator(name);
-        }
+        public virtual ILogger Create(string name) => _creator(name);
     }
 }

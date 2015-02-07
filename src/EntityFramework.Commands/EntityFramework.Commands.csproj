@@ -18,7 +18,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;NET451</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;NET451;VSBUILD</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -27,7 +27,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;NET451</DefineConstants>
+    <DefineConstants>TRACE;NET451;VSBUILD</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -37,6 +37,9 @@
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <PackageReference Include="System.Data.Common">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
     <PackageReference Include="Microsoft.Framework.DependencyInjection">
@@ -56,13 +59,20 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.tt</DependentUpon>
     </Compile>
+    <Compile Include="..\Shared\SharedTypeExtensions.cs">
+      <Link>SharedTypeExtensions.cs</Link>
+    </Compile>
     <Compile Include="ContextTool.cs" />
+    <Compile Include="DesignTimeServices.cs" />
     <Compile Include="Executor.cs" />
     <Compile Include="IHandlers.cs" />
     <Compile Include="MigrationTool.cs" />
     <Compile Include="Migrations\ScaffoldedMigration.cs" />
-    <Compile Include="Migrations\CSharpMigrationCodeGenerator.cs" />
-    <Compile Include="Migrations\CSharpModelCodeGenerator.cs" />
+    <Compile Include="Migrations\CSharpMigrationGenerator.cs" />
+    <Compile Include="Migrations\CSharpMigrationOperationGenerator.cs" />
+    <Compile Include="Migrations\CSharpModelGenerator.cs" />
+    <Compile Include="Migrations\MigrationCodeGenerator.cs" />
+    <Compile Include="Migrations\MigrationFiles.cs" />
     <Compile Include="Migrations\MigrationScaffolder.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -70,7 +80,6 @@
     <Compile Include="..\Shared\CodeAnnotations.cs">
       <Link>Utilities\CodeAnnotations.cs</Link>
     </Compile>
-    <Compile Include="..\Shared\SharedTypeExtensions.cs" />
     <Compile Include="Properties\Strings.Designer.cs">
       <DependentUpon>Strings.resx</DependentUpon>
     </Compile>
@@ -83,10 +92,8 @@
     <Compile Include="Utilities\CommandLoggerAdapter.cs" />
     <Compile Include="Utilities\ConsoleCommandLogger.cs" />
     <Compile Include="Utilities\CSharpHelper.cs" />
-    <Compile Include="Utilities\EnumerableExtensions.cs" />
     <Compile Include="Utilities\ForwardingProxy.cs" />
     <Compile Include="Utilities\LoggerProvider.cs" />
-    <Compile Include="Utilities\TypeExtensions.cs" />
     <EmbeddedResource Include="Properties\Strings.resx">
       <LogicalName>EntityFramework.Commands.Strings.resources</LogicalName>
       <SubType>Designer</SubType>

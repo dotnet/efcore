@@ -7,7 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Relational.Migrations.MigrationsModel;
+using Microsoft.Data.Entity.Relational.Migrations.Operations;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational.Migrations.Builders
@@ -15,72 +15,89 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Builders
     public class TableBuilder<TColumns>
     {
         private readonly CreateTableOperation _createTableOperation;
-        private readonly IDictionary<PropertyInfo, Column> _propertyInfoToColumnMap;
+        private readonly IDictionary<PropertyInfo, ColumnModel> _propertyInfoToColumnMap;
 
         public TableBuilder(
             [NotNull] CreateTableOperation createTableOperation,
-            [NotNull] IDictionary<PropertyInfo, Column> propertyInfoToColumnMap)
+            [NotNull] IDictionary<PropertyInfo, ColumnModel> propertyInfoToColumnMap)
         {
-            Check.NotNull(createTableOperation, "createTableOperation");
-            Check.NotNull(propertyInfoToColumnMap, "propertyInfoToColumnMap");
+            Check.NotNull(createTableOperation, nameof(createTableOperation));
+            Check.NotNull(propertyInfoToColumnMap, nameof(propertyInfoToColumnMap));
 
             _createTableOperation = createTableOperation;
             _propertyInfoToColumnMap = propertyInfoToColumnMap;
         }
 
         public virtual TableBuilder<TColumns> PrimaryKey(
-            [NotNull] string name,
-            [NotNull] Expression<Func<TColumns, object>> primaryKeyExpression,
-            bool clustered = true)
+            [NotNull] Expression<Func<TColumns, object>> keyExpression,
+            [CanBeNull] string name = null,
+            [CanBeNull] IReadOnlyDictionary<string, string> annotations = null)
         {
-            Check.NotEmpty(name, "name");
-            Check.NotNull(primaryKeyExpression, "primaryKeyExpression");
+            Check.NotNull(keyExpression, nameof(keyExpression));
 
-            var columnNames = primaryKeyExpression.GetPropertyAccessList()
+            var columns = keyExpression.GetPropertyAccessList()
                 .Select(p => _propertyInfoToColumnMap[p].Name)
                 .ToArray();
 
             _createTableOperation.PrimaryKey = new AddPrimaryKeyOperation(
-                _createTableOperation.TableName, name, columnNames, clustered);
+                _createTableOperation.Name,
+                _createTableOperation.Schema,
+                name,
+                columns,
+                annotations);
 
             return this;
         }
 
         public virtual TableBuilder<TColumns> UniqueConstraint(
-            [NotNull] string name,
-            [NotNull] Expression<Func<TColumns, object>> uniqueConstraintExpression)
+            [NotNull] Expression<Func<TColumns, object>> keyExpression,
+            [CanBeNull] string name = null,
+            [CanBeNull] IReadOnlyDictionary<string, string> annotations = null)
         {
-            Check.NotEmpty(name, "name");
-            Check.NotNull(uniqueConstraintExpression, "uniqueConstraintExpression");
+            Check.NotNull(keyExpression, nameof(keyExpression));
 
-            var columnNames = uniqueConstraintExpression.GetPropertyAccessList()
+            var columns = keyExpression.GetPropertyAccessList()
                 .Select(p => _propertyInfoToColumnMap[p].Name)
                 .ToArray();
 
-            _createTableOperation.UniqueConstraints.Add(new AddUniqueConstraintOperation(
-                _createTableOperation.TableName, name, columnNames));
+            _createTableOperation.UniqueConstraints.Add(
+                new AddUniqueConstraintOperation(
+                    _createTableOperation.Name,
+                    _createTableOperation.Schema,
+                    name,
+                    columns,
+                    annotations));
 
             return this;
         }
 
         public virtual TableBuilder<TColumns> ForeignKey(
-            [NotNull] string name,
-            [NotNull] Expression<Func<TColumns, object>> foreignKeyExpression,
-            [NotNull] string referencedTableName,
-            [NotNull] IReadOnlyList<string> referencedColumnNames,
-            bool cascadeDelete = false)
+            [NotNull] Expression<Func<TColumns, object>> dependentKeyExpression,
+            [NotNull] string principalTable,
+            [CanBeNull] string principalSchema = null,
+            [CanBeNull] IReadOnlyList<string> principalColumns = null,
+            bool cascadeDelete = false,
+            [CanBeNull] string name = null,
+            [CanBeNull] IReadOnlyDictionary<string, string> annotations = null)
         {
-            Check.NotEmpty(name, "name");
-            Check.NotNull(foreignKeyExpression, "foreignKeyExpression");
-            Check.NotEmpty(referencedTableName, "referencedTableName");
-            Check.NotNull(referencedColumnNames, "referencedColumnNames");
+            Check.NotNull(dependentKeyExpression, nameof(dependentKeyExpression));
+            Check.NotEmpty(principalTable, nameof(principalTable));
 
-            var columnNames = foreignKeyExpression.GetPropertyAccessList()
+            var dependentColumns = dependentKeyExpression.GetPropertyAccessList()
                 .Select(p => _propertyInfoToColumnMap[p].Name)
-                .ToArray();
+                .ToList();
 
-            _createTableOperation.ForeignKeys.Add(new AddForeignKeyOperation(
-                _createTableOperation.TableName, name, columnNames, referencedTableName, referencedColumnNames, cascadeDelete));
+            _createTableOperation.ForeignKeys.Add(
+                new AddForeignKeyOperation(
+                    _createTableOperation.Name,
+                    _createTableOperation.Schema,
+                    name,
+                    dependentColumns,
+                    principalTable,
+                    principalSchema,
+                    principalColumns,
+                    cascadeDelete,
+                    annotations));
 
             return this;
         }
@@ -89,17 +106,22 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Builders
             [NotNull] string name,
             [NotNull] Expression<Func<TColumns, object>> indexExpression,
             bool unique = false,
-            bool clustered = false)
+            [CanBeNull] IReadOnlyDictionary<string, string> annotations = null)
         {
-            Check.NotEmpty(name, "name");
-            Check.NotNull(indexExpression, "indexExpression");
+            Check.NotNull(indexExpression, nameof(indexExpression));
 
-            var columnNames = indexExpression.GetPropertyAccessList()
+            var columns = indexExpression.GetPropertyAccessList()
                 .Select(p => _propertyInfoToColumnMap[p].Name)
-                .ToArray();
+                .ToList();
 
-            _createTableOperation.Indexes.Add(new CreateIndexOperation(
-                _createTableOperation.TableName, name, columnNames, unique, clustered));
+            _createTableOperation.Indexes.Add(
+                new CreateIndexOperation(
+                    name,
+                    _createTableOperation.Name,
+                    _createTableOperation.Schema,
+                    columns,
+                    unique,
+                    annotations));
 
             return this;
         }

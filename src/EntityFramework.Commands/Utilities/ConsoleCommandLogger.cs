@@ -9,6 +9,7 @@ namespace Microsoft.Data.Entity.Commands.Utilities
 {
     public class ConsoleCommandLogger : CommandLogger
     {
+        private static readonly object _sync = new object();
         private readonly bool _verbose;
 
         public ConsoleCommandLogger([NotNull] string name, bool verbose)
@@ -17,32 +18,39 @@ namespace Microsoft.Data.Entity.Commands.Utilities
             _verbose = verbose;
         }
 
-        public override bool IsEnabled(LogLevel logLevel)
-        {
-            return base.IsEnabled(logLevel) && (logLevel != LogLevel.Verbose || _verbose);
-        }
+        public override bool IsEnabled(LogLevel logLevel) =>
+            base.IsEnabled(logLevel) && (logLevel != LogLevel.Verbose || _verbose);
 
         protected override void WriteWarning(string message)
         {
-            using (new ColorScope(ConsoleColor.Yellow))
+            lock (_sync)
             {
-                Console.WriteLine(message);
+                using (new ColorScope(ConsoleColor.Yellow))
+                {
+                    Console.WriteLine(message);
+                }
             }
         }
 
         protected override void WriteInformation(string message)
         {
-            using (new ColorScope(ConsoleColor.Gray))
+            lock (_sync)
             {
-                Console.WriteLine(message);
+                using (new ColorScope(ConsoleColor.Gray))
+                {
+                    Console.WriteLine(message);
+                }
             }
         }
 
         protected override void WriteVerbose(string message)
         {
-            using (new ColorScope(ConsoleColor.DarkGray))
+            lock (_sync)
             {
-                Console.WriteLine(message);
+                using (new ColorScope(ConsoleColor.DarkGray))
+                {
+                    Console.WriteLine(message);
+                }
             }
         }
     }

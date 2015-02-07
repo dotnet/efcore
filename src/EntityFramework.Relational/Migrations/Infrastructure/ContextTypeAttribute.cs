@@ -10,18 +10,13 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
     public class ContextTypeAttribute : Attribute
     {
-        private readonly Type _contextType;
-
         public ContextTypeAttribute([NotNull] Type contextType)
         {
-            Check.NotNull(contextType, "contextType");
+            Check.NotNull(contextType, nameof(contextType));
 
-            _contextType = contextType;
+            ContextType = contextType;
         }
 
-        public virtual Type ContextType
-        {
-            get { return _contextType; }
-        }
+        public virtual Type ContextType { get; }
     }
 }

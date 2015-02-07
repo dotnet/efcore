@@ -6,6 +6,8 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational
@@ -31,6 +33,22 @@ namespace Microsoft.Data.Entity.Relational
             = new RelationalSizedTypeMapping("varchar(4000)", DbType.AnsiString, 4000);
 
         private readonly RelationalDecimalTypeMapping _decimalMapping = new RelationalDecimalTypeMapping(18, 2);
+
+        public virtual RelationalTypeMapping GetTypeMapping([NotNull] IProperty property) =>
+            GetTypeMapping(
+                property.Relational().ColumnType,
+                property.Relational().Column,
+                property.UnderlyingType,
+                property.IsKey() || property.IsForeignKey(),
+                property.IsConcurrencyToken);
+
+        public virtual RelationalTypeMapping GetTypeMapping([NotNull] ISequence sequence) =>
+            GetTypeMapping(
+                /*specifiedType:*/ null,
+                sequence.Name,
+                sequence.Type,
+                isKey: false,
+                isConcurrencyToken: false);
 
         // TODO: It would be nice to just pass IProperty into this method, but Migrations uses its own
         // store model for which there is no easy way to get an IProperty.

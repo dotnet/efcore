@@ -118,6 +118,7 @@
     <Compile Include="Internal\IAccessor.cs" />
     <Compile Include="Internal\InternalDbSet.cs" />
     <Compile Include="Metadata\BasicModelBuilder.cs" />
+    <Compile Include="Metadata\KeyExtensions.cs" />
     <Compile Include="Metadata\ModelConventions\ConventionDispatcher.cs" />
     <Compile Include="Metadata\ModelConventions\ConventionSet.cs" />
     <Compile Include="Metadata\ModelConventions\IRelationshipConvention.cs" />

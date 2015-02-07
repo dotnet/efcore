@@ -4,6 +4,7 @@
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Relational;
+using Microsoft.Data.Entity.Relational.Migrations;
 using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.SqlServer
@@ -14,7 +15,7 @@ namespace Microsoft.Data.Entity.SqlServer
             [NotNull] DbContextService<DbContext> context,
             [NotNull] SqlServerDataStoreCreator dataStoreCreator,
             [NotNull] SqlServerConnection connection,
-            [NotNull] SqlServerMigrator migrator,
+            [NotNull] Migrator migrator,
             [NotNull] ILoggerFactory loggerFactory)
             : base(context, dataStoreCreator, connection, migrator, loggerFactory)
         {

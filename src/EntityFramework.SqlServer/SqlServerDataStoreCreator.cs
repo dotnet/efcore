@@ -1,15 +1,15 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Relational.Migrations.MigrationsModel;
 using Microsoft.Data.Entity.Relational;
+using Microsoft.Data.Entity.Relational.Migrations.Operations;
+using Microsoft.Data.Entity.SqlServer.Migrations;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.SqlServer
@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.SqlServer
     {
         private readonly SqlServerConnection _connection;
         private readonly SqlServerModelDiffer _modelDiffer;
-        private readonly SqlServerMigrationOperationSqlGeneratorFactory _sqlGeneratorFactory;
+        private readonly SqlServerMigrationSqlGenerator _sqlGenerator;
         private readonly SqlStatementExecutor _statementExecutor;
 
         /// <summary>
@@ -33,17 +33,17 @@ namespace Microsoft.Data.Entity.SqlServer
         public SqlServerDataStoreCreator(
             [NotNull] SqlServerConnection connection,
             [NotNull] SqlServerModelDiffer modelDiffer,
-            [NotNull] SqlServerMigrationOperationSqlGeneratorFactory sqlGeneratorFactory,
+            [NotNull] SqlServerMigrationSqlGenerator sqlGenerator,
             [NotNull] SqlStatementExecutor statementExecutor)
         {
             Check.NotNull(connection, "connection");
             Check.NotNull(modelDiffer, "modelDiffer");
-            Check.NotNull(sqlGeneratorFactory, "sqlGeneratorFactory");
+            Check.NotNull(sqlGenerator, nameof(sqlGenerator));
             Check.NotNull(statementExecutor, "statementExecutor");
 
             _connection = connection;
             _modelDiffer = modelDiffer;
-            _sqlGeneratorFactory = sqlGeneratorFactory;
+            _sqlGenerator = sqlGenerator;
             _statementExecutor = statementExecutor;
         }
 
@@ -101,9 +101,7 @@ namespace Microsoft.Data.Entity.SqlServer
 
         private IEnumerable<SqlBatch> CreateSchemaCommands(IModel model)
         {
-            var sqlGenerator = _sqlGeneratorFactory.Create(model);
-
-            return sqlGenerator.Generate(_modelDiffer.CreateSchema(model));
+            return _sqlGenerator.Generate(_modelDiffer.GetDifferences(null, model), model);
         }
 
         private string CreateHasTablesCommand()
@@ -114,9 +112,8 @@ namespace Microsoft.Data.Entity.SqlServer
         private IEnumerable<SqlBatch> CreateCreateOperations()
         {
             var databaseName = _connection.DbConnection.Database;
-            var sqlGenerator = _sqlGeneratorFactory.Create();
 
-            return sqlGenerator.Generate(new CreateDatabaseOperation(databaseName));
+            return _sqlGenerator.Generate(new[] { new CreateDatabaseOperation(databaseName) });
         }
 
         public override bool Exists()
@@ -245,8 +242,7 @@ namespace Microsoft.Data.Entity.SqlServer
                     new DropDatabaseOperation(_connection.DbConnection.Database)
                 };
 
-            var sqlGenerator = _sqlGeneratorFactory.Create();
-            var masterCommands = sqlGenerator.Generate(operations);
+            var masterCommands = _sqlGenerator.Generate(operations);
             return masterCommands;
         }
 

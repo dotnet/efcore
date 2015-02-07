@@ -67,6 +67,19 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
         }
 
         [CanBeNull]
+        public new virtual string ComputedExpression
+        {
+            get { return base.ComputedExpression; }
+            [param: CanBeNull]
+            set
+            {
+                Check.NullButNotEmpty(value, nameof(value));
+
+                ((Property)Property)[SqlServerComputedExpressionAnnotation] = value;
+            }
+        }
+
+        [CanBeNull]
         public new virtual string SequenceName
         {
             get { return base.SequenceName; }

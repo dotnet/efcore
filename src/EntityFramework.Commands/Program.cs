@@ -1,17 +1,14 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-
 #if ASPNET50 || ASPNETCORE50
 
 using System;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Utilities;
 using Microsoft.Data.Entity.Commands.Utilities;
-using Microsoft.Data.Entity.Relational.Migrations.Utilities;
+using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Runtime;
 using Microsoft.Framework.Runtime.Common.CommandLine;
 
@@ -28,8 +25,8 @@ namespace Microsoft.Data.Entity.Commands
 
         public Program([NotNull] IApplicationEnvironment appEnv, [NotNull] ILibraryManager libraryManager)
         {
-            Check.NotNull(appEnv, "appEnv");
-            Check.NotNull(libraryManager, "libraryManager");
+            Check.NotNull(appEnv, nameof(appEnv));
+            Check.NotNull(libraryManager, nameof(libraryManager));
 
             _projectDir = appEnv.ApplicationBasePath;
             _rootNamespace = appEnv.ApplicationName;
@@ -43,7 +40,7 @@ namespace Microsoft.Data.Entity.Commands
 
         public virtual int Main([NotNull] string[] args)
         {
-            Check.NotNull(args, "args");
+            Check.NotNull(args, nameof(args));
 
             // TODO: Enable subcommands in help
             _app = new CommandLineApplication { Name = "ef" };
@@ -175,9 +172,7 @@ namespace Microsoft.Data.Entity.Commands
                 addHelpCommand: false);
             _app.OnExecute(() => ShowHelp(command: null));
 
-            var returnValue = _app.Execute(args);
-
-            return returnValue;
+            return _app.Execute(args);
         }
 
         public virtual int ListContexts()
@@ -212,7 +207,7 @@ namespace Microsoft.Data.Entity.Commands
                 startupProject,
                 () =>
                 {
-                    _migrationTool.AddMigration(name, context, _rootNamespace, _projectDir).ToArray();
+                    _migrationTool.AddMigration(name, context, _rootNamespace, _projectDir);
 
                     return 0;
                 });
@@ -237,7 +232,7 @@ namespace Microsoft.Data.Entity.Commands
             foreach (var migration in migrations)
             {
                 // TODO: Show simple names
-                Console.WriteLine(migration.GetMigrationId());
+                Console.WriteLine(migration.Id);
                 any = true;
             }
 
@@ -271,11 +266,7 @@ namespace Microsoft.Data.Entity.Commands
 
         public virtual int RemoveMigration([CanBeNull] string context)
         {
-            var filesToDelete = _migrationTool.RemoveMigration(context, _rootNamespace, _projectDir);
-            foreach (var file in filesToDelete)
-            {
-                File.Delete(file);
-            }
+            _migrationTool.RemoveMigration(context, _rootNamespace, _projectDir);
 
             return 0;
         }
@@ -300,7 +291,6 @@ namespace Microsoft.Data.Entity.Commands
         private int ExecuteInDirectory(string startupProject, Func<int> invoke)
         {
             var returnDirectory = Directory.GetCurrentDirectory();
-            int result = 1;
             try
             {
                 var startupProjectDir = GetProjectPath(startupProject);
@@ -310,15 +300,12 @@ namespace Microsoft.Data.Entity.Commands
                     Directory.SetCurrentDirectory(startupProjectDir);
                 }
 
-                result = invoke.Invoke();
+                return invoke.Invoke();
             }
-
             finally
             {
                 Directory.SetCurrentDirectory(returnDirectory);
             }
-
-            return result;
         }
 
         private string GetProjectPath(string projectName)

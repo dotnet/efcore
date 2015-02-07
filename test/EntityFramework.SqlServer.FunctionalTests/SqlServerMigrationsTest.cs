@@ -63,7 +63,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         }
 
         [ContextType(typeof(BloggingContext))]
-        public class EmptyMigration : Migration, IMigrationMetadata
+        public class EmptyMigration : Migration
         {
             public override void Up(MigrationBuilder migrationBuilder)
             {
@@ -73,17 +73,17 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
             }
 
-            public string MigrationId
+            public override string Id
             {
                 get { return "Empty"; }
             }
 
-            public string ProductVersion
+            public override string ProductVersion
             {
                 get { return "EF7"; }
             }
 
-            public IModel TargetModel
+            public override IModel Target
             {
                 get { return new Model(); }
             }

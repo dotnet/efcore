@@ -6,7 +6,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
+using Microsoft.Data.Entity.Commands.Migrations;
+using Microsoft.Data.Entity.Relational.Migrations;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 
@@ -14,10 +15,11 @@ namespace Microsoft.Data.Entity.Commands.Utilities
 {
     public abstract class CommandLogger : ILogger
     {
-        private static string[] _includedNames = new[]
+        private static readonly string[] _includedNames = new[]
         {
             typeof(MigrationTool).FullName,
-            typeof(Migrator).FullName
+            typeof(Migrator).FullName,
+            typeof(MigrationScaffolder).FullName
         };
 
         private readonly string _name;
@@ -25,18 +27,20 @@ namespace Microsoft.Data.Entity.Commands.Utilities
 
         public CommandLogger([NotNull] string name)
         {
-            Check.NotNull(name, "name");
+            Check.NotEmpty(name, nameof(name));
 
             _name = name;
             _enabledByName = _includedNames.Contains(name);
         }
 
-        public virtual bool IsEnabled(LogLevel logLevel)
-        {
-            return _enabledByName;
-        }
+        public virtual bool IsEnabled(LogLevel logLevel) => _enabledByName;
 
-        public virtual void Write(LogLevel logLevel, int eventId, object state, Exception exception, Func<object, Exception, string> formatter)
+        public virtual void Write(
+            LogLevel logLevel,
+            int eventId,
+            object state,
+            Exception exception,
+            Func<object, Exception, string> formatter)
         {
             if (!IsEnabled(logLevel))
             {
@@ -76,10 +80,7 @@ namespace Microsoft.Data.Entity.Commands.Utilities
             }
         }
 
-        public virtual IDisposable BeginScope(object state)
-        {
-            return null;
-        }
+        public virtual IDisposable BeginScope(object state) => null;
 
         protected abstract void WriteWarning(string message);
         protected abstract void WriteInformation(string message);

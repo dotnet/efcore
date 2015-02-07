@@ -3,8 +3,8 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.Data.Entity.Utilities;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational
 {
@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.Relational
             }
         }
 
-        public virtual void EndBatch()
+        public virtual SqlBatchBuilder EndBatch()
         {
             var sql = _stringBuilder.ToString();
             var sqlBatch = new SqlBatch(sql);
@@ -34,6 +34,8 @@ namespace Microsoft.Data.Entity.Relational
             }
 
             _stringBuilder = new IndentedStringBuilder();
+
+            return this;
         }
 
         public virtual SqlBatchBuilder Append([NotNull] object o, bool suppressTransaction = false)
@@ -60,7 +62,7 @@ namespace Microsoft.Data.Entity.Relational
                 EndBatch();
                 _transactionSuppressed = true;
             }
-            
+
             _stringBuilder.AppendLine(o);
             return this;
         }

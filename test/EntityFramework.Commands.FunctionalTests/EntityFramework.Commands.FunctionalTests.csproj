@@ -98,6 +98,10 @@
       <Project>{10ca97eb-e724-4f08-86af-f301f2b0bfff}</Project>
       <Name>EntityFramework.Commands</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\src\EntityFramework.SqlServer\EntityFramework.SqlServer.csproj">
+      <Project>{04e6620b-5b41-45fe-981a-f40eb7686b0e}</Project>
+      <Name>EntityFramework.SqlServer</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />

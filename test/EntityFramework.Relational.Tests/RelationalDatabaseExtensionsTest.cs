@@ -3,7 +3,7 @@
 
 using System;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
+using Microsoft.Data.Entity.Relational.Migrations;
 using Microsoft.Framework.Logging;
 using Moq;
 using Xunit;

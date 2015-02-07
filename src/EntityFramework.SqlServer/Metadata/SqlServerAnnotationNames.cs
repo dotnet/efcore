@@ -8,6 +8,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
         public const string Prefix = "SqlServer:";
         public const string Clustered = "Clustered";
         public const string ValueGeneration = "ValueGeneration";
+        public const string ColumnComputedExpression = "ColumnComputedExpression";
         public const string DefaultSequenceName = "DefaultSequenceName";
         public const string DefaultSequenceSchema = "DefaultSequenceSchema";
         public const string SequenceName = "SequenceName";

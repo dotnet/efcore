@@ -117,9 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="InvalidEnumValue" xml:space="preserve">
-    <value>The value provided for argument '{argumentName}' must be a valid value of enum type '{enumType}'.</value>
-  </data>
   <data name="DuplicateMigrationName" xml:space="preserve">
     <value>The name '{migrationName}' is used by an existing migration.</value>
   </data>
@@ -167,5 +164,11 @@
   </data>
   <data name="UnapplyMigration" xml:space="preserve">
     <value>The migration '{name}' has already been applied to the database. Unapply it and try again. If the migration has been applied to other databases, consider reverting its changes using a new migration.</value>
+  </data>
+  <data name="UnknownOperation" xml:space="preserve">
+    <value>The current CSharpMigrationOperationGenerator cannot scaffold operations of type '{operationType}'. Configure your services to use one that can.</value>
+  </data>
+  <data name="UnknownLiteral" xml:space="preserve">
+    <value>The current CSharpHelper cannot scaffold literals of type '{literalType}'. Configure your services to use one that can.</value>
   </data>
 </root>

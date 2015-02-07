@@ -1,11 +1,12 @@
 {
     "version": "7.0.0-*",
-    "description":  "Command line utilities for Entity Framework.",
+    "description": "Command line utilities for Entity Framework.",
     "compilationOptions": {
         "warningsAsErrors": true
     },
     "dependencies": {
         "EntityFramework.Relational": "7.0.0-*",
+        "Microsoft.CodeAnalysis.CSharp": "1.0.0-rc1-*",
         "Microsoft.Framework.DependencyInjection": "1.0.0-*"
     },
     "code": [ "**\\*.cs", "..\\Shared\\*.cs" ],
@@ -25,7 +26,7 @@
             }
         }
     },
-    "commands": { 
-        "ef":  "EntityFramework.Commands"
+    "commands": {
+        "ef": "EntityFramework.Commands"
     }
 }

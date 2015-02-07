@@ -14,6 +14,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
         protected const string SqlServerColumnTypeAnnotation = SqlServerAnnotationNames.Prefix + RelationalAnnotationNames.ColumnType;
         protected const string SqlServerDefaultExpressionAnnotation = SqlServerAnnotationNames.Prefix + RelationalAnnotationNames.ColumnDefaultExpression;
         protected const string SqlServerValueGenerationAnnotation = SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ValueGeneration;
+        protected const string SqlServerComputedExpressionAnnotation = SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ColumnComputedExpression;
         protected const string SqlServerSequenceNameAnnotation = SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.SequenceName;
         protected const string SqlServerSequenceSchemaAnnotation = SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.SequenceSchema;
         protected const string SqlServerDefaultValueAnnotation = SqlServerAnnotationNames.Prefix + RelationalAnnotationNames.ColumnDefaultValue;
@@ -47,6 +48,8 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
                        ?? base.DefaultValue;
             }
         }
+
+        public virtual string ComputedExpression => Property[SqlServerComputedExpressionAnnotation];
 
         public virtual SqlServerValueGenerationStrategy? ValueGenerationStrategy
         {

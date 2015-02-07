@@ -87,10 +87,6 @@
       <Link>Handlers.cs</Link>
     </Compile>
     <Compile Include="ApiConsistencyTest.cs" />
-    <Compile Include="Migrations\CodeGeneratorTestHelper.cs" />
-    <Compile Include="Migrations\CSharpMigrationCodeGeneratorTest.cs" />
-    <Compile Include="Migrations\CSharpModelCodeGeneratorTest.cs" />
-    <Compile Include="Migrations\MigrationScaffolderTest.cs" />
     <Compile Include="ExecutorTest.cs" />
     <Compile Include="HandlerTest.cs" />
     <None Include="App.config" />

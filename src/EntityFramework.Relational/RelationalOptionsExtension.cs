@@ -77,6 +77,8 @@ namespace Microsoft.Data.Entity.Relational
             }
         }
 
+        public virtual string MigrationsAssembly { get;[param: CanBeNull] set; }
+
         protected override void Configure(IReadOnlyDictionary<string, string> rawOptions)
         {
             base.Configure(rawOptions);

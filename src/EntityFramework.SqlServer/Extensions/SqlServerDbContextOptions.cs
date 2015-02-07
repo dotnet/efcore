@@ -4,6 +4,7 @@
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Relational;
+using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.SqlServer.Extensions
 {
@@ -25,6 +26,16 @@ namespace Microsoft.Data.Entity.SqlServer.Extensions
         {
             ((IDbContextOptions)Options)
                 .AddOrUpdateExtension<SqlServerOptionsExtension>(x => x.CommandTimeout = commandTimeout);
+
+            return this;
+        }
+
+        public virtual SqlServerDbContextOptions MigrationsAssembly([NotNull] string assemblyName)
+        {
+            Check.NotEmpty(assemblyName, nameof(assemblyName));
+
+            ((IDbContextOptions)Options)
+                .AddOrUpdateExtension<SqlServerOptionsExtension>(x => x.MigrationsAssembly = assemblyName);
 
             return this;
         }

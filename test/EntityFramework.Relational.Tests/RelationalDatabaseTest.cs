@@ -5,7 +5,7 @@ using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
+using Microsoft.Data.Entity.Relational.Migrations;
 using Microsoft.Data.Entity.Tests;
 using Microsoft.Framework.Logging;
 using Moq;

@@ -5,9 +5,12 @@ using System;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Relational;
+using Microsoft.Data.Entity.Relational.Migrations;
+using Microsoft.Data.Entity.Relational.Migrations.History;
 using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
+using Microsoft.Data.Entity.Relational.Migrations.Sql;
 using Microsoft.Data.Entity.Relational.Update;
-using Microsoft.Data.Entity.SqlServer.Metadata;
+using Microsoft.Data.Entity.SqlServer.Migrations;
 using Microsoft.Data.Entity.SqlServer.Update;
 using Microsoft.Data.Entity.Tests;
 using Microsoft.Framework.DependencyInjection;
@@ -38,28 +41,28 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             VerifySingleton<SqlServerTypeMapper>();
             VerifySingleton<SqlServerModificationCommandBatchFactory>();
             VerifySingleton<SqlServerCommandBatchPreparer>();
-            VerifySingleton<SqlServerMetadataExtensionProvider>();
-            VerifySingleton<SqlServerMigrationOperationFactory>();
             VerifySingleton<SqlServerModelSource>();
-            
+
             // SQL Server scoped
             VerifyScoped<SqlServerBatchExecutor>();
             VerifyScoped<SqlServerDataStoreServices>();
             VerifyScoped<SqlServerDataStore>();
             VerifyScoped<SqlServerConnection>();
-            VerifyScoped<SqlServerMigrationOperationProcessor>();
             VerifyScoped<SqlServerModelDiffer>();
             VerifyScoped<SqlServerDatabase>();
-            VerifyScoped<SqlServerMigrationOperationSqlGeneratorFactory>();
+            VerifyScoped<SqlServerMigrationSqlGenerator>();
             VerifyScoped<SqlServerDataStoreCreator>();
-            VerifyScoped<SqlServerMigrator>();
+            VerifyScoped<SqlServerHistoryRepository>();
 
             VerifyCommonDataStoreServices();
 
             // Migrations
             VerifyScoped<MigrationAssembly>();
-            VerifyScoped<HistoryRepository>();
-            VerifyScoped<DbContextService<Migrator>>();
+            VerifyScoped<DbContextService<IHistoryRepository>>();
+            VerifyScoped<Migrator>();
+            VerifySingleton<MigrationIdGenerator>();
+            VerifyScoped<DbContextService<ModelDiffer>>();
+            VerifyScoped<DbContextService<MigrationSqlGenerator>>();
         }
 
         protected override IServiceCollection GetServices(IServiceCollection services = null)

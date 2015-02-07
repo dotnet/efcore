@@ -80,13 +80,10 @@
     <Compile Include="SqlServerDbContextOptionsExtensionsTest.cs" />
     <Compile Include="SqlServerDatabaseExtensionsTest.cs" />
     <Compile Include="SqlServerDbContextOptionsTest.cs" />
-    <Compile Include="SqlServerMigrationOperationPreProcessorTest.cs" />
-    <Compile Include="SqlServerModelDifferTest.cs" />
     <Compile Include="SqlServerOptionsExtensionTest.cs" />
     <Compile Include="SqlServerConnectionTest.cs" />
     <Compile Include="SqlServerDataStoreSourceTest.cs" />
     <Compile Include="SqlServerEntityServicesBuilderExtensionsTest.cs" />
-    <Compile Include="SqlServerMigrationOperationSqlGeneratorTest.cs" />
     <Compile Include="SqlServerSequenceValueGeneratorFactoryTest.cs" />
     <Compile Include="SqlServerSequenceValueGeneratorTest.cs" />
     <Compile Include="SqlServerSqlGeneratorTest.cs" />

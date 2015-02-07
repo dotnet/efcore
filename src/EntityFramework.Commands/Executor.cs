@@ -10,7 +10,6 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Commands.Utilities;
-using Microsoft.Data.Entity.Relational.Migrations.Utilities;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Commands
@@ -23,8 +22,8 @@ namespace Microsoft.Data.Entity.Commands
 
         public Executor([NotNull] object logHandler, [NotNull] IDictionary args)
         {
-            Check.NotNull(logHandler, "logHandler");
-            Check.NotNull(args, "args");
+            Check.NotNull(logHandler, nameof(logHandler));
+            Check.NotNull(args, nameof(args));
 
             var unwrappedLogHandler = logHandler as ILogHandler
                 ?? new ForwardingProxy<ILogHandler>(logHandler).GetTransparentProxy();
@@ -45,8 +44,8 @@ namespace Microsoft.Data.Entity.Commands
             public GetContextType([NotNull] Executor executor, [NotNull] object resultHandler, [NotNull] IDictionary args)
                 : base(resultHandler)
             {
-                Check.NotNull(executor, "executor");
-                Check.NotNull(args, "args");
+                Check.NotNull(executor, nameof(executor));
+                Check.NotNull(args, nameof(args));
 
                 var name = (string)args["name"];
 
@@ -54,18 +53,16 @@ namespace Microsoft.Data.Entity.Commands
             }
         }
 
-        public virtual string GetContextTypeImpl([CanBeNull] string name)
-        {
-            return _migrationTool.GetContextType(name).AssemblyQualifiedName;
-        }
+        public virtual string GetContextTypeImpl([CanBeNull] string name) =>
+            _migrationTool.GetContextType(name).AssemblyQualifiedName;
 
         public class AddMigration : OperationBase
         {
             public AddMigration([NotNull] Executor executor, [NotNull] object resultHandler, [NotNull] IDictionary args)
                 : base(resultHandler)
             {
-                Check.NotNull(executor, "executor");
-                Check.NotNull(args, "args");
+                Check.NotNull(executor, nameof(executor));
+                Check.NotNull(args, nameof(args));
 
                 var migrationName = (string)args["migrationName"];
                 var contextTypeName = (string)args["contextTypeName"];
@@ -78,9 +75,14 @@ namespace Microsoft.Data.Entity.Commands
             [NotNull] string migrationName,
             [CanBeNull] string contextTypeName)
         {
-            Check.NotEmpty(migrationName, "migrationName");
+            Check.NotEmpty(migrationName, nameof(migrationName));
 
-            return _migrationTool.AddMigration(migrationName, contextTypeName, _rootNamespace, _projectDir);
+            var files = _migrationTool.AddMigration(migrationName, contextTypeName, _rootNamespace, _projectDir);
+
+            // NOTE: First file will be opened in VS
+            yield return files.MigrationFile;
+            yield return files.MigrationMetadataFile;
+            yield return files.ModelSnapshotFile;
         }
 
         public class ApplyMigration : OperationBase
@@ -88,8 +90,8 @@ namespace Microsoft.Data.Entity.Commands
             public ApplyMigration([NotNull] Executor executor, [NotNull] object resultHandler, [NotNull] IDictionary args)
                 : base(resultHandler)
             {
-                Check.NotNull(executor, "executor");
-                Check.NotNull(args, "args");
+                Check.NotNull(executor, nameof(executor));
+                Check.NotNull(args, nameof(args));
 
                 var migrationName = (string)args["migrationName"];
                 var contextTypeName = (string)args["contextTypeName"];
@@ -98,10 +100,8 @@ namespace Microsoft.Data.Entity.Commands
             }
         }
 
-        public virtual void ApplyMigrationImpl([CanBeNull] string migrationName, [CanBeNull] string contextTypeName)
-        {
+        public virtual void ApplyMigrationImpl([CanBeNull] string migrationName, [CanBeNull] string contextTypeName) =>
             _migrationTool.ApplyMigration(migrationName, contextTypeName);
-        }
 
         public class ScriptMigration : OperationBase
         {
@@ -111,8 +111,8 @@ namespace Microsoft.Data.Entity.Commands
                 [NotNull] IDictionary args)
                 : base(resultHandler)
             {
-                Check.NotNull(executor, "executor");
-                Check.NotNull(args, "args");
+                Check.NotNull(executor, nameof(executor));
+                Check.NotNull(args, nameof(args));
 
                 var fromMigrationName = (string)args["fromMigrationName"];
                 var toMigrationName = (string)args["toMigrationName"];
@@ -127,10 +127,8 @@ namespace Microsoft.Data.Entity.Commands
             [CanBeNull] string fromMigrationName,
             [CanBeNull] string toMigrationName,
             bool idempotent,
-            [CanBeNull] string contextTypeName)
-        {
-            return _migrationTool.ScriptMigration(fromMigrationName, toMigrationName, idempotent, contextTypeName);
-        }
+            [CanBeNull] string contextTypeName) =>
+            _migrationTool.ScriptMigration(fromMigrationName, toMigrationName, idempotent, contextTypeName);
 
         public class RemoveMigration : OperationBase
         {
@@ -140,8 +138,8 @@ namespace Microsoft.Data.Entity.Commands
                 [NotNull] IDictionary args)
                 : base(resultHandler)
             {
-                Check.NotNull(executor, "executor");
-                Check.NotNull(args, "args");
+                Check.NotNull(executor, nameof(executor));
+                Check.NotNull(args, nameof(args));
 
                 var contextTypeName = (string)args["contextTypeName"];
 
@@ -151,7 +149,22 @@ namespace Microsoft.Data.Entity.Commands
 
         public virtual IEnumerable<string> RemoveMigrationImpl([CanBeNull] string contextTypeName)
         {
-            return _migrationTool.RemoveMigration(contextTypeName, _rootNamespace, _projectDir);
+            var files = _migrationTool.RemoveMigration(contextTypeName, _rootNamespace, _projectDir);
+
+            if (files.MigrationFile != null)
+            {
+                yield return files.MigrationFile;
+            }
+
+            if (files.MigrationMetadataFile != null)
+            {
+                yield return files.MigrationMetadataFile;
+            }
+
+            if (files.ModelSnapshotFile != null)
+            {
+                yield return files.ModelSnapshotFile;
+            }
         }
 
         public class GetContextTypes : OperationBase
@@ -159,8 +172,8 @@ namespace Microsoft.Data.Entity.Commands
             public GetContextTypes([NotNull] Executor executor, [NotNull] object resultHandler, [NotNull] IDictionary args)
                 : base(resultHandler)
             {
-                Check.NotNull(executor, "executor");
-                Check.NotNull(args, "args");
+                Check.NotNull(executor, nameof(executor));
+                Check.NotNull(args, nameof(args));
 
                 Execute(() => executor.GetContextTypesImpl());
             }
@@ -194,8 +207,8 @@ namespace Microsoft.Data.Entity.Commands
             public GetMigrations([NotNull] Executor executor, [NotNull] object resultHandler, [NotNull] IDictionary args)
                 : base(resultHandler)
             {
-                Check.NotNull(executor, "executor");
-                Check.NotNull(args, "args");
+                Check.NotNull(executor, nameof(executor));
+                Check.NotNull(args, nameof(args));
 
                 var contextTypeName = (string)args["contextTypeName"];
 
@@ -203,25 +216,10 @@ namespace Microsoft.Data.Entity.Commands
             }
         }
 
-        // TODO: DRY (See GetContextTypesImpl)
-        public virtual IEnumerable<IDictionary> GetMigrationsImpl([CanBeNull] string contextTypeName)
-        {
-            var migrations = _migrationTool.GetMigrations(contextTypeName);
-            var groups = migrations.GroupBy(m => m.GetMigrationName()).ToArray();
-
-            return migrations.Select(
-                m =>
-                    {
-                        var migrationName = m.GetMigrationName();
-
-                        var result = new Hashtable();
-                        result["MigrationId"] = m.GetMigrationId();
-                        result["MigrationName"] = migrationName;
-                        result["SafeName"] = groups.Count(g => g.Key == migrationName) == 1 ? migrationName : m.GetMigrationId();
-
-                        return result;
-                    });
-        }
+        public virtual IEnumerable<IDictionary> GetMigrationsImpl([CanBeNull] string contextTypeName) =>
+            // TODO: Determine safe names
+            _migrationTool.GetMigrations(contextTypeName).Select(
+                m => new Hashtable {["MigrationId"] = m.Id,["MigrationName"] = m.Id,["SafeName"] = m.Id });
 
         public abstract class OperationBase : MarshalByRefObject
         {
@@ -229,20 +227,17 @@ namespace Microsoft.Data.Entity.Commands
 
             protected OperationBase([NotNull] object resultHandler)
             {
-                Check.NotNull(resultHandler, "resultHandler");
+                Check.NotNull(resultHandler, nameof(resultHandler));
 
                 _resultHandler = resultHandler as IResultHandler
                     ?? new ForwardingProxy<IResultHandler>(resultHandler).GetTransparentProxy();
             }
 
-            public virtual IResultHandler ResultHandler
-            {
-                get { return _resultHandler; }
-            }
+            public virtual IResultHandler ResultHandler => _resultHandler;
 
             public virtual void Execute([NotNull] Action action)
             {
-                Check.NotNull(action, "action");
+                Check.NotNull(action, nameof(action));
 
                 try
                 {
@@ -256,14 +251,14 @@ namespace Microsoft.Data.Entity.Commands
 
             public virtual void Execute<T>([NotNull] Func<T> action)
             {
-                Check.NotNull(action, "action");
+                Check.NotNull(action, nameof(action));
 
                 Execute(() => _resultHandler.OnResult(action()));
             }
 
             public virtual void Execute<T>([NotNull] Func<IEnumerable<T>> action)
             {
-                Check.NotNull(action, "action");
+                Check.NotNull(action, nameof(action));
 
                 Execute(() => _resultHandler.OnResult(action().ToArray()));
             }

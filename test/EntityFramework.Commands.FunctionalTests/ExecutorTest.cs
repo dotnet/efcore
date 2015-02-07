@@ -54,59 +54,56 @@ namespace Microsoft.Data.Entity.Commands
                         TargetDir = TargetDir,
                         References =
                             {
+                                BuildReference.ByName("System.Collections.Immutable", copyLocal: true),
+                                BuildReference.ByName("System.Data.Common", copyLocal: true),
+                                BuildReference.ByName("System.Interactive.Async", copyLocal: true),
                                 BuildReference.ByName("System.Runtime, Version=4.0.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"),
                                 BuildReference.ByName("EntityFramework.Core", copyLocal: true),
                                 BuildReference.ByName("EntityFramework.Commands", copyLocal: true),
                                 BuildReference.ByName("EntityFramework.Relational", copyLocal: true),
+                                BuildReference.ByName("EntityFramework.SqlServer", copyLocal: true),
+                                BuildReference.ByName("Microsoft.Framework.ConfigurationModel", copyLocal: true),
+                                BuildReference.ByName("Microsoft.Framework.DependencyInjection", copyLocal: true),
                                 BuildReference.ByName("Microsoft.Framework.Logging", copyLocal: true),
-                                BuildReference.ByName("Microsoft.Framework.Logging.Interfaces", copyLocal: true)
+                                BuildReference.ByName("Microsoft.Framework.Logging.Interfaces", copyLocal: true),
+                                BuildReference.ByName("Microsoft.Framework.OptionsModel", copyLocal: true),
+                                BuildReference.ByName("Remotion.Linq", copyLocal: true)
                             },
                         Source = @"
-                        using System;
-                        using Microsoft.Data.Entity;
-                        using Microsoft.Data.Entity.Metadata;
-                        using Microsoft.Data.Entity.Relational.Migrations;
-                        using Microsoft.Data.Entity.Relational.Migrations.Builders;
-                        using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
-                        using Microsoft.Data.Entity.Relational.Migrations.MigrationsModel;
+                            using System;
+                            using Microsoft.Data.Entity;
+                            using Microsoft.Data.Entity.Metadata;
+                            using Microsoft.Data.Entity.Relational.Migrations;
+                            using Microsoft.Data.Entity.Relational.Migrations.Builders;
+                            using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
 
-                        namespace SimpleProject
-                        {
-                            internal class SimpleContext : DbContext
+                            namespace SimpleProject
                             {
-                            }
-
-                            namespace Migrations
-                            {
-                                [ContextType(typeof(SimpleContext))]
-                                public class InitialCreate : Migration, IMigrationMetadata
+                                internal class SimpleContext : DbContext
                                 {
-                                    public string MigrationId
+                                    protected override void OnConfiguring(DbContextOptions options)
                                     {
-                                        get { return ""201410102227260_InitialCreate""; }
-                                    }
-
-                                    public string ProductVersion
-                                    {
-                                        get { throw new NotImplementedException(); }
-                                    }
-
-                                    public IModel TargetModel
-                                    {
-                                        get { throw new NotImplementedException(); }
-                                    }
-
-                                    public override void Up(MigrationBuilder migrationBuilder)
-                                    {
-                                    }
-
-                                    public override void Down(MigrationBuilder migrationBuilder)
-                                    {
+                                        options.UseSqlServer();
                                     }
                                 }
-                            }
-                        }
-                    "
+
+                                namespace Migrations
+                                {
+                                    [ContextType(typeof(SimpleContext))]
+                                    public class InitialCreate : Migration
+                                    {
+                                        public override string Id => ""201410102227260_InitialCreate"";
+
+                                        public override void Up(MigrationBuilder migrationBuilder)
+                                        {
+                                        }
+
+                                        public override void Down(MigrationBuilder migrationBuilder)
+                                        {
+                                        }
+                                    }
+                                }
+                            }"
                     };
                     var build = source.Build();
                     _executor = new ExecutorWrapper(TargetDir, build.TargetName + ".dll", TargetDir, "SimpleProject");
@@ -141,12 +138,20 @@ namespace Microsoft.Data.Entity.Commands
                     TargetDir = targetDir,
                     References =
                         {
+                            BuildReference.ByName("System.Collections.Immutable", copyLocal: true),
+                            BuildReference.ByName("System.Data.Common", copyLocal: true),
+                            BuildReference.ByName("System.Interactive.Async", copyLocal: true),
                             BuildReference.ByName("System.Runtime, Version=4.0.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"),
                             BuildReference.ByName("EntityFramework.Core", copyLocal: true),
                             BuildReference.ByName("EntityFramework.Commands", copyLocal: true),
                             BuildReference.ByName("EntityFramework.Relational", copyLocal: true),
+                            BuildReference.ByName("EntityFramework.SqlServer", copyLocal: true),
+                            BuildReference.ByName("Microsoft.Framework.ConfigurationModel", copyLocal: true),
+                            BuildReference.ByName("Microsoft.Framework.DependencyInjection", copyLocal: true),
                             BuildReference.ByName("Microsoft.Framework.Logging", copyLocal: true),
-                            BuildReference.ByName("Microsoft.Framework.Logging.Interfaces", copyLocal: true)
+                            BuildReference.ByName("Microsoft.Framework.Logging.Interfaces", copyLocal: true),
+                            BuildReference.ByName("Microsoft.Framework.OptionsModel", copyLocal: true),
+                            BuildReference.ByName("Remotion.Linq", copyLocal: true)
                         },
                     Source = @"
                         using System;
@@ -155,12 +160,15 @@ namespace Microsoft.Data.Entity.Commands
                         using Microsoft.Data.Entity.Relational.Migrations;
                         using Microsoft.Data.Entity.Relational.Migrations.Builders;
                         using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
-                        using Microsoft.Data.Entity.Relational.Migrations.MigrationsModel;
 
                         namespace MyProject
                         {
                             internal class Context1 : DbContext
                             {
+                                protected override void OnConfiguring(DbContextOptions options)
+                                {
+                                    options.UseSqlServer();
+                                }
                             }
 
                             internal class Context2 : DbContext
@@ -172,22 +180,9 @@ namespace Microsoft.Data.Entity.Commands
                                 namespace Context1Migrations
                                 {
                                     [ContextType(typeof(Context1))]
-                                    public class Context1Migration : Migration, IMigrationMetadata
+                                    public class Context1Migration : Migration
                                     {
-                                        public string MigrationId
-                                        {
-                                            get { return ""000000000000000_Context1Migration""; }
-                                        }
-
-                                        public string ProductVersion
-                                        {
-                                            get { throw new NotImplementedException(); }
-                                        }
-
-                                        public IModel TargetModel
-                                        {
-                                            get { throw new NotImplementedException(); }
-                                        }
+                                        public override string Id => ""000000000000000_Context1Migration"";
 
                                         public override void Up(MigrationBuilder migrationBuilder)
                                         {
@@ -202,35 +197,21 @@ namespace Microsoft.Data.Entity.Commands
                                 namespace Context2Migrations
                                 {
                                     [ContextType(typeof(Context2))]
-                                    public class Context2Migration : Migration, IMigrationMetadata
+                                    public class Context2Migration : Migration
                                     {
-                                        public string MigrationId
-                                        {
-                                            get { return ""000000000000000_Context2Migration""; }
-                                        }
-
-                                        public string ProductVersion
-                                        {
-                                            get { throw new NotImplementedException(); }
-                                        }
-
-                                        public IModel TargetModel
-                                        {
-                                            get { throw new NotImplementedException(); }
-                                        }
+                                        public override string Id => ""000000000000000_Context2Migration"";
 
                                         public override void Up(MigrationBuilder migrationBuilder)
                                         {
                                         }
-        
+
                                         public override void Down(MigrationBuilder migrationBuilder)
                                         {
                                         }
                                     }
                                 }
                             }
-                        }
-                    "
+                        }"
                 };
                 var build = source.Build();
                 using (var executor = new ExecutorWrapper(targetDir, build.TargetName + ".dll", targetDir, "MyProject"))
@@ -269,8 +250,7 @@ namespace Microsoft.Data.Entity.Commands
                             public class Context2 : DbContext
                             {
                             }
-                        }
-                    "
+                        }"
                 };
                 var contextsBuild = contextsSource.Build();
                 var migrationsSource = new BuildSource
@@ -292,7 +272,6 @@ namespace Microsoft.Data.Entity.Commands
                         using Microsoft.Data.Entity.Relational.Migrations;
                         using Microsoft.Data.Entity.Relational.Migrations.Builders;
                         using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
-                        using Microsoft.Data.Entity.Relational.Migrations.MigrationsModel;
 
                         namespace MyProject
                         {
@@ -305,22 +284,9 @@ namespace Microsoft.Data.Entity.Commands
                                 namespace Context1Migrations
                                 {
                                     [ContextType(typeof(Context1))]
-                                    public class Context1Migration : Migration, IMigrationMetadata
+                                    public class Context1Migration : Migration
                                     {
-                                        public string MigrationId
-                                        {
-                                            get { return ""000000000000000_Context1Migration""; }
-                                        }
-
-                                        public string ProductVersion
-                                        {
-                                            get { throw new NotImplementedException(); }
-                                        }
-
-                                        public IModel TargetModel
-                                        {
-                                            get { throw new NotImplementedException(); }
-                                        }
+                                        public override string Id => ""000000000000000_Context1Migration"";
 
                                         public override void Up(MigrationBuilder migrationBuilder)
                                         {
@@ -335,35 +301,21 @@ namespace Microsoft.Data.Entity.Commands
                                 namespace Context2Migrations
                                 {
                                     [ContextType(typeof(Context2))]
-                                    public class Context2Migration : Migration, IMigrationMetadata
+                                    public class Context2Migration : Migration
                                     {
-                                        public string MigrationId
-                                        {
-                                            get { return ""000000000000000_Context2Migration""; }
-                                        }
-
-                                        public string ProductVersion
-                                        {
-                                            get { throw new NotImplementedException(); }
-                                        }
-
-                                        public IModel TargetModel
-                                        {
-                                            get { throw new NotImplementedException(); }
-                                        }
+                                        public override string Id => ""000000000000000_Context2Migration"";
 
                                         public override void Up(MigrationBuilder migrationBuilder)
                                         {
                                         }
-        
+
                                         public override void Down(MigrationBuilder migrationBuilder)
                                         {
                                         }
                                     }
                                 }
                             }
-                        }
-                    "
+                        }"
                 };
                 var migrationsBuild = migrationsSource.Build();
                 using (var executor = new ExecutorWrapper(targetDir, migrationsBuild.TargetName + ".dll", targetDir, "MyProject"))

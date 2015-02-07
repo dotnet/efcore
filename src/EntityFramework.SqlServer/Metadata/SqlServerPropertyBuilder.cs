@@ -52,6 +52,15 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
             return this;
         }
 
+        public virtual SqlServerPropertyBuilder ComputedExpression([CanBeNull] string expression)
+        {
+            Check.NullButNotEmpty(expression, nameof(expression));
+
+            _property.SqlServer().ComputedExpression = expression;
+
+            return this;
+        }
+
         public virtual SqlServerPropertyBuilder UseSequence()
         {
             _property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Sequence;

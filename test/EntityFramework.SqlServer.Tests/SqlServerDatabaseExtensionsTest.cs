@@ -1,6 +1,7 @@
 using System;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Relational.Migrations;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Framework.Logging;
 using Moq;
@@ -17,7 +18,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 new DbContextService<DbContext>(() => null),
                 Mock.Of<SqlServerDataStoreCreator>(),
                 Mock.Of<SqlServerConnection>(),
-                Mock.Of<SqlServerMigrator>(),
+                Mock.Of<Migrator>(),
                 new LoggerFactory());
 
             Assert.Same(database, database.AsSqlServer());

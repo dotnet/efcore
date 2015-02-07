@@ -2,6 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Relational.Migrations;
+using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Relational.Update;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
@@ -21,7 +23,13 @@ namespace Microsoft.Data.Entity.Relational
                 .AddSingleton<RelationalObjectArrayValueReaderFactory>()
                 .AddSingleton<RelationalTypedValueReaderFactory>()
                 .AddSingleton<ParameterNameGeneratorFactory>()
-                .AddSingleton<ModificationCommandComparer>());
+                .AddSingleton<ModificationCommandComparer>()
+                .AddSingleton<MigrationIdGenerator>()
+                .AddScoped<Migrator>()
+                .AddScoped<MigrationAssembly>()
+                .AddScoped(RelationalDataStoreServices.ModelDifferFactory)
+                .AddScoped(RelationalDataStoreServices.HistoryRepositoryFactory)
+                .AddScoped(RelationalDataStoreServices.MigrationSqlGeneratorFactory));
 
             return builder;
         }

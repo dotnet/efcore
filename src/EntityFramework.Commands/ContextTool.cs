@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.Commands
     {
         public static DbContext CreateContext([NotNull] Type type)
         {
-            Check.NotNull(type, "type");
+            Check.NotNull(type, nameof(type));
 
             // TODO: Allow other construction patterns (See #639)
             return TryCreateContextFromStartup(type) ?? (DbContext)Activator.CreateInstance(type);
@@ -53,19 +53,15 @@ namespace Microsoft.Data.Entity.Commands
             return null;
         }
 
-        public static IEnumerable<Type> GetContextTypes([NotNull] Assembly assembly)
-        {
-            Check.NotNull(assembly, "assembly");
-
-            return assembly.GetTypes().Where(
+        public static IEnumerable<Type> GetContextTypes([NotNull] Assembly assembly) =>
+            assembly.GetTypes().Where(
                 t => !t.GetTypeInfo().IsAbstract
                      && !t.GetTypeInfo().IsGenericType
                      && typeof(DbContext).IsAssignableFrom(t));
-        }
 
         public static Type SelectType([NotNull] IEnumerable<Type> types, [CanBeNull] string name)
         {
-            Check.NotNull(types, "contextTypes");
+            Check.NotNull(types, nameof(types));
 
             Type[] candidates;
 

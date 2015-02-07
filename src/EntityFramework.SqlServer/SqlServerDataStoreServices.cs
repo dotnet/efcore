@@ -5,13 +5,17 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Relational;
+using Microsoft.Data.Entity.Relational.Migrations.History;
 using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
-using Microsoft.Data.Entity.Utilities;
+using Microsoft.Data.Entity.Relational.Migrations.Sql;
+using Microsoft.Data.Entity.SqlServer.Migrations;
 using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.SqlServer
 {
-    public class SqlServerDataStoreServices : MigrationsDataStoreServices
+    public class SqlServerDataStoreServices : RelationalDataStoreServices
     {
         private readonly SqlServerDataStore _store;
         private readonly SqlServerDataStoreCreator _creator;
@@ -19,7 +23,6 @@ namespace Microsoft.Data.Entity.SqlServer
         private readonly SqlServerValueGeneratorCache _valueGeneratorCache;
         private readonly SqlServerDatabase _database;
         private readonly SqlServerModelBuilderFactory _modelBuilderFactory;
-        private readonly SqlServerMigrator _migrator;
         private readonly SqlServerModelSource _modelSource;
 
         public SqlServerDataStoreServices(
@@ -29,7 +32,9 @@ namespace Microsoft.Data.Entity.SqlServer
             [NotNull] SqlServerValueGeneratorCache valueGeneratorCache,
             [NotNull] SqlServerDatabase database,
             [NotNull] SqlServerModelBuilderFactory modelBuilderFactory,
-            [NotNull] SqlServerMigrator migrator,
+            [NotNull] SqlServerModelDiffer modelDiffer,
+            [NotNull] SqlServerHistoryRepository historyRepository,
+            [NotNull] SqlServerMigrationSqlGenerator migrationSqlGenerator,
             [NotNull] SqlServerModelSource modelSource)
         {
             Check.NotNull(store, "store");
@@ -38,7 +43,9 @@ namespace Microsoft.Data.Entity.SqlServer
             Check.NotNull(valueGeneratorCache, "valueGeneratorCache");
             Check.NotNull(database, "database");
             Check.NotNull(modelBuilderFactory, "modelBuilderFactory");
-            Check.NotNull(migrator, "modelSource");
+            Check.NotNull(modelDiffer, nameof(modelDiffer));
+            Check.NotNull(historyRepository, nameof(historyRepository));
+            Check.NotNull(migrationSqlGenerator, nameof(migrationSqlGenerator));
             Check.NotNull(modelSource, "migrator");
 
             _store = store;
@@ -47,7 +54,9 @@ namespace Microsoft.Data.Entity.SqlServer
             _valueGeneratorCache = valueGeneratorCache;
             _database = database;
             _modelBuilderFactory = modelBuilderFactory;
-            _migrator = migrator;
+            ModelDiffer = modelDiffer;
+            HistoryRepository = historyRepository;
+            MigrationSqlGenerator = migrationSqlGenerator;
             _modelSource = modelSource;
         }
 
@@ -63,7 +72,9 @@ namespace Microsoft.Data.Entity.SqlServer
 
         public override ModelBuilderFactory ModelBuilderFactory => _modelBuilderFactory;
 
-        public override Migrator Migrator => _migrator;
+        public override ModelDiffer ModelDiffer { get; }
+        public override IHistoryRepository HistoryRepository { get; }
+        public override MigrationSqlGenerator MigrationSqlGenerator { get; }
 
         public override ModelSource ModelSource => _modelSource;
     }

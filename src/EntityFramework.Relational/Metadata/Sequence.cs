@@ -12,7 +12,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata
 {
     public class Sequence : ISequence
     {
-        public const string DefaultName = "EntityFrameworkDefaultSequence";
+        public const string DefaultName = "DefaultSequence";
         public const int DefaultIncrement = 10;
         public const long DefaultStartValue = 1;
         public static readonly Type DefaultType = typeof(long);

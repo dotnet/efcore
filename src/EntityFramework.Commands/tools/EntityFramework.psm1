@@ -422,7 +422,7 @@ function GetProjectItemByString($project, $itemName){
 }
 
 function Get-MigrationsStartUpProject($name, $fallbackProject)
-{    
+{
     $startUpProject = $null
 
     if ($name)
@@ -491,15 +491,15 @@ function Get-MigrationsStartUpProject($name, $fallbackProject)
 function Get-SolutionProjects()
 {
     $projects = New-Object System.Collections.Stack
-    
+
     $DTE.Solution.Projects | %{
         $projects.Push($_)
     }
-    
+
     while ($projects.Count -ne 0)
     {
         $project = $projects.Pop();
-        
+
         # NOTE: This line is similar to doing a "yield return" in C#
         $project
 

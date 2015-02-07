@@ -77,22 +77,6 @@ namespace Microsoft.Data.Entity.Relational
         }
 
         /// <summary>
-        /// The specified CommandTimeout value is not valid. It must be a positive number.
-        /// </summary>
-        public static string InvalidCommandTimeout
-        {
-            get { return GetString("InvalidCommandTimeout"); }
-        }
-
-        /// <summary>
-        /// The specified MaxBatchSize value is not valid. It must be a positive number.
-        /// </summary>
-        public static string InvalidMaxBatchSize
-        {
-            get { return GetString("InvalidMaxBatchSize"); }
-        }
-
-        /// <summary>
         /// The property '{propertyName}' cannot be mapped because it is of type '{propertyType}' which is currently not supported.
         /// </summary>
         public static string UnsupportedType([CanBeNull] object propertyName, [CanBeNull] object propertyType)
@@ -115,7 +99,7 @@ namespace Microsoft.Data.Entity.Relational
         {
             get { return GetString("UpdateStoreException"); }
         }
-        
+
         /// <summary>
         /// The connection is already in a transaction and cannot participate in another transaction.
         /// </summary>
@@ -213,19 +197,11 @@ namespace Microsoft.Data.Entity.Relational
         }
 
         /// <summary>
-        /// The current migration SQL generator '{sqlGeneratorType}' is unable to generate SQL for operations of type '{operationType}'.
+        /// '{migrationId}' is not a valid migration identifier.
         /// </summary>
-        public static string UnknownOperation([CanBeNull] object sqlGeneratorType, [CanBeNull] object operationType)
+        public static string InvalidMigrationId([CanBeNull] object migrationId)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("UnknownOperation", "sqlGeneratorType", "operationType"), sqlGeneratorType, operationType);
-        }
-
-        /// <summary>
-        /// The target migration '{targetMigrationName}' was not found.
-        /// </summary>
-        public static string TargetMigrationNotFound([CanBeNull] object targetMigrationName)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("TargetMigrationNotFound", "targetMigrationName"), targetMigrationName);
+            return string.Format(CultureInfo.CurrentCulture, GetString("InvalidMigrationId", "migrationId"), migrationId);
         }
 
         /// <summary>
@@ -237,19 +213,19 @@ namespace Microsoft.Data.Entity.Relational
         }
 
         /// <summary>
-        /// '{migrationId}' is not a valid migration identifier.
+        /// Migrations-specific methods can only be used when the context is using a migrations-enabled data store.
         /// </summary>
-        public static string InvalidMigrationId([CanBeNull] object migrationId)
+        public static string MigrationsNotInUse
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("InvalidMigrationId", "migrationId"), migrationId);
+            get { return GetString("MigrationsNotInUse"); }
         }
 
         /// <summary>
-        /// '{migrationType}' does not implement IMigrationMetadata.
+        /// Applying migration '{migrationId}'.
         /// </summary>
-        public static string MissingMigrationMetadata([CanBeNull] object migrationType)
+        public static string MigratorLoggerApplyingMigration([CanBeNull] object migrationId)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("MissingMigrationMetadata", "migrationType"), migrationType);
+            return string.Format(CultureInfo.CurrentCulture, GetString("MigratorLoggerApplyingMigration", "migrationId"), migrationId);
         }
 
         /// <summary>
@@ -269,14 +245,6 @@ namespace Microsoft.Data.Entity.Relational
         }
 
         /// <summary>
-        /// Applying migration '{migrationId}'.
-        /// </summary>
-        public static string MigratorLoggerApplyingMigration([CanBeNull] object migrationId)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("MigratorLoggerApplyingMigration", "migrationId"), migrationId);
-        }
-
-        /// <summary>
         /// Reverting migration '{migrationId}'.
         /// </summary>
         public static string MigratorLoggerRevertingMigration([CanBeNull] object migrationId)
@@ -293,11 +261,43 @@ namespace Microsoft.Data.Entity.Relational
         }
 
         /// <summary>
-        /// Migrations-specific methods can only be used when the context is using a migrations-enabled data store.
+        /// '{migrationType}' does not implement IMigrationMetadata.
         /// </summary>
-        public static string MigrationsNotInUse
+        public static string MissingMigrationMetadata([CanBeNull] object migrationType)
         {
-            get { return GetString("MigrationsNotInUse"); }
+            return string.Format(CultureInfo.CurrentCulture, GetString("MissingMigrationMetadata", "migrationType"), migrationType);
+        }
+
+        /// <summary>
+        /// The target migration '{targetMigrationName}' was not found.
+        /// </summary>
+        public static string TargetMigrationNotFound([CanBeNull] object targetMigrationName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("TargetMigrationNotFound", "targetMigrationName"), targetMigrationName);
+        }
+
+        /// <summary>
+        /// The current migration SQL generator '{sqlGeneratorType}' is unable to generate SQL for operations of type '{operationType}'.
+        /// </summary>
+        public static string UnknownOperation([CanBeNull] object sqlGeneratorType, [CanBeNull] object operationType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("UnknownOperation", "sqlGeneratorType", "operationType"), sqlGeneratorType, operationType);
+        }
+
+        /// <summary>
+        /// The specified CommandTimeout value is not valid. It must be a positive number.
+        /// </summary>
+        public static string InvalidCommandTimeout
+        {
+            get { return GetString("InvalidCommandTimeout"); }
+        }
+
+        /// <summary>
+        /// The specified MaxBatchSize value is not valid. It must be a positive number.
+        /// </summary>
+        public static string InvalidMaxBatchSize
+        {
+            get { return GetString("InvalidMaxBatchSize"); }
         }
 
         private static string GetString(string name, params string[] formatterNames)

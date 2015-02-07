@@ -224,14 +224,12 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 Assert.Equal("Blog", tables.Single());
 
                 var columns = (await testStore.QueryAsync<string>(
-                    "SELECT TABLE_NAME + '.' + COLUMN_NAME + ' (' + DATA_TYPE + ')' FROM INFORMATION_SCHEMA.COLUMNS")).ToArray();
+                    "SELECT TABLE_NAME + '.' + COLUMN_NAME + ' (' + DATA_TYPE + ')' FROM INFORMATION_SCHEMA.COLUMNS ORDER BY TABLE_NAME, COLUMN_NAME")).ToArray();
                 Assert.Equal(19, columns.Length);
 
                 Assert.Equal(
                     new[]
                         {
-                            "Blog.Key1 (nvarchar)",
-                            "Blog.Key2 (varbinary)",
                             "Blog.AndChew (varbinary)",
                             "Blog.AndRow (timestamp)",
                             "Blog.Cheese (nvarchar)",
@@ -239,6 +237,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                             "Blog.ErMilan (int)",
                             "Blog.Fuse (smallint)",
                             "Blog.George (bit)",
+                            "Blog.Key1 (nvarchar)",
+                            "Blog.Key2 (varbinary)",
                             "Blog.NotFigTime (datetime2)",
                             "Blog.NotToEat (smallint)",
                             "Blog.On (real)",

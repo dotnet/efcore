@@ -166,7 +166,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new LoggerFactory()));
 
-            Assert.Equal("EntityFrameworkDefaultSequence", factory.GetSequenceName(property));
+            Assert.Equal("DefaultSequence", factory.GetSequenceName(property));
         }
 
         [Fact]
@@ -195,7 +195,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new LoggerFactory()));
 
-            Assert.Equal("EntityFrameworkDefaultSequence", factory.GetSequenceName(property));
+            Assert.Equal("DefaultSequence", factory.GetSequenceName(property));
         }
 
         [Fact]
@@ -225,7 +225,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new LoggerFactory()));
 
-            Assert.Equal("EntityFrameworkDefaultSequence", factory.GetSequenceName(property));
+            Assert.Equal("DefaultSequence", factory.GetSequenceName(property));
         }
 
         [Fact]
@@ -259,7 +259,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new LoggerFactory()));
 
-            Assert.Equal("EntityFrameworkDefaultSequence", factory.GetSequenceName(property));
+            Assert.Equal("DefaultSequence", factory.GetSequenceName(property));
         }
 
         [Fact]

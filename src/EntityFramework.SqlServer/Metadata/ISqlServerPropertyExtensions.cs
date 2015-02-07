@@ -12,6 +12,9 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
         SqlServerValueGenerationStrategy? ValueGenerationStrategy { get; }
 
         [CanBeNull]
+        string ComputedExpression { get; }
+
+        [CanBeNull]
         string SequenceName { get; }
 
         [CanBeNull]
