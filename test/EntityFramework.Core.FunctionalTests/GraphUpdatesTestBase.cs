@@ -2393,65 +2393,23 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     .ReferencedKey(e => e.AlternateId)
                     .ForeignKey(e => e.ParentId);
 
-                // This code fails--see Issue #1495
-                //modelBuilder.Entity<RequiredSingleAk1>()
-                //    .HasOne(e => e.Single)
-                //    .WithOne(e => e.Back)
-                //    .ReferencedKey<RequiredSingleAk1>(e => e.AlternateId)
-                //    .ForeignKey<RequiredSingleAk2>(e => e.AlternateId);
+                modelBuilder.Entity<RequiredSingleAk1>()
+                    .HasOne(e => e.Single)
+                    .WithOne(e => e.Back)
+                    .ForeignKey<RequiredSingleAk2>(e => e.AlternateId)
+                    .ReferencedKey<RequiredSingleAk1>(e => e.AlternateId);
 
-                //modelBuilder.Entity<OptionalSingleAk1>()
-                //    .HasOne(e => e.Single)
-                //    .WithOne(e => e.Back)
-                //    .ForeignKey<OptionalSingleAk2>(e => e.BackId)
-                //    .ReferencedKey<OptionalSingleAk1>(e => e.AlternateId);
+                modelBuilder.Entity<OptionalSingleAk1>()
+                    .HasOne(e => e.Single)
+                    .WithOne(e => e.Back)
+                    .ForeignKey<OptionalSingleAk2>(e => e.BackId)
+                    .ReferencedKey<OptionalSingleAk1>(e => e.AlternateId);
 
-                //modelBuilder.Entity<RequiredNonPkSingleAk1>()
-                //    .HasOne(e => e.Single)
-                //    .WithOne(e => e.Back)
-                //    .ForeignKey<RequiredNonPkSingleAk2>(e => e.BackId)
-                //    .ReferencedKey<RequiredNonPkSingleAk1>(e => e.AlternateId);
-
-                // This code removes the relationships discovered by convention and adds them back manually
-                // to work around issue #1495.
-                var requiredSingle1 = modelBuilder.Entity<RequiredSingleAk1>().Metadata;
-                var requiredSingle2 = modelBuilder.Entity<RequiredSingleAk2>().Metadata;
-                requiredSingle1.RemoveNavigation(requiredSingle1.GetNavigation("Single"));
-                requiredSingle2.RemoveNavigation(requiredSingle2.GetNavigation("Back"));
-                requiredSingle1.RemoveForeignKey(requiredSingle1.ForeignKeys.Single(fk => fk.Properties.Single().Name == "Id"));
-
-                var optionalSingle1 = modelBuilder.Entity<OptionalSingleAk1>().Metadata;
-                var optionalSingle2 = modelBuilder.Entity<OptionalSingleAk2>().Metadata;
-                optionalSingle1.RemoveNavigation(optionalSingle1.GetNavigation("Single"));
-                optionalSingle2.RemoveNavigation(optionalSingle2.GetNavigation("Back"));
-                optionalSingle1.RemoveForeignKey(optionalSingle1.ForeignKeys.Single(fk => fk.Properties.Single().Name == "Id"));
-
-                var nonPkSingle1 = modelBuilder.Entity<RequiredNonPkSingleAk1>().Metadata;
-                var nonPkSingle2 = modelBuilder.Entity<RequiredNonPkSingleAk2>().Metadata;
-                nonPkSingle1.RemoveNavigation(nonPkSingle1.GetNavigation("Single"));
-                nonPkSingle2.RemoveNavigation(nonPkSingle2.GetNavigation("Back"));
-                nonPkSingle1.RemoveForeignKey(nonPkSingle1.ForeignKeys.Single(fk => fk.Properties.Single().Name == "Id"));
-
-                var requiredFk = requiredSingle2.GetOrAddForeignKey(
-                    requiredSingle2.GetProperty("AlternateId"),
-                    requiredSingle1.GetOrAddKey(requiredSingle1.GetProperty("AlternateId")));
-                requiredFk.IsUnique = true;
-                requiredSingle1.AddNavigation("Single", requiredFk, pointsToPrincipal: false);
-                requiredSingle2.AddNavigation("Back", requiredFk, pointsToPrincipal: true);
-
-                var optionalFk = optionalSingle2.GetOrAddForeignKey(
-                    optionalSingle2.GetProperty("BackId"),
-                    optionalSingle1.GetOrAddKey(optionalSingle1.GetProperty("AlternateId")));
-                optionalFk.IsUnique = true;
-                optionalSingle1.AddNavigation("Single", optionalFk, pointsToPrincipal: false);
-                optionalSingle2.AddNavigation("Back", optionalFk, pointsToPrincipal: true);
-
-                var nonPkFk = nonPkSingle2.GetOrAddForeignKey(
-                    nonPkSingle2.GetProperty("BackId"),
-                    nonPkSingle1.GetOrAddKey(nonPkSingle1.GetProperty("AlternateId")));
-                nonPkFk.IsUnique = true;
-                nonPkSingle1.AddNavigation("Single", nonPkFk, pointsToPrincipal: false);
-                nonPkSingle2.AddNavigation("Back", nonPkFk, pointsToPrincipal: true);
+                modelBuilder.Entity<RequiredNonPkSingleAk1>()
+                    .HasOne(e => e.Single)
+                    .WithOne(e => e.Back)
+                    .ForeignKey<RequiredNonPkSingleAk2>(e => e.BackId)
+                    .ReferencedKey<RequiredNonPkSingleAk1>(e => e.AlternateId);
             }
 
             protected virtual void Seed(DbContext context)

@@ -382,11 +382,13 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         {
             dependentProperties = dependentProperties ??
                                   (_foreignKeyPropertiesConfigurationSource.HasValue
+                                   && _foreignKeyPropertiesConfigurationSource.Value.Overrides(ConfigurationSource.DataAnnotation)
                                       ? Metadata.Properties
                                       : null);
 
             principalProperties = principalProperties ??
                                   (_referencedKeyConfigurationSource.HasValue
+                                   && _referencedKeyConfigurationSource.Value.Overrides(ConfigurationSource.DataAnnotation)
                                       ? Metadata.ReferencedProperties
                                       : null);
 
