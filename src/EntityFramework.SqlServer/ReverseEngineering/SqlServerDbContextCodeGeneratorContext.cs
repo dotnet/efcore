@@ -8,6 +8,7 @@ using System.Text;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Design.CodeGeneration;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
+using Microsoft.Data.Entity.SqlServer.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
@@ -20,6 +21,13 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
             string className, string connectionString)
             : base(generator, model, namespaceName, className, connectionString)
         {
+        }
+
+        public override IEnumerable<IEntityType> OrderedEntityTypes()
+        {
+            // do not configure EntityTypes for which we had an error when generating
+            return Model.EntityTypes.OrderBy(e => e.Name)
+                .Where(e => ((EntityType)e).TryGetAnnotation(SqlServerMetadataModelProvider.AnnotationNamePrincipalEntityTypeError) == null);
         }
 
         public override void GenerateForeignKeysConfiguration(IndentedStringBuilder sb, IEntityType entityType)
@@ -43,6 +51,7 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
                 sb.Append(">( e => e.");
                 sb.Append(navigationPropertyName);
                 sb.Append(" )");
+
                 using (sb.Indent())
                 {
                     sb.AppendLine();
@@ -58,17 +67,10 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
                     sb.Append(GenerateForeignKeyPropertyNamesAsParams(foreignKey));
                     sb.Append(" } )");
                 }
+
                 sb.Append(";");
             }
         }
-
-        public override IEnumerable<IEntityType> OrderedEntityTypes()
-        {
-            // do not configure EntityTypes which we had an error generating
-            return Model.EntityTypes.OrderBy(e => e.Name)
-                .Where(e => ((EntityType)e).TryGetAnnotation(SqlServerMetadataModelProvider.AnnotationNamePrincipalEntityTypeError) == null);
-        }
-
 
         public override void GenerateEntityFacetsConfiguration(IndentedStringBuilder sb, IEntityType entityType)
         {
@@ -88,13 +90,14 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
                 {
                     sb.AppendLine();
                     sb.Append("entity.ForSqlServer()");
-                    sb.IncrementIndent();
-                    foreach (var facetConfig in forSqlServerEntityFacetsConfiguration)
+                    using (sb.Indent())
                     {
-                        sb.AppendLine();
-                        sb.Append(facetConfig);
+                        foreach (var facetConfig in forSqlServerEntityFacetsConfiguration)
+                        {
+                            sb.AppendLine();
+                            sb.Append(facetConfig);
+                        }
                     }
-                    sb.DecrementIndent();
                 }
                 sb.Append(";");
             }
@@ -119,14 +122,15 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
 
         public virtual string GenerateTableNameFacetConfiguration(IEntityType entityType)
         {
-            if (entityType.SqlServer().Schema != null && entityType.SqlServer().Schema != "dbo")
+            if ("dbo" != entityType.SqlServer().Schema)
             {
                 return string.Format(CultureInfo.InvariantCulture, ".Table({0}, {1})", 
                     CSharpUtilities.Instance.DelimitString(entityType.SqlServer().Table),
                     CSharpUtilities.Instance.DelimitString(entityType.SqlServer().Schema));
             }
 
-            if (entityType.SqlServer().Table != null && entityType.SqlServer().Table != entityType.Name)
+            if (entityType.SqlServer().Table != null
+                && entityType.SqlServer().Table != entityType.Name)
             {
                 return string.Format(CultureInfo.InvariantCulture, ".Table({0})",
                     CSharpUtilities.Instance.DelimitString(entityType.SqlServer().Table));
@@ -197,10 +201,17 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
             {
                 facetsConfig.Add(columnNameFacetConfig);
             }
+
             var columnTypeFacetConfig = GenerateColumnTypeFacetConfiguration(property);
             if (columnTypeFacetConfig != null)
             {
                 facetsConfig.Add(columnTypeFacetConfig);
+            }
+
+            var useIdentityFacetConfig = GenerateUseIdentityFacetConfiguration(property);
+            if (useIdentityFacetConfig != null)
+            {
+                facetsConfig.Add(useIdentityFacetConfig);
             }
 
             return facetsConfig;
@@ -212,7 +223,8 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
             {
                 return string.Format(CultureInfo.InvariantCulture,
                     ".MaxLength({0})",
-                    ((Property)property).MaxLength.Value);
+                    CSharpUtilities.Instance.GenerateLiteral(
+                        ((Property)property).MaxLength.Value));
             }
 
             return null;
@@ -224,7 +236,8 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
             {
                 return string.Format(CultureInfo.InvariantCulture,
                     ".StoreComputed({0})",
-                    CSharpUtilities.Instance.GenerateLiteral(((Property)property).IsStoreComputed.Value));
+                    CSharpUtilities.Instance.GenerateLiteral(
+                        ((Property)property).IsStoreComputed.Value));
             }
 
             return null;
@@ -252,32 +265,25 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
             return null;
         }
 
-        public virtual string GenerateForeignKeyPropertyNamesAsParams(ForeignKey foreignKey)
+        public virtual string GenerateUseIdentityFacetConfiguration(IProperty property)
         {
-            var sb = new StringBuilder();
-            var first = true;
-            foreach (var property in foreignKey.Properties)
+            // output columnType if decimal to define precision and scale
+            if (property.SqlServer().ValueGenerationStrategy.HasValue
+                && SqlServerValueGenerationStrategy.Identity == property.SqlServer().ValueGenerationStrategy)
             {
-                if (first)
-                {
-                    first = false;
-                }
-                else
-                {
-                    sb.Append(", ");
-                }
-
-                sb.Append(
-                    CSharpUtilities.Instance.DelimitString(
-                        property.SqlServer().Column ?? property.Name));
+                return ".UseIdentity()";
             }
 
-            return sb.ToString();
+            return null;
         }
 
-        private static bool IsValidDataTypeForMaxLength(IProperty property)
+        public virtual string GenerateForeignKeyPropertyNamesAsParams(ForeignKey foreignKey)
         {
-            return true;
+            return string.Join(", ",
+                foreignKey.Properties
+                    .Select(p =>
+                        CSharpUtilities.Instance.DelimitString(
+                            p.SqlServer().Column ?? p.Name)));
         }
     }
 }

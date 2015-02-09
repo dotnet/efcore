@@ -32,11 +32,11 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
                 _generator.Logger.WriteWarning("The SqlServer EntityType CodeGenerator"
                     + " is unable to generate EntityType " + EntityType.Name
                     + ". Error message: " + errorMessageAnnotation.Value);
+
+                return;
             }
-            else
-            {
-                base.Generate(sb);
-            }
+
+            base.Generate(sb);
         }
 
         public override void GenerateEntityProperties(IndentedStringBuilder sb)

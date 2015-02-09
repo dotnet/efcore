@@ -19,8 +19,8 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
 {
     public class SqlServerMetadataModelProvider : IDatabaseMetadataModelProvider
     {
-        private List<string> DataTypesForMax = new List<string>() { "varchar", "nvarchar", "varbinary" };
-        private List<string> DataTypesForPrecisionAndScale = new List<string>() { "decimal", "numeric" };
+        private static readonly List<string> DataTypesForMax = new List<string>() { "varchar", "nvarchar", "varbinary" };
+        private static readonly List<string> DataTypesForPrecisionAndScale = new List<string>() { "decimal", "numeric" };
 
         public static readonly string AnnotationPrefix = "SqlServerMetadataModelProvider:";
         public static readonly string AnnotationNameDependentEndNavPropName = AnnotationPrefix + "DependentEndNavPropName";
@@ -29,22 +29,22 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
 
         private ILogger _logger;
 
-        // data loaded from database
+        // data loaded directly from database
         private Dictionary<string, Table> _tables;
         private Dictionary<string, TableColumn> _tableColumns;
         private Dictionary<string, ForeignKeyColumnMapping> _foreignKeyColumnMappings;
 
-        // dictionaries constructed from database data
+        // primary key, foreign key and unique columns information constructed from database data
         private Dictionary<string, int> _primaryKeyOrdinals = new Dictionary<string, int>();
         private Dictionary<string, Dictionary<string, int>> _foreignKeyOrdinals =
-            new Dictionary<string, Dictionary<string, int>>();
+            new Dictionary<string, Dictionary<string, int>>(); // 1st string is ColumnId, 2nd is ConstraintId
         private HashSet<string> _uniqueConstraintColumns = new HashSet<string>();
-        private Dictionary<IEntityType, string> _entityTypeToClassNameMap = new Dictionary<IEntityType, string>();
-        private Dictionary<IProperty, string> _propertyToPropertyNameMap = new Dictionary<IProperty, string>();
+
+        // utility data constructed as we iterate over the model
         private Dictionary<EntityType, EntityType> _relationalEntityTypeToCodeGenEntityTypeMap =
             new Dictionary<EntityType, EntityType>();
-        private Dictionary<string, Property> _relationalColumnIdToRelationalPropertyMap = new Dictionary<string, Property>();
         private Dictionary<Property, Property> _relationalPropertyToCodeGenPropertyMap = new Dictionary<Property, Property>();
+        private Dictionary<string, Property> _relationalColumnIdToRelationalPropertyMap = new Dictionary<string, Property>();
         private Dictionary<EntityType, Dictionary<string, List<Property>>> _relationalEntityTypeToForeignKeyConstraintsMap =
             new Dictionary<EntityType, Dictionary<string, List<Property>>>(); // string is ConstraintId
 
@@ -116,17 +116,6 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
             return data;
         }
 
-        /// <summary>
-        /// Output two Dictionaries
-        /// 
-        /// The first one maps (for all primary keys)
-        ///   ColumnId -> Ordinal at which that column appears in the primary key for the table in which it is defined
-        /// 
-        /// The second one maps (for all foreign keys)
-        ///   ColumnId -> a Dictionary which maps ConstraintId -> Ordinal at which that Column appears within that FK constraint
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public void CreatePrimaryForeignKeyAndUniqueMaps(Dictionary<string, TableConstraintColumn> tableConstraintColumns)
         {
             var uniqueConstraintToColumnsMap = new Dictionary<string, List<string>>();
@@ -141,6 +130,7 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
                         _primaryKeyOrdinals.Add(tableConstraintColumn.ColumnId, tableConstraintColumn.Ordinal);
                     }
 
+                    // add this column to the list of columns for this unique constraint
                     List<string> columnIds;
                     if (!uniqueConstraintToColumnsMap.TryGetValue(tableConstraintColumn.ConstraintId, out columnIds))
                     {
@@ -155,6 +145,7 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
                 }
                 else if (tableConstraintColumn.ConstraintType == "FOREIGN KEY")
                 {
+                    // add this column to the list of columns for this foreign key constraint
                     Dictionary<string, int> constraintNameToOrdinalMap;
                     if (!_foreignKeyOrdinals.TryGetValue(tableConstraintColumn.ColumnId, out constraintNameToOrdinalMap))
                     {
@@ -166,7 +157,7 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
                 }
             }
 
-            // store the list of columns for each unique constraint
+            // store the ordered list of columns for each unique constraint
             foreach (var uniqueConstraintColumnIds in uniqueConstraintToColumnsMap.Values)
             {
                 var listOfColumnsId = ConstructIdForListOfColumns(uniqueConstraintColumnIds);
@@ -185,7 +176,6 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
             // names fit CSharp conventions etc.
             var relationalModel = ConstructRelationalModel();
 
-            // construct maps mapping of relationalModel's IEntityTypes to the names they will have in the CodeGen Model
             var nameMapper = new SqlServerNameMapper(
                 relationalModel,
                 entity => _tables[entity.Name].TableName,
@@ -208,7 +198,8 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
                 var entityType = relationalModel.TryGetEntityType(tc.TableId);
                 if (entityType == null)
                 {
-                    _logger.WriteWarning("For columnId " + tc.Id + "Could not find table with TableId " + tc.TableId);
+                    _logger.WriteWarning("For columnId " + tc.Id
+                        + "Could not find table with TableId " + tc.TableId + ". Skipping column.");
                     continue;
                 }
 
@@ -246,10 +237,10 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
                 codeGenEntityType.SqlServer().Table = _tables[relationalEntityType.Name].TableName;
                 codeGenEntityType.SqlServer().Schema = _tables[relationalEntityType.Name].SchemaName;
 
-                // Loop over properties in each relational EntityType.
-                // If property is part of a foreign key (and not part of a primary key)
-                // add to list of constraints to be added in later.
-                // Otherwise construct matching property.
+                // Loop over relational properties constructing a matching property in the 
+                // codeGenModel. Also accumulate:
+                //    a) primary key properties
+                //    b) constraint properties
                 var primaryKeyProperties = new List<Property>();
                 var constraints = new Dictionary<string, List<Property>>();
                 _relationalEntityTypeToForeignKeyConstraintsMap[relationalEntityType] = constraints;
@@ -265,7 +256,7 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
                     Dictionary<string, int> foreignKeyConstraintIdOrdinalMap;
                     if (_foreignKeyOrdinals.TryGetValue(relationalProperty.Name, out foreignKeyConstraintIdOrdinalMap))
                     {
-                        // relationalProperty represents (part of) a foreign key 
+                        // relationalProperty represents (part of) a foreign key
                         foreach (var constraintId in foreignKeyConstraintIdOrdinalMap.Keys)
                         {
                             List<Property> constraintProperties;
@@ -446,7 +437,6 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
                 property.SqlServer().Column = tc.ColumnName;
             }
 
-            //TODO - only apply attribute when necessary
             string columnType = tc.DataType;
             if (tc.MaxLength.HasValue)
             {
