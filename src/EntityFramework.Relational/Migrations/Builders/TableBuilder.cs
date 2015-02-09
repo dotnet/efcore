@@ -101,29 +101,5 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Builders
 
             return this;
         }
-
-        public virtual TableBuilder<TColumns> Index(
-            [NotNull] string name,
-            [NotNull] Expression<Func<TColumns, object>> indexExpression,
-            bool unique = false,
-            [CanBeNull] IReadOnlyDictionary<string, string> annotations = null)
-        {
-            Check.NotNull(indexExpression, nameof(indexExpression));
-
-            var columns = indexExpression.GetPropertyAccessList()
-                .Select(p => _propertyInfoToColumnMap[p].Name)
-                .ToList();
-
-            _createTableOperation.Indexes.Add(
-                new CreateIndexOperation(
-                    name,
-                    _createTableOperation.Name,
-                    _createTableOperation.Schema,
-                    columns,
-                    unique,
-                    annotations));
-
-            return this;
-        }
     }
 }

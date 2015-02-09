@@ -114,7 +114,6 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Sql
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
-            // TODO: DRY (CreateSequenceOperation overload)
             builder
                 .Append("ALTER SEQUENCE ")
                 .Append(DelimitIdentifier(operation.Name, operation.Schema))
@@ -127,12 +126,20 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Sql
                     .Append(" MINVALUE ")
                     .Append(operation.MinValue.Value);
             }
+            else
+            {
+                builder.Append(" NO MINVALUE");
+            }
 
             if (operation.MaxValue.HasValue)
             {
                 builder
                     .Append(" MAXVALUE ")
                     .Append(operation.MaxValue.Value);
+            }
+            else
+            {
+                builder.Append(" NO MAXVALUE");
             }
 
             builder.Append(";");
@@ -189,22 +196,6 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Sql
                 builder.AppendLine(",");
 
                 GenerateForeignKey(foreignKey, builder);
-            }
-
-            foreach (var index in operation.Indexes)
-            {
-                builder.AppendLine(",");
-
-                // TODO: Move to method
-                // TODO: What about unique?
-                builder
-                    .Append("INDEX ")
-                    .Append(DelimitIdentifier(index.Name));
-                GenerateIndexTraits(index, builder);
-                builder
-                    .Append(" (")
-                    .Append(string.Join(", ", index.Columns.Select(DelimitIdentifier)))
-                    .Append(")");
             }
         }
 
@@ -276,19 +267,12 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Sql
 
             var column = operation.Column;
 
-            // TODO: Other facets
             builder
                 .Append("ALTER TABLE ")
                 .Append(DelimitIdentifier(operation.Table, operation.Schema))
-                .Append(" ALTER COLUMN ")
-                .Append(DelimitIdentifier(column.Name))
-                .Append(" ")
-                .Append(column.StoreType);
+                .Append(" ALTER COLUMN ");
 
-            if (!column.Nullable)
-            {
-                builder.Append(" NOT NULL");
-            }
+            GenerateColumn(column, builder);
 
             builder.Append(";");
         }
@@ -443,9 +427,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Sql
 
             builder
                 .Append("DROP INDEX ")
-                .Append(DelimitIdentifier(operation.Name))
-                .Append(" ON ")
-                .Append(DelimitIdentifier(operation.Table, operation.Schema))
+                .Append(DelimitIdentifier(operation.Name, operation.Schema))
                 .Append(";");
         }
 
@@ -463,6 +445,13 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Sql
             Check.NotNull(builder, nameof(builder));
 
             builder.Append(operation.Sql, operation.SuppressTransaction);
+        }
+
+        protected virtual void Generate(
+            [NotNull] AlterTableOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] SqlBatchBuilder builder)
+        {
         }
 
         private string Literal([NotNull] object value) => string.Format(CultureInfo.InvariantCulture, "{0}", value);
@@ -644,10 +633,15 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Sql
             builder.Append("FOREIGN KEY (")
                 .Append(string.Join(", ", operation.DependentColumns.Select(DelimitIdentifier)))
                 .Append(") REFERENCES ")
-                .Append(DelimitIdentifier(operation.PrincipalTable, operation.PrincipalSchema))
-                .Append(" (")
-                .Append(string.Join(", ", operation.PrincipalColumns.Select(DelimitIdentifier)))
-                .Append(")");
+                .Append(DelimitIdentifier(operation.PrincipalTable, operation.PrincipalSchema));
+
+            if (operation.PrincipalColumns.Any())
+            {
+                builder
+                    .Append(" (")
+                    .Append(string.Join(", ", operation.PrincipalColumns.Select(DelimitIdentifier)))
+                    .Append(")");
+            }
 
             if (operation.CascadeDelete)
             {

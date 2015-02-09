@@ -27,6 +27,5 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Operations
         public virtual AddPrimaryKeyOperation PrimaryKey { get; [param: NotNull] set; }
         public virtual List<AddUniqueConstraintOperation> UniqueConstraints { get; } = new List<AddUniqueConstraintOperation>();
         public virtual List<AddForeignKeyOperation> ForeignKeys { get; } = new List<AddForeignKeyOperation>();
-        public virtual List<CreateIndexOperation> Indexes { get; } = new List<CreateIndexOperation>();
     }
 }

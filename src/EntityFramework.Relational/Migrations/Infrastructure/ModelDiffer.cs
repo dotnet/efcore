@@ -257,23 +257,27 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
 
         protected virtual IEnumerable<MigrationOperation> Add(IEntityType target)
         {
-            var operation = new CreateTableOperation(target.Relational().Table, target.Relational().Schema);
+            var createTableOperation = new CreateTableOperation(target.Relational().Table, target.Relational().Schema);
 
             // TODO: Build ColumnModel objects directly
-            operation.Columns.AddRange(target.Properties.SelectMany(Add).Cast<AddColumnOperation>().Select(o => o.Column));
+            createTableOperation.Columns.AddRange(target.Properties.SelectMany(Add).Cast<AddColumnOperation>().Select(o => o.Column));
 
             var primaryKey = target.TryGetPrimaryKey();
             if (primaryKey != null)
             {
-                operation.PrimaryKey = Add(primaryKey).Cast<AddPrimaryKeyOperation>().Single();
+                createTableOperation.PrimaryKey = Add(primaryKey).Cast<AddPrimaryKeyOperation>().Single();
             }
 
-            operation.UniqueConstraints.AddRange(
+            createTableOperation.UniqueConstraints.AddRange(
                 target.Keys.Where(k => k != primaryKey).SelectMany(Add).Cast<AddUniqueConstraintOperation>());
-            operation.ForeignKeys.AddRange(target.ForeignKeys.SelectMany(Add).Cast<AddForeignKeyOperation>());
-            operation.Indexes.AddRange(target.Indexes.SelectMany(Add).Cast<CreateIndexOperation>());
+            createTableOperation.ForeignKeys.AddRange(target.ForeignKeys.SelectMany(Add).Cast<AddForeignKeyOperation>());
 
-            yield return operation;
+            yield return createTableOperation;
+
+            foreach (var operation in target.Indexes.SelectMany(Add))
+            {
+                yield return operation;
+            }
         }
 
         protected virtual IEnumerable<MigrationOperation> Remove(IEntityType source)

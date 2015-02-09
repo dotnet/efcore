@@ -567,31 +567,6 @@ namespace Microsoft.Data.Entity.Commands.Migrations
 
                     builder.Append(")");
                 }
-
-                foreach (var index in operation.Indexes)
-                {
-                    // TODO: Move to method
-                    builder
-                        .AppendLine()
-                        .Append(".Index(")
-                        .Append(_code.Literal(index.Name))
-                        .Append(", ")
-                        .Append(_code.Lambda(index.Columns.Select(c => propertyMap[c]).ToList()));
-
-                    if (index.Unique)
-                    {
-                        builder.Append(", unique: true");
-                    }
-
-                    if (operation.Annotations.Any())
-                    {
-                        builder
-                            .Append(", annotations: ")
-                            .Append(_code.Literal(operation.Annotations));
-                    }
-
-                    builder.Append(")");
-                }
             }
         }
 

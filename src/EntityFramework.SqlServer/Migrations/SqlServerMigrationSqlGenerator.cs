@@ -107,7 +107,7 @@ namespace Microsoft.Data.Entity.SqlServer
             Check.NotNull(builder, nameof(builder));
 
             GenerateRename(
-                EscapeLiteral(operation.Table) + "." + EscapeLiteral(operation.Name),
+                operation.Table + "." + operation.Name,
                 operation.Schema,
                 operation.NewName,
                 "COLUMN",
@@ -131,7 +131,7 @@ namespace Microsoft.Data.Entity.SqlServer
             Check.NotNull(builder, nameof(builder));
 
             GenerateRename(
-                EscapeLiteral(operation.Table) + "." + EscapeLiteral(operation.Name),
+                operation.Table + "." + operation.Name,
                 operation.Schema,
                 operation.NewName,
                 "INDEX",
@@ -164,6 +164,19 @@ namespace Microsoft.Data.Entity.SqlServer
             }
         }
 
+        protected override void Generate(DropIndexOperation operation, IModel model, SqlBatchBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            builder
+                .Append("DROP INDEX ")
+                .Append(DelimitIdentifier(operation.Name))
+                .Append(" ON ")
+                .Append(DelimitIdentifier(operation.Table, operation.Schema))
+                .Append(";");
+        }
+
         private void GenerateRename(
             [NotNull] string name,
             [CanBeNull] string schema,
@@ -171,17 +184,13 @@ namespace Microsoft.Data.Entity.SqlServer
             [NotNull] string objectType,
             [NotNull] SqlBatchBuilder builder)
         {
-            builder.Append("EXECUTE sp_rename @objname = N");
-
-            if (!string.IsNullOrWhiteSpace(schema))
-            {
-                builder
-                    .Append(Literal(schema))
-                    .Append(".");
-            }
+            var objname = !string.IsNullOrWhiteSpace(schema)
+                ? schema + "." + name
+                : name;
 
             builder
-                .Append(Literal(name))
+                .Append("EXECUTE sp_rename @objname = N")
+                .Append(Literal(objname))
                 .Append(", @newname = N")
                 .Append(Literal(newName))
                 .Append(", @objtype = N")
