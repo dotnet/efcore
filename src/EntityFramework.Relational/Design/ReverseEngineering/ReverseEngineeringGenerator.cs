@@ -2,25 +2,38 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Relational.Design.CodeGeneration;
 using Microsoft.Data.Entity.Utilities;
+using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 {
     public class ReverseEngineeringGenerator
     {
         private readonly IServiceProvider _serviceProvider;
+        private ILogger _logger;
 
         public ReverseEngineeringGenerator(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
+            _logger = (ILogger)serviceProvider.GetService(typeof(ILogger));
+            if (_logger == null)
+            {
+                throw new ArgumentException(typeof(ReverseEngineeringGenerator).Name + " cannot find a service of type " + typeof(ILogger).Name);
+            }
+        }
+
+        public ILogger Logger
+        {
+            get
+            {
+                return _logger;
+            }
         }
 
         public async Task Generate(ReverseEngineeringConfiguration configuration)

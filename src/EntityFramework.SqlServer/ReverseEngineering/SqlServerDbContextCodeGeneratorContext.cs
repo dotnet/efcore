@@ -29,7 +29,16 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
                 var navigationPropertyName = foreignKey
                     .GetAnnotation(SqlServerMetadataModelProvider.AnnotationNameDependentEndNavPropName).Value;
                 sb.AppendLine();
-                sb.Append("entity.ManyToOne<");
+                sb.Append("entity.");
+                if (((IForeignKey)foreignKey).IsUnique)
+                {
+                    sb.Append("OneToOne");
+                }
+                else
+                {
+                    sb.Append("ManyToOne");
+                }
+                sb.Append("<");
                 sb.Append(foreignKey.ReferencedEntityType.Name);
                 sb.Append(">( e => e.");
                 sb.Append(navigationPropertyName);
@@ -37,7 +46,15 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
                 using (sb.Indent())
                 {
                     sb.AppendLine();
-                    sb.Append(".ForeignKey( new string[] { ");
+                    sb.Append(".ForeignKey(");
+                    if (((IForeignKey)foreignKey).IsUnique)
+                    {
+                        sb.Append("typeof(");
+                        sb.Append(foreignKey.ReferencedEntityType.Name);
+                        sb.Append(")");
+                        sb.Append(",");
+                    }
+                    sb.Append(" new string[] { ");
                     sb.Append(GenerateForeignKeyPropertyNamesAsParams(foreignKey));
                     sb.Append(" } )");
                 }
@@ -163,6 +180,12 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
                 facetsConfig.Add(maxLengthFacetConfig);
             }
 
+            var storeComputedFacetConfig = GenerateStoreComputedFacetConfiguration(property);
+            if (storeComputedFacetConfig != null)
+            {
+                facetsConfig.Add(storeComputedFacetConfig);
+            }
+
             return facetsConfig;
         }
 
@@ -187,7 +210,21 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
         {
             if (((Property)property).MaxLength.HasValue)
             {
-                return string.Format(CultureInfo.InvariantCulture, ".MaxLength({0})", ((Property)property).MaxLength.Value);
+                return string.Format(CultureInfo.InvariantCulture,
+                    ".MaxLength({0})",
+                    ((Property)property).MaxLength.Value);
+            }
+
+            return null;
+        }
+
+        public virtual string GenerateStoreComputedFacetConfiguration(IProperty property)
+        {
+            if (((Property)property).IsStoreComputed.HasValue)
+            {
+                return string.Format(CultureInfo.InvariantCulture,
+                    ".StoreComputed({0})",
+                    CSharpUtilities.Instance.GenerateLiteral(((Property)property).IsStoreComputed.Value));
             }
 
             return null;
@@ -205,7 +242,9 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
 
         public virtual string GenerateColumnTypeFacetConfiguration(IProperty property)
         {
-            if (property.SqlServer().ColumnType != null)
+            // output columnType if decimal to define precision and scale
+            if (property.SqlServer().ColumnType != null
+                && property.SqlServer().ColumnType.StartsWith("decimal"))
             {
                 return string.Format(CultureInfo.InvariantCulture, ".ColumnType(\"{0}\")", property.SqlServer().ColumnType);
             }

@@ -8,6 +8,7 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Design.CodeGeneration;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
 using Microsoft.Data.Entity.Utilities;
+using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
 {
@@ -28,6 +29,9 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
             {
                 GenerateCommentHeader(sb);
                 CSharpCodeGeneratorHelper.Instance.SingleLineComment(sb, errorMessageAnnotation.Value);
+                _generator.Logger.WriteWarning("The SqlServer EntityType CodeGenerator"
+                    + " is unable to generate EntityType " + EntityType.Name
+                    + ". Error message: " + errorMessageAnnotation.Value);
             }
             else
             {
@@ -72,8 +76,16 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
                     }
                     else
                     {
-                        CSharpCodeGeneratorHelper.Instance.AddProperty(sb,
-                            AccessModifier.Public, VirtualModifier.Virtual, "ICollection<" + otherEntityType.Name + ">", navigationPropertyName);
+                        if (((IForeignKey)foreignKey).IsUnique)
+                        {
+                            CSharpCodeGeneratorHelper.Instance.AddProperty(sb,
+                                AccessModifier.Public, VirtualModifier.Virtual, otherEntityType.Name, navigationPropertyName);
+                        }
+                        else
+                        {
+                            CSharpCodeGeneratorHelper.Instance.AddProperty(sb,
+                                AccessModifier.Public, VirtualModifier.Virtual, "ICollection<" + otherEntityType.Name + ">", navigationPropertyName);
+                        }
                     }
                 }
             }

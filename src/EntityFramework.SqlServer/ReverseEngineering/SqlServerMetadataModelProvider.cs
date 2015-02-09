@@ -32,13 +32,13 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
         // data loaded from database
         private Dictionary<string, Table> _tables;
         private Dictionary<string, TableColumn> _tableColumns;
-        private Dictionary<string, TableConstraintColumn> _tableConstraintColumns;
         private Dictionary<string, ForeignKeyColumnMapping> _foreignKeyColumnMappings;
 
         // dictionaries constructed from database data
         private Dictionary<string, int> _primaryKeyOrdinals = new Dictionary<string, int>();
         private Dictionary<string, Dictionary<string, int>> _foreignKeyOrdinals =
             new Dictionary<string, Dictionary<string, int>>();
+        private HashSet<string> _uniqueConstraintColumns = new HashSet<string>();
         private Dictionary<IEntityType, string> _entityTypeToClassNameMap = new Dictionary<IEntityType, string>();
         private Dictionary<IProperty, string> _propertyToPropertyNameMap = new Dictionary<IProperty, string>();
         private Dictionary<EntityType, EntityType> _relationalEntityTypeToCodeGenEntityTypeMap =
@@ -67,10 +67,12 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
 
                     _tables = LoadData<Table>(conn, Table.Query, Table.CreateFromReader, t => t.Id);
                     _tableColumns = LoadData<TableColumn>(conn, TableColumn.Query, TableColumn.CreateFromReader, tc => tc.Id);
-                    _tableConstraintColumns = LoadData<TableConstraintColumn>(
-                        conn, TableConstraintColumn.Query, TableConstraintColumn.CreateFromReader, tcc => tcc.Id);
                     _foreignKeyColumnMappings = LoadData<ForeignKeyColumnMapping>(
                         conn, ForeignKeyColumnMapping.Query, ForeignKeyColumnMapping.CreateFromReader, fkcm => fkcm.Id);
+
+                    var tableConstraintColumns = LoadData<TableConstraintColumn>(
+                        conn, TableConstraintColumn.Query, TableConstraintColumn.CreateFromReader, tcc => tcc.Id);
+                    CreatePrimaryForeignKeyAndUniqueMaps(tableConstraintColumns);
                 }
                 finally
                 {
@@ -90,33 +92,6 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
                     }
                 }
             }
-
-            //_logger.WriteInformation("Tables");
-            //foreach (var t in _tables)
-            //{
-            //    var table = t.Value;
-            //    _logger.WriteInformation(table.ToString());
-            //}
-
-            //_logger.WriteInformation(Environment.NewLine + "Columns");
-            //foreach (var tc in _tableColumns)
-            //{
-            //    _logger.WriteInformation(tc.Value.ToString());
-            //}
-
-            //_logger.WriteInformation(Environment.NewLine + "Constraint Columns");
-            //foreach (var tc in _tableConstraintColumns)
-            //{
-            //    _logger.WriteInformation(tc.Value.ToString());
-            //}
-
-            //_logger.WriteInformation(Environment.NewLine + "Foreign Key Column Mappings");
-            //foreach (var fkcm in _foreignKeyColumnMappings)
-            //{
-            //    _logger.WriteWarning(fkcm.Value.ToString());
-            //}
-
-            CreatePrimaryAndForeignKeyMaps();
 
             return CreateModel();
         }
@@ -152,13 +127,31 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
         /// 
         /// </summary>
         /// <returns></returns>
-        public void CreatePrimaryAndForeignKeyMaps()
+        public void CreatePrimaryForeignKeyAndUniqueMaps(Dictionary<string, TableConstraintColumn> tableConstraintColumns)
         {
-            foreach (var tableConstraintColumn in _tableConstraintColumns.Values)
+            var uniqueConstraintToColumnsMap = new Dictionary<string, List<string>>();
+
+            foreach (var tableConstraintColumn in tableConstraintColumns.Values)
             {
-                if (tableConstraintColumn.ConstraintType == "PRIMARY KEY")
+                if (tableConstraintColumn.ConstraintType == "PRIMARY KEY"
+                    || tableConstraintColumn.ConstraintType == "UNIQUE")
                 {
-                    _primaryKeyOrdinals.Add(tableConstraintColumn.ColumnId, tableConstraintColumn.Ordinal);
+                    if (tableConstraintColumn.ConstraintType == "PRIMARY KEY")
+                    {
+                        _primaryKeyOrdinals.Add(tableConstraintColumn.ColumnId, tableConstraintColumn.Ordinal);
+                    }
+
+                    List<string> columnIds;
+                    if (!uniqueConstraintToColumnsMap.TryGetValue(tableConstraintColumn.ConstraintId, out columnIds))
+                    {
+                        columnIds = new List<string>();
+                        uniqueConstraintToColumnsMap[tableConstraintColumn.ConstraintId] = columnIds;
+                    }
+
+                    if (!columnIds.Contains(tableConstraintColumn.ColumnId))
+                    {
+                        columnIds.Add(tableConstraintColumn.ColumnId);
+                    }
                 }
                 else if (tableConstraintColumn.ConstraintType == "FOREIGN KEY")
                 {
@@ -171,9 +164,15 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
 
                     constraintNameToOrdinalMap[tableConstraintColumn.ConstraintId] = tableConstraintColumn.Ordinal;
                 }
-                else
+            }
+
+            // store the list of columns for each unique constraint
+            foreach (var uniqueConstraintColumnIds in uniqueConstraintToColumnsMap.Values)
+            {
+                var listOfColumnsId = ConstructIdForListOfColumns(uniqueConstraintColumnIds);
+                if (!_uniqueConstraintColumns.Contains(listOfColumnsId))
                 {
-                    _logger.WriteWarning("Unknown Constraint Type " + tableConstraintColumn.ConstraintType + " for " + tableConstraintColumn);
+                    _uniqueConstraintColumns.Add(listOfColumnsId);
                 }
             }
         }
@@ -209,7 +208,7 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
                 var entityType = relationalModel.TryGetEntityType(tc.TableId);
                 if (entityType == null)
                 {
-                    _logger.WriteWarning("Could not find table with TableId " + tc.TableId);
+                    _logger.WriteWarning("For columnId " + tc.Id + "Could not find table with TableId " + tc.TableId);
                     continue;
                 }
 
@@ -350,7 +349,15 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
                         //TODO: SQL Server allows more than 1 foreign key on the same set of properties
                         // how should we react?
                         var codeGenForeignKey = codeGenEntityType.GetOrAddForeignKey(foreignKeyCodeGenProperties, targetPrimaryKey);
-                        //TODO: make ForeignKey unique based on constraints
+
+                        if (_uniqueConstraintColumns.Contains(
+                            ConstructIdForListOfColumns(
+                                foreignKeyConstraintRelationalPropertyList
+                                    .Select(p => p.Name)))) // relational property's name is the columnId
+                        {
+                            codeGenForeignKey.IsUnique = true;
+                        }
+
                         //TODO: what if multiple Navs to same target?
                     }
                 }
@@ -427,29 +434,9 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
             return toColumnRelationalProperty;
         }
 
-        //TODO - this works around the fact that string.Split() does not exist in ASPNETCORE50
-        public static string[] SplitString(char[] delimiters, string input)
+        public static string ConstructIdForListOfColumns(IEnumerable<string> listOfColumnIds)
         {
-            var output = new List<string>();
-
-            var workingString = input;
-            int firstIndex = -1;
-            do
-            {
-                firstIndex = workingString.IndexOfAny(delimiters);
-                if (firstIndex < 0)
-                {
-                    output.Add(workingString);
-                }
-                else
-                {
-                    output.Add(workingString.Substring(0, firstIndex));
-                }
-                workingString = workingString.Substring(firstIndex + 1);
-            }
-            while (firstIndex >= 0 && !string.IsNullOrEmpty(workingString));
-
-            return output.ToArray();
+            return string.Join("", listOfColumnIds.OrderBy(columnId => columnId));
         }
 
         public void ApplyPropertyProperties(Property property, TableColumn tc)
@@ -499,9 +486,9 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
             {
                 if (typeof(byte) == SqlServerTypeMapping._sqlTypeToClrTypeMap[tc.DataType])
                 {
-                    _logger.WriteWarning("For columnId: " + tc.Id + " SQL Server data type is " + tc.DataType
-                        + ". Unable to set ValueGenerationStrategy to Identity because this column "
-                        + "will be mapped to CLR type byte which does not allow ValueGenerationStrategy Identity");
+                    _logger.WriteWarning("For columnId: " + tc.Id + ". The SQL Server data type is " + tc.DataType
+                        + ". This will be mapped to CLR type byte which does not allow ValueGenerationStrategy Identity. "
+                        + "Generating a matching Property but ignoring the Identity setting.");
                 }
                 else
                 {
