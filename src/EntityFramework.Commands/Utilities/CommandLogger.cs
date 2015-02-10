@@ -21,8 +21,8 @@ namespace Microsoft.Data.Entity.Commands.Utilities
         {
             typeof(MigrationTool).FullName,
             typeof(Migrator).FullName,
-            typeof(MigrationScaffolder).FullName
-            typeof(ReverseEngineeringGenerator).FullName
+            typeof(MigrationScaffolder).FullName,
+            typeof(ReverseEngineeringGenerator).FullName,
         };
 
         private readonly string _name;

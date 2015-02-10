@@ -5,10 +5,10 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Commands.Utilities;
-using Microsoft.Data.Entity.Relational.Migrations.Utilities;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
@@ -30,7 +30,8 @@ namespace Microsoft.Data.Entity.Commands
         private readonly MigrationTool _migrationTool;
         private CommandLineApplication _app;
 
-        public Program([NotNull] IServiceProvider serviceProvider, [NotNull] IApplicationEnvironment appEnv, [NotNull] ILibraryManager libraryManager)
+        public Program([NotNull] IServiceProvider serviceProvider,
+            [NotNull] IApplicationEnvironment appEnv, [NotNull] ILibraryManager libraryManager)
         {
             Check.NotNull(serviceProvider, "serviceProvider");
             Check.NotNull(appEnv, "appEnv");
