@@ -1,15 +1,14 @@
-﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-
 
 #if NET45
 
-using Northwind;
 using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Threading;
+using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
 using Xunit;
 
 namespace Microsoft.Data.Entity.FunctionalTests
@@ -40,43 +39,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 RunDeadlockTest(context.Set<Customer>().LoadAsync);
             }
         }
-
-        [Fact]
-        public void DbSet_AddAsync_does_not_deadlock()
-        {
-            using (var context = CreateContext())
-            {
-                RunDeadlockTest(() => context.Set<Product>().AddAsync(new Product { ProductID = 78 }));
-            }
-        }
-
-        [Fact]
-        public void DbSet_UpdateAsync_does_not_deadlock()
-        {
-            using (var context = CreateContext())
-            {
-                RunDeadlockTest(() => context.Set<Product>().UpdateAsync(new Product { ProductID = 77 }));
-            }
-        }
-
-        [Fact]
-        public void DbContext_AddAsync_does_not_deadlock()
-        {
-            using (var context = CreateContext())
-            {
-                RunDeadlockTest(() => context.AddAsync(new Product { ProductID = 78 }));
-            }
-        }
-
-        [Fact]
-        public void DbContext_UpdateAsync_does_not_deadlock()
-        {
-            using (var context = CreateContext())
-            {
-                RunDeadlockTest(() => context.UpdateAsync(new Product { ProductID = 77 }));
-            }
-        }
-
+        
         [Fact]
         public void DbContext_SaveChangesAsync_does_not_deadlock()
         {

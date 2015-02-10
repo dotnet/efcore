@@ -71,10 +71,10 @@
     <Compile Include="MappingQueryTestBase.cs" />
     <Compile Include="MappingQueryFixtureBase.cs" />
     <Compile Include="PropertyEntryTestBase.cs" />
-    <Compile Include="RelationalComplexNavigationsQueryFixture.cs" />
-    <Compile Include="RelationalF1Fixture.cs" />
-    <Compile Include="RelationalGearsOfWarQueryFixture.cs" />
-    <Compile Include="RelationalNorthwindQueryFixture.cs" />
+    <Compile Include="ComplexNavigationsQueryRelationalFixture.cs" />
+    <Compile Include="F1RelationalFixture.cs" />
+    <Compile Include="GearsOfWarQueryRelationalFixture.cs" />
+    <Compile Include="NorthwindQueryRelationalFixture.cs" />
     <Compile Include="RelationalTestStore.cs" />
     <Compile Include="TestSqlLoggerFactory.cs" />
     <Compile Include="TransactionFixtureBase.cs" />

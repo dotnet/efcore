@@ -7,9 +7,9 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
 {
     public abstract class MappingQueryFixtureBase
     {
-        protected Entity.Metadata.Model CreateModel()
+        protected Model CreateModel()
         {
-            var model = new Entity.Metadata.Model();
+            var model = new Model();
             var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder.Entity<MappingQueryTestBase.MappedCustomer>(e =>
