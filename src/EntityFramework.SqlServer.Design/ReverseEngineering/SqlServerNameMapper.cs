@@ -8,7 +8,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Design.CodeGeneration;
 
-namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
+namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
 {
     public class SqlServerNameMapper
     {

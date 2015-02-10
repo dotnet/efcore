@@ -10,7 +10,7 @@ using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 
-namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
+namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
 {
     public class SqlServerEntityTypeCodeGeneratorContext : EntityTypeCodeGenerator
     {

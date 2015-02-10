@@ -11,11 +11,11 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Design.CodeGeneration;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
 using Microsoft.Data.Entity.SqlServer.Metadata;
-using Microsoft.Data.Entity.SqlServer.ReverseEngineering.Model;
-using Microsoft.Data.Entity.SqlServer.Utilities;
+using Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.Model;
+using Microsoft.Data.Entity.SqlServer.Design.Utilities;
 using Microsoft.Framework.Logging;
 
-namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
+namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
 {
     public class SqlServerMetadataModelProvider : IDatabaseMetadataModelProvider
     {

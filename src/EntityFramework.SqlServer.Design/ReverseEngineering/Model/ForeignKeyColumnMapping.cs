@@ -3,7 +3,7 @@
 
 using System.Data.SqlClient;
 
-namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering.Model
+namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.Model
 {
     public class ForeignKeyColumnMapping
     {
