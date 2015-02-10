@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
             Check.NotNull(entry, "entry");
 
-            entry.State = DetermineState(entry);
+            entry.StateEntry.SetEntityState(DetermineState(entry), acceptChanges: true);
         }
 
         public virtual EntityState DetermineState([NotNull] EntityEntry entry)
