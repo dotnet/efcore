@@ -11,6 +11,7 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
+using Microsoft.Framework.Cache.Memory;
 using Microsoft.Framework.ConfigurationModel;
 using Microsoft.Framework.Logging;
 using Microsoft.Framework.OptionsModel;
@@ -83,6 +84,7 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddScoped(DataStoreServices.ValueGeneratorCacheFactory)
                 .AddScoped(DataStoreServices.DataStoreCreatorFactory)
                 .AddScoped(DataStoreServices.ModelBuilderFactoryFactory)
+                .AddTransient<IMemoryCache, MemoryCache>()
                 .AddOptions());
 
             return new EntityServicesBuilder(serviceCollection, configuration);
