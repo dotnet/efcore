@@ -307,7 +307,9 @@ namespace Microsoft.Data.Entity.ChangeTracking
         public virtual int SaveChanges()
         {
             var entriesToSave = StateEntries
-                .Where(e => e.EntityState.IsDirty())
+                .Where(e => e.EntityState == EntityState.Added
+                            || e.EntityState == EntityState.Modified
+                            || e.EntityState == EntityState.Deleted)
                 .Select(e => e.PrepareToSave())
                 .ToList();
 
@@ -343,7 +345,9 @@ namespace Microsoft.Data.Entity.ChangeTracking
         public virtual async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var entriesToSave = StateEntries
-                .Where(e => e.EntityState.IsDirty())
+                .Where(e => e.EntityState == EntityState.Added
+                            || e.EntityState == EntityState.Modified
+                            || e.EntityState == EntityState.Deleted)
                 .Select(e => e.PrepareToSave())
                 .ToList();
 

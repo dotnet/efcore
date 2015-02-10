@@ -69,7 +69,9 @@ namespace Microsoft.Data.Entity.Relational.Update
         {
             Check.NotNull(stateEntry, "stateEntry");
 
-            if (!stateEntry.EntityState.IsDirty())
+            if (stateEntry.EntityState != EntityState.Added
+                && stateEntry.EntityState != EntityState.Modified
+                && stateEntry.EntityState != EntityState.Deleted)
             {
                 throw new NotSupportedException(Strings.ModificationFunctionInvalidEntityState(stateEntry.EntityState));
             }

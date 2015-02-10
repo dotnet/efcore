@@ -64,13 +64,13 @@
       <DependentUpon>Resources.tt</DependentUpon>
     </Compile>
     <Compile Include="..\Shared\AsyncEnumerableExtensions.cs">
-      <Link>AsyncEnumerableExtensions.cs</Link>
+      <Link>Extensions\Internal\AsyncEnumerableExtensions.cs</Link>
     </Compile>
     <Compile Include="..\Shared\Check.cs">
       <Link>Utilities\Check.cs</Link>
     </Compile>
     <Compile Include="..\Shared\LoggingExtensions.cs">
-      <Link>LoggingExtensions.cs</Link>
+      <Link>Extensions\Internal\LoggingExtensions.cs</Link>
     </Compile>
     <Compile Include="ChangeTracking\KeyValueEntityAttacher.cs" />
     <Compile Include="ChangeTracking\ChangeDetector.cs" />
@@ -88,7 +88,7 @@
     <Compile Include="DbContext.cs" />
     <Compile Include="Identity\TemporaryBinaryValueGenerator.cs" />
     <Compile Include="Identity\TemporaryStringValueGenerator.cs" />
-    <Compile Include="IIncludableQueryable.cs" />
+    <Compile Include="Query\IIncludableQueryable.cs" />
     <Compile Include="Infrastructure\DbContextService.cs" />
     <Compile Include="Infrastructure\DbContextActivator.cs" />
     <Compile Include="DbContextOptions.cs" />
@@ -96,7 +96,6 @@
     <Compile Include="EntityServicesBuilder.cs" />
     <Compile Include="DbSet`.cs" />
     <Compile Include="EntityState.cs" />
-    <Compile Include="EntityStateExtensions.cs" />
     <Compile Include="ChangeTracking\PropertyBagExtensions.cs" />
     <Compile Include="Extensions\TaskExtensions.cs" />
     <Compile Include="Identity\BlockOfSequentialValuesGenerator.cs" />
@@ -178,7 +177,7 @@
     <Compile Include="Storage\DataStoreErrorLogState.cs" />
     <Compile Include="Storage\DataStoreException.cs" />
     <Compile Include="Infrastructure\IDbContextOptions.cs" />
-    <Compile Include="INotifyPropertyChanging.cs" />
+    <Compile Include="Utilities\INotifyPropertyChanging.cs" />
     <Compile Include="Metadata\EntityTypeExtensions.cs" />
     <Compile Include="Metadata\IIndex.cs" />
     <Compile Include="Metadata\Index.cs" />
@@ -191,7 +190,7 @@
     <Compile Include="Query\QueryCompilationContext.cs" />
     <Compile Include="Query\QuerySourceScope`.cs" />
     <Compile Include="Query\ResultOperatorHandler.cs" />
-    <Compile Include="ServiceProviderCache.cs" />
+    <Compile Include="Internal\ServiceProviderCache.cs" />
     <Compile Include="ChangeTracking\ArraySidecar.cs" />
     <Compile Include="ChangeTracking\ChangeTracker.cs" />
     <Compile Include="ChangeTracking\ClrStateEntry.cs" />
@@ -313,9 +312,15 @@
     <Compile Include="Utilities\ThreadSafeLazyRef.cs" />
     <Compile Include="Utilities\BidirectionalAdjacencyListGraph.cs" />
     <Compile Include="Utilities\TypeExtensions.cs" />
-    <Compile Include="..\Shared\CodeAnnotations.cs" />
-    <Compile Include="..\Shared\StringBuilderExtensions.cs" />
-    <Compile Include="..\Shared\SharedTypeExtensions.cs" />
+    <Compile Include="..\Shared\CodeAnnotations.cs">
+      <Link>Utilities\CodeAnnotations.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\StringBuilderExtensions.cs">
+      <Link>Extensions\Internal\StringBuilderExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\SharedTypeExtensions.cs">
+      <Link>Extensions\Internal\SharedTypeExtensions.cs</Link>
+    </Compile>
     <EmbeddedResource Include="Properties\Strings.resx">
       <LogicalName>EntityFramework.Core.Strings.resources</LogicalName>
       <SubType>Designer</SubType>

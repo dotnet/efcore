@@ -8,7 +8,7 @@ using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
 
-namespace Microsoft.Data.Entity
+namespace Microsoft.Data.Entity.Internal
 {
     internal class ServiceProviderCache
     {

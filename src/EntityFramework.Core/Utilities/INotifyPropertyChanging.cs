@@ -7,16 +7,16 @@ using JetBrains.Annotations;
 #if !NET45 && !ASPNET50 && !ASPNETCORE50
 // TODO: Remove this file when VS can build against ".NET Portable 5.0"
 
-namespace Microsoft.Data.Entity
+namespace Microsoft.Data.Entity.Utilities
 {
-    public interface INotifyPropertyChanging
+    internal interface INotifyPropertyChanging
     {
         event PropertyChangingEventHandler PropertyChanging;
     }
 
-    public delegate void PropertyChangingEventHandler(object sender, PropertyChangingEventArgs e);
+    internal delegate void PropertyChangingEventHandler(object sender, PropertyChangingEventArgs e);
 
-    public class PropertyChangingEventArgs : EventArgs
+    internal class PropertyChangingEventArgs : EventArgs
     {
         private readonly string _propertyName;
 
