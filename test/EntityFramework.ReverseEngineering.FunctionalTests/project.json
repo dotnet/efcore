@@ -2,7 +2,7 @@
     "dependencies": {
         "EntityFramework.Commands": "7.0.0-*",
         "EntityFramework.Core.FunctionalTests": "1.0.0",
-        "EntityFramework.SqlServer": "7.0.0-*"
+        "EntityFramework.SqlServer.Design": "7.0.0-*"
     },
     "commands": {
         "test": "Xunit.KRunner",

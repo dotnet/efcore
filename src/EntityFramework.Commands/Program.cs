@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.Commands
     // TODO: Add verbose option
     public class Program
     {
-        public static readonly string _defaultReverseEngineeringProviderAssembly = "EntityFramework.SqlServer";
+        public static readonly string _defaultReverseEngineeringProviderAssembly = "EntityFramework.SqlServer.Design";
 
         private readonly IServiceProvider _serviceProvider;
         private readonly string _projectDir;
@@ -328,7 +328,7 @@ namespace Microsoft.Data.Entity.Commands
             var providerAssembly = GetCandidateAssembly(providerAssemblyName);
             if (providerAssembly == null)
             {
-                Console.WriteLine("No provider assembly was found with name " + providerAssemblyName);
+                Console.Error.WriteLine("No provider assembly was found with name " + providerAssemblyName);
                 return 1;
             }
 
@@ -426,7 +426,7 @@ namespace Microsoft.Data.Entity.Commands
         {
             var libraryManager = _serviceProvider.GetRequiredService<ILibraryManager>();
 
-            return libraryManager.GetReferencingLibraries("EntityFramework.Relational")
+            return libraryManager.GetReferencingLibraries("EntityFramework.Relational.Design")
                 .Distinct()
                 .Where(l => l.Name == providerAssemblyName)
                 .SelectMany(l => l.LoadableAssemblies)
