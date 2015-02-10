@@ -242,7 +242,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 cs => cs.Where(c => c.City == city),
                 stateEntryCount: 6);
         }
-        
+
         [Fact]
         public virtual void Where_simple_closure_via_query_cache()
         {
@@ -256,6 +256,127 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.City == city),
+                stateEntryCount: 1);
+        }
+
+        private class City
+        {
+            // ReSharper disable once StaticMemberInGenericType
+            public static string StaticFieldValue;
+
+            // ReSharper disable once StaticMemberInGenericType
+            public static string StaticPropertyValue { get; set; }
+
+            public string InstanceFieldValue;
+            public string InstancePropertyValue { get; set; }
+
+            public City Nested;
+        }
+
+        [Fact]
+        public virtual void Where_field_access_closure_via_query_cache()
+        {
+            var city = new City { InstanceFieldValue = "London" };
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.City == city.InstanceFieldValue),
+                stateEntryCount: 6);
+
+            city.InstanceFieldValue = "Seattle";
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.City == city.InstanceFieldValue),
+                stateEntryCount: 1);
+        }
+
+        [Fact]
+        public virtual void Where_property_access_closure_via_query_cache()
+        {
+            var city = new City { InstancePropertyValue = "London" };
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.City == city.InstancePropertyValue),
+                stateEntryCount: 6);
+
+            city.InstancePropertyValue = "Seattle";
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.City == city.InstancePropertyValue),
+                stateEntryCount: 1);
+        }
+
+        [Fact]
+        public virtual void Where_static_field_access_closure_via_query_cache()
+        {
+            City.StaticFieldValue = "London";
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.City == City.StaticFieldValue),
+                stateEntryCount: 6);
+
+            City.StaticFieldValue = "Seattle";
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.City == City.StaticFieldValue),
+                stateEntryCount: 1);
+        }
+        [Fact]
+        public virtual void Where_static_property_access_closure_via_query_cache()
+        {
+            City.StaticPropertyValue = "London";
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.City == City.StaticPropertyValue),
+                stateEntryCount: 6);
+
+            City.StaticPropertyValue = "Seattle";
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.City == City.StaticPropertyValue),
+                stateEntryCount: 1);
+        }
+
+        [Fact]
+        public virtual void Where_nested_field_access_closure_via_query_cache()
+        {
+            var city = new City { Nested = new City { InstanceFieldValue = "London" } };
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.City == city.Nested.InstanceFieldValue),
+                stateEntryCount: 6);
+
+            city.Nested.InstanceFieldValue = "Seattle";
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.City == city.Nested.InstanceFieldValue),
+                stateEntryCount: 1);
+        }
+
+        [Fact]
+        public virtual void Where_nested_property_access_closure_via_query_cache()
+        {
+            var city = new City { Nested = new City { InstancePropertyValue = "London" } };
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.City == city.Nested.InstancePropertyValue),
+                stateEntryCount: 6);
+
+            city.Nested.InstancePropertyValue = "Seattle";
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.City == city.Nested.InstancePropertyValue),
+                stateEntryCount: 1);
+        }
+
+        [Fact]
+        public virtual void Where_new_instance_field_access_closure_via_query_cache()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.City == new City { InstanceFieldValue = "London" }.InstanceFieldValue),
+                stateEntryCount: 6);
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.City == new City { InstanceFieldValue = "Seattle" }.InstanceFieldValue),
                 stateEntryCount: 1);
         }
 
