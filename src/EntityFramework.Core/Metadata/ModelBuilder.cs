@@ -238,7 +238,7 @@ namespace Microsoft.Data.Entity.Metadata
                         null,
                         collection ?? "",
                         ConfigurationSource.Explicit,
-                        oneToOne: false));
+                        isUnique: false));
             }
 
             public virtual ReferenceNavigationBuilder HasOne(
@@ -275,7 +275,7 @@ namespace Microsoft.Data.Entity.Metadata
                         null,
                         collection ?? "",
                         ConfigurationSource.Explicit,
-                        oneToOne: false));
+                        isUnique: false));
             }
 
             public class KeyBuilder : IKeyBuilder<KeyBuilder>
@@ -591,9 +591,7 @@ namespace Microsoft.Data.Entity.Metadata
 
                 public virtual OneToManyBuilder Required(bool required = true)
                 {
-                    Builder.Required(required, ConfigurationSource.Explicit);
-
-                    return this;
+                    return new OneToManyBuilder(Builder.Required(required, ConfigurationSource.Explicit));
                 }
             }
 
@@ -644,9 +642,7 @@ namespace Microsoft.Data.Entity.Metadata
 
                 public virtual ManyToOneBuilder Required(bool required = true)
                 {
-                    Builder.Required(required, ConfigurationSource.Explicit);
-
-                    return this;
+                    return new ManyToOneBuilder(Builder.Required(required, ConfigurationSource.Explicit));
                 }
             }
 
@@ -740,9 +736,7 @@ namespace Microsoft.Data.Entity.Metadata
 
                 public virtual OneToOneBuilder Required(bool required = true)
                 {
-                    Builder.Required(required, ConfigurationSource.Explicit);
-
-                    return this;
+                    return new OneToOneBuilder(Builder.Required(required, ConfigurationSource.Explicit));
                 }
             }
         }
@@ -828,7 +822,7 @@ namespace Microsoft.Data.Entity.Metadata
                         null,
                         collectionName,
                         configurationSource: ConfigurationSource.Explicit,
-                        oneToOne: false));
+                        isUnique: false));
             }
 
             public class ReferenceNavigationBuilder<TRelatedEntity> : ReferenceNavigationBuilder
@@ -915,7 +909,7 @@ namespace Microsoft.Data.Entity.Metadata
 
                 public new virtual OneToManyBuilder<TRelatedEntity> Required(bool required = true)
                 {
-                    return (OneToManyBuilder<TRelatedEntity>)base.Required(required);
+                    return new OneToManyBuilder<TRelatedEntity>(Builder.Required(required, ConfigurationSource.Explicit));
                 }
             }
 
@@ -966,7 +960,7 @@ namespace Microsoft.Data.Entity.Metadata
 
                 public new virtual ManyToOneBuilder<TRelatedEntity> Required(bool required = true)
                 {
-                    return (ManyToOneBuilder<TRelatedEntity>)base.Required(required);
+                    return new ManyToOneBuilder<TRelatedEntity>(Builder.Required(required, ConfigurationSource.Explicit));
                 }
             }
         }

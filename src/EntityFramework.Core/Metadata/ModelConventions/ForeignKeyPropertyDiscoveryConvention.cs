@@ -92,6 +92,12 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
                 }
             }
 
+            if (foreignKey.IsRequired == false
+                && fkProperties.All(p => !((IProperty)p).IsNullable))
+            {
+                return null;
+            }
+
             var dependentPk = dependentType.TryGetPrimaryKey();
             if (dependentPk != null)
             {

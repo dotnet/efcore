@@ -13,6 +13,7 @@ namespace Microsoft.Data.Entity.Metadata
     public class ForeignKey : Key, IForeignKey
     {
         private readonly Key _referencedKey;
+        private bool _isRequiredSet;
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
@@ -79,12 +80,18 @@ namespace Microsoft.Data.Entity.Metadata
         {
             get
             {
+                if (!_isRequiredSet)
+                {
+                    return null;
+                }
+
                 return Properties.Any(p => p.IsNullable.HasValue)
                     ? !Properties.Any(p => ((IProperty)p).IsNullable) as bool?
                     : null;
             }
             set
             {
+                _isRequiredSet = value.HasValue;
                 var properties = Properties;
                 if (value.HasValue
                     && !value.Value)

@@ -117,17 +117,19 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Internal
             customerEntityBuilder.PrimaryKey(new[] { Customer.IdProperty, Customer.UniqueProperty }, ConfigurationSource.Explicit);
             var orderEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
 
-            var relationshipBuilder = orderEntityBuilder.Relationship(typeof(Customer), typeof(Order), null, null, ConfigurationSource.Convention, true, true);
+            var relationshipBuilder = orderEntityBuilder.Relationship(typeof(Customer), typeof(Order), null, null, ConfigurationSource.Convention, true);
             Assert.Null(relationshipBuilder.Metadata.IsRequired);
             Assert.False(((IForeignKey)relationshipBuilder.Metadata).IsRequired);
 
-            Assert.True(relationshipBuilder.Required(true, ConfigurationSource.Convention));
+            relationshipBuilder = relationshipBuilder.Required(true, ConfigurationSource.Convention);
+            Assert.NotNull(relationshipBuilder);
             Assert.True(((IForeignKey)relationshipBuilder.Metadata).IsRequired);
 
-            Assert.True(relationshipBuilder.Required(false, ConfigurationSource.DataAnnotation));
+            relationshipBuilder = relationshipBuilder.Required(false, ConfigurationSource.DataAnnotation);
+            Assert.NotNull(relationshipBuilder);
             Assert.False(((IForeignKey)relationshipBuilder.Metadata).IsRequired);
 
-            Assert.False(relationshipBuilder.Required(true, ConfigurationSource.Convention));
+            Assert.Null(relationshipBuilder.Required(true, ConfigurationSource.Convention));
             Assert.False(((IForeignKey)relationshipBuilder.Metadata).IsRequired);
         }
 
@@ -146,17 +148,25 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Internal
                 .ForeignKey(typeof(Order), new[] { Order.CustomerIdProperty.Name, Order.CustomerUniqueProperty.Name }, ConfigurationSource.DataAnnotation);
             Assert.True(((IForeignKey)relationshipBuilder.Metadata).IsRequired);
 
-            Assert.False(relationshipBuilder.Required(false, ConfigurationSource.Convention));
+            Assert.Null(relationshipBuilder.Required(false, ConfigurationSource.Convention));
+            Assert.True(((IForeignKey)relationshipBuilder.Metadata).IsRequired);
             Assert.Null(customerIdProperty.IsNullable);
             Assert.False(customerUniqueProperty.IsNullable.Value);
 
-            Assert.True(relationshipBuilder.Required(true, ConfigurationSource.Convention));
+            relationshipBuilder = relationshipBuilder.Required(true, ConfigurationSource.Convention);
+            Assert.NotNull(relationshipBuilder);
+            Assert.True(((IForeignKey)relationshipBuilder.Metadata).IsRequired);
             Assert.False(customerIdProperty.IsNullable.Value);
             Assert.False(customerUniqueProperty.IsNullable.Value);
 
-            Assert.True(relationshipBuilder.Required(false, ConfigurationSource.Explicit));
+            relationshipBuilder = relationshipBuilder.Required(false, ConfigurationSource.Explicit);
+            Assert.NotNull(relationshipBuilder);
+            var fk = (IForeignKey)relationshipBuilder.Metadata;
+            Assert.False(fk.IsRequired);
             Assert.False(customerIdProperty.IsNullable.Value);
-            Assert.True(customerUniqueProperty.IsNullable.Value);
+            Assert.False(customerUniqueProperty.IsNullable.Value);
+            Assert.True(fk.Properties[0].IsNullable);
+            Assert.True(fk.Properties[1].IsNullable);
         }
 
         private InternalModelBuilder CreateInternalModelBuilder()

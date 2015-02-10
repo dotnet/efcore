@@ -5943,17 +5943,22 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void One_to_one_relationships_with_nullable_keys_can_be_made_required()
         {
             var modelBuilder = HobNobBuilder();
+            var principalType = (IEntityType)modelBuilder.Model.GetEntityType(typeof(Hob));
+            var dependentType = (IEntityType)modelBuilder.Model.GetEntityType(typeof(Nob));
+            var expectedPrincipalProperties = principalType.Properties.ToList();
+            var expectedDependentProperties = dependentType.Properties.ToList();
 
             modelBuilder
                 .Entity<Hob>().HasOne(e => e.Nob).WithOne(e => e.Hob)
-                .ForeignKey<Nob>(e => new { e.HobId1, e.HobId2 })
-                .Required();
+                .Required()
+                .ForeignKey<Nob>(e => new { e.HobId1, e.HobId2 });
 
-            var entityType = (IEntityType)modelBuilder.Model.GetEntityType(typeof(Nob));
+            Assert.False(dependentType.GetProperty("HobId1").IsNullable);
+            Assert.False(dependentType.GetProperty("HobId2").IsNullable);
+            Assert.True(dependentType.ForeignKeys.Single().IsRequired);
 
-            Assert.False(entityType.GetProperty("HobId1").IsNullable);
-            Assert.False(entityType.GetProperty("HobId1").IsNullable);
-            Assert.True(entityType.ForeignKeys.Single().IsRequired);
+            AssertEqual(expectedPrincipalProperties, principalType.Properties);
+            AssertEqual(expectedDependentProperties, dependentType.Properties);
         }
 
         [Fact]
@@ -5973,6 +5978,69 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.False(entityType.GetProperty("NobId1").IsNullable);
             Assert.False(entityType.GetProperty("NobId1").IsNullable);
             Assert.True(entityType.ForeignKeys.Single().IsRequired);
+        }
+
+        [Fact]
+        public void One_to_one_relationships_that_are_optional_cannot_be_assigned_non_nullable_keys()
+        {
+            var modelBuilder = HobNobBuilder();
+
+            Assert.Equal(
+                Strings.CannotBeNullable("NobId1", "Hob", "Int32"),
+                Assert.Throws<InvalidOperationException>(() => modelBuilder
+                    .Entity<Nob>().HasOne(e => e.Hob).WithOne(e => e.Nob)
+                    .Required(false)
+                    .ForeignKey<Hob>(e => new { e.NobId1, e.NobId2 })).Message);
+
+            var entityType = (IEntityType)modelBuilder.Model.GetEntityType(typeof(Hob));
+
+            Assert.False(entityType.GetProperty("NobId1").IsNullable);
+            Assert.False(entityType.GetProperty("NobId1").IsNullable);
+            Assert.True(entityType.ForeignKeys.Single().IsRequired);
+        }
+
+        [Fact]
+        public void One_to_one_relationships_with_unspecified_keys_can_be_made_optional()
+        {
+            var modelBuilder = HobNobBuilder();
+            var principalType = (IEntityType)modelBuilder.Model.GetEntityType(typeof(Nob));
+            var dependentType = (IEntityType)modelBuilder.Model.GetEntityType(typeof(Hob));
+            var expectedPrincipalProperties = principalType.Properties.ToList();
+            var expectedDependentProperties = dependentType.Properties.ToList();
+
+            modelBuilder
+                .Entity<Hob>().HasOne(e => e.Nob).WithOne(e => e.Hob)
+                .Required(false)
+                .ReferencedKey<Nob>(e => new { e.Id1, e.Id2 });
+
+            var fk = dependentType.ForeignKeys.Single();
+            Assert.False(fk.IsRequired);
+
+            AssertEqual(expectedPrincipalProperties, principalType.Properties);
+            expectedDependentProperties.AddRange(fk.Properties);
+            AssertEqual(expectedDependentProperties, dependentType.Properties);
+        }
+
+        [Fact]
+        public void One_to_one_relationships_with_unspecified_keys_can_be_made_required()
+        {
+            var modelBuilder = HobNobBuilder();
+            var principalType = (IEntityType)modelBuilder.Model.GetEntityType(typeof(Nob));
+            var dependentType = (IEntityType)modelBuilder.Model.GetEntityType(typeof(Hob));
+            var expectedPrincipalProperties = principalType.Properties.ToList();
+            var expectedDependentProperties = dependentType.Properties.ToList();
+
+            modelBuilder
+                .Entity<Hob>().HasOne(e => e.Nob).WithOne(e => e.Hob)
+                .Required()
+                .ReferencedKey<Nob>(e => new { e.Id1, e.Id2 });
+
+            var fk = dependentType.ForeignKeys.Single();
+            Assert.True(fk.IsRequired);
+
+            AssertEqual(expectedPrincipalProperties, principalType.Properties);
+            expectedDependentProperties.AddRange(fk.Properties);
+            AssertEqual(expectedDependentProperties, dependentType.Properties);
         }
 
         private class Hob
@@ -6172,6 +6240,12 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         }
 
         private void AssertEqual(IReadOnlyList<Property> expectedProperties, IReadOnlyList<Property> actualProperties)
+        {
+            var expectedPropertyNamesSet = new SortedSet<string>(expectedProperties.Select(p => p.Name), StringComparer.Ordinal);
+            Assert.Equal(expectedPropertyNamesSet, actualProperties.Select(p => p.Name));
+        }
+
+        private void AssertEqual(IReadOnlyList<IProperty> expectedProperties, IReadOnlyList<IProperty> actualProperties)
         {
             var expectedPropertyNamesSet = new SortedSet<string>(expectedProperties.Select(p => p.Name), StringComparer.Ordinal);
             Assert.Equal(expectedPropertyNamesSet, actualProperties.Select(p => p.Name));

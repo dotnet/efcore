@@ -32,7 +32,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
                 "SomeNav",
                 null,
                 ConfigurationSource.Explicit,
-                oneToOne: false)
+                isUnique: false)
                 .ForeignKey(new[] { fkProperty }, ConfigurationSource.Explicit);
 
             Assert.Same(relationshipBuilder, new ForeignKeyPropertyDiscoveryConvention().Apply(relationshipBuilder));

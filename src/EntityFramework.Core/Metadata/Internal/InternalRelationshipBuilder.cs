@@ -17,6 +17,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         private ConfigurationSource? _foreignKeyPropertiesConfigurationSource;
         private ConfigurationSource? _referencedKeyConfigurationSource;
         private ConfigurationSource? _isUniqueConfigurationSource;
+        private ConfigurationSource? _isRequiredConfigurationSource;
 
         public InternalRelationshipBuilder(
             [NotNull] ForeignKey foreignKey,
@@ -30,6 +31,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             _foreignKeyPropertiesConfigurationSource = initialConfigurationSource;
             _referencedKeyConfigurationSource = initialConfigurationSource;
             _isUniqueConfigurationSource = initialConfigurationSource;
+            _isRequiredConfigurationSource = initialConfigurationSource;
         }
 
         public virtual InternalRelationshipBuilder NavigationToPrincipal(
@@ -110,36 +112,23 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 : null;
         }
 
-        public virtual bool Required(bool isRequired, ConfigurationSource configurationSource)
+        public virtual InternalRelationshipBuilder Required(bool isRequired, ConfigurationSource configurationSource)
         {
-            var entityTypeBuilder = ModelBuilder.Entity(Metadata.EntityType.Name, configurationSource);
-
-            var properties = Metadata.Properties;
-            if (!isRequired)
+            if (((IForeignKey)Metadata).IsRequired == isRequired)
             {
-                var nullableTypeProperties = Metadata.Properties.Where(p => p.PropertyType.IsNullableType()).ToList();
-                if (nullableTypeProperties.Any())
-                {
-                    properties = nullableTypeProperties;
-                }
+                Metadata.IsRequired = isRequired;
+                _isRequiredConfigurationSource = configurationSource.Max(_isRequiredConfigurationSource);
+                return this;
+            }
+            
+            if (_isRequiredConfigurationSource != null
+                && !configurationSource.Overrides(_isRequiredConfigurationSource.Value))
+            {
+                return null;
             }
 
-            foreach (var property in properties)
-            {
-                if (!entityTypeBuilder.Property(property.PropertyType, property.Name, configurationSource)
-                    .CanSetRequired(isRequired, configurationSource))
-                {
-                    return false;
-                }
-            }
-
-            foreach (var property in properties)
-            {
-                // TODO: Depending on resolution of #723 this may change
-                entityTypeBuilder.Property(property.PropertyType, property.Name, configurationSource).Required(isRequired, configurationSource);
-            }
-
-            return true;
+            _isRequiredConfigurationSource = configurationSource.Max(_isRequiredConfigurationSource);
+            return ReplaceForeignKey(configurationSource, isRequired: isRequired);
         }
 
         public virtual InternalRelationshipBuilder Unique(bool isUnique, ConfigurationSource configurationSource)
@@ -157,14 +146,14 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 return null;
             }
 
-            if (_isUniqueConfigurationSource == null
-                || configurationSource.Overrides(_isUniqueConfigurationSource.Value))
+            if (_isUniqueConfigurationSource != null
+                && !configurationSource.Overrides(_isUniqueConfigurationSource.Value))
             {
-                _isUniqueConfigurationSource = configurationSource.Max(_isUniqueConfigurationSource);
-                return ReplaceForeignKey(configurationSource, isUnique: isUnique);
+                return null;
             }
 
-            return null;
+            _isUniqueConfigurationSource = configurationSource.Max(_isUniqueConfigurationSource);
+            return ReplaceForeignKey(configurationSource, isUnique: isUnique);
         }
 
         public virtual InternalRelationshipBuilder Invert(ConfigurationSource configurationSource)
@@ -195,6 +184,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 null,
                 null,
                 ((IForeignKey)Metadata).IsUnique,
+                _isRequiredConfigurationSource.HasValue ? ((IForeignKey)Metadata).IsRequired : (bool?)null,
                 configurationSource);
         }
 
@@ -378,28 +368,49 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         private InternalRelationshipBuilder ReplaceForeignKey(ConfigurationSource configurationSource,
             IReadOnlyList<Property> dependentProperties = null,
             IReadOnlyList<Property> principalProperties = null,
-            bool? isUnique = null)
+            bool? isUnique = null,
+            bool? isRequired = null)
         {
             dependentProperties = dependentProperties ??
                                   (_foreignKeyPropertiesConfigurationSource.HasValue
-                                   && _foreignKeyPropertiesConfigurationSource.Value.Overrides(ConfigurationSource.DataAnnotation)
+                                   && _foreignKeyPropertiesConfigurationSource.Value.Overrides(configurationSource)
                                       ? Metadata.Properties
                                       : null);
 
             principalProperties = principalProperties ??
                                   (_referencedKeyConfigurationSource.HasValue
-                                   && _referencedKeyConfigurationSource.Value.Overrides(ConfigurationSource.DataAnnotation)
+                                   && _referencedKeyConfigurationSource.Value.Overrides(configurationSource)
                                       ? Metadata.ReferencedProperties
                                       : null);
+
+            var navigationToDependentName = Metadata.GetNavigationToDependent()?.Name;
+
+            isUnique = isUnique ??
+                       (navigationToDependentName != null
+                           ? ((IForeignKey)Metadata).IsUnique
+                           : (bool?)null);
+
+            isUnique = isUnique ??
+                       (_isUniqueConfigurationSource.HasValue
+                        && _isUniqueConfigurationSource.Value.Overrides(configurationSource)
+                           ? Metadata.IsUnique
+                           : null);
+
+            isRequired = isRequired ??
+                         (_isRequiredConfigurationSource.HasValue
+                          && _isRequiredConfigurationSource.Value.Overrides(configurationSource)
+                             ? Metadata.IsRequired
+                             : null);
 
             return ReplaceForeignKey(
                 Metadata.ReferencedEntityType,
                 Metadata.EntityType,
                 Metadata.GetNavigationToPrincipal()?.Name,
-                Metadata.GetNavigationToDependent()?.Name,
+                navigationToDependentName,
                 dependentProperties,
                 principalProperties,
-                isUnique ?? ((IForeignKey)Metadata).IsUnique,
+                isUnique,
+                isRequired,
                 configurationSource);
         }
 
@@ -410,7 +421,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             [CanBeNull] string navigationToDependentName,
             [CanBeNull] IReadOnlyList<Property> foreignKeyProperties,
             [CanBeNull] IReadOnlyList<Property> referencedProperties,
-            bool oneToOne,
+            bool? isUnique,
+            bool? isRequired,
             ConfigurationSource configurationSource)
         {
             var entityTypeBuilder = ModelBuilder.Entity(Metadata.EntityType.Name, configurationSource);
@@ -431,7 +443,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 foreignKeyProperties,
                 referencedProperties,
                 configurationSource,
-                oneToOne,
+                isUnique,
+                isRequired,
                 b => dependentEntityTypeBuilder
                     .Relationship(b.Metadata, existingForeignKey: true, configurationSource: replacedConfigurationSource.Value)
                     .MergeConfigurationSourceWith(this));
@@ -459,6 +472,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 targetReferencedKeyConfigurationSource?.Max(_referencedKeyConfigurationSource) ?? _referencedKeyConfigurationSource;
 
             _isUniqueConfigurationSource = builder._isUniqueConfigurationSource?.Max(_isUniqueConfigurationSource) ?? _isUniqueConfigurationSource;
+            _isRequiredConfigurationSource = builder._isRequiredConfigurationSource?.Max(_isRequiredConfigurationSource) ?? _isRequiredConfigurationSource;
 
             return this;
         }

@@ -117,7 +117,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
                     targetBuilder,
                     navigationToSource?.Name,
                     navigationToTarget.Name,
-                    configurationSource: ConfigurationSource.Convention, oneToOne: false, strictPrincipal: true);
+                    configurationSource: ConfigurationSource.Convention, isUnique: false, strictPrincipal: true);
             }
             else
             {
@@ -128,7 +128,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
                         sourceBuilder,
                         navigationToTarget.Name,
                         navigationToDependentName: null,
-                        configurationSource: ConfigurationSource.Convention, oneToOne: null, strictPrincipal: false);
+                        configurationSource: ConfigurationSource.Convention, isUnique: null, strictPrincipal: false);
                 }
                 else
                 {
@@ -139,7 +139,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
                             targetBuilder,
                             navigationToSource.Name,
                             navigationToTarget.Name,
-                            configurationSource: ConfigurationSource.Convention, oneToOne: true, strictPrincipal: false);
+                            configurationSource: ConfigurationSource.Convention, isUnique: true, strictPrincipal: false);
                     }
                 }
             }

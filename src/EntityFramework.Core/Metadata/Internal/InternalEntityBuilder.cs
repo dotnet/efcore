@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Utilities;
@@ -622,7 +623,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             [CanBeNull] string navigationToPrincipalName,
             [CanBeNull] string navigationToDependentName,
             ConfigurationSource configurationSource,
-            bool? oneToOne = null,
+            bool? isUnique = null,
             bool strictPrincipal = true)
         {
             Check.NotNull(principalType, "principalType");
@@ -646,7 +647,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 navigationToPrincipalName,
                 navigationToDependentName,
                 configurationSource,
-                oneToOne,
+                isUnique,
                 strictPrincipal);
         }
 
@@ -656,7 +657,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             [CanBeNull] string navigationToPrincipalName,
             [CanBeNull] string navigationToDependentName,
             ConfigurationSource configurationSource,
-            bool? oneToOne = null,
+            bool? isUnique = null,
             bool strictPrincipal = true)
         {
             Check.NotNull(principalEntityType, "principalEntityType");
@@ -674,7 +675,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 navigationToPrincipalName,
                 navigationToDependentName,
                 configurationSource,
-                oneToOne,
+                isUnique,
                 strictPrincipal);
         }
 
@@ -684,7 +685,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             [CanBeNull] string navigationToPrincipalName,
             [CanBeNull] string navigationToDependentName,
             ConfigurationSource configurationSource,
-            bool? oneToOne = null,
+            bool? isUnique = null,
             bool strictPrincipal = true)
         {
             Check.NotNull(principalEntityTypeBuilder, "principalEntityTypeBuilder");
@@ -698,7 +699,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     navigationToPrincipalName,
                     navigationToDependentName,
                     configurationSource,
-                    oneToOne,
+                    isUnique,
                     strictPrincipal);
             }
 
@@ -722,7 +723,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 : dependentEntityType.TryGetNavigation(navigationToPrincipalName);
 
             if (navigationToPrincipal != null
-                && navigationToPrincipal.IsCompatible(principalEntityType, dependentEntityType, strictPrincipal ? (bool?)true : null, oneToOne))
+                && navigationToPrincipal.IsCompatible(principalEntityType, dependentEntityType, strictPrincipal ? (bool?)true : null, isUnique))
             {
                 return Relationship(navigationToPrincipal, configurationSource, navigationToDependentName);
             }
@@ -732,7 +733,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 : principalEntityType.TryGetNavigation(navigationToDependentName);
 
             if (navigationToDependent != null
-                && navigationToDependent.IsCompatible(principalEntityType, dependentEntityType, strictPrincipal ? (bool?)false : null, oneToOne))
+                && navigationToDependent.IsCompatible(principalEntityType, dependentEntityType, strictPrincipal ? (bool?)false : null, isUnique))
             {
                 return Relationship(navigationToDependent, configurationSource, navigationToPrincipalName);
             }
@@ -753,7 +754,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 null,
                 null,
                 configurationSource,
-                oneToOne);
+                isUnique);
 
             return builder;
         }
@@ -766,7 +767,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             [CanBeNull] IReadOnlyList<Property> foreignKeyProperties,
             [CanBeNull] IReadOnlyList<Property> referencedProperties,
             ConfigurationSource configurationSource,
-            bool? oneToOne = null,
+            bool? isUnique = null,
+            bool? isRequired = null,
             [CanBeNull] Func<InternalRelationshipBuilder, InternalRelationshipBuilder> onRelationshipAdding = null)
         {
             var principalType = principalEntityTypeBuilder.Metadata;
@@ -792,7 +794,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     null,
                     foreignKeyProperties,
                     referencedProperties,
-                    oneToOne);
+                    isUnique);
 
             var existingForeignKey = foreignKey != null;
             if (!existingForeignKey)
@@ -813,13 +815,52 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     navigationToPrincipalName,
                     foreignKeyProperties,
                     referencedProperties,
-                    oneToOne,
+                    isUnique,
+                    isRequired,
                     configurationSource);
 
                 if (foreignKey == null)
                 {
                     return null;
                 }
+            }
+
+            if (isRequired.HasValue)
+            {
+                var properties = foreignKey.Properties;
+                if (!isRequired.Value)
+                {
+                    var nullableTypeProperties = properties.Where(p => p.PropertyType.IsNullableType()).ToList();
+                    if (nullableTypeProperties.Any())
+                    {
+                        properties = nullableTypeProperties;
+                    }
+                }
+
+                foreach (var property in properties)
+                {
+                    if (!dependentEntityTypeBuilder.Property(property.PropertyType, property.Name, ConfigurationSource.Convention)
+                        .CanSetRequired(isRequired.Value, configurationSource))
+                    {
+                        if (!existingForeignKey)
+                        {
+                            dependentType.RemoveForeignKey(foreignKey);
+                        }
+
+                        // TODO: throw for explicit
+                        return null;
+                    }
+                }
+
+                foreach (var property in properties)
+                {
+                    // TODO: Depending on resolution of #723 this may change
+                    var requiredSet = dependentEntityTypeBuilder.Property(property.PropertyType, property.Name, ConfigurationSource.Convention)
+                        .Required(isRequired.Value, configurationSource);
+                    Debug.Assert(requiredSet);
+                }
+
+                foreignKey.IsRequired = isRequired.Value;
             }
 
             var builder = Relationship(foreignKey, existingForeignKey, configurationSource);
@@ -839,9 +880,13 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             }
             else
             {
-                if (oneToOne.HasValue)
+                if (isUnique.HasValue)
                 {
-                    builder = builder.Unique(oneToOne.Value, configurationSource);
+                    builder = builder.Unique(isUnique.Value, configurationSource);
+                }
+                if (isRequired.HasValue)
+                {
+                    builder = builder.Required(isRequired.Value, configurationSource);
                 }
                 if (foreignKeyProperties != null)
                 {
@@ -868,6 +913,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             [CanBeNull] IReadOnlyList<Property> foreignKeyProperties,
             [CanBeNull] IReadOnlyList<Property> referencedProperties,
             bool? isUnique,
+            bool? isRequired,
             ConfigurationSource configurationSource)
         {
             var principalType = principalEntityTypeBuilder.Metadata;
@@ -939,7 +985,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                         principalKeyProperties[i] = CreateUniqueProperty(
                             foreignKeyProperty.Name,
                             foreignKeyProperty.PropertyType,
-                            principalEntityTypeBuilder);
+                            principalEntityTypeBuilder,
+                            isRequired);
                     }
 
                     var keyBuilder = principalEntityTypeBuilder.Key(principalKeyProperties, ConfigurationSource.Convention);
@@ -958,7 +1005,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     fkProperties[i] = CreateUniqueProperty(
                         baseName + keyProperty.Name,
                         keyProperty.PropertyType.MakeNullable(),
-                        dependentEntityTypeBuilder);
+                        dependentEntityTypeBuilder,
+                        isRequired);
                 }
 
                 foreignKeyProperties = fkProperties;
@@ -970,7 +1018,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return newForeignKey;
         }
 
-        private Property CreateUniqueProperty(string baseName, Type propertyType, InternalEntityBuilder entityTypeBuilder)
+        private Property CreateUniqueProperty(string baseName, Type propertyType, InternalEntityBuilder entityTypeBuilder, bool? isRequired = null)
         {
             var index = -1;
             while (true)
@@ -984,6 +1032,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 var propertyBuilder = entityTypeBuilder.Property(propertyType, name, ConfigurationSource.Convention);
                 if (propertyBuilder != null)
                 {
+                    if (isRequired.HasValue)
+                    {
+                        propertyBuilder.Required(isRequired.Value, ConfigurationSource.Convention);
+                    }
                     return propertyBuilder.Metadata;
                 }
             }

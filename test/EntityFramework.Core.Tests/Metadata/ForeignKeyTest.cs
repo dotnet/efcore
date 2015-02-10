@@ -2,12 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Metadata.Internal;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Tests.Metadata
@@ -109,8 +106,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var foreignKey = new ForeignKey(new[] { dependentProp }, entityType.GetPrimaryKey());
 
-            Assert.NotNull(foreignKey.IsRequired);
-            Assert.True(foreignKey.IsRequired.Value);
+            Assert.Null(foreignKey.IsRequired);
+            Assert.True(((IForeignKey)foreignKey).IsRequired);
         }
 
         [Fact]
@@ -123,8 +120,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var foreignKey = new ForeignKey(new[] { dependentProp }, entityType.GetPrimaryKey());
 
-            Assert.NotNull(foreignKey.IsRequired);
-            Assert.False(foreignKey.IsRequired.Value);
+            Assert.Null(foreignKey.IsRequired);
+            Assert.False(((IForeignKey)foreignKey).IsRequired);
         }
 
         [Fact]
@@ -192,16 +189,17 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var foreignKey = new ForeignKey(new[] { dependentProp1, dependentProp2 }, entityType.GetPrimaryKey());
 
-            Assert.False(foreignKey.IsRequired.Value);
+            Assert.Null(foreignKey.IsRequired);
             Assert.False(((IForeignKey)foreignKey).IsRequired);
 
             dependentProp2.IsNullable = false;
 
-            Assert.True(foreignKey.IsRequired.Value);
+            Assert.Null(foreignKey.IsRequired);
+            Assert.True(((IForeignKey)foreignKey).IsRequired);
         }
 
         [Fact]
-        public void Setting_IsRequired_will_set_all_FK_properties_as_non_nullable()
+        public void Setting_IsRequired_to_true_will_set_all_FK_properties_as_non_nullable()
         {
             var entityType = new Model().AddEntityType("E");
             entityType.GetOrSetPrimaryKey(
@@ -222,7 +220,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         }
 
         [Fact]
-        public void Clearing_IsRequired_will_set_all_FK_properties_as_nullable()
+        public void Setting_IsRequired_to_false_will_set_all_FK_properties_as_nullable()
         {
             var entityType = new Model().AddEntityType("E");
             entityType.GetOrSetPrimaryKey(new[]
