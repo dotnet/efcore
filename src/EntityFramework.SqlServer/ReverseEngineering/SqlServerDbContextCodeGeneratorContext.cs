@@ -34,38 +34,32 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
         {
             foreach (var foreignKey in entityType.ForeignKeys.Cast<ForeignKey>())
             {
-                var navigationPropertyName = foreignKey
-                    .GetAnnotation(SqlServerMetadataModelProvider.AnnotationNameDependentEndNavPropName).Value;
+                var dependentEndNavigationPropertyName = foreignKey
+                    .GetAnnotation(SqlServerMetadataModelProvider.AnnotationNameDependentEndNavPropName);
+                var principalEndNavigationPropertyName = foreignKey
+                    .TryGetAnnotation(SqlServerMetadataModelProvider.AnnotationNamePrincipalEndNavPropName);
                 sb.AppendLine();
                 sb.Append("entity.");
-                if (((IForeignKey)foreignKey).IsUnique)
-                {
-                    sb.Append("OneToOne");
-                }
-                else
-                {
-                    sb.Append("ManyToOne");
-                }
+                sb.Append("HasOne");
                 sb.Append("<");
                 sb.Append(foreignKey.ReferencedEntityType.Name);
-                sb.Append(">( e => e.");
-                sb.Append(navigationPropertyName);
+                sb.Append(">( d => d.");
+                sb.Append(dependentEndNavigationPropertyName.Value);
                 sb.Append(" )");
 
-                using (sb.Indent())
+                if (principalEndNavigationPropertyName != null)
                 {
-                    sb.AppendLine();
-                    sb.Append(".ForeignKey(");
                     if (((IForeignKey)foreignKey).IsUnique)
                     {
-                        sb.Append("typeof(");
-                        sb.Append(foreignKey.ReferencedEntityType.Name);
-                        sb.Append(")");
-                        sb.Append(",");
+                        sb.Append(".WithOne( ");
                     }
-                    sb.Append(" new string[] { ");
-                    sb.Append(GenerateForeignKeyPropertyNamesAsParams(foreignKey));
-                    sb.Append(" } )");
+                    else
+                    {
+                        sb.Append(".WithMany( ");
+                    }
+                    sb.Append("p => p.");
+                    sb.Append(principalEndNavigationPropertyName.Value);
+                    sb.Append(" )");
                 }
 
                 sb.Append(";");
