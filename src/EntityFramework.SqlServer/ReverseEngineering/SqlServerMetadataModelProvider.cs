@@ -341,10 +341,11 @@ namespace Microsoft.Data.Entity.SqlServer.ReverseEngineering
                         // how should we react?
                         var codeGenForeignKey = codeGenEntityType.GetOrAddForeignKey(foreignKeyCodeGenProperties, targetPrimaryKey);
 
-                        if (_uniqueConstraintColumns.Contains(
-                            ConstructIdForListOfColumns(
-                                foreignKeyConstraintRelationalPropertyList
-                                    .Select(p => p.Name)))) // relational property's name is the columnId
+                        if (targetRelationalEntityType == fromColumnRelationalEntityType // self-referencing foreign key
+                            || _uniqueConstraintColumns.Contains(
+                                ConstructIdForListOfColumns(
+                                    foreignKeyConstraintRelationalPropertyList
+                                        .Select(p => p.Name)))) // relational property's name is the columnId
                         {
                             codeGenForeignKey.IsUnique = true;
                         }
