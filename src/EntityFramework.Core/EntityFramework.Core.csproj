@@ -47,6 +47,9 @@
     <PackageReference Include="System.Collections.Immutable">
       <TargetFramework>portable-net45+win8+wp8+wpa81</TargetFramework>
     </PackageReference>
+    <PackageReference Include="Microsoft.Framework.Cache.Memory">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
     <PackageReference Include="Microsoft.Framework.ConfigurationModel" />
     <PackageReference Include="Microsoft.Framework.DependencyInjection" />
     <PackageReference Include="Microsoft.Framework.Logging" />
@@ -151,7 +154,6 @@
     <Compile Include="Metadata\ModelConventions\ConventionsPropertyInfoExtensions.cs" />
     <Compile Include="Metadata\ModelConventions\RelationshipDiscoveryConvention.cs" />
     <Compile Include="Metadata\TypedAnnotation.cs" />
-    <Compile Include="Query\ExpressionComparer.cs" />
     <Compile Include="Query\ExpressionTreeVisitors\EntityQueryableExpressionTreeVisitor.cs" />
     <Compile Include="Query\ExpressionTreeVisitors\DefaultQueryExpressionTreeVisitor.cs" />
     <Compile Include="Query\ExpressionTreeVisitors\EntityResultFindingExpressionTreeVisitor.cs" />

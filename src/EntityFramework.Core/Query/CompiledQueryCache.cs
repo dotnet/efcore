@@ -8,12 +8,12 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.Metadata;
+using JetBrains.Annotations;
 using Microsoft.Data.Entity.Query.ResultOperators;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
+using Microsoft.Framework.Cache.Memory;
 using Remotion.Linq;
-using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Clauses.StreamedData;
 using Remotion.Linq.Parsing;
 using Remotion.Linq.Parsing.ExpressionTreeVisitors.Transformation;
@@ -30,14 +30,18 @@ namespace Microsoft.Data.Entity.Query
 
         private class CompiledQuery
         {
-            public Expression Query;
             public Type ResultItemType;
             public Delegate Executor;
-            public bool IsAsync;
-            public IModel Model;
         }
 
-        private readonly ICollection<CompiledQuery> _items = new List<CompiledQuery>();
+        private readonly IMemoryCache _memoryCache;
+
+        public CompiledQueryCache([NotNull] IMemoryCache memoryCache)
+        {
+            Check.NotNull(memoryCache, "memoryCache");
+
+            _memoryCache = memoryCache;
+        }
 
         public virtual TResult Execute<TResult>(
             Expression query, DataStore dataStore, QueryContext queryContext)
@@ -47,7 +51,7 @@ namespace Microsoft.Data.Entity.Query
             Check.NotNull(queryContext, "queryContext");
 
             var compiledQuery
-                = GetOrAdd(query, queryContext, dataStore.Model, isAsync: false, compiler: (q, m, a) =>
+                = GetOrAdd(query, queryContext, dataStore, isAsync: false, compiler: (q, ds) =>
                     {
                         var queryModel = CreateQueryParser().GetParsedQuery(q);
 
@@ -58,15 +62,12 @@ namespace Microsoft.Data.Entity.Query
                             = streamedSequenceInfo?.ResultItemType ?? typeof(TResult);
 
                         var executor
-                            = CompileQuery(dataStore, DataStore.CompileQueryMethod, resultItemType, queryModel);
+                            = CompileQuery(ds, DataStore.CompileQueryMethod, resultItemType, queryModel);
 
                         return new CompiledQuery
                             {
-                                Query = q,
                                 ResultItemType = resultItemType,
-                                Executor = executor,
-                                IsAsync = a,
-                                Model = m
+                                Executor = executor
                             };
                     });
 
@@ -84,20 +85,17 @@ namespace Microsoft.Data.Entity.Query
             Check.NotNull(queryContext, "queryContext");
 
             var compiledQuery
-                = GetOrAdd(query, queryContext, dataStore.Model, isAsync: true, compiler: (q, m, a) =>
+                = GetOrAdd(query, queryContext, dataStore, isAsync: true, compiler: (q, ds) =>
                     {
-                        var queryModel = CreateQueryParser().GetParsedQuery(query);
+                        var queryModel = CreateQueryParser().GetParsedQuery(q);
 
                         var executor
-                            = CompileQuery(dataStore, DataStore.CompileAsyncQueryMethod, typeof(TResult), queryModel);
+                            = CompileQuery(ds, DataStore.CompileAsyncQueryMethod, typeof(TResult), queryModel);
 
                         return new CompiledQuery
                             {
-                                Query = query,
                                 ResultItemType = typeof(TResult),
-                                Executor = executor,
-                                IsAsync = a,
-                                Model = m
+                                Executor = executor
                             };
                     });
 
@@ -112,20 +110,17 @@ namespace Microsoft.Data.Entity.Query
             Check.NotNull(queryContext, "queryContext");
 
             var compiledQuery
-                = GetOrAdd(query, queryContext, dataStore.Model, isAsync: true, compiler: (q, m, a) =>
+                = GetOrAdd(query, queryContext, dataStore, isAsync: true, compiler: (q, ds) =>
                     {
-                        var queryModel = CreateQueryParser().GetParsedQuery(query);
+                        var queryModel = CreateQueryParser().GetParsedQuery(q);
 
                         var executor
-                            = CompileQuery(dataStore, DataStore.CompileAsyncQueryMethod, typeof(TResult), queryModel);
+                            = CompileQuery(ds, DataStore.CompileAsyncQueryMethod, typeof(TResult), queryModel);
 
                         return new CompiledQuery
                             {
-                                Query = query,
                                 ResultItemType = typeof(TResult),
-                                Executor = executor,
-                                IsAsync = a,
-                                Model = m
+                                Executor = executor
                             };
                     });
 
@@ -136,39 +131,39 @@ namespace Microsoft.Data.Entity.Query
         private CompiledQuery GetOrAdd(
             Expression query,
             QueryContext queryContext,
-            IModel model,
+            DataStore dataStore,
             bool isAsync,
-            Func<Expression, IModel, bool, CompiledQuery> compiler)
+            Func<Expression, DataStore, CompiledQuery> compiler)
         {
-            var partiallyEvaluatedQuery
-                = PartialEvaluatingExpressionTreeVisitor
-                    .EvaluateIndependentSubtrees(query, queryContext);
+            var parameterizedQuery
+                = ParameterExtractingExpressionTreeVisitor
+                    .ExtractParameters(query, queryContext);
 
-            lock (_items)
-            {
-                var compiledQuery
-                    = _items.Reverse()
-                        .FirstOrDefault(cq =>
-                            cq.Model == model
-                            && cq.IsAsync == isAsync
-                            && ExpressionComparer.AreEqual(cq.Query, partiallyEvaluatedQuery));
+            var cacheKey
+                = dataStore.Model.GetHashCode().ToString()
+                  + isAsync
+                  + parameterizedQuery;
 
-                if (compiledQuery == null)
-                {
-                    _items.Add(compiledQuery = compiler(partiallyEvaluatedQuery, model, isAsync));
-                }
+            var compiledQuery
+                = _memoryCache.GetOrSet(
+                    cacheKey,
+                    Tuple.Create(parameterizedQuery, dataStore),
+                    c =>
+                        {
+                            var tuple = (Tuple<Expression, DataStore>)c.State;
 
-                return compiledQuery;
-            }
+                            return compiler(tuple.Item1, tuple.Item2);
+                        });
+
+            return compiledQuery;
         }
 
-        private class PartialEvaluatingExpressionTreeVisitor : ExpressionTreeVisitor
+        private class ParameterExtractingExpressionTreeVisitor : ExpressionTreeVisitor
         {
-            public static Expression EvaluateIndependentSubtrees(Expression expressionTree, QueryContext queryContext)
+            public static Expression ExtractParameters(Expression expressionTree, QueryContext queryContext)
             {
                 var partialEvaluationInfo = EvaluatableTreeFindingExpressionTreeVisitor.Analyze(expressionTree);
-
-                var visitor = new PartialEvaluatingExpressionTreeVisitor(partialEvaluationInfo, queryContext);
+                var visitor = new ParameterExtractingExpressionTreeVisitor(partialEvaluationInfo, queryContext);
 
                 return visitor.VisitExpression(expressionTree);
             }
@@ -176,7 +171,7 @@ namespace Microsoft.Data.Entity.Query
             private readonly PartialEvaluationInfo _partialEvaluationInfo;
             private readonly QueryContext _queryContext;
 
-            private PartialEvaluatingExpressionTreeVisitor(
+            private ParameterExtractingExpressionTreeVisitor(
                 PartialEvaluationInfo partialEvaluationInfo, QueryContext queryContext)
             {
                 _partialEvaluationInfo = partialEvaluationInfo;
@@ -209,69 +204,84 @@ namespace Microsoft.Data.Entity.Query
                     return base.VisitExpression(expression);
                 }
 
-                Expression evaluatedExpression;
+                string parameterName;
+                object parameterValue;
 
-                try
+                if (expression.NodeType == ExpressionType.MemberAccess
+                    && !typeof(IQueryable).GetTypeInfo().IsAssignableFrom(expression.Type.GetTypeInfo())
+                    && TryEvaluate((MemberExpression)expression, out parameterName, out parameterValue))
                 {
-                    evaluatedExpression = EvaluateSubtree(expression);
-                }
-                catch (Exception ex)
-                {
-                    var baseVisitedExpression = base.VisitExpression(expression);
+                    parameterName
+                        = string.Format("{0}{1}_{2}",
+                            CompiledQueryParameterPrefix,
+                            parameterName,
+                            _queryContext.ParameterValues.Count);
 
-                    return new PartialEvaluationExceptionExpression(ex, baseVisitedExpression);
+                    _queryContext.ParameterValues.Add(parameterName, parameterValue);
+
+                    return Expression.Parameter(expression.Type, parameterName);
                 }
 
-                return evaluatedExpression != expression
-                    ? EvaluateIndependentSubtrees(evaluatedExpression, _queryContext)
-                    : evaluatedExpression;
+                return expression;
             }
 
-            private Expression EvaluateSubtree(Expression subtree)
+            private bool TryEvaluate(
+                MemberExpression memberExpression, out string parameterName, out object parameterValue)
             {
-                if (subtree.NodeType == ExpressionType.MemberAccess)
+                parameterName = null;
+                parameterValue = null;
+
+                object @object = null;
+
+                if (memberExpression.Expression == null
+                    || TryEvaluate(memberExpression.Expression, out parameterName, out @object))
                 {
-                    var memberExpression = (MemberExpression)subtree;
+                    var fieldInfo = memberExpression.Member as FieldInfo;
 
-                    if (!typeof(IQueryable).GetTypeInfo()
-                        .IsAssignableFrom(memberExpression.Type.GetTypeInfo()))
+                    if (fieldInfo != null)
                     {
-                        var parameterExpression
-                            = Expression.Parameter(
-                                memberExpression.Type,
-                                string.Format("{0}{1}_{2}",
-                                    CompiledQueryParameterPrefix,
-                                    memberExpression.Member.Name,
-                                    _queryContext.ParameterValues.Count));
+                        parameterName = parameterName != null
+                            ? parameterName + "_" + fieldInfo.Name
+                            : fieldInfo.Name;
 
-                        var constantExpression = memberExpression.Expression as ConstantExpression;
+                        parameterValue = fieldInfo.GetValue(@object);
 
-                        if (constantExpression != null)
-                        {
-                            var fieldInfo = memberExpression.Member as FieldInfo;
+                        return true;
+                    }
 
-                            if (fieldInfo != null)
-                            {
-                                _queryContext.ParameterValues
-                                    .Add(parameterExpression.Name, fieldInfo.GetValue(constantExpression.Value));
+                    var propertyInfo = memberExpression.Member as PropertyInfo;
 
-                                return parameterExpression;
-                            }
+                    if (propertyInfo != null)
+                    {
+                        parameterName = parameterName != null
+                            ? parameterName + "_" + propertyInfo.Name
+                            : propertyInfo.Name;
 
-                            var propertyInfo = memberExpression.Member as PropertyInfo;
+                        parameterValue = propertyInfo.GetValue(@object);
 
-                            if (propertyInfo != null)
-                            {
-                                _queryContext.ParameterValues
-                                    .Add(parameterExpression.Name, propertyInfo.GetValue(constantExpression.Value));
-
-                                return parameterExpression;
-                            }
-                        }
+                        return true;
                     }
                 }
 
-                return subtree;
+                return false;
+            }
+
+            private bool TryEvaluate(
+                Expression expression, out string parameterName, out object parameterValue)
+            {
+                parameterName = null;
+                parameterValue = null;
+
+                switch (expression.NodeType)
+                {
+                    case ExpressionType.MemberAccess:
+                        return TryEvaluate((MemberExpression)expression, out parameterName, out parameterValue);
+                    case ExpressionType.Constant:
+                        parameterValue = ((ConstantExpression)expression).Value;
+                        return true;
+                }
+
+                return false;
             }
         }
 

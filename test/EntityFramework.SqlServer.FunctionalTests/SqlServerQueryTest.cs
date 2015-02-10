@@ -22,10 +22,10 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             base.Where_simple_closure();
 
             Assert.Equal(
-                 @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[City] = @__city_0",
-                 Sql);
+                Sql);
         }
 
         public override void Count_with_predicate()
@@ -121,7 +121,7 @@ FROM (
 ) AS [t0]",
                 Sql);
         }
-        
+
         [Fact]
         public override void Select_Distinct_Count()
         {
@@ -1070,7 +1070,7 @@ WHERE 1 = 0",
 FROM [Employees] AS [e]",
                 Sql);
         }
-        
+
         public override void Where_bool_member()
         {
             base.Where_bool_member();
