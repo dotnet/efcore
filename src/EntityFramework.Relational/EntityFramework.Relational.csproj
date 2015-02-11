@@ -14,8 +14,8 @@
     <DefaultLanguage>en-US</DefaultLanguage>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <TargetFrameworkProfile>Profile151</TargetFrameworkProfile>
-    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Profile7</TargetFrameworkProfile>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -36,22 +36,6 @@
     <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="Ix-Async">
-      <TargetFramework>portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1</TargetFramework>
-      <Assemblies>System.Interactive.Async</Assemblies>
-    </PackageReference>
-    <PackageReference Include="System.Data.Common">
-      <TargetFramework>portable-wpa81+wp80+win80+net45+aspnetcore50</TargetFramework>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Framework.DependencyInjection" />
-    <PackageReference Include="Microsoft.Framework.DependencyInjection.Interfaces" />
-    <PackageReference Include="Microsoft.Framework.Logging" />
-    <PackageReference Include="Microsoft.Framework.Logging.Interfaces" />
-    <PackageReference Include="Remotion.Linq">
-      <TargetFramework>portable-net45+win+wpa81+wp80</TargetFramework>
-    </PackageReference>
-  </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\tools\Resources.cs">
       <Link>Properties\Resources.cs</Link>

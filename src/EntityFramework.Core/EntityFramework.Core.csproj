@@ -14,8 +14,8 @@
     <DefaultLanguage>en-US</DefaultLanguage>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <TargetFrameworkProfile>Profile151</TargetFrameworkProfile>
-    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Profile7</TargetFrameworkProfile>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <NoWarn>1591</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -39,29 +39,6 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <DocumentationFile>bin\Release\EntityFramework.Core.XML</DocumentationFile>
   </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="Ix-Async">
-      <TargetFramework>portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1</TargetFramework>
-      <Assemblies>System.Interactive.Async</Assemblies>
-    </PackageReference>
-    <PackageReference Include="System.Collections.Immutable">
-      <TargetFramework>portable-net45+win8+wp8+wpa81</TargetFramework>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Framework.Caching.Interfaces">
-      <TargetFramework>net45</TargetFramework>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Framework.Caching.Memory">
-      <TargetFramework>net45</TargetFramework>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Framework.DependencyInjection" />
-    <PackageReference Include="Microsoft.Framework.DependencyInjection.Interfaces" />
-    <PackageReference Include="Microsoft.Framework.Logging" />
-    <PackageReference Include="Microsoft.Framework.Logging.Interfaces" />
-    <PackageReference Include="Microsoft.Framework.OptionsModel" />
-    <PackageReference Include="Remotion.Linq">
-      <TargetFramework>portable-net45+win+wpa81+wp80</TargetFramework>
-    </PackageReference>
-  </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\tools\Resources.cs">
       <Link>Properties\Resources.cs</Link>
@@ -264,7 +241,6 @@
     <Compile Include="Storage\IDataStore.cs" />
     <Compile Include="Storage\IDataStoreConnection.cs" />
     <Compile Include="Storage\IDataStoreSelector.cs" />
-    <Compile Include="Utilities\INotifyPropertyChanging.cs" />
     <Compile Include="Metadata\EntityTypeExtensions.cs" />
     <Compile Include="Metadata\IIndex.cs" />
     <Compile Include="Metadata\Index.cs" />

@@ -9,6 +9,11 @@
         "test": "xunit.runner.aspnet"
     },
     "frameworks": {
+        "net451": {
+            "dependencies": {
+                "System.Console": "4.0.0-beta-*"
+            }
+        },
         "dnx451": { }
     }
 }

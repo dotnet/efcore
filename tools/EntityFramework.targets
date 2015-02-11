@@ -2,83 +2,49 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <PackagesTargetsFile>$(MSBuildProjectDirectory)\$(IntermediateOutputPath)Packages.targets</PackagesTargetsFile>
+    <KpmListLogFile>$(MSBuildProjectDirectory)\$(IntermediateOutputPath)kpm-list.log</KpmListLogFile>
     <BuildDependsOn>CheckPackageReferences;$(BuildDependsOn)</BuildDependsOn>
   </PropertyGroup>
-  <ItemDefinitionGroup>
-    <PackageReference>
-      <Visible>False</Visible>
-      <TargetFramework>portable-net451+win81+wpa81</TargetFramework>
-      <Assemblies />
-    </PackageReference>
-  </ItemDefinitionGroup>
+  <PropertyGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETPortable'">
+    <ImplicitlyExpandDesignTimeFacades>false</ImplicitlyExpandDesignTimeFacades>
+    <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
+  </PropertyGroup>
   <UsingTask
     TaskName="WritePackageReferences"
     TaskFactory="CodeTaskFactory"
     AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
     <ParameterGroup>
       <TargetsFile ParameterType="System.String" Required="true" />
-      <PackageReferences ParameterType="Microsoft.Build.Framework.ITaskItem[]" Required="true" />
+      <PackageReferences ParameterType="System.String" Required="true" />
+      <ReferenceContract ParameterType="System.Boolean" Required="true" />
     </ParameterGroup>
     <Task>
       <Code Type="Fragment" Language="cs">
         <![CDATA[
-        var packagesFolder = Environment.GetEnvironmentVariable("DNX_PACKAGES")
-            ?? Path.Combine(
-                Environment.GetEnvironmentVariable("USERPROFILE") ?? Environment.GetEnvironmentVariable("HOME"),
-                ".dnx",
-                "packages");
-
-        if (!Directory.Exists(packagesFolder))
-        {
-            Log.LogError("No packages found.");
-
-            return false;
-        }
-
-        Directory.CreateDirectory(Path.GetDirectoryName(TargetsFile));
         using (var writer = new StreamWriter(TargetsFile, append: false))
         {
             writer.WriteLine("<Project xmlns='http://schemas.microsoft.com/developer/msbuild/2003'>");
             writer.WriteLine("  <ItemGroup>");
 
-            var installedPackages = Directory.EnumerateDirectories(packagesFolder).Select(d => Path.GetFileName(d))
-                .ToArray();
-            foreach (var package in PackageReferences)
+            foreach (var assemblyPath in File.ReadLines(PackageReferences).Where(File.Exists))
             {
-                var id = package.ItemSpec;
-                var targetFramework = package.GetMetadata("TargetFramework");
-                var assemblies = package.GetMetadata("Assemblies");
-                if (string.IsNullOrEmpty(assemblies))
-                  assemblies = id;
+                var assembly = Path.GetFileNameWithoutExtension(assemblyPath);
+                var hintPath = assemblyPath;
 
-                if (!installedPackages.Contains(id))
+                if (ReferenceContract)
                 {
-                    Log.LogError("Package '{0}' not found.", id);
-
-                    continue;
+                    var contractPath = Path.GetFullPath(
+                        Path.Combine(Path.GetDirectoryName(assemblyPath), @"..\contract\" + assembly + ".dll"));
+                    if (File.Exists(contractPath))
+                    {
+                        hintPath = contractPath;
+                    }
                 }
 
-                var latestVersion = Directory.EnumerateDirectories(Path.Combine(packagesFolder, id))
-                    .OrderByDescending(p => p).FirstOrDefault();
-                if (latestVersion == null)
-                {
-                    Log.LogError("Package '{0}' version not found.", id);
-                }
-
-                foreach (var assembly in assemblies.Split(';'))
-                {
-                    var hintPath = Path.Combine(
-                        packagesFolder,
-                        latestVersion,
-                        "lib",
-                        targetFramework,
-                        assembly + ".dll");
-
-                    writer.WriteLine("    <Reference Include='{0}'>", assembly);
-                    writer.WriteLine("      <HintPath>{0}</HintPath>", hintPath);
-                    writer.WriteLine("      <Private>True</Private>");
-                    writer.WriteLine("    </Reference>");
-                }
+                writer.WriteLine("    <Reference Include='{0}'>", assembly);
+                writer.WriteLine("      <HintPath>{0}</HintPath>", hintPath);
+                writer.WriteLine("      <Private>True</Private>");
+                writer.WriteLine("    </Reference>");
             }
 
             writer.WriteLine("  </ItemGroup>");
@@ -93,10 +59,25 @@
       Text="Package references not found. Run 'build initialize' before opening the solution for the first time."
       Condition="!Exists('$(PackagesTargetsFile)')" />
   </Target>
-  <Target Name="WritePackageReferences">
+  <Target
+    Name="WritePackageReferences"
+    Condition="Exists('$(MSBuildProjectDirectory)\project.json')">
+    <PropertyGroup>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETPortable'">
+      <KpmFramework>dnxcore50</KpmFramework>
+      <ReferenceContract>true</ReferenceContract>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(TargetFrameworkIdentifier)' != '.NETPortable'">      
+      <KpmFramework>net451</KpmFramework>
+      <ReferenceContract>false</ReferenceContract>
+    </PropertyGroup>
+    <MakeDir Directories="$(MSBuildProjectDirectory)\$(IntermediateOutputPath)" />
+    <Exec Command='kpm list -a --framework $(KpmFramework) > "$(KpmListLogFile)"' />
     <WritePackageReferences
       TargetsFile="$(PackagesTargetsFile)"
-      PackageReferences="@(PackageReference)" />
+      PackageReferences="$(KpmListLogFile)"
+      ReferenceContract="$(ReferenceContract)" />
   </Target>
   <Import Project="$(PackagesTargetsFile)" Condition="Exists('$(PackagesTargetsFile)')" />
 </Project>

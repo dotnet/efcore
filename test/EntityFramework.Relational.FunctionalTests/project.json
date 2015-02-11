@@ -5,6 +5,11 @@
         "EntityFramework.Relational": "7.0.0-*"
     },
     "frameworks": {
+        "net451": {
+            "dependencies": {
+                "System.Data.Common": "4.0.0-beta-*"
+            }
+        },
         "dnx451": { },
         "dnxcore50": {
             "dependencies": {

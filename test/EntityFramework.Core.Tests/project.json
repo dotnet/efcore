@@ -8,6 +8,12 @@
         "test": "xunit.runner.aspnet"
     },
     "frameworks": {
+        "net451": {
+            "dependencies": {
+                "xunit": "2.0.0-rc3-build2880",
+                "xunit.extensibility.execution": "2.0.0-rc3-build2880"
+            }
+        },
         "dnx451": { }
     }
 }
