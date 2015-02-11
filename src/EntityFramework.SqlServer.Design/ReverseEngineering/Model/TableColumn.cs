@@ -9,21 +9,12 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.Model
     {
         public static readonly string Query =
 @"SELECT
-  quotename(c.TABLE_SCHEMA) + quotename(c.TABLE_NAME) + quotename(c.COLUMN_NAME) [Id]
+    quotename(c.TABLE_SCHEMA) + quotename(c.TABLE_NAME) + quotename(c.COLUMN_NAME) [Id]
   , quotename(c.TABLE_SCHEMA) + quotename(c.TABLE_NAME) [ParentId]
   , c.COLUMN_NAME [Name]
   , c.ORDINAL_POSITION [Ordinal]
   , CAST( CASE c.IS_NULLABLE WHEN 'YES' THEN 1 WHEN 'NO' THEN 0 ELSE 0 END as bit) [IsNullable]
-" + // commented out below - makes mapping to CLR data type easier
-    //  , CASE
-    //  WHEN c.DATA_TYPE IN ('varchar', 'nvarchar', 'varbinary')
-    //  AND c.CHARACTER_MAXIMUM_LENGTH = -1
-    //  THEN
-    //    c.DATA_TYPE + '(max)'
-    //  ELSE
-    //    c.DATA_TYPE
-    //  END
-@", c.DATA_TYPE  AS [DataType]
+  , c.DATA_TYPE  AS [DataType]
   , c.CHARACTER_MAXIMUM_LENGTH [MaxLength]
   , CAST(c.NUMERIC_PRECISION as integer) [NumericPrecision]
   , CAST(c.DATETIME_PRECISION as integer)[DateTimePrecision]

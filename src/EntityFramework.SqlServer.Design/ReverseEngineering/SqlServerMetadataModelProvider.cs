@@ -40,7 +40,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             new Dictionary<string, Dictionary<string, int>>(); // 1st string is ColumnId, 2nd is ConstraintId
         private HashSet<string> _uniqueConstraintColumns = new HashSet<string>();
 
-        // utility data constructed as we iterate over the model
+        // utility data constructed as we iterate over the data
         private Dictionary<EntityType, EntityType> _relationalEntityTypeToCodeGenEntityTypeMap =
             new Dictionary<EntityType, EntityType>();
         private Dictionary<Property, Property> _relationalPropertyToCodeGenPropertyMap = new Dictionary<Property, Property>();
@@ -76,24 +76,40 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                 }
                 finally
                 {
-                    if (conn != null)
+                    if (conn != null && conn.State == ConnectionState.Open)
                     {
-                        if (conn.State == ConnectionState.Open)
+                        try
                         {
-                            try
-                            {
-                                conn.Close();
-                            }
-                            catch (SqlException)
-                            {
-                                // do nothing if attempt to close connection fails
-                            }
+                            conn.Close();
+                        }
+                        catch (SqlException)
+                        {
+                            // do nothing if attempt to close connection fails
                         }
                     }
                 }
             }
 
             return CreateModel();
+        }
+
+
+        public DbContextCodeGenerator GetContextModelCodeGenerator(ReverseEngineeringGenerator generator, DbContextGeneratorModel dbContextGeneratorModel)
+        {
+            return new SqlServerDbContextCodeGeneratorContext(
+                generator
+                , dbContextGeneratorModel.MetadataModel
+                , dbContextGeneratorModel.Namespace
+                , dbContextGeneratorModel.ClassName
+                , dbContextGeneratorModel.ConnectionString);
+        }
+        public EntityTypeCodeGenerator GetEntityTypeModelCodeGenerator(
+            ReverseEngineeringGenerator generator, EntityTypeGeneratorModel entityTypeGeneratorModel)
+        {
+            return new SqlServerEntityTypeCodeGeneratorContext(
+                generator
+                , entityTypeGeneratorModel.EntityType
+                , entityTypeGeneratorModel.Namespace);
         }
 
         public static Dictionary<string, T> LoadData<T>(
@@ -160,10 +176,10 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             // store the ordered list of columns for each unique constraint
             foreach (var uniqueConstraintColumnIds in uniqueConstraintToColumnsMap.Values)
             {
-                var listOfColumnsId = ConstructIdForListOfColumns(uniqueConstraintColumnIds);
-                if (!_uniqueConstraintColumns.Contains(listOfColumnsId))
+                var columnsCombinationId = ConstructIdForCombinationOfColumns(uniqueConstraintColumnIds);
+                if (!_uniqueConstraintColumns.Contains(columnsCombinationId))
                 {
-                    _uniqueConstraintColumns.Add(listOfColumnsId);
+                    _uniqueConstraintColumns.Add(columnsCombinationId);
                 }
             }
         }
@@ -171,7 +187,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
         public IModel CreateModel()
         {
             // the relationalModel is an IModel, but not the one that will be returned
-            // it's just directly from the database - EntiyType = table, Property = column
+            // it's just directly from the database - EntityType = table, Property = column
             // etc with no attempt to hook up foreign key columns or make the
             // names fit CSharp conventions etc.
             var relationalModel = ConstructRelationalModel();
@@ -181,11 +197,10 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                 entity => _tables[entity.Name].TableName,
                 property => _tableColumns[property.Name].ColumnName);
 
-            // create all codeGenModel EntityTypes and Properties
             return ConstructCodeGenModel(relationalModel, nameMapper);
         }
 
-        private IModel ConstructRelationalModel()
+        public IModel ConstructRelationalModel()
         {
             var relationalModel = new Microsoft.Data.Entity.Metadata.Model();
             foreach (var table in _tables.Values)
@@ -226,13 +241,14 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             return relationalModel;
         }
 
-        private IModel ConstructCodeGenModel(
+        public IModel ConstructCodeGenModel(
             IModel relationalModel, SqlServerNameMapper nameMapper)
         {
             var codeGenModel = new Microsoft.Data.Entity.Metadata.Model();
             foreach (var relationalEntityType in relationalModel.EntityTypes.Cast<EntityType>())
             {
-                var codeGenEntityType = codeGenModel.AddEntityType(nameMapper.EntityTypeToClassNameMap[relationalEntityType]);
+                var codeGenEntityType = codeGenModel
+                    .AddEntityType(nameMapper.EntityTypeToClassNameMap[relationalEntityType]);
                 _relationalEntityTypeToCodeGenEntityTypeMap[relationalEntityType] = codeGenEntityType;
                 codeGenEntityType.SqlServer().Table = _tables[relationalEntityType.Name].TableName;
                 codeGenEntityType.SqlServer().Schema = _tables[relationalEntityType.Name].SchemaName;
@@ -301,7 +317,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             return codeGenModel;
         }
 
-        private void AddForeignKeysToCodeGenModel(IModel codeGenModel)
+        public void AddForeignKeysToCodeGenModel(IModel codeGenModel)
         {
             foreach (var keyValuePair in _relationalEntityTypeToForeignKeyConstraintsMap)
             {
@@ -313,9 +329,6 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                     var foreignKeyConstraintRelationalPropertyList = foreignKeyConstraintMap.Value;
 
                     var targetRelationalProperty = FindTargetColumn(
-                        _foreignKeyColumnMappings,
-                        _tableColumns,
-                        _relationalColumnIdToRelationalPropertyMap,
                         foreignKeyConstraintId,
                         foreignKeyConstraintRelationalPropertyList[0].Name);
                     if (targetRelationalProperty != null)
@@ -328,12 +341,15 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                         // in the order they appear in the target's key
                         var foreignKeyCodeGenProperties =
                             foreignKeyConstraintRelationalPropertyList
-                                .OrderBy(p => _foreignKeyOrdinals[p.Name][foreignKeyConstraintId]) // relational property's name is the columnId
-                                .Select(p =>
+                                .OrderBy(relationalProperty =>
+                                    _foreignKeyOrdinals[relationalProperty.Name][foreignKeyConstraintId]) // relational property's name is the columnId
+                                .Select(relationalProperty =>
                                     {
                                         Property codeGenProperty;
-                                        return _relationalPropertyToCodeGenPropertyMap.TryGetValue(p, out codeGenProperty)
-                                            ? codeGenProperty : null; 
+                                        return _relationalPropertyToCodeGenPropertyMap
+                                            .TryGetValue(relationalProperty, out codeGenProperty)
+                                                ? codeGenProperty
+                                                : null; 
                                     })
                                 .ToList();
 
@@ -343,7 +359,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
 
                         if (targetRelationalEntityType == fromColumnRelationalEntityType // self-referencing foreign key
                             || _uniqueConstraintColumns.Contains(
-                                ConstructIdForListOfColumns(
+                                ConstructIdForCombinationOfColumns(
                                     foreignKeyConstraintRelationalPropertyList
                                         .Select(p => p.Name)))) // relational property's name is the columnId
                         {
@@ -380,7 +396,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                     foreignKey.AddAnnotation(AnnotationNameDependentEndNavPropName, dependentEndNavigationPropertyName);
                     dependentEndExistingIdentifiers.Add(dependentEndNavigationPropertyName);
 
-                    if (foreignKey.ReferencedEntityType != foreignKey.EntityType) // if not self-referencing
+                    if (foreignKey.ReferencedEntityType != foreignKey.EntityType)
                     {
                         // set up the name of the navigation property on the principal end of the foreign key
                         var principalEndExistingIdentifiers = entityTypeToExistingIdentifiers[foreignKey.ReferencedEntityType];
@@ -393,15 +409,10 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             }
         }
 
-        private Property FindTargetColumn(
-            Dictionary<string, ForeignKeyColumnMapping> foreignKeyColumnMappings,
-            Dictionary<string, TableColumn> tableColumns,
-            Dictionary<string, Property> relationalColumnIdToRelationalPropertyMap,
-            string foreignKeyConstraintId,
-            string fromColumnId)
+        public Property FindTargetColumn(string foreignKeyConstraintId, string fromColumnId)
         {
             ForeignKeyColumnMapping foreignKeyColumnMapping;
-            if (!foreignKeyColumnMappings.TryGetValue(
+            if (!_foreignKeyColumnMappings.TryGetValue(
                 foreignKeyConstraintId + fromColumnId, out foreignKeyColumnMapping))
             {
                 _logger.WriteWarning("Could not find foreignKeyMapping for ConstraintId " + foreignKeyConstraintId
@@ -410,14 +421,14 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             }
 
             TableColumn toColumn;
-            if (!tableColumns.TryGetValue(foreignKeyColumnMapping.ToColumnId, out toColumn))
+            if (!_tableColumns.TryGetValue(foreignKeyColumnMapping.ToColumnId, out toColumn))
             {
                 _logger.WriteWarning("Could not find toColumn with ColumnId " + foreignKeyColumnMapping.ToColumnId);
                 return null;
             }
 
             Property toColumnRelationalProperty;
-            if (!relationalColumnIdToRelationalPropertyMap.TryGetValue(toColumn.Id, out toColumnRelationalProperty))
+            if (!_relationalColumnIdToRelationalPropertyMap.TryGetValue(toColumn.Id, out toColumnRelationalProperty))
             {
                 _logger.WriteWarning("Could not find relational property for toColumn with ColumnId " + toColumn.Id);
                 return null;
@@ -426,9 +437,9 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             return toColumnRelationalProperty;
         }
 
-        public static string ConstructIdForListOfColumns(IEnumerable<string> listOfColumnIds)
+        public static string ConstructIdForCombinationOfColumns(IEnumerable<string> listOfColumnIds)
         {
-            return string.Join("", listOfColumnIds.OrderBy(columnId => columnId));
+            return string.Join(string.Empty, listOfColumnIds.OrderBy(columnId => columnId));
         }
 
         public void ApplyPropertyProperties(Property property, TableColumn tc)
@@ -494,24 +505,6 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             {
                 property.SqlServer().DefaultValue = tc.DefaultValue;
             }
-        }
-
-        public DbContextCodeGenerator GetContextModelCodeGenerator(ReverseEngineeringGenerator generator, DbContextGeneratorModel dbContextGeneratorModel)
-        {
-            return new SqlServerDbContextCodeGeneratorContext(
-                generator
-                , dbContextGeneratorModel.MetadataModel
-                , dbContextGeneratorModel.Namespace
-                , dbContextGeneratorModel.ClassName
-                , dbContextGeneratorModel.ConnectionString);
-        }
-        public EntityTypeCodeGenerator GetEntityTypeModelCodeGenerator(
-            ReverseEngineeringGenerator generator, EntityTypeGeneratorModel entityTypeGeneratorModel)
-        {
-            return new SqlServerEntityTypeCodeGeneratorContext(
-                generator
-                , entityTypeGeneratorModel.EntityType
-                , entityTypeGeneratorModel.Namespace);
         }
     }
 }

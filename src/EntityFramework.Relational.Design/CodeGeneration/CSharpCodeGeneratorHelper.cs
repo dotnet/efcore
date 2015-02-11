@@ -110,7 +110,7 @@ namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
             };
         private string GetTypeName(Type propertyType)
         {
-            //TODO workaround for property.PropertyType.IsGenericType being missing in ASPNETCORE50
+            //TODO workaround for propertyType.IsGenericType being missing in ASPNETCORE50
             bool isNullableType;
             try
             {

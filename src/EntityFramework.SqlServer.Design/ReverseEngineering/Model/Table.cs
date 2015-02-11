@@ -9,7 +9,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.Model
     {
         public static readonly string Query =
 @"SELECT
-  quotename(TABLE_SCHEMA) + quotename(TABLE_NAME) [Id]
+    quotename(TABLE_SCHEMA) + quotename(TABLE_NAME) [Id]
   , TABLE_SCHEMA [SchemaName]
   , TABLE_NAME   [Name]
   FROM

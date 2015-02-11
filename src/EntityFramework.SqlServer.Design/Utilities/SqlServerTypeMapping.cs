@@ -50,15 +50,17 @@ namespace Microsoft.Data.Entity.SqlServer.Design.Utilities
                     { "varbinary", typeof(byte[]) },
 
                     //TODO other
-                    //{ "cursor", typeof(yyy) },
-                    //{ "hierarchyid", typeof(yyy) },
-                    //{ "sql_variant", typeof(yyy) },
-                    //{ "table", typeof(yyy) },
-                    //{ "timestamp", typeof(yyy) },
+                    //{ "cursor", typeof(TODO) },
+                    //{ "hierarchyid", typeof(TODO) },
+                    //{ "sql_variant", typeof(TODO) },
+                    //{ "table", typeof(TODO) },
+                    //{ "timestamp", typeof(TODO) },
                     { "uniqueidentifier", typeof(Guid) },
-                    //{ "xml", typeof(yyy) },
+                    //{ "xml", typeof(TODO) },
 
                     //TODO spatial
-                };
+                    //{ "geography", typeof(TODO) },
+                    //{ "geometry", typeof(TODO) },
+            };
     }
 }

@@ -24,12 +24,13 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
 
         public override void Generate(IndentedStringBuilder sb)
         {
-            var errorMessageAnnotation = ((EntityType)EntityType).TryGetAnnotation(SqlServerMetadataModelProvider.AnnotationNamePrincipalEntityTypeError);
+            var errorMessageAnnotation = ((EntityType)EntityType)
+                .TryGetAnnotation(SqlServerMetadataModelProvider.AnnotationNamePrincipalEntityTypeError);
             if (errorMessageAnnotation != null)
             {
                 GenerateCommentHeader(sb);
                 CSharpCodeGeneratorHelper.Instance.SingleLineComment(sb, errorMessageAnnotation.Value);
-                _generator.Logger.WriteWarning("The SqlServer EntityType CodeGenerator"
+                _generator.Logger.WriteWarning("The SQL Server EntityType CodeGenerator"
                     + " is unable to generate EntityType " + EntityType.Name
                     + ". Error message: " + errorMessageAnnotation.Value);
 
@@ -66,25 +67,37 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             foreach (var otherEntityType in EntityType.Model.EntityTypes.Where(et => et != EntityType))
             {
                 // set up the navigation properties for foreign keys from another EntityType which reference this EntityType
-                foreach (var foreignKey in otherEntityType.ForeignKeys.Where(fk => fk.ReferencedEntityType == EntityType).Cast<ForeignKey>())
+                foreach (var foreignKey in otherEntityType
+                    .ForeignKeys.Where(fk => fk.ReferencedEntityType == EntityType).Cast<ForeignKey>())
                 {
                     var navigationPropertyName = foreignKey
                         .GetAnnotation(SqlServerMetadataModelProvider.AnnotationNamePrincipalEndNavPropName).Value;
-                    if (((EntityType)otherEntityType).TryGetAnnotation(SqlServerMetadataModelProvider.AnnotationNamePrincipalEntityTypeError) != null)
+                    if (((EntityType)otherEntityType)
+                        .TryGetAnnotation(SqlServerMetadataModelProvider.AnnotationNamePrincipalEntityTypeError) != null)
                     {
-                        CSharpCodeGeneratorHelper.Instance.SingleLineComment(sb, "Unable to add Navigation to type " + otherEntityType.Name +" because of errors generating that EntityType.");
+                        CSharpCodeGeneratorHelper.Instance.SingleLineComment(sb,
+                            "Unable to add a Navigation Property referencing type "
+                            + otherEntityType.Name + " because of errors generating that EntityType.");
                     }
                     else
                     {
                         if (((IForeignKey)foreignKey).IsUnique)
                         {
-                            CSharpCodeGeneratorHelper.Instance.AddProperty(sb,
-                                AccessModifier.Public, VirtualModifier.Virtual, otherEntityType.Name, navigationPropertyName);
+                            CSharpCodeGeneratorHelper.Instance.AddProperty(
+                                sb,
+                                AccessModifier.Public,
+                                VirtualModifier.Virtual,
+                                otherEntityType.Name,
+                                navigationPropertyName);
                         }
                         else
                         {
-                            CSharpCodeGeneratorHelper.Instance.AddProperty(sb,
-                                AccessModifier.Public, VirtualModifier.Virtual, "ICollection<" + otherEntityType.Name + ">", navigationPropertyName);
+                            CSharpCodeGeneratorHelper.Instance.AddProperty(
+                                sb,
+                                AccessModifier.Public,
+                                VirtualModifier.Virtual,
+                                "ICollection<" + otherEntityType.Name + ">",
+                                navigationPropertyName);
                         }
                     }
                 }
@@ -92,11 +105,15 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
 
             foreach (var foreignKey in EntityType.ForeignKeys.Cast<ForeignKey>())
             {
-                // set up the navigation property on this end of foreign keys on this EntityType
+                // set up the navigation property on this end of foreign keys owned by this EntityType
                 var navigationPropertyName = foreignKey
                     .GetAnnotation(SqlServerMetadataModelProvider.AnnotationNameDependentEndNavPropName).Value;
-                CSharpCodeGeneratorHelper.Instance.AddProperty(sb,
-                    AccessModifier.Public, VirtualModifier.Virtual, foreignKey.ReferencedEntityType.Name, navigationPropertyName);
+                CSharpCodeGeneratorHelper.Instance.AddProperty(
+                    sb,
+                    AccessModifier.Public,
+                    VirtualModifier.Virtual,
+                    foreignKey.ReferencedEntityType.Name,
+                    navigationPropertyName);
             }
         }
 

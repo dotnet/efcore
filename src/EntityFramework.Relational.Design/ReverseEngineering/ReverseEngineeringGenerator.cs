@@ -2,12 +2,14 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Relational.Design.CodeGeneration;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 
@@ -44,10 +46,16 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             var provider = GetProvider(providerAssembly);
             var metadataModel = GetMetadataModel(provider, configuration);
 
-            // generate DbContext code
+            var contextClassName = configuration.ContextClassName;
+            if (contextClassName == null)
+            {
+                var builder = new SqlConnectionStringBuilder(configuration.ConnectionString);
+                contextClassName = CSharpUtilities.Instance.GenerateCSharpIdentifier(builder.InitialCatalog, null);
+            }
+
             var dbContextGeneratorModel = new DbContextGeneratorModel()
             {
-                ClassName = configuration.ContextClassName,
+                ClassName = contextClassName,
                 Namespace = configuration.Namespace,
                 ProviderAssembly = configuration.ProviderAssembly.FullName,
                 ConnectionString = configuration.ConnectionString,
@@ -55,7 +63,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 MetadataModel = metadataModel
             };
 
-            //TODO - check to see whether user has one in current project first
+            //TODO - check to see whether user has an override class for this in the current project first
             var dbContextCodeGeneratorContext =
                 provider.GetContextModelCodeGenerator(this, dbContextGeneratorModel);
             if (dbContextCodeGeneratorContext == null)
@@ -68,13 +76,12 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             var contextStringBuilder = new IndentedStringBuilder();
             dbContextCodeGeneratorContext.Generate(contextStringBuilder);
 
-            // output context file
+            // output DbContext .cs file
             using (var sourceStream = new MemoryStream(Encoding.UTF8.GetBytes(contextStringBuilder.ToString())))
             {
                 await OutputFile(configuration.OutputPath, configuration.ContextClassName + ".cs", sourceStream);
             }
 
-            // generate EntityType code for each Entity Type
             foreach (var entityType in metadataModel.EntityTypes)
             {
                 var entityTypeGeneratorModel = new EntityTypeGeneratorModel()
@@ -86,7 +93,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                     Filters = (configuration.Filters ?? ""),
                 };
 
-                //TODO - check to see whether user has one in current project first
+                //TODO - check to see whether user has an override class for this in the current project first
                 var entityTypeCodeGeneratorContext =
                     provider.GetEntityTypeModelCodeGenerator(
                         this
@@ -101,7 +108,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 var entityTypeStringBuilder = new IndentedStringBuilder();
                 entityTypeCodeGeneratorContext.Generate(entityTypeStringBuilder);
 
-                // output EntityType poco file
+                // output EntityType poco .cs file
                 using (var sourceStream = new MemoryStream(Encoding.UTF8.GetBytes(entityTypeStringBuilder.ToString())))
                 {
                     await OutputFile(configuration.OutputPath
@@ -205,11 +212,6 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             if (string.IsNullOrEmpty(configuration.Namespace))
             {
                 throw new ArgumentException("Namespace is required to generate code.");
-            }
-
-            if (string.IsNullOrEmpty(configuration.ContextClassName))
-            {
-                throw new ArgumentException("ContextClassName is required to generate code.");
             }
         }
     }

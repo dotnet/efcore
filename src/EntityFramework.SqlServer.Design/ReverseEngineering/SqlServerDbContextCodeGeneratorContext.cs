@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Text;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Design.CodeGeneration;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
@@ -30,7 +29,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                 .Where(e => ((EntityType)e).TryGetAnnotation(SqlServerMetadataModelProvider.AnnotationNamePrincipalEntityTypeError) == null);
         }
 
-        public override void GenerateForeignKeysConfiguration(IndentedStringBuilder sb, IEntityType entityType)
+        public override void GenerateNavigationsConfiguration(IndentedStringBuilder sb, IEntityType entityType)
         {
             foreach (var foreignKey in entityType.ForeignKeys.Cast<ForeignKey>())
             {
@@ -241,7 +240,9 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
         {
             if (property.SqlServer().Column != null && property.SqlServer().Column != property.Name)
             {
-                return string.Format(CultureInfo.InvariantCulture, ".Column(\"{0}\")", property.SqlServer().Column);
+                return string.Format(CultureInfo.InvariantCulture,
+                    ".Column({0})",
+                    CSharpUtilities.Instance.DelimitString(property.SqlServer().Column));
             }
 
             return null;
@@ -253,7 +254,9 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             if (property.SqlServer().ColumnType != null
                 && property.SqlServer().ColumnType.StartsWith("decimal"))
             {
-                return string.Format(CultureInfo.InvariantCulture, ".ColumnType(\"{0}\")", property.SqlServer().ColumnType);
+                return string.Format(CultureInfo.InvariantCulture,
+                    ".ColumnType({0})",
+                    CSharpUtilities.Instance.DelimitString(property.SqlServer().ColumnType));
             }
 
             return null;
@@ -269,15 +272,6 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             }
 
             return null;
-        }
-
-        public virtual string GenerateForeignKeyPropertyNamesAsParams(ForeignKey foreignKey)
-        {
-            return string.Join(", ",
-                foreignKey.Properties
-                    .Select(p =>
-                        CSharpUtilities.Instance.DelimitString(
-                            p.SqlServer().Column ?? p.Name)));
         }
     }
 }

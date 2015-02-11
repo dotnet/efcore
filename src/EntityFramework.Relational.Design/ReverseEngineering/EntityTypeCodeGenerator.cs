@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         private readonly IEntityType _entityType;
         private readonly string _namespaceName;
 
-        private List<string> _usedNamespaces = new List<string>() // initialize with default namespaces
+        private List<string> _usedNamespaces = new List<string>()
                 {
                     "System",
                     "System.Collections.Generic",

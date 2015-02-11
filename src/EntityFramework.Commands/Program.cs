@@ -328,7 +328,7 @@ namespace Microsoft.Data.Entity.Commands
             var providerAssembly = GetCandidateAssembly(providerAssemblyName);
             if (providerAssembly == null)
             {
-                Console.Error.WriteLine("No provider assembly was found with name " + providerAssemblyName);
+                Console.WriteLine("No provider assembly was found with name " + providerAssemblyName);
                 return 1;
             }
 
@@ -336,13 +336,10 @@ namespace Microsoft.Data.Entity.Commands
             {
                 outputPath = _projectDir;
             }
+
             if (codeNamespace == null)
             {
                 codeNamespace = _rootNamespace;
-            }
-            if (contextClassName == null)
-            {
-                contextClassName = "ModelContext";
             }
 
             var configuration = new ReverseEngineeringConfiguration()
@@ -424,9 +421,7 @@ namespace Microsoft.Data.Entity.Commands
 
         private Assembly GetCandidateAssembly(string providerAssemblyName)
         {
-            var libraryManager = _serviceProvider.GetRequiredService<ILibraryManager>();
-
-            return libraryManager.GetReferencingLibraries("EntityFramework.Relational.Design")
+            return _libraryManager.GetReferencingLibraries("EntityFramework.Relational.Design")
                 .Distinct()
                 .Where(l => l.Name == providerAssemblyName)
                 .SelectMany(l => l.LoadableAssemblies)

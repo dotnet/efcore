@@ -9,7 +9,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.Model
     {
         public static readonly string Query =
 @"SELECT
-  quotename(tc.CONSTRAINT_SCHEMA) + quotename(tc.CONSTRAINT_NAME) + quotename(kcu.COLUMN_NAME) [Id]
+    quotename(tc.CONSTRAINT_SCHEMA) + quotename(tc.CONSTRAINT_NAME) + quotename(kcu.COLUMN_NAME) [Id]
   , quotename(tc.TABLE_SCHEMA) + quotename(tc.TABLE_NAME) + quotename(kcu.COLUMN_NAME) [ColumnId]
   , quotename(tc.CONSTRAINT_SCHEMA) + quotename(tc.CONSTRAINT_NAME) [ConstraintId]
   , tc.CONSTRAINT_TYPE [ConstraintType]

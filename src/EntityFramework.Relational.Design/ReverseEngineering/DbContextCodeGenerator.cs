@@ -32,7 +32,6 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         private readonly string _className;
         private readonly string _connectionString;
 
-        // initialize default namespaces
         private List<string> _usedNamespaces = new List<string>()
                 {
                     "System",
@@ -199,7 +198,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                         GenerateEntityKeyConfiguration(sb, key);
                     }
                     GenerateEntityFacetsConfiguration(sb, entityType);
-                    GenerateForeignKeysConfiguration(sb, entityType);
+                    GenerateNavigationsConfiguration(sb, entityType);
                     foreach (var property in OrderedProperties(entityType))
                     {
                         GeneratePropertyFacetsConfiguration(sb, property);
@@ -222,7 +221,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         {
         }
 
-        public abstract void GenerateForeignKeysConfiguration(IndentedStringBuilder sb, IEntityType entityType);
+        public abstract void GenerateNavigationsConfiguration(IndentedStringBuilder sb, IEntityType entityType);
 
         public virtual void GeneratePropertyFacetsConfiguration(IndentedStringBuilder sb, IProperty property)
         {

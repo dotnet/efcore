@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
         private Func<IEntityType, string> _defaultEntityNameFunc;
         private Func<IProperty, string> _defaultPropertyNameFunc;
         private Dictionary<IEntityType, string> _entityTypeToClassNameMap;
-        private Dictionary<IProperty, string> _propertyToPropertyNameMap = new Dictionary<IProperty, string>();
+        private Dictionary<IProperty, string> _propertyToPropertyNameMap;
 
         public SqlServerNameMapper([NotNull]IModel sourceModel,
             [NotNull]Func<IEntityType, string> defaultEntityNameFunc,
@@ -56,6 +56,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
         private void ConstructNameMaps()
         {
             _entityTypeToClassNameMap = new Dictionary<IEntityType, string>();
+            _propertyToPropertyNameMap = new Dictionary<IProperty, string>();
             foreach (var entityType in _sourceModel.EntityTypes)
             {
                 _entityTypeToClassNameMap[entityType] =

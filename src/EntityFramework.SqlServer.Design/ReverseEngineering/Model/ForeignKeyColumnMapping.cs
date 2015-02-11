@@ -9,12 +9,10 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.Model
     {
         public static readonly string Query =
 @"SELECT
-" + //  quotename(SCHEMA_NAME(fk.schema_id)) + quotename(fk.name) + quotename(cast(fkc.constraint_column_id as nvarchar(30))) [Id]
-  @"  quotename(SCHEMA_NAME(fk.schema_id)) + quotename(fk.name) + quotename(SCHEMA_NAME(fromSchema.schema_id)) + quotename(OBJECT_NAME(fk.parent_object_id)) + quotename(fromCol.name) [Id]
-  ,   quotename(SCHEMA_NAME(fk.schema_id)) + quotename(fk.name) [ConstraintId]
-  ,   quotename(SCHEMA_NAME(fromSchema.schema_id)) + quotename(OBJECT_NAME(fk.parent_object_id)) + quotename(fromCol.name) [FromColumnId]
-  ,   quotename(SCHEMA_NAME(toSchema.schema_id)) + quotename(OBJECT_NAME(fk.referenced_object_id)) + quotename(toCol.name) [ToColumnId]
-  ,   fkc.constraint_column_id [Ordinal]
+    quotename(SCHEMA_NAME(fk.schema_id)) + quotename(fk.name) + quotename(SCHEMA_NAME(fromSchema.schema_id)) + quotename(OBJECT_NAME(fk.parent_object_id)) + quotename(fromCol.name) [Id]
+  , quotename(SCHEMA_NAME(fk.schema_id)) + quotename(fk.name) [ConstraintId]
+  , quotename(SCHEMA_NAME(fromSchema.schema_id)) + quotename(OBJECT_NAME(fk.parent_object_id)) + quotename(fromCol.name) [FromColumnId]
+  , quotename(SCHEMA_NAME(toSchema.schema_id)) + quotename(OBJECT_NAME(fk.referenced_object_id)) + quotename(toCol.name) [ToColumnId]
   FROM
   sys.foreign_keys fk
   INNER JOIN
@@ -32,7 +30,6 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.Model
         public string ConstraintId { get; set; }
         public string FromColumnId { get; set; }
         public string ToColumnId { get; set; }
-        public int Ordinal { get; set; }
 
         public static ForeignKeyColumnMapping CreateFromReader(SqlDataReader reader)
         {
@@ -41,7 +38,6 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.Model
             tableColumn.ConstraintId = reader.IsDBNull(1) ? null : reader.GetString(1);
             tableColumn.FromColumnId = reader.IsDBNull(2) ? null : reader.GetString(2);
             tableColumn.ToColumnId = reader.IsDBNull(3) ? null : reader.GetString(3);
-            tableColumn.Ordinal = reader.GetInt32(4);
 
             return tableColumn;
         }
@@ -52,7 +48,6 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.Model
                 + ", ConstraintId=" + ConstraintId
                 + ", FromColumnId=" + FromColumnId
                 + ", ToColumnId=" + ToColumnId
-                + ", Ordinal=" + Ordinal
                 + "]";
         }
     }
