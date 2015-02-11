@@ -28,6 +28,209 @@ WHERE [c].[City] = @__city_0",
                 Sql);
         }
 
+        public override void Where_simple_closure_via_query_cache_nullable_type_reverse()
+        {
+            base.Where_simple_closure_via_query_cache_nullable_type_reverse();
+
+            Assert.Equal(
+                @"SELECT [e].[City], [e].[Country], [e].[EmployeeID], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE [e].[ReportsTo] IS NULL
+
+SELECT [e].[City], [e].[Country], [e].[EmployeeID], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE [e].[ReportsTo] = @__reportsTo_0
+
+SELECT [e].[City], [e].[Country], [e].[EmployeeID], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE [e].[ReportsTo] = @__reportsTo_0",
+                Sql);
+        }
+
+        public override void Where_simple_closure_via_query_cache_nullable_type()
+        {
+            base.Where_simple_closure_via_query_cache_nullable_type();
+
+            Assert.Equal(
+                @"SELECT [e].[City], [e].[Country], [e].[EmployeeID], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE [e].[ReportsTo] = @__reportsTo_0
+
+SELECT [e].[City], [e].[Country], [e].[EmployeeID], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE [e].[ReportsTo] = @__reportsTo_0
+
+SELECT [e].[City], [e].[Country], [e].[EmployeeID], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE [e].[ReportsTo] IS NULL",
+                Sql);
+        }
+
+        public override void Where_new_instance_field_access_closure_via_query_cache()
+        {
+            base.Where_new_instance_field_access_closure_via_query_cache();
+
+            Assert.Equal(
+                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[City] = @__p_InstanceFieldValue_0
+
+SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[City] = @__p_InstanceFieldValue_0",
+                Sql);
+        }
+
+        public override void Where_nested_property_access_closure_via_query_cache()
+        {
+            base.Where_nested_property_access_closure_via_query_cache();
+
+            Assert.Equal(
+                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[City] = @__city_Nested_InstancePropertyValue_0
+
+SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[City] = @__city_Nested_InstancePropertyValue_0",
+                Sql);
+        }
+
+        public override void Where_nested_field_access_closure_via_query_cache()
+        {
+            base.Where_nested_field_access_closure_via_query_cache();
+
+            Assert.Equal(
+                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[City] = @__city_Nested_InstanceFieldValue_0
+
+SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[City] = @__city_Nested_InstanceFieldValue_0",
+                Sql);
+        }
+
+        public override void Where_static_property_access_closure_via_query_cache()
+        {
+            base.Where_static_property_access_closure_via_query_cache();
+
+            Assert.Equal(
+                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[City] = @__StaticPropertyValue_0
+
+SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[City] = @__StaticPropertyValue_0",
+                Sql);
+        }
+
+        public override void Where_property_access_closure_via_query_cache()
+        {
+            base.Where_property_access_closure_via_query_cache();
+
+            Assert.Equal(
+                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[City] = @__city_InstancePropertyValue_0
+
+SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[City] = @__city_InstancePropertyValue_0",
+                Sql);
+        }
+
+        public override void Where_static_field_access_closure_via_query_cache()
+        {
+            base.Where_static_field_access_closure_via_query_cache();
+
+            Assert.Equal(
+                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[City] = @__StaticFieldValue_0
+
+SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[City] = @__StaticFieldValue_0",
+                Sql);
+        }
+
+        public override void Where_field_access_closure_via_query_cache()
+        {
+            base.Where_field_access_closure_via_query_cache();
+
+            Assert.Equal(
+                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[City] = @__city_InstanceFieldValue_0
+
+SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[City] = @__city_InstanceFieldValue_0",
+                Sql);
+        }
+
+        public override void Where_method_call_closure_via_query_cache()
+        {
+            base.Where_method_call_closure_via_query_cache();
+
+            Assert.Equal(
+                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[City] = @__GetCity_0
+
+SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[City] = @__GetCity_0",
+                Sql);
+        }
+
+        public override void Where_method_call_nullable_type_reverse_closure_via_query_cache()
+        {
+            base.Where_method_call_nullable_type_reverse_closure_via_query_cache();
+
+            Assert.Equal(
+                @"SELECT [e].[City], [e].[Country], [e].[EmployeeID], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE [e].[EmployeeID] > @__city_NullableInt_0
+
+SELECT [e].[City], [e].[Country], [e].[EmployeeID], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE [e].[EmployeeID] > @__city_NullableInt_0",
+                Sql);
+        }
+
+        public override void Where_method_call_nullable_type_closure_via_query_cache()
+        {
+            base.Where_method_call_nullable_type_closure_via_query_cache();
+
+            Assert.Equal(
+                @"SELECT [e].[City], [e].[Country], [e].[EmployeeID], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE [e].[ReportsTo] = @__city_Int_0
+
+SELECT [e].[City], [e].[Country], [e].[EmployeeID], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE [e].[ReportsTo] = @__city_Int_0",
+                Sql);
+        }
+
+        public override void Where_simple_closure_via_query_cache()
+        {
+            base.Where_simple_closure_via_query_cache();
+
+            Assert.Equal(
+                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[City] = @__city_0
+
+SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[City] = @__city_0",
+                Sql);
+        }
+
         public override void Count_with_predicate()
         {
             base.Count_with_predicate();
@@ -1238,7 +1441,7 @@ WHERE [c].[ContactName] LIKE [c].[ContactName] + '%'",
             Assert.Equal(
                 @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[ContactName] LIKE 'M' + '%'",
+WHERE [c].[ContactName] LIKE @__LocalMethod1_0 + '%'",
                 Sql);
         }
 
@@ -1282,7 +1485,7 @@ WHERE [c].[ContactName] LIKE '%' + [c].[ContactName]",
             Assert.Equal(
                 @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[ContactName] LIKE '%' + 'm'",
+WHERE [c].[ContactName] LIKE '%' + @__LocalMethod2_0",
                 Sql);
         }
 
@@ -1332,7 +1535,7 @@ WHERE [c].[ContactName] LIKE '%' + [c].[ContactName] + '%'",
             Assert.Equal(
                 @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[ContactName] LIKE '%' + 'M' + '%'",
+WHERE [c].[ContactName] LIKE '%' + @__LocalMethod1_0 + '%'",
                 Sql);
         }
 
@@ -1425,7 +1628,7 @@ INNER JOIN [Orders] AS [o0] ON [o].[CustomerID] = [o0].[CustomerID]",
             Assert.Equal(
                 @"SELECT [o].[CustomerID], [o].[OrderDate], [o].[OrderID]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = 'QUICK' AND [o].[OrderDate] > '1998-01-01T00:00:00.000')",
+WHERE ([o].[CustomerID] = 'QUICK' AND [o].[OrderDate] > @__p_0)",
                 Sql);
         }
 

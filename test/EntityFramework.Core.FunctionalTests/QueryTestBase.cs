@@ -270,7 +270,63 @@ namespace Microsoft.Data.Entity.FunctionalTests
             public string InstanceFieldValue;
             public string InstancePropertyValue { get; set; }
 
+            public int Int { get; set; }
+            public int? NullableInt { get; set; }
+
             public City Nested;
+
+            public string GetCity()
+            {
+                return InstanceFieldValue;
+            }
+        }
+        
+        [Fact]
+        public virtual void Where_method_call_nullable_type_closure_via_query_cache()
+        {
+            var city = new City { Int = 2 };
+
+            AssertQuery<Employee>(
+                es => es.Where(e => e.ReportsTo == city.Int),
+                stateEntryCount: 5);
+
+            city.Int = 5;
+
+            AssertQuery<Employee>(
+                es => es.Where(e => e.ReportsTo == city.Int),
+                stateEntryCount: 3);
+        }
+
+        [Fact]
+        public virtual void Where_method_call_nullable_type_reverse_closure_via_query_cache()
+        {
+            var city = new City { NullableInt = 1 };
+
+            AssertQuery<Employee>(
+                es => es.Where(e => e.EmployeeID > city.NullableInt),
+                stateEntryCount: 8);
+
+            city.NullableInt = 5;
+
+            AssertQuery<Employee>(
+                es => es.Where(e => e.EmployeeID > city.NullableInt),
+                stateEntryCount: 4);
+        }
+
+        [Fact]
+        public virtual void Where_method_call_closure_via_query_cache()
+        {
+            var city = new City { InstanceFieldValue = "London" };
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.City == city.GetCity()),
+                stateEntryCount: 6);
+
+            city.InstanceFieldValue = "Seattle";
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.City == city.GetCity()),
+                stateEntryCount: 1);
         }
 
         [Fact]

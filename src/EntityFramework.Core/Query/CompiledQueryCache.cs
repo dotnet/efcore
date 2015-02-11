@@ -142,7 +142,7 @@ namespace Microsoft.Data.Entity.Query
             var cacheKey
                 = dataStore.Model.GetHashCode().ToString()
                   + isAsync
-                  + parameterizedQuery;
+                  + query;
 
             var compiledQuery
                 = _memoryCache.GetOrSet(
@@ -204,13 +204,25 @@ namespace Microsoft.Data.Entity.Query
                     return base.VisitExpression(expression);
                 }
 
-                string parameterName;
-                object parameterValue;
+                var e = expression;
 
-                if (expression.NodeType == ExpressionType.MemberAccess
-                    && !typeof(IQueryable).GetTypeInfo().IsAssignableFrom(expression.Type.GetTypeInfo())
-                    && TryEvaluate((MemberExpression)expression, out parameterName, out parameterValue))
+                if (expression.NodeType == ExpressionType.Convert)
                 {
+                    var unaryExpression = (UnaryExpression)expression;
+
+                    if (unaryExpression.Type.IsNullableType()
+                        && !unaryExpression.Operand.Type.IsNullableType())
+                    {
+                        e = unaryExpression.Operand;
+                    }
+                }
+
+                if (e.NodeType != ExpressionType.Constant
+                    && !typeof(IQueryable).GetTypeInfo().IsAssignableFrom(e.Type.GetTypeInfo()))
+                {
+                    string parameterName;
+                    var parameterValue = Evaluate(e, out parameterName);
+
                     parameterName
                         = string.Format("{0}{1}_{2}",
                             CompiledQueryParameterPrefix,
@@ -225,63 +237,64 @@ namespace Microsoft.Data.Entity.Query
                 return expression;
             }
 
-            private bool TryEvaluate(
-                MemberExpression memberExpression, out string parameterName, out object parameterValue)
+            private static object Evaluate(Expression expression, out string parameterName)
             {
                 parameterName = null;
-                parameterValue = null;
 
-                object @object = null;
-
-                if (memberExpression.Expression == null
-                    || TryEvaluate(memberExpression.Expression, out parameterName, out @object))
+                if (expression == null)
                 {
-                    var fieldInfo = memberExpression.Member as FieldInfo;
-
-                    if (fieldInfo != null)
-                    {
-                        parameterName = parameterName != null
-                            ? parameterName + "_" + fieldInfo.Name
-                            : fieldInfo.Name;
-
-                        parameterValue = fieldInfo.GetValue(@object);
-
-                        return true;
-                    }
-
-                    var propertyInfo = memberExpression.Member as PropertyInfo;
-
-                    if (propertyInfo != null)
-                    {
-                        parameterName = parameterName != null
-                            ? parameterName + "_" + propertyInfo.Name
-                            : propertyInfo.Name;
-
-                        parameterValue = propertyInfo.GetValue(@object);
-
-                        return true;
-                    }
+                    return null;
                 }
-
-                return false;
-            }
-
-            private bool TryEvaluate(
-                Expression expression, out string parameterName, out object parameterValue)
-            {
-                parameterName = null;
-                parameterValue = null;
 
                 switch (expression.NodeType)
                 {
                     case ExpressionType.MemberAccess:
-                        return TryEvaluate((MemberExpression)expression, out parameterName, out parameterValue);
+                    {
+                        var memberExpression = (MemberExpression)expression;
+                        var @object = Evaluate(memberExpression.Expression, out parameterName);
+
+                        var fieldInfo = memberExpression.Member as FieldInfo;
+
+                        if (fieldInfo != null)
+                        {
+                            parameterName = parameterName != null
+                                ? parameterName + "_" + fieldInfo.Name
+                                : fieldInfo.Name;
+
+                            return fieldInfo.GetValue(@object);
+                        }
+
+                        var propertyInfo = memberExpression.Member as PropertyInfo;
+
+                        if (propertyInfo != null)
+                        {
+                            parameterName = parameterName != null
+                                ? parameterName + "_" + propertyInfo.Name
+                                : propertyInfo.Name;
+
+                            return propertyInfo.GetValue(@object);
+                        }
+
+                        break;
+                    }
                     case ExpressionType.Constant:
-                        parameterValue = ((ConstantExpression)expression).Value;
-                        return true;
+                    {
+                        return ((ConstantExpression)expression).Value;
+                    }
+                    case ExpressionType.Call:
+                    {
+                        parameterName = ((MethodCallExpression)expression).Method.Name;
+
+                        break;
+                    }
                 }
 
-                return false;
+                if (parameterName == null)
+                {
+                    parameterName = "p";
+                }
+
+                return Expression.Lambda<Func<object>>(Expression.Convert(expression, typeof(object))).Compile()();
             }
         }
 
