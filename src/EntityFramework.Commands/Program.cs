@@ -33,8 +33,8 @@ namespace Microsoft.Data.Entity.Commands
         public Program([NotNull] IServiceProvider serviceProvider,
             [NotNull] IApplicationEnvironment appEnv, [NotNull] ILibraryManager libraryManager)
         {
-            Check.NotNull(serviceProvider, "serviceProvider");
-            Check.NotNull(appEnv, "appEnv");
+            Check.NotNull(serviceProvider, nameof(serviceProvider));
+            Check.NotNull(appEnv, nameof(appEnv));
             Check.NotNull(libraryManager, nameof(libraryManager));
 
             _serviceProvider = serviceProvider;

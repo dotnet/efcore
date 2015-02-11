@@ -106,7 +106,7 @@ namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
 
         public string DelimitString([NotNull] string value)
         {
-            Check.NotNull(value, "value");
+            Check.NotNull(value, nameof(value));
 
             return "\"" + EscapeString(value) + "\"";
         }
@@ -127,7 +127,7 @@ namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
 
         public virtual string GenerateLiteral([NotNull] byte[] value)
         {
-            Check.NotNull(value, "value");
+            Check.NotNull(value, nameof(value));
 
             return "new byte[] {" + string.Join(", ", value) + "}";
         }
@@ -181,21 +181,21 @@ namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
 
         public virtual string GenerateLiteral([NotNull] string value)
         {
-            Check.NotNull(value, "value");
+            Check.NotNull(value, nameof(value));
 
             return "\"" + EscapeString(value) + "\"";
         }
 
         public virtual string GenerateVerbatimStringLiteral([NotNull] string value)
         {
-            Check.NotNull(value, "value");
+            Check.NotNull(value, nameof(value));
 
             return "@\"" + EscapeVerbatimString(value) + "\"";
         }
 
         public virtual string GenerateLiteral([NotNull] object value)
         {
-            Check.NotNull(value, "value");
+            Check.NotNull(value, nameof(value));
 
             if (value.GetType().GetTypeInfo().IsEnum)
             {
