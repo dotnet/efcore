@@ -121,7 +121,7 @@
     <value>The string argument '{argumentName}' cannot be empty.</value>
   </data>
   <data name="CircularDependency" xml:space="preserve">
-    <value>A circular model foreign key dependency was detected: {cycle}.</value>
+    <value>A circular dependency was detected: {cycle}.</value>
   </data>
   <data name="InvalidEnumValue" xml:space="preserve">
     <value>The value provided for argument '{argumentName}' must be a valid value of enum type '{enumType}'.</value>
@@ -449,5 +449,8 @@
   </data>
   <data name="DerivedEntityCannotHaveKeys" xml:space="preserve">
     <value>Unable to set a base type for entity type '{entityType}' because it has one or more keys defined.</value>
+  </data>
+  <data name="GraphDoesNotContainVertex" xml:space="preserve">
+    <value>The edge cannot be added because the graph does not contain vertex '{vertex}'.</value>
   </data>
 </root>

@@ -300,6 +300,7 @@
     <Compile Include="Utilities\LazyRef.cs" />
     <Compile Include="Utilities\ListExtensions.cs" />
     <Compile Include="Utilities\MetadataHelper.cs" />
+    <Compile Include="Utilities\Multigraph.cs" />
     <Compile Include="Utilities\PropertyInfoExtensions.cs" />
     <Compile Include="Utilities\ReferenceEqualityComparer.cs" />
     <Compile Include="Utilities\ServiceProviderExtensions.cs" />

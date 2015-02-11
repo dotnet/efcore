@@ -173,6 +173,7 @@
     <Compile Include="Utilities\ExpressionExtensionsTest.cs" />
     <Compile Include="Utilities\IndentedStringBuilderTest.cs" />
     <Compile Include="Utilities\LazyRefTest.cs" />
+    <Compile Include="Utilities\MultigraphTest.cs" />
     <Compile Include="Utilities\PropertyInfoExtensionsTest.cs" />
     <Compile Include="Utilities\ThreadSafeDictionaryCacheTest.cs" />
     <Compile Include="Utilities\ThreadSafeLazyRefTest.cs" />

@@ -69,6 +69,7 @@ namespace Microsoft.Data.Entity.Utilities
             // ReSharper disable once LoopCanBeConvertedToQuery
             foreach (var element in _vertices)
             {
+                // Create initial batch of verticies without predecessors
                 if (!predecessorCounts.ContainsKey(element))
                 {
                     currentRootsQueue.Add(element);
@@ -83,6 +84,7 @@ namespace Microsoft.Data.Entity.Utilities
                 var currentRoot = currentRootsQueue[currentRootIndex];
                 currentRootIndex++;
 
+                // Remove edges from current root and add any exposed vertices to the next batch
                 foreach (var successor in GetOutgoingNeighbours(currentRoot))
                 {
                     predecessorCounts[successor]--;
@@ -92,6 +94,7 @@ namespace Microsoft.Data.Entity.Utilities
                     }
                 }
 
+                // Roll lists over for next batch
                 if (currentRootIndex == currentRootsQueue.Count)
                 {
                     result.Add(currentRootsQueue);
@@ -116,7 +119,8 @@ namespace Microsoft.Data.Entity.Utilities
                 var finished = false;
                 while (!finished)
                 {
-                    foreach (var predecessor in GetIncomingNeighbours(currentCycleVertex))
+                    foreach (var predecessor in GetIncomingNeighbours(currentCycleVertex)
+                        .Where(neighbour => predecessorCounts.ContainsKey(neighbour)))
                     {
                         if (predecessorCounts[predecessor] != 0)
                         {

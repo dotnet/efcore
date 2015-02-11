@@ -124,8 +124,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                 }
             }
 
-            // TODO: Break cycles
-            var createTableGraph = new BidirectionalAdjacencyListGraph<string>();
+            var createTableGraph = new Multigraph<string, AddForeignKeyOperation>();
             createTableGraph.AddVertices(createTableOperations.Keys);
             foreach (var pair in createTableOperations)
             {
@@ -140,14 +139,24 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                     {
                         continue;
                     }
-
-                    createTableGraph.AddEdge(principalTable, pair.Key);
+                    createTableGraph.AddEdge(principalTable, pair.Key, addForeignKeyOperation);
                 }
             }
+            var sortedCreatetableOperations = createTableGraph.TopologicalSort(
+                (principalTable, key, foreignKeyOperations) =>
+                {
+                    foreach (var foreignKeyOperation in foreignKeyOperations)
+                    {
+                        createTableOperations[key].ForeignKeys.Remove(foreignKeyOperation);
+                        alterOperations.Add(foreignKeyOperation);
+                    }
+                    return true;
+                })
+                .Select(k => createTableOperations[k]);
 
             return dropOperations
                 .Concat(createSequenceOperations)
-                .Concat(createTableGraph.TopologicalSort().SelectMany(l => l).Select(k => createTableOperations[k]))
+                .Concat(sortedCreatetableOperations)
                 .Concat(alterOperations)
                 .Concat(renameOperations)
                 .Concat(renameTableOperations)
