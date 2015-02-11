@@ -3,6 +3,7 @@
 
 using System.Linq;
 using System.Reflection;
+using Microsoft.Data.Entity.DependencyInjection;
 using Microsoft.Framework.DependencyInjection;
 using Xunit;
 
@@ -14,7 +15,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         public void ApplyServices_adds_SQL_server_services()
         {
             var services = new ServiceCollection();
-            var builder = new EntityServicesBuilder(services);
+            var builder = new EntityFrameworkServicesBuilder(services);
 
             new SqlServerOptionsExtension().ApplyServices(builder);
 

@@ -8,7 +8,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
@@ -88,11 +88,11 @@ namespace Microsoft.Data.Entity.Query
 
             if (queryStateManager)
             {
-                var stateEntry = _stateManager.TryGetEntry(entityKey);
+                var entry = _stateManager.TryGetEntry(entityKey);
 
-                if (stateEntry != null)
+                if (entry != null)
                 {
-                    return stateEntry.Entity;
+                    return entry.Entity;
                 }
             }
 
@@ -119,11 +119,11 @@ namespace Microsoft.Data.Entity.Query
             Check.NotNull(entity, "entity");
             Check.NotNull(property, "property");
 
-            var stateEntry = _stateManager.TryGetEntry(entity);
+            var entry = _stateManager.TryGetEntry(entity);
 
-            if (stateEntry != null)
+            if (entry != null)
             {
-                return stateEntry[property];
+                return entry[property];
             }
 
             var valueReader = _byEntityInstance[entity][0].ValueReader;
@@ -262,27 +262,26 @@ namespace Microsoft.Data.Entity.Query
                 entity,
                 navigationPath,
                 currentNavigationIndex,
-                await relatedValueReaders[currentNavigationIndex](primaryKey, relatedKeyFactory)
-                    .Select(async (valueReader, ct) =>
-                        {
-                            var targetEntity
-                                = GetTargetEntity(
-                                    targetEntityType,
-                                    entityKeyFactory,
-                                    keyProperties,
-                                    valueReader,
-                                    bufferedEntities);
+                await AsyncEnumerableExtensions.Select(relatedValueReaders[currentNavigationIndex](primaryKey, relatedKeyFactory), async (valueReader, ct) =>
+                    {
+                        var targetEntity
+                            = GetTargetEntity(
+                                targetEntityType,
+                                entityKeyFactory,
+                                keyProperties,
+                                valueReader,
+                                bufferedEntities);
 
-                            await IncludeAsync(
-                                targetEntity,
-                                navigationPath,
-                                relatedValueReaders,
-                                ct,
-                                currentNavigationIndex + 1)
-                                .WithCurrentCulture();
+                        await IncludeAsync(
+                            targetEntity,
+                            navigationPath,
+                            relatedValueReaders,
+                            ct,
+                            currentNavigationIndex + 1)
+                            .WithCurrentCulture();
 
-                            return targetEntity;
-                        })
+                        return targetEntity;
+                    })
                     .Where(e => e != null)
                     .ToList(cancellationToken)
                     .WithCurrentCulture());
@@ -309,14 +308,14 @@ namespace Microsoft.Data.Entity.Query
             {
                 _byEntityInstance.Add(entity, bufferedEntities = new List<BufferedEntity>() { null });
 
-                var stateEntry = _stateManager.TryGetEntry(entity);
+                var entry = _stateManager.TryGetEntry(entity);
 
-                Debug.Assert(stateEntry != null);
+                Debug.Assert(entry != null);
 
                 primaryKey
                     = navigation.PointsToPrincipal
-                        ? stateEntry.GetDependentKeySnapshot(navigation.ForeignKey)
-                        : stateEntry.GetPrimaryKeyValue();
+                        ? entry.GetDependentKeySnapshot(navigation.ForeignKey)
+                        : entry.GetPrimaryKeyValue();
             }
             else
             {

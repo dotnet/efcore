@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.Diagnostics;
-
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
@@ -89,7 +88,7 @@ namespace System.Linq.Expressions
             return propertyInfos != null && propertyInfos.Length == 1 ? propertyInfos[0] : null;
         }
 
-        public static PropertyInfo[] GetComplexPropertyAccess([NotNull]this LambdaExpression propertyAccessExpression)
+        public static PropertyInfo[] GetComplexPropertyAccess([NotNull] this LambdaExpression propertyAccessExpression)
         {
             Debug.Assert(propertyAccessExpression.Parameters.Count == 1);
 

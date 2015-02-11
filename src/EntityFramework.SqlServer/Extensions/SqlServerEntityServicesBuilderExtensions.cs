@@ -3,6 +3,7 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.DependencyInjection;
 using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational;
@@ -19,7 +20,7 @@ namespace Microsoft.Framework.DependencyInjection
 {
     public static class SqlServerEntityServicesBuilderExtensions
     {
-        public static EntityServicesBuilder AddSqlServer([NotNull] this EntityServicesBuilder builder)
+        public static EntityFrameworkServicesBuilder AddSqlServer([NotNull] this EntityFrameworkServicesBuilder builder)
         {
             Check.NotNull(builder, "builder");
 

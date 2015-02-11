@@ -10,8 +10,6 @@ namespace Microsoft.Data.Entity.Metadata
 {
     public class Key : MetadataBase, IKey
     {
-        private readonly IReadOnlyList<Property> _properties;
-
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
         ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
@@ -27,14 +25,11 @@ namespace Microsoft.Data.Entity.Metadata
             Check.HasNoNulls(properties, "properties");
             MetadataHelper.CheckSameEntityType(properties, "properties");
 
-            _properties = properties;
+            Properties = properties;
         }
 
         [NotNull]
-        public virtual IReadOnlyList<Property> Properties
-        {
-            get { return _properties; }
-        }
+        public virtual IReadOnlyList<Property> Properties { get; }
 
         public virtual EntityType EntityType
         {

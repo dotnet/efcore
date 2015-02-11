@@ -1494,7 +1494,7 @@ WHERE [c].[ContactName] LIKE '%' + @__LocalMethod2_0",
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.ContactName.Contains("M")), // case-insensitive
                 cs => cs.Where(c => c.ContactName.Contains("M") || c.ContactName.Contains("m")), // case-sensitive
-                stateEntryCount: 34);
+                entryCount: 34);
 
             Assert.Equal(
                 @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -1530,7 +1530,7 @@ WHERE [c].[ContactName] LIKE '%' + [c].[ContactName] + '%'",
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.ContactName.Contains(LocalMethod1())), // case-insensitive
                 cs => cs.Where(c => c.ContactName.Contains(LocalMethod1()) || c.ContactName.Contains(LocalMethod2())), // case-sensitive
-                stateEntryCount: 34);
+                entryCount: 34);
 
             Assert.Equal(
                 @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]

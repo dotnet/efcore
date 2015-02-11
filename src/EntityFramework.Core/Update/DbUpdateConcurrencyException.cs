@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Update
@@ -29,15 +29,15 @@ namespace Microsoft.Data.Entity.Update
             Check.NotNull(context, "context");
         }
 
-        public DbUpdateConcurrencyException([NotNull] string message, [NotNull] DbContext context, [NotNull] IReadOnlyList<StateEntry> stateEntries)
-            : base(message, context, stateEntries)
+        public DbUpdateConcurrencyException([NotNull] string message, [NotNull] DbContext context, [NotNull] IReadOnlyList<InternalEntityEntry> entries)
+            : base(message, context, entries)
         {
             Check.NotEmpty(message, "message");
             Check.NotNull(context, "context");
         }
 
-        public DbUpdateConcurrencyException([NotNull] string message, [NotNull] DbContext context, [CanBeNull] Exception innerException, [NotNull] IReadOnlyList<StateEntry> stateEntries)
-            : base(message, context, innerException, stateEntries)
+        public DbUpdateConcurrencyException([NotNull] string message, [NotNull] DbContext context, [CanBeNull] Exception innerException, [NotNull] IReadOnlyList<InternalEntityEntry> entries)
+            : base(message, context, innerException, entries)
         {
             Check.NotEmpty(message, "message");
             Check.NotNull(context, "context");

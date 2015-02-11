@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
@@ -73,22 +74,22 @@ namespace Microsoft.Data.Entity.Relational
         public virtual IDbContextOptions DbContextOptions => _options;
 
         public override int SaveChanges(
-            IReadOnlyList<StateEntry> stateEntries)
+            IReadOnlyList<InternalEntityEntry> entries)
         {
-            Check.NotNull(stateEntries, "stateEntries");
+            Check.NotNull(entries, "entries");
 
-            var commandBatches = _batchPreparer.BatchCommands(stateEntries, _options);
+            var commandBatches = _batchPreparer.BatchCommands(entries, _options);
 
             return _batchExecutor.Execute(commandBatches, _connection);
         }
 
         public override Task<int> SaveChangesAsync(
-            IReadOnlyList<StateEntry> stateEntries,
+            IReadOnlyList<InternalEntityEntry> entries,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(stateEntries, "stateEntries");
+            Check.NotNull(entries, "entries");
 
-            var commandBatches = _batchPreparer.BatchCommands(stateEntries, _options);
+            var commandBatches = _batchPreparer.BatchCommands(entries, _options);
 
             return _batchExecutor.ExecuteAsync(commandBatches, _connection, cancellationToken);
         }

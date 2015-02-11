@@ -7,7 +7,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
@@ -66,7 +66,7 @@ namespace Microsoft.Data.Entity.Storage
         public virtual ILogger Logger => _logger.Value;
 
         public virtual IModel Model => _model.Service;
-        
+
         public virtual EntityKeyFactorySource EntityKeyFactorySource { get; }
 
         public virtual EntityMaterializerSource EntityMaterializerSource { get; }
@@ -82,10 +82,10 @@ namespace Microsoft.Data.Entity.Storage
         }
 
         public abstract int SaveChanges(
-            [NotNull] IReadOnlyList<StateEntry> stateEntries);
+            [NotNull] IReadOnlyList<InternalEntityEntry> entries);
 
         public abstract Task<int> SaveChangesAsync(
-            [NotNull] IReadOnlyList<StateEntry> stateEntries,
+            [NotNull] IReadOnlyList<InternalEntityEntry> entries,
             CancellationToken cancellationToken = default(CancellationToken));
 
         public static readonly MethodInfo CompileQueryMethod

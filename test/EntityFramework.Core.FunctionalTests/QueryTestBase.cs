@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             AssertQuery<Customer>(
                 cs => cs,
-                stateEntryCount: 91);
+                entryCount: 91);
         }
 
         [Fact]
@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             AssertQuery<Customer>(
                 cs => cs.Select(c => new { c }),
-                stateEntryCount: 91);
+                entryCount: 91);
         }
 
         [Fact]
@@ -37,7 +37,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             AssertQuery<Customer>(
                 cs =>
                     from c1 in (from c2 in (from c3 in cs select c3) select c2) select c1,
-                stateEntryCount: 91);
+                entryCount: 91);
         }
 
         [Fact]
@@ -46,7 +46,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             AssertQuery<Customer>(
                 cs => cs.OrderBy(c => c.CustomerID).Take(10),
                 assertOrder: true,
-                stateEntryCount: 10);
+                entryCount: 10);
         }
 
         [Fact]
@@ -63,7 +63,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             AssertQuery<Customer>(
                 cs => cs.OrderBy(c => c.CustomerID).Skip(5),
                 assertOrder: true,
-                stateEntryCount: 86);
+                entryCount: 86);
         }
 
         [Fact]
@@ -72,7 +72,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             AssertQuery<Customer>(
                 cs => cs.OrderBy(c => c.ContactName).Take(10).Skip(5),
                 assertOrder: true,
-                stateEntryCount: 5);
+                entryCount: 5);
         }
 
         [Fact]
@@ -81,7 +81,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             AssertQuery<Customer>(
                 cs => cs.Distinct().OrderBy(c => c.ContactName).Skip(5),
                 assertOrder: true,
-                stateEntryCount: 86);
+                entryCount: 86);
         }
 
         [Fact]
@@ -90,7 +90,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             AssertQuery<Customer>(
                 cs => cs.OrderBy(c => c.ContactName).Skip(5).Take(10),
                 assertOrder: true,
-                stateEntryCount: 10);
+                entryCount: 10);
         }
 
         [Fact]
@@ -99,7 +99,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             AssertQuery<Customer>(
                 cs => cs.Distinct().OrderBy(c => c.ContactName).Skip(5).Take(10),
                 assertOrder: true,
-                stateEntryCount: 10);
+                entryCount: 10);
         }
 
         [Fact]
@@ -107,7 +107,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             AssertQuery<Customer>(
                 cs => cs.OrderBy(c => c.ContactName).Skip(5).Distinct(),
-                stateEntryCount: 86);
+                entryCount: 86);
         }
 
         [Fact]
@@ -115,7 +115,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             AssertQuery<Customer>(
                 cs => cs.OrderBy(c => c.ContactName).Skip(5).Take(10).Distinct(),
-                stateEntryCount: 10);
+                entryCount: 10);
         }
 
         [Fact]
@@ -123,7 +123,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             AssertQuery<Customer>(
                 cs => cs.OrderBy(c => c.ContactName).Take(10).Skip(5).Distinct(),
-                stateEntryCount: 5);
+                entryCount: 5);
         }
 
         [Fact]
@@ -131,7 +131,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             AssertQuery<Order>(
                 os => os.OrderBy(o => o.OrderID).Take(5).Distinct(),
-                stateEntryCount: 5);
+                entryCount: 5);
         }
 
         [Fact]
@@ -140,7 +140,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             AssertQuery<Order>(
                 os => os.Distinct().OrderBy(o => o.OrderID).Take(5),
                 assertOrder: true,
-                stateEntryCount: 5);
+                entryCount: 5);
         }
 
         [Fact]
@@ -229,7 +229,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.City == "London"),
-                stateEntryCount: 6);
+                entryCount: 6);
         }
 
         [Fact]
@@ -240,7 +240,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.City == city),
-                stateEntryCount: 6);
+                entryCount: 6);
         }
 
         [Fact]
@@ -250,13 +250,13 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.City == city),
-                stateEntryCount: 6);
+                entryCount: 6);
 
             city = "Seattle";
 
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.City == city),
-                stateEntryCount: 1);
+                entryCount: 1);
         }
 
         private class City
@@ -288,13 +288,13 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             AssertQuery<Employee>(
                 es => es.Where(e => e.ReportsTo == city.Int),
-                stateEntryCount: 5);
+                entryCount: 5);
 
             city.Int = 5;
 
             AssertQuery<Employee>(
                 es => es.Where(e => e.ReportsTo == city.Int),
-                stateEntryCount: 3);
+                entryCount: 3);
         }
 
         [Fact]
@@ -304,13 +304,13 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             AssertQuery<Employee>(
                 es => es.Where(e => e.EmployeeID > city.NullableInt),
-                stateEntryCount: 8);
+                entryCount: 8);
 
             city.NullableInt = 5;
 
             AssertQuery<Employee>(
                 es => es.Where(e => e.EmployeeID > city.NullableInt),
-                stateEntryCount: 4);
+                entryCount: 4);
         }
 
         [Fact]
@@ -320,13 +320,13 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.City == city.GetCity()),
-                stateEntryCount: 6);
+                entryCount: 6);
 
             city.InstanceFieldValue = "Seattle";
 
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.City == city.GetCity()),
-                stateEntryCount: 1);
+                entryCount: 1);
         }
 
         [Fact]
@@ -336,13 +336,13 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.City == city.InstanceFieldValue),
-                stateEntryCount: 6);
+                entryCount: 6);
 
             city.InstanceFieldValue = "Seattle";
 
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.City == city.InstanceFieldValue),
-                stateEntryCount: 1);
+                entryCount: 1);
         }
 
         [Fact]
@@ -352,13 +352,13 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.City == city.InstancePropertyValue),
-                stateEntryCount: 6);
+                entryCount: 6);
 
             city.InstancePropertyValue = "Seattle";
 
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.City == city.InstancePropertyValue),
-                stateEntryCount: 1);
+                entryCount: 1);
         }
 
         [Fact]
@@ -368,13 +368,13 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.City == City.StaticFieldValue),
-                stateEntryCount: 6);
+                entryCount: 6);
 
             City.StaticFieldValue = "Seattle";
 
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.City == City.StaticFieldValue),
-                stateEntryCount: 1);
+                entryCount: 1);
         }
         [Fact]
         public virtual void Where_static_property_access_closure_via_query_cache()
@@ -383,13 +383,13 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.City == City.StaticPropertyValue),
-                stateEntryCount: 6);
+                entryCount: 6);
 
             City.StaticPropertyValue = "Seattle";
 
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.City == City.StaticPropertyValue),
-                stateEntryCount: 1);
+                entryCount: 1);
         }
 
         [Fact]
@@ -399,13 +399,13 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.City == city.Nested.InstanceFieldValue),
-                stateEntryCount: 6);
+                entryCount: 6);
 
             city.Nested.InstanceFieldValue = "Seattle";
 
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.City == city.Nested.InstanceFieldValue),
-                stateEntryCount: 1);
+                entryCount: 1);
         }
 
         [Fact]
@@ -415,13 +415,13 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.City == city.Nested.InstancePropertyValue),
-                stateEntryCount: 6);
+                entryCount: 6);
 
             city.Nested.InstancePropertyValue = "Seattle";
 
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.City == city.Nested.InstancePropertyValue),
-                stateEntryCount: 1);
+                entryCount: 1);
         }
 
         [Fact]
@@ -429,11 +429,11 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.City == new City { InstanceFieldValue = "London" }.InstanceFieldValue),
-                stateEntryCount: 6);
+                entryCount: 6);
 
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.City == new City { InstanceFieldValue = "Seattle" }.InstanceFieldValue),
-                stateEntryCount: 1);
+                entryCount: 1);
         }
 
         [Fact]
@@ -443,19 +443,19 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             AssertQuery<Employee>(
                 es => es.Where(e => e.ReportsTo == reportsTo),
-                stateEntryCount: 5);
+                entryCount: 5);
 
             reportsTo = 5;
 
             AssertQuery<Employee>(
                 es => es.Where(e => e.ReportsTo == reportsTo),
-                stateEntryCount: 3);
+                entryCount: 3);
 
             reportsTo = null;
 
             AssertQuery<Employee>(
                 es => es.Where(e => e.ReportsTo == reportsTo),
-                stateEntryCount: 1);
+                entryCount: 1);
         }
 
         [Fact]
@@ -465,19 +465,19 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             AssertQuery<Employee>(
                 es => es.Where(e => e.ReportsTo == reportsTo),
-                stateEntryCount: 1); 
+                entryCount: 1); 
 
             reportsTo = 5;
 
             AssertQuery<Employee>(
                 es => es.Where(e => e.ReportsTo == reportsTo),
-                stateEntryCount: 3);
+                entryCount: 3);
 
             reportsTo = 2;
 
             AssertQuery<Employee>(
                 es => es.Where(e => e.ReportsTo == reportsTo),
-                stateEntryCount: 5);
+                entryCount: 5);
         }
 
         [Fact]
@@ -485,7 +485,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             AssertQuery<Employee>(
                 es => es.Where(e => e.Property<string>("Title") == "Sales Representative"),
-                stateEntryCount: 6);
+                entryCount: 6);
         }
 
         [Fact]
@@ -501,7 +501,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.IsLondon),
-                stateEntryCount: 6);
+                entryCount: 6);
         }
 
         [Fact]
@@ -516,7 +516,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.City.Equals("London")),
-                stateEntryCount: 6);
+                entryCount: 6);
         }
 
         [Fact]
@@ -524,7 +524,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             AssertQuery<Employee>(
                 es => es.Where(e => e.EmployeeID.Equals(1)),
-                stateEntryCount: 1);
+                entryCount: 1);
         }
 
         [Fact]
@@ -532,7 +532,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             AssertQuery<Employee>(
                 es => es.Where(e => e.ReportsTo == 2),
-                stateEntryCount: 5);
+                entryCount: 5);
         }
 
         [Fact]
@@ -540,7 +540,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             AssertQuery<Employee>(
                 es => es.Where(e => e.ReportsTo == null),
-                stateEntryCount: 1);
+                entryCount: 1);
         }
 
         [Fact]
@@ -548,7 +548,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.City.Length == 6),
-                stateEntryCount: 20);
+                entryCount: 20);
         }
 
         [Fact]
@@ -556,7 +556,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             AssertQuery<Customer>(
                 cs => cs.Where(c => "London" == c.City),
-                stateEntryCount: 6);
+                entryCount: 6);
         }
 
         [Fact]
@@ -572,7 +572,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             // ReSharper disable once EqualExpressionComparison
             AssertQuery<Customer>(
                 cs => cs.Where(c => null == null),
-                stateEntryCount: 91);
+                entryCount: 91);
         }
 
         [Fact]
@@ -587,7 +587,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.City != null),
-                stateEntryCount: 91);
+                entryCount: 91);
         }
 
         [Fact]
@@ -603,7 +603,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             AssertQuery<Customer>(
                 cs => cs.Where(c => "foo" != null),
-                stateEntryCount: 91);
+                entryCount: 91);
         }
 
         [Fact]
@@ -612,7 +612,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             // ReSharper disable once EqualExpressionComparison
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.City == c.City),
-                stateEntryCount: 91);
+                entryCount: 91);
         }
 
         [Fact]
@@ -659,25 +659,25 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [Fact]
         public virtual void Where_bool_member()
         {
-            AssertQuery<Product>(ps => ps.Where(p => p.Discontinued), stateEntryCount: 8);
+            AssertQuery<Product>(ps => ps.Where(p => p.Discontinued), entryCount: 8);
         }
 
         [Fact]
         public virtual void Where_bool_member_false()
         {
-            AssertQuery<Product>(ps => ps.Where(p => !p.Discontinued), stateEntryCount: 69);
+            AssertQuery<Product>(ps => ps.Where(p => !p.Discontinued), entryCount: 69);
         }
 
         [Fact]
         public virtual void Where_bool_member_shadow()
         {
-            AssertQuery<Product>(ps => ps.Where(p => p.Property<bool>("Discontinued")), stateEntryCount: 8);
+            AssertQuery<Product>(ps => ps.Where(p => p.Property<bool>("Discontinued")), entryCount: 8);
         }
 
         [Fact]
         public virtual void Where_bool_member_false_shadow()
         {
-            AssertQuery<Product>(ps => ps.Where(p => !p.Property<bool>("Discontinued")), stateEntryCount: 69);
+            AssertQuery<Product>(ps => ps.Where(p => !p.Property<bool>("Discontinued")), entryCount: 69);
         }
 
         [Fact]
@@ -685,7 +685,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             AssertQuery<Customer>(
                 cs => cs.Where(c => true),
-                stateEntryCount: 91);
+                entryCount: 91);
         }
 
         [Fact]
@@ -755,7 +755,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             AssertQuery<Customer>(
                 cs => cs.Where(c => new { x = c.City, y = c.Country } != new { x = "London", y = "UK" }),
-                stateEntryCount: 91);
+                entryCount: 91);
         }
 
         [Fact]
@@ -812,7 +812,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             AssertQuery<Customer>(
                 cs => cs,
-                stateEntryCount: 91);
+                entryCount: 91);
         }
 
         [Fact]
@@ -820,7 +820,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             AssertQuery<Customer>(
                 cs => cs.Select(c => c),
-                stateEntryCount: 91);
+                entryCount: 91);
         }
 
         [Fact]
@@ -828,7 +828,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             AssertQuery<Customer>(
                 cs => cs.Select(c => new { c.City, c }),
-                stateEntryCount: 91);
+                entryCount: 91);
         }
 
         [Fact]
@@ -1062,7 +1062,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     from e1 in es
                     where e1.FirstName == es.OrderBy(e => e.EmployeeID).First().FirstName
                     select e1,
-                stateEntryCount: 1);
+                entryCount: 1);
         }
 
         [Fact]
@@ -1079,7 +1079,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     orderby e1.EmployeeID
                     select e1,
                 assertOrder: true,
-                stateEntryCount: 9);
+                entryCount: 9);
         }
 
         [Fact]
@@ -1161,7 +1161,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     from e2 in es
                     from e3 in es
                     select new { e2, e3, e1 },
-                stateEntryCount: 9);
+                entryCount: 9);
         }
 
         [Fact]
@@ -1194,7 +1194,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     orderby c1.CustomerID
                     select c1,
                 assertOrder: true,
-                stateEntryCount: 91);
+                entryCount: 91);
         }
 
         [Fact]
@@ -1486,7 +1486,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             AssertQuery<Customer>(
                 cs => cs.OrderBy(c => c.CustomerID),
                 assertOrder: true,
-                stateEntryCount: 91);
+                entryCount: 91);
         }
 
         [Fact]
@@ -1495,7 +1495,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             AssertQuery<Customer>(
                 cs => cs.OrderBy(c => c.IsLondon).ThenBy(c => c.CompanyName),
                 assertOrder: true,
-                stateEntryCount: 91);
+                entryCount: 91);
         }
 
         [Fact]
@@ -1514,7 +1514,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             AssertQuery<Employee>(
                 es => es.OrderBy(e => e.Property<string>("Title")).ThenBy(e => e.EmployeeID),
                 assertOrder: true,
-                stateEntryCount: 9);
+                entryCount: 9);
         }
 
         [Fact]
@@ -1525,7 +1525,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     .OrderBy(c => c.City)
                     .ThenBy(c => c.CustomerID),
                 assertOrder: true,
-                stateEntryCount: 6);
+                entryCount: 6);
         }
 
         [Fact]
@@ -1535,7 +1535,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 cs => from c in cs
                     orderby cs.Any(c2 => c2.CustomerID == c.CustomerID)
                     select c,
-                stateEntryCount: 91);
+                entryCount: 91);
         }
 
         [Fact]
@@ -1658,7 +1658,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             AssertQuery<Customer>(
                 cs => cs.GroupBy(c => c.City).SelectMany(g => g),
-                stateEntryCount: 91);
+                entryCount: 91);
         }
 
         [Fact]
@@ -1767,7 +1767,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 os.OrderBy(o => o.OrderID)
                     .GroupBy(o => o.CustomerID)
                     .SelectMany(g => g),
-                stateEntryCount: 830);
+                entryCount: 830);
         }
 
         [Fact]
@@ -1836,7 +1836,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             AssertQuery<Customer>(
                 cs => cs.Distinct(),
-                stateEntryCount: 91);
+                entryCount: 91);
         }
 
         [Fact]
@@ -2052,7 +2052,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.ContactName.StartsWith("M")),
-                stateEntryCount: 12);
+                entryCount: 12);
         }
 
         [Fact]
@@ -2060,7 +2060,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.ContactName.StartsWith(c.ContactName)),
-                stateEntryCount: 91);
+                entryCount: 91);
         }
 
         [Fact]
@@ -2068,7 +2068,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.ContactName.StartsWith(c.ContactName)),
-                stateEntryCount: 91);
+                entryCount: 91);
         }
 
         [Fact]
@@ -2076,7 +2076,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.ContactName.StartsWith(LocalMethod1())),
-                stateEntryCount: 12);
+                entryCount: 12);
         }
 
         [Fact]
@@ -2084,7 +2084,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.ContactName.EndsWith("b")),
-                stateEntryCount: 1);
+                entryCount: 1);
         }
 
         [Fact]
@@ -2092,7 +2092,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.ContactName.EndsWith(c.ContactName)),
-                stateEntryCount: 91);
+                entryCount: 91);
         }
 
         [Fact]
@@ -2100,7 +2100,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.ContactName.EndsWith(c.ContactName)),
-                stateEntryCount: 91);
+                entryCount: 91);
         }
 
         [Fact]
@@ -2108,7 +2108,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.ContactName.EndsWith(LocalMethod2())),
-                stateEntryCount: 1);
+                entryCount: 1);
         }
 
         [Fact]
@@ -2116,7 +2116,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.ContactName.Contains("M")),
-                stateEntryCount: 19);
+                entryCount: 19);
         }
 
         [Fact]
@@ -2124,7 +2124,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.ContactName.Contains(c.ContactName)),
-                stateEntryCount: 91);
+                entryCount: 91);
         }
 
         [Fact]
@@ -2132,7 +2132,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.ContactName.Contains(c.ContactName)),
-                stateEntryCount: 91);
+                entryCount: 91);
         }
 
         [Fact]
@@ -2140,7 +2140,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.ContactName.Contains(LocalMethod1())),
-                stateEntryCount: 19);
+                entryCount: 19);
         }
 
         protected static string LocalMethod1()
@@ -2214,7 +2214,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             string[] ids = { "ABCDE", "ALFKI" };
             AssertQuery<Customer>(cs =>
-                cs.Where(c => ids.Contains(c.CustomerID)), stateEntryCount: 1);
+                cs.Where(c => ids.Contains(c.CustomerID)), entryCount: 1);
         }
 
         [Fact]
@@ -2229,7 +2229,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             AssertQuery<Order>(order => order
                 .Where(o => o.CustomerID == "QUICK")
-                .Where(o => o.OrderDate > new DateTime(1998, 1, 1)), stateEntryCount: 8);
+                .Where(o => o.OrderDate > new DateTime(1998, 1, 1)), entryCount: 8);
         }
 
         protected NorthwindContext CreateContext()
@@ -2336,10 +2336,10 @@ namespace Microsoft.Data.Entity.FunctionalTests
         protected void AssertQuery<TItem>(
             Func<IQueryable<TItem>, IQueryable<object>> query,
             bool assertOrder = false,
-            int stateEntryCount = 0)
+            int entryCount = 0)
             where TItem : class
         {
-            AssertQuery(query, query, assertOrder, stateEntryCount);
+            AssertQuery(query, query, assertOrder, entryCount);
         }
 
         private void AssertQuery<TItem1, TItem2>(
@@ -2405,7 +2405,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             Func<IQueryable<TItem>, IQueryable<object>> efQuery,
             Func<IQueryable<TItem>, IQueryable<object>> l2oQuery,
             bool assertOrder = false,
-            int stateEntryCount = 0)
+            int entryCount = 0)
             where TItem : class
         {
             using (var context = CreateContext())
@@ -2415,7 +2415,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     efQuery(context.Set<TItem>()).ToArray(),
                     assertOrder);
 
-                Assert.Equal(stateEntryCount, context.ChangeTracker.Entries().Count());
+                Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
             }
         }
 

@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.FunctionalTests.TestModels;
 using Microsoft.Data.Entity.Utilities;

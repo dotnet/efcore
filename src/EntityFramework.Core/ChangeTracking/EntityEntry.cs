@@ -3,45 +3,46 @@
 
 using System.Diagnostics;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.ChangeTracking
 {
-    [DebuggerDisplay("{_stateEntry,nq}")]
+    [DebuggerDisplay("{InternalEntry,nq}")]
     public class EntityEntry
     {
-        public EntityEntry([NotNull] DbContext context, [NotNull] StateEntry stateEntry)
+        public EntityEntry([NotNull] DbContext context, [NotNull] InternalEntityEntry internalEntry)
         {
-            Check.NotNull(stateEntry, "stateEntry");
-            Check.NotNull(context, "context");
+            Check.NotNull(internalEntry, nameof(internalEntry));
+            Check.NotNull(context, nameof(context));
 
-            StateEntry = stateEntry;
+            InternalEntry = internalEntry;
             Context = context;
         }
 
-        public virtual object Entity => StateEntry.Entity;
+        public virtual object Entity => InternalEntry.Entity;
 
         public virtual EntityState State
         {
-            get { return StateEntry.EntityState; }
+            get { return InternalEntry.EntityState; }
             set
             {
-                Check.IsDefined(value, "value");
+                Check.IsDefined(value, nameof(value));
 
-                StateEntry.SetEntityState(value);
+                InternalEntry.SetEntityState(value);
             }
         }
 
-        public virtual StateEntry StateEntry { get; }
+        public virtual InternalEntityEntry InternalEntry { get; }
         public virtual DbContext Context { get; }
 
         public virtual PropertyEntry Property([NotNull] string propertyName)
         {
-            Check.NotEmpty(propertyName, "propertyName");
+            Check.NotEmpty(propertyName, nameof(propertyName));
 
-            return new PropertyEntry(StateEntry, propertyName);
+            return new PropertyEntry(InternalEntry, propertyName);
         }
 
-        public virtual bool IsKeySet => StateEntry.IsKeySet;
+        public virtual bool IsKeySet => InternalEntry.IsKeySet;
     }
 }

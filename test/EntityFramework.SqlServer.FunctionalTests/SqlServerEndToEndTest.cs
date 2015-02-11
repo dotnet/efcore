@@ -10,6 +10,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
@@ -246,7 +247,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                         Away = 0.12345f,
                         AndChew = new byte[16]
                     }).Entity;
-                    db.Entry(toAdd).State = EntityState.Unknown;
+                    db.Entry(toAdd).State = EntityState.Detached;
 
                     var blogs = await CreateBlogDatabaseAsync<Blog>(db);
 
@@ -289,7 +290,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 {
                     var customer = await db.Customers.FirstOrDefaultAsync();
 
-                    var trackedCustomerEntry = db.ChangeTracker.StateManager.StateEntries.Single();
+                    var trackedCustomerEntry = db.ChangeTracker.StateManager.Entries.Single();
                     Assert.Same(trackedCustomerEntry.Entity, customer);
 
                     // if references are different this will throw

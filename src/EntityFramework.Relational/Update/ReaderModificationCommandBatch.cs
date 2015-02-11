@@ -12,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Update;
@@ -203,7 +204,7 @@ namespace Microsoft.Data.Entity.Relational.Update
                         Strings.UpdateStoreException,
                         context,
                         ex,
-                        commandIndex < ModificationCommands.Count ? ModificationCommands[commandIndex].StateEntries : new StateEntry[0]);
+                        commandIndex < ModificationCommands.Count ? ModificationCommands[commandIndex].Entries : new InternalEntityEntry[0]);
                 }
             }
 
@@ -270,7 +271,7 @@ namespace Microsoft.Data.Entity.Relational.Update
                         Strings.UpdateStoreException,
                         context,
                         ex,
-                        commandIndex < ModificationCommands.Count ? ModificationCommands[commandIndex].StateEntries : new StateEntry[0]);
+                        commandIndex < ModificationCommands.Count ? ModificationCommands[commandIndex].Entries : new InternalEntityEntry[0]);
                 }
             }
 
@@ -298,7 +299,7 @@ namespace Microsoft.Data.Entity.Relational.Update
                     throw new DbUpdateConcurrencyException(
                         Strings.UpdateConcurrencyException(expectedRowsAffected, rowsAffected),
                         context,
-                        AggregateStateEntries(commandIndex, expectedRowsAffected));
+                        AggregateEntries(commandIndex, expectedRowsAffected));
                 }
 
                 tableModification.PropagateResults(valueReader);
@@ -331,7 +332,7 @@ namespace Microsoft.Data.Entity.Relational.Update
                     throw new DbUpdateConcurrencyException(
                         Strings.UpdateConcurrencyException(expectedRowsAffected, rowsAffected),
                         context,
-                        AggregateStateEntries(commandIndex, expectedRowsAffected));
+                        AggregateEntries(commandIndex, expectedRowsAffected));
                 }
 
                 tableModification.PropagateResults(valueReader);
@@ -362,7 +363,7 @@ namespace Microsoft.Data.Entity.Relational.Update
                     throw new DbUpdateConcurrencyException(
                         Strings.UpdateConcurrencyException(expectedRowsAffected, rowsAffected),
                         context,
-                        AggregateStateEntries(commandIndex, expectedRowsAffected));
+                        AggregateEntries(commandIndex, expectedRowsAffected));
                 }
             }
             else
@@ -370,7 +371,7 @@ namespace Microsoft.Data.Entity.Relational.Update
                 throw new DbUpdateConcurrencyException(
                     Strings.UpdateConcurrencyException(1, 0),
                     context,
-                    AggregateStateEntries(commandIndex, expectedRowsAffected));
+                    AggregateEntries(commandIndex, expectedRowsAffected));
             }
 
             return commandIndex;
@@ -395,7 +396,7 @@ namespace Microsoft.Data.Entity.Relational.Update
                     throw new DbUpdateConcurrencyException(
                         Strings.UpdateConcurrencyException(expectedRowsAffected, rowsAffected),
                         context,
-                        AggregateStateEntries(commandIndex, expectedRowsAffected));
+                        AggregateEntries(commandIndex, expectedRowsAffected));
                 }
             }
             else
@@ -403,20 +404,20 @@ namespace Microsoft.Data.Entity.Relational.Update
                 throw new DbUpdateConcurrencyException(
                     Strings.UpdateConcurrencyException(1, 0),
                     context,
-                    AggregateStateEntries(commandIndex, expectedRowsAffected));
+                    AggregateEntries(commandIndex, expectedRowsAffected));
             }
 
             return commandIndex;
         }
 
-        private IReadOnlyList<StateEntry> AggregateStateEntries(int endIndex, int commandCount)
+        private IReadOnlyList<InternalEntityEntry> AggregateEntries(int endIndex, int commandCount)
         {
-            var stateEntries = new List<StateEntry>();
+            var entries = new List<InternalEntityEntry>();
             for (var i = endIndex - commandCount; i < endIndex; i++)
             {
-                stateEntries.AddRange(ModificationCommands[i].StateEntries);
+                entries.AddRange(ModificationCommands[i].Entries);
             }
-            return stateEntries;
+            return entries;
         }
 
         public abstract IRelationalPropertyExtensions GetPropertyExtensions([NotNull] IProperty property);

@@ -7,7 +7,8 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
 {
-    public class NullableEnumClrPropertySetter<TEntity, TValue, TNonNullableEnumValue> : IClrPropertySetter where TEntity : class
+    public class NullableEnumClrPropertySetter<TEntity, TValue, TNonNullableEnumValue> : IClrPropertySetter
+        where TEntity : class
     {
         private readonly Action<TEntity, TValue> _setter;
 

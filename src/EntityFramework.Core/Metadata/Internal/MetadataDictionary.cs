@@ -129,10 +129,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     _values.Remove(key);
                     return tuple.Item2;
                 }
-                else
-                {
-                    return null;
-                }
+                return null;
             }
 
             return configurationSource.Overrides(DefaultConfigurationSource)

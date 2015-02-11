@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using System.Text;
 using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Relational.Update;
@@ -287,7 +288,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
 
         protected ModificationCommand CreateInsertCommand(bool identityKey = true, bool isComputed = true, bool defaultsOnly = false)
         {
-            var entry = new Mock<StateEntry>().Object;
+            var entry = new Mock<InternalEntityEntry>().Object;
             var generator = new ParameterNameGenerator();
 
             var idProperty = CreateMockProperty("Id");
@@ -323,7 +324,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
 
         protected ModificationCommand CreateUpdateCommand(bool isComputed = true, bool concurrencyToken = true)
         {
-            var entry = new Mock<StateEntry>().Object;
+            var entry = new Mock<InternalEntityEntry>().Object;
             var generator = new ParameterNameGenerator();
 
             var idProperty = CreateMockProperty("Id");
@@ -354,7 +355,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
 
         protected ModificationCommand CreateDeleteCommand(bool concurrencyToken = true)
         {
-            var entry = new Mock<StateEntry>().Object;
+            var entry = new Mock<InternalEntityEntry>().Object;
             var generator = new ParameterNameGenerator();
 
             var idProperty = CreateMockProperty("Id");

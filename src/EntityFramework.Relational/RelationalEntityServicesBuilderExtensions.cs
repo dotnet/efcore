@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.DependencyInjection;
 using Microsoft.Data.Entity.Relational.Migrations;
 using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Relational.Update;
@@ -15,7 +16,7 @@ namespace Microsoft.Data.Entity.Relational
 {
     public static class RelationalEntityServicesBuilderExtensions
     {
-        public static EntityServicesBuilder AddRelational([NotNull] this EntityServicesBuilder builder)
+        public static EntityFrameworkServicesBuilder AddRelational([NotNull] this EntityFrameworkServicesBuilder builder)
         {
             Check.NotNull(builder, "builder");
 

@@ -8,16 +8,11 @@ namespace Microsoft.Data.Entity.Utilities
 {
     public sealed class ReferenceEqualityComparer : IEqualityComparer<object>
     {
-        private static readonly ReferenceEqualityComparer _instance = new ReferenceEqualityComparer();
-
         private ReferenceEqualityComparer()
         {
         }
 
-        public static ReferenceEqualityComparer Instance
-        {
-            get { return _instance; }
-        }
+        public static ReferenceEqualityComparer Instance { get; } = new ReferenceEqualityComparer();
 
         bool IEqualityComparer<object>.Equals(object x, object y)
         {

@@ -9,18 +9,13 @@ namespace Microsoft.Data.Entity.Storage
 {
     public class DataStoreErrorLogState
     {
-        private readonly Type _contextType;
-
         public DataStoreErrorLogState([NotNull] Type contextType)
         {
             Check.NotNull(contextType, "contextType");
 
-            _contextType = contextType;
+            ContextType = contextType;
         }
 
-        public virtual Type ContextType
-        {
-            get { return _contextType; }
-        }
+        public virtual Type ContextType { get; }
     }
 }

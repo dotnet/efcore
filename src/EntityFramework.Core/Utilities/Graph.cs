@@ -9,7 +9,7 @@ namespace Microsoft.Data.Entity.Utilities
     public abstract class Graph<TVertex>
     {
         public abstract IEnumerable<TVertex> Vertices { get; }
-        
+
         public abstract IEnumerable<TVertex> GetOutgoingNeighbours([NotNull] TVertex from);
 
         public abstract IEnumerable<TVertex> GetIncomingNeighbours([NotNull] TVertex to);

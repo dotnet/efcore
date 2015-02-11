@@ -4,6 +4,7 @@
 using System;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Utilities;
@@ -12,7 +13,7 @@ namespace Microsoft.Data.Entity.Relational.Update
 {
     public class ColumnModification
     {
-        private readonly StateEntry _stateEntry;
+        private readonly InternalEntityEntry _entry;
         private readonly IProperty _property;
         private readonly string _columnName;
         private readonly LazyRef<string> _parameterName;
@@ -33,7 +34,7 @@ namespace Microsoft.Data.Entity.Relational.Update
         }
 
         public ColumnModification(
-            [NotNull] StateEntry stateEntry,
+            [NotNull] InternalEntityEntry entry,
             [NotNull] IProperty property,
             [NotNull] IRelationalPropertyExtensions propertyExtensions,
             [NotNull] ParameterNameGenerator parameterNameGenerator,
@@ -42,12 +43,12 @@ namespace Microsoft.Data.Entity.Relational.Update
             bool isKey,
             bool isCondition)
         {
-            Check.NotNull(stateEntry, "stateEntry");
+            Check.NotNull(entry, "entry");
             Check.NotNull(property, "property");
             Check.NotNull(propertyExtensions, "propertyExtensions");
             Check.NotNull(parameterNameGenerator, "parameterNameGenerator");
 
-            _stateEntry = stateEntry;
+            _entry = entry;
             _property = property;
             _columnName = propertyExtensions.Column;
             _parameterName = isWrite
@@ -65,9 +66,9 @@ namespace Microsoft.Data.Entity.Relational.Update
             _isCondition = isCondition;
         }
 
-        public virtual StateEntry StateEntry
+        public virtual InternalEntityEntry Entry
         {
-            get { return _stateEntry; }
+            get { return _entry; }
         }
 
         public virtual IProperty Property
@@ -117,13 +118,13 @@ namespace Microsoft.Data.Entity.Relational.Update
 
         public virtual object OriginalValue
         {
-            get { return StateEntry.OriginalValues.CanStoreValue(Property) ? StateEntry.OriginalValues[Property] : Value; }
+            get { return Entry.OriginalValues.CanStoreValue(Property) ? Entry.OriginalValues[Property] : Value; }
         }
 
         public virtual object Value
         {
-            get { return StateEntry[Property]; }
-            [param: CanBeNull] set { StateEntry[Property] = value; }
+            get { return Entry[Property]; }
+            [param: CanBeNull] set { Entry[Property] = value; }
         }
     }
 }

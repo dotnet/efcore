@@ -88,18 +88,18 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
                 var entity = new KoolEntity15();
                 var property = (_KoolEntity15IdProperty)context.Model.GetEntityType(entity.GetType()).TryGetProperty("Id");
 
-                var stateEntry = context.Entry(entity).StateEntry;
+                var entry = context.Entry(entity).InternalEntry;
 
                 Assert.False(property.GetterCalled);
                 Assert.False(property.SetterCalled);
 
-                Assert.Equal(0, stateEntry[property]);
+                Assert.Equal(0, entry[property]);
                 Assert.True(property.GetterCalled);
 
-                stateEntry[property] = 777;
+                entry[property] = 777;
 
                 Assert.True(property.SetterCalled);
-                Assert.Equal(777, stateEntry[property]);
+                Assert.Equal(777, entry[property]);
             }
         }
 

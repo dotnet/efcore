@@ -8,7 +8,7 @@ namespace JetBrains.Annotations
     [AttributeUsage(
         AttributeTargets.Method | AttributeTargets.Parameter |
         AttributeTargets.Property | AttributeTargets.Delegate |
-        AttributeTargets.Field, AllowMultiple = false, Inherited = true)]
+        AttributeTargets.Field)]
     internal sealed class NotNullAttribute : Attribute
     {
     }
@@ -16,22 +16,22 @@ namespace JetBrains.Annotations
     [AttributeUsage(
         AttributeTargets.Method | AttributeTargets.Parameter |
         AttributeTargets.Property | AttributeTargets.Delegate |
-        AttributeTargets.Field, AllowMultiple = false, Inherited = true)]
+        AttributeTargets.Field)]
     internal sealed class CanBeNullAttribute : Attribute
     {
     }
 
-    [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false, Inherited = true)]
+    [AttributeUsage(AttributeTargets.Parameter)]
     internal sealed class InvokerParameterNameAttribute : Attribute
     {
     }
 
-    [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false, Inherited = true)]
+    [AttributeUsage(AttributeTargets.Parameter)]
     internal sealed class NoEnumerationAttribute : Attribute
     {
     }
 
-    [AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
     internal sealed class ContractAnnotationAttribute : Attribute
     {
         public string Contract { get; private set; }
@@ -50,7 +50,7 @@ namespace JetBrains.Annotations
         }
     }
 
-    [AttributeUsage(AttributeTargets.All, AllowMultiple = false, Inherited = true)]
+    [AttributeUsage(AttributeTargets.All)]
     internal sealed class UsedImplicitlyAttribute : Attribute
     {
         public UsedImplicitlyAttribute()
@@ -86,7 +86,7 @@ namespace JetBrains.Annotations
         Access = 1,
         Assign = 2,
         InstantiatedWithFixedConstructorSignature = 4,
-        InstantiatedNoFixedConstructorSignature = 8,
+        InstantiatedNoFixedConstructorSignature = 8
     }
 
     [Flags]

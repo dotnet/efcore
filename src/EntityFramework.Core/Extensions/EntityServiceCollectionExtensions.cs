@@ -5,6 +5,8 @@ using System;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.ChangeTracking.Internal;
+using Microsoft.Data.Entity.DependencyInjection;
 using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
@@ -15,7 +17,6 @@ using Microsoft.Framework.Cache.Memory;
 using Microsoft.Framework.ConfigurationModel;
 using Microsoft.Framework.Logging;
 using Microsoft.Framework.OptionsModel;
-using Remotion.Linq.Parsing.Structure;
 
 // ReSharper disable once CheckNamespace
 
@@ -25,7 +26,7 @@ namespace Microsoft.Framework.DependencyInjection
     {
         private const int ConfigurationOrder = -1000; // OptionsConstants is internal.
 
-        public static EntityServicesBuilder AddEntityFramework(
+        public static EntityFrameworkServicesBuilder AddEntityFramework(
             [NotNull] this IServiceCollection serviceCollection,
             [CanBeNull] IConfiguration configuration = null)
         {
@@ -57,16 +58,16 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddSingleton<OriginalValuesFactory>()
                 .AddSingleton<RelationshipsSnapshotFactory>()
                 .AddSingleton<StoreGeneratedValuesFactory>()
-                .AddSingleton<StateEntryMetadataServices>()
+                .AddSingleton<EntityEntryMetadataServices>()
                 .AddSingleton<ICompiledQueryCache, CompiledQueryCache>()
                 .AddSingleton<ILoggerFactory, LoggerFactory>()
                 .AddTypeActivator()
                 .AddScoped<ForeignKeyValuePropagator>()
                 .AddScoped<NavigationFixer>()
                 .AddScoped<StateManager>()
-                .AddScoped<StateEntryFactory>()
-                .AddScoped<StateEntryNotifier>()
-                .AddScoped<StateEntrySubscriber>()
+                .AddScoped<InternalEntityEntryFactory>()
+                .AddScoped<InternalEntityEntryNotifier>()
+                .AddScoped<InternalEntityEntrySubscriber>()
                 .AddScoped<ValueGenerationManager>()
                 .AddScoped<EntityQueryProvider>()
                 .AddScoped<ChangeTracker>()
@@ -87,11 +88,11 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddTransient<IMemoryCache, MemoryCache>()
                 .AddOptions());
 
-            return new EntityServicesBuilder(serviceCollection, configuration);
+            return new EntityFrameworkServicesBuilder(serviceCollection, configuration);
         }
 
-        public static EntityServicesBuilder AddDbContext<TContext>(
-            [NotNull] this EntityServicesBuilder builder,
+        public static EntityFrameworkServicesBuilder AddDbContext<TContext>(
+            [NotNull] this EntityFrameworkServicesBuilder builder,
             [CanBeNull] Action<DbContextOptions> optionsAction = null)
             where TContext : DbContext
         {
@@ -115,7 +116,7 @@ namespace Microsoft.Framework.DependencyInjection
                 builder.ServiceCollection.Configure<DbContextOptions<TContext>>(optionsAction);
             }
 
-            ServiceCollectionExtensions.AddScoped(builder.ServiceCollection, typeof(TContext), DbContextActivator.CreateInstance<TContext>);
+            ServiceCollectionExtensions.AddScoped(builder.ServiceCollection, typeof(TContext), (Func<IServiceProvider, object>)(DbContextActivator.CreateInstance<TContext>));
 
             return builder;
         }

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Relational.Update;
@@ -16,7 +17,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         public void Parameters_return_set_values()
         {
             var columnModification = new ColumnModification(
-                new Mock<StateEntry>().Object,
+                new Mock<InternalEntityEntry>().Object,
                 new Mock<IProperty>().Object,
                 new Mock<IRelationalPropertyExtensions>().Object,
                 new ParameterNameGenerator(),
@@ -40,10 +41,10 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         {
             var originalValuesMock = new Mock<Sidecar>();
             originalValuesMock.Setup(m => m.CanStoreValue(It.IsAny<IPropertyBase>())).Returns(true);
-            var stateEntryMock = new Mock<StateEntry>();
-            stateEntryMock.Setup(m => m.OriginalValues).Returns(originalValuesMock.Object);
+            var internalEntryMock = new Mock<InternalEntityEntry>();
+            internalEntryMock.Setup(m => m.OriginalValues).Returns(originalValuesMock.Object);
             var columnModification = new ColumnModification(
-                stateEntryMock.Object,
+                internalEntryMock.Object,
                 new Mock<IProperty>().Object,
                 new Mock<IRelationalPropertyExtensions>().Object,
                 new ParameterNameGenerator(),
@@ -55,18 +56,18 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var value = columnModification.OriginalValue;
 
             originalValuesMock.Verify(m => m[It.IsAny<IPropertyBase>()], Times.Once);
-            stateEntryMock.Verify(m => m[It.IsAny<IPropertyBase>()], Times.Never);
+            internalEntryMock.Verify(m => m[It.IsAny<IPropertyBase>()], Times.Never);
         }
 
         [Fact]
-        public void Get_OriginalValue_delegates_to_StateEntry_if_OriginalValues_if_unavailable()
+        public void Get_OriginalValue_delegates_to_Entry_if_OriginalValues_if_unavailable()
         {
             var originalValuesMock = new Mock<Sidecar>();
             originalValuesMock.Setup(m => m.CanStoreValue(It.IsAny<IPropertyBase>())).Returns(false);
-            var stateEntryMock = new Mock<StateEntry>();
-            stateEntryMock.Setup(m => m.OriginalValues).Returns(originalValuesMock.Object);
+            var internalEntryMock = new Mock<InternalEntityEntry>();
+            internalEntryMock.Setup(m => m.OriginalValues).Returns(originalValuesMock.Object);
             var columnModification = new ColumnModification(
-                stateEntryMock.Object,
+                internalEntryMock.Object,
                 new Mock<IProperty>().Object,
                 new Mock<IRelationalPropertyExtensions>().Object,
                 new ParameterNameGenerator(),
@@ -77,16 +78,16 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
 
             var value = columnModification.OriginalValue;
 
-            stateEntryMock.Verify(m => m[It.IsAny<IPropertyBase>()], Times.Once);
+            internalEntryMock.Verify(m => m[It.IsAny<IPropertyBase>()], Times.Once);
             originalValuesMock.Verify(m => m[It.IsAny<IPropertyBase>()], Times.Never);
         }
 
         [Fact]
-        public void Get_Value_delegates_to_StateEntry()
+        public void Get_Value_delegates_to_Entry()
         {
-            var stateEntryMock = new Mock<StateEntry>();
+            var internalEntryMock = new Mock<InternalEntityEntry>();
             var columnModification = new ColumnModification(
-                stateEntryMock.Object,
+                internalEntryMock.Object,
                 new Mock<IProperty>().Object,
                 new Mock<IRelationalPropertyExtensions>().Object,
                 new ParameterNameGenerator(),
@@ -97,16 +98,16 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
 
             var value = columnModification.Value;
 
-            stateEntryMock.Verify(m => m[It.IsAny<IPropertyBase>()], Times.Once);
+            internalEntryMock.Verify(m => m[It.IsAny<IPropertyBase>()], Times.Once);
         }
 
         [Fact]
-        public void Set_Value_delegates_to_StateEntry()
+        public void Set_Value_delegates_to_Entry()
         {
             var property = new Mock<IProperty>().Object;
-            var stateEntryMock = new Mock<StateEntry>();
+            var internalEntryMock = new Mock<InternalEntityEntry>();
             var columnModification = new ColumnModification(
-                stateEntryMock.Object,
+                internalEntryMock.Object,
                 property,
                 property.Relational(),
                 new ParameterNameGenerator(),
@@ -118,7 +119,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
 
             columnModification.Value = value;
 
-            stateEntryMock.VerifySet(m => m[property] = It.IsAny<object>(), Times.Once);
+            internalEntryMock.VerifySet(m => m[property] = It.IsAny<object>(), Times.Once);
         }
     }
 }

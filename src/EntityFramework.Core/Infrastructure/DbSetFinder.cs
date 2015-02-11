@@ -40,11 +40,6 @@ namespace Microsoft.Data.Entity.Infrastructure
 
         public struct DbSetProperty
         {
-            private readonly Type _contextType;
-            private readonly string _name;
-            private readonly Type _entityType;
-            private readonly bool _hasSetter;
-
             public DbSetProperty([NotNull] Type contextType, [NotNull] string name, [NotNull] Type entityType, bool hasSetter)
             {
                 Check.NotNull(contextType, "contextType");
@@ -52,31 +47,19 @@ namespace Microsoft.Data.Entity.Infrastructure
                 Check.NotNull(entityType, "entityType");
                 Check.ValidEntityType(entityType, "entityType");
 
-                _contextType = contextType;
-                _name = name;
-                _entityType = entityType;
-                _hasSetter = hasSetter;
+                ContextType = contextType;
+                Name = name;
+                EntityType = entityType;
+                HasSetter = hasSetter;
             }
 
-            public Type ContextType
-            {
-                get { return _contextType; }
-            }
+            public Type ContextType { get; }
 
-            public string Name
-            {
-                get { return _name; }
-            }
+            public string Name { get; }
 
-            public Type EntityType
-            {
-                get { return _entityType; }
-            }
+            public Type EntityType { get; }
 
-            public bool HasSetter
-            {
-                get { return _hasSetter; }
-            }
+            public bool HasSetter { get; }
         }
     }
 }

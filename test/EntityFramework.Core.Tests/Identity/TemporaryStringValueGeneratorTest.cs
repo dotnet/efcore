@@ -32,8 +32,8 @@ namespace Microsoft.Data.Entity.Tests.Identity
         {
             var generator = new TemporaryStringValueGenerator();
 
-            var stateEntry = TestHelpers.Instance.CreateStateEntry<WithString>(_model);
-            var property = stateEntry.EntityType.GetProperty("Id");
+            var entry = TestHelpers.Instance.CreateInternalEntry<WithString>(_model);
+            var property = entry.EntityType.GetProperty("Id");
 
             var values = new HashSet<Guid>();
             for (var i = 0; i < 100; i++)

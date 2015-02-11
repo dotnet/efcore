@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
@@ -23,11 +24,11 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         {
             var stateManager = CreateContextServices(CreateSimpleFKModel()).GetRequiredService<StateManager>();
 
-            var stateEntry = stateManager.GetOrCreateEntry(new FakeEntity { Id = 42, Value = "Test" });
+            var entry = stateManager.GetOrCreateEntry(new FakeEntity { Id = 42, Value = "Test" });
 
-            stateEntry.SetEntityState(EntityState.Added);
+            entry.SetEntityState(EntityState.Added);
 
-            var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { stateEntry }, new DbContextOptions()).ToArray();
+            var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { entry }, new DbContextOptions()).ToArray();
             Assert.Equal(1, commandBatches.Count());
             Assert.Equal(1, commandBatches.First().ModificationCommands.Count());
 
@@ -38,7 +39,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var columnMod = command.ColumnModifications[0];
 
             Assert.Equal("Id", columnMod.ColumnName);
-            Assert.Same(stateEntry, columnMod.StateEntry);
+            Assert.Same(entry, columnMod.Entry);
             Assert.Equal("Id", columnMod.Property.Name);
             Assert.False(columnMod.IsCondition);
             Assert.True(columnMod.IsKey);
@@ -48,7 +49,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             columnMod = command.ColumnModifications[1];
 
             Assert.Equal("Value", columnMod.ColumnName);
-            Assert.Same(stateEntry, columnMod.StateEntry);
+            Assert.Same(entry, columnMod.Entry);
             Assert.Equal("Value", columnMod.Property.Name);
             Assert.False(columnMod.IsCondition);
             Assert.False(columnMod.IsKey);
@@ -61,12 +62,12 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         {
             var stateManager = CreateContextServices(CreateSimpleFKModel()).GetRequiredService<StateManager>();
 
-            var stateEntry = stateManager.GetOrCreateEntry(new FakeEntity { Id = 42, Value = "Test" });
+            var entry = stateManager.GetOrCreateEntry(new FakeEntity { Id = 42, Value = "Test" });
 
-            stateEntry.SetEntityState(EntityState.Modified);
-            stateEntry.SetPropertyModified(stateEntry.EntityType.GetPrimaryKey().Properties.Single(), isModified: false);
+            entry.SetEntityState(EntityState.Modified);
+            entry.SetPropertyModified(entry.EntityType.GetPrimaryKey().Properties.Single(), isModified: false);
 
-            var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { stateEntry }, new DbContextOptions()).ToArray();
+            var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { entry }, new DbContextOptions()).ToArray();
             Assert.Equal(1, commandBatches.Count());
             Assert.Equal(1, commandBatches.First().ModificationCommands.Count());
 
@@ -77,7 +78,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var columnMod = command.ColumnModifications[0];
 
             Assert.Equal("Id", columnMod.ColumnName);
-            Assert.Same(stateEntry, columnMod.StateEntry);
+            Assert.Same(entry, columnMod.Entry);
             Assert.Equal("Id", columnMod.Property.Name);
             Assert.True(columnMod.IsCondition);
             Assert.True(columnMod.IsKey);
@@ -87,7 +88,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             columnMod = command.ColumnModifications[1];
 
             Assert.Equal("Value", columnMod.ColumnName);
-            Assert.Same(stateEntry, columnMod.StateEntry);
+            Assert.Same(entry, columnMod.Entry);
             Assert.Equal("Value", columnMod.Property.Name);
             Assert.False(columnMod.IsCondition);
             Assert.False(columnMod.IsKey);
@@ -100,11 +101,11 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         {
             var stateManager = CreateContextServices(CreateSimpleFKModel()).GetRequiredService<StateManager>();
 
-            var stateEntry = stateManager.GetOrCreateEntry(new FakeEntity { Id = 42, Value = "Test" });
+            var entry = stateManager.GetOrCreateEntry(new FakeEntity { Id = 42, Value = "Test" });
 
-            stateEntry.SetEntityState(EntityState.Deleted);
+            entry.SetEntityState(EntityState.Deleted);
 
-            var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { stateEntry }, new DbContextOptions()).ToArray();
+            var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { entry }, new DbContextOptions()).ToArray();
             Assert.Equal(1, commandBatches.Count());
             Assert.Equal(1, commandBatches.First().ModificationCommands.Count());
 
@@ -115,7 +116,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var columnMod = command.ColumnModifications[0];
 
             Assert.Equal("Id", columnMod.ColumnName);
-            Assert.Same(stateEntry, columnMod.StateEntry);
+            Assert.Same(entry, columnMod.Entry);
             Assert.Equal("Id", columnMod.Property.Name);
             Assert.True(columnMod.IsCondition);
             Assert.True(columnMod.IsKey);
@@ -129,17 +130,17 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var configuration = CreateContextServices(CreateSimpleFKModel());
             var stateManager = configuration.GetRequiredService<StateManager>();
 
-            var stateEntry = stateManager.GetOrCreateEntry(new FakeEntity { Id = 42, Value = "Test" });
-            stateEntry.SetEntityState(EntityState.Added);
+            var entry = stateManager.GetOrCreateEntry(new FakeEntity { Id = 42, Value = "Test" });
+            entry.SetEntityState(EntityState.Added);
 
-            var relatedStateEntry = stateManager.GetOrCreateEntry(new RelatedFakeEntity { Id = 42 });
-            relatedStateEntry.SetEntityState(EntityState.Added);
+            var relatedentry = stateManager.GetOrCreateEntry(new RelatedFakeEntity { Id = 42 });
+            relatedentry.SetEntityState(EntityState.Added);
 
-            var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { relatedStateEntry, stateEntry }, new DbContextOptions()).ToArray();
+            var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { relatedentry, entry }, new DbContextOptions()).ToArray();
 
             Assert.Equal(
-                new[] { stateEntry, relatedStateEntry },
-                commandBatches.Select(cb => cb.ModificationCommands.Single()).Select(mc => mc.StateEntries.Single()));
+                new[] { entry, relatedentry },
+                commandBatches.Select(cb => cb.ModificationCommands.Single()).Select(mc => mc.Entries.Single()));
         }
 
         [Fact]
@@ -148,17 +149,17 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var configuration = CreateContextServices(CreateSimpleFKModel());
             var stateManager = configuration.GetRequiredService<StateManager>();
 
-            var stateEntry = stateManager.GetOrCreateEntry(new FakeEntity { Id = 42, Value = "Test" });
-            stateEntry.SetEntityState(EntityState.Added);
+            var entry = stateManager.GetOrCreateEntry(new FakeEntity { Id = 42, Value = "Test" });
+            entry.SetEntityState(EntityState.Added);
 
-            var relatedStateEntry = stateManager.GetOrCreateEntry(new RelatedFakeEntity { Id = 42 });
-            relatedStateEntry.SetEntityState(EntityState.Modified);
+            var relatedentry = stateManager.GetOrCreateEntry(new RelatedFakeEntity { Id = 42 });
+            relatedentry.SetEntityState(EntityState.Modified);
 
-            var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { relatedStateEntry, stateEntry }, new DbContextOptions()).ToArray();
+            var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { relatedentry, entry }, new DbContextOptions()).ToArray();
 
             Assert.Equal(
-                new[] { stateEntry, relatedStateEntry },
-                commandBatches.Select(cb => cb.ModificationCommands.Single()).Select(mc => mc.StateEntries.Single()));
+                new[] { entry, relatedentry },
+                commandBatches.Select(cb => cb.ModificationCommands.Single()).Select(mc => mc.Entries.Single()));
         }
 
         [Fact]
@@ -167,17 +168,17 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var configuration = CreateContextServices(CreateSimpleFKModel());
             var stateManager = configuration.GetRequiredService<StateManager>();
 
-            var firstStateEntry = stateManager.GetOrCreateEntry(new FakeEntity { Id = 42, Value = "Test" });
-            firstStateEntry.SetEntityState(EntityState.Added);
+            var firstentry = stateManager.GetOrCreateEntry(new FakeEntity { Id = 42, Value = "Test" });
+            firstentry.SetEntityState(EntityState.Added);
 
-            var secondStateEntry = stateManager.GetOrCreateEntry(new RelatedFakeEntity { Id = 1 });
-            secondStateEntry.SetEntityState(EntityState.Added);
+            var secondentry = stateManager.GetOrCreateEntry(new RelatedFakeEntity { Id = 1 });
+            secondentry.SetEntityState(EntityState.Added);
 
-            var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { secondStateEntry, firstStateEntry }, new DbContextOptions()).ToArray();
+            var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { secondentry, firstentry }, new DbContextOptions()).ToArray();
 
             Assert.Equal(
-                new[] { firstStateEntry, secondStateEntry },
-                commandBatches.Select(cb => cb.ModificationCommands.Single()).Select(mc => mc.StateEntries.Single()));
+                new[] { firstentry, secondentry },
+                commandBatches.Select(cb => cb.ModificationCommands.Single()).Select(mc => mc.Entries.Single()));
         }
 
         [Fact]
@@ -192,16 +193,16 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var newParent = stateManager.GetOrCreateEntry(new FakeEntity { Id = 3, Value = "Test" });
             newParent.SetEntityState(EntityState.Added);
 
-            var relatedStateEntry = stateManager.GetOrCreateEntry(new RelatedFakeEntity { Id = 1, RelatedId = 3 });
-            relatedStateEntry.SetEntityState(EntityState.Modified);
-            relatedStateEntry.OriginalValues[relatedStateEntry.EntityType.GetProperty("RelatedId")] = 42;
-            relatedStateEntry.SetPropertyModified(relatedStateEntry.EntityType.GetPrimaryKey().Properties.Single(), isModified: false);
+            var relatedentry = stateManager.GetOrCreateEntry(new RelatedFakeEntity { Id = 1, RelatedId = 3 });
+            relatedentry.SetEntityState(EntityState.Modified);
+            relatedentry.OriginalValues[relatedentry.EntityType.GetProperty("RelatedId")] = 42;
+            relatedentry.SetPropertyModified(relatedentry.EntityType.GetPrimaryKey().Properties.Single(), isModified: false);
 
-            var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { relatedStateEntry, previousParent, newParent }, new DbContextOptions()).ToArray();
+            var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { relatedentry, previousParent, newParent }, new DbContextOptions()).ToArray();
 
             Assert.Equal(
-                new[] { newParent, relatedStateEntry, previousParent },
-                commandBatches.Select(cb => cb.ModificationCommands.Single()).Select(mc => mc.StateEntries.Single()));
+                new[] { newParent, relatedentry, previousParent },
+                commandBatches.Select(cb => cb.ModificationCommands.Single()).Select(mc => mc.Entries.Single()));
         }
 
         [Fact]
@@ -211,16 +212,16 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var stateManager = configuration.GetRequiredService<StateManager>();
 
             var fakeEntity = new FakeEntity { Id = 42, Value = "Test" };
-            var stateEntry = stateManager.GetOrCreateEntry(fakeEntity);
-            stateEntry.SetEntityState(EntityState.Added);
+            var entry = stateManager.GetOrCreateEntry(fakeEntity);
+            entry.SetEntityState(EntityState.Added);
 
-            var relatedStateEntry = stateManager.GetOrCreateEntry(new RelatedFakeEntity { Id = 42 });
-            relatedStateEntry.SetEntityState(EntityState.Added);
+            var relatedentry = stateManager.GetOrCreateEntry(new RelatedFakeEntity { Id = 42 });
+            relatedentry.SetEntityState(EntityState.Added);
 
             var modificationCommandBatchFactoryMock = new Mock<ModificationCommandBatchFactory>();
             var options = new Mock<IDbContextOptions>().Object;
 
-            var commandBatches = CreateCommandBatchPreparer(modificationCommandBatchFactoryMock.Object).BatchCommands(new[] { relatedStateEntry, stateEntry }, options);
+            var commandBatches = CreateCommandBatchPreparer(modificationCommandBatchFactoryMock.Object).BatchCommands(new[] { relatedentry, entry }, options);
 
             var commandBatchesEnumerator = commandBatches.GetEnumerator();
             commandBatchesEnumerator.MoveNext();

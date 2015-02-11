@@ -3,6 +3,7 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.DependencyInjection;
 using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.InMemory;
 using Microsoft.Data.Entity.Metadata;
@@ -15,7 +16,7 @@ namespace Microsoft.Framework.DependencyInjection
 {
     public static class InMemoryEntityServicesBuilderExtensions
     {
-        public static EntityServicesBuilder AddInMemoryStore([NotNull] this EntityServicesBuilder builder)
+        public static EntityFrameworkServicesBuilder AddInMemoryStore([NotNull] this EntityFrameworkServicesBuilder builder)
         {
             Check.NotNull(builder, "builder");
 

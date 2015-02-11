@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Framework.DependencyInjection;
@@ -169,7 +170,7 @@ namespace Microsoft.Data.Entity.Tests.Identity
             return TestHelpers.Instance.CreateContextServices(model ?? BuildModel());
         }
 
-        private static void PropagateValue(ForeignKeyValuePropagator valuePropagator, StateEntry dependentEntry, IProperty property)
+        private static void PropagateValue(ForeignKeyValuePropagator valuePropagator, InternalEntityEntry dependentEntry, IProperty property)
         {
             valuePropagator.PropagateValue(dependentEntry, property);
         }

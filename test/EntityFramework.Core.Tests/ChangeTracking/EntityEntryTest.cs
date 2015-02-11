@@ -38,10 +38,10 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             using (var context = new FreezerContext())
             {
                 var entity = context.Add(new Chunky()).Entity;
-                var stateEntry = context.ChangeTracker.StateManager.GetOrCreateEntry(entity);
+                var entry = context.ChangeTracker.StateManager.GetOrCreateEntry(entity);
 
-                Assert.Same(stateEntry, context.Entry(entity).StateEntry);
-                Assert.Same(stateEntry, context.Entry((object)entity).StateEntry);
+                Assert.Same(entry, context.Entry(entity).InternalEntry);
+                Assert.Same(entry, context.Entry((object)entity).InternalEntry);
             }
         }
 
@@ -51,14 +51,14 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             using (var context = new FreezerContext())
             {
                 var entity = new Chunky();
-                var stateEntry = context.Add(entity).StateEntry;
+                var entry = context.Add(entity).InternalEntry;
 
                 context.Entry(entity).State = EntityState.Modified;
-                Assert.Equal(EntityState.Modified, stateEntry.EntityState);
+                Assert.Equal(EntityState.Modified, entry.EntityState);
                 Assert.Equal(EntityState.Modified, context.Entry(entity).State);
 
                 context.Entry((object)entity).State = EntityState.Unchanged;
-                Assert.Equal(EntityState.Unchanged, stateEntry.EntityState);
+                Assert.Equal(EntityState.Unchanged, entry.EntityState);
                 Assert.Equal(EntityState.Unchanged, context.Entry((object)entity).State);
             }
         }
@@ -66,7 +66,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Can_use_entry_to_change_state_to_Added()
         {
-            ChangeStateOnEntry(EntityState.Unknown, EntityState.Added);
+            ChangeStateOnEntry(EntityState.Detached, EntityState.Added);
             ChangeStateOnEntry(EntityState.Unchanged, EntityState.Added);
             ChangeStateOnEntry(EntityState.Deleted, EntityState.Added);
             ChangeStateOnEntry(EntityState.Modified, EntityState.Added);
@@ -76,7 +76,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Can_use_entry_to_change_state_to_Unchanged()
         {
-            ChangeStateOnEntry(EntityState.Unknown, EntityState.Unchanged);
+            ChangeStateOnEntry(EntityState.Detached, EntityState.Unchanged);
             ChangeStateOnEntry(EntityState.Unchanged, EntityState.Unchanged);
             ChangeStateOnEntry(EntityState.Deleted, EntityState.Unchanged);
             ChangeStateOnEntry(EntityState.Modified, EntityState.Unchanged);
@@ -86,7 +86,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Can_use_entry_to_change_state_to_Modified()
         {
-            ChangeStateOnEntry(EntityState.Unknown, EntityState.Modified);
+            ChangeStateOnEntry(EntityState.Detached, EntityState.Modified);
             ChangeStateOnEntry(EntityState.Unchanged, EntityState.Modified);
             ChangeStateOnEntry(EntityState.Deleted, EntityState.Modified);
             ChangeStateOnEntry(EntityState.Modified, EntityState.Modified);
@@ -96,7 +96,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Can_use_entry_to_change_state_to_Deleted()
         {
-            ChangeStateOnEntry(EntityState.Unknown, EntityState.Deleted);
+            ChangeStateOnEntry(EntityState.Detached, EntityState.Deleted);
             ChangeStateOnEntry(EntityState.Unchanged, EntityState.Deleted);
             ChangeStateOnEntry(EntityState.Deleted, EntityState.Deleted);
             ChangeStateOnEntry(EntityState.Modified, EntityState.Deleted);
@@ -106,11 +106,11 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Can_use_entry_to_change_state_to_Unknown()
         {
-            ChangeStateOnEntry(EntityState.Unknown, EntityState.Unknown);
-            ChangeStateOnEntry(EntityState.Unchanged, EntityState.Unknown);
-            ChangeStateOnEntry(EntityState.Deleted, EntityState.Unknown);
-            ChangeStateOnEntry(EntityState.Modified, EntityState.Unknown);
-            ChangeStateOnEntry(EntityState.Added, EntityState.Unknown);
+            ChangeStateOnEntry(EntityState.Detached, EntityState.Detached);
+            ChangeStateOnEntry(EntityState.Unchanged, EntityState.Detached);
+            ChangeStateOnEntry(EntityState.Deleted, EntityState.Detached);
+            ChangeStateOnEntry(EntityState.Modified, EntityState.Detached);
+            ChangeStateOnEntry(EntityState.Added, EntityState.Detached);
         }
 
         private void ChangeStateOnEntry(EntityState initialState, EntityState expectedState)

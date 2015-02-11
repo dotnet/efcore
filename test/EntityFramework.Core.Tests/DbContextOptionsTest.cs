@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Data.Entity.DependencyInjection;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Moq;
@@ -56,14 +57,14 @@ namespace Microsoft.Data.Entity.Tests
         {
             public string Something { get; set; }
 
-            protected internal override void ApplyServices(EntityServicesBuilder builder)
+            protected internal override void ApplyServices(EntityFrameworkServicesBuilder builder)
             {
             }
         }
 
         private class FakeDbContextOptionsExtension2 : DbContextOptionsExtension
         {
-            protected internal override void ApplyServices(EntityServicesBuilder builder)
+            protected internal override void ApplyServices(EntityFrameworkServicesBuilder builder)
             {
             }
         }

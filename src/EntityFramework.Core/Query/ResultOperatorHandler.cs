@@ -114,7 +114,7 @@ namespace Microsoft.Data.Entity.Query
         }
 
         private static Expression HandleContains(
-            EntityQueryModelVisitor entityQueryModelVisitor, 
+            EntityQueryModelVisitor entityQueryModelVisitor,
             ContainsResultOperator containsResultOperator,
             QueryModel queryModel)
         {

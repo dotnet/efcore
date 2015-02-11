@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.ConcurrencyModel;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Update;
@@ -16,83 +17,83 @@ namespace Microsoft.Data.Entity.FunctionalTests
     // TODO: Remove these once available in the product
     internal static class TestExtensions
     {
-        public static void SetValues(this IPropertyBagEntry propertyBagEntry, Dictionary<IProperty, object> values)
+        public static void SetValues(this IPropertyAccessor propertyAccessor, Dictionary<IProperty, object> values)
         {
             foreach (var value in values)
             {
-                propertyBagEntry[value.Key] = value.Value;
+                propertyAccessor[value.Key] = value.Value;
             }
         }
 
         public static void SetValues(this EntityEntry entityEntry, Dictionary<string, object> values)
         {
-            var stateEntry = entityEntry.StateEntry;
-            var entityType = stateEntry.EntityType;
+            var entry = entityEntry.InternalEntry;
+            var entityType = entry.EntityType;
             foreach (var value in values)
             {
                 var property = entityType.GetProperty(value.Key);
-                stateEntry[property] = value.Value;
+                entry[property] = value.Value;
             }
         }
 
-        public static void Reload(this StateEntry stateEntry, DbContext context)
+        public static void Reload(this InternalEntityEntry internalEntry, DbContext context)
         {
-            stateEntry.ReloadAsync(context).Wait();
+            internalEntry.ReloadAsync(context).Wait();
         }
 
-        public static Task ReloadAsync(this StateEntry stateEntry, DbContext context)
+        public static Task ReloadAsync(this InternalEntityEntry internalEntry, DbContext context)
         {
-            if (stateEntry.EntityState == EntityState.Unknown)
+            if (internalEntry.EntityState == EntityState.Detached)
             {
                 throw new InvalidOperationException("Can't reload an unknown entity");
             }
 
-            if (stateEntry.EntityState == EntityState.Added)
+            if (internalEntry.EntityState == EntityState.Added)
             {
                 throw new InvalidOperationException("Can't reload an added entity");
             }
 
-            var storeValues = stateEntry.GetDatabaseValues(context);
+            var storeValues = internalEntry.GetDatabaseValues(context);
             if (storeValues == null)
             {
-                stateEntry.SetEntityState(EntityState.Unknown);
+                internalEntry.SetEntityState(EntityState.Detached);
             }
             else
             {
-                stateEntry.SetValues(storeValues);
-                stateEntry.OriginalValues.SetValues(storeValues);
-                stateEntry.SetEntityState(EntityState.Unchanged);
+                internalEntry.SetValues(storeValues);
+                internalEntry.OriginalValues.SetValues(storeValues);
+                internalEntry.SetEntityState(EntityState.Unchanged);
             }
             return Task.FromResult(false);
         }
 
         public static void Reload(this EntityEntry entityEntry, DbContext context)
         {
-            entityEntry.StateEntry.Reload(context);
+            entityEntry.InternalEntry.Reload(context);
         }
 
         public static Task ReloadAsync(this EntityEntry entityEntry, DbContext context)
         {
-            return entityEntry.StateEntry.ReloadAsync(context);
+            return entityEntry.InternalEntry.ReloadAsync(context);
         }
 
-        public static Dictionary<IProperty, object> GetDatabaseValues(this StateEntry stateEntry, DbContext context)
+        public static Dictionary<IProperty, object> GetDatabaseValues(this InternalEntityEntry internalEntry, DbContext context)
         {
-            if (stateEntry.EntityType.Type == typeof(Driver))
+            if (internalEntry.EntityType.Type == typeof(Driver))
             {
-                var id = (int)stateEntry.GetPrimaryKeyValue().Value;
+                var id = (int)internalEntry.GetPrimaryKeyValue().Value;
                 return context.Set<Driver>()
                     .Where(d => d.Id == id)
-                    .Select(d => d.GetValues(stateEntry.EntityType))
+                    .Select(d => d.GetValues(internalEntry.EntityType))
                     .SingleOrDefault();
             }
 
-            if (stateEntry.EntityType.Type == typeof(Engine))
+            if (internalEntry.EntityType.Type == typeof(Engine))
             {
-                var id = (int)stateEntry.GetPrimaryKeyValue().Value;
+                var id = (int)internalEntry.GetPrimaryKeyValue().Value;
                 return context.Set<Engine>()
                     .Where(d => d.Id == id)
-                    .Select(d => d.GetValues(stateEntry.EntityType))
+                    .Select(d => d.GetValues(internalEntry.EntityType))
                     .SingleOrDefault();
             }
 
@@ -138,7 +139,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             return ConcurrencyTestAsync(
                 ClientPodiums, (c, ex) =>
                     {
-                        var driverEntry = ex.StateEntries.Single();
+                        var driverEntry = ex.Entries.Single();
                         driverEntry.OriginalValues.SetValues(driverEntry.GetDatabaseValues(c));
                         ResolveConcurrencyTokens(driverEntry);
                     });
@@ -150,7 +151,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             return ConcurrencyTestAsync(
                 StorePodiums, (c, ex) =>
                     {
-                        var driverEntry = ex.StateEntries.Single();
+                        var driverEntry = ex.Entries.Single();
                         var storeValues = driverEntry.GetDatabaseValues(c);
                         driverEntry.SetValues(storeValues);
                         driverEntry.OriginalValues.SetValues(storeValues);
@@ -164,7 +165,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             return ConcurrencyTestAsync(
                 10, (c, ex) =>
                     {
-                        var driverEntry = ex.StateEntries.Single();
+                        var driverEntry = ex.Entries.Single();
                         driverEntry.OriginalValues.SetValues(driverEntry.GetDatabaseValues(c));
                         ResolveConcurrencyTokens(driverEntry);
                         ((Driver)driverEntry.Entity).Podiums = 10;
@@ -177,7 +178,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             return ConcurrencyTestAsync(
                 StorePodiums, (c, ex) =>
                     {
-                        var driverEntry = ex.StateEntries.Single();
+                        var driverEntry = ex.Entries.Single();
                         var storeValues = driverEntry.GetDatabaseValues(c);
                         driverEntry.SetValues(storeValues);
                         driverEntry.OriginalValues.SetValues(storeValues);
@@ -188,7 +189,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [Fact]
         public virtual Task Simple_concurrency_exception_can_be_resolved_with_store_values_using_Reload()
         {
-            return ConcurrencyTestAsync(StorePodiums, (c, ex) => ex.StateEntries.Single().Reload(c));
+            return ConcurrencyTestAsync(StorePodiums, (c, ex) => ex.Entries.Single().Reload(c));
         }
 
         // TODO: Uncomment the tests below when lazy loading works
@@ -211,7 +212,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         {
                             Assert.IsType<DbUpdateConcurrencyException>(ex);
 
-                            var entry = ex.StateEntries.Single();
+                            var entry = ex.Entries.Single();
                             Assert.IsAssignableFrom<Chassis>(entry.Entity);
                             entry.Reload(c);
 
@@ -222,7 +223,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                             }
                             catch (DbUpdateConcurrencyException ex2)
                             {
-                                var entry2 = ex2.StateEntries.Single();
+                                var entry2 = ex2.Entries.Single();
                                 Assert.IsAssignableFrom<Team>(entry2.Entity);
                                 entry2.Reload(c);
                             }
@@ -254,7 +255,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         {
                             Assert.IsType<DbUpdateConcurrencyException>(ex);
 
-                            var entry = ex.StateEntries.Single();
+                            var entry = ex.Entries.Single();
                             Assert.IsAssignableFrom<Driver>(entry.Entity);
                             entry.Reload(c);
 
@@ -265,7 +266,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                             }
                             catch (DbUpdateConcurrencyException ex2)
                             {
-                                var entry2 = ex2.StateEntries.Single();
+                                var entry2 = ex2.Entries.Single();
                                 Assert.IsAssignableFrom<Team>(entry2.Entity);
                                 entry2.Reload(c);
                             }
@@ -293,7 +294,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     {
                         Assert.IsType<DbUpdateConcurrencyException>(ex);
 
-                        var entry = ex.StateEntries.Single();
+                        var entry = ex.Entries.Single();
                         Assert.IsAssignableFrom<Engine>(entry.Entity);
                         entry.Reload(c);
                     },
@@ -315,7 +316,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 (c, ex) =>
                     {
                         Assert.IsType<DbUpdateConcurrencyException>(ex);
-                        var entry = ex.StateEntries.Single();
+                        var entry = ex.Entries.Single();
                         Assert.IsAssignableFrom<Team>(entry.Entity);
                     },
                 null);
@@ -333,7 +334,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 (c, ex) =>
                     {
                         Assert.IsType<DbUpdateConcurrencyException>(ex);
-                        var entry = ex.StateEntries.Single();
+                        var entry = ex.Entries.Single();
                         Assert.IsAssignableFrom<Team>(entry.Entity);
                     },
                 null);
@@ -350,7 +351,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 (c, ex) =>
                     {
                         Assert.IsType<DbUpdateConcurrencyException>(ex);
-                        var entry = ex.StateEntries.Single();
+                        var entry = ex.Entries.Single();
                         Assert.IsAssignableFrom<Team>(entry.Entity);
                     },
                 null);
@@ -367,7 +368,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 (c, ex) =>
                     {
                         Assert.IsType<DbUpdateConcurrencyException>(ex);
-                        var entry = ex.StateEntries.Single();
+                        var entry = ex.Entries.Single();
                         Assert.IsAssignableFrom<Team>(entry.Entity);
                     },
                 null);
@@ -387,7 +388,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     {
                         Assert.IsType<DbUpdateConcurrencyException>(ex);
 
-                        var entry = ex.StateEntries.Single();
+                        var entry = ex.Entries.Single();
                         Assert.IsAssignableFrom<Engine>(entry.Entity);
                         entry.Reload(c);
                     },
@@ -428,7 +429,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     {
                         Assert.IsType<DbUpdateConcurrencyException>(ex);
 
-                        var entry = ex.StateEntries.Single();
+                        var entry = ex.Entries.Single();
                         Assert.IsAssignableFrom<Driver>(entry.Entity);
                         entry.Reload(c);
                     },
@@ -445,7 +446,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     {
                         Assert.IsType<DbUpdateConcurrencyException>(ex);
 
-                        var entry = ex.StateEntries.Single();
+                        var entry = ex.Entries.Single();
                         Assert.IsAssignableFrom<Driver>(entry.Entity);
                         entry.Reload(c);
                     },
@@ -462,7 +463,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     {
                         Assert.IsType<DbUpdateConcurrencyException>(ex);
 
-                        var entry = ex.StateEntries.Single();
+                        var entry = ex.Entries.Single();
                         Assert.IsAssignableFrom<Driver>(entry.Entity);
 
                         entry.SetEntityState(EntityState.Unchanged);
@@ -484,7 +485,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     {
                         Assert.IsType<DbUpdateConcurrencyException>(ex);
 
-                        var entry = ex.StateEntries.Single();
+                        var entry = ex.Entries.Single();
                         Assert.IsAssignableFrom<Driver>(entry.Entity);
                         entry.Reload(c);
                     },
@@ -501,11 +502,11 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     {
                         Assert.IsType<DbUpdateConcurrencyException>(ex);
 
-                        var entry = ex.StateEntries.Single();
+                        var entry = ex.Entries.Single();
                         Assert.IsAssignableFrom<Driver>(entry.Entity);
                         var storeValues = entry.GetDatabaseValues(c);
                         Assert.Null(storeValues);
-                        entry.SetEntityState(EntityState.Unknown);
+                        entry.SetEntityState(EntityState.Detached);
                     },
                 c => Assert.Null(c.Drivers.SingleOrDefault(d => d.Name == "Fernando Alonso")));
         }
@@ -542,7 +543,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                             Name = "Larry David",
                             TeamId = Team.Ferrari
                         });
-                entry.State = EntityState.Unknown;
+                entry.State = EntityState.Detached;
 
                 Assert.Equal("Can't reload an unknown entity",
                     Assert.Throws<InvalidOperationException>(() => entry.Reload(context)).Message);
@@ -615,7 +616,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                             Name = "Larry David",
                             TeamId = Team.Ferrari
                         });
-                entry.State = EntityState.Unknown;
+                entry.State = EntityState.Detached;
 
                 Assert.Equal("Can't reload an unknown entity",
                     (await Assert.ThrowsAsync<InvalidOperationException>(() => entry.ReloadAsync(context))).Message);
@@ -661,7 +662,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         private const int StorePodiums = 20;
         private const int ClientPodiums = 30;
 
-        protected virtual void ResolveConcurrencyTokens(StateEntry stateEntry)
+        protected virtual void ResolveConcurrencyTokens(InternalEntityEntry internalEntry)
         {
             // default do nothing. Allow provider-specific entry reset
         }

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
@@ -15,10 +16,10 @@ namespace Microsoft.Data.Entity.FunctionalTests
     public class ThrowingMonsterStateManager : StateManager
     {
         public ThrowingMonsterStateManager(
-            StateEntryFactory factory,
+            InternalEntityEntryFactory factory,
             EntityKeyFactorySource entityKeyFactorySource,
-            StateEntrySubscriber subscriber,
-            StateEntryNotifier notifier,
+            InternalEntityEntrySubscriber subscriber,
+            InternalEntityEntryNotifier notifier,
             ValueGenerationManager valueGeneration,
             DbContextService<IModel> model,
             DbContextService<DataStore> dataStore)
@@ -27,7 +28,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         protected override async Task<int> SaveChangesAsync(
-            IReadOnlyList<StateEntry> entriesToSave, CancellationToken cancellationToken = new CancellationToken())
+            IReadOnlyList<InternalEntityEntry> entriesToSave, CancellationToken cancellationToken = new CancellationToken())
         {
             await base.SaveChangesAsync(entriesToSave, cancellationToken);
 

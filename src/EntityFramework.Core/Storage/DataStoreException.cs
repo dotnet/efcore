@@ -9,8 +9,6 @@ namespace Microsoft.Data.Entity.Storage
 {
     public class DataStoreException : Exception
     {
-        private readonly DbContext _context;
-
         public DataStoreException()
         {
         }
@@ -25,13 +23,10 @@ namespace Microsoft.Data.Entity.Storage
         {
             Check.NotNull(context, "contextType");
 
-            _context = context;
+            Context = context;
         }
 
-        public virtual DbContext Context
-        {
-            get { return _context; }
-        }
+        public virtual DbContext Context { get; }
 
         public static bool ContainsDataStoreException([CanBeNull] Exception ex)
         {

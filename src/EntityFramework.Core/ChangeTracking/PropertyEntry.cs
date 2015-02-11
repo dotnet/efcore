@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
@@ -9,47 +10,36 @@ namespace Microsoft.Data.Entity.ChangeTracking
 {
     public class PropertyEntry
     {
-        private readonly StateEntry _stateEntry;
+        private readonly InternalEntityEntry _internalEntry;
         private readonly IProperty _property;
 
-        public PropertyEntry([NotNull] StateEntry stateEntry, [NotNull] string name)
+        public PropertyEntry([NotNull] InternalEntityEntry internalEntry, [NotNull] string name)
         {
-            Check.NotNull(stateEntry, "stateEntry");
-            Check.NotEmpty(name, "name");
+            Check.NotNull(internalEntry, nameof(internalEntry));
+            Check.NotEmpty(name, nameof(name));
 
-            _stateEntry = stateEntry;
-            _property = stateEntry.EntityType.GetProperty(name);
+            _internalEntry = internalEntry;
+            _property = internalEntry.EntityType.GetProperty(name);
         }
 
         public virtual bool IsModified
         {
-            get { return _stateEntry.IsPropertyModified(_property); }
-            set { _stateEntry.SetPropertyModified(_property, value); }
+            get { return _internalEntry.IsPropertyModified(_property); }
+            set { _internalEntry.SetPropertyModified(_property, value); }
         }
 
-        public virtual string Name
-        {
-            get { return _property.Name; }
-        }
+        public virtual string Name => _property.Name;
 
         public virtual object CurrentValue
         {
-            get { return _stateEntry[_property]; }
-            [param: CanBeNull]
-            set
-            {
-                _stateEntry[_property] = value;
-            }
+            get { return _internalEntry[_property]; }
+            [param: CanBeNull] set { _internalEntry[_property] = value; }
         }
 
         public virtual object OriginalValue
         {
-            get { return _stateEntry.OriginalValues[_property]; }
-            [param: CanBeNull]
-            set
-            {
-                _stateEntry.OriginalValues[_property] = value;
-            }
+            get { return _internalEntry.OriginalValues[_property]; }
+            [param: CanBeNull] set { _internalEntry.OriginalValues[_property] = value; }
         }
     }
 }

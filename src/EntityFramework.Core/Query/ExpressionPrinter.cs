@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.Query
 #if DEBUG
     public class ExpressionPrinter
     {
-        public static string Print([NotNull]Expression expression)
+        public static string Print([NotNull] Expression expression)
         {
             Check.NotNull(expression, "expression");
 
@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.Query
                 Text = new StringBuilder();
             }
 
-            public TreeNode([CanBeNull]string text, [NotNull]params TreeNode[] children)
+            public TreeNode([CanBeNull] string text, [NotNull] params TreeNode[] children)
             {
                 Text = string.IsNullOrEmpty(text) ? new StringBuilder() : new StringBuilder(text);
 
@@ -45,7 +45,7 @@ namespace Microsoft.Data.Entity.Query
                 }
             }
 
-            public TreeNode([CanBeNull]string text, [CanBeNull]List<TreeNode> children)
+            public TreeNode([CanBeNull] string text, [CanBeNull] List<TreeNode> children)
                 : this(text)
             {
                 if (children != null)
@@ -105,7 +105,8 @@ namespace Microsoft.Data.Entity.Query
                 for (var scopeIdx = 0; scopeIdx < _scopes.Count; scopeIdx++)
                 {
                     var parentScope = _scopes[scopeIdx];
-                    if (parentScope.Position == parentScope.Children.Count && scopeIdx != _scopes.Count - 1)
+                    if (parentScope.Position == parentScope.Children.Count
+                        && scopeIdx != _scopes.Count - 1)
                     {
                         text.Append(' ');
                     }
@@ -217,7 +218,7 @@ namespace Microsoft.Data.Entity.Query
 
                 if (querySourceExpression != null)
                 {
-                    _rootNode = new TreeNode("QuerySource(" + querySourceExpression.ReferencedQuerySource.ToString() + ")");
+                    _rootNode = new TreeNode("QuerySource(" + querySourceExpression.ReferencedQuerySource + ")");
                 }
 
                 return node;

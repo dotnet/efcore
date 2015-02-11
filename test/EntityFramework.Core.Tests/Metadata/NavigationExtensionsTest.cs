@@ -131,7 +131,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void IsNonNotifyingCollection_returns_false_for_reference_avigations()
         {
-            var entry = TestHelpers.Instance.CreateStateEntry<Dependent>(BuildCollectionsModel());
+            var entry = TestHelpers.Instance.CreateInternalEntry<Dependent>(BuildCollectionsModel());
 
             Assert.False(entry.EntityType.GetNavigation("Principal1").IsNonNotifyingCollection(entry));
         }
@@ -139,7 +139,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void IsNonNotifyingCollection_returns_false_for_collections_typed_for_notifications()
         {
-            var entry = TestHelpers.Instance.CreateStateEntry<Principal>(BuildCollectionsModel());
+            var entry = TestHelpers.Instance.CreateInternalEntry<Principal>(BuildCollectionsModel());
 
             // TODO: The following assert should be changed to False once INotifyCollectionChanged is supported (Issue #445)
             Assert.True(entry.EntityType.GetNavigation("Dependents2").IsNonNotifyingCollection(entry));
@@ -148,7 +148,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void IsNonNotifyingCollection_returns_false_for_null_collections()
         {
-            var entry = TestHelpers.Instance.CreateStateEntry<Principal>(BuildCollectionsModel());
+            var entry = TestHelpers.Instance.CreateInternalEntry<Principal>(BuildCollectionsModel());
 
             // TODO: The following assert should be changed to False once INotifyCollectionChanged is supported (Issue #445)
             Assert.True(entry.EntityType.GetNavigation("Dependents1").IsNonNotifyingCollection(entry));
@@ -157,9 +157,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void IsNonNotifyingCollection_returns_false_for_notifying_instances()
         {
-            var entry = TestHelpers.Instance.CreateStateEntry(
+            var entry = TestHelpers.Instance.CreateInternalEntry(
                 BuildCollectionsModel(), 
-                EntityState.Unknown, 
+                EntityState.Detached, 
                 new Principal { Dependents1 = new ObservableCollection<Dependent>()});
 
             // TODO: The following assert should be changed to False once INotifyCollectionChanged is supported (Issue #445)
@@ -169,9 +169,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void IsNonNotifyingCollection_returns_true_for_non_notifying_instances()
         {
-            var entry = TestHelpers.Instance.CreateStateEntry(
+            var entry = TestHelpers.Instance.CreateInternalEntry(
                 BuildCollectionsModel(),
-                EntityState.Unknown,
+                EntityState.Detached,
                 new Principal { Dependents1 = new List<Dependent>() });
 
             Assert.True(entry.EntityType.GetNavigation("Dependents1").IsNonNotifyingCollection(entry));

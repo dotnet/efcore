@@ -3,6 +3,7 @@
 
 using System;
 using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Moq;
@@ -13,84 +14,64 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
     public class PropertyEntryTest
     {
         [Fact]
-        public void Members_check_arguments()
-        {
-            Assert.Equal(
-                Strings.ArgumentIsEmpty("name"),
-                Assert.Throws<ArgumentException>(() => new PropertyEntry(new Mock<StateEntry>().Object, "")).Message);
-            Assert.Equal(
-                "stateEntry",
-                // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => new PropertyEntry(null, "Kake")).ParamName);
-
-            Assert.Equal(
-                Strings.ArgumentIsEmpty("name"),
-                Assert.Throws<ArgumentException>(() => new PropertyEntry<Random, int>(new Mock<StateEntry>().Object, "")).Message);
-            Assert.Equal(
-                "stateEntry",
-                // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => new PropertyEntry<Random, int>(null, "Kake")).ParamName);
-        }
-
-        [Fact]
         public void Can_get_name()
         {
-            var stateEntryMock = CreateStateEntryMock(new Mock<IProperty>());
+            var internalEntryMock = CreateInternalEntryMock(new Mock<IProperty>());
 
-            Assert.Equal("Monkey", new PropertyEntry(stateEntryMock.Object, "Monkey").Name);
-            Assert.Equal("Monkey", new PropertyEntry<Random, string>(stateEntryMock.Object, "Monkey").Name);
+            Assert.Equal("Monkey", new PropertyEntry(internalEntryMock.Object, "Monkey").Name);
+            Assert.Equal("Monkey", new PropertyEntry<Random, string>(internalEntryMock.Object, "Monkey").Name);
         }
 
         [Fact]
         public void Can_get_current_value()
         {
-            var stateEntryMock = CreateStateEntryMock(new Mock<IProperty>());
-            stateEntryMock.Setup(m => m[It.IsAny<IProperty>()]).Returns("Chimp");
+            var internalEntryMock = CreateInternalEntryMock(new Mock<IProperty>());
+            internalEntryMock.Setup(m => m[It.IsAny<IProperty>()]).Returns("Chimp");
 
-            Assert.Equal("Chimp", new PropertyEntry(stateEntryMock.Object, "Monkey").CurrentValue);
+            Assert.Equal("Chimp", new PropertyEntry(internalEntryMock.Object, "Monkey").CurrentValue);
         }
 
         [Fact]
         public void Can_set_current_value()
         {
             var property = new Mock<IProperty>();
-            var stateEntryMock = CreateStateEntryMock(property);
+            var internalEntryMock = CreateInternalEntryMock(property);
 
-            new PropertyEntry(stateEntryMock.Object, "Monkey").CurrentValue = "Chimp";
+            new PropertyEntry(internalEntryMock.Object, "Monkey").CurrentValue = "Chimp";
 
-            stateEntryMock.VerifySet(m => m[property.Object] = "Chimp");
+            internalEntryMock.VerifySet(m => m[property.Object] = "Chimp");
         }
 
         [Fact]
         public void Can_set_current_value_to_null()
         {
             var property = new Mock<IProperty>();
-            var stateEntryMock = CreateStateEntryMock(property);
+            var internalEntryMock = CreateInternalEntryMock(property);
 
-            new PropertyEntry(stateEntryMock.Object, "Monkey").CurrentValue = null;
+            new PropertyEntry(internalEntryMock.Object, "Monkey").CurrentValue = null;
 
-            stateEntryMock.VerifySet(m => m[property.Object] = null);
+            internalEntryMock.VerifySet(m => m[property.Object] = null);
         }
 
         [Fact]
         public void Can_get_original_value()
         {
-            var stateEntryMock = CreateStateEntryMock(new Mock<IProperty>());
-            stateEntryMock.Setup(m => m.OriginalValues[It.IsAny<IProperty>()]).Returns("Chimp");
+            var internalEntryMock = CreateInternalEntryMock(new Mock<IProperty>());
+            internalEntryMock.Setup(m => m.OriginalValues[It.IsAny<IProperty>()]).Returns("Chimp");
 
-            Assert.Equal("Chimp", new PropertyEntry(stateEntryMock.Object, "Monkey").OriginalValue);
+            Assert.Equal("Chimp", new PropertyEntry(internalEntryMock.Object, "Monkey").OriginalValue);
         }
 
         [Fact]
         public void Can_set_original_value()
         {
             var property = new Mock<IProperty>();
-            var stateEntryMock = CreateStateEntryMock(property);
+            var internalEntryMock = CreateInternalEntryMock(property);
 
             var sideCarMock = new Mock<Sidecar>();
-            stateEntryMock.Setup(m => m.OriginalValues).Returns(sideCarMock.Object);
+            internalEntryMock.Setup(m => m.OriginalValues).Returns(sideCarMock.Object);
 
-            new PropertyEntry(stateEntryMock.Object, "Monkey").OriginalValue = "Chimp";
+            new PropertyEntry(internalEntryMock.Object, "Monkey").OriginalValue = "Chimp";
 
             sideCarMock.VerifySet(m => m[property.Object] = "Chimp");
         }
@@ -99,12 +80,12 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         public void Can_set_original_value_to_null()
         {
             var property = new Mock<IProperty>();
-            var stateEntryMock = CreateStateEntryMock(property);
+            var internalEntryMock = CreateInternalEntryMock(property);
 
             var sideCarMock = new Mock<Sidecar>();
-            stateEntryMock.Setup(m => m.OriginalValues).Returns(sideCarMock.Object);
+            internalEntryMock.Setup(m => m.OriginalValues).Returns(sideCarMock.Object);
 
-            new PropertyEntry(stateEntryMock.Object, "Monkey").OriginalValue = null;
+            new PropertyEntry(internalEntryMock.Object, "Monkey").OriginalValue = null;
 
             sideCarMock.VerifySet(m => m[property.Object] = null);
         }
@@ -113,29 +94,29 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         public void IsModified_delegates_to_state_object()
         {
             var propertyMock = new Mock<IProperty>();
-            var stateEntryMock = CreateStateEntryMock(propertyMock);
-            stateEntryMock.Setup(m => m.IsPropertyModified(propertyMock.Object)).Returns(true);
+            var internalEntryMock = CreateInternalEntryMock(propertyMock);
+            internalEntryMock.Setup(m => m.IsPropertyModified(propertyMock.Object)).Returns(true);
 
-            var propertyEntry = new PropertyEntry<Random, string>(stateEntryMock.Object, "Monkey");
+            var propertyEntry = new PropertyEntry<Random, string>(internalEntryMock.Object, "Monkey");
 
             Assert.True(propertyEntry.IsModified);
-            stateEntryMock.Verify(m => m.IsPropertyModified(propertyMock.Object));
+            internalEntryMock.Verify(m => m.IsPropertyModified(propertyMock.Object));
 
             propertyEntry.IsModified = true;
 
-            stateEntryMock.Verify(m => m.SetPropertyModified(propertyMock.Object, true));
+            internalEntryMock.Verify(m => m.SetPropertyModified(propertyMock.Object, true));
         }
 
-        private static Mock<StateEntry> CreateStateEntryMock(Mock<IProperty> propertyMock)
+        private static Mock<InternalEntityEntry> CreateInternalEntryMock(Mock<IProperty> propertyMock)
         {
             propertyMock.Setup(m => m.Name).Returns("Monkey");
 
             var entityTypeMock = new Mock<IEntityType>();
             entityTypeMock.Setup(m => m.GetProperty("Monkey")).Returns(propertyMock.Object);
 
-            var stateEntryMock = new Mock<StateEntry>();
-            stateEntryMock.Setup(m => m.EntityType).Returns(entityTypeMock.Object);
-            return stateEntryMock;
+            var internalEntryMock = new Mock<InternalEntityEntry>();
+            internalEntryMock.Setup(m => m.EntityType).Returns(entityTypeMock.Object);
+            return internalEntryMock;
         }
     }
 }

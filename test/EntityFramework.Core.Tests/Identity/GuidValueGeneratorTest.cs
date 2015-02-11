@@ -32,8 +32,8 @@ namespace Microsoft.Data.Entity.Tests.Identity
         {
             var sequentialGuidIdentityGenerator = new GuidValueGenerator();
 
-            var stateEntry = TestHelpers.Instance.CreateStateEntry<WithGuid>(_model);
-            var property = stateEntry.EntityType.GetProperty("Id");
+            var entry = TestHelpers.Instance.CreateInternalEntry<WithGuid>(_model);
+            var property = entry.EntityType.GetProperty("Id");
 
             var values = new HashSet<Guid>();
             for (var i = 0; i < 100; i++)

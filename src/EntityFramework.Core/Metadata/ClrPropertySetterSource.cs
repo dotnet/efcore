@@ -18,9 +18,9 @@ namespace Microsoft.Data.Entity.Metadata
             var setterDelegate = (Action<TEntity, TValue>)property.SetMethod.CreateDelegate(typeof(Action<TEntity, TValue>));
 
             return (property.PropertyType.IsNullableType()
-                && property.PropertyType.UnwrapNullableType().GetTypeInfo().IsEnum) ?
+                    && property.PropertyType.UnwrapNullableType().GetTypeInfo().IsEnum) ?
                 new NullableEnumClrPropertySetter<TEntity, TValue, TNonNullableEnumValue>(setterDelegate) :
-                (IClrPropertySetter) new ClrPropertySetter<TEntity, TValue>(setterDelegate);
+                (IClrPropertySetter)new ClrPropertySetter<TEntity, TValue>(setterDelegate);
         }
     }
 }

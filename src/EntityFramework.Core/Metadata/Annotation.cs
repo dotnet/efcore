@@ -8,26 +8,17 @@ namespace Microsoft.Data.Entity.Metadata
 {
     public class Annotation : IAnnotation
     {
-        private readonly string _name;
-        private readonly string _value;
-
         public Annotation([NotNull] string name, [NotNull] string value)
         {
             Check.NotEmpty(name, "name");
             Check.NotEmpty(value, "value");
 
-            _name = name;
-            _value = value;
+            Name = name;
+            Value = value;
         }
 
-        public virtual string Name
-        {
-            get { return _name; }
-        }
+        public virtual string Name { get; }
 
-        public virtual string Value
-        {
-            get { return _value; }
-        }
+        public virtual string Value { get; }
     }
 }

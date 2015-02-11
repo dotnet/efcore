@@ -7,6 +7,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.InMemory.Metadata;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
@@ -57,7 +58,7 @@ namespace Microsoft.Data.Entity.InMemory
                 : InMemoryTable.Empty;
         }
 
-        public virtual int ExecuteTransaction([NotNull] IEnumerable<StateEntry> stateEntries)
+        public virtual int ExecuteTransaction([NotNull] IEnumerable<InternalEntityEntry> entries)
         {
             var rowsAffected = 0;
 
@@ -65,24 +66,24 @@ namespace Microsoft.Data.Entity.InMemory
                 {
                     rowsAffected = 0;
 
-                    foreach (var stateEntry in stateEntries)
+                    foreach (var entry in entries)
                     {
                         InMemoryTable table;
-                        if (!ts.TryGetValue(stateEntry.EntityType, out table))
+                        if (!ts.TryGetValue(entry.EntityType, out table))
                         {
-                            ts = ts.Add(stateEntry.EntityType, table = new InMemoryTable());
+                            ts = ts.Add(entry.EntityType, table = new InMemoryTable());
                         }
 
-                        switch (stateEntry.EntityState)
+                        switch (entry.EntityState)
                         {
                             case EntityState.Added:
-                                table.Create(stateEntry);
+                                table.Create(entry);
                                 break;
                             case EntityState.Deleted:
-                                table.Delete(stateEntry);
+                                table.Delete(entry);
                                 break;
                             case EntityState.Modified:
-                                table.Update(stateEntry);
+                                table.Update(entry);
                                 break;
                         }
 
@@ -117,19 +118,19 @@ namespace Microsoft.Data.Entity.InMemory
                 = new ThreadSafeLazyRef<ImmutableDictionary<EntityKey, object[]>>(
                     () => ImmutableDictionary<EntityKey, object[]>.Empty);
 
-            internal void Create(StateEntry stateEntry)
+            internal void Create(InternalEntityEntry entry)
             {
-                _rows.ExchangeValue(rs => rs.Add(stateEntry.GetPrimaryKeyValue(), stateEntry.GetValueBuffer()));
+                _rows.ExchangeValue(rs => rs.Add(entry.GetPrimaryKeyValue(), entry.GetValueBuffer()));
             }
 
-            internal void Delete(StateEntry stateEntry)
+            internal void Delete(InternalEntityEntry entry)
             {
-                _rows.ExchangeValue(rs => rs.Remove(stateEntry.GetPrimaryKeyValue()));
+                _rows.ExchangeValue(rs => rs.Remove(entry.GetPrimaryKeyValue()));
             }
 
-            internal void Update(StateEntry stateEntry)
+            internal void Update(InternalEntityEntry entry)
             {
-                _rows.ExchangeValue(rs => rs.SetItem(stateEntry.GetPrimaryKeyValue(), stateEntry.GetValueBuffer()));
+                _rows.ExchangeValue(rs => rs.SetItem(entry.GetPrimaryKeyValue(), entry.GetValueBuffer()));
             }
 
             public virtual IEnumerator<object[]> GetEnumerator()

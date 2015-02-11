@@ -9,19 +9,14 @@ namespace Microsoft.Data.Entity.Metadata.Internal
     public abstract class InternalMetadataItemBuilder<TMetadata> : InternalMetadataBuilder<TMetadata>
         where TMetadata : MetadataBase
     {
-        private readonly InternalModelBuilder _modelBuilder;
-
         protected InternalMetadataItemBuilder([NotNull] TMetadata metadata, [NotNull] InternalModelBuilder modelBuilder)
             : base(metadata)
         {
             Check.NotNull(modelBuilder, "modelBuilder");
 
-            _modelBuilder = modelBuilder;
+            ModelBuilder = modelBuilder;
         }
 
-        public override InternalModelBuilder ModelBuilder
-        {
-            get { return _modelBuilder; }
-        }
+        public override InternalModelBuilder ModelBuilder { get; }
     }
 }

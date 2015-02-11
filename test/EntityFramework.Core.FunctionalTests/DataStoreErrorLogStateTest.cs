@@ -128,7 +128,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 context.Blogs.Add(new BloggingContext.Blog(false) { Url = "http://sample.com" });
                 context.SaveChanges();
-                var entry = context.ChangeTracker.StateManager.StateEntries.Single();
+                var entry = context.ChangeTracker.StateManager.Entries.Single();
                 context.ChangeTracker.StateManager.StopTracking(entry);
 
                 var ex = Assert.ThrowsAny<Exception>(() => test(context));

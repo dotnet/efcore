@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
 
             _queryModelVisitor = queryModelVisitor;
         }
-        
+
         protected override Expression VisitMemberExpression(MemberExpression memberExpression)
         {
             var newExpression = VisitExpression(memberExpression.Expression);

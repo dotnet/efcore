@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.DependencyInjection;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Utilities;
 
@@ -48,6 +49,6 @@ namespace Microsoft.Data.Entity.Infrastructure
             return default(T);
         }
 
-        protected internal abstract void ApplyServices([NotNull] EntityServicesBuilder builder);
+        protected internal abstract void ApplyServices([NotNull] EntityFrameworkServicesBuilder builder);
     }
 }

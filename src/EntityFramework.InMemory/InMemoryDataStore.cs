@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.InMemory.Query;
 using Microsoft.Data.Entity.Metadata;
@@ -69,20 +70,20 @@ namespace Microsoft.Data.Entity.InMemory
         public virtual InMemoryDatabase Database => _database.Value;
 
         public override int SaveChanges(
-            IReadOnlyList<StateEntry> stateEntries)
+            IReadOnlyList<InternalEntityEntry> entries)
         {
-            Check.NotNull(stateEntries, "stateEntries");
+            Check.NotNull(entries, "entries");
 
-            return _database.Value.ExecuteTransaction(stateEntries);
+            return _database.Value.ExecuteTransaction(entries);
         }
 
         public override Task<int> SaveChangesAsync(
-            IReadOnlyList<StateEntry> stateEntries,
+            IReadOnlyList<InternalEntityEntry> entries,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(stateEntries, "stateEntries");
+            Check.NotNull(entries, "entries");
 
-            return Task.FromResult(_database.Value.ExecuteTransaction(stateEntries));
+            return Task.FromResult(_database.Value.ExecuteTransaction(entries));
         }
 
         public override Func<QueryContext, IEnumerable<TResult>> CompileQuery<TResult>(QueryModel queryModel)

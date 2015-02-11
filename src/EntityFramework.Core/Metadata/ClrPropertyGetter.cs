@@ -7,7 +7,8 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
 {
-    public class ClrPropertyGetter<TEntity, TValue> : IClrPropertyGetter where TEntity : class
+    public class ClrPropertyGetter<TEntity, TValue> : IClrPropertyGetter
+        where TEntity : class
     {
         private readonly Func<TEntity, TValue> _getter;
 

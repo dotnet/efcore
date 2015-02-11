@@ -11,8 +11,6 @@ namespace Microsoft.Data.Entity.Metadata
     [DebuggerDisplay("{EntityType.Name,nq}.{Name,nq}")]
     public abstract class PropertyBase : MetadataBase, IPropertyBase
     {
-        private readonly string _name;
-
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
         ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
@@ -26,13 +24,10 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotEmpty(name, "name");
 
-            _name = name;
+            Name = name;
         }
 
-        public virtual string Name
-        {
-            get { return _name; }
-        }
+        public virtual string Name { get; }
 
         // TODO: Consider properties that are part of some complex/value type
         // Issue #246

@@ -29,7 +29,7 @@ namespace System.Linq
             private readonly Func<TSource, CancellationToken, Task<TResult>> _selector;
 
             public AsyncSelectEnumerable(
-                [NotNull] IAsyncEnumerable<TSource> source, 
+                [NotNull] IAsyncEnumerable<TSource> source,
                 [NotNull] Func<TSource, CancellationToken, Task<TResult>> selector)
             {
                 Check.NotNull(source, "source");

@@ -2453,7 +2453,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             protected virtual void Seed(DbContext context)
             {
-                context.ChangeTracker.AttachGraph(CreateFullGraph());
+                context.ChangeTracker.TrackGraph(CreateFullGraph());
                 context.SaveChanges();
             }
         }

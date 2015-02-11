@@ -3,6 +3,8 @@
 
 using System;
 using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.ChangeTracking.Internal;
+using Microsoft.Data.Entity.DependencyInjection;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Framework.DependencyInjection;
@@ -35,7 +37,7 @@ namespace Microsoft.Data.Entity.Tests
 
         public IServiceProvider CreateServiceProvider(
             IServiceCollection customServices,
-            Func<EntityServicesBuilder, EntityServicesBuilder> addProviderServices)
+            Func<EntityFrameworkServicesBuilder, EntityFrameworkServicesBuilder> addProviderServices)
         {
             var services = new ServiceCollection();
             addProviderServices(services.AddEntityFramework());
@@ -51,9 +53,9 @@ namespace Microsoft.Data.Entity.Tests
             return services.BuildServiceProvider();
         }
 
-        protected virtual EntityServicesBuilder AddProviderServices(EntityServicesBuilder entityServicesBuilder)
+        protected virtual EntityFrameworkServicesBuilder AddProviderServices(EntityFrameworkServicesBuilder builder)
         {
-            return entityServicesBuilder.AddInMemoryStore();
+            return builder.AddInMemoryStore();
         }
 
         protected virtual DbContextOptions UseProviderOptions(DbContextOptions options)
@@ -163,8 +165,8 @@ namespace Microsoft.Data.Entity.Tests
             return new ModelBuilderFactory().CreateConventionBuilder(model ?? new Model());
         }
 
-        public StateEntry CreateStateEntry<TEntity>(
-            IModel model, EntityState entityState = EntityState.Unknown, TEntity entity = null)
+        public InternalEntityEntry CreateInternalEntry<TEntity>(
+            IModel model, EntityState entityState = EntityState.Detached, TEntity entity = null)
             where TEntity : class, new()
         {
             var entry = CreateContextServices(model)

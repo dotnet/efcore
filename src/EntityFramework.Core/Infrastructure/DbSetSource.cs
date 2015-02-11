@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Infrastructure
             = new ThreadSafeDictionaryCache<Type, Func<DbContext, object>>();
 
         public virtual object Create(
-            [NotNull] DbContext context, 
+            [NotNull] DbContext context,
             [NotNull] Type type)
         {
             Check.NotNull(context, "context");

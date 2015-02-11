@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using Microsoft.Data.Entity.DependencyInjection;
 using Moq;
 using Xunit;
 using CoreStrings = Microsoft.Data.Entity.Internal.Strings;
@@ -221,7 +222,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
 
         private class TestRelationalOptionsExtension : RelationalOptionsExtension
         {
-            protected override void ApplyServices(EntityServicesBuilder builder)
+            protected override void ApplyServices(EntityFrameworkServicesBuilder builder)
             {
                 throw new NotImplementedException();
             }

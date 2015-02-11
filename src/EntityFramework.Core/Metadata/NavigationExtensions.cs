@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
@@ -78,7 +78,7 @@ namespace Microsoft.Data.Entity.Metadata
             return false;
         }
 
-        public static bool IsNonNotifyingCollection([NotNull] this INavigation navigation, [NotNull] StateEntry entry)
+        public static bool IsNonNotifyingCollection([NotNull] this INavigation navigation, [NotNull] InternalEntityEntry entry)
         {
             Check.NotNull(navigation, "navigation");
             Check.NotNull(entry, "entry");

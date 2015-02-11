@@ -9,15 +9,13 @@ namespace Microsoft.Data.Entity.Query
 {
     public class QueryAnnotation
     {
-        private readonly ResultOperatorBase _resultOperator;
-
         private IQuerySource _querySource;
 
         public QueryAnnotation([NotNull] ResultOperatorBase resultOperator)
         {
             Check.NotNull(resultOperator, "resultOperator");
 
-            _resultOperator = resultOperator;
+            ResultOperator = resultOperator;
         }
 
         public virtual IQuerySource QuerySource
@@ -32,9 +30,6 @@ namespace Microsoft.Data.Entity.Query
             }
         }
 
-        public virtual ResultOperatorBase ResultOperator
-        {
-            get { return _resultOperator; }
-        }
+        public virtual ResultOperatorBase ResultOperator { get; }
     }
 }

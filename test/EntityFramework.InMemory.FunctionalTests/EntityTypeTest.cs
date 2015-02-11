@@ -41,13 +41,13 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             T entity;
             using (var context = new DbContext(_fixture.ServiceProvider, options))
             {
-                var stateEntry = context.ChangeTracker.StateManager.CreateNewEntry(entityType);
-                entity = (T)stateEntry.Entity;
+                var entry = context.ChangeTracker.StateManager.CreateNewEntry(entityType);
+                entity = (T)entry.Entity;
 
-                stateEntry[idProperty] = 42;
-                stateEntry[nameProperty] = "The";
+                entry[idProperty] = 42;
+                entry[nameProperty] = "The";
 
-                stateEntry.SetEntityState(EntityState.Added);
+                entry.SetEntityState(EntityState.Added);
 
                 context.SaveChanges();
             }
@@ -61,7 +61,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 Assert.Equal(42, entityEntry.Property(idProperty.Name).CurrentValue);
                 Assert.Equal("The", entityEntry.Property(nameProperty.Name).CurrentValue);
 
-                entityEntry.StateEntry[nameProperty] = "A";
+                entityEntry.InternalEntry[nameProperty] = "A";
 
                 context.Update(entityFromStore);
 

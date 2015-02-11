@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
@@ -38,12 +39,12 @@ namespace Microsoft.Data.Entity.Relational.Tests
 
             var relationalDataStore = contextServices.GetRequiredService<FakeRelationalDataStore>();
 
-            var stateEntries = new List<StateEntry>();
+            var entries = new List<InternalEntityEntry>();
             var cancellationToken = new CancellationTokenSource().Token;
 
-            await relationalDataStore.SaveChangesAsync(stateEntries, cancellationToken);
+            await relationalDataStore.SaveChangesAsync(entries, cancellationToken);
 
-            commandBatchPreparerMock.Verify(c => c.BatchCommands(stateEntries, relationalDataStore.DbContextOptions));
+            commandBatchPreparerMock.Verify(c => c.BatchCommands(entries, relationalDataStore.DbContextOptions));
             batchExecutorMock.Verify(be => be.ExecuteAsync(It.IsAny<IEnumerable<ModificationCommandBatch>>(), relationalConnectionMock.Object, cancellationToken));
         }
 
@@ -64,11 +65,11 @@ namespace Microsoft.Data.Entity.Relational.Tests
 
             var relationalDataStore = contextServices.GetRequiredService<FakeRelationalDataStore>();
 
-            var stateEntries = new List<StateEntry>();
+            var entries = new List<InternalEntityEntry>();
 
-            relationalDataStore.SaveChanges(stateEntries);
+            relationalDataStore.SaveChanges(entries);
 
-            commandBatchPreparerMock.Verify(c => c.BatchCommands(stateEntries, relationalDataStore.DbContextOptions));
+            commandBatchPreparerMock.Verify(c => c.BatchCommands(entries, relationalDataStore.DbContextOptions));
             batchExecutorMock.Verify(be => be.Execute(It.IsAny<IEnumerable<ModificationCommandBatch>>(), relationalConnectionMock.Object));
         }
 

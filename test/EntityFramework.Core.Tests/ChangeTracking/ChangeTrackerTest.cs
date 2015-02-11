@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
@@ -87,7 +88,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                             }
                     };
 
-                context.ChangeTracker.AttachGraph(category, e => e.State = EntityState.Modified);
+                context.ChangeTracker.TrackGraph(category, e => e.State = EntityState.Modified);
 
                 Assert.Equal(4, context.ChangeTracker.Entries().Count());
 
@@ -113,7 +114,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             {
                 var product = new Product { Id = 1, Category = new Category { Id = 1 } };
 
-                context.ChangeTracker.AttachGraph(product, e => e.State = EntityState.Modified);
+                context.ChangeTracker.TrackGraph(product, e => e.State = EntityState.Modified);
 
                 Assert.Equal(2, context.ChangeTracker.Entries().Count());
 
@@ -132,7 +133,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             {
                 var product = new Product { Id = 1, Details = new ProductDetails { Id = 1, Tag = new ProductDetailsTag { Id = 1 } } };
 
-                context.ChangeTracker.AttachGraph(product, e => e.State = EntityState.Unchanged);
+                context.ChangeTracker.TrackGraph(product, e => e.State = EntityState.Unchanged);
 
                 Assert.Equal(3, context.ChangeTracker.Entries().Count());
 
@@ -152,7 +153,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             {
                 var tag = new ProductDetailsTag { Id = 1, Details = new ProductDetails { Id = 1, Product = new Product { Id = 1 } } };
 
-                context.ChangeTracker.AttachGraph(tag, e => e.State = EntityState.Unchanged);
+                context.ChangeTracker.TrackGraph(tag, e => e.State = EntityState.Unchanged);
 
                 Assert.Equal(3, context.ChangeTracker.Entries().Count());
 
@@ -172,7 +173,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             {
                 var details = new ProductDetails { Id = 1, Product = new Product { Id = 1 }, Tag = new ProductDetailsTag { Id = 1 } };
 
-                context.ChangeTracker.AttachGraph(details, e => e.State = EntityState.Unchanged);
+                context.ChangeTracker.TrackGraph(details, e => e.State = EntityState.Unchanged);
 
                 Assert.Equal(3, context.ChangeTracker.Entries().Count());
 
@@ -203,7 +204,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                             }
                     };
 
-                context.ChangeTracker.AttachGraph(category, e => e.State = EntityState.Modified);
+                context.ChangeTracker.TrackGraph(category, e => e.State = EntityState.Modified);
 
                 Assert.Equal(4, context.ChangeTracker.Entries().Count());
 
@@ -238,7 +239,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                             }
                     };
 
-                context.ChangeTracker.AttachGraph(category, e =>
+                context.ChangeTracker.TrackGraph(category, e =>
                     {
                         var product = e.Entity as Product;
                         if (product == null
@@ -253,8 +254,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
                 Assert.Equal(EntityState.Unchanged, context.Entry(category.Products[0]).State);
                 Assert.Equal(EntityState.Unchanged, context.Entry(category.Products[0].Details).State);
-                Assert.Equal(EntityState.Unknown, context.Entry(category.Products[1]).State);
-                Assert.Equal(EntityState.Unknown, context.Entry(category.Products[1].Details).State);
+                Assert.Equal(EntityState.Detached, context.Entry(category.Products[1]).State);
+                Assert.Equal(EntityState.Detached, context.Entry(category.Products[1].Details).State);
                 Assert.Equal(EntityState.Unchanged, context.Entry(category.Products[2]).State);
                 Assert.Equal(EntityState.Unchanged, context.Entry(category.Products[2].Details).State);
 
@@ -280,7 +281,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 var details = new ProductDetails { Id = 1, Product = new Product { Id = 1 } };
                 details.Product.Details = details;
 
-                context.ChangeTracker.AttachGraph(details, e => { });
+                context.ChangeTracker.TrackGraph(details, e => { });
 
                 Assert.Equal(0, context.ChangeTracker.Entries().Count());
             }
@@ -291,7 +292,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             KeyValueAttachTest((category, changeTracker) =>
                 {
-                    changeTracker.AttachGraph(
+                    changeTracker.TrackGraph(
                         category,
                         e =>
                             {
@@ -304,7 +305,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Can_attach_graph_using_built_in_attacher()
         {
-            KeyValueAttachTest((category, changeTracker) => changeTracker.AttachGraph(category));
+            KeyValueAttachTest((category, changeTracker) => changeTracker.TrackGraph(category));
         }
 
         [Fact]
@@ -358,13 +359,13 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var attacher = new MyAttacher(updateExistingEntities: false);
 
-            CustomAttacherTest((category, changeTracker) => changeTracker.AttachGraph(category, attacher.HandleEntity));
+            CustomAttacherTest((category, changeTracker) => changeTracker.TrackGraph(category, attacher.HandleEntity));
         }
 
         [Fact]
         public void Can_attach_graph_using_custom_attacher()
         {
-            CustomAttacherTest((category, changeTracker) => changeTracker.AttachGraph(category));
+            CustomAttacherTest((category, changeTracker) => changeTracker.TrackGraph(category));
         }
 
         [Fact]
@@ -384,7 +385,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             {
                 if (!entry.IsKeySet)
                 {
-                    entry.StateEntry[entry.StateEntry.EntityType.GetPrimaryKey().Properties.Single()] = 777;
+                    entry.InternalEntry[entry.InternalEntry.EntityType.GetPrimaryKey().Properties.Single()] = 777;
                     return EntityState.Added;
                 }
 
@@ -958,12 +959,12 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
                 changeDetector.DetectChangesCalled = false;
 
-                context.ChangeTracker.AttachGraph(CreateSimpleGraph(1));
-                context.ChangeTracker.AttachGraph(CreateSimpleGraph(2), e => e.State = EntityState.Unchanged);
+                context.ChangeTracker.TrackGraph(CreateSimpleGraph(1));
+                context.ChangeTracker.TrackGraph(CreateSimpleGraph(2), e => e.State = EntityState.Unchanged);
                 context.ChangeTracker.UpdateGraph(CreateSimpleGraph(3));
 
-                context.ChangeTracker.AttachGraph(CreateSimpleGraph(4));
-                context.ChangeTracker.AttachGraph(CreateSimpleGraph(5), e => e.State = EntityState.Unchanged);
+                context.ChangeTracker.TrackGraph(CreateSimpleGraph(4));
+                context.ChangeTracker.TrackGraph(CreateSimpleGraph(5), e => e.State = EntityState.Unchanged);
                 context.ChangeTracker.UpdateGraph(CreateSimpleGraph(6));
 
                 Assert.False(changeDetector.DetectChangesCalled);
@@ -988,7 +989,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             public bool DetectChangesCalled { get; set; }
 
-            public override void DetectChanges(StateEntry entry)
+            public override void DetectChanges(InternalEntityEntry entry)
             {
                 DetectChangesCalled = true;
 

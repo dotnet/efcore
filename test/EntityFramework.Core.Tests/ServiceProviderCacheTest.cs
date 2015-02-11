@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.Data.Entity.DependencyInjection;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Framework.DependencyInjection;
@@ -130,7 +131,7 @@ namespace Microsoft.Data.Entity.Tests
             Assert.NotSame(cache.GetOrAdd(config1), cache.GetOrAdd(config2));
         }
 
-        private static DbContextOptions CreateOptions(Action<EntityServicesBuilder> builderAction)
+        private static DbContextOptions CreateOptions(Action<EntityFrameworkServicesBuilder> builderAction)
         {
             IDbContextOptions options = new DbContextOptions();
             options.AddOrUpdateExtension<FakeDbContextOptionsExtension>(e => e.BuilderActions.Add(builderAction));
@@ -139,14 +140,14 @@ namespace Microsoft.Data.Entity.Tests
 
         private class FakeDbContextOptionsExtension : DbContextOptionsExtension
         {
-            private readonly List<Action<EntityServicesBuilder>> _builderActions = new List<Action<EntityServicesBuilder>>();
+            private readonly List<Action<EntityFrameworkServicesBuilder>> _builderActions = new List<Action<EntityFrameworkServicesBuilder>>();
 
-            public List<Action<EntityServicesBuilder>> BuilderActions
+            public List<Action<EntityFrameworkServicesBuilder>> BuilderActions
             {
                 get { return _builderActions; }
             }
 
-            protected internal override void ApplyServices(EntityServicesBuilder builder)
+            protected internal override void ApplyServices(EntityFrameworkServicesBuilder builder)
             {
                 foreach (var builderAction in _builderActions)
                 {

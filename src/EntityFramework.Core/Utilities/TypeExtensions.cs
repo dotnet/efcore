@@ -28,7 +28,7 @@ namespace System
         public static Type TryGetSequenceType(this Type type)
         {
             return type.TryGetElementType(typeof(IEnumerable<>))
-                  ?? type.TryGetElementType(typeof(IAsyncEnumerable<>));
+                   ?? type.TryGetElementType(typeof(IAsyncEnumerable<>));
         }
 
         public static Type TryGetElementType(this Type type, Type interfaceOrBaseType)

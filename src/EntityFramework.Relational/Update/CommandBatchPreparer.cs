@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Metadata;
@@ -42,11 +43,11 @@ namespace Microsoft.Data.Entity.Relational.Update
             _modificationCommandComparer = modificationCommandComparer;
         }
 
-        public virtual IEnumerable<ModificationCommandBatch> BatchCommands([NotNull] IReadOnlyList<StateEntry> stateEntries, [NotNull] IDbContextOptions options)
+        public virtual IEnumerable<ModificationCommandBatch> BatchCommands([NotNull] IReadOnlyList<InternalEntityEntry> entries, [NotNull] IDbContextOptions options)
         {
-            Check.NotNull(stateEntries, "stateEntries");
+            Check.NotNull(entries, "entries");
 
-            var commands = CreateModificationCommands(stateEntries);
+            var commands = CreateModificationCommands(entries);
             var sortedCommandSets = TopologicalSort(commands);
 
             // TODO: Enable batching of dependent commands by passing through the dependency graph
@@ -69,16 +70,16 @@ namespace Microsoft.Data.Entity.Relational.Update
             }
         }
 
-        protected virtual IEnumerable<ModificationCommand> CreateModificationCommands([NotNull] IReadOnlyList<StateEntry> stateEntries)
+        protected virtual IEnumerable<ModificationCommand> CreateModificationCommands([NotNull] IReadOnlyList<InternalEntityEntry> entries)
         {
             var parameterNameGenerator = _parameterNameGeneratorFactory.Create();
             // TODO: Handle multiple state entries that update the same row
-            return stateEntries.Select(
+            return entries.Select(
                 e => new ModificationCommand(
                     new SchemaQualifiedName(GetEntityTypeExtensions(e.EntityType).Table, GetEntityTypeExtensions(e.EntityType).Schema),
                     parameterNameGenerator,
                     GetPropertyExtensions)
-                    .AddStateEntry(e));
+                    .AddEntry(e));
         }
 
         public abstract IRelationalPropertyExtensions GetPropertyExtensions([NotNull] IProperty property);
@@ -117,10 +118,10 @@ namespace Microsoft.Data.Entity.Relational.Update
                 if (command.EntityState == EntityState.Modified
                     || command.EntityState == EntityState.Added)
                 {
-                    foreach (var stateEntry in command.StateEntries)
+                    foreach (var entry in command.Entries)
                     {
                         // TODO: Perf: Consider only adding foreign keys defined on entity types involved in a modification
-                        foreach (var foreignKey in stateEntry.EntityType.GetReferencingForeignKeys())
+                        foreach (var foreignKey in entry.EntityType.GetReferencingForeignKeys())
                         {
                             var candidateKeyValueColumnModifications =
                                 command.ColumnModifications.Where(cm =>
@@ -130,7 +131,7 @@ namespace Microsoft.Data.Entity.Relational.Update
                             if (command.EntityState == EntityState.Added
                                 || candidateKeyValueColumnModifications.Count != 0)
                             {
-                                var principalKeyValue = CreatePrincipalKeyValue(stateEntry, foreignKey, ValueType.Current);
+                                var principalKeyValue = CreatePrincipalKeyValue(entry, foreignKey, ValueType.Current);
 
                                 if (principalKeyValue.Key != EntityKey.InvalidEntityKey)
                                 {
@@ -150,9 +151,9 @@ namespace Microsoft.Data.Entity.Relational.Update
                 if (command.EntityState == EntityState.Modified
                     || command.EntityState == EntityState.Deleted)
                 {
-                    foreach (var stateEntry in command.StateEntries)
+                    foreach (var entry in command.Entries)
                     {
-                        foreach (var foreignKey in stateEntry.EntityType.ForeignKeys)
+                        foreach (var foreignKey in entry.EntityType.ForeignKeys)
                         {
                             var currentForeignKey = foreignKey;
                             var foreignKeyValueColumnModifications =
@@ -163,7 +164,7 @@ namespace Microsoft.Data.Entity.Relational.Update
                             if (command.EntityState == EntityState.Deleted
                                 || foreignKeyValueColumnModifications.Any())
                             {
-                                var dependentKeyValue = CreateDependentKeyValue(stateEntry.OriginalValues, foreignKey, ValueType.Original);
+                                var dependentKeyValue = CreateDependentKeyValue(entry.OriginalValues, foreignKey, ValueType.Original);
 
                                 if (dependentKeyValue.Key != EntityKey.InvalidEntityKey)
                                 {
@@ -192,11 +193,11 @@ namespace Microsoft.Data.Entity.Relational.Update
                 if (command.EntityState == EntityState.Modified
                     || command.EntityState == EntityState.Added)
                 {
-                    foreach (var stateEntry in command.StateEntries)
+                    foreach (var entry in command.Entries)
                     {
-                        foreach (var foreignKey in stateEntry.EntityType.ForeignKeys)
+                        foreach (var foreignKey in entry.EntityType.ForeignKeys)
                         {
-                            var dependentKeyValue = CreateDependentKeyValue(stateEntry, foreignKey, ValueType.Current);
+                            var dependentKeyValue = CreateDependentKeyValue(entry, foreignKey, ValueType.Current);
 
                             if (dependentKeyValue.Key != EntityKey.InvalidEntityKey)
                             {
@@ -219,11 +220,11 @@ namespace Microsoft.Data.Entity.Relational.Update
                 // TODO: also examine modified entities here when principal key modification is supported
                 if (command.EntityState == EntityState.Deleted)
                 {
-                    foreach (var stateEntry in command.StateEntries)
+                    foreach (var entry in command.Entries)
                     {
-                        foreach (var foreignKey in stateEntry.EntityType.GetReferencingForeignKeys())
+                        foreach (var foreignKey in entry.EntityType.GetReferencingForeignKeys())
                         {
-                            var principalKeyValue = CreatePrincipalKeyValue(stateEntry.OriginalValues, foreignKey, ValueType.Original);
+                            var principalKeyValue = CreatePrincipalKeyValue(entry.OriginalValues, foreignKey, ValueType.Original);
 
                             if (principalKeyValue.Key != EntityKey.InvalidEntityKey)
                             {
@@ -245,15 +246,15 @@ namespace Microsoft.Data.Entity.Relational.Update
             }
         }
 
-        private KeyValue CreatePrincipalKeyValue(IPropertyBagEntry propertyBagEntry, IForeignKey foreignKey, ValueType valueType)
+        private KeyValue CreatePrincipalKeyValue(IPropertyAccessor propertyAccessor, IForeignKey foreignKey, ValueType valueType)
         {
-            var key = propertyBagEntry.GetPrincipalKeyValue(foreignKey);
+            var key = propertyAccessor.GetPrincipalKeyValue(foreignKey);
             return new KeyValue(foreignKey, key, valueType);
         }
 
-        private KeyValue CreateDependentKeyValue(IPropertyBagEntry propertyBagEntry, IForeignKey foreignKey, ValueType valueType)
+        private KeyValue CreateDependentKeyValue(IPropertyAccessor propertyAccessor, IForeignKey foreignKey, ValueType valueType)
         {
-            var key = propertyBagEntry.GetDependentKeyValue(foreignKey);
+            var key = propertyAccessor.GetDependentKeyValue(foreignKey);
             return new KeyValue(foreignKey, key, valueType);
         }
 

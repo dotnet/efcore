@@ -4,6 +4,7 @@
 using System;
 using System.Data.SqlClient;
 using System.Linq;
+using Microsoft.Data.Entity.DependencyInjection;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.SqlServer.FunctionalTests.TestModels;
@@ -693,7 +694,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         private class FakeDbContextOptionsExtension : DbContextOptionsExtension
         {
-            protected override void ApplyServices(EntityServicesBuilder builder)
+            protected override void ApplyServices(EntityFrameworkServicesBuilder builder)
             {
             }
         }

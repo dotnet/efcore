@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 
@@ -12,11 +12,9 @@ namespace Microsoft.Data.Entity.Update
 {
     public class DbUpdateException : DataStoreException
     {
-        private readonly IReadOnlyList<StateEntry> _stateEntries;
-
         public DbUpdateException()
         {
-            _stateEntries = new List<StateEntry>();
+            Entries = new List<InternalEntityEntry>();
         }
 
         public DbUpdateException([NotNull] string message, [NotNull] DbContext context)
@@ -25,7 +23,7 @@ namespace Microsoft.Data.Entity.Update
             Check.NotEmpty(message, "message");
             Check.NotNull(context, "context");
 
-            _stateEntries = new List<StateEntry>();
+            Entries = new List<InternalEntityEntry>();
         }
 
         public DbUpdateException([NotNull] string message, [NotNull] DbContext context, [CanBeNull] Exception innerException)
@@ -34,32 +32,29 @@ namespace Microsoft.Data.Entity.Update
             Check.NotEmpty(message, "message");
             Check.NotNull(context, "context");
 
-            _stateEntries = new List<StateEntry>();
+            Entries = new List<InternalEntityEntry>();
         }
 
-        public DbUpdateException([NotNull] string message, [NotNull] DbContext context, [NotNull] IReadOnlyList<StateEntry> stateEntries)
+        public DbUpdateException([NotNull] string message, [NotNull] DbContext context, [NotNull] IReadOnlyList<InternalEntityEntry> entries)
             : base(message, context)
         {
             Check.NotEmpty(message, "message");
             Check.NotNull(context, "context");
-            Check.NotEmpty(stateEntries, "stateEntries");
+            Check.NotEmpty(entries, "entries");
 
-            _stateEntries = stateEntries;
+            Entries = entries;
         }
 
-        public DbUpdateException([NotNull] string message, [NotNull] DbContext context, [CanBeNull] Exception innerException, [NotNull] IReadOnlyList<StateEntry> stateEntries)
+        public DbUpdateException([NotNull] string message, [NotNull] DbContext context, [CanBeNull] Exception innerException, [NotNull] IReadOnlyList<InternalEntityEntry> entries)
             : base(message, context, innerException)
         {
             Check.NotEmpty(message, "message");
             Check.NotNull(context, "context");
-            Check.NotEmpty(stateEntries, "stateEntries");
+            Check.NotEmpty(entries, "entries");
 
-            _stateEntries = stateEntries;
+            Entries = entries;
         }
 
-        public virtual IReadOnlyList<StateEntry> StateEntries
-        {
-            get { return _stateEntries; }
-        }
+        public virtual IReadOnlyList<InternalEntityEntry> Entries { get; }
     }
 }

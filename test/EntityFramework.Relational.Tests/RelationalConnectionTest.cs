@@ -6,6 +6,7 @@ using System.Data;
 using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Data.Entity.DependencyInjection;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Framework.Logging;
 using Moq;
@@ -367,14 +368,14 @@ namespace Microsoft.Data.Entity.Relational.Tests
 
         private class FakeOptionsExtension1 : RelationalOptionsExtension
         {
-            protected override void ApplyServices(EntityServicesBuilder builder)
+            protected override void ApplyServices(EntityFrameworkServicesBuilder builder)
             {
             }
         }
 
         private class FakeOptionsExtension2 : RelationalOptionsExtension
         {
-            protected override void ApplyServices(EntityServicesBuilder builder)
+            protected override void ApplyServices(EntityFrameworkServicesBuilder builder)
             {
             }
         }

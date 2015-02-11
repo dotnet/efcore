@@ -120,7 +120,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 _isRequiredConfigurationSource = configurationSource.Max(_isRequiredConfigurationSource);
                 return this;
             }
-            
+
             if (_isRequiredConfigurationSource != null
                 && !configurationSource.Overrides(_isRequiredConfigurationSource.Value))
             {

@@ -5,7 +5,7 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
@@ -46,29 +46,29 @@ namespace Microsoft.Data.Entity.Identity
             _storeServices = storeServices;
         }
 
-        public virtual void PropagateValue([NotNull] StateEntry stateEntry, [NotNull] IProperty property)
+        public virtual void PropagateValue([NotNull] InternalEntityEntry entry, [NotNull] IProperty property)
         {
-            Check.NotNull(stateEntry, "stateEntry");
+            Check.NotNull(entry, "entry");
             Check.NotNull(property, "property");
 
             Debug.Assert(property.IsForeignKey());
 
-            if (!TryPropagateValue(stateEntry, property)
+            if (!TryPropagateValue(entry, property)
                 && property.IsKey())
             {
                 var valueGenerator = TryGetValueGenerator(property);
 
                 if (valueGenerator != null)
                 {
-                    stateEntry[property] = valueGenerator.Next(property, _storeServices);
+                    entry[property] = valueGenerator.Next(property, _storeServices);
                 }
             }
         }
 
-        private bool TryPropagateValue(StateEntry stateEntry, IProperty property)
+        private bool TryPropagateValue(InternalEntityEntry entry, IProperty property)
         {
             var entityType = property.EntityType;
-            var stateManager = stateEntry.StateManager;
+            var stateManager = entry.StateManager;
 
             foreach (var foreignKey in entityType.ForeignKeys)
             {
@@ -83,7 +83,7 @@ namespace Microsoft.Data.Entity.Identity
                             .Where(n => n.ForeignKey == foreignKey)
                             .Distinct())
                         {
-                            var principal = TryFindPrincipal(stateManager, navigation, stateEntry.Entity);
+                            var principal = TryFindPrincipal(stateManager, navigation, entry.Entity);
 
                             if (principal != null)
                             {
@@ -101,7 +101,7 @@ namespace Microsoft.Data.Entity.Identity
 
                         if (valueToPropagte != null)
                         {
-                            stateEntry[property] = valueToPropagte;
+                            entry[property] = valueToPropagte;
                             return true;
                         }
                     }
@@ -140,7 +140,7 @@ namespace Microsoft.Data.Entity.Identity
             }
 
             // TODO: Perf
-            foreach (var principalEntry in stateManager.StateEntries
+            foreach (var principalEntry in stateManager.Entries
                 .Where(e => e.EntityType == navigation.ForeignKey.ReferencedEntityType))
             {
                 if (navigation.IsCollection())

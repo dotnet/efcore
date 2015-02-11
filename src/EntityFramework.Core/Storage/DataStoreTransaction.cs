@@ -10,8 +10,6 @@ namespace Microsoft.Data.Entity.Storage
 {
     public abstract class DataStoreTransaction : IDisposable
     {
-        private readonly ILogger _logger;
-
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
         ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
@@ -25,13 +23,10 @@ namespace Microsoft.Data.Entity.Storage
         {
             Check.NotNull(logger, "logger");
 
-            _logger = logger;
+            Logger = logger;
         }
 
-        protected virtual ILogger Logger
-        {
-            get { return _logger; }
-        }
+        protected virtual ILogger Logger { get; }
 
         public abstract void Commit();
 

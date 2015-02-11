@@ -3,6 +3,7 @@
 
 using System;
 using System.Reflection;
+
 namespace Microsoft.Data.Entity.Metadata.ModelConventions
 {
     internal static class ConventionsPropertyInfoExtensions
@@ -48,6 +49,5 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
 
             return true;
         }
-
     }
 }

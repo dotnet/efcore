@@ -11,11 +11,11 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 using Remotion.Linq.Clauses;
-using Microsoft.Data.Entity.Internal;
 
 namespace Microsoft.Data.Entity.Query
 {

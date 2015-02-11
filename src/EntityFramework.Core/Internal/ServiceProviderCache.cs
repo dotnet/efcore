@@ -12,15 +12,10 @@ namespace Microsoft.Data.Entity.Internal
 {
     internal class ServiceProviderCache
     {
-        private static readonly ServiceProviderCache _instance = new ServiceProviderCache();
-
         private readonly ThreadSafeDictionaryCache<long, IServiceProvider> _configurations
             = new ThreadSafeDictionaryCache<long, IServiceProvider>();
 
-        public static ServiceProviderCache Instance
-        {
-            get { return _instance; }
-        }
+        public static ServiceProviderCache Instance { get; } = new ServiceProviderCache();
 
         public virtual IServiceProvider GetOrAdd(IDbContextOptions options)
         {

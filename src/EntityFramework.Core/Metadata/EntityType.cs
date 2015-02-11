@@ -16,24 +16,25 @@ namespace Microsoft.Data.Entity.Metadata
     public class EntityType : MetadataBase, IEntityType
     {
         private readonly object _typeOrName;
+
         private readonly LazyRef<SortedDictionary<IReadOnlyList<Property>, ForeignKey>> _foreignKeys
             = new LazyRef<SortedDictionary<IReadOnlyList<Property>, ForeignKey>>(()
                 => new SortedDictionary<IReadOnlyList<Property>, ForeignKey>(PropertyListComparer.Instance));
 
         private readonly LazyRef<SortedDictionary<string, Navigation>> _navigations
             = new LazyRef<SortedDictionary<string, Navigation>>(() =>
-            new SortedDictionary<string, Navigation>(StringComparer.Ordinal));
+                new SortedDictionary<string, Navigation>(StringComparer.Ordinal));
 
         private readonly LazyRef<SortedDictionary<IReadOnlyList<Property>, Index>> _indexes
             = new LazyRef<SortedDictionary<IReadOnlyList<Property>, Index>>(() =>
-            new SortedDictionary<IReadOnlyList<Property>, Index>(PropertyListComparer.Instance));
+                new SortedDictionary<IReadOnlyList<Property>, Index>(PropertyListComparer.Instance));
 
         private readonly SortedDictionary<string, Property> _properties
             = new SortedDictionary<string, Property>(StringComparer.Ordinal);
 
         private readonly LazyRef<SortedDictionary<IReadOnlyList<Property>, Key>> _keys
             = new LazyRef<SortedDictionary<IReadOnlyList<Property>, Key>>(() =>
-            new SortedDictionary<IReadOnlyList<Property>, Key>(PropertyListComparer.Instance));
+                new SortedDictionary<IReadOnlyList<Property>, Key>(PropertyListComparer.Instance));
 
         private Key _primaryKey;
 
@@ -191,7 +192,8 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotNull(properties, "properties");
 
-            if (_primaryKey != null && PropertyListComparer.Instance.Compare(_primaryKey.Properties, properties) == 0)
+            if (_primaryKey != null
+                && PropertyListComparer.Instance.Compare(_primaryKey.Properties, properties) == 0)
             {
                 return _primaryKey;
             }
@@ -253,7 +255,8 @@ namespace Microsoft.Data.Entity.Metadata
                 return key;
             }
 
-            if (_keys.HasValue && _keys.Value.TryGetValue(properties, out key))
+            if (_keys.HasValue
+                && _keys.Value.TryGetValue(properties, out key))
             {
                 return key;
             }
@@ -289,7 +292,8 @@ namespace Microsoft.Data.Entity.Metadata
             }
 
             Key removedKey;
-            if (_keys.HasValue && _keys.Value.TryGetValue(key.Properties, out removedKey))
+            if (_keys.HasValue
+                && _keys.Value.TryGetValue(key.Properties, out removedKey))
             {
                 CheckKeyNotInUse(removedKey);
 
@@ -385,7 +389,8 @@ namespace Microsoft.Data.Entity.Metadata
             Check.NotEmpty(properties, "properties");
 
             ForeignKey foreignKey;
-            if (_foreignKeys.HasValue && _foreignKeys.Value.TryGetValue(properties, out foreignKey))
+            if (_foreignKeys.HasValue
+                && _foreignKeys.Value.TryGetValue(properties, out foreignKey))
             {
                 return foreignKey;
             }
@@ -436,7 +441,8 @@ namespace Microsoft.Data.Entity.Metadata
             Check.NotNull(foreignKey, "foreignKey");
 
             ForeignKey removedFk;
-            if (_foreignKeys.HasValue && _foreignKeys.Value.TryGetValue(foreignKey.Properties, out removedFk))
+            if (_foreignKeys.HasValue
+                && _foreignKeys.Value.TryGetValue(foreignKey.Properties, out removedFk))
             {
                 CheckForeignKeyNotInUse(removedFk);
 
@@ -470,7 +476,8 @@ namespace Microsoft.Data.Entity.Metadata
             Check.NotEmpty(name, "name");
             Check.NotNull(foreignKey, "foreignKey");
 
-            if (_navigations.HasValue && _navigations.Value.ContainsKey(name))
+            if (_navigations.HasValue
+                && _navigations.Value.ContainsKey(name))
             {
                 throw new InvalidOperationException(Strings.DuplicateNavigation(name, Name));
             }
@@ -520,7 +527,7 @@ namespace Microsoft.Data.Entity.Metadata
             }
 
             var otherNavigation = _navigations.Value.Values.FirstOrDefault(n => n.ForeignKey == navigation.ForeignKey
-                                                                         && navigation.PointsToPrincipal == n.PointsToPrincipal);
+                                                                                && navigation.PointsToPrincipal == n.PointsToPrincipal);
             if (otherNavigation != null)
             {
                 throw new InvalidOperationException(Strings.MultipleNavigations(navigation.Name, otherNavigation.Name, Name));
@@ -542,7 +549,8 @@ namespace Microsoft.Data.Entity.Metadata
             Check.NotEmpty(name, "name");
 
             Navigation navigation;
-            if (_navigations.HasValue && _navigations.Value.TryGetValue(name, out navigation))
+            if (_navigations.HasValue
+                && _navigations.Value.TryGetValue(name, out navigation))
             {
                 return navigation;
             }
@@ -629,7 +637,8 @@ namespace Microsoft.Data.Entity.Metadata
             Check.NotEmpty(properties, "properties");
 
             Index index;
-            if (_indexes.HasValue && _indexes.Value.TryGetValue(properties, out index))
+            if (_indexes.HasValue
+                && _indexes.Value.TryGetValue(properties, out index))
             {
                 return index;
             }
@@ -656,7 +665,8 @@ namespace Microsoft.Data.Entity.Metadata
             Check.NotNull(index, "index");
 
             Index removedIndex;
-            if (_indexes.HasValue && _indexes.Value.TryGetValue(index.Properties, out removedIndex))
+            if (_indexes.HasValue
+                && _indexes.Value.TryGetValue(index.Properties, out removedIndex))
             {
                 _indexes.Value.Remove(index.Properties);
                 return removedIndex;
@@ -959,7 +969,8 @@ namespace Microsoft.Data.Entity.Metadata
                 }
 
                 var index = 0;
-                while (result == 0 && index < x.Count)
+                while (result == 0
+                       && index < x.Count)
                 {
                     result = StringComparer.Ordinal.Compare(x[index].Name, y[index].Name);
                     index++;

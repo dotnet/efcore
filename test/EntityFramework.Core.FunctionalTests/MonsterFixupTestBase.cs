@@ -234,13 +234,13 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                 var stateManager = context.ChangeTracker.StateManager;
 
-                var beforeSnapshot = stateManager.StateEntries.SelectMany(e => e.EntityType.Properties.Select(p => e[p])).ToList();
+                var beforeSnapshot = stateManager.Entries.SelectMany(e => e.EntityType.Properties.Select(p => e[p])).ToList();
 
                 Assert.Equal(
                     "Aborting.",
                     (await Assert.ThrowsAsync<Exception>(async () => await context.SaveChangesAsync())).Message);
 
-                var afterSnapshot = stateManager.StateEntries.SelectMany(e => e.EntityType.Properties.Select(p => e[p])).ToList();
+                var afterSnapshot = stateManager.Entries.SelectMany(e => e.EntityType.Properties.Select(p => e[p])).ToList();
 
                 Assert.Equal(beforeSnapshot, afterSnapshot);
             }

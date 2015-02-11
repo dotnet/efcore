@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Utilities;
 
@@ -34,11 +35,11 @@ namespace Microsoft.Data.Entity.ChangeTracking
             [NotNull] DbContextService<DbContext> context,
             [NotNull] EntityAttacherFactory attacherFactory)
         {
-            Check.NotNull(stateManager, "stateManager");
-            Check.NotNull(changeDetector, "changeDetector");
-            Check.NotNull(graphIterator, "graphIterator");
-            Check.NotNull(context, "context");
-            Check.NotNull(attacherFactory, "attacherFactory");
+            Check.NotNull(stateManager, nameof(stateManager));
+            Check.NotNull(changeDetector, nameof(changeDetector));
+            Check.NotNull(graphIterator, nameof(graphIterator));
+            Check.NotNull(context, nameof(context));
+            Check.NotNull(attacherFactory, nameof(attacherFactory));
 
             StateManager = stateManager;
             _changeDetector = changeDetector;
@@ -53,14 +54,14 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
             TryDetectChanges();
 
-            return StateManager.StateEntries.Select(e => new EntityEntry(_context.Service, e));
+            return StateManager.Entries.Select(e => new EntityEntry(_context.Service, e));
         }
 
         public virtual IEnumerable<EntityEntry<TEntity>> Entries<TEntity>() where TEntity : class
         {
             TryDetectChanges();
 
-            return StateManager.StateEntries
+            return StateManager.Entries
                 .Where(e => e.Entity is TEntity)
                 .Select(e => new EntityEntry<TEntity>(_context.Service, e));
         }
@@ -82,10 +83,10 @@ namespace Microsoft.Data.Entity.ChangeTracking
             _changeDetector.DetectChanges(StateManager);
         }
 
-        public virtual void AttachGraph([NotNull] object rootEntity, [NotNull] Action<EntityEntry> callback)
+        public virtual void TrackGraph([NotNull] object rootEntity, [NotNull] Action<EntityEntry> callback)
         {
-            Check.NotNull(rootEntity, "rootEntity");
-            Check.NotNull(callback, "callback");
+            Check.NotNull(rootEntity, nameof(rootEntity));
+            Check.NotNull(callback, nameof(callback));
 
             foreach (var entry in _graphIterator.TraverseGraph(rootEntity))
             {
@@ -93,20 +94,20 @@ namespace Microsoft.Data.Entity.ChangeTracking
             }
         }
 
-        public virtual void AttachGraph([NotNull] object rootEntity)
+        public virtual void TrackGraph([NotNull] object rootEntity)
         {
-            Check.NotNull(rootEntity, "rootEntity");
+            Check.NotNull(rootEntity, nameof(rootEntity));
 
             var attacher = _attacherFactory.CreateForAttach();
-            AttachGraph(rootEntity, attacher.HandleEntity);
+            TrackGraph(rootEntity, attacher.HandleEntity);
         }
 
         public virtual void UpdateGraph([NotNull] object rootEntity)
         {
-            Check.NotNull(rootEntity, "rootEntity");
+            Check.NotNull(rootEntity, nameof(rootEntity));
 
             var attacher = _attacherFactory.CreateForUpdate();
-            AttachGraph(rootEntity, attacher.HandleEntity);
+            TrackGraph(rootEntity, attacher.HandleEntity);
         }
     }
 }

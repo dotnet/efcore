@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Utilities;
@@ -15,7 +16,7 @@ namespace Microsoft.Data.Entity.Relational.Update
     public class ModificationCommand
     {
         private readonly Func<IProperty, IRelationalPropertyExtensions> _getPropertyExtensions;
-        private readonly List<StateEntry> _stateEntries = new List<StateEntry>();
+        private readonly List<InternalEntityEntry> _entries = new List<InternalEntityEntry>();
 
         private readonly LazyRef<IReadOnlyList<ColumnModification>> _columnModifications
             = new LazyRef<IReadOnlyList<ColumnModification>>(() => new ColumnModification[0]);
@@ -47,9 +48,9 @@ namespace Microsoft.Data.Entity.Relational.Update
 
         public virtual SchemaQualifiedName SchemaQualifiedName { get; }
 
-        public virtual IReadOnlyList<StateEntry> StateEntries => _stateEntries;
+        public virtual IReadOnlyList<InternalEntityEntry> Entries => _entries;
 
-        public virtual EntityState EntityState => _stateEntries.FirstOrDefault()?.EntityState ?? EntityState.Unknown;
+        public virtual EntityState EntityState => _entries.FirstOrDefault()?.EntityState ?? EntityState.Detached;
 
         public virtual IReadOnlyList<ColumnModification> ColumnModifications => _columnModifications.Value;
 
@@ -65,20 +66,20 @@ namespace Microsoft.Data.Entity.Relational.Update
 
         public virtual ParameterNameGenerator ParameterNameGenerator { get; }
 
-        public virtual ModificationCommand AddStateEntry([NotNull] StateEntry stateEntry)
+        public virtual ModificationCommand AddEntry([NotNull] InternalEntityEntry entry)
         {
-            Check.NotNull(stateEntry, "stateEntry");
+            Check.NotNull(entry, "entry");
 
-            if (stateEntry.EntityState != EntityState.Added
-                && stateEntry.EntityState != EntityState.Modified
-                && stateEntry.EntityState != EntityState.Deleted)
+            if (entry.EntityState != EntityState.Added
+                && entry.EntityState != EntityState.Modified
+                && entry.EntityState != EntityState.Deleted)
             {
-                throw new NotSupportedException(Strings.ModificationFunctionInvalidEntityState(stateEntry.EntityState));
+                throw new NotSupportedException(Strings.ModificationFunctionInvalidEntityState(entry.EntityState));
             }
 
-            var firstEntry = _stateEntries.FirstOrDefault();
+            var firstEntry = _entries.FirstOrDefault();
             if (firstEntry != null
-                && firstEntry.EntityState != stateEntry.EntityState)
+                && firstEntry.EntityState != entry.EntityState)
             {
                 // TODO: Proper message
                 throw new InvalidOperationException("Two entities cannot make conflicting updates to the same row.");
@@ -86,7 +87,7 @@ namespace Microsoft.Data.Entity.Relational.Update
                 // TODO: Check for any other conflicts between the two entries
             }
 
-            _stateEntries.Add(stateEntry);
+            _entries.Add(entry);
             _columnModifications.Reset(GenerateColumnModifications);
 
             return this;
@@ -97,16 +98,16 @@ namespace Microsoft.Data.Entity.Relational.Update
             var adding = EntityState == EntityState.Added;
             var columnModifications = new List<ColumnModification>();
 
-            foreach (var stateEntry in _stateEntries)
+            foreach (var entry in _entries)
             {
-                var entityType = stateEntry.EntityType;
+                var entityType = entry.EntityType;
 
                 foreach (var property in entityType.Properties)
                 {
                     var isKey = property.IsPrimaryKey();
                     var isCondition = !adding && (isKey || property.IsConcurrencyToken);
-                    var readValue = stateEntry.StoreMustGenerateValue(property);
-                    var writeValue = !readValue && (adding || stateEntry.IsPropertyModified(property));
+                    var readValue = entry.StoreMustGenerateValue(property);
+                    var writeValue = !readValue && (adding || entry.IsPropertyModified(property));
 
                     if (readValue
                         || writeValue
@@ -118,7 +119,7 @@ namespace Microsoft.Data.Entity.Relational.Update
                         }
 
                         columnModifications.Add(new ColumnModification(
-                            stateEntry,
+                            entry,
                             property,
                             _getPropertyExtensions(property),
                             ParameterNameGenerator,

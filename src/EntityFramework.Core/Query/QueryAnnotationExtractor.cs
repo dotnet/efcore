@@ -37,7 +37,7 @@ namespace Microsoft.Data.Entity.Query
                 queryAnnotations.Add(
                     new QueryAnnotation(resultOperator)
                         {
-                            QuerySource = queryModel.MainFromClause,
+                            QuerySource = queryModel.MainFromClause
                         });
 
                 queryModel.ResultOperators.Remove(resultOperator);

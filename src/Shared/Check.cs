@@ -89,6 +89,7 @@ namespace Microsoft.Data.Entity.Utilities
 
             return value;
         }
+
         public static IReadOnlyList<T> HasNoNulls<T>(IReadOnlyList<T> value, [InvokerParameterName] [NotNull] string parameterName)
             where T : class
         {
@@ -115,7 +116,7 @@ namespace Microsoft.Data.Entity.Utilities
             return value;
         }
 
-        public static Type ValidEntityType(Type value, [InvokerParameterName][NotNull] string parameterName)
+        public static Type ValidEntityType(Type value, [InvokerParameterName] [NotNull] string parameterName)
         {
             if (!value.GetTypeInfo().IsClass)
             {

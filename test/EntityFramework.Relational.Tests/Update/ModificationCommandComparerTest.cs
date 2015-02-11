@@ -3,6 +3,7 @@
 
 using System;
 using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Relational.Update;
 using Microsoft.Framework.DependencyInjection;
@@ -28,23 +29,23 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var key = entityType.GetOrAddProperty("Id", typeof(int), shadowProperty: true);
             entityType.GetOrSetPrimaryKey(key);
 
-            var stateEntry1 = stateManager.GetOrCreateEntry(new object());
-            stateEntry1[key] = 1;
-            stateEntry1.SetEntityState(EntityState.Added);
+            var entry1 = stateManager.GetOrCreateEntry(new object());
+            entry1[key] = 1;
+            entry1.SetEntityState(EntityState.Added);
             var modificationCommandAdded = new ModificationCommand(new SchemaQualifiedName("A"), new ParameterNameGenerator(), p => p.Relational());
-            modificationCommandAdded.AddStateEntry(stateEntry1);
+            modificationCommandAdded.AddEntry(entry1);
 
-            var stateEntry2 = stateManager.GetOrCreateEntry(new object());
-            stateEntry2[key] = 2;
-            stateEntry2.SetEntityState(EntityState.Modified);
+            var entry2 = stateManager.GetOrCreateEntry(new object());
+            entry2[key] = 2;
+            entry2.SetEntityState(EntityState.Modified);
             var modificationCommandModified = new ModificationCommand(new SchemaQualifiedName("A"), new ParameterNameGenerator(), p => p.Relational());
-            modificationCommandModified.AddStateEntry(stateEntry2);
+            modificationCommandModified.AddEntry(entry2);
 
-            var stateEntry3 = stateManager.GetOrCreateEntry(new object());
-            stateEntry3[key] = 3;
-            stateEntry3.SetEntityState(EntityState.Deleted);
+            var entry3 = stateManager.GetOrCreateEntry(new object());
+            entry3[key] = 3;
+            entry3.SetEntityState(EntityState.Deleted);
             var modificationCommandDeleted = new ModificationCommand(new SchemaQualifiedName("A"), new ParameterNameGenerator(), p => p.Relational());
-            modificationCommandDeleted.AddStateEntry(stateEntry3);
+            modificationCommandDeleted.AddEntry(entry3);
 
             var mCC = new ModificationCommandComparer();
 

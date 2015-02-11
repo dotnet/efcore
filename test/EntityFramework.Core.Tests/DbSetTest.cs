@@ -66,10 +66,10 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Same(product2, productEntry2.Entity);
                 Assert.Equal(expectedState, productEntry2.State);
 
-                Assert.Same(categoryEntry1.StateEntry, context.Entry(category1).StateEntry);
-                Assert.Same(categoryEntry2.StateEntry, context.Entry(category2).StateEntry);
-                Assert.Same(productEntry1.StateEntry, context.Entry(product1).StateEntry);
-                Assert.Same(productEntry2.StateEntry, context.Entry(product2).StateEntry);
+                Assert.Same(categoryEntry1.InternalEntry, context.Entry(category1).InternalEntry);
+                Assert.Same(categoryEntry2.InternalEntry, context.Entry(category2).InternalEntry);
+                Assert.Same(productEntry1.InternalEntry, context.Entry(product1).InternalEntry);
+                Assert.Same(productEntry2.InternalEntry, context.Entry(product2).InternalEntry);
             }
         }
 
@@ -256,7 +256,7 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Can_use_Add_to_change_entity_state()
         {
-            ChangeStateWithMethod((c, e) => c.Categories.Add(e), EntityState.Unknown, EntityState.Added);
+            ChangeStateWithMethod((c, e) => c.Categories.Add(e), EntityState.Detached, EntityState.Added);
             ChangeStateWithMethod((c, e) => c.Categories.Add(e), EntityState.Unchanged, EntityState.Added);
             ChangeStateWithMethod((c, e) => c.Categories.Add(e), EntityState.Deleted, EntityState.Added);
             ChangeStateWithMethod((c, e) => c.Categories.Add(e), EntityState.Modified, EntityState.Added);
@@ -266,7 +266,7 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Can_use_Attach_to_change_entity_state()
         {
-            ChangeStateWithMethod((c, e) => c.Categories.Attach(e), EntityState.Unknown, EntityState.Unchanged);
+            ChangeStateWithMethod((c, e) => c.Categories.Attach(e), EntityState.Detached, EntityState.Unchanged);
             ChangeStateWithMethod((c, e) => c.Categories.Attach(e), EntityState.Unchanged, EntityState.Unchanged);
             ChangeStateWithMethod((c, e) => c.Categories.Attach(e), EntityState.Deleted, EntityState.Unchanged);
             ChangeStateWithMethod((c, e) => c.Categories.Attach(e), EntityState.Modified, EntityState.Unchanged);
@@ -276,7 +276,7 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Can_use_Update_to_change_entity_state()
         {
-            ChangeStateWithMethod((c, e) => c.Categories.Update(e), EntityState.Unknown, EntityState.Modified);
+            ChangeStateWithMethod((c, e) => c.Categories.Update(e), EntityState.Detached, EntityState.Modified);
             ChangeStateWithMethod((c, e) => c.Categories.Update(e), EntityState.Unchanged, EntityState.Modified);
             ChangeStateWithMethod((c, e) => c.Categories.Update(e), EntityState.Deleted, EntityState.Modified);
             ChangeStateWithMethod((c, e) => c.Categories.Update(e), EntityState.Modified, EntityState.Modified);
@@ -286,11 +286,11 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Can_use_Remove_to_change_entity_state()
         {
-            ChangeStateWithMethod((c, e) => c.Categories.Remove(e), EntityState.Unknown, EntityState.Deleted);
+            ChangeStateWithMethod((c, e) => c.Categories.Remove(e), EntityState.Detached, EntityState.Deleted);
             ChangeStateWithMethod((c, e) => c.Categories.Remove(e), EntityState.Unchanged, EntityState.Deleted);
             ChangeStateWithMethod((c, e) => c.Categories.Remove(e), EntityState.Deleted, EntityState.Deleted);
             ChangeStateWithMethod((c, e) => c.Categories.Remove(e), EntityState.Modified, EntityState.Deleted);
-            ChangeStateWithMethod((c, e) => c.Categories.Remove(e), EntityState.Added, EntityState.Unknown);
+            ChangeStateWithMethod((c, e) => c.Categories.Remove(e), EntityState.Added, EntityState.Detached);
         }
 
         private void ChangeStateWithMethod(Action<EarlyLearningCenter, Category> action, EntityState initialState, EntityState expectedState)

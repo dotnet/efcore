@@ -190,6 +190,6 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             }
 
             return roots;
-        } 
+        }
     }
 }

@@ -7,6 +7,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.ChangeTracking.Internal;
+using Microsoft.Data.Entity.DependencyInjection;
 using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
@@ -134,9 +136,9 @@ namespace Microsoft.Data.Entity.Tests
             {
                 var stateManager = (FakeStateManager)((IAccessor<IServiceProvider>)context).Service.GetRequiredService<StateManager>();
 
-                var entryMock = new Mock<StateEntry>();
+                var entryMock = new Mock<InternalEntityEntry>();
                 entryMock.Setup(m => m.EntityState).Returns(EntityState.Modified);
-                stateManager.Entries = new[] { entryMock.Object };
+                stateManager.InternalEntries = new[] { entryMock.Object };
 
                 Assert.False(stateManager.SaveChangesCalled);
 
@@ -163,9 +165,9 @@ namespace Microsoft.Data.Entity.Tests
 
                 var stateManager = (FakeStateManager)((IAccessor<IServiceProvider>)context).Service.GetRequiredService<StateManager>();
 
-                var entryMock = new Mock<StateEntry>();
+                var entryMock = new Mock<InternalEntityEntry>();
                 entryMock.Setup(m => m.EntityState).Returns(EntityState.Modified);
-                stateManager.Entries = new[] { entryMock.Object };
+                stateManager.InternalEntries = new[] { entryMock.Object };
 
                 Assert.False(stateManager.SaveChangesAsyncCalled);
 
@@ -201,8 +203,8 @@ namespace Microsoft.Data.Entity.Tests
         {
             var entity = new Random();
             var stateManagerMock = new Mock<StateManager>();
-            var stateEntry = new Mock<StateEntry>().Object;
-            stateManagerMock.Setup(m => m.GetOrCreateEntry(entity)).Returns(stateEntry);
+            var entry = new Mock<InternalEntityEntry>().Object;
+            stateManagerMock.Setup(m => m.GetOrCreateEntry(entity)).Returns(entry);
 
             var services = new ServiceCollection()
                 .AddScoped(_ => stateManagerMock.Object);
@@ -211,14 +213,14 @@ namespace Microsoft.Data.Entity.Tests
 
             using (var context = new DbContext(serviceProvider))
             {
-                Assert.Same(stateEntry, context.Entry(entity).StateEntry);
-                Assert.Same(stateEntry, context.Entry((object)entity).StateEntry);
+                Assert.Same(entry, context.Entry(entity).InternalEntry);
+                Assert.Same(entry, context.Entry((object)entity).InternalEntry);
             }
         }
 
         private class FakeStateManager : StateManager
         {
-            public IEnumerable<StateEntry> Entries { get; set; }
+            public IEnumerable<InternalEntityEntry> InternalEntries { get; set; }
             public bool SaveChangesCalled { get; set; }
             public bool SaveChangesAsyncCalled { get; set; }
 
@@ -234,9 +236,9 @@ namespace Microsoft.Data.Entity.Tests
                 return Task.FromResult(1);
             }
 
-            public override IEnumerable<StateEntry> StateEntries
+            public override IEnumerable<InternalEntityEntry> Entries
             {
-                get { return Entries ?? Enumerable.Empty<StateEntry>(); }
+                get { return Entries ?? Enumerable.Empty<InternalEntityEntry>(); }
             }
         }
 
@@ -305,10 +307,10 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Same(product2, productEntry2.Entity);
                 Assert.Equal(expectedState, productEntry2.State);
 
-                Assert.Same(categoryEntry1.StateEntry, context.Entry(category1).StateEntry);
-                Assert.Same(categoryEntry2.StateEntry, context.Entry(category2).StateEntry);
-                Assert.Same(productEntry1.StateEntry, context.Entry(product1).StateEntry);
-                Assert.Same(productEntry2.StateEntry, context.Entry(product2).StateEntry);
+                Assert.Same(categoryEntry1.InternalEntry, context.Entry(category1).InternalEntry);
+                Assert.Same(categoryEntry2.InternalEntry, context.Entry(category2).InternalEntry);
+                Assert.Same(productEntry1.InternalEntry, context.Entry(product1).InternalEntry);
+                Assert.Same(productEntry2.InternalEntry, context.Entry(product2).InternalEntry);
             }
         }
 
@@ -456,10 +458,10 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Same(product2, productEntry2.Entity);
                 Assert.Equal(expectedState, productEntry2.State);
 
-                Assert.Same(categoryEntry1.StateEntry, context.Entry(category1).StateEntry);
-                Assert.Same(categoryEntry2.StateEntry, context.Entry(category2).StateEntry);
-                Assert.Same(productEntry1.StateEntry, context.Entry(product1).StateEntry);
-                Assert.Same(productEntry2.StateEntry, context.Entry(product2).StateEntry);
+                Assert.Same(categoryEntry1.InternalEntry, context.Entry(category1).InternalEntry);
+                Assert.Same(categoryEntry2.InternalEntry, context.Entry(category2).InternalEntry);
+                Assert.Same(productEntry1.InternalEntry, context.Entry(product1).InternalEntry);
+                Assert.Same(productEntry2.InternalEntry, context.Entry(product2).InternalEntry);
             }
         }
 
@@ -586,7 +588,7 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Can_use_Add_to_change_entity_state()
         {
-            ChangeStateWithMethod((c, e) => c.Add(e), EntityState.Unknown, EntityState.Added);
+            ChangeStateWithMethod((c, e) => c.Add(e), EntityState.Detached, EntityState.Added);
             ChangeStateWithMethod((c, e) => c.Add(e), EntityState.Unchanged, EntityState.Added);
             ChangeStateWithMethod((c, e) => c.Add(e), EntityState.Deleted, EntityState.Added);
             ChangeStateWithMethod((c, e) => c.Add(e), EntityState.Modified, EntityState.Added);
@@ -596,7 +598,7 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Can_use_Attach_to_change_entity_state()
         {
-            ChangeStateWithMethod((c, e) => c.Attach(e), EntityState.Unknown, EntityState.Unchanged);
+            ChangeStateWithMethod((c, e) => c.Attach(e), EntityState.Detached, EntityState.Unchanged);
             ChangeStateWithMethod((c, e) => c.Attach(e), EntityState.Unchanged, EntityState.Unchanged);
             ChangeStateWithMethod((c, e) => c.Attach(e), EntityState.Deleted, EntityState.Unchanged);
             ChangeStateWithMethod((c, e) => c.Attach(e), EntityState.Modified, EntityState.Unchanged);
@@ -606,7 +608,7 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Can_use_Update_to_change_entity_state()
         {
-            ChangeStateWithMethod((c, e) => c.Update(e), EntityState.Unknown, EntityState.Modified);
+            ChangeStateWithMethod((c, e) => c.Update(e), EntityState.Detached, EntityState.Modified);
             ChangeStateWithMethod((c, e) => c.Update(e), EntityState.Unchanged, EntityState.Modified);
             ChangeStateWithMethod((c, e) => c.Update(e), EntityState.Deleted, EntityState.Modified);
             ChangeStateWithMethod((c, e) => c.Update(e), EntityState.Modified, EntityState.Modified);
@@ -616,11 +618,11 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Can_use_Remove_to_change_entity_state()
         {
-            ChangeStateWithMethod((c, e) => c.Remove(e), EntityState.Unknown, EntityState.Deleted);
+            ChangeStateWithMethod((c, e) => c.Remove(e), EntityState.Detached, EntityState.Deleted);
             ChangeStateWithMethod((c, e) => c.Remove(e), EntityState.Unchanged, EntityState.Deleted);
             ChangeStateWithMethod((c, e) => c.Remove(e), EntityState.Deleted, EntityState.Deleted);
             ChangeStateWithMethod((c, e) => c.Remove(e), EntityState.Modified, EntityState.Deleted);
-            ChangeStateWithMethod((c, e) => c.Remove(e), EntityState.Added, EntityState.Unknown);
+            ChangeStateWithMethod((c, e) => c.Remove(e), EntityState.Added, EntityState.Detached);
         }
 
         private void ChangeStateWithMethod(Action<DbContext, object> action, EntityState initialState, EntityState expectedState)
@@ -653,7 +655,7 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Same(product, category.Products.Single());
                 Assert.Same(category, product.Category);
                 Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
-                Assert.Equal(EntityState.Unknown, context.Entry(product).State);
+                Assert.Equal(EntityState.Detached, context.Entry(product).State);
 
                 context.Attach(product);
 
@@ -681,7 +683,7 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Equal(1, product.CategoryId);
                 Assert.Same(product, category.Products.Single());
                 Assert.Same(category, product.Category);
-                Assert.Equal(EntityState.Unknown, context.Entry(category).State);
+                Assert.Equal(EntityState.Detached, context.Entry(category).State);
                 Assert.Equal(EntityState.Modified, context.Entry(product).State);
 
                 context.Attach(category);
@@ -709,7 +711,7 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Empty(category.Products);
                 Assert.Same(category, product.Category);
                 Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
-                Assert.Equal(EntityState.Unknown, context.Entry(product).State);
+                Assert.Equal(EntityState.Detached, context.Entry(product).State);
 
                 context.Attach(product);
 
@@ -735,7 +737,7 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Equal(1, product.CategoryId);
                 Assert.Same(product, category.Products.Single());
                 Assert.Same(category, product.Category);
-                Assert.Equal(EntityState.Unknown, context.Entry(category).State);
+                Assert.Equal(EntityState.Detached, context.Entry(category).State);
                 Assert.Equal(EntityState.Modified, context.Entry(product).State);
 
                 context.Attach(category);
@@ -763,7 +765,7 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Same(product, category.Products.Single());
                 Assert.Same(category, product.Category);
                 Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
-                Assert.Equal(EntityState.Unknown, context.Entry(product).State);
+                Assert.Equal(EntityState.Detached, context.Entry(product).State);
 
                 context.Attach(product);
 
@@ -791,7 +793,7 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Equal(7, product.CategoryId);
                 Assert.Same(product, category.Products.Single());
                 Assert.Null(product.Category);
-                Assert.Equal(EntityState.Unknown, context.Entry(category).State);
+                Assert.Equal(EntityState.Detached, context.Entry(category).State);
                 Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
 
                 context.Attach(category);
@@ -819,7 +821,7 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Same(product, category.Products.Single());
                 Assert.Same(category, product.Category);
                 Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
-                Assert.Equal(EntityState.Unknown, context.Entry(product).State);
+                Assert.Equal(EntityState.Detached, context.Entry(product).State);
 
                 context.Entry(product).State = EntityState.Unchanged;
 
@@ -847,7 +849,7 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Equal(1, product.CategoryId);
                 Assert.Same(product, category.Products.Single());
                 Assert.Same(category, product.Category);
-                Assert.Equal(EntityState.Unknown, context.Entry(category).State);
+                Assert.Equal(EntityState.Detached, context.Entry(category).State);
                 Assert.Equal(EntityState.Modified, context.Entry(product).State);
 
                 context.Entry(category).State = EntityState.Unchanged;
@@ -875,7 +877,7 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Empty(category.Products);
                 Assert.Same(category, product.Category);
                 Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
-                Assert.Equal(EntityState.Unknown, context.Entry(product).State);
+                Assert.Equal(EntityState.Detached, context.Entry(product).State);
 
                 context.Entry(product).State = EntityState.Unchanged;
 
@@ -901,7 +903,7 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Equal(1, product.CategoryId);
                 Assert.Same(product, category.Products.Single());
                 Assert.Same(category, product.Category);
-                Assert.Equal(EntityState.Unknown, context.Entry(category).State);
+                Assert.Equal(EntityState.Detached, context.Entry(category).State);
                 Assert.Equal(EntityState.Modified, context.Entry(product).State);
 
                 context.Entry(category).State = EntityState.Unchanged;
@@ -929,7 +931,7 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Same(product, category.Products.Single());
                 Assert.Same(category, product.Category);
                 Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
-                Assert.Equal(EntityState.Unknown, context.Entry(product).State);
+                Assert.Equal(EntityState.Detached, context.Entry(product).State);
 
                 context.Entry(product).State = EntityState.Unchanged;
 
@@ -957,7 +959,7 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Equal(7, product.CategoryId);
                 Assert.Same(product, category.Products.Single());
                 Assert.Null(product.Category);
-                Assert.Equal(EntityState.Unknown, context.Entry(category).State);
+                Assert.Equal(EntityState.Detached, context.Entry(category).State);
                 Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
 
                 context.Entry(category).State = EntityState.Unchanged;
@@ -988,7 +990,7 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Same(category, product.Category);
                 Assert.Empty(category7.Products);
                 Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
-                Assert.Equal(EntityState.Unknown, context.Entry(product).State);
+                Assert.Equal(EntityState.Detached, context.Entry(product).State);
 
                 context.Attach(product);
 
@@ -1020,7 +1022,7 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Same(product, category.Products.Single());
                 Assert.Same(category, product.Category);
                 Assert.Empty(category7.Products);
-                Assert.Equal(EntityState.Unknown, context.Entry(category).State);
+                Assert.Equal(EntityState.Detached, context.Entry(category).State);
                 Assert.Equal(EntityState.Modified, context.Entry(product).State);
 
                 context.Attach(category);
@@ -1052,7 +1054,7 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Same(category, product.Category);
                 Assert.Empty(category7.Products);
                 Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
-                Assert.Equal(EntityState.Unknown, context.Entry(product).State);
+                Assert.Equal(EntityState.Detached, context.Entry(product).State);
 
                 context.Attach(product);
 
@@ -1082,7 +1084,7 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Same(product, category.Products.Single());
                 Assert.Same(category, product.Category);
                 Assert.Empty(category7.Products);
-                Assert.Equal(EntityState.Unknown, context.Entry(category).State);
+                Assert.Equal(EntityState.Detached, context.Entry(category).State);
                 Assert.Equal(EntityState.Modified, context.Entry(product).State);
 
                 context.Attach(category);
@@ -1114,7 +1116,7 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Same(category, product.Category);
                 Assert.Empty(category7.Products);
                 Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
-                Assert.Equal(EntityState.Unknown, context.Entry(product).State);
+                Assert.Equal(EntityState.Detached, context.Entry(product).State);
 
                 context.Attach(product);
 
@@ -1146,7 +1148,7 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Same(product, category.Products.Single());
                 Assert.Same(category7, product.Category);
                 Assert.Same(product, category7.Products.Single());
-                Assert.Equal(EntityState.Unknown, context.Entry(category).State);
+                Assert.Equal(EntityState.Detached, context.Entry(category).State);
                 Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
 
                 context.Attach(category);
@@ -1178,7 +1180,7 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Same(category, product.Category);
                 Assert.Empty(category7.Products);
                 Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
-                Assert.Equal(EntityState.Unknown, context.Entry(product).State);
+                Assert.Equal(EntityState.Detached, context.Entry(product).State);
 
                 context.Entry(product).State = EntityState.Unchanged;
 
@@ -1210,7 +1212,7 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Same(product, category.Products.Single());
                 Assert.Same(category, product.Category);
                 Assert.Empty(category7.Products);
-                Assert.Equal(EntityState.Unknown, context.Entry(category).State);
+                Assert.Equal(EntityState.Detached, context.Entry(category).State);
                 Assert.Equal(EntityState.Modified, context.Entry(product).State);
 
                 context.Entry(category).State = EntityState.Unchanged;
@@ -1242,7 +1244,7 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Same(category, product.Category);
                 Assert.Empty(category7.Products);
                 Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
-                Assert.Equal(EntityState.Unknown, context.Entry(product).State);
+                Assert.Equal(EntityState.Detached, context.Entry(product).State);
 
                 context.Entry(product).State = EntityState.Unchanged;
 
@@ -1272,7 +1274,7 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Same(product, category.Products.Single());
                 Assert.Same(category, product.Category);
                 Assert.Empty(category7.Products);
-                Assert.Equal(EntityState.Unknown, context.Entry(category).State);
+                Assert.Equal(EntityState.Detached, context.Entry(category).State);
                 Assert.Equal(EntityState.Modified, context.Entry(product).State);
 
                 context.Entry(category).State = EntityState.Unchanged;
@@ -1304,7 +1306,7 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Same(category, product.Category);
                 Assert.Empty(category7.Products);
                 Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
-                Assert.Equal(EntityState.Unknown, context.Entry(product).State);
+                Assert.Equal(EntityState.Detached, context.Entry(product).State);
 
                 context.Entry(product).State = EntityState.Unchanged;
 
@@ -1336,7 +1338,7 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Same(product, category.Products.Single());
                 Assert.Same(category7, product.Category);
                 Assert.Same(product, category7.Products.Single());
-                Assert.Equal(EntityState.Unknown, context.Entry(category).State);
+                Assert.Equal(EntityState.Detached, context.Entry(category).State);
                 Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
 
                 context.Entry(category).State = EntityState.Unchanged;
@@ -1454,17 +1456,17 @@ namespace Microsoft.Data.Entity.Tests
             }
 
             store.Verify(
-                s => s.SaveChangesAsync(It.IsAny<IReadOnlyList<StateEntry>>(), It.IsAny<CancellationToken>()),
+                s => s.SaveChangesAsync(It.IsAny<IReadOnlyList<InternalEntityEntry>>(), It.IsAny<CancellationToken>()),
                 Times.Never);
         }
 
         [Fact]
         public void SaveChanges_only_passes_dirty_entries_to_DataStore()
         {
-            var passedEntries = new List<StateEntry>();
+            var passedEntries = new List<InternalEntityEntry>();
             var store = new Mock<DataStore>();
-            store.Setup(s => s.SaveChanges(It.IsAny<IReadOnlyList<StateEntry>>()))
-                .Callback<IEnumerable<StateEntry>>(passedEntries.AddRange)
+            store.Setup(s => s.SaveChanges(It.IsAny<IReadOnlyList<InternalEntityEntry>>()))
+                .Callback<IEnumerable<InternalEntityEntry>>(passedEntries.AddRange)
                 .Returns(3);
 
             var valueGenMock = new Mock<ValueGeneratorCache>();
@@ -1503,17 +1505,17 @@ namespace Microsoft.Data.Entity.Tests
             Assert.Equal(3, passedEntries.Count);
 
             store.Verify(
-                s => s.SaveChanges(It.IsAny<IReadOnlyList<StateEntry>>()),
+                s => s.SaveChanges(It.IsAny<IReadOnlyList<InternalEntityEntry>>()),
                 Times.Once);
         }
 
         [Fact]
         public async Task SaveChangesAsync_only_passes_dirty_entries_to_DataStore()
         {
-            var passedEntries = new List<StateEntry>();
+            var passedEntries = new List<InternalEntityEntry>();
             var store = new Mock<DataStore>();
-            store.Setup(s => s.SaveChangesAsync(It.IsAny<IReadOnlyList<StateEntry>>(), It.IsAny<CancellationToken>()))
-                .Callback<IEnumerable<StateEntry>, CancellationToken>((e, c) => passedEntries.AddRange(e))
+            store.Setup(s => s.SaveChangesAsync(It.IsAny<IReadOnlyList<InternalEntityEntry>>(), It.IsAny<CancellationToken>()))
+                .Callback<IEnumerable<InternalEntityEntry>, CancellationToken>((e, c) => passedEntries.AddRange(e))
                 .Returns(Task.FromResult(3));
 
             var valueGenMock = new Mock<ValueGeneratorCache>();
@@ -1552,7 +1554,7 @@ namespace Microsoft.Data.Entity.Tests
             Assert.Equal(3, passedEntries.Count);
 
             store.Verify(
-                s => s.SaveChangesAsync(It.IsAny<IReadOnlyList<StateEntry>>(), It.IsAny<CancellationToken>()),
+                s => s.SaveChangesAsync(It.IsAny<IReadOnlyList<InternalEntityEntry>>(), It.IsAny<CancellationToken>()),
                 Times.Once);
         }
 
@@ -1574,7 +1576,7 @@ namespace Microsoft.Data.Entity.Tests
             {
                 var contextServices = ((IAccessor<IServiceProvider>)context).Service;
 
-                Assert.IsType<StateEntryFactory>(contextServices.GetRequiredService<StateEntryFactory>());
+                Assert.IsType<InternalEntityEntryFactory>(contextServices.GetRequiredService<InternalEntityEntryFactory>());
             }
         }
 
@@ -2085,7 +2087,7 @@ namespace Microsoft.Data.Entity.Tests
 
         private class FakeDbContextOptionsExtension : DbContextOptionsExtension
         {
-            protected internal override void ApplyServices(EntityServicesBuilder builder)
+            protected internal override void ApplyServices(EntityFrameworkServicesBuilder builder)
             {
             }
         }
@@ -2403,7 +2405,7 @@ namespace Microsoft.Data.Entity.Tests
 
             public bool DetectChangesCalled { get; set; }
 
-            public override void DetectChanges(StateEntry entry)
+            public override void DetectChanges(InternalEntityEntry entry)
             {
                 DetectChangesCalled = true;
 

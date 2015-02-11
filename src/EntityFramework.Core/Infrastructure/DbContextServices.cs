@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.Infrastructure
         public enum ServiceProviderSource
         {
             Explicit,
-            Implicit,
+            Implicit
         }
 
         private IServiceProvider _scopedProvider;
