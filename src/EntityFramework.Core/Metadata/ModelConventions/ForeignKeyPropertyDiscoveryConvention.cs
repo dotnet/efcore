@@ -51,7 +51,8 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
                 }
             }
 
-            if (((IForeignKey)foreignKey).IsUnique)
+            if (((IForeignKey)foreignKey).IsUnique
+                && foreignKey.IsRequired != false)
             {
                 var dependentPkProperties = foreignKey.EntityType.TryGetPrimaryKey()?.Properties;
                 if (dependentPkProperties != null
