@@ -94,7 +94,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
                 null,
                 null,
                 ConfigurationSource.Convention,
-                false);
+                isUnique: false);
 
             Assert.Same(relationshipBuilder, new ForeignKeyPropertyDiscoveryConvention().Apply(relationshipBuilder));
 
@@ -122,7 +122,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
                 null,
                 null,
                 ConfigurationSource.Convention,
-                false);
+                isUnique: false);
 
             var newRelationshipBuilder = new ForeignKeyPropertyDiscoveryConvention().Apply(relationshipBuilder);
             Assert.NotSame(relationshipBuilder, newRelationshipBuilder);
@@ -155,7 +155,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
                 null,
                 null,
                 ConfigurationSource.Convention,
-                false);
+                isUnique: false);
 
             var newRelationshipBuilder = new ForeignKeyPropertyDiscoveryConvention().Apply(relationshipBuilder);
             Assert.NotSame(relationshipBuilder, newRelationshipBuilder);
@@ -184,7 +184,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
                 null,
                 null,
                 ConfigurationSource.Convention,
-                true);
+                isUnique: true);
 
             var newRelationshipBuilder = new ForeignKeyPropertyDiscoveryConvention().Apply(relationshipBuilder);
             Assert.NotSame(relationshipBuilder, newRelationshipBuilder);
@@ -214,7 +214,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
                 null,
                 null,
                 ConfigurationSource.Convention,
-                true);
+                isUnique: true);
 
             var newRelationshipBuilder = new ForeignKeyPropertyDiscoveryConvention().Apply(relationshipBuilder);
             Assert.NotSame(relationshipBuilder, newRelationshipBuilder);
@@ -242,7 +242,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
                 null,
                 null,
                 ConfigurationSource.Convention,
-                true);
+                isUnique: true);
 
             var newRelationshipBuilder = new ForeignKeyPropertyDiscoveryConvention().Apply(relationshipBuilder);
             Assert.NotSame(relationshipBuilder, newRelationshipBuilder);
@@ -270,7 +270,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
                 null,
                 null,
                 ConfigurationSource.Convention,
-                true);
+                isUnique: true);
 
             var newRelationshipBuilder = new ForeignKeyPropertyDiscoveryConvention().Apply(relationshipBuilder);
             Assert.NotSame(relationshipBuilder, newRelationshipBuilder);
@@ -357,6 +357,28 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             Assert.NotSame(fkProperty, fk.Properties.Single());
             Assert.Equal("SomeNav" + PrimaryKey.Name, fk.Properties.Single().Name);
             Assert.Same(PrimaryKey, fk.ReferencedProperties.Single());
+            Assert.True(fk.IsUnique);
+            Assert.False(fk.IsRequired);
+        }
+
+        [Fact]
+        public void Does_not_match_dependent_PK_for_self_ref()
+        {
+            var relationshipBuilder = DependentType.Relationship(
+                PrincipalType,
+                PrincipalType,
+                null,
+                null,
+                null,
+                null,
+                ConfigurationSource.Convention,
+                isUnique: true);
+
+            Assert.Same(relationshipBuilder, new ForeignKeyPropertyDiscoveryConvention().Apply(relationshipBuilder));
+
+            var fk = (IForeignKey)relationshipBuilder.Metadata;
+            Assert.Same(fk, PrincipalType.Metadata.ForeignKeys.Single());
+            Assert.Equal(PrincipalType.Metadata.SimpleName + PrimaryKey.Name, fk.Properties.Single().Name);
             Assert.True(fk.IsUnique);
             Assert.False(fk.IsRequired);
         }
@@ -620,6 +642,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
         {
             public int PeeKay { get; set; }
             public IEnumerable<DependentEntity> InverseNav { get; set; }
+            public PrincipalEntity SelfRef { get; set; }
         }
 
         private class DependentEntity

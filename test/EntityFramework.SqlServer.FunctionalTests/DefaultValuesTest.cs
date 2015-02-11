@@ -19,74 +19,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             .ServiceCollection()
             .BuildServiceProvider();
 
-        public class Level1
-        {
-            public int Id { get; set; }
-            public string Name { get; set; }
-
-            //public Level2 OneToOne_Required_PK { get; set; } // remove to repro
-            public Level2 OneToOne_Optional_PK { get; set; }
-
-            public Level2 OneToOne_Optional_FK { get; set; }
-
-            public ICollection<Level2> OneToMany_Optional { get; set; }
-            public ICollection<Level1> OneToMany_Optional_Self { get; set; }
-            public Level1 OneToMany_Optional_Self_Inverse { get; set; }
-        }
-
-        public class Level2
-        {
-            public int Id { get; set; }
-            public string Name { get; set; }
-
-            public int Level1_Required_Id { get; set; }
-            public int? Level1_Optional_Id { get; set; }
-
-            public Level1 OneToOne_Required_PK_Inverse { get; set; }
-            public Level1 OneToOne_Optional_PK_Inverse { get; set; }
-            public Level1 OneToOne_Required_FK_Inverse { get; set; }
-            public Level1 OneToOne_Optional_FK_Inverse { get; set; }
-
-            public Level1 OneToMany_Optional_Inverse { get; set; } //
-        }
-
-        public class MyContext : DbContext
-        {
-            public DbSet<Level1> LevelOne { get; set; }
-            public DbSet<Level2> LevelTwo { get; set; }
-
-            protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                base.OnModelCreating(modelBuilder);
-
-                modelBuilder.Entity<Level1>().Property(e => e.Id).GenerateValueOnAdd(false);
-                modelBuilder.Entity<Level2>().Property(e => e.Id).GenerateValueOnAdd(false);
-
-                //modelBuilder.Entity<Level1>().HasOne(e => e.OneToOne_Required_PK).WithOne(e => e.OneToOne_Required_PK_Inverse).ReferencedKey<Level1>(e => e.Id).Required(true);  // remove to repro
-                modelBuilder.Entity<Level1>().HasOne(e => e.OneToOne_Optional_PK).WithOne(e => e.OneToOne_Optional_PK_Inverse).ReferencedKey<Level1>(e => e.Id).Required(false);
-                modelBuilder.Entity<Level1>().HasOne(e => e.OneToOne_Optional_FK).WithOne(e => e.OneToOne_Optional_FK_Inverse).ForeignKey<Level2>(e => e.Level1_Optional_Id).Required(false);
-                modelBuilder.Entity<Level1>().HasMany(e => e.OneToMany_Optional).WithOne(e => e.OneToMany_Optional_Inverse).Required(false);
-                modelBuilder.Entity<Level1>().HasMany(e => e.OneToMany_Optional_Self).WithOne(e => e.OneToMany_Optional_Self_Inverse).Required(false);
-
-                modelBuilder.Entity<Level2>().Property(e => e.Id).GenerateValueOnAdd(false);
-                modelBuilder.Entity<Level2>().Property(e => e.Id).GenerateValueOnAdd(false);
-            }
-
-            protected override void OnConfiguring(DbContextOptions options)
-            {
-                options.UseSqlServer(SqlServerTestStore.CreateConnectionString("Repro1479"));
-            }
-        }
-
         [Fact]
         public void Can_use_SQL_Server_default_values()
         {
-            using (var context = new MyContext())
-            {
-                context.Database.EnsureDeleted();
-                context.Database.EnsureCreated();
-            }
-
             using (var context = new ChipsContext(_serviceProvider, "DefaultKettleChips"))
             {
                 context.Database.EnsureDeleted();
