@@ -10,7 +10,7 @@
         "Microsoft.Framework.Logging": "1.0.0-*",
         "Microsoft.Framework.OptionsModel": "1.0.0-*",
         "Remotion.Linq": "2.0.0-alpha-002",
-        "System.Collections.Immutable": "1.1.32-beta"
+        "System.Collections.Immutable": "1.1.33-beta"
     },
     "code": [ "**\\*.cs", "..\\Shared\\*.cs" ],
     "frameworks": {

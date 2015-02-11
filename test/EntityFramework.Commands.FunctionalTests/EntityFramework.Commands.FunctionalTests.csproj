@@ -38,6 +38,9 @@
     <PackageReference Include="System.Data.Common">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
+    <PackageReference Include="System.Collections.Immutable">
+      <TargetFramework>portable-net45+win8+wp8+wpa81</TargetFramework>
+    </PackageReference>
     <PackageReference Include="System.Reflection.Metadata">
       <TargetFramework>portable-net45+win8</TargetFramework>
     </PackageReference>
@@ -95,7 +98,6 @@
     <Compile Include="TestUtilities\CommandException.cs" />
     <Compile Include="TestUtilities\ExecutorWrapper.cs" />
     <Compile Include="TestUtilities\TempDirectory.cs" />
-    <None Include="App.config" />
     <None Include="packages.config" />
     <None Include="project.json" />
   </ItemGroup>

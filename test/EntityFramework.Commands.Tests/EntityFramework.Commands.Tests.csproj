@@ -95,7 +95,6 @@
     <Compile Include="ApiConsistencyTest.cs" />
     <Compile Include="ExecutorTest.cs" />
     <Compile Include="HandlerTest.cs" />
-    <None Include="App.config" />
     <None Include="packages.config" />
     <None Include="project.json" />
   </ItemGroup>

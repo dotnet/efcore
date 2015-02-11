@@ -76,6 +76,7 @@
 
                     writer.WriteLine("    <Reference Include='{0}'>", assembly);
                     writer.WriteLine("      <HintPath>{0}</HintPath>", hintPath);
+                    writer.WriteLine("      <Private>True</Private>");
                     writer.WriteLine("    </Reference>");
                 }
             }
