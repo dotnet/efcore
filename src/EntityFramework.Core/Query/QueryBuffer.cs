@@ -140,7 +140,7 @@ namespace Microsoft.Data.Entity.Query
             List<BufferedEntity> bufferedEntities;
             if (_byEntityInstance.TryGetValue(entity, out bufferedEntities))
             {
-                foreach (var bufferedEntity in bufferedEntities)
+                foreach (var bufferedEntity in bufferedEntities.Where(e => e != null))
                 {
                     bufferedEntity.StartTracking(_stateManager);
                 }
@@ -307,7 +307,7 @@ namespace Microsoft.Data.Entity.Query
 
             if (!_byEntityInstance.TryGetValue(entity, out bufferedEntities))
             {
-                _byEntityInstance.Add(entity, bufferedEntities = new List<BufferedEntity>());
+                _byEntityInstance.Add(entity, bufferedEntities = new List<BufferedEntity>() { null });
 
                 var stateEntry = _stateManager.TryGetEntry(entity);
 
@@ -320,18 +320,34 @@ namespace Microsoft.Data.Entity.Query
             }
             else
             {
-                primaryKey
-                    = navigation.PointsToPrincipal
-                        ? foreignKeyFactory
-                            .Create(
-                                targetEntityType,
-                                navigation.ForeignKey.Properties,
-                                bufferedEntities[0].ValueReader)
-                        : primaryKeyFactory
-                            .Create(
-                                navigation.EntityType,
-                                navigation.ForeignKey.ReferencedProperties,
-                                bufferedEntities[0].ValueReader);
+                // if entity is already in state manager it can't be added to the buffer. 'null' value was added to signify that
+                // this means relevant key should be acquired  from state manager rather than buffered reader
+                if (bufferedEntities[0] == null)
+                {
+                    var stateEntry = _stateManager.TryGetEntry(entity);
+
+                    Debug.Assert(stateEntry != null);
+
+                    primaryKey
+                        = navigation.PointsToPrincipal
+                            ? stateEntry.GetDependentKeySnapshot(navigation.ForeignKey)
+                            : stateEntry.GetPrimaryKeyValue();
+                }
+                else
+                {
+                    primaryKey
+                        = navigation.PointsToPrincipal
+                            ? foreignKeyFactory
+                                .Create(
+                                    targetEntityType,
+                                    navigation.ForeignKey.Properties,
+                                    bufferedEntities[0].ValueReader)
+                            : primaryKeyFactory
+                                .Create(
+                                    navigation.EntityType,
+                                    navigation.ForeignKey.ReferencedProperties,
+                                    bufferedEntities[0].ValueReader);
+                }
             }
 
             if (navigation.PointsToPrincipal)

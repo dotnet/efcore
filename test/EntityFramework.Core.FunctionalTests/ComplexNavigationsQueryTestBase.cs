@@ -108,6 +108,44 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 Assert.True(level2Reverse.OneToMany_Optional.Select(e => e.Name).Contains("L3 10"));
             }
         }
+
+        [Fact]
+        public virtual void Multi_level_include_reads_key_values_from_data_reader_rather_than_incorrect_reader_deep_into_the_stack()
+        {
+            using (var context = CreateContext())
+            {
+                // #1433
+                context.LevelOne.Include(e => e.OneToMany_Optional).ToList();
+                context.LevelOne.Include(e => e.OneToMany_Optional_Self).ToList();
+
+                //# 1478
+                context.LevelOne
+                    .Include(e => e.OneToMany_Optional)
+                    .ThenInclude(e => e.OneToMany_Optional_Inverse.OneToMany_Optional_Self_Inverse.OneToOne_Optional_FK).ToList();
+
+                context.LevelOne
+                    .Include(e => e.OneToMany_Optional)
+                    .ThenInclude(e => e.OneToMany_Optional_Inverse.OneToMany_Optional_Self_Inverse.OneToOne_Optional_PK).ToList();
+
+                // #1487
+                context.LevelOne
+                    .Include(e => e.OneToMany_Optional)
+                    .ThenInclude(e => e.OneToMany_Optional_Inverse.OneToOne_Optional_PK.OneToOne_Optional_FK).ToList();
+
+                context.LevelOne
+                    .Include(e => e.OneToMany_Optional)
+                    .ThenInclude(e => e.OneToMany_Optional_Inverse.OneToOne_Optional_PK.OneToOne_Optional_FK_Inverse).ToList();
+
+                // #1488
+                context.LevelOne
+                    .Include(e => e.OneToMany_Optional)
+                    .ThenInclude(e => e.OneToMany_Optional_Inverse.OneToOne_Optional_PK.OneToOne_Required_FK).ToList();
+
+                context.LevelOne
+                    .Include(e => e.OneToMany_Optional)
+                    .ThenInclude(e => e.OneToMany_Optional_Inverse.OneToOne_Optional_PK.OneToOne_Required_FK_Inverse).ToList();
+            }
+        }
     }
 }
 
