@@ -10,7 +10,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
 {
-    public class ForeignKey : Key, IForeignKey
+    public class ForeignKey : MetadataBase, IForeignKey
     {
         private readonly Key _referencedKey;
         private bool _isRequiredSet;
@@ -25,9 +25,13 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         public ForeignKey([NotNull] IReadOnlyList<Property> dependentProperties, [NotNull] Key referencedKey)
-            : base(dependentProperties)
         {
+            Check.NotEmpty(dependentProperties, "dependentProperties");
+            Check.HasNoNulls(dependentProperties, "dependentProperties");
+            MetadataHelper.CheckSameEntityType(dependentProperties, "dependentProperties");
             Check.NotNull(referencedKey, "referencedKey");
+
+            Properties = dependentProperties;
 
             var principalProperties = referencedKey.Properties;
 
@@ -50,6 +54,14 @@ namespace Microsoft.Data.Entity.Metadata
             }
 
             _referencedKey = referencedKey;
+        }
+
+        [NotNull]
+        public virtual IReadOnlyList<Property> Properties { get; }
+
+        public virtual EntityType EntityType
+        {
+            get { return Properties[0].EntityType; }
         }
 
         [NotNull]
@@ -114,6 +126,16 @@ namespace Microsoft.Data.Entity.Metadata
         protected virtual bool DefaultIsRequired
         {
             get { return !((IForeignKey)this).Properties.Any(p => p.IsNullable); }
+        }
+
+        IReadOnlyList<IProperty> IForeignKey.Properties
+        {
+            get { return Properties; }
+        }
+
+        IEntityType IForeignKey.EntityType
+        {
+            get { return EntityType; }
         }
 
         IReadOnlyList<IProperty> IForeignKey.ReferencedProperties

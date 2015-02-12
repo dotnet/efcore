@@ -5,8 +5,10 @@ using System.Collections.Generic;
 
 namespace Microsoft.Data.Entity.Metadata
 {
-    public interface IForeignKey : IKey
+    public interface IForeignKey : IMetadata
     {
+        IEntityType EntityType { get; }
+        IReadOnlyList<IProperty> Properties { get; }
         IReadOnlyList<IProperty> ReferencedProperties { get; }
         IEntityType ReferencedEntityType { get; }
         IKey ReferencedKey { get; }
