@@ -208,7 +208,7 @@ namespace Microsoft.Data.Entity.Metadata
             _flags = value.HasValue && value.Value ? (_flags | flag) : (_flags & ~flag);
         }
 
-        internal static string Format(IEnumerable<Property> properties) => string.Join(", ", properties.Select(p => "'" + p.Name + "'"));
+        internal static string Format(IEnumerable<IProperty> properties) => "{" + string.Join(", ", properties.Select(p => "'" + p.Name + "'")) + "}";
 
         bool IProperty.IsNullable => IsNullable ?? DefaultIsNullable;
 

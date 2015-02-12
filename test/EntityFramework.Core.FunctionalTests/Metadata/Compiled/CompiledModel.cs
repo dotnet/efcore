@@ -26,6 +26,8 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
 
         public virtual IEnumerable<IForeignKey> GetReferencingForeignKeys(IEntityType entityType) => EntityTypes.SelectMany(et => et.ForeignKeys).Where(fk => fk.ReferencedEntityType == entityType);
 
+        public virtual IEnumerable<IForeignKey> GetReferencingForeignKeys(IKey key) => EntityTypes.SelectMany(et => et.ForeignKeys).Where(fk => fk.ReferencedKey == key);
+
         public virtual IEnumerable<IForeignKey> GetReferencingForeignKeys(IProperty property) => EntityTypes.SelectMany(e => e.ForeignKeys.Where(f => f.ReferencedProperties.Contains(property))).ToArray();
     }
 }

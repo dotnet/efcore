@@ -62,7 +62,7 @@ namespace Microsoft.Data.Entity.Tests
 
         private ModelSourceBase CreateDefaultModelSource(DbSetFinder setFinder)
         {
-            return new ModelSourceBase(setFinder);
+            return new ModelSourceBase(setFinder, Mock.Of<ModelValidator>());
         }
     }
 }

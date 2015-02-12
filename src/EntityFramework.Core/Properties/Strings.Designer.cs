@@ -845,6 +845,22 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
+        /// The key {key} on entity type '{entityType}' contains properties in shadow state - {shadowProperties} and it is referenced by the foreign key {foreignKey} from entity type '{referencingEntityType}'."
+        /// </summary>
+        public static string ReferencedShadowKey([CanBeNull] object key, [CanBeNull] object entityType, [CanBeNull] object shadowProperties, [CanBeNull] object foreignKey, [CanBeNull] object referencingEntityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ReferencedShadowKey", "key", "entityType", "shadowProperties", "foreignKey", "referencingEntityType"), key, entityType, shadowProperties, foreignKey, referencingEntityType);
+        }
+
+        /// <summary>
+        /// The key {key} on entity type '{entityType}' contains properties in shadow state - {shadowProperties}.
+        /// </summary>
+        public static string ShadowKey([CanBeNull] object key, [CanBeNull] object entityType, [CanBeNull] object shadowProperties)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ShadowKey", "key", "entityType", "shadowProperties"), key, entityType, shadowProperties);
+        }
+
+        /// <summary>
         /// An exception was thrown while attempting to evaluate the LINQ query parameter expression '{expression}'.
         /// </summary>
         public static string ExpressionParameterizationException([CanBeNull] object expression)

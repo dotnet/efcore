@@ -114,6 +114,10 @@
     <Compile Include="Extensions\ForeignKeyExtensionsTest.cs" />
     <Compile Include="Extensions\ServiceProviderExtensionsTest.cs" />
     <Compile Include="Extensions\TaskExtensionsTest.cs" />
+    <Compile Include="Infrastructure\ModelValidatorBaseTest.cs" />
+    <Compile Include="Infrastructure\LoggingModelValidatorTest.cs" />
+    <Compile Include="Infrastructure\NonThrowingModelValidatorTest.cs" />
+    <Compile Include="Infrastructure\ThrowingModelValidatorTest.cs" />
     <Compile Include="Metadata\BasicModelBuilderTest.cs" />
     <Compile Include="Metadata\CollectionTyoeFactoryTest.cs" />
     <Compile Include="Metadata\EntityTypeExtensionsTest.cs" />
@@ -161,6 +165,8 @@
     <Compile Include="Storage\DataStoreSelectorTest.cs" />
     <Compile Include="TestExtensions.cs" />
     <Compile Include="TestHelpers.cs" />
+    <Compile Include="TestUtilities\ListLogger.cs" />
+    <Compile Include="TestUtilities\ListLoggerFactory.cs" />
     <Compile Include="Utilities\BidirectionalAdjacencyListGraphTest.cs" />
     <Compile Include="Utilities\CheckTest.cs" />
     <Compile Include="Utilities\EnumerableExtensionsTest.cs" />

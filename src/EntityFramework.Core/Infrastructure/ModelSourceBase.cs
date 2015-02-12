@@ -11,15 +11,18 @@ namespace Microsoft.Data.Entity.Infrastructure
     public class ModelSourceBase : ModelSource
     {
         private readonly ThreadSafeDictionaryCache<Type, IModel> _models = new ThreadSafeDictionaryCache<Type, IModel>();
-
-        private readonly DbSetFinder _setFinder;
-
-        public ModelSourceBase([NotNull] DbSetFinder setFinder)
+        
+        public ModelSourceBase([NotNull] DbSetFinder setFinder, [NotNull] ModelValidator modelValidator)
         {
             Check.NotNull(setFinder, "setFinder");
+            Check.NotNull(modelValidator, "modelValidator");
 
-            _setFinder = setFinder;
+            SetFinder = setFinder;
+            Validator = modelValidator;
         }
+
+        protected DbSetFinder SetFinder { get; }
+        protected ModelValidator Validator { get; }
 
         public override IModel GetModel(DbContext context, ModelBuilderFactory modelBuilderFactory)
         {
@@ -38,12 +41,14 @@ namespace Microsoft.Data.Entity.Infrastructure
 
             ModelSourceHelpers.OnModelCreating(context, modelBuilder);
 
+            Validator.Validate(model);
+
             return model;
         }
 
         protected virtual void FindSets(ModelBuilder modelBuilder, DbContext context)
         {
-            foreach (var setInfo in _setFinder.FindSets(context))
+            foreach (var setInfo in SetFinder.FindSets(context))
             {
                 modelBuilder.Entity(setInfo.EntityType);
             }

@@ -120,7 +120,10 @@
     <Compile Include="ChangeTracking\Internal\ValueGenerationManager.cs" />
     <Compile Include="ChangeTracking\KeyValueEntityTracker.cs" />
     <Compile Include="DbContext.cs" />
+    <Compile Include="Infrastructure\LoggingModelValidator.cs" />
+    <Compile Include="Infrastructure\ModelValidator.cs" />
     <Compile Include="Infrastructure\EntityFrameworkServicesBuilder.cs" />
+    <Compile Include="Infrastructure\ModelValidatorBase.cs" />
     <Compile Include="Infrastructure\IAccessor.cs" />
     <Compile Include="ModelBuilder.cs" />
     <Compile Include="Query\IIncludableQueryable.cs" />

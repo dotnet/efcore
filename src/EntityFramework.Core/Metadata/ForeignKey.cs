@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
@@ -161,6 +162,15 @@ namespace Microsoft.Data.Entity.Metadata
         bool IForeignKey.IsRequired
         {
             get { return IsRequired ?? DefaultIsRequired; }
+        }
+
+        public override string ToString()
+        {
+            return string.Format(CultureInfo.CurrentCulture, "'{0}' {1} -> '{2}' {3}",
+                EntityType.SimpleName,
+                Property.Format(Properties),
+                ReferencedEntityType.SimpleName,
+                Property.Format(ReferencedProperties));
         }
     }
 }

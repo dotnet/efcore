@@ -44,7 +44,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             principalType.GetOrSetPrimaryKey(principalType.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
 
             Assert.Equal(
-                Strings.ForeignKeyCountMismatch("'P1', 'P2'", "D", "'Id'", "P"),
+                Strings.ForeignKeyCountMismatch("{'P1', 'P2'}", "D", "{'Id'}", "P"),
                 Assert.Throws<ArgumentException>(
                     () => new ForeignKey(new[] { dependentProperty1, dependentProperty2 }, principalType.GetPrimaryKey())).Message);
         }
@@ -68,7 +68,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             new ForeignKey(new[] { dependentProperty1, dependentProperty3 }, principalType.GetPrimaryKey());
 
             Assert.Equal(
-                Strings.ForeignKeyTypeMismatch("'P1', 'P2'", "D", "P"),
+                Strings.ForeignKeyTypeMismatch("{'P1', 'P2'}", "D", "P"),
                 Assert.Throws<ArgumentException>(
                     () => new ForeignKey(new[] { dependentProperty1, dependentProperty2 }, principalType.GetPrimaryKey())).Message);
         }

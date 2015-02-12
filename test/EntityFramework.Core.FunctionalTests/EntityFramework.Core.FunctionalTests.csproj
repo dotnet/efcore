@@ -115,6 +115,7 @@
     <Compile Include="F1FixtureBase.cs" />
     <Compile Include="QueryTestBase.cs" />
     <Compile Include="OptimisticConcurrencyTestBase.cs" />
+    <Compile Include="TestModelSource.cs" />
     <Compile Include="TestModels\ComplexNavigationsModel\ComplexNavigationsContext.cs" />
     <Compile Include="TestModels\ComplexNavigationsModel\ComplexNavigationsModelInitializer.cs" />
     <Compile Include="TestModels\ComplexNavigationsModel\Level1.cs" />

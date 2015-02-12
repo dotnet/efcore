@@ -27,6 +27,9 @@ namespace Microsoft.Data.Entity.Metadata
         IEnumerable<IForeignKey> GetReferencingForeignKeys([NotNull] IEntityType entityType);
 
         [NotNull]
+        IEnumerable<IForeignKey> GetReferencingForeignKeys([NotNull] IKey key);
+
+        [NotNull]
         IEnumerable<IForeignKey> GetReferencingForeignKeys([NotNull] IProperty property);
     }
 }

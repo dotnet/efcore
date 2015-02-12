@@ -140,7 +140,7 @@ namespace Microsoft.Data.Entity.Metadata
             return EntityTypes.SelectMany(et => et.ForeignKeys).Where(fk => fk.ReferencedEntityType == entityType).ToList();
         }
 
-        public virtual IReadOnlyList<ForeignKey> GetReferencingForeignKeys([NotNull] Key key)
+        public virtual IReadOnlyList<ForeignKey> GetReferencingForeignKeys([NotNull] IKey key)
         {
             Check.NotNull(key, "key");
 
@@ -188,6 +188,11 @@ namespace Microsoft.Data.Entity.Metadata
         IEnumerable<IForeignKey> IModel.GetReferencingForeignKeys(IEntityType entityType)
         {
             return GetReferencingForeignKeys(entityType);
+        }
+
+        IEnumerable<IForeignKey> IModel.GetReferencingForeignKeys(IKey key)
+        {
+            return GetReferencingForeignKeys(key);
         }
 
         IEnumerable<IForeignKey> IModel.GetReferencingForeignKeys(IProperty property)
