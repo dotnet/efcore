@@ -181,7 +181,7 @@ namespace Microsoft.Data.Entity.Commands
                             "[connectionString]",
                             "The connection string of the database");
 
-                    revEng.OnExecute(() => ReverseEngineer(connectionString.Value);
+                    revEng.OnExecute(() => ReverseEngineer(connectionString.Value));
                 },
                 addHelpCommand: false);
             _app.Command(
