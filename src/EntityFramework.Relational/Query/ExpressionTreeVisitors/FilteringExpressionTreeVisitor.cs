@@ -125,8 +125,8 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             var nullExpression
                 = TransformNullComparison(leftExpression, rightExpression, binaryExpression.NodeType);
 
-            return nullExpression 
-                ?? Expression.MakeBinary(binaryExpression.NodeType, leftExpression, rightExpression);
+            return nullExpression
+                   ?? Expression.MakeBinary(binaryExpression.NodeType, leftExpression, rightExpression);
         }
 
         private static Expression TransformNullComparison(

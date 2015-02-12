@@ -35,11 +35,11 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Operations
             }
         }
 
-        public virtual string Name { get;[param: NotNull] set; }
-        public virtual string StoreType { get;[param: NotNull] set; }
+        public virtual string Name { get; [param: NotNull] set; }
+        public virtual string StoreType { get; [param: NotNull] set; }
         public virtual bool Nullable { get; }
-        public virtual object DefaultValue { get;[param: CanBeNull] set; }
-        public virtual string DefaultValueSql { get;[param: CanBeNull] set; }
+        public virtual object DefaultValue { get; [param: CanBeNull] set; }
+        public virtual string DefaultValueSql { get; [param: CanBeNull] set; }
         public virtual IDictionary<string, string> Annotations => _annotations;
 
         public virtual string this[[NotNull] string annotationName]

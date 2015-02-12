@@ -78,8 +78,6 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
 
         private class SqlLogger : ILogger
         {
-            private readonly List<string> _sqlStatements = new List<string>();
-
             private readonly IndentedStringBuilder _log = new IndentedStringBuilder();
 
             private CancellationTokenSource _cancellationTokenSource;
@@ -101,7 +99,7 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
                         _cancellationTokenSource = null;
                     }
 
-                    _sqlStatements.Add(format);
+                    SqlStatements.Add(format);
                 }
                 else
                 {
@@ -119,14 +117,11 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
                 set { _cancellationTokenSource = value; }
             }
 
-            public List<string> SqlStatements
-            {
-                get { return _sqlStatements; }
-            }
+            public List<string> SqlStatements { get; } = new List<string>();
 
             public string Sql
             {
-                get { return string.Join("\r\n\r\n", _sqlStatements); }
+                get { return string.Join("\r\n\r\n", SqlStatements); }
             }
 
             public string Log

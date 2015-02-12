@@ -176,8 +176,8 @@ namespace Microsoft.Data.Entity.SqlServer
             if (!string.IsNullOrWhiteSpace(schema))
             {
                 builder
-                .Append(Literal(schema))
-                .Append(".");
+                    .Append(Literal(schema))
+                    .Append(".");
             }
 
             builder
@@ -194,11 +194,11 @@ namespace Microsoft.Data.Entity.SqlServer
             [CanBeNull] string schema,
             [NotNull] string newSchema,
             [NotNull] SqlBatchBuilder builder) =>
-            builder
-                .Append("ALTER SCHEMA ")
-                .Append(DelimitIdentifier(newSchema))
-                .Append(" TRANSFER ")
-                .Append(DelimitIdentifier(name, schema))
-                .Append(";");
+                builder
+                    .Append("ALTER SCHEMA ")
+                    .Append(DelimitIdentifier(newSchema))
+                    .Append(" TRANSFER ")
+                    .Append(DelimitIdentifier(name, schema))
+                    .Append(";");
     }
 }

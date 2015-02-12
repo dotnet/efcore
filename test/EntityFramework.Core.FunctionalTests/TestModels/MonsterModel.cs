@@ -370,6 +370,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
     {
         Cell = 1,
         Land = 2,
-        Satellite = 3,
+        Satellite = 3
     }
 }

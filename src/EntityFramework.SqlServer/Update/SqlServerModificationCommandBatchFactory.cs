@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity.SqlServer.Update
 
             var optionsExtension = options.Extensions.OfType<SqlServerOptionsExtension>().FirstOrDefault();
 
-            int? maxBatchSize = optionsExtension?.MaxBatchSize;
+            var maxBatchSize = optionsExtension?.MaxBatchSize;
 
             return new SqlServerModificationCommandBatch((SqlServerSqlGenerator)SqlGenerator, maxBatchSize);
         }

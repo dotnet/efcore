@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using System.Data.Common;
 using Microsoft.Data.Entity.FunctionalTests;
-using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.Relational.FunctionalTests
 {
@@ -20,10 +19,10 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
         protected void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<TransactionCustomer>(ps =>
-            {
-                ps.Property(c => c.Id).GenerateValueOnAdd(generateValue: false);
-                ps.ForRelational().Table("Customers");
-            });
+                {
+                    ps.Property(c => c.Id).GenerateValueOnAdd(generateValue: false);
+                    ps.ForRelational().Table("Customers");
+                });
         }
 
         protected void Seed(DbContext context)
@@ -39,18 +38,18 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
         }
 
         public readonly IReadOnlyList<TransactionCustomer> Customers = new List<TransactionCustomer>
-        {
-            new TransactionCustomer
-                {
-                    Id = 1,
-                    Name = "Bob"
-                },
-            new TransactionCustomer
-                {
-                    Id = 2,
-                    Name = "Dave"
-                }
-        };
+            {
+                new TransactionCustomer
+                    {
+                        Id = 1,
+                        Name = "Bob"
+                    },
+                new TransactionCustomer
+                    {
+                        Id = 2,
+                        Name = "Dave"
+                    }
+            };
     }
 
     public class TransactionCustomer

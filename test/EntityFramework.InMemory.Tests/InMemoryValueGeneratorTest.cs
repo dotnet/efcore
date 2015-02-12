@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
     public class InMemoryValueGeneratorTest
     {
         private static readonly Model _model = InMemoryTestHelpers.Instance.BuildModelFor<AnEntity>();
-        
+
         [Fact]
         public async Task Creates_values()
         {

@@ -9,7 +9,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
@@ -88,9 +87,9 @@ namespace Microsoft.Data.Entity.Relational.Query
         }
 
         protected override void IncludeNavigations(
-            IQuerySource querySource, 
-            Type resultType, 
-            LambdaExpression accessorLambda, 
+            IQuerySource querySource,
+            Type resultType,
+            LambdaExpression accessorLambda,
             IReadOnlyList<INavigation> navigationPath)
         {
             Check.NotNull(querySource, "querySource");
@@ -99,8 +98,8 @@ namespace Microsoft.Data.Entity.Relational.Query
             Check.NotNull(navigationPath, "navigationPath");
 
             Expression
-              = new IncludeExpressionTreeVisitor(querySource, navigationPath, QueryCompilationContext)
-                  .VisitExpression(Expression);
+                = new IncludeExpressionTreeVisitor(querySource, navigationPath, QueryCompilationContext)
+                    .VisitExpression(Expression);
         }
 
         public override void VisitAdditionalFromClause(AdditionalFromClause fromClause, QueryModel queryModel, int index)
@@ -485,7 +484,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                 valueReader = new OffsetValueReaderDecorator(valueReader, readerOffset);
             }
 
-            var entityKey 
+            var entityKey
                 = entityKeyFactory.Create(entityType, keyProperties, valueReader);
 
             return new QuerySourceScope<TEntity>(

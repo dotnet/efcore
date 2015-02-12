@@ -160,16 +160,16 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 var testNumber = i;
                 generatedValues[testNumber] = new List<long>();
                 tests[testNumber] = () =>
-                {
-                    for (var j = 0; j < valueCount; j++)
                     {
-                        var storeServices = CreateStoreServices(serviceProvider);
+                        for (var j = 0; j < valueCount; j++)
+                        {
+                            var storeServices = CreateStoreServices(serviceProvider);
 
-                        var generatedValue = generator.Next(property, storeServices);
+                            var generatedValue = generator.Next(property, storeServices);
 
-                        generatedValues[testNumber].Add((long)generatedValue);
-                    }
-                };
+                            generatedValues[testNumber].Add((long)generatedValue);
+                        }
+                    };
             }
 
             Parallel.Invoke(tests);
@@ -208,16 +208,16 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 var testNumber = i;
                 generatedValues[testNumber] = new List<long>();
                 tests[testNumber] = async () =>
-                {
-                    for (var j = 0; j < valueCount; j++)
                     {
-                        var storeServices = CreateStoreServices(serviceProvider);
+                        for (var j = 0; j < valueCount; j++)
+                        {
+                            var storeServices = CreateStoreServices(serviceProvider);
 
-                        var generatedValue = await generator.NextAsync(property, storeServices);
+                            var generatedValue = await generator.NextAsync(property, storeServices);
 
-                        generatedValues[testNumber].Add((long)generatedValue);
-                    }
-                };
+                            generatedValues[testNumber].Add((long)generatedValue);
+                        }
+                    };
             }
 
             var tasks = tests.Select(Task.Run).ToArray();
@@ -240,7 +240,6 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             Assert.True(checks.All(c => c));
         }
-
 
         [Fact]
         public void Does_not_generate_temp_values()

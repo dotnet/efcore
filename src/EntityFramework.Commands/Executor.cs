@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.Commands
             Check.NotNull(args, nameof(args));
 
             var unwrappedLogHandler = logHandler as ILogHandler
-                ?? new ForwardingProxy<ILogHandler>(logHandler).GetTransparentProxy();
+                                      ?? new ForwardingProxy<ILogHandler>(logHandler).GetTransparentProxy();
             var loggerProvider = new LoggerProvider(name => new CommandLoggerAdapter(name, unwrappedLogHandler));
 
             var targetPath = (string)args["targetPath"];
@@ -128,7 +128,7 @@ namespace Microsoft.Data.Entity.Commands
             [CanBeNull] string toMigrationName,
             bool idempotent,
             [CanBeNull] string contextTypeName) =>
-            _migrationTool.ScriptMigration(fromMigrationName, toMigrationName, idempotent, contextTypeName);
+                _migrationTool.ScriptMigration(fromMigrationName, toMigrationName, idempotent, contextTypeName);
 
         public class RemoveMigration : OperationBase
         {
@@ -219,7 +219,7 @@ namespace Microsoft.Data.Entity.Commands
         public virtual IEnumerable<IDictionary> GetMigrationsImpl([CanBeNull] string contextTypeName) =>
             // TODO: Determine safe names
             _migrationTool.GetMigrations(contextTypeName).Select(
-                m => new Hashtable {["MigrationId"] = m.Id,["MigrationName"] = m.Id,["SafeName"] = m.Id });
+                m => new Hashtable { ["MigrationId"] = m.Id, ["MigrationName"] = m.Id, ["SafeName"] = m.Id });
 
         public abstract class OperationBase : MarshalByRefObject
         {
@@ -230,7 +230,7 @@ namespace Microsoft.Data.Entity.Commands
                 Check.NotNull(resultHandler, nameof(resultHandler));
 
                 _resultHandler = resultHandler as IResultHandler
-                    ?? new ForwardingProxy<IResultHandler>(resultHandler).GetTransparentProxy();
+                                 ?? new ForwardingProxy<IResultHandler>(resultHandler).GetTransparentProxy();
             }
 
             public virtual IResultHandler ResultHandler => _resultHandler;

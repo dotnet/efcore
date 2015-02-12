@@ -37,7 +37,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                             TestUnsignedInt32 = 1234565789U,
                             TestUnsignedInt64 = 1234567890123456789UL,
                             TestCharacter = 'a',
-                            TestSignedByte = -128,
+                            TestSignedByte = -128
                         });
 
                 var changes = context.SaveChanges();
@@ -59,11 +59,26 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 Assert.Equal(-1.234F, dt.TestSingle);
                 Assert.Equal(true, dt.TestBoolean);
                 Assert.Equal(255, dt.TestByte);
-                if (entityType.TryGetProperty("TestUnsignedInt16") != null) Assert.Equal(1234, dt.TestUnsignedInt16);
-                if (entityType.TryGetProperty("TestUnsignedInt32") != null) Assert.Equal(1234565789U, dt.TestUnsignedInt32);
-                if (entityType.TryGetProperty("TestUnsignedInt64") != null) Assert.Equal(1234567890123456789UL, dt.TestUnsignedInt64);
-                if (entityType.TryGetProperty("TestCharacter") != null) Assert.Equal('a', dt.TestCharacter);
-                if (entityType.TryGetProperty("TestSignedByte") != null) Assert.Equal(-128, dt.TestSignedByte);
+                if (entityType.TryGetProperty("TestUnsignedInt16") != null)
+                {
+                    Assert.Equal(1234, dt.TestUnsignedInt16);
+                }
+                if (entityType.TryGetProperty("TestUnsignedInt32") != null)
+                {
+                    Assert.Equal(1234565789U, dt.TestUnsignedInt32);
+                }
+                if (entityType.TryGetProperty("TestUnsignedInt64") != null)
+                {
+                    Assert.Equal(1234567890123456789UL, dt.TestUnsignedInt64);
+                }
+                if (entityType.TryGetProperty("TestCharacter") != null)
+                {
+                    Assert.Equal('a', dt.TestCharacter);
+                }
+                if (entityType.TryGetProperty("TestSignedByte") != null)
+                {
+                    Assert.Equal(-128, dt.TestSignedByte);
+                }
             }
         }
 
@@ -92,7 +107,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                             TestNullableUnsignedInt32 = null,
                             TestNullableUnsignedInt64 = null,
                             TestNullableCharacter = null,
-                            TestNullableSignedByte = null,
+                            TestNullableSignedByte = null
                         });
 
                 var changes = context.SaveChanges();
@@ -172,11 +187,26 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 Assert.Equal(-1.234F, dt.TestNullableSingle);
                 Assert.Equal(false, dt.TestNullableBoolean);
                 Assert.Equal((byte)255, dt.TestNullableByte);
-                if (entityType.TryGetProperty("TestNullableUnsignedInt16") != null) Assert.Equal((ushort)1234, dt.TestNullableUnsignedInt16);
-                if (entityType.TryGetProperty("TestNullableUnsignedInt32") != null) Assert.Equal(1234565789U, dt.TestNullableUnsignedInt32);
-                if (entityType.TryGetProperty("TestNullableUnsignedInt64") != null) Assert.Equal(1234567890123456789UL, dt.TestNullableUnsignedInt64);
-                if (entityType.TryGetProperty("TestNullableCharacter") != null) Assert.Equal('a', dt.TestNullableCharacter);
-                if (entityType.TryGetProperty("TestNullableSignedByte") != null) Assert.Equal((sbyte)-128, dt.TestNullableSignedByte);
+                if (entityType.TryGetProperty("TestNullableUnsignedInt16") != null)
+                {
+                    Assert.Equal((ushort)1234, dt.TestNullableUnsignedInt16);
+                }
+                if (entityType.TryGetProperty("TestNullableUnsignedInt32") != null)
+                {
+                    Assert.Equal(1234565789U, dt.TestNullableUnsignedInt32);
+                }
+                if (entityType.TryGetProperty("TestNullableUnsignedInt64") != null)
+                {
+                    Assert.Equal(1234567890123456789UL, dt.TestNullableUnsignedInt64);
+                }
+                if (entityType.TryGetProperty("TestNullableCharacter") != null)
+                {
+                    Assert.Equal('a', dt.TestNullableCharacter);
+                }
+                if (entityType.TryGetProperty("TestNullableSignedByte") != null)
+                {
+                    Assert.Equal((sbyte)-128, dt.TestNullableSignedByte);
+                }
             }
         }
 
@@ -187,9 +217,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
             TestStore = Fixture.CreateTestStore();
         }
 
-        protected TFixture Fixture { get; private set; }
+        protected TFixture Fixture { get; }
 
-        protected TTestStore TestStore { get; private set; }
+        protected TTestStore TestStore { get; }
 
         public void Dispose()
         {

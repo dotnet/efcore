@@ -42,7 +42,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.ConcurrencyModel
                     new EngineSupplier
                         {
                             Name = "Cosworth"
-                        },
+                        }
                 })
             {
                 context.Add(engineSupplier);
@@ -331,7 +331,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.ConcurrencyModel
                             Victories = 0,
                             Poles = 0,
                             FastestLaps = 0
-                        },
+                        }
                 })
             {
                 context.Teams.Add(team);
@@ -842,7 +842,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.ConcurrencyModel
                             Podiums = 0,
                             Poles = 0,
                             FastestLaps = 0
-                        },
+                        }
                 })
             {
                 context.Drivers.Add(driver);

@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
 using Xunit;
@@ -103,7 +102,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             None = 0x0,
             AValue = 0x1,
-            BValue = 0x2,
+            BValue = 0x2
         }
 
         public class EnumItem

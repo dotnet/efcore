@@ -4,7 +4,6 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
 using Xunit;
@@ -354,17 +353,17 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
                 modelBuilder.Entity<Unicon>(b =>
-                {
-                    b.Key(e => e.Identifier);
-                    if (_useSequence)
                     {
-                        b.Property(e => e.Identifier).ForSqlServer().UseSequence();
-                    }
-                    else
-                    {
-                        b.Property(e => e.Identifier).ForSqlServer().UseIdentity();
-                    }
-                });
+                        b.Key(e => e.Identifier);
+                        if (_useSequence)
+                        {
+                            b.Property(e => e.Identifier).ForSqlServer().UseSequence();
+                        }
+                        else
+                        {
+                            b.Property(e => e.Identifier).ForSqlServer().UseIdentity();
+                        }
+                    });
             }
         }
 

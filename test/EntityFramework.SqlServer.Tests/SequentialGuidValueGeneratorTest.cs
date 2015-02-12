@@ -54,7 +54,6 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             Assert.False(new SequentialGuidValueGenerator().GeneratesTemporaryValues);
         }
 
-
         private class WithGuid
         {
             public Guid Id { get; set; }

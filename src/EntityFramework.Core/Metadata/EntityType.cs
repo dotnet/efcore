@@ -740,7 +740,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         private void UpdateIndexes(Property addedOrRemovedProperty)
         {
-            int index = 0;
+            var index = 0;
             foreach (var property in _properties.Values)
             {
                 property.Index = index++;

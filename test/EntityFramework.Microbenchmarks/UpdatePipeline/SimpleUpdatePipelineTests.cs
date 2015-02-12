@@ -1,44 +1,44 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using System.Linq;
 using EntityFramework.Microbenchmarks.Core;
 using EntityFramework.Microbenchmarks.Core.Models.Orders;
 using EntityFramework.Microbenchmarks.Models.Orders;
 using Microsoft.Data.Entity;
-using System;
-using System.Linq;
 using Xunit;
 
 namespace EntityFramework.Microbenchmarks.UpdatePipeline
 {
     public class SimpleUpdatePipelineTests
     {
-        private static string _connectionString = String.Format(@"Server={0};Database=Perf_UpdatePipeline_Simple;Integrated Security=True;MultipleActiveResultSets=true;", TestConfig.Instance.DataSource);
+        private static readonly string _connectionString = String.Format(@"Server={0};Database=Perf_UpdatePipeline_Simple;Integrated Security=True;MultipleActiveResultSets=true;", TestConfig.Instance.DataSource);
 
         [Fact]
         public void Insert()
         {
             new TestDefinition
-            {
-                TestName = "UpdatePipeline_Simple_Insert",
-                IterationCount = 100,
-                WarmupCount = 5,
-                Run = harness => Insert(harness, false),
-                Setup = EnsureDatabaseSetup
-            }.RunTest();
+                {
+                    TestName = "UpdatePipeline_Simple_Insert",
+                    IterationCount = 100,
+                    WarmupCount = 5,
+                    Run = harness => Insert(harness, false),
+                    Setup = EnsureDatabaseSetup
+                }.RunTest();
         }
 
         [Fact]
         public void Insert_WithoutBatching()
         {
             new TestDefinition
-            {
-                TestName = "UpdatePipeline_Simple_Insert_WithoutBatching",
-                IterationCount = 100,
-                WarmupCount = 5,
-                Run = harness => Insert(harness, true),
-                Setup = EnsureDatabaseSetup
-            }.RunTest();
+                {
+                    TestName = "UpdatePipeline_Simple_Insert_WithoutBatching",
+                    IterationCount = 100,
+                    WarmupCount = 5,
+                    Run = harness => Insert(harness, true),
+                    Setup = EnsureDatabaseSetup
+                }.RunTest();
         }
 
         private static void Insert(TestHarness harness, bool disableBatching)
@@ -47,7 +47,7 @@ namespace EntityFramework.Microbenchmarks.UpdatePipeline
             {
                 using (context.Database.AsRelational().Connection.BeginTransaction())
                 {
-                    for (int i = 0; i < 1000; i++)
+                    for (var i = 0; i < 1000; i++)
                     {
                         context.Customers.Add(new Customer { Name = "New Customer " + i });
                     }
@@ -65,26 +65,26 @@ namespace EntityFramework.Microbenchmarks.UpdatePipeline
         public void Update()
         {
             new TestDefinition
-            {
-                TestName = "UpdatePipeline_Simple_Update",
-                IterationCount = 100,
-                WarmupCount = 5,
-                Run = harness => Insert(harness, false),
-                Setup = EnsureDatabaseSetup
-            }.RunTest();
+                {
+                    TestName = "UpdatePipeline_Simple_Update",
+                    IterationCount = 100,
+                    WarmupCount = 5,
+                    Run = harness => Insert(harness, false),
+                    Setup = EnsureDatabaseSetup
+                }.RunTest();
         }
 
         [Fact]
         public void Update_WithoutBatching()
         {
             new TestDefinition
-            {
-                TestName = "UpdatePipeline_Simple_Update_WithoutBatching",
-                IterationCount = 100,
-                WarmupCount = 5,
-                Run = harness => Insert(harness, true),
-                Setup = EnsureDatabaseSetup
-            }.RunTest();
+                {
+                    TestName = "UpdatePipeline_Simple_Update_WithoutBatching",
+                    IterationCount = 100,
+                    WarmupCount = 5,
+                    Run = harness => Insert(harness, true),
+                    Setup = EnsureDatabaseSetup
+                }.RunTest();
         }
 
         private static void Update(TestHarness harness, bool disableBatching)
@@ -111,26 +111,26 @@ namespace EntityFramework.Microbenchmarks.UpdatePipeline
         public void Delete()
         {
             new TestDefinition
-            {
-                TestName = "UpdatePipeline_Simple_Delete",
-                IterationCount = 100,
-                WarmupCount = 5,
-                Run = harness => Insert(harness, false),
-                Setup = EnsureDatabaseSetup
-            }.RunTest();
+                {
+                    TestName = "UpdatePipeline_Simple_Delete",
+                    IterationCount = 100,
+                    WarmupCount = 5,
+                    Run = harness => Insert(harness, false),
+                    Setup = EnsureDatabaseSetup
+                }.RunTest();
         }
 
         [Fact]
         public void Delete_WithoutBatching()
         {
             new TestDefinition
-            {
-                TestName = "UpdatePipeline_Simple_Delete_WithoutBatching",
-                IterationCount = 100,
-                WarmupCount = 5,
-                Run = harness => Insert(harness, true),
-                Setup = EnsureDatabaseSetup
-            }.RunTest();
+                {
+                    TestName = "UpdatePipeline_Simple_Delete_WithoutBatching",
+                    IterationCount = 100,
+                    WarmupCount = 5,
+                    Run = harness => Insert(harness, true),
+                    Setup = EnsureDatabaseSetup
+                }.RunTest();
         }
 
         private static void Delete(TestHarness harness, bool disableBatching)
@@ -157,26 +157,26 @@ namespace EntityFramework.Microbenchmarks.UpdatePipeline
         public void Mixed()
         {
             new TestDefinition
-            {
-                TestName = "UpdatePipeline_Simple_Mixed",
-                IterationCount = 100,
-                WarmupCount = 5,
-                Run = harness => Insert(harness, false),
-                Setup = EnsureDatabaseSetup
-            }.RunTest();
+                {
+                    TestName = "UpdatePipeline_Simple_Mixed",
+                    IterationCount = 100,
+                    WarmupCount = 5,
+                    Run = harness => Insert(harness, false),
+                    Setup = EnsureDatabaseSetup
+                }.RunTest();
         }
 
         [Fact]
         public void Mixed_WithoutBatching()
         {
             new TestDefinition
-            {
-                TestName = "UpdatePipeline_Simple__WithoutBatching",
-                IterationCount = 100,
-                WarmupCount = 5,
-                Run = harness => Insert(harness, true),
-                Setup = EnsureDatabaseSetup
-            }.RunTest();
+                {
+                    TestName = "UpdatePipeline_Simple__WithoutBatching",
+                    IterationCount = 100,
+                    WarmupCount = 5,
+                    Run = harness => Insert(harness, true),
+                    Setup = EnsureDatabaseSetup
+                }.RunTest();
         }
 
         private static void Mixed(TestHarness harness, bool disableBatching)
@@ -187,17 +187,17 @@ namespace EntityFramework.Microbenchmarks.UpdatePipeline
                 {
                     var customers = context.Customers.ToArray();
 
-                    for (int i = 0; i < 333; i++)
+                    for (var i = 0; i < 333; i++)
                     {
                         context.Customers.Add(new Customer { Name = "New Customer " + i });
                     }
 
-                    for (int i = 0; i < 1000; i += 3)
+                    for (var i = 0; i < 1000; i += 3)
                     {
                         context.Customers.Remove(customers[i]);
                     }
 
-                    for (int i = 1; i < 1000; i += 3)
+                    for (var i = 1; i < 1000; i += 3)
                     {
                         customers[i].Name += " Modified";
                     }

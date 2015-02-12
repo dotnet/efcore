@@ -470,10 +470,13 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Sql
         protected virtual string Literal([NotNull] string value) => "'" + EscapeLiteral(value) + "'";
         protected virtual string EscapeLiteral([NotNull] string literal) => literal.Replace("'", "''");
         private string Literal(Guid value) => "'" + value + "'";
+
         private string Literal(DateTime value) =>
             "'" + value.ToString(DateTimeFormat, CultureInfo.InvariantCulture) + "'";
+
         private string Literal(DateTimeOffset value) =>
             "'" + value.ToString(DateTimeOffsetFormat, CultureInfo.InvariantCulture) + "'";
+
         private string Literal(TimeSpan value) => "'" + value + "'";
 
         private string Literal(byte[] value)
@@ -508,6 +511,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Sql
 
         protected virtual string DelimitIdentifier([NotNull] string identifier) =>
             "\"" + EscapeIdentifier(identifier) + "\"";
+
         protected virtual string EscapeIdentifier([NotNull] string identifier) => identifier.Replace("\"", "\"\"");
 
         protected virtual void GenerateColumns(

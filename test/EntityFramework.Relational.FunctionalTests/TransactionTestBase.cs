@@ -186,7 +186,7 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
                         }
                     }
 
-                    using (var innerContext = CreateContext((DbConnection)context.Database.AsRelational().Connection.DbConnection))
+                    using (var innerContext = CreateContext(context.Database.AsRelational().Connection.DbConnection))
                     {
                         innerContext.Database.AsRelational().Connection.UseTransaction(transaction.DbTransaction);
                         Assert.Equal(Fixture.Customers.Count - 1, innerContext.Set<TransactionCustomer>().Count());
@@ -221,7 +221,7 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
                         }
                     }
 
-                    using (var innerContext = CreateContext((DbConnection)context.Database.AsRelational().Connection.DbConnection))
+                    using (var innerContext = CreateContext(context.Database.AsRelational().Connection.DbConnection))
                     {
                         innerContext.Database.AsRelational().Connection.UseTransaction(transaction.DbTransaction);
                         Assert.Equal(Fixture.Customers.Count - 1, await innerContext.Set<TransactionCustomer>().CountAsync());

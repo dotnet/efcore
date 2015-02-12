@@ -1,18 +1,13 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Relational.Update;
-using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Tests;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
 using Moq;
@@ -88,7 +83,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
                 DbContextService<IDbContextOptions> options,
                 ILoggerFactory loggerFactory)
                 : base(stateManager, model, entityKeyFactorySource, entityMaterializerSource,
-                    collectionAccessorSource, propertySetterSource, connection, batchPreparer, batchExecutor, options, 
+                    collectionAccessorSource, propertySetterSource, connection, batchPreparer, batchExecutor, options,
                     loggerFactory)
             {
             }

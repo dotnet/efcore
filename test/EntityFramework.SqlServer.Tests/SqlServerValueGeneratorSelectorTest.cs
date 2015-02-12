@@ -95,8 +95,10 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var model = SqlServerTestHelpers.Instance.BuildModelFor<AnEntity>();
             var entityType = model.GetEntityType(typeof(AnEntity));
 
-            entityType.GetProperty("AlwaysIdentity").SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Identity;;
-            entityType.GetProperty("AlwaysSequence").SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Sequence; ;
+            entityType.GetProperty("AlwaysIdentity").SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Identity;
+            ;
+            entityType.GetProperty("AlwaysSequence").SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Sequence;
+            ;
 
             foreach (var property in entityType.Properties)
             {

@@ -12,20 +12,15 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 {
     public class ExistsExpression : ExtensionExpression
     {
-        private readonly Expression _expression;
-
         public ExistsExpression([NotNull] Expression expression)
             : base(typeof(bool))
         {
             Check.NotNull(expression, "expression");
 
-            _expression = expression;
+            Expression = expression;
         }
 
-        public virtual Expression Expression
-        {
-            get { return _expression; }
-        }
+        public virtual Expression Expression { get; }
 
         public override Expression Accept([NotNull] ExpressionTreeVisitor visitor)
         {

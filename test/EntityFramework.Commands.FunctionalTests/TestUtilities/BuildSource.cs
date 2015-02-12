@@ -11,15 +11,10 @@ namespace Microsoft.Data.Entity.Commands.TestUtilities
 {
     public class BuildSource
     {
-        private readonly ICollection<BuildReference> _references = new List<BuildReference>
+        public ICollection<BuildReference> References { get; } = new List<BuildReference>
             {
                 BuildReference.ByName("mscorlib")
             };
-
-        public ICollection<BuildReference> References
-        {
-            get { return _references; }
-        }
 
         public string Source { get; set; }
         public string TargetDir { get; set; }
@@ -29,7 +24,7 @@ namespace Microsoft.Data.Entity.Commands.TestUtilities
             var projectName = Path.GetRandomFileName();
             var references = new List<MetadataReference>();
 
-            foreach (var reference in _references)
+            foreach (var reference in References)
             {
                 if (reference.CopyLocal)
                 {

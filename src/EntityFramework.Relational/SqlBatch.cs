@@ -8,20 +8,15 @@ namespace Microsoft.Data.Entity.Relational
 {
     public class SqlBatch
     {
-        private readonly string _sql;
-
         public SqlBatch([NotNull] string sql)
         {
             Check.NotNull(sql, "sql");
 
-            _sql = sql;
+            Sql = sql;
         }
 
-        public virtual string Sql
-        {
-            get { return _sql; }
-        }
+        public virtual string Sql { get; }
 
-        public virtual bool SuppressTransaction { get; set; }    
+        public virtual bool SuppressTransaction { get; set; }
     }
 }

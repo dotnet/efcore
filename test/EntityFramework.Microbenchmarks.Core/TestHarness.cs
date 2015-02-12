@@ -8,15 +8,11 @@ namespace EntityFramework.Microbenchmarks.Core
 {
     public class TestHarness
     {
-        private static readonly TestHarness _nullHarness = new NullTestHarness();
         private readonly Stopwatch _iterationStopwatch;
         private readonly Stopwatch _runStopwatch;
         private readonly Scope _collectionScope;
 
-        public static TestHarness NullHarness
-        {
-            get { return _nullHarness; }
-        }
+        public static TestHarness NullHarness { get; } = new NullTestHarness();
 
         private TestHarness()
         {

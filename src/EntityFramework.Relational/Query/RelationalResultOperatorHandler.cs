@@ -21,10 +21,6 @@ namespace Microsoft.Data.Entity.Relational.Query
         private sealed class HandlerContext
         {
             private readonly IResultOperatorHandler _resultOperatorHandler;
-            private readonly RelationalQueryModelVisitor _queryModelVisitor;
-            private readonly ResultOperatorBase _resultOperator;
-            private readonly QueryModel _queryModel;
-            private readonly SelectExpression _selectExpression;
 
             public HandlerContext(
                 IResultOperatorHandler resultOperatorHandler,
@@ -34,35 +30,23 @@ namespace Microsoft.Data.Entity.Relational.Query
                 SelectExpression selectExpression)
             {
                 _resultOperatorHandler = resultOperatorHandler;
-                _queryModelVisitor = queryModelVisitor;
-                _resultOperator = resultOperator;
-                _queryModel = queryModel;
-                _selectExpression = selectExpression;
+                QueryModelVisitor = queryModelVisitor;
+                ResultOperator = resultOperator;
+                QueryModel = queryModel;
+                SelectExpression = selectExpression;
             }
 
-            public ResultOperatorBase ResultOperator
-            {
-                get { return _resultOperator; }
-            }
+            public ResultOperatorBase ResultOperator { get; }
 
-            public SelectExpression SelectExpression
-            {
-                get { return _selectExpression; }
-            }
+            public SelectExpression SelectExpression { get; }
 
-            public QueryModel QueryModel
-            {
-                get { return _queryModel; }
-            }
+            public QueryModel QueryModel { get; }
 
-            public RelationalQueryModelVisitor QueryModelVisitor
-            {
-                get { return _queryModelVisitor; }
-            }
+            public RelationalQueryModelVisitor QueryModelVisitor { get; }
 
             public Expression EvalOnServer
             {
-                get { return _queryModelVisitor.Expression; }
+                get { return QueryModelVisitor.Expression; }
             }
 
             public Expression EvalOnClient
@@ -70,7 +54,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                 get
                 {
                     return _resultOperatorHandler
-                        .HandleResultOperator(_queryModelVisitor, _resultOperator, _queryModel);
+                        .HandleResultOperator(QueryModelVisitor, ResultOperator, QueryModel);
                 }
             }
         }

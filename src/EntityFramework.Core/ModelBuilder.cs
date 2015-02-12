@@ -584,7 +584,7 @@ namespace Microsoft.Data.Entity
                     return new ManyToOneBuilder(Builder.ReferencedKey(keyPropertyNames, ConfigurationSource.Explicit));
                 }
 
-                public virtual ManyToOneBuilder Required(bool required = true) 
+                public virtual ManyToOneBuilder Required(bool required = true)
                     => new ManyToOneBuilder(Builder.Required(required, ConfigurationSource.Explicit));
             }
 
@@ -769,10 +769,10 @@ namespace Microsoft.Data.Entity
                 }
 
                 public virtual ManyToOneBuilder<TRelatedEntity> WithMany(
-                    [CanBeNull] Expression<Func<TRelatedEntity, IEnumerable<TEntity>>> collection = null) 
+                    [CanBeNull] Expression<Func<TRelatedEntity, IEnumerable<TEntity>>> collection = null)
                     => new ManyToOneBuilder<TRelatedEntity>(WithManyBuilder(collection?.GetPropertyAccess().Name));
 
-                public virtual OneToOneBuilder WithOne([CanBeNull] Expression<Func<TRelatedEntity, TEntity>> inverseReference = null) 
+                public virtual OneToOneBuilder WithOne([CanBeNull] Expression<Func<TRelatedEntity, TEntity>> inverseReference = null)
                     => new OneToOneBuilder(WithOneBuilder(inverseReference?.GetPropertyAccess().Name));
             }
 
@@ -785,7 +785,7 @@ namespace Microsoft.Data.Entity
                 {
                 }
 
-                public virtual OneToManyBuilder<TRelatedEntity> WithOne([CanBeNull] Expression<Func<TRelatedEntity, TEntity>> reference = null) 
+                public virtual OneToManyBuilder<TRelatedEntity> WithOne([CanBeNull] Expression<Func<TRelatedEntity, TEntity>> reference = null)
                     => new OneToManyBuilder<TRelatedEntity>(WithOneBuilder(reference?.GetPropertyAccess().Name));
             }
 
@@ -834,7 +834,7 @@ namespace Microsoft.Data.Entity
                     return new OneToManyBuilder<TRelatedEntity>(Builder.ReferencedKey(keyPropertyNames, ConfigurationSource.Explicit));
                 }
 
-                public new virtual OneToManyBuilder<TRelatedEntity> Required(bool required = true) 
+                public new virtual OneToManyBuilder<TRelatedEntity> Required(bool required = true)
                     => new OneToManyBuilder<TRelatedEntity>(Builder.Required(required, ConfigurationSource.Explicit));
             }
 
@@ -883,7 +883,7 @@ namespace Microsoft.Data.Entity
                     return new ManyToOneBuilder<TRelatedEntity>(Builder.ReferencedKey(keyPropertyNames, ConfigurationSource.Explicit));
                 }
 
-                public new virtual ManyToOneBuilder<TRelatedEntity> Required(bool required = true) 
+                public new virtual ManyToOneBuilder<TRelatedEntity> Required(bool required = true)
                     => new ManyToOneBuilder<TRelatedEntity>(Builder.Required(required, ConfigurationSource.Explicit));
             }
         }

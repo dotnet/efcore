@@ -227,7 +227,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
                 throw new NotImplementedException();
             }
 
-            new public void Configure(IReadOnlyDictionary<string, string> rawOptions)
+            public new void Configure(IReadOnlyDictionary<string, string> rawOptions)
             {
                 base.Configure(rawOptions);
             }

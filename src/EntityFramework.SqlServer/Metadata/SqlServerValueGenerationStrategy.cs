@@ -6,6 +6,6 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
     public enum SqlServerValueGenerationStrategy
     {
         Sequence,
-        Identity,
+        Identity
     }
 }

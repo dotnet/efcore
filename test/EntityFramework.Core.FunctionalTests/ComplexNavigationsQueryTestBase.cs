@@ -9,8 +9,8 @@ using Xunit;
 namespace Microsoft.Data.Entity.FunctionalTests
 {
     public abstract class ComplexNavigationsQueryTestBase<TTestStore, TFixture> : IClassFixture<TFixture>, IDisposable
-             where TTestStore : TestStore
-             where TFixture : ComplexNavigationsQueryFixtureBase<TTestStore>, new()
+        where TTestStore : TestStore
+        where TFixture : ComplexNavigationsQueryFixtureBase<TTestStore>, new()
     {
         protected ComplexNavigationsContext CreateContext()
         {
@@ -24,9 +24,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
             TestStore = Fixture.CreateTestStore();
         }
 
-        protected TFixture Fixture { get; private set; }
+        protected TFixture Fixture { get; }
 
-        protected TTestStore TestStore { get; private set; }
+        protected TTestStore TestStore { get; }
 
         public void Dispose()
         {
@@ -46,7 +46,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 context.LevelOne.ToList();
             }
         }
-    
+
         [Fact]
         public virtual void Multi_level_include_one_to_many_optional_and_one_to_many_optional_produces_valid_sql()
         {
@@ -72,7 +72,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 Assert.True(level2.OneToMany_Optional.Select(e => e.Name).Contains("L3 08"));
             }
         }
-
 
         [Fact]
         public virtual void Multi_level_include_correct_PK_is_chosen_as_the_join_predicate_for_queries_that_join_same_table_multiple_times()
@@ -148,4 +147,3 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
     }
 }
-

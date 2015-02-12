@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity.InMemory.Query
     public class InMemoryQueryContext : QueryContext
     {
         public InMemoryQueryContext(
-            [NotNull] ILogger logger, 
+            [NotNull] ILogger logger,
             [NotNull] IQueryBuffer queryBuffer,
             [NotNull] InMemoryDatabase database)
             : base(

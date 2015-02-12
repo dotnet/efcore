@@ -32,36 +32,36 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Builders
             [CanBeNull] long? minValue = null,
             [CanBeNull] long? maxValue = null,
             [CanBeNull] IReadOnlyDictionary<string, string> annotations = null) =>
-            AddOperation(
-                new CreateSequenceOperation(
-                    name,
-                    schema,
-                    startValue,
-                    incrementBy,
-                    minValue,
-                    maxValue,
-                    storeType,
-                    annotations));
+                AddOperation(
+                    new CreateSequenceOperation(
+                        name,
+                        schema,
+                        startValue,
+                        incrementBy,
+                        minValue,
+                        maxValue,
+                        storeType,
+                        annotations));
 
         public virtual void DropSequence(
             [NotNull] string name,
             [CanBeNull] string schema = null,
             [CanBeNull] IReadOnlyDictionary<string, string> annotations = null) =>
-            AddOperation(new DropSequenceOperation(name, schema, annotations));
+                AddOperation(new DropSequenceOperation(name, schema, annotations));
 
         public virtual void RenameSequence(
             [NotNull] string name,
             [NotNull] string newName,
             [CanBeNull] string schema = null,
             [CanBeNull] IReadOnlyDictionary<string, string> annotations = null) =>
-            AddOperation(new RenameSequenceOperation(name, schema, newName, annotations));
+                AddOperation(new RenameSequenceOperation(name, schema, newName, annotations));
 
         public virtual void MoveSequence(
             [NotNull] string name,
             [NotNull] string newSchema,
             [CanBeNull] string schema = null,
             [CanBeNull] IReadOnlyDictionary<string, string> annotations = null) =>
-            AddOperation(new MoveSequenceOperation(name, schema, newSchema, annotations));
+                AddOperation(new MoveSequenceOperation(name, schema, newSchema, annotations));
 
         // TODO: Type, start?
         public virtual void AlterSequence(
@@ -71,13 +71,13 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Builders
             [CanBeNull] long? minValue = null,
             [CanBeNull] long? maxValue = null,
             [CanBeNull] IReadOnlyDictionary<string, string> annotations = null) =>
-            AddOperation(new AlterSequenceOperation(name, schema, incrementBy, minValue, maxValue, annotations));
+                AddOperation(new AlterSequenceOperation(name, schema, incrementBy, minValue, maxValue, annotations));
 
         public virtual TableBuilder<TColumns> CreateTable<TColumns>(
             [NotNull] string name,
             [NotNull] Func<ColumnBuilder, TColumns> columnBuilder,
             [CanBeNull] IReadOnlyDictionary<string, string> annotations = null) =>
-            CreateTable(name, /*schema:*/ null, columnBuilder, annotations);
+                CreateTable(name, /*schema:*/ null, columnBuilder, annotations);
 
         public virtual TableBuilder<TColumns> CreateTable<TColumns>(
             [NotNull] string name,
@@ -144,27 +144,27 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Builders
             [NotNull] string name,
             [CanBeNull] string schema = null,
             [CanBeNull] IReadOnlyDictionary<string, string> annotations = null) =>
-            AddOperation(new DropTableOperation(name, schema, annotations));
+                AddOperation(new DropTableOperation(name, schema, annotations));
 
         public virtual void RenameTable(
             [NotNull] string name,
             [NotNull] string newName,
             [CanBeNull] string schema = null,
             [CanBeNull] IReadOnlyDictionary<string, string> annotations = null) =>
-            AddOperation(new RenameTableOperation(name, schema, newName, annotations));
+                AddOperation(new RenameTableOperation(name, schema, newName, annotations));
 
         public virtual void MoveTable(
             [NotNull] string name,
             [NotNull] string newSchema,
             [CanBeNull] string schema = null,
             [CanBeNull] IReadOnlyDictionary<string, string> annotations = null) =>
-            AddOperation(new MoveTableOperation(name, schema, newSchema, annotations));
+                AddOperation(new MoveTableOperation(name, schema, newSchema, annotations));
 
         public virtual void AlterTable(
             [NotNull] string name,
             [CanBeNull] string schema = null,
             [CanBeNull] IReadOnlyDictionary<string, string> annotations = null) =>
-            AddOperation(new AlterTableOperation(name, schema, annotations));
+                AddOperation(new AlterTableOperation(name, schema, annotations));
 
         public virtual void AddColumn(
             [NotNull] string table,
@@ -186,7 +186,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Builders
             [NotNull] string name,
             [CanBeNull] string schema = null,
             [CanBeNull] IReadOnlyDictionary<string, string> annotations = null) =>
-            AddOperation(new DropColumnOperation(table, schema, name, annotations));
+                AddOperation(new DropColumnOperation(table, schema, name, annotations));
 
         public virtual void RenameColumn(
             [NotNull] string table,
@@ -194,14 +194,14 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Builders
             [NotNull] string newName,
             [CanBeNull] string schema = null,
             [CanBeNull] IReadOnlyDictionary<string, string> annotations = null) =>
-            AddOperation(new RenameColumnOperation(table, schema, name, newName, annotations));
+                AddOperation(new RenameColumnOperation(table, schema, name, newName, annotations));
 
         public virtual void AlterColumn(
             [NotNull] string table,
             [NotNull] string name,
             [NotNull] Func<ColumnBuilder, ColumnModel> columnAction,
             [CanBeNull] IReadOnlyDictionary<string, string> annotations = null) =>
-            AlterColumn(table, /*schema:*/ null, name, columnAction, annotations);
+                AlterColumn(table, /*schema:*/ null, name, columnAction, annotations);
 
         public virtual void AlterColumn(
             [NotNull] string table,
@@ -225,7 +225,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Builders
             [CanBeNull] string schema = null,
             [CanBeNull] string name = null,
             [CanBeNull] IReadOnlyDictionary<string, string> annotations = null) =>
-            AddPrimaryKey(table, new[] { column }, schema, name, annotations);
+                AddPrimaryKey(table, new[] { column }, schema, name, annotations);
 
         public virtual void AddPrimaryKey(
             [NotNull] string table,
@@ -233,14 +233,14 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Builders
             [CanBeNull] string schema = null,
             [CanBeNull] string name = null,
             [CanBeNull] IReadOnlyDictionary<string, string> annotations = null) =>
-            AddOperation(new AddPrimaryKeyOperation(table, schema, name, columns, annotations));
+                AddOperation(new AddPrimaryKeyOperation(table, schema, name, columns, annotations));
 
         public virtual void DropPrimaryKey(
             [NotNull] string table,
             [NotNull] string name,
             [CanBeNull] string schema = null,
             [CanBeNull] IReadOnlyDictionary<string, string> annotations = null) =>
-            AddOperation(new DropPrimaryKeyOperation(table, schema, name, annotations));
+                AddOperation(new DropPrimaryKeyOperation(table, schema, name, annotations));
 
         public virtual void AddUniqueConstraint(
             [NotNull] string table,
@@ -248,7 +248,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Builders
             [CanBeNull] string schema = null,
             [CanBeNull] string name = null,
             [CanBeNull] IReadOnlyDictionary<string, string> annotations = null) =>
-            AddUniqueConstraint(table, new[] { column }, schema, name, annotations);
+                AddUniqueConstraint(table, new[] { column }, schema, name, annotations);
 
         public virtual void AddUniqueConstraint(
             [NotNull] string table,
@@ -256,14 +256,14 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Builders
             [CanBeNull] string schema = null,
             [CanBeNull] string name = null,
             [CanBeNull] IReadOnlyDictionary<string, string> annotations = null) =>
-            AddOperation(new AddUniqueConstraintOperation(table, schema, name, columns, annotations));
+                AddOperation(new AddUniqueConstraintOperation(table, schema, name, columns, annotations));
 
         public virtual void DropUniqueConstraint(
             [NotNull] string table,
             [NotNull] string name,
             [CanBeNull] string schema = null,
             [CanBeNull] IReadOnlyDictionary<string, string> annotations = null) =>
-            AddOperation(new DropUniqueConstraintOperation(table, schema, name, annotations));
+                AddOperation(new DropUniqueConstraintOperation(table, schema, name, annotations));
 
         public virtual void AddForeignKey(
             [NotNull] string dependentTable,
@@ -275,16 +275,16 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Builders
             bool cascadeDelete = false,
             [CanBeNull] string name = null,
             [CanBeNull] IReadOnlyDictionary<string, string> annotations = null) =>
-            AddForeignKey(
-                dependentTable,
-                new[] { dependentColumn },
-                principalTable,
-                dependentSchema,
-                principalSchema,
-                new[] { principalColumn },
-                cascadeDelete,
-                name,
-                annotations);
+                AddForeignKey(
+                    dependentTable,
+                    new[] { dependentColumn },
+                    principalTable,
+                    dependentSchema,
+                    principalSchema,
+                    new[] { principalColumn },
+                    cascadeDelete,
+                    name,
+                    annotations);
 
         public virtual void AddForeignKey(
             [NotNull] string dependentTable,
@@ -296,24 +296,24 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Builders
             bool cascadeDelete = false,
             [CanBeNull] string name = null,
             [CanBeNull] IReadOnlyDictionary<string, string> annotations = null) =>
-            AddOperation(
-                new AddForeignKeyOperation(
-                    dependentTable,
-                    dependentSchema,
-                    name,
-                    dependentColumns,
-                    principalTable,
-                    principalSchema,
-                    principalColumns,
-                    cascadeDelete,
-                    annotations));
+                AddOperation(
+                    new AddForeignKeyOperation(
+                        dependentTable,
+                        dependentSchema,
+                        name,
+                        dependentColumns,
+                        principalTable,
+                        principalSchema,
+                        principalColumns,
+                        cascadeDelete,
+                        annotations));
 
         public virtual void DropForeignKey(
             [NotNull] string table,
             [NotNull] string name,
             [CanBeNull] string schema = null,
             [CanBeNull] IReadOnlyDictionary<string, string> annotations = null) =>
-            AddOperation(new DropForeignKeyOperation(table, schema, name, annotations));
+                AddOperation(new DropForeignKeyOperation(table, schema, name, annotations));
 
         public virtual void CreateIndex(
             [NotNull] string name,
@@ -322,7 +322,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Builders
             [CanBeNull] string schema = null,
             bool clustered = false,
             [CanBeNull] IReadOnlyDictionary<string, string> annotations = null) =>
-            CreateIndex(name, table, new[] { column }, schema, clustered, annotations);
+                CreateIndex(name, table, new[] { column }, schema, clustered, annotations);
 
         // TODO: Is name really required?
         public virtual void CreateIndex(
@@ -332,7 +332,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Builders
             [CanBeNull] string schema = null,
             bool unique = false,
             [CanBeNull] IReadOnlyDictionary<string, string> annotations = null) =>
-            AddOperation(new CreateIndexOperation(name, table, schema, columns, unique, annotations));
+                AddOperation(new CreateIndexOperation(name, table, schema, columns, unique, annotations));
 
         // TODO: Is table really required?
         public virtual void DropIndex(
@@ -340,7 +340,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Builders
             [NotNull] string table,
             [CanBeNull] string schema = null,
             [CanBeNull] IReadOnlyDictionary<string, string> annotations = null) =>
-            AddOperation(new DropIndexOperation(name, table, schema, annotations));
+                AddOperation(new DropIndexOperation(name, table, schema, annotations));
 
         // TODO: Is table really required?
         public virtual void RenameIndex(
@@ -349,13 +349,13 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Builders
             [NotNull] string table,
             [CanBeNull] string schema = null,
             [CanBeNull] IReadOnlyDictionary<string, string> annotations = null) =>
-            AddOperation(new RenameIndexOperation(table, schema, name, newName, annotations));
+                AddOperation(new RenameIndexOperation(table, schema, name, newName, annotations));
 
         // TODO: SqlFile, SqlResource
         public virtual void Sql(
             [NotNull] string sql,
             bool suppressTransaction = false,
             [CanBeNull] IReadOnlyDictionary<string, string> annotations = null) =>
-            AddOperation(new SqlOperation(sql, suppressTransaction, annotations));
+                AddOperation(new SqlOperation(sql, suppressTransaction, annotations));
     }
 }

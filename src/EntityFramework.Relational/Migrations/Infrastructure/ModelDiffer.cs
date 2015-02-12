@@ -18,37 +18,40 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
     // TODO: Match similar items
     public class ModelDiffer
     {
-        private static readonly Type[] _dropOperationTypes = new[]
-        {
-            typeof(DropColumnOperation),
-            typeof(DropForeignKeyOperation),
-            typeof(DropIndexOperation),
-            typeof(DropPrimaryKeyOperation),
-            typeof(DropSequenceOperation),
-            typeof(DropTableOperation),
-            typeof(DropUniqueConstraintOperation)
-        };
-        private static readonly Type[] _alterOperationTypes = new[]
-        {
-            typeof(AddColumnOperation),
-            typeof(AddForeignKeyOperation),
-            typeof(AddPrimaryKeyOperation),
-            typeof(AddUniqueConstraintOperation),
-            typeof(AlterColumnOperation),
-            typeof(AlterSequenceOperation),
-            typeof(CreateIndexOperation)
-        };
-        private static readonly Type[] _renameOperationTypes = new[]
-        {
-            typeof(RenameColumnOperation),
-            typeof(RenameIndexOperation),
-            typeof(RenameSequenceOperation)
-        };
-        private static readonly Type[] _moveOperationTypes = new[]
-        {
-            typeof(MoveSequenceOperation),
-            typeof(MoveTableOperation)
-        };
+        private static readonly Type[] _dropOperationTypes =
+            {
+                typeof(DropColumnOperation),
+                typeof(DropForeignKeyOperation),
+                typeof(DropIndexOperation),
+                typeof(DropPrimaryKeyOperation),
+                typeof(DropSequenceOperation),
+                typeof(DropTableOperation),
+                typeof(DropUniqueConstraintOperation)
+            };
+
+        private static readonly Type[] _alterOperationTypes =
+            {
+                typeof(AddColumnOperation),
+                typeof(AddForeignKeyOperation),
+                typeof(AddPrimaryKeyOperation),
+                typeof(AddUniqueConstraintOperation),
+                typeof(AlterColumnOperation),
+                typeof(AlterSequenceOperation),
+                typeof(CreateIndexOperation)
+            };
+
+        private static readonly Type[] _renameOperationTypes =
+            {
+                typeof(RenameColumnOperation),
+                typeof(RenameIndexOperation),
+                typeof(RenameSequenceOperation)
+            };
+
+        private static readonly Type[] _moveOperationTypes =
+            {
+                typeof(MoveSequenceOperation),
+                typeof(MoveTableOperation)
+            };
 
         public ModelDiffer([NotNull] RelationalTypeMapper typeMapper)
         {
@@ -65,7 +68,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
         public virtual IReadOnlyList<MigrationOperation> GetDifferences(
             [CanBeNull] IModel source,
             [CanBeNull] IModel target) =>
-            Sort(Diff(source, target));
+                Sort(Diff(source, target));
 
         protected virtual IReadOnlyList<MigrationOperation> Sort([NotNull] IEnumerable<MigrationOperation> operations)
         {
@@ -361,7 +364,8 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
 
         protected virtual IEnumerable<MigrationOperation> Diff(IKey source, IKey target)
         {
-            if (source != null && target != null)
+            if (source != null
+                && target != null)
             {
                 if (Name(source) != Name(target)
                     || !source.Properties.Select(p => p.Relational().Column).SequenceEqual(
@@ -514,7 +518,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
             }
 
             if (!source.Properties.Select(p => p.Relational().Column).SequenceEqual(
-                    target.Properties.Select(p => p.Relational().Column))
+                target.Properties.Select(p => p.Relational().Column))
                 || source.IsUnique != target.IsUnique)
             {
                 var operations = Remove(source)
@@ -606,10 +610,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                     {
                         return target;
                     }
-                    else
-                    {
-                        candidates.Add(target);
-                    }
+                    candidates.Add(target);
                 }
             }
 
@@ -735,8 +736,8 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
             Check.NotNull(foreignKey, nameof(foreignKey));
 
             return foreignKey.Relational().Name
-                ?? "FK_" + Name(foreignKey.EntityType) + "_" + Name(foreignKey.ReferencedEntityType) + "_" +
-                    Name(foreignKey.Properties);
+                   ?? "FK_" + Name(foreignKey.EntityType) + "_" + Name(foreignKey.ReferencedEntityType) + "_" +
+                   Name(foreignKey.Properties);
         }
 
         private string Name([NotNull] IIndex index)

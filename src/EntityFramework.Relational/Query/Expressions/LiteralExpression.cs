@@ -12,18 +12,13 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 {
     public class LiteralExpression : ExtensionExpression
     {
-        private readonly string _literal;
-
         public LiteralExpression([NotNull] string literal)
             : base(Check.NotEmpty(literal, "literal").GetType())
         {
-            _literal = literal;
+            Literal = literal;
         }
 
-        public virtual string Literal
-        {
-            get { return _literal; }
-        }
+        public virtual string Literal { get; }
 
         public override Expression Accept([NotNull] ExpressionTreeVisitor visitor)
         {

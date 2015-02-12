@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using System;
 using System.IO;
 using Microsoft.Framework.ConfigurationModel;
 using Xunit.Abstractions;
@@ -18,7 +21,6 @@ namespace EntityFramework.Microbenchmarks.Core
             return new PerfTestDiscoverer(assemblyInfo, SourceInformationProvider);
         }
     }
-
 
     public class PerfTestDiscoverer : XunitTestFrameworkDiscoverer
     {
@@ -46,17 +48,17 @@ namespace EntityFramework.Microbenchmarks.Core
         public TestConfig()
         {
             _dataSource = Environment.GetEnvironmentVariable("PERFRUN_DataSource");
-            _runtimeFlavor = getRuntimeFlavor();
+            RuntimeFlavor = getRuntimeFlavor();
 
             var resultsDirectory = Environment.GetEnvironmentVariable("PERFRUN_ResultsDirectory");
-            _resultsDirectory = string.IsNullOrEmpty(resultsDirectory) ? _resultsDirectory : resultsDirectory;
+            ResultsDirectory = string.IsNullOrEmpty(resultsDirectory) ? ResultsDirectory : resultsDirectory;
 
             const string cliConfigPath = "LocalConfig.json";
             const string vsConfigPath = "..\\..\\LocalConfig.json";
-            
+
             if (_dataSource != null)
             {
-                _runPerfTests = true;
+                RunPerfTests = true;
             }
             else
             {
@@ -75,17 +77,14 @@ namespace EntityFramework.Microbenchmarks.Core
                     _dataSource = _dataSource.Trim();
                     string runPerfTests;
                     configuration.TryGet("Data:RunPerfTests", out runPerfTests);
-                    _runPerfTests = !string.IsNullOrEmpty(runPerfTests) && !runPerfTests.ToLower().Equals("false");
+                    RunPerfTests = !string.IsNullOrEmpty(runPerfTests) && !runPerfTests.ToLower().Equals("false");
                 }
             }
         }
 
         private static TestConfig _instance;
         private readonly string _dataSource = @"(localdb)\MSSQLLocalDB";
-        private readonly string _resultsDirectory = @".\PerfResults";
-        private readonly bool _runPerfTests = false;
-        private readonly string _runtimeFlavor;
-        
+
         public static TestConfig Instance
         {
             get
@@ -98,25 +97,16 @@ namespace EntityFramework.Microbenchmarks.Core
             }
         }
 
-        public bool RunPerfTests
-        {
-            get { return _runPerfTests; }
-        }
+        public bool RunPerfTests { get; }
 
         public string DataSource
         {
             get { return _dataSource; }
         }
 
-        public string ResultsDirectory
-        {
-            get { return _resultsDirectory; }
-        }
+        public string ResultsDirectory { get; } = @".\PerfResults";
 
-        public string RuntimeFlavor
-        {
-            get { return _runtimeFlavor; }
-        }
+        public string RuntimeFlavor { get; }
 
         private string getRuntimeFlavor()
         {

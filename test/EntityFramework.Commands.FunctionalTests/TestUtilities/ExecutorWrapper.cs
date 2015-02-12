@@ -39,7 +39,7 @@ namespace Microsoft.Data.Entity.Commands.TestUtilities
                         new LogHandler(),
                         new Hashtable
                             {
-                                { "targetPath", Path.Combine(targetDir ,targetFileName)},
+                                { "targetPath", Path.Combine(targetDir, targetFileName) },
                                 { "projectDir", projectDir },
                                 { "rootNamespace", rootNamespace }
                             }

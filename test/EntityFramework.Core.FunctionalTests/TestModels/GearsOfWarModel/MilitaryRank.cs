@@ -12,6 +12,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.GearsOfWarModel
         Captain,
         Major,
         Colonel,
-        General,
+        General
     }
 }

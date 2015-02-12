@@ -18,13 +18,6 @@ namespace Microsoft.Data.Entity.Relational.Metadata
         public static readonly Type DefaultType = typeof(long);
 
         private IModel _model;
-        private readonly string _name;
-        private readonly string _schema;
-        private readonly long _startValue;
-        private readonly int _incrementBy;
-        private readonly long? _minValue;
-        private readonly long? _maxValue;
-        private readonly Type _type;
 
         public Sequence(
             [NotNull] string name,
@@ -49,49 +42,28 @@ namespace Microsoft.Data.Entity.Relational.Metadata
                 throw new ArgumentException(Strings.BadSequenceType);
             }
 
-            _name = name;
-            _schema = schema;
-            _startValue = startValue;
-            _incrementBy = incrementBy;
-            _minValue = minValue;
-            _maxValue = maxValue;
-            _type = type;
+            Name = name;
+            Schema = schema;
+            StartValue = startValue;
+            IncrementBy = incrementBy;
+            MinValue = minValue;
+            MaxValue = maxValue;
+            Type = type;
         }
 
-        public virtual string Name
-        {
-            get { return _name; }
-        }
+        public virtual string Name { get; }
 
-        public virtual string Schema
-        {
-            get { return _schema; }
-        }
+        public virtual string Schema { get; }
 
-        public virtual long StartValue
-        {
-            get { return _startValue; }
-        }
+        public virtual long StartValue { get; }
 
-        public virtual int IncrementBy
-        {
-            get { return _incrementBy; }
-        }
+        public virtual int IncrementBy { get; }
 
-        public virtual long? MinValue
-        {
-            get { return _minValue; }
-        }
+        public virtual long? MinValue { get; }
 
-        public virtual long? MaxValue
-        {
-            get { return _maxValue; }
-        }
+        public virtual long? MaxValue { get; }
 
-        public virtual Type Type
-        {
-            get { return _type; }
-        }
+        public virtual Type Type { get; }
 
         public virtual IModel Model
         {

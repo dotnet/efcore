@@ -45,31 +45,30 @@ namespace Microsoft.Data.Entity.Commands
             public class SimpleProject : IDisposable
             {
                 private readonly TempDirectory _directory = new TempDirectory();
-                private readonly ExecutorWrapper _executor;
 
                 public SimpleProject()
                 {
                     var source = new BuildSource
-                    {
-                        TargetDir = TargetDir,
-                        References =
-                            {
-                                BuildReference.ByName("System.Collections.Immutable", copyLocal: true),
-                                BuildReference.ByName("System.Data.Common", copyLocal: true),
-                                BuildReference.ByName("System.Interactive.Async", copyLocal: true),
-                                BuildReference.ByName("System.Runtime, Version=4.0.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"),
-                                BuildReference.ByName("EntityFramework.Core", copyLocal: true),
-                                BuildReference.ByName("EntityFramework.Commands", copyLocal: true),
-                                BuildReference.ByName("EntityFramework.Relational", copyLocal: true),
-                                BuildReference.ByName("EntityFramework.SqlServer", copyLocal: true),
-                                BuildReference.ByName("Microsoft.Framework.ConfigurationModel", copyLocal: true),
-                                BuildReference.ByName("Microsoft.Framework.DependencyInjection", copyLocal: true),
-                                BuildReference.ByName("Microsoft.Framework.Logging", copyLocal: true),
-                                BuildReference.ByName("Microsoft.Framework.Logging.Interfaces", copyLocal: true),
-                                BuildReference.ByName("Microsoft.Framework.OptionsModel", copyLocal: true),
-                                BuildReference.ByName("Remotion.Linq", copyLocal: true)
-                            },
-                        Source = @"
+                        {
+                            TargetDir = TargetDir,
+                            References =
+                                {
+                                    BuildReference.ByName("System.Collections.Immutable", copyLocal: true),
+                                    BuildReference.ByName("System.Data.Common", copyLocal: true),
+                                    BuildReference.ByName("System.Interactive.Async", copyLocal: true),
+                                    BuildReference.ByName("System.Runtime, Version=4.0.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"),
+                                    BuildReference.ByName("EntityFramework.Core", copyLocal: true),
+                                    BuildReference.ByName("EntityFramework.Commands", copyLocal: true),
+                                    BuildReference.ByName("EntityFramework.Relational", copyLocal: true),
+                                    BuildReference.ByName("EntityFramework.SqlServer", copyLocal: true),
+                                    BuildReference.ByName("Microsoft.Framework.ConfigurationModel", copyLocal: true),
+                                    BuildReference.ByName("Microsoft.Framework.DependencyInjection", copyLocal: true),
+                                    BuildReference.ByName("Microsoft.Framework.Logging", copyLocal: true),
+                                    BuildReference.ByName("Microsoft.Framework.Logging.Interfaces", copyLocal: true),
+                                    BuildReference.ByName("Microsoft.Framework.OptionsModel", copyLocal: true),
+                                    BuildReference.ByName("Remotion.Linq", copyLocal: true)
+                                },
+                            Source = @"
                             using System;
                             using Microsoft.Data.Entity;
                             using Microsoft.Data.Entity.Metadata;
@@ -104,9 +103,9 @@ namespace Microsoft.Data.Entity.Commands
                                     }
                                 }
                             }"
-                    };
+                        };
                     var build = source.Build();
-                    _executor = new ExecutorWrapper(TargetDir, build.TargetName + ".dll", TargetDir, "SimpleProject");
+                    Executor = new ExecutorWrapper(TargetDir, build.TargetName + ".dll", TargetDir, "SimpleProject");
                 }
 
                 public string TargetDir
@@ -114,14 +113,11 @@ namespace Microsoft.Data.Entity.Commands
                     get { return _directory.Path; }
                 }
 
-                public ExecutorWrapper Executor
-                {
-                    get { return _executor; }
-                }
+                public ExecutorWrapper Executor { get; }
 
                 public void Dispose()
                 {
-                    _executor.Dispose();
+                    Executor.Dispose();
                     _directory.Dispose();
                 }
             }
@@ -134,26 +130,26 @@ namespace Microsoft.Data.Entity.Commands
             {
                 var targetDir = directory.Path;
                 var source = new BuildSource
-                {
-                    TargetDir = targetDir,
-                    References =
-                        {
-                            BuildReference.ByName("System.Collections.Immutable", copyLocal: true),
-                            BuildReference.ByName("System.Data.Common", copyLocal: true),
-                            BuildReference.ByName("System.Interactive.Async", copyLocal: true),
-                            BuildReference.ByName("System.Runtime, Version=4.0.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"),
-                            BuildReference.ByName("EntityFramework.Core", copyLocal: true),
-                            BuildReference.ByName("EntityFramework.Commands", copyLocal: true),
-                            BuildReference.ByName("EntityFramework.Relational", copyLocal: true),
-                            BuildReference.ByName("EntityFramework.SqlServer", copyLocal: true),
-                            BuildReference.ByName("Microsoft.Framework.ConfigurationModel", copyLocal: true),
-                            BuildReference.ByName("Microsoft.Framework.DependencyInjection", copyLocal: true),
-                            BuildReference.ByName("Microsoft.Framework.Logging", copyLocal: true),
-                            BuildReference.ByName("Microsoft.Framework.Logging.Interfaces", copyLocal: true),
-                            BuildReference.ByName("Microsoft.Framework.OptionsModel", copyLocal: true),
-                            BuildReference.ByName("Remotion.Linq", copyLocal: true)
-                        },
-                    Source = @"
+                    {
+                        TargetDir = targetDir,
+                        References =
+                            {
+                                BuildReference.ByName("System.Collections.Immutable", copyLocal: true),
+                                BuildReference.ByName("System.Data.Common", copyLocal: true),
+                                BuildReference.ByName("System.Interactive.Async", copyLocal: true),
+                                BuildReference.ByName("System.Runtime, Version=4.0.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"),
+                                BuildReference.ByName("EntityFramework.Core", copyLocal: true),
+                                BuildReference.ByName("EntityFramework.Commands", copyLocal: true),
+                                BuildReference.ByName("EntityFramework.Relational", copyLocal: true),
+                                BuildReference.ByName("EntityFramework.SqlServer", copyLocal: true),
+                                BuildReference.ByName("Microsoft.Framework.ConfigurationModel", copyLocal: true),
+                                BuildReference.ByName("Microsoft.Framework.DependencyInjection", copyLocal: true),
+                                BuildReference.ByName("Microsoft.Framework.Logging", copyLocal: true),
+                                BuildReference.ByName("Microsoft.Framework.Logging.Interfaces", copyLocal: true),
+                                BuildReference.ByName("Microsoft.Framework.OptionsModel", copyLocal: true),
+                                BuildReference.ByName("Remotion.Linq", copyLocal: true)
+                            },
+                        Source = @"
                         using System;
                         using Microsoft.Data.Entity;
                         using Microsoft.Data.Entity.Metadata;
@@ -212,7 +208,7 @@ namespace Microsoft.Data.Entity.Commands
                                 }
                             }
                         }"
-                };
+                    };
                 var build = source.Build();
                 using (var executor = new ExecutorWrapper(targetDir, build.TargetName + ".dll", targetDir, "MyProject"))
                 {
@@ -230,15 +226,15 @@ namespace Microsoft.Data.Entity.Commands
             {
                 var targetDir = directory.Path;
                 var contextsSource = new BuildSource
-                {
-                    TargetDir = targetDir,
-                    References =
-                        {
-                            BuildReference.ByName("System.Runtime, Version=4.0.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"),
-                            BuildReference.ByName("EntityFramework.Core", copyLocal: true),
-                            BuildReference.ByName("EntityFramework.Commands", copyLocal: true)
-                        },
-                    Source = @"
+                    {
+                        TargetDir = targetDir,
+                        References =
+                            {
+                                BuildReference.ByName("System.Runtime, Version=4.0.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"),
+                                BuildReference.ByName("EntityFramework.Core", copyLocal: true),
+                                BuildReference.ByName("EntityFramework.Commands", copyLocal: true)
+                            },
+                        Source = @"
                         using Microsoft.Data.Entity;
 
                         namespace MyProject
@@ -251,21 +247,21 @@ namespace Microsoft.Data.Entity.Commands
                             {
                             }
                         }"
-                };
+                    };
                 var contextsBuild = contextsSource.Build();
                 var migrationsSource = new BuildSource
-                {
-                    TargetDir = targetDir,
-                    References =
-                        {
-                            BuildReference.ByName("System.Runtime, Version=4.0.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"),
-                            BuildReference.ByName("EntityFramework.Core"),
-                            BuildReference.ByName("EntityFramework.Relational", copyLocal: true),
-                            BuildReference.ByName("Microsoft.Framework.Logging", copyLocal: true),
-                            BuildReference.ByName("Microsoft.Framework.Logging.Interfaces", copyLocal: true),
-                            BuildReference.ByPath(contextsBuild.TargetPath)
-                        },
-                    Source = @"
+                    {
+                        TargetDir = targetDir,
+                        References =
+                            {
+                                BuildReference.ByName("System.Runtime, Version=4.0.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"),
+                                BuildReference.ByName("EntityFramework.Core"),
+                                BuildReference.ByName("EntityFramework.Relational", copyLocal: true),
+                                BuildReference.ByName("Microsoft.Framework.Logging", copyLocal: true),
+                                BuildReference.ByName("Microsoft.Framework.Logging.Interfaces", copyLocal: true),
+                                BuildReference.ByPath(contextsBuild.TargetPath)
+                            },
+                        Source = @"
                         using System;
                         using Microsoft.Data.Entity;
                         using Microsoft.Data.Entity.Metadata;
@@ -316,7 +312,7 @@ namespace Microsoft.Data.Entity.Commands
                                 }
                             }
                         }"
-                };
+                    };
                 var migrationsBuild = migrationsSource.Build();
                 using (var executor = new ExecutorWrapper(targetDir, migrationsBuild.TargetName + ".dll", targetDir, "MyProject"))
                 {

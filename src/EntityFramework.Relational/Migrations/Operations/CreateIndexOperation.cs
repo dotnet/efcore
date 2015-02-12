@@ -29,10 +29,10 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Operations
             Unique = unique;
         }
 
-        public virtual string Table { get;[param: NotNull] set; }
-        public virtual string Schema { get;[param: CanBeNull] set; }
-        public virtual string Name { get;[param: NotNull] set; }
-        public virtual IReadOnlyList<string> Columns { get;[param: NotNull] set; }
+        public virtual string Table { get; [param: NotNull] set; }
+        public virtual string Schema { get; [param: CanBeNull] set; }
+        public virtual string Name { get; [param: NotNull] set; }
+        public virtual IReadOnlyList<string> Columns { get; [param: NotNull] set; }
         public virtual bool Unique { get; }
     }
 }

@@ -12,20 +12,15 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 {
     public class CaseExpression : ExtensionExpression
     {
-        private readonly Expression _when;
-
         public CaseExpression([NotNull] Expression when)
             : base(typeof(bool))
         {
             Check.NotNull(when, "when");
 
-            _when = when;
+            When = when;
         }
 
-        public virtual Expression When
-        {
-            get { return _when; }
-        }
+        public virtual Expression When { get; }
 
         public override Expression Accept([NotNull] ExpressionTreeVisitor visitor)
         {

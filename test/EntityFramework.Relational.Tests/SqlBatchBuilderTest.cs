@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Xunit;
+
 namespace Microsoft.Data.Entity.Relational.Tests
 {
     public class SqlBatchBuilderTest
@@ -17,7 +18,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
 
             Assert.Equal(1, batchBuilder.SqlBatches.Count);
             Assert.Equal(
-@"Statement1
+                @"Statement1
 Statement2
 Statement3
 ", batchBuilder.SqlBatches[0].Sql);
@@ -40,16 +41,16 @@ Statement3
             Assert.Equal(3, batchBuilder.SqlBatches.Count);
 
             Assert.Equal(
-@"Statement1
+                @"Statement1
 ", batchBuilder.SqlBatches[0].Sql);
 
             Assert.Equal(
-@"Statement2
+                @"Statement2
 Statement3
 ", batchBuilder.SqlBatches[1].Sql);
 
             Assert.Equal(
-@"Statement4
+                @"Statement4
 Statement5
 Statement6
 ", batchBuilder.SqlBatches[2].Sql);
@@ -71,11 +72,11 @@ Statement6
             Assert.Equal(2, batchBuilder.SqlBatches.Count);
 
             Assert.Equal(
-@"Statement1
+                @"Statement1
 ", batchBuilder.SqlBatches[0].Sql);
 
             Assert.Equal(
-@"Statement2
+                @"Statement2
 Statement3
 ", batchBuilder.SqlBatches[1].Sql);
         }
@@ -96,13 +97,13 @@ Statement3
             Assert.Equal(2, batchBuilder.SqlBatches.Count);
             Assert.False(batchBuilder.SqlBatches[0].SuppressTransaction);
             Assert.Equal(
-@"Statement1
+                @"Statement1
 Statement2
 ", batchBuilder.SqlBatches[0].Sql);
 
             Assert.True(batchBuilder.SqlBatches[1].SuppressTransaction);
             Assert.Equal(
-@"Statement3
+                @"Statement3
 Statement4
 Statement5
 Statement6

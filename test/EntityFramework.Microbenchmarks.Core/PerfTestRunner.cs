@@ -78,7 +78,7 @@ namespace EntityFramework.Microbenchmarks.Core
                         var percentile = (i * 100).ToString(CultureInfo.InvariantCulture);
                         var resultName = string.Format("{0} - {1}th percentile", runResult.TestName, percentile);
                         var resultPercentile =
-                            GetPercentile(runResult, i, c => ((IterationCounter)c).ElapsedMillis, true);
+                            GetPercentile(runResult, i, c => c.ElapsedMillis, true);
 
                         sb.Append(resultPercentile);
                         sb.Append("ms ");
@@ -169,10 +169,10 @@ namespace EntityFramework.Microbenchmarks.Core
 
                     iterationCounters.Add(
                         new IterationCounter
-                        {
-                            ElapsedMillis = iterationStopwatch.ElapsedMilliseconds,
-                            WorkingSet = GC.GetTotalMemory(false)
-                        });
+                            {
+                                ElapsedMillis = iterationStopwatch.ElapsedMilliseconds,
+                                WorkingSet = GC.GetTotalMemory(false)
+                            });
                 }
             }
             catch (Exception e)
@@ -207,19 +207,19 @@ namespace EntityFramework.Microbenchmarks.Core
                 var metric = string.Format("{0} {1}", "total", TestConfig.Instance.RuntimeFlavor);
                 metrics.Add(
                     new PerformanceMetric
-                    {
-                        Scenario = runResult.TestName,
-                        Metric = metric,
-                        Unit = "Milliseconds",
-                        Value = runResult.ElapsedMillis
-                    });
+                        {
+                            Scenario = runResult.TestName,
+                            Metric = metric,
+                            Unit = "Milliseconds",
+                            Value = runResult.ElapsedMillis
+                        });
 
                 if (runResult.IterationCounters.Count > 1)
                 {
                     foreach (var i in new[] { 0.95, 0.99, 0.999 })
                     {
                         var percentile = (i * 100).ToString(CultureInfo.InvariantCulture);
-                        long resultPercentile = GetPercentile(runResult, i, c => c.ElapsedMillis, true);
+                        var resultPercentile = GetPercentile(runResult, i, c => c.ElapsedMillis, true);
                         long resultMemoryPercentile = 0;
 
                         resultMemoryPercentile = GetPercentile(runResult, i,
@@ -229,12 +229,12 @@ namespace EntityFramework.Microbenchmarks.Core
 
                         metrics.Add(
                             new PerformanceMetric
-                            {
-                                Scenario = runResult.TestName,
-                                Metric = metric,
-                                Unit = "Milliseconds",
-                                Value = resultPercentile
-                            });
+                                {
+                                    Scenario = runResult.TestName,
+                                    Metric = metric,
+                                    Unit = "Milliseconds",
+                                    Value = resultPercentile
+                                });
                     }
                 }
             }

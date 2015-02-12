@@ -208,13 +208,13 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             Assert.Equal(
                 CoreStrings.NoDataStoreConfigured,
                 Assert.Throws<InvalidOperationException>(() =>
-                {
-                    using (var context = new NoServicesAndNoConfigBlogContext())
                     {
-                        context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
-                        context.SaveChanges();
-                    }
-                }).Message);
+                        using (var context = new NoServicesAndNoConfigBlogContext())
+                        {
+                            context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
+                            context.SaveChanges();
+                        }
+                    }).Message);
         }
 
         private class NoServicesAndNoConfigBlogContext : DbContext
@@ -232,13 +232,13 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             Assert.Equal(
                 CoreStrings.NoDataStoreService,
                 Assert.Throws<InvalidOperationException>(() =>
-                {
-                    using (var context = new ImplicitConfigButNoServicesBlogContext(serviceProvider))
                     {
-                        context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
-                        context.SaveChanges();
-                    }
-                }).Message);
+                        using (var context = new ImplicitConfigButNoServicesBlogContext(serviceProvider))
+                        {
+                            context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
+                            context.SaveChanges();
+                        }
+                    }).Message);
         }
 
         private class ImplicitConfigButNoServicesBlogContext : DbContext

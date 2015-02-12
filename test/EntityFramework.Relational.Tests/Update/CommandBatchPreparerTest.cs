@@ -3,8 +3,6 @@
 
 using System;
 using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
@@ -258,16 +256,16 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder.Entity<FakeEntity>(b =>
-            {
-                b.Key(c => c.Id);
-                b.Property(c => c.Value);
-            });
+                {
+                    b.Key(c => c.Id);
+                    b.Property(c => c.Value);
+                });
 
             modelBuilder.Entity<RelatedFakeEntity>(b =>
-            {
-                b.Key(c => c.Id);
-                b.ForeignKey<FakeEntity>(c => c.Id);
-            });
+                {
+                    b.Key(c => c.Id);
+                    b.ForeignKey<FakeEntity>(c => c.Id);
+                });
 
             return model;
         }
@@ -278,16 +276,16 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder.Entity<FakeEntity>(b =>
-            {
-                b.Key(c => c.Id);
-                b.Property(c => c.Value);
-            });
+                {
+                    b.Key(c => c.Id);
+                    b.Property(c => c.Value);
+                });
 
             modelBuilder.Entity<RelatedFakeEntity>(b =>
-            {
-                b.Key(c => c.Id);
-                b.ForeignKey<FakeEntity>(c => c.RelatedId);
-            });
+                {
+                    b.Key(c => c.Id);
+                    b.ForeignKey<FakeEntity>(c => c.RelatedId);
+                });
 
             modelBuilder
                 .Entity<FakeEntity>()

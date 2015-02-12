@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         public void Returns_appropriate_name()
         {
             Assert.Equal(
-                typeof(InMemoryDataStore).Name, 
+                typeof(InMemoryDataStore).Name,
                 new InMemoryDataStoreSource(Mock.Of<DbContextServices>(), new DbContextService<IDbContextOptions>(() => null)).Name);
         }
 

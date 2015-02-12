@@ -113,7 +113,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             DependentType.Property(DependentEntity.PrincipalEntityPeEKaYProperty, ConfigurationSource.Convention);
             DependentType.Property(DependentEntity.PeEKaYProperty, ConfigurationSource.Convention);
 
-            InternalEntityBuilder dependentEntityTypeBuilder = DependentType;
+            var dependentEntityTypeBuilder = DependentType;
             var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
                 PrincipalType,
                 dependentEntityTypeBuilder,
@@ -146,7 +146,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             DependentTypeWithCompositeKey.Property(DependentEntityWithCompositeKey.IdProperty, ConfigurationSource.Convention);
             DependentTypeWithCompositeKey.Property(DependentEntityWithCompositeKey.NameProperty, ConfigurationSource.Convention);
 
-            InternalEntityBuilder dependentEntityTypeBuilder = DependentTypeWithCompositeKey;
+            var dependentEntityTypeBuilder = DependentTypeWithCompositeKey;
             var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
                 PrincipalTypeWithCompositeKey,
                 dependentEntityTypeBuilder,

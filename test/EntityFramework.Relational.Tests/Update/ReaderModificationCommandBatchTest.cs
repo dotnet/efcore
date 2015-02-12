@@ -8,12 +8,10 @@ using System.Data.Common;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Relational.Update;
-using Microsoft.Data.Entity.Tests;
 using Microsoft.Data.Entity.Update;
 using Microsoft.Framework.Logging;
 using Moq;
@@ -503,10 +501,10 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             dbParameterCollectionMock
                 .Setup(m => m.Add(It.IsAny<object>()))
                 .Returns<object>(p =>
-                {
-                    parameters.Add(p);
-                    return parameters.Count - 1;
-                });
+                    {
+                        parameters.Add(p);
+                        return parameters.Count - 1;
+                    });
             dbParameterCollectionMock
                 .Protected()
                 .Setup<DbParameter>("GetParameter", ItExpr.IsAny<int>())
@@ -545,10 +543,10 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             mockDataReader
                 .Setup(r => r.ReadAsync(It.IsAny<CancellationToken>()))
                 .Returns(() =>
-                {
-                    currentRow = rowIndex < results.Count ? results[rowIndex++] : null;
-                    return Task.FromResult(currentRow != null);
-                });
+                    {
+                        currentRow = rowIndex < results.Count ? results[rowIndex++] : null;
+                        return Task.FromResult(currentRow != null);
+                    });
 
             return mockDataReader;
         }
@@ -608,7 +606,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
 
             public string CommandText
             {
-                get { return base.GetCommandText(); }
+                get { return GetCommandText(); }
             }
 
             public bool ShouldAddCommand { get; set; }
@@ -642,7 +640,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             }
 
             public DbCommand CreateStoreCommandBase(string commandText, DbTransaction transaction, RelationalTypeMapper typeMapper, int? commandTimeout)
-             {
+            {
                 return base.CreateStoreCommand(commandText, transaction, typeMapper, commandTimeout);
             }
 

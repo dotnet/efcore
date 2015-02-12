@@ -115,10 +115,10 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
                     canProduceInnerJoin = canProduceInnerJoin && (navigation.ForeignKey.IsRequired && navigation.PointsToPrincipal);
                     var joinExpression = canProduceInnerJoin
-                            ? selectExpression
-                                .AddInnerJoin(joinedTableExpression, columnExpressions)
-                            : selectExpression
-                                .AddOuterJoin(joinedTableExpression, columnExpressions);
+                        ? selectExpression
+                            .AddInnerJoin(joinedTableExpression, columnExpressions)
+                        : selectExpression
+                            .AddOuterJoin(joinedTableExpression, columnExpressions);
 
                     joinExpression.Predicate
                         = BuildJoinEqualityExpression(
@@ -291,7 +291,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                             = Expression.Convert(primaryKeyExpression, foreignKeyColumnExpression.Type);
                     }
                     else if (primaryKeyExpression.Type.IsNullableType()
-                        && !foreignKeyColumnExpression.Type.IsNullableType())
+                             && !foreignKeyColumnExpression.Type.IsNullableType())
                     {
                         foreignKeyColumnExpression
                             = Expression.Convert(foreignKeyColumnExpression, primaryKeyColumnExpression.Type);

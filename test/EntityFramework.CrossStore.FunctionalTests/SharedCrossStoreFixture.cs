@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 return new InMemoryTestStore();
             }
-            
+
             if (testStoreType == typeof(SqlServerTestStore))
             {
                 return SqlServerTestStore.CreateScratchAsync().Result;

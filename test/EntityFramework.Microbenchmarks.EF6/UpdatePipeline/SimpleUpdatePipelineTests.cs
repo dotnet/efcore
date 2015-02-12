@@ -1,31 +1,30 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using System.Linq;
 using EntityFramework.Microbenchmarks.Core;
 using EntityFramework.Microbenchmarks.Core.Models.Orders;
 using EntityFramework.Microbenchmarks.EF6.Models.Orders;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Xunit;
 
 namespace EntityFramework.Microbenchmarks.EF6.UpdatePipeline
 {
     public class SimpleUpdatePipelineTests
     {
-        private static string _connectionString = String.Format(@"Server={0};Database=Perf_UpdatePipeline_Simple_EF6;Integrated Security=True;MultipleActiveResultSets=true;", TestConfig.Instance.DataSource);
+        private static readonly string _connectionString = String.Format(@"Server={0};Database=Perf_UpdatePipeline_Simple_EF6;Integrated Security=True;MultipleActiveResultSets=true;", TestConfig.Instance.DataSource);
 
         [Fact]
         public void Insert()
         {
             new TestDefinition
-            {
-                TestName = "UpdatePipeline_Simple_Insert_EF6",
-                IterationCount = 100,
-                WarmupCount = 5,
-                Run = Insert,
-                Setup = EnsureDatabaseSetup
-            }.RunTest();
+                {
+                    TestName = "UpdatePipeline_Simple_Insert_EF6",
+                    IterationCount = 100,
+                    WarmupCount = 5,
+                    Run = Insert,
+                    Setup = EnsureDatabaseSetup
+                }.RunTest();
         }
 
         private static void Insert(TestHarness harness)
@@ -34,7 +33,7 @@ namespace EntityFramework.Microbenchmarks.EF6.UpdatePipeline
             {
                 using (context.Database.BeginTransaction())
                 {
-                    for (int i = 0; i < 1000; i++)
+                    for (var i = 0; i < 1000; i++)
                     {
                         context.Customers.Add(new Customer { Name = "New Customer " + i });
                     }
@@ -52,13 +51,13 @@ namespace EntityFramework.Microbenchmarks.EF6.UpdatePipeline
         public void Update()
         {
             new TestDefinition
-            {
-                TestName = "UpdatePipeline_Simple_Update_EF6",
-                IterationCount = 100,
-                WarmupCount = 5,
-                Run = Update,
-                Setup = EnsureDatabaseSetup
-            }.RunTest();
+                {
+                    TestName = "UpdatePipeline_Simple_Update_EF6",
+                    IterationCount = 100,
+                    WarmupCount = 5,
+                    Run = Update,
+                    Setup = EnsureDatabaseSetup
+                }.RunTest();
         }
 
         private static void Update(TestHarness harness)
@@ -85,13 +84,13 @@ namespace EntityFramework.Microbenchmarks.EF6.UpdatePipeline
         public void Delete()
         {
             new TestDefinition
-            {
-                TestName = "UpdatePipeline_Simple_Delete_EF6",
-                IterationCount = 100,
-                WarmupCount = 5,
-                Run = Delete,
-                Setup = EnsureDatabaseSetup
-            }.RunTest();
+                {
+                    TestName = "UpdatePipeline_Simple_Delete_EF6",
+                    IterationCount = 100,
+                    WarmupCount = 5,
+                    Run = Delete,
+                    Setup = EnsureDatabaseSetup
+                }.RunTest();
         }
 
         private static void Delete(TestHarness harness)
@@ -118,13 +117,13 @@ namespace EntityFramework.Microbenchmarks.EF6.UpdatePipeline
         public void Mixed()
         {
             new TestDefinition
-            {
-                TestName = "UpdatePipeline_Simple_Mixed_EF6",
-                IterationCount = 100,
-                WarmupCount = 5,
-                Run = Mixed,
-                Setup = EnsureDatabaseSetup
-            }.RunTest();
+                {
+                    TestName = "UpdatePipeline_Simple_Mixed_EF6",
+                    IterationCount = 100,
+                    WarmupCount = 5,
+                    Run = Mixed,
+                    Setup = EnsureDatabaseSetup
+                }.RunTest();
         }
 
         private static void Mixed(TestHarness harness)
@@ -135,17 +134,17 @@ namespace EntityFramework.Microbenchmarks.EF6.UpdatePipeline
                 {
                     var customers = context.Customers.ToArray();
 
-                    for (int i = 0; i < 333; i++)
+                    for (var i = 0; i < 333; i++)
                     {
                         context.Customers.Add(new Customer { Name = "New Customer " + i });
                     }
 
-                    for (int i = 0; i < 1000; i += 3)
+                    for (var i = 0; i < 1000; i += 3)
                     {
                         context.Customers.Remove(customers[i]);
                     }
 
-                    for (int i = 1; i < 1000; i += 3)
+                    for (var i = 1; i < 1000; i += 3)
                     {
                         customers[i].Name += " Modified";
                     }

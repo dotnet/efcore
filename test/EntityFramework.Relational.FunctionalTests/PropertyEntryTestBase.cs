@@ -40,9 +40,9 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
             TestStore = Fixture.CreateTestStore();
         }
 
-        protected TFixture Fixture { get; private set; }
+        protected TFixture Fixture { get; }
 
-        protected TTestStore TestStore { get; private set; }
+        protected TTestStore TestStore { get; }
 
         public void Dispose()
         {

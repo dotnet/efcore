@@ -922,7 +922,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                 Assert.True(orderDetails.Count > 0);
                 Assert.True(orderDetails.All(od => od.Order.Customer != null));
-            } 
+            }
         }
     }
 }

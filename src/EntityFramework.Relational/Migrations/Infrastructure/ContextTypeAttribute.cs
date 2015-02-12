@@ -7,7 +7,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
 {
-    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Class)]
     public class ContextTypeAttribute : Attribute
     {
         public ContextTypeAttribute([NotNull] Type contextType)

@@ -8,7 +8,8 @@ using System.Threading;
 
 namespace Microsoft.Data.Entity.Metadata.Compiled
 {
-    public abstract class CompiledEntityType<TEntity> : CompiledMetadataBase where TEntity : class
+    public abstract class CompiledEntityType<TEntity> : CompiledMetadataBase
+        where TEntity : class
     {
         private IKey _key;
         private IProperty[] _properties;
@@ -28,7 +29,7 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
             var property = TryGetProperty(name);
             if (property == null)
             {
-                throw new Exception(string.Format("The property '{0}' on entity type '{1}' could not be found. Ensure that the property exists and has been included in the model.",name, typeof(TEntity).Name));
+                throw new Exception(string.Format("The property '{0}' on entity type '{1}' could not be found. Ensure that the property exists and has been included in the model.", name, typeof(TEntity).Name));
             }
             return property;
         }

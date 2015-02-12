@@ -73,7 +73,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 stateManager.StartTracking(productType, new Product { Id = 25, CategoryId = 12 }, new ObjectArrayValueReader(new object[] { 12, 25 }));
                 AssertAllFixedUp(context);
 
-                stateManager.StartTracking(offerType, new SpecialOffer { Id = 31, ProductId  = 22 }, new ObjectArrayValueReader(new object[] { 31, 22 }));
+                stateManager.StartTracking(offerType, new SpecialOffer { Id = 31, ProductId = 22 }, new ObjectArrayValueReader(new object[] { 31, 22 }));
                 AssertAllFixedUp(context);
                 stateManager.StartTracking(offerType, new SpecialOffer { Id = 32, ProductId = 22 }, new ObjectArrayValueReader(new object[] { 32, 22 }));
                 AssertAllFixedUp(context);
@@ -212,7 +212,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             public int Id { get; set; }
 
-            public ICollection<Product> Products { get; set; }
+            public ICollection<Product> Products { get; }
         }
 
         private class Product
@@ -226,7 +226,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             public int CategoryId { get; set; }
 
             public Category Category { get; set; }
-            public ICollection<SpecialOffer> SpecialOffers { get; set; }
+            public ICollection<SpecialOffer> SpecialOffers { get; }
         }
 
         private class SpecialOffer

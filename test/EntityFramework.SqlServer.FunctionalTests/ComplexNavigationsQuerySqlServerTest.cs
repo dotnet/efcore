@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             base.Multi_level_include_one_to_many_optional_and_one_to_many_optional_produces_valid_sql();
 
             Assert.Equal(
-@"SELECT [e].[Id], [e].[Level1Id], [e].[Name], [e].[OneToMany_Required_Self_InverseId]
+                @"SELECT [e].[Id], [e].[Level1Id], [e].[Name], [e].[OneToMany_Required_Self_InverseId]
 FROM [Level1] AS [e]
 ORDER BY [e].[Id]
 
@@ -49,7 +49,7 @@ ORDER BY [l0].[Id], [l0].[Id0]", Sql);
             base.Multi_level_include_correct_PK_is_chosen_as_the_join_predicate_for_queries_that_join_same_table_multiple_times();
 
             Assert.Equal(
-@"SELECT [e].[Id], [e].[Level1Id], [e].[Name], [e].[OneToMany_Required_Self_InverseId]
+                @"SELECT [e].[Id], [e].[Level1Id], [e].[Name], [e].[OneToMany_Required_Self_InverseId]
 FROM [Level1] AS [e]
 ORDER BY [e].[Id]
 

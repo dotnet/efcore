@@ -9,22 +9,17 @@ namespace Microsoft.Data.Entity.Commands.TestUtilities
 {
     internal class TempDirectory : IDisposable
     {
-        private readonly string _path;
-
         public TempDirectory()
         {
-            _path = IOPath.Combine(IOPath.GetTempPath(), IOPath.GetRandomFileName());
-            Directory.CreateDirectory(_path);
+            Path = IOPath.Combine(IOPath.GetTempPath(), IOPath.GetRandomFileName());
+            Directory.CreateDirectory(Path);
         }
 
-        public string Path
-        {
-            get { return _path; }
-        }
+        public string Path { get; }
 
         public void Dispose()
         {
-            Directory.Delete(_path, recursive: true);
+            Directory.Delete(Path, recursive: true);
         }
     }
 }

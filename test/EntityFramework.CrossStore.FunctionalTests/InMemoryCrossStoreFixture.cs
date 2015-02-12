@@ -2,8 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.Data.Entity.InMemory.FunctionalTests;
 using Microsoft.Data.Entity.FunctionalTests.TestModels;
+using Microsoft.Data.Entity.InMemory.FunctionalTests;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
 using Xunit;

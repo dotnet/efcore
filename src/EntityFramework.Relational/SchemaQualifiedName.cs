@@ -61,45 +61,36 @@ namespace Microsoft.Data.Entity.Relational
             return !left.Equals(right);
         }
 
-        private readonly string _name;
-        private readonly string _schema;
-
         public SchemaQualifiedName([NotNull] string name)
             : this(Check.NotEmpty(name, "name"), null)
         {
-            _name = name;
+            Name = name;
         }
 
         public SchemaQualifiedName([NotNull] string name, [CanBeNull] string schema)
         {
             Check.NotEmpty(name, "name");
 
-            _name = name;
-            _schema = schema;
+            Name = name;
+            Schema = schema;
         }
 
-        public string Name
-        {
-            get { return _name; }
-        }
+        public string Name { get; }
 
-        public string Schema
-        {
-            get { return _schema; }
-        }
+        public string Schema { get; }
 
         public bool IsSchemaQualified
         {
-            get { return _schema != null; }
+            get { return Schema != null; }
         }
 
         public override string ToString()
         {
-            var s = Escape(_name);
+            var s = Escape(Name);
 
-            if (_schema != null)
+            if (Schema != null)
             {
-                s = Escape(_schema) + "." + s;
+                s = Escape(Schema) + "." + s;
             }
 
             return s;
@@ -114,8 +105,8 @@ namespace Microsoft.Data.Entity.Relational
 
         public bool Equals(SchemaQualifiedName other)
         {
-            return string.Equals(_name, other._name)
-                   && string.Equals(_schema, other._schema);
+            return string.Equals(Name, other.Name)
+                   && string.Equals(Schema, other.Schema);
         }
 
         public override bool Equals([CanBeNull] object obj)
@@ -133,8 +124,8 @@ namespace Microsoft.Data.Entity.Relational
         {
             unchecked
             {
-                return (_name.GetHashCode() * 397)
-                       ^ (_schema != null ? _schema.GetHashCode() : 0);
+                return (Name.GetHashCode() * 397)
+                       ^ (Schema != null ? Schema.GetHashCode() : 0);
             }
         }
     }

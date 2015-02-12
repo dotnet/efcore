@@ -13,7 +13,6 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 {
     public class ColumnExpression : ExtensionExpression
     {
-        private readonly string _name;
         private readonly IProperty _property;
         private readonly TableExpressionBase _tableExpression;
 
@@ -26,7 +25,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             Check.NotEmpty(name, "name");
             Check.NotNull(tableExpression, "tableExpression");
 
-            _name = name;
+            Name = name;
             _property = property;
             _tableExpression = tableExpression;
         }
@@ -48,10 +47,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             get { return _property; }
         }
 
-        public virtual string Name
-        {
-            get { return _name; }
-        }
+        public virtual string Name { get; }
 
         public virtual string Alias { get; [param: CanBeNull] set; }
 

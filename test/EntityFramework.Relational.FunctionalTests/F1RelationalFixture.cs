@@ -3,7 +3,6 @@
 
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.ConcurrencyModel;
-using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.Relational.FunctionalTests
 {

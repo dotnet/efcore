@@ -7,7 +7,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
@@ -104,7 +103,7 @@ namespace Microsoft.Data.Entity.InMemory.Query
         {
             var inMemoryQueryContext = (InMemoryQueryContext)queryContext;
             var targetTable = inMemoryQueryContext.Database.GetTable(targetType);
-            
+
             return targetTable
                 .Select(vs => new ObjectArrayValueReader(vs))
                 .Where(valueReader => relatedKeyFactory(valueReader).Equals(primaryKey));
@@ -140,14 +139,14 @@ namespace Microsoft.Data.Entity.InMemory.Query
             return inMemoryQueryContext.Database
                 .GetTable(entityType)
                 .Select(t =>
-                {
-                    var valueReader = new ObjectArrayValueReader(t);
-                    var entityKey = entityKeyFactory(valueReader);
+                    {
+                        var valueReader = new ObjectArrayValueReader(t);
+                        var entityKey = entityKeyFactory(valueReader);
 
-                    return (TEntity)queryContext
-                        .QueryBuffer
-                        .GetEntity(entityType, entityKey, valueReader, materializer, queryStateManager);
-                });
+                        return (TEntity)queryContext
+                            .QueryBuffer
+                            .GetEntity(entityType, entityKey, valueReader, materializer, queryStateManager);
+                    });
         }
 
         private static readonly MethodInfo _projectionQueryMethodInfo
@@ -156,7 +155,7 @@ namespace Microsoft.Data.Entity.InMemory.Query
 
         [UsedImplicitly]
         private static IEnumerable<IValueReader> ProjectionQuery(
-            QueryContext queryContext, 
+            QueryContext queryContext,
             IEntityType entityType)
         {
             var inMemoryQueryContext = (InMemoryQueryContext)queryContext;

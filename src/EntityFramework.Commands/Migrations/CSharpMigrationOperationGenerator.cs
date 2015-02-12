@@ -546,7 +546,6 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                             .Append(_code.Literal(foreignKey.PrincipalColumns));
                     }
 
-
                     if (foreignKey.CascadeDelete)
                     {
                         builder.Append(", cascadeDelete: true");

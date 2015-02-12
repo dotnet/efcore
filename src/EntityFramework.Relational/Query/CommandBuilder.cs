@@ -1,8 +1,6 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.Data.Common;
 using JetBrains.Annotations;
@@ -47,10 +45,10 @@ namespace Microsoft.Data.Entity.Relational.Query
                 command.CommandTimeout = (int)connection.CommandTimeout;
             }
 
-            var sqlGenerator 
+            var sqlGenerator
                 = _relationalQueryCompilationContext.CreateSqlQueryGenerator();
 
-            command.CommandText 
+            command.CommandText
                 = sqlGenerator.GenerateSql(_selectExpression, parameterValues);
 
             foreach (var parameterName in sqlGenerator.Parameters)

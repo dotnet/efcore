@@ -939,7 +939,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var customerForeignKey = orderType.AddForeignKey(customerForeignKeyProperty, customerKey);
 
             var specialOrderType = new EntityType(typeof(SpecialOrder), new Model());
-            var specialCustomerForeignKeyProperty = specialOrderType.AddProperty(SpecialOrder.CustomerIdProperty);
+            var specialCustomerForeignKeyProperty = specialOrderType.AddProperty(Order.CustomerIdProperty);
             var specialCustomerForeignKey = specialOrderType.AddForeignKey(specialCustomerForeignKeyProperty, customerKey);
 
             var navigation2 = customerType.AddNavigation("Orders", customerForeignKey, pointsToPrincipal: false);

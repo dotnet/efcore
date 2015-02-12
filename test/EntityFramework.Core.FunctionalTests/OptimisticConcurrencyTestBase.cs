@@ -684,9 +684,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
             TestStore.Dispose();
         }
 
-        protected TFixture Fixture { get; private set; }
+        protected TFixture Fixture { get; }
 
-        protected TTestStore TestStore { get; private set; }
+        protected TTestStore TestStore { get; }
 
         private Task ConcurrencyTestAsync(int expectedPodiums, Action<F1Context, DbUpdateConcurrencyException> resolver)
         {

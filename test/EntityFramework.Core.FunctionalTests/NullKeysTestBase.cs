@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Data.Entity.Metadata;
 using Xunit;
 
 namespace Microsoft.Data.Entity.FunctionalTests
@@ -67,7 +66,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     results.Select(e => e.Id));
 
                 Assert.Equal(
-                    new int[] { 1, 1, 3 },
+                    new[] { 1, 1, 3 },
                     results.Select(e => e.Fk));
 
                 Assert.Equal(

@@ -3,7 +3,6 @@
 
 using System;
 using Microsoft.Data.Entity.FunctionalTests;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
 

@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         public void Returns_appropriate_name()
         {
             Assert.Equal(
-                typeof(SqlServerDataStore).Name, 
+                typeof(SqlServerDataStore).Name,
                 new SqlServerDataStoreSource(Mock.Of<DbContextServices>(), new DbContextService<IDbContextOptions>(() => null)).Name);
         }
 

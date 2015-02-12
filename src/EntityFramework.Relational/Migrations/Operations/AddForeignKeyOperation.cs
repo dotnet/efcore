@@ -35,13 +35,13 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Operations
             CascadeDelete = cascadeDelete;
         }
 
-        public virtual string DependentTable { get;[param: NotNull] set; }
-        public virtual string DependentSchema { get;[param: CanBeNull]set; }
-        public virtual string Name { get;[param: CanBeNull]set; }
-        public virtual IReadOnlyList<string> DependentColumns { get;[param: NotNull] set; }
-        public virtual string PrincipalTable { get;[param: NotNull] set; }
-        public virtual string PrincipalSchema { get;[param: CanBeNull]set; }
-        public virtual IReadOnlyList<string> PrincipalColumns { get;[param: NotNull] set; }
+        public virtual string DependentTable { get; [param: NotNull] set; }
+        public virtual string DependentSchema { get; [param: CanBeNull] set; }
+        public virtual string Name { get; [param: CanBeNull] set; }
+        public virtual IReadOnlyList<string> DependentColumns { get; [param: NotNull] set; }
+        public virtual string PrincipalTable { get; [param: NotNull] set; }
+        public virtual string PrincipalSchema { get; [param: CanBeNull] set; }
+        public virtual IReadOnlyList<string> PrincipalColumns { get; [param: NotNull] set; }
         public virtual bool CascadeDelete { get; set; }
     }
 }

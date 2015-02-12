@@ -15,12 +15,12 @@ namespace Microsoft.Data.Entity.Commands.Utilities
 {
     public abstract class CommandLogger : ILogger
     {
-        private static readonly string[] _includedNames = new[]
-        {
-            typeof(MigrationTool).FullName,
-            typeof(Migrator).FullName,
-            typeof(MigrationScaffolder).FullName
-        };
+        private static readonly string[] _includedNames =
+            {
+                typeof(MigrationTool).FullName,
+                typeof(Migrator).FullName,
+                typeof(MigrationScaffolder).FullName
+            };
 
         private readonly string _name;
         private readonly bool _enabledByName;

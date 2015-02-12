@@ -23,7 +23,8 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
 
         public bool IsNullable
         {
-            get {
+            get
+            {
                 var typeInfo = typeof(TProperty).GetTypeInfo();
                 return !typeInfo.IsValueType || (typeInfo.IsGenericType && typeInfo.GetGenericTypeDefinition() == typeof(Nullable<>));
             }

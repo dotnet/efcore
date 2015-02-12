@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 // ReSharper disable once CheckNamespace
+
 namespace Microsoft.Data.Entity.FunctionalTests
 {
     public static class Extensions

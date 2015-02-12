@@ -1,10 +1,9 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Linq;
 using EntityFramework.Microbenchmarks.Core.Models.Orders;
 using Microsoft.Data.Entity;
-using System.Collections.Generic;
-using System.Linq;
 using Xunit;
 
 namespace EntityFramework.Microbenchmarks.Models.Orders
@@ -12,11 +11,11 @@ namespace EntityFramework.Microbenchmarks.Models.Orders
     public class OrdersSeedData : OrdersSeedDataBase
     {
         public void EnsureCreated(
-           string connectionString,
-           int productCount,
-           int customerCount,
-           int ordersPerCustomer,
-           int linesPerOrder)
+            string connectionString,
+            int productCount,
+            int customerCount,
+            int ordersPerCustomer,
+            int linesPerOrder)
         {
             using (var context = new OrdersContext(connectionString))
             {
@@ -34,34 +33,34 @@ namespace EntityFramework.Microbenchmarks.Models.Orders
         }
 
         public void InsertSeedData(
-            string connectionString, 
-            int productCount, 
-            int customerCount, 
-            int ordersPerCustomer, 
+            string connectionString,
+            int productCount,
+            int customerCount,
+            int ordersPerCustomer,
             int linesPerOrder)
         {
-            List<Product> products = CreateProducts(productCount);
+            var products = CreateProducts(productCount);
             using (var context = new OrdersContext(connectionString))
             {
                 context.Products.AddRange(products);
                 context.SaveChanges();
             }
 
-            List<Customer> customers = CreateCustomers(customerCount);
+            var customers = CreateCustomers(customerCount);
             using (var context = new OrdersContext(connectionString))
             {
                 context.Customers.AddRange(customers);
                 context.SaveChanges();
             }
 
-            List<Order> orders = CreateOrders(ordersPerCustomer, customers);
+            var orders = CreateOrders(ordersPerCustomer, customers);
             using (var context = new OrdersContext(connectionString))
             {
                 context.Orders.AddRange(orders);
                 context.SaveChanges();
             }
 
-            List<OrderLine> lines = CreateOrderLines(linesPerOrder, products, orders);
+            var lines = CreateOrderLines(linesPerOrder, products, orders);
 
             using (var context = new OrdersContext(connectionString))
             {

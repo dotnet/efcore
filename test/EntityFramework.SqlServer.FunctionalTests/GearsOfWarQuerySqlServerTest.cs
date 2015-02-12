@@ -13,13 +13,13 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             : base(fixture)
         {
         }
-        
+
         public override void Include_multiple_one_to_one_and_one_to_many()
         {
             base.Include_multiple_one_to_one_and_one_to_many();
 
             Assert.Equal(
-@"SELECT [t].[GearNickName], [t].[GearSquadId], [t].[Id], [t].[Note], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Nickname], [g].[Rank], [g].[SquadId]
+                @"SELECT [t].[GearNickName], [t].[GearSquadId], [t].[Id], [t].[Note], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Nickname], [g].[Rank], [g].[SquadId]
 FROM [CogTag] AS [t]
 LEFT JOIN [Gear] AS [g] ON ([t].[GearNickName] = [g].[Nickname] AND [t].[GearSquadId] = [g].[SquadId])
 ORDER BY [g].[Nickname], [g].[SquadId]
@@ -40,7 +40,7 @@ ORDER BY [g].[Nickname], [g].[SquadId]",
             base.Include_multiple_one_to_one_and_one_to_many_self_reference();
 
             Assert.Equal(
-@"SELECT [t].[GearNickName], [t].[GearSquadId], [t].[Id], [t].[Note], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Nickname], [g].[Rank], [g].[SquadId]
+                @"SELECT [t].[GearNickName], [t].[GearSquadId], [t].[Id], [t].[Note], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Nickname], [g].[Rank], [g].[SquadId]
 FROM [CogTag] AS [t]
 LEFT JOIN [Gear] AS [g] ON ([t].[GearNickName] = [g].[Nickname] AND [t].[GearSquadId] = [g].[SquadId])
 ORDER BY [g].[Nickname], [g].[SquadId]
@@ -61,7 +61,7 @@ ORDER BY [g0].[Nickname], [g0].[SquadId]",
             base.Include_multiple_one_to_one_and_one_to_one_and_one_to_many();
 
             Assert.Equal(
-@"SELECT [t].[GearNickName], [t].[GearSquadId], [t].[Id], [t].[Note], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Nickname], [g].[Rank], [g].[SquadId], [s].[Id], [s].[InternalNumber], [s].[Name]
+                @"SELECT [t].[GearNickName], [t].[GearSquadId], [t].[Id], [t].[Note], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Nickname], [g].[Rank], [g].[SquadId], [s].[Id], [s].[InternalNumber], [s].[Name]
 FROM [CogTag] AS [t]
 LEFT JOIN [Gear] AS [g] ON ([t].[GearNickName] = [g].[Nickname] AND [t].[GearSquadId] = [g].[SquadId])
 LEFT JOIN [Squad] AS [s] ON [g].[SquadId] = [s].[Id]
@@ -83,7 +83,7 @@ ORDER BY [s].[Id]", Sql);
             base.Include_multiple_one_to_one_optional_and_one_to_one_required();
 
             Assert.Equal(
-@"SELECT [t].[GearNickName], [t].[GearSquadId], [t].[Id], [t].[Note], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Nickname], [g].[Rank], [g].[SquadId], [s].[Id], [s].[InternalNumber], [s].[Name]
+                @"SELECT [t].[GearNickName], [t].[GearSquadId], [t].[Id], [t].[Note], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Nickname], [g].[Rank], [g].[SquadId], [s].[Id], [s].[InternalNumber], [s].[Name]
 FROM [CogTag] AS [t]
 LEFT JOIN [Gear] AS [g] ON ([t].[GearNickName] = [g].[Nickname] AND [t].[GearSquadId] = [g].[SquadId])
 LEFT JOIN [Squad] AS [s] ON [g].[SquadId] = [s].[Id]", Sql);
@@ -94,7 +94,7 @@ LEFT JOIN [Squad] AS [s] ON [g].[SquadId] = [s].[Id]", Sql);
             base.Include_multiple_circular();
 
             Assert.Equal(
-@"SELECT [g].[AssignedCityName], [g].[CityOrBirthName], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Nickname], [g].[Rank], [g].[SquadId], [c].[Location], [c].[Name]
+                @"SELECT [g].[AssignedCityName], [g].[CityOrBirthName], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Nickname], [g].[Rank], [g].[SquadId], [c].[Location], [c].[Name]
 FROM [Gear] AS [g]
 INNER JOIN [City] AS [c] ON [g].[CityOrBirthName] = [c].[Name]
 ORDER BY [c].[Name]
@@ -115,7 +115,7 @@ ORDER BY [c].[Name]",
             base.Include_multiple_circular_with_filter();
 
             Assert.Equal(
-@"SELECT [g].[AssignedCityName], [g].[CityOrBirthName], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Nickname], [g].[Rank], [g].[SquadId], [c].[Location], [c].[Name]
+                @"SELECT [g].[AssignedCityName], [g].[CityOrBirthName], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Nickname], [g].[Rank], [g].[SquadId], [c].[Location], [c].[Name]
 FROM [Gear] AS [g]
 INNER JOIN [City] AS [c] ON [g].[CityOrBirthName] = [c].[Name]
 WHERE [g].[Nickname] = 'Marcus'

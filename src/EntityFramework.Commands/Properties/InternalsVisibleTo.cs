@@ -8,6 +8,7 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("EntityFramework.Commands.Tests")]
 
 // for Moq
+
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
 
 #endif

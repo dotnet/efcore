@@ -26,18 +26,18 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
         private static readonly LazyRef<Sequence> _defaultSequence =
             new LazyRef<Sequence>(() => new Sequence(Sequence.DefaultName));
 
-        protected override IEnumerable<MigrationOperation> Diff([CanBeNull]IModel source, [CanBeNull]IModel target)
+        protected override IEnumerable<MigrationOperation> Diff([CanBeNull] IModel source, [CanBeNull] IModel target)
         {
             var operations = base.Diff(source, target);
 
             // TODO: Remove when the default sequence is added to the model (See #1568)
             var sourceUsesDefaultSequence = DefaultSequenceUsed(source);
             var targetUsesDefaultSequence = DefaultSequenceUsed(target);
-            if (sourceUsesDefaultSequence == false && targetUsesDefaultSequence == true)
+            if (sourceUsesDefaultSequence == false && targetUsesDefaultSequence)
             {
                 operations = operations.Concat(Add(_defaultSequence.Value));
             }
-            else if (sourceUsesDefaultSequence == true && targetUsesDefaultSequence == false)
+            else if (sourceUsesDefaultSequence && targetUsesDefaultSequence == false)
             {
                 operations = operations.Concat(Remove(_defaultSequence.Value));
             }
@@ -51,7 +51,7 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
             && (model.SqlServer().ValueGenerationStrategy == SqlServerValueGenerationStrategy.Sequence
                 || model.EntityTypes.SelectMany(t => t.Properties).Any(
                     p => p.SqlServer().ValueGenerationStrategy == SqlServerValueGenerationStrategy.Sequence
-                        && p.SqlServer().SequenceName == null));
+                         && p.SqlServer().SequenceName == null));
 
         #endregion
 
@@ -124,10 +124,10 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
         // See Issue #1271: Principal keys need to generate values on add, but the database should only have one Identity column.
         private SqlServerValueGenerationStrategy? GetValueGenerationStrategy(IProperty property) =>
             property.SqlServer().ValueGenerationStrategy
-                ?? property.EntityType.Model.SqlServer().ValueGenerationStrategy
-                ?? (property.GenerateValueOnAdd && property.PropertyType.IsInteger() && property.IsPrimaryKey()
-                    ? SqlServerValueGenerationStrategy.Identity
-                    : default(SqlServerValueGenerationStrategy?));
+            ?? property.EntityType.Model.SqlServer().ValueGenerationStrategy
+            ?? (property.GenerateValueOnAdd && property.PropertyType.IsInteger() && property.IsPrimaryKey()
+                ? SqlServerValueGenerationStrategy.Identity
+                : default(SqlServerValueGenerationStrategy?));
 
         #endregion
 
@@ -197,7 +197,8 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
                 operations.Add(createIndexOperation);
             }
 
-            if (createIndexOperation != null && target.SqlServer().IsClustered != null)
+            if (createIndexOperation != null
+                && target.SqlServer().IsClustered != null)
             {
                 createIndexOperation[SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.Clustered] =
                     target.SqlServer().IsClustered.ToString();

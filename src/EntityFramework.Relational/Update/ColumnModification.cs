@@ -3,7 +3,6 @@
 
 using System;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Metadata;
@@ -13,16 +12,9 @@ namespace Microsoft.Data.Entity.Relational.Update
 {
     public class ColumnModification
     {
-        private readonly InternalEntityEntry _entry;
-        private readonly IProperty _property;
-        private readonly string _columnName;
         private readonly LazyRef<string> _parameterName;
         private readonly LazyRef<string> _originalParameterName;
         private readonly LazyRef<string> _outputParameterName;
-        private readonly bool _isRead;
-        private readonly bool _isWrite;
-        private readonly bool _isKey;
-        private readonly bool _isCondition;
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
@@ -48,9 +40,9 @@ namespace Microsoft.Data.Entity.Relational.Update
             Check.NotNull(propertyExtensions, "propertyExtensions");
             Check.NotNull(parameterNameGenerator, "parameterNameGenerator");
 
-            _entry = entry;
-            _property = property;
-            _columnName = propertyExtensions.Column;
+            Entry = entry;
+            Property = property;
+            ColumnName = propertyExtensions.Column;
             _parameterName = isWrite
                 ? new LazyRef<string>(parameterNameGenerator.GenerateNext)
                 : new LazyRef<string>((string)null);
@@ -60,41 +52,23 @@ namespace Microsoft.Data.Entity.Relational.Update
             _outputParameterName = isRead
                 ? new LazyRef<string>(parameterNameGenerator.GenerateNext)
                 : new LazyRef<string>((string)null);
-            _isRead = isRead;
-            _isWrite = isWrite;
-            _isKey = isKey;
-            _isCondition = isCondition;
+            IsRead = isRead;
+            IsWrite = isWrite;
+            IsKey = isKey;
+            IsCondition = isCondition;
         }
 
-        public virtual InternalEntityEntry Entry
-        {
-            get { return _entry; }
-        }
+        public virtual InternalEntityEntry Entry { get; }
 
-        public virtual IProperty Property
-        {
-            get { return _property; }
-        }
+        public virtual IProperty Property { get; }
 
-        public virtual bool IsRead
-        {
-            get { return _isRead; }
-        }
+        public virtual bool IsRead { get; }
 
-        public virtual bool IsWrite
-        {
-            get { return _isWrite; }
-        }
+        public virtual bool IsWrite { get; }
 
-        public virtual bool IsCondition
-        {
-            get { return _isCondition; }
-        }
+        public virtual bool IsCondition { get; }
 
-        public virtual bool IsKey
-        {
-            get { return _isKey; }
-        }
+        public virtual bool IsKey { get; }
 
         public virtual string ParameterName
         {
@@ -111,10 +85,7 @@ namespace Microsoft.Data.Entity.Relational.Update
             get { return _outputParameterName.Value; }
         }
 
-        public virtual string ColumnName
-        {
-            get { return _columnName; }
-        }
+        public virtual string ColumnName { get; }
 
         public virtual object OriginalValue
         {

@@ -134,7 +134,8 @@ namespace Microsoft.Data.Entity.SqlServer
                 }
                 catch (SqlException e)
                 {
-                    if (!retryOnNotExists && IsDoesNotExist(e))
+                    if (!retryOnNotExists
+                        && IsDoesNotExist(e))
                     {
                         return false;
                     }
@@ -165,7 +166,8 @@ namespace Microsoft.Data.Entity.SqlServer
                 }
                 catch (SqlException e)
                 {
-                    if (!retryOnNotExists && IsDoesNotExist(e))
+                    if (!retryOnNotExists
+                        && IsDoesNotExist(e))
                     {
                         return false;
                     }

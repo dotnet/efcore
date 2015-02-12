@@ -14,23 +14,23 @@ namespace Microsoft.Data.Entity.Commands.Utilities
     public class CSharpHelper
     {
         private static readonly IDictionary<Type, string> _builtInTypes = new Dictionary<Type, string>
-        {
-            { typeof(bool), "bool" },
-            { typeof(byte), "byte" },
-            { typeof(sbyte), "sbyte" },
-            { typeof(char), "char" },
-            { typeof(short), "short" },
-            { typeof(int), "int" },
-            { typeof(long), "long" },
-            { typeof(ushort), "ushort" },
-            { typeof(uint), "uint" },
-            { typeof(ulong), "ulong" },
-            { typeof(decimal), "decimal" },
-            { typeof(float), "float" },
-            { typeof(double), "double" },
-            { typeof(string), "string" },
-            { typeof(object), "object" }
-        };
+            {
+                { typeof(bool), "bool" },
+                { typeof(byte), "byte" },
+                { typeof(sbyte), "sbyte" },
+                { typeof(char), "char" },
+                { typeof(short), "short" },
+                { typeof(int), "int" },
+                { typeof(long), "long" },
+                { typeof(ushort), "ushort" },
+                { typeof(uint), "uint" },
+                { typeof(ulong), "ulong" },
+                { typeof(decimal), "decimal" },
+                { typeof(float), "float" },
+                { typeof(double), "double" },
+                { typeof(string), "string" },
+                { typeof(object), "object" }
+            };
 
         public virtual string Lambda([NotNull] IReadOnlyList<string> properties)
         {
@@ -65,7 +65,8 @@ namespace Microsoft.Data.Entity.Commands.Utilities
         {
             Check.NotNull(type, nameof(type));
 
-            if (type.IsConstructedGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+            if (type.IsConstructedGenericType
+                && type.GetGenericTypeDefinition() == typeof(Nullable<>))
             {
                 return Reference(type.UnwrapNullableType()) + "?";
             }
@@ -144,10 +145,13 @@ namespace Microsoft.Data.Entity.Commands.Utilities
             value.Contains(Environment.NewLine)
                 ? "@\"" + value.Replace("\"", "\"\"") + "\""
                 : "\"" + value.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\"";
+
         public virtual string Literal(bool value) => value ? "true" : "false";
         public virtual string Literal(byte value) => "(byte)" + value;
+
         public virtual string Literal([NotNull] byte[] values) =>
             "new byte[] { " + string.Join(", ", values) + " }";
+
         public virtual string Literal(char value) => "\'" + (value == '\'' ? "\\'" : value.ToString()) + "\'";
         public virtual string Literal(DateTime value) => "DateTime.Parse(\"" + value + "\")";
         public virtual string Literal(DateTimeOffset value) => "DateTimeOffset.Parse(\"" + value + "\")";
@@ -163,15 +167,19 @@ namespace Microsoft.Data.Entity.Commands.Utilities
         public virtual string Literal(uint value) => value + "u";
         public virtual string Literal(ulong value) => value + "ul";
         public virtual string Literal(ushort value) => "(ushort)" + value;
+
         public virtual string Literal<T>([NotNull] T? value) where T : struct =>
             // TODO: Test. May need dynamic
             Literal(value.Value);
+
         public virtual string Literal([NotNull] IReadOnlyList<string> values) =>
             values.Count == 1
                 ? Literal(values[0])
                 : "new[] { " + string.Join(", ", values.Select(Literal)) + " }";
+
         public virtual string Literal([NotNull] IDictionary<string, string> values) =>
             "new Dictionary<string, string> { " + string.Join(", ", values.Select(Literal)) + " }";
+
         public virtual string Literal([NotNull] KeyValuePair<string, string> value) =>
             "{ " + Literal(value.Key) + ", " + Literal(value.Value) + " }";
 

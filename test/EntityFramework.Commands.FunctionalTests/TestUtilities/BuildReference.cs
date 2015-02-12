@@ -16,31 +16,18 @@ namespace Microsoft.Data.Entity.Commands.TestUtilities
 {
     public class BuildReference
     {
-        private readonly MetadataReference _reference;
-        private readonly bool _copyLocal;
-        private readonly string _path;
-
         public BuildReference(MetadataReference reference, bool copyLocal = false, string path = null)
         {
-            _reference = reference;
-            _copyLocal = copyLocal;
-            _path = path;
+            Reference = reference;
+            CopyLocal = copyLocal;
+            Path = path;
         }
 
-        public MetadataReference Reference
-        {
-            get { return _reference; }
-        }
+        public MetadataReference Reference { get; }
 
-        public bool CopyLocal
-        {
-            get { return _copyLocal; }
-        }
+        public bool CopyLocal { get; }
 
-        public string Path
-        {
-            get { return _path; }
-        }
+        public string Path { get; }
 
         public static BuildReference ByName(string name, bool copyLocal = false)
         {

@@ -26,9 +26,9 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Operations
             Columns = columns;
         }
 
-        public virtual string Table { get;[param: NotNull] set; }
-        public virtual string Schema { get;[param: CanBeNull] set; }
-        public virtual string Name { get;[param: CanBeNull] set; }
-        public virtual IReadOnlyList<string> Columns { get;[param: NotNull] set; }
+        public virtual string Table { get; [param: NotNull] set; }
+        public virtual string Schema { get; [param: CanBeNull] set; }
+        public virtual string Name { get; [param: CanBeNull] set; }
+        public virtual IReadOnlyList<string> Columns { get; [param: NotNull] set; }
     }
 }

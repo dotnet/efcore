@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                     .ServiceCollection
                     .AddSingleton(typeof(InMemoryModelSource), p => new TestInMemoryModelSource(OnModelCreating))
                     .BuildServiceProvider();
-            
+
             _options = new DbContextOptions();
             _options.UseInMemoryStore();
 

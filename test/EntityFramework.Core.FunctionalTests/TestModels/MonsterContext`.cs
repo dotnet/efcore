@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.FunctionalTests.TestModels
 {
@@ -534,7 +533,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
                     Body = "Fancy a cup of tea?",
                     FromUsername = login1.Username,
                     ToUsername = login2.Username,
-                    Sent = DateTime.Now,
+                    Sent = DateTime.Now
                 }).Entity;
 
             var message2 = Add(new TMessage
@@ -543,7 +542,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
                     Body = "Love one!",
                     FromUsername = login2.Username,
                     ToUsername = login1.Username,
-                    Sent = DateTime.Now,
+                    Sent = DateTime.Now
                 }).Entity;
 
             var message3 = Add(new TMessage
@@ -552,7 +551,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
                     Body = "I'll put the kettle on.",
                     FromUsername = login1.Username,
                     ToUsername = login2.Username,
-                    Sent = DateTime.Now,
+                    Sent = DateTime.Now
                 }).Entity;
 
             var order1 = Add(new TAnOrder { CustomerId = customer1.CustomerId, Username = login1.Username, AlternateId = 77 }).Entity;
@@ -818,7 +817,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
                     Body = "Fancy a cup of tea?",
                     Sender = login1,
                     Recipient = dependentNavs ? login2 : null,
-                    Sent = DateTime.Now,
+                    Sent = DateTime.Now
                 }).Entity;
             if (principalNavs)
             {
@@ -834,7 +833,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
                     Body = "Love one!",
                     Sender = login2,
                     Recipient = dependentNavs ? login1 : null,
-                    Sent = DateTime.Now,
+                    Sent = DateTime.Now
                 }).Entity;
             if (principalNavs)
             {
@@ -848,7 +847,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
                     Body = "I'll put the kettle on.",
                     Sender = login1,
                     Recipient = dependentNavs ? login2 : null,
-                    Sent = DateTime.Now,
+                    Sent = DateTime.Now
                 }).Entity;
             if (principalNavs)
             {
@@ -1157,7 +1156,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
             var lastLogin1 = toAdd[2].AddEx(new TLastLogin
                 {
                     LoggedIn = new DateTime(2014, 5, 27, 10, 22, 26),
-                    LoggedOut = new DateTime(2014, 5, 27, 11, 22, 26),
+                    LoggedOut = new DateTime(2014, 5, 27, 11, 22, 26)
                 });
 
             login1.LastLogin = lastLogin1;
@@ -1166,7 +1165,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
             var lastLogin2 = toAdd[2].AddEx(new TLastLogin
                 {
                     LoggedIn = new DateTime(2014, 5, 27, 12, 22, 26),
-                    LoggedOut = new DateTime(2014, 5, 27, 13, 22, 26),
+                    LoggedOut = new DateTime(2014, 5, 27, 13, 22, 26)
                 });
 
             login2.LastLogin = lastLogin2;
@@ -1176,7 +1175,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
                 {
                     Subject = "Tea?",
                     Body = "Fancy a cup of tea?",
-                    Sent = DateTime.Now,
+                    Sent = DateTime.Now
                 });
 
             login1.InitializeCollections();
@@ -1188,7 +1187,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
                 {
                     Subject = "Re: Tea?",
                     Body = "Love one!",
-                    Sent = DateTime.Now,
+                    Sent = DateTime.Now
                 });
 
             login2.SentMessages.Add(message2);
@@ -1198,7 +1197,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
                 {
                     Subject = "Re: Tea?",
                     Body = "I'll put the kettle on.",
-                    Sent = DateTime.Now,
+                    Sent = DateTime.Now
                 });
 
             login1.SentMessages.Add(message3);
@@ -1271,7 +1270,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
             var productWebFeature1 = toAdd[0].AddEx(new TProductWebFeature
                 {
                     Heading = "Waffle Style",
-                    ProductId = product1.ProductId,
+                    ProductId = product1.ProductId
                 });
 
             productPhoto1.InitializeCollections();
@@ -1282,7 +1281,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
             var productWebFeature2 = toAdd[0].AddEx(new TProductWebFeature
                 {
                     Heading = "What does the waffle say?",
-                    ProductId = product2.ProductId,
+                    ProductId = product2.ProductId
                 });
 
             productReview3.InitializeCollections();

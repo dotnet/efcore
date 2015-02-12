@@ -32,12 +32,12 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Operations
             StoreType = storeType;
         }
 
-        public virtual string Name { get;[param: NotNull]set; }
-        public virtual string Schema { get;[param: CanBeNull] set; }
+        public virtual string Name { get; [param: NotNull] set; }
+        public virtual string Schema { get; [param: CanBeNull] set; }
         public virtual long StartValue { get; set; }
         public virtual long IncrementBy { get; set; }
         public virtual long? MinValue { get; set; }
         public virtual long? MaxValue { get; set; }
-        public virtual string StoreType { get;[param: CanBeNull] set; }
+        public virtual string StoreType { get; [param: CanBeNull] set; }
     }
 }

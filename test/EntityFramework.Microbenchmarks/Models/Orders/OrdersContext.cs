@@ -3,7 +3,6 @@
 
 using EntityFramework.Microbenchmarks.Core.Models.Orders;
 using Microsoft.Data.Entity;
-using Microsoft.Data.Entity.Metadata;
 
 namespace EntityFramework.Microbenchmarks.Models.Orders
 {

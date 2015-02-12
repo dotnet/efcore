@@ -3,11 +3,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Utilities;
-using System.Linq;
 
 namespace Microsoft.Data.Entity.SqlServer.Metadata
 {
@@ -48,9 +48,9 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
             get
             {
                 var sqlServerSequences = (
-                        from a in Model.Annotations
-                        where a.Name.StartsWith(SqlServerSequenceAnnotation)
-                        select Sequence.Deserialize(a.Value))
+                    from a in Model.Annotations
+                    where a.Name.StartsWith(SqlServerSequenceAnnotation)
+                    select Sequence.Deserialize(a.Value))
                     .ToList();
 
                 return base.Sequences

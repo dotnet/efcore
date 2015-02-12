@@ -16,6 +16,6 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Builders
             [CanBeNull] object defaultValue = null,
             [CanBeNull] string defaultValueSql = null,
             [CanBeNull] IReadOnlyDictionary<string, string> annotations = null) =>
-            new ColumnModel(name, storeType, nullable, defaultValue, defaultValueSql, annotations);
+                new ColumnModel(name, storeType, nullable, defaultValue, defaultValueSql, annotations);
     }
 }

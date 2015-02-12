@@ -11,18 +11,13 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 {
     public abstract class ColumnAggregateExpression : ExtensionExpression
     {
-        private readonly ColumnExpression _columnExpression;
-
         protected ColumnAggregateExpression([NotNull] ColumnExpression columnExpression)
             : base(Check.NotNull(columnExpression, "columnExpression").Type)
         {
-            _columnExpression = columnExpression;
+            ColumnExpression = columnExpression;
         }
 
-        public virtual ColumnExpression ColumnExpression
-        {
-            get { return _columnExpression; }
-        }
+        public virtual ColumnExpression ColumnExpression { get; }
 
         protected override Expression VisitChildren(ExpressionTreeVisitor visitor)
         {

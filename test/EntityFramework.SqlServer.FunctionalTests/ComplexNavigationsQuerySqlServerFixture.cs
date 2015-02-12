@@ -2,12 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.FunctionalTests.TestModels.ComplexNavigationsModel;
 using Microsoft.Data.Entity.Relational.FunctionalTests;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
 using Microsoft.Framework.Logging;
-using Microsoft.Data.Entity.FunctionalTests.TestModels.ComplexNavigationsModel;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
@@ -33,22 +32,22 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         public override SqlServerTestStore CreateTestStore()
         {
             return SqlServerTestStore.GetOrCreateShared(DatabaseName, () =>
-            {
-                var options = new DbContextOptions();
-                options.UseSqlServer(_connectionString);
-
-                using (var context = new ComplexNavigationsContext(_serviceProvider, options))
                 {
-                    // TODO: Delete DB if model changed
+                    var options = new DbContextOptions();
+                    options.UseSqlServer(_connectionString);
 
-                    if (context.Database.EnsureCreated())
+                    using (var context = new ComplexNavigationsContext(_serviceProvider, options))
                     {
-                        ComplexNavigationsModelInitializer.Seed(context);
-                    }
+                        // TODO: Delete DB if model changed
 
-                    TestSqlLoggerFactory.SqlStatements.Clear();
-                }
-            });
+                        if (context.Database.EnsureCreated())
+                        {
+                            ComplexNavigationsModelInitializer.Seed(context);
+                        }
+
+                        TestSqlLoggerFactory.SqlStatements.Clear();
+                    }
+                });
         }
 
         public override ComplexNavigationsContext CreateContext(SqlServerTestStore testStore)
@@ -69,4 +68,3 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         }
     }
 }
-

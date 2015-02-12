@@ -83,8 +83,8 @@ namespace Microsoft.Data.Entity.Relational.Migrations
             var appliedMigrations = _historyRepository.Service.GetAppliedMigrations();
 
             return _migrationAssembly.Migrations.Where(
-                    m => !appliedMigrations.Any(
-                        e => string.Equals(e.MigrationId, m.Id, StringComparison.OrdinalIgnoreCase)))
+                m => !appliedMigrations.Any(
+                    e => string.Equals(e.MigrationId, m.Id, StringComparison.OrdinalIgnoreCase)))
                 .ToList();
         }
 
@@ -169,7 +169,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations
             [CanBeNull] string fromMigrationName,
             [CanBeNull] string toMigrationName,
             bool idempotent = false) =>
-            "-- TODO: Generate a script ;)";
+                "-- TODO: Generate a script ;)";
 
         protected virtual IReadOnlyList<SqlBatch> ApplyMigration([NotNull] Migration migration, bool first)
         {

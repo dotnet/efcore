@@ -12,7 +12,6 @@ namespace Microsoft.Data.Entity.Relational
 {
     public class RelationalTypeMapping
     {
-        private readonly string _storeTypeName;
         private readonly DbType _storeType;
 
         /// <summary>
@@ -28,14 +27,11 @@ namespace Microsoft.Data.Entity.Relational
         {
             Check.NotEmpty(storeTypeName, "storeTypeName");
 
-            _storeTypeName = storeTypeName;
+            StoreTypeName = storeTypeName;
             _storeType = storeType;
         }
 
-        public virtual string StoreTypeName
-        {
-            get { return _storeTypeName; }
-        }
+        public virtual string StoreTypeName { get; }
 
         public virtual DbType StoreType
         {

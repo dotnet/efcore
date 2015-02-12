@@ -85,7 +85,8 @@ namespace Microsoft.Data.Entity.Relational
             get { return _commandTimeout; }
             set
             {
-                if (value.HasValue && value < 0)
+                if (value.HasValue
+                    && value < 0)
                 {
                     throw new ArgumentException(Strings.InvalidCommandTimeout);
                 }

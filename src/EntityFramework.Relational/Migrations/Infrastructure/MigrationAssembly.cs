@@ -38,10 +38,10 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
                     .ToList());
             _modelSnapshot = new LazyRef<ModelSnapshot>(
                 () => (
-                        from t in GetTypes(assembly)
-                        where t.IsSubclassOf(typeof(ModelSnapshot))
-                            && TryGetContextType(t) == contextType
-                        select (ModelSnapshot)Activator.CreateInstance(t.AsType()))
+                    from t in GetTypes(assembly)
+                    where t.IsSubclassOf(typeof(ModelSnapshot))
+                          && TryGetContextType(t) == contextType
+                    select (ModelSnapshot)Activator.CreateInstance(t.AsType()))
                     .FirstOrDefault());
         }
 
@@ -57,7 +57,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
         protected static IEnumerable<TypeInfo> GetTypes([NotNull] Assembly assembly) =>
             assembly.DefinedTypes.Where(
                 ti => ti.DeclaredConstructors.Any(c => c.IsPublic && c.GetParameters().Length == 0)
-                    && !ti.IsAbstract
-                    && !ti.IsGenericType);
+                      && !ti.IsAbstract
+                      && !ti.IsGenericType);
     }
 }

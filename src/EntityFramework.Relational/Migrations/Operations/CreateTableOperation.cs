@@ -21,10 +21,10 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Operations
             Schema = schema;
         }
 
-        public virtual string Name { get;[param: NotNull] set; }
-        public virtual string Schema { get;[param: CanBeNull] set; }
+        public virtual string Name { get; [param: NotNull] set; }
+        public virtual string Schema { get; [param: CanBeNull] set; }
         public virtual List<ColumnModel> Columns { get; } = new List<ColumnModel>();
-        public virtual AddPrimaryKeyOperation PrimaryKey { get;[param: NotNull] set; }
+        public virtual AddPrimaryKeyOperation PrimaryKey { get; [param: NotNull] set; }
         public virtual List<AddUniqueConstraintOperation> UniqueConstraints { get; } = new List<AddUniqueConstraintOperation>();
         public virtual List<AddForeignKeyOperation> ForeignKeys { get; } = new List<AddForeignKeyOperation>();
         public virtual List<CreateIndexOperation> Indexes { get; } = new List<CreateIndexOperation>();

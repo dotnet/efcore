@@ -4,7 +4,6 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Tests;
@@ -191,10 +190,10 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             var modelBuilder = new BasicModelBuilder(model);
 
             modelBuilder.Entity<Customer>(b =>
-            {
-                b.Key(c => c.Id);
-                b.Property(c => c.Name);
-            });
+                {
+                    b.Key(c => c.Id);
+                    b.Property(c => c.Name);
+                });
 
             return model;
         }

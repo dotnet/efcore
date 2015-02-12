@@ -3,7 +3,6 @@
 
 using System;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Framework.Logging;
 using Moq;
@@ -17,9 +16,9 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         public void Returns_typed_database_object()
         {
             var database = new InMemoryDatabaseFacade(
-                new DbContextService<DbContext>(() => null), 
-                Mock.Of<InMemoryDataStoreCreator>(), 
-                Mock.Of<InMemoryConnection>(), 
+                new DbContextService<DbContext>(() => null),
+                Mock.Of<InMemoryDataStoreCreator>(),
+                Mock.Of<InMemoryConnection>(),
                 new LoggerFactory());
 
             Assert.Same(database, database.AsInMemory());

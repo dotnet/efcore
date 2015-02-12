@@ -2,12 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.Data.Entity.FunctionalTests.TestModels.ComplexNavigationsModel;
-using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.FunctionalTests
 {
     public abstract class ComplexNavigationsQueryFixtureBase<TTestStore>
-            where TTestStore : TestStore
+        where TTestStore : TestStore
     {
         public abstract TTestStore CreateTestStore();
 

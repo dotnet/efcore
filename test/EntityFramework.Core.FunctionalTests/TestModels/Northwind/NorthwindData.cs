@@ -6,9 +6,9 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Reflection;
 using Microsoft.Data.Entity.Query;
 using Remotion.Linq.Parsing;
 
@@ -51,7 +51,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind
             context.Set<Customer>().AddRange(CreateCustomers());
 
             var titleProperty = context.Model.GetEntityType(typeof(Employee)).GetProperty("Title");
-            foreach (var employee in NorthwindData.CreateEmployees())
+            foreach (var employee in CreateEmployees())
             {
                 context.Set<Employee>().Add(employee);
                 context.Entry(employee).InternalEntry[titleProperty] = employee.Title;
@@ -1684,7 +1684,7 @@ Winchester Way",
                             UnitsInStock = 39,
                             UnitsOnOrder = 0,
                             ReorderLevel = 10,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -1697,7 +1697,7 @@ Winchester Way",
                             UnitsInStock = 17,
                             UnitsOnOrder = 40,
                             ReorderLevel = 25,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -1710,7 +1710,7 @@ Winchester Way",
                             UnitsInStock = 13,
                             UnitsOnOrder = 70,
                             ReorderLevel = 25,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -1723,7 +1723,7 @@ Winchester Way",
                             UnitsInStock = 53,
                             UnitsOnOrder = 0,
                             ReorderLevel = 0,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -1736,7 +1736,7 @@ Winchester Way",
                             UnitsInStock = 0,
                             UnitsOnOrder = 0,
                             ReorderLevel = 0,
-                            Discontinued = true,
+                            Discontinued = true
                         },
                     new Product
                         {
@@ -1749,7 +1749,7 @@ Winchester Way",
                             UnitsInStock = 120,
                             UnitsOnOrder = 0,
                             ReorderLevel = 25,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -1762,7 +1762,7 @@ Winchester Way",
                             UnitsInStock = 15,
                             UnitsOnOrder = 0,
                             ReorderLevel = 10,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -1775,7 +1775,7 @@ Winchester Way",
                             UnitsInStock = 6,
                             UnitsOnOrder = 0,
                             ReorderLevel = 0,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -1788,7 +1788,7 @@ Winchester Way",
                             UnitsInStock = 29,
                             UnitsOnOrder = 0,
                             ReorderLevel = 0,
-                            Discontinued = true,
+                            Discontinued = true
                         },
                     new Product
                         {
@@ -1801,7 +1801,7 @@ Winchester Way",
                             UnitsInStock = 31,
                             UnitsOnOrder = 0,
                             ReorderLevel = 0,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -1814,7 +1814,7 @@ Winchester Way",
                             UnitsInStock = 22,
                             UnitsOnOrder = 30,
                             ReorderLevel = 30,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -1827,7 +1827,7 @@ Winchester Way",
                             UnitsInStock = 86,
                             UnitsOnOrder = 0,
                             ReorderLevel = 0,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -1840,7 +1840,7 @@ Winchester Way",
                             UnitsInStock = 24,
                             UnitsOnOrder = 0,
                             ReorderLevel = 5,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -1853,7 +1853,7 @@ Winchester Way",
                             UnitsInStock = 35,
                             UnitsOnOrder = 0,
                             ReorderLevel = 0,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -1866,7 +1866,7 @@ Winchester Way",
                             UnitsInStock = 39,
                             UnitsOnOrder = 0,
                             ReorderLevel = 5,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -1879,7 +1879,7 @@ Winchester Way",
                             UnitsInStock = 29,
                             UnitsOnOrder = 0,
                             ReorderLevel = 10,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -1892,7 +1892,7 @@ Winchester Way",
                             UnitsInStock = 0,
                             UnitsOnOrder = 0,
                             ReorderLevel = 0,
-                            Discontinued = true,
+                            Discontinued = true
                         },
                     new Product
                         {
@@ -1905,7 +1905,7 @@ Winchester Way",
                             UnitsInStock = 42,
                             UnitsOnOrder = 0,
                             ReorderLevel = 0,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -1918,7 +1918,7 @@ Winchester Way",
                             UnitsInStock = 25,
                             UnitsOnOrder = 0,
                             ReorderLevel = 5,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -1931,7 +1931,7 @@ Winchester Way",
                             UnitsInStock = 40,
                             UnitsOnOrder = 0,
                             ReorderLevel = 0,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -1944,7 +1944,7 @@ Winchester Way",
                             UnitsInStock = 3,
                             UnitsOnOrder = 40,
                             ReorderLevel = 5,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -1957,7 +1957,7 @@ Winchester Way",
                             UnitsInStock = 104,
                             UnitsOnOrder = 0,
                             ReorderLevel = 25,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -1970,7 +1970,7 @@ Winchester Way",
                             UnitsInStock = 61,
                             UnitsOnOrder = 0,
                             ReorderLevel = 25,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -1983,7 +1983,7 @@ Winchester Way",
                             UnitsInStock = 20,
                             UnitsOnOrder = 0,
                             ReorderLevel = 0,
-                            Discontinued = true,
+                            Discontinued = true
                         },
                     new Product
                         {
@@ -1996,7 +1996,7 @@ Winchester Way",
                             UnitsInStock = 76,
                             UnitsOnOrder = 0,
                             ReorderLevel = 30,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -2009,7 +2009,7 @@ Winchester Way",
                             UnitsInStock = 15,
                             UnitsOnOrder = 0,
                             ReorderLevel = 0,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -2022,7 +2022,7 @@ Winchester Way",
                             UnitsInStock = 49,
                             UnitsOnOrder = 0,
                             ReorderLevel = 30,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -2035,7 +2035,7 @@ Winchester Way",
                             UnitsInStock = 26,
                             UnitsOnOrder = 0,
                             ReorderLevel = 0,
-                            Discontinued = true,
+                            Discontinued = true
                         },
                     new Product
                         {
@@ -2048,7 +2048,7 @@ Winchester Way",
                             UnitsInStock = 0,
                             UnitsOnOrder = 0,
                             ReorderLevel = 0,
-                            Discontinued = true,
+                            Discontinued = true
                         },
                     new Product
                         {
@@ -2061,7 +2061,7 @@ Winchester Way",
                             UnitsInStock = 10,
                             UnitsOnOrder = 0,
                             ReorderLevel = 15,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -2074,7 +2074,7 @@ Winchester Way",
                             UnitsInStock = 0,
                             UnitsOnOrder = 70,
                             ReorderLevel = 20,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -2087,7 +2087,7 @@ Winchester Way",
                             UnitsInStock = 9,
                             UnitsOnOrder = 40,
                             ReorderLevel = 25,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -2100,7 +2100,7 @@ Winchester Way",
                             UnitsInStock = 112,
                             UnitsOnOrder = 0,
                             ReorderLevel = 20,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -2113,7 +2113,7 @@ Winchester Way",
                             UnitsInStock = 111,
                             UnitsOnOrder = 0,
                             ReorderLevel = 15,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -2126,7 +2126,7 @@ Winchester Way",
                             UnitsInStock = 20,
                             UnitsOnOrder = 0,
                             ReorderLevel = 15,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -2139,7 +2139,7 @@ Winchester Way",
                             UnitsInStock = 112,
                             UnitsOnOrder = 0,
                             ReorderLevel = 20,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -2152,7 +2152,7 @@ Winchester Way",
                             UnitsInStock = 11,
                             UnitsOnOrder = 50,
                             ReorderLevel = 25,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -2165,7 +2165,7 @@ Winchester Way",
                             UnitsInStock = 17,
                             UnitsOnOrder = 0,
                             ReorderLevel = 15,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -2178,7 +2178,7 @@ Winchester Way",
                             UnitsInStock = 69,
                             UnitsOnOrder = 0,
                             ReorderLevel = 5,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -2191,7 +2191,7 @@ Winchester Way",
                             UnitsInStock = 123,
                             UnitsOnOrder = 0,
                             ReorderLevel = 30,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -2204,7 +2204,7 @@ Winchester Way",
                             UnitsInStock = 85,
                             UnitsOnOrder = 0,
                             ReorderLevel = 10,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -2217,7 +2217,7 @@ Winchester Way",
                             UnitsInStock = 26,
                             UnitsOnOrder = 0,
                             ReorderLevel = 0,
-                            Discontinued = true,
+                            Discontinued = true
                         },
                     new Product
                         {
@@ -2230,7 +2230,7 @@ Winchester Way",
                             UnitsInStock = 17,
                             UnitsOnOrder = 10,
                             ReorderLevel = 25,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -2243,7 +2243,7 @@ Winchester Way",
                             UnitsInStock = 27,
                             UnitsOnOrder = 0,
                             ReorderLevel = 15,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -2256,7 +2256,7 @@ Winchester Way",
                             UnitsInStock = 5,
                             UnitsOnOrder = 70,
                             ReorderLevel = 15,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -2269,7 +2269,7 @@ Winchester Way",
                             UnitsInStock = 95,
                             UnitsOnOrder = 0,
                             ReorderLevel = 0,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -2282,7 +2282,7 @@ Winchester Way",
                             UnitsInStock = 36,
                             UnitsOnOrder = 0,
                             ReorderLevel = 0,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -2295,7 +2295,7 @@ Winchester Way",
                             UnitsInStock = 15,
                             UnitsOnOrder = 70,
                             ReorderLevel = 25,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -2308,7 +2308,7 @@ Winchester Way",
                             UnitsInStock = 10,
                             UnitsOnOrder = 60,
                             ReorderLevel = 15,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -2321,7 +2321,7 @@ Winchester Way",
                             UnitsInStock = 65,
                             UnitsOnOrder = 0,
                             ReorderLevel = 30,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -2334,7 +2334,7 @@ Winchester Way",
                             UnitsInStock = 20,
                             UnitsOnOrder = 0,
                             ReorderLevel = 10,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -2347,7 +2347,7 @@ Winchester Way",
                             UnitsInStock = 38,
                             UnitsOnOrder = 0,
                             ReorderLevel = 25,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -2360,7 +2360,7 @@ Winchester Way",
                             UnitsInStock = 0,
                             UnitsOnOrder = 0,
                             ReorderLevel = 0,
-                            Discontinued = true,
+                            Discontinued = true
                         },
                     new Product
                         {
@@ -2373,7 +2373,7 @@ Winchester Way",
                             UnitsInStock = 21,
                             UnitsOnOrder = 0,
                             ReorderLevel = 10,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -2386,7 +2386,7 @@ Winchester Way",
                             UnitsInStock = 115,
                             UnitsOnOrder = 0,
                             ReorderLevel = 20,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -2399,7 +2399,7 @@ Winchester Way",
                             UnitsInStock = 21,
                             UnitsOnOrder = 10,
                             ReorderLevel = 30,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -2412,7 +2412,7 @@ Winchester Way",
                             UnitsInStock = 36,
                             UnitsOnOrder = 0,
                             ReorderLevel = 20,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -2425,7 +2425,7 @@ Winchester Way",
                             UnitsInStock = 62,
                             UnitsOnOrder = 0,
                             ReorderLevel = 20,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -2438,7 +2438,7 @@ Winchester Way",
                             UnitsInStock = 79,
                             UnitsOnOrder = 0,
                             ReorderLevel = 0,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -2451,7 +2451,7 @@ Winchester Way",
                             UnitsInStock = 19,
                             UnitsOnOrder = 0,
                             ReorderLevel = 0,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -2464,7 +2464,7 @@ Winchester Way",
                             UnitsInStock = 113,
                             UnitsOnOrder = 0,
                             ReorderLevel = 25,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -2477,7 +2477,7 @@ Winchester Way",
                             UnitsInStock = 17,
                             UnitsOnOrder = 0,
                             ReorderLevel = 0,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -2490,7 +2490,7 @@ Winchester Way",
                             UnitsInStock = 24,
                             UnitsOnOrder = 0,
                             ReorderLevel = 5,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -2503,7 +2503,7 @@ Winchester Way",
                             UnitsInStock = 22,
                             UnitsOnOrder = 80,
                             ReorderLevel = 30,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -2516,7 +2516,7 @@ Winchester Way",
                             UnitsInStock = 76,
                             UnitsOnOrder = 0,
                             ReorderLevel = 0,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -2529,7 +2529,7 @@ Winchester Way",
                             UnitsInStock = 4,
                             UnitsOnOrder = 100,
                             ReorderLevel = 20,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -2542,7 +2542,7 @@ Winchester Way",
                             UnitsInStock = 52,
                             UnitsOnOrder = 0,
                             ReorderLevel = 10,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -2555,7 +2555,7 @@ Winchester Way",
                             UnitsInStock = 6,
                             UnitsOnOrder = 10,
                             ReorderLevel = 15,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -2568,7 +2568,7 @@ Winchester Way",
                             UnitsInStock = 26,
                             UnitsOnOrder = 0,
                             ReorderLevel = 15,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -2581,7 +2581,7 @@ Winchester Way",
                             UnitsInStock = 15,
                             UnitsOnOrder = 10,
                             ReorderLevel = 30,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -2594,7 +2594,7 @@ Winchester Way",
                             UnitsInStock = 26,
                             UnitsOnOrder = 0,
                             ReorderLevel = 0,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -2607,7 +2607,7 @@ Winchester Way",
                             UnitsInStock = 14,
                             UnitsOnOrder = 0,
                             ReorderLevel = 0,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -2620,7 +2620,7 @@ Winchester Way",
                             UnitsInStock = 101,
                             UnitsOnOrder = 0,
                             ReorderLevel = 5,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -2633,7 +2633,7 @@ Winchester Way",
                             UnitsInStock = 4,
                             UnitsOnOrder = 20,
                             ReorderLevel = 5,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -2646,7 +2646,7 @@ Winchester Way",
                             UnitsInStock = 125,
                             UnitsOnOrder = 0,
                             ReorderLevel = 25,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -2659,7 +2659,7 @@ Winchester Way",
                             UnitsInStock = 57,
                             UnitsOnOrder = 0,
                             ReorderLevel = 20,
-                            Discontinued = false,
+                            Discontinued = false
                         },
                     new Product
                         {
@@ -2672,7 +2672,7 @@ Winchester Way",
                             UnitsInStock = 32,
                             UnitsOnOrder = 0,
                             ReorderLevel = 15,
-                            Discontinued = false,
+                            Discontinued = false
                         }
                 };
         }

@@ -227,7 +227,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         public virtual void AddToProjection(
             [NotNull] string column,
-            [NotNull] IProperty property, 
+            [NotNull] IProperty property,
             [NotNull] IQuerySource querySource)
         {
             Check.NotEmpty(column, "column");
@@ -298,7 +298,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
                 _projection.RemoveRange(index, _projection.Count - index);
             }
         }
-        
+
         public virtual void RemoveFromProjection([NotNull] IEnumerable<Ordering> orderBy)
         {
             Check.NotNull(orderBy, "orderBy");
@@ -330,7 +330,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
         }
 
         public virtual ColumnExpression AddToOrderBy(
-            [NotNull] string column, 
+            [NotNull] string column,
             [NotNull] IProperty property,
             [NotNull] TableExpressionBase table,
             OrderingDirection orderingDirection)

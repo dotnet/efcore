@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
@@ -86,7 +85,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                             .Equals(_relatedValuesEnumerable._primaryKey))
                     {
                         Current = _relatedValuesEnumerable._iterator._relatedValuesEnumerator.Current;
-                        
+
                         _relatedValuesEnumerable._iterator._moveNextPending = true;
 
                         return true;

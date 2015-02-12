@@ -47,7 +47,7 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
                 Assert.Equal(830, orders.Count);
             }
         }
-        
+
         [Fact]
         public virtual void Project_nullable_enum()
         {
@@ -67,7 +67,6 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
         public class MappedCustomer : Customer
         {
             public string CompanyName2 { get; set; }
-
         }
 
         public class MappedEmployee : Employee

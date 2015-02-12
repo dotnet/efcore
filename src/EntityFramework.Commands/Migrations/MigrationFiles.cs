@@ -7,8 +7,8 @@ namespace Microsoft.Data.Entity.Commands.Migrations
 {
     public class MigrationFiles
     {
-        public virtual string MigrationFile { get;[param: CanBeNull]set; }
-        public virtual string MigrationMetadataFile { get;[param: CanBeNull]set; }
-        public virtual string ModelSnapshotFile { get;[param: CanBeNull]set; }
+        public virtual string MigrationFile { get; [param: CanBeNull] set; }
+        public virtual string MigrationMetadataFile { get; [param: CanBeNull] set; }
+        public virtual string ModelSnapshotFile { get; [param: CanBeNull] set; }
     }
 }

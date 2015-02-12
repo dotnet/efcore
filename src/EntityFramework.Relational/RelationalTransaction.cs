@@ -13,8 +13,6 @@ namespace Microsoft.Data.Entity.Relational
 {
     public class RelationalTransaction : DataStoreTransaction
     {
-        private readonly DbTransaction _dbTransaction;
-        private readonly RelationalConnection _connection;
         private readonly bool _transactionOwned;
         private bool _disposed;
 
@@ -39,20 +37,14 @@ namespace Microsoft.Data.Entity.Relational
                 throw new InvalidOperationException(Strings.TransactionAssociatedWithDifferentConnection);
             }
 
-            _connection = connection;
-            _dbTransaction = dbTransaction;
+            Connection = connection;
+            DbTransaction = dbTransaction;
             _transactionOwned = transactionOwned;
         }
 
-        public virtual DbTransaction DbTransaction
-        {
-            get { return _dbTransaction; }
-        }
+        public virtual DbTransaction DbTransaction { get; }
 
-        public virtual RelationalConnection Connection
-        {
-            get { return _connection; }
-        }
+        public virtual RelationalConnection Connection { get; }
 
         public override void Commit()
         {

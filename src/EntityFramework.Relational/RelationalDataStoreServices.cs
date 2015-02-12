@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.Relational
         public static Func<IServiceProvider, DbContextService<MigrationSqlGenerator>> MigrationSqlGeneratorFactory =>
             p => new DbContextService<MigrationSqlGenerator>(() => GetStoreServices(p).MigrationSqlGenerator);
 
-        protected static new RelationalDataStoreServices GetStoreServices([NotNull] IServiceProvider serviceProvider)
+        protected new static RelationalDataStoreServices GetStoreServices([NotNull] IServiceProvider serviceProvider)
         {
             Check.NotNull(serviceProvider, "serviceProvider");
 

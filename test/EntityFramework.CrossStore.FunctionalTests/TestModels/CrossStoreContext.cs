@@ -2,8 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Linq;
-using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.FunctionalTests.TestModels
 {
@@ -28,10 +26,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
                         eb.Property(typeof(string), SimpleEntity.ShadowPartitionIdName);
                         eb
                             .ForRelational(b => b.Table("RelationalSimpleEntity")) // TODO: specify schema when #948 is fixed
-                            .ForSqlServer(b =>
-                                {
-                                    eb.Property(e => e.Id).ForSqlServer().UseSequence();
-                                });
+                            .ForSqlServer(b => { eb.Property(e => e.Id).ForSqlServer().UseSequence(); });
 
                         eb.Property(typeof(string), SimpleEntity.ShadowPropertyName);
                         eb.Property(e => e.Id).GenerateValueOnAdd(false);

@@ -249,11 +249,11 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             File.WriteAllText(modelSnapshotFile, migration.ModelSnapshotCode);
 
             return new MigrationFiles
-            {
-                MigrationFile = migrationFile,
-                MigrationMetadataFile = migrationMetadataFile,
-                ModelSnapshotFile = modelSnapshotFile
-            };
+                {
+                    MigrationFile = migrationFile,
+                    MigrationMetadataFile = migrationMetadataFile,
+                    ModelSnapshotFile = modelSnapshotFile
+                };
         }
 
         protected virtual string GetDirectory(

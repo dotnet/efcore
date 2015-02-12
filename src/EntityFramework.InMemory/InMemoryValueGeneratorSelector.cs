@@ -30,8 +30,8 @@ namespace Microsoft.Data.Entity.InMemory
         {
             Check.NotNull(property, "property");
 
-            return property.PropertyType.IsInteger() 
-                ? _inMemoryFactory 
+            return property.PropertyType.IsInteger()
+                ? _inMemoryFactory
                 : base.Select(property);
         }
     }

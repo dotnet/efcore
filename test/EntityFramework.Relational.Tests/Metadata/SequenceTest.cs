@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.Data.Entity.Metadata;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Relational.Metadata.Tests
@@ -54,7 +55,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Tests
         {
             var sequence = new Sequence("Foo");
 
-            var model = new Entity.Metadata.Model();
+            var model = new Model();
             sequence.Model = model;
             Assert.Same(model, sequence.Model);
         }

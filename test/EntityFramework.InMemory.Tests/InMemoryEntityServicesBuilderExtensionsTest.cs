@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Tests;
 using Microsoft.Framework.DependencyInjection;
 using Xunit;
-using System;
 
 namespace Microsoft.Data.Entity.InMemory.Tests
 {
@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             VerifySingleton<SimpleValueGeneratorFactory<InMemoryValueGenerator>>();
             VerifySingleton<InMemoryDatabase>();
             VerifySingleton<InMemoryModelSource>();
-            
+
             // In memory scoped
             VerifyScoped<InMemoryDataStoreServices>();
             VerifyScoped<InMemoryDatabaseFacade>();

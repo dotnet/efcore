@@ -8,26 +8,17 @@ namespace Microsoft.Data.Entity.Relational.Query
 {
     public class CommandParameter
     {
-        private readonly string _name;
-        private readonly object _value;
-
         public CommandParameter([NotNull] string name, [NotNull] object value)
         {
             Check.NotNull(name, "name");
             Check.NotNull(value, "value");
 
-            _name = name;
-            _value = value;
+            Name = name;
+            Value = value;
         }
 
-        public virtual string Name
-        {
-            get { return _name; }
-        }
+        public virtual string Name { get; }
 
-        public virtual object Value
-        {
-            get { return _value; }
-        }
+        public virtual object Value { get; }
     }
 }

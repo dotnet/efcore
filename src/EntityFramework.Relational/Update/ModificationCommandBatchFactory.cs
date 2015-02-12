@@ -10,8 +10,6 @@ namespace Microsoft.Data.Entity.Relational.Update
 {
     public abstract class ModificationCommandBatchFactory
     {
-        private readonly SqlGenerator _sqlGenerator;
-
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
         ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
@@ -26,13 +24,10 @@ namespace Microsoft.Data.Entity.Relational.Update
         {
             Check.NotNull(sqlGenerator, "sqlGenerator");
 
-            _sqlGenerator = sqlGenerator;
+            SqlGenerator = sqlGenerator;
         }
 
-        protected SqlGenerator SqlGenerator
-        {
-            get { return _sqlGenerator; }
-        }
+        protected SqlGenerator SqlGenerator { get; }
 
         public abstract ModificationCommandBatch Create([NotNull] IDbContextOptions options);
 

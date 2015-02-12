@@ -16,10 +16,7 @@ namespace Microsoft.Data.Entity.Relational
 
         public virtual IReadOnlyList<SqlBatch> SqlBatches
         {
-            get
-            {
-                return _batches;
-            }
+            get { return _batches; }
         }
 
         public virtual SqlBatchBuilder EndBatch()

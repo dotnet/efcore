@@ -11,19 +11,19 @@ namespace EntityFramework.Microbenchmarks.Core.Models.Orders
         protected virtual List<OrderLine> CreateOrderLines(int linesPerOrder, List<Product> products, List<Order> orders)
         {
             var lines = new List<OrderLine>();
-            for (int o = 0; o < orders.Count; o++)
+            for (var o = 0; o < orders.Count; o++)
             {
-                for (int l = 0; l < linesPerOrder; l++)
+                for (var l = 0; l < linesPerOrder; l++)
                 {
                     var product = products[(o + l) % products.Count];
                     var quantity = l + 1;
                     lines.Add(new OrderLine
-                    {
-                        OrderId = orders[o].OrderId,
-                        ProductId = product.ProductId,
-                        Price = product.Retail * quantity,
-                        Quantity = quantity
-                    });
+                        {
+                            OrderId = orders[o].OrderId,
+                            ProductId = product.ProductId,
+                            Price = product.Retail * quantity,
+                            Quantity = quantity
+                        });
                 }
             }
 
@@ -35,13 +35,13 @@ namespace EntityFramework.Microbenchmarks.Core.Models.Orders
             var orders = new List<Order>();
             foreach (var customer in customers)
             {
-                for (int i = 0; i < ordersPerCustomer; i++)
+                for (var i = 0; i < ordersPerCustomer; i++)
                 {
                     orders.Add(new Order
-                    {
-                        CustomerId = customer.CustomerId,
-                        Date = new DateTime(2000, 1, 1)
-                    });
+                        {
+                            CustomerId = customer.CustomerId,
+                            Date = new DateTime(2000, 1, 1)
+                        });
                 }
             }
 
@@ -54,9 +54,9 @@ namespace EntityFramework.Microbenchmarks.Core.Models.Orders
             for (var c = 0; c < customerCount; c++)
             {
                 customers.Add(new Customer
-                {
-                    Name = "Customer " + c
-                });
+                    {
+                        Name = "Customer " + c
+                    });
             }
 
             return customers;
@@ -68,10 +68,10 @@ namespace EntityFramework.Microbenchmarks.Core.Models.Orders
             for (var i = 0; i < productCount; i++)
             {
                 products.Add(new Product
-                {
-                    Name = "Product " + i,
-                    Retail = (i % 10) + 10
-                });
+                    {
+                        Name = "Product " + i,
+                        Retail = (i % 10) + 10
+                    });
             }
 
             return products;

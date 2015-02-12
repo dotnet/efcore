@@ -978,7 +978,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                         .SequenceEqual(foreignKeyProperties.Select(p => p.UnderlyingType)))
                 {
                     var principalKeyProperties = new Property[foreignKeyProperties.Count];
-                    for (int i = 0; i < foreignKeyProperties.Count; i++)
+                    for (var i = 0; i < foreignKeyProperties.Count; i++)
                     {
                         var foreignKeyProperty = foreignKeyProperties[i];
                         principalKeyProperties[i] = CreateUniqueProperty(
@@ -998,7 +998,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 var baseName = (string.IsNullOrEmpty(navigationToPrincipal) ? principalType.SimpleName : navigationToPrincipal);
 
                 var fkProperties = new Property[principalKey.Properties.Count];
-                for (int i = 0; i < principalKey.Properties.Count; i++)
+                for (var i = 0; i < principalKey.Properties.Count; i++)
                 {
                     var keyProperty = principalKey.Properties[i];
                     fkProperties[i] = CreateUniqueProperty(

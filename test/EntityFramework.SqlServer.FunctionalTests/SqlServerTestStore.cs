@@ -448,7 +448,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             for (var i = 0; i < parameters.Length; i++)
             {
-                ((SqlParameterCollection)command.Parameters).AddWithValue("p" + i, parameters[i]);
+                command.Parameters.AddWithValue("p" + i, parameters[i]);
             }
 
             return command;

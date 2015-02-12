@@ -1,9 +1,7 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
 using Xunit;
 
@@ -20,7 +18,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 var customer = context.Customers.First();
                 var firstTrackedEntity = context.ChangeTracker.Entries<Customer>().Single();
                 var originalPhoneNumber = customer.Phone;
-                
+
                 customer.Phone = "425-882-8080";
 
                 context.ChangeTracker.DetectChanges();
@@ -30,8 +28,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 Assert.Equal("425-882-8080", firstTrackedEntity.Property(c => c.Phone).CurrentValue);
 
                 firstTrackedEntity.State = EntityState.Unchanged;
-                
-                Assert.Equal(customer.CustomerID, firstTrackedEntity.Property(c => c.CustomerID).CurrentValue);                
+
+                Assert.Equal(customer.CustomerID, firstTrackedEntity.Property(c => c.CustomerID).CurrentValue);
                 Assert.Equal(originalPhoneNumber, firstTrackedEntity.Property(c => c.Phone).CurrentValue);
                 Assert.Equal(EntityState.Unchanged, firstTrackedEntity.State);
             }
@@ -216,6 +214,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
             Fixture = fixture;
         }
 
-        protected TFixture Fixture { get; private set; }
+        protected TFixture Fixture { get; }
     }
 }

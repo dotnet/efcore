@@ -53,7 +53,8 @@ namespace Microsoft.Data.Entity.Relational
             [param: CanBeNull]
             set
             {
-                if (value.HasValue && value <= 0)
+                if (value.HasValue
+                    && value <= 0)
                 {
                     throw new InvalidOperationException(Strings.InvalidCommandTimeout);
                 }
@@ -68,7 +69,8 @@ namespace Microsoft.Data.Entity.Relational
             [param: CanBeNull]
             set
             {
-                if (value.HasValue && value <= 0)
+                if (value.HasValue
+                    && value <= 0)
                 {
                     throw new InvalidOperationException(Strings.InvalidMaxBatchSize);
                 }
@@ -77,7 +79,7 @@ namespace Microsoft.Data.Entity.Relational
             }
         }
 
-        public virtual string MigrationsAssembly { get;[param: CanBeNull] set; }
+        public virtual string MigrationsAssembly { get; [param: CanBeNull] set; }
 
         protected override void Configure(IReadOnlyDictionary<string, string> rawOptions)
         {

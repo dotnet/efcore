@@ -11,7 +11,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Metadata;
@@ -26,7 +25,7 @@ namespace Microsoft.Data.Entity.Relational.Update
         private readonly List<ModificationCommand> _modificationCommands = new List<ModificationCommand>();
         private readonly List<bool> _resultSetEnd = new List<bool>();
         protected StringBuilder CachedCommandText { get; set; }
-        protected int LastCachedCommandIndex = 0;
+        protected int LastCachedCommandIndex;
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members

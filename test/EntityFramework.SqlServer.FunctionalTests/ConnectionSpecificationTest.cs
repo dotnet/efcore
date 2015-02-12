@@ -5,7 +5,6 @@ using System;
 using System.Data.SqlClient;
 using System.Linq;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.SqlServer.FunctionalTests.TestModels;
 using Microsoft.Framework.ConfigurationModel;
 using Microsoft.Framework.DependencyInjection;
@@ -62,7 +61,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             var serviceCollection = new ServiceCollection();
             serviceCollection
-                .AddScoped<SqlConnection>(p => new SqlConnection(SqlServerNorthwindContext.ConnectionString))
+                .AddScoped(p => new SqlConnection(SqlServerNorthwindContext.ConnectionString))
                 .AddEntityFramework()
                 .AddSqlServer()
                 .AddDbContext<ConnectionInOnConfiguringContext>();
@@ -448,7 +447,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 Context = context;
             }
 
-            public MultipleProvidersContext Context { get; set; }
+            public MultipleProvidersContext Context { get; }
         }
 
         [Fact]
@@ -456,7 +455,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             var serviceCollection = new ServiceCollection();
             serviceCollection
-                .AddScoped<SqlConnection>(p => new SqlConnection(SqlServerNorthwindContext.ConnectionString))
+                .AddScoped(p => new SqlConnection(SqlServerNorthwindContext.ConnectionString))
                 .AddEntityFramework()
                 .AddSqlServer()
                 .AddDbContext<OptionsContext>();

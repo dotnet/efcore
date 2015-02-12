@@ -129,7 +129,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
 
             connectionMock.Verify(m => m.Open(), Times.Once);
             connectionMock.Verify(m => m.Close(), Times.Once);
-            connectionMock.Protected().Verify("Dispose", Times.Once(), new object[] { true });
+            connectionMock.Protected().Verify("Dispose", Times.Once(), true);
 
             Assert.Equal(1, connection.CreateCount);
             connectionMock = Mock.Get(connection.DbConnection);
@@ -142,7 +142,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
 
             connectionMock.Verify(m => m.Open(), Times.Once);
             connectionMock.Verify(m => m.Close(), Times.Once);
-            connectionMock.Protected().Verify("Dispose", Times.Once(), new object[] { true });
+            connectionMock.Protected().Verify("Dispose", Times.Once(), true);
         }
 
         [Fact]
@@ -271,7 +271,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
 
             connectionMock.Verify(m => m.Open(), Times.Once);
             connectionMock.Verify(m => m.Close(), Times.Once);
-            connectionMock.Protected().Verify("Dispose", Times.Never(), new object[] { true });
+            connectionMock.Protected().Verify("Dispose", Times.Never(), true);
 
             Assert.Equal(0, connection.CreateCount);
             Assert.Same(connectionMock.Object, connection.DbConnection);
@@ -282,7 +282,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
 
             connectionMock.Verify(m => m.Open(), Times.Exactly(2));
             connectionMock.Verify(m => m.Close(), Times.Exactly(2));
-            connectionMock.Protected().Verify("Dispose", Times.Never(), new object[] { true });
+            connectionMock.Protected().Verify("Dispose", Times.Never(), true);
         }
 
         [Fact]

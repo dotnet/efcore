@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
-using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.FunctionalTests
 {
@@ -54,10 +53,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     e.Ignore(o => o.ShippedDate);
                 });
 
-            modelBuilder.Entity<OrderDetail>(e =>
-                {
-                    e.Key(od => new { od.OrderID, od.ProductID });
-                });
+            modelBuilder.Entity<OrderDetail>(e => { e.Key(od => new { od.OrderID, od.ProductID }); });
         }
 
         public abstract NorthwindContext CreateContext();

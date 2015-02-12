@@ -7,30 +7,17 @@ namespace Microsoft.Data.Entity.Commands.TestUtilities
 {
     public class BuildFileResult
     {
-        private readonly string _targetPath;
-        private readonly string _targetDir;
-        private readonly string _targetName;
-
         public BuildFileResult(string targetPath)
         {
-            _targetPath = targetPath;
-            _targetDir = Path.GetDirectoryName(targetPath);
-            _targetName = Path.GetFileNameWithoutExtension(targetPath);
+            TargetPath = targetPath;
+            TargetDir = Path.GetDirectoryName(targetPath);
+            TargetName = Path.GetFileNameWithoutExtension(targetPath);
         }
 
-        public string TargetPath
-        {
-            get { return _targetPath; }
-        }
+        public string TargetPath { get; }
 
-        public string TargetDir
-        {
-            get { return _targetDir; }
-        }
+        public string TargetDir { get; }
 
-        public string TargetName
-        {
-            get { return _targetName; }
-        }
+        public string TargetName { get; }
     }
 }

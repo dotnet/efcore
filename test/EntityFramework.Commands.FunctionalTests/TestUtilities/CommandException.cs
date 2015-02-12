@@ -7,24 +7,15 @@ namespace Microsoft.Data.Entity.Commands.TestUtilities
 {
     public class CommandException : Exception
     {
-        private readonly string _errorStackTrace;
-        private readonly string _errorType;
-
         public CommandException(string message, string errorStackTrace, string errorType)
             : base(message)
         {
-            _errorStackTrace = errorStackTrace;
-            _errorType = errorType;
+            ErrorStackTrace = errorStackTrace;
+            ErrorType = errorType;
         }
 
-        public string ErrorStackTrace
-        {
-            get { return _errorStackTrace; }
-        }
+        public string ErrorStackTrace { get; }
 
-        public string ErrorType
-        {
-            get { return _errorType; }
-        }
+        public string ErrorType { get; }
     }
 }

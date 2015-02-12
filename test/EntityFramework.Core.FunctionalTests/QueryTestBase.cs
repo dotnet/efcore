@@ -285,7 +285,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 return InstanceFieldValue;
             }
         }
-        
+
         [Fact]
         public virtual void Where_method_call_nullable_type_closure_via_query_cache()
         {
@@ -381,6 +381,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 cs => cs.Where(c => c.City == City.StaticFieldValue),
                 entryCount: 1);
         }
+
         [Fact]
         public virtual void Where_static_property_access_closure_via_query_cache()
         {
@@ -498,7 +499,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             AssertQuery<Employee>(
                 es => es.Where(e => e.ReportsTo == reportsTo),
-                entryCount: 1); 
+                entryCount: 1);
 
             reportsTo = 5;
 

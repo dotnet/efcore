@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 Assert.Equal(91, (await context.Customers.AsNoTracking().ToListAsync()).Count);
             }
         }
-        
+
         [Fact]
         public virtual async Task Queryable_simple()
         {
@@ -789,7 +789,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         public virtual async Task SelectMany_simple2()
         {
             await AssertQuery<Employee, Customer>(
-                (es, cs) => 
+                (es, cs) =>
                     from e1 in es
                     from c in cs
                     from e2 in es
@@ -1664,7 +1664,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [Fact]
         public virtual async Task Contains_with_local_collection()
         {
-            string[] ids = new[] { "ABCDE", "ALFKI" };
+            string[] ids = { "ABCDE", "ALFKI" };
             await AssertQuery<Customer>(cs =>
                 cs.Where(c => ids.Contains(c.CustomerID)));
         }
@@ -1685,7 +1685,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             return "m";
         }
-        
+
         protected NorthwindContext CreateContext()
         {
             return Fixture.CreateContext();
@@ -1696,7 +1696,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             Fixture = fixture;
         }
 
-        protected TFixture Fixture { get; private set; }
+        protected TFixture Fixture { get; }
 
         private async Task<int> AssertQuery<TItem>(
             Func<IQueryable<TItem>, Task<int>> query,
