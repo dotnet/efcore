@@ -1045,7 +1045,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 if (principalKey == null)
                 {
                     var principalKeyProperty = CreateUniqueProperty(
-                        "Id",
+                        "TempId",
                         typeof(int),
                         principalEntityTypeBuilder,
                         isRequired);

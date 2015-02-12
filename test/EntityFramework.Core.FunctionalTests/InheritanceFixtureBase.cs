@@ -14,11 +14,15 @@ namespace Microsoft.Data.Entity.FunctionalTests
             var model = modelBuilder.Model;
 
             var country = model.AddEntityType(typeof(Country));
-            var countryKey = country.SetPrimaryKey(country.AddProperty("Id", typeof(int)));
+            var countryIdProperty = country.AddProperty("Id", typeof(int));
+            countryIdProperty.GenerateValueOnAdd = true;
+            var countryKey = country.SetPrimaryKey(countryIdProperty);
             country.AddProperty("Name", typeof(string));
 
             var animal = model.AddEntityType(typeof(Animal));
-            var animalKey = animal.SetPrimaryKey(animal.AddProperty("Species", typeof(string)));
+            var animalSpeciesProperty = animal.AddProperty("Species", typeof(string));
+            animalSpeciesProperty.GenerateValueOnAdd = true;
+            var animalKey = animal.SetPrimaryKey(animalSpeciesProperty);
             animal.AddProperty("Name", typeof(string));
             var countryFk = animal.AddForeignKey(animal.AddProperty("CountryId", typeof(int)), countryKey);
 
