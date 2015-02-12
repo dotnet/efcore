@@ -223,7 +223,7 @@ namespace Microsoft.Data.Entity.Tests
 
             Assert.Equal(Strings.ConnectionStringNotFound("MyConnection"),
                 Assert.Throws<InvalidOperationException>(() =>
-                new DbContextOptionsParser().ReadRawOptions(config, typeof(MyContext), new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase))).Message);
+                    new DbContextOptionsParser().ReadRawOptions(config, typeof(MyContext), new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase))).Message);
         }
 
         [Fact]
@@ -239,7 +239,7 @@ namespace Microsoft.Data.Entity.Tests
 
             Assert.Equal(Strings.ConnectionStringNotFound(""),
                 Assert.Throws<InvalidOperationException>(() =>
-                new DbContextOptionsParser().ReadRawOptions(config, typeof(MyContext), new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase))).Message);
+                    new DbContextOptionsParser().ReadRawOptions(config, typeof(MyContext), new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase))).Message);
         }
 
         [Fact]
@@ -403,7 +403,7 @@ namespace Microsoft.Data.Entity.Tests
         public void Uses_connection_string_from_last_loaded_configuration()
         {
             var iniConfigFileContent =
-            @"[EntityFramework]
+                @"[EntityFramework]
 " + typeof(MyContext).Name + ":ConnectionString =IniConnectionString";
             var iniConfigFilePath = Path.GetTempFileName();
             File.WriteAllText(iniConfigFilePath, iniConfigFileContent);

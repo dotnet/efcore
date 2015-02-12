@@ -139,10 +139,10 @@
     <value>The instance of entity type '{entityType}' cannot be tracked because it has an invalid (e.g. null or CLR default) primary key. Either set the key explicitly or consider using an IValueGenerator to generate unique key values.</value>
   </data>
   <data name="WrongStateManager" xml:space="preserve">
-    <value>Cannot start tracking StateEntry for entity type '{entityType}' because it was created by a different StateManager instance.</value>
+    <value>Cannot start tracking InternalEntityEntry for entity type '{entityType}' because it was created by a different StateManager instance.</value>
   </data>
-  <data name="MultipleStateEntries" xml:space="preserve">
-    <value>Cannot start tracking StateEntry for entity type '{entityType}' because another StateEntry is already tracking the same entity.</value>
+  <data name="MultipleEntries" xml:space="preserve">
+    <value>Cannot start tracking InternalEntityEntry for entity type '{entityType}' because another InternalEntityEntry is already tracking the same entity.</value>
   </data>
   <data name="EntityTypeNotFound" xml:space="preserve">
     <value>The entity type '{entityType}' was not found. Ensure that the entity type has been added to the model.</value>

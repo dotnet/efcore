@@ -114,9 +114,9 @@
     <Compile Include="ChangeTracking\Internal\StoreGeneratedValuesFactory.cs" />
     <Compile Include="ChangeTracking\Internal\ValueGenerationManager.cs" />
     <Compile Include="DbContext.cs" />
-    <Compile Include="DependencyInjection\EntityFrameworkServicesBuilder.cs" />
     <Compile Include="Identity\TemporaryBinaryValueGenerator.cs" />
     <Compile Include="Identity\TemporaryStringValueGenerator.cs" />
+    <Compile Include="Infrastructure\EntityFrameworkServicesBuilder.cs" />
     <Compile Include="ModelBuilder.cs" />
     <Compile Include="Query\IIncludableQueryable.cs" />
     <Compile Include="Infrastructure\DbContextService.cs" />

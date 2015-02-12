@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.Data.Entity.DependencyInjection;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Framework.DependencyInjection;
@@ -140,16 +139,11 @@ namespace Microsoft.Data.Entity.Tests
 
         private class FakeDbContextOptionsExtension : DbContextOptionsExtension
         {
-            private readonly List<Action<EntityFrameworkServicesBuilder>> _builderActions = new List<Action<EntityFrameworkServicesBuilder>>();
-
-            public List<Action<EntityFrameworkServicesBuilder>> BuilderActions
-            {
-                get { return _builderActions; }
-            }
+            public List<Action<EntityFrameworkServicesBuilder>> BuilderActions { get; } = new List<Action<EntityFrameworkServicesBuilder>>();
 
             protected internal override void ApplyServices(EntityFrameworkServicesBuilder builder)
             {
-                foreach (var builderAction in _builderActions)
+                foreach (var builderAction in BuilderActions)
                 {
                     builderAction(builder);
                 }

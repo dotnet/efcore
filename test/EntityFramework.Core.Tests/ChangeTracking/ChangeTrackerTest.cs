@@ -529,22 +529,22 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             using (var context = new EarlyLearningCenter())
             {
                 var tagDetails1 = new ProductDetailsTagDetails
-                {
-                    Tag = new ProductDetailsTag
                     {
-                        Details = new ProductDetails
-                        { Product = new Product() }
-                    }
-                };
+                        Tag = new ProductDetailsTag
+                            {
+                                Details = new ProductDetails
+                                    { Product = new Product() }
+                            }
+                    };
 
                 var tagDetails2 = new ProductDetailsTagDetails
-                {
-                    Tag = new ProductDetailsTag
                     {
-                        Details = new ProductDetails
-                        { Product = new Product() }
-                    }
-                };
+                        Tag = new ProductDetailsTag
+                            {
+                                Details = new ProductDetails
+                                    { Product = new Product() }
+                            }
+                    };
 
                 context.Add(tagDetails1);
                 context.Add(tagDetails2);
@@ -565,22 +565,22 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             using (var context = new EarlyLearningCenter())
             {
                 var tagDetails1 = new ProductDetailsTagDetails
-                {
-                    Tag = new ProductDetailsTag
                     {
-                        Details = new ProductDetails
-                        { Product = new Product() }
-                    }
-                };
+                        Tag = new ProductDetailsTag
+                            {
+                                Details = new ProductDetails
+                                    { Product = new Product() }
+                            }
+                    };
 
                 var tagDetails2 = new ProductDetailsTagDetails
-                {
-                    Tag = new ProductDetailsTag
                     {
-                        Details = new ProductDetails
-                        { Product = new Product() }
-                    }
-                };
+                        Tag = new ProductDetailsTag
+                            {
+                                Details = new ProductDetails
+                                    { Product = new Product() }
+                            }
+                    };
 
                 context.Add(tagDetails1.Tag);
                 context.Add(tagDetails2.Tag);
@@ -874,7 +874,6 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.Contains(orderDetails2b, orderDetails1b.Product.OrderDetails);
         }
 
-
         [Theory]
         [InlineData(false)]
         [InlineData(true)]
@@ -942,7 +941,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
                 Assert.Equal(EntityState.Unchanged, entry.State);
 
-                    context.ChangeTracker.DetectChanges();
+                context.ChangeTracker.DetectChanges();
 
                 Assert.Equal(EntityState.Modified, entry.State);
             }

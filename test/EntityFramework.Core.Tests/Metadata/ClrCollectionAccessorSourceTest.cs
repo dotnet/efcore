@@ -9,6 +9,10 @@ using Microsoft.Data.Entity.Metadata;
 using Moq;
 using Xunit;
 
+// ReSharper disable ConvertToAutoPropertyWhenPossible
+// ReSharper disable ConvertToAutoPropertyWithPrivateSetter
+// ReSharper disable UnusedMember.Local
+
 namespace Microsoft.Data.Entity.Tests.Metadata
 {
     public class ClrCollectionAccessorSourceTest

@@ -58,10 +58,10 @@ namespace Microsoft.Data.Entity.Tests.Utilities
         public void Get_property_access_list_should_return_property_info_collection()
         {
             Expression<Func<DateTime, object>> expression = d => new
-            {
-                d.Date,
-                d.Day
-            };
+                {
+                    d.Date,
+                    d.Day
+                };
 
             var propertyInfos = expression.GetPropertyAccessList();
 
@@ -75,9 +75,9 @@ namespace Microsoft.Data.Entity.Tests.Utilities
         public void Get_property_access_list_should_throw_when_invalid_expression()
         {
             Expression<Func<DateTime, object>> expression = d => new
-            {
-                P = d.AddTicks(23)
-            };
+                {
+                    P = d.AddTicks(23)
+                };
 
             Assert.Contains(
                 Strings.InvalidPropertiesExpression(expression),
@@ -90,10 +90,10 @@ namespace Microsoft.Data.Entity.Tests.Utilities
             var closure = DateTime.Now;
 
             Expression<Func<DateTime, object>> expression = d => new
-            {
-                d.Date,
-                closure.Day
-            };
+                {
+                    d.Date,
+                    closure.Day
+                };
 
             Assert.Contains(
                 Strings.InvalidPropertiesExpression(expression),

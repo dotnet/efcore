@@ -69,7 +69,7 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// Cannot start tracking StateEntry for entity type '{entityType}' because it was created by a different StateManager instance.
+        /// Cannot start tracking InternalEntityEntry for entity type '{entityType}' because it was created by a different StateManager instance.
         /// </summary>
         public static string WrongStateManager([CanBeNull] object entityType)
         {
@@ -77,11 +77,11 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// Cannot start tracking StateEntry for entity type '{entityType}' because another StateEntry is already tracking the same entity.
+        /// Cannot start tracking InternalEntityEntry for entity type '{entityType}' because another InternalEntityEntry is already tracking the same entity.
         /// </summary>
-        public static string MultipleStateEntries([CanBeNull] object entityType)
+        public static string MultipleEntries([CanBeNull] object entityType)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("MultipleStateEntries", "entityType"), entityType);
+            return string.Format(CultureInfo.CurrentCulture, GetString("MultipleEntries", "entityType"), entityType);
         }
 
         /// <summary>

@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Metadata;
@@ -177,20 +176,13 @@ namespace Microsoft.Data.Entity.Tests.Identity
 
         private class Category
         {
-            private readonly ICollection<Product> _products = new List<Product>();
-
             public int Id { get; set; }
 
-            public ICollection<Product> Products
-            {
-                get { return _products; }
-            }
+            public ICollection<Product> Products { get; } = new List<Product>();
         }
 
         private class Product
         {
-            private readonly ICollection<OrderLine> _orderLines = new List<OrderLine>();
-
             public int Id { get; set; }
 
             public int CategoryId { get; set; }
@@ -198,10 +190,7 @@ namespace Microsoft.Data.Entity.Tests.Identity
 
             public ProductDetail Detail { get; set; }
 
-            public ICollection<OrderLine> OrderLines
-            {
-                get { return _orderLines; }
-            }
+            public ICollection<OrderLine> OrderLines { get; } = new List<OrderLine>();
         }
 
         private class ProductDetail
@@ -213,14 +202,9 @@ namespace Microsoft.Data.Entity.Tests.Identity
 
         private class Order
         {
-            private readonly ICollection<OrderLine> _orderLines = new List<OrderLine>();
-
             public int Id { get; set; }
 
-            public ICollection<OrderLine> OrderLines
-            {
-                get { return _orderLines; }
-            }
+            public ICollection<OrderLine> OrderLines { get; } = new List<OrderLine>();
         }
 
         private class OrderLine
@@ -248,10 +232,10 @@ namespace Microsoft.Data.Entity.Tests.Identity
             var builder = TestHelpers.Instance.CreateConventionBuilder(model);
 
             builder.Entity<Product>(b =>
-            {
-                b.HasMany(e => e.OrderLines).WithOne(e => e.Product);
-                b.HasOne(e => e.Detail).WithOne(e => e.Product).ForeignKey<ProductDetail>(e => e.Id);
-            });
+                {
+                    b.HasMany(e => e.OrderLines).WithOne(e => e.Product);
+                    b.HasOne(e => e.Detail).WithOne(e => e.Product).ForeignKey<ProductDetail>(e => e.Id);
+                });
 
             builder.Entity<Category>().HasMany(e => e.Products).WithOne(e => e.Category);
 
@@ -262,12 +246,12 @@ namespace Microsoft.Data.Entity.Tests.Identity
             builder.Entity<OrderLineDetail>().Key(e => new { e.OrderId, e.ProductId });
 
             builder.Entity<OrderLine>(b =>
-            {
-                b.Key(e => new { e.OrderId, e.ProductId });
-                b.HasOne(e => e.Detail).WithOne(e => e.OrderLine)
-                // TODO: Remove this line when ForeignKeyConvention handles composite fks
-                .ForeignKey<OrderLineDetail>(e => new {e.OrderId, e.ProductId});
-            });
+                {
+                    b.Key(e => new { e.OrderId, e.ProductId });
+                    b.HasOne(e => e.Detail).WithOne(e => e.OrderLine)
+                        // TODO: Remove this line when ForeignKeyConvention handles composite fks
+                        .ForeignKey<OrderLineDetail>(e => new { e.OrderId, e.ProductId });
+                });
 
             return model;
         }

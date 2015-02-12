@@ -3,7 +3,7 @@
 
 using System.Linq;
 using System.Reflection;
-using Microsoft.Data.Entity.DependencyInjection;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Framework.DependencyInjection;
 using Xunit;
 

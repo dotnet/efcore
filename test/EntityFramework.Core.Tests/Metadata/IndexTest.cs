@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var property1 = entityType.GetOrAddProperty(Customer.IdProperty);
             var property2 = entityType.GetOrAddProperty(Customer.NameProperty);
 
-            var index = new Index(new[] { property1, property2 }) { IsUnique = true, };
+            var index = new Index(new[] { property1, property2 }) { IsUnique = true };
 
             Assert.True(new[] { property1, property2 }.SequenceEqual(index.Properties));
             Assert.True(index.IsUnique.Value);

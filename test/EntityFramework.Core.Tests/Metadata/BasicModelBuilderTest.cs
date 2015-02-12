@@ -720,7 +720,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             modelBuilder.Entity<Order>(b =>
                 {
                     b.Property<int>("CustomerId");
-                    b.ForeignKey(typeof(Customer).FullName, new[] { "CustomerId" });
+                    b.ForeignKey(typeof(Customer).FullName, "CustomerId");
                 });
 
             var entityType = model.GetEntityType(typeof(Order));
@@ -758,7 +758,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             modelBuilder.Entity(typeof(Customer).FullName, b =>
                 {
                     b.Property<int>("Id");
-                    b.Key(new[] { "Id" });
+                    b.Key("Id");
                 });
 
             modelBuilder.Entity(typeof(Order).FullName, b =>

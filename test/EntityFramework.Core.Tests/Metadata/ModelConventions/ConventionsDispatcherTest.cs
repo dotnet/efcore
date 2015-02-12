@@ -36,10 +36,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
 
             var extraConvention = new Mock<IEntityTypeConvention>();
             extraConvention.Setup(c => c.Apply(It.IsAny<InternalEntityBuilder>())).Returns<InternalEntityBuilder>(b =>
-            {
-                Assert.False(true);
-                return null;
-            });
+                {
+                    Assert.False(true);
+                    return null;
+                });
             conventions.EntityTypeAddedConventions.Add(extraConvention.Object);
 
             var builder = new InternalModelBuilder(new Model(), conventions);
@@ -71,13 +71,13 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
                     return null;
                 });
             conventions.ForeignKeyAddedConventions.Add(nullConvention.Object);
-            
+
             var extraConvention = new Mock<IRelationshipConvention>();
             extraConvention.Setup(c => c.Apply(It.IsAny<InternalRelationshipBuilder>())).Returns<InternalRelationshipBuilder>(b =>
-            {
-                Assert.False(true);
-                return null;
-            });
+                {
+                    Assert.False(true);
+                    return null;
+                });
             conventions.ForeignKeyAddedConventions.Add(extraConvention.Object);
 
             var builder = new InternalModelBuilder(new Model(), conventions);
@@ -88,7 +88,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
 
             Assert.NotNull(relationsipBuilder);
         }
-        
+
         private class Order
         {
             public int OrderId { get; set; }

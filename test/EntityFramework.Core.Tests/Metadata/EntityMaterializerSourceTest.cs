@@ -7,6 +7,9 @@ using Microsoft.Data.Entity.Metadata;
 using Moq;
 using Xunit;
 
+// ReSharper disable ConvertPropertyToExpressionBody
+// ReSharper disable ConvertToAutoProperty
+
 namespace Microsoft.Data.Entity.Tests.Metadata
 {
     public class EntityMaterializerSourceTest

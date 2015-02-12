@@ -744,7 +744,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             return TestHelpers.Instance.CreateConventionBuilder();
         }
-        
+
         private class Gunter
         {
             public int Id { get; set; }

@@ -306,7 +306,7 @@ namespace Microsoft.Data.Entity.Query
 
             if (!_byEntityInstance.TryGetValue(entity, out bufferedEntities))
             {
-                _byEntityInstance.Add(entity, bufferedEntities = new List<BufferedEntity>() { null });
+                _byEntityInstance.Add(entity, bufferedEntities = new List<BufferedEntity> { null });
 
                 var entry = _stateManager.TryGetEntry(entity);
 
@@ -323,14 +323,14 @@ namespace Microsoft.Data.Entity.Query
                 // this means relevant key should be acquired  from state manager rather than buffered reader
                 if (bufferedEntities[0] == null)
                 {
-                    var stateEntry = _stateManager.TryGetEntry(entity);
+                    var entry = _stateManager.TryGetEntry(entity);
 
-                    Debug.Assert(stateEntry != null);
+                    Debug.Assert(entry != null);
 
                     primaryKey
                         = navigation.PointsToPrincipal
-                            ? stateEntry.GetDependentKeySnapshot(navigation.ForeignKey)
-                            : stateEntry.GetPrimaryKeyValue();
+                            ? entry.GetDependentKeySnapshot(navigation.ForeignKey)
+                            : entry.GetPrimaryKeyValue();
                 }
                 else
                 {

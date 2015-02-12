@@ -942,7 +942,6 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var specialCustomerForeignKeyProperty = specialOrderType.AddProperty(SpecialOrder.CustomerIdProperty);
             var specialCustomerForeignKey = specialOrderType.AddForeignKey(specialCustomerForeignKeyProperty, customerKey);
 
-
             var navigation2 = customerType.AddNavigation("Orders", customerForeignKey, pointsToPrincipal: false);
             var navigation1 = customerType.AddNavigation("DerivedOrders", specialCustomerForeignKey, pointsToPrincipal: false);
 
@@ -1377,7 +1376,6 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.True(new[] { i1, i2, i3, i4 }.SequenceEqual(customerType.Indexes));
         }
-
 
         [Fact]
         public void Lazy_original_values_are_used_for_full_notification_and_shadow_enties()

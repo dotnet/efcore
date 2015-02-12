@@ -3,8 +3,8 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity;
-using Microsoft.Data.Entity.DependencyInjection;
 using Microsoft.Data.Entity.Identity;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.InMemory;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;

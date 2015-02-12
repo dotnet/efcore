@@ -38,7 +38,7 @@ namespace Microsoft.Data.Entity.Tests.Identity
             var values = new HashSet<Guid>();
             for (var i = 0; i < 100; i++)
             {
-                var generatedValue = async 
+                var generatedValue = async
                     ? await sequentialGuidIdentityGenerator.NextAsync(property, new DbContextService<DataStoreServices>(() => null))
                     : sequentialGuidIdentityGenerator.Next(property, new DbContextService<DataStoreServices>(() => null));
 

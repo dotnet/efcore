@@ -1,0 +1,102 @@
+// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using System;
+using JetBrains.Annotations;
+using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Utilities;
+
+namespace Microsoft.Data.Entity.ChangeTracking.Internal
+{
+    public class InternalMixedEntityEntry : InternalEntityEntry
+    {
+        private readonly object[] _shadowValues;
+
+        /// <summary>
+        ///     This constructor is intended only for use when creating test doubles that will override members
+        ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
+        ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
+        /// </summary>
+        protected InternalMixedEntityEntry()
+        {
+        }
+
+        public InternalMixedEntityEntry(
+            [NotNull] StateManager stateManager,
+            [NotNull] IEntityType entityType,
+            [NotNull] EntityEntryMetadataServices metadataServices,
+            [NotNull] object entity)
+            : base(stateManager, entityType, metadataServices)
+        {
+            Check.NotNull(entity, "entity");
+
+            Entity = entity;
+            _shadowValues = new object[entityType.ShadowPropertyCount];
+        }
+
+        public InternalMixedEntityEntry(
+            [NotNull] StateManager stateManager,
+            [NotNull] IEntityType entityType,
+            [NotNull] EntityEntryMetadataServices metadataServices,
+            [NotNull] object entity,
+            [NotNull] IValueReader valueReader)
+            : base(stateManager, entityType, metadataServices)
+        {
+            Check.NotNull(entity, "entity");
+            Check.NotNull(valueReader, "valueReader");
+
+            Entity = entity;
+            _shadowValues = ExtractShadowValues(valueReader);
+        }
+
+        [NotNull]
+        public override object Entity { get; }
+
+        protected override object ReadPropertyValue(IPropertyBase propertyBase)
+        {
+            Check.NotNull(propertyBase, "propertyBase");
+
+            var property = propertyBase as IProperty;
+
+            return property == null || !property.IsShadowProperty
+                ? base.ReadPropertyValue(propertyBase)
+                : _shadowValues[property.ShadowIndex];
+        }
+
+        protected override void WritePropertyValue(IPropertyBase propertyBase, object value)
+        {
+            Check.NotNull(propertyBase, "propertyBase");
+
+            var property = propertyBase as IProperty;
+
+            if (property == null
+                || !property.IsShadowProperty)
+            {
+                base.WritePropertyValue(propertyBase, value);
+            }
+            else
+            {
+                _shadowValues[property.ShadowIndex] = value;
+            }
+        }
+
+        private object[] ExtractShadowValues(IValueReader valueReader)
+        {
+            var shadowValues = new object[EntityType.ShadowPropertyCount];
+
+            var properties = EntityType.Properties;
+            for (var i = 0; i < properties.Count; i++)
+            {
+                var property = properties[i];
+                if (property.IsShadowProperty)
+                {
+                    // TODO: Consider using strongly typed ReadValue instead of always object
+                    // Issue #738
+                    shadowValues[property.ShadowIndex] = valueReader.IsNull(i) ? null : valueReader.ReadValue<object>(i);
+                }
+            }
+
+            return shadowValues;
+        }
+    }
+}

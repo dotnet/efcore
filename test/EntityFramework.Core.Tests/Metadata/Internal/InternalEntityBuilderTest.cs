@@ -26,27 +26,27 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 null,
                 null,
                 new[]
-                {
-                    dependentEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention).Metadata,
-                    dependentEntityBuilder.Property(Order.CustomerUniqueProperty, ConfigurationSource.Convention).Metadata
-                },
+                    {
+                        dependentEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention).Metadata,
+                        dependentEntityBuilder.Property(Order.CustomerUniqueProperty, ConfigurationSource.Convention).Metadata
+                    },
                 key.Metadata.Properties,
                 ConfigurationSource.Explicit);
 
             Assert.NotNull(relationshipBuilder);
             Assert.Same(relationshipBuilder,
                 dependentEntityBuilder.Relationship(
-                principalEntityBuilder,
-                dependentEntityBuilder,
-                null,
-                null,
-                new[]
-                {
-                    dependentEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention).Metadata,
-                    dependentEntityBuilder.Property(Order.CustomerUniqueProperty, ConfigurationSource.Convention).Metadata
-                },
-                key.Metadata.Properties,
-                ConfigurationSource.Convention));
+                    principalEntityBuilder,
+                    dependentEntityBuilder,
+                    null,
+                    null,
+                    new[]
+                        {
+                            dependentEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention).Metadata,
+                            dependentEntityBuilder.Property(Order.CustomerUniqueProperty, ConfigurationSource.Convention).Metadata
+                        },
+                    key.Metadata.Properties,
+                    ConfigurationSource.Convention));
         }
 
         [Fact]
@@ -55,7 +55,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var modelBuilder = CreateModelBuilder();
             modelBuilder.Ignore(typeof(Customer), ConfigurationSource.DataAnnotation);
             var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
-            
+
             Assert.Null(entityBuilder.Relationship(
                 typeof(Customer),
                 typeof(Order),
@@ -63,7 +63,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 null,
                 ConfigurationSource.DataAnnotation));
         }
-                
+
         [Fact]
         public void Can_only_remove_lower_or_equal_source_relationship()
         {
@@ -71,17 +71,17 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var principalEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
             var key = principalEntityBuilder.PrimaryKey(new[] { Customer.IdProperty, Customer.UniqueProperty }, ConfigurationSource.Explicit);
             var dependentEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
-            
+
             var relationshipBuilder = dependentEntityBuilder.Relationship(
                 principalEntityBuilder,
                 dependentEntityBuilder,
                 null,
                 null,
                 new[]
-                {
-                    dependentEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention).Metadata,
-                    dependentEntityBuilder.Property(Order.CustomerUniqueProperty, ConfigurationSource.Convention).Metadata
-                },
+                    {
+                        dependentEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention).Metadata,
+                        dependentEntityBuilder.Property(Order.CustomerUniqueProperty, ConfigurationSource.Convention).Metadata
+                    },
                 key.Metadata.Properties,
                 ConfigurationSource.DataAnnotation);
             Assert.NotNull(relationshipBuilder);
@@ -103,17 +103,17 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var key = principalEntityBuilder.PrimaryKey(new[] { Customer.IdProperty, Customer.UniqueProperty }, ConfigurationSource.Explicit);
             var dependentEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
             var shadowProperty = dependentEntityBuilder.Property(typeof(Guid), "Shadow", ConfigurationSource.Convention);
-            
+
             var relationshipBuilder = dependentEntityBuilder.Relationship(
                 principalEntityBuilder,
                 dependentEntityBuilder,
                 null,
                 null,
                 new[]
-                {
-                    dependentEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention).Metadata,
-                    shadowProperty.Metadata
-                },
+                    {
+                        dependentEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention).Metadata,
+                        shadowProperty.Metadata
+                    },
                 key.Metadata.Properties,
                 ConfigurationSource.Convention);
             Assert.NotNull(relationshipBuilder);
@@ -140,7 +140,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     ConfigurationSource.Convention));
 
             Test_removing_relationship_does_not_remove_contained_shadow_properties_if_referenced_elsewhere(
-               (entityBuilder, property) => entityBuilder.Property(typeof(Guid), "Shadow", ConfigurationSource.Explicit));
+                (entityBuilder, property) => entityBuilder.Property(typeof(Guid), "Shadow", ConfigurationSource.Explicit));
         }
 
         private void Test_removing_relationship_does_not_remove_contained_shadow_properties_if_referenced_elsewhere(Func<InternalEntityBuilder, Property, object> shadowConfig)
@@ -158,10 +158,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 null,
                 null,
                 new[]
-                {
-                    dependentEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention).Metadata,
-                    shadowProperty.Metadata
-                },
+                    {
+                        dependentEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention).Metadata,
+                        shadowProperty.Metadata
+                    },
                 key.Metadata.Properties,
                 ConfigurationSource.Convention);
             Assert.NotNull(relationshipBuilder);
@@ -241,7 +241,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var modelBuilder = CreateModelBuilder();
             var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
             var shadowProperty = entityBuilder.Property(typeof(Guid), "Shadow", ConfigurationSource.Convention);
-            
+
             var index = entityBuilder.Index(new[] { Order.CustomerIdProperty.Name, shadowProperty.Metadata.Name }, ConfigurationSource.Convention);
             Assert.NotNull(index);
 
@@ -267,7 +267,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     ConfigurationSource.Convention));
 
             Test_removing_index_does_not_remove_contained_shadow_properties_if_referenced_elsewhere(
-               (entityBuilder, property) => entityBuilder.Property(property.PropertyType, property.Name, ConfigurationSource.Explicit));
+                (entityBuilder, property) => entityBuilder.Property(property.PropertyType, property.Name, ConfigurationSource.Explicit));
         }
 
         private void Test_removing_index_does_not_remove_contained_shadow_properties_if_referenced_elsewhere(Func<InternalEntityBuilder, Property, object> shadowConfig)
@@ -387,7 +387,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var key = entityBuilder.Key(new[] { Order.CustomerIdProperty.Name }, ConfigurationSource.DataAnnotation);
             Assert.NotNull(key);
 
-            Assert.Null( entityBuilder.RemoveKey(key.Metadata, ConfigurationSource.Convention));
+            Assert.Null(entityBuilder.RemoveKey(key.Metadata, ConfigurationSource.Convention));
             Assert.Equal(ConfigurationSource.DataAnnotation, entityBuilder.RemoveKey(key.Metadata, ConfigurationSource.DataAnnotation));
 
             Assert.Equal(Order.CustomerIdProperty.Name, entityBuilder.Metadata.Properties.Single().Name);
@@ -415,8 +415,11 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         {
             Test_removing_key_does_not_remove_contained_shadow_properties_if_referenced_elsewhere(
                 (entityBuilder, property) => entityBuilder.PrimaryKey(
-                    new[] { entityBuilder.Property(typeof(int), "Shadow2", ConfigurationSource.Convention).Metadata.Name,
-                        property.Name }, ConfigurationSource.Convention));
+                    new[]
+                        {
+                            entityBuilder.Property(typeof(int), "Shadow2", ConfigurationSource.Convention).Metadata.Name,
+                            property.Name
+                        }, ConfigurationSource.Convention));
 
             Test_removing_key_does_not_remove_contained_shadow_properties_if_referenced_elsewhere(
                 (entityBuilder, property) => entityBuilder.Index(new[] { property.Name }, ConfigurationSource.Convention));
@@ -428,7 +431,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     ConfigurationSource.Convention));
 
             Test_removing_key_does_not_remove_contained_shadow_properties_if_referenced_elsewhere(
-               (entityBuilder, property) => entityBuilder.Property(typeof(Guid), "Shadow", ConfigurationSource.Explicit));
+                (entityBuilder, property) => entityBuilder.Property(typeof(Guid), "Shadow", ConfigurationSource.Explicit));
         }
 
         private void Test_removing_key_does_not_remove_contained_shadow_properties_if_referenced_elsewhere(Func<InternalEntityBuilder, Property, object> shadowConfig)
@@ -463,10 +466,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 null,
                 null,
                 new[]
-                {
-                    dependentEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention).Metadata,
-                    dependentEntityBuilder.Property(Order.CustomerUniqueProperty, ConfigurationSource.Convention).Metadata
-                },
+                    {
+                        dependentEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention).Metadata,
+                        dependentEntityBuilder.Property(Order.CustomerUniqueProperty, ConfigurationSource.Convention).Metadata
+                    },
                 key.Metadata.Properties,
                 ConfigurationSource.Convention);
             dependentEntityBuilder.Relationship(
@@ -475,10 +478,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 null,
                 null,
                 new[]
-                {
-                    dependentEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention).Metadata,
-                    dependentEntityBuilder.Property(Order.CustomerUniqueProperty, ConfigurationSource.Convention).Metadata
-                },
+                    {
+                        dependentEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention).Metadata,
+                        dependentEntityBuilder.Property(Order.CustomerUniqueProperty, ConfigurationSource.Convention).Metadata
+                    },
                 key.Metadata.Properties,
                 ConfigurationSource.DataAnnotation);
 
@@ -783,10 +786,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 null,
                 null,
                 new[]
-                {
-                    dependentEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention).Metadata,
-                    dependentEntityBuilder.Property(Order.CustomerUniqueProperty, ConfigurationSource.Convention).Metadata
-                },
+                    {
+                        dependentEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention).Metadata,
+                        dependentEntityBuilder.Property(Order.CustomerUniqueProperty, ConfigurationSource.Convention).Metadata
+                    },
                 key.Metadata.Properties,
                 ConfigurationSource.DataAnnotation);
 

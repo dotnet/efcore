@@ -2378,8 +2378,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             modelBuilder.Entity<Customer>().Key(c => c.Id);
             modelBuilder.Entity<CustomerDetails>().Key(e => e.Id);
             modelBuilder.Entity<CustomerDetails>().Metadata.AddForeignKey(
-               model.GetEntityType(typeof(CustomerDetails)).GetProperty("Id"),
-               model.GetEntityType(typeof(Customer)).GetPrimaryKey());
+                model.GetEntityType(typeof(CustomerDetails)).GetProperty("Id"),
+                model.GetEntityType(typeof(Customer)).GetPrimaryKey());
 
             var dependentType = model.GetEntityType(typeof(CustomerDetails).FullName);
             var principalType = model.GetEntityType(typeof(Customer).FullName);

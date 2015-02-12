@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
-using Microsoft.Data.Entity.DependencyInjection;
+using Microsoft.Data.Entity.Infrastructure;
 using Moq;
 using Xunit;
 using CoreStrings = Microsoft.Data.Entity.Internal.Strings;

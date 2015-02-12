@@ -141,6 +141,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             One,
             Two
         }
+
         private class Customer
         {
             internal int Id { get; set; }
