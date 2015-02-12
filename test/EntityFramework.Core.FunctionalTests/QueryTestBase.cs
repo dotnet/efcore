@@ -275,6 +275,11 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             public City Nested;
 
+            public City Throw()
+            {
+                throw new NotImplementedException();
+            }
+
             public string GetCity()
             {
                 return InstanceFieldValue;
@@ -422,6 +427,34 @@ namespace Microsoft.Data.Entity.FunctionalTests
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.City == city.Nested.InstancePropertyValue),
                 entryCount: 1);
+        }
+
+        [Fact]
+        public virtual void Where_nested_field_access_closure_via_query_cache_error_null()
+        {
+            var city = new City();
+
+            using (var context = CreateContext())
+            {
+                Assert.Throws<InvalidOperationException>(() =>
+                    context.Set<Customer>()
+                        .Where(c => c.City == city.Nested.InstanceFieldValue)
+                        .ToList());
+            }
+        }
+
+        [Fact]
+        public virtual void Where_nested_field_access_closure_via_query_cache_error_method_null()
+        {
+            var city = new City();
+
+            using (var context = CreateContext())
+            {
+                Assert.Throws<InvalidOperationException>(() =>
+                    context.Set<Customer>()
+                        .Where(c => c.City == city.Throw().InstanceFieldValue)
+                        .ToList());
+            }
         }
 
         [Fact]

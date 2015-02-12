@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Query.ResultOperators;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
@@ -220,18 +221,28 @@ namespace Microsoft.Data.Entity.Query
                 if (e.NodeType != ExpressionType.Constant
                     && !typeof(IQueryable).GetTypeInfo().IsAssignableFrom(e.Type.GetTypeInfo()))
                 {
-                    string parameterName;
-                    var parameterValue = Evaluate(e, out parameterName);
+                    try
+                    {
+                        string parameterName;
 
-                    parameterName
-                        = string.Format("{0}{1}_{2}",
-                            CompiledQueryParameterPrefix,
-                            parameterName,
-                            _queryContext.ParameterValues.Count);
+                        var parameterValue = Evaluate(e, out parameterName);
 
-                    _queryContext.ParameterValues.Add(parameterName, parameterValue);
+                        parameterName
+                            = string.Format("{0}{1}_{2}",
+                                CompiledQueryParameterPrefix,
+                                parameterName,
+                                _queryContext.ParameterValues.Count);
 
-                    return Expression.Parameter(expression.Type, parameterName);
+                        _queryContext.ParameterValues.Add(parameterName, parameterValue);
+
+                        return Expression.Parameter(expression.Type, parameterName);
+                    }
+                    catch (Exception exception)
+                    {
+                        throw new InvalidOperationException(
+                            Strings.ExpressionParameterizationException(expression),
+                            exception);
+                    }
                 }
 
                 return expression;
@@ -261,7 +272,14 @@ namespace Microsoft.Data.Entity.Query
                                 ? parameterName + "_" + fieldInfo.Name
                                 : fieldInfo.Name;
 
-                            return fieldInfo.GetValue(@object);
+                            try
+                            {
+                                return fieldInfo.GetValue(@object);
+                            }
+                            catch
+                            {
+                                // Try again when we compile the delegate
+                            }
                         }
 
                         var propertyInfo = memberExpression.Member as PropertyInfo;
@@ -272,7 +290,14 @@ namespace Microsoft.Data.Entity.Query
                                 ? parameterName + "_" + propertyInfo.Name
                                 : propertyInfo.Name;
 
-                            return propertyInfo.GetValue(@object);
+                            try
+                            {
+                                return propertyInfo.GetValue(@object);
+                            }
+                            catch
+                            {
+                                // Try again when we compile the delegate
+                            }
                         }
 
                         break;
@@ -294,7 +319,11 @@ namespace Microsoft.Data.Entity.Query
                     parameterName = "p";
                 }
 
-                return Expression.Lambda<Func<object>>(Expression.Convert(expression, typeof(object))).Compile()();
+                return
+                    Expression.Lambda<Func<object>>(
+                        Expression.Convert(expression, typeof(object)))
+                        .Compile()
+                        .Invoke();
             }
         }
 

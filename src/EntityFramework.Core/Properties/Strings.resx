@@ -429,4 +429,7 @@
   <data name="UnhandledExpressionType" xml:space="preserve">
     <value>Unhandled expression type: '{type}'.</value>
   </data>
+  <data name="ExpressionParameterizationException" xml:space="preserve">
+    <value>An exception was thrown while attempting to evaluate the LINQ query parameter expression '{expression}'.</value>
+  </data>
 </root>

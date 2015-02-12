@@ -844,6 +844,14 @@ namespace Microsoft.Data.Entity.Internal
             return string.Format(CultureInfo.CurrentCulture, GetString("UnhandledExpressionType", "type"), type);
         }
 
+        /// <summary>
+        /// An exception was thrown while attempting to evaluate the LINQ query parameter expression '{expression}'.
+        /// </summary>
+        public static string ExpressionParameterizationException([CanBeNull] object expression)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ExpressionParameterizationException", "expression"), expression);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
