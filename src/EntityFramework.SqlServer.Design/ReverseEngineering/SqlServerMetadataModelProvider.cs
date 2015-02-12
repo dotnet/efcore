@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
         public static readonly string AnnotationPrefix = "SqlServerMetadataModelProvider:";
         public static readonly string AnnotationNameDependentEndNavPropName = AnnotationPrefix + "DependentEndNavPropName";
         public static readonly string AnnotationNamePrincipalEndNavPropName = AnnotationPrefix + "PrincipalEndNavPropName";
-        public static readonly string AnnotationNamePrincipalEntityTypeError = AnnotationPrefix + "EntityTypeError";
+        public static readonly string AnnotationNameEntityTypeError = AnnotationPrefix + "EntityTypeError";
 
         private ILogger _logger;
 
@@ -53,7 +53,8 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             _logger = (ILogger)serviceProvider.GetService(typeof(ILogger));
             if (_logger == null)
             {
-                throw new ArgumentException(typeof(SqlServerMetadataModelProvider).Name + " cannot find a service of type " + typeof(ILogger).Name);
+                throw new ArgumentException(typeof(SqlServerMetadataModelProvider).Name
+                    + " cannot find a service of type " + typeof(ILogger).Name);
             }
         }
 
@@ -306,7 +307,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                 else
                 {
                     codeGenEntityType.AddAnnotation(
-                        AnnotationNamePrincipalEntityTypeError, "Attempt to generate EntityType " + codeGenEntityType.Name
+                        AnnotationNameEntityTypeError, "Attempt to generate EntityType " + codeGenEntityType.Name
                         + " failed. We could identify no primary key columns in the underlying SQL Server table "
                         + _tables[relationalEntityType.Name].SchemaName + "." + _tables[relationalEntityType.Name].TableName + ".");
                 }

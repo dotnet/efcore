@@ -180,30 +180,8 @@ namespace Microsoft.Data.Entity.Commands
                     var connectionString = revEng.Argument(
                             "[connectionString]",
                             "The connection string of the database");
-                    var providerAssemblyName = revEng.Option(
-                        "-p|--providerAssembly <assembly_name>",
-                        "The name of the provider assembly which will interpret data from the database",
-                        CommandOptionType.SingleValue);
-                    var outputPath = revEng.Option(
-                        "-o|--outputPath <output_path>",
-                        "The path of the directory in which to place the generated code",
-                        CommandOptionType.SingleValue);
-                    var codeNamespace = revEng.Option(
-                        "-n|--namespace <namespace>",
-                        "The namespace to use in the generated code",
-                        CommandOptionType.SingleValue);
-                    var contextClassName = revEng.Option(
-                        "-c|--contextClassName <class_name>",
-                        "The name of the class to use for the generated DbContext class",
-                        CommandOptionType.SingleValue);
-                    var filters = revEng.Option(
-                        "-f|--filters <comma_separated_list>",
-                        "The name of the class to use for the generated DbContext class",
-                        CommandOptionType.SingleValue);
 
-                    revEng.OnExecute(() => ReverseEngineer(
-                        connectionString.Value, providerAssemblyName.Value(), outputPath.Value(),
-                        codeNamespace.Value(), contextClassName.Value(), filters.Value()));
+                    revEng.OnExecute(() => ReverseEngineer(connectionString.Value);
                 },
                 addHelpCommand: false);
             _app.Command(
@@ -316,40 +294,21 @@ namespace Microsoft.Data.Entity.Commands
             return 0;
         }
 
-        public virtual int ReverseEngineer(
-            string connectionString, string providerAssemblyName, string outputPath,
-            string codeNamespace, string contextClassName, string filters)
+        public virtual int ReverseEngineer(string connectionString)
         {
-            if (providerAssemblyName == null)
-            {
-                providerAssemblyName = _defaultReverseEngineeringProviderAssembly;
-            }
-
-            var providerAssembly = GetCandidateAssembly(providerAssemblyName);
+            var providerAssembly = GetReverseEngineerProviderAssembly(_defaultReverseEngineeringProviderAssembly);
             if (providerAssembly == null)
             {
-                Console.WriteLine("No provider assembly was found with name " + providerAssemblyName);
+                Console.WriteLine("No provider assembly was found with name " + _defaultReverseEngineeringProviderAssembly);
                 return 1;
-            }
-
-            if (outputPath == null)
-            {
-                outputPath = _projectDir;
-            }
-
-            if (codeNamespace == null)
-            {
-                codeNamespace = _rootNamespace;
             }
 
             var configuration = new ReverseEngineeringConfiguration()
             {
                 ProviderAssembly = providerAssembly,
                 ConnectionString = connectionString,
-                OutputPath = outputPath,
-                Namespace = codeNamespace,
-                ContextClassName = contextClassName,
-                Filters = filters
+                OutputPath = _projectDir,
+                Namespace = _rootNamespace
             };
 
             var serviceProvider = new ServiceProvider(_serviceProvider);
@@ -419,7 +378,7 @@ namespace Microsoft.Data.Entity.Commands
             return projectDir;
         }
 
-        private Assembly GetCandidateAssembly(string providerAssemblyName)
+        private Assembly GetReverseEngineerProviderAssembly(string providerAssemblyName)
         {
             return _libraryManager.GetReferencingLibraries("EntityFramework.Relational.Design")
                 .Distinct()

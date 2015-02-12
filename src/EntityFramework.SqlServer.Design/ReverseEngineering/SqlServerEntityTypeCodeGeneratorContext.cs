@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
         public override void Generate(IndentedStringBuilder sb)
         {
             var errorMessageAnnotation = ((EntityType)EntityType)
-                .TryGetAnnotation(SqlServerMetadataModelProvider.AnnotationNamePrincipalEntityTypeError);
+                .TryGetAnnotation(SqlServerMetadataModelProvider.AnnotationNameEntityTypeError);
             if (errorMessageAnnotation != null)
             {
                 GenerateCommentHeader(sb);
@@ -73,7 +73,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                     var navigationPropertyName = foreignKey
                         .GetAnnotation(SqlServerMetadataModelProvider.AnnotationNamePrincipalEndNavPropName).Value;
                     if (((EntityType)otherEntityType)
-                        .TryGetAnnotation(SqlServerMetadataModelProvider.AnnotationNamePrincipalEntityTypeError) != null)
+                        .TryGetAnnotation(SqlServerMetadataModelProvider.AnnotationNameEntityTypeError) != null)
                     {
                         CSharpCodeGeneratorHelper.Instance.SingleLineComment(sb,
                             "Unable to add a Navigation Property referencing type "
