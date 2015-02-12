@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
 using Xunit;
@@ -75,15 +74,13 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             protected override void OnConfiguring(DbContextOptions options)
             {
-                options.UseSqlServer(new SqlConnectionStringBuilder { DataSource = ".", InitialCatalog = "Repro1479", MultipleActiveResultSets = true, IntegratedSecurity = true }.ToString());
+                options.UseSqlServer(SqlServerTestStore.CreateConnectionString("Repro1479"));
             }
         }
 
         [Fact]
         public void Can_use_SQL_Server_default_values()
         {
-            
-
             using (var context = new MyContext())
             {
                 context.Database.EnsureDeleted();
