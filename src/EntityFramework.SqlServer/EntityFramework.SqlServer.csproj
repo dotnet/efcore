@@ -34,7 +34,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Remotion.Linq">
-      <TargetFramework>portable-net45+wp80+wpa81+win</TargetFramework>
+      <TargetFramework>portable-net45+win+wpa81+wp80</TargetFramework>
     </PackageReference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />

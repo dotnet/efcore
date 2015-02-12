@@ -56,7 +56,7 @@
     <PackageReference Include="Microsoft.Framework.Logging.Interfaces" />
     <PackageReference Include="Microsoft.Framework.OptionsModel" />
     <PackageReference Include="Remotion.Linq">
-      <TargetFramework>portable-net45+wp80+wpa81+win</TargetFramework>
+      <TargetFramework>portable-net45+win+wpa81+wp80</TargetFramework>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
