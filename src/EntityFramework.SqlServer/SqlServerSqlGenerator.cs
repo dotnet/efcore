@@ -29,7 +29,8 @@ namespace Microsoft.Data.Entity.SqlServer
             Check.NotNull(commandStringBuilder, "commandStringBuilder");
             Check.NotEmpty(modificationCommands, "modificationCommands");
 
-            var schemaQualifiedName = modificationCommands[0].SchemaQualifiedName;
+            var tableName = modificationCommands[0].TableName;
+            var schemaName = modificationCommands[0].SchemaName;
 
             // TODO: Support TPH
             var defaultValuesOnly = !modificationCommands.First().ColumnModifications.Any(o => o.IsWrite);
@@ -46,7 +47,7 @@ namespace Microsoft.Data.Entity.SqlServer
                 var writeOperations = operations.Where(o => o.IsWrite).ToArray();
                 var readOperations = operations.Where(o => o.IsRead).ToArray();
 
-                AppendInsertCommandHeader(commandStringBuilder, schemaQualifiedName, writeOperations);
+                AppendInsertCommandHeader(commandStringBuilder, tableName, schemaName, writeOperations);
                 if (readOperations.Length > 0)
                 {
                     AppendOutputClause(commandStringBuilder, readOperations);
@@ -62,7 +63,7 @@ namespace Microsoft.Data.Entity.SqlServer
 
                 if (readOperations.Length == 0)
                 {
-                    AppendSelectAffectedCountCommand(commandStringBuilder, schemaQualifiedName);
+                    AppendSelectAffectedCountCommand(commandStringBuilder, tableName, schemaName);
                 }
             }
 
@@ -78,14 +79,15 @@ namespace Microsoft.Data.Entity.SqlServer
             Check.NotNull(commandStringBuilder, "commandStringBuilder");
             Check.NotNull(command, "command");
 
-            var schemaQualifiedName = command.SchemaQualifiedName;
+            var tableName = command.TableName;
+            var schemaName = command.SchemaName;
             var operations = command.ColumnModifications;
 
             var writeOperations = operations.Where(o => o.IsWrite).ToArray();
             var conditionOperations = operations.Where(o => o.IsCondition).ToArray();
             var readOperations = operations.Where(o => o.IsRead).ToArray();
 
-            AppendUpdateCommandHeader(commandStringBuilder, schemaQualifiedName, writeOperations);
+            AppendUpdateCommandHeader(commandStringBuilder, tableName, schemaName, writeOperations);
             if (readOperations.Length > 0)
             {
                 AppendOutputClause(commandStringBuilder, readOperations);
@@ -95,7 +97,7 @@ namespace Microsoft.Data.Entity.SqlServer
 
             if (readOperations.Length == 0)
             {
-                AppendSelectAffectedCountCommand(commandStringBuilder, schemaQualifiedName);
+                AppendSelectAffectedCountCommand(commandStringBuilder, tableName, schemaName);
             }
         }
 
@@ -110,9 +112,10 @@ namespace Microsoft.Data.Entity.SqlServer
                 .AppendJoin(operations.Select(c => "INSERTED." + DelimitIdentifier(c.ColumnName)));
         }
 
-        public override void AppendSelectAffectedCountCommand(StringBuilder commandStringBuilder, SchemaQualifiedName schemaQualifiedName)
+        public override void AppendSelectAffectedCountCommand(StringBuilder commandStringBuilder, string tableName, string schemaName)
         {
             Check.NotNull(commandStringBuilder, "commandStringBuilder");
+            Check.NotEmpty(tableName, "tableName");
 
             commandStringBuilder
                 .Append("SELECT @@ROWCOUNT")

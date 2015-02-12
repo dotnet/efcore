@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
                     .Append("provider_specific_identity()");
             }
 
-            public override void AppendSelectAffectedCountCommand(StringBuilder commandStringBuilder, SchemaQualifiedName schemaQualifiedName)
+            public override void AppendSelectAffectedCountCommand(StringBuilder commandStringBuilder, string tableName, string schemaName)
             {
                 commandStringBuilder
                     .Append("SELECT provider_specific_rowcount();" + Environment.NewLine);

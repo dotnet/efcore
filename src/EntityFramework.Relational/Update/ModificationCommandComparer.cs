@@ -26,13 +26,13 @@ namespace Microsoft.Data.Entity.Relational.Update
                 return 1;
             }
 
-            result = StringComparer.Ordinal.Compare(x.SchemaQualifiedName.Schema, y.SchemaQualifiedName.Schema);
+            result = StringComparer.Ordinal.Compare(x.SchemaName, y.SchemaName);
             if (0 != result)
             {
                 return result;
             }
 
-            result = StringComparer.Ordinal.Compare(x.SchemaQualifiedName.Name, y.SchemaQualifiedName.Name);
+            result = StringComparer.Ordinal.Compare(x.TableName, y.TableName);
             if (0 != result)
             {
                 return result;

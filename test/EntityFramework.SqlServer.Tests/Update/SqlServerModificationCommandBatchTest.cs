@@ -15,8 +15,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Update
         {
             var batch = new SqlServerModificationCommandBatch(new SqlServerSqlGenerator(), 1);
 
-            Assert.True(batch.AddCommand(new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator(), p => p.SqlServer())));
-            Assert.False(batch.AddCommand(new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator(), p => p.SqlServer())));
+            Assert.True(batch.AddCommand(new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer())));
+            Assert.False(batch.AddCommand(new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer())));
         }
     }
 }

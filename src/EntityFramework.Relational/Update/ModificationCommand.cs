@@ -32,20 +32,24 @@ namespace Microsoft.Data.Entity.Relational.Update
         }
 
         public ModificationCommand(
-            SchemaQualifiedName schemaQualifiedName,
+            [NotNull] string tableName,
+            [CanBeNull] string schemaName,
             [NotNull] ParameterNameGenerator parameterNameGenerator,
             [NotNull] Func<IProperty, IRelationalPropertyExtensions> getPropertyExtensions)
         {
-            Check.NotEmpty(schemaQualifiedName, "schemaQualifiedName");
+            Check.NotEmpty(tableName, "tableName");
             Check.NotNull(parameterNameGenerator, "parameterNameGenerator");
             Check.NotNull(getPropertyExtensions, "getPropertyExtensions");
 
-            SchemaQualifiedName = schemaQualifiedName;
+            TableName = tableName;
+            SchemaName = schemaName;
             ParameterNameGenerator = parameterNameGenerator;
             _getPropertyExtensions = getPropertyExtensions;
         }
 
-        public virtual SchemaQualifiedName SchemaQualifiedName { get; }
+        public virtual string TableName { get; }
+
+        public virtual string SchemaName { get; }
 
         public virtual IReadOnlyList<InternalEntityEntry> Entries => _entries;
 

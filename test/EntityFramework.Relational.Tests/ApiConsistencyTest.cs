@@ -9,7 +9,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
     {
         protected override Assembly TargetAssembly
         {
-            get { return typeof(SchemaQualifiedName).Assembly; }
+            get { return typeof(RelationalDataStore).Assembly; }
         }
     }
 }

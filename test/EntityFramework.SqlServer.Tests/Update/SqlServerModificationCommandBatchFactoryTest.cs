@@ -23,8 +23,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Update
 
             var batch = factory.Create(options);
 
-            Assert.True(factory.AddCommand(batch, new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator(), p => p.SqlServer())));
-            Assert.False(factory.AddCommand(batch, new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator(), p => p.SqlServer())));
+            Assert.True(factory.AddCommand(batch, new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer())));
+            Assert.False(factory.AddCommand(batch, new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer())));
         }
 
         [Fact]
@@ -37,8 +37,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Update
 
             var batch = factory.Create(options);
 
-            Assert.True(factory.AddCommand(batch, new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator(), p => p.SqlServer())));
-            Assert.True(factory.AddCommand(batch, new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator(), p => p.SqlServer())));
+            Assert.True(factory.AddCommand(batch, new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer())));
+            Assert.True(factory.AddCommand(batch, new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer())));
         }
 
         [Fact]
@@ -50,8 +50,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Update
 
             var batch = factory.Create(options);
 
-            Assert.True(factory.AddCommand(batch, new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator(), p => p.SqlServer())));
-            Assert.True(factory.AddCommand(batch, new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator(), p => p.SqlServer())));
+            Assert.True(factory.AddCommand(batch, new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer())));
+            Assert.True(factory.AddCommand(batch, new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer())));
         }
 
         [Fact]
@@ -63,8 +63,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Update
 
             var batch = factory.Create(options);
 
-            Assert.True(factory.AddCommand(batch, new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator(), p => p.SqlServer())));
-            Assert.True(factory.AddCommand(batch, new ModificationCommand(new SchemaQualifiedName("T1"), new ParameterNameGenerator(), p => p.SqlServer())));
+            Assert.True(factory.AddCommand(batch, new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer())));
+            Assert.True(factory.AddCommand(batch, new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer())));
         }
     }
 }

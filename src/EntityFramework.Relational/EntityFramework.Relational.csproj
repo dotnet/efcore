@@ -204,7 +204,6 @@
     <Compile Include="RelationalTypedValueReader.cs" />
     <Compile Include="RelationalTypedValueReaderFactory.cs" />
     <Compile Include="RelationalValueReaderFactory.cs" />
-    <Compile Include="SchemaQualifiedName.cs" />
     <Compile Include="SqlBatch.cs" />
     <Compile Include="SqlBatchBuilder.cs" />
     <Compile Include="SqlGenerator.cs" />

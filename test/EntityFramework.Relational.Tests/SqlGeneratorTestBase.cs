@@ -315,7 +315,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
             }
 
             Func<IProperty, IRelationalPropertyExtensions> func = p => p.Relational();
-            var commandMock = new Mock<ModificationCommand>(new SchemaQualifiedName("Ducks", "dbo"), new ParameterNameGenerator(), func) { CallBase = true };
+            var commandMock = new Mock<ModificationCommand>("Ducks", "dbo", new ParameterNameGenerator(), func) { CallBase = true };
             commandMock.Setup(m => m.ColumnModifications).Returns(columnModifications);
 
             return commandMock.Object;
@@ -346,7 +346,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
                 };
 
             Func<IProperty, IRelationalPropertyExtensions> func = p => p.Relational();
-            var commandMock = new Mock<ModificationCommand>(new SchemaQualifiedName("Ducks", "dbo"), new ParameterNameGenerator(), func) { CallBase = true };
+            var commandMock = new Mock<ModificationCommand>("Ducks", "dbo", new ParameterNameGenerator(), func) { CallBase = true };
             commandMock.Setup(m => m.ColumnModifications).Returns(columnModifications);
 
             return commandMock.Object;
@@ -368,7 +368,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
                 };
 
             Func<IProperty, IRelationalPropertyExtensions> func = p => p.Relational();
-            var commandMock = new Mock<ModificationCommand>(new SchemaQualifiedName("Ducks", "dbo"), new ParameterNameGenerator(), func) { CallBase = true };
+            var commandMock = new Mock<ModificationCommand>("Ducks", "dbo", new ParameterNameGenerator(), func) { CallBase = true };
             commandMock.Setup(m => m.ColumnModifications).Returns(columnModifications);
 
             return commandMock.Object;

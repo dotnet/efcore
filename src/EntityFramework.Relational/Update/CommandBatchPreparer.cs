@@ -75,7 +75,8 @@ namespace Microsoft.Data.Entity.Relational.Update
             // TODO: Handle multiple state entries that update the same row
             return entries.Select(
                 e => new ModificationCommand(
-                    new SchemaQualifiedName(GetEntityTypeExtensions(e.EntityType).Table, GetEntityTypeExtensions(e.EntityType).Schema),
+                    GetEntityTypeExtensions(e.EntityType).Table,
+                    GetEntityTypeExtensions(e.EntityType).Schema,
                     parameterNameGenerator,
                     GetPropertyExtensions)
                     .AddEntry(e));

@@ -137,7 +137,8 @@ namespace Microsoft.Data.Entity.SqlServer.Update
             if (newModificationCommand.EntityState == EntityState.Added)
             {
                 if (_bulkInsertCommands.Count > 0
-                    && _bulkInsertCommands[0].SchemaQualifiedName != newModificationCommand.SchemaQualifiedName)
+                    && !(string.Equals(_bulkInsertCommands[0].TableName, newModificationCommand.TableName)
+                            && string.Equals(_bulkInsertCommands[0].SchemaName, newModificationCommand.SchemaName)))
                 {
                     CachedCommandText.Append(GetBulkInsertCommandText(commandPosition));
                     _bulkInsertCommands.Clear();

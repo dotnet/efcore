@@ -21,14 +21,6 @@ namespace Microsoft.Data.Entity.Relational
         }
 
         /// <summary>
-        /// The schema qualified name '{name}' is invalid. Schema qualified names must be of the form [&lt;schema_name&gt;.]&lt;object_name&gt;.
-        /// </summary>
-        public static string InvalidSchemaQualifiedName([CanBeNull] object name)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("InvalidSchemaQualifiedName", "name"), name);
-        }
-
-        /// <summary>
         /// Can not create a ModificationFunction for an entity in state '{entityState}'.
         /// </summary>
         public static string ModificationFunctionInvalidEntityState([CanBeNull] object entityState)
