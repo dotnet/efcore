@@ -206,7 +206,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             var firstEntityType = model.EntityTypes.Single(e => e.Type == typeof(MultipleNavigationsFirst));
             var secondEntityType = model.EntityTypes.Single(e => e.Type == typeof(MultipleNavigationsSecond));
 
-            Assert.Equal(2, firstEntityType.Properties.Count);
+            Assert.Equal(2, firstEntityType.PropertyCount);
             Assert.Equal(1, firstEntityType.Keys.Count);
             var firstFK = firstEntityType.ForeignKeys.Single();
             Assert.False(firstFK.IsRequired);
@@ -215,7 +215,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
                 new[] { MultipleNavigationsFirst.NonCollectionNavigationProperty.Name, MultipleNavigationsFirst.CollectionNavigationProperty.Name },
                 firstEntityType.Navigations.Select(n => n.Name));
 
-            Assert.Equal(2, secondEntityType.Properties.Count);
+            Assert.Equal(2, secondEntityType.PropertyCount);
             Assert.Equal(1, secondEntityType.Keys.Count);
             var secondFK = firstEntityType.ForeignKeys.Single();
             Assert.False(secondFK.IsRequired);
@@ -283,12 +283,12 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             var principalEntityType = model.EntityTypes.Single(e => e.Type == typeof(OneToOnePrincipal));
             var dependentEntityType = model.EntityTypes.Single(e => e.Type == typeof(OneToOneDependent));
 
-            Assert.Equal(1, principalEntityType.Properties.Count);
+            Assert.Equal(1, principalEntityType.PropertyCount);
             Assert.Equal(1, principalEntityType.Keys.Count);
             Assert.Empty(principalEntityType.ForeignKeys);
             Assert.Equal(OneToOnePrincipal.NavigationProperty.Name, principalEntityType.Navigations.Single().Name);
 
-            Assert.Equal(2, dependentEntityType.Properties.Count);
+            Assert.Equal(2, dependentEntityType.PropertyCount);
             Assert.Equal(1, dependentEntityType.Keys.Count);
             var fk = dependentEntityType.ForeignKeys.Single();
             Assert.False(fk.IsRequired);
@@ -317,7 +317,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
             var principalEntityType = model.EntityTypes.Single(e => e.Type == typeof(OneToManyPrincipal));
             var dependentEntityType = model.EntityTypes.Single(e => e.Type == typeof(OneToManyDependent));
 
-            Assert.Equal(dependentHasPK ? 2 : 1, dependentEntityType.Properties.Count);
+            Assert.Equal(dependentHasPK ? 2 : 1, dependentEntityType.PropertyCount);
             Assert.Equal(dependentHasPK ? 1 : 0, dependentEntityType.Keys.Count);
             var fk = dependentEntityType.ForeignKeys.Single();
             Assert.False(fk.IsRequired);
@@ -331,7 +331,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.ModelConventions
                 Assert.Empty(dependentEntityType.Navigations);
             }
 
-            Assert.Equal(1, principalEntityType.Properties.Count);
+            Assert.Equal(1, principalEntityType.PropertyCount);
             Assert.Equal(1, principalEntityType.Keys.Count);
             Assert.Empty(principalEntityType.ForeignKeys);
             if (hasNavigationToDependent)

@@ -9,7 +9,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
     public class StoreGeneratedValuesFactory
     {
-        public virtual StoreGeneratedValues Create([NotNull] InternalEntityEntry entry, [NotNull] IReadOnlyList<IProperty> properties)
+        public virtual StoreGeneratedValues Create([NotNull] InternalEntityEntry entry, [NotNull] IEnumerable<IProperty> properties)
             => new StoreGeneratedValues(entry, properties);
     }
 }

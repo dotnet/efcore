@@ -92,6 +92,8 @@
     <Compile Include="IncludeAsyncTestBase.cs" />
     <Compile Include="IncludeOneToOneTestBase.cs" />
     <Compile Include="IncludeTestBase.cs" />
+    <Compile Include="InheritanceFixtureBase.cs" />
+    <Compile Include="InheritanceTestBase.cs" />
     <Compile Include="Metadata\CompiledModelTest.cs" />
     <Compile Include="Metadata\Compiled\CompiledEntityType.cs" />
     <Compile Include="Metadata\Compiled\CompiledForeignKey.cs" />
@@ -122,6 +124,11 @@
     <Compile Include="TestModels\ComplexNavigationsModel\Level2.cs" />
     <Compile Include="TestModels\ComplexNavigationsModel\Level3.cs" />
     <Compile Include="TestModels\ComplexNavigationsModel\Level4.cs" />
+    <Compile Include="TestModels\Inheritance\Animal.cs" />
+    <Compile Include="TestModels\Inheritance\Bird.cs" />
+    <Compile Include="TestModels\Inheritance\Eagle.cs" />
+    <Compile Include="TestModels\Inheritance\Kiwi.cs" />
+    <Compile Include="TestModels\Inheritance\AnimalContext.cs" />
     <Compile Include="TestModels\Northwind\Customer.cs" />
     <Compile Include="TestModels\Northwind\Employee.cs" />
     <Compile Include="TestModels\Northwind\NorthwindContext.cs" />

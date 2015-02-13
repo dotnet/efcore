@@ -99,7 +99,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var entity = model.GetEntityType(typeof(Customer));
 
-            Assert.Equal(1, entity.GetPrimaryKey().Properties.Count());
+            Assert.Equal(1, entity.GetPrimaryKey().Properties.Count);
             Assert.Equal(Customer.IdProperty.Name, entity.GetPrimaryKey().Properties.First().Name);
         }
 
@@ -113,7 +113,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var entity = model.GetEntityType(typeof(Customer));
 
-            Assert.Equal(1, entity.GetPrimaryKey().Properties.Count());
+            Assert.Equal(1, entity.GetPrimaryKey().Properties.Count);
             Assert.Equal(Customer.IdProperty.Name, entity.GetPrimaryKey().Properties.First().Name);
         }
 
@@ -127,7 +127,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var entity = model.GetEntityType(typeof(Customer));
 
-            Assert.Equal(1, entity.GetPrimaryKey().Properties.Count());
+            Assert.Equal(1, entity.GetPrimaryKey().Properties.Count);
             Assert.Equal(Customer.IdProperty.Name, entity.GetPrimaryKey().Properties.First().Name);
         }
 
@@ -145,7 +145,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var entity = model.GetEntityType(typeof(Customer));
 
-            Assert.Equal(1, entity.GetPrimaryKey().Properties.Count());
+            Assert.Equal(1, entity.GetPrimaryKey().Properties.Count);
             Assert.Equal(Customer.IdProperty.Name, entity.GetPrimaryKey().Properties.First().Name);
         }
 
@@ -163,7 +163,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var entity = model.GetEntityType(typeof(Customer));
 
-            Assert.Equal(1, entity.GetPrimaryKey().Properties.Count());
+            Assert.Equal(1, entity.GetPrimaryKey().Properties.Count);
             Assert.Equal(Customer.IdProperty.Name, entity.GetPrimaryKey().Properties.First().Name);
         }
 
@@ -205,7 +205,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var entity = model.GetEntityType(typeof(Customer));
 
-            Assert.Equal(2, entity.GetPrimaryKey().Properties.Count());
+            Assert.Equal(2, entity.GetPrimaryKey().Properties.Count);
             Assert.Equal(Customer.IdProperty.Name, entity.GetPrimaryKey().Properties.First().Name);
             Assert.Equal(Customer.NameProperty.Name, entity.GetPrimaryKey().Properties.Last().Name);
         }
@@ -222,7 +222,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var entity = model.GetEntityType(typeof(Customer));
 
-            Assert.Equal(2, entity.GetPrimaryKey().Properties.Count());
+            Assert.Equal(2, entity.GetPrimaryKey().Properties.Count);
             Assert.Equal(Customer.IdProperty.Name, entity.GetPrimaryKey().Properties.First().Name);
             Assert.Equal(Customer.NameProperty.Name, entity.GetPrimaryKey().Properties.Last().Name);
         }
@@ -243,7 +243,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var entity = model.GetEntityType(typeof(Customer));
 
-            Assert.Equal(2, entity.GetPrimaryKey().Properties.Count());
+            Assert.Equal(2, entity.GetPrimaryKey().Properties.Count);
             Assert.Equal(Customer.IdProperty.Name, entity.GetPrimaryKey().Properties.First().Name);
             Assert.Equal(Customer.NameProperty.Name + "Shadow", entity.GetPrimaryKey().Properties.Last().Name);
         }
@@ -263,7 +263,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var entity = model.GetEntityType(typeof(Customer));
 
-            Assert.Equal(2, entity.GetPrimaryKey().Properties.Count());
+            Assert.Equal(2, entity.GetPrimaryKey().Properties.Count);
             Assert.Equal(Customer.IdProperty.Name, entity.GetPrimaryKey().Properties.First().Name);
             Assert.Equal(Customer.NameProperty.Name, entity.GetPrimaryKey().Properties.Last().Name);
         }
@@ -282,7 +282,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var entity = model.GetEntityType(typeof(Customer));
 
-            Assert.Equal(2, entity.GetPrimaryKey().Properties.Count());
+            Assert.Equal(2, entity.GetPrimaryKey().Properties.Count);
             Assert.Equal(new[] { Customer.IdProperty.Name, Customer.NameProperty.Name }, entity.GetPrimaryKey().Properties.Select(p => p.Name));
             Assert.Equal("V1", entity.GetPrimaryKey()["A1"]);
             Assert.Equal("V2", entity.GetPrimaryKey()["A2"]);
@@ -305,7 +305,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var entity = model.GetEntityType(typeof(Customer));
 
-            Assert.Equal(2, entity.GetPrimaryKey().Properties.Count());
+            Assert.Equal(2, entity.GetPrimaryKey().Properties.Count);
             Assert.Equal(new[] { Customer.IdProperty.Name, Customer.NameProperty.Name }, entity.GetPrimaryKey().Properties.Select(p => p.Name));
             Assert.Equal("V1", entity.GetPrimaryKey()["A1"]);
             Assert.Equal("V2", entity.GetPrimaryKey()["A2"]);
@@ -405,7 +405,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                     b.Property(e => e.AlternateKey);
                 });
 
-            Assert.Equal(3, model.GetEntityType(typeof(Customer)).Properties.Count());
+            Assert.Equal(3, model.GetEntityType(typeof(Customer)).PropertyCount);
         }
 
         [Fact]
@@ -420,7 +420,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                     b.Property<string>(Customer.NameProperty.Name).Annotation("foo", "bar");
                 });
 
-            Assert.Equal(2, model.GetEntityType(typeof(Customer)).Properties.Count());
+            Assert.Equal(2, model.GetEntityType(typeof(Customer)).PropertyCount);
         }
 
         [Fact]
@@ -457,7 +457,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var entityType = (IEntityType)modelBuilder.Entity<Quarks>().Metadata;
 
-            Assert.Equal(7, entityType.Properties.Count);
+            Assert.Equal(7, entityType.PropertyCount);
 
             modelBuilder.Entity<Quarks>(b =>
                 {
@@ -4070,8 +4070,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var fkProperty = dependentType.GetProperty("OrderId");
             var principalProperty = principalType.GetProperty("OrderId");
 
-            var principalPropertyCount = principalType.Properties.Count;
-            var dependentPropertyCount = dependentType.Properties.Count;
+            var principalPropertyCount = principalType.PropertyCount;
+            var dependentPropertyCount = dependentType.PropertyCount;
             var principalKey = principalType.Keys.Single();
             var dependentKey = dependentType.Keys.Single();
 
@@ -4088,8 +4088,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Equal("Details", principalType.Navigations.Single().Name);
             Assert.Same(fk, dependentType.Navigations.Single().ForeignKey);
             Assert.Same(fk, principalType.Navigations.Single().ForeignKey);
-            Assert.Equal(principalPropertyCount, principalType.Properties.Count);
-            Assert.Equal(dependentPropertyCount, dependentType.Properties.Count);
+            Assert.Equal(principalPropertyCount, principalType.PropertyCount);
+            Assert.Equal(dependentPropertyCount, dependentType.PropertyCount);
             Assert.Empty(principalType.ForeignKeys);
             Assert.Same(principalKey, principalType.Keys.Single());
             Assert.Same(dependentKey, dependentType.Keys.Single());
@@ -4112,8 +4112,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var fkProperty = dependentType.GetProperty("OrderId");
             var principalProperty = principalType.GetProperty("OrderId");
 
-            var principalPropertyCount = principalType.Properties.Count;
-            var dependentPropertyCount = dependentType.Properties.Count;
+            var principalPropertyCount = principalType.PropertyCount;
+            var dependentPropertyCount = dependentType.PropertyCount;
             var principalKey = principalType.Keys.Single();
             var dependentKey = dependentType.Keys.Single();
 
@@ -4130,8 +4130,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Equal("Details", principalType.Navigations.Single().Name);
             Assert.Same(fk, dependentType.Navigations.Single().ForeignKey);
             Assert.Same(fk, principalType.Navigations.Single().ForeignKey);
-            Assert.Equal(principalPropertyCount, principalType.Properties.Count);
-            Assert.Equal(dependentPropertyCount, dependentType.Properties.Count);
+            Assert.Equal(principalPropertyCount, principalType.PropertyCount);
+            Assert.Equal(dependentPropertyCount, dependentType.PropertyCount);
             Assert.Empty(principalType.ForeignKeys);
             Assert.Same(principalKey, principalType.Keys.Single());
             Assert.Same(dependentKey, dependentType.Keys.Single());
@@ -6239,13 +6239,13 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             public int SelfRefId { get; set; }
         }
 
-        private void AssertEqual(IReadOnlyList<Property> expectedProperties, IReadOnlyList<Property> actualProperties)
+        private void AssertEqual(IReadOnlyList<Property> expectedProperties, IEnumerable<Property> actualProperties)
         {
             var expectedPropertyNamesSet = new SortedSet<string>(expectedProperties.Select(p => p.Name), StringComparer.Ordinal);
             Assert.Equal(expectedPropertyNamesSet, actualProperties.Select(p => p.Name));
         }
 
-        private void AssertEqual(IReadOnlyList<IProperty> expectedProperties, IReadOnlyList<IProperty> actualProperties)
+        private void AssertEqual(IReadOnlyList<IProperty> expectedProperties, IEnumerable<IProperty> actualProperties)
         {
             var expectedPropertyNamesSet = new SortedSet<string>(expectedProperties.Select(p => p.Name), StringComparer.Ordinal);
             Assert.Equal(expectedPropertyNamesSet, actualProperties.Select(p => p.Name));

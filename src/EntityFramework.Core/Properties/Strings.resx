@@ -439,6 +439,15 @@
     <value>An exception was thrown while attempting to evaluate the LINQ query parameter expression '{expression}'.</value>
   </data>
   <data name="InvalidValueGeneratorFactoryProperty" xml:space="preserve">
-    <value>The '{factory}' cannot create a value generator for property '{property}' on entity type '{entityType}'. Only integer properties are supported.</value>
+      <value>The '{factory}' cannot create a value generator for property '{property}' on entity type '{entityType}'. Only integer properties are supported.</value>
+  </data>
+  <data name="InvalidForDerivedEntity" xml:space="preserve">
+    <value>The entity type method '{method}' is not valid for derived type '{derivedType}'.</value>
+  </data>
+  <data name="CircularInheritance" xml:space="preserve">
+    <value>The entity type '{entityType}' cannot inherit '{baseEntityType}' because '{baseEntityType}' is a descendent of '{entityType}'.</value>
+  </data>
+  <data name="DerivedEntityCannotHaveKeys" xml:space="preserve">
+    <value>Unable to set a base type for entity type '{entityType}' because it has one or more keys defined.</value>
   </data>
 </root>

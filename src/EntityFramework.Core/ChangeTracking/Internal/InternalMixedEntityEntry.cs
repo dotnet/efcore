@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 
@@ -74,16 +75,14 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         {
             var shadowValues = new object[EntityType.ShadowPropertyCount];
 
-            var properties = EntityType.Properties;
-            for (var i = 0; i < properties.Count; i++)
+            foreach (var property in EntityType.Properties.Where(property => property.IsShadowProperty))
             {
-                var property = properties[i];
-                if (property.IsShadowProperty)
-                {
-                    // TODO: Consider using strongly typed ReadValue instead of always object
-                    // Issue #738
-                    shadowValues[property.ShadowIndex] = valueReader.IsNull(i) ? null : valueReader.ReadValue<object>(i);
-                }
+                // TODO: Consider using strongly typed ReadValue instead of always object
+                // Issue #738
+                shadowValues[property.ShadowIndex]
+                    = valueReader.IsNull(property.Index)
+                        ? null
+                        : valueReader.ReadValue<object>(property.Index);
             }
 
             return shadowValues;

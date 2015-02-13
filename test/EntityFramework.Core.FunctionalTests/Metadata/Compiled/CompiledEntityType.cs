@@ -48,6 +48,10 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
 
         public Type Type => typeof(TEntity);
 
+        public IEntityType BaseType => null;
+
+        public IEntityType RootType => null;
+
         public string SimpleName => typeof(TEntity).Name;
 
         protected abstract IKey LoadKey();
@@ -80,9 +84,11 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
 
         public IReadOnlyList<IIndex> Indexes => LazyInitializer.EnsureInitialized(ref _indexes, LoadIndexes);
 
-        public IReadOnlyList<IProperty> Properties => EnsurePropertiesInitialized();
+        public IEnumerable<IProperty> Properties => EnsurePropertiesInitialized();
 
         private IProperty[] EnsurePropertiesInitialized() => LazyInitializer.EnsureInitialized(ref _properties, LoadProperties);
+
+        public int PropertyCount  => 0;
 
         public int ShadowPropertyCount => 0;
 

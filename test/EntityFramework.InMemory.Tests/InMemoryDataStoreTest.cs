@@ -161,8 +161,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             mockFactory.Setup(m => m.Create(It.IsAny<string>())).Returns(mockLogger.Object);
 
             var serviceCollection = new ServiceCollection();
-            serviceCollection
-                .AddInstance(mockFactory.Object);
+            serviceCollection.AddInstance(mockFactory.Object);
 
             var scopedServices = InMemoryTestHelpers.Instance.CreateContextServices(serviceCollection, CreateModel());
 
@@ -178,7 +177,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
                 l => l.Write(
                     LogLevel.Information,
                     0,
-                    It.IsAny<string>(),
+                    1,
                     null,
                     It.IsAny<Func<object, Exception, string>>()),
                 Times.Once);

@@ -876,6 +876,30 @@ namespace Microsoft.Data.Entity.Internal
             return string.Format(CultureInfo.CurrentCulture, GetString("InvalidValueGeneratorFactoryProperty", "factory", "property", "entityType"), factory, property, entityType);
         }
 
+        /// <summary>
+        /// The entity type method '{method}' is not valid for derived type '{derivedType}'.
+        /// </summary>
+        public static string InvalidForDerivedEntity([CanBeNull] object method, [CanBeNull] object derivedType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("InvalidForDerivedEntity", "method", "derivedType"), method, derivedType);
+        }
+
+        /// <summary>
+        /// The entity type '{entityType}' cannot inherit '{baseEntityType}' because '{baseEntityType}' is a descendent of '{entityType}'.
+        /// </summary>
+        public static string CircularInheritance([CanBeNull] object entityType, [CanBeNull] object baseEntityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("CircularInheritance", "entityType", "baseEntityType"), entityType, baseEntityType);
+        }
+
+        /// <summary>
+        /// Unable to set a base type for entity type '{entityType}' because it has one or more keys defined.
+        /// </summary>
+        public static string DerivedEntityCannotHaveKeys([CanBeNull] object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("DerivedEntityCannotHaveKeys", "entityType"), entityType);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

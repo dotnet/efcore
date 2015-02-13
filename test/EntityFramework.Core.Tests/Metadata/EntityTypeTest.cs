@@ -11,11 +11,81 @@ using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Xunit;
 
+// ReSharper disable UnusedMember.Local
+// ReSharper disable ImplicitlyCapturedClosure
+
 namespace Microsoft.Data.Entity.Tests.Metadata
 {
     public class EntityTypeTest
     {
         private readonly Model _model = BuildModel();
+
+        private class A
+        {
+            public string E { get; set; }
+            public string G { get; set; }
+        }
+
+        private class B : A
+        {
+            public string F { get; set; }
+            public string H { get; set; }
+        }
+
+        private class C : A { }
+        private class D : C { }
+
+        [Fact]
+        public void Circular_inheritance_should_throw()
+        {
+            var model = new Model();
+
+            //    A
+            //   / \
+            //  B   C
+            //       \
+            //        D
+
+            var a = new EntityType(typeof(A), model);
+            var b = new EntityType(typeof(B), model) { BaseType = a };
+            var c = new EntityType(typeof(C), model) { BaseType = a };
+            var d = new EntityType(typeof(D), model) { BaseType = c };
+
+            Assert.Equal(
+                Strings.CircularInheritance(a, a),
+                Assert.Throws<InvalidOperationException>(() => a.BaseType = a).Message);
+
+            Assert.Equal(
+                Strings.CircularInheritance(a, b),
+                Assert.Throws<InvalidOperationException>(() => a.BaseType = b).Message);
+
+            Assert.Equal(
+               Strings.CircularInheritance(a, d),
+               Assert.Throws<InvalidOperationException>(() => a.BaseType = d).Message);
+        }
+
+        [Fact]
+        public void Properties_should_inherit_from_base_type()
+        {
+            var model = new Model();
+
+            var a = new EntityType(typeof(A), model);
+            a.AddProperty("G", typeof(string));
+            a.AddProperty("E", typeof(string));
+
+            var b = new EntityType(typeof(B), model);
+            b.AddProperty("H", typeof(string));
+            b.AddProperty("F", typeof(string));
+
+            Assert.Equal(new[] { "E", "G" }, a.Properties.Select(p => p.Name).ToArray());
+            Assert.Equal(new[] { "F", "H" }, b.Properties.Select(p => p.Name).ToArray());
+
+            b.BaseType = a;
+
+            Assert.Equal(new[] { "E", "G" }, a.Properties.Select(p => p.Name).ToArray());
+            Assert.Equal(new[] { "E", "G", "F", "H" }, b.Properties.Select(p => p.Name).ToArray());
+            Assert.Equal(new[] { 0, 1, 2, 3 }, b.Properties.Select(p => p.Index));
+        }
 
         [Fact]
         public void Can_create_entity_type()
@@ -1155,12 +1225,6 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var property2 = entityType.GetOrAddProperty(Customer.NameProperty);
 
             Assert.True(new[] { property1, property2 }.SequenceEqual(entityType.Properties));
-        }
-
-        [Fact]
-        public void Properties_is_IList_to_ensure_collecting_the_count_is_fast()
-        {
-            Assert.IsAssignableFrom<IList<Property>>(new EntityType(typeof(Customer), new Model()).Properties);
         }
 
         [Fact]

@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
 
         public IEntityType EntityType => _model.EntityTypes[Definition.EntityTypeIndex];
 
-        public IReadOnlyList<IProperty> Properties => Definition.PropertyIndexes.Select(i => EntityType.Properties[i]).ToArray();
+        public IReadOnlyList<IProperty> Properties => Definition.PropertyIndexes.Select(i => EntityType.Properties.ElementAt(i)).ToArray();
 
         protected struct KeyDefinition
         {

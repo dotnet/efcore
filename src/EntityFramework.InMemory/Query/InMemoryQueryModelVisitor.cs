@@ -121,26 +121,12 @@ namespace Microsoft.Data.Entity.InMemory.Query
         private static IEnumerable<TEntity> EntityQuery<TEntity>(
             QueryContext queryContext,
             IEntityType entityType,
-            EntityKeyFactorySource entityKeyFactorySource,
-            EntityMaterializerSource entityMaterializerSource,
+            Func<IValueReader, EntityKey> entityKeyFactory,
+            Func<IValueReader, object> materializer,
             bool queryStateManager)
             where TEntity : class
         {
-            var inMemoryQueryContext = (InMemoryQueryContext)queryContext;
-
-            var keyProperties
-                = entityType.GetPrimaryKey().Properties;
-
-            var keyFactory
-                = entityKeyFactorySource.GetKeyFactory(keyProperties);
-
-            Func<IValueReader, EntityKey> entityKeyFactory
-                = vr => keyFactory.Create(entityType, keyProperties, vr);
-
-            var materializer
-                = entityMaterializerSource.GetMaterializer(entityType);
-
-            return inMemoryQueryContext.Database
+            return ((InMemoryQueryContext)queryContext).Database
                 .GetTable(entityType)
                 .Select(t =>
                     {
@@ -172,7 +158,7 @@ namespace Microsoft.Data.Entity.InMemory.Query
             private readonly IQuerySource _querySource;
 
             public InMemoryEntityQueryableExpressionTreeVisitor(
-                InMemoryQueryModelVisitor entityQueryModelVisitor, IQuerySource querySource)
+                EntityQueryModelVisitor entityQueryModelVisitor, IQuerySource querySource)
                 : base(entityQueryModelVisitor)
             {
                 _querySource = querySource;
@@ -188,14 +174,31 @@ namespace Microsoft.Data.Entity.InMemory.Query
                     = QueryModelVisitor.QueryCompilationContext.Model
                         .GetEntityType(elementType);
 
+                var keyProperties
+                    = entityType.GetPrimaryKey().Properties;
+
+                var keyFactory
+                    = QueryModelVisitor
+                        .QueryCompilationContext
+                        .EntityKeyFactorySource.GetKeyFactory(keyProperties);
+
+                Func<IValueReader, EntityKey> entityKeyFactory
+                    = vr => keyFactory.Create(entityType, keyProperties, vr);
+
+                var materializer
+                    = QueryModelVisitor
+                        .QueryCompilationContext
+                        .EntityMaterializerSource
+                        .GetMaterializer(entityType);
+
                 if (QueryModelVisitor.QuerySourceRequiresMaterialization(_querySource))
                 {
                     return Expression.Call(
                         _entityQueryMethodInfo.MakeGenericMethod(elementType),
                         QueryContextParameter,
                         Expression.Constant(entityType),
-                        Expression.Constant(QueryModelVisitor.QueryCompilationContext.EntityKeyFactorySource),
-                        Expression.Constant(QueryModelVisitor.QueryCompilationContext.EntityMaterializerSource),
+                        Expression.Constant(entityKeyFactory),
+                        Expression.Constant(materializer),
                         Expression.Constant(QueryModelVisitor.QuerySourceRequiresTracking(_querySource)));
                 }
 

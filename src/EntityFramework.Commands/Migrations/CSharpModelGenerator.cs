@@ -121,7 +121,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
         }
 
         protected virtual void GenerateProperties(
-            [NotNull] IReadOnlyList<IProperty> properties, [NotNull] IndentedStringBuilder stringBuilder)
+            [NotNull] IEnumerable<IProperty> properties, [NotNull] IndentedStringBuilder stringBuilder)
         {
             Check.NotNull(properties, "properties");
             Check.NotNull(stringBuilder, "stringBuilder");

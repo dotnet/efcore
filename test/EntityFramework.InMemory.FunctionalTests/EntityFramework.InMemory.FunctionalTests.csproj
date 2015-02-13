@@ -76,8 +76,10 @@
     <Compile Include="ChangeTrackingInMemoryTest.cs" />
     <Compile Include="InMemoryFixture.cs" />
     <Compile Include="GraphUpdatesInMemoryTest.cs" />
+    <Compile Include="InheritanceInMemoryFixture.cs" />
     <Compile Include="NullKeysInMemoryTest.cs" />
     <Compile Include="GraphUpdatesInMemoryTestBase.cs" />
+    <Compile Include="InheritanceInMemoryTest.cs" />
     <Compile Include="SentinelGraphUpdatesInMemoryTest.cs" />
     <Compile Include="InMemoryTestStore.cs" />
     <Compile Include="BuiltInDataTypesInMemoryFixture.cs" />

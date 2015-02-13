@@ -16,6 +16,12 @@ namespace Microsoft.Data.Entity.Metadata
         string SimpleName { get; }
 
         [CanBeNull]
+        IEntityType BaseType { get; }
+
+        [NotNull]
+        IEntityType RootType { get; }
+
+        [CanBeNull]
         Type Type { get; }
 
         [CanBeNull]
@@ -35,14 +41,17 @@ namespace Microsoft.Data.Entity.Metadata
         [NotNull]
         INavigation GetNavigation([NotNull] string name);
 
-        IReadOnlyList<IProperty> Properties { get; }
+        IEnumerable<IProperty> Properties { get; }
+
         IReadOnlyList<IForeignKey> ForeignKeys { get; }
         IReadOnlyList<INavigation> Navigations { get; }
         IReadOnlyList<IIndex> Indexes { get; }
         IReadOnlyList<IKey> Keys { get; }
 
+        int PropertyCount { get; }
         int ShadowPropertyCount { get; }
         int OriginalValueCount { get; }
+
         bool HasClrType { get; }
         bool UseEagerSnapshots { get; }
     }
