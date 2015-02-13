@@ -1279,7 +1279,7 @@ FROM [Employees] AS [e]",
             base.Where_bool_member();
 
             Assert.Equal(
-                @"SELECT [p].[Discontinued], [p].[ProductID], [p].[ProductName]
+                @"SELECT [p].[Discontinued], [p].[ProductID], [p].[ProductName], [p].[UnitsInStock]
 FROM [Products] AS [p]
 WHERE [p].[Discontinued] = 1",
                 Sql);
@@ -1290,7 +1290,7 @@ WHERE [p].[Discontinued] = 1",
             base.Where_bool_member_false();
 
             Assert.Equal(
-                @"SELECT [p].[Discontinued], [p].[ProductID], [p].[ProductName]
+                @"SELECT [p].[Discontinued], [p].[ProductID], [p].[ProductName], [p].[UnitsInStock]
 FROM [Products] AS [p]
 WHERE NOT [p].[Discontinued] = 1",
                 Sql);
@@ -1301,7 +1301,7 @@ WHERE NOT [p].[Discontinued] = 1",
             base.Where_bool_member_shadow();
 
             Assert.Equal(
-                @"SELECT [p].[Discontinued], [p].[ProductID], [p].[ProductName]
+                @"SELECT [p].[Discontinued], [p].[ProductID], [p].[ProductName], [p].[UnitsInStock]
 FROM [Products] AS [p]
 WHERE [p].[Discontinued] = 1",
                 Sql);
@@ -1312,9 +1312,20 @@ WHERE [p].[Discontinued] = 1",
             base.Where_bool_member_false_shadow();
 
             Assert.Equal(
-                @"SELECT [p].[Discontinued], [p].[ProductID], [p].[ProductName]
+                @"SELECT [p].[Discontinued], [p].[ProductID], [p].[ProductName], [p].[UnitsInStock]
 FROM [Products] AS [p]
 WHERE NOT [p].[Discontinued] = 1",
+                Sql);
+        }
+
+        public override void Where_short_member_comparison()
+        {
+            base.Where_short_member_comparison();
+
+            Assert.Equal(
+                @"SELECT [p].[Discontinued], [p].[ProductID], [p].[ProductName], [p].[UnitsInStock]
+FROM [Products] AS [p]
+WHERE [p].[UnitsInStock] > 10",
                 Sql);
         }
 

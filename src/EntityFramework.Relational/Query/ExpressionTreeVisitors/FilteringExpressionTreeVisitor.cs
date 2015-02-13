@@ -256,8 +256,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                     return Expression.Not(operand);
                 }
             }
-            else if (expression.NodeType == ExpressionType.Convert
-                     && expression.Type.IsNullableType())
+            else if (expression.NodeType == ExpressionType.Convert)
             {
                 var operand = VisitExpression(expression.Operand);
 

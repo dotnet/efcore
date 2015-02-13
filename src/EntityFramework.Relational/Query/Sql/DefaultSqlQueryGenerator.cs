@@ -513,8 +513,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
                 return VisitExpression(unaryExpression.Operand);
             }
 
-            if (unaryExpression.NodeType == ExpressionType.Convert
-                && unaryExpression.Type.IsNullableType())
+            if (unaryExpression.NodeType == ExpressionType.Convert)
             {
                 return VisitExpression(unaryExpression.Operand);
             }

@@ -715,6 +715,12 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void Where_short_member_comparison()
+        {
+            AssertQuery<Product>(ps => ps.Where(p => p.UnitsInStock > 10), entryCount: 63);
+        }
+
+        [Fact]
         public virtual void Where_true()
         {
             AssertQuery<Customer>(

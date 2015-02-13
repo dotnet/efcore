@@ -25,7 +25,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     e.Ignore(em => em.PostalCode);
                     e.Ignore(em => em.Region);
                     e.Ignore(em => em.TitleOfCourtesy);
-                    //e.ForeignKey<Employee>(em => em.ReportsTo);
                 });
 
             modelBuilder.Entity<Product>(e =>
@@ -34,7 +33,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     e.Ignore(p => p.QuantityPerUnit);
                     e.Ignore(p => p.ReorderLevel);
                     e.Ignore(p => p.UnitPrice);
-                    e.Ignore(p => p.UnitsInStock);
                     e.Ignore(p => p.UnitsOnOrder);
                 });
 
