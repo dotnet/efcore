@@ -27,16 +27,11 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         public ChangeDetector([NotNull] DbContextService<IModel> model)
         {
-            Check.NotNull(model, "model");
-
             _model = model;
         }
 
         public virtual void SidecarPropertyChanged(InternalEntityEntry entry, IPropertyBase propertyBase)
         {
-            Check.NotNull(entry, "entry");
-            Check.NotNull(propertyBase, "propertyBase");
-
             var property = propertyBase as IProperty;
             if (property == null)
             {
@@ -52,16 +47,11 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             DetectKeyChange(entry, property, snapshot);
         }
 
-        public virtual void SidecarPropertyChanging(InternalEntityEntry entry, IPropertyBase propertyBase)
-        {
-            PropertyChanging(entry, propertyBase);
-        }
+        public virtual void SidecarPropertyChanging(InternalEntityEntry entry, IPropertyBase propertyBase) 
+            => PropertyChanging(entry, propertyBase);
 
         public virtual void PropertyChanged(InternalEntityEntry entry, IPropertyBase propertyBase)
         {
-            Check.NotNull(entry, "entry");
-            Check.NotNull(propertyBase, "propertyBase");
-
             var snapshot = entry.TryGetSidecar(Sidecar.WellKnownNames.RelationshipsSnapshot);
 
             var property = propertyBase as IProperty;
@@ -87,9 +77,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         public virtual void PropertyChanging(InternalEntityEntry entry, IPropertyBase propertyBase)
         {
-            Check.NotNull(entry, "entry");
-            Check.NotNull(propertyBase, "propertyBase");
-
             if (!entry.EntityType.UseEagerSnapshots)
             {
                 var property = propertyBase as IProperty;
@@ -112,8 +99,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         public virtual void DetectChanges([NotNull] StateManager stateManager)
         {
-            Check.NotNull(stateManager, "stateManager");
-
             foreach (var entry in stateManager.Entries.ToList())
             {
                 DetectChanges(entry);
@@ -122,8 +107,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         public virtual void DetectChanges([NotNull] InternalEntityEntry entry)
         {
-            Check.NotNull(entry, "entry");
-
             DetectPropertyChanges(entry);
             DetectRelationshipChanges(entry);
         }

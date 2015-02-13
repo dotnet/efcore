@@ -5,7 +5,6 @@ using System;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
@@ -21,44 +20,23 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
 
         public OriginalValues([NotNull] InternalEntityEntry entry)
-            : base(entry, Check.NotNull(entry, "entry").EntityType.OriginalValueCount)
+            : base(entry, entry.EntityType.OriginalValueCount)
         {
         }
 
-        protected override int Index(IPropertyBase property)
-        {
-            Check.NotNull(property, "property");
-
-            var asProperty = property as IProperty;
-
-            return asProperty != null ? asProperty.OriginalValueIndex : -1;
-        }
+        protected override int Index(IPropertyBase property) => (property as IProperty)?.OriginalValueIndex ?? -1;
 
         protected override void ThrowInvalidIndexException(IPropertyBase property)
         {
-            Check.NotNull(property, "property");
-
             throw new InvalidOperationException(Strings.OriginalValueNotTracked(property.Name, InternalEntityEntry.EntityType.Name));
         }
 
-        public override string Name
-        {
-            get { return WellKnownNames.OriginalValues; }
-        }
+        public override string Name => WellKnownNames.OriginalValues;
 
-        public override bool TransparentRead
-        {
-            get { return false; }
-        }
+        public override bool TransparentRead => false;
 
-        public override bool TransparentWrite
-        {
-            get { return false; }
-        }
+        public override bool TransparentWrite => false;
 
-        public override bool AutoCommit
-        {
-            get { return false; }
-        }
+        public override bool AutoCommit => false;
     }
 }

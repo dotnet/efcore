@@ -17,20 +17,6 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
     public class NavigationFixerTest
     {
         [Fact]
-        public void Members_check_arguments()
-        {
-            var fixer = CreateNavigationFixer(CreateContextServices());
-
-            Assert.Equal(
-                "entry",
-                // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => fixer.StateChanged(null, EntityState.Detached)).ParamName);
-            Assert.Equal(
-                Strings.InvalidEnumValue("oldState", typeof(EntityState)),
-                Assert.Throws<ArgumentException>(() => fixer.StateChanged(new Mock<InternalEntityEntry>().Object, (EntityState)77)).Message);
-        }
-
-        [Fact]
         public void Does_fixup_of_related_principals()
         {
             var contextServices = CreateContextServices();

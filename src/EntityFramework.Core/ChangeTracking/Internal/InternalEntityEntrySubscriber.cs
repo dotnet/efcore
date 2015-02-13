@@ -5,7 +5,6 @@ using System.ComponentModel;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
@@ -15,8 +14,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         public InternalEntityEntrySubscriber([NotNull] InternalEntityEntryNotifier notifier)
         {
-            Check.NotNull(notifier, "notifier");
-
             _notifier = notifier;
         }
 
@@ -66,12 +63,10 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             return entry;
         }
 
+        // TODO: Consider optimizing/consolidating property/navigation lookup
+        // Issue #635
         private static IPropertyBase TryGetPropertyBase(IEntityType entityType, string propertyName)
-        {
-            // TODO: Consider optimizing/consolidating property/navigation lookup
-            // Issue #635
-            return (IPropertyBase)entityType.TryGetProperty(propertyName)
-                   ?? entityType.Navigations.FirstOrDefault(n => n.Name == propertyName);
-        }
+            => (IPropertyBase)entityType.TryGetProperty(propertyName)
+               ?? entityType.Navigations.FirstOrDefault(n => n.Name == propertyName);
     }
 }

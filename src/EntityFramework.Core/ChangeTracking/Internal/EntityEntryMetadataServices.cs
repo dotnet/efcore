@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
@@ -25,13 +24,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             [NotNull] StoreGeneratedValuesFactory storeGeneratedValuesFactory,
             [NotNull] EntityKeyFactorySource entityKeyFactorySource)
         {
-            Check.NotNull(getterSource, "getterSource");
-            Check.NotNull(setterSource, "setterSource");
-            Check.NotNull(originalValuesFactory, "originalValuesFactory");
-            Check.NotNull(relationshipsSnapshotFactory, "relationshipsSnapshotFactory");
-            Check.NotNull(storeGeneratedValuesFactory, "storeGeneratedValuesFactory");
-            Check.NotNull(entityKeyFactorySource, "entityKeyFactorySource");
-
             _getterSource = getterSource;
             _setterSource = setterSource;
             _originalValuesFactory = originalValuesFactory;
@@ -41,55 +33,26 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
 
         public virtual object ReadValue([NotNull] object entity, [NotNull] IPropertyBase propertyBase)
-        {
-            Check.NotNull(entity, "entity");
-            Check.NotNull(propertyBase, "propertyBase");
+            => _getterSource.GetAccessor(propertyBase).GetClrValue(entity);
 
-            return _getterSource.GetAccessor(propertyBase).GetClrValue(entity);
-        }
-
-        public virtual void WriteValue([NotNull] object entity, [NotNull] IPropertyBase propertyBase, [CanBeNull] object value)
-        {
-            Check.NotNull(entity, "entity");
-            Check.NotNull(propertyBase, "propertyBase");
-
-            _setterSource.GetAccessor(propertyBase).SetClrValue(entity, value);
-        }
+        public virtual void WriteValue([NotNull] object entity, [NotNull] IPropertyBase propertyBase, [CanBeNull] object value) 
+            => _setterSource.GetAccessor(propertyBase).SetClrValue(entity, value);
 
         public virtual Sidecar CreateOriginalValues([NotNull] InternalEntityEntry entry)
-        {
-            Check.NotNull(entry, "entry");
-
-            return _originalValuesFactory.Create(entry);
-        }
+            => _originalValuesFactory.Create(entry);
 
         public virtual Sidecar CreateRelationshipSnapshot([NotNull] InternalEntityEntry entry)
-        {
-            Check.NotNull(entry, "entry");
-
-            return _relationshipsSnapshotFactory.Create(entry);
-        }
+            => _relationshipsSnapshotFactory.Create(entry);
 
         public virtual Sidecar CreateStoreGeneratedValues([NotNull] InternalEntityEntry entry, [NotNull] IReadOnlyList<IProperty> properties)
-        {
-            Check.NotNull(entry, "entry");
-            Check.NotNull(properties, "properties");
-
-            return _storeGeneratedValuesFactory.Create(entry, properties);
-        }
+            => _storeGeneratedValuesFactory.Create(entry, properties);
 
         public virtual EntityKey CreateKey(
             [NotNull] IEntityType entityType,
             [NotNull] IReadOnlyList<IProperty> properties,
             [NotNull] IPropertyAccessor propertyBagEntry)
-        {
-            Check.NotNull(entityType, "entityType");
-            Check.NotEmpty(properties, "properties");
-            Check.NotNull(propertyBagEntry, "propertyBagEntry");
-
-            return _entityKeyFactorySource
+            => _entityKeyFactorySource
                 .GetKeyFactory(properties)
                 .Create(entityType, properties, propertyBagEntry);
-        }
     }
 }

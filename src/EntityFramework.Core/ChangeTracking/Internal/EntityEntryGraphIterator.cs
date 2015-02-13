@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
@@ -19,17 +18,12 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             [NotNull] DbContextService<DbContext> context,
             [NotNull] StateManager stateManager)
         {
-            Check.NotNull(context, "context");
-            Check.NotNull(stateManager, "stateManager");
-
             _context = context;
             _stateManager = stateManager;
         }
 
         public virtual IEnumerable<EntityEntry> TraverseGraph([NotNull] object entity)
         {
-            Check.NotNull(entity, "entity");
-
             var entry = new EntityEntry(_context.Service, _stateManager.GetOrCreateEntry(entity));
 
             if (entry.State != EntityState.Detached)

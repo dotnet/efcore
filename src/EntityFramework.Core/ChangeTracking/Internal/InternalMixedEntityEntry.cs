@@ -4,7 +4,6 @@
 using System;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
@@ -28,8 +27,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             [NotNull] object entity)
             : base(stateManager, entityType, metadataServices)
         {
-            Check.NotNull(entity, "entity");
-
             Entity = entity;
             _shadowValues = new object[entityType.ShadowPropertyCount];
         }
@@ -42,9 +39,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             [NotNull] IValueReader valueReader)
             : base(stateManager, entityType, metadataServices)
         {
-            Check.NotNull(entity, "entity");
-            Check.NotNull(valueReader, "valueReader");
-
             Entity = entity;
             _shadowValues = ExtractShadowValues(valueReader);
         }
@@ -54,8 +48,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         protected override object ReadPropertyValue(IPropertyBase propertyBase)
         {
-            Check.NotNull(propertyBase, "propertyBase");
-
             var property = propertyBase as IProperty;
 
             return property == null || !property.IsShadowProperty
@@ -65,8 +57,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         protected override void WritePropertyValue(IPropertyBase propertyBase, object value)
         {
-            Check.NotNull(propertyBase, "propertyBase");
-
             var property = propertyBase as IProperty;
 
             if (property == null

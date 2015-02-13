@@ -24,24 +24,12 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         {
         }
 
-        public override string Name
-        {
-            get { return WellKnownNames.StoreGeneratedValues; }
-        }
+        public override string Name => WellKnownNames.StoreGeneratedValues;
 
-        public override bool TransparentRead
-        {
-            get { return true; }
-        }
+        public override bool TransparentRead => true;
 
-        public override bool TransparentWrite
-        {
-            get { return true; }
-        }
+        public override bool TransparentWrite => true;
 
-        public override bool AutoCommit
-        {
-            get { return true; }
-        }
+        public override bool AutoCommit => true;
     }
 }

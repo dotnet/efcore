@@ -27,34 +27,21 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         public new virtual TKey Value => _keyValue;
 
-        protected override object GetValue()
-        {
-            return _keyValue;
-        }
+        protected override object GetValue() => _keyValue;
 
         public override bool Equals([CanBeNull] object obj)
-        {
-            if (ReferenceEquals(null, obj))
-            {
-                return false;
-            }
-
-            return ReferenceEquals(this, obj)
+            => !ReferenceEquals(null, obj)
+               && (ReferenceEquals(this, obj)
                    || (obj.GetType() == GetType()
-                       && Equals((SimpleEntityKey<TKey>)obj));
-        }
+                       && Equals((SimpleEntityKey<TKey>)obj)));
 
         private bool Equals(SimpleEntityKey<TKey> other)
-        {
-            return _entityType == other._entityType
-                   && _equalityComparer.Equals(_keyValue, other._keyValue);
-        }
+            => _entityType == other._entityType
+               && _equalityComparer.Equals(_keyValue, other._keyValue);
 
         public override int GetHashCode()
-        {
-            return (_entityType.GetHashCode() * 397)
-                   ^ _equalityComparer.GetHashCode(_keyValue);
-        }
+            => (_entityType.GetHashCode() * 397)
+               ^ _equalityComparer.GetHashCode(_keyValue);
 
         [UsedImplicitly]
         private string DebuggerDisplay

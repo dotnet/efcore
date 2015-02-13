@@ -4,7 +4,6 @@
 using System;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
@@ -30,15 +29,10 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         protected Sidecar([NotNull] InternalEntityEntry entry)
         {
-            Check.NotNull(entry, "entry");
-
             _entry = entry;
         }
 
-        public virtual InternalEntityEntry InternalEntityEntry
-        {
-            get { return _entry; }
-        }
+        public virtual InternalEntityEntry InternalEntityEntry => _entry;
 
         public abstract bool CanStoreValue([NotNull] IPropertyBase property);
         protected abstract object ReadValue([NotNull] IPropertyBase property);
@@ -48,31 +42,19 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         public abstract bool TransparentWrite { get; }
         public abstract bool AutoCommit { get; }
 
-        public virtual bool HasValue([NotNull] IPropertyBase property)
-        {
-            Check.NotNull(property, "property");
-
-            return CanStoreValue(property) && ReadValue(property) != null;
-        }
+        public virtual bool HasValue([NotNull] IPropertyBase property) => CanStoreValue(property) && ReadValue(property) != null;
 
         public virtual object this[IPropertyBase property]
         {
             get
             {
-                Check.NotNull(property, "property");
-
                 var value = ReadValue(property);
 
                 return value != null
                     ? (ReferenceEquals(value, NullSentinel.Value) ? null : value)
                     : _entry[property];
             }
-            set
-            {
-                Check.NotNull(property, "property");
-
-                WriteValue(property, value ?? NullSentinel.Value);
-            }
+            set { WriteValue(property, value ?? NullSentinel.Value); }
         }
 
         public virtual void Commit()
@@ -88,10 +70,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             }
         }
 
-        public virtual void Rollback()
-        {
-            _entry.RemoveSidecar(Name);
-        }
+        public virtual void Rollback() => _entry.RemoveSidecar(Name);
 
         public virtual void TakeSnapshot()
         {
@@ -117,8 +96,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         public virtual void EnsureSnapshot([NotNull] IPropertyBase property)
         {
-            Check.NotNull(property, "property");
-
             if (CanStoreValue(property)
                 && !HasValue(property))
             {
@@ -128,23 +105,15 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         public virtual void TakeSnapshot([NotNull] IPropertyBase property)
         {
-            Check.NotNull(property, "property");
-
             if (CanStoreValue(property))
             {
                 this[property] = CopyValueFromEntry(property);
             }
         }
 
-        protected virtual object CopyValueFromEntry(IPropertyBase property)
-        {
-            return _entry[property];
-        }
+        protected virtual object CopyValueFromEntry(IPropertyBase property) => _entry[property];
 
-        protected virtual void CopyValueToEntry(IPropertyBase property, object value)
-        {
-            _entry[property] = value;
-        }
+        protected virtual void CopyValueToEntry(IPropertyBase property, object value) => _entry[property] = value;
 
         protected sealed class NullSentinel
         {

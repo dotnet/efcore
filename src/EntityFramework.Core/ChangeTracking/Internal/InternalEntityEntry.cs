@@ -8,7 +8,6 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
@@ -35,10 +34,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             [NotNull] IEntityType entityType,
             [NotNull] EntityEntryMetadataServices metadataServices)
         {
-            Check.NotNull(stateManager, "stateManager");
-            Check.NotNull(entityType, "entityType");
-            Check.NotNull(metadataServices, "metadataServices");
-
             StateManager = stateManager;
             _metadataServices = metadataServices;
             EntityType = entityType;
@@ -60,8 +55,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         public virtual Sidecar AddSidecar([NotNull] Sidecar sidecar)
         {
-            Check.NotNull(sidecar, "sidecar");
-
             var newArray = new[] { sidecar };
             _sidecars = _sidecars == null
                 ? newArray
@@ -77,17 +70,10 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             return sidecar;
         }
 
-        public virtual Sidecar TryGetSidecar([NotNull] string name)
-        {
-            Check.NotEmpty(name, "name");
-
-            return _sidecars?.FirstOrDefault(s => s.Name == name);
-        }
+        public virtual Sidecar TryGetSidecar([NotNull] string name) => _sidecars?.FirstOrDefault(s => s.Name == name);
 
         public virtual void RemoveSidecar([NotNull] string name)
         {
-            Check.NotEmpty(name, "name");
-
             if (_sidecars == null)
             {
                 return;
@@ -109,8 +95,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         public virtual void SetEntityState(EntityState entityState, bool acceptChanges = false)
         {
-            Check.IsDefined(entityState, "entityState");
-
             var oldState = _stateData.EntityState;
 
             if (PrepareForAdd(entityState))
@@ -219,21 +203,10 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         public virtual EntityState EntityState => _stateData.EntityState;
 
         public virtual bool IsPropertyModified([NotNull] IProperty property)
-        {
-            Check.NotNull(property, "property");
-
-            if (_stateData.EntityState != EntityState.Modified)
-            {
-                return false;
-            }
-
-            return _stateData.IsPropertyFlagged(property.Index);
-        }
+            => _stateData.EntityState == EntityState.Modified && _stateData.IsPropertyFlagged(property.Index);
 
         public virtual void SetPropertyModified([NotNull] IProperty property, bool isModified = true)
         {
-            Check.NotNull(property, "property");
-
             // TODO: Restore original value to reject changes when isModified is false
             // Issue #742
 
@@ -279,22 +252,11 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
 
         public virtual bool HasTemporaryValue([NotNull] IProperty property)
-        {
-            Check.NotNull(property, "property");
-
-            if (_stateData.EntityState != EntityState.Added
-                && _stateData.EntityState != EntityState.Detached)
-            {
-                return false;
-            }
-
-            return _stateData.IsPropertyFlagged(property.Index);
-        }
+            => (_stateData.EntityState == EntityState.Added || _stateData.EntityState == EntityState.Detached)
+               && _stateData.IsPropertyFlagged(property.Index);
 
         public virtual void MarkAsTemporary([NotNull] IProperty property, bool isTemporary = true)
         {
-            Check.NotNull(property, "property");
-
             if (_stateData.EntityState != EntityState.Added
                 && _stateData.EntityState != EntityState.Detached)
             {
@@ -306,8 +268,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         protected virtual object ReadPropertyValue([NotNull] IPropertyBase propertyBase)
         {
-            Check.NotNull(propertyBase, "propertyBase");
-
             Debug.Assert(!(propertyBase is IProperty) || !((IProperty)propertyBase).IsShadowProperty);
 
             return _metadataServices.ReadValue(Entity, propertyBase);
@@ -315,8 +275,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         protected virtual void WritePropertyValue([NotNull] IPropertyBase propertyBase, [CanBeNull] object value)
         {
-            Check.NotNull(propertyBase, "propertyBase");
-
             Debug.Assert(!(propertyBase is IProperty) || !((IProperty)propertyBase).IsShadowProperty);
 
             _metadataServices.WriteValue(Entity, propertyBase, value);
@@ -326,8 +284,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         {
             get
             {
-                Check.NotNull(property, "property");
-
                 if (_stateData.TransparentSidecarInUse)
                 {
                     foreach (var sidecar in _sidecars)
@@ -344,8 +300,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             }
             set
             {
-                Check.NotNull(property, "property");
-
                 if (_stateData.TransparentSidecarInUse)
                 {
                     var wrote = false;
@@ -385,28 +339,13 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         public virtual EntityKey CreateKey(
             [NotNull] IEntityType entityType,
             [NotNull] IReadOnlyList<IProperty> properties,
-            [NotNull] IPropertyAccessor propertyBagEntry)
-        {
-            Check.NotNull(entityType, "entityType");
-            Check.NotEmpty(properties, "properties");
-            Check.NotNull(propertyBagEntry, "propertyBagEntry");
-
-            return _metadataServices.CreateKey(entityType, properties, propertyBagEntry);
-        }
+            [NotNull] IPropertyAccessor propertyBagEntry) => _metadataServices.CreateKey(entityType, properties, propertyBagEntry);
 
         public virtual EntityKey GetDependentKeySnapshot([NotNull] IForeignKey foreignKey)
-        {
-            Check.NotNull(foreignKey, "foreignKey");
-
-            return CreateKey(foreignKey.ReferencedEntityType, foreignKey.Properties, RelationshipsSnapshot);
-        }
+            => CreateKey(foreignKey.ReferencedEntityType, foreignKey.Properties, RelationshipsSnapshot);
 
         public virtual EntityKey GetPrincipalKey([NotNull] IForeignKey foreignKey, [NotNull] IEntityType referencedEntityType, [NotNull] IReadOnlyList<IProperty> referencedProperties)
         {
-            Check.NotNull(foreignKey, "foreignKey");
-            Check.NotNull(referencedEntityType, "referencedEntityType");
-            Check.NotNull(referencedProperties, "referencedProperties");
-
             EntityKey result;
             if (!_principalKeys.TryGetValue(foreignKey, out result))
             {
@@ -417,10 +356,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             return result;
         }
 
-        public virtual object[] GetValueBuffer()
-        {
-            return EntityType.Properties.Select(p => this[p]).ToArray();
-        }
+        public virtual object[] GetValueBuffer() => EntityType.Properties.Select(p => this[p]).ToArray();
 
         public virtual void AcceptChanges()
         {
@@ -491,13 +427,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
 
         private bool MayGetStoreValue([NotNull] IProperty property)
-        {
-            Check.NotNull(property, "property");
-
-            return StateManager.ValueGeneration.MayGetTemporaryValue(property)
-                   || property.UseStoreDefault
-                   || property.IsStoreComputed;
-        }
+            => StateManager.ValueGeneration.MayGetTemporaryValue(property)
+               || property.UseStoreDefault
+               || property.IsStoreComputed;
 
         public virtual void AutoRollbackSidecars()
         {
@@ -553,15 +485,11 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
 
         public virtual bool StoreMustGenerateValue([NotNull] IProperty property)
-        {
-            Check.NotNull(property, "property");
-
-            return property.GenerateValueOnAdd && HasTemporaryValue(property)
-                   || (property.UseStoreDefault && property.IsSentinelValue(this[property]))
-                   || (property.IsStoreComputed
-                       && (EntityState == EntityState.Modified || EntityState == EntityState.Added)
-                       && !IsPropertyModified(property));
-        }
+            => property.GenerateValueOnAdd && HasTemporaryValue(property)
+               || (property.UseStoreDefault && property.IsSentinelValue(this[property]))
+               || (property.IsStoreComputed
+                   && (EntityState == EntityState.Modified || EntityState == EntityState.Added)
+                   && !IsPropertyModified(property));
 
         public virtual bool IsKeySet => !EntityType.GetPrimaryKey().Properties.Any(p => p.IsSentinelValue(this[p]));
 

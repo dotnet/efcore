@@ -4,18 +4,12 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
     public class StoreGeneratedValuesFactory
     {
         public virtual StoreGeneratedValues Create([NotNull] InternalEntityEntry entry, [NotNull] IReadOnlyList<IProperty> properties)
-        {
-            Check.NotNull(entry, "entry");
-            Check.NotNull(properties, "properties");
-
-            return new StoreGeneratedValues(entry, properties);
-        }
+            => new StoreGeneratedValues(entry, properties);
     }
 }

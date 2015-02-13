@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
@@ -14,18 +13,12 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         public CompositeEntityKeyFactory([NotNull] IReadOnlyList<object> sentinels)
         {
-            Check.NotNull(sentinels, nameof(sentinels));
-
             _sentinels = sentinels;
         }
 
         public override EntityKey Create(
             IEntityType entityType, IReadOnlyList<IProperty> properties, IValueReader valueReader)
         {
-            Check.NotNull(entityType, nameof(entityType));
-            Check.NotNull(properties, nameof(properties));
-            Check.NotNull(valueReader, nameof(valueReader));
-
             var components = new object[properties.Count];
 
             for (var i = 0; i < properties.Count; i++)
@@ -55,10 +48,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         public override EntityKey Create(
             IEntityType entityType, IReadOnlyList<IProperty> properties, IPropertyAccessor propertyBagEntry)
         {
-            Check.NotNull(entityType, nameof(entityType));
-            Check.NotNull(properties, nameof(properties));
-            Check.NotNull(propertyBagEntry, nameof(propertyBagEntry));
-
             var components = new object[properties.Count];
 
             for (var i = 0; i < properties.Count; i++)

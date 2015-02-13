@@ -5,14 +5,8 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
     public class EntityAttacherFactory
     {
-        public virtual IEntityAttacher CreateForAttach()
-        {
-            return new KeyValueEntityAttacher(updateExistingEntities: false);
-        }
+        public virtual IEntityAttacher CreateForAttach() => new KeyValueEntityAttacher(updateExistingEntities: false);
 
-        public virtual IEntityAttacher CreateForUpdate()
-        {
-            return new KeyValueEntityAttacher(updateExistingEntities: true);
-        }
+        public virtual IEntityAttacher CreateForUpdate() => new KeyValueEntityAttacher(updateExistingEntities: true);
     }
 }

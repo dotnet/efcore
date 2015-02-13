@@ -6,7 +6,6 @@ using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
@@ -18,22 +17,13 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         public CompositeEntityKey([NotNull] IEntityType entityType, [NotNull] object[] keyValueParts)
         {
-            Check.NotNull(entityType, "entityType");
-            Check.NotNull(keyValueParts, "keyValueParts");
-
             _entityType = entityType;
             _keyValueParts = keyValueParts;
         }
 
-        public new virtual object[] Value
-        {
-            get { return _keyValueParts; }
-        }
+        public new virtual object[] Value => _keyValueParts;
 
-        protected override object GetValue()
-        {
-            return _keyValueParts;
-        }
+        protected override object GetValue() => _keyValueParts;
 
         private bool Equals(CompositeEntityKey other)
         {
@@ -75,16 +65,12 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
 
         public override int GetHashCode()
-        {
-            return _keyValueParts.Aggregate(
+            => _keyValueParts.Aggregate(
                 _entityType.GetHashCode() * 397,
                 (t, v) => (t * 397) ^ (v != null ? StructuralComparisons.StructuralEqualityComparer.GetHashCode(v) : 0));
-        }
 
         [UsedImplicitly]
         private string DebuggerDisplay
-        {
-            get { return string.Format("{0}({1})", _entityType.Name, string.Join(", ", _keyValueParts.Select(k => k.ToString()))); }
-        }
+            => string.Format("{0}({1})", _entityType.Name, string.Join(", ", _keyValueParts.Select(k => k.ToString())));
     }
 }

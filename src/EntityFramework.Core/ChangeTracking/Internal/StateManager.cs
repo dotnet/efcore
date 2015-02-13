@@ -47,14 +47,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             [NotNull] DbContextService<IModel> model,
             [NotNull] DbContextService<DataStore> dataStore)
         {
-            Check.NotNull(factory, "factory");
-            Check.NotNull(entityKeyFactorySource, "entityKeyFactorySource");
-            Check.NotNull(subscriber, "subscriber");
-            Check.NotNull(notifier, "notifier");
-            Check.NotNull(model, "model");
-            Check.NotNull(dataStore, "dataStore");
-            Check.NotNull(valueGeneration, "valueGeneration");
-
             _keyFactorySource = entityKeyFactorySource;
             _factory = factory;
             _subscriber = subscriber;
@@ -70,8 +62,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         public virtual InternalEntityEntry CreateNewEntry([NotNull] IEntityType entityType)
         {
-            Check.NotNull(entityType, "entityType");
-
             // TODO: Consider entities without parameterless constructor--use o/c mapping info?
             // Issue #240
             var entity = entityType.HasClrType ? Activator.CreateInstance(entityType.Type) : null;
@@ -81,8 +71,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         public virtual InternalEntityEntry GetOrCreateEntry([NotNull] object entity)
         {
-            Check.NotNull(entity, "entity");
-
             // TODO: Consider how to handle derived types that are not explicitly in the model
             // Issue #743
             InternalEntityEntry entry;
@@ -100,10 +88,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         public virtual InternalEntityEntry StartTracking(
             [NotNull] IEntityType entityType, [NotNull] object entity, [NotNull] IValueReader valueReader)
         {
-            Check.NotNull(entityType, "entityType");
-            Check.NotNull(entity, "entity");
-            Check.NotNull(valueReader, "valueReader");
-
             // TODO: Perf: Pre-compute this for speed
             var keyProperties = entityType.GetPrimaryKey().Properties;
             var keyValue = _keyFactorySource.GetKeyFactory(keyProperties).Create(entityType, keyProperties, valueReader);
@@ -137,8 +121,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         public virtual InternalEntityEntry TryGetEntry([NotNull] EntityKey keyValue)
         {
-            Check.NotNull(keyValue, "keyValue");
-
             InternalEntityEntry entry;
             _identityMap.TryGetValue(keyValue, out entry);
             return entry;
@@ -146,8 +128,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         public virtual InternalEntityEntry TryGetEntry([NotNull] object entity)
         {
-            Check.NotNull(entity, "entity");
-
             InternalEntityEntry entry;
             _entityReferenceMap.TryGetValue(entity, out entry);
             return entry;
@@ -157,8 +137,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         public virtual InternalEntityEntry StartTracking([NotNull] InternalEntityEntry entry)
         {
-            Check.NotNull(entry, "entry");
-
             var entityType = entry.EntityType;
 
             if (entry.StateManager != this)
@@ -200,8 +178,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         public virtual void StopTracking([NotNull] InternalEntityEntry entry)
         {
-            Check.NotNull(entry, "entry");
-
             if (entry.Entity != null)
             {
                 _entityReferenceMap.Remove(entry.Entity);
@@ -219,9 +195,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         public virtual InternalEntityEntry GetPrincipal([NotNull] IPropertyAccessor dependentEntry, [NotNull] IForeignKey foreignKey)
         {
-            Check.NotNull(dependentEntry, "dependentEntry");
-            Check.NotNull(foreignKey, "foreignKey");
-
             var dependentKeyValue = dependentEntry.GetDependentKeyValue(foreignKey);
 
             if (dependentKeyValue == EntityKey.InvalidEntityKey)
@@ -250,9 +223,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         public virtual void UpdateIdentityMap([NotNull] InternalEntityEntry entry, [NotNull] EntityKey oldKey)
         {
-            Check.NotNull(entry, "entry");
-            Check.NotNull(oldKey, "oldKey");
-
             if (entry.EntityState == EntityState.Detached)
             {
                 return;
@@ -290,9 +260,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         public virtual IEnumerable<InternalEntityEntry> GetDependents([NotNull] InternalEntityEntry principalEntry, [NotNull] IForeignKey foreignKey)
         {
-            Check.NotNull(principalEntry, "principalEntry");
-            Check.NotNull(foreignKey, "foreignKey");
-
             var principalKeyValue = principalEntry.GetPrincipalKeyValue(foreignKey);
 
             // TODO: Perf: Add additional indexes so that this isn't a linear lookup
@@ -383,22 +350,13 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
 
         protected virtual int SaveChanges(
-            [NotNull] IReadOnlyList<InternalEntityEntry> entriesToSave)
-        {
-            Check.NotNull(entriesToSave, "entriesToSave");
-
-            return _dataStore.Service.SaveChanges(entriesToSave);
-        }
+            [NotNull] IReadOnlyList<InternalEntityEntry> entriesToSave) => _dataStore.Service.SaveChanges(entriesToSave);
 
         protected virtual async Task<int> SaveChangesAsync(
             [NotNull] IReadOnlyList<InternalEntityEntry> entriesToSave,
             CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Check.NotNull(entriesToSave, "entriesToSave");
-
-            return await _dataStore.Service
+            => await _dataStore.Service
                 .SaveChangesAsync(entriesToSave, cancellationToken)
                 .WithCurrentCulture();
-        }
     }
 }

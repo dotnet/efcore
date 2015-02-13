@@ -72,10 +72,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                 }
             }
 
-            public bool AnyPropertiesFlagged()
-            {
-                return _bits.Where((t, i) => (t & CreateMaskForRead(i)) != 0).Any();
-            }
+            public bool AnyPropertiesFlagged() => _bits.Where((t, i) => (t & CreateMaskForRead(i)) != 0).Any();
 
             private static int CreateMaskForRead(int i)
             {

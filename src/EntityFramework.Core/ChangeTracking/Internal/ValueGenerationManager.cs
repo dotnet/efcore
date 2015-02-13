@@ -7,7 +7,6 @@ using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
@@ -22,10 +21,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             [NotNull] DbContextService<DataStoreServices> dataStoreServices,
             [NotNull] ForeignKeyValuePropagator foreignKeyValuePropagator)
         {
-            Check.NotNull(valueGeneratorCache, "valueGeneratorCache");
-            Check.NotNull(dataStoreServices, "dataStoreServices");
-            Check.NotNull(foreignKeyValuePropagator, "foreignKeyValuePropagator");
-
             _valueGeneratorCache = valueGeneratorCache;
             _dataStoreServices = dataStoreServices;
             _foreignKeyValuePropagator = foreignKeyValuePropagator;
@@ -33,8 +28,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         public virtual void Generate([NotNull] InternalEntityEntry entry)
         {
-            Check.NotNull(entry, "entry");
-
             foreach (var property in entry.EntityType.Properties)
             {
                 var isForeignKey = property.IsForeignKey();
@@ -59,12 +52,8 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
 
         public virtual bool MayGetTemporaryValue([NotNull] IProperty property)
-        {
-            Check.NotNull(property, "property");
-
-            return property.GenerateValueOnAdd
-                   && _valueGeneratorCache.Service.GetGenerator(property).GeneratesTemporaryValues;
-        }
+            => property.GenerateValueOnAdd
+               && _valueGeneratorCache.Service.GetGenerator(property).GeneratesTemporaryValues;
 
         private static void SetGeneratedValue(InternalEntityEntry entry, IProperty property, object generatedValue, bool isTemporary)
         {

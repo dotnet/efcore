@@ -2,9 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
@@ -26,9 +26,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             [NotNull] EntityMaterializerSource materializerSource,
             [NotNull] EntityEntryMetadataServices metadataServices)
         {
-            Check.NotNull(materializerSource, "materializerSource");
-            Check.NotNull(metadataServices, "metadataServices");
-
             _materializerSource = materializerSource;
             _metadataServices = metadataServices;
         }
@@ -37,38 +34,20 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             [NotNull] StateManager stateManager,
             [NotNull] IEntityType entityType,
             [CanBeNull] object entity)
-        {
-            Check.NotNull(stateManager, "stateManager");
-            Check.NotNull(entityType, "entityType");
-
-            return NewInternalEntityEntry(stateManager, entityType, entity);
-        }
+            => NewInternalEntityEntry(stateManager, entityType, entity);
 
         public virtual InternalEntityEntry Create(
             [NotNull] StateManager stateManager,
             [NotNull] IEntityType entityType,
             [NotNull] IValueReader valueReader)
-        {
-            Check.NotNull(stateManager, "stateManager");
-            Check.NotNull(entityType, "entityType");
-            Check.NotNull(valueReader, "valueReader");
-
-            return NewInternalEntityEntry(stateManager, entityType, valueReader);
-        }
+            => NewInternalEntityEntry(stateManager, entityType, valueReader);
 
         public virtual InternalEntityEntry Create(
             [NotNull] StateManager stateManager,
             [NotNull] IEntityType entityType,
             [NotNull] object entity,
             [NotNull] IValueReader valueReader)
-        {
-            Check.NotNull(stateManager, "stateManager");
-            Check.NotNull(entityType, "entityType");
-            Check.NotNull(entity, "entity");
-            Check.NotNull(valueReader, "valueReader");
-
-            return NewInternalEntityEntry(stateManager, entityType, entity, valueReader);
-        }
+            => NewInternalEntityEntry(stateManager, entityType, entity, valueReader);
 
         private InternalEntityEntry NewInternalEntityEntry(StateManager stateManager, IEntityType entityType, object entity)
         {
@@ -77,7 +56,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                 return new InternalShadowEntityEntry(stateManager, entityType, _metadataServices);
             }
 
-            Check.NotNull(entity, "entity");
+            Debug.Assert(entity != null);
 
             return entityType.ShadowPropertyCount > 0
                 ? (InternalEntityEntry)new InternalMixedEntityEntry(stateManager, entityType, _metadataServices, entity)

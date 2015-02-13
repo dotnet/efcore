@@ -4,7 +4,6 @@
 using System;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
@@ -28,26 +27,15 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
 
         protected abstract int Index([NotNull] IPropertyBase property);
+
         protected abstract void ThrowInvalidIndexException([NotNull] IPropertyBase property);
 
-        public override bool CanStoreValue(IPropertyBase property)
-        {
-            Check.NotNull(property, "property");
+        public override bool CanStoreValue(IPropertyBase property) => Index(property) != -1;
 
-            return Index(property) != -1;
-        }
-
-        protected override object ReadValue(IPropertyBase property)
-        {
-            Check.NotNull(property, "property");
-
-            return _values[IndexChecked(property)];
-        }
+        protected override object ReadValue(IPropertyBase property) => _values[IndexChecked(property)];
 
         protected override void WriteValue(IPropertyBase property, object value)
         {
-            Check.NotNull(property, "property");
-
             _values[IndexChecked(property)] = value;
         }
 

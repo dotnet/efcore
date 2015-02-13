@@ -78,10 +78,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         public virtual DbContext Context => _context.Service;
 
-        public virtual void DetectChanges()
-        {
-            _changeDetector.DetectChanges(StateManager);
-        }
+        public virtual void DetectChanges() => _changeDetector.DetectChanges(StateManager);
 
         public virtual void TrackGraph([NotNull] object rootEntity, [NotNull] Action<EntityEntry> callback)
         {

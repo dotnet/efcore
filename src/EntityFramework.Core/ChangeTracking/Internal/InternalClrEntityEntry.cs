@@ -4,7 +4,6 @@
 using System;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
@@ -26,8 +25,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             [NotNull] object entity)
             : base(stateManager, entityType, metadataServices)
         {
-            Check.NotNull(entity, "entity");
-
             Entity = entity;
         }
 

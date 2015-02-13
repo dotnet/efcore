@@ -63,24 +63,12 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             return snapshot;
         }
 
-        public override string Name
-        {
-            get { return WellKnownNames.RelationshipsSnapshot; }
-        }
+        public override string Name => WellKnownNames.RelationshipsSnapshot;
 
-        public override bool TransparentRead
-        {
-            get { return false; }
-        }
+        public override bool TransparentRead => false;
 
-        public override bool TransparentWrite
-        {
-            get { return false; }
-        }
+        public override bool TransparentWrite => false;
 
-        public override bool AutoCommit
-        {
-            get { return false; }
-        }
+        public override bool AutoCommit => false;
     }
 }

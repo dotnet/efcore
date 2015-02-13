@@ -9,7 +9,6 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
@@ -36,11 +35,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             [NotNull] ClrCollectionAccessorSource collectionAccessorSource,
             [NotNull] DbContextService<IModel> model)
         {
-            Check.NotNull(getterSource, "getterSource");
-            Check.NotNull(setterSource, "setterSource");
-            Check.NotNull(collectionAccessorSource, "collectionAccessorSource");
-            Check.NotNull(model, "model");
-
             _getterSource = getterSource;
             _setterSource = setterSource;
             _collectionAccessorSource = collectionAccessorSource;
@@ -48,12 +42,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
 
         public virtual void ForeignKeyPropertyChanged(InternalEntityEntry entry, IProperty property, object oldValue, object newValue)
-        {
-            Check.NotNull(entry, "entry");
-            Check.NotNull(property, "property");
-
-            PerformFixup(() => ForeignKeyPropertyChangedAction(entry, property, oldValue, newValue));
-        }
+            => PerformFixup(() => ForeignKeyPropertyChangedAction(entry, property, oldValue, newValue));
 
         private void ForeignKeyPropertyChangedAction(InternalEntityEntry entry, IProperty property, object oldValue, object newValue)
         {
@@ -88,12 +77,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
 
         public virtual void NavigationReferenceChanged(InternalEntityEntry entry, INavigation navigation, object oldValue, object newValue)
-        {
-            Check.NotNull(entry, "entry");
-            Check.NotNull(navigation, "navigation");
-
-            PerformFixup(() => NavigationReferenceChangedAction(entry, navigation, oldValue, newValue));
-        }
+            => PerformFixup(() => NavigationReferenceChangedAction(entry, navigation, oldValue, newValue));
 
         private void NavigationReferenceChangedAction(InternalEntityEntry entry, INavigation navigation, object oldValue, object newValue)
         {
@@ -148,20 +132,11 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
 
         public virtual void NavigationCollectionChanged(InternalEntityEntry entry, INavigation navigation, ISet<object> added, ISet<object> removed)
-        {
-            Check.NotNull(entry, "entry");
-            Check.NotNull(navigation, "navigation");
-            Check.NotNull(added, "added");
-            Check.NotNull(removed, "removed");
-
-            PerformFixup(() => NavigationCollectionChangedAction(entry, navigation, added, removed));
-        }
+            => PerformFixup(() => NavigationCollectionChangedAction(entry, navigation, added, removed));
 
         private void NavigationCollectionChangedAction(
             InternalEntityEntry entry, INavigation navigation, IEnumerable<object> added, IEnumerable<object> removed)
         {
-            Debug.Assert(navigation.IsCollection());
-
             var principalProperties = navigation.ForeignKey.ReferencedProperties;
             var dependentProperties = navigation.ForeignKey.Properties;
             var principalValues = principalProperties.Select(p => entry[p]).ToList();
@@ -183,9 +158,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         public virtual void PrincipalKeyPropertyChanged(InternalEntityEntry entry, IProperty property, object oldValue, object newValue)
         {
-            Check.NotNull(entry, "entry");
-            Check.NotNull(property, "property");
-
             // We don't prevent recursive entry here because changed of principal key can have cascading effects
             // when principal key is also foreign key.
 
@@ -218,9 +190,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         public virtual void StateChanged(InternalEntityEntry entry, EntityState oldState)
         {
-            Check.NotNull(entry, "entry");
-            Check.IsDefined(oldState, "oldState");
-
             if (oldState != EntityState.Detached)
             {
                 return;
@@ -351,9 +320,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
 
         private void DoFixup(IForeignKey foreignKey, InternalEntityEntry principalEntry, InternalEntityEntry[] dependentEntries)
-        {
-            DoFixup(_model.Service.GetNavigations(foreignKey).ToList(), principalEntry, dependentEntries);
-        }
+            => DoFixup(_model.Service.GetNavigations(foreignKey).ToList(), principalEntry, dependentEntries);
 
         private void DoFixup(IEnumerable<INavigation> navigations, InternalEntityEntry principalEntry, InternalEntityEntry[] dependentEntries)
         {
@@ -453,9 +420,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             IForeignKey foreignKey,
             InternalEntityEntry dependentEntry,
             InternalEntityEntry principalEntry)
-        {
-            SetForeignKeyValue(foreignKey, dependentEntry, foreignKey.ReferencedProperties.Select(p => principalEntry[p]).ToList());
-        }
+            => SetForeignKeyValue(foreignKey, dependentEntry, foreignKey.ReferencedProperties.Select(p => principalEntry[p]).ToList());
 
         private static void SetForeignKeyValue(IForeignKey foreignKey, InternalEntityEntry dependentEntry, IReadOnlyList<object> principalValues)
         {
@@ -474,9 +439,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         private static void ConditionallySetNullForeignKey(
             InternalEntityEntry dependentEntry, IReadOnlyList<IProperty> dependentProperties,
             InternalEntityEntry principalEntry, IReadOnlyList<IProperty> principalProperties)
-        {
-            ConditionallySetNullForeignKey(dependentEntry, dependentProperties, principalProperties.Select(p => principalEntry[p]).ToList());
-        }
+            => ConditionallySetNullForeignKey(dependentEntry, dependentProperties, principalProperties.Select(p => principalEntry[p]).ToList());
 
         private static void ConditionallySetNullForeignKey(
             InternalEntityEntry dependentEntry, IReadOnlyList<IProperty> dependentProperties, IReadOnlyList<object> principalValues)

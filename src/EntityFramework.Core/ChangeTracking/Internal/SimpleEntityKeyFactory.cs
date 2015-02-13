@@ -2,10 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
@@ -21,11 +19,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         public override EntityKey Create(
             IEntityType entityType, IReadOnlyList<IProperty> properties, IValueReader valueReader)
         {
-            // hot path
-            Debug.Assert(entityType != null);
-            Debug.Assert(properties != null);
-            Debug.Assert(valueReader != null);
-
             var index = properties[0].Index;
             if (!valueReader.IsNull(index))
             {
@@ -42,10 +35,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         public override EntityKey Create(
             IEntityType entityType, IReadOnlyList<IProperty> properties, IPropertyAccessor propertyBagEntry)
         {
-            Check.NotNull(entityType, "entityType");
-            Check.NotNull(properties, "properties");
-            Check.NotNull(propertyBagEntry, "propertyBagEntry");
-
             var value = propertyBagEntry[properties[0]];
 
             if (value != null)
