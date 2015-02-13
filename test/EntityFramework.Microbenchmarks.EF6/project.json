@@ -1,6 +1,6 @@
 {
     "dependencies": {
-        "EntityFramework": "6.1.1",
+        "EntityFramework": "6.1.2",
         "EntityFramework.Microbenchmarks.Core":  "1.0.0",
         "Microsoft.Framework.ConfigurationModel.Json": "1.0.0-*",
         "Microsoft.Framework.ConfigurationModel.Xml": "1.0.0-*",
