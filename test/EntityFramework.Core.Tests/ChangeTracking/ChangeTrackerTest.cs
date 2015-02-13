@@ -7,7 +7,6 @@ using System.Linq;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Framework.DependencyInjection;
 using Xunit;
@@ -59,7 +58,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             {
                 var stateManger = ((IAccessor<IServiceProvider>)context).Service.GetRequiredService<StateManager>();
 
-                Assert.Same(stateManger, context.ChangeTracker.StateManager);
+                Assert.Same(stateManger, ((IAccessor<StateManager>)context.ChangeTracker).Service);
             }
         }
 
@@ -303,18 +302,22 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void Can_attach_graph_using_built_in_attacher()
+        public void Can_attach_graph_using_built_in_tracker()
         {
-            KeyValueAttachTest((category, changeTracker) => changeTracker.TrackGraph(category));
+            var tracker = new KeyValueEntityTracker(updateExistingEntities: false);
+
+            KeyValueAttachTest((category, changeTracker) => changeTracker.TrackGraph(category, tracker.TrackEntity));
         }
 
         [Fact]
-        public void Can_update_graph_using_built_in_attacher()
+        public void Can_update_graph_using_built_in_tracker()
         {
-            KeyValueAttachTest((category, changeTracker) => changeTracker.UpdateGraph(category), expectModified: true);
+            var tracker = new KeyValueEntityTracker(updateExistingEntities: true);
+
+            KeyValueAttachTest((category, changeTracker) => changeTracker.TrackGraph(category, tracker.TrackEntity), expectModified: true);
         }
 
-        private static void KeyValueAttachTest(Action<Category, ChangeTracker> attacher, bool expectModified = false)
+        private static void KeyValueAttachTest(Action<Category, ChangeTracker> tracker, bool expectModified = false)
         {
             using (var context = new EarlyLearningCenter())
             {
@@ -329,7 +332,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                             }
                     };
 
-                attacher(category, context.ChangeTracker);
+                tracker(category, context.ChangeTracker);
 
                 Assert.Equal(4, context.ChangeTracker.Entries().Count());
 
@@ -357,60 +360,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         [Fact]
         public void Can_attach_graph_using_custom_delegate()
         {
-            var attacher = new MyAttacher(updateExistingEntities: false);
+            var tracker = new MyTracker(updateExistingEntities: false);
 
-            CustomAttacherTest((category, changeTracker) => changeTracker.TrackGraph(category, attacher.HandleEntity));
-        }
-
-        [Fact]
-        public void Can_attach_graph_using_custom_attacher()
-        {
-            CustomAttacherTest((category, changeTracker) => changeTracker.TrackGraph(category));
-        }
-
-        [Fact]
-        public void Can_update_graph_using_custom_attacher()
-        {
-            CustomAttacherTest((category, changeTracker) => changeTracker.UpdateGraph(category), expectModified: true);
-        }
-
-        private class MyAttacher : KeyValueEntityAttacher
-        {
-            public MyAttacher(bool updateExistingEntities)
-                : base(updateExistingEntities)
-            {
-            }
-
-            public override EntityState DetermineState(EntityEntry entry)
-            {
-                if (!entry.IsKeySet)
-                {
-                    entry.InternalEntry[entry.InternalEntry.EntityType.GetPrimaryKey().Properties.Single()] = 777;
-                    return EntityState.Added;
-                }
-
-                return base.DetermineState(entry);
-            }
-        }
-
-        private class MyAttacherFactory : EntityAttacherFactory
-        {
-            public override IEntityAttacher CreateForAttach()
-            {
-                return new MyAttacher(updateExistingEntities: false);
-            }
-
-            public override IEntityAttacher CreateForUpdate()
-            {
-                return new MyAttacher(updateExistingEntities: true);
-            }
-        }
-
-        private static void CustomAttacherTest(Action<Category, ChangeTracker> attacher, bool expectModified = false)
-        {
-            var customServices = new ServiceCollection().AddSingleton<EntityAttacherFactory, MyAttacherFactory>();
-
-            using (var context = new EarlyLearningCenter(TestHelpers.Instance.CreateServiceProvider(customServices)))
+            using (var context = new EarlyLearningCenter())
             {
                 var category = new Category
                     {
@@ -423,16 +375,14 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                             }
                     };
 
-                attacher(category, context.ChangeTracker);
+                context.ChangeTracker.TrackGraph(category, tracker.TrackEntity);
 
                 Assert.Equal(4, context.ChangeTracker.Entries().Count());
 
-                var nonAddedState = expectModified ? EntityState.Modified : EntityState.Unchanged;
-
-                Assert.Equal(nonAddedState, context.Entry(category).State);
-                Assert.Equal(nonAddedState, context.Entry(category.Products[0]).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(category.Products[0]).State);
                 Assert.Equal(EntityState.Added, context.Entry(category.Products[1]).State);
-                Assert.Equal(nonAddedState, context.Entry(category.Products[2]).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(category.Products[2]).State);
 
                 Assert.Equal(77, category.Products[0].Id);
                 Assert.Equal(777, category.Products[1].Id);
@@ -445,6 +395,25 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 Assert.Equal(category.Id, category.Products[0].CategoryId);
                 Assert.Equal(category.Id, category.Products[1].CategoryId);
                 Assert.Equal(category.Id, category.Products[2].CategoryId);
+            }
+        }
+
+        private class MyTracker : KeyValueEntityTracker
+        {
+            public MyTracker(bool updateExistingEntities)
+                : base(updateExistingEntities)
+            {
+            }
+
+            public override EntityState DetermineState(EntityEntry entry)
+            {
+                if (!entry.IsKeySet)
+                {
+                    entry.InternalEntry[entry.Metadata.GetPrimaryKey().Properties.Single()] = 777;
+                    return EntityState.Added;
+                }
+
+                return base.DetermineState(entry);
             }
         }
 
@@ -948,7 +917,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
-        public void AttachGraph_and_UpdateGraph_do_not_call_DetectChanges()
+        public void TrackGraph_does_not_call_DetectChanges()
         {
             var provider = TestHelpers.Instance.CreateServiceProvider(new ServiceCollection().AddScoped<ChangeDetector, ChangeDetectorProxy>());
             using (var context = new EarlyLearningCenter(provider))
@@ -958,13 +927,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
                 changeDetector.DetectChangesCalled = false;
 
-                context.ChangeTracker.TrackGraph(CreateSimpleGraph(1));
                 context.ChangeTracker.TrackGraph(CreateSimpleGraph(2), e => e.State = EntityState.Unchanged);
-                context.ChangeTracker.UpdateGraph(CreateSimpleGraph(3));
-
-                context.ChangeTracker.TrackGraph(CreateSimpleGraph(4));
-                context.ChangeTracker.TrackGraph(CreateSimpleGraph(5), e => e.State = EntityState.Unchanged);
-                context.ChangeTracker.UpdateGraph(CreateSimpleGraph(6));
 
                 Assert.False(changeDetector.DetectChangesCalled);
 

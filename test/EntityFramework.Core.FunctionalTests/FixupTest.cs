@@ -3,6 +3,8 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Data.Entity.ChangeTracking.Internal;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Xunit;
 
@@ -56,7 +58,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 var productType = context.Model.GetEntityType(typeof(Product));
                 var offerType = context.Model.GetEntityType(typeof(SpecialOffer));
 
-                var stateManager = context.ChangeTracker.StateManager;
+                var stateManager = ((IAccessor<StateManager>)context.ChangeTracker).Service;
 
                 stateManager.StartTracking(categoryType, new Category { Id = 11 }, new ObjectArrayValueReader(new object[] { 11 }));
                 stateManager.StartTracking(categoryType, new Category { Id = 12 }, new ObjectArrayValueReader(new object[] { 12 }));

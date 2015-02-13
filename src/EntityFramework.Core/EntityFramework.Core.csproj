@@ -86,17 +86,14 @@
     <Compile Include="ChangeTracking\Internal\CompositeEntityKey.cs" />
     <Compile Include="ChangeTracking\Internal\CompositeEntityKeyFactory.cs" />
     <Compile Include="ChangeTracking\Internal\DictionarySidecar.cs" />
-    <Compile Include="ChangeTracking\Internal\EntityAttacherFactory.cs" />
     <Compile Include="ChangeTracking\Internal\EntityEntryGraphIterator.cs" />
     <Compile Include="ChangeTracking\Internal\EntityKey.cs" />
     <Compile Include="ChangeTracking\Internal\EntityKeyFactory.cs" />
     <Compile Include="ChangeTracking\Internal\EntityKeyFactorySource.cs" />
-    <Compile Include="ChangeTracking\Internal\IEntityAttacher.cs" />
     <Compile Include="ChangeTracking\Internal\IEntityStateListener.cs" />
     <Compile Include="ChangeTracking\Internal\IPropertyAccessor.cs" />
     <Compile Include="ChangeTracking\Internal\IPropertyListener.cs" />
     <Compile Include="ChangeTracking\Internal\IRelationshipListener.cs" />
-    <Compile Include="ChangeTracking\Internal\KeyValueEntityAttacher.cs" />
     <Compile Include="ChangeTracking\Internal\InternalMixedEntityEntry.cs" />
     <Compile Include="ChangeTracking\Internal\NavigationFixer.cs" />
     <Compile Include="ChangeTracking\Internal\OriginalValues.cs" />
@@ -118,6 +115,7 @@
     <Compile Include="ChangeTracking\Internal\StoreGeneratedValues.cs" />
     <Compile Include="ChangeTracking\Internal\StoreGeneratedValuesFactory.cs" />
     <Compile Include="ChangeTracking\Internal\ValueGenerationManager.cs" />
+    <Compile Include="ChangeTracking\KeyValueEntityTracker.cs" />
     <Compile Include="DbContext.cs" />
     <Compile Include="Identity\TemporaryBinaryValueGenerator.cs" />
     <Compile Include="Identity\TemporaryStringValueGenerator.cs" />

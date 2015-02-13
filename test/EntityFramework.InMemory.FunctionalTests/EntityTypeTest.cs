@@ -3,6 +3,8 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Data.Entity.ChangeTracking.Internal;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Xunit;
 
@@ -40,7 +42,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             T entity;
             using (var context = new DbContext(_fixture.ServiceProvider, options))
             {
-                var entry = context.ChangeTracker.StateManager.CreateNewEntry(entityType);
+                var entry = ((IAccessor<StateManager>)context.ChangeTracker).Service.CreateNewEntry(entityType);
                 entity = (T)entry.Entity;
 
                 entry[idProperty] = 42;

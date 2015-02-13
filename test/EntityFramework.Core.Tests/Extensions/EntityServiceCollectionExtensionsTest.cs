@@ -28,7 +28,6 @@ namespace Microsoft.Data.Entity.Tests
             VerifySingleton<SimpleValueGeneratorFactory<TemporaryStringValueGenerator>>();
             VerifySingleton<SimpleValueGeneratorFactory<TemporaryBinaryValueGenerator>>();
             VerifySingleton<SimpleValueGeneratorFactory<GuidValueGenerator>>();
-            VerifySingleton<EntityAttacherFactory>();
             VerifySingleton<DbSetFinder>();
             VerifySingleton<DbSetInitializer>();
             VerifySingleton<DbSetSource>();

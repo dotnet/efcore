@@ -84,7 +84,7 @@
     <Compile Include="ChangeTracking\Internal\CompositeEntityKeyTest.cs" />
     <Compile Include="ChangeTracking\Internal\EntityKeyFactorySourceTest.cs" />
     <Compile Include="ChangeTracking\Internal\EntityKeyTest.cs" />
-    <Compile Include="ChangeTracking\Internal\KeyValueEntityAttacherTest.cs" />
+    <Compile Include="ChangeTracking\Internal\KeyValueEntityTrackerTest.cs" />
     <Compile Include="ChangeTracking\Internal\InternalMixedEntityEntryTest.cs" />
     <Compile Include="ChangeTracking\Internal\NavigationFixerTest.cs" />
     <Compile Include="ChangeTracking\Internal\OriginalValuesTest.cs" />

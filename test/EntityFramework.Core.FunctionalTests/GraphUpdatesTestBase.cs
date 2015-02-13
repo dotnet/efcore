@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Internal;
 using Xunit;
 
@@ -2452,7 +2454,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             protected virtual void Seed(DbContext context)
             {
-                context.ChangeTracker.TrackGraph(CreateFullGraph());
+                var tracker = new KeyValueEntityTracker(updateExistingEntities: false);
+
+                context.ChangeTracker.TrackGraph(CreateFullGraph(), e => tracker.TrackEntity(e));
                 context.SaveChanges();
             }
         }

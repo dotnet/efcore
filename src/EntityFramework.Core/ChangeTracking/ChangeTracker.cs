@@ -12,12 +12,12 @@ using Microsoft.Data.Entity.Utilities;
 namespace Microsoft.Data.Entity.ChangeTracking
 {
     // This is the app-developer facing public API to the change tracker
-    public class ChangeTracker
+    public class ChangeTracker : IAccessor<StateManager>
     {
+        private readonly StateManager _stateManager;
         private readonly ChangeDetector _changeDetector;
         private readonly EntityEntryGraphIterator _graphIterator;
         private readonly DbContextService<DbContext> _context;
-        private readonly EntityAttacherFactory _attacherFactory;
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
@@ -32,20 +32,17 @@ namespace Microsoft.Data.Entity.ChangeTracking
             [NotNull] StateManager stateManager,
             [NotNull] ChangeDetector changeDetector,
             [NotNull] EntityEntryGraphIterator graphIterator,
-            [NotNull] DbContextService<DbContext> context,
-            [NotNull] EntityAttacherFactory attacherFactory)
+            [NotNull] DbContextService<DbContext> context)
         {
             Check.NotNull(stateManager, nameof(stateManager));
             Check.NotNull(changeDetector, nameof(changeDetector));
             Check.NotNull(graphIterator, nameof(graphIterator));
             Check.NotNull(context, nameof(context));
-            Check.NotNull(attacherFactory, nameof(attacherFactory));
 
-            StateManager = stateManager;
+            _stateManager = stateManager;
             _changeDetector = changeDetector;
             _graphIterator = graphIterator;
             _context = context;
-            _attacherFactory = attacherFactory;
         }
 
         public virtual bool AutoDetectChangesEnabled { get; set; } = true;
@@ -54,14 +51,14 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
             TryDetectChanges();
 
-            return StateManager.Entries.Select(e => new EntityEntry(_context.Service, e));
+            return _stateManager.Entries.Select(e => new EntityEntry(_context.Service, e));
         }
 
         public virtual IEnumerable<EntityEntry<TEntity>> Entries<TEntity>() where TEntity : class
         {
             TryDetectChanges();
 
-            return StateManager.Entries
+            return _stateManager.Entries
                 .Where(e => e.Entity is TEntity)
                 .Select(e => new EntityEntry<TEntity>(_context.Service, e));
         }
@@ -74,11 +71,11 @@ namespace Microsoft.Data.Entity.ChangeTracking
             }
         }
 
-        public virtual StateManager StateManager { get; }
+        StateManager IAccessor<StateManager>.Service => _stateManager;
 
         public virtual DbContext Context => _context.Service;
 
-        public virtual void DetectChanges() => _changeDetector.DetectChanges(StateManager);
+        public virtual void DetectChanges() => _changeDetector.DetectChanges(_stateManager);
 
         public virtual void TrackGraph([NotNull] object rootEntity, [NotNull] Action<EntityEntry> callback)
         {
@@ -89,22 +86,6 @@ namespace Microsoft.Data.Entity.ChangeTracking
             {
                 callback(entry);
             }
-        }
-
-        public virtual void TrackGraph([NotNull] object rootEntity)
-        {
-            Check.NotNull(rootEntity, nameof(rootEntity));
-
-            var attacher = _attacherFactory.CreateForAttach();
-            TrackGraph(rootEntity, attacher.HandleEntity);
-        }
-
-        public virtual void UpdateGraph([NotNull] object rootEntity)
-        {
-            Check.NotNull(rootEntity, nameof(rootEntity));
-
-            var attacher = _attacherFactory.CreateForUpdate();
-            TrackGraph(rootEntity, attacher.HandleEntity);
         }
     }
 }

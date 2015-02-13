@@ -4,6 +4,8 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Data.Entity.ChangeTracking.Internal;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
@@ -129,8 +131,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 context.Blogs.Add(new BloggingContext.Blog(false) { Url = "http://sample.com" });
                 context.SaveChanges();
-                var entry = context.ChangeTracker.StateManager.Entries.Single();
-                context.ChangeTracker.StateManager.StopTracking(entry);
+                var entry = context.ChangeTracker.Entries().Single().InternalEntry;
+                ((IAccessor<StateManager>)context.ChangeTracker).Service.StopTracking(entry);
 
                 var ex = Assert.ThrowsAny<Exception>(() => test(context));
                 while (ex.InnerException != null)

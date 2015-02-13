@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using Microsoft.Data.Entity.ChangeTracking.Internal;
+using Microsoft.Data.Entity.Infrastructure;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Tests.ChangeTracking
@@ -38,7 +40,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             using (var context = new FreezerContext())
             {
                 var entity = context.Add(new Chunky()).Entity;
-                var entry = context.ChangeTracker.StateManager.GetOrCreateEntry(entity);
+                var entry = ((IAccessor<StateManager>)context.ChangeTracker).Service.GetOrCreateEntry(entity);
 
                 Assert.Same(entry, context.Entry(entity).InternalEntry);
                 Assert.Same(entry, context.Entry((object)entity).InternalEntry);

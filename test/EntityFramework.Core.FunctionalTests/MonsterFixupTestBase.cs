@@ -6,7 +6,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.FunctionalTests.TestModels;
+using Microsoft.Data.Entity.Infrastructure;
 using Xunit;
 
 namespace Microsoft.Data.Entity.FunctionalTests
@@ -231,7 +233,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 context.Database.EnsureCreated();
                 context.SeedUsingFKs(saveChanges: false);
 
-                var stateManager = context.ChangeTracker.StateManager;
+                var stateManager = ((IAccessor<StateManager>)context.ChangeTracker).Service;
 
                 var beforeSnapshot = stateManager.Entries.SelectMany(e => e.EntityType.Properties.Select(p => e[p])).ToList();
 

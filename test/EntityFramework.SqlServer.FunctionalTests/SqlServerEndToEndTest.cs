@@ -12,7 +12,6 @@ using System.Threading.Tasks;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.FunctionalTests;
@@ -284,13 +283,13 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         [Fact]
         public async Task Tracking_entities_asynchronously_returns_tracked_entities_back()
         {
-            using (var testDatabase = await SqlServerNorthwindContext.GetSharedStoreAsync())
+            using (await SqlServerNorthwindContext.GetSharedStoreAsync())
             {
                 using (var db = new NorthwindContext(_fixture.ServiceProvider))
                 {
                     var customer = await db.Customers.FirstOrDefaultAsync();
 
-                    var trackedCustomerEntry = db.ChangeTracker.StateManager.Entries.Single();
+                    var trackedCustomerEntry = db.ChangeTracker.Entries().Single();
                     Assert.Same(trackedCustomerEntry.Entity, customer);
 
                     // if references are different this will throw
