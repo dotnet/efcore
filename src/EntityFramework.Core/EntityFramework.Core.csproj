@@ -47,11 +47,16 @@
     <PackageReference Include="System.Collections.Immutable">
       <TargetFramework>portable-net45+win8+wp8+wpa81</TargetFramework>
     </PackageReference>
+    <PackageReference Include="Microsoft.Framework.Cache.Interfaces">
+      <TargetFramework>net45</TargetFramework>
+    </PackageReference>
     <PackageReference Include="Microsoft.Framework.Cache.Memory">
       <TargetFramework>net45</TargetFramework>
     </PackageReference>
     <PackageReference Include="Microsoft.Framework.ConfigurationModel" />
+    <PackageReference Include="Microsoft.Framework.ConfigurationModel.Interfaces" />
     <PackageReference Include="Microsoft.Framework.DependencyInjection" />
+    <PackageReference Include="Microsoft.Framework.DependencyInjection.Interfaces" />
     <PackageReference Include="Microsoft.Framework.Logging" />
     <PackageReference Include="Microsoft.Framework.Logging.Interfaces" />
     <PackageReference Include="Microsoft.Framework.OptionsModel" />

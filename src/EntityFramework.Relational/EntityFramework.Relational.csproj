@@ -45,7 +45,9 @@
       <TargetFramework>portable-wpa81+wp80+win80+net45+aspnetcore50</TargetFramework>
     </PackageReference>
     <PackageReference Include="Microsoft.Framework.ConfigurationModel" />
+    <PackageReference Include="Microsoft.Framework.ConfigurationModel.Interfaces" />
     <PackageReference Include="Microsoft.Framework.DependencyInjection" />
+    <PackageReference Include="Microsoft.Framework.DependencyInjection.Interfaces" />
     <PackageReference Include="Microsoft.Framework.Logging" />
     <PackageReference Include="Microsoft.Framework.Logging.Interfaces" />
     <PackageReference Include="Remotion.Linq">

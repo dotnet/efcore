@@ -45,6 +45,7 @@
       <TargetFramework>portable-net45+win8+wp8+wpa81</TargetFramework>
     </PackageReference>
     <PackageReference Include="Microsoft.Framework.DependencyInjection" />
+    <PackageReference Include="Microsoft.Framework.DependencyInjection.Interfaces" />
     <PackageReference Include="Microsoft.Framework.Logging" />
     <PackageReference Include="Microsoft.Framework.Logging.Interfaces" />
     <PackageReference Include="Remotion.Linq">
