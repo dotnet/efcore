@@ -69,7 +69,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         {
             return (services ?? new ServiceCollection())
                 .AddEntityFramework()
-                .AddSqlServer().ServiceCollection;
+                .AddSqlServer()
+                .ServiceCollection();
         }
 
         protected override DbContext CreateContext(IServiceProvider serviceProvider)

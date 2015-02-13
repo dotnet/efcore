@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 = new ServiceCollection()
                     .AddEntityFramework()
                     .AddInMemoryStore()
-                    .ServiceCollection
+                    .ServiceCollection()
                     .AddSingleton(typeof(InMemoryModelSource), p => new TestInMemoryModelSource(OnModelCreating))
                     .BuildServiceProvider();
 

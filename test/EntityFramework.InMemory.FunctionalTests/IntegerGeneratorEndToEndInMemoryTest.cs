@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
 using Xunit;
@@ -18,7 +19,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddInMemoryStore()
-                .ServiceCollection
+                .ServiceCollection()
                 .BuildServiceProvider();
 
             AddEntities(serviceProvider);
@@ -57,7 +58,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddInMemoryStore()
-                .ServiceCollection
+                .ServiceCollection()
                 .BuildServiceProvider();
 
             await AddEntitiesAsync(serviceProvider);
@@ -96,7 +97,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddInMemoryStore()
-                .ServiceCollection
+                .ServiceCollection()
                 .BuildServiceProvider();
 
             const int threadCount = 50;

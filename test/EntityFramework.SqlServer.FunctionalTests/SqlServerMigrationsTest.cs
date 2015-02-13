@@ -3,6 +3,7 @@
 
 using System;
 using System.Threading.Tasks;
+using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Migrations;
 using Microsoft.Data.Entity.Relational.Migrations.Builders;
@@ -35,7 +36,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 new ServiceCollection()
                     .AddEntityFramework()
                     .AddSqlServer()
-                    .ServiceCollection
+                    .ServiceCollection()
                     .BuildServiceProvider();
 
             var options = new DbContextOptions();

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.FunctionalTests;
 using Microsoft.Data.Entity.SqlServer.FunctionalTests.TestModels;
@@ -22,7 +23,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             _serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddSqlServer()
-                .ServiceCollection
+                .ServiceCollection()
                 .AddInstance<ILoggerFactory>(new TestSqlLoggerFactory())
                 .BuildServiceProvider();
 

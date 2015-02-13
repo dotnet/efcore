@@ -5,6 +5,7 @@ using System;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
 using Xunit;
@@ -19,7 +20,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddInMemoryStore()
-                .ServiceCollection
+                .ServiceCollection()
                 .BuildServiceProvider();
 
             var ticks = DateTime.UtcNow.Ticks;
@@ -62,7 +63,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddInMemoryStore()
-                .ServiceCollection
+                .ServiceCollection()
                 .BuildServiceProvider();
 
             long id1;
@@ -119,7 +120,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddInMemoryStore()
-                .ServiceCollection
+                .ServiceCollection()
                 .BuildServiceProvider();
 
             var ids = new int[3];

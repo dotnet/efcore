@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 = new ServiceCollection()
                     .AddEntityFramework()
                     .AddInMemoryStore()
-                    .ServiceCollection
+                    .ServiceCollection()
                     .BuildServiceProvider();
 
             var model = CreateModel();

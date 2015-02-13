@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Xunit;
 

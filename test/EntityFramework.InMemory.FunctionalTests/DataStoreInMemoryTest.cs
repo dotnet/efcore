@@ -20,7 +20,8 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
-                .AddInMemoryStore().ServiceCollection
+                .AddInMemoryStore()
+                .ServiceCollection()
                 .AddInstance(TestFileLogger.Factory)
                 .BuildServiceProvider();
 

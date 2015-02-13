@@ -29,7 +29,7 @@ namespace Microsoft.Framework.DependencyInjection
             [NotNull] this IServiceCollection serviceCollection,
             [CanBeNull] IConfiguration configuration = null)
         {
-            Check.NotNull(serviceCollection, "serviceCollection");
+            Check.NotNull(serviceCollection, nameof(serviceCollection));
 
             // TODO: Is this the appropriate way to register listeners?
             serviceCollection
@@ -95,16 +95,19 @@ namespace Microsoft.Framework.DependencyInjection
             [CanBeNull] Action<DbContextOptions> optionsAction = null)
             where TContext : DbContext
         {
-            Check.NotNull(builder, "builder");
+            Check.NotNull(builder, nameof(builder));
 
-            builder.ServiceCollection.AddSingleton(
+            var serviceCollection = ((IAccessor<IServiceCollection>)builder).Service;
+
+            serviceCollection.AddSingleton(
                 sp => sp.GetRequiredServiceChecked<IOptions<DbContextOptions<TContext>>>().Options);
 
-            if (builder.Configuration != null)
+            var configuration = ((IAccessor<IConfiguration>)builder).Service;
+            if (configuration != null)
             {
                 // TODO: Allows parser to be obtained from service provider. Issue #947
-                builder.ServiceCollection.ConfigureOptions(
-                    new DbContextConfigureOptions<TContext>(builder.Configuration, new DbContextOptionsParser())
+                serviceCollection.ConfigureOptions(
+                    new DbContextConfigureOptions<TContext>(configuration, new DbContextOptionsParser())
                         {
                             Order = ConfigurationOrder
                         });
@@ -112,10 +115,10 @@ namespace Microsoft.Framework.DependencyInjection
 
             if (optionsAction != null)
             {
-                builder.ServiceCollection.Configure<DbContextOptions<TContext>>(optionsAction);
+                serviceCollection.Configure<DbContextOptions<TContext>>(optionsAction);
             }
 
-            ServiceCollectionExtensions.AddScoped(builder.ServiceCollection, typeof(TContext), (Func<IServiceProvider, object>)(DbContextActivator.CreateInstance<TContext>));
+            serviceCollection.AddScoped(typeof(TContext), DbContextActivator.CreateInstance<TContext>);
 
             return builder;
         }

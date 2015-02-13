@@ -19,9 +19,9 @@ namespace Microsoft.Framework.DependencyInjection
     {
         public static EntityFrameworkServicesBuilder AddSqlServer([NotNull] this EntityFrameworkServicesBuilder builder)
         {
-            Check.NotNull(builder, "builder");
+            Check.NotNull(builder, nameof(builder));
 
-            builder.AddRelational().ServiceCollection
+            ((IAccessor<IServiceCollection>)builder.AddRelational()).Service
                 .AddScoped<DataStoreSource, SqlServerDataStoreSource>()
                 .TryAdd(new ServiceCollection()
                     .AddSingleton<SqlServerModelBuilderFactory>()

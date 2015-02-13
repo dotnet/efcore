@@ -38,7 +38,8 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         {
             return (services ?? new ServiceCollection())
                 .AddEntityFramework()
-                .AddInMemoryStore().ServiceCollection;
+                .AddInMemoryStore()
+                .ServiceCollection();
         }
 
         protected override DbContext CreateContext(IServiceProvider serviceProvider)

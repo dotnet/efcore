@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             var serviceCollection = new ServiceCollection()
                 .AddEntityFramework()
                 .AddSqlServer()
-                .ServiceCollection;
+                .ServiceCollection();
 
             if (throwingStateManager)
             {

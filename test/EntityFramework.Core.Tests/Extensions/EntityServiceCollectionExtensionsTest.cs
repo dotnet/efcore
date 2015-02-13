@@ -108,7 +108,8 @@ namespace Microsoft.Data.Entity.Tests
         protected virtual IServiceCollection GetServices(IServiceCollection services = null)
         {
             return (services ?? new ServiceCollection())
-                .AddEntityFramework().ServiceCollection;
+                .AddEntityFramework()
+                .ServiceCollection();
         }
 
         protected virtual DbContext CreateContext(IServiceProvider serviceProvider)

@@ -31,7 +31,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
             var loggerFactory = new TestLoggerFactory();
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
-                .AddInMemoryStore().ServiceCollection
+                .AddInMemoryStore()
+                .ServiceCollection()
                 .AddInstance<ILoggerFactory>(loggerFactory)
                 .BuildServiceProvider();
 
@@ -119,7 +120,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
             var loggerFactory = new TestLoggerFactory();
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
-                .AddInMemoryStore().ServiceCollection
+                .AddInMemoryStore()
+                .ServiceCollection()
                 .AddInstance<ILoggerFactory>(loggerFactory)
                 .BuildServiceProvider();
 

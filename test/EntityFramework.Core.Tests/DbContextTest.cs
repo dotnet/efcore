@@ -1748,7 +1748,8 @@ namespace Microsoft.Data.Entity.Tests
         {
             var services = new ServiceCollection();
             services
-                .AddEntityFramework().ServiceCollection
+                .AddEntityFramework()
+                .ServiceCollection()
                 .AddSingleton<ModelSource, FakeModelSource>()
                 .AddScoped<StateManager, FakeStateManager>();
 
@@ -1786,7 +1787,8 @@ namespace Microsoft.Data.Entity.Tests
         public void Can_get_replaced_singleton_service_from_scoped_configuration()
         {
             var provider = new ServiceCollection()
-                .AddEntityFramework().ServiceCollection
+                .AddEntityFramework()
+                .ServiceCollection()
                 .AddSingleton<EntityMaterializerSource, FakeEntityMaterializerSource>()
                 .BuildServiceProvider();
 
@@ -2123,7 +2125,7 @@ namespace Microsoft.Data.Entity.Tests
                 .AddEntityFramework()
                 .AddInMemoryStore()
                 .AddDbContext<UseModelInOnModelCreatingContext>()
-                .ServiceCollection
+                .ServiceCollection()
                 .BuildServiceProvider();
 
             using (var context = serviceProvider.GetRequiredService<UseModelInOnModelCreatingContext>())
@@ -2156,7 +2158,7 @@ namespace Microsoft.Data.Entity.Tests
                 .AddEntityFramework()
                 .AddInMemoryStore()
                 .AddDbContext<UseInOnModelCreatingContext>()
-                .ServiceCollection
+                .ServiceCollection()
                 .BuildServiceProvider();
 
             using (var context = serviceProvider.GetRequiredService<UseInOnModelCreatingContext>())
@@ -2189,7 +2191,7 @@ namespace Microsoft.Data.Entity.Tests
                 .AddEntityFramework()
                 .AddInMemoryStore()
                 .AddDbContext<UseInOnConfiguringContext>()
-                .ServiceCollection
+                .ServiceCollection()
                 .BuildServiceProvider();
 
             using (var context = serviceProvider.GetRequiredService<UseInOnConfiguringContext>())

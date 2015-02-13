@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     .AddEntityFramework()
                     .AddInMemoryStore()
                     .AddSqlServer()
-                    .ServiceCollection
+                    .ServiceCollection()
                     .BuildServiceProvider());
         }
 

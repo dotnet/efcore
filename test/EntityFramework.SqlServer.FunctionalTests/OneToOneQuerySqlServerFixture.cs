@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 = new ServiceCollection()
                     .AddEntityFramework()
                     .AddSqlServer()
-                    .ServiceCollection
+                    .ServiceCollection()
                     .AddInstance<ILoggerFactory>(new TestSqlLoggerFactory())
                     .BuildServiceProvider();
 

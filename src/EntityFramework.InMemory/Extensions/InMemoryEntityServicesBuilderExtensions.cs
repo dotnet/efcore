@@ -16,9 +16,9 @@ namespace Microsoft.Framework.DependencyInjection
     {
         public static EntityFrameworkServicesBuilder AddInMemoryStore([NotNull] this EntityFrameworkServicesBuilder builder)
         {
-            Check.NotNull(builder, "builder");
+            Check.NotNull(builder, nameof(builder));
 
-            builder.ServiceCollection
+            ((IAccessor<IServiceCollection>)builder).Service
                 .AddScoped<DataStoreSource, InMemoryDataStoreSource>()
                 .TryAdd(new ServiceCollection()
                     .AddSingleton<InMemoryModelBuilderFactory>()

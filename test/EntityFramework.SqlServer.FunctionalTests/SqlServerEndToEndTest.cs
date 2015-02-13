@@ -10,6 +10,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
+using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
@@ -153,7 +154,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 var loggingFactory = new TestSqlLoggerFactory();
                 var serviceProvider = new ServiceCollection()
                     .AddEntityFramework()
-                    .AddSqlServer().ServiceCollection
+                    .AddSqlServer()
+                    .ServiceCollection()
                     .AddInstance<ILoggerFactory>(loggingFactory)
                     .BuildServiceProvider();
 
@@ -305,7 +307,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     .AddEntityFramework()
                     .AddSqlServer()
                     .AddDbContext<SchemaContext>()
-                    .ServiceCollection
+                    .ServiceCollection()
                     .BuildServiceProvider();
 
             using (var testDatabase = await SqlServerTestStore.CreateScratchAsync())

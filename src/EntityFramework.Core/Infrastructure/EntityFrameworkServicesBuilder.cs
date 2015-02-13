@@ -14,8 +14,11 @@ namespace Microsoft.Data.Entity.Infrastructure
     ///     <see cref="EntityServiceCollectionExtensions.AddEntityFramework(IServiceCollection, IConfiguration)" />
     ///     and then chaining API calls on the returned <see cref="EntityFrameworkServicesBuilder" />.
     /// </summary>
-    public class EntityFrameworkServicesBuilder
+    public class EntityFrameworkServicesBuilder : IAccessor<IServiceCollection>, IAccessor<IConfiguration>
     {
+        private readonly IServiceCollection _serviceCollection;
+        private readonly IConfiguration _configuration;
+
         /// <summary>
         ///     Initializes a new instance of the <see cref="EntityFrameworkServicesBuilder" /> class.
         /// </summary>
@@ -30,19 +33,20 @@ namespace Microsoft.Data.Entity.Infrastructure
         {
             Check.NotNull(serviceCollection, nameof(serviceCollection));
 
-            ServiceCollection = serviceCollection;
-            Configuration = configuration;
+            _serviceCollection = serviceCollection;
+            _configuration = configuration;
         }
 
         /// <summary>
         ///     Gets the <see cref="IServiceCollection" /> being configured.
         /// </summary>
-        public virtual IServiceCollection ServiceCollection { get; }
+        IServiceCollection IAccessor<IServiceCollection>.Service => _serviceCollection;
 
         /// <summary>
-        ///     The configuration for the application. This configuration may contain Entity Framework specific settings
-        ///     which will be passed into context instances that are created by dependency injection.
+        ///     The configuration for the application, or null if no configuration has been created. This configuration
+        ///     may contain Entity Framework specific settings which will be passed into context instances that are
+        ///     created by dependency injection.
         /// </summary>
-        public virtual IConfiguration Configuration { get; }
+        IConfiguration IAccessor<IConfiguration>.Service => _configuration;
     }
 }

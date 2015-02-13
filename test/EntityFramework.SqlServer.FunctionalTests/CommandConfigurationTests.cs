@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
+using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
@@ -27,7 +28,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         private readonly IServiceProvider _serviceProvider = new ServiceCollection()
             .AddEntityFramework()
             .AddSqlServer()
-            .ServiceCollection
+            .ServiceCollection()
             .BuildServiceProvider();
 
         [Fact]
@@ -134,7 +135,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddSqlServer()
-                .ServiceCollection
+                .ServiceCollection()
                 .AddSingleton<SqlServerModificationCommandBatchFactory, TestSqlServerModificationCommandBatchFactory>()
                 .BuildServiceProvider();
 
@@ -154,7 +155,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddSqlServer()
-                .ServiceCollection
+                .ServiceCollection()
                 .AddSingleton<SqlServerModificationCommandBatchFactory, TestSqlServerModificationCommandBatchFactory>()
                 .BuildServiceProvider();
 
@@ -174,7 +175,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddSqlServer()
-                .ServiceCollection
+                .ServiceCollection()
                 .AddSingleton<SqlServerModificationCommandBatchFactory, TestSqlServerModificationCommandBatchFactory>()
                 .BuildServiceProvider();
 
@@ -195,7 +196,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddSqlServer()
-                .ServiceCollection
+                .ServiceCollection()
                 .AddSingleton<SqlServerModificationCommandBatchFactory, TestSqlServerModificationCommandBatchFactory>()
                 .BuildServiceProvider();
 
@@ -216,7 +217,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddSqlServer()
-                .ServiceCollection
+                .ServiceCollection()
                 .AddSingleton<SqlServerModificationCommandBatchFactory, TestSqlServerModificationCommandBatchFactory>()
                 .BuildServiceProvider();
 
@@ -242,7 +243,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddSqlServer()
-                .ServiceCollection
+                .ServiceCollection()
                 .AddSingleton<SqlServerModificationCommandBatchFactory, TestSqlServerModificationCommandBatchFactory>()
                 .BuildServiceProvider();
 
@@ -268,7 +269,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddSqlServer()
-                .ServiceCollection
+                .ServiceCollection()
                 .AddSingleton<SqlServerModificationCommandBatchFactory, TestSqlServerModificationCommandBatchFactory>()
                 .BuildServiceProvider();
 

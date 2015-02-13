@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.Relational.FunctionalTests;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
@@ -88,7 +89,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             var loggingFactory = new TestSqlLoggerFactory();
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
-                .AddSqlServer().ServiceCollection
+                .AddSqlServer()
+                .ServiceCollection()
                 .AddInstance<ILoggerFactory>(loggingFactory)
                 .BuildServiceProvider();
 
@@ -126,7 +128,8 @@ ORDER BY [c].[FirstName], [c].[LastName]";
             var loggingFactory = new TestSqlLoggerFactory();
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
-                .AddSqlServer().ServiceCollection
+                .AddSqlServer().
+                ServiceCollection()
                 .AddInstance<ILoggerFactory>(loggingFactory)
                 .BuildServiceProvider();
 

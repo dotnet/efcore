@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
 using Xunit;
@@ -19,7 +20,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddSqlServer()
-                .ServiceCollection
+                .ServiceCollection()
                 .BuildServiceProvider();
 
             using (var context = new BronieContext(serviceProvider, "GooieBronies"))
@@ -52,7 +53,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddSqlServer()
-                .ServiceCollection
+                .ServiceCollection()
                 .BuildServiceProvider();
 
             var guids = new List<Guid>();

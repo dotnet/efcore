@@ -18,9 +18,9 @@ namespace Microsoft.Data.Entity.Relational
     {
         public static EntityFrameworkServicesBuilder AddRelational([NotNull] this EntityFrameworkServicesBuilder builder)
         {
-            Check.NotNull(builder, "builder");
+            Check.NotNull(builder, nameof(builder));
 
-            builder.ServiceCollection.TryAdd(new ServiceCollection()
+            ((IAccessor<IServiceCollection>)builder).Service.TryAdd(new ServiceCollection()
                 .AddSingleton<RelationalObjectArrayValueReaderFactory>()
                 .AddSingleton<RelationalTypedValueReaderFactory>()
                 .AddSingleton<ParameterNameGeneratorFactory>()

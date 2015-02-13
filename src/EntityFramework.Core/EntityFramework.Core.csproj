@@ -122,6 +122,7 @@
     <Compile Include="Identity\TemporaryBinaryValueGenerator.cs" />
     <Compile Include="Identity\TemporaryStringValueGenerator.cs" />
     <Compile Include="Infrastructure\EntityFrameworkServicesBuilder.cs" />
+    <Compile Include="Infrastructure\IAccessor.cs" />
     <Compile Include="ModelBuilder.cs" />
     <Compile Include="Query\IIncludableQueryable.cs" />
     <Compile Include="Infrastructure\DbContextService.cs" />
@@ -147,7 +148,6 @@
     <Compile Include="Infrastructure\DbContextConfigureOptions.cs" />
     <Compile Include="Infrastructure\DbContextOptionsParser.cs" />
     <Compile Include="Infrastructure\ModelSourceHelpers.cs" />
-    <Compile Include="Internal\IAccessor.cs" />
     <Compile Include="Internal\InternalDbSet.cs" />
     <Compile Include="Metadata\BasicModelBuilder.cs" />
     <Compile Include="Metadata\KeyExtensions.cs" />
