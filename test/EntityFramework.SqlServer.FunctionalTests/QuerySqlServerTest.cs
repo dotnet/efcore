@@ -242,6 +242,16 @@ WHERE [o].[CustomerID] = 'ALFKI'",
                 Sql);
         }
 
+        public override void Count_with_order_by()
+        {
+            base.Count_with_order_by();
+
+            Assert.Equal(
+                @"SELECT COUNT(*)
+FROM [Orders] AS [o]",
+                Sql);
+        }
+
         public override void Sum_with_no_arg()
         {
             base.Sum_with_no_arg();
