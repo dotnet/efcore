@@ -46,6 +46,19 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         [Fact]
+        public void Can_get_metadata()
+        {
+            using (var context = new FreezerContext())
+            {
+                var entity = context.Add(new Chunky()).Entity;
+                var entityType = context.Model.GetEntityType(typeof(Chunky));
+
+                Assert.Same(entityType, context.Entry(entity).Metadata);
+                Assert.Same(entityType, context.Entry((object)entity).Metadata);
+            }
+        }
+
+        [Fact]
         public void Can_get_and_change_state()
         {
             using (var context = new FreezerContext())
@@ -133,8 +146,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             {
                 var entity = context.Add(new Chunky()).Entity;
 
-                Assert.Equal("Monkey", context.Entry(entity).Property("Monkey").Name);
-                Assert.Equal("Monkey", context.Entry((object)entity).Property("Monkey").Name);
+                Assert.Equal("Monkey", context.Entry(entity).Property("Monkey").Metadata.Name);
+                Assert.Equal("Monkey", context.Entry((object)entity).Property("Monkey").Metadata.Name);
             }
         }
 
@@ -145,7 +158,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             {
                 var entity = context.Add(new Chunky()).Entity;
 
-                Assert.Equal("Monkey", context.Entry(entity).Property(e => e.Monkey).Name);
+                Assert.Equal("Monkey", context.Entry(entity).Property(e => e.Monkey).Metadata.Name);
             }
         }
 

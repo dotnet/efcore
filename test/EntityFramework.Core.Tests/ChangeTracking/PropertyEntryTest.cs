@@ -17,8 +17,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var internalEntryMock = CreateInternalEntryMock(new Mock<IProperty>());
 
-            Assert.Equal("Monkey", new PropertyEntry(internalEntryMock.Object, "Monkey").Name);
-            Assert.Equal("Monkey", new PropertyEntry<Random, string>(internalEntryMock.Object, "Monkey").Name);
+            Assert.Equal("Monkey", new PropertyEntry(internalEntryMock.Object, "Monkey").Metadata.Name);
+            Assert.Equal("Monkey", new PropertyEntry<Random, string>(internalEntryMock.Object, "Monkey").Metadata.Name);
         }
 
         [Fact]

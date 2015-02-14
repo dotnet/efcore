@@ -4,6 +4,7 @@
 using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.ChangeTracking
@@ -34,7 +35,10 @@ namespace Microsoft.Data.Entity.ChangeTracking
         }
 
         public virtual InternalEntityEntry InternalEntry { get; }
+
         public virtual DbContext Context { get; }
+
+        public virtual IEntityType Metadata => InternalEntry.EntityType;
 
         public virtual PropertyEntry Property([NotNull] string propertyName)
         {

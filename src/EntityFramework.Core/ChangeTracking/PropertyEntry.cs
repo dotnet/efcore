@@ -11,7 +11,6 @@ namespace Microsoft.Data.Entity.ChangeTracking
     public class PropertyEntry
     {
         private readonly InternalEntityEntry _internalEntry;
-        private readonly IProperty _property;
 
         public PropertyEntry([NotNull] InternalEntityEntry internalEntry, [NotNull] string name)
         {
@@ -19,27 +18,27 @@ namespace Microsoft.Data.Entity.ChangeTracking
             Check.NotEmpty(name, nameof(name));
 
             _internalEntry = internalEntry;
-            _property = internalEntry.EntityType.GetProperty(name);
+            Metadata = internalEntry.EntityType.GetProperty(name);
         }
 
         public virtual bool IsModified
         {
-            get { return _internalEntry.IsPropertyModified(_property); }
-            set { _internalEntry.SetPropertyModified(_property, value); }
+            get { return _internalEntry.IsPropertyModified(Metadata); }
+            set { _internalEntry.SetPropertyModified(Metadata, value); }
         }
 
-        public virtual string Name => _property.Name;
+        public virtual IProperty Metadata { get; }
 
         public virtual object CurrentValue
         {
-            get { return _internalEntry[_property]; }
-            [param: CanBeNull] set { _internalEntry[_property] = value; }
+            get { return _internalEntry[Metadata]; }
+            [param: CanBeNull] set { _internalEntry[Metadata] = value; }
         }
 
         public virtual object OriginalValue
         {
-            get { return _internalEntry.OriginalValues[_property]; }
-            [param: CanBeNull] set { _internalEntry.OriginalValues[_property] = value; }
+            get { return _internalEntry.OriginalValues[Metadata]; }
+            [param: CanBeNull] set { _internalEntry.OriginalValues[Metadata] = value; }
         }
     }
 }
