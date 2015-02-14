@@ -68,7 +68,8 @@ namespace Microsoft.Data.Entity.Relational.Query
             IEnumerable<T> innerResults,
             IQuerySource querySource,
             IReadOnlyList<INavigation> navigationPath,
-            IReadOnlyList<Func<IIncludeRelatedValuesStrategy>> includeRelatedValuesStrategyFactories)
+            IReadOnlyList<Func<IIncludeRelatedValuesStrategy>> includeRelatedValuesStrategyFactories,
+            bool querySourceRequiresTracking)
             where T : QuerySourceScope
         {
             queryContext.BeginIncludeScope();
@@ -93,7 +94,8 @@ namespace Microsoft.Data.Entity.Relational.Query
                             .Include(
                                 qss.GetResult(querySource),
                                 navigationPath,
-                                relatedValueReaders);
+                                relatedValueReaders,
+                                querySourceRequiresTracking);
 
                         return qss;
                     })

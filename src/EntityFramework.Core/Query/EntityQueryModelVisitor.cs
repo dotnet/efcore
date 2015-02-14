@@ -263,7 +263,8 @@ namespace Microsoft.Data.Entity.Query
                             include.QuerySource,
                             resultType,
                             accessorLambda,
-                            include.navigationPath);
+                            include.navigationPath,
+                            QuerySourceRequiresTracking(include.QuerySource));
                     }
                 }
                 else
@@ -305,7 +306,8 @@ namespace Microsoft.Data.Entity.Query
             [NotNull] IQuerySource querySource,
             [NotNull] Type resultType,
             [NotNull] LambdaExpression accessorLambda,
-            [NotNull] IReadOnlyList<INavigation> navigationPath)
+            [NotNull] IReadOnlyList<INavigation> navigationPath,
+            bool querySourceRequiresTracking)
         {
             // template method
 

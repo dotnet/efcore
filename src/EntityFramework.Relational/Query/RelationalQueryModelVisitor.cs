@@ -90,7 +90,8 @@ namespace Microsoft.Data.Entity.Relational.Query
             IQuerySource querySource,
             Type resultType,
             LambdaExpression accessorLambda,
-            IReadOnlyList<INavigation> navigationPath)
+            IReadOnlyList<INavigation> navigationPath,
+            bool querySourceRequiresTracking)
         {
             Check.NotNull(querySource, "querySource");
             Check.NotNull(resultType, "resultType");
@@ -98,7 +99,7 @@ namespace Microsoft.Data.Entity.Relational.Query
             Check.NotNull(navigationPath, "navigationPath");
 
             Expression
-                = new IncludeExpressionTreeVisitor(querySource, navigationPath, QueryCompilationContext)
+                = new IncludeExpressionTreeVisitor(querySource, navigationPath, QueryCompilationContext, querySourceRequiresTracking)
                     .VisitExpression(Expression);
         }
 

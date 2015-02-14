@@ -33,7 +33,8 @@ namespace Microsoft.Data.Entity.InMemory.Query
             IQuerySource querySource,
             Type resultType,
             LambdaExpression accessorLambda,
-            IReadOnlyList<INavigation> navigationPath)
+            IReadOnlyList<INavigation> navigationPath,
+            bool querySourceRequiresTracking)
         {
             Check.NotNull(querySource, "querySource");
             Check.NotNull(resultType, "resultType");
@@ -61,7 +62,8 @@ namespace Microsoft.Data.Entity.InMemory.Query
                                     primaryKeyParameter,
                                     relatedKeyFactoryParameter),
                                 primaryKeyParameter,
-                                relatedKeyFactoryParameter))));
+                                relatedKeyFactoryParameter))),
+                    Expression.Constant(querySourceRequiresTracking));
         }
 
         private static readonly MethodInfo _includeMethodInfo
@@ -74,7 +76,8 @@ namespace Microsoft.Data.Entity.InMemory.Query
             IEnumerable<TResult> source,
             IReadOnlyList<INavigation> navigationPath,
             Func<TResult, object> accessorLambda,
-            IReadOnlyList<Func<EntityKey, Func<IValueReader, EntityKey>, IEnumerable<IValueReader>>> relatedValueReaders)
+            IReadOnlyList<Func<EntityKey, Func<IValueReader, EntityKey>, IEnumerable<IValueReader>>> relatedValueReaders,
+            bool querySourceRequiresTracking)
         {
             return
                 source
@@ -84,7 +87,8 @@ namespace Microsoft.Data.Entity.InMemory.Query
                                 .Include(
                                     accessorLambda.Invoke(result),
                                     navigationPath,
-                                    relatedValueReaders);
+                                    relatedValueReaders,
+                                    querySourceRequiresTracking);
 
                             return result;
                         });

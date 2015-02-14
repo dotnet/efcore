@@ -22,13 +22,15 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
         private readonly IQuerySource _querySource;
         private readonly IReadOnlyList<INavigation> _navigationPath;
         private readonly RelationalQueryCompilationContext _queryCompilationContext;
+        private readonly bool _querySourceRequiresTracking;
 
         private bool _foundCreateEntityForQuerySource;
 
         public IncludeExpressionTreeVisitor(
             [NotNull] IQuerySource querySource,
             [NotNull] IReadOnlyList<INavigation> navigationPath,
-            [NotNull] RelationalQueryCompilationContext queryCompilationContext)
+            [NotNull] RelationalQueryCompilationContext queryCompilationContext,
+            bool querySourceRequiresTracking)
         {
             Check.NotNull(querySource, "querySource");
             Check.NotNull(navigationPath, "navigationPath");
@@ -37,6 +39,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             _querySource = querySource;
             _navigationPath = navigationPath;
             _queryCompilationContext = queryCompilationContext;
+            _querySourceRequiresTracking = querySourceRequiresTracking;
         }
 
         protected override Expression VisitMethodCallExpression([NotNull] MethodCallExpression expression)
@@ -67,7 +70,8 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                             Expression.Constant(_navigationPath),
                             Expression.NewArrayInit(
                                 _queryCompilationContext.QueryMethodProvider.IncludeRelatedValuesFactoryType,
-                                CreateIncludeRelatedValuesStrategyFactories(_querySource, _navigationPath)));
+                                CreateIncludeRelatedValuesStrategyFactories(_querySource, _navigationPath)),
+                             Expression.Constant(_querySourceRequiresTracking));
                 }
 
                 return newExpression;
