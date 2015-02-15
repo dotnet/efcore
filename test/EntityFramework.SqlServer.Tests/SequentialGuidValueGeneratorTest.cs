@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
@@ -17,18 +16,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         private static readonly Model _model = SqlServerTestHelpers.Instance.BuildModelFor<WithGuid>();
 
         [Fact]
-        public async Task Can_get_next_values()
-        {
-            await Can_get_next_values_test(async: false);
-        }
-
-        [Fact]
-        public async Task Can_get_next_values_async()
-        {
-            await Can_get_next_values_test(async: true);
-        }
-
-        public async Task Can_get_next_values_test(bool async)
+        public void Can_get_next_values()
         {
             var sequentialGuidIdentityGenerator = new SequentialGuidValueGenerator();
 
@@ -37,9 +25,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var values = new HashSet<Guid>();
             for (var i = 0; i < 100; i++)
             {
-                var generatedValue = async
-                    ? await sequentialGuidIdentityGenerator.NextAsync(property, new DbContextService<DataStoreServices>(() => null))
-                    : sequentialGuidIdentityGenerator.Next(property, new DbContextService<DataStoreServices>(() => null));
+                var generatedValue = sequentialGuidIdentityGenerator.Next(property, new DbContextService<DataStoreServices>(() => null));
 
                 values.Add((Guid)generatedValue);
             }

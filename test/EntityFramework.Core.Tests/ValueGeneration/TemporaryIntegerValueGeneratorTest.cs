@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Threading.Tasks;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
@@ -15,14 +14,14 @@ namespace Microsoft.Data.Entity.Tests.ValueGeneration
         private static readonly Model _model = TestHelpers.Instance.BuildModelFor<AnEntity>();
 
         [Fact]
-        public async Task Creates_negative_values()
+        public void Creates_negative_values()
         {
             var property = _model.GetEntityType(typeof(AnEntity)).GetProperty("Id");
             var generator = new TemporaryIntegerValueGenerator();
 
-            Assert.Equal(-1, await generator.NextAsync(property, new DbContextService<DataStoreServices>(() => null)));
-            Assert.Equal(-2, await generator.NextAsync(property, new DbContextService<DataStoreServices>(() => null)));
-            Assert.Equal(-3, await generator.NextAsync(property, new DbContextService<DataStoreServices>(() => null)));
+            Assert.Equal(-1, generator.Next(property, new DbContextService<DataStoreServices>(() => null)));
+            Assert.Equal(-2, generator.Next(property, new DbContextService<DataStoreServices>(() => null)));
+            Assert.Equal(-3, generator.Next(property, new DbContextService<DataStoreServices>(() => null)));
             Assert.Equal(-4, generator.Next(property, new DbContextService<DataStoreServices>(() => null)));
             Assert.Equal(-5, generator.Next(property, new DbContextService<DataStoreServices>(() => null)));
             Assert.Equal(-6, generator.Next(property, new DbContextService<DataStoreServices>(() => null)));
