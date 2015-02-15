@@ -3,15 +3,13 @@
 
 using System;
 using System.Globalization;
-using System.Threading;
-using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.ValueGeneration;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
+using Microsoft.Data.Entity.ValueGeneration;
 
 namespace Microsoft.Data.Entity.SqlServer
 {
@@ -25,32 +23,18 @@ namespace Microsoft.Data.Entity.SqlServer
             int blockSize)
             : base(sequenceName, blockSize)
         {
-            Check.NotNull(executor, "executor");
+            Check.NotNull(executor, nameof(executor));
 
             _executor = executor;
         }
 
         protected override long GetNewHighValue(IProperty property, DbContextService<DataStoreServices> dataStoreServices)
         {
-            Check.NotNull(property, "property");
-            Check.NotNull(dataStoreServices, "dataStoreServices");
+            Check.NotNull(property, nameof(property));
+            Check.NotNull(dataStoreServices, nameof(dataStoreServices));
 
             var commandInfo = PrepareCommand((RelationalConnection)dataStoreServices.Service.Connection);
             var nextValue = _executor.ExecuteScalar(commandInfo.Item1, commandInfo.Item1.DbTransaction, commandInfo.Item2);
-
-            return (long)Convert.ChangeType(nextValue, typeof(long), CultureInfo.InvariantCulture);
-        }
-
-        protected override async Task<long> GetNewHighValueAsync(
-            IProperty property, DbContextService<DataStoreServices> dataStoreServices, CancellationToken cancellationToken)
-        {
-            Check.NotNull(property, "property");
-            Check.NotNull(dataStoreServices, "dataStoreServices");
-
-            var commandInfo = PrepareCommand((RelationalConnection)dataStoreServices.Service.Connection);
-            var nextValue = await _executor
-                .ExecuteScalarAsync(commandInfo.Item1, commandInfo.Item1.DbTransaction, commandInfo.Item2, cancellationToken)
-                .WithCurrentCulture();
 
             return (long)Convert.ChangeType(nextValue, typeof(long), CultureInfo.InvariantCulture);
         }

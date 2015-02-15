@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Threading.Tasks;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
@@ -16,26 +15,26 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         private static readonly Model _model = InMemoryTestHelpers.Instance.BuildModelFor<AnEntity>();
 
         [Fact]
-        public async Task Creates_values()
+        public void Creates_values()
         {
             var property = _model.GetEntityType(typeof(AnEntity)).GetProperty("Id");
             var generator = new InMemoryValueGenerator();
 
-            Assert.Equal(1, await generator.NextAsync(property, new DbContextService<DataStoreServices>(() => null)));
-            Assert.Equal(2, await generator.NextAsync(property, new DbContextService<DataStoreServices>(() => null)));
-            Assert.Equal(3, await generator.NextAsync(property, new DbContextService<DataStoreServices>(() => null)));
+            Assert.Equal(1, generator.Next(property, new DbContextService<DataStoreServices>(() => null)));
+            Assert.Equal(2, generator.Next(property, new DbContextService<DataStoreServices>(() => null)));
+            Assert.Equal(3, generator.Next(property, new DbContextService<DataStoreServices>(() => null)));
             Assert.Equal(4, generator.Next(property, new DbContextService<DataStoreServices>(() => null)));
             Assert.Equal(5, generator.Next(property, new DbContextService<DataStoreServices>(() => null)));
             Assert.Equal(6, generator.Next(property, new DbContextService<DataStoreServices>(() => null)));
 
             generator = new InMemoryValueGenerator();
 
-            Assert.Equal(1, await generator.NextAsync(property, new DbContextService<DataStoreServices>(() => null)));
-            Assert.Equal(2, await generator.NextAsync(property, new DbContextService<DataStoreServices>(() => null)));
+            Assert.Equal(1, generator.Next(property, new DbContextService<DataStoreServices>(() => null)));
+            Assert.Equal(2, generator.Next(property, new DbContextService<DataStoreServices>(() => null)));
         }
 
         [Fact]
-        public async Task Can_create_values_for_all_integer_types()
+        public void Can_create_values_for_all_integer_types()
         {
             var entityType = _model.GetEntityType(typeof(AnEntity));
 
@@ -50,14 +49,14 @@ namespace Microsoft.Data.Entity.InMemory.Tests
 
             var generator = new InMemoryValueGenerator();
 
-            Assert.Equal(1L, await generator.NextAsync(longProperty, new DbContextService<DataStoreServices>(() => null)));
-            Assert.Equal(2, await generator.NextAsync(intProperty, new DbContextService<DataStoreServices>(() => null)));
-            Assert.Equal((short)3, await generator.NextAsync(shortProperty, new DbContextService<DataStoreServices>(() => null)));
-            Assert.Equal((byte)4, await generator.NextAsync(byteProperty, new DbContextService<DataStoreServices>(() => null)));
-            Assert.Equal((ulong)5, await generator.NextAsync(ulongProperty, new DbContextService<DataStoreServices>(() => null)));
-            Assert.Equal((uint)6, await generator.NextAsync(uintProperty, new DbContextService<DataStoreServices>(() => null)));
-            Assert.Equal((ushort)7, await generator.NextAsync(ushortProperty, new DbContextService<DataStoreServices>(() => null)));
-            Assert.Equal((sbyte)8, await generator.NextAsync(sbyteProperty, new DbContextService<DataStoreServices>(() => null)));
+            Assert.Equal(1L, generator.Next(longProperty, new DbContextService<DataStoreServices>(() => null)));
+            Assert.Equal(2, generator.Next(intProperty, new DbContextService<DataStoreServices>(() => null)));
+            Assert.Equal((short)3, generator.Next(shortProperty, new DbContextService<DataStoreServices>(() => null)));
+            Assert.Equal((byte)4, generator.Next(byteProperty, new DbContextService<DataStoreServices>(() => null)));
+            Assert.Equal((ulong)5, generator.Next(ulongProperty, new DbContextService<DataStoreServices>(() => null)));
+            Assert.Equal((uint)6, generator.Next(uintProperty, new DbContextService<DataStoreServices>(() => null)));
+            Assert.Equal((ushort)7, generator.Next(ushortProperty, new DbContextService<DataStoreServices>(() => null)));
+            Assert.Equal((sbyte)8, generator.Next(sbyteProperty, new DbContextService<DataStoreServices>(() => null)));
             Assert.Equal(9L, generator.Next(longProperty, new DbContextService<DataStoreServices>(() => null)));
             Assert.Equal(10, generator.Next(intProperty, new DbContextService<DataStoreServices>(() => null)));
             Assert.Equal((short)11, generator.Next(shortProperty, new DbContextService<DataStoreServices>(() => null)));

@@ -81,64 +81,6 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             }
         }
 
-        [Fact]
-        public async Task Generates_sequential_values_async()
-        {
-            var storeServices = CreateStoreServices();
-            var entityType = _model.GetEntityType(typeof(AnEntity));
-
-            var intProperty = entityType.GetProperty("Id");
-            var longProperty = entityType.GetProperty("Long");
-            var shortProperty = entityType.GetProperty("Short");
-            var byteProperty = entityType.GetProperty("Byte");
-            var nullableIntProperty = entityType.GetProperty("NullableId");
-            var nullableLongProperty = entityType.GetProperty("NullableLong");
-            var nullableShortProperty = entityType.GetProperty("NullableShort");
-            var nullableByteProperty = entityType.GetProperty("NullableByte");
-
-            var executor = new FakeSqlStatementExecutor(10);
-            var generator = new SqlServerSequenceValueGenerator(executor, "Foo", 10);
-
-            for (var i = 0; i < 15; i++)
-            {
-                Assert.Equal(i, await generator.NextAsync(intProperty, storeServices));
-            }
-
-            for (var i = 15; i < 30; i++)
-            {
-                Assert.Equal((long)i, await generator.NextAsync(longProperty, storeServices));
-            }
-
-            for (var i = 30; i < 45; i++)
-            {
-                Assert.Equal((short)i, await generator.NextAsync(shortProperty, storeServices));
-            }
-
-            for (var i = 45; i < 60; i++)
-            {
-                Assert.Equal((byte)i, await generator.NextAsync(byteProperty, storeServices));
-            }
-
-            for (var i = 60; i < 75; i++)
-            {
-                Assert.Equal((int?)i, await generator.NextAsync(nullableIntProperty, storeServices));
-            }
-
-            for (var i = 75; i < 90; i++)
-            {
-                Assert.Equal((long?)i, await generator.NextAsync(nullableLongProperty, storeServices));
-            }
-
-            for (var i = 90; i < 105; i++)
-            {
-                Assert.Equal((short?)i, await generator.NextAsync(nullableShortProperty, storeServices));
-            }
-
-            for (var i = 105; i < 120; i++)
-            {
-                Assert.Equal((byte?)i, await generator.NextAsync(nullableByteProperty, storeServices));
-            }
-        }
 
         [Fact]
         public void Multiple_threads_can_use_the_same_generator()
@@ -173,59 +115,6 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             }
 
             Parallel.Invoke(tests);
-
-            // Check that each value was generated once and only once
-            var checks = new bool[threadCount * valueCount];
-            foreach (var values in generatedValues)
-            {
-                Assert.Equal(valueCount, values.Count);
-                foreach (var value in values)
-                {
-                    checks[value] = true;
-                }
-            }
-
-            Assert.True(checks.All(c => c));
-        }
-
-        [Fact]
-        public async Task Multiple_threads_can_use_the_same_generator_async()
-        {
-            var serviceProvider = SqlServerTestHelpers.Instance.CreateServiceProvider();
-
-            var property = _model.GetEntityType(typeof(AnEntity)).GetProperty("Long");
-
-            var executor = new FakeSqlStatementExecutor(10);
-            var generator = new SqlServerSequenceValueGenerator(executor, "Foo", 10);
-
-            const int threadCount = 50;
-            const int valueCount = 35;
-
-            var tests = new Func<Task>[threadCount];
-            var generatedValues = new List<long>[threadCount];
-            for (var i = 0; i < tests.Length; i++)
-            {
-                var testNumber = i;
-                generatedValues[testNumber] = new List<long>();
-                tests[testNumber] = async () =>
-                    {
-                        for (var j = 0; j < valueCount; j++)
-                        {
-                            var storeServices = CreateStoreServices(serviceProvider);
-
-                            var generatedValue = await generator.NextAsync(property, storeServices);
-
-                            generatedValues[testNumber].Add((long)generatedValue);
-                        }
-                    };
-            }
-
-            var tasks = tests.Select(Task.Run).ToArray();
-
-            foreach (var t in tasks)
-            {
-                await t;
-            }
 
             // Check that each value was generated once and only once
             var checks = new bool[threadCount * valueCount];

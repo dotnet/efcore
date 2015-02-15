@@ -3,7 +3,6 @@
 
 using System;
 using System.Threading;
-using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
@@ -19,8 +18,8 @@ namespace Microsoft.Data.Entity.ValueGeneration
     /// </summary>
     public abstract class HiLoValuesGenerator : IValueGenerator
     {
-        private readonly AsyncLock _lock = new AsyncLock();
-        private SequenceValue _currentValue = new SequenceValue(-1, 0);
+        private readonly object _lock = new object();
+        private HiLoValue _currentValue = new HiLoValue(-1, 0);
 
         protected HiLoValuesGenerator([NotNull] string sequenceName, int blockSize)
         {
@@ -44,16 +43,16 @@ namespace Microsoft.Data.Entity.ValueGeneration
             // If the chosen value is outside of the current block then we need a new block.
             // It is possible that other threads will use all of the new block before this thread
             // gets a chance to use the new new value, so use a while here to do it all again.
-            while (newValue.Current >= newValue.Max)
+            while (newValue.Low >= newValue.High)
             {
-                using (_lock.Lock())
+                lock (_lock)
                 {
                     // Once inside the lock check to see if another thread already got a new block, in which
                     // case just get a value out of the new block instead of requesting one.
-                    if (newValue.Max == _currentValue.Max)
+                    if (newValue.High == _currentValue.High)
                     {
                         var newCurrent = GetNewHighValue(property, dataStoreServices);
-                        newValue = new SequenceValue(newCurrent, newCurrent + BlockSize);
+                        newValue = new HiLoValue(newCurrent, newCurrent + BlockSize);
                         _currentValue = newValue;
                     }
                     else
@@ -63,59 +62,19 @@ namespace Microsoft.Data.Entity.ValueGeneration
                 }
             }
 
-            return Convert.ChangeType(newValue.Current, property.PropertyType.UnwrapNullableType());
-        }
-
-        public virtual async Task<object> NextAsync(
-            IProperty property,
-            DbContextService<DataStoreServices> dataStoreServices,
-            CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Check.NotNull(property, nameof(property));
-            Check.NotNull(dataStoreServices, nameof(dataStoreServices));
-
-            var newValue = GetNextValue();
-
-            // If the chosen value is outside of the current block then we need a new block.
-            // It is possible that other threads will use all of the new block before this thread
-            // gets a chance to use the new new value, so use a while here to do it all again.
-            while (newValue.Current >= newValue.Max)
-            {
-                // Once inside the lock check to see if another thread already got a new block, in which
-                // case just get a value out of the new block instead of requesting one.
-                using (await _lock.LockAsync(cancellationToken).WithCurrentCulture())
-                {
-                    if (newValue.Max == _currentValue.Max)
-                    {
-                        var newCurrent = await GetNewHighValueAsync(property, dataStoreServices, cancellationToken);
-                        newValue = new SequenceValue(newCurrent, newCurrent + BlockSize);
-                        _currentValue = newValue;
-                    }
-                    else
-                    {
-                        newValue = GetNextValue();
-                    }
-                }
-            }
-
-            return Convert.ChangeType(newValue.Current, property.PropertyType.UnwrapNullableType());
+            return Convert.ChangeType(newValue.Low, property.PropertyType.UnwrapNullableType());
         }
 
         protected abstract long GetNewHighValue(
             [NotNull] IProperty property,
             [NotNull] DbContextService<DataStoreServices> dataStoreServices);
 
-        protected abstract Task<long> GetNewHighValueAsync(
-            [NotNull] IProperty property,
-            [NotNull] DbContextService<DataStoreServices> dataStoreServices,
-            CancellationToken cancellationToken);
-
         public virtual bool GeneratesTemporaryValues => false;
 
-        private SequenceValue GetNextValue()
+        private HiLoValue GetNextValue()
         {
-            SequenceValue originalValue;
-            SequenceValue newValue;
+            HiLoValue originalValue;
+            HiLoValue newValue;
             do
             {
                 originalValue = _currentValue;
@@ -126,21 +85,21 @@ namespace Microsoft.Data.Entity.ValueGeneration
             return newValue;
         }
 
-        private class SequenceValue
+        private class HiLoValue
         {
-            public SequenceValue(long current, long max)
+            public HiLoValue(long low, long high)
             {
-                Current = current;
-                Max = max;
+                Low = low;
+                High = high;
             }
 
-            public long Current { get; }
+            public long Low { get; }
 
-            public long Max { get; }
+            public long High { get; }
 
-            public SequenceValue NextValue()
+            public HiLoValue NextValue()
             {
-                return new SequenceValue(Current + 1, Max);
+                return new HiLoValue(Low + 1, High);
             }
         }
     }

@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
@@ -17,18 +16,7 @@ namespace Microsoft.Data.Entity.Tests.ValueGeneration
         private static readonly Model _model = TestHelpers.Instance.BuildModelFor<WithString>();
 
         [Fact]
-        public async Task Creates_GUID_strings()
-        {
-            await Creates_GUID_strings_test(async: false);
-        }
-
-        [Fact]
-        public async Task Creates_GUID_strings_async()
-        {
-            await Creates_GUID_strings_test(async: true);
-        }
-
-        public async Task Creates_GUID_strings_test(bool async)
+        public void Creates_GUID_strings()
         {
             var generator = new TemporaryStringValueGenerator();
 
@@ -38,9 +26,7 @@ namespace Microsoft.Data.Entity.Tests.ValueGeneration
             var values = new HashSet<Guid>();
             for (var i = 0; i < 100; i++)
             {
-                var generatedValue = async
-                    ? await generator.NextAsync(property, new DbContextService<DataStoreServices>(() => null))
-                    : generator.Next(property, new DbContextService<DataStoreServices>(() => null));
+                var generatedValue = generator.Next(property, new DbContextService<DataStoreServices>(() => null));
 
                 values.Add(Guid.Parse((string)generatedValue));
             }
