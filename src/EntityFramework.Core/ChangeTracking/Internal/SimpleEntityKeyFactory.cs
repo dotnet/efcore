@@ -33,9 +33,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
 
         public override EntityKey Create(
-            IEntityType entityType, IReadOnlyList<IProperty> properties, IPropertyAccessor propertyBagEntry)
+            IEntityType entityType, IReadOnlyList<IProperty> properties, IPropertyAccessor propertyAccessor)
         {
-            var value = propertyBagEntry[properties[0]];
+            var value = propertyAccessor[properties[0]];
 
             if (value != null)
             {

@@ -83,6 +83,8 @@
     <Compile Include="ChangeTracking\Internal\ArraySidecar.cs" />
     <Compile Include="ChangeTracking\Internal\ChangeDetector.cs" />
     <Compile Include="ChangeTracking\Internal\KeyPropagator.cs" />
+    <Compile Include="ChangeTracking\Internal\IKeyListener.cs" />
+    <Compile Include="ChangeTracking\Internal\INavigationListener.cs" />
     <Compile Include="ChangeTracking\Internal\InternalClrEntityEntry.cs" />
     <Compile Include="ChangeTracking\Internal\CompositeEntityKey.cs" />
     <Compile Include="ChangeTracking\Internal\CompositeEntityKeyFactory.cs" />
@@ -94,7 +96,7 @@
     <Compile Include="ChangeTracking\Internal\IEntityStateListener.cs" />
     <Compile Include="ChangeTracking\Internal\IPropertyAccessor.cs" />
     <Compile Include="ChangeTracking\Internal\IPropertyListener.cs" />
-    <Compile Include="ChangeTracking\Internal\IRelationshipListener.cs" />
+    <Compile Include="ChangeTracking\Internal\IForeignKeyListener.cs" />
     <Compile Include="ChangeTracking\Internal\InternalMixedEntityEntry.cs" />
     <Compile Include="ChangeTracking\Internal\NavigationFixer.cs" />
     <Compile Include="ChangeTracking\Internal\OriginalValues.cs" />

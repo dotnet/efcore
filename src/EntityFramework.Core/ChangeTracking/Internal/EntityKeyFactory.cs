@@ -15,6 +15,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         [NotNull]
         public abstract EntityKey Create(
-            [NotNull] IEntityType entityType, [NotNull] IReadOnlyList<IProperty> properties, [NotNull] IPropertyAccessor propertyBagEntry);
+            [NotNull] IEntityType entityType, [NotNull] IReadOnlyList<IProperty> properties, [NotNull] IPropertyAccessor propertyAccessor);
     }
 }

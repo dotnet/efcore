@@ -177,9 +177,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         [Fact]
         public void Detects_principal_key_change()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(
-                new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
-                BuildModel());
+            var contextServices = CreateContextServices();
 
             var stateManager = contextServices.GetRequiredService<StateManager>();
             var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
@@ -197,10 +195,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             Assert.Equal(78, entry.RelationshipsSnapshot[entry.EntityType.GetProperty("PrincipalId")]);
             Assert.Same(entry, stateManager.TryGetEntry(new SimpleEntityKey<int>(entry.EntityType, -1)));
 
-            var testListener = contextServices
-                .GetRequiredService<IEnumerable<IRelationshipListener>>()
-                .OfType<TestRelationshipListener>()
-                .Single();
+            var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Same(entry, testListener.PrincipalKeyChange.Item1);
             Assert.Same(entry.EntityType.GetProperty("PrincipalId"), testListener.PrincipalKeyChange.Item2);
@@ -217,9 +212,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         [Fact]
         public void Detects_principal_key_changing_back_to_original_value()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(
-                new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
-                BuildModel());
+            var contextServices = CreateContextServices();
 
             var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
             var stateManager = contextServices.GetRequiredService<StateManager>();
@@ -238,10 +231,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             Assert.Equal(77, entry.RelationshipsSnapshot[entry.EntityType.GetProperty("PrincipalId")]);
 
-            var testListener = contextServices
-                .GetRequiredService<IEnumerable<IRelationshipListener>>()
-                .OfType<TestRelationshipListener>()
-                .Single();
+            var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Same(entry, testListener.PrincipalKeyChange.Item1);
             Assert.Same(entry.EntityType.GetProperty("PrincipalId"), testListener.PrincipalKeyChange.Item2);
@@ -258,9 +248,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         [Fact]
         public void Reacts_to_principal_key_change_in_sidecar()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(
-                new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
-                BuildModel());
+            var contextServices = CreateContextServices();
 
             var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
             var stateManager = contextServices.GetRequiredService<StateManager>();
@@ -280,10 +268,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             Assert.Equal(78, entry.RelationshipsSnapshot[property]);
 
-            var testListener = contextServices
-                .GetRequiredService<IEnumerable<IRelationshipListener>>()
-                .OfType<TestRelationshipListener>()
-                .Single();
+            var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Same(entry, testListener.PrincipalKeyChange.Item1);
             Assert.Same(property, testListener.PrincipalKeyChange.Item2);
@@ -300,9 +285,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         [Fact]
         public void Detects_primary_key_change()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(
-                new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
-                BuildModel());
+            var contextServices = CreateContextServices();
 
             var stateManager = contextServices.GetRequiredService<StateManager>();
             var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
@@ -320,10 +303,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             Assert.Equal(78, entry.RelationshipsSnapshot[entry.EntityType.GetProperty("Id")]);
             Assert.Same(entry, stateManager.TryGetEntry(new SimpleEntityKey<int>(entry.EntityType, 78)));
 
-            var testListener = contextServices
-                .GetRequiredService<IEnumerable<IRelationshipListener>>()
-                .OfType<TestRelationshipListener>()
-                .Single();
+            var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Null(testListener.PrincipalKeyChange);
             Assert.Null(testListener.ForeignKeyChange);
@@ -336,9 +316,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         [Fact]
         public void Reacts_to_primary_key_change_in_sidecar()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(
-                new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
-                BuildModel());
+            var contextServices = CreateContextServices();
 
             var stateManager = contextServices.GetRequiredService<StateManager>();
             var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
@@ -362,10 +340,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             Assert.Same(entry, stateManager.TryGetEntry(new SimpleEntityKey<int>(entry.EntityType, 78)));
 
-            var testListener = contextServices
-                .GetRequiredService<IEnumerable<IRelationshipListener>>()
-                .OfType<TestRelationshipListener>()
-                .Single();
+            var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Null(testListener.PrincipalKeyChange);
             Assert.Null(testListener.ForeignKeyChange);
@@ -378,9 +353,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         [Fact]
         public void Ignores_no_change_to_principal_key()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(
-                new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
-                BuildModel());
+            var contextServices = CreateContextServices();
 
             var stateManager = contextServices.GetRequiredService<StateManager>();
             var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
@@ -398,10 +371,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             Assert.Equal(77, entry.RelationshipsSnapshot[entry.EntityType.GetProperty("PrincipalId")]);
             Assert.Same(entry, stateManager.TryGetEntry(new SimpleEntityKey<int>(entry.EntityType, -1)));
 
-            var testListener = contextServices
-                .GetRequiredService<IEnumerable<IRelationshipListener>>()
-                .OfType<TestRelationshipListener>()
-                .Single();
+            var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Null(testListener.PrincipalKeyChange);
             Assert.Null(testListener.ForeignKeyChange);
@@ -414,9 +384,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         [Fact]
         public void Ignores_no_change_to_principal_key_in_sidecar()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(
-                new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
-                BuildModel());
+            var contextServices = CreateContextServices();
 
             var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
             var stateManager = contextServices.GetRequiredService<StateManager>();
@@ -436,10 +404,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             Assert.Equal(77, entry.RelationshipsSnapshot[property]);
 
-            var testListener = contextServices
-                .GetRequiredService<IEnumerable<IRelationshipListener>>()
-                .OfType<TestRelationshipListener>()
-                .Single();
+            var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Null(testListener.PrincipalKeyChange);
             Assert.Null(testListener.ForeignKeyChange);
@@ -452,9 +417,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         [Fact]
         public void Detects_foreign_key_change()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(
-                new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
-                BuildModel());
+            var contextServices = CreateContextServices();
 
             var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
             var stateManager = contextServices.GetRequiredService<StateManager>();
@@ -470,10 +433,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             Assert.Equal(EntityState.Modified, entry.EntityState);
             Assert.Equal(78, entry.RelationshipsSnapshot[entry.EntityType.GetProperty("DependentId")]);
 
-            var testListener = contextServices
-                .GetRequiredService<IEnumerable<IRelationshipListener>>()
-                .OfType<TestRelationshipListener>()
-                .Single();
+            var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Same(entry, testListener.ForeignKeyChange.Item1);
             Assert.Same(entry.EntityType.GetProperty("DependentId"), testListener.ForeignKeyChange.Item2);
@@ -490,9 +450,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         [Fact]
         public void Detects_foreign_key_changing_back_to_original_value()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(
-                new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
-                BuildModel());
+            var contextServices = CreateContextServices();
 
             var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
             var stateManager = contextServices.GetRequiredService<StateManager>();
@@ -512,10 +470,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             Assert.Equal(EntityState.Modified, entry.EntityState);
             Assert.Equal(77, entry.RelationshipsSnapshot[entry.EntityType.GetProperty("DependentId")]);
 
-            var testListener = contextServices
-                .GetRequiredService<IEnumerable<IRelationshipListener>>()
-                .OfType<TestRelationshipListener>()
-                .Single();
+            var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Same(entry, testListener.ForeignKeyChange.Item1);
             Assert.Same(entry.EntityType.GetProperty("DependentId"), testListener.ForeignKeyChange.Item2);
@@ -532,9 +487,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         [Fact]
         public void Reacts_to_foreign_key_change_in_sidecar()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(
-                new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
-                BuildModel());
+            var contextServices = CreateContextServices();
 
             var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
             var stateManager = contextServices.GetRequiredService<StateManager>();
@@ -555,10 +508,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             Assert.Equal(EntityState.Modified, entry.EntityState);
             Assert.Equal(78, entry.RelationshipsSnapshot[property]);
 
-            var testListener = contextServices
-                .GetRequiredService<IEnumerable<IRelationshipListener>>()
-                .OfType<TestRelationshipListener>()
-                .Single();
+            var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Same(entry, testListener.ForeignKeyChange.Item1);
             Assert.Same(property, testListener.ForeignKeyChange.Item2);
@@ -575,9 +525,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         [Fact]
         public void Ignores_no_change_to_foreign_key()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(
-                new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
-                BuildModel());
+            var contextServices = CreateContextServices();
 
             var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
             var stateManager = contextServices.GetRequiredService<StateManager>();
@@ -593,10 +541,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             Assert.Equal(EntityState.Unchanged, entry.EntityState);
             Assert.Equal(77, entry.RelationshipsSnapshot[entry.EntityType.GetProperty("DependentId")]);
 
-            var testListener = contextServices
-                .GetRequiredService<IEnumerable<IRelationshipListener>>()
-                .OfType<TestRelationshipListener>()
-                .Single();
+            var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Null(testListener.PrincipalKeyChange);
             Assert.Null(testListener.ForeignKeyChange);
@@ -609,9 +554,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         [Fact]
         public void Ignores_no_change_to_foreign_key_in_sidecar()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(
-                new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
-                BuildModel());
+            var contextServices = CreateContextServices();
 
             var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
             var stateManager = contextServices.GetRequiredService<StateManager>();
@@ -632,10 +575,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             Assert.Equal(EntityState.Unchanged, entry.EntityState);
             Assert.Equal(77, entry.RelationshipsSnapshot[property]);
 
-            var testListener = contextServices
-                .GetRequiredService<IEnumerable<IRelationshipListener>>()
-                .OfType<TestRelationshipListener>()
-                .Single();
+            var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Null(testListener.PrincipalKeyChange);
             Assert.Null(testListener.ForeignKeyChange);
@@ -648,9 +588,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         [Fact]
         public void Detects_reference_navigation_change()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(
-                new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
-                BuildModel());
+            var contextServices = CreateContextServices();
 
             var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
             var stateManager = contextServices.GetRequiredService<StateManager>();
@@ -668,10 +606,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             Assert.Equal(EntityState.Modified, entry.EntityState);
             Assert.Equal(newCategory, entry.RelationshipsSnapshot[entry.EntityType.GetNavigation("Category")]);
 
-            var testListener = contextServices
-                .GetRequiredService<IEnumerable<IRelationshipListener>>()
-                .OfType<TestRelationshipListener>()
-                .Single();
+            var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Same(entry, testListener.ReferenceChange.Item1);
             Assert.Same(entry.EntityType.GetNavigation("Category"), testListener.ReferenceChange.Item2);
@@ -692,9 +627,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         [Fact]
         public void Detects_reference_navigation_changing_back_to_original_value()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(
-                new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
-                BuildModel());
+            var contextServices = CreateContextServices();
 
             var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
             var stateManager = contextServices.GetRequiredService<StateManager>();
@@ -716,10 +649,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             Assert.Equal(EntityState.Modified, entry.EntityState);
             Assert.Equal(originalCategory, entry.RelationshipsSnapshot[entry.EntityType.GetNavigation("Category")]);
 
-            var testListener = contextServices
-                .GetRequiredService<IEnumerable<IRelationshipListener>>()
-                .OfType<TestRelationshipListener>()
-                .Single();
+            var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Same(entry, testListener.ReferenceChange.Item1);
             Assert.Same(entry.EntityType.GetNavigation("Category"), testListener.ReferenceChange.Item2);
@@ -740,9 +670,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         [Fact]
         public void Ignores_no_change_to_reference_navigation()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(
-                new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
-                BuildModel());
+            var contextServices = CreateContextServices();
 
             var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
             var stateManager = contextServices.GetRequiredService<StateManager>();
@@ -759,10 +687,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             Assert.Equal(EntityState.Unchanged, entry.EntityState);
             Assert.Equal(category, entry.RelationshipsSnapshot[entry.EntityType.GetNavigation("Category")]);
 
-            var testListener = contextServices
-                .GetRequiredService<IEnumerable<IRelationshipListener>>()
-                .OfType<TestRelationshipListener>()
-                .Single();
+            var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Null(testListener.ReferenceChange);
             Assert.Null(testListener.ForeignKeyChange);
@@ -775,9 +700,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         [Fact]
         public void Detects_adding_to_collection_navigation()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(
-                new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
-                BuildModel());
+            var contextServices = CreateContextServices();
 
             var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
             var stateManager = contextServices.GetRequiredService<StateManager>();
@@ -800,10 +723,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
                     .Cast<Product>()
                     .OrderBy(e => e.DependentId));
 
-            var testListener = contextServices
-                .GetRequiredService<IEnumerable<IRelationshipListener>>()
-                .OfType<TestRelationshipListener>()
-                .Single();
+            var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Same(entry, testListener.CollectionChange.Item1);
             Assert.Same(entry.EntityType.GetNavigation("Products"), testListener.CollectionChange.Item2);
@@ -820,9 +740,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         [Fact]
         public void Detects_removing_from_collection_navigation()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(
-                new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
-                BuildModel());
+            var contextServices = CreateContextServices();
 
             var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
             var stateManager = contextServices.GetRequiredService<StateManager>();
@@ -844,10 +762,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
                     .Cast<Product>()
                     .OrderBy(e => e.DependentId));
 
-            var testListener = contextServices
-                .GetRequiredService<IEnumerable<IRelationshipListener>>()
-                .OfType<TestRelationshipListener>()
-                .Single();
+            var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Same(entry, testListener.CollectionChange.Item1);
             Assert.Same(entry.EntityType.GetNavigation("Products"), testListener.CollectionChange.Item2);
@@ -868,9 +783,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         [Fact]
         public void Ignores_no_change_to_collection_navigation()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(
-                new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
-                BuildModel());
+            var contextServices = CreateContextServices();
 
             var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
             var stateManager = contextServices.GetRequiredService<StateManager>();
@@ -893,10 +806,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
                     .Cast<Product>()
                     .OrderBy(e => e.DependentId));
 
-            var testListener = contextServices
-                .GetRequiredService<IEnumerable<IRelationshipListener>>()
-                .OfType<TestRelationshipListener>()
-                .Single();
+            var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Null(testListener.CollectionChange);
             Assert.Null(testListener.ForeignKeyChange);
@@ -909,9 +819,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         [Fact]
         public void Skips_detecting_changes_to_primary_principal_key_for_notification_entities()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(
-                new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
-                BuildModelWithChanged());
+            var contextServices = CreateContextServices(BuildModelWithChanged());
 
             var stateManager = contextServices.GetRequiredService<StateManager>();
             var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
@@ -929,10 +837,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             Assert.Equal(77, entry.RelationshipsSnapshot[entry.EntityType.GetProperty("Id")]);
             Assert.Same(entry, stateManager.TryGetEntry(new SimpleEntityKey<int>(entry.EntityType, 77)));
 
-            var testListener = contextServices
-                .GetRequiredService<IEnumerable<IRelationshipListener>>()
-                .OfType<TestRelationshipListener>()
-                .Single();
+            var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Null(testListener.PrincipalKeyChange);
             Assert.Null(testListener.ForeignKeyChange);
@@ -945,9 +850,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         [Fact]
         public void Skips_detecting_changes_to_foreign_key_for_notification_entities()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(
-                new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
-                BuildModelWithChanged());
+            var contextServices = CreateContextServices(BuildModelWithChanged());
 
             var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
             var stateManager = contextServices.GetRequiredService<StateManager>();
@@ -962,10 +865,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             Assert.Equal(77, entry.RelationshipsSnapshot[entry.EntityType.GetProperty("DependentId")]);
 
-            var testListener = contextServices
-                .GetRequiredService<IEnumerable<IRelationshipListener>>()
-                .OfType<TestRelationshipListener>()
-                .Single();
+            var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Null(testListener.PrincipalKeyChange);
             Assert.Null(testListener.ForeignKeyChange);
@@ -978,9 +878,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         [Fact]
         public void Skips_detecting_changes_to_reference_navigation_for_notification_entities()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(
-                new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
-                BuildModelWithChanged());
+            var contextServices = CreateContextServices(BuildModelWithChanged());
 
             var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
             var stateManager = contextServices.GetRequiredService<StateManager>();
@@ -997,10 +895,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             Assert.Equal(EntityState.Unchanged, entry.EntityState);
             Assert.Equal(category, entry.RelationshipsSnapshot[entry.EntityType.GetNavigation("Category")]);
 
-            var testListener = contextServices
-                .GetRequiredService<IEnumerable<IRelationshipListener>>()
-                .OfType<TestRelationshipListener>()
-                .Single();
+            var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Null(testListener.ReferenceChange);
             Assert.Null(testListener.ForeignKeyChange);
@@ -1013,9 +908,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         [Fact]
         public void Skips_detecting_changes_to_notifying_collections()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(
-                new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
-                BuildModelWithChanged());
+            var contextServices = CreateContextServices(BuildModelWithChanged());
 
             var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
             var stateManager = contextServices.GetRequiredService<StateManager>();
@@ -1043,10 +936,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
                     .Cast<ProductWithChanged>()
                     .OrderBy(e => e.DependentId));
 
-            var testListener = contextServices
-                .GetRequiredService<IEnumerable<IRelationshipListener>>()
-                .OfType<TestRelationshipListener>()
-                .Single();
+            var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Same(entry, testListener.CollectionChange.Item1);
             Assert.Same(entry.EntityType.GetNavigation("Products"), testListener.CollectionChange.Item2);
@@ -1063,9 +953,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         [Fact]
         public void Change_detection_still_happens_for_non_notifying_collections_on_notifying_entities()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(
-                new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
-                BuildModelWithChanged());
+            var contextServices = CreateContextServices(BuildModelWithChanged());
 
             var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
             var stateManager = contextServices.GetRequiredService<StateManager>();
@@ -1092,10 +980,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
                     .Cast<ProductWithChanged>()
                     .OrderBy(e => e.DependentId));
 
-            var testListener = contextServices
-                .GetRequiredService<IEnumerable<IRelationshipListener>>()
-                .OfType<TestRelationshipListener>()
-                .Single();
+            var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Same(entry, testListener.CollectionChange.Item1);
             Assert.Same(entry.EntityType.GetNavigation("Products"), testListener.CollectionChange.Item2);
@@ -1297,9 +1182,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         [Fact]
         public void Handles_notification_of_principal_key_change()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(
-                new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
-                BuildNotifyingModel());
+            var contextServices = CreateContextServices(BuildNotifyingModel());
 
             var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
             var stateManager = contextServices.GetRequiredService<StateManager>();
@@ -1315,10 +1198,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             Assert.Equal(78, entry.RelationshipsSnapshot[entry.EntityType.GetProperty("PrincipalId")]);
             Assert.Same(entry, stateManager.TryGetEntry(new SimpleEntityKey<int>(entry.EntityType, -1)));
 
-            var testListener = contextServices
-                .GetRequiredService<IEnumerable<IRelationshipListener>>()
-                .OfType<TestRelationshipListener>()
-                .Single();
+            var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Same(entry, testListener.PrincipalKeyChange.Item1);
             Assert.Same(entry.EntityType.GetProperty("PrincipalId"), testListener.PrincipalKeyChange.Item2);
@@ -1335,9 +1215,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         [Fact]
         public void Handles_notification_of_principal_key_changing_back_to_original_value()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(
-                new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
-                BuildNotifyingModel());
+            var contextServices = CreateContextServices(BuildNotifyingModel());
 
             var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
             var stateManager = contextServices.GetRequiredService<StateManager>();
@@ -1351,10 +1229,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             Assert.Equal(77, entry.RelationshipsSnapshot[entry.EntityType.GetProperty("PrincipalId")]);
 
-            var testListener = contextServices
-                .GetRequiredService<IEnumerable<IRelationshipListener>>()
-                .OfType<TestRelationshipListener>()
-                .Single();
+            var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Same(entry, testListener.PrincipalKeyChange.Item1);
             Assert.Same(entry.EntityType.GetProperty("PrincipalId"), testListener.PrincipalKeyChange.Item2);
@@ -1371,9 +1246,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         [Fact]
         public void Handles_notification_of_primary_key_change()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(
-                new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
-                BuildNotifyingModel());
+            var contextServices = CreateContextServices(BuildNotifyingModel());
 
             var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
             var stateManager = contextServices.GetRequiredService<StateManager>();
@@ -1389,10 +1262,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             Assert.Equal(78, entry.RelationshipsSnapshot[entry.EntityType.GetProperty("Id")]);
             Assert.Same(entry, stateManager.TryGetEntry(new SimpleEntityKey<int>(entry.EntityType, 78)));
 
-            var testListener = contextServices
-                .GetRequiredService<IEnumerable<IRelationshipListener>>()
-                .OfType<TestRelationshipListener>()
-                .Single();
+            var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Null(testListener.PrincipalKeyChange);
             Assert.Null(testListener.ForeignKeyChange);
@@ -1405,9 +1275,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         [Fact]
         public void Handles_notification_of_no_change_to_principal_key()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(
-                new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
-                BuildNotifyingModel());
+            var contextServices = CreateContextServices(BuildNotifyingModel());
 
             var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
             var stateManager = contextServices.GetRequiredService<StateManager>();
@@ -1423,10 +1291,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             Assert.Equal(77, entry.RelationshipsSnapshot[entry.EntityType.GetProperty("PrincipalId")]);
             Assert.Same(entry, stateManager.TryGetEntry(new SimpleEntityKey<int>(entry.EntityType, -1)));
 
-            var testListener = contextServices
-                .GetRequiredService<IEnumerable<IRelationshipListener>>()
-                .OfType<TestRelationshipListener>()
-                .Single();
+            var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Null(testListener.PrincipalKeyChange);
             Assert.Null(testListener.ForeignKeyChange);
@@ -1439,9 +1304,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         [Fact]
         public void Handles_notification_of_foreign_key_change()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(
-                new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
-                BuildNotifyingModel());
+            var contextServices = CreateContextServices(BuildNotifyingModel());
 
             var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
             var stateManager = contextServices.GetRequiredService<StateManager>();
@@ -1455,10 +1318,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             Assert.Equal(EntityState.Modified, entry.EntityState);
             Assert.Equal(78, entry.RelationshipsSnapshot[entry.EntityType.GetProperty("DependentId")]);
 
-            var testListener = contextServices
-                .GetRequiredService<IEnumerable<IRelationshipListener>>()
-                .OfType<TestRelationshipListener>()
-                .Single();
+            var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Same(entry, testListener.ForeignKeyChange.Item1);
             Assert.Same(entry.EntityType.GetProperty("DependentId"), testListener.ForeignKeyChange.Item2);
@@ -1475,9 +1335,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         [Fact]
         public void Handles_notification_of_foreign_key_changing_back_to_original_value()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(
-                new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
-                BuildNotifyingModel());
+            var contextServices = CreateContextServices(BuildNotifyingModel());
 
             var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
             var stateManager = contextServices.GetRequiredService<StateManager>();
@@ -1492,10 +1350,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             Assert.Equal(EntityState.Modified, entry.EntityState);
             Assert.Equal(77, entry.RelationshipsSnapshot[entry.EntityType.GetProperty("DependentId")]);
 
-            var testListener = contextServices
-                .GetRequiredService<IEnumerable<IRelationshipListener>>()
-                .OfType<TestRelationshipListener>()
-                .Single();
+            var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Same(entry, testListener.ForeignKeyChange.Item1);
             Assert.Same(entry.EntityType.GetProperty("DependentId"), testListener.ForeignKeyChange.Item2);
@@ -1512,9 +1367,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         [Fact]
         public void Handles_notification_of_no_change_to_foreign_key()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(
-                new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
-                BuildNotifyingModel());
+            var contextServices = CreateContextServices(BuildNotifyingModel());
 
             var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
             var stateManager = contextServices.GetRequiredService<StateManager>();
@@ -1528,10 +1381,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             Assert.Equal(EntityState.Modified, entry.EntityState);
             Assert.Equal(77, entry.RelationshipsSnapshot[entry.EntityType.GetProperty("DependentId")]);
 
-            var testListener = contextServices
-                .GetRequiredService<IEnumerable<IRelationshipListener>>()
-                .OfType<TestRelationshipListener>()
-                .Single();
+            var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Null(testListener.PrincipalKeyChange);
             Assert.Null(testListener.ForeignKeyChange);
@@ -1544,9 +1394,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         [Fact]
         public void Handles_notification_of_reference_navigation_change()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(
-                new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
-                BuildNotifyingModel());
+            var contextServices = CreateContextServices(BuildNotifyingModel());
 
             var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
             var stateManager = contextServices.GetRequiredService<StateManager>();
@@ -1562,10 +1410,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             Assert.Equal(EntityState.Modified, entry.EntityState);
             Assert.Equal(newCategory, entry.RelationshipsSnapshot[entry.EntityType.GetNavigation("Category")]);
 
-            var testListener = contextServices
-                .GetRequiredService<IEnumerable<IRelationshipListener>>()
-                .OfType<TestRelationshipListener>()
-                .Single();
+            var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Same(entry, testListener.ReferenceChange.Item1);
             Assert.Same(entry.EntityType.GetNavigation("Category"), testListener.ReferenceChange.Item2);
@@ -1586,9 +1431,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         [Fact]
         public void Handles_notification_of_reference_navigation_changing_back_to_original_value()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(
-                new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
-                BuildNotifyingModel());
+            var contextServices = CreateContextServices(BuildNotifyingModel());
 
             var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
             var stateManager = contextServices.GetRequiredService<StateManager>();
@@ -1606,10 +1449,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             Assert.Equal(EntityState.Modified, entry.EntityState);
             Assert.Equal(originalCategory, entry.RelationshipsSnapshot[entry.EntityType.GetNavigation("Category")]);
 
-            var testListener = contextServices
-                .GetRequiredService<IEnumerable<IRelationshipListener>>()
-                .OfType<TestRelationshipListener>()
-                .Single();
+            var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Same(entry, testListener.ReferenceChange.Item1);
             Assert.Same(entry.EntityType.GetNavigation("Category"), testListener.ReferenceChange.Item2);
@@ -1630,9 +1470,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         [Fact]
         public void Handles_notification_of_no_change_to_reference_navigation()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(
-                new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
-                BuildNotifyingModel());
+            var contextServices = CreateContextServices(BuildNotifyingModel());
 
             var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
             var stateManager = contextServices.GetRequiredService<StateManager>();
@@ -1647,10 +1485,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             Assert.Equal(EntityState.Unchanged, entry.EntityState);
             Assert.Equal(category, entry.RelationshipsSnapshot[entry.EntityType.GetNavigation("Category")]);
 
-            var testListener = contextServices
-                .GetRequiredService<IEnumerable<IRelationshipListener>>()
-                .OfType<TestRelationshipListener>()
-                .Single();
+            var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Null(testListener.ReferenceChange);
             Assert.Null(testListener.ForeignKeyChange);
@@ -1663,9 +1498,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         [Fact]
         public void Handles_notification_of_adding_to_collection_navigation()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(
-                new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
-                BuildNotifyingModel());
+            var contextServices = CreateContextServices(BuildNotifyingModel());
 
             var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
             var stateManager = contextServices.GetRequiredService<StateManager>();
@@ -1689,10 +1522,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
                     .Cast<NotifyingProduct>()
                     .OrderBy(e => e.DependentId));
 
-            var testListener = contextServices
-                .GetRequiredService<IEnumerable<IRelationshipListener>>()
-                .OfType<TestRelationshipListener>()
-                .Single();
+            var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Same(entry, testListener.CollectionChange.Item1);
             Assert.Same(entry.EntityType.GetNavigation("Products"), testListener.CollectionChange.Item2);
@@ -1713,9 +1543,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         [Fact]
         public void Handles_notification_of_removing_from_collection_navigation()
         {
-            var contextServices = TestHelpers.Instance.CreateContextServices(
-                new ServiceCollection().AddScoped<IRelationshipListener, TestRelationshipListener>(),
-                BuildNotifyingModel());
+            var contextServices = CreateContextServices(BuildNotifyingModel());
 
             var changeDetector = contextServices.GetRequiredService<ChangeDetector>();
             var stateManager = contextServices.GetRequiredService<StateManager>();
@@ -1738,10 +1566,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
                     .Cast<NotifyingProduct>()
                     .OrderBy(e => e.DependentId));
 
-            var testListener = contextServices
-                .GetRequiredService<IEnumerable<IRelationshipListener>>()
-                .OfType<TestRelationshipListener>()
-                .Single();
+            var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Same(entry, testListener.CollectionChange.Item1);
             Assert.Same(entry.EntityType.GetNavigation("Products"), testListener.CollectionChange.Item2);
@@ -2323,7 +2148,18 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             Assert.Null(testListener.CollectionChange);
         }
 
-        private class TestRelationshipListener : IRelationshipListener
+        private static IServiceProvider CreateContextServices(IModel model = null)
+        {
+            return TestHelpers.Instance.CreateContextServices(
+                new ServiceCollection()
+                    .AddScoped<TestRelationshipListener>()
+                    .AddScoped<IForeignKeyListener>(p => p.GetRequiredService<TestRelationshipListener>())
+                    .AddScoped<INavigationListener>(p => p.GetRequiredService<TestRelationshipListener>())
+                    .AddScoped<IKeyListener>(p => p.GetRequiredService<TestRelationshipListener>()),
+                model ?? BuildModel());
+        }
+
+        private class TestRelationshipListener : IForeignKeyListener, INavigationListener, IKeyListener
         {
             public Tuple<InternalEntityEntry, IProperty, object, object> ForeignKeyChange { get; set; }
             public Tuple<InternalEntityEntry, IProperty, object, object> PrincipalKeyChange { get; set; }
@@ -2345,7 +2181,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
                 CollectionChange = Tuple.Create(entry, navigation, added, removed);
             }
 
-            public void PrincipalKeyPropertyChanged(InternalEntityEntry entry, IProperty property, object oldValue, object newValue)
+            public void KeyPropertyChanged(InternalEntityEntry entry, IProperty property, object oldValue, object newValue)
             {
                 PrincipalKeyChange = Tuple.Create(entry, property, oldValue, newValue);
             }

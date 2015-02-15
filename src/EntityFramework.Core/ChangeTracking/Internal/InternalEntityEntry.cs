@@ -308,12 +308,12 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                         if (sidecar.TransparentWrite
                             && sidecar.CanStoreValue(property))
                         {
-                            StateManager.Notify.SidecarPropertyChanging(this, property);
+                            StateManager.Notify.PropertyChanging(this, property);
 
                             sidecar[property] = value;
                             wrote = true;
 
-                            StateManager.Notify.SidecarPropertyChanged(this, property);
+                            StateManager.Notify.PropertyChanged(this, property);
                         }
                     }
                     if (wrote)
@@ -339,7 +339,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         public virtual EntityKey CreateKey(
             [NotNull] IEntityType entityType,
             [NotNull] IReadOnlyList<IProperty> properties,
-            [NotNull] IPropertyAccessor propertyBagEntry) => _metadataServices.CreateKey(entityType, properties, propertyBagEntry);
+            [NotNull] IPropertyAccessor propertyAccessor) => _metadataServices.CreateKey(entityType, properties, propertyAccessor);
 
         public virtual EntityKey GetDependentKeySnapshot([NotNull] IForeignKey foreignKey)
             => CreateKey(foreignKey.ReferencedEntityType, foreignKey.Properties, RelationshipsSnapshot);

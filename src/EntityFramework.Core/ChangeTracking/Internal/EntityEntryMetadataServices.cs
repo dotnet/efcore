@@ -50,9 +50,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         public virtual EntityKey CreateKey(
             [NotNull] IEntityType entityType,
             [NotNull] IReadOnlyList<IProperty> properties,
-            [NotNull] IPropertyAccessor propertyBagEntry)
+            [NotNull] IPropertyAccessor propertyAccessor)
             => _entityKeyFactorySource
                 .GetKeyFactory(properties)
-                .Create(entityType, properties, propertyBagEntry);
+                .Create(entityType, properties, propertyAccessor);
     }
 }

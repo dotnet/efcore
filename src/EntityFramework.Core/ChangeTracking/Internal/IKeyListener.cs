@@ -6,9 +6,8 @@ using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
-    public interface IPropertyListener
+    public interface IKeyListener
     {
-        void PropertyChanged([NotNull] InternalEntityEntry entry, [NotNull] IPropertyBase property);
-        void PropertyChanging([NotNull] InternalEntityEntry entry, [NotNull] IPropertyBase property);
+        void KeyPropertyChanged([NotNull] InternalEntityEntry entry, [NotNull] IProperty property, [CanBeNull] object oldValue, [CanBeNull] object newValue);
     }
 }

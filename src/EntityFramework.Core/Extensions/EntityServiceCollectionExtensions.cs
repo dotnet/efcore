@@ -34,7 +34,9 @@ namespace Microsoft.Framework.DependencyInjection
             // TODO: Is this the appropriate way to register listeners?
             serviceCollection
                 .AddScoped<IEntityStateListener>(p => p.GetService<NavigationFixer>())
-                .AddScoped<IRelationshipListener>(p => p.GetService<NavigationFixer>())
+                .AddScoped<IForeignKeyListener>(p => p.GetService<NavigationFixer>())
+                .AddScoped<INavigationListener>(p => p.GetService<NavigationFixer>())
+                .AddScoped<IKeyListener>(p => p.GetService<NavigationFixer>())
                 .AddScoped<IPropertyListener>(p => p.GetService<ChangeDetector>());
 
             serviceCollection.TryAdd(new ServiceCollection()

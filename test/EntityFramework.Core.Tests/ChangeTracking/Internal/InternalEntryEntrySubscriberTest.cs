@@ -143,14 +143,6 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             public IPropertyBase Changing { get; set; }
             public IPropertyBase Changed { get; set; }
 
-            public void SidecarPropertyChanged(InternalEntityEntry entry, IPropertyBase property)
-            {
-            }
-
-            public void SidecarPropertyChanging(InternalEntityEntry entry, IPropertyBase property)
-            {
-            }
-
             public void PropertyChanged(InternalEntityEntry entry, IPropertyBase property)
             {
                 Changed = property;

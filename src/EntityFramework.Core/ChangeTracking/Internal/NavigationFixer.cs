@@ -12,7 +12,7 @@ using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
-    public class NavigationFixer : IEntityStateListener, IRelationshipListener
+    public class NavigationFixer : IEntityStateListener, IForeignKeyListener, INavigationListener, IKeyListener
     {
         private readonly ClrPropertySetterSource _setterSource;
         private readonly ClrPropertyGetterSource _getterSource;
@@ -156,7 +156,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             }
         }
 
-        public virtual void PrincipalKeyPropertyChanged(InternalEntityEntry entry, IProperty property, object oldValue, object newValue)
+        public virtual void KeyPropertyChanged(InternalEntityEntry entry, IProperty property, object oldValue, object newValue)
         {
             // We don't prevent recursive entry here because changed of principal key can have cascading effects
             // when principal key is also foreign key.

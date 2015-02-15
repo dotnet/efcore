@@ -30,26 +30,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             _model = model;
         }
 
-        public virtual void SidecarPropertyChanged(InternalEntityEntry entry, IPropertyBase propertyBase)
-        {
-            var property = propertyBase as IProperty;
-            if (property == null)
-            {
-                return;
-            }
-
-            var snapshot = entry.TryGetSidecar(Sidecar.WellKnownNames.RelationshipsSnapshot);
-            if (snapshot == null)
-            {
-                return;
-            }
-
-            DetectKeyChange(entry, property, snapshot);
-        }
-
-        public virtual void SidecarPropertyChanging(InternalEntityEntry entry, IPropertyBase propertyBase) 
-            => PropertyChanging(entry, propertyBase);
-
         public virtual void PropertyChanged(InternalEntityEntry entry, IPropertyBase propertyBase)
         {
             var snapshot = entry.TryGetSidecar(Sidecar.WellKnownNames.RelationshipsSnapshot);

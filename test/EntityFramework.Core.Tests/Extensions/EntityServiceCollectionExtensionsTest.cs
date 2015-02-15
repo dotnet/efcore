@@ -76,7 +76,9 @@ namespace Microsoft.Data.Entity.Tests
             var service = _serviceProvider.GetRequiredService<DbContextService<IDbContextOptions>>().Service;
 
             VerifyScoped<IEntityStateListener>(isExistingReplaced: true);
-            VerifyScoped<IRelationshipListener>(isExistingReplaced: true);
+            VerifyScoped<IForeignKeyListener>(isExistingReplaced: true);
+            VerifyScoped<INavigationListener>(isExistingReplaced: true);
+            VerifyScoped<IKeyListener>(isExistingReplaced: true);
             VerifyScoped<IPropertyListener>(isExistingReplaced: true);
         }
 
