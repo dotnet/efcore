@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.InMemory
 
         public override object Next(IProperty property)
         {
-            Check.NotNull(property, "property");
+            Check.NotNull(property, nameof(property));
 
             return Convert.ChangeType(Interlocked.Increment(ref _current), property.PropertyType.UnwrapNullableType());
         }

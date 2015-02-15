@@ -10,20 +10,20 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.SqlServer
 {
-    public class SqlServerSequenceValueGeneratorFactory : IValueGeneratorFactory
+    public class SqlServerSequenceValueGeneratorFactory : ValueGeneratorFactory
     {
         private readonly SqlStatementExecutor _executor;
 
         public SqlServerSequenceValueGeneratorFactory([NotNull] SqlStatementExecutor executor)
         {
-            Check.NotNull(executor, "executor");
+            Check.NotNull(executor, nameof(executor));
 
             _executor = executor;
         }
 
         public virtual int GetBlockSize([NotNull] IProperty property)
         {
-            Check.NotNull(property, "property");
+            Check.NotNull(property, nameof(property));
 
             var incrementBy = property.SqlServer().TryGetSequence().IncrementBy;
 
@@ -37,32 +37,32 @@ namespace Microsoft.Data.Entity.SqlServer
 
         public virtual string GetSequenceName([NotNull] IProperty property)
         {
-            Check.NotNull(property, "property");
+            Check.NotNull(property, nameof(property));
 
             var sequence = property.SqlServer().TryGetSequence();
 
             return (sequence.Schema == null ? "" : (sequence.Schema + ".")) + sequence.Name;
         }
 
-        public virtual IValueGenerator Create(IProperty property)
+        public override ValueGenerator Create(IProperty property)
         {
-            Check.NotNull(property, "property");
+            Check.NotNull(property, nameof(property));
 
             return new SqlServerSequenceValueGenerator(_executor, GetSequenceName(property), GetBlockSize(property));
         }
 
-        public virtual int GetPoolSize(IProperty property)
+        public override int GetPoolSize(IProperty property)
         {
-            Check.NotNull(property, "property");
+            Check.NotNull(property, nameof(property));
 
             // TODO: Allow configuration without creation of derived factory type
             // Issue #778
             return 5;
         }
 
-        public virtual string GetCacheKey(IProperty property)
+        public override string GetCacheKey(IProperty property)
         {
-            Check.NotNull(property, "property");
+            Check.NotNull(property, nameof(property));
 
             return GetSequenceName(property);
         }

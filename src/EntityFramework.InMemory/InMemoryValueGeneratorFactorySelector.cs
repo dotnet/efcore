@@ -21,14 +21,14 @@ namespace Microsoft.Data.Entity.InMemory
             [NotNull] ValueGeneratorFactory<TemporaryBinaryValueGenerator> binaryFactory)
             : base(guidFactory, integerFactory, stringFactory, binaryFactory)
         {
-            Check.NotNull(inMemoryFactory, "inMemoryFactory");
+            Check.NotNull(inMemoryFactory, nameof(inMemoryFactory));
 
             _inMemoryFactory = inMemoryFactory;
         }
 
-        public override IValueGeneratorFactory Select(IProperty property)
+        public override ValueGeneratorFactory Select(IProperty property)
         {
-            Check.NotNull(property, "property");
+            Check.NotNull(property, nameof(property));
 
             return property.PropertyType.IsInteger()
                 ? _inMemoryFactory

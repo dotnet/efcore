@@ -18,8 +18,8 @@ namespace Microsoft.Data.Entity.Tests.ValueGeneration
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(AnEntity));
 
-            var contextServices = TestHelpers.Instance.CreateContextServices(new ServiceCollection().AddSingleton<ValueGeneratorFactorySelector>(), model);
-            var selector = contextServices.GetRequiredService<ValueGeneratorFactorySelector>();
+            var contextServices = TestHelpers.Instance.CreateContextServices(new ServiceCollection().AddSingleton<ConcreteValueGeneratorFactorySelector>(), model);
+            var selector = contextServices.GetRequiredService<ConcreteValueGeneratorFactorySelector>();
 
             Assert.IsType<ValueGeneratorFactory<TemporaryIntegerValueGenerator>>(selector.Select(entityType.GetProperty("Id")));
             Assert.IsType<ValueGeneratorFactory<TemporaryIntegerValueGenerator>>(selector.Select(entityType.GetProperty("Long")));
@@ -48,8 +48,8 @@ namespace Microsoft.Data.Entity.Tests.ValueGeneration
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(AnEntity));
 
-            var contextServices = TestHelpers.Instance.CreateContextServices(new ServiceCollection().AddSingleton<ValueGeneratorFactorySelector>(), model);
-            var selector = contextServices.GetRequiredService<ValueGeneratorFactorySelector>();
+            var contextServices = TestHelpers.Instance.CreateContextServices(new ServiceCollection().AddSingleton<ConcreteValueGeneratorFactorySelector>(), model);
+            var selector = contextServices.GetRequiredService<ConcreteValueGeneratorFactorySelector>();
 
             Assert.Equal(
                 Strings.NoValueGenerator("Float", "AnEntity", typeof(float).Name),
@@ -91,6 +91,18 @@ namespace Microsoft.Data.Entity.Tests.ValueGeneration
             public Guid Guid { get; set; }
             public byte[] Binary { get; set; }
             public float Float { get; set; }
+        }
+
+        private class ConcreteValueGeneratorFactorySelector : ValueGeneratorFactorySelector
+        {
+            public ConcreteValueGeneratorFactorySelector(
+                ValueGeneratorFactory<GuidValueGenerator> guidFactory, 
+                ValueGeneratorFactory<TemporaryIntegerValueGenerator> integerFactory, 
+                ValueGeneratorFactory<TemporaryStringValueGenerator> stringFactory, 
+                ValueGeneratorFactory<TemporaryBinaryValueGenerator> binaryFactory)
+                : base(guidFactory, integerFactory, stringFactory, binaryFactory)
+            {
+            }
         }
     }
 }

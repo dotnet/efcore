@@ -467,7 +467,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
         private class InMemoryTemporaryValueGeneratorFactory : ValueGeneratorFactory<InMemoryValueGenerator>
         {
-            public override IValueGenerator Create(IProperty property)
+            public override ValueGenerator Create(IProperty property)
             {
                 return new TemporaryIntegerValueGenerator();
             }

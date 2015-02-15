@@ -9,23 +9,14 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.ValueGeneration
 {
-    public class ValueGeneratorFactorySelector
+    public abstract class ValueGeneratorFactorySelector
     {
         private readonly ValueGeneratorFactory<GuidValueGenerator> _guidFactory;
         private readonly ValueGeneratorFactory<TemporaryIntegerValueGenerator> _integerFactory;
         private readonly ValueGeneratorFactory<TemporaryStringValueGenerator> _stringFactory;
         private readonly ValueGeneratorFactory<TemporaryBinaryValueGenerator> _binaryFactory;
 
-        /// <summary>
-        ///     This constructor is intended only for use when creating test doubles that will override members
-        ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
-        ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
-        /// </summary>
-        protected ValueGeneratorFactorySelector()
-        {
-        }
-
-        public ValueGeneratorFactorySelector(
+        protected ValueGeneratorFactorySelector(
             [NotNull] ValueGeneratorFactory<GuidValueGenerator> guidFactory,
             [NotNull] ValueGeneratorFactory<TemporaryIntegerValueGenerator> integerFactory,
             [NotNull] ValueGeneratorFactory<TemporaryStringValueGenerator> stringFactory,
@@ -42,7 +33,7 @@ namespace Microsoft.Data.Entity.ValueGeneration
             _binaryFactory = binaryFactory;
         }
 
-        public virtual IValueGeneratorFactory Select([NotNull] IProperty property)
+        public virtual ValueGeneratorFactory Select([NotNull] IProperty property)
         {
             Check.NotNull(property, nameof(property));
 

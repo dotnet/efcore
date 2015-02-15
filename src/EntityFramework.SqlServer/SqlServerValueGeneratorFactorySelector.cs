@@ -24,16 +24,16 @@ namespace Microsoft.Data.Entity.SqlServer
             [NotNull] ValueGeneratorFactory<SequentialGuidValueGenerator> sequentialGuidFactory)
             : base(guidFactory, integerFactory, stringFactory, binaryFactory)
         {
-            Check.NotNull(sequenceFactory, "sequenceFactory");
-            Check.NotNull(sequentialGuidFactory, "sequentialGuidFactory");
+            Check.NotNull(sequenceFactory, nameof(sequenceFactory));
+            Check.NotNull(sequentialGuidFactory, nameof(sequentialGuidFactory));
 
             _sequenceFactory = sequenceFactory;
             _sequentialGuidFactory = sequentialGuidFactory;
         }
 
-        public override IValueGeneratorFactory Select(IProperty property)
+        public override ValueGeneratorFactory Select(IProperty property)
         {
-            Check.NotNull(property, "property");
+            Check.NotNull(property, nameof(property));
 
             var strategy = property.SqlServer().ValueGenerationStrategy
                            ?? property.EntityType.Model.SqlServer().ValueGenerationStrategy;

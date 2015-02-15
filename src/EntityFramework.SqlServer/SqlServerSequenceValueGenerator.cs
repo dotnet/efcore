@@ -21,12 +21,17 @@ namespace Microsoft.Data.Entity.SqlServer
             [NotNull] SqlStatementExecutor executor,
             [NotNull] string sequenceName,
             int blockSize)
-            : base(sequenceName, blockSize)
+            : base(blockSize)
         {
             Check.NotNull(executor, nameof(executor));
+            Check.NotEmpty(sequenceName, nameof(sequenceName));
+
+            SequenceName = sequenceName;
 
             _executor = executor;
         }
+
+        public virtual string SequenceName { get; }
 
         protected override long GetNewHighValue(IProperty property, DbContextService<DataStoreServices> dataStoreServices)
         {

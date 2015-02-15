@@ -9,17 +9,15 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.ValueGeneration
 {
-    public abstract class SimpleValueGenerator : IValueGenerator
+    public abstract class SimpleValueGenerator : ValueGenerator
     {
         public abstract object Next([NotNull] IProperty property);
 
-        public virtual object Next(IProperty property, DbContextService<DataStoreServices> dataStoreServices)
+        public override object Next(IProperty property, DbContextService<DataStoreServices> dataStoreServices)
         {
             Check.NotNull(property, nameof(property));
 
             return Next(property);
         }
-
-        public abstract bool GeneratesTemporaryValues { get; }
     }
 }

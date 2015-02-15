@@ -175,6 +175,7 @@
     <Compile Include="ValueGeneration\Internal\SingleValueGeneratorPoolTest.cs" />
     <Compile Include="ValueGeneration\Internal\ValueGeneratorCacheTest.cs" />
     <Compile Include="ValueGeneration\Internal\ValueGeneratorPoolTest.cs" />
+    <Compile Include="ValueGeneration\SequentialGuidValueGeneratorTest.cs" />
     <Compile Include="ValueGeneration\ValueGeneratorFactoryTest.cs" />
     <Compile Include="ValueGeneration\SimpleValueGeneratorTest.cs" />
     <Compile Include="ValueGeneration\TemporaryBinaryValueGeneratorTest.cs" />

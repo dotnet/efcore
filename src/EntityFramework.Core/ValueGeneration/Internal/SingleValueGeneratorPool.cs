@@ -8,13 +8,13 @@ namespace Microsoft.Data.Entity.ValueGeneration.Internal
 {
     public class SingleValueGeneratorPool : IValueGeneratorPool
     {
-        private readonly IValueGenerator _generator;
+        private readonly ValueGenerator _generator;
 
-        public SingleValueGeneratorPool([NotNull] IValueGeneratorFactory factory, [NotNull] IProperty property)
+        public SingleValueGeneratorPool([NotNull] ValueGeneratorFactory factory, [NotNull] IProperty property)
         {
             _generator = factory.Create(property);
         }
 
-        public virtual IValueGenerator GetGenerator() => _generator;
+        public virtual ValueGenerator GetGenerator() => _generator;
     }
 }

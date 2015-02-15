@@ -6,14 +6,14 @@ using System.Collections.Generic;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Tests;
+using Microsoft.Data.Entity.ValueGeneration;
 using Xunit;
 
-namespace Microsoft.Data.Entity.SqlServer.Tests
+namespace Microsoft.Data.Entity.Tests.ValueGeneration
 {
     public class SequentialGuidValueGeneratorTest
     {
-        private static readonly Model _model = SqlServerTestHelpers.Instance.BuildModelFor<WithGuid>();
+        private static readonly Model _model = TestHelpers.Instance.BuildModelFor<WithGuid>();
 
         [Fact]
         public void Can_get_next_values()

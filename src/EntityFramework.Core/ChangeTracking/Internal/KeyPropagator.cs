@@ -103,7 +103,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             return false;
         }
 
-        private IValueGenerator TryGetValueGenerator(IProperty property)
+        private ValueGenerator TryGetValueGenerator(IProperty property)
         {
             foreach (var foreignKey in property.EntityType.ForeignKeys)
             {

@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.ValueGeneration.Internal
             _selector = selector;
         }
 
-        public virtual IValueGenerator GetGenerator([NotNull] IProperty property)
+        public virtual ValueGenerator GetGenerator([NotNull] IProperty property)
         {
             var factory = _selector.Select(property);
             var pool = _cache.GetOrAdd(factory.GetCacheKey(property), k => CreatePool(property, factory));
@@ -37,7 +37,7 @@ namespace Microsoft.Data.Entity.ValueGeneration.Internal
             return pool.GetGenerator();
         }
 
-        private static IValueGeneratorPool CreatePool(IProperty property, IValueGeneratorFactory factory)
+        private static IValueGeneratorPool CreatePool(IProperty property, ValueGeneratorFactory factory)
         {
             var poolSize = factory.GetPoolSize(property);
             return poolSize == 1

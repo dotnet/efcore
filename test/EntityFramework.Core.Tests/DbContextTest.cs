@@ -1470,7 +1470,7 @@ namespace Microsoft.Data.Entity.Tests
                 .Returns(3);
 
             var valueGenMock = new Mock<ValueGeneratorCache>();
-            valueGenMock.Setup(m => m.GetGenerator(It.IsAny<IProperty>())).Returns(Mock.Of<IValueGenerator>());
+            valueGenMock.Setup(m => m.GetGenerator(It.IsAny<IProperty>())).Returns(Mock.Of<ValueGenerator>());
 
             var servicesMock = new Mock<DataStoreServices>();
             servicesMock.Setup(m => m.Store).Returns(store.Object);
@@ -1519,7 +1519,7 @@ namespace Microsoft.Data.Entity.Tests
                 .Returns(Task.FromResult(3));
 
             var valueGenMock = new Mock<ValueGeneratorCache>();
-            valueGenMock.Setup(m => m.GetGenerator(It.IsAny<IProperty>())).Returns(Mock.Of<IValueGenerator>());
+            valueGenMock.Setup(m => m.GetGenerator(It.IsAny<IProperty>())).Returns(Mock.Of<ValueGenerator>());
 
             var servicesMock = new Mock<DataStoreServices>();
             servicesMock.Setup(m => m.Store).Returns(store.Object);

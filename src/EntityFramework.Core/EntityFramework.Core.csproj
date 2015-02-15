@@ -317,10 +317,11 @@
     <Compile Include="ValueGeneration\Internal\SingleValueGeneratorPool.cs" />
     <Compile Include="ValueGeneration\Internal\ValueGeneratorCache.cs" />
     <Compile Include="ValueGeneration\Internal\ValueGeneratorPool.cs" />
-    <Compile Include="ValueGeneration\IValueGenerator.cs" />
-    <Compile Include="ValueGeneration\IValueGeneratorFactory.cs" />
-    <Compile Include="ValueGeneration\SimpleValueGenerator.cs" />
+    <Compile Include="ValueGeneration\ValueGenerator.cs" />
     <Compile Include="ValueGeneration\ValueGeneratorFactory.cs" />
+    <Compile Include="ValueGeneration\SequentialGuidValueGenerator.cs" />
+    <Compile Include="ValueGeneration\SimpleValueGenerator.cs" />
+    <Compile Include="ValueGeneration\ValueGeneratorFactory`.cs" />
     <Compile Include="ValueGeneration\TemporaryBinaryValueGenerator.cs" />
     <Compile Include="ValueGeneration\TemporaryIntegerValueGenerator.cs" />
     <Compile Include="ValueGeneration\TemporaryStringValueGenerator.cs" />

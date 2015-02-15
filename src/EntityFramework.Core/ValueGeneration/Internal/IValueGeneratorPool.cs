@@ -5,6 +5,6 @@ namespace Microsoft.Data.Entity.ValueGeneration.Internal
 {
     public interface IValueGeneratorPool
     {
-        IValueGenerator GetGenerator();
+        ValueGenerator GetGenerator();
     }
 }

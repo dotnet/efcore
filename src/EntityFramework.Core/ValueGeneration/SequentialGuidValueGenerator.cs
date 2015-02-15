@@ -3,11 +3,10 @@
 
 using System;
 using System.Threading;
-using Microsoft.Data.Entity.ValueGeneration;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.Entity.SqlServer
+namespace Microsoft.Data.Entity.ValueGeneration
 {
     public class SequentialGuidValueGenerator : SimpleValueGenerator
     {
@@ -15,7 +14,7 @@ namespace Microsoft.Data.Entity.SqlServer
 
         public override object Next(IProperty property)
         {
-            Check.NotNull(property, "property");
+            Check.NotNull(property, nameof(property));
 
             var guidBytes = Guid.NewGuid().ToByteArray();
             var counterBytes = BitConverter.GetBytes(Interlocked.Increment(ref _counter));

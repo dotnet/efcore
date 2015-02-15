@@ -8,12 +8,12 @@ using Microsoft.Data.Entity.Storage;
 
 namespace Microsoft.Data.Entity.ValueGeneration
 {
-    public interface IValueGenerator
+    public abstract class ValueGenerator
     {
-        object Next(
-            [NotNull] IProperty property,
+        public abstract object Next(
+            [NotNull] IProperty property, 
             [NotNull] DbContextService<DataStoreServices> dataStoreServices);
 
-        bool GeneratesTemporaryValues { get; }
+        public abstract bool GeneratesTemporaryValues { get; }
     }
 }

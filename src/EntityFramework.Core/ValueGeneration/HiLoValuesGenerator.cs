@@ -12,28 +12,23 @@ using Microsoft.Data.Entity.Utilities;
 namespace Microsoft.Data.Entity.ValueGeneration
 {
     /// <summary>
-    ///     Acts as a <see cref="IValueGenerator" />  by requesting a block of values from the
+    ///     Acts as a <see cref="ValueGenerator" />  by requesting a block of values from the
     ///     underlying data store and returning them one by one. Will ask the underlying
     ///     data store for another block when the current block is exhausted.
     /// </summary>
-    public abstract class HiLoValuesGenerator : IValueGenerator
+    public abstract class HiLoValuesGenerator : ValueGenerator
     {
         private readonly object _lock = new object();
         private HiLoValue _currentValue = new HiLoValue(-1, 0);
 
-        protected HiLoValuesGenerator([NotNull] string sequenceName, int blockSize)
+        protected HiLoValuesGenerator(int blockSize)
         {
-            Check.NotEmpty(sequenceName, nameof(sequenceName));
-
-            SequenceName = sequenceName;
             BlockSize = blockSize;
         }
 
-        public virtual string SequenceName { get; }
-
         public virtual int BlockSize { get; }
 
-        public virtual object Next(IProperty property, DbContextService<DataStoreServices> dataStoreServices)
+        public override object Next(IProperty property, DbContextService<DataStoreServices> dataStoreServices)
         {
             Check.NotNull(property, nameof(property));
             Check.NotNull(dataStoreServices, nameof(dataStoreServices));
@@ -69,7 +64,7 @@ namespace Microsoft.Data.Entity.ValueGeneration
             [NotNull] IProperty property,
             [NotNull] DbContextService<DataStoreServices> dataStoreServices);
 
-        public virtual bool GeneratesTemporaryValues => false;
+        public override bool GeneratesTemporaryValues => false;
 
         private HiLoValue GetNextValue()
         {

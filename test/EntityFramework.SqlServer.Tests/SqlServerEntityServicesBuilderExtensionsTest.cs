@@ -34,7 +34,6 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             VerifySingleton<SqlServerModelBuilderFactory>();
             VerifySingleton<SqlServerValueGeneratorCache>();
             VerifySingleton<SqlServerValueGeneratorFactorySelector>();
-            VerifySingleton<ValueGeneratorFactory<SequentialGuidValueGenerator>>();
             VerifySingleton<SqlServerSequenceValueGeneratorFactory>();
             VerifySingleton<SqlServerSqlGenerator>();
             VerifySingleton<SqlStatementExecutor>();

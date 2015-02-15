@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.Tests.ValueGeneration.Internal
         {
             var property = CreateProperty();
 
-            var factoryMock = new Mock<IValueGeneratorFactory>();
+            var factoryMock = new Mock<ValueGeneratorFactory>();
             factoryMock.Setup(m => m.Create(property)).Returns(CreateValueGeneratorCallback);
 
             var pool = new ValueGeneratorPool(factoryMock.Object, property, poolSize: 3);
