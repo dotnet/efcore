@@ -9,7 +9,7 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.Entity.Identity
+namespace Microsoft.Data.Entity.ValueGeneration
 {
     public abstract class SimpleValueGenerator : IValueGenerator
     {
@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.Identity
 
         public virtual object Next(IProperty property, DbContextService<DataStoreServices> dataStoreServices)
         {
-            Check.NotNull(property, "property");
+            Check.NotNull(property, nameof(property));
 
             return Next(property);
         }
@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity.Identity
             DbContextService<DataStoreServices> dataStoreServices,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(property, "property");
+            Check.NotNull(property, nameof(property));
 
             return Task.FromResult(Next(property));
         }

@@ -2,13 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.InMemory;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.ValueGeneration;
 using Microsoft.Framework.DependencyInjection;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Tests.Identity
+namespace Microsoft.Data.Entity.Tests.ValueGeneration.Internal
 {
     public class ValueGeneratorCacheTest
     {
@@ -39,7 +39,7 @@ namespace Microsoft.Data.Entity.Tests.Identity
 
             var customServices = TestHelpers.Instance.CreateContextServices(
                 new ServiceCollection()
-                    .AddInstance<SimpleValueGeneratorFactory<GuidValueGenerator>>(new FakeGuidValueGeneratorFactory()),
+                    .AddInstance<ValueGeneratorFactory<GuidValueGenerator>>(new FakeGuidValueGeneratorFactory()),
                 model);
 
             var cache = customServices.GetRequiredService<InMemoryValueGeneratorCache>();
@@ -65,7 +65,7 @@ namespace Microsoft.Data.Entity.Tests.Identity
             Assert.Same(generator2b, cache.GetGenerator(property2));
         }
 
-        private class FakeGuidValueGeneratorFactory : SimpleValueGeneratorFactory<GuidValueGenerator>
+        private class FakeGuidValueGeneratorFactory : ValueGeneratorFactory<GuidValueGenerator>
         {
             public override int GetPoolSize(IProperty property)
             {

@@ -6,7 +6,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
-using Microsoft.Data.Entity.Identity;
+using Microsoft.Data.Entity.ValueGeneration;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
@@ -38,10 +38,10 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddScoped<IPropertyListener>(p => p.GetService<ChangeDetector>());
 
             serviceCollection.TryAdd(new ServiceCollection()
-                .AddSingleton<SimpleValueGeneratorFactory<TemporaryIntegerValueGenerator>>()
-                .AddSingleton<SimpleValueGeneratorFactory<TemporaryStringValueGenerator>>()
-                .AddSingleton<SimpleValueGeneratorFactory<TemporaryBinaryValueGenerator>>()
-                .AddSingleton<SimpleValueGeneratorFactory<GuidValueGenerator>>()
+                .AddSingleton<ValueGeneratorFactory<TemporaryIntegerValueGenerator>>()
+                .AddSingleton<ValueGeneratorFactory<TemporaryStringValueGenerator>>()
+                .AddSingleton<ValueGeneratorFactory<TemporaryBinaryValueGenerator>>()
+                .AddSingleton<ValueGeneratorFactory<GuidValueGenerator>>()
                 .AddSingleton<DbSetFinder>()
                 .AddSingleton<DbSetInitializer>()
                 .AddSingleton<DbSetSource>()
@@ -60,7 +60,7 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddSingleton<ICompiledQueryCache, CompiledQueryCache>()
                 .AddSingleton<ILoggerFactory, LoggerFactory>()
                 .AddTypeActivator()
-                .AddScoped<ForeignKeyValuePropagator>()
+                .AddScoped<KeyPropagator>()
                 .AddScoped<NavigationFixer>()
                 .AddScoped<StateManager>()
                 .AddScoped<InternalEntityEntryFactory>()

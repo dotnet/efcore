@@ -7,7 +7,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
-using Microsoft.Data.Entity.Identity;
+using Microsoft.Data.Entity.ValueGeneration;
 using Microsoft.Data.Entity.InMemory;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Framework.DependencyInjection;
@@ -1200,7 +1200,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
 
             var customServices = new ServiceCollection()
-                .AddSingleton<SimpleValueGeneratorFactory<InMemoryValueGenerator>, InMemoryTemporaryValueGeneratorFactory>();
+                .AddSingleton<ValueGeneratorFactory<InMemoryValueGenerator>, InMemoryTemporaryValueGeneratorFactory>();
 
             var entry = CreateInternalEntry(
                 TestHelpers.Instance.CreateContextServices(customServices, model),
@@ -1282,7 +1282,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entityType = model.GetEntityType(typeof(SecondDependent));
 
             var customServices = new ServiceCollection()
-                .AddSingleton<SimpleValueGeneratorFactory<InMemoryValueGenerator>, InMemoryTemporaryValueGeneratorFactory>();
+                .AddSingleton<ValueGeneratorFactory<InMemoryValueGenerator>, InMemoryTemporaryValueGeneratorFactory>();
 
             var entry = CreateInternalEntry(
                 TestHelpers.Instance.CreateContextServices(customServices, model),
@@ -1338,7 +1338,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             return modelBuilder.Model;
         }
 
-        private class InMemoryTemporaryValueGeneratorFactory : SimpleValueGeneratorFactory<InMemoryValueGenerator>
+        private class InMemoryTemporaryValueGeneratorFactory : ValueGeneratorFactory<InMemoryValueGenerator>
         {
             public override IValueGenerator Create(IProperty property)
             {

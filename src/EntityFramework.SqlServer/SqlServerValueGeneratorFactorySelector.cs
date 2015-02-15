@@ -3,25 +3,25 @@
 
 using System;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Identity;
+using Microsoft.Data.Entity.ValueGeneration;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.SqlServer.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.SqlServer
 {
-    public class SqlServerValueGeneratorSelector : ValueGeneratorSelector
+    public class SqlServerValueGeneratorFactorySelector : ValueGeneratorFactorySelector
     {
         private readonly SqlServerSequenceValueGeneratorFactory _sequenceFactory;
-        private readonly SimpleValueGeneratorFactory<SequentialGuidValueGenerator> _sequentialGuidFactory;
+        private readonly ValueGeneratorFactory<SequentialGuidValueGenerator> _sequentialGuidFactory;
 
-        public SqlServerValueGeneratorSelector(
-            [NotNull] SimpleValueGeneratorFactory<GuidValueGenerator> guidFactory,
-            [NotNull] SimpleValueGeneratorFactory<TemporaryIntegerValueGenerator> integerFactory,
-            [NotNull] SimpleValueGeneratorFactory<TemporaryStringValueGenerator> stringFactory,
-            [NotNull] SimpleValueGeneratorFactory<TemporaryBinaryValueGenerator> binaryFactory,
+        public SqlServerValueGeneratorFactorySelector(
+            [NotNull] ValueGeneratorFactory<GuidValueGenerator> guidFactory,
+            [NotNull] ValueGeneratorFactory<TemporaryIntegerValueGenerator> integerFactory,
+            [NotNull] ValueGeneratorFactory<TemporaryStringValueGenerator> stringFactory,
+            [NotNull] ValueGeneratorFactory<TemporaryBinaryValueGenerator> binaryFactory,
             [NotNull] SqlServerSequenceValueGeneratorFactory sequenceFactory,
-            [NotNull] SimpleValueGeneratorFactory<SequentialGuidValueGenerator> sequentialGuidFactory)
+            [NotNull] ValueGeneratorFactory<SequentialGuidValueGenerator> sequentialGuidFactory)
             : base(guidFactory, integerFactory, stringFactory, binaryFactory)
         {
             Check.NotNull(sequenceFactory, "sequenceFactory");

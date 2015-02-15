@@ -3,9 +3,8 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.Entity.Identity
+namespace Microsoft.Data.Entity.ValueGeneration.Internal
 {
     public class SingleValueGeneratorPool : IValueGeneratorPool
     {
@@ -13,15 +12,9 @@ namespace Microsoft.Data.Entity.Identity
 
         public SingleValueGeneratorPool([NotNull] IValueGeneratorFactory factory, [NotNull] IProperty property)
         {
-            Check.NotNull(factory, "factory");
-            Check.NotNull(property, "property");
-
             _generator = factory.Create(property);
         }
 
-        public virtual IValueGenerator GetGenerator()
-        {
-            return _generator;
-        }
+        public virtual IValueGenerator GetGenerator() => _generator;
     }
 }

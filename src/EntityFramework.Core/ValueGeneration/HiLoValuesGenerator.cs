@@ -10,23 +10,21 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.Entity.Identity
+namespace Microsoft.Data.Entity.ValueGeneration
 {
     /// <summary>
     ///     Acts as a <see cref="IValueGenerator" />  by requesting a block of values from the
     ///     underlying data store and returning them one by one. Will ask the underlying
     ///     data store for another block when the current block is exhausted.
     /// </summary>
-    public abstract class BlockOfSequentialValuesGenerator : IValueGenerator
+    public abstract class HiLoValuesGenerator : IValueGenerator
     {
         private readonly AsyncLock _lock = new AsyncLock();
         private SequenceValue _currentValue = new SequenceValue(-1, 0);
 
-        protected BlockOfSequentialValuesGenerator(
-            [NotNull] string sequenceName,
-            int blockSize)
+        protected HiLoValuesGenerator([NotNull] string sequenceName, int blockSize)
         {
-            Check.NotEmpty(sequenceName, "sequenceName");
+            Check.NotEmpty(sequenceName, nameof(sequenceName));
 
             SequenceName = sequenceName;
             BlockSize = blockSize;
@@ -38,8 +36,8 @@ namespace Microsoft.Data.Entity.Identity
 
         public virtual object Next(IProperty property, DbContextService<DataStoreServices> dataStoreServices)
         {
-            Check.NotNull(property, "property");
-            Check.NotNull(dataStoreServices, "dataStoreServices");
+            Check.NotNull(property, nameof(property));
+            Check.NotNull(dataStoreServices, nameof(dataStoreServices));
 
             var newValue = GetNextValue();
 
@@ -54,7 +52,7 @@ namespace Microsoft.Data.Entity.Identity
                     // case just get a value out of the new block instead of requesting one.
                     if (newValue.Max == _currentValue.Max)
                     {
-                        var newCurrent = GetNewCurrentValue(property, dataStoreServices);
+                        var newCurrent = GetNewHighValue(property, dataStoreServices);
                         newValue = new SequenceValue(newCurrent, newCurrent + BlockSize);
                         _currentValue = newValue;
                     }
@@ -73,8 +71,8 @@ namespace Microsoft.Data.Entity.Identity
             DbContextService<DataStoreServices> dataStoreServices,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(property, "property");
-            Check.NotNull(dataStoreServices, "dataStoreServices");
+            Check.NotNull(property, nameof(property));
+            Check.NotNull(dataStoreServices, nameof(dataStoreServices));
 
             var newValue = GetNextValue();
 
@@ -89,7 +87,7 @@ namespace Microsoft.Data.Entity.Identity
                 {
                     if (newValue.Max == _currentValue.Max)
                     {
-                        var newCurrent = await GetNewCurrentValueAsync(property, dataStoreServices, cancellationToken);
+                        var newCurrent = await GetNewHighValueAsync(property, dataStoreServices, cancellationToken);
                         newValue = new SequenceValue(newCurrent, newCurrent + BlockSize);
                         _currentValue = newValue;
                     }
@@ -103,11 +101,11 @@ namespace Microsoft.Data.Entity.Identity
             return Convert.ChangeType(newValue.Current, property.PropertyType.UnwrapNullableType());
         }
 
-        protected abstract long GetNewCurrentValue(
+        protected abstract long GetNewHighValue(
             [NotNull] IProperty property,
             [NotNull] DbContextService<DataStoreServices> dataStoreServices);
 
-        protected abstract Task<long> GetNewCurrentValueAsync(
+        protected abstract Task<long> GetNewHighValueAsync(
             [NotNull] IProperty property,
             [NotNull] DbContextService<DataStoreServices> dataStoreServices,
             CancellationToken cancellationToken);

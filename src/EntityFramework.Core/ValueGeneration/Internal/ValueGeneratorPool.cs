@@ -5,7 +5,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.Entity.Identity
+namespace Microsoft.Data.Entity.ValueGeneration.Internal
 {
     public class ValueGeneratorPool : IValueGeneratorPool
     {
@@ -14,9 +14,6 @@ namespace Microsoft.Data.Entity.Identity
 
         public ValueGeneratorPool([NotNull] IValueGeneratorFactory factory, [NotNull] IProperty property, int poolSize)
         {
-            Check.NotNull(factory, "factory");
-            Check.NotNull(property, "property");
-
             _pool = new ThreadSafeLazyRef<IValueGenerator>[poolSize];
             for (var i = 0; i < poolSize; i++)
             {

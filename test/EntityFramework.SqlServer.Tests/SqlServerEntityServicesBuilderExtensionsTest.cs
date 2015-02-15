@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.Data.Entity.Identity;
+using Microsoft.Data.Entity.ValueGeneration;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Migrations;
@@ -33,8 +33,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             // SQL Server dingletones
             VerifySingleton<SqlServerModelBuilderFactory>();
             VerifySingleton<SqlServerValueGeneratorCache>();
-            VerifySingleton<SqlServerValueGeneratorSelector>();
-            VerifySingleton<SimpleValueGeneratorFactory<SequentialGuidValueGenerator>>();
+            VerifySingleton<SqlServerValueGeneratorFactorySelector>();
+            VerifySingleton<ValueGeneratorFactory<SequentialGuidValueGenerator>>();
             VerifySingleton<SqlServerSequenceValueGeneratorFactory>();
             VerifySingleton<SqlServerSqlGenerator>();
             VerifySingleton<SqlStatementExecutor>();

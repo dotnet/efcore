@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.Data.Entity.Identity;
+using Microsoft.Data.Entity.ValueGeneration;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Tests;
 using Microsoft.Framework.DependencyInjection;
@@ -19,27 +19,27 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(AnEntity));
 
-            var selector = InMemoryTestHelpers.Instance.CreateContextServices(model).GetRequiredService<InMemoryValueGeneratorSelector>();
+            var selector = InMemoryTestHelpers.Instance.CreateContextServices(model).GetRequiredService<InMemoryValueGeneratorFactorySelector>();
 
-            Assert.IsType<SimpleValueGeneratorFactory<InMemoryValueGenerator>>(selector.Select(entityType.GetProperty("Id")));
-            Assert.IsType<SimpleValueGeneratorFactory<InMemoryValueGenerator>>(selector.Select(entityType.GetProperty("Long")));
-            Assert.IsType<SimpleValueGeneratorFactory<InMemoryValueGenerator>>(selector.Select(entityType.GetProperty("Short")));
-            Assert.IsType<SimpleValueGeneratorFactory<InMemoryValueGenerator>>(selector.Select(entityType.GetProperty("Byte")));
-            Assert.IsType<SimpleValueGeneratorFactory<InMemoryValueGenerator>>(selector.Select(entityType.GetProperty("NullableInt")));
-            Assert.IsType<SimpleValueGeneratorFactory<InMemoryValueGenerator>>(selector.Select(entityType.GetProperty("NullableLong")));
-            Assert.IsType<SimpleValueGeneratorFactory<InMemoryValueGenerator>>(selector.Select(entityType.GetProperty("NullableShort")));
-            Assert.IsType<SimpleValueGeneratorFactory<InMemoryValueGenerator>>(selector.Select(entityType.GetProperty("NullableByte")));
-            Assert.IsType<SimpleValueGeneratorFactory<InMemoryValueGenerator>>(selector.Select(entityType.GetProperty("UInt")));
-            Assert.IsType<SimpleValueGeneratorFactory<InMemoryValueGenerator>>(selector.Select(entityType.GetProperty("ULong")));
-            Assert.IsType<SimpleValueGeneratorFactory<InMemoryValueGenerator>>(selector.Select(entityType.GetProperty("UShort")));
-            Assert.IsType<SimpleValueGeneratorFactory<InMemoryValueGenerator>>(selector.Select(entityType.GetProperty("SByte")));
-            Assert.IsType<SimpleValueGeneratorFactory<InMemoryValueGenerator>>(selector.Select(entityType.GetProperty("NullableUInt")));
-            Assert.IsType<SimpleValueGeneratorFactory<InMemoryValueGenerator>>(selector.Select(entityType.GetProperty("NullableULong")));
-            Assert.IsType<SimpleValueGeneratorFactory<InMemoryValueGenerator>>(selector.Select(entityType.GetProperty("NullableUShort")));
-            Assert.IsType<SimpleValueGeneratorFactory<InMemoryValueGenerator>>(selector.Select(entityType.GetProperty("NullableSByte")));
-            Assert.IsType<SimpleValueGeneratorFactory<TemporaryStringValueGenerator>>(selector.Select(entityType.GetProperty("String")));
-            Assert.IsType<SimpleValueGeneratorFactory<GuidValueGenerator>>(selector.Select(entityType.GetProperty("Guid")));
-            Assert.IsType<SimpleValueGeneratorFactory<TemporaryBinaryValueGenerator>>(selector.Select(entityType.GetProperty("Binary")));
+            Assert.IsType<ValueGeneratorFactory<InMemoryValueGenerator>>(selector.Select(entityType.GetProperty("Id")));
+            Assert.IsType<ValueGeneratorFactory<InMemoryValueGenerator>>(selector.Select(entityType.GetProperty("Long")));
+            Assert.IsType<ValueGeneratorFactory<InMemoryValueGenerator>>(selector.Select(entityType.GetProperty("Short")));
+            Assert.IsType<ValueGeneratorFactory<InMemoryValueGenerator>>(selector.Select(entityType.GetProperty("Byte")));
+            Assert.IsType<ValueGeneratorFactory<InMemoryValueGenerator>>(selector.Select(entityType.GetProperty("NullableInt")));
+            Assert.IsType<ValueGeneratorFactory<InMemoryValueGenerator>>(selector.Select(entityType.GetProperty("NullableLong")));
+            Assert.IsType<ValueGeneratorFactory<InMemoryValueGenerator>>(selector.Select(entityType.GetProperty("NullableShort")));
+            Assert.IsType<ValueGeneratorFactory<InMemoryValueGenerator>>(selector.Select(entityType.GetProperty("NullableByte")));
+            Assert.IsType<ValueGeneratorFactory<InMemoryValueGenerator>>(selector.Select(entityType.GetProperty("UInt")));
+            Assert.IsType<ValueGeneratorFactory<InMemoryValueGenerator>>(selector.Select(entityType.GetProperty("ULong")));
+            Assert.IsType<ValueGeneratorFactory<InMemoryValueGenerator>>(selector.Select(entityType.GetProperty("UShort")));
+            Assert.IsType<ValueGeneratorFactory<InMemoryValueGenerator>>(selector.Select(entityType.GetProperty("SByte")));
+            Assert.IsType<ValueGeneratorFactory<InMemoryValueGenerator>>(selector.Select(entityType.GetProperty("NullableUInt")));
+            Assert.IsType<ValueGeneratorFactory<InMemoryValueGenerator>>(selector.Select(entityType.GetProperty("NullableULong")));
+            Assert.IsType<ValueGeneratorFactory<InMemoryValueGenerator>>(selector.Select(entityType.GetProperty("NullableUShort")));
+            Assert.IsType<ValueGeneratorFactory<InMemoryValueGenerator>>(selector.Select(entityType.GetProperty("NullableSByte")));
+            Assert.IsType<ValueGeneratorFactory<TemporaryStringValueGenerator>>(selector.Select(entityType.GetProperty("String")));
+            Assert.IsType<ValueGeneratorFactory<GuidValueGenerator>>(selector.Select(entityType.GetProperty("Guid")));
+            Assert.IsType<ValueGeneratorFactory<TemporaryBinaryValueGenerator>>(selector.Select(entityType.GetProperty("Binary")));
         }
 
         [Fact]
@@ -48,7 +48,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(AnEntity));
 
-            var selector = InMemoryTestHelpers.Instance.CreateContextServices(model).GetRequiredService<InMemoryValueGeneratorSelector>();
+            var selector = InMemoryTestHelpers.Instance.CreateContextServices(model).GetRequiredService<InMemoryValueGeneratorFactorySelector>();
 
             Assert.Equal(
                 CoreStrings.NoValueGenerator("Float", "AnEntity", typeof(float).Name),

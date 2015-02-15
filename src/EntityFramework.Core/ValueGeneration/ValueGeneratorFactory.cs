@@ -4,28 +4,28 @@
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.Entity.Identity
+namespace Microsoft.Data.Entity.ValueGeneration
 {
-    public class SimpleValueGeneratorFactory<TValueGenerator> : IValueGeneratorFactory
+    public class ValueGeneratorFactory<TValueGenerator> : IValueGeneratorFactory
         where TValueGenerator : IValueGenerator, new()
     {
         public virtual IValueGenerator Create(IProperty property)
         {
-            Check.NotNull(property, "property");
+            Check.NotNull(property, nameof(property));
 
             return new TValueGenerator();
         }
 
         public virtual int GetPoolSize(IProperty property)
         {
-            Check.NotNull(property, "property");
+            Check.NotNull(property, nameof(property));
 
             return 1;
         }
 
         public virtual string GetCacheKey(IProperty property)
         {
-            Check.NotNull(property, "property");
+            Check.NotNull(property, nameof(property));
 
             return property.EntityType.Name + "." + property.Name;
         }

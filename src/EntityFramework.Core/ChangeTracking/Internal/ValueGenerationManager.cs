@@ -3,10 +3,11 @@
 
 using System.Diagnostics;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.ValueGeneration;
+using Microsoft.Data.Entity.ValueGeneration.Internal;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
@@ -14,16 +15,16 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
     {
         private readonly DbContextService<ValueGeneratorCache> _valueGeneratorCache;
         private readonly DbContextService<DataStoreServices> _dataStoreServices;
-        private readonly ForeignKeyValuePropagator _foreignKeyValuePropagator;
+        private readonly KeyPropagator _keyPropagator;
 
         public ValueGenerationManager(
             [NotNull] DbContextService<ValueGeneratorCache> valueGeneratorCache,
             [NotNull] DbContextService<DataStoreServices> dataStoreServices,
-            [NotNull] ForeignKeyValuePropagator foreignKeyValuePropagator)
+            [NotNull] KeyPropagator keyPropagator)
         {
             _valueGeneratorCache = valueGeneratorCache;
             _dataStoreServices = dataStoreServices;
-            _foreignKeyValuePropagator = foreignKeyValuePropagator;
+            _keyPropagator = keyPropagator;
         }
 
         public virtual void Generate([NotNull] InternalEntityEntry entry)
@@ -37,7 +38,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                 {
                     if (isForeignKey)
                     {
-                        _foreignKeyValuePropagator.PropagateValue(entry, property);
+                        _keyPropagator.PropagateValue(entry, property);
                     }
                     else
                     {

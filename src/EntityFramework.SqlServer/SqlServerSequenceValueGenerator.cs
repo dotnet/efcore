@@ -6,7 +6,7 @@ using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Identity;
+using Microsoft.Data.Entity.ValueGeneration;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational;
@@ -15,7 +15,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.SqlServer
 {
-    public class SqlServerSequenceValueGenerator : BlockOfSequentialValuesGenerator
+    public class SqlServerSequenceValueGenerator : HiLoValuesGenerator
     {
         private readonly SqlStatementExecutor _executor;
 
@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.SqlServer
             _executor = executor;
         }
 
-        protected override long GetNewCurrentValue(IProperty property, DbContextService<DataStoreServices> dataStoreServices)
+        protected override long GetNewHighValue(IProperty property, DbContextService<DataStoreServices> dataStoreServices)
         {
             Check.NotNull(property, "property");
             Check.NotNull(dataStoreServices, "dataStoreServices");
@@ -41,7 +41,7 @@ namespace Microsoft.Data.Entity.SqlServer
             return (long)Convert.ChangeType(nextValue, typeof(long), CultureInfo.InvariantCulture);
         }
 
-        protected override async Task<long> GetNewCurrentValueAsync(
+        protected override async Task<long> GetNewHighValueAsync(
             IProperty property, DbContextService<DataStoreServices> dataStoreServices, CancellationToken cancellationToken)
         {
             Check.NotNull(property, "property");

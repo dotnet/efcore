@@ -4,14 +4,13 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
-using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Framework.DependencyInjection;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Tests.Identity
+namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 {
-    public class ForeignKeyValuePropagatorTest
+    public class KeyPropagatorTest
     {
         [Fact]
         public void Foreign_key_value_is_obtained_from_reference_to_principal()
@@ -25,7 +24,7 @@ namespace Microsoft.Data.Entity.Tests.Identity
             var dependentEntry = contextServices.GetRequiredService<StateManager>().GetOrCreateEntry(dependent);
             var property = model.GetEntityType(typeof(Product)).GetProperty("CategoryId");
 
-            PropagateValue(contextServices.GetRequiredService<ForeignKeyValuePropagator>(), dependentEntry, property);
+            PropagateValue(contextServices.GetRequiredService<KeyPropagator>(), dependentEntry, property);
 
             Assert.Equal(11, dependentEntry[property]);
         }
@@ -45,7 +44,7 @@ namespace Microsoft.Data.Entity.Tests.Identity
             var dependentEntry = manager.GetOrCreateEntry(dependent);
             var property = model.GetEntityType(typeof(Product)).GetProperty("CategoryId");
 
-            PropagateValue(contextServices.GetRequiredService<ForeignKeyValuePropagator>(), dependentEntry, property);
+            PropagateValue(contextServices.GetRequiredService<KeyPropagator>(), dependentEntry, property);
 
             Assert.Equal(11, dependentEntry[property]);
         }
@@ -62,7 +61,7 @@ namespace Microsoft.Data.Entity.Tests.Identity
             var dependentEntry = contextServices.GetRequiredService<StateManager>().GetOrCreateEntry(dependent);
             var property = model.GetEntityType(typeof(Product)).GetProperty("CategoryId");
 
-            PropagateValue(contextServices.GetRequiredService<ForeignKeyValuePropagator>(), dependentEntry, property);
+            PropagateValue(contextServices.GetRequiredService<KeyPropagator>(), dependentEntry, property);
 
             Assert.Equal(0, dependentEntry[property]);
         }
@@ -79,7 +78,7 @@ namespace Microsoft.Data.Entity.Tests.Identity
             var dependentEntry = contextServices.GetRequiredService<StateManager>().GetOrCreateEntry(dependent);
             var property = model.GetEntityType(typeof(ProductDetail)).GetProperty("Id");
 
-            PropagateValue(contextServices.GetRequiredService<ForeignKeyValuePropagator>(), dependentEntry, property);
+            PropagateValue(contextServices.GetRequiredService<KeyPropagator>(), dependentEntry, property);
 
             Assert.Equal(21, dependentEntry[property]);
         }
@@ -98,7 +97,7 @@ namespace Microsoft.Data.Entity.Tests.Identity
             var dependentEntry = manager.GetOrCreateEntry(dependent);
             var property = model.GetEntityType(typeof(ProductDetail)).GetProperty("Id");
 
-            PropagateValue(contextServices.GetRequiredService<ForeignKeyValuePropagator>(), dependentEntry, property);
+            PropagateValue(contextServices.GetRequiredService<KeyPropagator>(), dependentEntry, property);
 
             Assert.Equal(21, dependentEntry[property]);
         }
@@ -115,7 +114,7 @@ namespace Microsoft.Data.Entity.Tests.Identity
             var dependentEntry = contextServices.GetRequiredService<StateManager>().GetOrCreateEntry(dependent);
             var property = model.GetEntityType(typeof(ProductDetail)).GetProperty("Id");
 
-            PropagateValue(contextServices.GetRequiredService<ForeignKeyValuePropagator>(), dependentEntry, property);
+            PropagateValue(contextServices.GetRequiredService<KeyPropagator>(), dependentEntry, property);
 
             Assert.Equal(1, dependentEntry[property]);
         }
@@ -133,9 +132,9 @@ namespace Microsoft.Data.Entity.Tests.Identity
             var property1 = model.GetEntityType(typeof(OrderLineDetail)).GetProperty("OrderId");
             var property2 = model.GetEntityType(typeof(OrderLineDetail)).GetProperty("ProductId");
 
-            var valuePropagator = contextServices.GetRequiredService<ForeignKeyValuePropagator>();
-            PropagateValue(valuePropagator, dependentEntry, property1);
-            PropagateValue(valuePropagator, dependentEntry, property2);
+            var keyPropagator = contextServices.GetRequiredService<KeyPropagator>();
+            PropagateValue(keyPropagator, dependentEntry, property1);
+            PropagateValue(keyPropagator, dependentEntry, property2);
 
             Assert.Equal(11, dependentEntry[property1]);
             Assert.Equal(21, dependentEntry[property2]);
@@ -156,9 +155,9 @@ namespace Microsoft.Data.Entity.Tests.Identity
             var property1 = model.GetEntityType(typeof(OrderLineDetail)).GetProperty("OrderId");
             var property2 = model.GetEntityType(typeof(OrderLineDetail)).GetProperty("ProductId");
 
-            var valuePropagator = contextServices.GetRequiredService<ForeignKeyValuePropagator>();
-            PropagateValue(valuePropagator, dependentEntry, property1);
-            PropagateValue(valuePropagator, dependentEntry, property2);
+            var keyPropagator = contextServices.GetRequiredService<KeyPropagator>();
+            PropagateValue(keyPropagator, dependentEntry, property1);
+            PropagateValue(keyPropagator, dependentEntry, property2);
 
             Assert.Equal(11, dependentEntry[property1]);
             Assert.Equal(21, dependentEntry[property2]);
@@ -169,9 +168,9 @@ namespace Microsoft.Data.Entity.Tests.Identity
             return TestHelpers.Instance.CreateContextServices(model ?? BuildModel());
         }
 
-        private static void PropagateValue(ForeignKeyValuePropagator valuePropagator, InternalEntityEntry dependentEntry, IProperty property)
+        private static void PropagateValue(KeyPropagator keyPropagator, InternalEntityEntry dependentEntry, IProperty property)
         {
-            valuePropagator.PropagateValue(dependentEntry, property);
+            keyPropagator.PropagateValue(dependentEntry, property);
         }
 
         private class Category

@@ -82,6 +82,7 @@
     </Compile>
     <Compile Include="ChangeTracking\Internal\ArraySidecar.cs" />
     <Compile Include="ChangeTracking\Internal\ChangeDetector.cs" />
+    <Compile Include="ChangeTracking\Internal\KeyPropagator.cs" />
     <Compile Include="ChangeTracking\Internal\InternalClrEntityEntry.cs" />
     <Compile Include="ChangeTracking\Internal\CompositeEntityKey.cs" />
     <Compile Include="ChangeTracking\Internal\CompositeEntityKeyFactory.cs" />
@@ -117,8 +118,6 @@
     <Compile Include="ChangeTracking\Internal\ValueGenerationManager.cs" />
     <Compile Include="ChangeTracking\KeyValueEntityTracker.cs" />
     <Compile Include="DbContext.cs" />
-    <Compile Include="Identity\TemporaryBinaryValueGenerator.cs" />
-    <Compile Include="Identity\TemporaryStringValueGenerator.cs" />
     <Compile Include="Infrastructure\EntityFrameworkServicesBuilder.cs" />
     <Compile Include="Infrastructure\IAccessor.cs" />
     <Compile Include="ModelBuilder.cs" />
@@ -130,19 +129,6 @@
     <Compile Include="DbSet`.cs" />
     <Compile Include="EntityState.cs" />
     <Compile Include="Extensions\TaskExtensions.cs" />
-    <Compile Include="Identity\BlockOfSequentialValuesGenerator.cs" />
-    <Compile Include="Identity\ForeignKeyValuePropagator.cs" />
-    <Compile Include="Identity\GuidValueGenerator.cs" />
-    <Compile Include="Identity\IValueGenerator.cs" />
-    <Compile Include="Identity\IValueGeneratorFactory.cs" />
-    <Compile Include="Identity\IValueGeneratorPool.cs" />
-    <Compile Include="Identity\SimpleValueGenerator.cs" />
-    <Compile Include="Identity\SimpleValueGeneratorFactory.cs" />
-    <Compile Include="Identity\SingleValueGeneratorPool.cs" />
-    <Compile Include="Identity\TemporaryIntegerValueGenerator.cs" />
-    <Compile Include="Identity\ValueGeneratorCache.cs" />
-    <Compile Include="Identity\ValueGeneratorPool.cs" />
-    <Compile Include="Identity\ValueGeneratorSelector.cs" />
     <Compile Include="Infrastructure\DbContextConfigureOptions.cs" />
     <Compile Include="Infrastructure\DbContextOptionsParser.cs" />
     <Compile Include="Infrastructure\ModelSourceHelpers.cs" />
@@ -325,6 +311,20 @@
     <Compile Include="..\Shared\SharedTypeExtensions.cs">
       <Link>Extensions\Internal\SharedTypeExtensions.cs</Link>
     </Compile>
+    <Compile Include="ValueGeneration\GuidValueGenerator.cs" />
+    <Compile Include="ValueGeneration\HiLoValuesGenerator.cs" />
+    <Compile Include="ValueGeneration\Internal\IValueGeneratorPool.cs" />
+    <Compile Include="ValueGeneration\Internal\SingleValueGeneratorPool.cs" />
+    <Compile Include="ValueGeneration\Internal\ValueGeneratorCache.cs" />
+    <Compile Include="ValueGeneration\Internal\ValueGeneratorPool.cs" />
+    <Compile Include="ValueGeneration\IValueGenerator.cs" />
+    <Compile Include="ValueGeneration\IValueGeneratorFactory.cs" />
+    <Compile Include="ValueGeneration\SimpleValueGenerator.cs" />
+    <Compile Include="ValueGeneration\ValueGeneratorFactory.cs" />
+    <Compile Include="ValueGeneration\TemporaryBinaryValueGenerator.cs" />
+    <Compile Include="ValueGeneration\TemporaryIntegerValueGenerator.cs" />
+    <Compile Include="ValueGeneration\TemporaryStringValueGenerator.cs" />
+    <Compile Include="ValueGeneration\ValueGeneratorFactorySelector.cs" />
     <EmbeddedResource Include="Properties\Strings.resx">
       <LogicalName>EntityFramework.Core.Strings.resources</LogicalName>
       <SubType>Designer</SubType>

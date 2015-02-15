@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Identity;
+using Microsoft.Data.Entity.ValueGeneration;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational;
@@ -12,6 +12,7 @@ using Microsoft.Data.Entity.Relational.Migrations.Sql;
 using Microsoft.Data.Entity.SqlServer.Migrations;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
+using Microsoft.Data.Entity.ValueGeneration.Internal;
 
 namespace Microsoft.Data.Entity.SqlServer
 {

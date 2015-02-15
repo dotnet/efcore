@@ -4,13 +4,13 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.Identity;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.ValueGeneration;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Tests.Identity
+namespace Microsoft.Data.Entity.Tests.ValueGeneration
 {
     public class TemporaryStringValueGeneratorTest
     {

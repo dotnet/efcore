@@ -6,12 +6,13 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
-using Microsoft.Data.Entity.Identity;
+using Microsoft.Data.Entity.ValueGeneration;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.ValueGeneration.Internal;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
 using Microsoft.Framework.Logging;
@@ -24,10 +25,10 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public virtual void Services_wire_up_correctly()
         {
-            VerifySingleton<SimpleValueGeneratorFactory<TemporaryIntegerValueGenerator>>();
-            VerifySingleton<SimpleValueGeneratorFactory<TemporaryStringValueGenerator>>();
-            VerifySingleton<SimpleValueGeneratorFactory<TemporaryBinaryValueGenerator>>();
-            VerifySingleton<SimpleValueGeneratorFactory<GuidValueGenerator>>();
+            VerifySingleton<ValueGeneratorFactory<TemporaryIntegerValueGenerator>>();
+            VerifySingleton<ValueGeneratorFactory<TemporaryStringValueGenerator>>();
+            VerifySingleton<ValueGeneratorFactory<TemporaryBinaryValueGenerator>>();
+            VerifySingleton<ValueGeneratorFactory<GuidValueGenerator>>();
             VerifySingleton<DbSetFinder>();
             VerifySingleton<DbSetInitializer>();
             VerifySingleton<DbSetSource>();
@@ -47,7 +48,7 @@ namespace Microsoft.Data.Entity.Tests
             VerifySingleton<ILoggerFactory>();
             VerifySingleton<ITypeActivator>();
 
-            VerifyScoped<ForeignKeyValuePropagator>();
+            VerifyScoped<KeyPropagator>();
             VerifyScoped<NavigationFixer>();
             VerifyScoped<StateManager>();
             VerifyScoped<InternalEntityEntryFactory>();

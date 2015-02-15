@@ -5,15 +5,15 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Utilities;
+using Microsoft.Data.Entity.ValueGeneration;
+using Microsoft.Data.Entity.ValueGeneration.Internal;
 
-namespace Microsoft.Data.Entity.Identity
+namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
-    public class ForeignKeyValuePropagator
+    public class KeyPropagator
     {
         private readonly ClrPropertyGetterSource _getterSource;
         private readonly ClrCollectionAccessorSource _collectionAccessorSource;
@@ -25,21 +25,16 @@ namespace Microsoft.Data.Entity.Identity
         ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
         ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
         /// </summary>
-        protected ForeignKeyValuePropagator()
+        protected KeyPropagator()
         {
         }
 
-        public ForeignKeyValuePropagator(
+        public KeyPropagator(
             [NotNull] ClrPropertyGetterSource getterSource,
             [NotNull] ClrCollectionAccessorSource collectionAccessorSource,
             [NotNull] DbContextService<ValueGeneratorCache> valueGeneratorCache,
             [NotNull] DbContextService<DataStoreServices> storeServices)
         {
-            Check.NotNull(getterSource, "getterSource");
-            Check.NotNull(collectionAccessorSource, "collectionAccessorSource");
-            Check.NotNull(valueGeneratorCache, "valueGeneratorCache");
-            Check.NotNull(storeServices, "storeServices");
-
             _getterSource = getterSource;
             _collectionAccessorSource = collectionAccessorSource;
             _valueGeneratorCache = valueGeneratorCache;
@@ -48,9 +43,6 @@ namespace Microsoft.Data.Entity.Identity
 
         public virtual void PropagateValue([NotNull] InternalEntityEntry entry, [NotNull] IProperty property)
         {
-            Check.NotNull(entry, "entry");
-            Check.NotNull(property, "property");
-
             Debug.Assert(property.IsForeignKey());
 
             if (!TryPropagateValue(entry, property)

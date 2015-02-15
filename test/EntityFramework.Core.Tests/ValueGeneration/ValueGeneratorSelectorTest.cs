@@ -2,17 +2,15 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.Data.Entity.ValueGeneration;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.SqlServer.Metadata;
-using Microsoft.Data.Entity.Tests;
+using Microsoft.Data.Entity.ValueGeneration;
 using Microsoft.Framework.DependencyInjection;
 using Xunit;
-using CoreStrings = Microsoft.Data.Entity.Internal.Strings;
 
-namespace Microsoft.Data.Entity.SqlServer.Tests
+namespace Microsoft.Data.Entity.Tests.ValueGeneration
 {
-    public class SqlServerValueGeneratorSelectorTest
+    public class ValueGeneratorSelectorTest
     {
         [Fact]
         public void Returns_built_in_generators_for_types_setup_for_value_generation()
@@ -20,7 +18,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(AnEntity));
 
-            var selector = SqlServerTestHelpers.Instance.CreateContextServices(model).GetRequiredService<SqlServerValueGeneratorFactorySelector>();
+            var contextServices = TestHelpers.Instance.CreateContextServices(new ServiceCollection().AddSingleton<ValueGeneratorFactorySelector>(), model);
+            var selector = contextServices.GetRequiredService<ValueGeneratorFactorySelector>();
 
             Assert.IsType<ValueGeneratorFactory<TemporaryIntegerValueGenerator>>(selector.Select(entityType.GetProperty("Id")));
             Assert.IsType<ValueGeneratorFactory<TemporaryIntegerValueGenerator>>(selector.Select(entityType.GetProperty("Long")));
@@ -39,42 +38,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             Assert.IsType<ValueGeneratorFactory<TemporaryIntegerValueGenerator>>(selector.Select(entityType.GetProperty("NullableUShort")));
             Assert.IsType<ValueGeneratorFactory<TemporaryIntegerValueGenerator>>(selector.Select(entityType.GetProperty("NullableSByte")));
             Assert.IsType<ValueGeneratorFactory<TemporaryStringValueGenerator>>(selector.Select(entityType.GetProperty("String")));
-            Assert.IsType<ValueGeneratorFactory<SequentialGuidValueGenerator>>(selector.Select(entityType.GetProperty("Guid")));
+            Assert.IsType<ValueGeneratorFactory<GuidValueGenerator>>(selector.Select(entityType.GetProperty("Guid")));
             Assert.IsType<ValueGeneratorFactory<TemporaryBinaryValueGenerator>>(selector.Select(entityType.GetProperty("Binary")));
-            Assert.IsType<ValueGeneratorFactory<TemporaryIntegerValueGenerator>>(selector.Select(entityType.GetProperty("AlwaysIdentity")));
-            Assert.IsType<SqlServerSequenceValueGeneratorFactory>(selector.Select(entityType.GetProperty("AlwaysSequence")));
-        }
-
-        [Fact]
-        public void Returns_sequence_value_generators_when_configured_for_model()
-        {
-            var model = BuildModel();
-            model.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Sequence;
-            var entityType = model.GetEntityType(typeof(AnEntity));
-
-            var selector = SqlServerTestHelpers.Instance.CreateContextServices(model).GetRequiredService<SqlServerValueGeneratorFactorySelector>();
-
-            Assert.IsType<SqlServerSequenceValueGeneratorFactory>(selector.Select(entityType.GetProperty("Id")));
-            Assert.IsType<SqlServerSequenceValueGeneratorFactory>(selector.Select(entityType.GetProperty("Long")));
-            Assert.IsType<SqlServerSequenceValueGeneratorFactory>(selector.Select(entityType.GetProperty("Short")));
-            Assert.IsType<SqlServerSequenceValueGeneratorFactory>(selector.Select(entityType.GetProperty("Byte")));
-            Assert.IsType<SqlServerSequenceValueGeneratorFactory>(selector.Select(entityType.GetProperty("NullableInt")));
-            Assert.IsType<SqlServerSequenceValueGeneratorFactory>(selector.Select(entityType.GetProperty("NullableLong")));
-            Assert.IsType<SqlServerSequenceValueGeneratorFactory>(selector.Select(entityType.GetProperty("NullableShort")));
-            Assert.IsType<SqlServerSequenceValueGeneratorFactory>(selector.Select(entityType.GetProperty("NullableByte")));
-            Assert.IsType<SqlServerSequenceValueGeneratorFactory>(selector.Select(entityType.GetProperty("UInt")));
-            Assert.IsType<SqlServerSequenceValueGeneratorFactory>(selector.Select(entityType.GetProperty("ULong")));
-            Assert.IsType<SqlServerSequenceValueGeneratorFactory>(selector.Select(entityType.GetProperty("UShort")));
-            Assert.IsType<SqlServerSequenceValueGeneratorFactory>(selector.Select(entityType.GetProperty("SByte")));
-            Assert.IsType<SqlServerSequenceValueGeneratorFactory>(selector.Select(entityType.GetProperty("NullableUInt")));
-            Assert.IsType<SqlServerSequenceValueGeneratorFactory>(selector.Select(entityType.GetProperty("NullableULong")));
-            Assert.IsType<SqlServerSequenceValueGeneratorFactory>(selector.Select(entityType.GetProperty("NullableUShort")));
-            Assert.IsType<SqlServerSequenceValueGeneratorFactory>(selector.Select(entityType.GetProperty("NullableSByte")));
-            Assert.IsType<ValueGeneratorFactory<TemporaryStringValueGenerator>>(selector.Select(entityType.GetProperty("String")));
-            Assert.IsType<ValueGeneratorFactory<SequentialGuidValueGenerator>>(selector.Select(entityType.GetProperty("Guid")));
-            Assert.IsType<ValueGeneratorFactory<TemporaryBinaryValueGenerator>>(selector.Select(entityType.GetProperty("Binary")));
-            Assert.IsType<ValueGeneratorFactory<TemporaryIntegerValueGenerator>>(selector.Select(entityType.GetProperty("AlwaysIdentity")));
-            Assert.IsType<SqlServerSequenceValueGeneratorFactory>(selector.Select(entityType.GetProperty("AlwaysSequence")));
         }
 
         [Fact]
@@ -83,20 +48,18 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(AnEntity));
 
-            var selector = SqlServerTestHelpers.Instance.CreateContextServices(model).GetRequiredService<SqlServerValueGeneratorFactorySelector>();
+            var contextServices = TestHelpers.Instance.CreateContextServices(new ServiceCollection().AddSingleton<ValueGeneratorFactorySelector>(), model);
+            var selector = contextServices.GetRequiredService<ValueGeneratorFactorySelector>();
 
             Assert.Equal(
-                CoreStrings.NoValueGenerator("Float", "AnEntity", typeof(float).Name),
+                Strings.NoValueGenerator("Float", "AnEntity", typeof(float).Name),
                 Assert.Throws<NotSupportedException>(() => selector.Select(entityType.GetProperty("Float"))).Message);
         }
 
         private static Model BuildModel(bool generateValues = true)
         {
-            var model = SqlServerTestHelpers.Instance.BuildModelFor<AnEntity>();
+            var model = TestHelpers.Instance.BuildModelFor<AnEntity>();
             var entityType = model.GetEntityType(typeof(AnEntity));
-
-            entityType.GetProperty("AlwaysIdentity").SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Identity;
-            entityType.GetProperty("AlwaysSequence").SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Sequence;
 
             foreach (var property in entityType.Properties)
             {
@@ -128,8 +91,6 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             public Guid Guid { get; set; }
             public byte[] Binary { get; set; }
             public float Float { get; set; }
-            public int AlwaysIdentity { get; set; }
-            public int AlwaysSequence { get; set; }
         }
     }
 }

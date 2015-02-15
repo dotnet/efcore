@@ -79,6 +79,7 @@
     <Compile Include="ApiConsistencyTest.cs" />
     <Compile Include="ApiConsistencyTestBase.cs" />
     <Compile Include="ChangeTracking\Internal\ChangeDetectorTest.cs" />
+    <Compile Include="ChangeTracking\Internal\KeyPropagatorTest.cs" />
     <Compile Include="ChangeTracking\Internal\InternalClrEntityEntryTest.cs" />
     <Compile Include="ChangeTracking\Internal\CompositeEntityKeyFactoryTest.cs" />
     <Compile Include="ChangeTracking\Internal\CompositeEntityKeyTest.cs" />
@@ -113,17 +114,6 @@
     <Compile Include="Extensions\ForeignKeyExtensionsTest.cs" />
     <Compile Include="Extensions\ServiceProviderExtensionsTest.cs" />
     <Compile Include="Extensions\TaskExtensionsTest.cs" />
-    <Compile Include="Identity\ForeignKeyValuePropagatorTest.cs" />
-    <Compile Include="Identity\GuidValueGeneratorTest.cs" />
-    <Compile Include="Identity\SimpleValueGeneratorFactoryTest.cs" />
-    <Compile Include="Identity\SimpleValueGeneratorTest.cs" />
-    <Compile Include="Identity\SingleValueGeneratorPoolTest.cs" />
-    <Compile Include="Identity\TemporaryBinaryValueGeneratorTest.cs" />
-    <Compile Include="Identity\TemporaryIntegerValueGeneratorTest.cs" />
-    <Compile Include="Identity\TemporaryStringValueGeneratorTest.cs" />
-    <Compile Include="Identity\ValueGeneratorCacheTest.cs" />
-    <Compile Include="Identity\ValueGeneratorPoolTest.cs" />
-    <Compile Include="Identity\ValueGeneratorSelectorTest.cs" />
     <Compile Include="Metadata\BasicModelBuilderTest.cs" />
     <Compile Include="Metadata\CollectionTyoeFactoryTest.cs" />
     <Compile Include="Metadata\EntityTypeExtensionsTest.cs" />
@@ -181,6 +171,16 @@
     <Compile Include="Utilities\ThreadSafeDictionaryCacheTest.cs" />
     <Compile Include="Utilities\ThreadSafeLazyRefTest.cs" />
     <Compile Include="Utilities\TypeExtensionsTest.cs" />
+    <Compile Include="ValueGeneration\GuidValueGeneratorTest.cs" />
+    <Compile Include="ValueGeneration\Internal\SingleValueGeneratorPoolTest.cs" />
+    <Compile Include="ValueGeneration\Internal\ValueGeneratorCacheTest.cs" />
+    <Compile Include="ValueGeneration\Internal\ValueGeneratorPoolTest.cs" />
+    <Compile Include="ValueGeneration\ValueGeneratorFactoryTest.cs" />
+    <Compile Include="ValueGeneration\SimpleValueGeneratorTest.cs" />
+    <Compile Include="ValueGeneration\TemporaryBinaryValueGeneratorTest.cs" />
+    <Compile Include="ValueGeneration\TemporaryIntegerValueGeneratorTest.cs" />
+    <Compile Include="ValueGeneration\TemporaryStringValueGeneratorTest.cs" />
+    <Compile Include="ValueGeneration\ValueGeneratorSelectorTest.cs" />
     <None Include="packages.config" />
     <None Include="project.json" />
   </ItemGroup>

@@ -6,11 +6,11 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.Entity.Identity
+namespace Microsoft.Data.Entity.ValueGeneration.Internal
 {
     public class ValueGeneratorCache
     {
-        private readonly ValueGeneratorSelector _selector;
+        private readonly ValueGeneratorFactorySelector _selector;
 
         private readonly ThreadSafeDictionaryCache<string, IValueGeneratorPool> _cache
             = new ThreadSafeDictionaryCache<string, IValueGeneratorPool>();
@@ -24,17 +24,13 @@ namespace Microsoft.Data.Entity.Identity
         {
         }
 
-        public ValueGeneratorCache([NotNull] ValueGeneratorSelector selector)
+        public ValueGeneratorCache([NotNull] ValueGeneratorFactorySelector selector)
         {
-            Check.NotNull(selector, "selector");
-
             _selector = selector;
         }
 
         public virtual IValueGenerator GetGenerator([NotNull] IProperty property)
         {
-            Check.NotNull(property, "property");
-
             var factory = _selector.Select(property);
             var pool = _cache.GetOrAdd(factory.GetCacheKey(property), k => CreatePool(property, factory));
 

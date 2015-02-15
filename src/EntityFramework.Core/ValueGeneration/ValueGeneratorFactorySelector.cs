@@ -7,31 +7,34 @@ using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.Entity.Identity
+namespace Microsoft.Data.Entity.ValueGeneration
 {
-    public class ValueGeneratorSelector
+    public class ValueGeneratorFactorySelector
     {
-        private readonly SimpleValueGeneratorFactory<GuidValueGenerator> _guidFactory;
-        private readonly SimpleValueGeneratorFactory<TemporaryIntegerValueGenerator> _integerFactory;
-        private readonly SimpleValueGeneratorFactory<TemporaryStringValueGenerator> _stringFactory;
-        private readonly SimpleValueGeneratorFactory<TemporaryBinaryValueGenerator> _binaryFactory;
+        private readonly ValueGeneratorFactory<GuidValueGenerator> _guidFactory;
+        private readonly ValueGeneratorFactory<TemporaryIntegerValueGenerator> _integerFactory;
+        private readonly ValueGeneratorFactory<TemporaryStringValueGenerator> _stringFactory;
+        private readonly ValueGeneratorFactory<TemporaryBinaryValueGenerator> _binaryFactory;
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
         ///     with mocked or faked behavior. Use of this constructor for other purposes may result in unexpected
         ///     behavior including but not limited to throwing <see cref="NullReferenceException" />.
         /// </summary>
-        protected ValueGeneratorSelector()
+        protected ValueGeneratorFactorySelector()
         {
         }
 
-        public ValueGeneratorSelector(
-            [NotNull] SimpleValueGeneratorFactory<GuidValueGenerator> guidFactory,
-            [NotNull] SimpleValueGeneratorFactory<TemporaryIntegerValueGenerator> integerFactory,
-            [NotNull] SimpleValueGeneratorFactory<TemporaryStringValueGenerator> stringFactory,
-            [NotNull] SimpleValueGeneratorFactory<TemporaryBinaryValueGenerator> binaryFactory)
+        public ValueGeneratorFactorySelector(
+            [NotNull] ValueGeneratorFactory<GuidValueGenerator> guidFactory,
+            [NotNull] ValueGeneratorFactory<TemporaryIntegerValueGenerator> integerFactory,
+            [NotNull] ValueGeneratorFactory<TemporaryStringValueGenerator> stringFactory,
+            [NotNull] ValueGeneratorFactory<TemporaryBinaryValueGenerator> binaryFactory)
         {
-            Check.NotNull(guidFactory, "guidFactory");
+            Check.NotNull(guidFactory, nameof(guidFactory));
+            Check.NotNull(integerFactory, nameof(integerFactory));
+            Check.NotNull(stringFactory, nameof(stringFactory));
+            Check.NotNull(binaryFactory, nameof(binaryFactory));
 
             _guidFactory = guidFactory;
             _integerFactory = integerFactory;
@@ -41,7 +44,7 @@ namespace Microsoft.Data.Entity.Identity
 
         public virtual IValueGeneratorFactory Select([NotNull] IProperty property)
         {
-            Check.NotNull(property, "property");
+            Check.NotNull(property, nameof(property));
 
             var propertyType = property.PropertyType;
 

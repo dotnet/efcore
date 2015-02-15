@@ -3,22 +3,22 @@
 
 using System;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Identity;
+using Microsoft.Data.Entity.ValueGeneration;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.InMemory
 {
-    public class InMemoryValueGeneratorSelector : ValueGeneratorSelector
+    public class InMemoryValueGeneratorFactorySelector : ValueGeneratorFactorySelector
     {
-        private readonly SimpleValueGeneratorFactory<InMemoryValueGenerator> _inMemoryFactory;
+        private readonly ValueGeneratorFactory<InMemoryValueGenerator> _inMemoryFactory;
 
-        public InMemoryValueGeneratorSelector(
-            [NotNull] SimpleValueGeneratorFactory<GuidValueGenerator> guidFactory,
-            [NotNull] SimpleValueGeneratorFactory<InMemoryValueGenerator> inMemoryFactory,
-            [NotNull] SimpleValueGeneratorFactory<TemporaryIntegerValueGenerator> integerFactory,
-            [NotNull] SimpleValueGeneratorFactory<TemporaryStringValueGenerator> stringFactory,
-            [NotNull] SimpleValueGeneratorFactory<TemporaryBinaryValueGenerator> binaryFactory)
+        public InMemoryValueGeneratorFactorySelector(
+            [NotNull] ValueGeneratorFactory<GuidValueGenerator> guidFactory,
+            [NotNull] ValueGeneratorFactory<InMemoryValueGenerator> inMemoryFactory,
+            [NotNull] ValueGeneratorFactory<TemporaryIntegerValueGenerator> integerFactory,
+            [NotNull] ValueGeneratorFactory<TemporaryStringValueGenerator> stringFactory,
+            [NotNull] ValueGeneratorFactory<TemporaryBinaryValueGenerator> binaryFactory)
             : base(guidFactory, integerFactory, stringFactory, binaryFactory)
         {
             Check.NotNull(inMemoryFactory, "inMemoryFactory");

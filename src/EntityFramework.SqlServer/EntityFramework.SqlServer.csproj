@@ -129,7 +129,7 @@
       <DependentUpon>Strings.resx</DependentUpon>
     </Compile>
     <Compile Include="SqlServerValueGeneratorCache.cs" />
-    <Compile Include="SqlServerValueGeneratorSelector.cs" />
+    <Compile Include="SqlServerValueGeneratorFactorySelector.cs" />
     <Compile Include="Update\SqlServerModificationCommandBatch.cs" />
     <Compile Include="Utilities\EnumerableExtensions.cs" />
     <Compile Include="..\Shared\CodeAnnotations.cs" />

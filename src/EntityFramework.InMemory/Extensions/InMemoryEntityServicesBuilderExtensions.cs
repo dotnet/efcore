@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Identity;
+using Microsoft.Data.Entity.ValueGeneration;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.InMemory;
 using Microsoft.Data.Entity.Storage;
@@ -23,8 +23,8 @@ namespace Microsoft.Framework.DependencyInjection
                 .TryAdd(new ServiceCollection()
                     .AddSingleton<InMemoryModelBuilderFactory>()
                     .AddSingleton<InMemoryValueGeneratorCache>()
-                    .AddSingleton<InMemoryValueGeneratorSelector>()
-                    .AddSingleton<SimpleValueGeneratorFactory<InMemoryValueGenerator>>()
+                    .AddSingleton<InMemoryValueGeneratorFactorySelector>()
+                    .AddSingleton<ValueGeneratorFactory<InMemoryValueGenerator>>()
                     .AddSingleton<InMemoryDatabase>()
                     .AddSingleton<InMemoryModelSource>()
                     .AddScoped<InMemoryDataStoreServices>()

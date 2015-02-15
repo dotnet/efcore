@@ -5,15 +5,15 @@ using System;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.Entity.Identity
+namespace Microsoft.Data.Entity.ValueGeneration
 {
-    public class TemporaryBinaryValueGenerator : SimpleValueGenerator
+    public class TemporaryStringValueGenerator : SimpleValueGenerator
     {
         public override object Next(IProperty property)
         {
-            Check.NotNull(property, "property");
+            Check.NotNull(property, nameof(property));
 
-            return Guid.NewGuid().ToByteArray();
+            return Guid.NewGuid().ToString();
         }
 
         public override bool GeneratesTemporaryValues => true;

@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Identity;
+using Microsoft.Data.Entity.ValueGeneration;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.SqlServer;
@@ -26,8 +26,8 @@ namespace Microsoft.Framework.DependencyInjection
                 .TryAdd(new ServiceCollection()
                     .AddSingleton<SqlServerModelBuilderFactory>()
                     .AddSingleton<SqlServerValueGeneratorCache>()
-                    .AddSingleton<SqlServerValueGeneratorSelector>()
-                    .AddSingleton<SimpleValueGeneratorFactory<SequentialGuidValueGenerator>>()
+                    .AddSingleton<SqlServerValueGeneratorFactorySelector>()
+                    .AddSingleton<ValueGeneratorFactory<SequentialGuidValueGenerator>>()
                     .AddSingleton<SqlServerSequenceValueGeneratorFactory>()
                     .AddSingleton<SqlServerSqlGenerator>()
                     .AddSingleton<SqlStatementExecutor>()

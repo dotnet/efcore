@@ -6,7 +6,7 @@ using System.Threading;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.Entity.Identity
+namespace Microsoft.Data.Entity.ValueGeneration
 {
     public class TemporaryIntegerValueGenerator : SimpleValueGenerator
     {
@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.Identity
 
         public override object Next(IProperty property)
         {
-            Check.NotNull(property, "property");
+            Check.NotNull(property, nameof(property));
 
             var generatedValue = Interlocked.Decrement(ref _current);
             var targetType = property.PropertyType.UnwrapNullableType();

@@ -4,7 +4,7 @@
 using System.ComponentModel;
 using System.Linq;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
-using Microsoft.Data.Entity.Identity;
+using Microsoft.Data.Entity.ValueGeneration;
 using Microsoft.Data.Entity.InMemory;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Framework.DependencyInjection;
@@ -374,7 +374,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             entity = entity ?? new Banana { Name = "Stand", Fk = 88 };
 
             var customServices = new ServiceCollection()
-                .AddSingleton<SimpleValueGeneratorFactory<InMemoryValueGenerator>, InMemoryTemporaryValueGeneratorFactory>();
+                .AddSingleton<ValueGeneratorFactory<InMemoryValueGenerator>, InMemoryTemporaryValueGeneratorFactory>();
 
             var entry = TestHelpers.Instance.CreateContextServices(customServices, _model)
                 .GetRequiredService<StateManager>()
@@ -465,7 +465,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             public string Fk2 { get; set; }
         }
 
-        private class InMemoryTemporaryValueGeneratorFactory : SimpleValueGeneratorFactory<InMemoryValueGenerator>
+        private class InMemoryTemporaryValueGeneratorFactory : ValueGeneratorFactory<InMemoryValueGenerator>
         {
             public override IValueGenerator Create(IProperty property)
             {
