@@ -17,6 +17,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 {
     public class ReverseEngineeringGenerator
     {
+        private const string DefaultFileExtension = ".cs";
         private readonly IServiceProvider _serviceProvider;
         private ILogger _logger;
 
@@ -29,6 +30,8 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 throw new ArgumentException(typeof(ReverseEngineeringGenerator).Name + " cannot find a service of type " + typeof(ILogger).Name);
             }
         }
+
+        public virtual string FileExtension { get; set; } = DefaultFileExtension;
 
         public ILogger Logger
         {
@@ -46,13 +49,12 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             var provider = GetProvider(providerAssembly);
             var metadataModel = GetMetadataModel(provider, configuration);
 
-            var dbContextGeneratorModel = new DbContextGeneratorModel()
+            var dbContextGeneratorModel = new DbContextGeneratorModel
             {
                 ClassName = configuration.ContextClassName,
                 Namespace = configuration.Namespace,
                 ProviderAssembly = configuration.ProviderAssembly.FullName,
                 ConnectionString = configuration.ConnectionString,
-                Filters = (configuration.Filters ?? string.Empty),
                 MetadataModel = metadataModel
             };
 
@@ -61,7 +63,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 provider.GetContextModelCodeGenerator(this, dbContextGeneratorModel);
             if (dbContextCodeGenerator == null)
             {
-                throw new InvalidProgramException(
+                throw new InvalidOperationException(
                     "Provider " + provider.GetType().FullName
                     + " did not provide a ContextModelCodeGeneratorContext");
             }
@@ -72,7 +74,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             // output DbContext .cs file
             using (var sourceStream = new MemoryStream(Encoding.UTF8.GetBytes(contextStringBuilder.ToString())))
             {
-                await OutputFile(configuration.OutputPath, dbContextCodeGenerator.ClassName + ".cs", sourceStream);
+                await OutputFile(configuration.OutputPath, dbContextCodeGenerator.ClassName + FileExtension, sourceStream);
             }
 
             foreach (var entityType in metadataModel.EntityTypes)
@@ -83,17 +85,16 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                     Namespace = configuration.Namespace,
                     ProviderAssembly = configuration.ProviderAssembly.FullName,
                     ConnectionString = configuration.ConnectionString,
-                    Filters = (configuration.Filters ?? ""),
                 };
 
                 //TODO - check to see whether user has an override class for this in the current project first
                 var entityTypeCodeGeneratorContext =
                     provider.GetEntityTypeModelCodeGenerator(
-                        this
-                        , entityTypeGeneratorModel);
+                        this,
+                        entityTypeGeneratorModel);
                 if (entityTypeCodeGeneratorContext == null)
                 {
-                    throw new InvalidProgramException(
+                    throw new InvalidOperationException(
                         "Provider " + provider.GetType().FullName
                         + " did not provide a EntityTypeModelCodeGeneratorContext");
                 }
@@ -104,9 +105,9 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 // output EntityType poco .cs file
                 using (var sourceStream = new MemoryStream(Encoding.UTF8.GetBytes(entityTypeStringBuilder.ToString())))
                 {
-                    await OutputFile(configuration.OutputPath
-                        , entityType.Name + ".cs"
-                        , sourceStream);
+                    await OutputFile(configuration.OutputPath,
+                        entityType.Name + FileExtension,
+                        sourceStream);
                 }
             }
         }
@@ -117,45 +118,24 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 .FirstOrDefault(t => typeof(IDatabaseMetadataModelProvider).IsAssignableFrom(t));
             if (type == null)
             {
-                throw new InvalidProgramException(
+                throw new InvalidOperationException(
                     "Assembly " + providerAssembly.FullName
                     + " does not contain a type which extends "
                     + typeof(IDatabaseMetadataModelProvider).FullName);
             }
 
-            IDatabaseMetadataModelProvider metadataModelProvider = null;
-            try
-            {
-                metadataModelProvider = (IDatabaseMetadataModelProvider)Activator.CreateInstance(type, _serviceProvider);
-            }
-            catch (Exception e)
-            {
-                throw new InvalidProgramException(
-                    "Unable to instantiate type " + type.FullName
-                    + " in assembly " + providerAssembly.FullName
-                    + ". Exception message: " + e.Message);
-            }
-
-            return metadataModelProvider;
+            return (IDatabaseMetadataModelProvider)Activator.CreateInstance(type, _serviceProvider);
         }
 
         public IModel GetMetadataModel(
             IDatabaseMetadataModelProvider provider, ReverseEngineeringConfiguration configuration)
         {
             var metadataModel = provider
-                .GenerateMetadataModel(configuration.ConnectionString, configuration.Filters);
+                .GenerateMetadataModel(configuration.ConnectionString);
             if (metadataModel == null)
             {
-                throw new InvalidProgramException("Model returned is null. Provider class " + provider.GetType()
-                    + ", connection string: " + configuration.ConnectionString
-                    + ", filters " + configuration.Filters);
-            }
-
-            if (metadataModel.EntityTypes.Count() == 0)
-            {
-                throw new InvalidProgramException("Model returned contains no EntityTypes. Provider class " + provider.GetType()
-                    + ", connection string: " + configuration.ConnectionString
-                    + ", filters " + configuration.Filters);
+                throw new InvalidOperationException("Model returned is null. Provider class " + provider.GetType()
+                    + ", connection string: " + configuration.ConnectionString);
             }
 
             return metadataModel;
@@ -163,10 +143,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 
         private async Task OutputFile(string outputDirectoryName, string outputFileName, Stream sourceStream)
         {
-            if (!Directory.Exists(outputDirectoryName))
-            {
-                Directory.CreateDirectory(outputDirectoryName);
-            }
+            Directory.CreateDirectory(outputDirectoryName);
 
             var fullFileName = Path.Combine(outputDirectoryName, outputFileName);
             if (File.Exists(fullFileName))

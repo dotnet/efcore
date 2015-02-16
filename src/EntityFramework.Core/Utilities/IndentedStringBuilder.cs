@@ -20,8 +20,10 @@ namespace Microsoft.Data.Entity.Utilities
         {
         }
 
-        public IndentedStringBuilder(IndentedStringBuilder from)
+        public IndentedStringBuilder([NotNull]IndentedStringBuilder from)
         {
+            Check.NotNull<IndentedStringBuilder>(from, nameof(from));
+
             _indent = from._indent;
         }
 
@@ -99,12 +101,12 @@ namespace Microsoft.Data.Entity.Utilities
             {
                 _stringBuilder = stringBuilder;
 
-                _stringBuilder._indent++;
+                _stringBuilder.IncrementIndent();
             }
 
             public void Dispose()
             {
-                _stringBuilder._indent--;
+                _stringBuilder.DecrementIndent();
             }
         }
     }

@@ -12,10 +12,6 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 {
     public abstract class EntityTypeCodeGenerator
     {
-        protected readonly ReverseEngineeringGenerator _generator;
-        private readonly IEntityType _entityType;
-        private readonly string _namespaceName;
-
         private List<string> _usedNamespaces = new List<string>()
                 {
                     "System",
@@ -29,49 +25,31 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             [NotNull]IEntityType entityType,
             [CanBeNull]string namespaceName)
         {
-            _generator = generator;
-            _entityType = entityType;
-            _namespaceName = namespaceName;
+            Generator = generator;
+            EntityType = entityType;
+            ClassNamespace = namespaceName;
         }
 
-        public virtual ReverseEngineeringGenerator Generator
-        {
-            get
-            {
-                return _generator;
-            }
-        }
+        public virtual ReverseEngineeringGenerator Generator { get; }
 
-        public virtual IEntityType EntityType
-        {
-            get
-            {
-                return _entityType;
-            }
-        }
+        public virtual IEntityType EntityType { get; }
 
         public virtual string ClassName
         {
             get
             {
-                return _entityType.Name;
+                return EntityType.Name;
             }
         }
 
-        public virtual string ClassNamespace
-        {
-            get
-            {
-                return _namespaceName;
-            }
-        }
+        public virtual string ClassNamespace { get; }
 
         public virtual void Generate(IndentedStringBuilder sb)
         {
             GenerateCommentHeader(sb);
             GenerateUsings(sb);
-            CSharpCodeGeneratorHelper.Instance.BeginNamespace(sb, ClassNamespace);
-            CSharpCodeGeneratorHelper.Instance.BeginClass(sb, AccessModifier.Public, ClassName, isPartial: true);
+            CSharpCodeGeneratorHelper.Instance.BeginNamespace(ClassNamespace, sb);
+            CSharpCodeGeneratorHelper.Instance.BeginClass(AccessModifier.Public, ClassName, isPartial: true, sb: sb);
             GenerateConstructors(sb);
             GenerateProperties(sb);
             CSharpCodeGeneratorHelper.Instance.EndClass(sb);
@@ -80,20 +58,19 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 
         public virtual void GenerateCommentHeader(IndentedStringBuilder sb)
         {
-            CSharpCodeGeneratorHelper.Instance.SingleLineComment(sb, string.Empty);
-            CSharpCodeGeneratorHelper.Instance.SingleLineComment(sb, "Generated code");
-            CSharpCodeGeneratorHelper.Instance.SingleLineComment(sb, string.Empty);
+            CSharpCodeGeneratorHelper.Instance.SingleLineComment(string.Empty, sb);
+            CSharpCodeGeneratorHelper.Instance.SingleLineComment("Generated code", sb);
+            CSharpCodeGeneratorHelper.Instance.SingleLineComment(string.Empty, sb);
             sb.AppendLine();
         }
 
         public virtual void GenerateUsings(IndentedStringBuilder sb)
         {
-            var originalNamespaces = new List<string>(_usedNamespaces);
             foreach (var @namespace in _usedNamespaces.Concat(
-                _entityType.Properties.Select(p => p.PropertyType.Namespace)
-                    .Distinct().Where(ns => !originalNamespaces.Contains(ns)).OrderBy(ns => ns)))
+                EntityType.Properties.Select(p => p.PropertyType.Namespace)
+                    .Distinct().Except(_usedNamespaces).OrderBy(ns => ns)))
             {
-                CSharpCodeGeneratorHelper.Instance.AddUsingStatement(sb, @namespace);
+                CSharpCodeGeneratorHelper.Instance.AddUsingStatement(@namespace, sb);
             }
 
             if (_usedNamespaces.Any())
@@ -109,7 +86,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 
         public virtual void GenerateZeroArgConstructor(IndentedStringBuilder sb)
         {
-            CSharpCodeGeneratorHelper.Instance.BeginConstructor(sb, AccessModifier.Public, ClassName);
+            CSharpCodeGeneratorHelper.Instance.BeginConstructor(AccessModifier.Public, ClassName, sb);
             GenerateZeroArgConstructorContents(sb);
             CSharpCodeGeneratorHelper.Instance.EndConstructor(sb);
         }
@@ -128,30 +105,17 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         {
             foreach(var property in OrderedEntityProperties())
             {
-                GenerateEntityProperty(sb, property);
+                GenerateEntityProperty(property, sb);
             }
         }
 
-        public abstract void GenerateEntityProperty(IndentedStringBuilder sb, IProperty property);
+        public abstract void GenerateEntityProperty(IProperty property, IndentedStringBuilder sb);
 
         public abstract void GenerateEntityNavigations(IndentedStringBuilder sb);
 
         public virtual IEnumerable<IProperty> OrderedEntityProperties()
         {
-            var primaryKeyProperties = _entityType.GetPrimaryKey().Properties.ToList();
-            foreach (var property in primaryKeyProperties)
-            {
-                yield return property;
-            }
-
-            var foreignKeyProperties = _entityType.ForeignKeys.SelectMany(fk => fk.Properties).Distinct().ToList();
-            foreach (var property in
-                _entityType.Properties
-                    .Where(p => !primaryKeyProperties.Contains(p) && !foreignKeyProperties.Contains(p))
-                    .OrderBy(p => p.Name))
-            {
-                yield return property;
-            }
+            return ModelUtilities.Instance.OrderedProperties(EntityType);
         }
     }
 }

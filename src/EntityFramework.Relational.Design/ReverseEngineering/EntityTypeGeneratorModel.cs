@@ -7,6 +7,6 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 {
     public class EntityTypeGeneratorModel : BaseGeneratorModel
     {
-        public IEntityType EntityType { get; set; }
+        public virtual IEntityType EntityType { get; set; }
     }
 }

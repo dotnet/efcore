@@ -12,6 +12,5 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         public string OutputPath { get; set; }
         public string Namespace { get; set; }
         public string ContextClassName { get; set; }
-        public string Filters { get; set; }
     }
 }

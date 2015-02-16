@@ -5,10 +5,9 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 {
     public class BaseGeneratorModel
     {
-        public string ClassName { get; set; }
-        public string Namespace { get; set; }
-        public string ProviderAssembly { get; set; }
-        public string ConnectionString { get; set; }
-        public string Filters { get; set; }
+        public virtual string ClassName { get; set; }
+        public virtual string Namespace { get; set; }
+        public virtual string ProviderAssembly { get; set; }
+        public virtual string ConnectionString { get; set; }
     }
 }

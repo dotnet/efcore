@@ -5,7 +5,8 @@
         "warningsAsErrors": true
     },
     "dependencies": {
-        "EntityFramework.Core": "7.0.0-*"
+        "EntityFramework.Core": "7.0.0-*",
+        "EntityFramework.Relational": "7.0.0-*"
     },
     "code": [ "**\\*.cs", "..\\Shared\\*.cs" ],
     "frameworks": {
@@ -24,6 +25,7 @@
                 "Microsoft.CSharp": "4.0.0-beta-*",
                 "System.Data.Common": "4.0.0-beta-*",
                 "System.Data.SqlClient": "4.0.0-beta-*",
+                "System.Reflection.Extensions": "4.0.0-beta-*",
                 "System.Text.RegularExpressions": "4.0.10-beta-*"
             }
         }

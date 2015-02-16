@@ -24,11 +24,11 @@ namespace Microsoft.Data.Entity.Commands
     {
         public static readonly string _defaultReverseEngineeringProviderAssembly = "EntityFramework.SqlServer.Design";
 
-        private readonly IServiceProvider _serviceProvider;
         private readonly string _projectDir;
         private readonly string _rootNamespace;
         private readonly ILibraryManager _libraryManager;
         private readonly MigrationTool _migrationTool;
+        private readonly DatabaseTool _databaseTool;
         private CommandLineApplication _app;
 
         public Program([NotNull] IServiceProvider serviceProvider,
@@ -38,7 +38,6 @@ namespace Microsoft.Data.Entity.Commands
             Check.NotNull(appEnv, nameof(appEnv));
             Check.NotNull(libraryManager, nameof(libraryManager));
 
-            _serviceProvider = serviceProvider;
             _projectDir = appEnv.ApplicationBasePath;
             _rootNamespace = appEnv.ApplicationName;
 
@@ -46,6 +45,7 @@ namespace Microsoft.Data.Entity.Commands
             var assemblyName = new AssemblyName(appEnv.ApplicationName);
             var assembly = Assembly.Load(assemblyName);
             _migrationTool = new MigrationTool(loggerProvider, assembly);
+            _databaseTool = new DatabaseTool(serviceProvider, loggerProvider);
             _libraryManager = libraryManager;
         }
 
@@ -304,22 +304,7 @@ namespace Microsoft.Data.Entity.Commands
                 return 1;
             }
 
-            var configuration = new ReverseEngineeringConfiguration()
-            {
-                ProviderAssembly = providerAssembly,
-                ConnectionString = connectionString,
-                OutputPath = _projectDir,
-                Namespace = _rootNamespace
-            };
-
-            var serviceProvider = new ServiceProvider(_serviceProvider);
-            var loggerFactory = new LoggerFactory();
-            var loggerProvider = new LoggerProvider(name => new ConsoleCommandLogger(name, verbose: true));
-            loggerFactory.AddProvider(loggerProvider);
-            var logger = loggerFactory.Create<ReverseEngineeringGenerator>();
-            serviceProvider.AddService(typeof(ILogger), logger);
-            var generator = new ReverseEngineeringGenerator(serviceProvider);
-            generator.Generate(configuration).Wait();
+            _databaseTool.ReverseEngineer(providerAssembly, connectionString, _rootNamespace, _projectDir);
 
             return 0;
         }

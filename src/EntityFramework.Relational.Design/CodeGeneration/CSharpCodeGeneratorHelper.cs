@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
@@ -20,20 +21,20 @@ namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
             }
         }
 
-        public virtual void SingleLineComment(IndentedStringBuilder sb, string comment)
+        public virtual void SingleLineComment(string comment, IndentedStringBuilder sb)
         {
             sb.Append("// ");
             sb.AppendLine(comment);
         }
 
-        public virtual void AddUsingStatement(IndentedStringBuilder sb, string @namespace)
+        public virtual void AddUsingStatement(string @namespace, IndentedStringBuilder sb)
         {
             sb.Append("using ");
             sb.Append(@namespace);
             sb.AppendLine(";");
         }
 
-        public virtual void BeginNamespace(IndentedStringBuilder sb, string classNamespace)
+        public virtual void BeginNamespace(string classNamespace, IndentedStringBuilder sb)
         {
             sb.Append("namespace ");
             sb.AppendLine(classNamespace);
@@ -47,10 +48,10 @@ namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
             sb.AppendLine("}");
         }
 
-        public virtual void BeginClass(IndentedStringBuilder sb, AccessModifier accessModifier,
-            string className, bool isPartial, ICollection<string> inheritsFrom = null)
+        public virtual void BeginClass(AccessModifier accessModifier, string className,
+            bool isPartial, IndentedStringBuilder sb, ICollection<string> inheritsFrom = null)
         {
-            AppendAccessModifier(sb, accessModifier);
+            AppendAccessModifier(accessModifier, sb);
             if (isPartial)
             {
                 sb.Append("partial ");
@@ -73,21 +74,21 @@ namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
             sb.AppendLine("}");
         }
 
-        public virtual void AddProperty(IndentedStringBuilder sb, AccessModifier accessModifier,
-            VirtualModifier virtualModifier, string propertyTypeName, string propertyName)
+        public virtual void AddProperty(AccessModifier accessModifier, VirtualModifier virtualModifier,
+            string propertyTypeName, string propertyName, IndentedStringBuilder sb)
         {
-            AppendAccessModifier(sb, accessModifier);
-            AppendVirtualModifier(sb, virtualModifier);
+            AppendAccessModifier(accessModifier, sb);
+            AppendVirtualModifier(virtualModifier, sb);
             sb.Append(propertyTypeName);
             sb.Append(" ");
             sb.Append(propertyName);
             sb.AppendLine(" { get; set; }");
         }
 
-        public virtual void AddProperty(IndentedStringBuilder sb, AccessModifier accessModifier,
-            VirtualModifier virtualModifier, Type propertyType, string propertyName)
+        public virtual void AddProperty(AccessModifier accessModifier, VirtualModifier virtualModifier,
+            Type propertyType, string propertyName, IndentedStringBuilder sb)
         {
-            AddProperty(sb, accessModifier, virtualModifier, GetTypeName(propertyType), propertyName);
+            AddProperty(accessModifier, virtualModifier, GetTypeName(propertyType), propertyName, sb);
         }
 
         private static Dictionary<Type, string> _primitiveTypeNames = new Dictionary<Type, string>()
@@ -110,17 +111,8 @@ namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
             };
         private string GetTypeName(Type propertyType)
         {
-            //TODO workaround for propertyType.IsGenericType being missing in ASPNETCORE50
-            bool isNullableType;
-            try
-            {
-                isNullableType = (typeof(Nullable<>) == propertyType.GetGenericTypeDefinition());
-            }
-            catch (InvalidOperationException)
-            {
-                isNullableType = false;
-            }
-
+            var isNullableType = propertyType.GetTypeInfo().IsGenericType
+                && typeof(Nullable<>) == propertyType.GetGenericTypeDefinition();
             var type = isNullableType
                 ? Nullable.GetUnderlyingType(propertyType)
                 : propertyType;
@@ -139,10 +131,10 @@ namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
             return typeName;
         }
 
-        public virtual void BeginConstructor(IndentedStringBuilder sb, AccessModifier accessModifier,
-            string className, ICollection<Tuple<string, string>> parameters = null)
+        public virtual void BeginConstructor(AccessModifier accessModifier, string className,
+            IndentedStringBuilder sb, ICollection<Tuple<string, string>> parameters = null)
         {
-            AppendAccessModifier(sb, accessModifier);
+            AppendAccessModifier(accessModifier, sb);
             sb.Append(className);
             sb.Append("(");
             if (parameters != null && parameters.Count > 0)
@@ -160,11 +152,11 @@ namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
             sb.AppendLine("}");
         }
 
-        public virtual void BeginMethod(IndentedStringBuilder sb, AccessModifier accessModifier,
-            VirtualModifier virtualModifier, string returnType, string methodName, ICollection<Tuple<string, string>> parameters = null)
+        public virtual void BeginMethod(AccessModifier accessModifier, VirtualModifier virtualModifier,
+            string returnType, string methodName, IndentedStringBuilder sb, ICollection<Tuple<string, string>> parameters = null)
         {
-            AppendAccessModifier(sb, accessModifier);
-            AppendVirtualModifier(sb, virtualModifier);
+            AppendAccessModifier(accessModifier, sb);
+            AppendVirtualModifier(virtualModifier, sb);
             sb.Append(returnType);
             sb.Append(" ");
             sb.Append(methodName);
@@ -184,7 +176,7 @@ namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
             sb.AppendLine("}");
         }
 
-        public void AppendAccessModifier(IndentedStringBuilder sb, AccessModifier accessModifier)
+        public void AppendAccessModifier(AccessModifier accessModifier, IndentedStringBuilder sb)
         {
             switch (accessModifier)
             {
@@ -206,7 +198,7 @@ namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
             }
         }
 
-        public void AppendVirtualModifier(IndentedStringBuilder sb, VirtualModifier virtualModifier)
+        public void AppendVirtualModifier(VirtualModifier virtualModifier, IndentedStringBuilder sb)
         {
             switch (virtualModifier)
             {

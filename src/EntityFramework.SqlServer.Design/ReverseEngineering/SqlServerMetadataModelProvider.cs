@@ -20,12 +20,14 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
     public class SqlServerMetadataModelProvider : IDatabaseMetadataModelProvider
     {
         private static readonly List<string> DataTypesForMax = new List<string>() { "varchar", "nvarchar", "varbinary" };
-        private static readonly List<string> DataTypesForPrecisionAndScale = new List<string>() { "decimal", "numeric" };
+        private static readonly List<string> DataTypesForMaxLengthNotAllowed = new List<string>() { "ntext", "text", "image" };
+        private static readonly List<string> DataTypesForNumericPrecisionAndScale = new List<string>() { "decimal", "numeric" };
+        private static readonly List<string> DataTypesForDateTimePrecisionAndScale = new List<string>() { "datetime2" };
 
-        public static readonly string AnnotationPrefix = "SqlServerMetadataModelProvider:";
-        public static readonly string AnnotationNameDependentEndNavPropName = AnnotationPrefix + "DependentEndNavPropName";
-        public static readonly string AnnotationNamePrincipalEndNavPropName = AnnotationPrefix + "PrincipalEndNavPropName";
-        public static readonly string AnnotationNameEntityTypeError = AnnotationPrefix + "EntityTypeError";
+        public const string AnnotationPrefix = "SqlServerMetadataModelProvider:";
+        public const string AnnotationNameDependentEndNavPropName = AnnotationPrefix + "DependentEndNavPropName";
+        public const string AnnotationNamePrincipalEndNavPropName = AnnotationPrefix + "PrincipalEndNavPropName";
+        public const string AnnotationNameEntityTypeError = AnnotationPrefix + "EntityTypeError";
 
         private ILogger _logger;
 
@@ -58,7 +60,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             }
         }
 
-        public IModel GenerateMetadataModel(string connectionString, string filters)
+        public IModel GenerateMetadataModel(string connectionString)
         {
             using (var conn = new SqlConnection(connectionString))
             {
@@ -97,20 +99,20 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
 
         public DbContextCodeGenerator GetContextModelCodeGenerator(ReverseEngineeringGenerator generator, DbContextGeneratorModel dbContextGeneratorModel)
         {
-            return new SqlServerDbContextCodeGeneratorContext(
-                generator
-                , dbContextGeneratorModel.MetadataModel
-                , dbContextGeneratorModel.Namespace
-                , dbContextGeneratorModel.ClassName
-                , dbContextGeneratorModel.ConnectionString);
+            return new SqlServerDbContextCodeGenerator(
+                generator,
+                dbContextGeneratorModel.MetadataModel,
+                dbContextGeneratorModel.Namespace,
+                dbContextGeneratorModel.ClassName,
+                dbContextGeneratorModel.ConnectionString);
         }
         public EntityTypeCodeGenerator GetEntityTypeModelCodeGenerator(
             ReverseEngineeringGenerator generator, EntityTypeGeneratorModel entityTypeGeneratorModel)
         {
-            return new SqlServerEntityTypeCodeGeneratorContext(
-                generator
-                , entityTypeGeneratorModel.EntityType
-                , entityTypeGeneratorModel.Namespace);
+            return new SqlServerEntityTypeCodeGenerator(
+                generator,
+                entityTypeGeneratorModel.EntityType,
+                entityTypeGeneratorModel.Namespace);
         }
 
         public static Dictionary<string, T> LoadData<T>(
@@ -251,8 +253,8 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                 var codeGenEntityType = codeGenModel
                     .AddEntityType(nameMapper.EntityTypeToClassNameMap[relationalEntityType]);
                 _relationalEntityTypeToCodeGenEntityTypeMap[relationalEntityType] = codeGenEntityType;
-                codeGenEntityType.SqlServer().Table = _tables[relationalEntityType.Name].TableName;
-                codeGenEntityType.SqlServer().Schema = _tables[relationalEntityType.Name].SchemaName;
+                codeGenEntityType.Relational().Table = _tables[relationalEntityType.Name].TableName;
+                codeGenEntityType.Relational().Schema = _tables[relationalEntityType.Name].SchemaName;
 
                 // Loop over relational properties constructing a matching property in the 
                 // codeGenModel. Also accumulate:
@@ -447,19 +449,18 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
         {
             if (property.Name != tc.ColumnName)
             {
-                property.SqlServer().Column = tc.ColumnName;
+                property.Relational().Column = tc.ColumnName;
             }
 
             string columnType = tc.DataType;
-            if (tc.MaxLength.HasValue)
+            if (tc.MaxLength.HasValue && !DataTypesForMaxLengthNotAllowed.Contains(tc.DataType))
             {
                 if (tc.MaxLength > 0)
                 {
                     property.MaxLength = tc.MaxLength;
                 }
 
-                if (tc.MaxLength.Value >= Int32.MaxValue / 2
-                    && DataTypesForMax.Contains(columnType))
+                if (DataTypesForMax.Contains(columnType) && tc.MaxLength == -1)
                 {
                     columnType += "(max)";
                 }
@@ -468,7 +469,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                     columnType += "(" + tc.MaxLength + ")";
                 }
             }
-            else if (DataTypesForPrecisionAndScale.Contains(tc.DataType))
+            else if (DataTypesForNumericPrecisionAndScale.Contains(tc.DataType))
             {
                 if (tc.NumericPrecision.HasValue)
                 {
@@ -482,8 +483,22 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                     }
                 }
             }
+            else if (DataTypesForDateTimePrecisionAndScale.Contains(tc.DataType))
+            {
+                if (tc.DateTimePrecision.HasValue)
+                {
+                    if (tc.Scale.HasValue)
+                    {
+                        columnType += "(" + tc.DateTimePrecision.Value + ", " + tc.Scale.Value + ")";
+                    }
+                    else
+                    {
+                        columnType += "(" + tc.DateTimePrecision.Value + ")";
+                    }
+                }
+            }
 
-            property.SqlServer().ColumnType = columnType;
+            property.Relational().ColumnType = columnType;
 
             if (tc.IsIdentity)
             {
@@ -498,13 +513,20 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                     property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.Identity;
                 }
             }
+
             if (tc.IsStoreGenerated)
             {
                 property.IsStoreComputed = tc.IsStoreGenerated;
             }
+            else if (tc.DataType == "timestamp")
+            {
+                // timestamp columns should always be treated as store generated
+                property.IsStoreComputed = true;
+            }
+
             if (tc.DefaultValue != null)
             {
-                property.SqlServer().DefaultValue = tc.DefaultValue;
+                property.Relational().DefaultValue = tc.DefaultValue;
             }
         }
     }

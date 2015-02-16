@@ -79,8 +79,8 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                                         .Concat(entityTypeName).ToList();
                 propertyToPropertyNameMap[property] =
                     CSharpUtilities.Instance.GenerateCSharpIdentifier(
-                        _defaultPropertyNameFunc(property)
-                        , existingNames);
+                        _defaultPropertyNameFunc(property),
+                        existingNames);
             }
 
             foreach (var keyValuePair in propertyToPropertyNameMap)

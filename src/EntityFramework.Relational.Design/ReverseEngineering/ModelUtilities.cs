@@ -42,5 +42,24 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             return sb.ToString();
         }
 
+        public IEnumerable<IProperty> OrderedProperties(IEntityType entityType)
+        {
+            var primaryKeyProperties = entityType.GetPrimaryKey().Properties.ToList();
+            foreach (var property in primaryKeyProperties)
+            {
+                yield return property;
+            }
+
+            var foreignKeyProperties = entityType.ForeignKeys.SelectMany(fk => fk.Properties).Distinct().ToList();
+            foreach (var property in
+                entityType
+                .Properties
+                .Except(primaryKeyProperties)
+                .Except(foreignKeyProperties)
+                .OrderBy(p => p.Name))
+            {
+                yield return property;
+            }
+        }
     }
 }

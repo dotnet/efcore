@@ -54,7 +54,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.Utilities
                     //{ "hierarchyid", typeof(TODO) },
                     //{ "sql_variant", typeof(TODO) },
                     //{ "table", typeof(TODO) },
-                    //{ "timestamp", typeof(TODO) },
+                    { "timestamp", typeof(byte[]) },
                     { "uniqueidentifier", typeof(Guid) },
                     //{ "xml", typeof(TODO) },
 
