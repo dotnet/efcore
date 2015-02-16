@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.ValueGeneration;
 using Xunit;
@@ -13,21 +12,17 @@ namespace Microsoft.Data.Entity.Tests.ValueGeneration
 {
     public class SequentialGuidValueGeneratorTest
     {
-        private static readonly Model _model = TestHelpers.Instance.BuildModelFor<WithGuid>();
-
         [Fact]
         public void Can_get_next_values()
         {
             var sequentialGuidIdentityGenerator = new SequentialGuidValueGenerator();
 
-            var property = _model.GetEntityType(typeof(WithGuid)).GetProperty("Id");
-
             var values = new HashSet<Guid>();
             for (var i = 0; i < 100; i++)
             {
-                var generatedValue = sequentialGuidIdentityGenerator.Next(property, new DbContextService<DataStoreServices>(() => null));
+                var generatedValue = sequentialGuidIdentityGenerator.Next(new DbContextService<DataStoreServices>(() => null));
 
-                values.Add((Guid)generatedValue);
+                values.Add(generatedValue);
             }
 
             // Check all generated values are different--functional test checks ordering on SQL Server
@@ -38,11 +33,6 @@ namespace Microsoft.Data.Entity.Tests.ValueGeneration
         public void Does_not_generate_temp_values()
         {
             Assert.False(new SequentialGuidValueGenerator().GeneratesTemporaryValues);
-        }
-
-        private class WithGuid
-        {
-            public Guid Id { get; set; }
         }
     }
 }

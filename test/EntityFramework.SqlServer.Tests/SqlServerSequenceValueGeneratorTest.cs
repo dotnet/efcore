@@ -8,7 +8,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Tests;
@@ -20,77 +19,107 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 {
     public class SqlServerSequenceValueGeneratorTest
     {
-        private static readonly Model _model = SqlServerTestHelpers.Instance.BuildModelFor<AnEntity>();
-
         [Fact]
-        public void Generates_sequential_values()
+        public void Generates_sequential_int_values()
         {
             var storeServices = CreateStoreServices();
-            var entityType = _model.GetEntityType(typeof(AnEntity));
-
-            var intProperty = entityType.GetProperty("Id");
-            var longProperty = entityType.GetProperty("Long");
-            var shortProperty = entityType.GetProperty("Short");
-            var byteProperty = entityType.GetProperty("Byte");
-            var nullableIntProperty = entityType.GetProperty("NullableId");
-            var nullableLongProperty = entityType.GetProperty("NullableLong");
-            var nullableShortProperty = entityType.GetProperty("NullableShort");
-            var nullableByteProperty = entityType.GetProperty("NullableByte");
-
-            var executor = new FakeSqlStatementExecutor(10);
-            var generator = new SqlServerSequenceValueGenerator(executor, "Foo", 10);
+            var generator = new SqlServerSequenceValueGenerator<int>(new FakeSqlStatementExecutor(10), "Foo", 10);
 
             for (var i = 0; i < 15; i++)
             {
-                Assert.Equal(i, generator.Next(intProperty, storeServices));
-            }
-
-            for (var i = 15; i < 30; i++)
-            {
-                Assert.Equal((long)i, generator.Next(longProperty, storeServices));
-            }
-
-            for (var i = 30; i < 45; i++)
-            {
-                Assert.Equal((short)i, generator.Next(shortProperty, storeServices));
-            }
-
-            for (var i = 45; i < 60; i++)
-            {
-                Assert.Equal((byte)i, generator.Next(byteProperty, storeServices));
-            }
-
-            for (var i = 60; i < 75; i++)
-            {
-                Assert.Equal((int?)i, generator.Next(nullableIntProperty, storeServices));
-            }
-
-            for (var i = 75; i < 90; i++)
-            {
-                Assert.Equal((long?)i, generator.Next(nullableLongProperty, storeServices));
-            }
-
-            for (var i = 90; i < 105; i++)
-            {
-                Assert.Equal((short?)i, generator.Next(nullableShortProperty, storeServices));
-            }
-
-            for (var i = 105; i < 120; i++)
-            {
-                Assert.Equal((byte?)i, generator.Next(nullableByteProperty, storeServices));
+                Assert.Equal(i, generator.Next(storeServices));
             }
         }
 
+        [Fact]
+        public void Generates_sequential_long_values()
+        {
+            var storeServices = CreateStoreServices();
+            var generator = new SqlServerSequenceValueGenerator<long>(new FakeSqlStatementExecutor(10), "Foo", 10);
+
+            for (long i = 0; i < 15; i++)
+            {
+                Assert.Equal(i, generator.Next(storeServices));
+            }
+        }
+
+        [Fact]
+        public void Generates_sequential_short_values()
+        {
+            var storeServices = CreateStoreServices();
+            var generator = new SqlServerSequenceValueGenerator<short>(new FakeSqlStatementExecutor(10), "Foo", 10);
+
+            for (short i = 0; i < 15; i++)
+            {
+                Assert.Equal(i, generator.Next(storeServices));
+            }
+        }
+
+        [Fact]
+        public void Generates_sequential_byte_values()
+        {
+            var storeServices = CreateStoreServices();
+            var generator = new SqlServerSequenceValueGenerator<byte>(new FakeSqlStatementExecutor(10), "Foo", 10);
+
+            for (byte i = 0; i < 15; i++)
+            {
+                Assert.Equal(i, generator.Next(storeServices));
+            }
+        }
+
+        [Fact]
+        public void Generates_sequential_uint_values()
+        {
+            var storeServices = CreateStoreServices();
+            var generator = new SqlServerSequenceValueGenerator<uint>(new FakeSqlStatementExecutor(10), "Foo", 10);
+
+            for (uint i = 0; i < 15; i++)
+            {
+                Assert.Equal(i, generator.Next(storeServices));
+            }
+        }
+
+        [Fact]
+        public void Generates_sequential_ulong_values()
+        {
+            var storeServices = CreateStoreServices();
+            var generator = new SqlServerSequenceValueGenerator<ulong>(new FakeSqlStatementExecutor(10), "Foo", 10);
+
+            for (ulong i = 0; i < 15; i++)
+            {
+                Assert.Equal(i, generator.Next(storeServices));
+            }
+        }
+
+        [Fact]
+        public void Generates_sequential_ushort_values()
+        {
+            var storeServices = CreateStoreServices();
+            var generator = new SqlServerSequenceValueGenerator<ushort>(new FakeSqlStatementExecutor(10), "Foo", 10);
+
+            for (ushort i = 0; i < 15; i++)
+            {
+                Assert.Equal(i, generator.Next(storeServices));
+            }
+        }
+
+        [Fact]
+        public void Generates_sequential_sbyte_values()
+        {
+            var storeServices = CreateStoreServices();
+            var generator = new SqlServerSequenceValueGenerator<sbyte>(new FakeSqlStatementExecutor(10), "Foo", 10);
+
+            for (sbyte i = 0; i < 15; i++)
+            {
+                Assert.Equal(i, generator.Next(storeServices));
+            }
+        }
 
         [Fact]
         public void Multiple_threads_can_use_the_same_generator()
         {
             var serviceProvider = SqlServerTestHelpers.Instance.CreateServiceProvider();
-
-            var property = _model.GetEntityType(typeof(AnEntity)).GetProperty("Long");
-
-            var executor = new FakeSqlStatementExecutor(10);
-            var generator = new SqlServerSequenceValueGenerator(executor, "Foo", 10);
+            var generator = new SqlServerSequenceValueGenerator<long>(new FakeSqlStatementExecutor(10), "Foo", 10);
 
             const int threadCount = 50;
             const int valueCount = 35;
@@ -107,9 +136,9 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                         {
                             var storeServices = CreateStoreServices(serviceProvider);
 
-                            var generatedValue = generator.Next(property, storeServices);
+                            var generatedValue = generator.Next(storeServices);
 
-                            generatedValues[testNumber].Add((long)generatedValue);
+                            generatedValues[testNumber].Add(generatedValue);
                         }
                     };
             }
@@ -133,8 +162,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         [Fact]
         public void Does_not_generate_temp_values()
         {
-            var executor = new FakeSqlStatementExecutor(10);
-            var generator = new SqlServerSequenceValueGenerator(executor, "Foo", 10);
+            var generator = new SqlServerSequenceValueGenerator<int>(new FakeSqlStatementExecutor(10), "Foo", 10);
 
             Assert.False(generator.GeneratesTemporaryValues);
         }
@@ -143,7 +171,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         {
             serviceProvider = serviceProvider ?? SqlServerTestHelpers.Instance.CreateServiceProvider();
 
-            return SqlServerTestHelpers.Instance.CreateContextServices(serviceProvider, _model).GetRequiredService<DbContextService<DataStoreServices>>();
+            return SqlServerTestHelpers.Instance.CreateContextServices(serviceProvider).GetRequiredService<DbContextService<DataStoreServices>>();
         }
 
         private class FakeSqlStatementExecutor : SqlStatementExecutor
@@ -168,18 +196,6 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             {
                 return Task.FromResult<object>(Interlocked.Add(ref _current, _blockSize));
             }
-        }
-
-        private class AnEntity
-        {
-            public int Id { get; set; }
-            public long Long { get; set; }
-            public short Short { get; set; }
-            public byte Byte { get; set; }
-            public int? NullableId { get; set; }
-            public long? NullableLong { get; set; }
-            public short? NullableShort { get; set; }
-            public byte? NullableByte { get; set; }
         }
     }
 }

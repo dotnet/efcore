@@ -48,7 +48,48 @@ namespace Microsoft.Data.Entity.SqlServer
         {
             Check.NotNull(property, nameof(property));
 
-            return new SqlServerSequenceValueGenerator(_executor, GetSequenceName(property), GetBlockSize(property));
+            if (property.PropertyType.UnwrapNullableType() == typeof(long))
+            {
+                return new SqlServerSequenceValueGenerator<long>(_executor, GetSequenceName(property), GetBlockSize(property));
+            }
+
+            if (property.PropertyType.UnwrapNullableType() == typeof(int))
+            {
+                return new SqlServerSequenceValueGenerator<int>(_executor, GetSequenceName(property), GetBlockSize(property));
+            }
+
+            if (property.PropertyType.UnwrapNullableType() == typeof(short))
+            {
+                return new SqlServerSequenceValueGenerator<short>(_executor, GetSequenceName(property), GetBlockSize(property));
+            }
+
+            if (property.PropertyType.UnwrapNullableType() == typeof(byte))
+            {
+                return new SqlServerSequenceValueGenerator<byte>(_executor, GetSequenceName(property), GetBlockSize(property));
+            }
+
+            if (property.PropertyType.UnwrapNullableType() == typeof(ulong))
+            {
+                return new SqlServerSequenceValueGenerator<ulong>(_executor, GetSequenceName(property), GetBlockSize(property));
+            }
+
+            if (property.PropertyType.UnwrapNullableType() == typeof(uint))
+            {
+                return new SqlServerSequenceValueGenerator<uint>(_executor, GetSequenceName(property), GetBlockSize(property));
+            }
+
+            if (property.PropertyType.UnwrapNullableType() == typeof(ushort))
+            {
+                return new SqlServerSequenceValueGenerator<ushort>(_executor, GetSequenceName(property), GetBlockSize(property));
+            }
+
+            if (property.PropertyType.UnwrapNullableType() == typeof(sbyte))
+            {
+                return new SqlServerSequenceValueGenerator<sbyte>(_executor, GetSequenceName(property), GetBlockSize(property));
+            }
+
+            throw new ArgumentException(Internal.Strings.InvalidValueGeneratorFactoryProperty(
+                nameof(SqlServerSequenceValueGeneratorFactory), property.Name, property.EntityType.SimpleName));
         }
 
         public override int GetPoolSize(IProperty property)

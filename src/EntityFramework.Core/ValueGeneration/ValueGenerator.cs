@@ -3,16 +3,21 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.ValueGeneration
 {
     public abstract class ValueGenerator
     {
-        public abstract object Next(
-            [NotNull] IProperty property, 
-            [NotNull] DbContextService<DataStoreServices> dataStoreServices);
+        public virtual object Next([NotNull] DbContextService<DataStoreServices> dataStoreServices)
+        {
+            Check.NotNull(dataStoreServices, nameof(dataStoreServices));
+
+            return NextValue(dataStoreServices);
+        }
+
+        protected abstract object NextValue([NotNull] DbContextService<DataStoreServices> dataStoreServices);
 
         public abstract bool GeneratesTemporaryValues { get; }
     }

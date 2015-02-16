@@ -11,16 +11,16 @@ namespace Microsoft.Data.Entity.ValueGeneration
 {
     public abstract class ValueGeneratorFactorySelector
     {
-        private readonly ValueGeneratorFactory<GuidValueGenerator> _guidFactory;
-        private readonly ValueGeneratorFactory<TemporaryIntegerValueGenerator> _integerFactory;
-        private readonly ValueGeneratorFactory<TemporaryStringValueGenerator> _stringFactory;
-        private readonly ValueGeneratorFactory<TemporaryBinaryValueGenerator> _binaryFactory;
+        private readonly SimpleValueGeneratorFactory<GuidValueGenerator> _guidFactory;
+        private readonly TemporaryIntegerValueGeneratorFactory _integerFactory;
+        private readonly SimpleValueGeneratorFactory<TemporaryStringValueGenerator> _stringFactory;
+        private readonly SimpleValueGeneratorFactory<TemporaryBinaryValueGenerator> _binaryFactory;
 
         protected ValueGeneratorFactorySelector(
-            [NotNull] ValueGeneratorFactory<GuidValueGenerator> guidFactory,
-            [NotNull] ValueGeneratorFactory<TemporaryIntegerValueGenerator> integerFactory,
-            [NotNull] ValueGeneratorFactory<TemporaryStringValueGenerator> stringFactory,
-            [NotNull] ValueGeneratorFactory<TemporaryBinaryValueGenerator> binaryFactory)
+            [NotNull] SimpleValueGeneratorFactory<GuidValueGenerator> guidFactory,
+            [NotNull] TemporaryIntegerValueGeneratorFactory integerFactory,
+            [NotNull] SimpleValueGeneratorFactory<TemporaryStringValueGenerator> stringFactory,
+            [NotNull] SimpleValueGeneratorFactory<TemporaryBinaryValueGenerator> binaryFactory)
         {
             Check.NotNull(guidFactory, nameof(guidFactory));
             Check.NotNull(integerFactory, nameof(integerFactory));

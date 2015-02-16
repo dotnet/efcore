@@ -1200,7 +1200,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
 
             var customServices = new ServiceCollection()
-                .AddSingleton<ValueGeneratorFactory<InMemoryValueGenerator>, InMemoryTemporaryValueGeneratorFactory>();
+                .AddSingleton<InMemoryIntegerValueGeneratorFactory, InMemoryTemporaryValueGeneratorFactory>();
 
             var entry = CreateInternalEntry(
                 TestHelpers.Instance.CreateContextServices(customServices, model),
@@ -1282,7 +1282,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entityType = model.GetEntityType(typeof(SecondDependent));
 
             var customServices = new ServiceCollection()
-                .AddSingleton<ValueGeneratorFactory<InMemoryValueGenerator>, InMemoryTemporaryValueGeneratorFactory>();
+                .AddSingleton<InMemoryIntegerValueGeneratorFactory, InMemoryTemporaryValueGeneratorFactory>();
 
             var entry = CreateInternalEntry(
                 TestHelpers.Instance.CreateContextServices(customServices, model),
@@ -1338,11 +1338,11 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             return modelBuilder.Model;
         }
 
-        private class InMemoryTemporaryValueGeneratorFactory : ValueGeneratorFactory<InMemoryValueGenerator>
+        private class InMemoryTemporaryValueGeneratorFactory : InMemoryIntegerValueGeneratorFactory
         {
             public override ValueGenerator Create(IProperty property)
             {
-                return new TemporaryIntegerValueGenerator();
+                return new TemporaryIntegerValueGeneratorFactory().Create(property);
             }
         }
 

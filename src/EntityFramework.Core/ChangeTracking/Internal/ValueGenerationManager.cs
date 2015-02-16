@@ -45,7 +45,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                         var valueGenerator = _valueGeneratorCache.Service.GetGenerator(property);
                         Debug.Assert(valueGenerator != null);
 
-                        var generatedValue = valueGenerator.Next(property, _dataStoreServices);
+                        var generatedValue = valueGenerator.Next(_dataStoreServices);
                         SetGeneratedValue(entry, property, generatedValue, valueGenerator.GeneratesTemporaryValues);
                     }
                 }

@@ -24,7 +24,7 @@ namespace Microsoft.Framework.DependencyInjection
                     .AddSingleton<InMemoryModelBuilderFactory>()
                     .AddSingleton<InMemoryValueGeneratorCache>()
                     .AddSingleton<InMemoryValueGeneratorFactorySelector>()
-                    .AddSingleton<ValueGeneratorFactory<InMemoryValueGenerator>>()
+                    .AddSingleton<InMemoryIntegerValueGeneratorFactory>()
                     .AddSingleton<InMemoryDatabase>()
                     .AddSingleton<InMemoryModelSource>()
                     .AddScoped<InMemoryDataStoreServices>()

@@ -356,7 +356,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new LoggerFactory()));
 
-            var generator = (SqlServerSequenceValueGenerator)factory.Create(property);
+            var generator = (SqlServerSequenceValueGenerator<int>)factory.Create(property);
 
             Assert.Equal("R.DaneelOlivaw", generator.SequenceName);
             Assert.Equal(11, generator.BlockSize);

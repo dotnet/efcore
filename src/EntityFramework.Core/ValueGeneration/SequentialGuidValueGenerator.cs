@@ -3,19 +3,15 @@
 
 using System;
 using System.Threading;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.ValueGeneration
 {
-    public class SequentialGuidValueGenerator : SimpleValueGenerator
+    public class SequentialGuidValueGenerator : SimpleValueGenerator<Guid>
     {
         private long _counter = DateTime.UtcNow.Ticks;
 
-        public override object Next(IProperty property)
+        public override Guid Next()
         {
-            Check.NotNull(property, nameof(property));
-
             var guidBytes = Guid.NewGuid().ToByteArray();
             var counterBytes = BitConverter.GetBytes(Interlocked.Increment(ref _counter));
 
@@ -35,7 +31,5 @@ namespace Microsoft.Data.Entity.ValueGeneration
 
             return new Guid(guidBytes);
         }
-
-        public override bool GeneratesTemporaryValues => false;
     }
 }

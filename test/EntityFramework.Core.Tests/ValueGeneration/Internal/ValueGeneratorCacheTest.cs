@@ -39,7 +39,7 @@ namespace Microsoft.Data.Entity.Tests.ValueGeneration.Internal
 
             var customServices = TestHelpers.Instance.CreateContextServices(
                 new ServiceCollection()
-                    .AddInstance<ValueGeneratorFactory<GuidValueGenerator>>(new FakeGuidValueGeneratorFactory()),
+                    .AddInstance<SimpleValueGeneratorFactory<GuidValueGenerator>>(new FakeGuidValueGeneratorFactory()),
                 model);
 
             var cache = customServices.GetRequiredService<InMemoryValueGeneratorCache>();
@@ -65,7 +65,7 @@ namespace Microsoft.Data.Entity.Tests.ValueGeneration.Internal
             Assert.Same(generator2b, cache.GetGenerator(property2));
         }
 
-        private class FakeGuidValueGeneratorFactory : ValueGeneratorFactory<GuidValueGenerator>
+        private class FakeGuidValueGeneratorFactory : SimpleValueGeneratorFactory<GuidValueGenerator>
         {
             public override int GetPoolSize(IProperty property)
             {

@@ -21,25 +21,25 @@ namespace Microsoft.Data.Entity.Tests.ValueGeneration
             var contextServices = TestHelpers.Instance.CreateContextServices(new ServiceCollection().AddSingleton<ConcreteValueGeneratorFactorySelector>(), model);
             var selector = contextServices.GetRequiredService<ConcreteValueGeneratorFactorySelector>();
 
-            Assert.IsType<ValueGeneratorFactory<TemporaryIntegerValueGenerator>>(selector.Select(entityType.GetProperty("Id")));
-            Assert.IsType<ValueGeneratorFactory<TemporaryIntegerValueGenerator>>(selector.Select(entityType.GetProperty("Long")));
-            Assert.IsType<ValueGeneratorFactory<TemporaryIntegerValueGenerator>>(selector.Select(entityType.GetProperty("Short")));
-            Assert.IsType<ValueGeneratorFactory<TemporaryIntegerValueGenerator>>(selector.Select(entityType.GetProperty("Byte")));
-            Assert.IsType<ValueGeneratorFactory<TemporaryIntegerValueGenerator>>(selector.Select(entityType.GetProperty("NullableInt")));
-            Assert.IsType<ValueGeneratorFactory<TemporaryIntegerValueGenerator>>(selector.Select(entityType.GetProperty("NullableLong")));
-            Assert.IsType<ValueGeneratorFactory<TemporaryIntegerValueGenerator>>(selector.Select(entityType.GetProperty("NullableShort")));
-            Assert.IsType<ValueGeneratorFactory<TemporaryIntegerValueGenerator>>(selector.Select(entityType.GetProperty("NullableByte")));
-            Assert.IsType<ValueGeneratorFactory<TemporaryIntegerValueGenerator>>(selector.Select(entityType.GetProperty("UInt")));
-            Assert.IsType<ValueGeneratorFactory<TemporaryIntegerValueGenerator>>(selector.Select(entityType.GetProperty("ULong")));
-            Assert.IsType<ValueGeneratorFactory<TemporaryIntegerValueGenerator>>(selector.Select(entityType.GetProperty("UShort")));
-            Assert.IsType<ValueGeneratorFactory<TemporaryIntegerValueGenerator>>(selector.Select(entityType.GetProperty("SByte")));
-            Assert.IsType<ValueGeneratorFactory<TemporaryIntegerValueGenerator>>(selector.Select(entityType.GetProperty("NullableUInt")));
-            Assert.IsType<ValueGeneratorFactory<TemporaryIntegerValueGenerator>>(selector.Select(entityType.GetProperty("NullableULong")));
-            Assert.IsType<ValueGeneratorFactory<TemporaryIntegerValueGenerator>>(selector.Select(entityType.GetProperty("NullableUShort")));
-            Assert.IsType<ValueGeneratorFactory<TemporaryIntegerValueGenerator>>(selector.Select(entityType.GetProperty("NullableSByte")));
-            Assert.IsType<ValueGeneratorFactory<TemporaryStringValueGenerator>>(selector.Select(entityType.GetProperty("String")));
-            Assert.IsType<ValueGeneratorFactory<GuidValueGenerator>>(selector.Select(entityType.GetProperty("Guid")));
-            Assert.IsType<ValueGeneratorFactory<TemporaryBinaryValueGenerator>>(selector.Select(entityType.GetProperty("Binary")));
+            Assert.IsType<TemporaryIntegerValueGeneratorFactory>(selector.Select(entityType.GetProperty("Id")));
+            Assert.IsType<TemporaryIntegerValueGeneratorFactory>(selector.Select(entityType.GetProperty("Long")));
+            Assert.IsType<TemporaryIntegerValueGeneratorFactory>(selector.Select(entityType.GetProperty("Short")));
+            Assert.IsType<TemporaryIntegerValueGeneratorFactory>(selector.Select(entityType.GetProperty("Byte")));
+            Assert.IsType<TemporaryIntegerValueGeneratorFactory>(selector.Select(entityType.GetProperty("NullableInt")));
+            Assert.IsType<TemporaryIntegerValueGeneratorFactory>(selector.Select(entityType.GetProperty("NullableLong")));
+            Assert.IsType<TemporaryIntegerValueGeneratorFactory>(selector.Select(entityType.GetProperty("NullableShort")));
+            Assert.IsType<TemporaryIntegerValueGeneratorFactory>(selector.Select(entityType.GetProperty("NullableByte")));
+            Assert.IsType<TemporaryIntegerValueGeneratorFactory>(selector.Select(entityType.GetProperty("UInt")));
+            Assert.IsType<TemporaryIntegerValueGeneratorFactory>(selector.Select(entityType.GetProperty("ULong")));
+            Assert.IsType<TemporaryIntegerValueGeneratorFactory>(selector.Select(entityType.GetProperty("UShort")));
+            Assert.IsType<TemporaryIntegerValueGeneratorFactory>(selector.Select(entityType.GetProperty("SByte")));
+            Assert.IsType<TemporaryIntegerValueGeneratorFactory>(selector.Select(entityType.GetProperty("NullableUInt")));
+            Assert.IsType<TemporaryIntegerValueGeneratorFactory>(selector.Select(entityType.GetProperty("NullableULong")));
+            Assert.IsType<TemporaryIntegerValueGeneratorFactory>(selector.Select(entityType.GetProperty("NullableUShort")));
+            Assert.IsType<TemporaryIntegerValueGeneratorFactory>(selector.Select(entityType.GetProperty("NullableSByte")));
+            Assert.IsType<SimpleValueGeneratorFactory<TemporaryStringValueGenerator>>(selector.Select(entityType.GetProperty("String")));
+            Assert.IsType<SimpleValueGeneratorFactory<GuidValueGenerator>>(selector.Select(entityType.GetProperty("Guid")));
+            Assert.IsType<SimpleValueGeneratorFactory<TemporaryBinaryValueGenerator>>(selector.Select(entityType.GetProperty("Binary")));
         }
 
         [Fact]
@@ -96,10 +96,10 @@ namespace Microsoft.Data.Entity.Tests.ValueGeneration
         private class ConcreteValueGeneratorFactorySelector : ValueGeneratorFactorySelector
         {
             public ConcreteValueGeneratorFactorySelector(
-                ValueGeneratorFactory<GuidValueGenerator> guidFactory, 
-                ValueGeneratorFactory<TemporaryIntegerValueGenerator> integerFactory, 
-                ValueGeneratorFactory<TemporaryStringValueGenerator> stringFactory, 
-                ValueGeneratorFactory<TemporaryBinaryValueGenerator> binaryFactory)
+                SimpleValueGeneratorFactory<GuidValueGenerator> guidFactory, 
+                TemporaryIntegerValueGeneratorFactory integerFactory, 
+                SimpleValueGeneratorFactory<TemporaryStringValueGenerator> stringFactory, 
+                SimpleValueGeneratorFactory<TemporaryBinaryValueGenerator> binaryFactory)
                 : base(guidFactory, integerFactory, stringFactory, binaryFactory)
             {
             }

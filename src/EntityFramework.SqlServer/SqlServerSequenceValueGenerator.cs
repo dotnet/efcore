@@ -5,7 +5,6 @@ using System;
 using System.Globalization;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
@@ -13,7 +12,7 @@ using Microsoft.Data.Entity.ValueGeneration;
 
 namespace Microsoft.Data.Entity.SqlServer
 {
-    public class SqlServerSequenceValueGenerator : HiLoValuesGenerator
+    public class SqlServerSequenceValueGenerator<TValue> : HiLoValueGenerator<TValue>
     {
         private readonly SqlStatementExecutor _executor;
 
@@ -33,9 +32,8 @@ namespace Microsoft.Data.Entity.SqlServer
 
         public virtual string SequenceName { get; }
 
-        protected override long GetNewHighValue(IProperty property, DbContextService<DataStoreServices> dataStoreServices)
+        protected override long GetNewHighValue(DbContextService<DataStoreServices> dataStoreServices)
         {
-            Check.NotNull(property, nameof(property));
             Check.NotNull(dataStoreServices, nameof(dataStoreServices));
 
             var commandInfo = PrepareCommand((RelationalConnection)dataStoreServices.Service.Connection);

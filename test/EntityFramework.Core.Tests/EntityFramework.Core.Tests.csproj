@@ -176,9 +176,11 @@
     <Compile Include="ValueGeneration\Internal\ValueGeneratorCacheTest.cs" />
     <Compile Include="ValueGeneration\Internal\ValueGeneratorPoolTest.cs" />
     <Compile Include="ValueGeneration\SequentialGuidValueGeneratorTest.cs" />
-    <Compile Include="ValueGeneration\ValueGeneratorFactoryTest.cs" />
+    <Compile Include="ValueGeneration\SimpleTemporaryValueGeneratorTest.cs" />
+    <Compile Include="ValueGeneration\SimpleValueGeneratorFactoryTest.cs" />
     <Compile Include="ValueGeneration\SimpleValueGeneratorTest.cs" />
     <Compile Include="ValueGeneration\TemporaryBinaryValueGeneratorTest.cs" />
+    <Compile Include="ValueGeneration\TemporaryIntegerValueGeneratorFactoryTest.cs" />
     <Compile Include="ValueGeneration\TemporaryIntegerValueGeneratorTest.cs" />
     <Compile Include="ValueGeneration\TemporaryStringValueGeneratorTest.cs" />
     <Compile Include="ValueGeneration\ValueGeneratorSelectorTest.cs" />

@@ -5,7 +5,6 @@ using System;
 using System.Threading;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 
@@ -16,21 +15,20 @@ namespace Microsoft.Data.Entity.ValueGeneration
     ///     underlying data store and returning them one by one. Will ask the underlying
     ///     data store for another block when the current block is exhausted.
     /// </summary>
-    public abstract class HiLoValuesGenerator : ValueGenerator
+    public abstract class HiLoValueGenerator<TValue> : ValueGenerator<TValue>
     {
         private readonly object _lock = new object();
         private HiLoValue _currentValue = new HiLoValue(-1, 0);
 
-        protected HiLoValuesGenerator(int blockSize)
+        protected HiLoValueGenerator(int blockSize)
         {
             BlockSize = blockSize;
         }
 
         public virtual int BlockSize { get; }
 
-        public override object Next(IProperty property, DbContextService<DataStoreServices> dataStoreServices)
+        public override TValue Next(DbContextService<DataStoreServices> dataStoreServices)
         {
-            Check.NotNull(property, nameof(property));
             Check.NotNull(dataStoreServices, nameof(dataStoreServices));
 
             var newValue = GetNextValue();
@@ -46,7 +44,7 @@ namespace Microsoft.Data.Entity.ValueGeneration
                     // case just get a value out of the new block instead of requesting one.
                     if (newValue.High == _currentValue.High)
                     {
-                        var newCurrent = GetNewHighValue(property, dataStoreServices);
+                        var newCurrent = GetNewHighValue(dataStoreServices);
                         newValue = new HiLoValue(newCurrent, newCurrent + BlockSize);
                         _currentValue = newValue;
                     }
@@ -57,12 +55,10 @@ namespace Microsoft.Data.Entity.ValueGeneration
                 }
             }
 
-            return Convert.ChangeType(newValue.Low, property.PropertyType.UnwrapNullableType());
+            return (TValue)Convert.ChangeType(newValue.Low, typeof(TValue));
         }
 
-        protected abstract long GetNewHighValue(
-            [NotNull] IProperty property,
-            [NotNull] DbContextService<DataStoreServices> dataStoreServices);
+        protected abstract long GetNewHighValue([NotNull] DbContextService<DataStoreServices> dataStoreServices);
 
         public override bool GeneratesTemporaryValues => false;
 

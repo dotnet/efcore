@@ -66,13 +66,14 @@
     <Compile Include="ApiConsistencyTest.cs" />
     <Compile Include="InMemoryDatabaseExtensionsTest.cs" />
     <Compile Include="InMemoryDbContextOptionsExtensionsTest.cs" />
+    <Compile Include="InMemoryIntegerValueGeneratorFactoryTest.cs" />
     <Compile Include="InMemoryOptionsExtensionTest.cs" />
     <Compile Include="InMemoryDataStoreCreatorTest.cs" />
     <Compile Include="InMemoryDataStoreSourceTest.cs" />
     <Compile Include="InMemoryDataStoreTest.cs" />
     <Compile Include="InMemoryEntityServicesBuilderExtensionsTest.cs" />
     <Compile Include="InMemoryValueGeneratorSelectorTest.cs" />
-    <Compile Include="InMemoryValueGeneratorTest.cs" />
+    <Compile Include="InMemoryIntegerValueGeneratorTest.cs" />
     <Compile Include="InMemoryTestHelpers.cs" />
     <None Include="packages.config" />
     <None Include="project.json" />

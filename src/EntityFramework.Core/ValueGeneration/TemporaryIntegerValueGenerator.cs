@@ -3,45 +3,38 @@
 
 using System;
 using System.Threading;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.ValueGeneration
 {
-    public class TemporaryIntegerValueGenerator : SimpleValueGenerator
+    public class TemporaryIntegerValueGenerator<TValue> : SimpleTemporaryValueGenerator<TValue>
     {
         private long _current;
 
-        public override object Next(IProperty property)
+        public override TValue Next()
         {
-            Check.NotNull(property, nameof(property));
-
             var generatedValue = Interlocked.Decrement(ref _current);
-            var targetType = property.PropertyType.UnwrapNullableType();
 
-            if (targetType == typeof(uint))
+            if (typeof(TValue) == typeof(uint))
             {
-                return unchecked((uint)generatedValue);
+                return (TValue)(object)unchecked((uint)generatedValue);
             }
 
-            if (targetType == typeof(ulong))
+            if (typeof(TValue) == typeof(ulong))
             {
-                return unchecked((ulong)generatedValue);
+                return (TValue)(object)unchecked((ulong)generatedValue);
             }
 
-            if (targetType == typeof(ushort))
+            if (typeof(TValue) == typeof(ushort))
             {
-                return unchecked((ushort)generatedValue);
+                return (TValue)(object)unchecked((ushort)generatedValue);
             }
 
-            if (targetType == typeof(byte))
+            if (typeof(TValue) == typeof(byte))
             {
-                return unchecked((byte)generatedValue);
+                return (TValue)(object)unchecked((byte)generatedValue);
             }
 
-            return Convert.ChangeType(generatedValue, targetType);
+            return (TValue)Convert.ChangeType(generatedValue, typeof(TValue));
         }
-
-        public override bool GeneratesTemporaryValues => true;
     }
 }

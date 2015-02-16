@@ -11,14 +11,14 @@ namespace Microsoft.Data.Entity.InMemory
 {
     public class InMemoryValueGeneratorFactorySelector : ValueGeneratorFactorySelector
     {
-        private readonly ValueGeneratorFactory<InMemoryValueGenerator> _inMemoryFactory;
+        private readonly InMemoryIntegerValueGeneratorFactory _inMemoryFactory;
 
         public InMemoryValueGeneratorFactorySelector(
-            [NotNull] ValueGeneratorFactory<GuidValueGenerator> guidFactory,
-            [NotNull] ValueGeneratorFactory<InMemoryValueGenerator> inMemoryFactory,
-            [NotNull] ValueGeneratorFactory<TemporaryIntegerValueGenerator> integerFactory,
-            [NotNull] ValueGeneratorFactory<TemporaryStringValueGenerator> stringFactory,
-            [NotNull] ValueGeneratorFactory<TemporaryBinaryValueGenerator> binaryFactory)
+            [NotNull] SimpleValueGeneratorFactory<GuidValueGenerator> guidFactory,
+            [NotNull] InMemoryIntegerValueGeneratorFactory inMemoryFactory,
+            [NotNull] TemporaryIntegerValueGeneratorFactory integerFactory,
+            [NotNull] SimpleValueGeneratorFactory<TemporaryStringValueGenerator> stringFactory,
+            [NotNull] SimpleValueGeneratorFactory<TemporaryBinaryValueGenerator> binaryFactory)
             : base(guidFactory, integerFactory, stringFactory, binaryFactory)
         {
             Check.NotNull(inMemoryFactory, nameof(inMemoryFactory));

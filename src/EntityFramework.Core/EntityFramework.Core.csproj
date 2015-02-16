@@ -314,20 +314,24 @@
       <Link>Extensions\Internal\SharedTypeExtensions.cs</Link>
     </Compile>
     <Compile Include="ValueGeneration\GuidValueGenerator.cs" />
-    <Compile Include="ValueGeneration\HiLoValuesGenerator.cs" />
+    <Compile Include="ValueGeneration\HiLoValueGenerator.cs" />
     <Compile Include="ValueGeneration\Internal\IValueGeneratorPool.cs" />
     <Compile Include="ValueGeneration\Internal\SingleValueGeneratorPool.cs" />
     <Compile Include="ValueGeneration\Internal\ValueGeneratorCache.cs" />
     <Compile Include="ValueGeneration\Internal\ValueGeneratorPool.cs" />
+    <Compile Include="ValueGeneration\SimpleTemporaryValueGenerator.cs" />
+    <Compile Include="ValueGeneration\SimpleValueGeneratorFactory.cs" />
+    <Compile Include="ValueGeneration\SimpleValueGeneratorFactory`.cs" />
     <Compile Include="ValueGeneration\ValueGenerator.cs" />
     <Compile Include="ValueGeneration\ValueGeneratorFactory.cs" />
     <Compile Include="ValueGeneration\SequentialGuidValueGenerator.cs" />
     <Compile Include="ValueGeneration\SimpleValueGenerator.cs" />
-    <Compile Include="ValueGeneration\ValueGeneratorFactory`.cs" />
+    <Compile Include="ValueGeneration\TemporaryIntegerValueGeneratorFactory.cs" />
     <Compile Include="ValueGeneration\TemporaryBinaryValueGenerator.cs" />
     <Compile Include="ValueGeneration\TemporaryIntegerValueGenerator.cs" />
     <Compile Include="ValueGeneration\TemporaryStringValueGenerator.cs" />
     <Compile Include="ValueGeneration\ValueGeneratorFactorySelector.cs" />
+    <Compile Include="ValueGeneration\ValueGenerator`.cs" />
     <EmbeddedResource Include="Properties\Strings.resx">
       <LogicalName>EntityFramework.Core.Strings.resources</LogicalName>
       <SubType>Designer</SubType>

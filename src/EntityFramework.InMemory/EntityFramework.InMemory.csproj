@@ -65,6 +65,7 @@
     <Compile Include="InMemoryDatabaseExtensions.cs" />
     <Compile Include="InMemoryDatabaseFacade.cs" />
     <Compile Include="InMemoryDataStoreServices.cs" />
+    <Compile Include="InMemoryIntegerValueGeneratorFactory.cs" />
     <Compile Include="InMemoryModelBuilderFactory.cs" />
     <Compile Include="InMemoryModelSource.cs" />
     <Compile Include="InMemoryOptionsExtension.cs" />
@@ -78,7 +79,7 @@
     <Compile Include="Query\InMemoryQueryContext.cs" />
     <Compile Include="Extensions\InMemoryDbContextOptionsExtensions.cs" />
     <Compile Include="Extensions\InMemoryEntityServicesBuilderExtensions.cs" />
-    <Compile Include="InMemoryValueGenerator.cs" />
+    <Compile Include="InMemoryIntegerValueGenerator.cs" />
     <Compile Include="InMemoryValueGeneratorCache.cs" />
     <Compile Include="InMemoryValueGeneratorFactorySelector.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

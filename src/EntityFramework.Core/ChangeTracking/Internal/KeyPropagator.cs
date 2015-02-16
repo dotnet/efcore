@@ -52,7 +52,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
                 if (valueGenerator != null)
                 {
-                    entry[property] = valueGenerator.Next(property, _storeServices);
+                    entry[property] = valueGenerator.Next(_storeServices);
                 }
             }
         }

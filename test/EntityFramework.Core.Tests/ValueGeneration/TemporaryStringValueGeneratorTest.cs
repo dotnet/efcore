@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.ValueGeneration;
 using Xunit;
@@ -13,22 +12,17 @@ namespace Microsoft.Data.Entity.Tests.ValueGeneration
 {
     public class TemporaryStringValueGeneratorTest
     {
-        private static readonly Model _model = TestHelpers.Instance.BuildModelFor<WithString>();
-
         [Fact]
         public void Creates_GUID_strings()
         {
             var generator = new TemporaryStringValueGenerator();
 
-            var entry = TestHelpers.Instance.CreateInternalEntry<WithString>(_model);
-            var property = entry.EntityType.GetProperty("Id");
-
             var values = new HashSet<Guid>();
             for (var i = 0; i < 100; i++)
             {
-                var generatedValue = generator.Next(property, new DbContextService<DataStoreServices>(() => null));
+                var generatedValue = generator.Next(new DbContextService<DataStoreServices>(() => null));
 
-                values.Add(Guid.Parse((string)generatedValue));
+                values.Add(Guid.Parse(generatedValue));
             }
 
             Assert.Equal(100, values.Count);
@@ -38,11 +32,6 @@ namespace Microsoft.Data.Entity.Tests.ValueGeneration
         public void Generates_temp_values()
         {
             Assert.True(new TemporaryStringValueGenerator().GeneratesTemporaryValues);
-        }
-
-        private class WithString
-        {
-            public string Id { get; set; }
         }
     }
 }

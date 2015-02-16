@@ -852,6 +852,14 @@ namespace Microsoft.Data.Entity.Internal
             return string.Format(CultureInfo.CurrentCulture, GetString("ExpressionParameterizationException", "expression"), expression);
         }
 
+        /// <summary>
+        /// The '{factory}' cannot create a value generator for property '{property}' on entity type '{entityType}'. Only integer properties are supported.
+        /// </summary>
+        public static string InvalidValueGeneratorFactoryProperty([CanBeNull] object factory, [CanBeNull] object property, [CanBeNull] object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("InvalidValueGeneratorFactoryProperty", "factory", "property", "entityType"), factory, property, entityType);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

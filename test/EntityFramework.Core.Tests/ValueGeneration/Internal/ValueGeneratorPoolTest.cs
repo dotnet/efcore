@@ -51,9 +51,9 @@ namespace Microsoft.Data.Entity.Tests.ValueGeneration.Internal
             factoryMock.Verify(m => m.Create(property), Times.Exactly(3));
         }
 
-        private static TemporaryIntegerValueGenerator CreateValueGeneratorCallback()
+        private static TemporaryIntegerValueGenerator<int> CreateValueGeneratorCallback()
         {
-            return new TemporaryIntegerValueGenerator();
+            return new TemporaryIntegerValueGenerator<int>();
         }
 
         private static Property CreateProperty()

@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             VerifySingleton<InMemoryModelBuilderFactory>();
             VerifySingleton<InMemoryValueGeneratorCache>();
             VerifySingleton<InMemoryValueGeneratorFactorySelector>();
-            VerifySingleton<ValueGeneratorFactory<InMemoryValueGenerator>>();
+            VerifySingleton<InMemoryIntegerValueGeneratorFactory>();
             VerifySingleton<InMemoryDatabase>();
             VerifySingleton<InMemoryModelSource>();
 

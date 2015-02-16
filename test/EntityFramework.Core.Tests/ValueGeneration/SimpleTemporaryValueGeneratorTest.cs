@@ -8,7 +8,7 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.Tests.ValueGeneration
 {
-    public class SimpleValueGeneratorTest
+    public class SimpleTemporaryValueGeneratorTest
     {
         [Fact]
         public void Next_with_services_delegates_to_non_services_method()
@@ -18,10 +18,10 @@ namespace Microsoft.Data.Entity.Tests.ValueGeneration
             var generatedValue = generator.Next(new DbContextService<DataStoreServices>(() => null));
 
             Assert.Equal(1, generatedValue);
-            Assert.False(generator.GeneratesTemporaryValues);
+            Assert.True(generator.GeneratesTemporaryValues);
         }
 
-        private class TestValueGenerator : SimpleValueGenerator<int>
+        private class TestValueGenerator : SimpleTemporaryValueGenerator<int>
         {
             public override int Next() => 1;
         }

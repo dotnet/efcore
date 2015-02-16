@@ -13,15 +13,15 @@ namespace Microsoft.Data.Entity.SqlServer
     public class SqlServerValueGeneratorFactorySelector : ValueGeneratorFactorySelector
     {
         private readonly SqlServerSequenceValueGeneratorFactory _sequenceFactory;
-        private readonly ValueGeneratorFactory<SequentialGuidValueGenerator> _sequentialGuidFactory;
+        private readonly SimpleValueGeneratorFactory<SequentialGuidValueGenerator> _sequentialGuidFactory;
 
         public SqlServerValueGeneratorFactorySelector(
-            [NotNull] ValueGeneratorFactory<GuidValueGenerator> guidFactory,
-            [NotNull] ValueGeneratorFactory<TemporaryIntegerValueGenerator> integerFactory,
-            [NotNull] ValueGeneratorFactory<TemporaryStringValueGenerator> stringFactory,
-            [NotNull] ValueGeneratorFactory<TemporaryBinaryValueGenerator> binaryFactory,
+            [NotNull] SimpleValueGeneratorFactory<GuidValueGenerator> guidFactory,
+            [NotNull] TemporaryIntegerValueGeneratorFactory integerFactory,
+            [NotNull] SimpleValueGeneratorFactory<TemporaryStringValueGenerator> stringFactory,
+            [NotNull] SimpleValueGeneratorFactory<TemporaryBinaryValueGenerator> binaryFactory,
             [NotNull] SqlServerSequenceValueGeneratorFactory sequenceFactory,
-            [NotNull] ValueGeneratorFactory<SequentialGuidValueGenerator> sequentialGuidFactory)
+            [NotNull] SimpleValueGeneratorFactory<SequentialGuidValueGenerator> sequentialGuidFactory)
             : base(guidFactory, integerFactory, stringFactory, binaryFactory)
         {
             Check.NotNull(sequenceFactory, nameof(sequenceFactory));

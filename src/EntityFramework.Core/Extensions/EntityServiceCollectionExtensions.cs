@@ -40,11 +40,11 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddScoped<IPropertyListener>(p => p.GetService<ChangeDetector>());
 
             serviceCollection.TryAdd(new ServiceCollection()
-                .AddSingleton<ValueGeneratorFactory<TemporaryIntegerValueGenerator>>()
-                .AddSingleton<ValueGeneratorFactory<TemporaryStringValueGenerator>>()
-                .AddSingleton<ValueGeneratorFactory<TemporaryBinaryValueGenerator>>()
-                .AddSingleton<ValueGeneratorFactory<GuidValueGenerator>>()
-                .AddSingleton<ValueGeneratorFactory<SequentialGuidValueGenerator>>()
+                .AddSingleton<TemporaryIntegerValueGeneratorFactory>()
+                .AddSingleton<SimpleValueGeneratorFactory<TemporaryStringValueGenerator>>()
+                .AddSingleton<SimpleValueGeneratorFactory<TemporaryBinaryValueGenerator>>()
+                .AddSingleton<SimpleValueGeneratorFactory<GuidValueGenerator>>()
+                .AddSingleton<SimpleValueGeneratorFactory<SequentialGuidValueGenerator>>()
                 .AddSingleton<DbSetFinder>()
                 .AddSingleton<DbSetInitializer>()
                 .AddSingleton<DbSetSource>()

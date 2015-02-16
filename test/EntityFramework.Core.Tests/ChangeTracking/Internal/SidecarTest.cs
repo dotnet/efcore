@@ -374,7 +374,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             entity = entity ?? new Banana { Name = "Stand", Fk = 88 };
 
             var customServices = new ServiceCollection()
-                .AddSingleton<ValueGeneratorFactory<InMemoryValueGenerator>, InMemoryTemporaryValueGeneratorFactory>();
+                .AddSingleton<InMemoryIntegerValueGeneratorFactory, InMemoryTemporaryValueGeneratorFactory>();
 
             var entry = TestHelpers.Instance.CreateContextServices(customServices, _model)
                 .GetRequiredService<StateManager>()
@@ -465,11 +465,11 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             public string Fk2 { get; set; }
         }
 
-        private class InMemoryTemporaryValueGeneratorFactory : ValueGeneratorFactory<InMemoryValueGenerator>
+        private class InMemoryTemporaryValueGeneratorFactory : InMemoryIntegerValueGeneratorFactory
         {
             public override ValueGenerator Create(IProperty property)
             {
-                return new TemporaryIntegerValueGenerator();
+                return new TemporaryIntegerValueGeneratorFactory().Create(property);
             }
         }
     }

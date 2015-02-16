@@ -2,20 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.ValueGeneration
 {
-    public class TemporaryStringValueGenerator : SimpleValueGenerator
+    public class TemporaryStringValueGenerator : SimpleTemporaryValueGenerator<string>
     {
-        public override object Next(IProperty property)
-        {
-            Check.NotNull(property, nameof(property));
-
-            return Guid.NewGuid().ToString();
-        }
-
-        public override bool GeneratesTemporaryValues => true;
+        public override string Next() => Guid.NewGuid().ToString();
     }
 }
