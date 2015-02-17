@@ -35,10 +35,9 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                 }
 
                 var builder = new SqlConnectionStringBuilder(ConnectionString);
-                className = CSharpUtilities.Instance.GenerateCSharpIdentifier(builder.InitialCatalog, null);
-                if (className != null)
+                if (builder.InitialCatalog != null)
                 {
-                    return className;
+                    return CSharpUtilities.Instance.GenerateCSharpIdentifier(builder.InitialCatalog, null);
                 }
 
                 return _defaultDbContextName;

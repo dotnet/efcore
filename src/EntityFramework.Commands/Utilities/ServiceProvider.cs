@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Commands.Utilities
 {
@@ -17,13 +18,18 @@ namespace Microsoft.Data.Entity.Commands.Utilities
             _backupServiceProvider = backupServiceProvider;
         }
 
-        public void AddService(Type type, object service)
+        public virtual void AddService([NotNull]Type type, [NotNull]object service)
         {
+            Check.NotNull(type, nameof(type));
+            Check.NotNull(service, nameof(service));
+
             _localServices.Add(type, service);
         }
 
-        public object GetService(Type serviceType)
+        public virtual object GetService([NotNull]Type serviceType)
         {
+            Check.NotNull(serviceType, nameof(serviceType));
+
             object service;
             if (_localServices.TryGetValue(serviceType, out service))
             {

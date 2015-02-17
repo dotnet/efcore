@@ -2,14 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Data.SqlClient;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Relational.Design.CodeGeneration;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 
@@ -19,13 +18,12 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
     {
         private const string DefaultFileExtension = ".cs";
         private readonly IServiceProvider _serviceProvider;
-        private ILogger _logger;
 
         public ReverseEngineeringGenerator(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
-            _logger = (ILogger)serviceProvider.GetService(typeof(ILogger));
-            if (_logger == null)
+            Logger = (ILogger)serviceProvider.GetService(typeof(ILogger));
+            if (Logger == null)
             {
                 throw new ArgumentException(typeof(ReverseEngineeringGenerator).Name + " cannot find a service of type " + typeof(ILogger).Name);
             }
@@ -33,13 +31,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 
         public virtual string FileExtension { get; set; } = DefaultFileExtension;
 
-        public ILogger Logger
-        {
-            get
-            {
-                return _logger;
-            }
-        }
+        public virtual ILogger Logger { get; }
 
         public async Task Generate(ReverseEngineeringConfiguration configuration)
         {
@@ -65,8 +57,10 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             {
                 throw new InvalidOperationException(
                     "Provider " + provider.GetType().FullName
-                    + " did not provide a ContextModelCodeGeneratorContext");
+                    + " did not provide a ContextModelCodeGenerator");
             }
+
+            CheckOutputFiles(configuration.OutputPath, dbContextCodeGenerator.ClassName, metadataModel);
 
             var contextStringBuilder = new IndentedStringBuilder();
             dbContextCodeGenerator.Generate(contextStringBuilder);
@@ -88,19 +82,19 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 };
 
                 //TODO - check to see whether user has an override class for this in the current project first
-                var entityTypeCodeGeneratorContext =
+                var entityTypeCodeGenerator =
                     provider.GetEntityTypeModelCodeGenerator(
                         this,
                         entityTypeGeneratorModel);
-                if (entityTypeCodeGeneratorContext == null)
+                if (entityTypeCodeGenerator == null)
                 {
                     throw new InvalidOperationException(
                         "Provider " + provider.GetType().FullName
-                        + " did not provide a EntityTypeModelCodeGeneratorContext");
+                        + " did not provide a EntityTypeModelCodeGenerator");
                 }
 
                 var entityTypeStringBuilder = new IndentedStringBuilder();
-                entityTypeCodeGeneratorContext.Generate(entityTypeStringBuilder);
+                entityTypeCodeGenerator.Generate(entityTypeStringBuilder);
 
                 // output EntityType poco .cs file
                 using (var sourceStream = new MemoryStream(Encoding.UTF8.GetBytes(entityTypeStringBuilder.ToString())))
@@ -141,21 +135,47 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             return metadataModel;
         }
 
+        public virtual void CheckOutputFiles(string outputDirectoryName, string dbContextClassName, IModel metadataModel)
+        {
+            if (!Directory.Exists(outputDirectoryName))
+            {
+                return;
+            }
+
+            var filesToTest = new List<string>()
+                {
+                    dbContextClassName + FileExtension
+                };
+            filesToTest.AddRange(metadataModel.EntityTypes
+                .Select(entityType => entityType.Name + FileExtension));
+
+            var readOnlyFiles = new List<string>();
+            foreach (var fileName in filesToTest)
+            {
+                var fullFileName = Path.Combine(outputDirectoryName, fileName);
+                if (File.Exists(fullFileName))
+                {
+                    var attributes = File.GetAttributes(fullFileName);
+                    if (attributes.HasFlag(FileAttributes.ReadOnly))
+                    {
+                        readOnlyFiles.Add(fileName);
+                    }
+                }
+            }
+
+            if (readOnlyFiles.Count > 0)
+            {
+                throw new InvalidOperationException("No files generated in directory " + outputDirectoryName
+                    + ". The following file(s) already exist and must be made writeable to continue: "
+                    + string.Join(", ", readOnlyFiles));
+            }
+        }
+
         private async Task OutputFile(string outputDirectoryName, string outputFileName, Stream sourceStream)
         {
             Directory.CreateDirectory(outputDirectoryName);
 
             var fullFileName = Path.Combine(outputDirectoryName, outputFileName);
-            if (File.Exists(fullFileName))
-            {
-                //ensure file is writeable
-                FileAttributes attributes = File.GetAttributes(fullFileName);
-                if (attributes.HasFlag(FileAttributes.ReadOnly))
-                {
-                    File.SetAttributes(fullFileName, attributes & ~FileAttributes.ReadOnly);
-                }
-            }
-
             using (var writeStream = new FileStream(fullFileName, FileMode.Create, FileAccess.Write))
             {
                 await sourceStream.CopyToAsync(writeStream);

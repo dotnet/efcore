@@ -295,7 +295,7 @@ namespace Microsoft.Data.Entity.Commands
             return 0;
         }
 
-        public virtual int ReverseEngineer(string connectionString)
+        public virtual int ReverseEngineer([NotNull] string connectionString)
         {
             var providerAssembly = GetReverseEngineerProviderAssembly(_defaultReverseEngineeringProviderAssembly);
             if (providerAssembly == null)
