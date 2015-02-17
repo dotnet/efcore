@@ -6,7 +6,7 @@
     },
     "dependencies": {
         "EntityFramework.Relational": "7.0.0-*",
-        "Microsoft.CodeAnalysis.CSharp": "1.0.0-rc1-*",
+        "Microsoft.CodeAnalysis.CSharp": "1.0.0-rc2-*",
         "Microsoft.Framework.DependencyInjection": "1.0.0-*"
     },
     "code": [ "**\\*.cs", "..\\Shared\\*.cs" ],
