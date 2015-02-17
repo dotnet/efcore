@@ -242,6 +242,16 @@ WHERE [o].[CustomerID] = 'ALFKI'",
                 Sql);
         }
 
+        public override void Count_with_order_by()
+        {
+            base.Count_with_order_by();
+
+            Assert.Equal(
+                @"SELECT COUNT(*)
+FROM [Orders] AS [o]",
+                Sql);
+        }
+
         public override void Sum_with_no_arg()
         {
             base.Sum_with_no_arg();
@@ -1033,8 +1043,12 @@ WHERE [c].[CustomerID] = 'ALFKI'", Sql);
 
         public override void Join_OrderBy_Count()
         {
-            //// issue 1251
-            Assert.Throws<SqlException>(() => base.Join_OrderBy_Count());
+            base.Join_OrderBy_Count();
+
+            Assert.Equal(
+                @"SELECT COUNT(*)
+FROM [Customers] AS [c]
+INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]", Sql);
         }
 
         public override void Multiple_joins_Where_Order_Any()

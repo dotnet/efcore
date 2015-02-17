@@ -1872,6 +1872,12 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void Count_with_order_by()
+        {
+            AssertQuery<Order>(os => os.OrderBy(o => o.CustomerID).Count());
+        }
+
+        [Fact]
         public virtual void Distinct()
         {
             AssertQuery<Customer>(
