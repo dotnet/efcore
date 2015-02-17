@@ -76,7 +76,6 @@ namespace Microsoft.Data.Entity.Storage
             return new QueryBuffer(
                 _stateManager,
                 EntityKeyFactorySource,
-                EntityMaterializerSource,
                 _collectionAccessorSource,
                 _propertySetterSource);
         }

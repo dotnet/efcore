@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var reader = Mock.Of<IValueReader>();
             new EntityMaterializerSource(new MemberMapper(new FieldMatcher())).GetMaterializer(typeMock.Object)(reader);
 
-            materializerMock.Verify(m => m.CreatEntity(reader));
+            materializerMock.Verify(m => m.CreateEntity(reader));
         }
 
         [Fact]

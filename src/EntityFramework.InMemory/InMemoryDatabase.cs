@@ -4,6 +4,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
@@ -38,7 +39,10 @@ namespace Microsoft.Data.Entity.InMemory
         public virtual bool EnsureCreated([NotNull] IModel model)
         {
             var returnValue = !_tables.HasValue;
+
+            // ReSharper disable once UnusedVariable
             var _ = _tables.Value;
+
             return returnValue;
         }
 
@@ -47,18 +51,28 @@ namespace Microsoft.Data.Entity.InMemory
             _tables.ExchangeValue(ts => ImmutableDictionary<IEntityType, InMemoryTable>.Empty);
         }
 
-        public virtual InMemoryTable GetTable([NotNull] IEntityType entityType)
+        public virtual IEnumerable<InMemoryTable> GetTables([NotNull] IEntityType entityType)
         {
-            InMemoryTable table;
+            if (!_tables.HasValue)
+            {
+                yield break;
+            }
 
-            return _tables.HasValue
-                   && _tables.Value.TryGetValue(entityType, out table)
-                ? table
-                : InMemoryTable.Empty;
+            foreach (var et in entityType.GetConcreteTypesInHierarchy())
+            {
+                InMemoryTable table;
+
+                if (_tables.Value.TryGetValue(et, out table))
+                {
+                    yield return table;
+                }
+            }
         }
 
         public virtual int ExecuteTransaction([NotNull] IEnumerable<InternalEntityEntry> entries)
         {
+            Check.NotNull(entries, nameof(entries));
+
             var rowsAffected = 0;
 
             _tables.ExchangeValue(ts =>
@@ -67,10 +81,14 @@ namespace Microsoft.Data.Entity.InMemory
 
                     foreach (var entry in entries)
                     {
+                        var entityType = entry.EntityType;
+
+                        Debug.Assert(!entityType.IsAbstract);
+
                         InMemoryTable table;
-                        if (!ts.TryGetValue(entry.EntityType, out table))
+                        if (!ts.TryGetValue(entityType, out table))
                         {
-                            ts = ts.Add(entry.EntityType, table = new InMemoryTable());
+                            ts = ts.Add(entityType, table = new InMemoryTable(entityType));
                         }
 
                         switch (entry.EntityState)
@@ -111,11 +129,18 @@ namespace Microsoft.Data.Entity.InMemory
 
         public class InMemoryTable : IEnumerable<object[]>
         {
-            internal static readonly InMemoryTable Empty = new InMemoryTable();
-
             private readonly ThreadSafeLazyRef<ImmutableDictionary<EntityKey, object[]>> _rows
                 = new ThreadSafeLazyRef<ImmutableDictionary<EntityKey, object[]>>(
                     () => ImmutableDictionary<EntityKey, object[]>.Empty);
+
+            public InMemoryTable([NotNull] IEntityType entityType)
+            {
+                Check.NotNull(entityType, nameof(entityType));
+
+                EntityType = entityType;
+            }
+
+            public virtual IEntityType EntityType { get; private set; }
 
             internal void Create(InternalEntityEntry entry)
             {

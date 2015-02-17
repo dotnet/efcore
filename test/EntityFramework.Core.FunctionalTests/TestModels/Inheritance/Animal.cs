@@ -7,5 +7,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.Inheritance
     {
         public string Species { get; set; }
         public string Name { get; set; }
+        public int CountryId { get; set; }
     }
 }

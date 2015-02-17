@@ -126,6 +126,7 @@
     <Compile Include="Infrastructure\ModelValidatorBase.cs" />
     <Compile Include="Infrastructure\IAccessor.cs" />
     <Compile Include="ModelBuilder.cs" />
+    <Compile Include="Query\EntityLoadInfo.cs" />
     <Compile Include="Query\IIncludableQueryable.cs" />
     <Compile Include="Infrastructure\DbContextService.cs" />
     <Compile Include="Infrastructure\DbContextActivator.cs" />

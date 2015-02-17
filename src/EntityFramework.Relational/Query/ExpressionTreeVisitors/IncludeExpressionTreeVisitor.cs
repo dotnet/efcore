@@ -71,7 +71,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                             Expression.NewArrayInit(
                                 _queryCompilationContext.QueryMethodProvider.IncludeRelatedValuesFactoryType,
                                 CreateIncludeRelatedValuesStrategyFactories(_querySource, _navigationPath)),
-                             Expression.Constant(_querySourceRequiresTracking));
+                            Expression.Constant(_querySourceRequiresTracking));
                 }
 
                 return newExpression;
@@ -95,12 +95,13 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             var canProduceInnerJoin = true;
             foreach (var navigation in navigationPath)
             {
+                var targetEntityType = navigation.GetTargetType();
+                var targetTableName = _queryCompilationContext.GetTableName(targetEntityType);
+                var targetTableAlias = targetTableName.First().ToString().ToLower();
+                var materializer = _queryCompilationContext.EntityMaterializerSource.GetMaterializer(targetEntityType);
+
                 if (!navigation.IsCollection())
                 {
-                    var targetEntityType = navigation.GetTargetType();
-                    var targetTableName = _queryCompilationContext.GetTableName(targetEntityType);
-                    var targetTableAlias = targetTableName.First().ToString().ToLower();
-
                     var joinedTableExpression
                         = new TableExpression(
                             targetTableName,
@@ -117,7 +118,11 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                                 p,
                                 joinedTableExpression));
 
-                    canProduceInnerJoin = canProduceInnerJoin && (navigation.ForeignKey.IsRequired && navigation.PointsToPrincipal);
+                    canProduceInnerJoin
+                        = canProduceInnerJoin
+                          && (navigation.ForeignKey.IsRequired
+                              && navigation.PointsToPrincipal);
+
                     var joinExpression = canProduceInnerJoin
                         ? selectExpression
                             .AddInnerJoin(joinedTableExpression, columnExpressions)
@@ -143,7 +148,8 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                                     .CreateReferenceIncludeRelatedValuesStrategyMethod,
                                 Expression.Convert(EntityQueryModelVisitor.QueryContextParameter, typeof(RelationalQueryContext)),
                                 Expression.Constant(readerIndex),
-                                Expression.Constant(readerOffset)));
+                                Expression.Constant(readerOffset),
+                                Expression.Constant(materializer)));
                 }
                 else
                 {
@@ -159,10 +165,6 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                                 principalTable,
                                 OrderingDirection.Asc);
                     }
-
-                    var targetEntityType = navigation.GetTargetType();
-                    var targetTableName = _queryCompilationContext.GetTableName(targetEntityType);
-                    var targetTableAlias = targetTableName.First().ToString().ToLower();
 
                     var targetSelectExpression = new SelectExpression();
 
@@ -246,7 +248,8 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
                                             EntityQueryModelVisitor.QueryContextParameter,
                                             readerParameter,
                                             Expression.Constant(targetEntityType)),
-                                        readerParameter))));
+                                        readerParameter)),
+                                Expression.Constant(materializer)));
                 }
             }
         }

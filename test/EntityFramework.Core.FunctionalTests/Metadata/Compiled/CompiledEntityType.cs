@@ -48,10 +48,14 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
 
         public Type Type => typeof(TEntity);
 
+        public bool IsAbstract => false;
+
+        public bool HasDerivedTypes => false;
+
         public IEntityType BaseType => null;
 
         public IEntityType RootType => null;
-
+        
         public string SimpleName => typeof(TEntity).Name;
 
         protected abstract IKey LoadKey();
@@ -86,8 +90,18 @@ namespace Microsoft.Data.Entity.Metadata.Compiled
 
         public IEnumerable<IProperty> Properties => EnsurePropertiesInitialized();
 
-        private IProperty[] EnsurePropertiesInitialized() => LazyInitializer.EnsureInitialized(ref _properties, LoadProperties);
+        public IEnumerable<IEntityType> GetDerivedTypes()
+        {
+            return Enumerable.Empty<IEntityType>();
+        }
 
+        public IEnumerable<IEntityType> GetConcreteTypesInHierarchy()
+        {
+            return Enumerable.Empty<IEntityType>();
+        }
+
+        private IProperty[] EnsurePropertiesInitialized() => LazyInitializer.EnsureInitialized(ref _properties, LoadProperties);
+        
         public int PropertyCount  => 0;
 
         public int ShadowPropertyCount => 0;

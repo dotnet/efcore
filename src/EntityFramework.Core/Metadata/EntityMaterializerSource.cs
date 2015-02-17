@@ -51,12 +51,17 @@ namespace Microsoft.Data.Entity.Metadata
             var materializer = entityType as IEntityMaterializer;
             if (materializer != null)
             {
-                return materializer.CreatEntity;
+                return materializer.CreateEntity;
             }
 
             if (!entityType.HasClrType)
             {
                 throw new InvalidOperationException(Strings.NoClrType(entityType.Name));
+            }
+
+            if (entityType.IsAbstract)
+            {
+                throw new InvalidOperationException(Strings.CannotMaterializeAbstractType(entityType));
             }
 
             return _cache.GetOrAdd(entityType.Type, k => BuildDelegate(entityType));

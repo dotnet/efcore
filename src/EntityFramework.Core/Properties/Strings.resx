@@ -439,7 +439,7 @@
     <value>An exception was thrown while attempting to evaluate the LINQ query parameter expression '{expression}'.</value>
   </data>
   <data name="InvalidValueGeneratorFactoryProperty" xml:space="preserve">
-      <value>The '{factory}' cannot create a value generator for property '{property}' on entity type '{entityType}'. Only integer properties are supported.</value>
+    <value>The '{factory}' cannot create a value generator for property '{property}' on entity type '{entityType}'. Only integer properties are supported.</value>
   </data>
   <data name="InvalidForDerivedEntity" xml:space="preserve">
     <value>The entity type method '{method}' is not valid for derived type '{derivedType}'.</value>
@@ -452,5 +452,11 @@
   </data>
   <data name="GraphDoesNotContainVertex" xml:space="preserve">
     <value>The edge cannot be added because the graph does not contain vertex '{vertex}'.</value>
+  </data>
+  <data name="CannotMaterializeAbstractType" xml:space="preserve">
+    <value>Unable to create an instance of type entity type '{entityType}' because it is abstract. Either make it non-abstract or consider mapping at least one derived type.</value>
+  </data>
+  <data name="ForeignKeyReferencedEntityKeyMismatch" xml:space="preserve">
+    <value>The provided referenced entity key '{referencedKey}' is not a key on the entity type '{referencedEntityType}'.</value>
   </data>
 </root>

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -32,6 +33,7 @@ namespace Microsoft.Data.Entity
                     from method in type.GetMethods(PublicInstance)
                     where method.DeclaringType == type
                           && !(method.IsVirtual && !method.IsFinal)
+                          && !method.GetCustomAttributes(typeof(CompilerGeneratedAttribute)).Any()
                     select type.FullName + "." + method.Name)
                     .ToList();
 

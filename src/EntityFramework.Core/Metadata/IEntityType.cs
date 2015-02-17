@@ -12,8 +12,14 @@ namespace Microsoft.Data.Entity.Metadata
         IModel Model { get; }
 
         string Name { get; }
-
         string SimpleName { get; }
+        int PropertyCount { get; }
+        int ShadowPropertyCount { get; }
+        int OriginalValueCount { get; }
+        bool IsAbstract { get; }
+        bool HasClrType { get; }
+        bool UseEagerSnapshots { get; }
+        bool HasDerivedTypes { get; }
 
         [CanBeNull]
         IEntityType BaseType { get; }
@@ -48,11 +54,7 @@ namespace Microsoft.Data.Entity.Metadata
         IReadOnlyList<IIndex> Indexes { get; }
         IReadOnlyList<IKey> Keys { get; }
 
-        int PropertyCount { get; }
-        int ShadowPropertyCount { get; }
-        int OriginalValueCount { get; }
-
-        bool HasClrType { get; }
-        bool UseEagerSnapshots { get; }
+        IEnumerable<IEntityType> GetDerivedTypes();
+        IEnumerable<IEntityType> GetConcreteTypesInHierarchy();
     }
 }

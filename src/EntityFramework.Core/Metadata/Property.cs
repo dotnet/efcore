@@ -135,7 +135,7 @@ namespace Microsoft.Data.Entity.Metadata
                 {
                     _shadowIndex = value ? 0 : -1;
 
-                    EntityType.PropertyMetadataChanged(this);
+                    EntityType.OnPropertyMetadataChanged(this, this);
                 }
             }
         }
@@ -149,7 +149,7 @@ namespace Microsoft.Data.Entity.Metadata
                 {
                     SetFlag(value, PropertyFlags.IsConcurrencyToken);
 
-                    EntityType.PropertyMetadataChanged(this);
+                    EntityType.OnPropertyMetadataChanged(this, this);
                 }
             }
         }

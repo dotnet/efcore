@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
@@ -12,6 +13,59 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 {
     public class EntityTypeTest : IClassFixture<InMemoryFixture>
     {
+        public class Root
+        {
+        }
+
+        public class Leaf : Root
+        {
+        }
+
+        [Fact]
+        public void Original_value_index_maintenance_when_inheritance()
+        {
+            var model = new Model();
+            var root = model.AddEntityType(typeof(Root));
+            var leaf = model.AddEntityType(typeof(Leaf));
+
+            var a = leaf.AddProperty("A", typeof(int), shadowProperty: true);
+
+            leaf.BaseType = root;
+
+            var b = root.AddProperty("B", typeof(int), shadowProperty: true);
+
+            Assert.Equal(0, b.OriginalValueIndex);
+            Assert.Equal(1, a.OriginalValueIndex);
+        }
+
+        [Fact]
+        public void Introduce_duplicate_property_when_inheritance()
+        {
+            var model = new Model();
+            var root = model.AddEntityType(typeof(Root));
+            var leaf = model.AddEntityType(typeof(Leaf));
+
+            leaf.AddProperty("A", typeof(int), shadowProperty: true);
+
+            leaf.BaseType = root;
+
+            Assert.Throws<InvalidOperationException>(() =>
+                root.AddProperty("A", typeof(int), shadowProperty: true));
+        }
+
+        [Fact]
+        public void Introduce_duplicate_property_when_inheritance2()
+        {
+            var model = new Model();
+            var root = model.AddEntityType(typeof(Root));
+            var leaf = model.AddEntityType(typeof(Leaf));
+
+            leaf.AddProperty("A", typeof(int), shadowProperty: true);
+            root.AddProperty("A", typeof(int), shadowProperty: true);
+            
+            Assert.Throws<InvalidOperationException>(() => leaf.BaseType = root);
+        }
+
         [Fact]
         public void Can_use_different_entity_types_end_to_end()
         {
@@ -20,6 +74,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             Can_add_update_delete_end_to_end<List<Private>>();
         }
 
+        // ReSharper disable once ClassNeverInstantiated.Local
         private class Private
         {
         }

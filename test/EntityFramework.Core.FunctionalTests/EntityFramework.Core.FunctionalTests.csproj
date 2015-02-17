@@ -126,6 +126,7 @@
     <Compile Include="TestModels\ComplexNavigationsModel\Level4.cs" />
     <Compile Include="TestModels\Inheritance\Animal.cs" />
     <Compile Include="TestModels\Inheritance\Bird.cs" />
+    <Compile Include="TestModels\Inheritance\Country.cs" />
     <Compile Include="TestModels\Inheritance\Eagle.cs" />
     <Compile Include="TestModels\Inheritance\Kiwi.cs" />
     <Compile Include="TestModels\Inheritance\AnimalContext.cs" />

@@ -5,7 +5,7 @@ namespace Microsoft.Data.Entity.Internal
     using System.Globalization;
     using System.Reflection;
     using System.Resources;
-    using JetBrains.Annotations;
+	using JetBrains.Annotations;
 
     public static class Strings
     {
@@ -138,14 +138,6 @@ namespace Microsoft.Data.Entity.Internal
         public static string CollectionArgumentIsEmpty([CanBeNull] object argumentName)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("CollectionArgumentIsEmpty", "argumentName"), argumentName);
-        }
-
-        /// <summary>
-        /// The edge cannot be added because the graph does not contain vertex '{vertex}'.
-        /// </summary>
-        public static string GraphDoesNotContainVertex([CanBeNull] object vertex)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("GraphDoesNotContainVertex", "vertex"), vertex);
         }
 
         /// <summary>
@@ -906,6 +898,30 @@ namespace Microsoft.Data.Entity.Internal
         public static string DerivedEntityCannotHaveKeys([CanBeNull] object entityType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("DerivedEntityCannotHaveKeys", "entityType"), entityType);
+        }
+
+        /// <summary>
+        /// The edge cannot be added because the graph does not contain vertex '{vertex}'.
+        /// </summary>
+        public static string GraphDoesNotContainVertex([CanBeNull] object vertex)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("GraphDoesNotContainVertex", "vertex"), vertex);
+        }
+
+        /// <summary>
+        /// Unable to create an instance of type entity type '{entityType}' because it is abstract. Either make it non-abstract or consider mapping at least one derived type.
+        /// </summary>
+        public static string CannotMaterializeAbstractType([CanBeNull] object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("CannotMaterializeAbstractType", "entityType"), entityType);
+        }
+
+        /// <summary>
+        /// The provided referenced entity key '{referencedKey}' is not a key on the entity type '{referencedEntityType}'.
+        /// </summary>
+        public static string ForeignKeyReferencedEntityKeyMismatch([CanBeNull] object referencedKey, [CanBeNull] object referencedEntityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ForeignKeyReferencedEntityKeyMismatch", "referencedKey", "referencedEntityType"), referencedKey, referencedEntityType);
         }
 
         private static string GetString(string name, params string[] formatterNames)

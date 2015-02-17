@@ -11,7 +11,8 @@ namespace Microsoft.Data.Entity.Metadata
         private ForeignKey _foreignKey;
         private bool _pointsToPrincipal;
 
-        public Navigation([NotNull] string name, [NotNull] ForeignKey foreignKey, bool pointsToPrincipal)
+        public Navigation(
+            [NotNull] string name, [NotNull] ForeignKey foreignKey, bool pointsToPrincipal)
             : base(Check.NotEmpty(name, nameof(name)))
         {
             Check.NotNull(foreignKey, nameof(foreignKey));
@@ -45,19 +46,11 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         public override EntityType EntityType
-        {
-            get
-            {
-                return PointsToPrincipal
-                    ? ForeignKey.EntityType
-                    : ForeignKey.ReferencedEntityType;
-            }
-        }
+            => PointsToPrincipal
+                ? ForeignKey.EntityType
+                : ForeignKey.ReferencedEntityType;
 
-        IForeignKey INavigation.ForeignKey
-        {
-            get { return ForeignKey; }
-        }
+        IForeignKey INavigation.ForeignKey => ForeignKey;
 
         public override string ToString()
         {

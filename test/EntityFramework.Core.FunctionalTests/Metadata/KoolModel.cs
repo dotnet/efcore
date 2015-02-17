@@ -734,7 +734,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
 
         public bool CreateEntityWasUsed { get; set; }
 
-        public object CreatEntity(IValueReader valueReader)
+        public object CreateEntity(IValueReader valueReader)
         {
             CreateEntityWasUsed = true;
             return KoolEntity15._EntityFramework_Create(valueReader);

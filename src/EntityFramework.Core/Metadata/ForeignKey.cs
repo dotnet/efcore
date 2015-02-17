@@ -14,6 +14,7 @@ namespace Microsoft.Data.Entity.Metadata
     public class ForeignKey : MetadataBase, IForeignKey
     {
         private readonly Key _referencedKey;
+
         private bool _isRequiredSet;
 
         /// <summary>
@@ -25,11 +26,14 @@ namespace Microsoft.Data.Entity.Metadata
         {
         }
 
-        public ForeignKey([NotNull] IReadOnlyList<Property> dependentProperties, [NotNull] Key referencedKey)
+        public ForeignKey(
+            [NotNull] IReadOnlyList<Property> dependentProperties,
+            [NotNull] Key referencedKey,
+            [CanBeNull] EntityType referencedEntityType = null)
         {
             Check.NotEmpty(dependentProperties, nameof(dependentProperties));
-            Check.HasNoNulls(dependentProperties, "dependentProperties");
-            MetadataHelper.CheckSameEntityType(dependentProperties, "dependentProperties");
+            Check.HasNoNulls(dependentProperties, nameof(dependentProperties));
+            MetadataHelper.CheckSameEntityType(dependentProperties, nameof(dependentProperties));
             Check.NotNull(referencedKey, nameof(referencedKey));
 
             Properties = dependentProperties;
@@ -46,7 +50,8 @@ namespace Microsoft.Data.Entity.Metadata
                         referencedKey.EntityType.Name));
             }
 
-            if (!principalProperties.Select(p => p.UnderlyingType).SequenceEqual(dependentProperties.Select(p => p.UnderlyingType)))
+            if (!principalProperties.Select(p => p.UnderlyingType)
+                .SequenceEqual(dependentProperties.Select(p => p.UnderlyingType)))
             {
                 throw new ArgumentException(
                     Strings.ForeignKeyTypeMismatch(
@@ -54,40 +59,35 @@ namespace Microsoft.Data.Entity.Metadata
                         dependentProperties[0].EntityType.Name, referencedKey.EntityType.Name));
             }
 
+            if (referencedEntityType?.Keys.Contains(referencedKey) == false)
+            {
+                throw new ArgumentException(
+                    Strings.ForeignKeyReferencedEntityKeyMismatch(
+                        referencedKey,
+                        referencedEntityType));
+            }
+
             _referencedKey = referencedKey;
+
+            ReferencedEntityType = referencedEntityType ?? _referencedKey.EntityType;
         }
 
         [NotNull]
         public virtual IReadOnlyList<Property> Properties { get; }
 
-        public virtual EntityType EntityType
-        {
-            get { return Properties[0].EntityType; }
-        }
+        public virtual EntityType EntityType => Properties[0].EntityType;
 
         [NotNull]
-        public virtual IReadOnlyList<Property> ReferencedProperties
-        {
-            get { return _referencedKey.Properties; }
-        }
+        public virtual IReadOnlyList<Property> ReferencedProperties => _referencedKey.Properties;
 
         [NotNull]
-        public virtual Key ReferencedKey
-        {
-            get { return _referencedKey; }
-        }
+        public virtual Key ReferencedKey => _referencedKey;
 
-        public virtual EntityType ReferencedEntityType
-        {
-            get { return _referencedKey.EntityType; }
-        }
+        public virtual EntityType ReferencedEntityType { get; }
 
         public virtual bool? IsUnique { get; set; }
 
-        protected virtual bool DefaultIsUnique
-        {
-            get { return false; }
-        }
+        protected virtual bool DefaultIsUnique => false;
 
         public virtual bool? IsRequired
         {
@@ -129,44 +129,25 @@ namespace Microsoft.Data.Entity.Metadata
             get { return !((IForeignKey)this).Properties.Any(p => p.IsNullable); }
         }
 
-        IReadOnlyList<IProperty> IForeignKey.Properties
-        {
-            get { return Properties; }
-        }
+        IReadOnlyList<IProperty> IForeignKey.Properties => Properties;
 
-        IEntityType IForeignKey.EntityType
-        {
-            get { return EntityType; }
-        }
+        IEntityType IForeignKey.EntityType => EntityType;
 
-        IReadOnlyList<IProperty> IForeignKey.ReferencedProperties
-        {
-            get { return ReferencedProperties; }
-        }
+        IReadOnlyList<IProperty> IForeignKey.ReferencedProperties => ReferencedProperties;
 
-        IEntityType IForeignKey.ReferencedEntityType
-        {
-            get { return ReferencedEntityType; }
-        }
+        IEntityType IForeignKey.ReferencedEntityType => ReferencedEntityType;
 
-        IKey IForeignKey.ReferencedKey
-        {
-            get { return ReferencedKey; }
-        }
+        IKey IForeignKey.ReferencedKey => ReferencedKey;
 
-        bool IForeignKey.IsUnique
-        {
-            get { return IsUnique ?? DefaultIsUnique; }
-        }
+        bool IForeignKey.IsUnique => IsUnique ?? DefaultIsUnique;
 
-        bool IForeignKey.IsRequired
-        {
-            get { return IsRequired ?? DefaultIsRequired; }
-        }
+        bool IForeignKey.IsRequired => IsRequired ?? DefaultIsRequired;
 
         public override string ToString()
         {
-            return string.Format(CultureInfo.CurrentCulture, "'{0}' {1} -> '{2}' {3}",
+            return string.Format(
+                CultureInfo.CurrentCulture,
+                "'{0}' {1} -> '{2}' {3}",
                 EntityType.SimpleName,
                 Property.Format(Properties),
                 ReferencedEntityType.SimpleName,

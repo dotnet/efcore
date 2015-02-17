@@ -6,5 +6,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.Inheritance
     public abstract class Bird : Animal
     {
         public bool IsFlightless { get; set; }
+        public string EagleId { get; set; }
     }
 }

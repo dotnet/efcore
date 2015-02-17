@@ -6,12 +6,13 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Query;
 
 namespace Microsoft.Data.Entity.Relational.Query
 {
     public interface IAsyncIncludeRelatedValuesStrategy : IDisposable
     {
-        IAsyncEnumerable<IValueReader> GetRelatedValues(
+        IAsyncEnumerable<EntityLoadInfo> GetRelatedValues(
             [NotNull] EntityKey key, [NotNull] Func<IValueReader, EntityKey> keyFactory);
     }
 }

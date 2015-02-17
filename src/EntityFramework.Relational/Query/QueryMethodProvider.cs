@@ -79,12 +79,9 @@ namespace Microsoft.Data.Entity.Relational.Query
                     .Select(f => f())
                     .ToList();
 
-            var relatedValueReaders
+            var relatedEntitiesLoaders
                 = includeRelatedValuesStrategies
-                    .Select<
-                        IIncludeRelatedValuesStrategy,
-                        Func<EntityKey, Func<IValueReader, EntityKey>, IEnumerable<IValueReader>>>(
-                            s => s.GetRelatedValues)
+                    .Select<IIncludeRelatedValuesStrategy, RelatedEntitiesLoader>(s => s.GetRelatedValues)
                     .ToArray();
 
             return innerResults
@@ -94,7 +91,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                             .Include(
                                 qss.GetResult(querySource),
                                 navigationPath,
-                                relatedValueReaders,
+                                relatedEntitiesLoaders,
                                 querySourceRequiresTracking);
 
                         return qss;
@@ -120,9 +117,12 @@ namespace Microsoft.Data.Entity.Relational.Query
 
         [UsedImplicitly]
         private static IIncludeRelatedValuesStrategy _CreateReferenceIncludeStrategy(
-            RelationalQueryContext relationalQueryContext, int readerIndex, int readerOffset)
+            RelationalQueryContext relationalQueryContext,
+            int readerIndex,
+            int readerOffset,
+            Func<IValueReader, object> materializer)
         {
-            return new ReferenceIncludeRelatedValuesStrategy(relationalQueryContext, readerIndex, readerOffset);
+            return new ReferenceIncludeRelatedValuesStrategy(relationalQueryContext, readerIndex, readerOffset, materializer);
         }
 
         private class ReferenceIncludeRelatedValuesStrategy : IIncludeRelatedValuesStrategy
@@ -130,20 +130,28 @@ namespace Microsoft.Data.Entity.Relational.Query
             private readonly RelationalQueryContext _queryContext;
             private readonly int _readerIndex;
             private readonly int _readerOffset;
+            private readonly Func<IValueReader, object> _materializer;
 
             public ReferenceIncludeRelatedValuesStrategy(
-                RelationalQueryContext queryContext, int readerIndex, int readerOffset)
+                RelationalQueryContext queryContext,
+                int readerIndex,
+                int readerOffset,
+                Func<IValueReader, object> materializer)
             {
                 _queryContext = queryContext;
                 _readerIndex = readerIndex;
                 _readerOffset = readerOffset;
+                _materializer = materializer;
             }
 
-            public IEnumerable<IValueReader> GetRelatedValues(EntityKey key, Func<IValueReader, EntityKey> keyFactory)
+            public IEnumerable<EntityLoadInfo> GetRelatedValues(EntityKey key, Func<IValueReader, EntityKey> keyFactory)
             {
-                yield return new OffsetValueReaderDecorator(
-                    _queryContext.CreateValueReader(_readerIndex),
-                    _readerOffset);
+                yield return
+                    new EntityLoadInfo(
+                        new OffsetValueReaderDecorator(
+                            _queryContext.CreateValueReader(_readerIndex),
+                            _readerOffset),
+                        _materializer);
             }
 
             public void Dispose()
@@ -159,24 +167,31 @@ namespace Microsoft.Data.Entity.Relational.Query
                 .GetDeclaredMethod("_CreateCollectionIncludeStrategy");
 
         [UsedImplicitly]
-        private static IIncludeRelatedValuesStrategy _CreateCollectionIncludeStrategy(IEnumerable<IValueReader> relatedValueReaders)
+        private static IIncludeRelatedValuesStrategy _CreateCollectionIncludeStrategy(
+            IEnumerable<IValueReader> relatedValueReaders, Func<IValueReader, object> materializer)
         {
-            return new CollectionIncludeRelatedValuesStrategy(relatedValueReaders);
+            return new CollectionIncludeRelatedValuesStrategy(relatedValueReaders, materializer);
         }
 
         private class CollectionIncludeRelatedValuesStrategy : IIncludeRelatedValuesStrategy
         {
             private readonly IncludeCollectionIterator _includeCollectionIterator;
+            private readonly Func<IValueReader, object> _materializer;
 
-            public CollectionIncludeRelatedValuesStrategy(IEnumerable<IValueReader> relatedValueReaders)
+            public CollectionIncludeRelatedValuesStrategy(
+                IEnumerable<IValueReader> relatedValueReaders, Func<IValueReader, object> materializer)
             {
+                _materializer = materializer;
                 _includeCollectionIterator
                     = new IncludeCollectionIterator(relatedValueReaders.GetEnumerator());
             }
 
-            public IEnumerable<IValueReader> GetRelatedValues(EntityKey key, Func<IValueReader, EntityKey> keyFactory)
+            public IEnumerable<EntityLoadInfo> GetRelatedValues(EntityKey key, Func<IValueReader, EntityKey> keyFactory)
             {
-                return _includeCollectionIterator.GetRelatedValues(key, keyFactory);
+                return
+                    _includeCollectionIterator
+                        .GetRelatedValues(key, keyFactory)
+                        .Select(vr => new EntityLoadInfo(vr, _materializer));
             }
 
             public void Dispose()

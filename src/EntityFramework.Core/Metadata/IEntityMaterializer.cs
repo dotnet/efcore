@@ -7,6 +7,6 @@ namespace Microsoft.Data.Entity.Metadata
 {
     public interface IEntityMaterializer
     {
-        object CreatEntity([NotNull] IValueReader valueReader);
+        object CreateEntity([NotNull] IValueReader valueReader);
     }
 }

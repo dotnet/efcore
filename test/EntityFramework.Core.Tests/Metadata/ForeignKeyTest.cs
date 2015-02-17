@@ -12,6 +12,23 @@ namespace Microsoft.Data.Entity.Tests.Metadata
     public class ForeignKeyTest
     {
         [Fact]
+        public void Throws_when_referenced_key_not_on_referenced_entity()
+        {
+            var model = new Model();
+
+            var referencedEntityType = model.AddEntityType("R");
+            var pk = referencedEntityType.AddProperty("Pk", typeof(int), shadowProperty: true);
+            
+            var dependentEntityType = model.AddEntityType("D");
+            var fk = dependentEntityType.AddProperty("Fk", typeof(int), shadowProperty: true);
+
+            var referencedKey = dependentEntityType.SetPrimaryKey(fk);
+
+            Assert.Throws<ArgumentException>(() =>
+                new ForeignKey(new[] { fk }, referencedKey, referencedEntityType));
+        }
+
+        [Fact]
         public void Can_create_foreign_key()
         {
             var entityType = new Model().AddEntityType("E");

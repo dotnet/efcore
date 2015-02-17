@@ -495,8 +495,9 @@ namespace Microsoft.Data.Entity.Relational.Query
                     .GetEntity(
                         entityType,
                         entityKey,
-                        valueReader,
-                        materializer,
+                        new EntityLoadInfo(
+                            valueReader,
+                            materializer),
                         queryStateManager),
                 parentQuerySourceScope);
         }

@@ -18,7 +18,6 @@ namespace Microsoft.Data.Entity.Query
     {
         private readonly StateManager _stateManager;
         private readonly EntityKeyFactorySource _entityKeyFactorySource;
-        private readonly EntityMaterializerSource _materializerSource;
         private readonly ClrCollectionAccessorSource _clrCollectionAccessorSource;
         private readonly ClrPropertySetterSource _clrPropertySetterSource;
 
@@ -51,19 +50,16 @@ namespace Microsoft.Data.Entity.Query
         public QueryBuffer(
             [NotNull] StateManager stateManager,
             [NotNull] EntityKeyFactorySource entityKeyFactorySource,
-            [NotNull] EntityMaterializerSource materializerSource,
             [NotNull] ClrCollectionAccessorSource clrCollectionAccessorSource,
             [NotNull] ClrPropertySetterSource clrPropertySetterSource)
         {
             Check.NotNull(stateManager, nameof(stateManager));
             Check.NotNull(entityKeyFactorySource, nameof(entityKeyFactorySource));
-            Check.NotNull(materializerSource, nameof(materializerSource));
             Check.NotNull(clrCollectionAccessorSource, nameof(clrCollectionAccessorSource));
             Check.NotNull(clrPropertySetterSource, nameof(clrPropertySetterSource));
 
             _stateManager = stateManager;
             _entityKeyFactorySource = entityKeyFactorySource;
-            _materializerSource = materializerSource;
             _clrCollectionAccessorSource = clrCollectionAccessorSource;
             _clrPropertySetterSource = clrPropertySetterSource;
         }
@@ -71,15 +67,12 @@ namespace Microsoft.Data.Entity.Query
         public virtual object GetEntity(
             IEntityType entityType,
             EntityKey entityKey,
-            IValueReader valueReader,
-            Func<IValueReader, object> materializer,
+            EntityLoadInfo entityLoadInfo,
             bool queryStateManager)
         {
             // hot path
             Debug.Assert(entityType != null);
             Debug.Assert(entityKey != null);
-            Debug.Assert(valueReader != null);
-            Debug.Assert(materializer != null);
 
             if (entityKey == EntityKey.InvalidEntityKey)
             {
@@ -100,12 +93,12 @@ namespace Microsoft.Data.Entity.Query
             if (!_byEntityKey.TryGetValue(entityKey, out bufferedEntity))
             {
                 bufferedEntity
-                    = new BufferedEntity(entityType, valueReader)
+                    = new BufferedEntity(entityType, entityLoadInfo.ValueReader)
                         {
                             // TODO: Optimize this by not materializing when not required for query execution. i.e.
                             //       entity is only needed in final results
-                            Instance = materializer(valueReader)
-                        };
+                            Instance = entityLoadInfo.Materialize()
+                    };
 
                 _byEntityKey.Add(entityKey, bufferedEntity);
                 _byEntityInstance.Add(bufferedEntity.Instance, new List<BufferedEntity> { bufferedEntity });
@@ -150,24 +143,24 @@ namespace Microsoft.Data.Entity.Query
         public virtual void Include(
             object entity,
             IReadOnlyList<INavigation> navigationPath,
-            IReadOnlyList<Func<EntityKey, Func<IValueReader, EntityKey>, IEnumerable<IValueReader>>> relatedValueReaders,
+            IReadOnlyList<RelatedEntitiesLoader> relatedEntitiesLoaders,
             bool querySourceRequiresTracking)
         {
             Check.NotNull(navigationPath, nameof(navigationPath));
-            Check.NotNull(relatedValueReaders, nameof(relatedValueReaders));
+            Check.NotNull(relatedEntitiesLoaders, nameof(relatedEntitiesLoaders));
 
-            Include(entity, navigationPath, relatedValueReaders, 0, querySourceRequiresTracking);
+            Include(entity, navigationPath, relatedEntitiesLoaders, 0, querySourceRequiresTracking);
         }
 
         private void Include(
             object entity,
             IReadOnlyList<INavigation> navigationPath,
-            IReadOnlyList<Func<EntityKey, Func<IValueReader, EntityKey>, IEnumerable<IValueReader>>> relatedValueReaders,
+            IReadOnlyList<RelatedEntitiesLoader> relatedEntitiesLoaders,
             int currentNavigationIndex,
             bool querySourceRequiresTracking)
         {
             Check.NotNull(navigationPath, nameof(navigationPath));
-            Check.NotNull(relatedValueReaders, nameof(relatedValueReaders));
+            Check.NotNull(relatedEntitiesLoaders, nameof(relatedEntitiesLoaders));
 
             if (entity == null
                 || currentNavigationIndex == navigationPath.Count)
@@ -186,6 +179,7 @@ namespace Microsoft.Data.Entity.Query
                     out primaryKey,
                     out bufferedEntities,
                     out relatedKeyFactory);
+
             var keyProperties
                 = targetEntityType.GetPrimaryKey().Properties;
 
@@ -197,19 +191,24 @@ namespace Microsoft.Data.Entity.Query
                 entity,
                 navigationPath,
                 currentNavigationIndex,
-                relatedValueReaders[currentNavigationIndex](primaryKey, relatedKeyFactory)
-                    .Select(valueReader =>
+                relatedEntitiesLoaders[currentNavigationIndex](primaryKey, relatedKeyFactory)
+                    .Select(eli =>
                         {
                             var targetEntity
                                 = GetTargetEntity(
                                     targetEntityType,
                                     entityKeyFactory,
                                     keyProperties,
-                                    valueReader,
+                                    eli,
                                     bufferedEntities,
                                     querySourceRequiresTracking);
 
-                            Include(targetEntity, navigationPath, relatedValueReaders, currentNavigationIndex + 1, querySourceRequiresTracking);
+                            Include(
+                                targetEntity,
+                                navigationPath,
+                                relatedEntitiesLoaders,
+                                currentNavigationIndex + 1,
+                                querySourceRequiresTracking);
 
                             return targetEntity;
                         })
@@ -220,20 +219,20 @@ namespace Microsoft.Data.Entity.Query
         public virtual Task IncludeAsync(
             object entity,
             IReadOnlyList<INavigation> navigationPath,
-            IReadOnlyList<Func<EntityKey, Func<IValueReader, EntityKey>, IAsyncEnumerable<IValueReader>>> relatedValueReaders,
+            IReadOnlyList<AsyncRelatedEntitiesLoader> relatedEntitiesLoaders,
             CancellationToken cancellationToken,
             bool querySourceRequiresTracking)
         {
             Check.NotNull(navigationPath, nameof(navigationPath));
-            Check.NotNull(relatedValueReaders, nameof(relatedValueReaders));
+            Check.NotNull(relatedEntitiesLoaders, nameof(relatedEntitiesLoaders));
 
-            return IncludeAsync(entity, navigationPath, relatedValueReaders, cancellationToken, 0, querySourceRequiresTracking);
+            return IncludeAsync(entity, navigationPath, relatedEntitiesLoaders, cancellationToken, 0, querySourceRequiresTracking);
         }
 
         private async Task IncludeAsync(
             object entity,
             IReadOnlyList<INavigation> navigationPath,
-            IReadOnlyList<Func<EntityKey, Func<IValueReader, EntityKey>, IAsyncEnumerable<IValueReader>>> relatedValueReaders,
+            IReadOnlyList<AsyncRelatedEntitiesLoader> relatedEntitiesLoaders,
             CancellationToken cancellationToken,
             int currentNavigationIndex,
             bool querySourceRequiresTracking)
@@ -267,28 +266,29 @@ namespace Microsoft.Data.Entity.Query
                 entity,
                 navigationPath,
                 currentNavigationIndex,
-                await AsyncEnumerableExtensions.Select(relatedValueReaders[currentNavigationIndex](primaryKey, relatedKeyFactory), async (valueReader, ct) =>
-                    {
-                        var targetEntity
-                            = GetTargetEntity(
-                                targetEntityType,
-                                entityKeyFactory,
-                                keyProperties,
-                                valueReader,
-                                bufferedEntities,
-                                querySourceRequiresTracking);
+                await relatedEntitiesLoaders[currentNavigationIndex](primaryKey, relatedKeyFactory)
+                    .Select(async (eli, ct) =>
+                        {
+                            var targetEntity
+                                = GetTargetEntity(
+                                    targetEntityType,
+                                    entityKeyFactory,
+                                    keyProperties,
+                                    eli,
+                                    bufferedEntities,
+                                    querySourceRequiresTracking);
 
-                        await IncludeAsync(
-                            targetEntity,
-                            navigationPath,
-                            relatedValueReaders,
-                            ct,
-                            currentNavigationIndex + 1,
-                            querySourceRequiresTracking)
-                            .WithCurrentCulture();
+                            await IncludeAsync(
+                                targetEntity,
+                                navigationPath,
+                                relatedEntitiesLoaders,
+                                ct,
+                                currentNavigationIndex + 1,
+                                querySourceRequiresTracking)
+                                .WithCurrentCulture();
 
-                        return targetEntity;
-                    })
+                            return targetEntity;
+                        })
                     .Where(e => e != null)
                     .ToList(cancellationToken)
                     .WithCurrentCulture());
@@ -455,20 +455,19 @@ namespace Microsoft.Data.Entity.Query
             IEntityType targetEntityType,
             EntityKeyFactory entityKeyFactory,
             IReadOnlyList<IProperty> keyProperties,
-            IValueReader valueReader,
+            EntityLoadInfo entityLoadInfo,
             ICollection<BufferedEntity> bufferedEntities,
             bool querySourceRequiresTracking)
         {
             var entityKey
                 = entityKeyFactory
-                    .Create(targetEntityType, keyProperties, valueReader);
+                    .Create(targetEntityType, keyProperties, entityLoadInfo.ValueReader);
 
             var targetEntity
                 = GetEntity(
                     targetEntityType,
                     entityKey,
-                    valueReader,
-                    _materializerSource.GetMaterializer(targetEntityType), // TODO: Flow materializer
+                    entityLoadInfo,
                     querySourceRequiresTracking);
 
             if (targetEntity != null)
@@ -477,7 +476,7 @@ namespace Microsoft.Data.Entity.Query
                 bufferedEntities.Add(
                     _byEntityInstance.TryGetValue(targetEntity, out bufferedTargetEntities)
                         ? bufferedTargetEntities[0]
-                        : new BufferedEntity(targetEntityType, valueReader)
+                        : new BufferedEntity(targetEntityType, entityLoadInfo.ValueReader)
                             {
                                 Instance = targetEntity
                             });

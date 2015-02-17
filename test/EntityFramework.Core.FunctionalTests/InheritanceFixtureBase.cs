@@ -9,37 +9,68 @@ namespace Microsoft.Data.Entity.FunctionalTests
     {
         public virtual void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Animal>().Key(a => a.Species);
+            // TODO: Do this with Code First when we can
 
-            // TODO: Remove when Code First does this
-            var animalEntityType = modelBuilder.Entity<Animal>().Metadata;
-            var birdEntityType = modelBuilder.Entity<Bird>().Metadata;
-            var kiwiEntityType = modelBuilder.Entity<Kiwi>().Metadata;
-            var eagleEntityType = modelBuilder.Entity<Eagle>().Metadata;
+            var model = modelBuilder.Model;
 
-            birdEntityType.BaseType = animalEntityType;
-            kiwiEntityType.BaseType = birdEntityType;
-            eagleEntityType.BaseType = birdEntityType;
+            var country = model.AddEntityType(typeof(Country));
+            var countryKey = country.SetPrimaryKey(country.AddProperty("Id", typeof(int)));
+            country.AddProperty("Name", typeof(string));
+
+            var animal = model.AddEntityType(typeof(Animal));
+            var animalKey = animal.SetPrimaryKey(animal.AddProperty("Species", typeof(string)));
+            animal.AddProperty("Name", typeof(string));
+            var countryFk = animal.AddForeignKey(animal.AddProperty("CountryId", typeof(int)), countryKey);
+
+            var bird = model.AddEntityType(typeof(Bird));
+            bird.BaseType = animal;
+            bird.AddProperty("IsFlightless", typeof(bool));
+
+            var kiwi = model.AddEntityType(typeof(Kiwi));
+            kiwi.BaseType = bird;
+
+            var eagle = model.AddEntityType(typeof(Eagle));
+            eagle.BaseType = bird;
+            eagle.AddProperty("Group", typeof(EagleGroup));
+
+            var eagleFk = bird.AddForeignKey(bird.AddProperty("EagleId", typeof(string)), animalKey, eagle);
+
+            country.AddNavigation("Animals", countryFk, false);
+            eagle.AddNavigation("Prey", eagleFk, false);
         }
 
         public abstract AnimalContext CreateContext();
 
         protected void SeedData(AnimalContext context)
         {
-            context.Animals.Add(
-                new Kiwi
-                    {
-                        Species = "Apteryx owenii",
-                        Name = "Great spotted kiwi",
-                        IsFlightless = true
-                    });
+            var kiwi = new Kiwi
+                {
+                    Species = "Apteryx owenii",
+                    Name = "Great spotted kiwi",
+                    IsFlightless = true
+                };
 
-            context.Animals.Add(
-                new Eagle
-                    {
-                        Species = "Aquila chrysaetos canadensis",
-                        Name = "American golden eagle"
-                    });
+            var eagle = new Eagle
+                {
+                    Species = "Aquila chrysaetos canadensis",
+                    Name = "American golden eagle",
+                    Group = EagleGroup.Booted
+                };
+
+            eagle.Prey.Add(kiwi);
+
+            var nz = new Country { Id = 1, Name = "New Zealand" };
+
+            nz.Animals.Add(kiwi);
+
+            var usa = new Country { Id = 2, Name = "USA" };
+
+            usa.Animals.Add(eagle);
+
+            context.Set<Animal>().Add(kiwi);
+            context.Set<Bird>().Add(eagle);
+            context.Set<Country>().Add(nz);
+            context.Set<Country>().Add(usa);
 
             context.SaveChanges();
         }

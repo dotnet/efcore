@@ -11,13 +11,18 @@ using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.Query
 {
+    public delegate IEnumerable<EntityLoadInfo> RelatedEntitiesLoader(
+        EntityKey primaryKey, Func<IValueReader, EntityKey> foreignKeyFactory);
+
+    public delegate IAsyncEnumerable<EntityLoadInfo> AsyncRelatedEntitiesLoader(
+        EntityKey primaryKey, Func<IValueReader, EntityKey> foreignKeyFactory);
+
     public interface IQueryBuffer
     {
         object GetEntity(
             [NotNull] IEntityType entityType,
             [NotNull] EntityKey entityKey,
-            [NotNull] IValueReader valueReader,
-            [NotNull] Func<IValueReader, object> materializer,
+            EntityLoadInfo entityLoadInfo,
             bool queryStateManager);
 
         object GetPropertyValue([NotNull] object entity, [NotNull] IProperty property);
@@ -27,13 +32,13 @@ namespace Microsoft.Data.Entity.Query
         void Include(
             [CanBeNull] object entity,
             [NotNull] IReadOnlyList<INavigation> navigationPath,
-            [NotNull] IReadOnlyList<Func<EntityKey, Func<IValueReader, EntityKey>, IEnumerable<IValueReader>>> relatedValueReaders,
+            [NotNull] IReadOnlyList<RelatedEntitiesLoader> relatedEntitiesLoaders,
             bool querySourceRequiresTracking);
 
         Task IncludeAsync(
             [CanBeNull] object entity,
             [NotNull] IReadOnlyList<INavigation> navigationPath,
-            [NotNull] IReadOnlyList<Func<EntityKey, Func<IValueReader, EntityKey>, IAsyncEnumerable<IValueReader>>> relatedValueReaders,
+            [NotNull] IReadOnlyList<AsyncRelatedEntitiesLoader> relatedEntitiesLoaders,
             CancellationToken cancellationToken,
             bool querySourceRequiresTracking);
     }

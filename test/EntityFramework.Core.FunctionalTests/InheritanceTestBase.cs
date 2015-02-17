@@ -10,12 +10,88 @@ namespace Microsoft.Data.Entity.FunctionalTests
     public abstract class InheritanceTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : InheritanceFixtureBase, new()
     {
-        //[Fact]
+        [Fact]
         public virtual void Can_query_all_animals()
         {
             using (var context = CreateContext())
             {
-                Assert.Equal(2, context.Animals.ToList().Count);
+                var animals = context.Set<Animal>().OrderBy(a => a.Species).ToList();
+
+                Assert.Equal(2, animals.Count);
+                Assert.IsType<Kiwi>(animals[0]);
+                Assert.IsType<Eagle>(animals[1]);
+            }
+        }
+
+        [Fact]
+        public virtual void Can_filter_all_animals()
+        {
+            using (var context = CreateContext())
+            {
+                var animals
+                    = context.Set<Animal>()
+                        .OrderBy(a => a.Species)
+                        .Where(a => a.Name == "Great spotted kiwi")
+                        .ToList();
+
+                Assert.Equal(1, animals.Count);
+                Assert.IsType<Kiwi>(animals[0]);
+            }
+        }
+
+        [Fact]
+        public virtual void Can_query_all_birds()
+        {
+            using (var context = CreateContext())
+            {
+                var birds = context.Set<Bird>().OrderBy(a => a.Species).ToList();
+
+                Assert.Equal(2, birds.Count);
+                Assert.IsType<Kiwi>(birds[0]);
+                Assert.IsType<Eagle>(birds[1]);
+            }
+        }
+
+        [Fact]
+        public virtual void Can_query_just_kiwis()
+        {
+            using (var context = CreateContext())
+            {
+                var kiwi = context.Set<Kiwi>().Single();
+
+                Assert.NotNull(kiwi);
+            }
+        }
+
+        [Fact]
+        public virtual void Can_include_animals()
+        {
+            using (var context = CreateContext())
+            {
+                var countries
+                    = context.Set<Country>()
+                        .OrderBy(c => c.Name)
+                        .Include(c => c.Animals)
+                        .ToList();
+
+                Assert.Equal(2, countries.Count);
+                Assert.IsType<Kiwi>(countries[0].Animals[0]);
+                Assert.IsType<Eagle>(countries[1].Animals[0]);
+            }
+        }
+
+        [Fact]
+        public virtual void Can_include_prey()
+        {
+            using (var context = CreateContext())
+            {
+                var eagle
+                    = context.Set<Eagle>()
+                        .Include(e => e.Prey)
+                        .Single();
+
+                Assert.NotNull(eagle);
+                Assert.Equal(1, eagle.Prey.Count);
             }
         }
 

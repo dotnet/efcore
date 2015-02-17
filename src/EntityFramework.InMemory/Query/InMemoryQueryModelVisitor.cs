@@ -52,17 +52,31 @@ namespace Microsoft.Data.Entity.InMemory.Query
                     Expression.Constant(navigationPath),
                     accessorLambda,
                     Expression.NewArrayInit(
-                        typeof(Func<EntityKey, Func<IValueReader, EntityKey>, IEnumerable<IValueReader>>),
+                        typeof(RelatedEntitiesLoader),
                         navigationPath.Select(
-                            n => Expression.Lambda(
-                                Expression.Call(
-                                    _getRelatedValueReadersMethodInfo,
-                                    QueryContextParameter,
-                                    Expression.Constant(n.GetTargetType()),
-                                    primaryKeyParameter,
-                                    relatedKeyFactoryParameter),
-                                primaryKeyParameter,
-                                relatedKeyFactoryParameter))),
+                            n =>
+                                {
+                                    var targetType = n.GetTargetType();
+
+                                    var materializers
+                                        = targetType.GetConcreteTypesInHierarchy()
+                                            .ToDictionary(
+                                                et => et.Type,
+                                                et => QueryCompilationContext
+                                                    .EntityMaterializerSource
+                                                    .GetMaterializer(et));
+
+                                    return Expression.Lambda<RelatedEntitiesLoader>(
+                                        Expression.Call(
+                                            _getRelatedValueReadersMethodInfo,
+                                            QueryContextParameter,
+                                            Expression.Constant(targetType),
+                                            primaryKeyParameter,
+                                            relatedKeyFactoryParameter,
+                                            Expression.Constant(materializers)),
+                                        primaryKeyParameter,
+                                        relatedKeyFactoryParameter);
+                                })),
                     Expression.Constant(querySourceRequiresTracking));
         }
 
@@ -76,7 +90,7 @@ namespace Microsoft.Data.Entity.InMemory.Query
             IEnumerable<TResult> source,
             IReadOnlyList<INavigation> navigationPath,
             Func<TResult, object> accessorLambda,
-            IReadOnlyList<Func<EntityKey, Func<IValueReader, EntityKey>, IEnumerable<IValueReader>>> relatedValueReaders,
+            IReadOnlyList<RelatedEntitiesLoader> relatedEntitiesLoaders,
             bool querySourceRequiresTracking)
         {
             return
@@ -87,7 +101,7 @@ namespace Microsoft.Data.Entity.InMemory.Query
                                 .Include(
                                     accessorLambda.Invoke(result),
                                     navigationPath,
-                                    relatedValueReaders,
+                                    relatedEntitiesLoaders,
                                     querySourceRequiresTracking);
 
                             return result;
@@ -99,18 +113,19 @@ namespace Microsoft.Data.Entity.InMemory.Query
                 .GetDeclaredMethod("GetRelatedValueReaders");
 
         [UsedImplicitly]
-        private static IEnumerable<IValueReader> GetRelatedValueReaders(
+        private static IEnumerable<EntityLoadInfo> GetRelatedValueReaders(
             QueryContext queryContext,
             IEntityType targetType,
             EntityKey primaryKey,
-            Func<IValueReader, EntityKey> relatedKeyFactory)
+            Func<IValueReader, EntityKey> relatedKeyFactory,
+            IDictionary<Type, Func<IValueReader, object>> materializers)
         {
-            var inMemoryQueryContext = (InMemoryQueryContext)queryContext;
-            var targetTable = inMemoryQueryContext.Database.GetTable(targetType);
-
-            return targetTable
-                .Select(vs => new ObjectArrayValueReader(vs))
-                .Where(valueReader => relatedKeyFactory(valueReader).Equals(primaryKey));
+            return ((InMemoryQueryContext)queryContext).Database
+                .GetTables(targetType)
+                .SelectMany(t =>
+                    t.Select(vs => new EntityLoadInfo(
+                        new ObjectArrayValueReader(vs), materializers[t.EntityType.Type]))
+                        .Where(eli => relatedKeyFactory(eli.ValueReader).Equals(primaryKey)));
         }
 
         private static readonly MethodInfo _entityQueryMethodInfo
@@ -122,21 +137,28 @@ namespace Microsoft.Data.Entity.InMemory.Query
             QueryContext queryContext,
             IEntityType entityType,
             Func<IValueReader, EntityKey> entityKeyFactory,
-            Func<IValueReader, object> materializer,
+            IDictionary<Type, Func<IValueReader, object>> materializers,
             bool queryStateManager)
             where TEntity : class
         {
             return ((InMemoryQueryContext)queryContext).Database
-                .GetTable(entityType)
-                .Select(t =>
-                    {
-                        var valueReader = new ObjectArrayValueReader(t);
-                        var entityKey = entityKeyFactory(valueReader);
+                .GetTables(entityType)
+                .SelectMany(t =>
+                    t.Select(vs =>
+                        {
+                            var valueReader = new ObjectArrayValueReader(vs);
+                            var entityKey = entityKeyFactory(valueReader);
 
-                        return (TEntity)queryContext
-                            .QueryBuffer
-                            .GetEntity(entityType, entityKey, valueReader, materializer, queryStateManager);
-                    });
+                            return (TEntity)queryContext
+                                .QueryBuffer
+                                .GetEntity(
+                                    entityType,
+                                    entityKey,
+                                    new EntityLoadInfo(
+                                        valueReader,
+                                        materializers[t.EntityType.Type]),
+                                    queryStateManager);
+                        }));
         }
 
         private static readonly MethodInfo _projectionQueryMethodInfo
@@ -148,9 +170,9 @@ namespace Microsoft.Data.Entity.InMemory.Query
             QueryContext queryContext,
             IEntityType entityType)
         {
-            var inMemoryQueryContext = (InMemoryQueryContext)queryContext;
-
-            return inMemoryQueryContext.Database.GetTable(entityType).Select(t => new ObjectArrayValueReader(t));
+            return ((InMemoryQueryContext)queryContext).Database
+                .GetTables(entityType)
+                .SelectMany(t => t.Select(vs => new ObjectArrayValueReader(vs)));
         }
 
         private class InMemoryEntityQueryableExpressionTreeVisitor : EntityQueryableExpressionTreeVisitor
@@ -185,11 +207,14 @@ namespace Microsoft.Data.Entity.InMemory.Query
                 Func<IValueReader, EntityKey> entityKeyFactory
                     = vr => keyFactory.Create(entityType, keyProperties, vr);
 
-                var materializer
-                    = QueryModelVisitor
-                        .QueryCompilationContext
-                        .EntityMaterializerSource
-                        .GetMaterializer(entityType);
+                var materializers
+                    = entityType.GetConcreteTypesInHierarchy()
+                        .ToDictionary(
+                            et => et.Type,
+                            et => QueryModelVisitor
+                                .QueryCompilationContext
+                                .EntityMaterializerSource
+                                .GetMaterializer(et));
 
                 if (QueryModelVisitor.QuerySourceRequiresMaterialization(_querySource))
                 {
@@ -198,7 +223,7 @@ namespace Microsoft.Data.Entity.InMemory.Query
                         QueryContextParameter,
                         Expression.Constant(entityType),
                         Expression.Constant(entityKeyFactory),
-                        Expression.Constant(materializer),
+                        Expression.Constant(materializers),
                         Expression.Constant(QueryModelVisitor.QuerySourceRequiresTracking(_querySource)));
                 }
 
