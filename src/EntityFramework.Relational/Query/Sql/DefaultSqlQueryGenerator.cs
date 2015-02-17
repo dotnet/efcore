@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 {
     public class DefaultSqlQueryGenerator : ThrowingExpressionTreeVisitor, ISqlExpressionVisitor, ISqlQueryGenerator
     {
-        private IndentedStringBuilder _sql;
+        protected IndentedStringBuilder _sql;
         private Expression _binaryExpression;
         private List<string> _parameters;
         private IDictionary<string, object> _parameterValues;
