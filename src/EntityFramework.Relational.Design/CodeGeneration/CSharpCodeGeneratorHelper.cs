@@ -11,16 +11,6 @@ namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
 {
     public class CSharpCodeGeneratorHelper
     {
-        private static readonly CSharpCodeGeneratorHelper _instance = new CSharpCodeGeneratorHelper();
-
-        public static CSharpCodeGeneratorHelper Instance
-        {
-            get
-            {
-                return _instance;
-            }
-        }
-
         public virtual void SingleLineComment(string comment, IndentedStringBuilder sb)
         {
             sb.Append("// ");

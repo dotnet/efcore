@@ -51,12 +51,12 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         {
             GenerateCommentHeader(sb);
             GenerateUsings(sb);
-            CSharpCodeGeneratorHelper.Instance.BeginNamespace(ClassNamespace, sb);
-            CSharpCodeGeneratorHelper.Instance.BeginClass(AccessModifier.Public, ClassName, isPartial: true, sb: sb, inheritsFrom: new string[] { "DbContext" });
+            Generator.CSharpCodeGeneratorHelper.BeginNamespace(ClassNamespace, sb);
+            Generator.CSharpCodeGeneratorHelper.BeginClass(AccessModifier.Public, ClassName, isPartial: true, sb: sb, inheritsFrom: new string[] { "DbContext" });
             GenerateProperties(sb);
             GenerateMethods(sb);
-            CSharpCodeGeneratorHelper.Instance.EndClass(sb);
-            CSharpCodeGeneratorHelper.Instance.EndNamespace(sb);
+            Generator.CSharpCodeGeneratorHelper.EndClass(sb);
+            Generator.CSharpCodeGeneratorHelper.EndNamespace(sb);
         }
 
         public virtual ReverseEngineeringGenerator Generator { get; }
@@ -71,9 +71,9 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 
         public virtual void GenerateCommentHeader(IndentedStringBuilder sb)
         {
-            CSharpCodeGeneratorHelper.Instance.SingleLineComment(string.Empty, sb);
-            CSharpCodeGeneratorHelper.Instance.SingleLineComment("Generated using Connection String: " + ConnectionString, sb);
-            CSharpCodeGeneratorHelper.Instance.SingleLineComment(string.Empty, sb);
+            Generator.CSharpCodeGeneratorHelper.SingleLineComment(string.Empty, sb);
+            Generator.CSharpCodeGeneratorHelper.SingleLineComment("Generated using Connection String: " + ConnectionString, sb);
+            Generator.CSharpCodeGeneratorHelper.SingleLineComment(string.Empty, sb);
             sb.AppendLine();
         }
 
@@ -82,7 +82,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             // TODO - add in other namespaces
             foreach (var @namespace in _usedNamespaces)
             {
-                CSharpCodeGeneratorHelper.Instance.AddUsingStatement(@namespace, sb);
+                Generator.CSharpCodeGeneratorHelper.AddUsingStatement(@namespace, sb);
             }
 
             if (_usedNamespaces.Any())
@@ -95,7 +95,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         {
             foreach (var entityType in OrderedEntityTypes())
             {
-                CSharpCodeGeneratorHelper.Instance.AddProperty(
+                Generator.CSharpCodeGeneratorHelper.AddProperty(
                     AccessModifier.Public,
                     VirtualModifier.Virtual,
                     "DbSet<" + entityType.Name + ">",
@@ -118,17 +118,17 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 
         public virtual void GenerateOnConfiguringCode(IndentedStringBuilder sb)
         {
-            CSharpCodeGeneratorHelper.Instance.BeginMethod(AccessModifier.Protected,
+            Generator.CSharpCodeGeneratorHelper.BeginMethod(AccessModifier.Protected,
                 VirtualModifier.Override, "void", "OnConfiguring", sb, _onConfiguringMethodParameters);
             sb.Append("options.UseSqlServer(");
             sb.Append(CSharpUtilities.Instance.GenerateVerbatimStringLiteral(ConnectionString));
             sb.AppendLine(");");
-            CSharpCodeGeneratorHelper.Instance.EndMethod(sb);
+            Generator.CSharpCodeGeneratorHelper.EndMethod(sb);
         }
 
         public virtual void GenerateOnModelCreatingCode(IndentedStringBuilder sb)
         {
-            CSharpCodeGeneratorHelper.Instance.BeginMethod(AccessModifier.Protected,
+            Generator.CSharpCodeGeneratorHelper.BeginMethod(AccessModifier.Protected,
                 VirtualModifier.Override, "void", "OnModelCreating", sb, _onModelCreatingMethodParameters);
 
             var first = true;
@@ -173,7 +173,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 }
             }
 
-            CSharpCodeGeneratorHelper.Instance.EndMethod(sb);
+            Generator.CSharpCodeGeneratorHelper.EndMethod(sb);
         }
 
         public virtual void GenerateEntityKeyAndPropertyConfiguration(IEntityType entityType, IndentedStringBuilder sb)

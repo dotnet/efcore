@@ -48,19 +48,19 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         {
             GenerateCommentHeader(sb);
             GenerateUsings(sb);
-            CSharpCodeGeneratorHelper.Instance.BeginNamespace(ClassNamespace, sb);
-            CSharpCodeGeneratorHelper.Instance.BeginClass(AccessModifier.Public, ClassName, isPartial: true, sb: sb);
+            Generator.CSharpCodeGeneratorHelper.BeginNamespace(ClassNamespace, sb);
+            Generator.CSharpCodeGeneratorHelper.BeginClass(AccessModifier.Public, ClassName, isPartial: true, sb: sb);
             GenerateConstructors(sb);
             GenerateProperties(sb);
-            CSharpCodeGeneratorHelper.Instance.EndClass(sb);
-            CSharpCodeGeneratorHelper.Instance.EndNamespace(sb);
+            Generator.CSharpCodeGeneratorHelper.EndClass(sb);
+            Generator.CSharpCodeGeneratorHelper.EndNamespace(sb);
         }
 
         public virtual void GenerateCommentHeader(IndentedStringBuilder sb)
         {
-            CSharpCodeGeneratorHelper.Instance.SingleLineComment(string.Empty, sb);
-            CSharpCodeGeneratorHelper.Instance.SingleLineComment("Generated code", sb);
-            CSharpCodeGeneratorHelper.Instance.SingleLineComment(string.Empty, sb);
+            Generator.CSharpCodeGeneratorHelper.SingleLineComment(string.Empty, sb);
+            Generator.CSharpCodeGeneratorHelper.SingleLineComment("Generated code", sb);
+            Generator.CSharpCodeGeneratorHelper.SingleLineComment(string.Empty, sb);
             sb.AppendLine();
         }
 
@@ -70,7 +70,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 EntityType.Properties.Select(p => p.PropertyType.Namespace)
                     .Distinct().Except(_usedNamespaces).OrderBy(ns => ns)))
             {
-                CSharpCodeGeneratorHelper.Instance.AddUsingStatement(@namespace, sb);
+                Generator.CSharpCodeGeneratorHelper.AddUsingStatement(@namespace, sb);
             }
 
             if (_usedNamespaces.Any())
@@ -86,9 +86,9 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 
         public virtual void GenerateZeroArgConstructor(IndentedStringBuilder sb)
         {
-            CSharpCodeGeneratorHelper.Instance.BeginConstructor(AccessModifier.Public, ClassName, sb);
+            Generator.CSharpCodeGeneratorHelper.BeginConstructor(AccessModifier.Public, ClassName, sb);
             GenerateZeroArgConstructorContents(sb);
-            CSharpCodeGeneratorHelper.Instance.EndConstructor(sb);
+            Generator.CSharpCodeGeneratorHelper.EndConstructor(sb);
         }
 
         public virtual void GenerateZeroArgConstructorContents(IndentedStringBuilder sb)
