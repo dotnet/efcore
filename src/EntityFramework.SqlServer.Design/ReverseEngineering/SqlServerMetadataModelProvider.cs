@@ -60,7 +60,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             }
         }
 
-        public IModel GenerateMetadataModel(string connectionString)
+        public virtual IModel GenerateMetadataModel([NotNull] string connectionString)
         {
             using (var conn = new SqlConnection(connectionString))
             {
@@ -97,7 +97,9 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
         }
 
 
-        public DbContextCodeGenerator GetContextModelCodeGenerator(ReverseEngineeringGenerator generator, DbContextGeneratorModel dbContextGeneratorModel)
+        public virtual DbContextCodeGenerator GetContextModelCodeGenerator(
+            [NotNull] ReverseEngineeringGenerator generator,
+            [NotNull] DbContextGeneratorModel dbContextGeneratorModel)
         {
             return new SqlServerDbContextCodeGenerator(
                 generator,
@@ -106,8 +108,9 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                 dbContextGeneratorModel.ClassName,
                 dbContextGeneratorModel.ConnectionString);
         }
-        public EntityTypeCodeGenerator GetEntityTypeModelCodeGenerator(
-            ReverseEngineeringGenerator generator, EntityTypeGeneratorModel entityTypeGeneratorModel)
+        public virtual EntityTypeCodeGenerator GetEntityTypeModelCodeGenerator(
+           [NotNull]  ReverseEngineeringGenerator generator,
+           [NotNull] EntityTypeGeneratorModel entityTypeGeneratorModel)
         {
             return new SqlServerEntityTypeCodeGenerator(
                 generator,
@@ -115,9 +118,11 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                 entityTypeGeneratorModel.Namespace);
         }
 
-        public static Dictionary<string, T> LoadData<T>(
-            SqlConnection conn, string query,
-            Func<SqlDataReader, T> createFromReader, Func<T, string> identifier)
+        public virtual Dictionary<string, T> LoadData<T>(
+            [NotNull] SqlConnection conn,
+            [NotNull] string query,
+            [NotNull] Func<SqlDataReader, T> createFromReader,
+            [NotNull] Func<T, string> identifier)
         {
             var data = new Dictionary<string, T>();
             var sqlCommand = new SqlCommand(query);
@@ -135,7 +140,8 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             return data;
         }
 
-        public void CreatePrimaryForeignKeyAndUniqueMaps(Dictionary<string, TableConstraintColumn> tableConstraintColumns)
+        public virtual void CreatePrimaryForeignKeyAndUniqueMaps(
+            [NotNull] Dictionary<string, TableConstraintColumn> tableConstraintColumns)
         {
             var uniqueConstraintToColumnsMap = new Dictionary<string, List<string>>();
 
@@ -187,7 +193,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             }
         }
 
-        public IModel CreateModel()
+        public virtual IModel CreateModel()
         {
             // the relationalModel is an IModel, but not the one that will be returned
             // it's just directly from the database - EntityType = table, Property = column
@@ -203,7 +209,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             return ConstructCodeGenModel(relationalModel, nameMapper);
         }
 
-        public IModel ConstructRelationalModel()
+        public virtual IModel ConstructRelationalModel()
         {
             var relationalModel = new Microsoft.Data.Entity.Metadata.Model();
             foreach (var table in _tables.Values)
@@ -244,8 +250,8 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             return relationalModel;
         }
 
-        public IModel ConstructCodeGenModel(
-            IModel relationalModel, SqlServerNameMapper nameMapper)
+        public virtual IModel ConstructCodeGenModel(
+            [NotNull] IModel relationalModel, [NotNull] SqlServerNameMapper nameMapper)
         {
             var codeGenModel = new Microsoft.Data.Entity.Metadata.Model();
             foreach (var relationalEntityType in relationalModel.EntityTypes.Cast<EntityType>())
@@ -320,7 +326,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             return codeGenModel;
         }
 
-        public void AddForeignKeysToCodeGenModel(IModel codeGenModel)
+        public virtual void AddForeignKeysToCodeGenModel([NotNull] IModel codeGenModel)
         {
             foreach (var keyValuePair in _relationalEntityTypeToForeignKeyConstraintsMap)
             {
@@ -377,7 +383,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             AddDependentAndPrincipalNavigationPropertyAnnotations(codeGenModel);
         }
 
-        private void AddDependentAndPrincipalNavigationPropertyAnnotations(IModel codeGenModel)
+        private void AddDependentAndPrincipalNavigationPropertyAnnotations([NotNull] IModel codeGenModel)
         {
             var entityTypeToExistingIdentifiers = new Dictionary<IEntityType, List<string>>();
             foreach (var entityType in codeGenModel.EntityTypes)
@@ -412,7 +418,8 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             }
         }
 
-        public Property FindTargetColumn(string foreignKeyConstraintId, string fromColumnId)
+        public virtual Property FindTargetColumn(
+            [NotNull] string foreignKeyConstraintId, [NotNull] string fromColumnId)
         {
             ForeignKeyColumnMapping foreignKeyColumnMapping;
             if (!_foreignKeyColumnMappings.TryGetValue(
@@ -445,7 +452,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             return string.Join(string.Empty, listOfColumnIds.OrderBy(columnId => columnId));
         }
 
-        public void ApplyPropertyProperties(Property property, TableColumn tc)
+        public virtual void ApplyPropertyProperties([NotNull] Property property, [NotNull] TableColumn tc)
         {
             if (property.Name != tc.ColumnName)
             {

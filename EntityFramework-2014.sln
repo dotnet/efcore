@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.22410.0
+VisualStudioVersion = 14.0.22311.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{E7D68B03-3A5D-4710-9A1F-20D198E41F78}"
 EndProject
@@ -42,6 +42,7 @@ EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFramework.Microbenchmarks.Core", "test\EntityFramework.Microbenchmarks.Core\EntityFramework.Microbenchmarks.Core.kproj", "{A9537086-CA3E-458B-BB72-F4D3F32FE7BE}"
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFramework.Microbenchmarks.EF6", "test\EntityFramework.Microbenchmarks.EF6\EntityFramework.Microbenchmarks.EF6.kproj", "{0D7C4100-30B5-435F-BA25-BCAA4B5B32F8}"
+EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFramework.ReverseEngineering", "src\EntityFramework.ReverseEngineering\EntityFramework.ReverseEngineering.kproj", "{61321B4B-AB19-4E03-8C2C-B40627AD8900}"
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFramework.ReverseEngineering.FunctionalTests", "test\EntityFramework.ReverseEngineering.FunctionalTests\EntityFramework.ReverseEngineering.FunctionalTests.kproj", "{54E13632-C302-474D-909A-06F6469D96BD}"
@@ -49,6 +50,10 @@ EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFramework.SqlServer.Design", "src\EntityFramework.SqlServer.Design\EntityFramework.SqlServer.Design.kproj", "{F62DFDA6-2281-4FDA-A36D-AB83C05A3B51}"
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFramework.Relational.Design", "src\EntityFramework.Relational.Design\EntityFramework.Relational.Design.kproj", "{5CAE6E4C-73F2-466B-8592-30491FFC97CA}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFramework.Relational.Design.Tests", "test\EntityFramework.Relational.Design.Tests\EntityFramework.Relational.Design.Tests.kproj", "{237F08AA-B121-47F3-9E91-0AC259BBB6B3}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFramework.SqlServer.Design.Tests", "test\EntityFramework.SqlServer.Design.Tests\EntityFramework.SqlServer.Design.Tests.kproj", "{CEAC19C5-68D3-4AB6-957A-D380344008E7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -144,6 +149,14 @@ Global
 		{5CAE6E4C-73F2-466B-8592-30491FFC97CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5CAE6E4C-73F2-466B-8592-30491FFC97CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5CAE6E4C-73F2-466B-8592-30491FFC97CA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{237F08AA-B121-47F3-9E91-0AC259BBB6B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{237F08AA-B121-47F3-9E91-0AC259BBB6B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{237F08AA-B121-47F3-9E91-0AC259BBB6B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{237F08AA-B121-47F3-9E91-0AC259BBB6B3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CEAC19C5-68D3-4AB6-957A-D380344008E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CEAC19C5-68D3-4AB6-957A-D380344008E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CEAC19C5-68D3-4AB6-957A-D380344008E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CEAC19C5-68D3-4AB6-957A-D380344008E7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -166,10 +179,11 @@ Global
 		{CCEAA6B7-9270-4F5D-8F50-F2773F2A87CE} = {C605BAB7-B06E-4BDF-80B2-E661B7670E25}
 		{A9537086-CA3E-458B-BB72-F4D3F32FE7BE} = {C605BAB7-B06E-4BDF-80B2-E661B7670E25}
 		{0D7C4100-30B5-435F-BA25-BCAA4B5B32F8} = {C605BAB7-B06E-4BDF-80B2-E661B7670E25}
-		{E800A5B3-8620-4826-8CE2-B8BE1F754DD1} = {22A56D45-1A71-40B6-97A4-27AC131AAC1D}
 		{61321B4B-AB19-4E03-8C2C-B40627AD8900} = {E7D68B03-3A5D-4710-9A1F-20D198E41F78}
 		{54E13632-C302-474D-909A-06F6469D96BD} = {C605BAB7-B06E-4BDF-80B2-E661B7670E25}
 		{F62DFDA6-2281-4FDA-A36D-AB83C05A3B51} = {E7D68B03-3A5D-4710-9A1F-20D198E41F78}
 		{5CAE6E4C-73F2-466B-8592-30491FFC97CA} = {E7D68B03-3A5D-4710-9A1F-20D198E41F78}
+		{237F08AA-B121-47F3-9E91-0AC259BBB6B3} = {C605BAB7-B06E-4BDF-80B2-E661B7670E25}
+		{CEAC19C5-68D3-4AB6-957A-D380344008E7} = {C605BAB7-B06E-4BDF-80B2-E661B7670E25}
 	EndGlobalSection
 EndGlobal

@@ -1,13 +1,14 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using JetBrains.Annotations;
 using System.Data.SqlClient;
 
 namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.Model
 {
     public class TableColumn
     {
-        public static readonly string Query =
+        public const string Query =
 @"SELECT
     quotename(c.TABLE_SCHEMA) + quotename(c.TABLE_NAME) + quotename(c.COLUMN_NAME) [Id]
   , quotename(c.TABLE_SCHEMA) + quotename(c.TABLE_NAME) [ParentId]
@@ -32,21 +33,21 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.Model
   AND t.TABLE_TYPE = 'BASE TABLE'
 ";
 
-        public string Id { get; set; }
-        public string TableId { get; set; }
-        public string ColumnName { get; set; }
-        public int Ordinal { get; set; }
-        public bool IsNullable { get; set; }
-        public string DataType { get; set; }
-        public int? MaxLength { get; set; }
-        public int? NumericPrecision { get; set; }
-        public int? DateTimePrecision { get; set; }
-        public int? Scale { get; set; }
-        public bool IsIdentity { get; set; }
-        public bool IsStoreGenerated { get; set; }
-        public string DefaultValue { get; set; }
+        public virtual string Id { get; [param: CanBeNull] set; }
+        public virtual string TableId { get; [param: CanBeNull] set; }
+        public virtual string ColumnName { get; [param: CanBeNull] set; }
+        public virtual int Ordinal { get; [param: CanBeNull] set; }
+        public virtual bool IsNullable { get; [param: CanBeNull] set; }
+        public virtual string DataType { get; [param: CanBeNull] set; }
+        public virtual int? MaxLength { get; [param: CanBeNull] set; }
+        public virtual int? NumericPrecision { get; [param: CanBeNull] set; }
+        public virtual int? DateTimePrecision { get; [param: CanBeNull] set; }
+        public virtual int? Scale { get; [param: CanBeNull] set; }
+        public virtual bool IsIdentity { get; [param: CanBeNull] set; }
+        public virtual bool IsStoreGenerated { get; [param: CanBeNull] set; }
+        public virtual string DefaultValue { get; [param: CanBeNull] set; }
 
-        public static TableColumn CreateFromReader(SqlDataReader reader)
+        public static TableColumn CreateFromReader([NotNull] SqlDataReader reader)
         {
             var tableColumn = new TableColumn();
             tableColumn.Id = reader.IsDBNull(0) ? null : reader.GetString(0);
