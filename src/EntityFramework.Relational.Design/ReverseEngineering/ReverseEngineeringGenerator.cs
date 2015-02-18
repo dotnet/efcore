@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Relational.Design.CodeGeneration;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 
@@ -22,14 +23,23 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         public ReverseEngineeringGenerator(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
+
             Logger = (ILogger)serviceProvider.GetService(typeof(ILogger));
             if (Logger == null)
             {
                 throw new ArgumentException(typeof(ReverseEngineeringGenerator).Name + " cannot find a service of type " + typeof(ILogger).Name);
             }
+
+            CSharpCodeGeneratorHelper = (CSharpCodeGeneratorHelper)serviceProvider.GetService(typeof(CSharpCodeGeneratorHelper));
+            if (CSharpCodeGeneratorHelper == null)
+            {
+                throw new ArgumentException(typeof(ReverseEngineeringGenerator).Name + " cannot find a service of type " + typeof(CSharpCodeGeneratorHelper).Name);
+            }
         }
 
         public virtual string FileExtension { get; set; } = DefaultFileExtension;
+
+        public virtual CSharpCodeGeneratorHelper CSharpCodeGeneratorHelper { get; set; }
 
         public virtual ILogger Logger { get; }
 

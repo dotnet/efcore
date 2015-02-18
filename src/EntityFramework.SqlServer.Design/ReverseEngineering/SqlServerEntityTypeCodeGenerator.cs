@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             if (errorMessageAnnotation != null)
             {
                 GenerateCommentHeader(sb);
-                CSharpCodeGeneratorHelper.Instance.SingleLineComment(errorMessageAnnotation, sb);
+                Generator.CSharpCodeGeneratorHelper.SingleLineComment(errorMessageAnnotation, sb);
                 Generator.Logger.WriteWarning("The SQL Server EntityType CodeGenerator"
                     + " is unable to generate EntityType " + EntityType.Name
                     + ". Error message: " + errorMessageAnnotation);
@@ -68,7 +68,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
         public override void GenerateEntityProperties(IndentedStringBuilder sb)
         {
             sb.AppendLine();
-            CSharpCodeGeneratorHelper.Instance.SingleLineComment("Properties", sb);
+            Generator.CSharpCodeGeneratorHelper.SingleLineComment("Properties", sb);
             base.GenerateEntityProperties(sb);
         }
 
@@ -76,14 +76,14 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
         {
             GenerateEntityPropertyAttribues(sb, property);
 
-            CSharpCodeGeneratorHelper.Instance.AddProperty(AccessModifier.Public,
+            Generator.CSharpCodeGeneratorHelper.AddProperty(AccessModifier.Public,
                 VirtualModifier.None, property.PropertyType, property.Name, sb);
         }
 
         public override void GenerateEntityNavigations(IndentedStringBuilder sb)
         {
             sb.AppendLine();
-            CSharpCodeGeneratorHelper.Instance.SingleLineComment("Navigation Properties", sb);
+            Generator.CSharpCodeGeneratorHelper.SingleLineComment("Navigation Properties", sb);
 
             // construct navigations from foreign keys
             foreach (var otherEntityType in EntityType.Model.EntityTypes.Where(et => et != EntityType))
@@ -97,7 +97,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                     if (((EntityType)otherEntityType)
                         .TryGetAnnotation(SqlServerMetadataModelProvider.AnnotationNameEntityTypeError) != null)
                     {
-                        CSharpCodeGeneratorHelper.Instance.SingleLineComment("Unable to add a Navigation Property referencing type "
+                        Generator.CSharpCodeGeneratorHelper.SingleLineComment("Unable to add a Navigation Property referencing type "
                             + otherEntityType.Name + " because of errors generating that EntityType.",
                             sb);
                     }
@@ -105,7 +105,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                     {
                         if (foreignKey.IsUnique)
                         {
-                            CSharpCodeGeneratorHelper.Instance.AddProperty(
+                            Generator.CSharpCodeGeneratorHelper.AddProperty(
                                 AccessModifier.Public,
                                 VirtualModifier.Virtual,
                                 otherEntityType.Name,
@@ -114,7 +114,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                         }
                         else
                         {
-                            CSharpCodeGeneratorHelper.Instance.AddProperty(
+                            Generator.CSharpCodeGeneratorHelper.AddProperty(
                                 AccessModifier.Public,
                                 VirtualModifier.Virtual,
                                 "ICollection<" + otherEntityType.Name + ">",
@@ -130,7 +130,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                 // set up the navigation property on this end of foreign keys owned by this EntityType
                 var navigationPropertyName =
                     foreignKey[SqlServerMetadataModelProvider.AnnotationNameDependentEndNavPropName];
-                CSharpCodeGeneratorHelper.Instance.AddProperty(
+                Generator.CSharpCodeGeneratorHelper.AddProperty(
                     AccessModifier.Public,
                     VirtualModifier.Virtual,
                     foreignKey.ReferencedEntityType.Name,
