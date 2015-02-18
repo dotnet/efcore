@@ -2,9 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Tests;
 using Xunit;
 
@@ -39,7 +37,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
 
         private static object CreateAndUseFactory(IProperty property)
         {
-            return new InMemoryIntegerValueGeneratorFactory().Create(property).Next(new DbContextService<DataStoreServices>(() => null));
+            return new InMemoryIntegerValueGeneratorFactory().Create(property).Next();
         }
 
         [Fact]

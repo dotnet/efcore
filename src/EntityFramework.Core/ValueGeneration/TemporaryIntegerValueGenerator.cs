@@ -6,7 +6,7 @@ using System.Threading;
 
 namespace Microsoft.Data.Entity.ValueGeneration
 {
-    public class TemporaryIntegerValueGenerator<TValue> : SimpleTemporaryValueGenerator<TValue>
+    public class TemporaryIntegerValueGenerator<TValue> : ValueGenerator<TValue>
     {
         private long _current;
 
@@ -36,5 +36,7 @@ namespace Microsoft.Data.Entity.ValueGeneration
 
             return (TValue)Convert.ChangeType(generatedValue, typeof(TValue));
         }
+
+        public override bool GeneratesTemporaryValues => true;
     }
 }

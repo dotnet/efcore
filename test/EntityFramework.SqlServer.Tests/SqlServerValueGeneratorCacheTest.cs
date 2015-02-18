@@ -3,15 +3,57 @@
 
 using System;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Tests;
-using Microsoft.Framework.Logging;
+using Microsoft.Data.Entity.ValueGeneration;
+using Microsoft.Framework.DependencyInjection;
 using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.Tests
 {
-    public class SqlServerSequenceValueGeneratorFactoryTest
+    public class SqlServerValueGeneratorCacheTest
     {
+        [Fact]
+        public void Uses_single_generator_per_property()
+        {
+            var model = CreateModel();
+            var property1 = GetProperty1(model);
+            var property2 = GetProperty2(model);
+            var cache = SqlServerTestHelpers.Instance.CreateContextServices(model).GetRequiredService<SqlServerValueGeneratorCache>();
+
+            var generator1 = cache.GetOrAdd(property1, p => new TemporaryIntegerValueGenerator<int>());
+            Assert.NotNull(generator1);
+            Assert.Same(generator1, cache.GetOrAdd(property1, p => new TemporaryIntegerValueGenerator<int>()));
+
+            var generator2 = cache.GetOrAdd(property2, p => new TemporaryIntegerValueGenerator<int>());
+            Assert.NotNull(generator2);
+            Assert.Same(generator2, cache.GetOrAdd(property2, p => new TemporaryIntegerValueGenerator<int>()));
+            Assert.NotSame(generator1, generator2);
+        }
+
+        [Fact]
+        public void Uses_single_sequence_generator_per_sequence()
+        {
+            var model = CreateModel();
+            var property1 = GetProperty1(model);
+            var property2 = GetProperty2(model);
+            var property3 = GetProperty3(model);
+            var cache = SqlServerTestHelpers.Instance.CreateContextServices(model).GetRequiredService<SqlServerValueGeneratorCache>();
+
+            var generator1 = cache.GetOrAddSequenceState(property1);
+            Assert.NotNull(generator1);
+            Assert.Same(generator1, cache.GetOrAddSequenceState(property1));
+
+            var generator2 = cache.GetOrAddSequenceState(property2);
+            Assert.NotNull(generator2);
+            Assert.Same(generator2, cache.GetOrAddSequenceState(property2));
+            Assert.Same(generator1, generator2);
+
+            var generator3 = cache.GetOrAddSequenceState(property3);
+            Assert.NotNull(generator3);
+            Assert.Same(generator3, cache.GetOrAddSequenceState(property3));
+            Assert.NotSame(generator1, generator3);
+        }
+
         [Fact]
         public void Block_size_is_obtained_from_default_sequence()
         {
@@ -21,9 +63,9 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 .ForSqlServer(b => b.UseSequence())
                 .Metadata;
 
-            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new LoggerFactory()));
+            var cache = new SqlServerValueGeneratorCache();
 
-            Assert.Equal(10, factory.GetBlockSize(property));
+            Assert.Equal(10, cache.GetBlockSize(property));
         }
 
         [Fact]
@@ -35,9 +77,9 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 .ForSqlServer(b => b.UseSequence("DaneelOlivaw"))
                 .Metadata;
 
-            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new LoggerFactory()));
+            var cache = new SqlServerValueGeneratorCache();
 
-            Assert.Equal(10, factory.GetBlockSize(property));
+            Assert.Equal(10, cache.GetBlockSize(property));
         }
 
         [Fact]
@@ -50,9 +92,9 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 .GenerateValueOnAdd()
                 .Metadata;
 
-            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new LoggerFactory()));
+            var cache = new SqlServerValueGeneratorCache();
 
-            Assert.Equal(10, factory.GetBlockSize(property));
+            Assert.Equal(10, cache.GetBlockSize(property));
         }
 
         [Fact]
@@ -65,9 +107,9 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 .GenerateValueOnAdd()
                 .Metadata;
 
-            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new LoggerFactory()));
+            var cache = new SqlServerValueGeneratorCache();
 
-            Assert.Equal(10, factory.GetBlockSize(property));
+            Assert.Equal(10, cache.GetBlockSize(property));
         }
 
         [Fact]
@@ -80,9 +122,9 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 .ForSqlServer(b => b.UseSequence())
                 .Metadata;
 
-            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new LoggerFactory()));
+            var cache = new SqlServerValueGeneratorCache();
 
-            Assert.Equal(11, factory.GetBlockSize(property));
+            Assert.Equal(11, cache.GetBlockSize(property));
         }
 
         [Fact]
@@ -95,9 +137,9 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 .ForSqlServer(b => b.UseSequence("DaneelOlivaw"))
                 .Metadata;
 
-            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new LoggerFactory()));
+            var cache = new SqlServerValueGeneratorCache();
 
-            Assert.Equal(11, factory.GetBlockSize(property));
+            Assert.Equal(11, cache.GetBlockSize(property));
         }
 
         [Fact]
@@ -114,9 +156,9 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 .GenerateValueOnAdd()
                 .Metadata;
 
-            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new LoggerFactory()));
+            var cache = new SqlServerValueGeneratorCache();
 
-            Assert.Equal(11, factory.GetBlockSize(property));
+            Assert.Equal(11, cache.GetBlockSize(property));
         }
 
         [Fact]
@@ -129,11 +171,11 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 .ForSqlServer(b => b.UseSequence("DaneelOlivaw"))
                 .Metadata;
 
-            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new LoggerFactory()));
+            var cache = new SqlServerValueGeneratorCache();
 
             Assert.Equal(
                 Strings.SequenceBadBlockSize(-1, "DaneelOlivaw"),
-                Assert.Throws<NotSupportedException>(() => factory.GetBlockSize(property)).Message);
+                Assert.Throws<NotSupportedException>(() => cache.GetBlockSize(property)).Message);
         }
 
         [Fact]
@@ -150,9 +192,9 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 .GenerateValueOnAdd()
                 .Metadata;
 
-            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new LoggerFactory()));
+            var cache = new SqlServerValueGeneratorCache();
 
-            Assert.Equal(11, factory.GetBlockSize(property));
+            Assert.Equal(11, cache.GetBlockSize(property));
         }
 
         [Fact]
@@ -164,9 +206,9 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 .ForSqlServer(b => b.UseSequence())
                 .Metadata;
 
-            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new LoggerFactory()));
+            var cache = new SqlServerValueGeneratorCache();
 
-            Assert.Equal("DefaultSequence", factory.GetSequenceName(property));
+            Assert.Equal("DefaultSequence", cache.GetSequenceName(property));
         }
 
         [Fact]
@@ -178,9 +220,9 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 .ForSqlServer(b => b.UseSequence("DaneelOlivaw"))
                 .Metadata;
 
-            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new LoggerFactory()));
+            var cache = new SqlServerValueGeneratorCache();
 
-            Assert.Equal("DaneelOlivaw", factory.GetSequenceName(property));
+            Assert.Equal("DaneelOlivaw", cache.GetSequenceName(property));
         }
 
         [Fact]
@@ -193,9 +235,9 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 .GenerateValueOnAdd()
                 .Metadata;
 
-            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new LoggerFactory()));
+            var cache = new SqlServerValueGeneratorCache();
 
-            Assert.Equal("DefaultSequence", factory.GetSequenceName(property));
+            Assert.Equal("DefaultSequence", cache.GetSequenceName(property));
         }
 
         [Fact]
@@ -208,9 +250,9 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 .GenerateValueOnAdd()
                 .Metadata;
 
-            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new LoggerFactory()));
+            var cache = new SqlServerValueGeneratorCache();
 
-            Assert.Equal("DaneelOlivaw", factory.GetSequenceName(property));
+            Assert.Equal("DaneelOlivaw", cache.GetSequenceName(property));
         }
 
         [Fact]
@@ -223,9 +265,9 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 .ForSqlServer(b => b.UseSequence())
                 .Metadata;
 
-            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new LoggerFactory()));
+            var cache = new SqlServerValueGeneratorCache();
 
-            Assert.Equal("DefaultSequence", factory.GetSequenceName(property));
+            Assert.Equal("DefaultSequence", cache.GetSequenceName(property));
         }
 
         [Fact]
@@ -238,9 +280,9 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 .ForSqlServer(b => b.UseSequence("DaneelOlivaw"))
                 .Metadata;
 
-            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new LoggerFactory()));
+            var cache = new SqlServerValueGeneratorCache();
 
-            Assert.Equal("DaneelOlivaw", factory.GetSequenceName(property));
+            Assert.Equal("DaneelOlivaw", cache.GetSequenceName(property));
         }
 
         [Fact]
@@ -257,9 +299,9 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 .GenerateValueOnAdd()
                 .Metadata;
 
-            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new LoggerFactory()));
+            var cache = new SqlServerValueGeneratorCache();
 
-            Assert.Equal("DefaultSequence", factory.GetSequenceName(property));
+            Assert.Equal("DefaultSequence", cache.GetSequenceName(property));
         }
 
         [Fact]
@@ -276,9 +318,9 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 .GenerateValueOnAdd()
                 .Metadata;
 
-            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new LoggerFactory()));
+            var cache = new SqlServerValueGeneratorCache();
 
-            Assert.Equal("DaneelOlivaw", factory.GetSequenceName(property));
+            Assert.Equal("DaneelOlivaw", cache.GetSequenceName(property));
         }
 
         [Fact]
@@ -290,9 +332,9 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 .ForSqlServer(b => b.UseSequence("DaneelOlivaw", "R"))
                 .Metadata;
 
-            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new LoggerFactory()));
+            var cache = new SqlServerValueGeneratorCache();
 
-            Assert.Equal("R.DaneelOlivaw", factory.GetSequenceName(property));
+            Assert.Equal("R.DaneelOlivaw", cache.GetSequenceName(property));
         }
 
         [Fact]
@@ -305,9 +347,9 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 .GenerateValueOnAdd()
                 .Metadata;
 
-            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new LoggerFactory()));
+            var cache = new SqlServerValueGeneratorCache();
 
-            Assert.Equal("R.DaneelOlivaw", factory.GetSequenceName(property));
+            Assert.Equal("R.DaneelOlivaw", cache.GetSequenceName(property));
         }
 
         [Fact]
@@ -320,9 +362,9 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 .ForSqlServer(b => b.UseSequence("DaneelOlivaw", "R"))
                 .Metadata;
 
-            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new LoggerFactory()));
+            var cache = new SqlServerValueGeneratorCache();
 
-            Assert.Equal("R.DaneelOlivaw", factory.GetSequenceName(property));
+            Assert.Equal("R.DaneelOlivaw", cache.GetSequenceName(property));
         }
 
         [Fact]
@@ -339,27 +381,9 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 .GenerateValueOnAdd()
                 .Metadata;
 
-            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new LoggerFactory()));
+            var cache = new SqlServerValueGeneratorCache();
 
-            Assert.Equal("R.DaneelOlivaw", factory.GetSequenceName(property));
-        }
-
-        [Fact]
-        public void Creates_the_appropriate_value_generator()
-        {
-            var property = CreateConventionModelBuilder()
-                .ForSqlServer(b => b.Sequence("DaneelOlivaw", "R").IncrementBy(11))
-                .Entity<Robot>()
-                .Property(e => e.Id)
-                .ForSqlServer(b => b.UseSequence("DaneelOlivaw", "R"))
-                .Metadata;
-
-            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new LoggerFactory()));
-
-            var generator = (SqlServerSequenceValueGenerator<int>)factory.Create(property);
-
-            Assert.Equal("R.DaneelOlivaw", generator.SequenceName);
-            Assert.Equal(11, generator.BlockSize);
+            Assert.Equal("R.DaneelOlivaw", cache.GetSequenceName(property));
         }
 
         [Fact]
@@ -367,23 +391,9 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         {
             var property = CreateProperty();
 
-            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new LoggerFactory()));
+            var cache = new SqlServerValueGeneratorCache();
 
-            Assert.Equal(5, factory.GetPoolSize(property));
-        }
-
-        [Fact]
-        public void Sequence_name_is_the_cache_key()
-        {
-            var property = CreateConventionModelBuilder()
-                .Entity<Robot>()
-                .Property(e => e.Id)
-                .ForSqlServer(b => b.UseSequence("DaneelOlivaw", "R"))
-                .Metadata;
-
-            var factory = new SqlServerSequenceValueGeneratorFactory(new SqlStatementExecutor(new LoggerFactory()));
-
-            Assert.Equal("R.DaneelOlivaw", factory.GetCacheKey(property));
+            Assert.Equal(5, cache.GetPoolSize(property));
         }
 
         protected virtual ModelBuilder CreateConventionModelBuilder()
@@ -403,6 +413,36 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         private class Robot
         {
             public int Id { get; set; }
+        }
+
+        private static IProperty GetProperty1(IModel model) => model.GetEntityType(typeof(Led)).GetProperty("Zeppelin");
+
+        private static IProperty GetProperty2(IModel model) => model.GetEntityType(typeof(Led)).GetProperty("Stairway");
+
+        private static IProperty GetProperty3(IModel model) => model.GetEntityType(typeof(Led)).GetProperty("WholeLotta");
+
+        private static IModel CreateModel()
+        {
+            var modelBuilder = SqlServerTestHelpers.Instance.CreateConventionBuilder();
+
+            modelBuilder.ForRelational().Sequence("Heaven");
+            modelBuilder.ForRelational().Sequence("Rosie");
+
+            modelBuilder.Entity<Led>(b =>
+                {
+                    b.Property(e => e.Zeppelin).ForSqlServer().UseSequence("Heaven");
+                    b.Property(e => e.Stairway).ForSqlServer().UseSequence("Heaven");
+                    b.Property(e => e.WholeLotta).ForSqlServer().UseSequence("Rosie");
+                });
+
+            return modelBuilder.Model;
+        }
+
+        private class Led
+        {
+            public int Zeppelin { get; set; }
+            public int Stairway { get; set; }
+            public int WholeLotta { get; set; }
         }
     }
 }

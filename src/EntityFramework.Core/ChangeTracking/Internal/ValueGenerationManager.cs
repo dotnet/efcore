@@ -5,25 +5,20 @@ using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.ValueGeneration;
-using Microsoft.Data.Entity.ValueGeneration.Internal;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
     public class ValueGenerationManager
     {
-        private readonly DbContextService<ValueGeneratorCache> _valueGeneratorCache;
-        private readonly DbContextService<DataStoreServices> _dataStoreServices;
+        private readonly DbContextService<ValueGeneratorSelectorContract> _valueGeneratorSelector;
         private readonly KeyPropagator _keyPropagator;
 
         public ValueGenerationManager(
-            [NotNull] DbContextService<ValueGeneratorCache> valueGeneratorCache,
-            [NotNull] DbContextService<DataStoreServices> dataStoreServices,
+            [NotNull] DbContextService<ValueGeneratorSelectorContract> valueGeneratorSelector,
             [NotNull] KeyPropagator keyPropagator)
         {
-            _valueGeneratorCache = valueGeneratorCache;
-            _dataStoreServices = dataStoreServices;
+            _valueGeneratorSelector = valueGeneratorSelector;
             _keyPropagator = keyPropagator;
         }
 
@@ -42,10 +37,10 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                     }
                     else
                     {
-                        var valueGenerator = _valueGeneratorCache.Service.GetGenerator(property);
+                        var valueGenerator = _valueGeneratorSelector.Service.Select(property);
                         Debug.Assert(valueGenerator != null);
 
-                        var generatedValue = valueGenerator.Next(_dataStoreServices);
+                        var generatedValue = valueGenerator.Next();
                         SetGeneratedValue(entry, property, generatedValue, valueGenerator.GeneratesTemporaryValues);
                     }
                 }
@@ -54,7 +49,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         public virtual bool MayGetTemporaryValue([NotNull] IProperty property)
             => property.GenerateValueOnAdd
-               && _valueGeneratorCache.Service.GetGenerator(property).GeneratesTemporaryValues;
+               && _valueGeneratorSelector.Service.Select(property).GeneratesTemporaryValues;
 
         private static void SetGeneratedValue(InternalEntityEntry entry, IProperty property, object generatedValue, bool isTemporary)
         {

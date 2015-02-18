@@ -5,8 +5,10 @@ using System;
 
 namespace Microsoft.Data.Entity.ValueGeneration
 {
-    public class TemporaryStringValueGenerator : SimpleTemporaryValueGenerator<string>
+    public class TemporaryStringValueGenerator : ValueGenerator<string>
     {
         public override string Next() => Guid.NewGuid().ToString();
+
+        public override bool GeneratesTemporaryValues => true;
     }
 }

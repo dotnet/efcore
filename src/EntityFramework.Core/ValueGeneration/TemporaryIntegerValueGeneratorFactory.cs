@@ -8,7 +8,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.ValueGeneration
 {
-    public class TemporaryIntegerValueGeneratorFactory : SimpleValueGeneratorFactory
+    public class TemporaryIntegerValueGeneratorFactory : ValueGeneratorFactory
     {
         public override ValueGenerator Create(IProperty property)
         {

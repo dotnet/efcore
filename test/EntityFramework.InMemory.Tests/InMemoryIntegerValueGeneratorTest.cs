@@ -2,8 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Storage;
 using Xunit;
 
 namespace Microsoft.Data.Entity.InMemory.Tests
@@ -15,17 +13,17 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         {
             var generator = new InMemoryIntegerValueGenerator<int>();
 
-            Assert.Equal(1, generator.Next(new DbContextService<DataStoreServices>(() => null)));
-            Assert.Equal(2, generator.Next(new DbContextService<DataStoreServices>(() => null)));
-            Assert.Equal(3, generator.Next(new DbContextService<DataStoreServices>(() => null)));
-            Assert.Equal(4, generator.Next(new DbContextService<DataStoreServices>(() => null)));
-            Assert.Equal(5, generator.Next(new DbContextService<DataStoreServices>(() => null)));
-            Assert.Equal(6, generator.Next(new DbContextService<DataStoreServices>(() => null)));
+            Assert.Equal(1, generator.Next());
+            Assert.Equal(2, generator.Next());
+            Assert.Equal(3, generator.Next());
+            Assert.Equal(4, generator.Next());
+            Assert.Equal(5, generator.Next());
+            Assert.Equal(6, generator.Next());
 
             generator = new InMemoryIntegerValueGenerator<int>();
 
-            Assert.Equal(1, generator.Next(new DbContextService<DataStoreServices>(() => null)));
-            Assert.Equal(2, generator.Next(new DbContextService<DataStoreServices>(() => null)));
+            Assert.Equal(1, generator.Next());
+            Assert.Equal(2, generator.Next());
         }
 
         [Fact]
@@ -48,10 +46,10 @@ namespace Microsoft.Data.Entity.InMemory.Tests
 
             for (var i = 1; i < 256; i++)
             {
-                generator.Next(new DbContextService<DataStoreServices>(() => null));
+                generator.Next();
             }
 
-            Assert.Throws<OverflowException>(() => generator.Next(new DbContextService<DataStoreServices>(() => null)));
+            Assert.Throws<OverflowException>(() => generator.Next());
         }
 
         [Fact]

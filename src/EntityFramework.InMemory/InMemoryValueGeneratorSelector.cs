@@ -9,30 +9,41 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.InMemory
 {
-    public class InMemoryValueGeneratorFactorySelector : ValueGeneratorFactorySelector
+    public class InMemoryValueGeneratorSelector : ValueGeneratorSelector
     {
+        private readonly InMemoryValueGeneratorCache _cache;
         private readonly InMemoryIntegerValueGeneratorFactory _inMemoryFactory;
 
-        public InMemoryValueGeneratorFactorySelector(
-            [NotNull] SimpleValueGeneratorFactory<GuidValueGenerator> guidFactory,
+        public InMemoryValueGeneratorSelector(
+            [NotNull] InMemoryValueGeneratorCache cache,
+            [NotNull] ValueGeneratorFactory<GuidValueGenerator> guidFactory,
             [NotNull] InMemoryIntegerValueGeneratorFactory inMemoryFactory,
             [NotNull] TemporaryIntegerValueGeneratorFactory integerFactory,
-            [NotNull] SimpleValueGeneratorFactory<TemporaryStringValueGenerator> stringFactory,
-            [NotNull] SimpleValueGeneratorFactory<TemporaryBinaryValueGenerator> binaryFactory)
+            [NotNull] ValueGeneratorFactory<TemporaryStringValueGenerator> stringFactory,
+            [NotNull] ValueGeneratorFactory<TemporaryBinaryValueGenerator> binaryFactory)
             : base(guidFactory, integerFactory, stringFactory, binaryFactory)
         {
+            Check.NotNull(cache, nameof(cache));
             Check.NotNull(inMemoryFactory, nameof(inMemoryFactory));
 
+            _cache = cache;
             _inMemoryFactory = inMemoryFactory;
         }
 
-        public override ValueGeneratorFactory Select(IProperty property)
+        public override ValueGenerator Select(IProperty property)
+        {
+            Check.NotNull(property, nameof(property));
+
+            return _cache.GetOrAdd(property, Create);
+        }
+
+        public override ValueGenerator Create(IProperty property)
         {
             Check.NotNull(property, nameof(property));
 
             return property.PropertyType.IsInteger()
-                ? _inMemoryFactory
-                : base.Select(property);
+                ? _inMemoryFactory.Create(property)
+                : base.Create(property);
         }
     }
 }

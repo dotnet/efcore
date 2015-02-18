@@ -7,9 +7,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.ValueGeneration;
-using Microsoft.Data.Entity.ValueGeneration.Internal;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
@@ -17,8 +15,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
     {
         private readonly ClrPropertyGetterSource _getterSource;
         private readonly ClrCollectionAccessorSource _collectionAccessorSource;
-        private readonly DbContextService<ValueGeneratorCache> _valueGeneratorCache;
-        private readonly DbContextService<DataStoreServices> _storeServices;
+        private readonly DbContextService<ValueGeneratorSelectorContract> _valueGeneratorSelector;
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
@@ -32,13 +29,11 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         public KeyPropagator(
             [NotNull] ClrPropertyGetterSource getterSource,
             [NotNull] ClrCollectionAccessorSource collectionAccessorSource,
-            [NotNull] DbContextService<ValueGeneratorCache> valueGeneratorCache,
-            [NotNull] DbContextService<DataStoreServices> storeServices)
+            [NotNull] DbContextService<ValueGeneratorSelectorContract> valueGeneratorSelector)
         {
             _getterSource = getterSource;
             _collectionAccessorSource = collectionAccessorSource;
-            _valueGeneratorCache = valueGeneratorCache;
-            _storeServices = storeServices;
+            _valueGeneratorSelector = valueGeneratorSelector;
         }
 
         public virtual void PropagateValue([NotNull] InternalEntityEntry entry, [NotNull] IProperty property)
@@ -52,7 +47,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
                 if (valueGenerator != null)
                 {
-                    entry[property] = valueGenerator.Next(_storeServices);
+                    entry[property] = valueGenerator.Next();
                 }
             }
         }
@@ -116,7 +111,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
                         if (generationProperty != null)
                         {
-                            return _valueGeneratorCache.Service.GetGenerator(generationProperty);
+                            return _valueGeneratorSelector.Service.Select(generationProperty);
                         }
                     }
                 }

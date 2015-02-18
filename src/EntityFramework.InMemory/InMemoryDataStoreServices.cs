@@ -7,7 +7,6 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
-using Microsoft.Data.Entity.ValueGeneration.Internal;
 
 namespace Microsoft.Data.Entity.InMemory
 {
@@ -16,7 +15,7 @@ namespace Microsoft.Data.Entity.InMemory
         private readonly InMemoryDataStore _store;
         private readonly InMemoryDataStoreCreator _creator;
         private readonly InMemoryConnection _connection;
-        private readonly InMemoryValueGeneratorCache _valueGeneratorCache;
+        private readonly InMemoryValueGeneratorSelector _valueGeneratorSelector;
         private readonly InMemoryDatabaseFacade _database;
         private readonly InMemoryModelBuilderFactory _modelBuilderFactory;
         private readonly InMemoryModelSource _modelSource;
@@ -25,23 +24,23 @@ namespace Microsoft.Data.Entity.InMemory
             [NotNull] InMemoryDataStore store,
             [NotNull] InMemoryDataStoreCreator creator,
             [NotNull] InMemoryConnection connection,
-            [NotNull] InMemoryValueGeneratorCache valueGeneratorCache,
+            [NotNull] InMemoryValueGeneratorSelector valueGeneratorSelector,
             [NotNull] InMemoryDatabaseFacade database,
             [NotNull] InMemoryModelBuilderFactory modelBuilderFactory,
             [NotNull] InMemoryModelSource modelSource)
         {
-            Check.NotNull(store, "store");
-            Check.NotNull(creator, "creator");
-            Check.NotNull(connection, "connection");
-            Check.NotNull(valueGeneratorCache, "valueGeneratorCache");
-            Check.NotNull(database, "database");
-            Check.NotNull(modelBuilderFactory, "modelBuilderFactory");
-            Check.NotNull(modelSource, "modelSource");
+            Check.NotNull(store, nameof(store));
+            Check.NotNull(creator, nameof(creator));
+            Check.NotNull(connection, nameof(connection));
+            Check.NotNull(valueGeneratorSelector, nameof(valueGeneratorSelector));
+            Check.NotNull(database, nameof(database));
+            Check.NotNull(modelBuilderFactory, nameof(modelBuilderFactory));
+            Check.NotNull(modelSource, nameof(modelSource));
 
             _store = store;
             _creator = creator;
             _connection = connection;
-            _valueGeneratorCache = valueGeneratorCache;
+            _valueGeneratorSelector = valueGeneratorSelector;
             _database = database;
             _modelBuilderFactory = modelBuilderFactory;
             _modelSource = modelSource;
@@ -53,7 +52,7 @@ namespace Microsoft.Data.Entity.InMemory
 
         public override DataStoreConnection Connection => _connection;
 
-        public override ValueGeneratorCache ValueGeneratorCache => _valueGeneratorCache;
+        public override ValueGeneratorSelectorContract ValueGeneratorSelector => _valueGeneratorSelector;
 
         public override Database Database => _database;
 

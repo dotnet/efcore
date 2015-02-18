@@ -6,20 +6,14 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.ValueGeneration
 {
-    public abstract class SimpleValueGeneratorFactory : ValueGeneratorFactory
+    public class ValueGeneratorFactory<TValueGenerator> : ValueGeneratorFactory
+        where TValueGenerator : ValueGenerator, new()
     {
-        public override int GetPoolSize(IProperty property)
+        public override ValueGenerator Create(IProperty property)
         {
             Check.NotNull(property, nameof(property));
 
-            return 1;
-        }
-
-        public override string GetCacheKey(IProperty property)
-        {
-            Check.NotNull(property, nameof(property));
-
-            return property.EntityType.Name + "." + property.Name;
+            return new TValueGenerator();
         }
     }
 }

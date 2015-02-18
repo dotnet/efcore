@@ -6,7 +6,7 @@ using System.Threading;
 
 namespace Microsoft.Data.Entity.ValueGeneration
 {
-    public class SequentialGuidValueGenerator : SimpleValueGenerator<Guid>
+    public class SequentialGuidValueGenerator : ValueGenerator<Guid>
     {
         private long _counter = DateTime.UtcNow.Ticks;
 
@@ -31,5 +31,7 @@ namespace Microsoft.Data.Entity.ValueGeneration
 
             return new Guid(guidBytes);
         }
+
+        public override bool GeneratesTemporaryValues => false;
     }
 }

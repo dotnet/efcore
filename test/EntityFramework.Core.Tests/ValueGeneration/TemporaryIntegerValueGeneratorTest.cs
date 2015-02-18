@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.ValueGeneration;
 using Xunit;
 
@@ -15,12 +13,12 @@ namespace Microsoft.Data.Entity.Tests.ValueGeneration
         {
             var generator = new TemporaryIntegerValueGenerator<int>();
 
-            Assert.Equal(-1, generator.Next(new DbContextService<DataStoreServices>(() => null)));
-            Assert.Equal(-2, generator.Next(new DbContextService<DataStoreServices>(() => null)));
-            Assert.Equal(-3, generator.Next(new DbContextService<DataStoreServices>(() => null)));
-            Assert.Equal(-4, generator.Next(new DbContextService<DataStoreServices>(() => null)));
-            Assert.Equal(-5, generator.Next(new DbContextService<DataStoreServices>(() => null)));
-            Assert.Equal(-6, generator.Next(new DbContextService<DataStoreServices>(() => null)));
+            Assert.Equal(-1, generator.Next());
+            Assert.Equal(-2, generator.Next());
+            Assert.Equal(-3, generator.Next());
+            Assert.Equal(-4, generator.Next());
+            Assert.Equal(-5, generator.Next());
+            Assert.Equal(-6, generator.Next());
         }
 
         [Fact]

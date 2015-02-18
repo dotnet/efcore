@@ -9,18 +9,18 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.ValueGeneration
 {
-    public abstract class ValueGeneratorFactorySelector
+    public abstract class ValueGeneratorSelector : ValueGeneratorSelectorContract
     {
-        private readonly SimpleValueGeneratorFactory<GuidValueGenerator> _guidFactory;
+        private readonly ValueGeneratorFactory<GuidValueGenerator> _guidFactory;
         private readonly TemporaryIntegerValueGeneratorFactory _integerFactory;
-        private readonly SimpleValueGeneratorFactory<TemporaryStringValueGenerator> _stringFactory;
-        private readonly SimpleValueGeneratorFactory<TemporaryBinaryValueGenerator> _binaryFactory;
+        private readonly ValueGeneratorFactory<TemporaryStringValueGenerator> _stringFactory;
+        private readonly ValueGeneratorFactory<TemporaryBinaryValueGenerator> _binaryFactory;
 
-        protected ValueGeneratorFactorySelector(
-            [NotNull] SimpleValueGeneratorFactory<GuidValueGenerator> guidFactory,
-            [NotNull] TemporaryIntegerValueGeneratorFactory integerFactory,
-            [NotNull] SimpleValueGeneratorFactory<TemporaryStringValueGenerator> stringFactory,
-            [NotNull] SimpleValueGeneratorFactory<TemporaryBinaryValueGenerator> binaryFactory)
+        protected ValueGeneratorSelector(
+            [NotNull] ValueGeneratorFactory<GuidValueGenerator> guidFactory, 
+            [NotNull] TemporaryIntegerValueGeneratorFactory integerFactory, 
+            [NotNull] ValueGeneratorFactory<TemporaryStringValueGenerator> stringFactory, 
+            [NotNull] ValueGeneratorFactory<TemporaryBinaryValueGenerator> binaryFactory)
         {
             Check.NotNull(guidFactory, nameof(guidFactory));
             Check.NotNull(integerFactory, nameof(integerFactory));
@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity.ValueGeneration
             _binaryFactory = binaryFactory;
         }
 
-        public virtual ValueGeneratorFactory Select([NotNull] IProperty property)
+        public virtual ValueGenerator Create([NotNull] IProperty property)
         {
             Check.NotNull(property, nameof(property));
 
@@ -41,22 +41,22 @@ namespace Microsoft.Data.Entity.ValueGeneration
 
             if (propertyType == typeof(Guid))
             {
-                return _guidFactory;
+                return _guidFactory.Create(property);
             }
 
             if (propertyType.UnwrapNullableType().IsInteger())
             {
-                return _integerFactory;
+                return _integerFactory.Create(property);
             }
 
             if (propertyType == typeof(string))
             {
-                return _stringFactory;
+                return _stringFactory.Create(property);
             }
 
             if (propertyType == typeof(byte[]))
             {
-                return _binaryFactory;
+                return _binaryFactory.Create(property);
             }
 
             throw new NotSupportedException(

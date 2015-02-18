@@ -105,6 +105,7 @@
     <Compile Include="SqlServerModelBuilderFactory.cs" />
     <Compile Include="Migrations\SqlServerModelDiffer.cs" />
     <Compile Include="SqlServerModelSource.cs" />
+    <Compile Include="SqlServerSequenceValueGeneratorState.cs" />
     <Compile Include="Update\SqlServerBatchExecutor.cs" />
     <Compile Include="SqlServerDataStoreServices.cs" />
     <Compile Include="Update\SqlServerCommandBatchPreparer.cs" />
@@ -128,7 +129,7 @@
       <DependentUpon>Strings.resx</DependentUpon>
     </Compile>
     <Compile Include="SqlServerValueGeneratorCache.cs" />
-    <Compile Include="SqlServerValueGeneratorFactorySelector.cs" />
+    <Compile Include="SqlServerValueGeneratorSelector.cs" />
     <Compile Include="Update\SqlServerModificationCommandBatch.cs" />
     <Compile Include="Utilities\EnumerableExtensions.cs" />
     <Compile Include="..\Shared\CodeAnnotations.cs" />

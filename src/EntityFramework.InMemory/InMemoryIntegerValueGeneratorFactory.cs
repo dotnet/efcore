@@ -57,19 +57,5 @@ namespace Microsoft.Data.Entity.InMemory
             throw new ArgumentException(Internal.Strings.InvalidValueGeneratorFactoryProperty(
                 nameof(InMemoryIntegerValueGeneratorFactory), property.Name, property.EntityType.SimpleName));
         }
-
-        public override int GetPoolSize(IProperty property)
-        {
-            Check.NotNull(property, nameof(property));
-
-            return 1;
-        }
-
-        public override string GetCacheKey(IProperty property)
-        {
-            Check.NotNull(property, nameof(property));
-
-            return property.EntityType.Name + "." + property.Name;
-        }
     }
 }

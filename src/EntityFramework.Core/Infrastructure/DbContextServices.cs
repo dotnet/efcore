@@ -8,7 +8,6 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Data.Entity.ValueGeneration;
-using Microsoft.Data.Entity.ValueGeneration.Internal;
 using Microsoft.Framework.DependencyInjection;
 
 namespace Microsoft.Data.Entity.Infrastructure
@@ -34,10 +33,10 @@ namespace Microsoft.Data.Entity.Infrastructure
             [NotNull] DbContext context,
             ServiceProviderSource serviceProviderSource)
         {
-            Check.NotNull(scopedProvider, "scopedProvider");
-            Check.NotNull(contextOptions, "contextOptions");
-            Check.NotNull(context, "context");
-            Check.IsDefined(serviceProviderSource, "serviceProviderSource");
+            Check.NotNull(scopedProvider, nameof(scopedProvider));
+            Check.NotNull(contextOptions, nameof(contextOptions));
+            Check.NotNull(context, nameof(context));
+            Check.IsDefined(serviceProviderSource, nameof(serviceProviderSource));
 
             _scopedProvider = scopedProvider;
             _contextOptions = contextOptions;
@@ -70,79 +69,35 @@ namespace Microsoft.Data.Entity.Infrastructure
             }
         }
 
-        public virtual DbContext Context
-        {
-            get { return _context; }
-        }
+        public virtual DbContext Context => _context;
 
-        public virtual IModel Model
-        {
-            get { return _contextOptions.Model ?? _modelFromSource.Value; }
-        }
+        public virtual IModel Model => _contextOptions.Model ?? _modelFromSource.Value;
 
-        public virtual IDbContextOptions ContextOptions
-        {
-            get { return _contextOptions; }
-        }
+        public virtual IDbContextOptions ContextOptions => _contextOptions;
 
-        public virtual DataStoreServices DataStoreServices
-        {
-            get { return _dataStoreServices.Value; }
-        }
+        public virtual DataStoreServices DataStoreServices => _dataStoreServices.Value;
 
         public static Func<IServiceProvider, DbContextService<DbContext>> ContextFactory
-        {
-            get { return p => new DbContextService<DbContext>(() => p.GetRequiredServiceChecked<DbContextServices>().Context); }
-        }
+            => p => new DbContextService<DbContext>(() => p.GetRequiredServiceChecked<DbContextServices>().Context);
 
         public static Func<IServiceProvider, DbContextService<IModel>> ModelFactory
-        {
-            get { return p => new DbContextService<IModel>(() => p.GetRequiredServiceChecked<DbContextServices>().Model); }
-        }
+            => p => new DbContextService<IModel>(() => p.GetRequiredServiceChecked<DbContextServices>().Model);
 
         public static Func<IServiceProvider, DbContextService<IDbContextOptions>> ContextOptionsFactory
-        {
-            get { return p => new DbContextService<IDbContextOptions>(() => p.GetRequiredServiceChecked<DbContextServices>().ContextOptions); }
-        }
+            => p => new DbContextService<IDbContextOptions>(() => p.GetRequiredServiceChecked<DbContextServices>().ContextOptions);
 
-        public virtual IServiceProvider ScopedServiceProvider
-        {
-            get { return _scopedProvider; }
-        }
+        public virtual IServiceProvider ScopedServiceProvider => _scopedProvider;
 
-        public virtual DataStore DataStore
-        {
-            get { return _dataStoreServices.Value.Store; }
-        }
+        public virtual DataStore DataStore => _dataStoreServices.Value.Store;
 
-        public virtual Database Database
-        {
-            get { return _dataStoreServices.Value.Database; }
-        }
+        public virtual Database Database => _dataStoreServices.Value.Database;
 
-        public virtual DataStoreCreator DataStoreCreator
-        {
-            get { return _dataStoreServices.Value.Creator; }
-        }
+        public virtual DataStoreCreator DataStoreCreator => _dataStoreServices.Value.Creator;
 
-        public virtual ValueGeneratorCache ValueGeneratorCache
-        {
-            get { return _dataStoreServices.Value.ValueGeneratorCache; }
-        }
+        public virtual ValueGeneratorSelectorContract ValueGeneratorSelector => _dataStoreServices.Value.ValueGeneratorSelector;
 
-        public virtual DataStoreConnection Connection
-        {
-            get { return _dataStoreServices.Value.Connection; }
-        }
+        public virtual DataStoreConnection Connection => _dataStoreServices.Value.Connection;
 
-        public virtual void Dispose()
-        {
-            var disposableServiceProvider = _scopedProvider as IDisposable;
-
-            if (disposableServiceProvider != null)
-            {
-                disposableServiceProvider.Dispose();
-            }
-        }
+        public virtual void Dispose() => (_scopedProvider as IDisposable)?.Dispose();
     }
 }

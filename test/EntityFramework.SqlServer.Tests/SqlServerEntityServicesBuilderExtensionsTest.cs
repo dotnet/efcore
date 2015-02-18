@@ -33,7 +33,6 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             // SQL Server dingletones
             VerifySingleton<SqlServerModelBuilderFactory>();
             VerifySingleton<SqlServerValueGeneratorCache>();
-            VerifySingleton<SqlServerValueGeneratorFactorySelector>();
             VerifySingleton<SqlServerSequenceValueGeneratorFactory>();
             VerifySingleton<SqlServerSqlGenerator>();
             VerifySingleton<SqlStatementExecutor>();
@@ -43,6 +42,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             VerifySingleton<SqlServerModelSource>();
 
             // SQL Server scoped
+            VerifyScoped<SqlServerValueGeneratorSelector>();
             VerifyScoped<SqlServerBatchExecutor>();
             VerifyScoped<SqlServerDataStoreServices>();
             VerifyScoped<SqlServerDataStore>();

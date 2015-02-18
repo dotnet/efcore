@@ -89,10 +89,10 @@
     <Compile Include="SqlServerConnectionTest.cs" />
     <Compile Include="SqlServerDataStoreSourceTest.cs" />
     <Compile Include="SqlServerEntityServicesBuilderExtensionsTest.cs" />
-    <Compile Include="SqlServerSequenceValueGeneratorFactoryTest.cs" />
     <Compile Include="SqlServerSequenceValueGeneratorTest.cs" />
     <Compile Include="SqlServerSqlGeneratorTest.cs" />
     <Compile Include="SqlServerTypeMapperTest.cs" />
+    <Compile Include="SqlServerValueGeneratorCacheTest.cs" />
     <Compile Include="SqlServerValueGeneratorSelectorTest.cs" />
     <Compile Include="SqlServerTestHelpers.cs" />
     <Compile Include="Update\SqlServerModificationCommandBatchFactoryTest.cs" />

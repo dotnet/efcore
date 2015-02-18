@@ -18,28 +18,28 @@ namespace Microsoft.Data.Entity.Tests.ValueGeneration
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(AnEntity));
 
-            var contextServices = TestHelpers.Instance.CreateContextServices(new ServiceCollection().AddSingleton<ConcreteValueGeneratorFactorySelector>(), model);
-            var selector = contextServices.GetRequiredService<ConcreteValueGeneratorFactorySelector>();
+            var contextServices = TestHelpers.Instance.CreateContextServices(new ServiceCollection().AddSingleton<ConcreteValueGeneratorSelector>(), model);
+            var selector = contextServices.GetRequiredService<ConcreteValueGeneratorSelector>();
 
-            Assert.IsType<TemporaryIntegerValueGeneratorFactory>(selector.Select(entityType.GetProperty("Id")));
-            Assert.IsType<TemporaryIntegerValueGeneratorFactory>(selector.Select(entityType.GetProperty("Long")));
-            Assert.IsType<TemporaryIntegerValueGeneratorFactory>(selector.Select(entityType.GetProperty("Short")));
-            Assert.IsType<TemporaryIntegerValueGeneratorFactory>(selector.Select(entityType.GetProperty("Byte")));
-            Assert.IsType<TemporaryIntegerValueGeneratorFactory>(selector.Select(entityType.GetProperty("NullableInt")));
-            Assert.IsType<TemporaryIntegerValueGeneratorFactory>(selector.Select(entityType.GetProperty("NullableLong")));
-            Assert.IsType<TemporaryIntegerValueGeneratorFactory>(selector.Select(entityType.GetProperty("NullableShort")));
-            Assert.IsType<TemporaryIntegerValueGeneratorFactory>(selector.Select(entityType.GetProperty("NullableByte")));
-            Assert.IsType<TemporaryIntegerValueGeneratorFactory>(selector.Select(entityType.GetProperty("UInt")));
-            Assert.IsType<TemporaryIntegerValueGeneratorFactory>(selector.Select(entityType.GetProperty("ULong")));
-            Assert.IsType<TemporaryIntegerValueGeneratorFactory>(selector.Select(entityType.GetProperty("UShort")));
-            Assert.IsType<TemporaryIntegerValueGeneratorFactory>(selector.Select(entityType.GetProperty("SByte")));
-            Assert.IsType<TemporaryIntegerValueGeneratorFactory>(selector.Select(entityType.GetProperty("NullableUInt")));
-            Assert.IsType<TemporaryIntegerValueGeneratorFactory>(selector.Select(entityType.GetProperty("NullableULong")));
-            Assert.IsType<TemporaryIntegerValueGeneratorFactory>(selector.Select(entityType.GetProperty("NullableUShort")));
-            Assert.IsType<TemporaryIntegerValueGeneratorFactory>(selector.Select(entityType.GetProperty("NullableSByte")));
-            Assert.IsType<SimpleValueGeneratorFactory<TemporaryStringValueGenerator>>(selector.Select(entityType.GetProperty("String")));
-            Assert.IsType<SimpleValueGeneratorFactory<GuidValueGenerator>>(selector.Select(entityType.GetProperty("Guid")));
-            Assert.IsType<SimpleValueGeneratorFactory<TemporaryBinaryValueGenerator>>(selector.Select(entityType.GetProperty("Binary")));
+            Assert.IsType<TemporaryIntegerValueGenerator<int>>(selector.Select(entityType.GetProperty("Id")));
+            Assert.IsType<TemporaryIntegerValueGenerator<long>>(selector.Select(entityType.GetProperty("Long")));
+            Assert.IsType<TemporaryIntegerValueGenerator<short>>(selector.Select(entityType.GetProperty("Short")));
+            Assert.IsType<TemporaryIntegerValueGenerator<byte>>(selector.Select(entityType.GetProperty("Byte")));
+            Assert.IsType<TemporaryIntegerValueGenerator<int>>(selector.Select(entityType.GetProperty("NullableInt")));
+            Assert.IsType<TemporaryIntegerValueGenerator<long>>(selector.Select(entityType.GetProperty("NullableLong")));
+            Assert.IsType<TemporaryIntegerValueGenerator<short>>(selector.Select(entityType.GetProperty("NullableShort")));
+            Assert.IsType<TemporaryIntegerValueGenerator<byte>>(selector.Select(entityType.GetProperty("NullableByte")));
+            Assert.IsType<TemporaryIntegerValueGenerator<uint>>(selector.Select(entityType.GetProperty("UInt")));
+            Assert.IsType<TemporaryIntegerValueGenerator<ulong>>(selector.Select(entityType.GetProperty("ULong")));
+            Assert.IsType<TemporaryIntegerValueGenerator<ushort>>(selector.Select(entityType.GetProperty("UShort")));
+            Assert.IsType<TemporaryIntegerValueGenerator<sbyte>>(selector.Select(entityType.GetProperty("SByte")));
+            Assert.IsType<TemporaryIntegerValueGenerator<uint>>(selector.Select(entityType.GetProperty("NullableUInt")));
+            Assert.IsType<TemporaryIntegerValueGenerator<ulong>>(selector.Select(entityType.GetProperty("NullableULong")));
+            Assert.IsType<TemporaryIntegerValueGenerator<ushort>>(selector.Select(entityType.GetProperty("NullableUShort")));
+            Assert.IsType<TemporaryIntegerValueGenerator<sbyte>>(selector.Select(entityType.GetProperty("NullableSByte")));
+            Assert.IsType<TemporaryStringValueGenerator>(selector.Select(entityType.GetProperty("String")));
+            Assert.IsType<GuidValueGenerator>(selector.Select(entityType.GetProperty("Guid")));
+            Assert.IsType<TemporaryBinaryValueGenerator>(selector.Select(entityType.GetProperty("Binary")));
         }
 
         [Fact]
@@ -48,8 +48,8 @@ namespace Microsoft.Data.Entity.Tests.ValueGeneration
             var model = BuildModel();
             var entityType = model.GetEntityType(typeof(AnEntity));
 
-            var contextServices = TestHelpers.Instance.CreateContextServices(new ServiceCollection().AddSingleton<ConcreteValueGeneratorFactorySelector>(), model);
-            var selector = contextServices.GetRequiredService<ConcreteValueGeneratorFactorySelector>();
+            var contextServices = TestHelpers.Instance.CreateContextServices(new ServiceCollection().AddSingleton<ConcreteValueGeneratorSelector>(), model);
+            var selector = contextServices.GetRequiredService<ConcreteValueGeneratorSelector>();
 
             Assert.Equal(
                 Strings.NoValueGenerator("Float", "AnEntity", typeof(float).Name),
@@ -93,15 +93,20 @@ namespace Microsoft.Data.Entity.Tests.ValueGeneration
             public float Float { get; set; }
         }
 
-        private class ConcreteValueGeneratorFactorySelector : ValueGeneratorFactorySelector
+        private class ConcreteValueGeneratorSelector : ValueGeneratorSelector
         {
-            public ConcreteValueGeneratorFactorySelector(
-                SimpleValueGeneratorFactory<GuidValueGenerator> guidFactory, 
+            public ConcreteValueGeneratorSelector(
+                ValueGeneratorFactory<GuidValueGenerator> guidFactory, 
                 TemporaryIntegerValueGeneratorFactory integerFactory, 
-                SimpleValueGeneratorFactory<TemporaryStringValueGenerator> stringFactory, 
-                SimpleValueGeneratorFactory<TemporaryBinaryValueGenerator> binaryFactory)
+                ValueGeneratorFactory<TemporaryStringValueGenerator> stringFactory, 
+                ValueGeneratorFactory<TemporaryBinaryValueGenerator> binaryFactory)
                 : base(guidFactory, integerFactory, stringFactory, binaryFactory)
             {
+            }
+
+            public override ValueGenerator Select(IProperty property)
+            {
+                return Create(property);
             }
         }
     }

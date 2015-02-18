@@ -9,7 +9,5 @@ namespace Microsoft.Data.Entity.ValueGeneration
     public abstract class ValueGeneratorFactory
     {
         public abstract ValueGenerator Create([NotNull] IProperty property);
-        public abstract int GetPoolSize([NotNull] IProperty property);
-        public abstract string GetCacheKey([NotNull] IProperty property);
     }
 }

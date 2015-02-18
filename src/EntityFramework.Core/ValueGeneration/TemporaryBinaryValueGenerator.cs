@@ -5,8 +5,10 @@ using System;
 
 namespace Microsoft.Data.Entity.ValueGeneration
 {
-    public class TemporaryBinaryValueGenerator : SimpleTemporaryValueGenerator<byte[]>
+    public class TemporaryBinaryValueGenerator : ValueGenerator<byte[]>
     {
         public override byte[] Next() => Guid.NewGuid().ToByteArray();
+
+        public override bool GeneratesTemporaryValues => true;
     }
 }

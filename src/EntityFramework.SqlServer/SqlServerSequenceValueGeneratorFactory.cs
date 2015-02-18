@@ -3,14 +3,14 @@
 
 using System;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.ValueGeneration;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Utilities;
+using Microsoft.Data.Entity.ValueGeneration;
 
 namespace Microsoft.Data.Entity.SqlServer
 {
-    public class SqlServerSequenceValueGeneratorFactory : ValueGeneratorFactory
+    public class SqlServerSequenceValueGeneratorFactory
     {
         private readonly SqlStatementExecutor _executor;
 
@@ -21,91 +21,57 @@ namespace Microsoft.Data.Entity.SqlServer
             _executor = executor;
         }
 
-        public virtual int GetBlockSize([NotNull] IProperty property)
+        public virtual ValueGenerator Create(
+            [NotNull] IProperty property, 
+            [NotNull] SqlServerSequenceValueGeneratorState generatorState, 
+            [NotNull] SqlServerConnection connection)
         {
             Check.NotNull(property, nameof(property));
-
-            var incrementBy = property.SqlServer().TryGetSequence().IncrementBy;
-
-            if (incrementBy <= 0)
-            {
-                throw new NotSupportedException(Strings.SequenceBadBlockSize(incrementBy, GetSequenceName(property)));
-            }
-
-            return incrementBy;
-        }
-
-        public virtual string GetSequenceName([NotNull] IProperty property)
-        {
-            Check.NotNull(property, nameof(property));
-
-            var sequence = property.SqlServer().TryGetSequence();
-
-            return (sequence.Schema == null ? "" : (sequence.Schema + ".")) + sequence.Name;
-        }
-
-        public override ValueGenerator Create(IProperty property)
-        {
-            Check.NotNull(property, nameof(property));
+            Check.NotNull(generatorState, nameof(generatorState));
+            Check.NotNull(connection, nameof(connection));
 
             if (property.PropertyType.UnwrapNullableType() == typeof(long))
             {
-                return new SqlServerSequenceValueGenerator<long>(_executor, GetSequenceName(property), GetBlockSize(property));
+                return new SqlServerSequenceValueGenerator<long>(_executor, generatorState, connection);
             }
 
             if (property.PropertyType.UnwrapNullableType() == typeof(int))
             {
-                return new SqlServerSequenceValueGenerator<int>(_executor, GetSequenceName(property), GetBlockSize(property));
+                return new SqlServerSequenceValueGenerator<int>(_executor, generatorState, connection);
             }
 
             if (property.PropertyType.UnwrapNullableType() == typeof(short))
             {
-                return new SqlServerSequenceValueGenerator<short>(_executor, GetSequenceName(property), GetBlockSize(property));
+                return new SqlServerSequenceValueGenerator<short>(_executor, generatorState, connection);
             }
 
             if (property.PropertyType.UnwrapNullableType() == typeof(byte))
             {
-                return new SqlServerSequenceValueGenerator<byte>(_executor, GetSequenceName(property), GetBlockSize(property));
+                return new SqlServerSequenceValueGenerator<byte>(_executor, generatorState, connection);
             }
 
             if (property.PropertyType.UnwrapNullableType() == typeof(ulong))
             {
-                return new SqlServerSequenceValueGenerator<ulong>(_executor, GetSequenceName(property), GetBlockSize(property));
+                return new SqlServerSequenceValueGenerator<ulong>(_executor, generatorState, connection);
             }
 
             if (property.PropertyType.UnwrapNullableType() == typeof(uint))
             {
-                return new SqlServerSequenceValueGenerator<uint>(_executor, GetSequenceName(property), GetBlockSize(property));
+                return new SqlServerSequenceValueGenerator<uint>(_executor, generatorState, connection);
             }
 
             if (property.PropertyType.UnwrapNullableType() == typeof(ushort))
             {
-                return new SqlServerSequenceValueGenerator<ushort>(_executor, GetSequenceName(property), GetBlockSize(property));
+                return new SqlServerSequenceValueGenerator<ushort>(_executor, generatorState, connection);
             }
 
             if (property.PropertyType.UnwrapNullableType() == typeof(sbyte))
             {
-                return new SqlServerSequenceValueGenerator<sbyte>(_executor, GetSequenceName(property), GetBlockSize(property));
+                return new SqlServerSequenceValueGenerator<sbyte>(_executor, generatorState, connection);
             }
 
             throw new ArgumentException(Internal.Strings.InvalidValueGeneratorFactoryProperty(
                 nameof(SqlServerSequenceValueGeneratorFactory), property.Name, property.EntityType.SimpleName));
-        }
-
-        public override int GetPoolSize(IProperty property)
-        {
-            Check.NotNull(property, nameof(property));
-
-            // TODO: Allow configuration without creation of derived factory type
-            // Issue #778
-            return 5;
-        }
-
-        public override string GetCacheKey(IProperty property)
-        {
-            Check.NotNull(property, nameof(property));
-
-            return GetSequenceName(property);
         }
     }
 }

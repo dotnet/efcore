@@ -3,8 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.ValueGeneration;
 using Xunit;
 
@@ -20,7 +18,7 @@ namespace Microsoft.Data.Entity.Tests.ValueGeneration
             var values = new HashSet<Guid>();
             for (var i = 0; i < 100; i++)
             {
-                var generatedValue = sequentialGuidIdentityGenerator.Next(new DbContextService<DataStoreServices>(() => null));
+                var generatedValue = sequentialGuidIdentityGenerator.Next();
 
                 values.Add(generatedValue);
             }

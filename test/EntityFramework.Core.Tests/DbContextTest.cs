@@ -13,7 +13,6 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.ValueGeneration.Internal;
 using Microsoft.Framework.ConfigurationModel;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
@@ -1470,12 +1469,12 @@ namespace Microsoft.Data.Entity.Tests
                 .Callback<IEnumerable<InternalEntityEntry>>(passedEntries.AddRange)
                 .Returns(3);
 
-            var valueGenMock = new Mock<ValueGeneratorCache>();
-            valueGenMock.Setup(m => m.GetGenerator(It.IsAny<IProperty>())).Returns(Mock.Of<ValueGenerator>());
+            var valueGenMock = new Mock<ValueGeneratorSelectorContract>();
+            valueGenMock.Setup(m => m.Select(It.IsAny<IProperty>())).Returns(Mock.Of<ValueGenerator>());
 
             var servicesMock = new Mock<DataStoreServices>();
             servicesMock.Setup(m => m.Store).Returns(store.Object);
-            servicesMock.Setup(m => m.ValueGeneratorCache).Returns(valueGenMock.Object);
+            servicesMock.Setup(m => m.ValueGeneratorSelector).Returns(valueGenMock.Object);
             servicesMock.Setup(m => m.ModelBuilderFactory).Returns(new ModelBuilderFactory());
             servicesMock.Setup(m => m.ModelSource).Returns(new Mock<ModelSourceBase>(new DbSetFinder(), Mock.Of<ModelValidator>())
                 { CallBase = true }.Object);
@@ -1520,12 +1519,12 @@ namespace Microsoft.Data.Entity.Tests
                 .Callback<IEnumerable<InternalEntityEntry>, CancellationToken>((e, c) => passedEntries.AddRange(e))
                 .Returns(Task.FromResult(3));
 
-            var valueGenMock = new Mock<ValueGeneratorCache>();
-            valueGenMock.Setup(m => m.GetGenerator(It.IsAny<IProperty>())).Returns(Mock.Of<ValueGenerator>());
+            var valueGenMock = new Mock<ValueGeneratorSelectorContract>();
+            valueGenMock.Setup(m => m.Select(It.IsAny<IProperty>())).Returns(Mock.Of<ValueGenerator>());
 
             var servicesMock = new Mock<DataStoreServices>();
             servicesMock.Setup(m => m.Store).Returns(store.Object);
-            servicesMock.Setup(m => m.ValueGeneratorCache).Returns(valueGenMock.Object);
+            servicesMock.Setup(m => m.ValueGeneratorSelector).Returns(valueGenMock.Object);
             servicesMock.Setup(m => m.ModelBuilderFactory).Returns(new ModelBuilderFactory());
             servicesMock.Setup(m => m.ModelSource).Returns(new Mock<ModelSourceBase>(new DbSetFinder(), Mock.Of<ModelValidator>())
                 { CallBase = true }.Object);

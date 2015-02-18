@@ -12,7 +12,6 @@ using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.ValueGeneration.Internal;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
 using Microsoft.Framework.Logging;
@@ -26,10 +25,10 @@ namespace Microsoft.Data.Entity.Tests
         public virtual void Services_wire_up_correctly()
         {
             VerifySingleton<TemporaryIntegerValueGeneratorFactory>();
-            VerifySingleton<SimpleValueGeneratorFactory<TemporaryStringValueGenerator>>();
-            VerifySingleton<SimpleValueGeneratorFactory<TemporaryBinaryValueGenerator>>();
-            VerifySingleton<SimpleValueGeneratorFactory<GuidValueGenerator>>();
-            VerifySingleton<SimpleValueGeneratorFactory<SequentialGuidValueGenerator>>();
+            VerifySingleton<ValueGeneratorFactory<TemporaryStringValueGenerator>>();
+            VerifySingleton<ValueGeneratorFactory<TemporaryBinaryValueGenerator>>();
+            VerifySingleton<ValueGeneratorFactory<GuidValueGenerator>>();
+            VerifySingleton<ValueGeneratorFactory<SequentialGuidValueGenerator>>();
             VerifySingleton<DbSetFinder>();
             VerifySingleton<DbSetInitializer>();
             VerifySingleton<DbSetSource>();
@@ -70,7 +69,7 @@ namespace Microsoft.Data.Entity.Tests
             VerifyScoped<DbContextService<DataStore>>();
             VerifyScoped<DbContextService<DataStoreConnection>>();
             VerifyScoped<DbContextService<Database>>();
-            VerifyScoped<DbContextService<ValueGeneratorCache>>();
+            VerifyScoped<DbContextService<ValueGeneratorSelectorContract>>();
             VerifyScoped<DbContextService<DataStoreCreator>>();
             VerifyScoped<DbContextService<ModelBuilderFactory>>();
 
@@ -93,7 +92,7 @@ namespace Microsoft.Data.Entity.Tests
             Assert.NotNull(VerifyScoped<DbContextService<DataStore>>().Service);
             Assert.NotNull(VerifyScoped<DbContextService<DataStoreConnection>>().Service);
             Assert.NotNull(VerifyScoped<DbContextService<Database>>().Service);
-            Assert.NotNull(VerifyScoped<DbContextService<ValueGeneratorCache>>().Service);
+            Assert.NotNull(VerifyScoped<DbContextService<ValueGeneratorSelectorContract>>().Service);
             Assert.NotNull(VerifyScoped<DbContextService<DataStoreCreator>>().Service);
             Assert.NotNull(VerifyScoped<DbContextService<ModelBuilderFactory>>().Service);
         }
