@@ -1,13 +1,14 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using JetBrains.Annotations;
 using System.Data.SqlClient;
 
 namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.Model
 {
     public class TableConstraintColumn
     {
-        public static readonly string Query =
+        public const string Query =
 @"SELECT
     quotename(tc.CONSTRAINT_SCHEMA) + quotename(tc.CONSTRAINT_NAME) + quotename(kcu.COLUMN_NAME) [Id]
   , quotename(tc.TABLE_SCHEMA) + quotename(tc.TABLE_NAME) + quotename(kcu.COLUMN_NAME) [ColumnId]
@@ -27,13 +28,13 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.Model
   WHERE tc.TABLE_NAME IS NOT NULL
 ";
 
-        public string Id { get; set; }
-        public string ColumnId { get; set; }
-        public string ConstraintId { get; set; }
-        public string ConstraintType { get; set; }
-        public int Ordinal { get; set; }
+        public virtual string Id { get; [param: CanBeNull] set; }
+        public virtual string ColumnId { get; [param: CanBeNull] set; }
+        public virtual string ConstraintId { get; [param: CanBeNull] set; }
+        public virtual string ConstraintType { get; [param: CanBeNull] set; }
+        public virtual int Ordinal { get; [param: CanBeNull] set; }
 
-        public static TableConstraintColumn CreateFromReader(SqlDataReader reader)
+        public static TableConstraintColumn CreateFromReader([NotNull] SqlDataReader reader)
         {
             var tableConstraintColumn = new TableConstraintColumn();
             tableConstraintColumn.Id = reader.IsDBNull(0) ? null : reader.GetString(0);

@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             _defaultPropertyNameFunc = defaultPropertyNameFunc;
         }
 
-        public Dictionary<IEntityType, string> EntityTypeToClassNameMap
+        public virtual Dictionary<IEntityType, string> EntityTypeToClassNameMap
         {
             get
             {
@@ -40,7 +40,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             }
         }
 
-        public Dictionary<IProperty, string> PropertyToPropertyNameMap
+        public virtual Dictionary<IProperty, string> PropertyToPropertyNameMap
         {
             get
             {

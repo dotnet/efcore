@@ -7,7 +7,9 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Design.CodeGeneration;
 using Microsoft.Data.Entity.Utilities;
@@ -21,20 +23,22 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         private const string DefaultFileExtension = ".cs";
         private readonly IServiceProvider _serviceProvider;
 
-        public ReverseEngineeringGenerator(IServiceProvider serviceProvider)
+        public ReverseEngineeringGenerator([NotNull] IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
             Logger = serviceProvider.GetRequiredService<ILogger>();
             CSharpCodeGeneratorHelper = serviceProvider.GetRequiredService<CSharpCodeGeneratorHelper>();
         }
 
-        public virtual string FileExtension { get; set; } = DefaultFileExtension;
+        public virtual string FileExtension { get; [param: NotNull] set; } = DefaultFileExtension;
 
-        public virtual CSharpCodeGeneratorHelper CSharpCodeGeneratorHelper { get; set; }
+        public virtual CSharpCodeGeneratorHelper CSharpCodeGeneratorHelper { get;[param: NotNull] set; }
 
         public virtual ILogger Logger { get; }
 
-        public async Task Generate(ReverseEngineeringConfiguration configuration)
+        public virtual async Task GenerateAsync(
+            [NotNull] ReverseEngineeringConfiguration configuration,
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             CheckConfiguration(configuration);
 
@@ -107,7 +111,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             }
         }
 
-        public IDatabaseMetadataModelProvider GetProvider(Assembly providerAssembly)
+        public virtual IDatabaseMetadataModelProvider GetProvider([NotNull] Assembly providerAssembly)
         {
             var type = providerAssembly.GetExportedTypes()
                 .FirstOrDefault(t => typeof(IDatabaseMetadataModelProvider).IsAssignableFrom(t));
@@ -122,8 +126,9 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             return (IDatabaseMetadataModelProvider)Activator.CreateInstance(type, _serviceProvider);
         }
 
-        public IModel GetMetadataModel(
-            IDatabaseMetadataModelProvider provider, ReverseEngineeringConfiguration configuration)
+        public virtual IModel GetMetadataModel(
+            [NotNull] IDatabaseMetadataModelProvider provider,
+            [NotNull] ReverseEngineeringConfiguration configuration)
         {
             var metadataModel = provider
                 .GenerateMetadataModel(configuration.ConnectionString);
@@ -136,7 +141,10 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             return metadataModel;
         }
 
-        public virtual void CheckOutputFiles(string outputDirectoryName, string dbContextClassName, IModel metadataModel)
+        public virtual void CheckOutputFiles(
+            [NotNull] string outputDirectoryName,
+            [NotNull] string dbContextClassName,
+            [NotNull] IModel metadataModel)
         {
             if (!Directory.Exists(outputDirectoryName))
             {

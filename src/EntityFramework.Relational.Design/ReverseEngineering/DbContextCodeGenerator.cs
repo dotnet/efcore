@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Relational.Design.CodeGeneration;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
@@ -36,9 +35,9 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 };
 
         public DbContextCodeGenerator(
-            [NotNull]ReverseEngineeringGenerator generator,
-            [NotNull]IModel model, [NotNull]string namespaceName,
-            [NotNull]string className, [NotNull]string connectionString)
+            [NotNull] ReverseEngineeringGenerator generator,
+            [NotNull] IModel model, [NotNull] string namespaceName,
+            [NotNull] string className, [NotNull] string connectionString)
         {
             Generator = generator;
             Model = model;
@@ -47,7 +46,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             ConnectionString = connectionString;
         }
 
-        public virtual void Generate(IndentedStringBuilder sb)
+        public virtual void Generate([NotNull] IndentedStringBuilder sb)
         {
             GenerateCommentHeader(sb);
             GenerateUsings(sb);
@@ -69,7 +68,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 
         public virtual string ConnectionString { get; }
 
-        public virtual void GenerateCommentHeader(IndentedStringBuilder sb)
+        public virtual void GenerateCommentHeader([NotNull] IndentedStringBuilder sb)
         {
             Generator.CSharpCodeGeneratorHelper.SingleLineComment(string.Empty, sb);
             Generator.CSharpCodeGeneratorHelper.SingleLineComment("Generated using Connection String: " + ConnectionString, sb);
@@ -77,7 +76,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             sb.AppendLine();
         }
 
-        public virtual void GenerateUsings(IndentedStringBuilder sb)
+        public virtual void GenerateUsings([NotNull] IndentedStringBuilder sb)
         {
             // TODO - add in other namespaces
             foreach (var @namespace in _usedNamespaces)
@@ -91,7 +90,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             }
         }
 
-        public virtual void GenerateProperties(IndentedStringBuilder sb)
+        public virtual void GenerateProperties([NotNull] IndentedStringBuilder sb)
         {
             foreach (var entityType in OrderedEntityTypes())
             {
@@ -109,14 +108,14 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             }
         }
 
-        public virtual void GenerateMethods(IndentedStringBuilder sb)
+        public virtual void GenerateMethods([NotNull] IndentedStringBuilder sb)
         {
             GenerateOnConfiguringCode(sb);
             sb.AppendLine();
             GenerateOnModelCreatingCode(sb);
         }
 
-        public virtual void GenerateOnConfiguringCode(IndentedStringBuilder sb)
+        public virtual void GenerateOnConfiguringCode([NotNull] IndentedStringBuilder sb)
         {
             Generator.CSharpCodeGeneratorHelper.BeginMethod(AccessModifier.Protected,
                 VirtualModifier.Override, "void", "OnConfiguring", sb, _onConfiguringMethodParameters);
@@ -126,7 +125,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             Generator.CSharpCodeGeneratorHelper.EndMethod(sb);
         }
 
-        public virtual void GenerateOnModelCreatingCode(IndentedStringBuilder sb)
+        public virtual void GenerateOnModelCreatingCode([NotNull] IndentedStringBuilder sb)
         {
             Generator.CSharpCodeGeneratorHelper.BeginMethod(AccessModifier.Protected,
                 VirtualModifier.Override, "void", "OnModelCreating", sb, _onModelCreatingMethodParameters);
@@ -176,7 +175,8 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             Generator.CSharpCodeGeneratorHelper.EndMethod(sb);
         }
 
-        public virtual void GenerateEntityKeyAndPropertyConfiguration(IEntityType entityType, IndentedStringBuilder sb)
+        public virtual void GenerateEntityKeyAndPropertyConfiguration(
+            [NotNull] IEntityType entityType, [NotNull] IndentedStringBuilder sb)
         {
             using (sb.Indent())
             {
@@ -199,7 +199,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             }
         }
 
-        public virtual void GenerateEntityKeyConfiguration(IKey key, IndentedStringBuilder sb)
+        public virtual void GenerateEntityKeyConfiguration([NotNull] IKey key, [NotNull] IndentedStringBuilder sb)
         {
             sb.Append("entity.Key(e => ");
             sb.Append(ModelUtilities.Instance
@@ -207,7 +207,8 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             sb.Append(");");
         }
 
-        public virtual void GenerateEntityFacetsConfiguration(IEntityType entityType, IndentedStringBuilder sb)
+        public virtual void GenerateEntityFacetsConfiguration(
+            [NotNull] IEntityType entityType, [NotNull] IndentedStringBuilder sb)
         {
             var nonForRelationalEntityFacetsConfiguration = GenerateNonForRelationalEntityFacetsConfiguration(entityType);
             var forRelationalEntityFacetsConfiguration = GenerateForRelationalEntityFacetsConfiguration(entityType);
@@ -238,12 +239,12 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             }
         }
 
-        public virtual List<string> GenerateNonForRelationalEntityFacetsConfiguration(IEntityType entityType)
+        public virtual List<string> GenerateNonForRelationalEntityFacetsConfiguration([NotNull] IEntityType entityType)
         {
             return new List<string>();
         }
 
-        public virtual List<string> GenerateForRelationalEntityFacetsConfiguration(IEntityType entityType)
+        public virtual List<string> GenerateForRelationalEntityFacetsConfiguration([NotNull] IEntityType entityType)
         {
             var facetsConfig = new List<string>();
             var tableNameFacetConfig = GenerateTableNameFacetConfiguration(entityType);
@@ -255,7 +256,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             return facetsConfig;
         }
 
-        public virtual string GenerateTableNameFacetConfiguration(IEntityType entityType)
+        public virtual string GenerateTableNameFacetConfiguration([NotNull] IEntityType entityType)
         {
             if ("dbo" != entityType.Relational().Schema)
             {
@@ -274,9 +275,9 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             return null;
         }
 
-        public abstract void GenerateNavigationsConfiguration(IEntityType entityType, IndentedStringBuilder sb);
+        public abstract void GenerateNavigationsConfiguration([NotNull] IEntityType entityType, [NotNull] IndentedStringBuilder sb);
 
-        public virtual void GeneratePropertyFacetsConfiguration(IProperty property, IndentedStringBuilder sb)
+        public virtual void GeneratePropertyFacetsConfiguration([NotNull] IProperty property, [NotNull] IndentedStringBuilder sb)
         {
             var nonProviderSpecificPropertyFacetsConfiguration = GenerateNonProviderSpecificPropertyFacetsConfiguration(property);
             var relationalPropertyFacetsConfiguration = GenerateRelationalPropertyFacetsConfiguration(property);
@@ -318,7 +319,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         }
 
 
-        public virtual List<string> GenerateNonProviderSpecificPropertyFacetsConfiguration(IProperty property)
+        public virtual List<string> GenerateNonProviderSpecificPropertyFacetsConfiguration([NotNull] IProperty property)
         {
             var facetsConfig = new List<string>();
             var maxLengthFacetConfig = GenerateMaxLengthFacetConfiguration(property);
@@ -336,7 +337,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             return facetsConfig;
         }
 
-        public virtual List<string> GenerateRelationalPropertyFacetsConfiguration(IProperty property)
+        public virtual List<string> GenerateRelationalPropertyFacetsConfiguration([NotNull] IProperty property)
         {
             var facetsConfig = new List<string>();
             var columnNameFacetConfig = GenerateColumnNameFacetConfiguration(property);
@@ -355,9 +356,9 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         }
 
         public abstract void GenerateProviderSpecificPropertyFacetsConfiguration(
-            IProperty property, string entityVariableName, IndentedStringBuilder sb);
+            [NotNull] IProperty property, [NotNull] string entityVariableName, [NotNull] IndentedStringBuilder sb);
 
-        public virtual string GenerateMaxLengthFacetConfiguration(IProperty property)
+        public virtual string GenerateMaxLengthFacetConfiguration([NotNull] IProperty property)
         {
             if (((Property)property).MaxLength.HasValue)
             {
@@ -370,7 +371,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             return null;
         }
 
-        public virtual string GenerateStoreComputedFacetConfiguration(IProperty property)
+        public virtual string GenerateStoreComputedFacetConfiguration([NotNull] IProperty property)
         {
             if (((Property)property).IsStoreComputed.HasValue)
             {
@@ -383,7 +384,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             return null;
         }
 
-        public virtual string GenerateColumnNameFacetConfiguration(IProperty property)
+        public virtual string GenerateColumnNameFacetConfiguration([NotNull] IProperty property)
         {
             if (property.Relational().Column != null && property.Relational().Column != property.Name)
             {
@@ -395,7 +396,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             return null;
         }
 
-        public virtual string GenerateColumnTypeFacetConfiguration(IProperty property)
+        public virtual string GenerateColumnTypeFacetConfiguration([NotNull] IProperty property)
         {
             // output columnType if decimal or datetime2 to define precision and scale
             var columnType = property.Relational().ColumnType;
@@ -416,7 +417,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             return Model.EntityTypes;
         }
 
-        public virtual IEnumerable<IProperty> OrderedProperties(IEntityType entityType)
+        public virtual IEnumerable<IProperty> OrderedProperties([NotNull] IEntityType entityType)
         {
             return ModelUtilities.Instance.OrderedProperties(entityType);
         }

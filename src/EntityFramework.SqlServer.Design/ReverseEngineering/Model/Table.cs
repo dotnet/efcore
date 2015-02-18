@@ -1,13 +1,14 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using JetBrains.Annotations;
 using System.Data.SqlClient;
 
 namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.Model
 {
     public class Table
     {
-        public static readonly string Query =
+        public const string Query =
 @"SELECT
     quotename(TABLE_SCHEMA) + quotename(TABLE_NAME) [Id]
   , TABLE_SCHEMA [SchemaName]
@@ -18,11 +19,11 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.Model
   TABLE_TYPE = 'BASE TABLE'
 ";
 
-        public string Id { get; set; }
-        public string SchemaName { get; set; }
-        public string TableName { get; set; }
+        public virtual string Id { get; [param: CanBeNull] set; }
+        public virtual string SchemaName { get; [param: CanBeNull] set; }
+        public virtual string TableName { get; [param: CanBeNull] set; }
 
-        public static Table CreateFromReader(SqlDataReader reader)
+        public static Table CreateFromReader([NotNull] SqlDataReader reader)
         {
             var table = new Table();
             table.Id = reader.IsDBNull(0) ? null : reader.GetString(0);

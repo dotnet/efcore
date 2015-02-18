@@ -3,8 +3,8 @@
 
 using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.Globalization;
 using System.Linq;
+using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Design.CodeGeneration;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
@@ -18,9 +18,9 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
         private static readonly string _defaultDbContextName = "ModelContext";
 
         public SqlServerDbContextCodeGenerator(
-            ReverseEngineeringGenerator generator,
-            IModel model, string namespaceName,
-            string className, string connectionString)
+            [NotNull] ReverseEngineeringGenerator generator,
+            [NotNull] IModel model, [NotNull] string namespaceName,
+            [CanBeNull] string className, [NotNull] string connectionString)
             : base(generator, model, namespaceName, className, connectionString)
         {
         }
@@ -79,7 +79,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
 
                 if (principalEndNavigationPropertyName != null)
                 {
-                    if (((IForeignKey)foreignKey).IsUnique)
+                    if (foreignKey.IsUnique)
                     {
                         sb.Append(".WithOne(");
                     }
@@ -123,7 +123,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             }
         }
 
-        public virtual string GenerateUseIdentityFacetConfiguration(IProperty property)
+        public virtual string GenerateUseIdentityFacetConfiguration([NotNull] IProperty property)
         {
             // output columnType if decimal to define precision and scale
             if (property.SqlServer().ValueGenerationStrategy.HasValue

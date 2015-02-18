@@ -5,26 +5,27 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
 {
     public class CSharpCodeGeneratorHelper
     {
-        public virtual void SingleLineComment(string comment, IndentedStringBuilder sb)
+        public virtual void SingleLineComment([NotNull] string comment, [NotNull] IndentedStringBuilder sb)
         {
             sb.Append("// ");
             sb.AppendLine(comment);
         }
 
-        public virtual void AddUsingStatement(string @namespace, IndentedStringBuilder sb)
+        public virtual void AddUsingStatement([NotNull] string @namespace, [NotNull] IndentedStringBuilder sb)
         {
             sb.Append("using ");
             sb.Append(@namespace);
             sb.AppendLine(";");
         }
 
-        public virtual void BeginNamespace(string classNamespace, IndentedStringBuilder sb)
+        public virtual void BeginNamespace([NotNull] string classNamespace, [NotNull] IndentedStringBuilder sb)
         {
             sb.Append("namespace ");
             sb.AppendLine(classNamespace);
@@ -32,14 +33,14 @@ namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
             sb.IncrementIndent();
         }
 
-        public virtual void EndNamespace(IndentedStringBuilder sb)
+        public virtual void EndNamespace([NotNull] IndentedStringBuilder sb)
         {
             sb.DecrementIndent();
             sb.AppendLine("}");
         }
 
-        public virtual void BeginClass(AccessModifier accessModifier, string className,
-            bool isPartial, IndentedStringBuilder sb, ICollection<string> inheritsFrom = null)
+        public virtual void BeginClass(AccessModifier accessModifier, [NotNull] string className,
+            bool isPartial, [NotNull] IndentedStringBuilder sb, [CanBeNull] ICollection<string> inheritsFrom = null)
         {
             AppendAccessModifier(accessModifier, sb);
             if (isPartial)
@@ -58,14 +59,14 @@ namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
             sb.IncrementIndent();
         }
 
-        public virtual void EndClass(IndentedStringBuilder sb)
+        public virtual void EndClass([NotNull] IndentedStringBuilder sb)
         {
             sb.DecrementIndent();
             sb.AppendLine("}");
         }
 
         public virtual void AddProperty(AccessModifier accessModifier, VirtualModifier virtualModifier,
-            string propertyTypeName, string propertyName, IndentedStringBuilder sb)
+            [NotNull] string propertyTypeName, [NotNull] string propertyName, [NotNull] IndentedStringBuilder sb)
         {
             AppendAccessModifier(accessModifier, sb);
             AppendVirtualModifier(virtualModifier, sb);
@@ -76,7 +77,7 @@ namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
         }
 
         public virtual void AddProperty(AccessModifier accessModifier, VirtualModifier virtualModifier,
-            Type propertyType, string propertyName, IndentedStringBuilder sb)
+            [NotNull] Type propertyType, [NotNull] string propertyName, [NotNull] IndentedStringBuilder sb)
         {
             AddProperty(accessModifier, virtualModifier, GetTypeName(propertyType), propertyName, sb);
         }
@@ -99,7 +100,7 @@ namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
                 { typeof(string), "string" },
                 { typeof(decimal), "decimal" },
             };
-        private string GetTypeName(Type propertyType)
+        private string GetTypeName([NotNull] Type propertyType)
         {
             var isNullableType = propertyType.GetTypeInfo().IsGenericType
                 && typeof(Nullable<>) == propertyType.GetGenericTypeDefinition();
@@ -121,8 +122,8 @@ namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
             return typeName;
         }
 
-        public virtual void BeginConstructor(AccessModifier accessModifier, string className,
-            IndentedStringBuilder sb, ICollection<Tuple<string, string>> parameters = null)
+        public virtual void BeginConstructor(AccessModifier accessModifier, [NotNull] string className,
+            [NotNull] IndentedStringBuilder sb, [CanBeNull] ICollection<Tuple<string, string>> parameters = null)
         {
             AppendAccessModifier(accessModifier, sb);
             sb.Append(className);
@@ -136,14 +137,15 @@ namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
             sb.IncrementIndent();
         }
 
-        public virtual void EndConstructor(IndentedStringBuilder sb)
+        public virtual void EndConstructor([NotNull] IndentedStringBuilder sb)
         {
             sb.DecrementIndent();
             sb.AppendLine("}");
         }
 
         public virtual void BeginMethod(AccessModifier accessModifier, VirtualModifier virtualModifier,
-            string returnType, string methodName, IndentedStringBuilder sb, ICollection<Tuple<string, string>> parameters = null)
+            [NotNull] string returnType, [NotNull] string methodName, [NotNull] IndentedStringBuilder sb,
+            [CanBeNull] ICollection<Tuple<string, string>> parameters = null)
         {
             AppendAccessModifier(accessModifier, sb);
             AppendVirtualModifier(virtualModifier, sb);
@@ -160,13 +162,13 @@ namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
             sb.IncrementIndent();
         }
 
-        public virtual void EndMethod(IndentedStringBuilder sb)
+        public virtual void EndMethod([NotNull] IndentedStringBuilder sb)
         {
             sb.DecrementIndent();
             sb.AppendLine("}");
         }
 
-        public void AppendAccessModifier(AccessModifier accessModifier, IndentedStringBuilder sb)
+        public virtual void AppendAccessModifier(AccessModifier accessModifier, [NotNull] IndentedStringBuilder sb)
         {
             switch (accessModifier)
             {
@@ -188,7 +190,7 @@ namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
             }
         }
 
-        public void AppendVirtualModifier(VirtualModifier virtualModifier, IndentedStringBuilder sb)
+        public virtual void AppendVirtualModifier(VirtualModifier virtualModifier, [NotNull] IndentedStringBuilder sb)
         {
             switch (virtualModifier)
             {

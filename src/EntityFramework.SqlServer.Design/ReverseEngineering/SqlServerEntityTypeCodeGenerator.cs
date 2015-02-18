@@ -74,7 +74,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
 
         public override void GenerateEntityProperty(IProperty property, IndentedStringBuilder sb)
         {
-            GenerateEntityPropertyAttribues(sb, property);
+            GenerateEntityPropertyAttribues(property, sb);
 
             Generator.CSharpCodeGeneratorHelper.AddProperty(AccessModifier.Public,
                 VirtualModifier.None, property.PropertyType, property.Name, sb);
@@ -139,7 +139,8 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             }
         }
 
-        public virtual void GenerateEntityPropertyAttribues(IndentedStringBuilder sb, IProperty property)
+        public virtual void GenerateEntityPropertyAttribues(
+            [NotNull] IProperty property, [NotNull] IndentedStringBuilder sb)
         {
             //TODO: to use when we the runtime recognizes and uses DataAnnotations
         }
