@@ -10,6 +10,7 @@ using System.Linq;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Runtime;
 using Microsoft.Framework.Runtime.Infrastructure;
+using Microsoft.Framework.Runtime.Roslyn;
 #endif
 
 namespace Microsoft.Data.Entity.Commands.TestUtilities
