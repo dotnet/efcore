@@ -447,7 +447,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             return toColumnRelationalProperty;
         }
 
-        public static string ConstructIdForCombinationOfColumns(IEnumerable<string> listOfColumnIds)
+        public static string ConstructIdForCombinationOfColumns([NotNull] IEnumerable<string> listOfColumnIds)
         {
             return string.Join(string.Empty, listOfColumnIds.OrderBy(columnId => columnId));
         }
