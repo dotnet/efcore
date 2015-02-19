@@ -221,8 +221,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                         })
                     .ToList();
 
-            _requiresClientFilter = !_queriesBySource.Any();
-
+            var requiresClientFilter = !_queriesBySource.Any();
             base.VisitWhereClause(whereClause, queryModel, index);
 
             foreach (var selectExpression in _queriesBySource.Values)
@@ -237,10 +236,10 @@ namespace Microsoft.Data.Entity.Relational.Query
                         : Expression.AndAlso(selectExpression.Predicate, predicate);
                 }
 
-                _requiresClientFilter |= filteringVisitor.RequiresClientEval;
+                requiresClientFilter |= filteringVisitor.RequiresClientEval;
             }
 
-            if (!_requiresClientFilter)
+            if (!requiresClientFilter)
             {
                 foreach (var projectionCount in projectionCounts)
                 {
@@ -250,6 +249,8 @@ namespace Microsoft.Data.Entity.Relational.Query
 
                 Expression = previousExpression;
             }
+
+            _requiresClientFilter |= requiresClientFilter;
         }
 
         public override void VisitOrderByClause(OrderByClause orderByClause, QueryModel queryModel, int index)

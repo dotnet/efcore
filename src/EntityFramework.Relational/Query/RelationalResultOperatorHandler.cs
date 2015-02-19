@@ -158,6 +158,8 @@ namespace Microsoft.Data.Entity.Relational.Query
             handlerContext.SelectExpression
                 .SetProjectionExpression(new CountExpression());
 
+            handlerContext.SelectExpression.ClearOrderBy();
+
             return TransformClientExpression<int>(handlerContext);
         }
 
