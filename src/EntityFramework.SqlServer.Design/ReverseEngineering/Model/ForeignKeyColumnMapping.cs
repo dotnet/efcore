@@ -1,13 +1,14 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using JetBrains.Annotations;
 using System.Data.SqlClient;
 
 namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.Model
 {
     public class ForeignKeyColumnMapping
     {
-        public static readonly string Query =
+        public const string Query =
 @"SELECT
     quotename(SCHEMA_NAME(fk.schema_id)) + quotename(fk.name) + quotename(SCHEMA_NAME(fromSchema.schema_id)) + quotename(OBJECT_NAME(fk.parent_object_id)) + quotename(fromCol.name) [Id]
   , quotename(SCHEMA_NAME(fk.schema_id)) + quotename(fk.name) [ConstraintId]
@@ -26,12 +27,12 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.Model
   INNER JOIN
   sys.objects fromSchema ON fromSchema.object_id = fk.parent_object_id
 ";
-        public string Id { get; set; }
-        public string ConstraintId { get; set; }
-        public string FromColumnId { get; set; }
-        public string ToColumnId { get; set; }
+        public virtual string Id { get; [param: CanBeNull] set; }
+        public virtual string ConstraintId { get; [param: CanBeNull] set; }
+        public virtual string FromColumnId { get; [param: CanBeNull] set; }
+        public virtual string ToColumnId { get; [param: CanBeNull] set; }
 
-        public static ForeignKeyColumnMapping CreateFromReader(SqlDataReader reader)
+        public static ForeignKeyColumnMapping CreateFromReader([NotNull] SqlDataReader reader)
         {
             var tableColumn = new ForeignKeyColumnMapping();
             tableColumn.Id = reader.IsDBNull(0) ? null : reader.GetString(0);

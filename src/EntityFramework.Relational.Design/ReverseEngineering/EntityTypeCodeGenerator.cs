@@ -44,7 +44,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 
         public virtual string ClassNamespace { get; }
 
-        public virtual void Generate(IndentedStringBuilder sb)
+        public virtual void Generate([NotNull] IndentedStringBuilder sb)
         {
             GenerateCommentHeader(sb);
             GenerateUsings(sb);
@@ -56,7 +56,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             Generator.CSharpCodeGeneratorHelper.EndNamespace(sb);
         }
 
-        public virtual void GenerateCommentHeader(IndentedStringBuilder sb)
+        public virtual void GenerateCommentHeader([NotNull] IndentedStringBuilder sb)
         {
             Generator.CSharpCodeGeneratorHelper.SingleLineComment(string.Empty, sb);
             Generator.CSharpCodeGeneratorHelper.SingleLineComment("Generated code", sb);
@@ -64,7 +64,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             sb.AppendLine();
         }
 
-        public virtual void GenerateUsings(IndentedStringBuilder sb)
+        public virtual void GenerateUsings([NotNull] IndentedStringBuilder sb)
         {
             foreach (var @namespace in _usedNamespaces.Concat(
                 EntityType.Properties.Select(p => p.PropertyType.Namespace)
@@ -79,29 +79,29 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             }
         }
 
-        public virtual void GenerateConstructors(IndentedStringBuilder sb)
+        public virtual void GenerateConstructors([NotNull] IndentedStringBuilder sb)
         {
             GenerateZeroArgConstructor(sb);
         }
 
-        public virtual void GenerateZeroArgConstructor(IndentedStringBuilder sb)
+        public virtual void GenerateZeroArgConstructor([NotNull] IndentedStringBuilder sb)
         {
             Generator.CSharpCodeGeneratorHelper.BeginConstructor(AccessModifier.Public, ClassName, sb);
             GenerateZeroArgConstructorContents(sb);
             Generator.CSharpCodeGeneratorHelper.EndConstructor(sb);
         }
 
-        public virtual void GenerateZeroArgConstructorContents(IndentedStringBuilder sb)
+        public virtual void GenerateZeroArgConstructorContents([NotNull] IndentedStringBuilder sb)
         {
         }
 
-        public virtual void GenerateProperties(IndentedStringBuilder sb)
+        public virtual void GenerateProperties([NotNull] IndentedStringBuilder sb)
         {
             GenerateEntityProperties(sb);
             GenerateEntityNavigations(sb);
         }
 
-        public virtual void GenerateEntityProperties(IndentedStringBuilder sb)
+        public virtual void GenerateEntityProperties([NotNull] IndentedStringBuilder sb)
         {
             foreach(var property in OrderedEntityProperties())
             {
@@ -109,9 +109,9 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             }
         }
 
-        public abstract void GenerateEntityProperty(IProperty property, IndentedStringBuilder sb);
+        public abstract void GenerateEntityProperty([NotNull] IProperty property, [NotNull] IndentedStringBuilder sb);
 
-        public abstract void GenerateEntityNavigations(IndentedStringBuilder sb);
+        public abstract void GenerateEntityNavigations([NotNull] IndentedStringBuilder sb);
 
         public virtual IEnumerable<IProperty> OrderedEntityProperties()
         {

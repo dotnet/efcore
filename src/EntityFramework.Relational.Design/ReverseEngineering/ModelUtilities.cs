@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -22,9 +21,9 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             }
         }
 
-        public string GenerateLambdaToKey(
-            [NotNull]IEnumerable<IProperty> properties,
-            [NotNull]string lambdaIdentifier)
+        public virtual string GenerateLambdaToKey(
+            [NotNull] IEnumerable<IProperty> properties,
+            [NotNull] string lambdaIdentifier)
         {
             var sb = new StringBuilder();
 
@@ -42,7 +41,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             return sb.ToString();
         }
 
-        public IEnumerable<IProperty> OrderedProperties(IEntityType entityType)
+        public virtual IEnumerable<IProperty> OrderedProperties([NotNull] IEntityType entityType)
         {
             var primaryKeyProperties = entityType.GetPrimaryKey().Properties.ToList();
             foreach (var property in primaryKeyProperties)

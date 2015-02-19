@@ -104,7 +104,7 @@ namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
             }
         }
 
-        public string DelimitString([NotNull] string value)
+        public virtual string DelimitString([NotNull] string value)
         {
             Check.NotNull(value, nameof(value));
 
