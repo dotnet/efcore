@@ -9,6 +9,7 @@ using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Clauses.ExpressionTreeVisitors;
+using Remotion.Linq.Clauses.ResultOperators;
 using Remotion.Linq.Transformations;
 
 namespace Microsoft.Data.Entity.Query
@@ -102,6 +103,23 @@ namespace Microsoft.Data.Entity.Query
             {
                 queryAnnotation.QuerySource = fromClause;
             }
+        }
+
+        public override void VisitResultOperator(ResultOperatorBase resultOperator, QueryModel queryModel, int index)
+        {
+            var containsPagingOperator = queryModel.ResultOperators.Any(r => r is TakeResultOperator) || queryModel.ResultOperators.Any(r => r is SkipResultOperator);
+            if (!containsPagingOperator && resultOperator is ValueFromSequenceResultOperatorBase && !(resultOperator is ChoiceResultOperatorBase))
+            {
+                for (int i = queryModel.BodyClauses.Count - 1; i >= 0; i--)
+                {
+                    if (queryModel.BodyClauses[i] is OrderByClause)
+                    {
+                        queryModel.BodyClauses.RemoveAt(i);
+                    }
+                }
+            }
+
+            base.VisitResultOperator(resultOperator, queryModel, index);
         }
     }
 }

@@ -165,6 +165,20 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void OrderBy_Take_Count()
+        {
+            AssertQuery<Order>(
+                   os => os.OrderBy(o => o.OrderID).Take(5).Count());
+        }
+
+        [Fact]
+        public virtual void Take_OrderBy_Count()
+        {
+            AssertQuery<Order>(
+                   os => os.Take(5).OrderBy(o => o.OrderID).Count());
+        }
+
+        [Fact]
         public virtual void Any_predicate()
         {
             AssertQuery<Customer>(
@@ -1872,6 +1886,106 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void Count_with_order_by()
+        {
+            AssertQuery<Order>(os => os.OrderBy(o => o.CustomerID).Count());
+        }
+
+        [Fact]
+        public virtual void Where_OrderBy_Count()
+        {
+            AssertQuery<Order>(os => os.Where(o => o.CustomerID == "ALFKI").OrderBy(o => o.OrderID).Count());
+        }
+
+        [Fact]
+        public virtual void OrderBy_Where_Count()
+        {
+            AssertQuery<Order>(os => os.OrderBy(o => o.OrderID).Where(o => o.CustomerID == "ALFKI").Count());
+        }
+
+        [Fact]
+        public virtual void OrderBy_Count_with_predicate()
+        {
+            AssertQuery<Order>(os => os.OrderBy(o => o.OrderID).Count(o => o.CustomerID == "ALFKI"));
+        }
+
+        [Fact]
+        public virtual void OrderBy_Where_Count_with_predicate()
+        {
+            AssertQuery<Order>(os => os.OrderBy(o => o.OrderID).Where(o => o.OrderID > 10).Count(o => o.CustomerID != "ALFKI"));
+        }
+
+        [Fact]
+        public virtual void Where_OrderBy_Count_client_eval()
+        {
+            AssertQuery<Order>(os => os.Where(o => ClientEvalPredicate(o)).OrderBy(o => ClientEvalSelectorStateless()).Count());
+        }
+
+        [Fact]
+        public virtual void Where_OrderBy_Count_client_eval_mixed()
+        {
+            AssertQuery<Order>(os => os.Where(o => o.OrderID > 10).OrderBy(o => ClientEvalPredicate(o)).Count());
+        }
+
+        [Fact]
+        public virtual void OrderBy_Where_Count_client_eval()
+        {
+            AssertQuery<Order>(os => os.OrderBy(o => ClientEvalSelectorStateless()).Where(o => ClientEvalPredicate(o)).Count());
+        }
+
+        [Fact]
+        public virtual void OrderBy_Where_Count_client_eval_mixed()
+        {
+            AssertQuery<Order>(os => os.OrderBy(o => o.OrderID).Where(o => ClientEvalPredicate(o)).Count());
+        }
+
+        [Fact]
+        public virtual void OrderBy_Count_with_predicate_client_eval()
+        {
+            AssertQuery<Order>(os => os.OrderBy(o => ClientEvalSelectorStateless()).Count(o => ClientEvalPredicate(o)));
+        }
+
+        // error #1642
+        //[Fact]
+        public virtual void OrderBy_Count_with_predicate_client_eval_mixed()
+        {
+            AssertQuery<Order>(os => os.OrderBy(o => o.OrderID).Count(o => ClientEvalPredicateStateless()));
+        }
+
+        // error #1642
+        //[Fact]
+        public virtual void OrderBy_Where_Count_with_predicate_client_eval()
+        {
+            AssertQuery<Order>(os => os.OrderBy(o => ClientEvalSelectorStateless()).Where(o => ClientEvalPredicateStateless()).Count(o => ClientEvalPredicate(o)));
+        }
+
+        [Fact]
+        public virtual void OrderBy_Where_Count_with_predicate_client_eval_mixed()
+        {
+            AssertQuery<Order>(os => os.OrderBy(o => o.OrderID).Where(o => ClientEvalPredicate(o)).Count(o => o.CustomerID != "ALFKI"));
+        }
+
+        public static bool ClientEvalPredicateStateless()
+        {
+            return true;
+        }
+
+        protected static bool ClientEvalPredicate(Order order)
+        {
+            return order.OrderID > 10000;
+        }
+
+        private static int ClientEvalSelectorStateless()
+        {
+            return 42;
+        }
+
+        protected internal int ClientEvalSelector(Order order)
+        {
+            return order.EmployeeID.HasValue ? order.EmployeeID.Value % 10 : 0;
+        }
+
+        [Fact]
         public virtual void Distinct()
         {
             AssertQuery<Customer>(
@@ -2291,6 +2405,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var context = CreateContext())
             {
+
+                var foo = context.Database.Connection;
                 AssertResults(
                     new[] { query(NorthwindData.Set<TItem>()) },
                     new[] { query(context.Set<TItem>()) },
