@@ -242,6 +242,135 @@ WHERE [o].[CustomerID] = 'ALFKI'",
                 Sql);
         }
 
+        public override void Where_OrderBy_Count()
+        {
+            base.Where_OrderBy_Count();
+
+            Assert.Equal(
+                @"SELECT COUNT(*)
+FROM [Orders] AS [o]
+WHERE [o].[CustomerID] = 'ALFKI'",
+                Sql);
+        }
+
+        public override void OrderBy_Where_Count()
+        {
+            base.OrderBy_Where_Count();
+
+            Assert.Equal(
+                @"SELECT COUNT(*)
+FROM [Orders] AS [o]
+WHERE [o].[CustomerID] = 'ALFKI'",
+                Sql);
+        }
+
+        public override void OrderBy_Count_with_predicate()
+        {
+            base.OrderBy_Count_with_predicate();
+
+            Assert.Equal(
+                @"SELECT COUNT(*)
+FROM [Orders] AS [o]
+WHERE [o].[CustomerID] = 'ALFKI'",
+                Sql);
+        }
+
+        public override void OrderBy_Where_Count_with_predicate()
+        {
+            base.OrderBy_Where_Count_with_predicate();
+
+            Assert.Equal(
+                @"SELECT COUNT(*)
+FROM [Orders] AS [o]
+WHERE ([o].[OrderID] > 10 AND [o].[CustomerID] <> 'ALFKI')",
+                Sql);
+        }
+
+        public override void Where_OrderBy_Count_client_eval()
+        {
+            base.Where_OrderBy_Count_client_eval();
+
+            Assert.Equal(
+                @"SELECT [o].[CustomerID], [o].[OrderDate], [o].[OrderID]
+FROM [Orders] AS [o]",
+                Sql);
+        }
+
+        public override void Where_OrderBy_Count_client_eval_mixed()
+        {
+            base.Where_OrderBy_Count_client_eval_mixed();
+
+            Assert.Equal(
+                @"SELECT COUNT(*)
+FROM [Orders] AS [o]
+WHERE [o].[OrderID] > 10",
+                Sql);
+        }
+
+        public override void OrderBy_Where_Count_client_eval()
+        {
+            base.OrderBy_Where_Count_client_eval();
+
+            Assert.Equal(
+                @"SELECT [o].[CustomerID], [o].[OrderDate], [o].[OrderID]
+FROM [Orders] AS [o]",
+                Sql);
+        }
+
+        public override void OrderBy_Where_Count_client_eval_mixed()
+        {
+            base.OrderBy_Where_Count_client_eval_mixed();
+
+            Assert.Equal(
+                @"SELECT [o].[CustomerID], [o].[OrderDate], [o].[OrderID]
+FROM [Orders] AS [o]",
+                Sql);
+        }
+
+        public override void OrderBy_Count_with_predicate_client_eval()
+        {
+            base.OrderBy_Count_with_predicate_client_eval();
+
+            Assert.Equal(
+                @"SELECT [o].[CustomerID], [o].[OrderDate], [o].[OrderID]
+FROM [Orders] AS [o]",
+                Sql);
+        }
+
+        public override void OrderBy_Count_with_predicate_client_eval_mixed()
+        {
+            base.OrderBy_Count_with_predicate_client_eval_mixed();
+
+            Assert.Equal(
+                @"TBD",
+                Sql);
+        }
+
+        public override void OrderBy_Where_Count_with_predicate_client_eval()
+        {
+            base.OrderBy_Where_Count_with_predicate_client_eval();
+
+            Assert.Equal(
+                @"TBD",
+                Sql);
+        }
+
+        public override void OrderBy_Where_Count_with_predicate_client_eval_mixed()
+        {
+            base.OrderBy_Where_Count_with_predicate_client_eval_mixed();
+
+            Assert.Equal(
+                @"SELECT [o].[CustomerID], [o].[OrderDate], [o].[OrderID]
+FROM [Orders] AS [o]
+WHERE [o].[CustomerID] <> 'ALFKI'",
+                Sql);
+        }
+
+        public override void GroupBy_LongCount()
+        {
+            base.GroupBy_LongCount();
+        }
+
         public override void Sum_with_no_arg()
         {
             base.Sum_with_no_arg();
@@ -1033,8 +1162,12 @@ WHERE [c].[CustomerID] = 'ALFKI'", Sql);
 
         public override void Join_OrderBy_Count()
         {
-            //// issue 1251
-            Assert.Throws<SqlException>(() => base.Join_OrderBy_Count());
+            base.Join_OrderBy_Count();
+
+            Assert.Equal(
+                @"SELECT COUNT(*)
+FROM [Customers] AS [c]
+INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]", Sql);
         }
 
         public override void Multiple_joins_Where_Order_Any()
