@@ -12,6 +12,11 @@ using Microsoft.Data.Entity.Utilities;
 namespace Microsoft.Data.Entity.ChangeTracking
 {
     // This is the app-developer facing public API to the change tracker
+    /// <summary>
+    ///     Provides access to change tracking information and operations for entity instances the context is tracking.
+    ///     Instances of this class are typically obtained from <see cref="DbContext.ChangeTracker"/> and it is not designed 
+    ///     to be directly constructed in your application code.
+    /// </summary>
     public class ChangeTracker : IAccessor<StateManager>
     {
         private readonly StateManager _stateManager;
@@ -28,6 +33,15 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
         }
 
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="ChangeTracker"/> class. Instances of this class are typically
+        ///     obtained from <see cref="DbContext.ChangeTracker"/> and it is not designed to be directly constructed 
+        ///     in your application code.
+        /// </summary>
+        /// <param name="stateManager"> The internal state manager being used to store information about tracked entities. </param>
+        /// <param name="changeDetector"> The internal change detector used to identify changes in tracked entities. </param>
+        /// <param name="graphIterator"> The internal graph iterator used to traverse graphs of entities. </param>
+        /// <param name="context"> The context this change tracker belongs to. </param>
         public ChangeTracker(
             [NotNull] StateManager stateManager,
             [NotNull] ChangeDetector changeDetector,
@@ -45,8 +59,26 @@ namespace Microsoft.Data.Entity.ChangeTracking
             _context = context;
         }
 
+        /// <summary>
+        ///     <para>
+        ///         Gets or sets a value indicating whether the <see cref="ChangeTracker.DetectChanges()" /> method is called automatically 
+        ///         by methods of <see cref="DbContext" /> and related classes.
+        ///     </para>
+        ///     <para>
+        ///         The default value is true. This ensures the context is aware of any changes to tracked entity instances before performing
+        ///         operations such as <see cref="DbContext.SaveChanges()"/> or returning change tracking information. If you disable automatic
+        ///         detect changes then you must ensure that <see cref="DetectChanges"/> is called when entity instances have been modified.
+        ///         Failure to do so may result in some changes not being persisted during <see cref="DbContext.SaveChanges"/> or out-of-date
+        ///         change tracking information being returned.
+        ///     </para>
+        /// </summary>
         public virtual bool AutoDetectChangesEnabled { get; set; } = true;
 
+        /// <summary>
+        ///     Gets an <see cref="EntityEntry" /> for each entity being tracked by the context.
+        ///     The entries provide access to change tracking information and operations for each entity.
+        /// </summary>
+        /// <returns> An entry for each entity being tracked. </returns>
         public virtual IEnumerable<EntityEntry> Entries()
         {
             TryDetectChanges();
@@ -54,6 +86,12 @@ namespace Microsoft.Data.Entity.ChangeTracking
             return _stateManager.Entries.Select(e => new EntityEntry(_context.Service, e));
         }
 
+        /// <summary>
+        ///     Gets an <see cref="EntityEntry" /> for all entities of a given type being tracked by the context.
+        ///     The entries provide access to change tracking information and operations for each entity.
+        /// </summary>
+        /// <typeparam name="TEntity"> The type of entities to get entries for. </typeparam>
+        /// <returns> An entry for each entity of the given type that is being tracked. </returns>
         public virtual IEnumerable<EntityEntry<TEntity>> Entries<TEntity>() where TEntity : class
         {
             TryDetectChanges();
@@ -71,12 +109,47 @@ namespace Microsoft.Data.Entity.ChangeTracking
             }
         }
 
+        /// <summary>
+        ///     Gets the internal state manager being used to store information about tracked entities.
+        /// </summary>
         StateManager IAccessor<StateManager>.Service => _stateManager;
 
+        /// <summary>
+        ///     Gets the context this change tracker belongs to.
+        /// </summary>
         public virtual DbContext Context => _context.Service;
 
+        /// <summary>
+        ///     Scans the tracked entity instances to detect any changes made to the instance data. <see cref="DetectChanges"/>
+        ///     is usually called automatically by the context when up-to-date information is required (before <see cref="DbContext.SaveChanges"/> 
+        ///     and when returning change tracking information). You typically only need to call this method if you have disabled
+        ///     <see cref="AutoDetectChangesEnabled"/>.
+        /// </summary>
         public virtual void DetectChanges() => _changeDetector.DetectChanges(_stateManager);
 
+        /// <summary>
+        ///     <para>
+        ///         Begins tracking an entity and any entities that are reachable by traversing it's navigation properties. Traversal 
+        ///         is recursive so the navigation properties of any discovered entities will also be scanned. The specified
+        ///         <paramref name="callback"/> is called for each discovered entity and must set the <see cref="EntityEntry.State"/>
+        ///         that each entity should be tracked in. If no state is set, the entity remains untracked.
+        ///     </para>
+        ///     <para>
+        ///         This method is designed for use in disconnected scenarios where entities are retrieved using one instance of the context
+        ///         and then changes are saved using a different instance of the context. An example of this is a web service where one service
+        ///         call retrieves entities from the data store and another service call persists any changes to the entities. Each service call
+        ///         uses a new instance of the context that is disposed when the call is complete.
+        ///     </para>
+        ///     <para>
+        ///         If an entity is discovered that is already tracked by the context, that entity is not processed (and it's
+        ///         navigation properties are not traversed).
+        ///     </para>
+        /// </summary>
+        /// <param name="rootEntity"> The entity to begin traversal from. </param>
+        /// <param name="callback"> 
+        ///     An action to configure the change tracking information for each entity. For the entity to begin being tracked,
+        ///     the <see cref="EntityEntry.State"/> must be set.
+        /// </param>
         public virtual void TrackGraph([NotNull] object rootEntity, [NotNull] Action<EntityEntry> callback)
         {
             Check.NotNull(rootEntity, nameof(rootEntity));
