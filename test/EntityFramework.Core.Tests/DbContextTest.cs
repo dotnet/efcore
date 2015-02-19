@@ -1865,6 +1865,8 @@ namespace Microsoft.Data.Entity.Tests
 
         private class FakeLoggerFactory : ILoggerFactory
         {
+            public LogLevel MinimumLevel { get; set; }
+
             public ILogger Create(string name)
             {
                 return null;

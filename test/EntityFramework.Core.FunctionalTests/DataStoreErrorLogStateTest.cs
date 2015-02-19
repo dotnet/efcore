@@ -183,6 +183,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         private class TestLoggerFactory : ILoggerFactory
         {
+            public LogLevel MinimumLevel { get; set; }
+
             public readonly TestLogger Logger = new TestLogger();
 
             public void AddProvider(ILoggerProvider provider)

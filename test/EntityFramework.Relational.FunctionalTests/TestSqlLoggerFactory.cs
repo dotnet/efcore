@@ -21,6 +21,8 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
         private const string ContextName = "__SQL";
 #endif
 
+        public LogLevel MinimumLevel { get; set; }
+
         public ILogger Create(string name)
         {
             return Logger;
