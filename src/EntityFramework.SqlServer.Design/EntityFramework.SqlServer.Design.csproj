@@ -5,11 +5,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{10CA97EB-E724-4F08-86AF-F301F2B0BFFF}</ProjectGuid>
+    <ProjectGuid>{9AFDF1FA-1710-48E3-9802-7AB9DAC91B35}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Microsoft.Data.Entity.Commands</RootNamespace>
-    <AssemblyName>EntityFramework.Commands</AssemblyName>
+    <RootNamespace>Microsoft.Data.Entity.SqlServer.Design</RootNamespace>
+    <AssemblyName>EntityFramework.SqlServer.Design</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -56,62 +56,27 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\tools\Resources.cs">
-      <Link>Properties\Resources.cs</Link>
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.tt</DependentUpon>
-    </Compile>
-    <Compile Include="..\Shared\SharedTypeExtensions.cs">
-      <Link>SharedTypeExtensions.cs</Link>
-    </Compile>
-    <Compile Include="ContextTool.cs" />
-    <Compile Include="DatabaseTool.cs" />
-    <Compile Include="DesignTimeServices.cs" />
-    <Compile Include="Executor.cs" />
-    <Compile Include="IHandlers.cs" />
-    <Compile Include="MigrationTool.cs" />
-    <Compile Include="Migrations\ScaffoldedMigration.cs" />
-    <Compile Include="Migrations\CSharpMigrationGenerator.cs" />
-    <Compile Include="Migrations\CSharpMigrationOperationGenerator.cs" />
-    <Compile Include="Migrations\CSharpModelGenerator.cs" />
-    <Compile Include="Migrations\MigrationCodeGenerator.cs" />
-    <Compile Include="Migrations\MigrationFiles.cs" />
-    <Compile Include="Migrations\MigrationScaffolder.cs" />
-    <Compile Include="Program.cs" />
+    <Compile Include="ReverseEngineering\Model\ForeignKeyColumnMapping.cs" />
+    <Compile Include="ReverseEngineering\Model\TableColumn.cs" />
+    <Compile Include="ReverseEngineering\Model\TableConstraintColumn.cs" />
+    <Compile Include="ReverseEngineering\SqlServerDbContextCodeGenerator.cs" />
+    <Compile Include="ReverseEngineering\Model\Table.cs" />
+    <Compile Include="ReverseEngineering\SqlServerEntityTypeCodeGenerator.cs" />
+    <Compile Include="ReverseEngineering\SqlServerMetadataModelProvider.cs" />
+    <Compile Include="ReverseEngineering\SqlServerNameMapper.cs" />
+    <Compile Include="Utilities\SqlServerTypeMapping.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\InternalsVisibleTo.cs" />
-    <Compile Include="..\Shared\CodeAnnotations.cs">
-      <Link>Utilities\CodeAnnotations.cs</Link>
-    </Compile>
-    <Compile Include="Properties\Strings.Designer.cs">
-      <DependentUpon>Strings.resx</DependentUpon>
-    </Compile>
-    <Compile Include="Utilities\ServiceProvider.cs" />
-    <None Include="tools\Handlers.cs" />
+    <Compile Include="..\Shared\CodeAnnotations.cs" />
     <Compile Include="..\Shared\Check.cs">
       <Link>Utilities\Check.cs</Link>
     </Compile>
-    <Compile Include="Utilities\ColorScope.cs" />
-    <Compile Include="Utilities\CommandLogger.cs" />
-    <Compile Include="Utilities\CommandLoggerAdapter.cs" />
-    <Compile Include="Utilities\ConsoleCommandLogger.cs" />
-    <Compile Include="Utilities\CSharpHelper.cs" />
-    <Compile Include="Utilities\ForwardingProxy.cs" />
-    <Compile Include="Utilities\LoggerProvider.cs" />
-    <EmbeddedResource Include="Properties\Strings.resx">
-      <LogicalName>EntityFramework.Commands.Strings.resources</LogicalName>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <Content Include="..\..\tools\Resources.tt">
-      <Link>Properties\Resources.tt</Link>
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>Resources.cs</LastGenOutput>
-    </Content>
+    <Compile Include="..\Shared\LoggingExtensions.cs">
+      <Link>LoggingExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\StringBuilderExtensions.cs" />
+    <Compile Include="..\Shared\SharedTypeExtensions.cs" />
     <None Include="project.json" />
-    <None Include="tools\EntityFramework.psd1" />
-    <None Include="tools\EntityFramework.psm1" />
-    <None Include="tools\init.ps1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EntityFramework.Relational.Design\EntityFramework.Relational.Design.csproj">
@@ -121,6 +86,10 @@
     <ProjectReference Include="..\EntityFramework.Relational\EntityFramework.Relational.csproj">
       <Project>{75c5a774-a3f3-43eb-97d3-dbe0cf2825d8}</Project>
       <Name>EntityFramework.Relational</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EntityFramework.SqlServer\EntityFramework.SqlServer.csproj">
+      <Project>{04e6620b-5b41-45fe-981a-f40eb7686b0e}</Project>
+      <Name>EntityFramework.SqlServer</Name>
     </ProjectReference>
     <ProjectReference Include="..\EntityFramework.Core\EntityFramework.Core.csproj">
       <Project>{71415cec-8111-4c73-8751-512d22f10602}</Project>

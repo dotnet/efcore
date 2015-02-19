@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.22310.1
+VisualStudioVersion = 14.0.22311.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{35BED7DE-CA6F-41EA-91E3-25CA7295C7B9}"
 EndProject
@@ -44,6 +44,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.Microbenchmarks.EF6", "test\EntityFramework.Microbenchmarks.EF6\EntityFramework.Microbenchmarks.EF6.csproj", "{CF26777E-6ADA-4AA8-96BA-96E43E4933A1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.Microbenchmarks.Core", "test\EntityFramework.Microbenchmarks.Core\EntityFramework.Microbenchmarks.Core.csproj", "{B8BCCF52-9BF3-4A83-BC3D-4CB312DC9292}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.Relational.Design", "src\EntityFramework.Relational.Design\EntityFramework.Relational.Design.csproj", "{7028A7E3-0AD8-4606-A922-8189C8A704E0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.SqlServer.Design", "src\EntityFramework.SqlServer.Design\EntityFramework.SqlServer.Design.csproj", "{9AFDF1FA-1710-48E3-9802-7AB9DAC91B35}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -127,6 +131,14 @@ Global
 		{B8BCCF52-9BF3-4A83-BC3D-4CB312DC9292}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B8BCCF52-9BF3-4A83-BC3D-4CB312DC9292}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B8BCCF52-9BF3-4A83-BC3D-4CB312DC9292}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7028A7E3-0AD8-4606-A922-8189C8A704E0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7028A7E3-0AD8-4606-A922-8189C8A704E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7028A7E3-0AD8-4606-A922-8189C8A704E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7028A7E3-0AD8-4606-A922-8189C8A704E0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9AFDF1FA-1710-48E3-9802-7AB9DAC91B35}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9AFDF1FA-1710-48E3-9802-7AB9DAC91B35}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9AFDF1FA-1710-48E3-9802-7AB9DAC91B35}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9AFDF1FA-1710-48E3-9802-7AB9DAC91B35}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -151,5 +163,7 @@ Global
 		{F44DC472-86A1-4A60-B5C4-98D76D7B34AF} = {547020C0-976F-4542-81CE-7FD465595614}
 		{CF26777E-6ADA-4AA8-96BA-96E43E4933A1} = {547020C0-976F-4542-81CE-7FD465595614}
 		{B8BCCF52-9BF3-4A83-BC3D-4CB312DC9292} = {547020C0-976F-4542-81CE-7FD465595614}
+		{7028A7E3-0AD8-4606-A922-8189C8A704E0} = {35BED7DE-CA6F-41EA-91E3-25CA7295C7B9}
+		{9AFDF1FA-1710-48E3-9802-7AB9DAC91B35} = {35BED7DE-CA6F-41EA-91E3-25CA7295C7B9}
 	EndGlobalSection
 EndGlobal
