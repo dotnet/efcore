@@ -3,6 +3,7 @@
 
 using JetBrains.Annotations;
 using System.Data.SqlClient;
+using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.Model
 {
@@ -25,6 +26,8 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.Model
 
         public static Table CreateFromReader([NotNull] SqlDataReader reader)
         {
+            Check.NotNull(reader, nameof(reader));
+
             var table = new Table();
             table.Id = reader.IsDBNull(0) ? null : reader.GetString(0);
             table.SchemaName = reader.IsDBNull(1) ? null : reader.GetString(1);

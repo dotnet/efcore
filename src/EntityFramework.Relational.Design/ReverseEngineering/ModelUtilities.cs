@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 {
@@ -25,6 +26,9 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             [NotNull] IEnumerable<IProperty> properties,
             [NotNull] string lambdaIdentifier)
         {
+            Check.NotNull(properties, nameof(properties));
+            Check.NotEmpty(lambdaIdentifier, nameof(lambdaIdentifier));
+
             var sb = new StringBuilder();
 
             if (properties.Count() > 1)
@@ -43,6 +47,8 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 
         public virtual IEnumerable<IProperty> OrderedProperties([NotNull] IEntityType entityType)
         {
+            Check.NotNull(entityType, nameof(entityType));
+
             var primaryKeyProperties = entityType.GetPrimaryKey().Properties.ToList();
             foreach (var property in primaryKeyProperties)
             {

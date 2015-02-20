@@ -7,6 +7,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Design.CodeGeneration;
+using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
 {
@@ -22,6 +23,9 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             [NotNull]Func<IEntityType, string> defaultEntityNameFunc,
             [NotNull]Func<IProperty, string> defaultPropertyNameFunc)
         {
+            Check.NotNull(defaultEntityNameFunc, nameof(defaultEntityNameFunc));
+            Check.NotNull(defaultPropertyNameFunc, nameof(defaultPropertyNameFunc));
+
             _sourceModel = sourceModel;
             _defaultEntityNameFunc = defaultEntityNameFunc;
             _defaultPropertyNameFunc = defaultPropertyNameFunc;

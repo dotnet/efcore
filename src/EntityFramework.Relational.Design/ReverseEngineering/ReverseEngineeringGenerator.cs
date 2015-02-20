@@ -25,6 +25,8 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 
         public ReverseEngineeringGenerator([NotNull] IServiceProvider serviceProvider)
         {
+            Check.NotNull(serviceProvider, nameof(serviceProvider));
+
             _serviceProvider = serviceProvider;
             Logger = serviceProvider.GetRequiredService<ILogger>();
             CSharpCodeGeneratorHelper = serviceProvider.GetRequiredService<CSharpCodeGeneratorHelper>();
@@ -32,7 +34,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 
         public virtual string FileExtension { get; [param: NotNull] set; } = DefaultFileExtension;
 
-        public virtual CSharpCodeGeneratorHelper CSharpCodeGeneratorHelper { get;[param: NotNull] set; }
+        public virtual CSharpCodeGeneratorHelper CSharpCodeGeneratorHelper { get; [param: NotNull] set; }
 
         public virtual ILogger Logger { get; }
 
@@ -40,6 +42,8 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             [NotNull] ReverseEngineeringConfiguration configuration,
             CancellationToken cancellationToken = default(CancellationToken))
         {
+            Check.NotNull(configuration, nameof(configuration));
+
             CheckConfiguration(configuration);
 
             var providerAssembly = configuration.ProviderAssembly;
@@ -113,6 +117,8 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 
         public virtual IDatabaseMetadataModelProvider GetProvider([NotNull] Assembly providerAssembly)
         {
+            Check.NotNull(providerAssembly, nameof(providerAssembly));
+
             var type = providerAssembly.GetExportedTypes()
                 .FirstOrDefault(t => typeof(IDatabaseMetadataModelProvider).IsAssignableFrom(t));
             if (type == null)
@@ -130,6 +136,9 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             [NotNull] IDatabaseMetadataModelProvider provider,
             [NotNull] ReverseEngineeringConfiguration configuration)
         {
+            Check.NotNull(provider, nameof(provider));
+            Check.NotNull(configuration, nameof(configuration));
+
             var metadataModel = provider
                 .GenerateMetadataModel(configuration.ConnectionString);
             if (metadataModel == null)
@@ -146,6 +155,10 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             [NotNull] string dbContextClassName,
             [NotNull] IModel metadataModel)
         {
+            Check.NotEmpty(outputDirectoryName, nameof(outputDirectoryName));
+            Check.NotEmpty(dbContextClassName, nameof(dbContextClassName));
+            Check.NotNull(metadataModel, nameof(metadataModel));
+
             if (!Directory.Exists(outputDirectoryName))
             {
                 return;

@@ -23,7 +23,12 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             [CanBeNull] string className, [NotNull] string connectionString)
             : base(generator, model, namespaceName, className, connectionString)
         {
+            Check.NotNull(generator, nameof(generator));
+            Check.NotNull(model, nameof(model));
+            Check.NotEmpty(namespaceName, nameof(namespaceName));
+            Check.NotEmpty(connectionString, nameof(connectionString));
         }
+
         public override string ClassName
         {
             get
@@ -49,11 +54,16 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
         {
             // do not configure EntityTypes for which we had an error when generating
             return Model.EntityTypes.OrderBy(e => e.Name)
-                .Where(e => ((EntityType)e).TryGetAnnotation(SqlServerMetadataModelProvider.AnnotationNameEntityTypeError) == null);
+                .Where(e => ((EntityType)e).TryGetAnnotation(
+                    SqlServerMetadataModelProvider.AnnotationNameEntityTypeError) == null);
         }
 
-        public override void GenerateNavigationsConfiguration(IEntityType entityType, IndentedStringBuilder sb)
+        public override void GenerateNavigationsConfiguration(
+            IEntityType entityType, IndentedStringBuilder sb)
         {
+            Check.NotNull(entityType, nameof(entityType));
+            Check.NotNull(sb, nameof(sb));
+
             var first = true;
             foreach (var foreignKey in entityType.ForeignKeys)
             {
@@ -99,6 +109,10 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
         public override void GenerateProviderSpecificPropertyFacetsConfiguration(
             IProperty property, string entityVariableName, IndentedStringBuilder sb)
         {
+            Check.NotNull(property, nameof(property));
+            Check.NotEmpty(entityVariableName, nameof(entityVariableName));
+            Check.NotNull(sb, nameof(sb));
+
             var useIdentityFacetConfig = GenerateUseIdentityFacetConfiguration(property);
             if (string.IsNullOrEmpty(useIdentityFacetConfig))
             {
@@ -125,6 +139,8 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
 
         public virtual string GenerateUseIdentityFacetConfiguration([NotNull] IProperty property)
         {
+            Check.NotNull(property, nameof(property));
+
             // output columnType if decimal to define precision and scale
             if (property.SqlServer().ValueGenerationStrategy.HasValue
                 && SqlServerValueGenerationStrategy.Identity == property.SqlServer().ValueGenerationStrategy)

@@ -15,15 +15,20 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
     public class SqlServerEntityTypeCodeGenerator : EntityTypeCodeGenerator
     {
         public SqlServerEntityTypeCodeGenerator(
-            [NotNull]ReverseEngineeringGenerator generator,
-            [NotNull]IEntityType entityType,
-            [CanBeNull]string namespaceName)
+            [NotNull] ReverseEngineeringGenerator generator,
+            [NotNull] IEntityType entityType,
+            [NotNull] string namespaceName)
             : base(generator, entityType, namespaceName)
         {
+            Check.NotNull(generator, nameof(generator));
+            Check.NotNull(entityType, nameof(entityType));
+            Check.NotNull(namespaceName, nameof(namespaceName));
         }
 
         public override void Generate(IndentedStringBuilder sb)
         {
+            Check.NotNull(sb, nameof(sb));
+
             var errorMessageAnnotation =
                 EntityType[SqlServerMetadataModelProvider.AnnotationNameEntityTypeError];
             if (errorMessageAnnotation != null)
@@ -42,6 +47,8 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
 
         public override void GenerateZeroArgConstructorContents(IndentedStringBuilder sb)
         {
+            Check.NotNull(sb, nameof(sb));
+
             foreach (var otherEntityType in EntityType.Model.EntityTypes.Where(et => et != EntityType))
             {
                 // find navigation properties for foreign keys from another EntityType which reference this EntityType
@@ -67,6 +74,8 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
 
         public override void GenerateEntityProperties(IndentedStringBuilder sb)
         {
+            Check.NotNull(sb, nameof(sb));
+
             sb.AppendLine();
             Generator.CSharpCodeGeneratorHelper.SingleLineComment("Properties", sb);
             base.GenerateEntityProperties(sb);
@@ -74,6 +83,9 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
 
         public override void GenerateEntityProperty(IProperty property, IndentedStringBuilder sb)
         {
+            Check.NotNull(property, nameof(property));
+            Check.NotNull(sb, nameof(sb));
+
             GenerateEntityPropertyAttribues(property, sb);
 
             Generator.CSharpCodeGeneratorHelper.AddProperty(AccessModifier.Public,
@@ -82,6 +94,8 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
 
         public override void GenerateEntityNavigations(IndentedStringBuilder sb)
         {
+            Check.NotNull(sb, nameof(sb));
+
             sb.AppendLine();
             Generator.CSharpCodeGeneratorHelper.SingleLineComment("Navigation Properties", sb);
 
@@ -142,6 +156,9 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
         public virtual void GenerateEntityPropertyAttribues(
             [NotNull] IProperty property, [NotNull] IndentedStringBuilder sb)
         {
+            Check.NotNull(property, nameof(property));
+            Check.NotNull(sb, nameof(sb));
+
             //TODO: to use when we the runtime recognizes and uses DataAnnotations
         }
     }

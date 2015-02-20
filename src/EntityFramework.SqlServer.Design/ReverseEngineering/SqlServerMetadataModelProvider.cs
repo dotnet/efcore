@@ -13,6 +13,8 @@ using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
 using Microsoft.Data.Entity.SqlServer.Metadata;
 using Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.Model;
 using Microsoft.Data.Entity.SqlServer.Design.Utilities;
+using Microsoft.Data.Entity.Utilities;
+using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
@@ -52,16 +54,15 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
 
         public SqlServerMetadataModelProvider([NotNull] IServiceProvider serviceProvider)
         {
-            _logger = (ILogger)serviceProvider.GetService(typeof(ILogger));
-            if (_logger == null)
-            {
-                throw new ArgumentException(typeof(SqlServerMetadataModelProvider).Name
-                    + " cannot find a service of type " + typeof(ILogger).Name);
-            }
+            Check.NotNull(serviceProvider, nameof(serviceProvider));
+
+            _logger = serviceProvider.GetRequiredService<ILogger>();
         }
 
         public virtual IModel GenerateMetadataModel([NotNull] string connectionString)
         {
+            Check.NotEmpty(connectionString, nameof(connectionString));
+
             using (var conn = new SqlConnection(connectionString))
             {
                 try
@@ -101,6 +102,9 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             [NotNull] ReverseEngineeringGenerator generator,
             [NotNull] DbContextGeneratorModel dbContextGeneratorModel)
         {
+            Check.NotNull(generator, nameof(generator));
+            Check.NotNull(dbContextGeneratorModel, nameof(dbContextGeneratorModel));
+
             return new SqlServerDbContextCodeGenerator(
                 generator,
                 dbContextGeneratorModel.MetadataModel,
@@ -112,6 +116,9 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
            [NotNull]  ReverseEngineeringGenerator generator,
            [NotNull] EntityTypeGeneratorModel entityTypeGeneratorModel)
         {
+            Check.NotNull(generator, nameof(generator));
+            Check.NotNull(entityTypeGeneratorModel, nameof(entityTypeGeneratorModel));
+
             return new SqlServerEntityTypeCodeGenerator(
                 generator,
                 entityTypeGeneratorModel.EntityType,
@@ -119,14 +126,19 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
         }
 
         public virtual Dictionary<string, T> LoadData<T>(
-            [NotNull] SqlConnection conn,
+            [NotNull] SqlConnection connection,
             [NotNull] string query,
             [NotNull] Func<SqlDataReader, T> createFromReader,
             [NotNull] Func<T, string> identifier)
         {
+            Check.NotNull(connection, nameof(connection));
+            Check.NotEmpty(query, nameof(query));
+            Check.NotNull(createFromReader, nameof(createFromReader));
+            Check.NotNull(identifier, nameof(identifier));
+
             var data = new Dictionary<string, T>();
             var sqlCommand = new SqlCommand(query);
-            sqlCommand.Connection = conn;
+            sqlCommand.Connection = connection;
 
             using (var reader = sqlCommand.ExecuteReader())
             {
@@ -143,6 +155,8 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
         public virtual void CreatePrimaryForeignKeyAndUniqueMaps(
             [NotNull] Dictionary<string, TableConstraintColumn> tableConstraintColumns)
         {
+            Check.NotNull(tableConstraintColumns, nameof(tableConstraintColumns));
+
             var uniqueConstraintToColumnsMap = new Dictionary<string, List<string>>();
 
             foreach (var tableConstraintColumn in tableConstraintColumns.Values)
@@ -253,6 +267,9 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
         public virtual IModel ConstructCodeGenModel(
             [NotNull] IModel relationalModel, [NotNull] SqlServerNameMapper nameMapper)
         {
+            Check.NotNull(relationalModel, nameof(relationalModel));
+            Check.NotNull(nameMapper, nameof(nameMapper));
+
             var codeGenModel = new Microsoft.Data.Entity.Metadata.Model();
             foreach (var relationalEntityType in relationalModel.EntityTypes.Cast<EntityType>())
             {
@@ -328,6 +345,8 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
 
         public virtual void AddForeignKeysToCodeGenModel([NotNull] IModel codeGenModel)
         {
+            Check.NotNull(codeGenModel, nameof(codeGenModel));
+
             foreach (var keyValuePair in _relationalEntityTypeToForeignKeyConstraintsMap)
             {
                 var fromColumnRelationalEntityType = keyValuePair.Key;
@@ -385,6 +404,8 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
 
         private void AddDependentAndPrincipalNavigationPropertyAnnotations([NotNull] IModel codeGenModel)
         {
+            Check.NotNull(codeGenModel, nameof(codeGenModel));
+
             var entityTypeToExistingIdentifiers = new Dictionary<IEntityType, List<string>>();
             foreach (var entityType in codeGenModel.EntityTypes)
             {
@@ -421,6 +442,9 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
         public virtual Property FindTargetColumn(
             [NotNull] string foreignKeyConstraintId, [NotNull] string fromColumnId)
         {
+            Check.NotEmpty(foreignKeyConstraintId, nameof(foreignKeyConstraintId));
+            Check.NotEmpty(fromColumnId, nameof(fromColumnId));
+
             ForeignKeyColumnMapping foreignKeyColumnMapping;
             if (!_foreignKeyColumnMappings.TryGetValue(
                 foreignKeyConstraintId + fromColumnId, out foreignKeyColumnMapping))
@@ -449,69 +473,75 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
 
         public static string ConstructIdForCombinationOfColumns([NotNull] IEnumerable<string> listOfColumnIds)
         {
+            Check.NotNull(listOfColumnIds, nameof(listOfColumnIds));
+
             return string.Join(string.Empty, listOfColumnIds.OrderBy(columnId => columnId));
         }
 
-        public virtual void ApplyPropertyProperties([NotNull] Property property, [NotNull] TableColumn tc)
+        public virtual void ApplyPropertyProperties(
+            [NotNull] Property property, [NotNull] TableColumn tableColumn)
         {
-            if (property.Name != tc.ColumnName)
+            Check.NotNull(property, nameof(property));
+            Check.NotNull(tableColumn, nameof(tableColumn));
+
+            if (property.Name != tableColumn.ColumnName)
             {
-                property.Relational().Column = tc.ColumnName;
+                property.Relational().Column = tableColumn.ColumnName;
             }
 
-            string columnType = tc.DataType;
-            if (tc.MaxLength.HasValue && !DataTypesForMaxLengthNotAllowed.Contains(tc.DataType))
+            string columnType = tableColumn.DataType;
+            if (tableColumn.MaxLength.HasValue && !DataTypesForMaxLengthNotAllowed.Contains(tableColumn.DataType))
             {
-                if (tc.MaxLength > 0)
+                if (tableColumn.MaxLength > 0)
                 {
-                    property.MaxLength = tc.MaxLength;
+                    property.MaxLength = tableColumn.MaxLength;
                 }
 
-                if (DataTypesForMax.Contains(columnType) && tc.MaxLength == -1)
+                if (DataTypesForMax.Contains(columnType) && tableColumn.MaxLength == -1)
                 {
                     columnType += "(max)";
                 }
                 else
                 {
-                    columnType += "(" + tc.MaxLength + ")";
+                    columnType += "(" + tableColumn.MaxLength + ")";
                 }
             }
-            else if (DataTypesForNumericPrecisionAndScale.Contains(tc.DataType))
+            else if (DataTypesForNumericPrecisionAndScale.Contains(tableColumn.DataType))
             {
-                if (tc.NumericPrecision.HasValue)
+                if (tableColumn.NumericPrecision.HasValue)
                 {
-                    if (tc.Scale.HasValue)
+                    if (tableColumn.Scale.HasValue)
                     {
-                        columnType += "(" + tc.NumericPrecision.Value + ", " + tc.Scale.Value + ")";
+                        columnType += "(" + tableColumn.NumericPrecision.Value + ", " + tableColumn.Scale.Value + ")";
                     }
                     else
                     {
-                        columnType += "(" + tc.NumericPrecision.Value + ")";
+                        columnType += "(" + tableColumn.NumericPrecision.Value + ")";
                     }
                 }
             }
-            else if (DataTypesForDateTimePrecisionAndScale.Contains(tc.DataType))
+            else if (DataTypesForDateTimePrecisionAndScale.Contains(tableColumn.DataType))
             {
-                if (tc.DateTimePrecision.HasValue)
+                if (tableColumn.DateTimePrecision.HasValue)
                 {
-                    if (tc.Scale.HasValue)
+                    if (tableColumn.Scale.HasValue)
                     {
-                        columnType += "(" + tc.DateTimePrecision.Value + ", " + tc.Scale.Value + ")";
+                        columnType += "(" + tableColumn.DateTimePrecision.Value + ", " + tableColumn.Scale.Value + ")";
                     }
                     else
                     {
-                        columnType += "(" + tc.DateTimePrecision.Value + ")";
+                        columnType += "(" + tableColumn.DateTimePrecision.Value + ")";
                     }
                 }
             }
 
             property.Relational().ColumnType = columnType;
 
-            if (tc.IsIdentity)
+            if (tableColumn.IsIdentity)
             {
-                if (typeof(byte) == SqlServerTypeMapping._sqlTypeToClrTypeMap[tc.DataType])
+                if (typeof(byte) == SqlServerTypeMapping._sqlTypeToClrTypeMap[tableColumn.DataType])
                 {
-                    _logger.WriteWarning("For columnId: " + tc.Id + ". The SQL Server data type is " + tc.DataType
+                    _logger.WriteWarning("For columnId: " + tableColumn.Id + ". The SQL Server data type is " + tableColumn.DataType
                         + ". This will be mapped to CLR type byte which does not allow ValueGenerationStrategy Identity. "
                         + "Generating a matching Property but ignoring the Identity setting.");
                 }
@@ -521,19 +551,19 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                 }
             }
 
-            if (tc.IsStoreGenerated)
+            if (tableColumn.IsStoreGenerated)
             {
-                property.IsStoreComputed = tc.IsStoreGenerated;
+                property.IsStoreComputed = tableColumn.IsStoreGenerated;
             }
-            else if (tc.DataType == "timestamp")
+            else if (tableColumn.DataType == "timestamp")
             {
                 // timestamp columns should always be treated as store generated
                 property.IsStoreComputed = true;
             }
 
-            if (tc.DefaultValue != null)
+            if (tableColumn.DefaultValue != null)
             {
-                property.Relational().DefaultValue = tc.DefaultValue;
+                property.Relational().DefaultValue = tableColumn.DefaultValue;
             }
         }
     }
