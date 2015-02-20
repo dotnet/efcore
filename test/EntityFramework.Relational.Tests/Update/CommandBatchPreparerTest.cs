@@ -5,13 +5,14 @@ using System;
 using System.Linq;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Metadata;
 using Microsoft.Data.Entity.Relational.Update;
 using Microsoft.Framework.DependencyInjection;
 using Moq;
 using Xunit;
+
+using CoreStrings = Microsoft.Data.Entity.Internal.Strings;
 
 namespace Microsoft.Data.Entity.Relational.Tests.Update
 {
@@ -229,6 +230,28 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
             commandBatchesEnumerator.MoveNext();
 
             modificationCommandBatchFactoryMock.Verify(mcb => mcb.Create(options), Times.Exactly(2));
+        }
+
+        [Fact]
+        public void Batch_command_throws_on_commands_with_circular_dependencies()
+        {
+            var model = CreateCyclicFKModel();
+            var configuration = CreateContextServices(model);
+            var stateManager = configuration.GetRequiredService<StateManager>();
+
+            var fakeEntry = stateManager.GetOrCreateEntry(new FakeEntity { Id = 42, RelatedId = 1 });
+            fakeEntry.SetEntityState(EntityState.Added);
+
+            var relatedFakeEntry = stateManager.GetOrCreateEntry(new RelatedFakeEntity { Id = 1, RelatedId = 42 });
+            relatedFakeEntry.SetEntityState(EntityState.Added);
+
+            Assert.Equal(
+                CoreStrings.CircularDependency(
+                    string.Join(", ",
+                        model.GetEntityType(typeof(RelatedFakeEntity)).ForeignKeys.First(),
+                        model.GetEntityType(typeof(FakeEntity)).ForeignKeys.First())),
+                Assert.Throws<InvalidOperationException>(
+                    () => { var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { fakeEntry, relatedFakeEntry }, new DbContextOptions()).ToArray(); }).Message);
         }
 
         private static IServiceProvider CreateContextServices(IModel model)

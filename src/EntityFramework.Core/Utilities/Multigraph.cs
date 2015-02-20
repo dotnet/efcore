@@ -96,9 +96,9 @@ namespace Microsoft.Data.Entity.Utilities
         }
 
         public virtual IReadOnlyList<TVertex> TopologicalSort(
-            [CanBeNull] Func<IEnumerable<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>, string> formatCycleMessage)
+            [CanBeNull] Func<IEnumerable<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>, string> formatCycle)
         {
-            return TopologicalSort(null, formatCycleMessage);
+            return TopologicalSort(null, formatCycle);
         }
 
         public virtual IReadOnlyList<TVertex> TopologicalSort(
@@ -230,6 +230,120 @@ namespace Microsoft.Data.Entity.Utilities
             }
             return sortedQueue;
         }
+
+        public virtual IReadOnlyList<List<TVertex>> BatchingTopologicalSort()
+        {
+            return BatchingTopologicalSort(null);
+        }
+
+        public virtual IReadOnlyList<List<TVertex>> BatchingTopologicalSort(
+            [CanBeNull] Func<IEnumerable<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>, string> formatCycle)
+        {
+            var currentRootsQueue = new List<TVertex>();
+            var predecessorCounts = new Dictionary<TVertex, int>();
+
+            foreach (var vertex in _vertices)
+            {
+                var count = GetIncomingNeighbours(vertex).Count();
+                if (count == 0)
+                {
+                    // Collect verticies without predecessors
+                    currentRootsQueue.Add(vertex);
+                }
+                else
+                {
+                    // Track number of predecessors for remaining verticies
+                    predecessorCounts[vertex] = count;
+                }
+            }
+
+            var result = new List<List<TVertex>>();
+            var nextRootsQueue = new List<TVertex>();
+            var currentRootIndex = 0;
+
+            while (currentRootIndex < currentRootsQueue.Count)
+            {
+                var currentRoot = currentRootsQueue[currentRootIndex];
+                currentRootIndex++;
+
+                // Remove edges from current root and add any exposed vertices to the next batch
+                foreach (var successor in GetOutgoingNeighbours(currentRoot))
+                {
+                    predecessorCounts[successor]--;
+                    if (predecessorCounts[successor] == 0)
+                    {
+                        nextRootsQueue.Add(successor);
+                    }
+                }
+
+                // Roll lists over for next batch
+                if (currentRootIndex == currentRootsQueue.Count)
+                {
+                    result.Add(currentRootsQueue);
+
+                    currentRootsQueue = nextRootsQueue;
+                    currentRootIndex = 0;
+
+                    if (currentRootsQueue.Count != 0)
+                    {
+                        nextRootsQueue = new List<TVertex>();
+                    }
+                }
+            }
+
+            if (result.Sum(b => b.Count) != _vertices.Count)
+            {
+                // TODO: Support cycle-breaking?
+
+                var currentCycleVertex = predecessorCounts.First(p => p.Value != 0).Key;
+                var cycle = new List<TVertex>();
+                cycle.Add(currentCycleVertex);
+                var finished = false;
+                while (!finished)
+                {
+                    foreach (var predecessor in GetIncomingNeighbours(currentCycleVertex)
+                        .Where(neighbour => predecessorCounts.ContainsKey(neighbour)))
+                    {
+                        if (predecessorCounts[predecessor] != 0)
+                        {
+                            predecessorCounts[currentCycleVertex] = -1;
+
+                            currentCycleVertex = predecessor;
+                            cycle.Add(currentCycleVertex);
+                            finished = predecessorCounts[predecessor] == -1;
+                            break;
+                        }
+                    }
+                }
+                cycle.Reverse();
+
+                // Throw an exception
+                if (formatCycle == null)
+                {
+                    throw new InvalidOperationException(
+                        Strings.CircularDependency(
+                            cycle.Select(vertex => vertex.ToString()).Join(" -> ")));
+                }
+                else
+                {
+                    // Build the cycle message data
+                    currentCycleVertex = cycle.First();
+                    var cycleData = new List<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>();
+
+                    foreach (var vertex in cycle.Skip(1))
+                    {
+                        cycleData.Add(Tuple.Create(currentCycleVertex, vertex, GetEdges(currentCycleVertex, vertex)));
+                        currentCycleVertex = vertex;
+                    }
+                    throw new InvalidOperationException(
+                        Strings.CircularDependency(
+                            formatCycle(cycleData)));
+                }
+            }
+
+            return result;
+        }
+
 
         public override IEnumerable<TVertex> Vertices
         {

@@ -306,7 +306,6 @@
     <Compile Include="Utilities\ServiceProviderExtensions.cs" />
     <Compile Include="Utilities\ThreadSafeDictionaryCache.cs" />
     <Compile Include="Utilities\ThreadSafeLazyRef.cs" />
-    <Compile Include="Utilities\BidirectionalAdjacencyListGraph.cs" />
     <Compile Include="Utilities\TypeExtensions.cs" />
     <Compile Include="..\Shared\CodeAnnotations.cs">
       <Link>Utilities\CodeAnnotations.cs</Link>

@@ -94,18 +94,23 @@ namespace Microsoft.Data.Entity.Relational.Update
         // 2. Commands deleting rows or modifying the foreign key values must precede
         //     commands deleting rows or modifying the candidate key values (when supported) of rows
         //     that are currently being referenced by the former
-        protected virtual IEnumerable<List<ModificationCommand>> TopologicalSort([NotNull] IEnumerable<ModificationCommand> commands)
+        protected virtual IReadOnlyList<List<ModificationCommand>> TopologicalSort([NotNull] IEnumerable<ModificationCommand> commands)
         {
             Check.NotNull(commands, "commands");
 
-            var modificationCommandGraph = new BidirectionalAdjacencyListGraph<ModificationCommand>();
+            var modificationCommandGraph = new Multigraph<ModificationCommand, IForeignKey>();
             modificationCommandGraph.AddVertices(commands);
 
             // The predecessors map allows to populate the graph in linear time
             var predecessorsMap = CreateKeyValuePredecessorMap(modificationCommandGraph);
             AddForeignKeyEdges(modificationCommandGraph, predecessorsMap);
 
-            return modificationCommandGraph.TopologicalSort();
+            var sortedCommands = modificationCommandGraph.BatchingTopologicalSort((data) =>
+            {
+                return string.Join(", ", data.Select(d => d.Item3.First()));
+            });
+
+            return sortedCommands;
         }
 
         // Builds a map from foreign key values to list of modification commands, with an entry for every command
@@ -185,7 +190,7 @@ namespace Microsoft.Data.Entity.Relational.Update
         }
 
         private void AddForeignKeyEdges(
-            BidirectionalAdjacencyListGraph<ModificationCommand> commandGraph,
+            Multigraph<ModificationCommand, IForeignKey> commandGraph,
             Dictionary<KeyValue, List<ModificationCommand>> predecessorsMap)
         {
             foreach (var command in commandGraph.Vertices)
@@ -208,7 +213,7 @@ namespace Microsoft.Data.Entity.Relational.Update
                                     {
                                         if (predecessor != command)
                                         {
-                                            commandGraph.AddEdge(predecessor, command);
+                                            commandGraph.AddEdge(predecessor, command, foreignKey);
                                         }
                                     }
                                 }
@@ -235,7 +240,7 @@ namespace Microsoft.Data.Entity.Relational.Update
                                     {
                                         if (predecessor != command)
                                         {
-                                            commandGraph.AddEdge(predecessor, command);
+                                            commandGraph.AddEdge(predecessor, command, foreignKey);
                                         }
                                     }
                                 }
