@@ -868,7 +868,7 @@ namespace System.Linq
 
         #region Include
 
-        public static readonly MethodInfo IncludeMethodInfo
+        internal static readonly MethodInfo IncludeMethodInfo
             = typeof(QueryableExtensions)
                 .GetTypeInfo().GetDeclaredMethods("Include")
                 .Single(mi => mi.GetParameters().Any(pi => pi.Name == "navigationPropertyPath"));
@@ -889,7 +889,7 @@ namespace System.Linq
                         new[] { source.Expression, Expression.Quote(navigationPropertyPath) })));
         }
 
-        public static readonly MethodInfo ThenIncludeMethodInfo
+        internal static readonly MethodInfo ThenIncludeMethodInfo
             = typeof(QueryableExtensions)
                 .GetTypeInfo().GetDeclaredMethods("ThenInclude")
                 .Single();
@@ -965,7 +965,7 @@ namespace System.Linq
 
         #region AsNoTracking
 
-        public static readonly MethodInfo AsNoTrackingMethodInfo
+        internal static readonly MethodInfo AsNoTrackingMethodInfo
             = typeof(QueryableExtensions)
                 .GetTypeInfo().GetDeclaredMethod("AsNoTracking");
 
