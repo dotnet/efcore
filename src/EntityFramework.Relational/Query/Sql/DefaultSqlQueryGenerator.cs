@@ -543,7 +543,16 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
         protected override Expression VisitParameterExpression(ParameterExpression parameterExpression)
         {
-            _sql.Append(ParameterPrefix + parameterExpression.Name);
+            if (parameterExpression.Type == typeof(bool)
+                && (_binaryExpression == null
+                    || _binaryExpression.IsLogicalOperation()))
+            {
+                _sql.Append(ParameterPrefix + parameterExpression.Name + " = 1");
+            }
+            else
+            {
+                _sql.Append(ParameterPrefix + parameterExpression.Name);
+            }
 
             _parameters.Add(parameterExpression.Name);
 

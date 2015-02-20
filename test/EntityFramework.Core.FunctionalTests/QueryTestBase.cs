@@ -258,6 +258,17 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void Where_simple_closure_constant()
+        {
+            // ReSharper disable once ConvertToConstant.Local
+            var predicate = true;
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => predicate),
+                entryCount: 91);
+        }
+
+        [Fact]
         public virtual void Where_simple_closure_via_query_cache()
         {
             var city = "London";
@@ -1945,15 +1956,13 @@ namespace Microsoft.Data.Entity.FunctionalTests
             AssertQuery<Order>(os => os.OrderBy(o => ClientEvalSelectorStateless()).Count(o => ClientEvalPredicate(o)));
         }
 
-        // error #1642
-        //[Fact]
+        [Fact]
         public virtual void OrderBy_Count_with_predicate_client_eval_mixed()
         {
             AssertQuery<Order>(os => os.OrderBy(o => o.OrderID).Count(o => ClientEvalPredicateStateless()));
         }
 
-        // error #1642
-        //[Fact]
+        [Fact]
         public virtual void OrderBy_Where_Count_with_predicate_client_eval()
         {
             AssertQuery<Order>(os => os.OrderBy(o => ClientEvalSelectorStateless()).Where(o => ClientEvalPredicateStateless()).Count(o => ClientEvalPredicate(o)));
