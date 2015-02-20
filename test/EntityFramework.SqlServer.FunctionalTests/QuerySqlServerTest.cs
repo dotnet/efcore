@@ -28,6 +28,17 @@ WHERE [c].[City] = @__city_0",
                 Sql);
         }
 
+        public override void Where_simple_closure_constant()
+        {
+            base.Where_simple_closure_constant();
+
+            Assert.Equal(
+                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE @__predicate_0 = 1",
+                Sql);
+        }
+
         public override void Where_simple_closure_via_query_cache_nullable_type_reverse()
         {
             base.Where_simple_closure_via_query_cache_nullable_type_reverse();
@@ -342,7 +353,9 @@ FROM [Orders] AS [o]",
             base.OrderBy_Count_with_predicate_client_eval_mixed();
 
             Assert.Equal(
-                @"TBD",
+                @"SELECT COUNT(*)
+FROM [Orders] AS [o]
+WHERE @__ClientEvalPredicateStateless_0 = 1",
                 Sql);
         }
 
@@ -351,7 +364,9 @@ FROM [Orders] AS [o]",
             base.OrderBy_Where_Count_with_predicate_client_eval();
 
             Assert.Equal(
-                @"TBD",
+                @"SELECT [o].[CustomerID], [o].[OrderDate], [o].[OrderID]
+FROM [Orders] AS [o]
+WHERE @__ClientEvalPredicateStateless_1 = 1",
                 Sql);
         }
 
