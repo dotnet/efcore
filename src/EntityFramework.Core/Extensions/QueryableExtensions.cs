@@ -23,14 +23,8 @@ namespace System.Linq
         private static readonly MethodInfo _any = GetMethod("Any");
 
         public static Task<bool> AnyAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source)
-        {
-            return AnyAsync(source, default(CancellationToken));
-        }
-
-        public static Task<bool> AnyAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
 
@@ -41,15 +35,8 @@ namespace System.Linq
 
         public static Task<bool> AnyAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
-            [NotNull] Expression<Func<TSource, bool>> predicate)
-        {
-            return AnyAsync(source, predicate, default(CancellationToken));
-        }
-
-        public static Task<bool> AnyAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, bool>> predicate,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
             Check.NotNull(predicate, "predicate");
@@ -61,15 +48,8 @@ namespace System.Linq
 
         public static Task<bool> AllAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
-            [NotNull] Expression<Func<TSource, bool>> predicate)
-        {
-            return AllAsync(source, predicate, default(CancellationToken));
-        }
-
-        public static Task<bool> AllAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, bool>> predicate,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
             Check.NotNull(predicate, "predicate");
@@ -84,14 +64,8 @@ namespace System.Linq
         private static readonly MethodInfo _count = GetMethod("Count");
 
         public static Task<int> CountAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source)
-        {
-            return CountAsync(source, default(CancellationToken));
-        }
-
-        public static Task<int> CountAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
 
@@ -102,15 +76,8 @@ namespace System.Linq
 
         public static Task<int> CountAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
-            [NotNull] Expression<Func<TSource, bool>> predicate)
-        {
-            return CountAsync(source, predicate, default(CancellationToken));
-        }
-
-        public static Task<int> CountAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, bool>> predicate,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
             Check.NotNull(predicate, "predicate");
@@ -121,14 +88,8 @@ namespace System.Linq
         private static readonly MethodInfo _longCount = GetMethod("LongCount");
 
         public static Task<long> LongCountAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source)
-        {
-            return LongCountAsync(source, default(CancellationToken));
-        }
-
-        public static Task<long> LongCountAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
 
@@ -139,15 +100,8 @@ namespace System.Linq
 
         public static Task<long> LongCountAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
-            [NotNull] Expression<Func<TSource, bool>> predicate)
-        {
-            return LongCountAsync(source, predicate, default(CancellationToken));
-        }
-
-        public static Task<long> LongCountAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, bool>> predicate,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
             Check.NotNull(predicate, "predicate");
@@ -162,14 +116,8 @@ namespace System.Linq
         private static readonly MethodInfo _first = GetMethod("First");
 
         public static Task<TSource> FirstAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source)
-        {
-            return FirstAsync(source, default(CancellationToken));
-        }
-
-        public static Task<TSource> FirstAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
 
@@ -180,15 +128,8 @@ namespace System.Linq
 
         public static Task<TSource> FirstAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
-            [NotNull] Expression<Func<TSource, bool>> predicate)
-        {
-            return FirstAsync(source, predicate, default(CancellationToken));
-        }
-
-        public static Task<TSource> FirstAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, bool>> predicate,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
             Check.NotNull(predicate, "predicate");
@@ -199,14 +140,8 @@ namespace System.Linq
         private static readonly MethodInfo _firstOrDefault = GetMethod("FirstOrDefault");
 
         public static Task<TSource> FirstOrDefaultAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source)
-        {
-            return FirstOrDefaultAsync(source, default(CancellationToken));
-        }
-
-        public static Task<TSource> FirstOrDefaultAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
 
@@ -217,15 +152,8 @@ namespace System.Linq
 
         public static Task<TSource> FirstOrDefaultAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
-            [NotNull] Expression<Func<TSource, bool>> predicate)
-        {
-            return FirstOrDefaultAsync(source, predicate, default(CancellationToken));
-        }
-
-        public static Task<TSource> FirstOrDefaultAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, bool>> predicate,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
             Check.NotNull(predicate, "predicate");
@@ -240,14 +168,8 @@ namespace System.Linq
         private static readonly MethodInfo _last = GetMethod("Last");
 
         public static Task<TSource> LastAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source)
-        {
-            return LastAsync(source, default(CancellationToken));
-        }
-
-        public static Task<TSource> LastAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
 
@@ -258,15 +180,8 @@ namespace System.Linq
 
         public static Task<TSource> LastAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
-            [NotNull] Expression<Func<TSource, bool>> predicate)
-        {
-            return LastAsync(source, predicate, default(CancellationToken));
-        }
-
-        public static Task<TSource> LastAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, bool>> predicate,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
             Check.NotNull(predicate, "predicate");
@@ -277,14 +192,8 @@ namespace System.Linq
         private static readonly MethodInfo _lastOrDefault = GetMethod("LastOrDefault");
 
         public static Task<TSource> LastOrDefaultAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source)
-        {
-            return LastOrDefaultAsync(source, default(CancellationToken));
-        }
-
-        public static Task<TSource> LastOrDefaultAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
 
@@ -295,15 +204,8 @@ namespace System.Linq
 
         public static Task<TSource> LastOrDefaultAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
-            [NotNull] Expression<Func<TSource, bool>> predicate)
-        {
-            return LastOrDefaultAsync(source, predicate, default(CancellationToken));
-        }
-
-        public static Task<TSource> LastOrDefaultAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, bool>> predicate,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
             Check.NotNull(predicate, "predicate");
@@ -318,14 +220,8 @@ namespace System.Linq
         private static readonly MethodInfo _single = GetMethod("Single");
 
         public static Task<TSource> SingleAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source)
-        {
-            return SingleAsync(source, default(CancellationToken));
-        }
-
-        public static Task<TSource> SingleAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
 
@@ -336,15 +232,8 @@ namespace System.Linq
 
         public static Task<TSource> SingleAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
-            [NotNull] Expression<Func<TSource, bool>> predicate)
-        {
-            return SingleAsync(source, predicate, default(CancellationToken));
-        }
-
-        public static Task<TSource> SingleAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, bool>> predicate,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
             Check.NotNull(predicate, "predicate");
@@ -355,14 +244,8 @@ namespace System.Linq
         private static readonly MethodInfo _singleOrDefault = GetMethod("SingleOrDefault");
 
         public static Task<TSource> SingleOrDefaultAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source)
-        {
-            return SingleOrDefaultAsync(source, default(CancellationToken));
-        }
-
-        public static Task<TSource> SingleOrDefaultAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
 
@@ -373,15 +256,8 @@ namespace System.Linq
 
         public static Task<TSource> SingleOrDefaultAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
-            [NotNull] Expression<Func<TSource, bool>> predicate)
-        {
-            return SingleOrDefaultAsync(source, predicate, default(CancellationToken));
-        }
-
-        public static Task<TSource> SingleOrDefaultAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, bool>> predicate,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
             Check.NotNull(predicate, "predicate");
@@ -396,14 +272,8 @@ namespace System.Linq
         private static readonly MethodInfo _min = GetMethod("Min", predicate: mi => mi.IsGenericMethod);
 
         public static Task<TSource> MinAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source)
-        {
-            return MinAsync(source, default(CancellationToken));
-        }
-
-        public static Task<TSource> MinAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
 
@@ -414,15 +284,8 @@ namespace System.Linq
 
         public static Task<TResult> MinAsync<TSource, TResult>(
             [NotNull] this IQueryable<TSource> source,
-            [NotNull] Expression<Func<TSource, TResult>> selector)
-        {
-            return MinAsync(source, selector, default(CancellationToken));
-        }
-
-        public static Task<TResult> MinAsync<TSource, TResult>(
-            [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, TResult>> selector,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
             Check.NotNull(selector, "selector");
@@ -437,14 +300,8 @@ namespace System.Linq
         private static readonly MethodInfo _max = GetMethod("Max", predicate: mi => mi.IsGenericMethod);
 
         public static Task<TSource> MaxAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source)
-        {
-            return MaxAsync(source, default(CancellationToken));
-        }
-
-        public static Task<TSource> MaxAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
 
@@ -455,15 +312,8 @@ namespace System.Linq
 
         public static Task<TResult> MaxAsync<TSource, TResult>(
             [NotNull] this IQueryable<TSource> source,
-            [NotNull] Expression<Func<TSource, TResult>> selector)
-        {
-            return MaxAsync(source, selector, default(CancellationToken));
-        }
-
-        public static Task<TResult> MaxAsync<TSource, TResult>(
-            [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, TResult>> selector,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
             Check.NotNull(selector, "selector");
@@ -478,14 +328,8 @@ namespace System.Linq
         private static readonly MethodInfo _sumDecimal = GetMethod<decimal>("Sum");
 
         public static Task<decimal> SumAsync(
-            [NotNull] this IQueryable<decimal> source)
-        {
-            return SumAsync(source, default(CancellationToken));
-        }
-
-        public static Task<decimal> SumAsync(
             [NotNull] this IQueryable<decimal> source,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
 
@@ -495,14 +339,8 @@ namespace System.Linq
         private static readonly MethodInfo _sumNullableDecimal = GetMethod<decimal?>("Sum");
 
         public static Task<decimal?> SumAsync(
-            [NotNull] this IQueryable<decimal?> source)
-        {
-            return SumAsync(source, default(CancellationToken));
-        }
-
-        public static Task<decimal?> SumAsync(
             [NotNull] this IQueryable<decimal?> source,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
 
@@ -513,15 +351,8 @@ namespace System.Linq
 
         public static Task<decimal> SumAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
-            [NotNull] Expression<Func<TSource, decimal>> selector)
-        {
-            return SumAsync(source, selector, default(CancellationToken));
-        }
-
-        public static Task<decimal> SumAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, decimal>> selector,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
             Check.NotNull(selector, "selector");
@@ -533,15 +364,8 @@ namespace System.Linq
 
         public static Task<decimal?> SumAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
-            [NotNull] Expression<Func<TSource, decimal?>> selector)
-        {
-            return SumAsync(source, selector, default(CancellationToken));
-        }
-
-        public static Task<decimal?> SumAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, decimal?>> selector,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
             Check.NotNull(selector, "selector");
@@ -552,14 +376,8 @@ namespace System.Linq
         private static readonly MethodInfo _sumInt = GetMethod<int>("Sum");
 
         public static Task<int> SumAsync(
-            [NotNull] this IQueryable<int> source)
-        {
-            return SumAsync(source, default(CancellationToken));
-        }
-
-        public static Task<int> SumAsync(
             [NotNull] this IQueryable<int> source,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
 
@@ -569,14 +387,8 @@ namespace System.Linq
         private static readonly MethodInfo _sumNullableInt = GetMethod<int?>("Sum");
 
         public static Task<int?> SumAsync(
-            [NotNull] this IQueryable<int?> source)
-        {
-            return SumAsync(source, default(CancellationToken));
-        }
-
-        public static Task<int?> SumAsync(
             [NotNull] this IQueryable<int?> source,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
 
@@ -587,15 +399,8 @@ namespace System.Linq
 
         public static Task<int> SumAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
-            [NotNull] Expression<Func<TSource, int>> selector)
-        {
-            return SumAsync(source, selector, default(CancellationToken));
-        }
-
-        public static Task<int> SumAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, int>> selector,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
             Check.NotNull(selector, "selector");
@@ -607,15 +412,8 @@ namespace System.Linq
 
         public static Task<int?> SumAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
-            [NotNull] Expression<Func<TSource, int?>> selector)
-        {
-            return SumAsync(source, selector, default(CancellationToken));
-        }
-
-        public static Task<int?> SumAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, int?>> selector,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
             Check.NotNull(selector, "selector");
@@ -626,14 +424,8 @@ namespace System.Linq
         private static readonly MethodInfo _sumLong = GetMethod<long>("Sum");
 
         public static Task<long> SumAsync(
-            [NotNull] this IQueryable<long> source)
-        {
-            return SumAsync(source, default(CancellationToken));
-        }
-
-        public static Task<long> SumAsync(
             [NotNull] this IQueryable<long> source,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
 
@@ -643,14 +435,8 @@ namespace System.Linq
         private static readonly MethodInfo _sumNullableLong = GetMethod<long?>("Sum");
 
         public static Task<long?> SumAsync(
-            [NotNull] this IQueryable<long?> source)
-        {
-            return SumAsync(source, default(CancellationToken));
-        }
-
-        public static Task<long?> SumAsync(
             [NotNull] this IQueryable<long?> source,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
 
@@ -661,15 +447,8 @@ namespace System.Linq
 
         public static Task<long> SumAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
-            [NotNull] Expression<Func<TSource, long>> selector)
-        {
-            return SumAsync(source, selector, default(CancellationToken));
-        }
-
-        public static Task<long> SumAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, long>> selector,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
             Check.NotNull(selector, "selector");
@@ -681,15 +460,8 @@ namespace System.Linq
 
         public static Task<long?> SumAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
-            [NotNull] Expression<Func<TSource, long?>> selector)
-        {
-            return SumAsync(source, selector, default(CancellationToken));
-        }
-
-        public static Task<long?> SumAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, long?>> selector,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
             Check.NotNull(selector, "selector");
@@ -700,14 +472,8 @@ namespace System.Linq
         private static readonly MethodInfo _sumDouble = GetMethod<double>("Sum");
 
         public static Task<double> SumAsync(
-            [NotNull] this IQueryable<double> source)
-        {
-            return SumAsync(source, default(CancellationToken));
-        }
-
-        public static Task<double> SumAsync(
             [NotNull] this IQueryable<double> source,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
 
@@ -717,14 +483,8 @@ namespace System.Linq
         private static readonly MethodInfo _sumNullableDouble = GetMethod<double?>("Sum");
 
         public static Task<double?> SumAsync(
-            [NotNull] this IQueryable<double?> source)
-        {
-            return SumAsync(source, default(CancellationToken));
-        }
-
-        public static Task<double?> SumAsync(
             [NotNull] this IQueryable<double?> source,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
 
@@ -735,15 +495,8 @@ namespace System.Linq
 
         public static Task<double> SumAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
-            [NotNull] Expression<Func<TSource, double>> selector)
-        {
-            return SumAsync(source, selector, default(CancellationToken));
-        }
-
-        public static Task<double> SumAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, double>> selector,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
             Check.NotNull(selector, "selector");
@@ -755,15 +508,8 @@ namespace System.Linq
 
         public static Task<double?> SumAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
-            [NotNull] Expression<Func<TSource, double?>> selector)
-        {
-            return SumAsync(source, selector, default(CancellationToken));
-        }
-
-        public static Task<double?> SumAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, double?>> selector,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
             Check.NotNull(selector, "selector");
@@ -774,14 +520,8 @@ namespace System.Linq
         private static readonly MethodInfo _sumFloat = GetMethod<float>("Sum");
 
         public static Task<float> SumAsync(
-            [NotNull] this IQueryable<float> source)
-        {
-            return SumAsync(source, default(CancellationToken));
-        }
-
-        public static Task<float> SumAsync(
             [NotNull] this IQueryable<float> source,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
 
@@ -791,14 +531,8 @@ namespace System.Linq
         private static readonly MethodInfo _sumNullableFloat = GetMethod<float?>("Sum");
 
         public static Task<float?> SumAsync(
-            [NotNull] this IQueryable<float?> source)
-        {
-            return SumAsync(source, default(CancellationToken));
-        }
-
-        public static Task<float?> SumAsync(
             [NotNull] this IQueryable<float?> source,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
 
@@ -809,15 +543,8 @@ namespace System.Linq
 
         public static Task<float> SumAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
-            [NotNull] Expression<Func<TSource, float>> selector)
-        {
-            return SumAsync(source, selector, default(CancellationToken));
-        }
-
-        public static Task<float> SumAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, float>> selector,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
             Check.NotNull(selector, "selector");
@@ -829,15 +556,8 @@ namespace System.Linq
 
         public static Task<float?> SumAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
-            [NotNull] Expression<Func<TSource, float?>> selector)
-        {
-            return SumAsync(source, selector, default(CancellationToken));
-        }
-
-        public static Task<float?> SumAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, float?>> selector,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
             Check.NotNull(selector, "selector");
@@ -865,14 +585,8 @@ namespace System.Linq
         private static readonly MethodInfo _averageDecimal = GetAverageMethod<decimal, decimal>();
 
         public static Task<decimal> AverageAsync(
-            [NotNull] this IQueryable<decimal> source)
-        {
-            return AverageAsync(source, default(CancellationToken));
-        }
-
-        public static Task<decimal> AverageAsync(
             [NotNull] this IQueryable<decimal> source,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
 
@@ -882,14 +596,8 @@ namespace System.Linq
         private static readonly MethodInfo _averageNullableDecimal = GetAverageMethod<decimal?, decimal?>();
 
         public static Task<decimal?> AverageAsync(
-            [NotNull] this IQueryable<decimal?> source)
-        {
-            return AverageAsync(source, default(CancellationToken));
-        }
-
-        public static Task<decimal?> AverageAsync(
             [NotNull] this IQueryable<decimal?> source,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
 
@@ -900,15 +608,8 @@ namespace System.Linq
 
         public static Task<decimal> AverageAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
-            [NotNull] Expression<Func<TSource, decimal>> selector)
-        {
-            return AverageAsync(source, selector, default(CancellationToken));
-        }
-
-        public static Task<decimal> AverageAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, decimal>> selector,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
             Check.NotNull(selector, "selector");
@@ -920,15 +621,8 @@ namespace System.Linq
 
         public static Task<decimal?> AverageAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
-            [NotNull] Expression<Func<TSource, decimal?>> selector)
-        {
-            return AverageAsync(source, selector, default(CancellationToken));
-        }
-
-        public static Task<decimal?> AverageAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, decimal?>> selector,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
             Check.NotNull(selector, "selector");
@@ -939,14 +633,8 @@ namespace System.Linq
         private static readonly MethodInfo _averageInt = GetAverageMethod<int, double>();
 
         public static Task<double> AverageAsync(
-            [NotNull] this IQueryable<int> source)
-        {
-            return AverageAsync(source, default(CancellationToken));
-        }
-
-        public static Task<double> AverageAsync(
             [NotNull] this IQueryable<int> source,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
 
@@ -956,14 +644,8 @@ namespace System.Linq
         private static readonly MethodInfo _averageNullableInt = GetAverageMethod<int?, double?>();
 
         public static Task<double?> AverageAsync(
-            [NotNull] this IQueryable<int?> source)
-        {
-            return AverageAsync(source, default(CancellationToken));
-        }
-
-        public static Task<double?> AverageAsync(
             [NotNull] this IQueryable<int?> source,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
 
@@ -974,15 +656,8 @@ namespace System.Linq
 
         public static Task<double> AverageAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
-            [NotNull] Expression<Func<TSource, int>> selector)
-        {
-            return AverageAsync(source, selector, default(CancellationToken));
-        }
-
-        public static Task<double> AverageAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, int>> selector,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
             Check.NotNull(selector, "selector");
@@ -994,15 +669,8 @@ namespace System.Linq
 
         public static Task<double?> AverageAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
-            [NotNull] Expression<Func<TSource, int?>> selector)
-        {
-            return AverageAsync(source, selector, default(CancellationToken));
-        }
-
-        public static Task<double?> AverageAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, int?>> selector,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
             Check.NotNull(selector, "selector");
@@ -1013,14 +681,8 @@ namespace System.Linq
         private static readonly MethodInfo _averageLong = GetAverageMethod<long, double>();
 
         public static Task<double> AverageAsync(
-            [NotNull] this IQueryable<long> source)
-        {
-            return AverageAsync(source, default(CancellationToken));
-        }
-
-        public static Task<double> AverageAsync(
             [NotNull] this IQueryable<long> source,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
 
@@ -1030,14 +692,8 @@ namespace System.Linq
         private static readonly MethodInfo _averageNullableLong = GetAverageMethod<long?, double?>();
 
         public static Task<double?> AverageAsync(
-            [NotNull] this IQueryable<long?> source)
-        {
-            return AverageAsync(source, default(CancellationToken));
-        }
-
-        public static Task<double?> AverageAsync(
             [NotNull] this IQueryable<long?> source,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
 
@@ -1048,15 +704,8 @@ namespace System.Linq
 
         public static Task<double> AverageAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
-            [NotNull] Expression<Func<TSource, long>> selector)
-        {
-            return AverageAsync(source, selector, default(CancellationToken));
-        }
-
-        public static Task<double> AverageAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, long>> selector,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
             Check.NotNull(selector, "selector");
@@ -1068,15 +717,8 @@ namespace System.Linq
 
         public static Task<double?> AverageAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
-            [NotNull] Expression<Func<TSource, long?>> selector)
-        {
-            return AverageAsync(source, selector, default(CancellationToken));
-        }
-
-        public static Task<double?> AverageAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, long?>> selector,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
             Check.NotNull(selector, "selector");
@@ -1087,14 +729,8 @@ namespace System.Linq
         private static readonly MethodInfo _averageDouble = GetAverageMethod<double, double>();
 
         public static Task<double> AverageAsync(
-            [NotNull] this IQueryable<double> source)
-        {
-            return AverageAsync(source, default(CancellationToken));
-        }
-
-        public static Task<double> AverageAsync(
             [NotNull] this IQueryable<double> source,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
 
@@ -1104,14 +740,8 @@ namespace System.Linq
         private static readonly MethodInfo _averageNullableDouble = GetAverageMethod<double?, double?>();
 
         public static Task<double?> AverageAsync(
-            [NotNull] this IQueryable<double?> source)
-        {
-            return AverageAsync(source, default(CancellationToken));
-        }
-
-        public static Task<double?> AverageAsync(
             [NotNull] this IQueryable<double?> source,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
 
@@ -1122,15 +752,8 @@ namespace System.Linq
 
         public static Task<double> AverageAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
-            [NotNull] Expression<Func<TSource, double>> selector)
-        {
-            return AverageAsync(source, selector, default(CancellationToken));
-        }
-
-        public static Task<double> AverageAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, double>> selector,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
             Check.NotNull(selector, "selector");
@@ -1142,15 +765,8 @@ namespace System.Linq
 
         public static Task<double?> AverageAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
-            [NotNull] Expression<Func<TSource, double?>> selector)
-        {
-            return AverageAsync(source, selector, default(CancellationToken));
-        }
-
-        public static Task<double?> AverageAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, double?>> selector,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
             Check.NotNull(selector, "selector");
@@ -1161,14 +777,8 @@ namespace System.Linq
         private static readonly MethodInfo _averageFloat = GetAverageMethod<float, float>();
 
         public static Task<float> AverageAsync(
-            [NotNull] this IQueryable<float> source)
-        {
-            return AverageAsync(source, default(CancellationToken));
-        }
-
-        public static Task<float> AverageAsync(
             [NotNull] this IQueryable<float> source,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
 
@@ -1178,14 +788,8 @@ namespace System.Linq
         private static readonly MethodInfo _averageNullableFloat = GetAverageMethod<float?, float?>();
 
         public static Task<float?> AverageAsync(
-            [NotNull] this IQueryable<float?> source)
-        {
-            return AverageAsync(source, default(CancellationToken));
-        }
-
-        public static Task<float?> AverageAsync(
             [NotNull] this IQueryable<float?> source,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
 
@@ -1196,15 +800,8 @@ namespace System.Linq
 
         public static Task<float> AverageAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
-            [NotNull] Expression<Func<TSource, float>> selector)
-        {
-            return AverageAsync(source, selector, default(CancellationToken));
-        }
-
-        public static Task<float> AverageAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, float>> selector,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
             Check.NotNull(selector, "selector");
@@ -1216,15 +813,8 @@ namespace System.Linq
 
         public static Task<float?> AverageAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
-            [NotNull] Expression<Func<TSource, float?>> selector)
-        {
-            return AverageAsync(source, selector, default(CancellationToken));
-        }
-
-        public static Task<float?> AverageAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, float?>> selector,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
             Check.NotNull(selector, "selector");
@@ -1240,15 +830,8 @@ namespace System.Linq
 
         public static Task<bool> ContainsAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
-            [NotNull] TSource item)
-        {
-            return ContainsAsync(source, item, default(CancellationToken));
-        }
-
-        public static Task<bool> ContainsAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
             [NotNull] TSource item,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
 
@@ -1264,14 +847,8 @@ namespace System.Linq
         #region ToList/Array
 
         public static Task<List<TSource>> ToListAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source)
-        {
-            return ToListAsync(source, default(CancellationToken));
-        }
-
-        public static Task<List<TSource>> ToListAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
 
@@ -1279,14 +856,8 @@ namespace System.Linq
         }
 
         public static Task<TSource[]> ToArrayAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source)
-        {
-            return ToArrayAsync(source, default(CancellationToken));
-        }
-
-        public static Task<TSource[]> ToArrayAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
 
@@ -1424,15 +995,8 @@ namespace System.Linq
             }
         }
 
-        public static Task LoadAsync<TSource>([NotNull] this IQueryable<TSource> source)
-        {
-            Check.NotNull(source, "source");
-
-            return source.LoadAsync(default(CancellationToken));
-        }
-
         public static async Task LoadAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source, CancellationToken cancellationToken)
+            [NotNull] this IQueryable<TSource> source, CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
 
@@ -1452,18 +1016,8 @@ namespace System.Linq
 
         public static Task<Dictionary<TKey, TSource>> ToDictionaryAsync<TSource, TKey>(
             [NotNull] this IQueryable<TSource> source,
-            [NotNull] Func<TSource, TKey> keySelector)
-        {
-            Check.NotNull(source, "source");
-            Check.NotNull(keySelector, "keySelector");
-
-            return source.AsAsyncEnumerable().ToDictionary(keySelector);
-        }
-
-        public static Task<Dictionary<TKey, TSource>> ToDictionaryAsync<TSource, TKey>(
-            [NotNull] this IQueryable<TSource> source,
             [NotNull] Func<TSource, TKey> keySelector,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
             Check.NotNull(keySelector, "keySelector");
@@ -1474,20 +1028,8 @@ namespace System.Linq
         public static Task<Dictionary<TKey, TSource>> ToDictionaryAsync<TSource, TKey>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Func<TSource, TKey> keySelector,
-            [NotNull] IEqualityComparer<TKey> comparer)
-        {
-            Check.NotNull(source, "source");
-            Check.NotNull(keySelector, "keySelector");
-            Check.NotNull(comparer, "comparer");
-
-            return source.AsAsyncEnumerable().ToDictionary(keySelector, comparer);
-        }
-
-        public static Task<Dictionary<TKey, TSource>> ToDictionaryAsync<TSource, TKey>(
-            [NotNull] this IQueryable<TSource> source,
-            [NotNull] Func<TSource, TKey> keySelector,
             [NotNull] IEqualityComparer<TKey> comparer,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
             Check.NotNull(keySelector, "keySelector");
@@ -1499,20 +1041,8 @@ namespace System.Linq
         public static Task<Dictionary<TKey, TElement>> ToDictionaryAsync<TSource, TKey, TElement>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Func<TSource, TKey> keySelector,
-            [NotNull] Func<TSource, TElement> elementSelector)
-        {
-            Check.NotNull(source, "source");
-            Check.NotNull(keySelector, "keySelector");
-            Check.NotNull(elementSelector, "elementSelector");
-
-            return source.AsAsyncEnumerable().ToDictionary(keySelector, elementSelector);
-        }
-
-        public static Task<Dictionary<TKey, TElement>> ToDictionaryAsync<TSource, TKey, TElement>(
-            [NotNull] this IQueryable<TSource> source,
-            [NotNull] Func<TSource, TKey> keySelector,
             [NotNull] Func<TSource, TElement> elementSelector,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
             Check.NotNull(keySelector, "keySelector");
@@ -1525,22 +1055,8 @@ namespace System.Linq
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Func<TSource, TKey> keySelector,
             [NotNull] Func<TSource, TElement> elementSelector,
-            [NotNull] IEqualityComparer<TKey> comparer)
-        {
-            Check.NotNull(source, "source");
-            Check.NotNull(keySelector, "keySelector");
-            Check.NotNull(elementSelector, "elementSelector");
-            Check.NotNull(elementSelector, "comparer");
-
-            return source.AsAsyncEnumerable().ToDictionary(keySelector, elementSelector, comparer);
-        }
-
-        public static Task<Dictionary<TKey, TElement>> ToDictionaryAsync<TSource, TKey, TElement>(
-            [NotNull] this IQueryable<TSource> source,
-            [NotNull] Func<TSource, TKey> keySelector,
-            [NotNull] Func<TSource, TElement> elementSelector,
             [NotNull] IEqualityComparer<TKey> comparer,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
             Check.NotNull(keySelector, "keySelector");
@@ -1554,18 +1070,10 @@ namespace System.Linq
 
         #region ForEach
 
-        public static Task ForEachAsync<T>([NotNull] this IQueryable<T> source, [NotNull] Action<T> action)
-        {
-            Check.NotNull(source, "source");
-            Check.NotNull(action, "action");
-
-            return source.AsAsyncEnumerable().ForEachAsync(action, CancellationToken.None);
-        }
-
         public static Task ForEachAsync<T>(
             [NotNull] this IQueryable<T> source,
             [NotNull] Action<T> action,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(source, "source");
             Check.NotNull(action, "action");
@@ -1580,7 +1088,7 @@ namespace System.Linq
         private static Task<TResult> ExecuteAsync<TSource, TResult>(
             MethodInfo operatorMethodInfo,
             IQueryable<TSource> source,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             var provider = source.Provider as IAsyncQueryProvider;
 
@@ -1603,7 +1111,7 @@ namespace System.Linq
             MethodInfo operatorMethodInfo,
             IQueryable<TSource> source,
             LambdaExpression expression,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             return ExecuteAsync<TSource, TResult>(
                 operatorMethodInfo, source, Expression.Quote(expression), cancellationToken);
@@ -1613,7 +1121,7 @@ namespace System.Linq
             MethodInfo operatorMethodInfo,
             IQueryable<TSource> source,
             Expression expression,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             var provider = source.Provider as IAsyncQueryProvider;
 
