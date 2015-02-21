@@ -32,6 +32,12 @@ namespace Microsoft.Data.Entity.Relational.FunctionalTests
         {
         }
 
+        public LogLevel MinimumLevel
+        {
+            get { return LogLevel.Debug; }
+            set { }
+        }
+
         private static SqlLogger Init()
         {
             var logger = new SqlLogger();

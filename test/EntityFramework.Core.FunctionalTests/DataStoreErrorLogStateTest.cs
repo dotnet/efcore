@@ -191,6 +191,12 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
             }
 
+            public LogLevel MinimumLevel
+            {
+                get { return LogLevel.Debug; }
+                set { }
+            }
+
             public ILogger Create(string name)
             {
                 return Logger;

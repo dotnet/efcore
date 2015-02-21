@@ -1875,6 +1875,12 @@ namespace Microsoft.Data.Entity.Tests
             public void AddProvider(ILoggerProvider provider)
             {
             }
+
+            public LogLevel MinimumLevel
+            {
+                get { return LogLevel.Debug; }
+                set { }
+            }
         }
 
         private class FakeModelSource : ModelSource
