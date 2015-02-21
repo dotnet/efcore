@@ -22,6 +22,12 @@ namespace Microsoft.Data.Entity.FunctionalTests
             public void AddProvider(ILoggerProvider provider)
             {
             }
+
+            public LogLevel MinimumLevel
+            {
+                get { return LogLevel.Debug; }
+                set { }
+            }
         }
 
         public static readonly ILogger Instance = new TestFileLogger();
