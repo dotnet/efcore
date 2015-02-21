@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         public Index([NotNull] IReadOnlyList<Property> properties)
         {
-            Check.NotEmpty(properties, "properties");
+            Check.NotEmpty(properties, nameof(properties));
             Check.HasNoNulls(properties, "properties");
             MetadataHelper.CheckSameEntityType(properties, "properties");
 

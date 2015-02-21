@@ -33,9 +33,9 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             [CanBeNull] Func<TValue, TValue> onNewKeyAdded,
             ConfigurationSource configurationSource)
         {
-            Check.NotNull(getKey, "getKey");
-            Check.NotNull(createKey, "createKey");
-            Check.NotNull(createValue, "createValue");
+            Check.NotNull(getKey, nameof(getKey));
+            Check.NotNull(createKey, nameof(createKey));
+            Check.NotNull(createValue, nameof(createValue));
 
             var isNewKey = false;
             TValue value;
@@ -110,15 +110,15 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual void Add([NotNull] TKey key, [NotNull] TValue value, ConfigurationSource configurationSource)
         {
-            Check.NotNull(key, "key");
-            Check.NotNull(value, "value");
+            Check.NotNull(key, nameof(key));
+            Check.NotNull(value, nameof(value));
 
             _values.Add(key, new Tuple<TValue, ConfigurationSource>(value, configurationSource));
         }
 
         public virtual ConfigurationSource? Remove([NotNull] TKey key, ConfigurationSource configurationSource, bool canOverrideSameSource = true)
         {
-            Check.NotNull(key, "key");
+            Check.NotNull(key, nameof(key));
 
             Tuple<TValue, ConfigurationSource> tuple;
             if (_values.TryGetValue(key, out tuple))

@@ -32,9 +32,9 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             [NotNull] RelationalQueryCompilationContext queryCompilationContext,
             bool querySourceRequiresTracking)
         {
-            Check.NotNull(querySource, "querySource");
-            Check.NotNull(navigationPath, "navigationPath");
-            Check.NotNull(queryCompilationContext, "queryCompilationContext");
+            Check.NotNull(querySource, nameof(querySource));
+            Check.NotNull(navigationPath, nameof(navigationPath));
+            Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
 
             _querySource = querySource;
             _navigationPath = navigationPath;
@@ -44,7 +44,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
         protected override Expression VisitMethodCallExpression([NotNull] MethodCallExpression expression)
         {
-            Check.NotNull(expression, "expression");
+            Check.NotNull(expression, nameof(expression));
 
             if (expression.Method.MethodIsClosedFormOf(RelationalQueryModelVisitor.CreateEntityMethodInfo)
                 && ((ConstantExpression)expression.Arguments[0]).Value == _querySource)

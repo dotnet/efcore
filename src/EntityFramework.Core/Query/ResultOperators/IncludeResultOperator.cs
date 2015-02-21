@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.Query.ResultOperators
 
         public IncludeResultOperator([NotNull] Expression navigationPropertyPath)
         {
-            Check.NotNull(navigationPropertyPath, "navigationPropertyPath");
+            Check.NotNull(navigationPropertyPath, nameof(navigationPropertyPath));
 
             _navigationPropertyPath = navigationPropertyPath;
         }
@@ -44,7 +44,7 @@ namespace Microsoft.Data.Entity.Query.ResultOperators
 
         public override ResultOperatorBase Clone([NotNull] CloneContext cloneContext)
         {
-            Check.NotNull(cloneContext, "cloneContext");
+            Check.NotNull(cloneContext, nameof(cloneContext));
 
             var includeResultOperator = new IncludeResultOperator(_navigationPropertyPath);
 
@@ -58,21 +58,21 @@ namespace Microsoft.Data.Entity.Query.ResultOperators
 
         public override void TransformExpressions([NotNull] Func<Expression, Expression> transformation)
         {
-            Check.NotNull(transformation, "transformation");
+            Check.NotNull(transformation, nameof(transformation));
 
             _navigationPropertyPath = transformation(_navigationPropertyPath);
         }
 
         public override StreamedSequence ExecuteInMemory<T>([NotNull] StreamedSequence input)
         {
-            Check.NotNull(input, "input");
+            Check.NotNull(input, nameof(input));
 
             return input;
         }
 
         public virtual void AppendToNavigationPath([NotNull] IReadOnlyList<PropertyInfo> propertyInfos)
         {
-            Check.NotNull(propertyInfos, "propertyInfos");
+            Check.NotNull(propertyInfos, nameof(propertyInfos));
 
             (_chainedNavigationProperties
              ?? (_chainedNavigationProperties = new List<PropertyInfo>()))

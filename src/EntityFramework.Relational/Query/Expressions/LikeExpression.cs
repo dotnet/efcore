@@ -18,8 +18,8 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
         public LikeExpression([NotNull] Expression match, [NotNull] Expression pattern)
             : base(typeof(bool))
         {
-            Check.NotNull(match, "match");
-            Check.NotNull(pattern, "pattern");
+            Check.NotNull(match, nameof(match));
+            Check.NotNull(pattern, nameof(pattern));
 
             _match = match;
             _pattern = pattern;
@@ -37,7 +37,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         public override Expression Accept([NotNull] ExpressionTreeVisitor visitor)
         {
-            Check.NotNull(visitor, "visitor");
+            Check.NotNull(visitor, nameof(visitor));
 
             var specificVisitor = visitor as ISqlExpressionVisitor;
 

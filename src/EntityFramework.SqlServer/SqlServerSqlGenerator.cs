@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.SqlServer
             StringBuilder commandStringBuilder,
             ModificationCommand command)
         {
-            Check.NotNull(command, "command");
+            Check.NotNull(command, nameof(command));
 
             AppendBulkInsertOperation(commandStringBuilder, new[] { command });
         }
@@ -26,8 +26,8 @@ namespace Microsoft.Data.Entity.SqlServer
             [NotNull] StringBuilder commandStringBuilder,
             [NotNull] IReadOnlyList<ModificationCommand> modificationCommands)
         {
-            Check.NotNull(commandStringBuilder, "commandStringBuilder");
-            Check.NotEmpty(modificationCommands, "modificationCommands");
+            Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
+            Check.NotEmpty(modificationCommands, nameof(modificationCommands));
 
             var tableName = modificationCommands[0].TableName;
             var schemaName = modificationCommands[0].SchemaName;
@@ -76,8 +76,8 @@ namespace Microsoft.Data.Entity.SqlServer
             StringBuilder commandStringBuilder,
             ModificationCommand command)
         {
-            Check.NotNull(commandStringBuilder, "commandStringBuilder");
-            Check.NotNull(command, "command");
+            Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
+            Check.NotNull(command, nameof(command));
 
             var tableName = command.TableName;
             var schemaName = command.SchemaName;
@@ -114,8 +114,8 @@ namespace Microsoft.Data.Entity.SqlServer
 
         public override void AppendSelectAffectedCountCommand(StringBuilder commandStringBuilder, string tableName, string schemaName)
         {
-            Check.NotNull(commandStringBuilder, "commandStringBuilder");
-            Check.NotEmpty(tableName, "tableName");
+            Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
+            Check.NotEmpty(tableName, nameof(tableName));
 
             commandStringBuilder
                 .Append("SELECT @@ROWCOUNT")
@@ -124,7 +124,7 @@ namespace Microsoft.Data.Entity.SqlServer
 
         public override void AppendBatchHeader(StringBuilder commandStringBuilder)
         {
-            Check.NotNull(commandStringBuilder, "commandStringBuilder");
+            Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
 
             commandStringBuilder
                 .Append("SET NOCOUNT OFF")
@@ -141,7 +141,7 @@ namespace Microsoft.Data.Entity.SqlServer
 
         protected override void AppendRowsAffectedWhereCondition(StringBuilder commandStringBuilder, int expectedRowsAffected)
         {
-            Check.NotNull(commandStringBuilder, "commandStringBuilder");
+            Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
 
             commandStringBuilder
                 .Append("@@ROWCOUNT = " + expectedRowsAffected);
@@ -149,14 +149,14 @@ namespace Microsoft.Data.Entity.SqlServer
 
         public override string DelimitIdentifier(string identifier)
         {
-            Check.NotEmpty(identifier, "identifier");
+            Check.NotEmpty(identifier, nameof(identifier));
 
             return "[" + EscapeIdentifier(identifier) + "]";
         }
 
         public override string EscapeIdentifier(string identifier)
         {
-            Check.NotEmpty(identifier, "identifier");
+            Check.NotEmpty(identifier, nameof(identifier));
 
             return identifier.Replace("]", "]]");
         }

@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata
 
         public ReadOnlyRelationalEntityTypeExtensions([NotNull] IEntityType entityType)
         {
-            Check.NotNull(entityType, "entityType");
+            Check.NotNull(entityType, nameof(entityType));
 
             _entityType = entityType;
         }

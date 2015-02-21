@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual TAccessor GetAccessor([NotNull] IPropertyBase property)
         {
-            Check.NotNull(property, "property");
+            Check.NotNull(property, nameof(property));
 
             var clrPropertySetter = property as TAccessor;
 
@@ -34,8 +34,8 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual TAccessor GetAccessor([NotNull] Type declaringType, [NotNull] string propertyName)
         {
-            Check.NotNull(declaringType, "declaringType");
-            Check.NotEmpty(propertyName, "propertyName");
+            Check.NotNull(declaringType, nameof(declaringType));
+            Check.NotEmpty(propertyName, nameof(propertyName));
 
             return _cache.GetOrAdd(Tuple.Create(declaringType, propertyName), k => Create(k.Item1.GetAnyProperty(k.Item2)));
         }

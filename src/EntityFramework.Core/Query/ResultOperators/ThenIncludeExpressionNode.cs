@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.Query.ResultOperators
             [NotNull] LambdaExpression navigationPropertyPathLambda)
             : base(parseInfo, null, null)
         {
-            Check.NotNull(navigationPropertyPathLambda, "navigationPropertyPathLambda");
+            Check.NotNull(navigationPropertyPathLambda, nameof(navigationPropertyPathLambda));
 
             _navigationPropertyPathLambda = navigationPropertyPathLambda;
         }

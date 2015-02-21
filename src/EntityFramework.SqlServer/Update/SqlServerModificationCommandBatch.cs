@@ -158,7 +158,7 @@ namespace Microsoft.Data.Entity.SqlServer.Update
 
         public override IRelationalPropertyExtensions GetPropertyExtensions(IProperty property)
         {
-            Check.NotNull(property, "property");
+            Check.NotNull(property, nameof(property));
 
             return property.SqlServer();
         }

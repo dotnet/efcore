@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.SqlServer
 
         public SqlServerSimpleCommandExecutor([NotNull] string connectionString, int commandTimeout)
         {
-            Check.NotEmpty(connectionString, "connectionString");
+            Check.NotEmpty(connectionString, nameof(connectionString));
 
             _connectionString = connectionString;
             _commandTimeout = commandTimeout;
@@ -32,8 +32,8 @@ namespace Microsoft.Data.Entity.SqlServer
 
         public virtual async Task<T> ExecuteScalarAsync<T>(string commandText, CancellationToken cancellationToken, params object[] parameters)
         {
-            Check.NotEmpty(commandText, "commandText");
-            Check.NotNull(parameters, "parameters");
+            Check.NotEmpty(commandText, nameof(commandText));
+            Check.NotNull(parameters, nameof(parameters));
 
             using (var connection = new SqlConnection(_connectionString))
             {

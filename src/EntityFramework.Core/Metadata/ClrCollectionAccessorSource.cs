@@ -35,14 +35,14 @@ namespace Microsoft.Data.Entity.Metadata
 
         public ClrCollectionAccessorSource([NotNull] CollectionTypeFactory collectionTypeFactory)
         {
-            Check.NotNull(collectionTypeFactory, "collectionTypeFactory");
+            Check.NotNull(collectionTypeFactory, nameof(collectionTypeFactory));
 
             _collectionTypeFactory = collectionTypeFactory;
         }
 
         public virtual IClrCollectionAccessor GetAccessor([NotNull] INavigation navigation)
         {
-            Check.NotNull(navigation, "navigation");
+            Check.NotNull(navigation, nameof(navigation));
 
             var accessor = navigation as IClrCollectionAccessor;
 

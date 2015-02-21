@@ -36,10 +36,10 @@ namespace Microsoft.Data.Entity.SqlServer
             [NotNull] SqlServerMigrationSqlGenerator sqlGenerator,
             [NotNull] SqlStatementExecutor statementExecutor)
         {
-            Check.NotNull(connection, "connection");
-            Check.NotNull(modelDiffer, "modelDiffer");
+            Check.NotNull(connection, nameof(connection));
+            Check.NotNull(modelDiffer, nameof(modelDiffer));
             Check.NotNull(sqlGenerator, nameof(sqlGenerator));
-            Check.NotNull(statementExecutor, "statementExecutor");
+            Check.NotNull(statementExecutor, nameof(statementExecutor));
 
             _connection = connection;
             _modelDiffer = modelDiffer;
@@ -73,14 +73,14 @@ namespace Microsoft.Data.Entity.SqlServer
 
         public override void CreateTables(IModel model)
         {
-            Check.NotNull(model, "model");
+            Check.NotNull(model, nameof(model));
 
             _statementExecutor.ExecuteNonQuery(_connection, _connection.DbTransaction, CreateSchemaCommands(model));
         }
 
         public override async Task CreateTablesAsync(IModel model, CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(model, "model");
+            Check.NotNull(model, nameof(model));
 
             await _statementExecutor
                 .ExecuteNonQueryAsync(_connection, _connection.DbTransaction, CreateSchemaCommands(model), cancellationToken)

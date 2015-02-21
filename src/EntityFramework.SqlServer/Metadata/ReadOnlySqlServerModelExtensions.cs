@@ -62,7 +62,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
 
         public override Sequence TryGetSequence(string name, string schema = null)
         {
-            Check.NotEmpty(name, "name");
+            Check.NotEmpty(name, nameof(name));
             Check.NullButNotEmpty(schema, "schema");
 
             return FindSequence(SqlServerSequenceAnnotation + schema + "." + name)

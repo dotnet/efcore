@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.Relational.Query
         public AsyncIncludeCollectionIterator(
             [NotNull] IAsyncEnumerator<IValueReader> relatedValuesEnumerator)
         {
-            Check.NotNull(relatedValuesEnumerator, "relatedValuesEnumerator");
+            Check.NotNull(relatedValuesEnumerator, nameof(relatedValuesEnumerator));
 
             _relatedValuesEnumerator = relatedValuesEnumerator;
         }
@@ -31,8 +31,8 @@ namespace Microsoft.Data.Entity.Relational.Query
             [NotNull] EntityKey primaryKey,
             [NotNull] Func<IValueReader, EntityKey> relatedKeyFactory)
         {
-            Check.NotNull(primaryKey, "primaryKey");
-            Check.NotNull(relatedKeyFactory, "relatedKeyFactory");
+            Check.NotNull(primaryKey, nameof(primaryKey));
+            Check.NotNull(relatedKeyFactory, nameof(relatedKeyFactory));
 
             return new RelatedValuesEnumerable(this, primaryKey, relatedKeyFactory);
         }

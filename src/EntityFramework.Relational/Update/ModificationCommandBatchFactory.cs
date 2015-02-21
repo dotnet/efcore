@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.Relational.Update
         protected ModificationCommandBatchFactory(
             [NotNull] SqlGenerator sqlGenerator)
         {
-            Check.NotNull(sqlGenerator, "sqlGenerator");
+            Check.NotNull(sqlGenerator, nameof(sqlGenerator));
 
             SqlGenerator = sqlGenerator;
         }
@@ -35,8 +35,8 @@ namespace Microsoft.Data.Entity.Relational.Update
             [NotNull] ModificationCommandBatch modificationCommandBatch,
             [NotNull] ModificationCommand modificationCommand)
         {
-            Check.NotNull(modificationCommandBatch, "modificationCommandBatch");
-            Check.NotNull(modificationCommand, "modificationCommand");
+            Check.NotNull(modificationCommandBatch, nameof(modificationCommandBatch));
+            Check.NotNull(modificationCommand, nameof(modificationCommand));
 
             return modificationCommandBatch.AddCommand(modificationCommand);
         }

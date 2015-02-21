@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.Relational
 
         public SqlStatementExecutor([NotNull] ILoggerFactory loggerFactory)
         {
-            Check.NotNull(loggerFactory, "loggerFactory");
+            Check.NotNull(loggerFactory, nameof(loggerFactory));
 
             _logger = new LazyRef<ILogger>(loggerFactory.Create<SqlStatementExecutor>);
         }
@@ -35,8 +35,8 @@ namespace Microsoft.Data.Entity.Relational
             [NotNull] IEnumerable<SqlBatch> sqlBatches,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(connection, "connection");
-            Check.NotNull(sqlBatches, "sqlBatches");
+            Check.NotNull(connection, nameof(connection));
+            Check.NotNull(sqlBatches, nameof(sqlBatches));
 
             return ExecuteAsync(
                 connection,
@@ -60,8 +60,8 @@ namespace Microsoft.Data.Entity.Relational
             [NotNull] string sql,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(connection, "connection");
-            Check.NotNull(sql, "sql");
+            Check.NotNull(connection, nameof(connection));
+            Check.NotNull(sql, nameof(sql));
 
             return ExecuteAsync(
                 connection,
@@ -79,7 +79,7 @@ namespace Microsoft.Data.Entity.Relational
             [NotNull] Func<Task<object>> action,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(connection, "connection");
+            Check.NotNull(connection, nameof(connection));
 
             // TODO Deal with suppressing transactions etc.
 
@@ -111,8 +111,8 @@ namespace Microsoft.Data.Entity.Relational
             [CanBeNull] DbTransaction transaction,
             [NotNull] IEnumerable<SqlBatch> sqlBatches)
         {
-            Check.NotNull(connection, "connection");
-            Check.NotNull(sqlBatches, "sqlBatches");
+            Check.NotNull(connection, nameof(connection));
+            Check.NotNull(sqlBatches, nameof(sqlBatches));
 
             Execute(
                 connection,
@@ -133,8 +133,8 @@ namespace Microsoft.Data.Entity.Relational
             [CanBeNull] DbTransaction transaction,
             [NotNull] string sql)
         {
-            Check.NotNull(connection, "connection");
-            Check.NotNull(sql, "sql");
+            Check.NotNull(connection, nameof(connection));
+            Check.NotNull(sql, nameof(sql));
 
             return Execute(
                 connection,
@@ -150,7 +150,7 @@ namespace Microsoft.Data.Entity.Relational
             [NotNull] RelationalConnection connection,
             [NotNull] Func<object> action)
         {
-            Check.NotNull(connection, "connection");
+            Check.NotNull(connection, nameof(connection));
 
             // TODO Deal with suppressing transactions etc.
 

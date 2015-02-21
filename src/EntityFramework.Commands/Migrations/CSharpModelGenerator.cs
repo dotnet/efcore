@@ -31,8 +31,8 @@ namespace Microsoft.Data.Entity.Commands.Migrations
 
         public virtual void Generate([NotNull] IModel model, [NotNull] IndentedStringBuilder stringBuilder)
         {
-            Check.NotNull(model, "model");
-            Check.NotNull(stringBuilder, "stringBuilder");
+            Check.NotNull(model, nameof(model));
+            Check.NotNull(stringBuilder, nameof(stringBuilder));
 
             stringBuilder.Append("var builder = new BasicModelBuilder()");
 
@@ -61,8 +61,8 @@ namespace Microsoft.Data.Entity.Commands.Migrations
         protected virtual void GenerateEntityTypes(
             IReadOnlyList<IEntityType> entityTypes, IndentedStringBuilder stringBuilder)
         {
-            Check.NotNull(entityTypes, "entityTypes");
-            Check.NotNull(stringBuilder, "stringBuilder");
+            Check.NotNull(entityTypes, nameof(entityTypes));
+            Check.NotNull(stringBuilder, nameof(stringBuilder));
 
             foreach (var entityType in entityTypes)
             {
@@ -82,8 +82,8 @@ namespace Microsoft.Data.Entity.Commands.Migrations
         protected virtual void GenerateEntityType(
             [NotNull] IEntityType entityType, [NotNull] IndentedStringBuilder stringBuilder, GenerateEntityTypeOptions options)
         {
-            Check.NotNull(entityType, "entityType");
-            Check.NotNull(stringBuilder, "stringBuilder");
+            Check.NotNull(entityType, nameof(entityType));
+            Check.NotNull(stringBuilder, nameof(stringBuilder));
 
             stringBuilder
                 .Append("builder.Entity(")
@@ -123,8 +123,8 @@ namespace Microsoft.Data.Entity.Commands.Migrations
         protected virtual void GenerateProperties(
             [NotNull] IEnumerable<IProperty> properties, [NotNull] IndentedStringBuilder stringBuilder)
         {
-            Check.NotNull(properties, "properties");
-            Check.NotNull(stringBuilder, "stringBuilder");
+            Check.NotNull(properties, nameof(properties));
+            Check.NotNull(stringBuilder, nameof(stringBuilder));
 
             foreach (var property in properties)
             {
@@ -135,8 +135,8 @@ namespace Microsoft.Data.Entity.Commands.Migrations
         protected virtual void GenerateProperty(
             [NotNull] IProperty property, [NotNull] IndentedStringBuilder stringBuilder)
         {
-            Check.NotNull(property, "property");
-            Check.NotNull(stringBuilder, "stringBuilder");
+            Check.NotNull(property, nameof(property));
+            Check.NotNull(stringBuilder, nameof(stringBuilder));
 
             stringBuilder
                 .AppendLine()
@@ -176,8 +176,8 @@ namespace Microsoft.Data.Entity.Commands.Migrations
 
         protected virtual void GeneratePropertyAnnotations([NotNull] IProperty property, [NotNull] IndentedStringBuilder stringBuilder)
         {
-            Check.NotNull(property, "property");
-            Check.NotNull(stringBuilder, "stringBuilder");
+            Check.NotNull(property, nameof(property));
+            Check.NotNull(stringBuilder, nameof(stringBuilder));
 
             var columnName = property[ColumnNameAnnotationName];
             if (columnName != null)
@@ -195,7 +195,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
         protected virtual void GenerateKey(
             [CanBeNull] IKey key, [NotNull] IndentedStringBuilder stringBuilder)
         {
-            Check.NotNull(stringBuilder, "stringBuilder");
+            Check.NotNull(stringBuilder, nameof(stringBuilder));
 
             if (key == null)
             {
@@ -231,8 +231,8 @@ namespace Microsoft.Data.Entity.Commands.Migrations
 
         protected virtual void GenerateEntityTypeAnnotations([NotNull] IEntityType entityType, [NotNull] IndentedStringBuilder stringBuilder)
         {
-            Check.NotNull(entityType, "entityType");
-            Check.NotNull(stringBuilder, "stringBuilder");
+            Check.NotNull(entityType, nameof(entityType));
+            Check.NotNull(stringBuilder, nameof(stringBuilder));
 
             var tableName = entityType.Relational().Table;
             var schema = entityType.Relational().Schema;
@@ -273,8 +273,8 @@ namespace Microsoft.Data.Entity.Commands.Migrations
         protected virtual void GenerateForeignKeys(
             [NotNull] IReadOnlyList<IForeignKey> foreignKeys, [NotNull] IndentedStringBuilder stringBuilder)
         {
-            Check.NotNull(foreignKeys, "foreignKeys");
-            Check.NotNull(stringBuilder, "stringBuilder");
+            Check.NotNull(foreignKeys, nameof(foreignKeys));
+            Check.NotNull(stringBuilder, nameof(stringBuilder));
 
             foreach (var foreignKey in foreignKeys)
             {
@@ -285,8 +285,8 @@ namespace Microsoft.Data.Entity.Commands.Migrations
         protected virtual void GenerateForeignKey(
             [NotNull] IForeignKey foreignKey, [NotNull] IndentedStringBuilder stringBuilder)
         {
-            Check.NotNull(foreignKey, "foreignKey");
-            Check.NotNull(stringBuilder, "stringBuilder");
+            Check.NotNull(foreignKey, nameof(foreignKey));
+            Check.NotNull(stringBuilder, nameof(stringBuilder));
 
             stringBuilder
                 .AppendLine()
@@ -303,8 +303,8 @@ namespace Microsoft.Data.Entity.Commands.Migrations
 
         protected virtual void GenerateForeignKeyAnnotations([NotNull] IForeignKey foreignKey, [NotNull] IndentedStringBuilder stringBuilder)
         {
-            Check.NotNull(foreignKey, "foreignKey");
-            Check.NotNull(stringBuilder, "stringBuilder");
+            Check.NotNull(foreignKey, nameof(foreignKey));
+            Check.NotNull(stringBuilder, nameof(stringBuilder));
 
             var foreignKeyName = foreignKey.Relational().Name;
             if (foreignKeyName != null)
@@ -328,8 +328,8 @@ namespace Microsoft.Data.Entity.Commands.Migrations
         protected virtual void GenerateAnnotations(
             [NotNull] IReadOnlyList<IAnnotation> annotations, [NotNull] IndentedStringBuilder stringBuilder)
         {
-            Check.NotNull(annotations, "annotations");
-            Check.NotNull(stringBuilder, "stringBuilder");
+            Check.NotNull(annotations, nameof(annotations));
+            Check.NotNull(stringBuilder, nameof(stringBuilder));
 
             foreach (var annotation in annotations)
             {
@@ -342,8 +342,8 @@ namespace Microsoft.Data.Entity.Commands.Migrations
         protected virtual void GenerateAnnotation(
             [NotNull] IAnnotation annotation, [NotNull] IndentedStringBuilder stringBuilder)
         {
-            Check.NotNull(annotation, "annotation");
-            Check.NotNull(stringBuilder, "stringBuilder");
+            Check.NotNull(annotation, nameof(annotation));
+            Check.NotNull(stringBuilder, nameof(stringBuilder));
 
             stringBuilder
                 .Append(".Annotation(")

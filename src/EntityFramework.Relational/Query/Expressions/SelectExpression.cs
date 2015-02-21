@@ -43,7 +43,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         public virtual SelectExpression Clone([NotNull] string alias)
         {
-            Check.NotEmpty(alias, "alias");
+            Check.NotEmpty(alias, nameof(alias));
 
             var selectExpression
                 = new SelectExpression(alias)
@@ -70,14 +70,14 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         public virtual void AddTable([NotNull] TableExpressionBase tableExpression)
         {
-            Check.NotNull(tableExpression, "tableExpression");
+            Check.NotNull(tableExpression, nameof(tableExpression));
 
             _tables.Add(tableExpression);
         }
 
         public virtual void AddTables([NotNull] IEnumerable<TableExpressionBase> tableExpressions)
         {
-            Check.NotNull(tableExpressions, "tableExpressions");
+            Check.NotNull(tableExpressions, nameof(tableExpressions));
 
             _tables.AddRange(tableExpressions);
         }
@@ -89,14 +89,14 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         public virtual bool HandlesQuerySource([NotNull] IQuerySource querySource)
         {
-            Check.NotNull(querySource, "querySource");
+            Check.NotNull(querySource, nameof(querySource));
 
             return _tables.Any(tableExpression => tableExpression.QuerySource == querySource);
         }
 
         public virtual TableExpressionBase FindTableForQuerySource([NotNull] IQuerySource querySource)
         {
-            Check.NotNull(querySource, "querySource");
+            Check.NotNull(querySource, nameof(querySource));
 
             return _tables.First(t => t.QuerySource == querySource);
         }
@@ -120,7 +120,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             get { return _limit; }
             set
             {
-                Check.NotNull(value, "value");
+                Check.NotNull(value, nameof(value));
 
                 PushDownIfLimit();
 
@@ -133,7 +133,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             get { return _offset; }
             set
             {
-                Check.NotNull(value, "value");
+                Check.NotNull(value, nameof(value));
 
                 if (_limit != null)
                 {
@@ -230,9 +230,9 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             [NotNull] IProperty property,
             [NotNull] IQuerySource querySource)
         {
-            Check.NotEmpty(column, "column");
-            Check.NotNull(property, "property");
-            Check.NotNull(querySource, "querySource");
+            Check.NotEmpty(column, nameof(column));
+            Check.NotNull(property, nameof(property));
+            Check.NotNull(querySource, nameof(querySource));
 
             if (GetProjectionIndex(property, querySource) == -1)
             {
@@ -243,7 +243,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         public virtual void AddToProjection([NotNull] ColumnExpression columnExpression)
         {
-            Check.NotNull(columnExpression, "columnExpression");
+            Check.NotNull(columnExpression, nameof(columnExpression));
 
             if (_projection
                 .FindIndex(ce =>
@@ -267,7 +267,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         public virtual void SetProjectionCaseExpression([NotNull] CaseExpression caseExpression)
         {
-            Check.NotNull(caseExpression, "caseExpression");
+            Check.NotNull(caseExpression, nameof(caseExpression));
 
             ClearProjection();
 
@@ -276,7 +276,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         public virtual void SetProjectionExpression([NotNull] Expression expression)
         {
-            Check.NotNull(expression, "expression");
+            Check.NotNull(expression, nameof(expression));
 
             PushDownIfLimit();
             PushDownIfDistinct();
@@ -301,15 +301,15 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         public virtual void RemoveFromProjection([NotNull] IEnumerable<Ordering> orderBy)
         {
-            Check.NotNull(orderBy, "orderBy");
+            Check.NotNull(orderBy, nameof(orderBy));
 
             _projection.RemoveAll(ce => orderBy.Any(o => ReferenceEquals(o.Expression, ce)));
         }
 
         public virtual int GetProjectionIndex([NotNull] IProperty property, [NotNull] IQuerySource querySource)
         {
-            Check.NotNull(property, "property");
-            Check.NotNull(querySource, "querySource");
+            Check.NotNull(property, nameof(property));
+            Check.NotNull(querySource, nameof(querySource));
 
             var table = FindTableForQuerySource(querySource);
 
@@ -322,9 +322,9 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             [NotNull] IQuerySource querySource,
             OrderingDirection orderingDirection)
         {
-            Check.NotEmpty(column, "column");
-            Check.NotNull(property, "property");
-            Check.NotNull(querySource, "querySource");
+            Check.NotEmpty(column, nameof(column));
+            Check.NotNull(property, nameof(property));
+            Check.NotNull(querySource, nameof(querySource));
 
             return AddToOrderBy(column, property, FindTableForQuerySource(querySource), orderingDirection);
         }
@@ -335,9 +335,9 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             [NotNull] TableExpressionBase table,
             OrderingDirection orderingDirection)
         {
-            Check.NotEmpty(column, "column");
-            Check.NotNull(property, "property");
-            Check.NotNull(table, "table");
+            Check.NotEmpty(column, nameof(column));
+            Check.NotNull(property, nameof(property));
+            Check.NotNull(table, nameof(table));
 
             var columnExpression = new ColumnExpression(column, property, table);
 
@@ -351,7 +351,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         public virtual void AddToOrderBy([NotNull] IEnumerable<Ordering> orderings)
         {
-            Check.NotNull(orderings, "orderings");
+            Check.NotNull(orderings, nameof(orderings));
 
             _orderBy.AddRange(orderings);
         }
@@ -367,8 +367,8 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             [NotNull] TableExpressionBase tableExpression,
             [NotNull] IEnumerable<ColumnExpression> projection)
         {
-            Check.NotNull(tableExpression, "tableExpression");
-            Check.NotNull(projection, "projection");
+            Check.NotNull(tableExpression, nameof(tableExpression));
+            Check.NotNull(projection, nameof(projection));
 
             tableExpression.Alias = CreateUniqueTableAlias(tableExpression.Alias);
             _tables.Add(new CrossJoinExpression(tableExpression));
@@ -377,7 +377,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         public virtual JoinExpressionBase AddInnerJoin([NotNull] TableExpressionBase tableExpression)
         {
-            Check.NotNull(tableExpression, "tableExpression");
+            Check.NotNull(tableExpression, nameof(tableExpression));
 
             return AddInnerJoin(tableExpression, Enumerable.Empty<ColumnExpression>());
         }
@@ -386,8 +386,8 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             [NotNull] TableExpressionBase tableExpression,
             [NotNull] IEnumerable<ColumnExpression> projection)
         {
-            Check.NotNull(tableExpression, "tableExpression");
-            Check.NotNull(projection, "projection");
+            Check.NotNull(tableExpression, nameof(tableExpression));
+            Check.NotNull(projection, nameof(projection));
 
             tableExpression.Alias = CreateUniqueTableAlias(tableExpression.Alias);
 
@@ -402,8 +402,8 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             [NotNull] TableExpressionBase tableExpression,
             [NotNull] IEnumerable<ColumnExpression> projection)
         {
-            Check.NotNull(tableExpression, "tableExpression");
-            Check.NotNull(projection, "projection");
+            Check.NotNull(tableExpression, nameof(tableExpression));
+            Check.NotNull(projection, nameof(projection));
 
             tableExpression.Alias = CreateUniqueTableAlias(tableExpression.Alias);
 
@@ -443,14 +443,14 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         public virtual void RemoveTable([NotNull] TableExpressionBase tableExpression)
         {
-            Check.NotNull(tableExpression, "tableExpression");
+            Check.NotNull(tableExpression, nameof(tableExpression));
 
             _tables.Remove(tableExpression);
         }
 
         public override Expression Accept([NotNull] ExpressionTreeVisitor visitor)
         {
-            Check.NotNull(visitor, "visitor");
+            Check.NotNull(visitor, nameof(visitor));
 
             var specificVisitor = visitor as ISqlExpressionVisitor;
 

@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity.Metadata
     {
         public virtual ModelBuilder CreateConventionBuilder([NotNull] Model model)
         {
-            Check.NotNull(model, "model");
+            Check.NotNull(model, nameof(model));
 
             return new ModelBuilder(model, CreateConventionSet());
         }

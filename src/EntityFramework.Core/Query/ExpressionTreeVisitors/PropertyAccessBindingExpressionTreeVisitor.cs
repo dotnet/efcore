@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
                 Check.NotNull(querySourceMapping, "querySourceMapping"),
                 throwOnUnmappedReferences: false)
         {
-            Check.NotNull(queryModelVisitor, "queryModelVisitor");
+            Check.NotNull(queryModelVisitor, nameof(queryModelVisitor));
 
             _queryModelVisitor = queryModelVisitor;
         }

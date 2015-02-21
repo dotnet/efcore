@@ -18,8 +18,8 @@ namespace Microsoft.Data.Entity.Query
             [NotNull] ILogger logger,
             [NotNull] IQueryBuffer queryBuffer)
         {
-            Check.NotNull(logger, "logger");
-            Check.NotNull(queryBuffer, "queryBuffer");
+            Check.NotNull(logger, nameof(logger));
+            Check.NotNull(queryBuffer, nameof(queryBuffer));
 
             Logger = logger;
             QueryBuffer = queryBuffer;

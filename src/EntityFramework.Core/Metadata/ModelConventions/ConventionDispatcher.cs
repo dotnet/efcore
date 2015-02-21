@@ -13,14 +13,14 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
 
         public ConventionDispatcher([NotNull] ConventionSet conventionSet)
         {
-            Check.NotNull(conventionSet, "conventionSet");
+            Check.NotNull(conventionSet, nameof(conventionSet));
 
             _conventionSet = conventionSet;
         }
 
         public virtual InternalEntityBuilder OnEntityTypeAdded([NotNull] InternalEntityBuilder entityBuilder)
         {
-            Check.NotNull(entityBuilder, "entityBuilder");
+            Check.NotNull(entityBuilder, nameof(entityBuilder));
 
             foreach (var entityTypeConvention in _conventionSet.EntityTypeAddedConventions)
             {
@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
 
         public virtual InternalRelationshipBuilder OnRelationshipAdded([NotNull] InternalRelationshipBuilder relationshipBuilder)
         {
-            Check.NotNull(relationshipBuilder, "relationshipBuilder");
+            Check.NotNull(relationshipBuilder, nameof(relationshipBuilder));
 
             foreach (var relationshipConvention in _conventionSet.ForeignKeyAddedConventions)
             {

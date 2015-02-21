@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
 
         public SqlServerEntityBuilder([NotNull] EntityType entityType)
         {
-            Check.NotNull(entityType, "entityType");
+            Check.NotNull(entityType, nameof(entityType));
 
             _entityType = entityType;
         }

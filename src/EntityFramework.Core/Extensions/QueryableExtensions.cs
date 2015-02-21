@@ -26,7 +26,7 @@ namespace System.Linq
             [NotNull] this IQueryable<TSource> source,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
+            Check.NotNull(source, nameof(source));
 
             return ExecuteAsync<TSource, bool>(_any, source, cancellationToken);
         }
@@ -38,8 +38,8 @@ namespace System.Linq
             [NotNull] Expression<Func<TSource, bool>> predicate,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
-            Check.NotNull(predicate, "predicate");
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(predicate, nameof(predicate));
 
             return ExecuteAsync<TSource, bool>(_anyPredicate, source, predicate, cancellationToken);
         }
@@ -51,8 +51,8 @@ namespace System.Linq
             [NotNull] Expression<Func<TSource, bool>> predicate,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
-            Check.NotNull(predicate, "predicate");
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(predicate, nameof(predicate));
 
             return ExecuteAsync<TSource, bool>(_allPredicate, source, predicate, cancellationToken);
         }
@@ -67,7 +67,7 @@ namespace System.Linq
             [NotNull] this IQueryable<TSource> source,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
+            Check.NotNull(source, nameof(source));
 
             return ExecuteAsync<TSource, int>(_count, source, cancellationToken);
         }
@@ -79,8 +79,8 @@ namespace System.Linq
             [NotNull] Expression<Func<TSource, bool>> predicate,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
-            Check.NotNull(predicate, "predicate");
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(predicate, nameof(predicate));
 
             return ExecuteAsync<TSource, int>(_countPredicate, source, predicate, cancellationToken);
         }
@@ -91,7 +91,7 @@ namespace System.Linq
             [NotNull] this IQueryable<TSource> source,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
+            Check.NotNull(source, nameof(source));
 
             return ExecuteAsync<TSource, long>(_longCount, source, cancellationToken);
         }
@@ -103,8 +103,8 @@ namespace System.Linq
             [NotNull] Expression<Func<TSource, bool>> predicate,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
-            Check.NotNull(predicate, "predicate");
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(predicate, nameof(predicate));
 
             return ExecuteAsync<TSource, long>(_longCountPredicate, source, predicate, cancellationToken);
         }
@@ -119,7 +119,7 @@ namespace System.Linq
             [NotNull] this IQueryable<TSource> source,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
+            Check.NotNull(source, nameof(source));
 
             return ExecuteAsync<TSource, TSource>(_first, source, cancellationToken);
         }
@@ -131,8 +131,8 @@ namespace System.Linq
             [NotNull] Expression<Func<TSource, bool>> predicate,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
-            Check.NotNull(predicate, "predicate");
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(predicate, nameof(predicate));
 
             return ExecuteAsync<TSource, TSource>(_firstPredicate, source, predicate, cancellationToken);
         }
@@ -143,7 +143,7 @@ namespace System.Linq
             [NotNull] this IQueryable<TSource> source,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
+            Check.NotNull(source, nameof(source));
 
             return ExecuteAsync<TSource, TSource>(_firstOrDefault, source, cancellationToken);
         }
@@ -155,8 +155,8 @@ namespace System.Linq
             [NotNull] Expression<Func<TSource, bool>> predicate,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
-            Check.NotNull(predicate, "predicate");
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(predicate, nameof(predicate));
 
             return ExecuteAsync<TSource, TSource>(_firstOrDefaultPredicate, source, predicate, cancellationToken);
         }
@@ -171,7 +171,7 @@ namespace System.Linq
             [NotNull] this IQueryable<TSource> source,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
+            Check.NotNull(source, nameof(source));
 
             return ExecuteAsync<TSource, TSource>(_last, source, cancellationToken);
         }
@@ -183,8 +183,8 @@ namespace System.Linq
             [NotNull] Expression<Func<TSource, bool>> predicate,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
-            Check.NotNull(predicate, "predicate");
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(predicate, nameof(predicate));
 
             return ExecuteAsync<TSource, TSource>(_lastPredicate, source, predicate, cancellationToken);
         }
@@ -195,7 +195,7 @@ namespace System.Linq
             [NotNull] this IQueryable<TSource> source,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
+            Check.NotNull(source, nameof(source));
 
             return ExecuteAsync<TSource, TSource>(_lastOrDefault, source, cancellationToken);
         }
@@ -207,8 +207,8 @@ namespace System.Linq
             [NotNull] Expression<Func<TSource, bool>> predicate,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
-            Check.NotNull(predicate, "predicate");
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(predicate, nameof(predicate));
 
             return ExecuteAsync<TSource, TSource>(_lastOrDefaultPredicate, source, predicate, cancellationToken);
         }
@@ -223,7 +223,7 @@ namespace System.Linq
             [NotNull] this IQueryable<TSource> source,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
+            Check.NotNull(source, nameof(source));
 
             return ExecuteAsync<TSource, TSource>(_single, source, cancellationToken);
         }
@@ -235,8 +235,8 @@ namespace System.Linq
             [NotNull] Expression<Func<TSource, bool>> predicate,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
-            Check.NotNull(predicate, "predicate");
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(predicate, nameof(predicate));
 
             return ExecuteAsync<TSource, TSource>(_singlePredicate, source, predicate, cancellationToken);
         }
@@ -247,7 +247,7 @@ namespace System.Linq
             [NotNull] this IQueryable<TSource> source,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
+            Check.NotNull(source, nameof(source));
 
             return ExecuteAsync<TSource, TSource>(_singleOrDefault, source, cancellationToken);
         }
@@ -259,8 +259,8 @@ namespace System.Linq
             [NotNull] Expression<Func<TSource, bool>> predicate,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
-            Check.NotNull(predicate, "predicate");
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(predicate, nameof(predicate));
 
             return ExecuteAsync<TSource, TSource>(_singleOrDefaultPredicate, source, predicate, cancellationToken);
         }
@@ -275,7 +275,7 @@ namespace System.Linq
             [NotNull] this IQueryable<TSource> source,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
+            Check.NotNull(source, nameof(source));
 
             return ExecuteAsync<TSource, TSource>(_min, source, cancellationToken);
         }
@@ -287,8 +287,8 @@ namespace System.Linq
             [NotNull] Expression<Func<TSource, TResult>> selector,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
-            Check.NotNull(selector, "selector");
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(selector, nameof(selector));
 
             return ExecuteAsync<TSource, TResult>(_minSelector, source, selector, cancellationToken);
         }
@@ -303,7 +303,7 @@ namespace System.Linq
             [NotNull] this IQueryable<TSource> source,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
+            Check.NotNull(source, nameof(source));
 
             return ExecuteAsync<TSource, TSource>(_max, source, cancellationToken);
         }
@@ -315,8 +315,8 @@ namespace System.Linq
             [NotNull] Expression<Func<TSource, TResult>> selector,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
-            Check.NotNull(selector, "selector");
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(selector, nameof(selector));
 
             return ExecuteAsync<TSource, TResult>(_maxSelector, source, selector, cancellationToken);
         }
@@ -331,7 +331,7 @@ namespace System.Linq
             [NotNull] this IQueryable<decimal> source,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
+            Check.NotNull(source, nameof(source));
 
             return ExecuteAsync<decimal, decimal>(_sumDecimal, source, cancellationToken);
         }
@@ -342,7 +342,7 @@ namespace System.Linq
             [NotNull] this IQueryable<decimal?> source,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
+            Check.NotNull(source, nameof(source));
 
             return ExecuteAsync<decimal?, decimal?>(_sumNullableDecimal, source, cancellationToken);
         }
@@ -354,8 +354,8 @@ namespace System.Linq
             [NotNull] Expression<Func<TSource, decimal>> selector,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
-            Check.NotNull(selector, "selector");
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(selector, nameof(selector));
 
             return ExecuteAsync<TSource, decimal>(_sumDecimalSelector, source, selector, cancellationToken);
         }
@@ -367,8 +367,8 @@ namespace System.Linq
             [NotNull] Expression<Func<TSource, decimal?>> selector,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
-            Check.NotNull(selector, "selector");
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(selector, nameof(selector));
 
             return ExecuteAsync<TSource, decimal?>(_sumNullableDecimalSelector, source, selector, cancellationToken);
         }
@@ -379,7 +379,7 @@ namespace System.Linq
             [NotNull] this IQueryable<int> source,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
+            Check.NotNull(source, nameof(source));
 
             return ExecuteAsync<int, int>(_sumInt, source, cancellationToken);
         }
@@ -390,7 +390,7 @@ namespace System.Linq
             [NotNull] this IQueryable<int?> source,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
+            Check.NotNull(source, nameof(source));
 
             return ExecuteAsync<int?, int?>(_sumNullableInt, source, cancellationToken);
         }
@@ -402,8 +402,8 @@ namespace System.Linq
             [NotNull] Expression<Func<TSource, int>> selector,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
-            Check.NotNull(selector, "selector");
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(selector, nameof(selector));
 
             return ExecuteAsync<TSource, int>(_sumIntSelector, source, selector, cancellationToken);
         }
@@ -415,8 +415,8 @@ namespace System.Linq
             [NotNull] Expression<Func<TSource, int?>> selector,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
-            Check.NotNull(selector, "selector");
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(selector, nameof(selector));
 
             return ExecuteAsync<TSource, int?>(_sumNullableIntSelector, source, selector, cancellationToken);
         }
@@ -427,7 +427,7 @@ namespace System.Linq
             [NotNull] this IQueryable<long> source,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
+            Check.NotNull(source, nameof(source));
 
             return ExecuteAsync<long, long>(_sumLong, source, cancellationToken);
         }
@@ -438,7 +438,7 @@ namespace System.Linq
             [NotNull] this IQueryable<long?> source,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
+            Check.NotNull(source, nameof(source));
 
             return ExecuteAsync<long?, long?>(_sumNullableLong, source, cancellationToken);
         }
@@ -450,8 +450,8 @@ namespace System.Linq
             [NotNull] Expression<Func<TSource, long>> selector,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
-            Check.NotNull(selector, "selector");
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(selector, nameof(selector));
 
             return ExecuteAsync<TSource, long>(_sumLongSelector, source, selector, cancellationToken);
         }
@@ -463,8 +463,8 @@ namespace System.Linq
             [NotNull] Expression<Func<TSource, long?>> selector,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
-            Check.NotNull(selector, "selector");
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(selector, nameof(selector));
 
             return ExecuteAsync<TSource, long?>(_sumNullableLongSelector, source, selector, cancellationToken);
         }
@@ -475,7 +475,7 @@ namespace System.Linq
             [NotNull] this IQueryable<double> source,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
+            Check.NotNull(source, nameof(source));
 
             return ExecuteAsync<double, double>(_sumDouble, source, cancellationToken);
         }
@@ -486,7 +486,7 @@ namespace System.Linq
             [NotNull] this IQueryable<double?> source,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
+            Check.NotNull(source, nameof(source));
 
             return ExecuteAsync<double?, double?>(_sumNullableDouble, source, cancellationToken);
         }
@@ -498,8 +498,8 @@ namespace System.Linq
             [NotNull] Expression<Func<TSource, double>> selector,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
-            Check.NotNull(selector, "selector");
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(selector, nameof(selector));
 
             return ExecuteAsync<TSource, double>(_sumDoubleSelector, source, selector, cancellationToken);
         }
@@ -511,8 +511,8 @@ namespace System.Linq
             [NotNull] Expression<Func<TSource, double?>> selector,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
-            Check.NotNull(selector, "selector");
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(selector, nameof(selector));
 
             return ExecuteAsync<TSource, double?>(_sumNullableDoubleSelector, source, selector, cancellationToken);
         }
@@ -523,7 +523,7 @@ namespace System.Linq
             [NotNull] this IQueryable<float> source,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
+            Check.NotNull(source, nameof(source));
 
             return ExecuteAsync<float, float>(_sumFloat, source, cancellationToken);
         }
@@ -534,7 +534,7 @@ namespace System.Linq
             [NotNull] this IQueryable<float?> source,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
+            Check.NotNull(source, nameof(source));
 
             return ExecuteAsync<float?, float?>(_sumNullableFloat, source, cancellationToken);
         }
@@ -546,8 +546,8 @@ namespace System.Linq
             [NotNull] Expression<Func<TSource, float>> selector,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
-            Check.NotNull(selector, "selector");
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(selector, nameof(selector));
 
             return ExecuteAsync<TSource, float>(_sumFloatSelector, source, selector, cancellationToken);
         }
@@ -559,8 +559,8 @@ namespace System.Linq
             [NotNull] Expression<Func<TSource, float?>> selector,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
-            Check.NotNull(selector, "selector");
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(selector, nameof(selector));
 
             return ExecuteAsync<TSource, float?>(_sumNullableFloatSelector, source, selector, cancellationToken);
         }
@@ -588,7 +588,7 @@ namespace System.Linq
             [NotNull] this IQueryable<decimal> source,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
+            Check.NotNull(source, nameof(source));
 
             return ExecuteAsync<decimal, decimal>(_averageDecimal, source, cancellationToken);
         }
@@ -599,7 +599,7 @@ namespace System.Linq
             [NotNull] this IQueryable<decimal?> source,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
+            Check.NotNull(source, nameof(source));
 
             return ExecuteAsync<decimal?, decimal?>(_averageNullableDecimal, source, cancellationToken);
         }
@@ -611,8 +611,8 @@ namespace System.Linq
             [NotNull] Expression<Func<TSource, decimal>> selector,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
-            Check.NotNull(selector, "selector");
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(selector, nameof(selector));
 
             return ExecuteAsync<TSource, decimal>(_averageDecimalSelector, source, selector, cancellationToken);
         }
@@ -624,8 +624,8 @@ namespace System.Linq
             [NotNull] Expression<Func<TSource, decimal?>> selector,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
-            Check.NotNull(selector, "selector");
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(selector, nameof(selector));
 
             return ExecuteAsync<TSource, decimal?>(_averageNullableDecimalSelector, source, selector, cancellationToken);
         }
@@ -636,7 +636,7 @@ namespace System.Linq
             [NotNull] this IQueryable<int> source,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
+            Check.NotNull(source, nameof(source));
 
             return ExecuteAsync<int, double>(_averageInt, source, cancellationToken);
         }
@@ -647,7 +647,7 @@ namespace System.Linq
             [NotNull] this IQueryable<int?> source,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
+            Check.NotNull(source, nameof(source));
 
             return ExecuteAsync<int?, double?>(_averageNullableInt, source, cancellationToken);
         }
@@ -659,8 +659,8 @@ namespace System.Linq
             [NotNull] Expression<Func<TSource, int>> selector,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
-            Check.NotNull(selector, "selector");
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(selector, nameof(selector));
 
             return ExecuteAsync<TSource, double>(_averageIntSelector, source, selector, cancellationToken);
         }
@@ -672,8 +672,8 @@ namespace System.Linq
             [NotNull] Expression<Func<TSource, int?>> selector,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
-            Check.NotNull(selector, "selector");
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(selector, nameof(selector));
 
             return ExecuteAsync<TSource, double?>(_averageNullableIntSelector, source, selector, cancellationToken);
         }
@@ -684,7 +684,7 @@ namespace System.Linq
             [NotNull] this IQueryable<long> source,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
+            Check.NotNull(source, nameof(source));
 
             return ExecuteAsync<long, double>(_averageLong, source, cancellationToken);
         }
@@ -695,7 +695,7 @@ namespace System.Linq
             [NotNull] this IQueryable<long?> source,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
+            Check.NotNull(source, nameof(source));
 
             return ExecuteAsync<long?, double?>(_averageNullableLong, source, cancellationToken);
         }
@@ -707,8 +707,8 @@ namespace System.Linq
             [NotNull] Expression<Func<TSource, long>> selector,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
-            Check.NotNull(selector, "selector");
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(selector, nameof(selector));
 
             return ExecuteAsync<TSource, double>(_averageLongSelector, source, selector, cancellationToken);
         }
@@ -720,8 +720,8 @@ namespace System.Linq
             [NotNull] Expression<Func<TSource, long?>> selector,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
-            Check.NotNull(selector, "selector");
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(selector, nameof(selector));
 
             return ExecuteAsync<TSource, double?>(_averageNullableLongSelector, source, selector, cancellationToken);
         }
@@ -732,7 +732,7 @@ namespace System.Linq
             [NotNull] this IQueryable<double> source,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
+            Check.NotNull(source, nameof(source));
 
             return ExecuteAsync<double, double>(_averageDouble, source, cancellationToken);
         }
@@ -743,7 +743,7 @@ namespace System.Linq
             [NotNull] this IQueryable<double?> source,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
+            Check.NotNull(source, nameof(source));
 
             return ExecuteAsync<double?, double?>(_averageNullableDouble, source, cancellationToken);
         }
@@ -755,8 +755,8 @@ namespace System.Linq
             [NotNull] Expression<Func<TSource, double>> selector,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
-            Check.NotNull(selector, "selector");
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(selector, nameof(selector));
 
             return ExecuteAsync<TSource, double>(_averageDoubleSelector, source, selector, cancellationToken);
         }
@@ -768,8 +768,8 @@ namespace System.Linq
             [NotNull] Expression<Func<TSource, double?>> selector,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
-            Check.NotNull(selector, "selector");
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(selector, nameof(selector));
 
             return ExecuteAsync<TSource, double?>(_averageNullableDoubleSelector, source, selector, cancellationToken);
         }
@@ -780,7 +780,7 @@ namespace System.Linq
             [NotNull] this IQueryable<float> source,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
+            Check.NotNull(source, nameof(source));
 
             return ExecuteAsync<float, float>(_averageFloat, source, cancellationToken);
         }
@@ -791,7 +791,7 @@ namespace System.Linq
             [NotNull] this IQueryable<float?> source,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
+            Check.NotNull(source, nameof(source));
 
             return ExecuteAsync<float?, float?>(_averageNullableFloat, source, cancellationToken);
         }
@@ -803,8 +803,8 @@ namespace System.Linq
             [NotNull] Expression<Func<TSource, float>> selector,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
-            Check.NotNull(selector, "selector");
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(selector, nameof(selector));
 
             return ExecuteAsync<TSource, float>(_averageFloatSelector, source, selector, cancellationToken);
         }
@@ -816,8 +816,8 @@ namespace System.Linq
             [NotNull] Expression<Func<TSource, float?>> selector,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
-            Check.NotNull(selector, "selector");
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(selector, nameof(selector));
 
             return ExecuteAsync<TSource, float?>(_averageNullableFloatSelector, source, selector, cancellationToken);
         }
@@ -833,7 +833,7 @@ namespace System.Linq
             [NotNull] TSource item,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
+            Check.NotNull(source, nameof(source));
 
             return ExecuteAsync<TSource, bool>(
                 _contains,
@@ -850,7 +850,7 @@ namespace System.Linq
             [NotNull] this IQueryable<TSource> source,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
+            Check.NotNull(source, nameof(source));
 
             return source.AsAsyncEnumerable().ToList(cancellationToken);
         }
@@ -859,7 +859,7 @@ namespace System.Linq
             [NotNull] this IQueryable<TSource> source,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
+            Check.NotNull(source, nameof(source));
 
             return source.AsAsyncEnumerable().ToArray(cancellationToken);
         }
@@ -878,8 +878,8 @@ namespace System.Linq
             [NotNull] Expression<Func<TEntity, TProperty>> navigationPropertyPath)
             where TEntity : class
         {
-            Check.NotNull(source, "source");
-            Check.NotNull(navigationPropertyPath, "navigationPropertyPath");
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(navigationPropertyPath, nameof(navigationPropertyPath));
 
             return new IncludableQueryable<TEntity, TProperty>(
                 source.Provider.CreateQuery<TEntity>(
@@ -942,7 +942,7 @@ namespace System.Linq
 
         public static IAsyncEnumerable<TSource> AsAsyncEnumerable<TSource>([NotNull] this IQueryable<TSource> source)
         {
-            Check.NotNull(source, "source");
+            Check.NotNull(source, nameof(source));
 
             var enumerable = source as IAsyncEnumerable<TSource>;
 
@@ -971,7 +971,7 @@ namespace System.Linq
 
         public static IQueryable<TEntity> AsNoTracking<TEntity>([NotNull] this IQueryable<TEntity> source) where TEntity : class
         {
-            Check.NotNull(source, "source");
+            Check.NotNull(source, nameof(source));
 
             return source.Provider.CreateQuery<TEntity>(
                 Expression.Call(
@@ -985,7 +985,7 @@ namespace System.Linq
 
         public static void Load<TSource>([NotNull] this IQueryable<TSource> source)
         {
-            Check.NotNull(source, "source");
+            Check.NotNull(source, nameof(source));
 
             using (var enumerator = source.GetEnumerator())
             {
@@ -998,7 +998,7 @@ namespace System.Linq
         public static async Task LoadAsync<TSource>(
             [NotNull] this IQueryable<TSource> source, CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
+            Check.NotNull(source, nameof(source));
 
             var asyncEnumerable = source.AsAsyncEnumerable();
 
@@ -1019,8 +1019,8 @@ namespace System.Linq
             [NotNull] Func<TSource, TKey> keySelector,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
-            Check.NotNull(keySelector, "keySelector");
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(keySelector, nameof(keySelector));
 
             return source.AsAsyncEnumerable().ToDictionary(keySelector, cancellationToken);
         }
@@ -1031,9 +1031,9 @@ namespace System.Linq
             [NotNull] IEqualityComparer<TKey> comparer,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
-            Check.NotNull(keySelector, "keySelector");
-            Check.NotNull(comparer, "comparer");
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(keySelector, nameof(keySelector));
+            Check.NotNull(comparer, nameof(comparer));
 
             return source.AsAsyncEnumerable().ToDictionary(keySelector, comparer, cancellationToken);
         }
@@ -1044,9 +1044,9 @@ namespace System.Linq
             [NotNull] Func<TSource, TElement> elementSelector,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
-            Check.NotNull(keySelector, "keySelector");
-            Check.NotNull(elementSelector, "elementSelector");
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(keySelector, nameof(keySelector));
+            Check.NotNull(elementSelector, nameof(elementSelector));
 
             return source.AsAsyncEnumerable().ToDictionary(keySelector, elementSelector, cancellationToken);
         }
@@ -1058,10 +1058,10 @@ namespace System.Linq
             [NotNull] IEqualityComparer<TKey> comparer,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
-            Check.NotNull(keySelector, "keySelector");
-            Check.NotNull(elementSelector, "elementSelector");
-            Check.NotNull(comparer, "comparer");
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(keySelector, nameof(keySelector));
+            Check.NotNull(elementSelector, nameof(elementSelector));
+            Check.NotNull(comparer, nameof(comparer));
 
             return source.AsAsyncEnumerable().ToDictionary(keySelector, elementSelector, comparer, cancellationToken);
         }
@@ -1075,8 +1075,8 @@ namespace System.Linq
             [NotNull] Action<T> action,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(source, "source");
-            Check.NotNull(action, "action");
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(action, nameof(action));
 
             return source.AsAsyncEnumerable().ForEachAsync(action, cancellationToken);
         }

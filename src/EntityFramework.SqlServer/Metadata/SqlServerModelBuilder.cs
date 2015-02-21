@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
 
         public SqlServerModelBuilder([NotNull] Model model)
         {
-            Check.NotNull(model, "model");
+            Check.NotNull(model, nameof(model));
 
             _model = model;
         }
@@ -38,7 +38,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
 
         public virtual SqlServerModelBuilder UseSequence([NotNull] string name, [CanBeNull] string schema = null)
         {
-            Check.NotEmpty(name, "name");
+            Check.NotEmpty(name, nameof(name));
             Check.NullButNotEmpty(schema, "schema");
 
             var extensions = _model.SqlServer();

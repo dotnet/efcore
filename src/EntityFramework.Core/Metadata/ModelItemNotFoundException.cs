@@ -16,13 +16,13 @@ namespace Microsoft.Data.Entity.Metadata
         public ModelItemNotFoundException([NotNull] string message)
             : base(message)
         {
-            Check.NotEmpty(message, "message");
+            Check.NotEmpty(message, nameof(message));
         }
 
         public ModelItemNotFoundException([NotNull] string message, [CanBeNull] Exception innerException)
             : base(message, innerException)
         {
-            Check.NotEmpty(message, "message");
+            Check.NotEmpty(message, nameof(message));
         }
     }
 }

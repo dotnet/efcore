@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata
 
         public ReadOnlyRelationalKeyExtensions([NotNull] IKey key)
         {
-            Check.NotNull(key, "key");
+            Check.NotNull(key, nameof(key));
 
             _key = key;
         }

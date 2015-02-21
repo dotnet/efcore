@@ -24,10 +24,10 @@ namespace Microsoft.Data.Entity.Relational.Query
             [NotNull] Func<DbDataReader, T> shaper,
             [NotNull] ILogger logger)
         {
-            Check.NotNull(relationalQueryContext, "relationalQueryContext");
-            Check.NotNull(relationalQueryContext, "commandBuilder");
-            Check.NotNull(relationalQueryContext, "shaper");
-            Check.NotNull(relationalQueryContext, "logger");
+            Check.NotNull(relationalQueryContext, nameof(relationalQueryContext));
+            Check.NotNull(relationalQueryContext, nameof(relationalQueryContext));
+            Check.NotNull(relationalQueryContext, nameof(relationalQueryContext));
+            Check.NotNull(relationalQueryContext, nameof(relationalQueryContext));
 
             _relationalQueryContext = relationalQueryContext;
             _commandBuilder = commandBuilder;

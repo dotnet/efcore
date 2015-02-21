@@ -29,8 +29,8 @@ namespace Microsoft.Data.Entity.Query.ResultOperators
             Expression expressionToBeResolved,
             ClauseGenerationContext clauseGenerationContext)
         {
-            Check.NotNull(inputParameter, "inputParameter");
-            Check.NotNull(expressionToBeResolved, "expressionToBeResolved");
+            Check.NotNull(inputParameter, nameof(inputParameter));
+            Check.NotNull(expressionToBeResolved, nameof(expressionToBeResolved));
 
             return Source.Resolve(inputParameter, expressionToBeResolved, clauseGenerationContext);
         }

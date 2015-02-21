@@ -31,7 +31,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             [param: NotNull]
             set
             {
-                Check.NotNull(value, "value");
+                Check.NotNull(value, nameof(value));
 
                 _predicate = value;
             }

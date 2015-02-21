@@ -12,7 +12,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         protected InternalMetadataItemBuilder([NotNull] TMetadata metadata, [NotNull] InternalModelBuilder modelBuilder)
             : base(metadata)
         {
-            Check.NotNull(modelBuilder, "modelBuilder");
+            Check.NotNull(modelBuilder, nameof(modelBuilder));
 
             ModelBuilder = modelBuilder;
         }

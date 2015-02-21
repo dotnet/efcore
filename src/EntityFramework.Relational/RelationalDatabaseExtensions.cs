@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity
     {
         public static RelationalDatabase AsRelational([NotNull] this Database database)
         {
-            Check.NotNull(database, "database");
+            Check.NotNull(database, nameof(database));
 
             var relationalDatabase = database as RelationalDatabase;
 

@@ -28,9 +28,9 @@ namespace Microsoft.Data.Entity.Relational
         public RelationalTransaction([NotNull] RelationalConnection connection, [NotNull] DbTransaction dbTransaction, bool transactionOwned, [NotNull] ILogger logger)
             : base(logger)
         {
-            Check.NotNull(connection, "connection");
-            Check.NotNull(dbTransaction, "dbTransaction");
-            Check.NotNull(logger, "logger");
+            Check.NotNull(connection, nameof(connection));
+            Check.NotNull(dbTransaction, nameof(dbTransaction));
+            Check.NotNull(logger, nameof(logger));
 
             if (connection.DbConnection != dbTransaction.Connection)
             {

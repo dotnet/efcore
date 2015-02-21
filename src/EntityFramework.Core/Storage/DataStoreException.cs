@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.Storage
         public DataStoreException([NotNull] string message, [NotNull] DbContext context, [CanBeNull] Exception innerException)
             : base(message, innerException)
         {
-            Check.NotNull(context, "contextType");
+            Check.NotNull(context, nameof(context));
 
             Context = context;
         }

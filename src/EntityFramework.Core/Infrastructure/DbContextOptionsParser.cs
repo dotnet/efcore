@@ -21,8 +21,8 @@ namespace Microsoft.Data.Entity.Infrastructure
             [NotNull] IReadOnlyDictionary<string, string> currentOptions)
             where TContext : DbContext
         {
-            Check.NotNull(configuration, "configuration");
-            Check.NotNull(currentOptions, "currentOptions");
+            Check.NotNull(configuration, nameof(configuration));
+            Check.NotNull(currentOptions, nameof(currentOptions));
 
             return ReadRawOptions(configuration, typeof(TContext), currentOptions);
         }
@@ -32,8 +32,8 @@ namespace Microsoft.Data.Entity.Infrastructure
             [NotNull] Type contextType,
             [NotNull] IReadOnlyDictionary<string, string> currentOptions)
         {
-            Check.NotNull(configuration, "configuration");
-            Check.NotNull(contextType, "contextType");
+            Check.NotNull(configuration, nameof(configuration));
+            Check.NotNull(contextType, nameof(contextType));
 
             var options = currentOptions.ToDictionary(i => i.Key, i => i.Value, StringComparer.OrdinalIgnoreCase);
 

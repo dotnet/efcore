@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.Utilities
 
         public virtual ISet<TVertex> GetUnreachableVertices([NotNull] IReadOnlyList<TVertex> roots)
         {
-            Check.NotNull(roots, "roots");
+            Check.NotNull(roots, nameof(roots));
 
             var unreachableVertices = new HashSet<TVertex>(Vertices);
             unreachableVertices.ExceptWith(roots);

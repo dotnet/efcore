@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             [NotNull] IQuerySource querySource)
             : base(Check.NotNull(queryModelVisitor, "queryModelVisitor"))
         {
-            Check.NotNull(querySource, "querySource");
+            Check.NotNull(querySource, nameof(querySource));
 
             _querySource = querySource;
         }
@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
         protected override Expression VisitMemberExpression([NotNull] MemberExpression memberExpression)
         {
-            Check.NotNull(memberExpression, "memberExpression");
+            Check.NotNull(memberExpression, nameof(memberExpression));
 
             QueryModelVisitor
                 .BindMemberExpression(
@@ -53,7 +53,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
         protected override Expression VisitMethodCallExpression([NotNull] MethodCallExpression methodCallExpression)
         {
-            Check.NotNull(methodCallExpression, "methodCallExpression");
+            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
 
             QueryModelVisitor
                 .BindMethodCallExpression(
@@ -70,7 +70,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
         protected override Expression VisitEntityQueryable(Type elementType)
         {
-            Check.NotNull(elementType, "elementType");
+            Check.NotNull(elementType, nameof(elementType));
 
             var queryMethodInfo = RelationalQueryModelVisitor.CreateValueReaderMethodInfo;
             var entityType = QueryModelVisitor.QueryCompilationContext.Model.GetEntityType(elementType);

@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
 
         public SqlServerForeignKeyBuilder([NotNull] ForeignKey foreignKey)
         {
-            Check.NotNull(foreignKey, "foreignKey");
+            Check.NotNull(foreignKey, nameof(foreignKey));
 
             _foreignKey = foreignKey;
         }

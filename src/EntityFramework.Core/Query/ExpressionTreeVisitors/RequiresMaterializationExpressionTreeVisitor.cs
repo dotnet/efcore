@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
 
         public RequiresMaterializationExpressionTreeVisitor([NotNull] EntityQueryModelVisitor queryModelVisitor)
         {
-            Check.NotNull(queryModelVisitor, "queryModelVisitor");
+            Check.NotNull(queryModelVisitor, nameof(queryModelVisitor));
 
             _queryModelVisitor = queryModelVisitor;
         }

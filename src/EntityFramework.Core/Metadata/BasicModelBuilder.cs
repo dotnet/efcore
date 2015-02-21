@@ -20,14 +20,14 @@ namespace Microsoft.Data.Entity.Metadata
 
         public BasicModelBuilder([NotNull] Model model)
         {
-            Check.NotNull(model, "model");
+            Check.NotNull(model, nameof(model));
 
             _builder = new InternalModelBuilder(model);
         }
 
         protected internal BasicModelBuilder([NotNull] InternalModelBuilder internalBuilder)
         {
-            Check.NotNull(internalBuilder, "internalBuilder");
+            Check.NotNull(internalBuilder, nameof(internalBuilder));
 
             _builder = internalBuilder;
         }
@@ -44,8 +44,8 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual BasicModelBuilder Annotation(string annotation, string value)
         {
-            Check.NotEmpty(annotation, "annotation");
-            Check.NotEmpty(value, "value");
+            Check.NotEmpty(annotation, nameof(annotation));
+            Check.NotEmpty(value, nameof(value));
 
             _builder.Annotation(annotation, value, ConfigurationSource.Explicit);
 
@@ -64,21 +64,21 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual EntityBuilder Entity([NotNull] Type entityType)
         {
-            Check.NotNull(entityType, "entityType");
+            Check.NotNull(entityType, nameof(entityType));
 
             return new EntityBuilder(Builder.Entity(entityType, ConfigurationSource.Explicit));
         }
 
         public virtual EntityBuilder Entity([NotNull] string name)
         {
-            Check.NotEmpty(name, "name");
+            Check.NotEmpty(name, nameof(name));
 
             return new EntityBuilder(Builder.Entity(name, ConfigurationSource.Explicit));
         }
 
         public virtual BasicModelBuilder Entity<TEntity>([NotNull] Action<EntityBuilder<TEntity>> entityBuilder) where TEntity : class
         {
-            Check.NotNull(entityBuilder, "entityBuilder");
+            Check.NotNull(entityBuilder, nameof(entityBuilder));
 
             entityBuilder(Entity<TEntity>());
 
@@ -87,8 +87,8 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual BasicModelBuilder Entity([NotNull] Type entityType, [NotNull] Action<EntityBuilder> entityBuilder)
         {
-            Check.NotNull(entityType, "entityType");
-            Check.NotNull(entityBuilder, "entityBuilder");
+            Check.NotNull(entityType, nameof(entityType));
+            Check.NotNull(entityBuilder, nameof(entityBuilder));
 
             entityBuilder(Entity(entityType));
 
@@ -97,8 +97,8 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual BasicModelBuilder Entity([NotNull] string name, [NotNull] Action<EntityBuilder> entityBuilder)
         {
-            Check.NotEmpty(name, "name");
-            Check.NotNull(entityBuilder, "entityBuilder");
+            Check.NotEmpty(name, nameof(name));
+            Check.NotNull(entityBuilder, nameof(entityBuilder));
 
             entityBuilder(Entity(name));
 
@@ -109,7 +109,7 @@ namespace Microsoft.Data.Entity.Metadata
         {
             public EntityBuilder([NotNull] InternalEntityBuilder builder)
             {
-                Check.NotNull(builder, "builder");
+                Check.NotNull(builder, nameof(builder));
 
                 Builder = builder;
             }
@@ -118,8 +118,8 @@ namespace Microsoft.Data.Entity.Metadata
 
             public virtual EntityBuilder Annotation(string annotation, string value)
             {
-                Check.NotEmpty(annotation, "annotation");
-                Check.NotEmpty(value, "value");
+                Check.NotEmpty(annotation, nameof(annotation));
+                Check.NotEmpty(value, nameof(value));
 
                 Builder.Annotation(annotation, value, ConfigurationSource.Explicit);
 
@@ -138,37 +138,37 @@ namespace Microsoft.Data.Entity.Metadata
 
             public virtual KeyBuilder Key([NotNull] params string[] propertyNames)
             {
-                Check.NotNull(propertyNames, "propertyNames");
+                Check.NotNull(propertyNames, nameof(propertyNames));
 
                 return new KeyBuilder(Builder.PrimaryKey(propertyNames, ConfigurationSource.Explicit));
             }
 
             public virtual PropertyBuilder Property<TProperty>([NotNull] string name)
             {
-                Check.NotEmpty(name, "name");
+                Check.NotEmpty(name, nameof(name));
 
                 return Property(typeof(TProperty), name);
             }
 
             public virtual PropertyBuilder Property([NotNull] Type propertyType, [NotNull] string name)
             {
-                Check.NotNull(propertyType, "propertyType");
-                Check.NotEmpty(name, "name");
+                Check.NotNull(propertyType, nameof(propertyType));
+                Check.NotEmpty(name, nameof(name));
 
                 return new PropertyBuilder(Builder.Property(propertyType, name, ConfigurationSource.Explicit));
             }
 
             public virtual ForeignKeyBuilder ForeignKey([NotNull] string referencedEntityTypeName, [NotNull] params string[] propertyNames)
             {
-                Check.NotNull(referencedEntityTypeName, "referencedEntityTypeName");
-                Check.NotNull(propertyNames, "propertyNames");
+                Check.NotNull(referencedEntityTypeName, nameof(referencedEntityTypeName));
+                Check.NotNull(propertyNames, nameof(propertyNames));
 
                 return new ForeignKeyBuilder(Builder.ForeignKey(referencedEntityTypeName, propertyNames, ConfigurationSource.Explicit));
             }
 
             public virtual IndexBuilder Index([NotNull] params string[] propertyNames)
             {
-                Check.NotNull(propertyNames, "propertyNames");
+                Check.NotNull(propertyNames, nameof(propertyNames));
 
                 return new IndexBuilder(Builder.Index(propertyNames, ConfigurationSource.Explicit));
             }
@@ -177,7 +177,7 @@ namespace Microsoft.Data.Entity.Metadata
             {
                 public KeyBuilder([NotNull] InternalKeyBuilder builder)
                 {
-                    Check.NotNull(builder, "builder");
+                    Check.NotNull(builder, nameof(builder));
 
                     Builder = builder;
                 }
@@ -196,8 +196,8 @@ namespace Microsoft.Data.Entity.Metadata
 
                 public virtual KeyBuilder Annotation(string annotation, string value)
                 {
-                    Check.NotEmpty(annotation, "annotation");
-                    Check.NotEmpty(value, "value");
+                    Check.NotEmpty(annotation, nameof(annotation));
+                    Check.NotEmpty(value, nameof(value));
 
                     Builder.Annotation(annotation, value, ConfigurationSource.Explicit);
 
@@ -209,7 +209,7 @@ namespace Microsoft.Data.Entity.Metadata
             {
                 public PropertyBuilder([NotNull] InternalPropertyBuilder builder)
                 {
-                    Check.NotNull(builder, "builder");
+                    Check.NotNull(builder, nameof(builder));
 
                     Builder = builder;
                 }
@@ -228,8 +228,8 @@ namespace Microsoft.Data.Entity.Metadata
 
                 public virtual PropertyBuilder Annotation(string annotation, string value)
                 {
-                    Check.NotNull(annotation, "annotation");
-                    Check.NotNull(value, "value");
+                    Check.NotNull(annotation, nameof(annotation));
+                    Check.NotNull(value, nameof(value));
 
                     Builder.Annotation(annotation, value, ConfigurationSource.Explicit);
 
@@ -290,7 +290,7 @@ namespace Microsoft.Data.Entity.Metadata
             {
                 public ForeignKeyBuilder([NotNull] InternalRelationshipBuilder builder)
                 {
-                    Check.NotNull(builder, "builder");
+                    Check.NotNull(builder, nameof(builder));
 
                     Builder = builder;
                 }
@@ -309,8 +309,8 @@ namespace Microsoft.Data.Entity.Metadata
 
                 public virtual ForeignKeyBuilder Annotation(string annotation, string value)
                 {
-                    Check.NotEmpty(annotation, "annotation");
-                    Check.NotEmpty(value, "value");
+                    Check.NotEmpty(annotation, nameof(annotation));
+                    Check.NotEmpty(value, nameof(value));
 
                     Builder.Annotation(annotation, value, ConfigurationSource.Explicit);
 
@@ -327,7 +327,7 @@ namespace Microsoft.Data.Entity.Metadata
             {
                 public IndexBuilder([NotNull] InternalIndexBuilder builder)
                 {
-                    Check.NotNull(builder, "builder");
+                    Check.NotNull(builder, nameof(builder));
 
                     Builder = builder;
                 }
@@ -346,8 +346,8 @@ namespace Microsoft.Data.Entity.Metadata
 
                 public virtual IndexBuilder Annotation(string annotation, string value)
                 {
-                    Check.NotEmpty(annotation, "annotation");
-                    Check.NotEmpty(value, "value");
+                    Check.NotEmpty(annotation, nameof(annotation));
+                    Check.NotEmpty(value, nameof(value));
 
                     Builder.Annotation(annotation, value, ConfigurationSource.Explicit);
 
@@ -385,14 +385,14 @@ namespace Microsoft.Data.Entity.Metadata
 
             public virtual KeyBuilder Key([NotNull] Expression<Func<TEntity, object>> keyExpression)
             {
-                Check.NotNull(keyExpression, "keyExpression");
+                Check.NotNull(keyExpression, nameof(keyExpression));
 
                 return new KeyBuilder(Builder.PrimaryKey(keyExpression.GetPropertyAccessList(), ConfigurationSource.Explicit));
             }
 
             public virtual PropertyBuilder Property([NotNull] Expression<Func<TEntity, object>> propertyExpression)
             {
-                Check.NotNull(propertyExpression, "propertyExpression");
+                Check.NotNull(propertyExpression, nameof(propertyExpression));
 
                 var propertyInfo = propertyExpression.GetPropertyAccess();
                 return new PropertyBuilder(Builder.Property(propertyInfo, ConfigurationSource.Explicit));
@@ -400,14 +400,14 @@ namespace Microsoft.Data.Entity.Metadata
 
             public virtual ForeignKeyBuilder ForeignKey<TReferencedEntityType>([NotNull] Expression<Func<TEntity, object>> foreignKeyExpression)
             {
-                Check.NotNull(foreignKeyExpression, "foreignKeyExpression");
+                Check.NotNull(foreignKeyExpression, nameof(foreignKeyExpression));
 
                 return new ForeignKeyBuilder(Builder.ForeignKey(typeof(TReferencedEntityType), foreignKeyExpression.GetPropertyAccessList(), ConfigurationSource.Explicit));
             }
 
             public virtual IndexBuilder Index([NotNull] Expression<Func<TEntity, object>> indexExpression)
             {
-                Check.NotNull(indexExpression, "indexExpression");
+                Check.NotNull(indexExpression, nameof(indexExpression));
 
                 return new IndexBuilder(Builder.Index(indexExpression.GetPropertyAccessList(), ConfigurationSource.Explicit));
             }

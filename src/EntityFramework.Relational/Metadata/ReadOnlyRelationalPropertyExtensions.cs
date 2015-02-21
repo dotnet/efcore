@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata
 
         public ReadOnlyRelationalPropertyExtensions([NotNull] IProperty property)
         {
-            Check.NotNull(property, "property");
+            Check.NotNull(property, nameof(property));
 
             _property = property;
         }

@@ -22,8 +22,8 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             [NotNull] TableExpressionBase tableExpression)
             : base(Check.NotNull(property, "property").PropertyType)
         {
-            Check.NotEmpty(name, "name");
-            Check.NotNull(tableExpression, "tableExpression");
+            Check.NotEmpty(name, nameof(name));
+            Check.NotNull(tableExpression, nameof(tableExpression));
 
             Name = name;
             _property = property;
@@ -53,7 +53,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         public override Expression Accept([NotNull] ExpressionTreeVisitor visitor)
         {
-            Check.NotNull(visitor, "visitor");
+            Check.NotNull(visitor, nameof(visitor));
 
             var specificVisitor = visitor as ISqlExpressionVisitor;
 

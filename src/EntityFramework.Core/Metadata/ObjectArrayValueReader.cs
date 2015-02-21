@@ -12,7 +12,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         public ObjectArrayValueReader([NotNull] object[] valueBuffer)
         {
-            Check.NotNull(valueBuffer, "valueBuffer");
+            Check.NotNull(valueBuffer, nameof(valueBuffer));
 
             _valueBuffer = valueBuffer;
         }

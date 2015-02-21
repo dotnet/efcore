@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.Utilities
 
         public virtual IndentedStringBuilder Append([NotNull] object o)
         {
-            Check.NotNull(o, "o");
+            Check.NotNull(o, nameof(o));
 
             DoIndent();
 
@@ -47,7 +47,7 @@ namespace Microsoft.Data.Entity.Utilities
 
         public virtual IndentedStringBuilder AppendLine([NotNull] object o)
         {
-            Check.NotNull(o, "o");
+            Check.NotNull(o, nameof(o));
 
             DoIndent();
 

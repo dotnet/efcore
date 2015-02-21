@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.Query
     {
         public static string Print([NotNull] Expression expression)
         {
-            Check.NotNull(expression, "expression");
+            Check.NotNull(expression, nameof(expression));
 
             var visitor = new ExpressionPrintingVisitor();
             var nodePrinter = new TreeNodePrinter();

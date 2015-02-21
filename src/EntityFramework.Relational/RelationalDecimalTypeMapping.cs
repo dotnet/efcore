@@ -22,8 +22,8 @@ namespace Microsoft.Data.Entity.Relational
 
         protected override void ConfigureParameter(DbParameter parameter, ColumnModification columnModification)
         {
-            Check.NotNull(parameter, "parameter");
-            Check.NotNull(columnModification, "columnModification");
+            Check.NotNull(parameter, nameof(parameter));
+            Check.NotNull(columnModification, nameof(columnModification));
 
             // Note: Precision/scale should not be set for input parameters because this will cause truncation
             if (parameter.Direction == ParameterDirection.Output)

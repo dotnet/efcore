@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.Infrastructure
 
         public virtual IReadOnlyList<DbSetProperty> FindSets([NotNull] DbContext context)
         {
-            Check.NotNull(context, "context");
+            Check.NotNull(context, nameof(context));
 
             return _cache.GetOrAdd(context.GetType(), FindSets);
         }
@@ -42,9 +42,9 @@ namespace Microsoft.Data.Entity.Infrastructure
         {
             public DbSetProperty([NotNull] Type contextType, [NotNull] string name, [NotNull] Type entityType, bool hasSetter)
             {
-                Check.NotNull(contextType, "contextType");
-                Check.NotNull(name, "name");
-                Check.NotNull(entityType, "entityType");
+                Check.NotNull(contextType, nameof(contextType));
+                Check.NotNull(name, nameof(name));
+                Check.NotNull(entityType, nameof(entityType));
                 Check.ValidEntityType(entityType, "entityType");
 
                 ContextType = contextType;

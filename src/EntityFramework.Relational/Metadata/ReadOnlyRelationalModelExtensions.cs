@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata
 
         public ReadOnlyRelationalModelExtensions([NotNull] IModel model)
         {
-            Check.NotNull(model, "model");
+            Check.NotNull(model, nameof(model));
 
             _model = model;
         }
@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata
 
         public virtual Sequence TryGetSequence(string name, string schema = null)
         {
-            Check.NotEmpty(name, "name");
+            Check.NotEmpty(name, nameof(name));
             Check.NullButNotEmpty(schema, "schema");
 
             return FindSequence(RelationalSequenceAnnotation + schema + "." + name);
@@ -43,7 +43,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata
 
         protected virtual Sequence FindSequence([NotNull] string annotationName)
         {
-            Check.NotEmpty(annotationName, "annotationName");
+            Check.NotEmpty(annotationName, nameof(annotationName));
 
             var value = Model[annotationName];
             if (value == null)

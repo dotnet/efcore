@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
         protected override Expression VisitMemberExpression([NotNull] MemberExpression memberExpression)
         {
-            Check.NotNull(memberExpression, "memberExpression");
+            Check.NotNull(memberExpression, nameof(memberExpression));
 
             if (!((RelationalQueryModelVisitor)base.QueryModelVisitor)
                 .BindMemberExpression(
@@ -48,7 +48,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
         protected override Expression VisitMethodCallExpression([NotNull] MethodCallExpression methodCallExpression)
         {
-            Check.NotNull(methodCallExpression, "methodCallExpression");
+            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
 
             if (!((RelationalQueryModelVisitor)base.QueryModelVisitor)
                 .BindMethodCallExpression(

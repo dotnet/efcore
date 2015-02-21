@@ -25,9 +25,9 @@ namespace Microsoft.Data.Entity.Query
             [NotNull] DbContextService<DataStore> dataStore,
             [NotNull] ICompiledQueryCache compiledQueryCache)
         {
-            Check.NotNull(context, "context");
-            Check.NotNull(dataStore, "dataStore");
-            Check.NotNull(compiledQueryCache, "compiledQueryCache");
+            Check.NotNull(context, nameof(context));
+            Check.NotNull(dataStore, nameof(dataStore));
+            Check.NotNull(compiledQueryCache, nameof(compiledQueryCache));
 
             _context = context;
             _dataStore = dataStore;
@@ -36,21 +36,21 @@ namespace Microsoft.Data.Entity.Query
 
         public virtual IQueryable<TElement> CreateQuery<TElement>([NotNull] Expression expression)
         {
-            Check.NotNull(expression, "expression");
+            Check.NotNull(expression, nameof(expression));
 
             return new EntityQueryable<TElement>(this, expression);
         }
 
         public virtual IQueryable CreateQuery([NotNull] Expression expression)
         {
-            Check.NotNull(expression, "expression");
+            Check.NotNull(expression, nameof(expression));
 
             return CreateQuery<object>(expression);
         }
 
         public virtual TResult Execute<TResult>([NotNull] Expression expression)
         {
-            Check.NotNull(expression, "expression");
+            Check.NotNull(expression, nameof(expression));
 
             var queryContext = _dataStore.Service.CreateQueryContext();
 
@@ -61,7 +61,7 @@ namespace Microsoft.Data.Entity.Query
 
         public virtual IAsyncEnumerable<TResult> ExecuteAsync<TResult>(Expression expression)
         {
-            Check.NotNull(expression, "expression");
+            Check.NotNull(expression, nameof(expression));
 
             var queryContext = _dataStore.Service.CreateQueryContext();
 
@@ -72,7 +72,7 @@ namespace Microsoft.Data.Entity.Query
 
         public virtual Task<TResult> ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken)
         {
-            Check.NotNull(expression, "expression");
+            Check.NotNull(expression, nameof(expression));
 
             var queryContext = _dataStore.Service.CreateQueryContext();
 

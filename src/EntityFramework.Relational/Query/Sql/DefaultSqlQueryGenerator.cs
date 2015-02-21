@@ -25,8 +25,8 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
         public virtual string GenerateSql(
             SelectExpression selectExpression, IDictionary<string, object> parameterValues)
         {
-            Check.NotNull(selectExpression, "selectExpression");
-            Check.NotNull(parameterValues, "parameterValues");
+            Check.NotNull(selectExpression, nameof(selectExpression));
+            Check.NotNull(parameterValues, nameof(parameterValues));
 
             _sql = new IndentedStringBuilder();
             _parameters = new List<string>();
@@ -47,7 +47,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
         public virtual Expression VisitSelectExpression(SelectExpression selectExpression)
         {
-            Check.NotNull(selectExpression, "selectExpression");
+            Check.NotNull(selectExpression, nameof(selectExpression));
 
             IDisposable subQueryIndent = null;
 
@@ -165,7 +165,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
         public virtual Expression VisitTableExpression(TableExpression tableExpression)
         {
-            Check.NotNull(tableExpression, "tableExpression");
+            Check.NotNull(tableExpression, nameof(tableExpression));
 
             if (tableExpression.Schema != null)
             {
@@ -182,7 +182,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
         public virtual Expression VisitCrossJoinExpression(CrossJoinExpression crossJoinExpression)
         {
-            Check.NotNull(crossJoinExpression, "crossJoinExpression");
+            Check.NotNull(crossJoinExpression, nameof(crossJoinExpression));
 
             _sql.Append("CROSS JOIN ");
 
@@ -193,7 +193,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
         public virtual Expression VisitCountExpression(CountExpression countExpression)
         {
-            Check.NotNull(countExpression, "countExpression");
+            Check.NotNull(countExpression, nameof(countExpression));
 
             _sql.Append("COUNT(*)");
 
@@ -202,7 +202,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
         public virtual Expression VisitSumExpression(SumExpression sumExpression)
         {
-            Check.NotNull(sumExpression, "sumExpression");
+            Check.NotNull(sumExpression, nameof(sumExpression));
 
             _sql.Append("SUM(");
 
@@ -215,7 +215,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
         public virtual Expression VisitMinExpression(MinExpression minExpression)
         {
-            Check.NotNull(minExpression, "minExpression");
+            Check.NotNull(minExpression, nameof(minExpression));
 
             _sql.Append("MIN(");
 
@@ -228,7 +228,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
         public virtual Expression VisitMaxExpression(MaxExpression maxExpression)
         {
-            Check.NotNull(maxExpression, "maxExpression");
+            Check.NotNull(maxExpression, nameof(maxExpression));
 
             _sql.Append("MAX(");
 
@@ -241,7 +241,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
         public virtual Expression VisitInnerJoinExpression(InnerJoinExpression innerJoinExpression)
         {
-            Check.NotNull(innerJoinExpression, "innerJoinExpression");
+            Check.NotNull(innerJoinExpression, nameof(innerJoinExpression));
 
             _sql.Append("INNER JOIN ");
 
@@ -256,7 +256,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
         public virtual Expression VisitOuterJoinExpression(LeftOuterJoinExpression leftOuterJoinExpression)
         {
-            Check.NotNull(leftOuterJoinExpression, "leftOuterJoinExpression");
+            Check.NotNull(leftOuterJoinExpression, nameof(leftOuterJoinExpression));
 
             _sql.Append("LEFT JOIN ");
 
@@ -271,7 +271,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
         protected virtual void GenerateTop([NotNull] SelectExpression selectExpression)
         {
-            Check.NotNull(selectExpression, "selectExpression");
+            Check.NotNull(selectExpression, nameof(selectExpression));
 
             if (selectExpression.Limit != null
                 && selectExpression.Offset == null)
@@ -284,7 +284,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
         protected virtual void GenerateLimitOffset([NotNull] SelectExpression selectExpression)
         {
-            Check.NotNull(selectExpression, "selectExpression");
+            Check.NotNull(selectExpression, nameof(selectExpression));
 
             if (selectExpression.Offset != null)
             {
@@ -308,7 +308,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
         public virtual Expression VisitCaseExpression(CaseExpression caseExpression)
         {
-            Check.NotNull(caseExpression, "caseExpression");
+            Check.NotNull(caseExpression, nameof(caseExpression));
 
             _sql.AppendLine("CASE WHEN (");
 
@@ -324,7 +324,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
         public virtual Expression VisitExistsExpression(ExistsExpression existsExpression)
         {
-            Check.NotNull(existsExpression, "existsExpression");
+            Check.NotNull(existsExpression, nameof(existsExpression));
 
             _sql.AppendLine("EXISTS (");
 
@@ -341,7 +341,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
         protected override Expression VisitBinaryExpression([NotNull] BinaryExpression binaryExpression)
         {
-            Check.NotNull(binaryExpression, "binaryExpression");
+            Check.NotNull(binaryExpression, nameof(binaryExpression));
 
             _binaryExpression = binaryExpression;
 
@@ -443,7 +443,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
         public virtual Expression VisitColumnExpression(ColumnExpression columnExpression)
         {
-            Check.NotNull(columnExpression, "columnExpression");
+            Check.NotNull(columnExpression, nameof(columnExpression));
 
             _sql.Append(DelimitIdentifier(columnExpression.TableAlias))
                 .Append(".")
@@ -460,7 +460,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
         public virtual Expression VisitIsNullExpression(IsNullExpression isNullExpression)
         {
-            Check.NotNull(isNullExpression, "isNullExpression");
+            Check.NotNull(isNullExpression, nameof(isNullExpression));
 
             VisitExpression(isNullExpression.Operand);
 
@@ -471,7 +471,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
         public virtual Expression VisitIsNotNullExpression(IsNotNullExpression isNotNullExpression)
         {
-            Check.NotNull(isNotNullExpression, "isNotNullExpression");
+            Check.NotNull(isNotNullExpression, nameof(isNotNullExpression));
 
             VisitExpression(isNotNullExpression.Operand);
 
@@ -482,7 +482,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
         public virtual Expression VisitLikeExpression(LikeExpression likeExpression)
         {
-            Check.NotNull(likeExpression, "likeExpression");
+            Check.NotNull(likeExpression, nameof(likeExpression));
 
             VisitExpression(likeExpression.Match);
 
@@ -495,7 +495,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
         public virtual Expression VisitLiteralExpression(LiteralExpression literalExpression)
         {
-            Check.NotNull(literalExpression, "literalExpression");
+            Check.NotNull(literalExpression, nameof(literalExpression));
 
             _sql.Append(GenerateLiteral(literalExpression.Literal));
 
@@ -504,7 +504,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
         protected override Expression VisitUnaryExpression(UnaryExpression unaryExpression)
         {
-            Check.NotNull(unaryExpression, "unaryExpression");
+            Check.NotNull(unaryExpression, nameof(unaryExpression));
 
             if (unaryExpression.NodeType == ExpressionType.Not)
             {
@@ -523,7 +523,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
         protected override Expression VisitConstantExpression(ConstantExpression constantExpression)
         {
-            Check.NotNull(constantExpression, "constantExpression");
+            Check.NotNull(constantExpression, nameof(constantExpression));
 
             var maybeBool = constantExpression.Value as bool?;
 
@@ -581,7 +581,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
         protected virtual string GenerateLiteral([NotNull] string value)
         {
-            Check.NotNull(value, "value");
+            Check.NotNull(value, nameof(value));
 
             return "'" + EscapeLiteral(value) + "'";
         }
@@ -620,14 +620,14 @@ namespace Microsoft.Data.Entity.Relational.Query.Sql
 
         protected virtual string EscapeLiteral([NotNull] string literal)
         {
-            Check.NotNull(literal, "literal");
+            Check.NotNull(literal, nameof(literal));
 
             return literal.Replace("'", "''");
         }
 
         protected virtual string DelimitIdentifier([NotNull] string identifier)
         {
-            Check.NotEmpty(identifier, "identifier");
+            Check.NotEmpty(identifier, nameof(identifier));
 
             return "\"" + identifier + "\"";
         }

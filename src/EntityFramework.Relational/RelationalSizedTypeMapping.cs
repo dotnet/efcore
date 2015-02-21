@@ -21,8 +21,8 @@ namespace Microsoft.Data.Entity.Relational
 
         protected override void ConfigureParameter(DbParameter parameter, ColumnModification columnModification)
         {
-            Check.NotNull(parameter, "parameter");
-            Check.NotNull(columnModification, "columnModification");
+            Check.NotNull(parameter, nameof(parameter));
+            Check.NotNull(columnModification, nameof(columnModification));
 
             parameter.Size = _size;
 

@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata
 
         public RelationalEntityBuilder([NotNull] EntityType entityType)
         {
-            Check.NotNull(entityType, "entityType");
+            Check.NotNull(entityType, nameof(entityType));
 
             _entityType = entityType;
         }

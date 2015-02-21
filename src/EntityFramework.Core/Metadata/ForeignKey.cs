@@ -27,10 +27,10 @@ namespace Microsoft.Data.Entity.Metadata
 
         public ForeignKey([NotNull] IReadOnlyList<Property> dependentProperties, [NotNull] Key referencedKey)
         {
-            Check.NotEmpty(dependentProperties, "dependentProperties");
+            Check.NotEmpty(dependentProperties, nameof(dependentProperties));
             Check.HasNoNulls(dependentProperties, "dependentProperties");
             MetadataHelper.CheckSameEntityType(dependentProperties, "dependentProperties");
-            Check.NotNull(referencedKey, "referencedKey");
+            Check.NotNull(referencedKey, nameof(referencedKey));
 
             Properties = dependentProperties;
 

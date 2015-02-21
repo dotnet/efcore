@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata
 
         public virtual Sequence AddOrReplaceSequence([NotNull] Sequence sequence)
         {
-            Check.NotNull(sequence, "sequence");
+            Check.NotNull(sequence, nameof(sequence));
 
             var model = (Model)Model;
             sequence.Model = model;

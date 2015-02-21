@@ -18,8 +18,8 @@ namespace Microsoft.Data.Entity.Infrastructure
                     extensions.RawOptions = parser.ReadRawOptions<TContext>(configuration, extensions.RawOptions);
                 })
         {
-            Check.NotNull(configuration, "configuration");
-            Check.NotNull(parser, "parser");
+            Check.NotNull(configuration, nameof(configuration));
+            Check.NotNull(parser, nameof(parser));
         }
     }
 }

@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.Infrastructure
 
         public static TContext CreateInstance<TContext>([NotNull] IServiceProvider serviceProvider)
         {
-            Check.NotNull(serviceProvider, "serviceProvider");
+            Check.NotNull(serviceProvider, nameof(serviceProvider));
 
             var typeActivator = serviceProvider.GetRequiredServiceChecked<ITypeActivator>();
 

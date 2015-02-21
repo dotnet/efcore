@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public InternalModelBuilder([NotNull] Model metadata, [NotNull] ConventionSet conventions)
             : base(metadata)
         {
-            Check.NotNull(conventions, "conventions");
+            Check.NotNull(conventions, nameof(conventions));
 
             ConventionDispatcher = new ConventionDispatcher(conventions);
         }
@@ -39,7 +39,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual InternalEntityBuilder Entity([NotNull] string name, ConfigurationSource configurationSource)
         {
-            Check.NotEmpty(name, "name");
+            Check.NotEmpty(name, nameof(name));
 
             if (!CanAdd(name, configurationSource))
             {
@@ -56,7 +56,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual InternalEntityBuilder Entity([NotNull] Type type, ConfigurationSource configurationSource)
         {
-            Check.NotNull(type, "type");
+            Check.NotNull(type, nameof(type));
 
             if (!CanAdd(type.FullName, configurationSource))
             {
@@ -95,14 +95,14 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual bool Ignore([NotNull] Type type, ConfigurationSource configurationSource)
         {
-            Check.NotNull(type, "type");
+            Check.NotNull(type, nameof(type));
 
             return Ignore(type.FullName, configurationSource);
         }
 
         public virtual bool Ignore([NotNull] string name, ConfigurationSource configurationSource)
         {
-            Check.NotEmpty(name, "name");
+            Check.NotEmpty(name, nameof(name));
 
             ConfigurationSource ignoredConfigurationSource;
             if (_ignoredEntityTypeNames.Value.TryGetValue(name, out ignoredConfigurationSource))

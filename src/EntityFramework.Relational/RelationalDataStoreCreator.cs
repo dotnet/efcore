@@ -56,7 +56,7 @@ namespace Microsoft.Data.Entity.Relational
 
         public override bool EnsureCreated(IModel model)
         {
-            Check.NotNull(model, "model");
+            Check.NotNull(model, nameof(model));
 
             if (!Exists())
             {
@@ -76,7 +76,7 @@ namespace Microsoft.Data.Entity.Relational
 
         public override async Task<bool> EnsureCreatedAsync(IModel model, CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(model, "model");
+            Check.NotNull(model, nameof(model));
 
             if (!await ExistsAsync(cancellationToken).WithCurrentCulture())
             {

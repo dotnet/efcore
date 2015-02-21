@@ -33,9 +33,9 @@ namespace Microsoft.Data.Entity.Relational.Update
             [NotNull] ParameterNameGeneratorFactory parameterNameGeneratorFactory,
             [NotNull] ModificationCommandComparer modificationCommandComparer)
         {
-            Check.NotNull(modificationCommandBatchFactory, "modificationCommandBatchFactory");
-            Check.NotNull(parameterNameGeneratorFactory, "parameterNameGeneratorFactory");
-            Check.NotNull(modificationCommandComparer, "modificationCommandComparer");
+            Check.NotNull(modificationCommandBatchFactory, nameof(modificationCommandBatchFactory));
+            Check.NotNull(parameterNameGeneratorFactory, nameof(parameterNameGeneratorFactory));
+            Check.NotNull(modificationCommandComparer, nameof(modificationCommandComparer));
 
             _modificationCommandBatchFactory = modificationCommandBatchFactory;
             _parameterNameGeneratorFactory = parameterNameGeneratorFactory;
@@ -44,7 +44,7 @@ namespace Microsoft.Data.Entity.Relational.Update
 
         public virtual IEnumerable<ModificationCommandBatch> BatchCommands([NotNull] IReadOnlyList<InternalEntityEntry> entries, [NotNull] IDbContextOptions options)
         {
-            Check.NotNull(entries, "entries");
+            Check.NotNull(entries, nameof(entries));
 
             var commands = CreateModificationCommands(entries);
             var sortedCommandSets = TopologicalSort(commands);
@@ -96,7 +96,7 @@ namespace Microsoft.Data.Entity.Relational.Update
         //     that are currently being referenced by the former
         protected virtual IReadOnlyList<List<ModificationCommand>> TopologicalSort([NotNull] IEnumerable<ModificationCommand> commands)
         {
-            Check.NotNull(commands, "commands");
+            Check.NotNull(commands, nameof(commands));
 
             var modificationCommandGraph = new Multigraph<ModificationCommand, IForeignKey>();
             modificationCommandGraph.AddVertices(commands);

@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         protected PropertyBase([NotNull] string name)
         {
-            Check.NotEmpty(name, "name");
+            Check.NotEmpty(name, nameof(name));
 
             Name = name;
         }

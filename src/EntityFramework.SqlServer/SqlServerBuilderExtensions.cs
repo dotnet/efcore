@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity
             [NotNull] this IPropertyBuilder<TPropertyBuilder> propertyBuilder)
             where TPropertyBuilder : IPropertyBuilder<TPropertyBuilder>
         {
-            Check.NotNull(propertyBuilder, "propertyBuilder");
+            Check.NotNull(propertyBuilder, nameof(propertyBuilder));
 
             return new SqlServerPropertyBuilder(propertyBuilder.Metadata);
         }
@@ -27,8 +27,8 @@ namespace Microsoft.Data.Entity
             [NotNull] Action<SqlServerPropertyBuilder> sqlServerPropertyBuilder)
             where TPropertyBuilder : IPropertyBuilder<TPropertyBuilder>
         {
-            Check.NotNull(propertyBuilder, "propertyBuilder");
-            Check.NotNull(sqlServerPropertyBuilder, "sqlServerPropertyBuilder");
+            Check.NotNull(propertyBuilder, nameof(propertyBuilder));
+            Check.NotNull(sqlServerPropertyBuilder, nameof(sqlServerPropertyBuilder));
 
             sqlServerPropertyBuilder(ForSqlServer(propertyBuilder));
 
@@ -39,7 +39,7 @@ namespace Microsoft.Data.Entity
             [NotNull] this IEntityBuilder<TEntityBuilder> entityBuilder)
             where TEntityBuilder : IEntityBuilder<TEntityBuilder>
         {
-            Check.NotNull(entityBuilder, "entityBuilder");
+            Check.NotNull(entityBuilder, nameof(entityBuilder));
 
             return new SqlServerEntityBuilder(entityBuilder.Metadata);
         }
@@ -49,7 +49,7 @@ namespace Microsoft.Data.Entity
             [NotNull] Action<SqlServerEntityBuilder> relationalEntityBuilder)
             where TEntityBuilder : IEntityBuilder<TEntityBuilder>
         {
-            Check.NotNull(entityBuilder, "entityBuilder");
+            Check.NotNull(entityBuilder, nameof(entityBuilder));
 
             relationalEntityBuilder(ForSqlServer(entityBuilder));
 
@@ -61,7 +61,7 @@ namespace Microsoft.Data.Entity
             where TEntity : class
             where TEntityBuilder : IEntityBuilder<TEntity, TEntityBuilder>
         {
-            Check.NotNull(entityBuilder, "entityBuilder");
+            Check.NotNull(entityBuilder, nameof(entityBuilder));
 
             return new SqlServerEntityBuilder(entityBuilder.Metadata);
         }
@@ -72,7 +72,7 @@ namespace Microsoft.Data.Entity
             where TEntity : class
             where TEntityBuilder : IEntityBuilder<TEntity, TEntityBuilder>
         {
-            Check.NotNull(entityBuilder, "entityBuilder");
+            Check.NotNull(entityBuilder, nameof(entityBuilder));
 
             relationalEntityBuilder(ForSqlServer(entityBuilder));
 
@@ -83,7 +83,7 @@ namespace Microsoft.Data.Entity
             [NotNull] this IKeyBuilder<TKeyBuilder> keyBuilder)
             where TKeyBuilder : IKeyBuilder<TKeyBuilder>
         {
-            Check.NotNull(keyBuilder, "keyBuilder");
+            Check.NotNull(keyBuilder, nameof(keyBuilder));
 
             return new SqlServerKeyBuilder(keyBuilder.Metadata);
         }
@@ -93,8 +93,8 @@ namespace Microsoft.Data.Entity
             [NotNull] Action<SqlServerKeyBuilder> relationalKeyBuilder)
             where TKeyBuilder : IKeyBuilder<TKeyBuilder>
         {
-            Check.NotNull(keyBuilder, "keyBuilder");
-            Check.NotNull(relationalKeyBuilder, "relationalKeyBuilder");
+            Check.NotNull(keyBuilder, nameof(keyBuilder));
+            Check.NotNull(relationalKeyBuilder, nameof(relationalKeyBuilder));
 
             relationalKeyBuilder(ForSqlServer(keyBuilder));
 
@@ -105,7 +105,7 @@ namespace Microsoft.Data.Entity
             [NotNull] this IForeignKeyBuilder<TForeignKeyBuilder> foreignKeyBuilder)
             where TForeignKeyBuilder : IForeignKeyBuilder<TForeignKeyBuilder>
         {
-            Check.NotNull(foreignKeyBuilder, "foreignKeyBuilder");
+            Check.NotNull(foreignKeyBuilder, nameof(foreignKeyBuilder));
 
             return new SqlServerForeignKeyBuilder(foreignKeyBuilder.Metadata);
         }
@@ -115,8 +115,8 @@ namespace Microsoft.Data.Entity
             [NotNull] Action<SqlServerForeignKeyBuilder> relationalForeignKeyBuilder)
             where TForeignKeyBuilder : IForeignKeyBuilder<TForeignKeyBuilder>
         {
-            Check.NotNull(foreignKeyBuilder, "foreignKeyBuilder");
-            Check.NotNull(relationalForeignKeyBuilder, "relationalForeignKeyBuilder");
+            Check.NotNull(foreignKeyBuilder, nameof(foreignKeyBuilder));
+            Check.NotNull(relationalForeignKeyBuilder, nameof(relationalForeignKeyBuilder));
 
             relationalForeignKeyBuilder(ForSqlServer(foreignKeyBuilder));
 
@@ -127,7 +127,7 @@ namespace Microsoft.Data.Entity
             [NotNull] this IIndexBuilder<TIndexBuilder> indexBuilder)
             where TIndexBuilder : IIndexBuilder<TIndexBuilder>
         {
-            Check.NotNull(indexBuilder, "indexBuilder");
+            Check.NotNull(indexBuilder, nameof(indexBuilder));
 
             return new SqlServerIndexBuilder(indexBuilder.Metadata);
         }
@@ -137,8 +137,8 @@ namespace Microsoft.Data.Entity
             [NotNull] Action<SqlServerIndexBuilder> relationalIndexBuilder)
             where TIndexBuilder : IIndexBuilder<TIndexBuilder>
         {
-            Check.NotNull(indexBuilder, "indexBuilder");
-            Check.NotNull(relationalIndexBuilder, "relationalIndexBuilder");
+            Check.NotNull(indexBuilder, nameof(indexBuilder));
+            Check.NotNull(relationalIndexBuilder, nameof(relationalIndexBuilder));
 
             relationalIndexBuilder(ForSqlServer(indexBuilder));
 
@@ -149,7 +149,7 @@ namespace Microsoft.Data.Entity
             [NotNull] this IOneToManyBuilder<TOneToManyBuilder> oneToManyBuilder)
             where TOneToManyBuilder : IOneToManyBuilder<TOneToManyBuilder>
         {
-            Check.NotNull(oneToManyBuilder, "oneToManyBuilder");
+            Check.NotNull(oneToManyBuilder, nameof(oneToManyBuilder));
 
             return new SqlServerForeignKeyBuilder(oneToManyBuilder.Metadata);
         }
@@ -159,8 +159,8 @@ namespace Microsoft.Data.Entity
             [NotNull] Action<SqlServerForeignKeyBuilder> relationalOneToManyBuilder)
             where TOneToManyBuilder : IOneToManyBuilder<TOneToManyBuilder>
         {
-            Check.NotNull(oneToManyBuilder, "oneToManyBuilder");
-            Check.NotNull(relationalOneToManyBuilder, "relationalOneToManyBuilder");
+            Check.NotNull(oneToManyBuilder, nameof(oneToManyBuilder));
+            Check.NotNull(relationalOneToManyBuilder, nameof(relationalOneToManyBuilder));
 
             relationalOneToManyBuilder(ForSqlServer(oneToManyBuilder));
 
@@ -171,7 +171,7 @@ namespace Microsoft.Data.Entity
             [NotNull] this IManyToOneBuilder<TManyToOneBuilder> manyToOneBuilder)
             where TManyToOneBuilder : IManyToOneBuilder<TManyToOneBuilder>
         {
-            Check.NotNull(manyToOneBuilder, "manyToOneBuilder");
+            Check.NotNull(manyToOneBuilder, nameof(manyToOneBuilder));
 
             return new SqlServerForeignKeyBuilder(manyToOneBuilder.Metadata);
         }
@@ -181,8 +181,8 @@ namespace Microsoft.Data.Entity
             [NotNull] Action<SqlServerForeignKeyBuilder> relationalManyToOneBuilder)
             where TManyToOneBuilder : IManyToOneBuilder<TManyToOneBuilder>
         {
-            Check.NotNull(manyToOneBuilder, "manyToOneBuilder");
-            Check.NotNull(relationalManyToOneBuilder, "relationalManyToOneBuilder");
+            Check.NotNull(manyToOneBuilder, nameof(manyToOneBuilder));
+            Check.NotNull(relationalManyToOneBuilder, nameof(relationalManyToOneBuilder));
 
             relationalManyToOneBuilder(ForSqlServer(manyToOneBuilder));
 
@@ -193,7 +193,7 @@ namespace Microsoft.Data.Entity
             [NotNull] this IOneToOneBuilder<TOneToOneBuilder> oneToOneBuilder)
             where TOneToOneBuilder : IOneToOneBuilder<TOneToOneBuilder>
         {
-            Check.NotNull(oneToOneBuilder, "oneToOneBuilder");
+            Check.NotNull(oneToOneBuilder, nameof(oneToOneBuilder));
 
             return new SqlServerForeignKeyBuilder(oneToOneBuilder.Metadata);
         }
@@ -203,8 +203,8 @@ namespace Microsoft.Data.Entity
             [NotNull] Action<SqlServerForeignKeyBuilder> relationalOneToOneBuilder)
             where TOneToOneBuilder : IOneToOneBuilder<TOneToOneBuilder>
         {
-            Check.NotNull(oneToOneBuilder, "oneToOneBuilder");
-            Check.NotNull(relationalOneToOneBuilder, "relationalOneToOneBuilder");
+            Check.NotNull(oneToOneBuilder, nameof(oneToOneBuilder));
+            Check.NotNull(relationalOneToOneBuilder, nameof(relationalOneToOneBuilder));
 
             relationalOneToOneBuilder(ForSqlServer(oneToOneBuilder));
 
@@ -215,7 +215,7 @@ namespace Microsoft.Data.Entity
             [NotNull] this IModelBuilder<TModelBuilder> modelBuilder)
             where TModelBuilder : IModelBuilder<TModelBuilder>
         {
-            Check.NotNull(modelBuilder, "modelBuilder");
+            Check.NotNull(modelBuilder, nameof(modelBuilder));
 
             return new SqlServerModelBuilder(modelBuilder.Metadata);
         }
@@ -225,8 +225,8 @@ namespace Microsoft.Data.Entity
             [NotNull] Action<SqlServerModelBuilder> sqlServerModelBuilder)
             where TModelBuilder : IModelBuilder<TModelBuilder>
         {
-            Check.NotNull(modelBuilder, "modelBuilder");
-            Check.NotNull(sqlServerModelBuilder, "sqlServerModelBuilder");
+            Check.NotNull(modelBuilder, nameof(modelBuilder));
+            Check.NotNull(sqlServerModelBuilder, nameof(sqlServerModelBuilder));
 
             sqlServerModelBuilder(ForSqlServer(modelBuilder));
 

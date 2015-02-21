@@ -17,8 +17,8 @@ namespace System.Linq
             [NotNull] this IAsyncEnumerable<TSource> source,
             [NotNull] Func<TSource, CancellationToken, Task<TResult>> selector)
         {
-            Check.NotNull(source, "source");
-            Check.NotNull(selector, "selector");
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(selector, nameof(selector));
 
             return new AsyncSelectEnumerable<TSource, TResult>(source, selector);
         }
@@ -32,8 +32,8 @@ namespace System.Linq
                 [NotNull] IAsyncEnumerable<TSource> source,
                 [NotNull] Func<TSource, CancellationToken, Task<TResult>> selector)
             {
-                Check.NotNull(source, "source");
-                Check.NotNull(selector, "selector");
+                Check.NotNull(source, nameof(source));
+                Check.NotNull(selector, nameof(selector));
 
                 _source = source;
                 _selector = selector;

@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.Utilities
 
         public ThreadSafeLazyRef([NotNull] Func<T> initializer)
         {
-            Check.NotNull(initializer, "initializer");
+            Check.NotNull(initializer, nameof(initializer));
 
             _initializer = initializer;
         }
@@ -54,7 +54,7 @@ namespace Microsoft.Data.Entity.Utilities
 
         public void ExchangeValue([NotNull] Func<T, T> newValueCreator)
         {
-            Check.NotNull(newValueCreator, "newValueCreator");
+            Check.NotNull(newValueCreator, nameof(newValueCreator));
 
             T originalValue, newValue;
 

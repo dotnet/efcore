@@ -23,8 +23,8 @@ namespace Microsoft.Data.Entity.Infrastructure
             [NotNull] DbContext context,
             [NotNull] Type type)
         {
-            Check.NotNull(context, "context");
-            Check.NotNull(type, "type");
+            Check.NotNull(context, nameof(context));
+            Check.NotNull(type, nameof(type));
 
             var factory = _cache.GetOrAdd(
                 type,

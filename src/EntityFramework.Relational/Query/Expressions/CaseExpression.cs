@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
         public CaseExpression([NotNull] Expression when)
             : base(typeof(bool))
         {
-            Check.NotNull(when, "when");
+            Check.NotNull(when, nameof(when));
 
             When = when;
         }
@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         public override Expression Accept([NotNull] ExpressionTreeVisitor visitor)
         {
-            Check.NotNull(visitor, "visitor");
+            Check.NotNull(visitor, nameof(visitor));
 
             var specificVisitor = visitor as ISqlExpressionVisitor;
 

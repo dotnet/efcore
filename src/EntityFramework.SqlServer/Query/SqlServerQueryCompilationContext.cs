@@ -43,21 +43,21 @@ namespace Microsoft.Data.Entity.SqlServer.Query
 
         public override string GetTableName(IEntityType entityType)
         {
-            Check.NotNull(entityType, "entityType");
+            Check.NotNull(entityType, nameof(entityType));
 
             return entityType.SqlServer().Table;
         }
 
         public override string GetSchema(IEntityType entityType)
         {
-            Check.NotNull(entityType, "entityType");
+            Check.NotNull(entityType, nameof(entityType));
 
             return entityType.SqlServer().Schema;
         }
 
         public override string GetColumnName(IProperty property)
         {
-            Check.NotNull(property, "property");
+            Check.NotNull(property, nameof(property));
 
             return property.SqlServer().Column;
         }

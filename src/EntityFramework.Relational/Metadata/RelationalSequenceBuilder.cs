@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata
 
         public RelationalSequenceBuilder([NotNull] Sequence sequence)
         {
-            Check.NotNull(sequence, "sequence");
+            Check.NotNull(sequence, nameof(sequence));
 
             _sequence = sequence;
         }

@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity
     {
         public static SqlServerDatabase AsSqlServer([NotNull] this Database database)
         {
-            Check.NotNull(database, "database");
+            Check.NotNull(database, nameof(database));
 
             var sqlServerDatabase = database as SqlServerDatabase;
 

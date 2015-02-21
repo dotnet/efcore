@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.Metadata
     {
         public static IEnumerable<IPropertyBase> GetPropertiesAndNavigations([NotNull] this IEntityType entityType)
         {
-            Check.NotNull(entityType, "entityType");
+            Check.NotNull(entityType, nameof(entityType));
 
             return entityType.Properties.Concat<IPropertyBase>(entityType.Navigations);
         }

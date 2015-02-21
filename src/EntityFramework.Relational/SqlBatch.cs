@@ -10,7 +10,7 @@ namespace Microsoft.Data.Entity.Relational
     {
         public SqlBatch([NotNull] string sql)
         {
-            Check.NotNull(sql, "sql");
+            Check.NotNull(sql, nameof(sql));
 
             Sql = sql;
         }

@@ -21,8 +21,8 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             [NotNull] IQuerySource outerQuerySource,
             [NotNull] RelationalQueryCompilationContext relationalQueryCompilationContext)
         {
-            Check.NotNull(outerQuerySource, "outerQuerySource");
-            Check.NotNull(relationalQueryCompilationContext, "relationalQueryCompilationContext");
+            Check.NotNull(outerQuerySource, nameof(outerQuerySource));
+            Check.NotNull(relationalQueryCompilationContext, nameof(relationalQueryCompilationContext));
 
             _outerQuerySource = outerQuerySource;
             _relationalQueryCompilationContext = relationalQueryCompilationContext;
@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
         protected override Expression VisitMethodCallExpression([NotNull] MethodCallExpression methodCallExpression)
         {
-            Check.NotNull(methodCallExpression, "methodCallExpression");
+            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
 
             var newObject = VisitExpression(methodCallExpression.Object);
 
@@ -85,7 +85,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
         protected override Expression VisitLambdaExpression([NotNull] LambdaExpression lambdaExpression)
         {
-            Check.NotNull(lambdaExpression, "lambdaExpression");
+            Check.NotNull(lambdaExpression, nameof(lambdaExpression));
 
             var newBodyExpression = VisitExpression(lambdaExpression.Body);
 

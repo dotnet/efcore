@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.Storage
 
         protected DataStoreTransaction([NotNull] ILogger logger)
         {
-            Check.NotNull(logger, "logger");
+            Check.NotNull(logger, nameof(logger));
 
             Logger = logger;
         }

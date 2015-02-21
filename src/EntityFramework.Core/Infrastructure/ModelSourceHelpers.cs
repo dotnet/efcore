@@ -10,8 +10,8 @@ namespace Microsoft.Data.Entity.Infrastructure
     {
         public static void OnModelCreating([NotNull] DbContext context, [NotNull] ModelBuilder modelBuilder)
         {
-            Check.NotNull(context, "context");
-            Check.NotNull(modelBuilder, "modelBuilder");
+            Check.NotNull(context, nameof(context));
+            Check.NotNull(modelBuilder, nameof(modelBuilder));
 
             context.OnModelCreating(modelBuilder);
         }

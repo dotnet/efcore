@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity.Infrastructure
 
         protected internal virtual void Configure([NotNull] IReadOnlyDictionary<string, string> rawOptions)
         {
-            Check.NotNull(rawOptions, "rawOptions");
+            Check.NotNull(rawOptions, nameof(rawOptions));
 
             RawOptions = rawOptions;
         }

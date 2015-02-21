@@ -12,7 +12,7 @@ namespace Microsoft.Data.Entity.SqlServer
     {
         protected override void ApplyServices(EntityFrameworkServicesBuilder builder)
         {
-            Check.NotNull(builder, "builder");
+            Check.NotNull(builder, nameof(builder));
 
             builder.AddSqlServer();
         }

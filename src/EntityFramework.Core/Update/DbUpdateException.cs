@@ -20,8 +20,8 @@ namespace Microsoft.Data.Entity.Update
         public DbUpdateException([NotNull] string message, [NotNull] DbContext context)
             : base(message, context)
         {
-            Check.NotEmpty(message, "message");
-            Check.NotNull(context, "context");
+            Check.NotEmpty(message, nameof(message));
+            Check.NotNull(context, nameof(context));
 
             Entries = new List<InternalEntityEntry>();
         }
@@ -29,8 +29,8 @@ namespace Microsoft.Data.Entity.Update
         public DbUpdateException([NotNull] string message, [NotNull] DbContext context, [CanBeNull] Exception innerException)
             : base(message, context, innerException)
         {
-            Check.NotEmpty(message, "message");
-            Check.NotNull(context, "context");
+            Check.NotEmpty(message, nameof(message));
+            Check.NotNull(context, nameof(context));
 
             Entries = new List<InternalEntityEntry>();
         }
@@ -38,9 +38,9 @@ namespace Microsoft.Data.Entity.Update
         public DbUpdateException([NotNull] string message, [NotNull] DbContext context, [NotNull] IReadOnlyList<InternalEntityEntry> entries)
             : base(message, context)
         {
-            Check.NotEmpty(message, "message");
-            Check.NotNull(context, "context");
-            Check.NotEmpty(entries, "entries");
+            Check.NotEmpty(message, nameof(message));
+            Check.NotNull(context, nameof(context));
+            Check.NotEmpty(entries, nameof(entries));
 
             Entries = entries;
         }
@@ -48,9 +48,9 @@ namespace Microsoft.Data.Entity.Update
         public DbUpdateException([NotNull] string message, [NotNull] DbContext context, [CanBeNull] Exception innerException, [NotNull] IReadOnlyList<InternalEntityEntry> entries)
             : base(message, context, innerException)
         {
-            Check.NotEmpty(message, "message");
-            Check.NotNull(context, "context");
-            Check.NotEmpty(entries, "entries");
+            Check.NotEmpty(message, nameof(message));
+            Check.NotNull(context, nameof(context));
+            Check.NotEmpty(entries, nameof(entries));
 
             Entries = entries;
         }

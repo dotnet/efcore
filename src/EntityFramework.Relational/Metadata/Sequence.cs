@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata
             [CanBeNull] long? maxValue = null,
             [CanBeNull] Type type = null)
         {
-            Check.NotEmpty(name, "name");
+            Check.NotEmpty(name, nameof(name));
             Check.NullButNotEmpty(schema, "schema");
 
             type = type ?? DefaultType;
@@ -71,7 +71,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata
             [param: NotNull]
             set
             {
-                Check.NotNull(value, "value");
+                Check.NotNull(value, nameof(value));
 
                 _model = value;
             }
@@ -100,7 +100,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata
 
         public static Sequence Deserialize([NotNull] string value)
         {
-            Check.NotEmpty(value, "value");
+            Check.NotEmpty(value, nameof(value));
 
             try
             {

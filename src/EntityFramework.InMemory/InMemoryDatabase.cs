@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.InMemory
 
         public InMemoryDatabase([NotNull] ILoggerFactory loggerFactory)
         {
-            Check.NotNull(loggerFactory, "loggerFactory");
+            Check.NotNull(loggerFactory, nameof(loggerFactory));
 
             _logger = loggerFactory.Create<InMemoryDatabase>();
         }

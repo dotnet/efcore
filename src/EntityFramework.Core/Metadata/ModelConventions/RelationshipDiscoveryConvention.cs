@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
     {
         public virtual InternalEntityBuilder Apply(InternalEntityBuilder entityBuilder)
         {
-            Check.NotNull(entityBuilder, "entityBuilder");
+            Check.NotNull(entityBuilder, nameof(entityBuilder));
             var entityType = entityBuilder.Metadata;
 
             var navigationPairCandidates = new Dictionary<InternalEntityBuilder, Tuple<List<PropertyInfo>, List<PropertyInfo>>>();

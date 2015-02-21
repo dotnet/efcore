@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.Relational
 
         public RelationalTypedValueReader([NotNull] DbDataReader dataReader)
         {
-            Check.NotNull(dataReader, "dataReader");
+            Check.NotNull(dataReader, nameof(dataReader));
 
             _dataReader = dataReader;
         }

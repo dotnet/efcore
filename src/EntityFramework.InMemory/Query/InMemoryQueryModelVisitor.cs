@@ -36,10 +36,10 @@ namespace Microsoft.Data.Entity.InMemory.Query
             IReadOnlyList<INavigation> navigationPath,
             bool querySourceRequiresTracking)
         {
-            Check.NotNull(querySource, "querySource");
-            Check.NotNull(resultType, "resultType");
-            Check.NotNull(accessorLambda, "accessorLambda");
-            Check.NotNull(navigationPath, "navigationPath");
+            Check.NotNull(querySource, nameof(querySource));
+            Check.NotNull(resultType, nameof(resultType));
+            Check.NotNull(accessorLambda, nameof(accessorLambda));
+            Check.NotNull(navigationPath, nameof(navigationPath));
 
             var primaryKeyParameter = Expression.Parameter(typeof(EntityKey));
             var relatedKeyFactoryParameter = Expression.Parameter(typeof(Func<IValueReader, EntityKey>));
@@ -168,7 +168,7 @@ namespace Microsoft.Data.Entity.InMemory.Query
 
             protected override Expression VisitEntityQueryable(Type elementType)
             {
-                Check.NotNull(elementType, "elementType");
+                Check.NotNull(elementType, nameof(elementType));
 
                 var entityType
                     = QueryModelVisitor.QueryCompilationContext.Model

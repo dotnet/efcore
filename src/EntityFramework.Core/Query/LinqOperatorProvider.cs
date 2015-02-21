@@ -315,8 +315,8 @@ namespace Microsoft.Data.Entity.Query
 
         public virtual MethodInfo GetAggregateMethod(string methodName, Type elementType)
         {
-            Check.NotEmpty(methodName, "methodName");
-            Check.NotNull(elementType, "elementType");
+            Check.NotEmpty(methodName, nameof(methodName));
+            Check.NotNull(elementType, nameof(elementType));
 
             var aggregateMethods = GetMethods(methodName).ToList();
 

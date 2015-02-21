@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         public static INavigation GetNavigationToPrincipal([NotNull] this IForeignKey foreignKey)
         {
-            Check.NotNull(foreignKey, "foreignKey");
+            Check.NotNull(foreignKey, nameof(foreignKey));
 
             return foreignKey.EntityType.Navigations.SingleOrDefault(
                 navigation => navigation.ForeignKey == foreignKey && navigation.PointsToPrincipal);
@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         public static INavigation GetNavigationToDependent([NotNull] this IForeignKey foreignKey)
         {
-            Check.NotNull(foreignKey, "foreignKey");
+            Check.NotNull(foreignKey, nameof(foreignKey));
 
             return foreignKey.ReferencedEntityType.Navigations.SingleOrDefault(
                 navigation => navigation.ForeignKey == foreignKey && !navigation.PointsToPrincipal);
@@ -42,9 +42,9 @@ namespace Microsoft.Data.Entity.Metadata
             [NotNull] EntityType dependentType,
             bool? isUnique)
         {
-            Check.NotNull(foreignKey, "foreignKey");
-            Check.NotNull(principalType, "principalType");
-            Check.NotNull(dependentType, "dependentType");
+            Check.NotNull(foreignKey, nameof(foreignKey));
+            Check.NotNull(principalType, nameof(principalType));
+            Check.NotNull(dependentType, nameof(dependentType));
 
             return (isUnique == null || ((IForeignKey)foreignKey).IsUnique == isUnique)
                    && foreignKey.ReferencedEntityType == principalType
@@ -59,9 +59,9 @@ namespace Microsoft.Data.Entity.Metadata
             [CanBeNull] IReadOnlyList<Property> referencedProperties,
             bool? isUnique)
         {
-            Check.NotNull(foreignKey, "foreignKey");
-            Check.NotNull(principalType, "principalType");
-            Check.NotNull(dependentType, "dependentType");
+            Check.NotNull(foreignKey, nameof(foreignKey));
+            Check.NotNull(principalType, nameof(principalType));
+            Check.NotNull(dependentType, nameof(dependentType));
 
             return foreignKey.IsCompatible(principalType, dependentType, isUnique)
                    && (foreignKeyProperties == null
@@ -82,9 +82,9 @@ namespace Microsoft.Data.Entity.Metadata
             [CanBeNull] IReadOnlyList<Property> referencedProperties,
             bool? isUnique)
         {
-            Check.NotNull(foreignKey, "foreignKey");
-            Check.NotNull(principalType, "principalType");
-            Check.NotNull(dependentType, "dependentType");
+            Check.NotNull(foreignKey, nameof(foreignKey));
+            Check.NotNull(principalType, nameof(principalType));
+            Check.NotNull(dependentType, nameof(dependentType));
 
             var existingNavigationToPrincipal = foreignKey.GetNavigationToPrincipal();
             var existingNavigationToDependent = foreignKey.GetNavigationToDependent();
@@ -96,7 +96,7 @@ namespace Microsoft.Data.Entity.Metadata
         public static IEnumerable<IProperty> GetRootPrincipals(
             [NotNull] this IForeignKey foreignKey, int propertyIndex)
         {
-            Check.NotNull(foreignKey, "foreignKey");
+            Check.NotNull(foreignKey, nameof(foreignKey));
 
             var principalProperty = foreignKey.ReferencedProperties[propertyIndex];
             var isForeignKey = false;

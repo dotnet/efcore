@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.Metadata
     {
         public virtual Type TryFindTypeToInstantiate([NotNull] Type collectionType)
         {
-            Check.NotNull(collectionType, "collectionType");
+            Check.NotNull(collectionType, nameof(collectionType));
 
             // Code taken from EF6. The rules are:
             // If the collection is defined as a concrete type with a public parameterless constructor, then create an instance of that type

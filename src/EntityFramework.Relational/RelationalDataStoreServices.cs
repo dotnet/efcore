@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.Relational
 
         protected new static RelationalDataStoreServices GetStoreServices([NotNull] IServiceProvider serviceProvider)
         {
-            Check.NotNull(serviceProvider, "serviceProvider");
+            Check.NotNull(serviceProvider, nameof(serviceProvider));
 
             return (RelationalDataStoreServices)serviceProvider.GetRequiredService<DbContextServices>().DataStoreServices;
         }

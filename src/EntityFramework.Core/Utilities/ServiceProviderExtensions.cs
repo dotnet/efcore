@@ -16,7 +16,7 @@ namespace Microsoft.Framework.DependencyInjection
         public static TService TryGetService<TService>([NotNull] this IServiceProvider serviceProvider)
             where TService : class
         {
-            Check.NotNull(serviceProvider, "serviceProvider");
+            Check.NotNull(serviceProvider, nameof(serviceProvider));
 
             try
             {
@@ -32,8 +32,8 @@ namespace Microsoft.Framework.DependencyInjection
 
         public static object TryGetService([NotNull] this IServiceProvider serviceProvider, Type serviceType)
         {
-            Check.NotNull(serviceProvider, "serviceProvider");
-            Check.NotNull(serviceType, "serviceType");
+            Check.NotNull(serviceProvider, nameof(serviceProvider));
+            Check.NotNull(serviceType, nameof(serviceType));
 
             try
             {
@@ -50,7 +50,7 @@ namespace Microsoft.Framework.DependencyInjection
         public static TService GetRequiredServiceChecked<TService>([NotNull] this IServiceProvider serviceProvider)
             where TService : class
         {
-            Check.NotNull(serviceProvider, "serviceProvider");
+            Check.NotNull(serviceProvider, nameof(serviceProvider));
 
             try
             {
@@ -66,8 +66,8 @@ namespace Microsoft.Framework.DependencyInjection
 
         public static object GetRequiredServiceChecked([NotNull] this IServiceProvider serviceProvider, Type serviceType)
         {
-            Check.NotNull(serviceProvider, "serviceProvider");
-            Check.NotNull(serviceType, "serviceType");
+            Check.NotNull(serviceProvider, nameof(serviceProvider));
+            Check.NotNull(serviceType, nameof(serviceType));
 
             try
             {

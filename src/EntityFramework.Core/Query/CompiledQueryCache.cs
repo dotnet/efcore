@@ -39,7 +39,7 @@ namespace Microsoft.Data.Entity.Query
 
         public CompiledQueryCache([NotNull] IMemoryCache memoryCache)
         {
-            Check.NotNull(memoryCache, "memoryCache");
+            Check.NotNull(memoryCache, nameof(memoryCache));
 
             _memoryCache = memoryCache;
         }
@@ -47,9 +47,9 @@ namespace Microsoft.Data.Entity.Query
         public virtual TResult Execute<TResult>(
             Expression query, DataStore dataStore, QueryContext queryContext)
         {
-            Check.NotNull(query, "query");
-            Check.NotNull(dataStore, "dataStore");
-            Check.NotNull(queryContext, "queryContext");
+            Check.NotNull(query, nameof(query));
+            Check.NotNull(dataStore, nameof(dataStore));
+            Check.NotNull(queryContext, nameof(queryContext));
 
             var compiledQuery
                 = GetOrAdd(query, queryContext, dataStore, isAsync: false, compiler: (q, ds) =>
@@ -81,9 +81,9 @@ namespace Microsoft.Data.Entity.Query
         public virtual IAsyncEnumerable<TResult> ExecuteAsync<TResult>(
             Expression query, DataStore dataStore, QueryContext queryContext)
         {
-            Check.NotNull(query, "query");
-            Check.NotNull(dataStore, "dataStore");
-            Check.NotNull(queryContext, "queryContext");
+            Check.NotNull(query, nameof(query));
+            Check.NotNull(dataStore, nameof(dataStore));
+            Check.NotNull(queryContext, nameof(queryContext));
 
             var compiledQuery
                 = GetOrAdd(query, queryContext, dataStore, isAsync: true, compiler: (q, ds) =>
@@ -106,9 +106,9 @@ namespace Microsoft.Data.Entity.Query
         public virtual Task<TResult> ExecuteAsync<TResult>(
             Expression query, DataStore dataStore, QueryContext queryContext, CancellationToken cancellationToken)
         {
-            Check.NotNull(query, "query");
-            Check.NotNull(dataStore, "dataStore");
-            Check.NotNull(queryContext, "queryContext");
+            Check.NotNull(query, nameof(query));
+            Check.NotNull(dataStore, nameof(dataStore));
+            Check.NotNull(queryContext, nameof(queryContext));
 
             var compiledQuery
                 = GetOrAdd(query, queryContext, dataStore, isAsync: true, compiler: (q, ds) =>

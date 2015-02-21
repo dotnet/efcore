@@ -14,14 +14,14 @@ namespace Microsoft.Data.Entity.Metadata
 
         public ClrPropertySetter([NotNull] Action<TEntity, TValue> setter)
         {
-            Check.NotNull(setter, "setter");
+            Check.NotNull(setter, nameof(setter));
 
             _setter = setter;
         }
 
         public virtual void SetClrValue(object instance, object value)
         {
-            Check.NotNull(instance, "instance");
+            Check.NotNull(instance, nameof(instance));
 
             _setter((TEntity)instance, (TValue)value);
         }

@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.Relational
 
         public RelationalTypeMapping([NotNull] string storeTypeName, DbType storeType)
         {
-            Check.NotEmpty(storeTypeName, "storeTypeName");
+            Check.NotEmpty(storeTypeName, nameof(storeTypeName));
 
             StoreTypeName = storeTypeName;
             _storeType = storeType;
@@ -40,8 +40,8 @@ namespace Microsoft.Data.Entity.Relational
 
         public virtual DbParameter CreateParameter([NotNull] DbCommand command, [NotNull] ColumnModification columnModification, bool useOriginalValue)
         {
-            Check.NotNull(command, "command");
-            Check.NotNull(columnModification, "columnModification");
+            Check.NotNull(command, nameof(command));
+            Check.NotNull(columnModification, nameof(columnModification));
 
             var parameter = command.CreateParameter();
             parameter.Direction = ParameterDirection.Input;
@@ -65,8 +65,8 @@ namespace Microsoft.Data.Entity.Relational
 
         protected virtual void ConfigureParameter([NotNull] DbParameter parameter, [NotNull] ColumnModification columnModification)
         {
-            Check.NotNull(parameter, "parameter");
-            Check.NotNull(columnModification, "columnModification");
+            Check.NotNull(parameter, nameof(parameter));
+            Check.NotNull(columnModification, nameof(columnModification));
 
             parameter.DbType = _storeType;
             parameter.IsNullable = columnModification.Property.IsNullable;

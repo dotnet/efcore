@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.Relational
             [param: NotNull]
             set
             {
-                Check.NotEmpty(value, "value");
+                Check.NotEmpty(value, nameof(value));
 
                 _connectionString = value;
             }
@@ -41,7 +41,7 @@ namespace Microsoft.Data.Entity.Relational
             [param: NotNull]
             set
             {
-                Check.NotNull(value, "value");
+                Check.NotNull(value, nameof(value));
 
                 _connection = value;
             }
@@ -107,7 +107,7 @@ namespace Microsoft.Data.Entity.Relational
 
         public static RelationalOptionsExtension Extract([NotNull] IDbContextOptions options)
         {
-            Check.NotNull(options, "options");
+            Check.NotNull(options, nameof(options));
 
             var storeConfigs = options.Extensions
                 .OfType<RelationalOptionsExtension>()

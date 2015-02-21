@@ -10,8 +10,8 @@ namespace Microsoft.Data.Entity.Metadata
     {
         public Annotation([NotNull] string name, [NotNull] string value)
         {
-            Check.NotEmpty(name, "name");
-            Check.NotEmpty(value, "value");
+            Check.NotEmpty(name, nameof(name));
+            Check.NotEmpty(value, nameof(value));
 
             Name = name;
             Value = value;

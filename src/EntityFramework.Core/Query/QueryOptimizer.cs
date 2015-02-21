@@ -20,15 +20,15 @@ namespace Microsoft.Data.Entity.Query
 
         public QueryOptimizer([NotNull] ICollection<QueryAnnotation> queryAnnotations)
         {
-            Check.NotNull(queryAnnotations, "queryAnnotations");
+            Check.NotNull(queryAnnotations, nameof(queryAnnotations));
 
             _queryAnnotations = queryAnnotations;
         }
 
         public override void VisitJoinClause(JoinClause joinClause, QueryModel queryModel, int index)
         {
-            Check.NotNull(joinClause, "joinClause");
-            Check.NotNull(queryModel, "queryModel");
+            Check.NotNull(joinClause, nameof(joinClause));
+            Check.NotNull(queryModel, nameof(queryModel));
 
             var subQueryExpression = joinClause.InnerSequence as SubQueryExpression;
 
@@ -60,9 +60,9 @@ namespace Microsoft.Data.Entity.Query
             [NotNull] QueryModel queryModel,
             int destinationIndex)
         {
-            Check.NotNull(subQueryExpression, "subQueryExpression");
-            Check.NotNull(fromClause, "fromClause");
-            Check.NotNull(queryModel, "queryModel");
+            Check.NotNull(subQueryExpression, nameof(subQueryExpression));
+            Check.NotNull(fromClause, nameof(fromClause));
+            Check.NotNull(queryModel, nameof(queryModel));
 
             var subQueryModel = subQueryExpression.QueryModel;
 

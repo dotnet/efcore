@@ -60,8 +60,8 @@ namespace Microsoft.Data.Entity.Relational
             bool isKey,
             bool isConcurrencyToken)
         {
-            Check.NotNull(storageName, "storageName");
-            Check.NotNull(propertyType, "propertyType");
+            Check.NotNull(storageName, nameof(storageName));
+            Check.NotNull(propertyType, nameof(propertyType));
 
             // TODO: if specifiedType is non-null then parse it to create a type mapping
             // TODO: Consider allowing Code First to specify an actual type mapping instead of just the string

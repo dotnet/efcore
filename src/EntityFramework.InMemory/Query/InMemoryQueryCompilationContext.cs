@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.InMemory.Query
                 Check.NotNull(entityMaterializerSource, "entityMaterializerSource"),
                 Check.NotNull(entityKeyFactorySource, "entityKeyFactorySource"))
         {
-            Check.NotNull(entityKeyFactorySource, "entityKeyFactorySource");
+            Check.NotNull(entityKeyFactorySource, nameof(entityKeyFactorySource));
         }
 
         public override EntityQueryModelVisitor CreateQueryModelVisitor(

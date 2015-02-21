@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
 
         public virtual InternalEntityBuilder Apply(InternalEntityBuilder entityBuilder)
         {
-            Check.NotNull(entityBuilder, "entityBuilder");
+            Check.NotNull(entityBuilder, nameof(entityBuilder));
             var entityType = entityBuilder.Metadata;
 
             var keyProperties = DiscoverKeyProperties(entityType);
@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
 
         protected virtual IReadOnlyList<Property> DiscoverKeyProperties([NotNull] EntityType entityType)
         {
-            Check.NotNull(entityType, "entityType");
+            Check.NotNull(entityType, nameof(entityType));
 
             // TODO: Honor [Key]
             // Issue #213
@@ -61,7 +61,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
 
         protected virtual void ConfigureKeyProperty([NotNull] InternalPropertyBuilder propertyBuilder)
         {
-            Check.NotNull(propertyBuilder, "propertyBuilder");
+            Check.NotNull(propertyBuilder, nameof(propertyBuilder));
 
             propertyBuilder.GenerateValueOnAdd(true, ConfigurationSource.Convention);
 

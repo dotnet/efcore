@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata
 
         public RelationalKeyBuilder([NotNull] Key key)
         {
-            Check.NotNull(key, "key");
+            Check.NotNull(key, nameof(key));
 
             _key = key;
         }

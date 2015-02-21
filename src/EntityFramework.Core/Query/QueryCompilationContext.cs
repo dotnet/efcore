@@ -19,12 +19,12 @@ namespace Microsoft.Data.Entity.Query
             [NotNull] EntityMaterializerSource entityMaterializerSource,
             [NotNull] EntityKeyFactorySource entityKeyFactorySource)
         {
-            Check.NotNull(model, "model");
-            Check.NotNull(logger, "logger");
-            Check.NotNull(linqOperatorProvider, "linqOperatorProvider");
-            Check.NotNull(resultOperatorHandler, "resultOperatorHandler");
-            Check.NotNull(entityMaterializerSource, "entityMaterializerSource");
-            Check.NotNull(entityKeyFactorySource, "entityKeyFactorySource");
+            Check.NotNull(model, nameof(model));
+            Check.NotNull(logger, nameof(logger));
+            Check.NotNull(linqOperatorProvider, nameof(linqOperatorProvider));
+            Check.NotNull(resultOperatorHandler, nameof(resultOperatorHandler));
+            Check.NotNull(entityMaterializerSource, nameof(entityMaterializerSource));
+            Check.NotNull(entityKeyFactorySource, nameof(entityKeyFactorySource));
 
             Model = model;
             Logger = logger;

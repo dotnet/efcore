@@ -49,9 +49,9 @@ namespace Microsoft.Data.Entity.Query
             ResultOperatorBase resultOperator,
             QueryModel queryModel)
         {
-            Check.NotNull(entityQueryModelVisitor, "entityQueryModelVisitor");
-            Check.NotNull(resultOperator, "resultOperator");
-            Check.NotNull(queryModel, "queryModel");
+            Check.NotNull(entityQueryModelVisitor, nameof(entityQueryModelVisitor));
+            Check.NotNull(resultOperator, nameof(resultOperator));
+            Check.NotNull(queryModel, nameof(queryModel));
 
             ResultHandler handler;
             if (!_handlers.TryGetValue(resultOperator.GetType(), out handler))
@@ -288,7 +288,7 @@ namespace Microsoft.Data.Entity.Query
         public static Expression CallWithPossibleCancellationToken(
             [NotNull] MethodInfo methodInfo, [CanBeNull] params Expression[] arguments)
         {
-            Check.NotNull(methodInfo, "methodInfo");
+            Check.NotNull(methodInfo, nameof(methodInfo));
 
             if (methodInfo.GetParameters().Last().ParameterType == typeof(CancellationToken))
             {

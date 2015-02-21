@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity.Storage
     {
         public DataStoreErrorLogState([NotNull] Type contextType)
         {
-            Check.NotNull(contextType, "contextType");
+            Check.NotNull(contextType, nameof(contextType));
 
             ContextType = contextType;
         }

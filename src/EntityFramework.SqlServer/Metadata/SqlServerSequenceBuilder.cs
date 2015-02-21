@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
 
         public SqlServerSequenceBuilder([NotNull] Sequence sequence)
         {
-            Check.NotNull(sequence, "sequence");
+            Check.NotNull(sequence, nameof(sequence));
 
             _sequence = sequence;
         }

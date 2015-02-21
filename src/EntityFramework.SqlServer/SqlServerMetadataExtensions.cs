@@ -14,84 +14,84 @@ namespace Microsoft.Data.Entity
     {
         public static SqlServerPropertyExtensions SqlServer([NotNull] this Property property)
         {
-            Check.NotNull(property, "property");
+            Check.NotNull(property, nameof(property));
 
             return new SqlServerPropertyExtensions(property);
         }
 
         public static ISqlServerPropertyExtensions SqlServer([NotNull] this IProperty property)
         {
-            Check.NotNull(property, "property");
+            Check.NotNull(property, nameof(property));
 
             return new ReadOnlySqlServerPropertyExtensions(property);
         }
 
         public static SqlServerEntityTypeExtensions SqlServer([NotNull] this EntityType entityType)
         {
-            Check.NotNull(entityType, "entityType");
+            Check.NotNull(entityType, nameof(entityType));
 
             return new SqlServerEntityTypeExtensions(entityType);
         }
 
         public static ISqlServerEntityTypeExtensions SqlServer([NotNull] this IEntityType entityType)
         {
-            Check.NotNull(entityType, "entityType");
+            Check.NotNull(entityType, nameof(entityType));
 
             return new ReadOnlySqlServerEntityTypeExtensions(entityType);
         }
 
         public static SqlServerKeyExtensions SqlServer([NotNull] this Key key)
         {
-            Check.NotNull(key, "key");
+            Check.NotNull(key, nameof(key));
 
             return new SqlServerKeyExtensions(key);
         }
 
         public static ISqlServerKeyExtensions SqlServer([NotNull] this IKey key)
         {
-            Check.NotNull(key, "key");
+            Check.NotNull(key, nameof(key));
 
             return new ReadOnlySqlServerKeyExtensions(key);
         }
 
         public static SqlServerIndexExtensions SqlServer([NotNull] this Index index)
         {
-            Check.NotNull(index, "index");
+            Check.NotNull(index, nameof(index));
 
             return new SqlServerIndexExtensions(index);
         }
 
         public static ISqlServerIndexExtensions SqlServer([NotNull] this IIndex index)
         {
-            Check.NotNull(index, "index");
+            Check.NotNull(index, nameof(index));
 
             return new ReadOnlySqlServerIndexExtensions(index);
         }
 
         public static SqlServerForeignKeyExtensions SqlServer([NotNull] this ForeignKey foreignKey)
         {
-            Check.NotNull(foreignKey, "foreignKey");
+            Check.NotNull(foreignKey, nameof(foreignKey));
 
             return new SqlServerForeignKeyExtensions(foreignKey);
         }
 
         public static ISqlServerForeignKeyExtensions SqlServer([NotNull] this IForeignKey foreignKey)
         {
-            Check.NotNull(foreignKey, "foreignKey");
+            Check.NotNull(foreignKey, nameof(foreignKey));
 
             return new ReadOnlySqlServerForeignKeyExtensions(foreignKey);
         }
 
         public static SqlServerModelExtensions SqlServer([NotNull] this Model model)
         {
-            Check.NotNull(model, "model");
+            Check.NotNull(model, nameof(model));
 
             return new SqlServerModelExtensions(model);
         }
 
         public static ISqlServerModelExtensions SqlServer([NotNull] this IModel model)
         {
-            Check.NotNull(model, "model");
+            Check.NotNull(model, nameof(model));
 
             return new ReadOnlySqlServerModelExtensions(model);
         }

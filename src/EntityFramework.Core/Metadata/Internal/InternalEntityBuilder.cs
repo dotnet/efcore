@@ -33,14 +33,14 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual InternalKeyBuilder PrimaryKey([NotNull] IReadOnlyList<string> propertyNames, ConfigurationSource configurationSource)
         {
-            Check.NotEmpty(propertyNames, "propertyNames");
+            Check.NotEmpty(propertyNames, nameof(propertyNames));
 
             return PrimaryKey(GetOrCreateProperties(propertyNames, configurationSource), configurationSource);
         }
 
         public virtual InternalKeyBuilder PrimaryKey([NotNull] IReadOnlyList<PropertyInfo> clrProperties, ConfigurationSource configurationSource)
         {
-            Check.NotEmpty(clrProperties, "clrProperties");
+            Check.NotEmpty(clrProperties, nameof(clrProperties));
 
             return PrimaryKey(GetOrCreateProperties(clrProperties, configurationSource), configurationSource);
         }
@@ -77,14 +77,14 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual InternalKeyBuilder Key([NotNull] IReadOnlyList<string> propertyNames, ConfigurationSource configurationSource)
         {
-            Check.NotEmpty(propertyNames, "propertyNames");
+            Check.NotEmpty(propertyNames, nameof(propertyNames));
 
             return Key(GetOrCreateProperties(propertyNames, configurationSource), configurationSource);
         }
 
         public virtual InternalKeyBuilder Key([NotNull] IReadOnlyList<PropertyInfo> clrProperties, ConfigurationSource configurationSource)
         {
-            Check.NotEmpty(clrProperties, "clrProperties");
+            Check.NotEmpty(clrProperties, nameof(clrProperties));
 
             return Key(GetOrCreateProperties(clrProperties, configurationSource), configurationSource);
         }
@@ -112,7 +112,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual ConfigurationSource? RemoveKey([NotNull] Key key, ConfigurationSource configurationSource)
         {
-            Check.NotNull(key, "key");
+            Check.NotNull(key, nameof(key));
 
             var removedConfigurationSource = _keyBuilders.Remove(key, configurationSource);
             if (!removedConfigurationSource.HasValue)
@@ -137,15 +137,15 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public virtual InternalPropertyBuilder Property(
             [NotNull] Type propertyType, [NotNull] string propertyName, ConfigurationSource configurationSource)
         {
-            Check.NotNull(propertyType, "propertyType");
-            Check.NotEmpty(propertyName, "propertyName");
+            Check.NotNull(propertyType, nameof(propertyType));
+            Check.NotEmpty(propertyName, nameof(propertyName));
 
             return InternalProperty(propertyType, propertyName, /*shadowProperty:*/ true, configurationSource);
         }
 
         public virtual InternalPropertyBuilder Property([NotNull] PropertyInfo clrProperty, ConfigurationSource configurationSource)
         {
-            Check.NotNull(clrProperty, "clrProperty");
+            Check.NotNull(clrProperty, nameof(clrProperty));
 
             return InternalProperty(clrProperty.PropertyType, clrProperty.Name, /*shadowProperty:*/ false, configurationSource);
         }
@@ -171,7 +171,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual bool CanAddNavigation([NotNull] string navigationName, ConfigurationSource configurationSource)
         {
-            Check.NotEmpty(navigationName, "navigationName");
+            Check.NotEmpty(navigationName, nameof(navigationName));
 
             return CanAdd(navigationName, isNavigation: true, configurationSource: configurationSource)
                    && Metadata.TryGetNavigation(navigationName) == null;
@@ -235,7 +235,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             ConfigurationSource configurationSource,
             bool canOverrideSameSource)
         {
-            Check.NotNull(foreignKey, "foreignKey");
+            Check.NotNull(foreignKey, nameof(foreignKey));
 
             var navigation = pointsToPrincipal
                 ? foreignKey.GetNavigationToPrincipal()
@@ -314,7 +314,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual bool Ignore([NotNull] string propertyName, ConfigurationSource configurationSource)
         {
-            Check.NotEmpty(propertyName, "propertyName");
+            Check.NotEmpty(propertyName, nameof(propertyName));
 
             ConfigurationSource ignoredConfigurationSource;
             if (_ignoredProperties.Value.TryGetValue(propertyName, out ignoredConfigurationSource))
@@ -400,8 +400,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             [NotNull] string referencedEntityTypeName, [NotNull] IReadOnlyList<string> propertyNames,
             ConfigurationSource configurationSource)
         {
-            Check.NotEmpty(referencedEntityTypeName, "referencedEntityTypeName");
-            Check.NotNull(propertyNames, "propertyNames");
+            Check.NotEmpty(referencedEntityTypeName, nameof(referencedEntityTypeName));
+            Check.NotNull(propertyNames, nameof(propertyNames));
 
             var principalType = ModelBuilder.Entity(referencedEntityTypeName, configurationSource);
             if (principalType == null)
@@ -415,8 +415,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public virtual InternalRelationshipBuilder ForeignKey([NotNull] Type referencedType, [NotNull] IReadOnlyList<PropertyInfo> clrProperties,
             ConfigurationSource configurationSource)
         {
-            Check.NotNull(referencedType, "referencedType");
-            Check.NotNull(clrProperties, "clrProperties");
+            Check.NotNull(referencedType, nameof(referencedType));
+            Check.NotNull(clrProperties, nameof(clrProperties));
 
             var principalType = ModelBuilder.Entity(referencedType, configurationSource);
             if (principalType == null)
@@ -557,14 +557,14 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual InternalIndexBuilder Index([NotNull] IReadOnlyList<string> propertyNames, ConfigurationSource configurationSource)
         {
-            Check.NotNull(propertyNames, "propertyNames");
+            Check.NotNull(propertyNames, nameof(propertyNames));
 
             return Index(GetOrCreateProperties(propertyNames, configurationSource), configurationSource);
         }
 
         public virtual InternalIndexBuilder Index([NotNull] IReadOnlyList<PropertyInfo> clrProperties, ConfigurationSource configurationSource)
         {
-            Check.NotNull(clrProperties, "clrProperties");
+            Check.NotNull(clrProperties, nameof(clrProperties));
 
             return Index(GetOrCreateProperties(clrProperties, configurationSource), configurationSource);
         }
@@ -582,7 +582,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual ConfigurationSource? RemoveIndex([NotNull] Index index, ConfigurationSource configurationSource)
         {
-            Check.NotNull(index, "index");
+            Check.NotNull(index, nameof(index));
 
             var removedConfigurationSource = _indexBuilders.Value.Remove(index, configurationSource);
             if (!removedConfigurationSource.HasValue)
@@ -600,7 +600,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public virtual InternalRelationshipBuilder Relationship(
             [NotNull] ForeignKey foreignKey, bool existingForeignKey, ConfigurationSource configurationSource)
         {
-            Check.NotNull(foreignKey, "foreignKey");
+            Check.NotNull(foreignKey, nameof(foreignKey));
 
             if (foreignKey.EntityType != Metadata)
             {
@@ -625,8 +625,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             bool? isUnique = null,
             bool strictPrincipal = true)
         {
-            Check.NotNull(principalType, "principalType");
-            Check.NotNull(dependentType, "dependentType");
+            Check.NotNull(principalType, nameof(principalType));
+            Check.NotNull(dependentType, nameof(dependentType));
 
             var principalEntityTypeBuilder = ModelBuilder.Entity(principalType, configurationSource);
             if (principalEntityTypeBuilder == null)
@@ -659,8 +659,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             bool? isUnique = null,
             bool strictPrincipal = true)
         {
-            Check.NotNull(principalEntityType, "principalEntityType");
-            Check.NotNull(dependentEntityType, "dependentEntityType");
+            Check.NotNull(principalEntityType, nameof(principalEntityType));
+            Check.NotNull(dependentEntityType, nameof(dependentEntityType));
 
             var principalEntityTypeBuilder = ModelBuilder.Entity(principalEntityType.Name, configurationSource);
             Debug.Assert(principalEntityTypeBuilder != null);
@@ -687,8 +687,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             bool? isUnique = null,
             bool strictPrincipal = true)
         {
-            Check.NotNull(principalEntityTypeBuilder, "principalEntityTypeBuilder");
-            Check.NotNull(dependentEntityTypeBuilder, "dependentEntityTypeBuilder");
+            Check.NotNull(principalEntityTypeBuilder, nameof(principalEntityTypeBuilder));
+            Check.NotNull(dependentEntityTypeBuilder, nameof(dependentEntityTypeBuilder));
 
             if (dependentEntityTypeBuilder != this)
             {
@@ -1066,7 +1066,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual IReadOnlyList<Property> GetOrCreateProperties([NotNull] IEnumerable<string> propertyNames, ConfigurationSource configurationSource)
         {
-            Check.NotNull(propertyNames, "propertyNames");
+            Check.NotNull(propertyNames, nameof(propertyNames));
 
             var list = new List<Property>();
             foreach (var propertyName in propertyNames)
@@ -1103,7 +1103,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual IReadOnlyList<Property> GetOrCreateProperties([NotNull] IEnumerable<PropertyInfo> clrProperties, ConfigurationSource configurationSource)
         {
-            Check.NotNull(clrProperties, "clrProperties");
+            Check.NotNull(clrProperties, nameof(clrProperties));
 
             var list = new List<Property>();
             foreach (var propertyInfo in clrProperties)

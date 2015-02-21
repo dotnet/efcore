@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity
     {
         public static void UseInMemoryStore([NotNull] this DbContextOptions options, bool persist = true)
         {
-            Check.NotNull(options, "options");
+            Check.NotNull(options, nameof(options));
 
             ((IDbContextOptions)options)
                 .AddOrUpdateExtension<InMemoryOptionsExtension>(x => x.Persist = persist);

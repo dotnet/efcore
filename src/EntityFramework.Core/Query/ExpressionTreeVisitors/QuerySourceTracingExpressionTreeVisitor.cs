@@ -21,8 +21,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
             [NotNull] Expression expression,
             [NotNull] IQuerySource targetQuerySource)
         {
-            Check.NotNull(expression, "expression");
-            Check.NotNull(targetQuerySource, "targetQuerySource");
+            Check.NotNull(expression, nameof(expression));
+            Check.NotNull(targetQuerySource, nameof(targetQuerySource));
 
             _targetQuerySource = targetQuerySource;
             _originQuerySourceReferenceExpression = null;

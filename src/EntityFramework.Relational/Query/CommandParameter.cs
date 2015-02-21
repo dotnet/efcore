@@ -10,8 +10,8 @@ namespace Microsoft.Data.Entity.Relational.Query
     {
         public CommandParameter([NotNull] string name, [NotNull] object value)
         {
-            Check.NotNull(name, "name");
-            Check.NotNull(value, "value");
+            Check.NotNull(name, nameof(name));
+            Check.NotNull(value, nameof(value));
 
             Name = name;
             Value = value;

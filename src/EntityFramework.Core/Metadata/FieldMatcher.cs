@@ -13,9 +13,9 @@ namespace Microsoft.Data.Entity.Metadata
         public virtual FieldInfo TryMatchFieldName(
             [NotNull] IProperty property, [NotNull] PropertyInfo propertyInfo, [NotNull] Dictionary<string, FieldInfo> dclaredFields)
         {
-            Check.NotNull(property, "property");
-            Check.NotNull(propertyInfo, "propertyInfo");
-            Check.NotNull(dclaredFields, "dclaredFields");
+            Check.NotNull(property, nameof(property));
+            Check.NotNull(propertyInfo, nameof(propertyInfo));
+            Check.NotNull(dclaredFields, nameof(dclaredFields));
 
             var propertyName = propertyInfo.Name;
             var propertyType = propertyInfo.PropertyType.GetTypeInfo();

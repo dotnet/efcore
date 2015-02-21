@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.SqlServer.Update
 
         public override ModificationCommandBatch Create([NotNull] IDbContextOptions options)
         {
-            Check.NotNull(options, "options");
+            Check.NotNull(options, nameof(options));
 
             var optionsExtension = options.Extensions.OfType<SqlServerOptionsExtension>().FirstOrDefault();
 

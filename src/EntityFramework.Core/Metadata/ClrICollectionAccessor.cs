@@ -24,8 +24,8 @@ namespace Microsoft.Data.Entity.Metadata
             [CanBeNull] Action<TEntity, TCollection> setCollection,
             [CanBeNull] Func<TEntity, Action<TEntity, TCollection>, TCollection> createAndSetCollection)
         {
-            Check.NotEmpty(propertyName, "propertyName");
-            Check.NotNull(getCollection, "getCollection");
+            Check.NotEmpty(propertyName, nameof(propertyName));
+            Check.NotNull(getCollection, nameof(getCollection));
 
             _propertyName = propertyName;
             _getCollection = getCollection;
@@ -35,16 +35,16 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual void Add(object instance, object value)
         {
-            Check.NotNull(instance, "instance");
-            Check.NotNull(value, "value");
+            Check.NotNull(instance, nameof(instance));
+            Check.NotNull(value, nameof(value));
 
             GetOrCreateCollection(instance).Add((TElement)value);
         }
 
         public virtual void AddRange(object instance, IEnumerable<object> values)
         {
-            Check.NotNull(instance, "instance");
-            Check.NotNull(values, "values");
+            Check.NotNull(instance, nameof(instance));
+            Check.NotNull(values, nameof(values));
 
             var collection = GetOrCreateCollection(instance);
 
@@ -81,8 +81,8 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual bool Contains(object instance, object value)
         {
-            Check.NotNull(instance, "instance");
-            Check.NotNull(value, "value");
+            Check.NotNull(instance, nameof(instance));
+            Check.NotNull(value, nameof(value));
 
             var collection = _getCollection((TEntity)instance);
 
@@ -91,8 +91,8 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual void Remove(object instance, object value)
         {
-            Check.NotNull(instance, "instance");
-            Check.NotNull(value, "value");
+            Check.NotNull(instance, nameof(instance));
+            Check.NotNull(value, nameof(value));
 
             var collection = _getCollection((TEntity)instance);
 

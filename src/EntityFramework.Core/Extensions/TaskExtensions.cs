@@ -30,7 +30,7 @@ namespace System.Threading.Tasks
         /// <returns>An object used to await this task.</returns>
         public static CultureAwaiter<T> WithCurrentCulture<T>([NotNull] this Task<T> task)
         {
-            Check.NotNull(task, "task");
+            Check.NotNull(task, nameof(task));
 
             return new CultureAwaiter<T>(task);
         }
@@ -45,7 +45,7 @@ namespace System.Threading.Tasks
         /// <returns>An object used to await this task.</returns>
         public static CultureAwaiter WithCurrentCulture([NotNull] this Task task)
         {
-            Check.NotNull(task, "task");
+            Check.NotNull(task, nameof(task));
 
             return new CultureAwaiter(task);
         }

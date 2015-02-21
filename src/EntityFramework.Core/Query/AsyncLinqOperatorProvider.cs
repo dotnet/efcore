@@ -352,8 +352,8 @@ namespace Microsoft.Data.Entity.Query
 
         public virtual MethodInfo GetAggregateMethod(string methodName, Type elementType)
         {
-            Check.NotEmpty(methodName, "methodName");
-            Check.NotNull(elementType, "elementType");
+            Check.NotEmpty(methodName, nameof(methodName));
+            Check.NotNull(elementType, nameof(elementType));
 
             var aggregateMethods
                 = typeof(AsyncEnumerable).GetTypeInfo().GetDeclaredMethods(methodName)
@@ -371,7 +371,7 @@ namespace Microsoft.Data.Entity.Query
 
         public virtual Expression AdjustSequenceType(Expression expression)
         {
-            Check.NotNull(expression, "expression");
+            Check.NotNull(expression, nameof(expression));
 
             if (expression.Type == typeof(string)
                 || expression.Type == typeof(byte[]))

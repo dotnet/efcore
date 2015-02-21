@@ -55,11 +55,11 @@ namespace Microsoft.Data.Entity.Query
             [NotNull] ClrCollectionAccessorSource clrCollectionAccessorSource,
             [NotNull] ClrPropertySetterSource clrPropertySetterSource)
         {
-            Check.NotNull(stateManager, "stateManager");
-            Check.NotNull(entityKeyFactorySource, "entityKeyFactorySource");
-            Check.NotNull(materializerSource, "materializerSource");
-            Check.NotNull(clrCollectionAccessorSource, "clrCollectionAccessorSource");
-            Check.NotNull(clrPropertySetterSource, "clrPropertySetterSource");
+            Check.NotNull(stateManager, nameof(stateManager));
+            Check.NotNull(entityKeyFactorySource, nameof(entityKeyFactorySource));
+            Check.NotNull(materializerSource, nameof(materializerSource));
+            Check.NotNull(clrCollectionAccessorSource, nameof(clrCollectionAccessorSource));
+            Check.NotNull(clrPropertySetterSource, nameof(clrPropertySetterSource));
 
             _stateManager = stateManager;
             _entityKeyFactorySource = entityKeyFactorySource;
@@ -116,8 +116,8 @@ namespace Microsoft.Data.Entity.Query
 
         public virtual object GetPropertyValue(object entity, IProperty property)
         {
-            Check.NotNull(entity, "entity");
-            Check.NotNull(property, "property");
+            Check.NotNull(entity, nameof(entity));
+            Check.NotNull(property, nameof(property));
 
             var entry = _stateManager.TryGetEntry(entity);
 
@@ -135,7 +135,7 @@ namespace Microsoft.Data.Entity.Query
 
         public virtual void StartTracking(object entity)
         {
-            Check.NotNull(entity, "entity");
+            Check.NotNull(entity, nameof(entity));
 
             List<BufferedEntity> bufferedEntities;
             if (_byEntityInstance.TryGetValue(entity, out bufferedEntities))
@@ -153,8 +153,8 @@ namespace Microsoft.Data.Entity.Query
             IReadOnlyList<Func<EntityKey, Func<IValueReader, EntityKey>, IEnumerable<IValueReader>>> relatedValueReaders,
             bool querySourceRequiresTracking)
         {
-            Check.NotNull(navigationPath, "navigationPath");
-            Check.NotNull(relatedValueReaders, "relatedValueReaders");
+            Check.NotNull(navigationPath, nameof(navigationPath));
+            Check.NotNull(relatedValueReaders, nameof(relatedValueReaders));
 
             Include(entity, navigationPath, relatedValueReaders, 0, querySourceRequiresTracking);
         }
@@ -166,8 +166,8 @@ namespace Microsoft.Data.Entity.Query
             int currentNavigationIndex,
             bool querySourceRequiresTracking)
         {
-            Check.NotNull(navigationPath, "navigationPath");
-            Check.NotNull(relatedValueReaders, "relatedValueReaders");
+            Check.NotNull(navigationPath, nameof(navigationPath));
+            Check.NotNull(relatedValueReaders, nameof(relatedValueReaders));
 
             if (entity == null
                 || currentNavigationIndex == navigationPath.Count)
@@ -224,8 +224,8 @@ namespace Microsoft.Data.Entity.Query
             CancellationToken cancellationToken,
             bool querySourceRequiresTracking)
         {
-            Check.NotNull(navigationPath, "navigationPath");
-            Check.NotNull(relatedValueReaders, "relatedValueReaders");
+            Check.NotNull(navigationPath, nameof(navigationPath));
+            Check.NotNull(relatedValueReaders, nameof(relatedValueReaders));
 
             return IncludeAsync(entity, navigationPath, relatedValueReaders, cancellationToken, 0, querySourceRequiresTracking);
         }

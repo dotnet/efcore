@@ -18,8 +18,8 @@ namespace Microsoft.Data.Entity.Storage
 
         protected DataStoreSource([NotNull] DbContextServices services, [NotNull] DbContextService<IDbContextOptions> options)
         {
-            Check.NotNull(services, "services");
-            Check.NotNull(options, "options");
+            Check.NotNull(services, nameof(services));
+            Check.NotNull(options, nameof(options));
 
             _services = services;
             _options = options;

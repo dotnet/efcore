@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         public override Expression Accept([NotNull] ExpressionTreeVisitor visitor)
         {
-            Check.NotNull(visitor, "visitor");
+            Check.NotNull(visitor, nameof(visitor));
 
             var specificVisitor = visitor as ISqlExpressionVisitor;
 

@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.Metadata
         public Navigation([NotNull] string name, [NotNull] ForeignKey foreignKey, bool pointsToPrincipal)
             : base(Check.NotEmpty(name, "name"))
         {
-            Check.NotNull(foreignKey, "foreignKey");
+            Check.NotNull(foreignKey, nameof(foreignKey));
 
             _foreignKey = foreignKey;
             _pointsToPrincipal = pointsToPrincipal;
@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.Metadata
             [param: NotNull]
             set
             {
-                Check.NotNull(value, "value");
+                Check.NotNull(value, nameof(value));
 
                 _foreignKey = value;
             }
@@ -38,7 +38,7 @@ namespace Microsoft.Data.Entity.Metadata
             [param: NotNull]
             set
             {
-                Check.NotNull(value, "value");
+                Check.NotNull(value, nameof(value));
 
                 _pointsToPrincipal = value;
             }

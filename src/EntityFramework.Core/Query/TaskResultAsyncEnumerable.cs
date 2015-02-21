@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.Query
 
         public TaskResultAsyncEnumerable([NotNull] Task<T> task)
         {
-            Check.NotNull(task, "task");
+            Check.NotNull(task, nameof(task));
 
             _task = task;
         }

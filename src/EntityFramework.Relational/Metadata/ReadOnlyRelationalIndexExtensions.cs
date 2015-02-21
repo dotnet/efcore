@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata
 
         public ReadOnlyRelationalIndexExtensions([NotNull] IIndex index)
         {
-            Check.NotNull(index, "index");
+            Check.NotNull(index, nameof(index));
 
             _index = index;
         }

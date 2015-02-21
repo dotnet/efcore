@@ -21,8 +21,8 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
                 Check.NotNull(querySource, "querySource"),
                 Check.NotEmpty(alias, "alias"))
         {
-            Check.NotEmpty(table, "table");
-            Check.NotNull(querySource, "querySource");
+            Check.NotEmpty(table, nameof(table));
+            Check.NotNull(querySource, nameof(querySource));
 
             Table = table;
             Schema = schema;
@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         public override Expression Accept([NotNull] ExpressionTreeVisitor visitor)
         {
-            Check.NotNull(visitor, "visitor");
+            Check.NotNull(visitor, nameof(visitor));
 
             var specificVisitor = visitor as ISqlExpressionVisitor;
 

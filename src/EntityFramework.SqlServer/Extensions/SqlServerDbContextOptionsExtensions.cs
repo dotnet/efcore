@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity
     {
         public static SqlServerDbContextOptions UseSqlServer([NotNull] this DbContextOptions options)
         {
-            Check.NotNull(options, "options");
+            Check.NotNull(options, nameof(options));
 
             ((IDbContextOptions)options)
                 .AddOrUpdateExtension<SqlServerOptionsExtension>(x => { });
@@ -26,8 +26,8 @@ namespace Microsoft.Data.Entity
 
         public static SqlServerDbContextOptions UseSqlServer([NotNull] this DbContextOptions options, [NotNull] string connectionString)
         {
-            Check.NotNull(options, "options");
-            Check.NotEmpty(connectionString, "connectionString");
+            Check.NotNull(options, nameof(options));
+            Check.NotEmpty(connectionString, nameof(connectionString));
 
             ((IDbContextOptions)options)
                 .AddOrUpdateExtension<SqlServerOptionsExtension>(x => x.ConnectionString = connectionString);
@@ -43,8 +43,8 @@ namespace Microsoft.Data.Entity
         // Note: Decision made to use DbConnection not SqlConnection: Issue #772
         public static SqlServerDbContextOptions UseSqlServer([NotNull] this DbContextOptions options, [NotNull] DbConnection connection)
         {
-            Check.NotNull(options, "options");
-            Check.NotNull(connection, "connection");
+            Check.NotNull(options, nameof(options));
+            Check.NotNull(connection, nameof(connection));
 
             ((IDbContextOptions)options)
                 .AddOrUpdateExtension<SqlServerOptionsExtension>(x => x.Connection = connection);

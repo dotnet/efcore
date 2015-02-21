@@ -31,10 +31,10 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             int readerOffset,
             [NotNull] MethodInfo operatorToFlatten)
         {
-            Check.NotNull(outerQuerySource, "outerQuerySource");
-            Check.NotNull(innerQuerySource, "innerQuerySource");
-            Check.NotNull(relationalQueryCompilationContext, "relationalQueryCompilationContext");
-            Check.NotNull(operatorToFlatten, "operatorToFlatten");
+            Check.NotNull(outerQuerySource, nameof(outerQuerySource));
+            Check.NotNull(innerQuerySource, nameof(innerQuerySource));
+            Check.NotNull(relationalQueryCompilationContext, nameof(relationalQueryCompilationContext));
+            Check.NotNull(operatorToFlatten, nameof(operatorToFlatten));
 
             _outerQuerySource = outerQuerySource;
             _innerQuerySource = innerQuerySource;
@@ -45,7 +45,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
         protected override Expression VisitMethodCallExpression([NotNull] MethodCallExpression methodCallExpression)
         {
-            Check.NotNull(methodCallExpression, "methodCallExpression");
+            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
 
             var newExpression
                 = (MethodCallExpression)base.VisitMethodCallExpression(methodCallExpression);

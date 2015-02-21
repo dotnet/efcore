@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity.Relational
         protected RelationalConnection([NotNull] DbContextService<IDbContextOptions> options, [NotNull] ILoggerFactory loggerFactory)
             : base(loggerFactory)
         {
-            Check.NotNull(options, "options");
+            Check.NotNull(options, nameof(options));
 
             var storeConfig = RelationalOptionsExtension.Extract(options.Service);
 

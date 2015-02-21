@@ -32,9 +32,9 @@ namespace Microsoft.Data.Entity.Relational.Update
             [NotNull] DbContextService<DbContext> context,
             [NotNull] ILoggerFactory loggerFactory)
         {
-            Check.NotNull(typeMapper, "typeMapper");
-            Check.NotNull(context, "context");
-            Check.NotNull(loggerFactory, "loggerFactory");
+            Check.NotNull(typeMapper, nameof(typeMapper));
+            Check.NotNull(context, nameof(context));
+            Check.NotNull(loggerFactory, nameof(loggerFactory));
 
             _typeMapper = typeMapper;
             _context = context;
@@ -50,8 +50,8 @@ namespace Microsoft.Data.Entity.Relational.Update
             [NotNull] IEnumerable<ModificationCommandBatch> commandBatches,
             [NotNull] RelationalConnection connection)
         {
-            Check.NotNull(commandBatches, "commandBatches");
-            Check.NotNull(connection, "connection");
+            Check.NotNull(commandBatches, nameof(commandBatches));
+            Check.NotNull(connection, nameof(connection));
 
             var rowsAffected = 0;
             connection.Open();
@@ -94,8 +94,8 @@ namespace Microsoft.Data.Entity.Relational.Update
             [NotNull] RelationalConnection connection,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(commandBatches, "commandBatches");
-            Check.NotNull(connection, "connection");
+            Check.NotNull(commandBatches, nameof(commandBatches));
+            Check.NotNull(connection, nameof(connection));
 
             var rowsAffected = 0;
             await connection.OpenAsync(cancellationToken).WithCurrentCulture();

@@ -20,8 +20,8 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual Annotation AddAnnotation([NotNull] string annotationName, [NotNull] string value)
         {
-            Check.NotNull(annotationName, "annotationName");
-            Check.NotNull(value, "value");
+            Check.NotNull(annotationName, nameof(annotationName));
+            Check.NotNull(value, nameof(value));
 
             var annotation = new Annotation(annotationName, value);
 
@@ -44,7 +44,7 @@ namespace Microsoft.Data.Entity.Metadata
         [CanBeNull]
         public virtual Annotation TryGetAnnotation([NotNull] string annotationName)
         {
-            Check.NotEmpty(annotationName, "annotationName");
+            Check.NotEmpty(annotationName, nameof(annotationName));
 
             Annotation annotation;
             return _annotations.HasValue
@@ -66,7 +66,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual Annotation RemoveAnnotation([NotNull] Annotation annotation)
         {
-            Check.NotNull(annotation, "annotation");
+            Check.NotNull(annotation, nameof(annotation));
 
             var previousAnnotations = _annotations.Value;
             _annotations.Value = _annotations.Value.Remove(annotation);
@@ -91,7 +91,7 @@ namespace Microsoft.Data.Entity.Metadata
             [param: CanBeNull]
             set
             {
-                Check.NotEmpty(annotationName, "annotationName");
+                Check.NotEmpty(annotationName, nameof(annotationName));
 
                 _annotations.Value = _annotations.Value.Remove(new Annotation(annotationName, "_"));
 

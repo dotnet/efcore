@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
 
         public DefaultQueryExpressionTreeVisitor([NotNull] EntityQueryModelVisitor entityQueryModelVisitor)
         {
-            Check.NotNull(entityQueryModelVisitor, "entityQueryModelVisitor");
+            Check.NotNull(entityQueryModelVisitor, nameof(entityQueryModelVisitor));
 
             _entityQueryModelVisitor = entityQueryModelVisitor;
         }
@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
 
         protected override Expression VisitSubQueryExpression(SubQueryExpression subQueryExpression)
         {
-            Check.NotNull(subQueryExpression, "subQueryExpression");
+            Check.NotNull(subQueryExpression, nameof(subQueryExpression));
 
             var queryModelVisitor = CreateQueryModelVisitor();
 

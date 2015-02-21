@@ -55,7 +55,7 @@ namespace Microsoft.Data.Entity.Relational.Update
 
         public override bool AddCommand(ModificationCommand modificationCommand)
         {
-            Check.NotNull(modificationCommand, "modificationCommand");
+            Check.NotNull(modificationCommand, nameof(modificationCommand));
 
             if (ModificationCommands.Count == 0)
             {
@@ -152,10 +152,10 @@ namespace Microsoft.Data.Entity.Relational.Update
             DbContext context,
             ILogger logger)
         {
-            Check.NotNull(transaction, "transaction");
-            Check.NotNull(typeMapper, "typeMapper");
-            Check.NotNull(context, "context");
-            Check.NotNull(logger, "logger");
+            Check.NotNull(transaction, nameof(transaction));
+            Check.NotNull(typeMapper, nameof(typeMapper));
+            Check.NotNull(context, nameof(context));
+            Check.NotNull(logger, nameof(logger));
 
             var commandText = GetCommandText();
             if (logger.IsEnabled(LogLevel.Verbose))
@@ -217,10 +217,10 @@ namespace Microsoft.Data.Entity.Relational.Update
             ILogger logger,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(transaction, "transaction");
-            Check.NotNull(typeMapper, "typeMapper");
-            Check.NotNull(context, "context");
-            Check.NotNull(logger, "logger");
+            Check.NotNull(transaction, nameof(transaction));
+            Check.NotNull(typeMapper, nameof(typeMapper));
+            Check.NotNull(context, nameof(context));
+            Check.NotNull(logger, nameof(logger));
 
             var commandText = GetCommandText();
             if (logger.IsEnabled(LogLevel.Verbose))

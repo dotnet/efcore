@@ -19,14 +19,14 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
 
         public EntityResultFindingExpressionTreeVisitor([NotNull] IModel model)
         {
-            Check.NotNull(model, "model");
+            Check.NotNull(model, nameof(model));
 
             _model = model;
         }
 
         public virtual IEnumerable<QuerySourceReferenceExpression> FindEntitiesInResult([NotNull] Expression expression)
         {
-            Check.NotNull(expression, "expression");
+            Check.NotNull(expression, nameof(expression));
 
             _querySourceReferenceExpressions = new List<QuerySourceReferenceExpression>();
 

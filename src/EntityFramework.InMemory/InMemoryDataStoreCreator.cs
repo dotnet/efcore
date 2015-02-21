@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity.InMemory
 
         public InMemoryDataStoreCreator([NotNull] InMemoryDataStore dataStore)
         {
-            Check.NotNull(dataStore, "dataStore");
+            Check.NotNull(dataStore, nameof(dataStore));
 
             _dataStore = dataStore;
         }

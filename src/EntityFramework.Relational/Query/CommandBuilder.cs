@@ -18,8 +18,8 @@ namespace Microsoft.Data.Entity.Relational.Query
             [NotNull] SelectExpression selectExpression,
             [NotNull] RelationalQueryCompilationContext relationalQueryCompilationContext)
         {
-            Check.NotNull(selectExpression, "selectExpression");
-            Check.NotNull(relationalQueryCompilationContext, "relationalQueryCompilationContext");
+            Check.NotNull(selectExpression, nameof(selectExpression));
+            Check.NotNull(relationalQueryCompilationContext, nameof(relationalQueryCompilationContext));
 
             _selectExpression = selectExpression;
             _relationalQueryCompilationContext = relationalQueryCompilationContext;
@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.Relational.Query
             [NotNull] RelationalConnection connection,
             [NotNull] IDictionary<string, object> parameterValues)
         {
-            Check.NotNull(connection, "connection");
+            Check.NotNull(connection, nameof(connection));
 
             // TODO: Cache command...
 

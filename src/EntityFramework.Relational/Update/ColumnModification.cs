@@ -35,10 +35,10 @@ namespace Microsoft.Data.Entity.Relational.Update
             bool isKey,
             bool isCondition)
         {
-            Check.NotNull(entry, "entry");
-            Check.NotNull(property, "property");
-            Check.NotNull(propertyExtensions, "propertyExtensions");
-            Check.NotNull(parameterNameGenerator, "parameterNameGenerator");
+            Check.NotNull(entry, nameof(entry));
+            Check.NotNull(property, nameof(property));
+            Check.NotNull(propertyExtensions, nameof(propertyExtensions));
+            Check.NotNull(parameterNameGenerator, nameof(parameterNameGenerator));
 
             Entry = entry;
             Property = property;

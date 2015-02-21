@@ -38,8 +38,8 @@ namespace Microsoft.Data.Entity.Relational.Query
                 Check.NotNull(entityMaterializerSource, "entityMaterializerSource"),
                 Check.NotNull(entityKeyFactorySource, "entityKeyFactorySource"))
         {
-            Check.NotNull(queryMethodProvider, "queryMethodProvider");
-            Check.NotNull(methodCallTranslator, "methodCallTranslator");
+            Check.NotNull(queryMethodProvider, nameof(queryMethodProvider));
+            Check.NotNull(methodCallTranslator, nameof(methodCallTranslator));
 
             QueryMethodProvider = queryMethodProvider;
             MethodCallTranslator = methodCallTranslator;
@@ -59,7 +59,7 @@ namespace Microsoft.Data.Entity.Relational.Query
 
         public virtual SelectExpression FindSelectExpression([NotNull] IQuerySource querySource)
         {
-            Check.NotNull(querySource, "querySource");
+            Check.NotNull(querySource, nameof(querySource));
 
             return
                 (from v in _relationalQueryModelVisitors
@@ -80,21 +80,21 @@ namespace Microsoft.Data.Entity.Relational.Query
 
         public virtual string GetTableName([NotNull] IEntityType entityType)
         {
-            Check.NotNull(entityType, "entityType");
+            Check.NotNull(entityType, nameof(entityType));
 
             return entityType.Relational().Table;
         }
 
         public virtual string GetSchema([NotNull] IEntityType entityType)
         {
-            Check.NotNull(entityType, "entityType");
+            Check.NotNull(entityType, nameof(entityType));
 
             return entityType.Relational().Schema;
         }
 
         public virtual string GetColumnName([NotNull] IProperty property)
         {
-            Check.NotNull(property, "property");
+            Check.NotNull(property, nameof(property));
 
             return property.Relational().Column;
         }

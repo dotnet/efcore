@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.Relational.Update
 
         protected ModificationCommandBatch([NotNull] SqlGenerator sqlGenerator)
         {
-            Check.NotNull(sqlGenerator, "sqlGenerator");
+            Check.NotNull(sqlGenerator, nameof(sqlGenerator));
 
             SqlGenerator = sqlGenerator;
         }

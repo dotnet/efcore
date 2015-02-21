@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
             [NotNull] RelationalQueryModelVisitor queryModelVisitor, [NotNull] Ordering ordering)
             : base(Check.NotNull(queryModelVisitor, "queryModelVisitor"))
         {
-            Check.NotNull(ordering, "ordering");
+            Check.NotNull(ordering, nameof(ordering));
 
             _ordering = ordering;
         }
@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
         protected override Expression VisitMemberExpression([NotNull] MemberExpression memberExpression)
         {
-            Check.NotNull(memberExpression, "memberExpression");
+            Check.NotNull(memberExpression, nameof(memberExpression));
 
             ((RelationalQueryModelVisitor)base.QueryModelVisitor)
                 .BindMemberExpression(
@@ -49,7 +49,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
         protected override Expression VisitMethodCallExpression([NotNull] MethodCallExpression methodCallExpression)
         {
-            Check.NotNull(methodCallExpression, "methodCallExpression");
+            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
 
             ((RelationalQueryModelVisitor)base.QueryModelVisitor)
                 .BindMethodCallExpression(

@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.Relational.Query
 
         public OffsetValueReaderDecorator([NotNull] IValueReader valueReader, int offset)
         {
-            Check.NotNull(valueReader, "valueReader");
+            Check.NotNull(valueReader, nameof(valueReader));
 
             _valueReader = valueReader;
             _offset = offset;

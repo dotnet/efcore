@@ -21,14 +21,14 @@ namespace Microsoft.Data.Entity.SqlServer.Update
 
         public override IRelationalPropertyExtensions GetPropertyExtensions(IProperty property)
         {
-            Check.NotNull(property, "property");
+            Check.NotNull(property, nameof(property));
 
             return property.SqlServer();
         }
 
         public override IRelationalEntityTypeExtensions GetEntityTypeExtensions(IEntityType entityType)
         {
-            Check.NotNull(entityType, "entityType");
+            Check.NotNull(entityType, nameof(entityType));
 
             return entityType.SqlServer();
         }

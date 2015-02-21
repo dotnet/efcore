@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.InMemory
 
         protected override void ApplyServices(EntityFrameworkServicesBuilder builder)
         {
-            Check.NotNull(builder, "builder");
+            Check.NotNull(builder, nameof(builder));
 
             builder.AddInMemoryStore();
         }

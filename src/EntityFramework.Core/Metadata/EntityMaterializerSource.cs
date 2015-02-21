@@ -39,14 +39,14 @@ namespace Microsoft.Data.Entity.Metadata
 
         public EntityMaterializerSource([NotNull] MemberMapper memberMapper)
         {
-            Check.NotNull(memberMapper, "memberMapper");
+            Check.NotNull(memberMapper, nameof(memberMapper));
 
             _memberMapper = memberMapper;
         }
 
         public virtual Func<IValueReader, object> GetMaterializer([NotNull] IEntityType entityType)
         {
-            Check.NotNull(entityType, "entityType");
+            Check.NotNull(entityType, nameof(entityType));
 
             var materializer = entityType as IEntityMaterializer;
             if (materializer != null)
@@ -65,8 +65,8 @@ namespace Microsoft.Data.Entity.Metadata
         public virtual Expression CreateReadValueExpression(
             [NotNull] Expression valueReader, [NotNull] Type type, int index)
         {
-            Check.NotNull(valueReader, "valueReader");
-            Check.NotNull(type, "type");
+            Check.NotNull(valueReader, nameof(valueReader));
+            Check.NotNull(type, nameof(type));
 
             var unwrappedTargetMemberType = type.UnwrapNullableType();
 

@@ -11,14 +11,14 @@ namespace Microsoft.Data.Entity.Metadata
     {
         public static bool IsCollection([NotNull] this INavigation navigation)
         {
-            Check.NotNull(navigation, "navigation");
+            Check.NotNull(navigation, nameof(navigation));
 
             return !navigation.PointsToPrincipal && !navigation.ForeignKey.IsUnique;
         }
 
         public static Navigation TryGetInverse([NotNull] this Navigation navigation)
         {
-            Check.NotNull(navigation, "navigation");
+            Check.NotNull(navigation, nameof(navigation));
 
             return navigation.PointsToPrincipal
                 ? navigation.ForeignKey.GetNavigationToDependent()
@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         public static INavigation TryGetInverse([NotNull] this INavigation navigation)
         {
-            Check.NotNull(navigation, "navigation");
+            Check.NotNull(navigation, nameof(navigation));
 
             return navigation.PointsToPrincipal
                 ? navigation.ForeignKey.GetNavigationToDependent()
@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         public static EntityType GetTargetType([NotNull] this Navigation navigation)
         {
-            Check.NotNull(navigation, "navigation");
+            Check.NotNull(navigation, nameof(navigation));
 
             return navigation.PointsToPrincipal
                 ? navigation.ForeignKey.ReferencedEntityType
@@ -45,7 +45,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         public static IEntityType GetTargetType([NotNull] this INavigation navigation)
         {
-            Check.NotNull(navigation, "navigation");
+            Check.NotNull(navigation, nameof(navigation));
 
             return navigation.PointsToPrincipal
                 ? navigation.ForeignKey.ReferencedEntityType
@@ -59,9 +59,9 @@ namespace Microsoft.Data.Entity.Metadata
             bool? shouldPointToPrincipal,
             bool? oneToOne)
         {
-            Check.NotNull(navigation, "navigation");
-            Check.NotNull(principalType, "principalType");
-            Check.NotNull(dependentType, "dependentType");
+            Check.NotNull(navigation, nameof(navigation));
+            Check.NotNull(principalType, nameof(principalType));
+            Check.NotNull(dependentType, nameof(dependentType));
 
             if ((!shouldPointToPrincipal.HasValue || navigation.PointsToPrincipal == shouldPointToPrincipal.Value)
                 && navigation.ForeignKey.IsCompatible(principalType, dependentType, oneToOne))
@@ -80,8 +80,8 @@ namespace Microsoft.Data.Entity.Metadata
 
         public static bool IsNonNotifyingCollection([NotNull] this INavigation navigation, [NotNull] InternalEntityEntry entry)
         {
-            Check.NotNull(navigation, "navigation");
-            Check.NotNull(entry, "entry");
+            Check.NotNull(navigation, nameof(navigation));
+            Check.NotNull(entry, nameof(entry));
 
             if (!navigation.IsCollection())
             {

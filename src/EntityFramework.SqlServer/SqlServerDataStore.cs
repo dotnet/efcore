@@ -63,10 +63,10 @@ namespace Microsoft.Data.Entity.SqlServer
             IQueryMethodProvider enumerableMethodProvider,
             IMethodCallTranslator methodCallTranslator)
         {
-            Check.NotNull(linqOperatorProvider, "linqOperatorProvider");
-            Check.NotNull(resultOperatorHandler, "resultOperatorHandler");
-            Check.NotNull(enumerableMethodProvider, "enumerableMethodProvider");
-            Check.NotNull(methodCallTranslator, "methodCallTranslator");
+            Check.NotNull(linqOperatorProvider, nameof(linqOperatorProvider));
+            Check.NotNull(resultOperatorHandler, nameof(resultOperatorHandler));
+            Check.NotNull(enumerableMethodProvider, nameof(enumerableMethodProvider));
+            Check.NotNull(methodCallTranslator, nameof(methodCallTranslator));
 
             return new SqlServerQueryCompilationContext(
                 Model,

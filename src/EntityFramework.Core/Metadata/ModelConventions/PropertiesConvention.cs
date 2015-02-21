@@ -12,7 +12,7 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
     {
         public virtual InternalEntityBuilder Apply(InternalEntityBuilder entityBuilder)
         {
-            Check.NotNull(entityBuilder, "entityBuilder");
+            Check.NotNull(entityBuilder, nameof(entityBuilder));
             var entityType = entityBuilder.Metadata;
 
             // TODO: Honor [NotMapped]

@@ -51,15 +51,15 @@ namespace Microsoft.Data.Entity.Relational.Query
 
         public virtual void AddQuery([NotNull] IQuerySource querySource, [NotNull] SelectExpression selectExpression)
         {
-            Check.NotNull(querySource, "querySource");
-            Check.NotNull(selectExpression, "selectExpression");
+            Check.NotNull(querySource, nameof(querySource));
+            Check.NotNull(selectExpression, nameof(selectExpression));
 
             _queriesBySource.Add(querySource, selectExpression);
         }
 
         public virtual SelectExpression TryGetQuery([NotNull] IQuerySource querySource)
         {
-            Check.NotNull(querySource, "querySource");
+            Check.NotNull(querySource, nameof(querySource));
 
             SelectExpression selectExpression;
             return (_queriesBySource.TryGetValue(querySource, out selectExpression)
@@ -69,7 +69,7 @@ namespace Microsoft.Data.Entity.Relational.Query
 
         protected override ExpressionTreeVisitor CreateQueryingExpressionTreeVisitor(IQuerySource querySource)
         {
-            Check.NotNull(querySource, "querySource");
+            Check.NotNull(querySource, nameof(querySource));
 
             return new RelationalEntityQueryableExpressionTreeVisitor(this, querySource);
         }
@@ -81,7 +81,7 @@ namespace Microsoft.Data.Entity.Relational.Query
 
         protected override ExpressionTreeVisitor CreateOrderingExpressionTreeVisitor(Ordering ordering)
         {
-            Check.NotNull(ordering, "ordering");
+            Check.NotNull(ordering, nameof(ordering));
 
             return new RelationalOrderingExpressionTreeVisitor(this, ordering);
         }
@@ -93,10 +93,10 @@ namespace Microsoft.Data.Entity.Relational.Query
             IReadOnlyList<INavigation> navigationPath,
             bool querySourceRequiresTracking)
         {
-            Check.NotNull(querySource, "querySource");
-            Check.NotNull(resultType, "resultType");
-            Check.NotNull(accessorLambda, "accessorLambda");
-            Check.NotNull(navigationPath, "navigationPath");
+            Check.NotNull(querySource, nameof(querySource));
+            Check.NotNull(resultType, nameof(resultType));
+            Check.NotNull(accessorLambda, nameof(accessorLambda));
+            Check.NotNull(navigationPath, nameof(navigationPath));
 
             Expression
                 = new IncludeExpressionTreeVisitor(querySource, navigationPath, QueryCompilationContext, querySourceRequiresTracking)
@@ -312,8 +312,8 @@ namespace Microsoft.Data.Entity.Relational.Query
 
         public override Expression BindMemberToValueReader(MemberExpression memberExpression, Expression expression)
         {
-            Check.NotNull(memberExpression, "memberExpression");
-            Check.NotNull(expression, "expression");
+            Check.NotNull(memberExpression, nameof(memberExpression));
+            Check.NotNull(expression, nameof(expression));
 
             return BindMemberExpression(
                 memberExpression,
@@ -330,8 +330,8 @@ namespace Microsoft.Data.Entity.Relational.Query
         public override Expression BindMethodCallToValueReader(
             MethodCallExpression methodCallExpression, Expression expression)
         {
-            Check.NotNull(methodCallExpression, "methodCallExpression");
-            Check.NotNull(expression, "expression");
+            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
+            Check.NotNull(expression, nameof(expression));
 
             return BindMethodCallExpression(
                 methodCallExpression,
@@ -349,8 +349,8 @@ namespace Microsoft.Data.Entity.Relational.Query
             [NotNull] MemberExpression memberExpression,
             [NotNull] Action<IProperty, IQuerySource, SelectExpression> memberBinder)
         {
-            Check.NotNull(memberExpression, "memberExpression");
-            Check.NotNull(memberBinder, "memberBinder");
+            Check.NotNull(memberExpression, nameof(memberExpression));
+            Check.NotNull(memberBinder, nameof(memberBinder));
 
             BindMemberExpression(memberExpression, null,
                 (property, querySource, selectExpression) =>
@@ -365,8 +365,8 @@ namespace Microsoft.Data.Entity.Relational.Query
             [NotNull] MemberExpression memberExpression,
             [NotNull] Func<IProperty, IQuerySource, SelectExpression, TResult> memberBinder)
         {
-            Check.NotNull(memberExpression, "memberExpression");
-            Check.NotNull(memberBinder, "memberBinder");
+            Check.NotNull(memberExpression, nameof(memberExpression));
+            Check.NotNull(memberBinder, nameof(memberBinder));
 
             return BindMemberExpression(memberExpression, null, memberBinder);
         }
@@ -376,8 +376,8 @@ namespace Microsoft.Data.Entity.Relational.Query
             [CanBeNull] IQuerySource querySource,
             Func<IProperty, IQuerySource, SelectExpression, TResult> memberBinder)
         {
-            Check.NotNull(memberExpression, "memberExpression");
-            Check.NotNull(memberBinder, "memberBinder");
+            Check.NotNull(memberExpression, nameof(memberExpression));
+            Check.NotNull(memberBinder, nameof(memberBinder));
 
             return base.BindMemberExpression(memberExpression, querySource,
                 (property, qs) => BindMemberOrMethod(memberBinder, qs, property));
@@ -387,8 +387,8 @@ namespace Microsoft.Data.Entity.Relational.Query
             [NotNull] MethodCallExpression methodCallExpression,
             [NotNull] Action<IProperty, IQuerySource, SelectExpression> memberBinder)
         {
-            Check.NotNull(methodCallExpression, "methodCallExpression");
-            Check.NotNull(memberBinder, "memberBinder");
+            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
+            Check.NotNull(memberBinder, nameof(memberBinder));
 
             BindMethodCallExpression(methodCallExpression, null,
                 (property, querySource, selectExpression) =>
@@ -403,8 +403,8 @@ namespace Microsoft.Data.Entity.Relational.Query
             [NotNull] MethodCallExpression methodCallExpression,
             [NotNull] Func<IProperty, IQuerySource, SelectExpression, TResult> memberBinder)
         {
-            Check.NotNull(methodCallExpression, "methodCallExpression");
-            Check.NotNull(memberBinder, "memberBinder");
+            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
+            Check.NotNull(memberBinder, nameof(memberBinder));
 
             return BindMethodCallExpression(methodCallExpression, null, memberBinder);
         }

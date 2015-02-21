@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
 
         public SqlServerKeyBuilder([NotNull] Key key)
         {
-            Check.NotNull(key, "key");
+            Check.NotNull(key, nameof(key));
 
             _key = key;
         }

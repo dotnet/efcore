@@ -29,9 +29,9 @@ namespace Microsoft.Data.Entity.Infrastructure
             [NotNull] ClrPropertySetterSource setSetters,
             [NotNull] DbSetSource setSource)
         {
-            Check.NotNull(setFinder, "setFinder");
-            Check.NotNull(setSetters, "setSetters");
-            Check.NotNull(setSource, "setSource");
+            Check.NotNull(setFinder, nameof(setFinder));
+            Check.NotNull(setSetters, nameof(setSetters));
+            Check.NotNull(setSource, nameof(setSource));
 
             _setFinder = setFinder;
             _setSetters = setSetters;
@@ -40,7 +40,7 @@ namespace Microsoft.Data.Entity.Infrastructure
 
         public virtual void InitializeSets([NotNull] DbContext context)
         {
-            Check.NotNull(context, "context");
+            Check.NotNull(context, nameof(context));
 
             foreach (var setInfo in _setFinder.FindSets(context).Where(p => p.HasSetter))
             {
@@ -53,7 +53,7 @@ namespace Microsoft.Data.Entity.Infrastructure
         public virtual DbSet<TEntity> CreateSet<TEntity>([NotNull] DbContext context)
             where TEntity : class
         {
-            Check.NotNull(context, "context");
+            Check.NotNull(context, nameof(context));
 
             return (DbSet<TEntity>)_setSource.Create(context, typeof(TEntity));
         }

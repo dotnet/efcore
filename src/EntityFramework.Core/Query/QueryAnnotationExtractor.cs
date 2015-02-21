@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.Query
     {
         public virtual ICollection<QueryAnnotation> ExtractQueryAnnotations([NotNull] QueryModel queryModel)
         {
-            Check.NotNull(queryModel, "queryModel");
+            Check.NotNull(queryModel, nameof(queryModel));
 
             var queryAnnotations = new List<QueryAnnotation>();
 

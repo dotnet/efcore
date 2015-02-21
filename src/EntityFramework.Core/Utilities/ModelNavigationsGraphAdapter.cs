@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.Utilities
 
         public ModelNavigationsGraphAdapter([NotNull] Model model)
         {
-            Check.NotNull(model, "model");
+            Check.NotNull(model, nameof(model));
 
             _model = model;
         }

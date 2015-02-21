@@ -26,8 +26,8 @@ namespace Microsoft.Data.Entity.Relational.Query
                 Check.NotNull(logger, "logger"),
                 Check.NotNull(queryBuffer, "queryBuffer"))
         {
-            Check.NotNull(connection, "connection");
-            Check.NotNull(valueReaderFactory, "valueReaderFactory");
+            Check.NotNull(connection, nameof(connection));
+            Check.NotNull(valueReaderFactory, nameof(valueReaderFactory));
 
             Connection = connection;
             ValueReaderFactory = valueReaderFactory;
@@ -40,7 +40,7 @@ namespace Microsoft.Data.Entity.Relational.Query
 
         public virtual void RegisterDataReader([NotNull] DbDataReader dataReader)
         {
-            Check.NotNull(dataReader, "dataReader");
+            Check.NotNull(dataReader, nameof(dataReader));
 
             _activeDataReaders.Add(dataReader);
         }

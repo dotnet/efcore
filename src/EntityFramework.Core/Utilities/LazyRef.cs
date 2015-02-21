@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.Utilities
 
         public LazyRef([NotNull] Func<T> initializer)
         {
-            Check.NotNull(initializer, "initializer");
+            Check.NotNull(initializer, nameof(initializer));
 
             _initializer = initializer;
         }
@@ -40,7 +40,7 @@ namespace Microsoft.Data.Entity.Utilities
             [param: NotNull]
             set
             {
-                Check.NotNull(value, "value");
+                Check.NotNull(value, nameof(value));
 
                 _value = value;
                 _initializer = null;
@@ -54,7 +54,7 @@ namespace Microsoft.Data.Entity.Utilities
 
         public void Reset([NotNull] Func<T> initializer)
         {
-            Check.NotNull(initializer, "initializer");
+            Check.NotNull(initializer, nameof(initializer));
 
             _initializer = initializer;
             _value = default(T);

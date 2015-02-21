@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Sql
             [NotNull] IReadOnlyList<MigrationOperation> operations,
             [CanBeNull] IModel model = null)
         {
-            Check.NotNull(operations, "operations");
+            Check.NotNull(operations, nameof(operations));
 
             var builder = new SqlBatchBuilder();
             foreach (var operation in operations)

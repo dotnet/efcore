@@ -14,14 +14,14 @@ namespace Microsoft.Data.Entity.Metadata
 
         public ClrPropertyGetter([NotNull] Func<TEntity, TValue> getter)
         {
-            Check.NotNull(getter, "getter");
+            Check.NotNull(getter, nameof(getter));
 
             _getter = getter;
         }
 
         public virtual object GetClrValue(object instance)
         {
-            Check.NotNull(instance, "instance");
+            Check.NotNull(instance, nameof(instance));
 
             return _getter((TEntity)instance);
         }

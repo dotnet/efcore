@@ -113,14 +113,14 @@ namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
 
         public virtual string EscapeString([NotNull] string str)
         {
-            Check.NotEmpty(str, "str");
+            Check.NotEmpty(str, nameof(str));
 
             return str.Replace("\"", "\\\"");
         }
 
         public virtual string EscapeVerbatimString([NotNull] string str)
         {
-            Check.NotEmpty(str, "str");
+            Check.NotEmpty(str, nameof(str));
 
             return str.Replace("\"", "\"\"");
         }
@@ -208,7 +208,7 @@ namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
         public virtual string GenerateCSharpIdentifier(
             [NotNull] string identifier, [CanBeNull]ICollection<string> existingIdentifiers)
         {
-            Check.NotEmpty(identifier, "identifier");
+            Check.NotEmpty(identifier, nameof(identifier));
 
             var invalidCharsRegex
                 = new Regex(@"[^\p{Ll}\p{Lu}\p{Lt}\p{Lo}\p{Nd}\p{Nl}\p{Mn}\p{Mc}\p{Cf}\p{Pc}\p{Lm}]");

@@ -21,14 +21,14 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual EntityType AddEntityType([NotNull] Type type)
         {
-            Check.NotNull(type, "type");
+            Check.NotNull(type, nameof(type));
 
             return AddEntityType(new EntityType(type, this));
         }
 
         public virtual EntityType AddEntityType([NotNull] string name)
         {
-            Check.NotEmpty(name, "name");
+            Check.NotEmpty(name, nameof(name));
 
             return AddEntityType(new EntityType(name, this));
         }
@@ -59,7 +59,7 @@ namespace Microsoft.Data.Entity.Metadata
         [CanBeNull]
         public virtual EntityType TryGetEntityType([NotNull] Type type)
         {
-            Check.NotNull(type, "type");
+            Check.NotNull(type, nameof(type));
 
             return type.GetTypeInfo().IsClass ? TryGetEntityType(new EntityType(type, this)) : null;
         }
@@ -67,7 +67,7 @@ namespace Microsoft.Data.Entity.Metadata
         [CanBeNull]
         public virtual EntityType TryGetEntityType([NotNull] string name)
         {
-            Check.NotEmpty(name, "name");
+            Check.NotEmpty(name, nameof(name));
 
             return TryGetEntityType(new EntityType(name, this));
         }
@@ -81,7 +81,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual EntityType GetEntityType([NotNull] Type type)
         {
-            Check.NotNull(type, "type");
+            Check.NotNull(type, nameof(type));
 
             var entityType = TryGetEntityType(type);
             if (entityType == null)
@@ -94,7 +94,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual EntityType GetEntityType([NotNull] string name)
         {
-            Check.NotEmpty(name, "name");
+            Check.NotEmpty(name, nameof(name));
 
             var entityType = TryGetEntityType(name);
             if (entityType == null)
@@ -107,7 +107,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual EntityType RemoveEntityType([NotNull] EntityType entityType)
         {
-            Check.NotNull(entityType, "entityType");
+            Check.NotNull(entityType, nameof(entityType));
 
             if (GetReferencingForeignKeys(entityType).Any())
             {
@@ -133,7 +133,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual IReadOnlyList<ForeignKey> GetReferencingForeignKeys([NotNull] IEntityType entityType)
         {
-            Check.NotNull(entityType, "entityType");
+            Check.NotNull(entityType, nameof(entityType));
 
             // TODO: Perf: Add additional indexes so that this isn't a linear lookup
             // Issue #1179
@@ -142,7 +142,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual IReadOnlyList<ForeignKey> GetReferencingForeignKeys([NotNull] IKey key)
         {
-            Check.NotNull(key, "key");
+            Check.NotNull(key, nameof(key));
 
             // TODO: Perf: Add additional indexes so that this isn't a linear lookup
             // Issue #1179
@@ -151,7 +151,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual IReadOnlyList<ForeignKey> GetReferencingForeignKeys([NotNull] IProperty property)
         {
-            Check.NotNull(property, "property");
+            Check.NotNull(property, nameof(property));
 
             // TODO: Perf: Add additional indexes so that this isn't a linear lookup
             // Issue #1179

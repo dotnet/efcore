@@ -57,10 +57,10 @@ namespace Microsoft.Data.Entity.Relational
                 Check.NotNull(propertySetterSource, "propertySetterSource"),
                 Check.NotNull(loggerFactory, "loggerFactory"))
         {
-            Check.NotNull(connection, "connection");
-            Check.NotNull(batchPreparer, "batchPreparer");
-            Check.NotNull(batchExecutor, "batchExecutor");
-            Check.NotNull(options, "options");
+            Check.NotNull(connection, nameof(connection));
+            Check.NotNull(batchPreparer, nameof(batchPreparer));
+            Check.NotNull(batchExecutor, nameof(batchExecutor));
+            Check.NotNull(options, nameof(options));
 
             _batchPreparer = batchPreparer;
             _batchExecutor = batchExecutor;
@@ -75,7 +75,7 @@ namespace Microsoft.Data.Entity.Relational
         public override int SaveChanges(
             IReadOnlyList<InternalEntityEntry> entries)
         {
-            Check.NotNull(entries, "entries");
+            Check.NotNull(entries, nameof(entries));
 
             var commandBatches = _batchPreparer.BatchCommands(entries, _options);
 
@@ -86,7 +86,7 @@ namespace Microsoft.Data.Entity.Relational
             IReadOnlyList<InternalEntityEntry> entries,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(entries, "entries");
+            Check.NotNull(entries, nameof(entries));
 
             var commandBatches = _batchPreparer.BatchCommands(entries, _options);
 
@@ -95,7 +95,7 @@ namespace Microsoft.Data.Entity.Relational
 
         public override Func<QueryContext, IEnumerable<TResult>> CompileQuery<TResult>(QueryModel queryModel)
         {
-            Check.NotNull(queryModel, "queryModel");
+            Check.NotNull(queryModel, nameof(queryModel));
 
             var queryCompilationContext
                 = CreateQueryCompilationContext(
@@ -134,10 +134,10 @@ namespace Microsoft.Data.Entity.Relational
             [NotNull] IQueryMethodProvider queryMethodProvider,
             [NotNull] IMethodCallTranslator methodCallTranslator)
         {
-            Check.NotNull(linqOperatorProvider, "linqOperatorProvider");
-            Check.NotNull(resultOperatorHandler, "resultOperatorHandler");
-            Check.NotNull(queryMethodProvider, "queryMethodProvider");
-            Check.NotNull(methodCallTranslator, "methodCallTranslator");
+            Check.NotNull(linqOperatorProvider, nameof(linqOperatorProvider));
+            Check.NotNull(resultOperatorHandler, nameof(resultOperatorHandler));
+            Check.NotNull(queryMethodProvider, nameof(queryMethodProvider));
+            Check.NotNull(methodCallTranslator, nameof(methodCallTranslator));
 
             return new RelationalQueryCompilationContext(
                 Model,

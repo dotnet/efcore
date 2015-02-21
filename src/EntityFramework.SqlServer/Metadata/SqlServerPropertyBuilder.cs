@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
 
         public SqlServerPropertyBuilder([NotNull] Property property)
         {
-            Check.NotNull(property, "property");
+            Check.NotNull(property, nameof(property));
 
             _property = property;
         }
@@ -72,7 +72,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
 
         public virtual SqlServerPropertyBuilder UseSequence([NotNull] string name, [CanBeNull] string schema = null)
         {
-            Check.NotEmpty(name, "name");
+            Check.NotEmpty(name, nameof(name));
             Check.NullButNotEmpty(schema, "schema");
 
             var sequence = _property.EntityType.Model.SqlServer().GetOrAddSequence(name, schema);

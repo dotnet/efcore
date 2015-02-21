@@ -10,7 +10,7 @@ namespace Microsoft.Data.Entity.Relational
     {
         public RelationalDbContextOptions([NotNull] DbContextOptions options)
         {
-            Check.NotNull(options, "options");
+            Check.NotNull(options, nameof(options));
 
             Options = options;
         }

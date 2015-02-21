@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.Relational
             [NotNull] StringBuilder commandStringBuilder,
             [NotNull] ModificationCommand command)
         {
-            Check.NotNull(command, "command");
+            Check.NotNull(command, nameof(command));
 
             var tableName = command.TableName;
             var schemaName = command.SchemaName;
@@ -43,7 +43,7 @@ namespace Microsoft.Data.Entity.Relational
             [NotNull] StringBuilder commandStringBuilder,
             [NotNull] ModificationCommand command)
         {
-            Check.NotNull(command, "command");
+            Check.NotNull(command, nameof(command));
 
             var tableName = command.TableName;
             var schemaName = command.SchemaName;
@@ -71,7 +71,7 @@ namespace Microsoft.Data.Entity.Relational
             [NotNull] StringBuilder commandStringBuilder,
             [NotNull] ModificationCommand command)
         {
-            Check.NotNull(command, "command");
+            Check.NotNull(command, nameof(command));
 
             var tableName = command.TableName;
             var schemaName = command.SchemaName;
@@ -88,9 +88,9 @@ namespace Microsoft.Data.Entity.Relational
             [CanBeNull] string schemaName,
             [NotNull] IReadOnlyList<ColumnModification> writeOperations)
         {
-            Check.NotNull(commandStringBuilder, "commandStringBuilder");
-            Check.NotEmpty(tableName, "tableName");
-            Check.NotNull(writeOperations, "writeOperations");
+            Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
+            Check.NotEmpty(tableName, nameof(tableName));
+            Check.NotNull(writeOperations, nameof(writeOperations));
 
             AppendInsertCommandHeader(commandStringBuilder, tableName, schemaName, writeOperations);
             AppendValuesHeader(commandStringBuilder, writeOperations);
@@ -105,10 +105,10 @@ namespace Microsoft.Data.Entity.Relational
             [NotNull] IReadOnlyList<ColumnModification> writeOperations,
             [NotNull] IReadOnlyList<ColumnModification> conditionOperations)
         {
-            Check.NotNull(commandStringBuilder, "commandStringBuilder");
-            Check.NotEmpty(tableName, "tableName");
-            Check.NotNull(writeOperations, "writeOperations");
-            Check.NotNull(conditionOperations, "conditionOperations");
+            Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
+            Check.NotEmpty(tableName, nameof(tableName));
+            Check.NotNull(writeOperations, nameof(writeOperations));
+            Check.NotNull(conditionOperations, nameof(conditionOperations));
 
             AppendUpdateCommandHeader(commandStringBuilder, tableName, schemaName, writeOperations);
             AppendWhereClause(commandStringBuilder, conditionOperations);
@@ -121,9 +121,9 @@ namespace Microsoft.Data.Entity.Relational
             [CanBeNull] string schemaName,
             [NotNull] IReadOnlyList<ColumnModification> conditionOperations)
         {
-            Check.NotNull(commandStringBuilder, "commandStringBuilder");
-            Check.NotEmpty(tableName, "tableName");
-            Check.NotNull(conditionOperations, "conditionOperations");
+            Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
+            Check.NotEmpty(tableName, nameof(tableName));
+            Check.NotNull(conditionOperations, nameof(conditionOperations));
 
             AppendDeleteCommandHeader(commandStringBuilder, tableName, schemaName);
             AppendWhereClause(commandStringBuilder, conditionOperations);
@@ -142,10 +142,10 @@ namespace Microsoft.Data.Entity.Relational
             [NotNull] IReadOnlyList<ColumnModification> readOperations,
             [NotNull] IReadOnlyList<ColumnModification> conditionOperations)
         {
-            Check.NotNull(commandStringBuilder, "commandStringBuilder");
-            Check.NotEmpty(tableName, "tableName");
-            Check.NotNull(readOperations, "readOperations");
-            Check.NotNull(conditionOperations, "conditionOperations");
+            Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
+            Check.NotEmpty(tableName, nameof(tableName));
+            Check.NotNull(readOperations, nameof(readOperations));
+            Check.NotNull(conditionOperations, nameof(conditionOperations));
 
             AppendSelectCommandHeader(commandStringBuilder, readOperations);
             AppendFromClause(commandStringBuilder, tableName, schemaName);
@@ -160,9 +160,9 @@ namespace Microsoft.Data.Entity.Relational
             [CanBeNull] string schemaName,
             [NotNull] IReadOnlyList<ColumnModification> operations)
         {
-            Check.NotNull(commandStringBuilder, "commandStringBuilder");
-            Check.NotEmpty(tableName, "tableName");
-            Check.NotNull(operations, "operations");
+            Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
+            Check.NotEmpty(tableName, nameof(tableName));
+            Check.NotNull(operations, nameof(operations));
 
             commandStringBuilder
                 .Append("INSERT INTO ")
@@ -182,8 +182,8 @@ namespace Microsoft.Data.Entity.Relational
             [NotNull] string tableName,
             [CanBeNull] string schemaName)
         {
-            Check.NotNull(commandStringBuilder, "commandStringBuilder");
-            Check.NotEmpty(tableName, "tableName");
+            Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
+            Check.NotEmpty(tableName, nameof(tableName));
 
             commandStringBuilder
                 .Append("DELETE FROM ")
@@ -196,9 +196,9 @@ namespace Microsoft.Data.Entity.Relational
             [CanBeNull] string schemaName,
             [NotNull] IReadOnlyList<ColumnModification> operations)
         {
-            Check.NotNull(commandStringBuilder, "commandStringBuilder");
-            Check.NotEmpty(tableName, "tableName");
-            Check.NotNull(operations, "operations");
+            Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
+            Check.NotEmpty(tableName, nameof(tableName));
+            Check.NotNull(operations, nameof(operations));
 
             commandStringBuilder
                 .Append("UPDATE ")
@@ -213,8 +213,8 @@ namespace Microsoft.Data.Entity.Relational
             [NotNull] StringBuilder commandStringBuilder,
             [NotNull] IReadOnlyList<ColumnModification> operations)
         {
-            Check.NotNull(commandStringBuilder, "commandStringBuilder");
-            Check.NotNull(operations, "operations");
+            Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
+            Check.NotNull(operations, nameof(operations));
 
             commandStringBuilder
                 .Append("SELECT ")
@@ -226,8 +226,8 @@ namespace Microsoft.Data.Entity.Relational
             [NotNull] string tableName,
             [CanBeNull] string schemaName)
         {
-            Check.NotNull(commandStringBuilder, "commandStringBuilder");
-            Check.NotEmpty(tableName, "tableName");
+            Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
+            Check.NotEmpty(tableName, nameof(tableName));
 
             commandStringBuilder
                 .AppendLine()
@@ -239,8 +239,8 @@ namespace Microsoft.Data.Entity.Relational
             [NotNull] StringBuilder commandStringBuilder,
             [NotNull] IReadOnlyList<ColumnModification> operations)
         {
-            Check.NotNull(commandStringBuilder, "commandStringBuilder");
-            Check.NotNull(operations, "operations");
+            Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
+            Check.NotNull(operations, nameof(operations));
 
             commandStringBuilder.AppendLine();
             commandStringBuilder.Append(operations.Count > 0 ? "VALUES " : "DEFAULT VALUES");
@@ -250,8 +250,8 @@ namespace Microsoft.Data.Entity.Relational
             [NotNull] StringBuilder commandStringBuilder,
             [NotNull] IReadOnlyList<ColumnModification> operations)
         {
-            Check.NotNull(commandStringBuilder, "commandStringBuilder");
-            Check.NotNull(operations, "operations");
+            Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
+            Check.NotNull(operations, nameof(operations));
 
             if (operations.Count > 0)
             {
@@ -266,8 +266,8 @@ namespace Microsoft.Data.Entity.Relational
             [NotNull] StringBuilder commandStringBuilder,
             [NotNull] IReadOnlyList<ColumnModification> operations)
         {
-            Check.NotNull(commandStringBuilder, "commandStringBuilder");
-            Check.NotNull(operations, "operations");
+            Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
+            Check.NotNull(operations, nameof(operations));
 
             if (operations.Count > 0)
             {
@@ -282,8 +282,8 @@ namespace Microsoft.Data.Entity.Relational
             [NotNull] StringBuilder commandStringBuilder,
             [NotNull] IReadOnlyList<ColumnModification> operations)
         {
-            Check.NotNull(commandStringBuilder, "commandStringBuilder");
-            Check.NotNull(operations, "operations");
+            Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
+            Check.NotNull(operations, nameof(operations));
 
             commandStringBuilder
                 .AppendLine()
@@ -319,8 +319,8 @@ namespace Microsoft.Data.Entity.Relational
             [NotNull] ColumnModification columnModification,
             bool useOriginalValue)
         {
-            Check.NotNull(commandStringBuilder, "commandStringBuilder");
-            Check.NotNull(columnModification, "columnModification");
+            Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
+            Check.NotNull(columnModification, nameof(columnModification));
 
             commandStringBuilder
                 .Append(DelimitIdentifier(columnModification.ColumnName))
@@ -348,7 +348,7 @@ namespace Microsoft.Data.Entity.Relational
 
         public virtual string DelimitIdentifier([NotNull] string tableName, [CanBeNull] string schemaName)
         {
-            Check.NotEmpty(tableName, "tableName");
+            Check.NotEmpty(tableName, nameof(tableName));
 
             return
                 (!string.IsNullOrEmpty(schemaName)
@@ -359,28 +359,28 @@ namespace Microsoft.Data.Entity.Relational
 
         public virtual string DelimitIdentifier([NotNull] string identifier)
         {
-            Check.NotEmpty(identifier, "identifier");
+            Check.NotEmpty(identifier, nameof(identifier));
 
             return "\"" + EscapeIdentifier(identifier) + "\"";
         }
 
         public virtual string EscapeIdentifier([NotNull] string identifier)
         {
-            Check.NotEmpty(identifier, "identifier");
+            Check.NotEmpty(identifier, nameof(identifier));
 
             return identifier.Replace("\"", "\"\"");
         }
 
         public virtual string GenerateLiteral([NotNull] string literal)
         {
-            Check.NotNull(literal, "literal");
+            Check.NotNull(literal, nameof(literal));
 
             return "'" + EscapeLiteral(literal) + "'";
         }
 
         public virtual string EscapeLiteral([NotNull] string literal)
         {
-            Check.NotNull(literal, "literal");
+            Check.NotNull(literal, nameof(literal));
 
             return literal.Replace("'", "''");
         }

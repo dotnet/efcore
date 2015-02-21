@@ -37,9 +37,9 @@ namespace Microsoft.Data.Entity.Relational.Update
             [NotNull] ParameterNameGenerator parameterNameGenerator,
             [NotNull] Func<IProperty, IRelationalPropertyExtensions> getPropertyExtensions)
         {
-            Check.NotEmpty(tableName, "tableName");
-            Check.NotNull(parameterNameGenerator, "parameterNameGenerator");
-            Check.NotNull(getPropertyExtensions, "getPropertyExtensions");
+            Check.NotEmpty(tableName, nameof(tableName));
+            Check.NotNull(parameterNameGenerator, nameof(parameterNameGenerator));
+            Check.NotNull(getPropertyExtensions, nameof(getPropertyExtensions));
 
             TableName = tableName;
             SchemaName = schemaName;
@@ -71,7 +71,7 @@ namespace Microsoft.Data.Entity.Relational.Update
 
         public virtual ModificationCommand AddEntry([NotNull] InternalEntityEntry entry)
         {
-            Check.NotNull(entry, "entry");
+            Check.NotNull(entry, nameof(entry));
 
             if (entry.EntityState != EntityState.Added
                 && entry.EntityState != EntityState.Modified
@@ -139,7 +139,7 @@ namespace Microsoft.Data.Entity.Relational.Update
 
         public virtual void PropagateResults([NotNull] IValueReader reader)
         {
-            Check.NotNull(reader, "reader");
+            Check.NotNull(reader, nameof(reader));
 
             // TODO: Consider using strongly typed ReadValue instead of just <object>
             // Issue #771

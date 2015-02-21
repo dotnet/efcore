@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata
 
         public RelationalPropertyBuilder([NotNull] Property property)
         {
-            Check.NotNull(property, "property");
+            Check.NotNull(property, nameof(property));
 
             _property = property;
         }

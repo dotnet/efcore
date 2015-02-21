@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity.Relational
     {
         public override IValueReader Create(DbDataReader dataReader)
         {
-            Check.NotNull(dataReader, "dataReader");
+            Check.NotNull(dataReader, nameof(dataReader));
 
             return new RelationalTypedValueReader(dataReader);
         }

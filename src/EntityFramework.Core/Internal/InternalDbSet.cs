@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.Internal
 
         public InternalDbSet([NotNull] DbContext context)
         {
-            Check.NotNull(context, "context");
+            Check.NotNull(context, nameof(context));
 
             _context = context;
 
@@ -37,84 +37,84 @@ namespace Microsoft.Data.Entity.Internal
 
         public override EntityEntry<TEntity> Add(TEntity entity)
         {
-            Check.NotNull(entity, "entity");
+            Check.NotNull(entity, nameof(entity));
 
             return _context.Add(entity);
         }
 
         public override EntityEntry<TEntity> Attach(TEntity entity)
         {
-            Check.NotNull(entity, "entity");
+            Check.NotNull(entity, nameof(entity));
 
             return _context.Attach(entity);
         }
 
         public override EntityEntry<TEntity> Remove(TEntity entity)
         {
-            Check.NotNull(entity, "entity");
+            Check.NotNull(entity, nameof(entity));
 
             return _context.Remove(entity);
         }
 
         public override EntityEntry<TEntity> Update(TEntity entity)
         {
-            Check.NotNull(entity, "entity");
+            Check.NotNull(entity, nameof(entity));
 
             return _context.Update(entity);
         }
 
         public override void AddRange([NotNull] params TEntity[] entities)
         {
-            Check.NotNull(entities, "entities");
+            Check.NotNull(entities, nameof(entities));
 
             _context.AddRange(entities);
         }
 
         public override void AttachRange([NotNull] params TEntity[] entities)
         {
-            Check.NotNull(entities, "entities");
+            Check.NotNull(entities, nameof(entities));
 
             _context.AttachRange(entities);
         }
 
         public override void RemoveRange([NotNull] params TEntity[] entities)
         {
-            Check.NotNull(entities, "entities");
+            Check.NotNull(entities, nameof(entities));
 
             _context.RemoveRange(entities);
         }
 
         public override void UpdateRange([NotNull] params TEntity[] entities)
         {
-            Check.NotNull(entities, "entities");
+            Check.NotNull(entities, nameof(entities));
 
             _context.UpdateRange(entities);
         }
 
         public override void AddRange([NotNull] IEnumerable<TEntity> entities)
         {
-            Check.NotNull(entities, "entities");
+            Check.NotNull(entities, nameof(entities));
 
             _context.AddRange(entities);
         }
 
         public override void AttachRange([NotNull] IEnumerable<TEntity> entities)
         {
-            Check.NotNull(entities, "entities");
+            Check.NotNull(entities, nameof(entities));
 
             _context.AttachRange(entities);
         }
 
         public override void RemoveRange([NotNull] IEnumerable<TEntity> entities)
         {
-            Check.NotNull(entities, "entities");
+            Check.NotNull(entities, nameof(entities));
 
             _context.RemoveRange(entities);
         }
 
         public override void UpdateRange([NotNull] IEnumerable<TEntity> entities)
         {
-            Check.NotNull(entities, "entities");
+            Check.NotNull(entities, nameof(entities));
 
             _context.UpdateRange(entities);
         }

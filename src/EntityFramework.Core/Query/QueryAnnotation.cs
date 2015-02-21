@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.Query
 
         public QueryAnnotation([NotNull] ResultOperatorBase resultOperator)
         {
-            Check.NotNull(resultOperator, "resultOperator");
+            Check.NotNull(resultOperator, nameof(resultOperator));
 
             ResultOperator = resultOperator;
         }
@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.Query
             [param: NotNull]
             set
             {
-                Check.NotNull(value, "value");
+                Check.NotNull(value, nameof(value));
 
                 _querySource = value;
             }

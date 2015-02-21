@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.Infrastructure
 
         public DbContextService([NotNull] Func<TService> initializer)
         {
-            Check.NotNull(initializer, "initializer");
+            Check.NotNull(initializer, nameof(initializer));
 
             _service = new LazyRef<TService>(initializer);
         }

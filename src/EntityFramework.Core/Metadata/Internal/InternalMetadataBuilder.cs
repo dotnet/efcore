@@ -17,15 +17,15 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         protected InternalMetadataBuilder([NotNull] TMetadata metadata)
         {
-            Check.NotNull(metadata, "metadata");
+            Check.NotNull(metadata, nameof(metadata));
 
             _metadata = metadata;
         }
 
         public virtual bool Annotation([NotNull] string annotation, [NotNull] string value, ConfigurationSource configurationSource)
         {
-            Check.NotEmpty(annotation, "annotation");
-            Check.NotEmpty(value, "value");
+            Check.NotEmpty(annotation, nameof(annotation));
+            Check.NotEmpty(value, nameof(value));
 
             var existingValue = Metadata[annotation];
             if (existingValue != null)

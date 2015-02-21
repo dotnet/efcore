@@ -46,7 +46,7 @@ namespace Microsoft.Data.Entity.Query
         protected EntityQueryModelVisitor(
             [NotNull] QueryCompilationContext queryCompilationContext)
         {
-            Check.NotNull(queryCompilationContext, "queryCompilationContext");
+            Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
 
             _queryCompilationContext = queryCompilationContext;
         }
@@ -57,7 +57,7 @@ namespace Microsoft.Data.Entity.Query
             [param: NotNull]
             protected set
             {
-                Check.NotNull(value, "value");
+                Check.NotNull(value, nameof(value));
 
                 _expression = value;
             }
@@ -83,7 +83,7 @@ namespace Microsoft.Data.Entity.Query
 
         public virtual Func<QueryContext, IEnumerable<TResult>> CreateQueryExecutor<TResult>([NotNull] QueryModel queryModel)
         {
-            Check.NotNull(queryModel, "queryModel");
+            Check.NotNull(queryModel, nameof(queryModel));
 
             using (QueryCompilationContext.Logger.BeginScope(this))
             {
@@ -111,7 +111,7 @@ namespace Microsoft.Data.Entity.Query
 
         public virtual Func<QueryContext, IAsyncEnumerable<TResult>> CreateAsyncQueryExecutor<TResult>([NotNull] QueryModel queryModel)
         {
-            Check.NotNull(queryModel, "queryModel");
+            Check.NotNull(queryModel, nameof(queryModel));
 
             using (QueryCompilationContext.Logger.BeginScope(this))
             {
@@ -139,7 +139,7 @@ namespace Microsoft.Data.Entity.Query
 
         protected virtual void InterceptExceptions([NotNull] Type resultType)
         {
-            Check.NotNull(resultType, "resultType");
+            Check.NotNull(resultType, nameof(resultType));
 
             _expression
                 = Expression.Call(
@@ -151,7 +151,7 @@ namespace Microsoft.Data.Entity.Query
 
         protected virtual ICollection<QueryAnnotation> ExtractQueryAnnotations([NotNull] QueryModel queryModel)
         {
-            Check.NotNull(queryModel, "queryModel");
+            Check.NotNull(queryModel, nameof(queryModel));
 
             return new QueryAnnotationExtractor().ExtractQueryAnnotations(queryModel);
         }
@@ -159,7 +159,7 @@ namespace Microsoft.Data.Entity.Query
         protected virtual void OptimizeQueryModel(
             [NotNull] QueryModel queryModel)
         {
-            Check.NotNull(queryModel, "queryModel");
+            Check.NotNull(queryModel, nameof(queryModel));
 
             new QueryOptimizer(_queryAnnotations).VisitQueryModel(queryModel);
 
@@ -171,8 +171,8 @@ namespace Microsoft.Data.Entity.Query
             [NotNull] QueryModel queryModel,
             [NotNull] Type resultType)
         {
-            Check.NotNull(queryModel, "queryModel");
-            Check.NotNull(resultType, "resultType");
+            Check.NotNull(queryModel, nameof(queryModel));
+            Check.NotNull(resultType, nameof(resultType));
 
             if (!(queryModel.GetOutputDataInfo() is StreamedSequenceInfo))
             {
@@ -188,8 +188,8 @@ namespace Microsoft.Data.Entity.Query
             [NotNull] QueryModel queryModel,
             [NotNull] Type resultType)
         {
-            Check.NotNull(queryModel, "queryModel");
-            Check.NotNull(resultType, "resultType");
+            Check.NotNull(queryModel, nameof(queryModel));
+            Check.NotNull(resultType, nameof(resultType));
 
             if (!(queryModel.GetOutputDataInfo() is StreamedSequenceInfo))
             {
@@ -214,8 +214,8 @@ namespace Microsoft.Data.Entity.Query
             [NotNull] QueryModel queryModel,
             [NotNull] Type resultType)
         {
-            Check.NotNull(queryModel, "queryModel");
-            Check.NotNull(resultType, "resultType");
+            Check.NotNull(queryModel, nameof(queryModel));
+            Check.NotNull(resultType, nameof(resultType));
 
             var querySourceTracingExpressionTreeVisitor
                 = new QuerySourceTracingExpressionTreeVisitor();
@@ -317,7 +317,7 @@ namespace Microsoft.Data.Entity.Query
         protected virtual void TrackEntitiesInResults<TResult>(
             [NotNull] QueryModel queryModel)
         {
-            Check.NotNull(queryModel, "queryModel");
+            Check.NotNull(queryModel, nameof(queryModel));
 
             if (!typeof(TResult).GetTypeInfo()
                 .IsAssignableFrom(queryModel.SelectClause.Selector.Type.GetTypeInfo()))
@@ -400,14 +400,14 @@ namespace Microsoft.Data.Entity.Query
 
         public virtual bool QuerySourceRequiresMaterialization([NotNull] IQuerySource querySource)
         {
-            Check.NotNull(querySource, "querySource");
+            Check.NotNull(querySource, nameof(querySource));
 
             return _querySourcesRequiringMaterialization.Contains(querySource);
         }
 
         public virtual bool QuerySourceRequiresTracking([NotNull] IQuerySource querySource)
         {
-            Check.NotNull(querySource, "querySource");
+            Check.NotNull(querySource, nameof(querySource));
 
             if (_queryAnnotations == null)
             {
@@ -420,7 +420,7 @@ namespace Microsoft.Data.Entity.Query
 
         public override void VisitQueryModel([NotNull] QueryModel queryModel)
         {
-            Check.NotNull(queryModel, "queryModel");
+            Check.NotNull(queryModel, nameof(queryModel));
 
             var requiresEntityMaterializationExpressionTreeVisitor
                 = new RequiresMaterializationExpressionTreeVisitor(this);
@@ -448,8 +448,8 @@ namespace Microsoft.Data.Entity.Query
         public override void VisitMainFromClause(
             [NotNull] MainFromClause fromClause, [NotNull] QueryModel queryModel)
         {
-            Check.NotNull(fromClause, "fromClause");
-            Check.NotNull(queryModel, "queryModel");
+            Check.NotNull(fromClause, nameof(fromClause));
+            Check.NotNull(queryModel, nameof(queryModel));
 
             _expression
                 = ReplaceClauseReferences(fromClause.FromExpression, fromClause);
@@ -496,8 +496,8 @@ namespace Microsoft.Data.Entity.Query
         public override void VisitAdditionalFromClause(
             [NotNull] AdditionalFromClause fromClause, [NotNull] QueryModel queryModel, int index)
         {
-            Check.NotNull(fromClause, "fromClause");
-            Check.NotNull(queryModel, "queryModel");
+            Check.NotNull(fromClause, nameof(fromClause));
+            Check.NotNull(queryModel, nameof(queryModel));
 
             var innerExpression
                 = ReplaceClauseReferences(fromClause.FromExpression, fromClause);
@@ -536,8 +536,8 @@ namespace Microsoft.Data.Entity.Query
         public override void VisitJoinClause(
             [NotNull] JoinClause joinClause, [NotNull] QueryModel queryModel, int index)
         {
-            Check.NotNull(joinClause, "joinClause");
-            Check.NotNull(queryModel, "queryModel");
+            Check.NotNull(joinClause, nameof(joinClause));
+            Check.NotNull(queryModel, nameof(queryModel));
 
             var outerKeySelector
                 = ReplaceClauseReferences(joinClause.OuterKeySelector, joinClause);
@@ -604,8 +604,8 @@ namespace Microsoft.Data.Entity.Query
         public override void VisitGroupJoinClause(
             [NotNull] GroupJoinClause groupJoinClause, [NotNull] QueryModel queryModel, int index)
         {
-            Check.NotNull(groupJoinClause, "groupJoinClause");
-            Check.NotNull(queryModel, "queryModel");
+            Check.NotNull(groupJoinClause, nameof(groupJoinClause));
+            Check.NotNull(queryModel, nameof(queryModel));
 
             var outerKeySelector
                 = ReplaceClauseReferences(groupJoinClause.JoinClause.OuterKeySelector, groupJoinClause);
@@ -698,8 +698,8 @@ namespace Microsoft.Data.Entity.Query
         public override void VisitWhereClause(
             [NotNull] WhereClause whereClause, [NotNull] QueryModel queryModel, int index)
         {
-            Check.NotNull(whereClause, "whereClause");
-            Check.NotNull(queryModel, "queryModel");
+            Check.NotNull(whereClause, nameof(whereClause));
+            Check.NotNull(queryModel, nameof(queryModel));
 
             var predicate
                 = ReplaceClauseReferences(whereClause.Predicate, queryModel.MainFromClause);
@@ -715,9 +715,9 @@ namespace Microsoft.Data.Entity.Query
         public override void VisitOrdering(
             [NotNull] Ordering ordering, [NotNull] QueryModel queryModel, [NotNull] OrderByClause orderByClause, int index)
         {
-            Check.NotNull(ordering, "ordering");
-            Check.NotNull(queryModel, "queryModel");
-            Check.NotNull(orderByClause, "orderByClause");
+            Check.NotNull(ordering, nameof(ordering));
+            Check.NotNull(queryModel, nameof(queryModel));
+            Check.NotNull(orderByClause, nameof(orderByClause));
 
             var elementType = _expression.Type.GetSequenceType();
             var parameterExpression = QuerySourceScopeParameter;
@@ -761,8 +761,8 @@ namespace Microsoft.Data.Entity.Query
         public override void VisitSelectClause(
             [NotNull] SelectClause selectClause, [NotNull] QueryModel queryModel)
         {
-            Check.NotNull(selectClause, "selectClause");
-            Check.NotNull(queryModel, "queryModel");
+            Check.NotNull(selectClause, nameof(selectClause));
+            Check.NotNull(queryModel, nameof(queryModel));
 
             if (_streamedSequenceInfo != null)
             {
@@ -789,8 +789,8 @@ namespace Microsoft.Data.Entity.Query
         public override void VisitResultOperator(
             [NotNull] ResultOperatorBase resultOperator, [NotNull] QueryModel queryModel, int index)
         {
-            Check.NotNull(resultOperator, "resultOperator");
-            Check.NotNull(queryModel, "queryModel");
+            Check.NotNull(resultOperator, nameof(resultOperator));
+            Check.NotNull(queryModel, nameof(queryModel));
 
             var expression
                 = _queryCompilationContext.ResultOperatorHandler
@@ -811,9 +811,9 @@ namespace Microsoft.Data.Entity.Query
             [NotNull] Type elementType,
             [NotNull] IQuerySource querySource)
         {
-            Check.NotNull(expression, "expression");
-            Check.NotNull(elementType, "elementType");
-            Check.NotNull(querySource, "querySource");
+            Check.NotNull(expression, nameof(expression));
+            Check.NotNull(elementType, nameof(elementType));
+            Check.NotNull(querySource, nameof(querySource));
 
             var innerItemParameter = Expression.Parameter(elementType);
 
@@ -831,8 +831,8 @@ namespace Microsoft.Data.Entity.Query
         public virtual Expression ReplaceClauseReferences(
             [NotNull] Expression expression, [NotNull] IQuerySource querySource)
         {
-            Check.NotNull(expression, "expression");
-            Check.NotNull(querySource, "querySource");
+            Check.NotNull(expression, nameof(expression));
+            Check.NotNull(querySource, nameof(querySource));
 
             return QueryCompilationContext.LinqOperatorProvider
                 .AdjustSequenceType(
@@ -851,8 +851,8 @@ namespace Microsoft.Data.Entity.Query
             [NotNull] MethodCallExpression methodCallExpression,
             [NotNull] Expression expression)
         {
-            Check.NotNull(methodCallExpression, "methodCallExpression");
-            Check.NotNull(expression, "expression");
+            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
+            Check.NotNull(expression, nameof(expression));
 
             return BindMethodCallExpression(
                 methodCallExpression,
@@ -864,8 +864,8 @@ namespace Microsoft.Data.Entity.Query
             [NotNull] MemberExpression memberExpression,
             [NotNull] Expression expression)
         {
-            Check.NotNull(memberExpression, "memberExpression");
-            Check.NotNull(expression, "expression");
+            Check.NotNull(memberExpression, nameof(memberExpression));
+            Check.NotNull(expression, nameof(expression));
 
             return BindMemberExpression(
                 memberExpression,
@@ -883,8 +883,8 @@ namespace Microsoft.Data.Entity.Query
             [NotNull] MemberExpression memberExpression,
             [NotNull] Func<INavigation, IQuerySource, TResult> memberBinder)
         {
-            Check.NotNull(memberExpression, "memberExpression");
-            Check.NotNull(memberBinder, "memberBinder");
+            Check.NotNull(memberExpression, nameof(memberExpression));
+            Check.NotNull(memberBinder, nameof(memberBinder));
 
             return BindMemberExpressionCore(memberExpression, null,
                 (ps, qs) =>
@@ -901,8 +901,8 @@ namespace Microsoft.Data.Entity.Query
             [NotNull] MemberExpression memberExpression,
             [NotNull] Func<IEnumerable<INavigation>, IQuerySource, TResult> memberBinder)
         {
-            Check.NotNull(memberExpression, "memberExpression");
-            Check.NotNull(memberBinder, "memberBinder");
+            Check.NotNull(memberExpression, nameof(memberExpression));
+            Check.NotNull(memberBinder, nameof(memberBinder));
 
             return BindMemberExpressionCore(
                 memberExpression,
@@ -914,8 +914,8 @@ namespace Microsoft.Data.Entity.Query
             [NotNull] MemberExpression memberExpression,
             [NotNull] Action<IProperty, IQuerySource> memberBinder)
         {
-            Check.NotNull(memberExpression, "memberExpression");
-            Check.NotNull(memberBinder, "memberBinder");
+            Check.NotNull(memberExpression, nameof(memberExpression));
+            Check.NotNull(memberBinder, nameof(memberBinder));
 
             BindMemberExpression(memberExpression, null,
                 (property, querySource) =>
@@ -930,8 +930,8 @@ namespace Microsoft.Data.Entity.Query
             [NotNull] MemberExpression memberExpression,
             [NotNull] Func<IProperty, IQuerySource, TResult> memberBinder)
         {
-            Check.NotNull(memberExpression, "memberExpression");
-            Check.NotNull(memberBinder, "memberBinder");
+            Check.NotNull(memberExpression, nameof(memberExpression));
+            Check.NotNull(memberBinder, nameof(memberBinder));
 
             return BindMemberExpression(memberExpression, null, memberBinder);
         }
@@ -941,8 +941,8 @@ namespace Microsoft.Data.Entity.Query
             [CanBeNull] IQuerySource querySource,
             [NotNull] Func<IProperty, IQuerySource, TResult> memberBinder)
         {
-            Check.NotNull(memberExpression, "memberExpression");
-            Check.NotNull(memberBinder, "memberBinder");
+            Check.NotNull(memberExpression, nameof(memberExpression));
+            Check.NotNull(memberBinder, nameof(memberBinder));
 
             return BindMemberExpressionCore(memberExpression, querySource,
                 (ps, qs) =>
@@ -1021,8 +1021,8 @@ namespace Microsoft.Data.Entity.Query
             [NotNull] MethodCallExpression methodCallExpression,
             [NotNull] Func<IProperty, IQuerySource, TResult> methodCallBinder)
         {
-            Check.NotNull(methodCallExpression, "methodCallExpression");
-            Check.NotNull(methodCallBinder, "methodCallBinder");
+            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
+            Check.NotNull(methodCallBinder, nameof(methodCallBinder));
 
             return BindMethodCallExpression(methodCallExpression, null, methodCallBinder);
         }
@@ -1032,8 +1032,8 @@ namespace Microsoft.Data.Entity.Query
             [CanBeNull] IQuerySource querySource,
             [NotNull] Func<IProperty, IQuerySource, TResult> methodCallBinder)
         {
-            Check.NotNull(methodCallExpression, "methodCallExpression");
-            Check.NotNull(methodCallBinder, "methodCallBinder");
+            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
+            Check.NotNull(methodCallBinder, nameof(methodCallBinder));
 
             if (methodCallExpression.Method.IsGenericMethod
                 && ReferenceEquals(

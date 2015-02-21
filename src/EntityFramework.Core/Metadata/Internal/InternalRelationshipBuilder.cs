@@ -25,8 +25,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             ConfigurationSource? initialConfigurationSource)
             : base(foreignKey, modelBuilder)
         {
-            Check.NotNull(foreignKey, "foreignKey");
-            Check.NotNull(modelBuilder, "modelBuilder");
+            Check.NotNull(foreignKey, nameof(foreignKey));
+            Check.NotNull(modelBuilder, nameof(modelBuilder));
 
             _foreignKeyPropertiesConfigurationSource = initialConfigurationSource;
             _referencedKeyConfigurationSource = initialConfigurationSource;
@@ -191,7 +191,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public virtual InternalRelationshipBuilder ForeignKey([NotNull] IReadOnlyList<PropertyInfo> properties,
             ConfigurationSource configurationSource)
         {
-            Check.NotNull(properties, "properties");
+            Check.NotNull(properties, nameof(properties));
 
             return ForeignKey(
                 ModelBuilder.Entity(Metadata.EntityType.Name, configurationSource)
@@ -202,7 +202,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public virtual InternalRelationshipBuilder ForeignKey([NotNull] IReadOnlyList<string> propertyNames,
             ConfigurationSource configurationSource)
         {
-            Check.NotNull(propertyNames, "propertyNames");
+            Check.NotNull(propertyNames, nameof(propertyNames));
 
             return ForeignKey(
                 ModelBuilder.Entity(Metadata.EntityType.Name, configurationSource)
@@ -213,7 +213,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public virtual InternalRelationshipBuilder ForeignKey([NotNull] IReadOnlyList<Property> properties,
             ConfigurationSource configurationSource)
         {
-            Check.NotNull(properties, "properties");
+            Check.NotNull(properties, nameof(properties));
 
             if (Metadata.Properties.SequenceEqual(properties))
             {
@@ -239,8 +239,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             [NotNull] IReadOnlyList<PropertyInfo> properties,
             ConfigurationSource configurationSource)
         {
-            Check.NotNull(specifiedDependentType, "specifiedDependentType");
-            Check.NotNull(properties, "properties");
+            Check.NotNull(specifiedDependentType, nameof(specifiedDependentType));
+            Check.NotNull(properties, nameof(properties));
 
             return ForeignInvertIfNeeded(ResolveType(specifiedDependentType), configurationSource)
                 .ForeignKey(properties, configurationSource);
@@ -251,8 +251,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             [NotNull] IReadOnlyList<string> propertyNames,
             ConfigurationSource configurationSource)
         {
-            Check.NotNull(specifiedDependentType, "specifiedDependentType");
-            Check.NotNull(propertyNames, "propertyNames");
+            Check.NotNull(specifiedDependentType, nameof(specifiedDependentType));
+            Check.NotNull(propertyNames, nameof(propertyNames));
 
             return ForeignInvertIfNeeded(ResolveType(specifiedDependentType), configurationSource)
                 .ForeignKey(propertyNames, configurationSource);
@@ -263,8 +263,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             [NotNull] IReadOnlyList<string> propertyNames,
             ConfigurationSource configurationSource)
         {
-            Check.NotNull(specifiedDependentTypeName, "specifiedDependentTypeName");
-            Check.NotNull(propertyNames, "propertyNames");
+            Check.NotNull(specifiedDependentTypeName, nameof(specifiedDependentTypeName));
+            Check.NotNull(propertyNames, nameof(propertyNames));
 
             return ForeignInvertIfNeeded(ResolveType(specifiedDependentTypeName), configurationSource)
                 .ForeignKey(propertyNames, configurationSource);
@@ -280,7 +280,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public virtual InternalRelationshipBuilder ReferencedKey([NotNull] IReadOnlyList<PropertyInfo> properties,
             ConfigurationSource configurationSource)
         {
-            Check.NotNull(properties, "properties");
+            Check.NotNull(properties, nameof(properties));
 
             return ReferencedKey(
                 ModelBuilder.Entity(Metadata.ReferencedEntityType.Name, configurationSource)
@@ -291,7 +291,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public virtual InternalRelationshipBuilder ReferencedKey([NotNull] IReadOnlyList<string> propertyNames,
             ConfigurationSource configurationSource)
         {
-            Check.NotNull(propertyNames, "propertyNames");
+            Check.NotNull(propertyNames, nameof(propertyNames));
 
             return ReferencedKey(
                 ModelBuilder.Entity(Metadata.ReferencedEntityType.Name, configurationSource)
@@ -302,7 +302,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public virtual InternalRelationshipBuilder ReferencedKey([NotNull] IReadOnlyList<Property> properties,
             ConfigurationSource configurationSource)
         {
-            Check.NotNull(properties, "properties");
+            Check.NotNull(properties, nameof(properties));
 
             if (Metadata.ReferencedProperties.SequenceEqual(properties))
             {
@@ -327,8 +327,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             [NotNull] IReadOnlyList<PropertyInfo> properties,
             ConfigurationSource configurationSource)
         {
-            Check.NotNull(specifiedPrincipalType, "specifiedPrincipalType");
-            Check.NotNull(properties, "properties");
+            Check.NotNull(specifiedPrincipalType, nameof(specifiedPrincipalType));
+            Check.NotNull(properties, nameof(properties));
 
             return ReferenceInvertIfNeeded(ResolveType(specifiedPrincipalType), configurationSource)
                 .ReferencedKey(properties, configurationSource);
@@ -339,8 +339,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             [NotNull] IReadOnlyList<string> propertyNames,
             ConfigurationSource configurationSource)
         {
-            Check.NotNull(specifiedPrincipalType, "specifiedPrincipalType");
-            Check.NotNull(propertyNames, "propertyNames");
+            Check.NotNull(specifiedPrincipalType, nameof(specifiedPrincipalType));
+            Check.NotNull(propertyNames, nameof(propertyNames));
 
             return ReferenceInvertIfNeeded(ResolveType(specifiedPrincipalType), configurationSource)
                 .ReferencedKey(propertyNames, configurationSource);
@@ -351,8 +351,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             [NotNull] IReadOnlyList<string> propertyNames,
             ConfigurationSource configurationSource)
         {
-            Check.NotNull(specifiedPrincipalTypeName, "specifiedPrincipalTypeName");
-            Check.NotNull(propertyNames, "propertyNames");
+            Check.NotNull(specifiedPrincipalTypeName, nameof(specifiedPrincipalTypeName));
+            Check.NotNull(propertyNames, nameof(propertyNames));
 
             return ReferenceInvertIfNeeded(ResolveType(specifiedPrincipalTypeName), configurationSource)
                 .ReferencedKey(propertyNames, configurationSource);

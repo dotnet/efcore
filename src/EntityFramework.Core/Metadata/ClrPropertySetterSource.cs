@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity.Metadata
     {
         protected override IClrPropertySetter CreateGeneric<TEntity, TValue, TNonNullableEnumValue>(PropertyInfo property)
         {
-            Check.NotNull(property, "property");
+            Check.NotNull(property, nameof(property));
 
             // TODO: Handle case where there is not setter or setter is private on a base type
             // Issue #753

@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
         public ExistsExpression([NotNull] Expression expression)
             : base(typeof(bool))
         {
-            Check.NotNull(expression, "expression");
+            Check.NotNull(expression, nameof(expression));
 
             Expression = expression;
         }
@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
 
         public override Expression Accept([NotNull] ExpressionTreeVisitor visitor)
         {
-            Check.NotNull(visitor, "visitor");
+            Check.NotNull(visitor, nameof(visitor));
 
             var specificVisitor = visitor as ISqlExpressionVisitor;
 

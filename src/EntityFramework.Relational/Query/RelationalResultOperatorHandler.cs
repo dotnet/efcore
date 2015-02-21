@@ -83,9 +83,9 @@ namespace Microsoft.Data.Entity.Relational.Query
             ResultOperatorBase resultOperator,
             QueryModel queryModel)
         {
-            Check.NotNull(entityQueryModelVisitor, "entityQueryModelVisitor");
-            Check.NotNull(resultOperator, "resultOperator");
-            Check.NotNull(queryModel, "queryModel");
+            Check.NotNull(entityQueryModelVisitor, nameof(entityQueryModelVisitor));
+            Check.NotNull(resultOperator, nameof(resultOperator));
+            Check.NotNull(queryModel, nameof(queryModel));
 
             var relationalQueryModelVisitor
                 = (RelationalQueryModelVisitor)entityQueryModelVisitor;

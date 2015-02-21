@@ -14,8 +14,8 @@ namespace Microsoft.Data.Entity.Infrastructure
         
         public ModelSourceBase([NotNull] DbSetFinder setFinder, [NotNull] ModelValidator modelValidator)
         {
-            Check.NotNull(setFinder, "setFinder");
-            Check.NotNull(modelValidator, "modelValidator");
+            Check.NotNull(setFinder, nameof(setFinder));
+            Check.NotNull(modelValidator, nameof(modelValidator));
 
             SetFinder = setFinder;
             Validator = modelValidator;
@@ -26,8 +26,8 @@ namespace Microsoft.Data.Entity.Infrastructure
 
         public override IModel GetModel(DbContext context, ModelBuilderFactory modelBuilderFactory)
         {
-            Check.NotNull(context, "context");
-            Check.NotNull(modelBuilderFactory, "modelBuilderFactory");
+            Check.NotNull(context, nameof(context));
+            Check.NotNull(modelBuilderFactory, nameof(modelBuilderFactory));
 
             return _models.GetOrAdd(context.GetType(), k => CreateModel(context, modelBuilderFactory));
         }

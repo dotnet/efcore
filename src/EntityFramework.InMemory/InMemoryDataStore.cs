@@ -52,7 +52,7 @@ namespace Microsoft.Data.Entity.InMemory
                 Check.NotNull(propertySetterSource, "propertySetterSource"),
                 Check.NotNull(loggerFactory, "loggerFactory"))
         {
-            Check.NotNull(persistentDatabase, "persistentDatabase");
+            Check.NotNull(persistentDatabase, nameof(persistentDatabase));
 
             var storeConfig = options.Service.Extensions
                 .OfType<InMemoryOptionsExtension>()
@@ -71,7 +71,7 @@ namespace Microsoft.Data.Entity.InMemory
         public override int SaveChanges(
             IReadOnlyList<InternalEntityEntry> entries)
         {
-            Check.NotNull(entries, "entries");
+            Check.NotNull(entries, nameof(entries));
 
             return _database.Value.ExecuteTransaction(entries);
         }
@@ -80,7 +80,7 @@ namespace Microsoft.Data.Entity.InMemory
             IReadOnlyList<InternalEntityEntry> entries,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(entries, "entries");
+            Check.NotNull(entries, nameof(entries));
 
             return Task.FromResult(_database.Value.ExecuteTransaction(entries));
         }

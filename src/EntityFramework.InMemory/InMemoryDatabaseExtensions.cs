@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity
     {
         public static InMemoryDatabaseFacade AsInMemory([NotNull] this Database database)
         {
-            Check.NotNull(database, "database");
+            Check.NotNull(database, nameof(database));
 
             var inMemoryDatabase = database as InMemoryDatabaseFacade;
 

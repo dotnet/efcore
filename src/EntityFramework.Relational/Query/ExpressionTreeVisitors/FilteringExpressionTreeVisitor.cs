@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
         public FilteringExpressionTreeVisitor([NotNull] RelationalQueryModelVisitor queryModelVisitor)
         {
-            Check.NotNull(queryModelVisitor, "queryModelVisitor");
+            Check.NotNull(queryModelVisitor, nameof(queryModelVisitor));
 
             _queryModelVisitor = queryModelVisitor;
         }
@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
         protected override Expression VisitBinaryExpression([NotNull] BinaryExpression binaryExpression)
         {
-            Check.NotNull(binaryExpression, "binaryExpression");
+            Check.NotNull(binaryExpression, nameof(binaryExpression));
 
             switch (binaryExpression.NodeType)
             {
@@ -160,7 +160,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
         protected override Expression VisitMethodCallExpression([NotNull] MethodCallExpression methodCallExpression)
         {
-            Check.NotNull(methodCallExpression, "methodCallExpression");
+            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
 
             var operand = VisitExpression(methodCallExpression.Object);
 
@@ -219,7 +219,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
         protected override Expression VisitMemberExpression([NotNull] MemberExpression memberExpression)
         {
-            Check.NotNull(memberExpression, "memberExpression");
+            Check.NotNull(memberExpression, nameof(memberExpression));
 
             var columnExpression
                 = _queryModelVisitor
@@ -273,7 +273,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
         protected override Expression VisitNewExpression([NotNull] NewExpression newExpression)
         {
-            Check.NotNull(newExpression, "newExpression");
+            Check.NotNull(newExpression, nameof(newExpression));
 
             if (newExpression.Members != null
                 && newExpression.Arguments.Any()
@@ -319,7 +319,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
         protected override Expression VisitConstantExpression([NotNull] ConstantExpression constantExpression)
         {
-            Check.NotNull(constantExpression, "constantExpression");
+            Check.NotNull(constantExpression, nameof(constantExpression));
 
             if (constantExpression.Value == null)
             {
@@ -340,7 +340,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
         protected override Expression VisitParameterExpression([NotNull] ParameterExpression parameterExpression)
         {
-            Check.NotNull(parameterExpression, "parameterExpression");
+            Check.NotNull(parameterExpression, nameof(parameterExpression));
 
             var underlyingType = parameterExpression.Type.UnwrapNullableType().UnwrapEnumType();
 

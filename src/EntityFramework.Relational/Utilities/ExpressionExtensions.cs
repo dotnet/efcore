@@ -13,7 +13,7 @@ namespace System.Linq
     {
         public static bool IsLogicalOperation([NotNull] this Expression expression)
         {
-            Check.NotNull(expression, "expression");
+            Check.NotNull(expression, nameof(expression));
 
             return expression.NodeType == ExpressionType.AndAlso
                    || expression.NodeType == ExpressionType.OrElse;

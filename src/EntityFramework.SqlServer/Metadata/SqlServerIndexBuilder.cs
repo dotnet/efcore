@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
 
         public SqlServerIndexBuilder([NotNull] Index index)
         {
-            Check.NotNull(index, "index");
+            Check.NotNull(index, nameof(index));
 
             _index = index;
         }
