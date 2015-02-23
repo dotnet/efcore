@@ -69,7 +69,7 @@ namespace Microsoft.Data.Entity.Relational.Query
                                 _enumerable._relationalQueryContext.Connection,
                                 _enumerable._relationalQueryContext.ParameterValues))
                     {
-                        _enumerable._logger.WriteSql(command.CommandText);
+                        _enumerable._logger.LogCommand(command);
 
                         _reader = command.ExecuteReader();
                     }

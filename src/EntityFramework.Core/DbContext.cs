@@ -47,9 +47,10 @@ namespace Microsoft.Data.Entity
         private static readonly ThreadSafeDictionaryCache<Type, Type> _optionsTypes = new ThreadSafeDictionaryCache<Type, Type>();
 
         private LazyRef<IDbContextServices> _contextServices;
-        private LazyRef<ILogger> _logger;
         private LazyRef<IDbSetInitializer> _setInitializer;
         private LazyRef<Database> _database;
+        private ILogger _logger;
+        private ILoggerFactory _loggerFactory;
 
         private bool _initializing;
 
@@ -143,7 +144,6 @@ namespace Microsoft.Data.Entity
         {
             InitializeSets(serviceProvider, options);
             _contextServices = new LazyRef<IDbContextServices>(() => InitializeServices(serviceProvider, options));
-            _logger = new LazyRef<ILogger>(CreateLogger);
             _setInitializer = new LazyRef<IDbSetInitializer>(GetSetInitializer);
             _database = new LazyRef<Database>(GetDatabase);
         }
@@ -169,7 +169,7 @@ namespace Microsoft.Data.Entity
             return options ?? new DbContextOptions<DbContext>();
         }
 
-        private ILogger CreateLogger() => _contextServices.Value.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger<DbContext>();
+        private ILogger CreateLogger() => _loggerFactory.CreateLogger<DbContext>();
 
         private IDbSetInitializer GetSetInitializer() => _contextServices.Value.ServiceProvider.GetRequiredService<IDbSetInitializer>();
 
@@ -205,6 +205,10 @@ namespace Microsoft.Data.Entity
                 var providerSource = serviceProvider != null ? ServiceProviderSource.Explicit : ServiceProviderSource.Implicit;
 
                 serviceProvider = serviceProvider ?? ServiceProviderCache.Instance.GetOrAdd(optionsBuilder.Options);
+
+                _loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
+                _logger = _loggerFactory.CreateLogger<DbContext>();
+                _logger.LogDebug(Strings.DebugLogWarning(nameof(LogLevel.Debug), nameof(ILoggerFactory) + "." + nameof(ILoggerFactory.MinimumLevel), nameof(LogLevel) + "." + nameof(LogLevel.Verbose)));
 
                 var scopedServiceProvider = serviceProvider
                     .GetRequiredService<IServiceScopeFactory>()
@@ -296,7 +300,7 @@ namespace Microsoft.Data.Entity
             }
             catch (Exception ex)
             {
-                _logger.Value.LogError(
+                _logger.LogError(
                     new DataStoreErrorLogState(GetType()),
                     ex,
                     (state, exception) =>
@@ -348,7 +352,7 @@ namespace Microsoft.Data.Entity
             }
             catch (Exception ex)
             {
-                _logger.Value.LogError(
+                _logger.LogError(
                     new DataStoreErrorLogState(GetType()),
                     ex,
                     (state, exception) =>

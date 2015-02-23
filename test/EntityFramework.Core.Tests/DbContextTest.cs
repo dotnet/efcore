@@ -1657,6 +1657,7 @@ namespace Microsoft.Data.Entity.Tests
                 .AddSingleton<IMemberMapper, MemberMapper>()
                 .AddSingleton<IFieldMatcher, FieldMatcher>()
                 .AddSingleton<DataStoreSelector>()
+                .AddSingleton<ILoggerFactory, LoggerFactory>()
                 .AddScoped<IDbSetInitializer, DbSetInitializer>()
                 .AddScoped<IDbContextServices, DbContextServices>()
                 .AddInstance(factory);

@@ -178,12 +178,13 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     Assert.Equal(EntityState.Unchanged, db.Entry(toAdd).State);
                     Assert.DoesNotContain(toDelete, db.ChangeTracker.Entries().Select(e => e.Entity));
 
-                    Assert.Equal(4, TestSqlLoggerFactory.SqlStatements.Count);
-                    Assert.True(TestSqlLoggerFactory.SqlStatements[0].Contains("SELECT"));
-                    Assert.True(TestSqlLoggerFactory.SqlStatements[1].Contains("SELECT"));
-                    Assert.True(TestSqlLoggerFactory.SqlStatements[3].Contains("DELETE"));
-                    Assert.True(TestSqlLoggerFactory.SqlStatements[3].Contains("UPDATE"));
-                    Assert.True(TestSqlLoggerFactory.SqlStatements[3].Contains("INSERT"));
+                    Assert.Equal(5, TestSqlLoggerFactory.SqlStatements.Count);
+                    Assert.Contains("SELECT", TestSqlLoggerFactory.SqlStatements[0]);
+                    Assert.Contains("SELECT", TestSqlLoggerFactory.SqlStatements[1]);
+                    Assert.Contains("@p0: 3", TestSqlLoggerFactory.SqlStatements[3]);
+                    Assert.Contains("DELETE", TestSqlLoggerFactory.SqlStatements[4]);
+                    Assert.Contains("UPDATE", TestSqlLoggerFactory.SqlStatements[4]);
+                    Assert.Contains("INSERT", TestSqlLoggerFactory.SqlStatements[4]);
 
                     var rows = await testDatabase.ExecuteScalarAsync<int>(
                         string.Format(@"SELECT Count(*) FROM [dbo].[Blog] WHERE Id = {0} AND Name = 'Blog is Updated'", updatedId),

@@ -17,15 +17,17 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             base.Property_entry_original_value_is_set();
 
-            Assert.Equal(
+            Assert.Contains(
                 @"SELECT TOP(1) [e].[EngineSupplierId], [e].[Id], [e].[Name]
-FROM [Engines] AS [e]
+FROM [Engines] AS [e]", 
+                Sql);
 
-SET NOCOUNT OFF;
+            Assert.Contains(
+                @"SET NOCOUNT OFF;
 UPDATE [Engines] SET [Name] = @p2
 WHERE [EngineSupplierId] = @p0 AND [Id] = @p1 AND [Name] = @p3;
-SELECT @@ROWCOUNT;
-", Sql);
+SELECT @@ROWCOUNT;", 
+                Sql);
         }
 
         private static string Sql

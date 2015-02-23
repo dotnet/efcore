@@ -325,6 +325,14 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
+        /// {debug} level logging is enabled.  At this level, Entity Framework will log sensitive application data such as Sql parameter values.  To hide this information configure {minimumLevel} to {recommendedLevel}.
+        /// </summary>
+        public static string DebugLogWarning([NotNull] object debug,[NotNull] object minimumLevel, [NotNull] object recommendedLevel)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("DebugLogWarning","debug", "minimumLevel", "recommendedLevel"), debug, minimumLevel, recommendedLevel);
+        }
+
+        /// <summary>
         /// An exception occurred in the data store while iterating the results of a query.{newline}{error}
         /// </summary>
         public static string LogExceptionDuringQueryIteration([CanBeNull] object newline, [CanBeNull] object error)

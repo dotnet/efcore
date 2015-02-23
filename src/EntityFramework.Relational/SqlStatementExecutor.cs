@@ -41,9 +41,10 @@ namespace Microsoft.Data.Entity.Relational
                     {
                         foreach (var sqlBatch in sqlBatches)
                         {
-                            Logger.WriteSql(sqlBatch.Sql);
+                            var command = CreateCommand(connection, transaction, sqlBatch.Sql);
+                            Logger.LogCommand(command);
 
-                            await CreateCommand(connection, transaction, sqlBatch.Sql).ExecuteNonQueryAsync(cancellationToken)
+                            await command.ExecuteNonQueryAsync(cancellationToken)
                                 .WithCurrentCulture();
                         }
                         return Task.FromResult<object>(null);
@@ -64,9 +65,10 @@ namespace Microsoft.Data.Entity.Relational
                 connection,
                 () =>
                     {
-                        Logger.WriteSql(sql);
+                        var command = CreateCommand(connection, transaction, sql);
+                        Logger.LogCommand(command);
 
-                        return CreateCommand(connection, transaction, sql).ExecuteScalarAsync(cancellationToken);
+                        return command.ExecuteScalarAsync(cancellationToken);
                     },
                 cancellationToken);
         }
@@ -117,9 +119,10 @@ namespace Microsoft.Data.Entity.Relational
                     {
                         foreach (var sqlBatch in sqlBatches)
                         {
-                            Logger.WriteSql(sqlBatch.Sql);
+                            var command = CreateCommand(connection, transaction, sqlBatch.Sql);
+                            Logger.LogCommand(command);
 
-                            CreateCommand(connection, transaction, sqlBatch.Sql).ExecuteNonQuery();
+                            command.ExecuteNonQuery();
                         }
                         return null;
                     });
@@ -137,9 +140,10 @@ namespace Microsoft.Data.Entity.Relational
                 connection,
                 () =>
                     {
-                        Logger.WriteSql(sql);
+                        var command = CreateCommand(connection, transaction, sql);
+                        Logger.LogCommand(command);
 
-                        return CreateCommand(connection, transaction, sql).ExecuteScalar();
+                        return command.ExecuteScalar();
                     });
         }
 

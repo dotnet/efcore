@@ -158,17 +158,17 @@ namespace Microsoft.Data.Entity.Relational.Update
             Check.NotNull(logger, nameof(logger));
 
             var commandText = GetCommandText();
-            if (logger.IsEnabled(LogLevel.Verbose))
-            {
-                // TODO: Write parameter values
-                logger.WriteSql(commandText);
-            }
 
             Debug.Assert(ResultSetEnds.Count == ModificationCommands.Count);
 
             var commandIndex = 0;
             using (var storeCommand = CreateStoreCommand(commandText, transaction.DbTransaction, typeMapper, transaction.Connection?.CommandTimeout))
             {
+                if (logger.IsEnabled(LogLevel.Verbose))
+                {
+                    logger.LogCommand(storeCommand);
+                }
+
                 try
                 {
                     using (var reader = storeCommand.ExecuteReader())
@@ -223,17 +223,17 @@ namespace Microsoft.Data.Entity.Relational.Update
             Check.NotNull(logger, nameof(logger));
 
             var commandText = GetCommandText();
-            if (logger.IsEnabled(LogLevel.Verbose))
-            {
-                // TODO: Write parameter values
-                logger.WriteSql(commandText);
-            }
 
             Debug.Assert(ResultSetEnds.Count == ModificationCommands.Count);
 
             var commandIndex = 0;
             using (var storeCommand = CreateStoreCommand(commandText, transaction.DbTransaction, typeMapper, transaction.Connection?.CommandTimeout))
             {
+                if (logger.IsEnabled(LogLevel.Verbose))
+                {
+                    logger.LogCommand(storeCommand);
+                }
+
                 try
                 {
                     using (var reader = await storeCommand.ExecuteReaderAsync(cancellationToken).WithCurrentCulture())

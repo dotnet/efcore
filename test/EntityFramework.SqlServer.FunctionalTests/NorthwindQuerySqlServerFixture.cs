@@ -33,6 +33,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder.UseSqlServer(_testStore.Connection.ConnectionString);
             _options = optionsBuilder.Options;
+
+            _serviceProvider.GetRequiredService<ILoggerFactory>()
+                .MinimumLevel = LogLevel.Debug;
         }
 
         public override NorthwindContext CreateContext()
