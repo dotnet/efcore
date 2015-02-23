@@ -3,7 +3,7 @@
         "EntityFramework.Core.FunctionalTests": "1.0.0"
     },
     "commands": {
-        "test": "xunit.runner.kre"
+        "test": "xunit.runner.aspnet"
     },
     "frameworks": {
         "aspnet50": { }

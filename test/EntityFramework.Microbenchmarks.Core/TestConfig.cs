@@ -16,9 +16,14 @@ namespace EntityFramework.Microbenchmarks.Core
 {
     public class PerfTestFramework : XunitTestFramework
     {
+        public PerfTestFramework(IMessageSink messageSink)
+            : base(messageSink)
+        {
+        }
+
         protected override ITestFrameworkDiscoverer CreateDiscoverer(IAssemblyInfo assemblyInfo)
         {
-            return new PerfTestDiscoverer(assemblyInfo, SourceInformationProvider);
+            return new PerfTestDiscoverer(assemblyInfo, SourceInformationProvider, DiagnosticMessageSink);
         }
     }
 
@@ -26,8 +31,11 @@ namespace EntityFramework.Microbenchmarks.Core
     {
         private readonly TestConfig _testConfig;
 
-        public PerfTestDiscoverer(IAssemblyInfo assemblyInfo, ISourceInformationProvider sourceProvider)
-            : base(assemblyInfo, sourceProvider)
+        public PerfTestDiscoverer(
+            IAssemblyInfo assemblyInfo,
+            ISourceInformationProvider sourceProvider,
+            IMessageSink diagnosticMessageSink)
+            : base(assemblyInfo, sourceProvider, diagnosticMessageSink)
         {
             _testConfig = new TestConfig();
         }

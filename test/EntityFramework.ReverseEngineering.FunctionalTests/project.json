@@ -5,7 +5,7 @@
         "EntityFramework.SqlServer.Design": "7.0.0-*"
     },
     "commands": {
-        "test": "xunit.runner.kre",
+        "test": "xunit.runner.aspnet",
         "ef":  "EntityFramework.Commands"
     },
     "frameworks": {

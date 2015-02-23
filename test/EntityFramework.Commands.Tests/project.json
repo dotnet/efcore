@@ -9,7 +9,7 @@
         "..\\..\\src\\EntityFramework.Commands\\tools\\Handlers.cs"
     ],
     "commands": {
-        "test": "xunit.runner.kre"
+        "test": "xunit.runner.aspnet"
     },
     "frameworks": {
         "aspnet50": { }
