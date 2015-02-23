@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
         private bool _requiresClientEval;
 
         public RelationalProjectionExpressionTreeVisitor([NotNull] RelationalQueryModelVisitor queryModelVisitor)
-            : base(Check.NotNull(queryModelVisitor, "queryModelVisitor"))
+            : base(Check.NotNull(queryModelVisitor, nameof(queryModelVisitor)))
         {
         }
 

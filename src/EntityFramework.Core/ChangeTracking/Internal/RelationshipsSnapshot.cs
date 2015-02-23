@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
 
         public RelationshipsSnapshot([NotNull] InternalEntityEntry entry)
-            : base(entry, GetProperties(Check.NotNull(entry, "entry")))
+            : base(entry, GetProperties(Check.NotNull(entry, nameof(entry))))
         {
         }
 

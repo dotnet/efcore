@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
     public abstract class EntityQueryableExpressionTreeVisitor : DefaultQueryExpressionTreeVisitor
     {
         protected EntityQueryableExpressionTreeVisitor([NotNull] EntityQueryModelVisitor entityQueryModelVisitor)
-            : base(Check.NotNull(entityQueryModelVisitor, "entityQueryModelVisitor"))
+            : base(Check.NotNull(entityQueryModelVisitor, nameof(entityQueryModelVisitor)))
         {
         }
 

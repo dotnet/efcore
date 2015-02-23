@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
 
         public RelationalOrderingExpressionTreeVisitor(
             [NotNull] RelationalQueryModelVisitor queryModelVisitor, [NotNull] Ordering ordering)
-            : base(Check.NotNull(queryModelVisitor, "queryModelVisitor"))
+            : base(Check.NotNull(queryModelVisitor, nameof(queryModelVisitor)))
         {
             Check.NotNull(ordering, nameof(ordering));
 

@@ -23,8 +23,8 @@ namespace Microsoft.Data.Entity.Relational.Query
             [NotNull] RelationalConnection connection,
             [NotNull] RelationalValueReaderFactory valueReaderFactory)
             : base(
-                Check.NotNull(logger, "logger"),
-                Check.NotNull(queryBuffer, "queryBuffer"))
+                Check.NotNull(logger, nameof(logger)),
+                Check.NotNull(queryBuffer, nameof(queryBuffer)))
         {
             Check.NotNull(connection, nameof(connection));
             Check.NotNull(valueReaderFactory, nameof(valueReaderFactory));

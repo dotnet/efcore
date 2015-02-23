@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.Relational.Query.ExpressionTreeVisitors
         public RelationalEntityQueryableExpressionTreeVisitor(
             [NotNull] RelationalQueryModelVisitor queryModelVisitor,
             [NotNull] IQuerySource querySource)
-            : base(Check.NotNull(queryModelVisitor, "queryModelVisitor"))
+            : base(Check.NotNull(queryModelVisitor, nameof(queryModelVisitor)))
         {
             Check.NotNull(querySource, nameof(querySource));
 

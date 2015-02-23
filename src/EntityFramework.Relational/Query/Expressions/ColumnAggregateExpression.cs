@@ -12,7 +12,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
     public abstract class ColumnAggregateExpression : ExtensionExpression
     {
         protected ColumnAggregateExpression([NotNull] ColumnExpression columnExpression)
-            : base(Check.NotNull(columnExpression, "columnExpression").Type)
+            : base(Check.NotNull(columnExpression, nameof(columnExpression)).Type)
         {
             ColumnExpression = columnExpression;
         }

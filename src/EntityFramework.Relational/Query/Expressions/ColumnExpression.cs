@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
             [NotNull] string name,
             [NotNull] IProperty property,
             [NotNull] TableExpressionBase tableExpression)
-            : base(Check.NotNull(property, "property").PropertyType)
+            : base(Check.NotNull(property, nameof(property)).PropertyType)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(tableExpression, nameof(tableExpression));

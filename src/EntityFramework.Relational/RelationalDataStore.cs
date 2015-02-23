@@ -49,13 +49,13 @@ namespace Microsoft.Data.Entity.Relational
             [NotNull] DbContextService<IDbContextOptions> options,
             [NotNull] ILoggerFactory loggerFactory)
             : base(
-                Check.NotNull(stateManager, "stateManager"),
-                Check.NotNull(model, "model"),
-                Check.NotNull(entityKeyFactorySource, "entityKeyFactorySource"),
-                Check.NotNull(entityMaterializerSource, "entityMaterializerSource"),
-                Check.NotNull(collectionAccessorSource, "collectionAccessorSource"),
-                Check.NotNull(propertySetterSource, "propertySetterSource"),
-                Check.NotNull(loggerFactory, "loggerFactory"))
+                Check.NotNull(stateManager, nameof(stateManager)),
+                Check.NotNull(model, nameof(model)),
+                Check.NotNull(entityKeyFactorySource, nameof(entityKeyFactorySource)),
+                Check.NotNull(entityMaterializerSource, nameof(entityMaterializerSource)),
+                Check.NotNull(collectionAccessorSource, nameof(collectionAccessorSource)),
+                Check.NotNull(propertySetterSource, nameof(propertySetterSource)),
+                Check.NotNull(loggerFactory, nameof(loggerFactory)))
         {
             Check.NotNull(connection, nameof(connection));
             Check.NotNull(batchPreparer, nameof(batchPreparer));

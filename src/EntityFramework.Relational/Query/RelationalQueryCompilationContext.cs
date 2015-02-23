@@ -31,12 +31,12 @@ namespace Microsoft.Data.Entity.Relational.Query
             [NotNull] IQueryMethodProvider queryMethodProvider,
             [NotNull] IMethodCallTranslator methodCallTranslator)
             : base(
-                Check.NotNull(model, "model"),
-                Check.NotNull(logger, "logger"),
-                Check.NotNull(linqOperatorProvider, "linqOperatorProvider"),
-                Check.NotNull(resultOperatorHandler, "resultOperatorHandler"),
-                Check.NotNull(entityMaterializerSource, "entityMaterializerSource"),
-                Check.NotNull(entityKeyFactorySource, "entityKeyFactorySource"))
+                Check.NotNull(model, nameof(model)),
+                Check.NotNull(logger, nameof(logger)),
+                Check.NotNull(linqOperatorProvider, nameof(linqOperatorProvider)),
+                Check.NotNull(resultOperatorHandler, nameof(resultOperatorHandler)),
+                Check.NotNull(entityMaterializerSource, nameof(entityMaterializerSource)),
+                Check.NotNull(entityKeyFactorySource, nameof(entityKeyFactorySource)))
         {
             Check.NotNull(queryMethodProvider, nameof(queryMethodProvider));
             Check.NotNull(methodCallTranslator, nameof(methodCallTranslator));

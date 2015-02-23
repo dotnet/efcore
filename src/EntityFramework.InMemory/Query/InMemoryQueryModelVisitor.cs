@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.InMemory.Query
     public class InMemoryQueryModelVisitor : EntityQueryModelVisitor
     {
         public InMemoryQueryModelVisitor([NotNull] QueryCompilationContext queryCompilationContext)
-            : base(Check.NotNull(queryCompilationContext, "queryCompilationContext"))
+            : base(Check.NotNull(queryCompilationContext, nameof(queryCompilationContext)))
         {
         }
 

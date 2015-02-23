@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionTreeVisitors
     public class ProjectionExpressionTreeVisitor : DefaultQueryExpressionTreeVisitor
     {
         public ProjectionExpressionTreeVisitor([NotNull] EntityQueryModelVisitor entityQueryModelVisitor)
-            : base(Check.NotNull(entityQueryModelVisitor, "entityQueryModelVisitor"))
+            : base(Check.NotNull(entityQueryModelVisitor, nameof(entityQueryModelVisitor)))
         {
         }
 

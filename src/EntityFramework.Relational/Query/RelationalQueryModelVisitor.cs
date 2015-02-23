@@ -37,7 +37,7 @@ namespace Microsoft.Data.Entity.Relational.Query
         public RelationalQueryModelVisitor(
             [NotNull] RelationalQueryCompilationContext queryCompilationContext,
             [CanBeNull] RelationalQueryModelVisitor parentQueryModelVisitor)
-            : base(Check.NotNull(queryCompilationContext, "queryCompilationContext"))
+            : base(Check.NotNull(queryCompilationContext, nameof(queryCompilationContext)))
         {
             _parentQueryModelVisitor = parentQueryModelVisitor;
         }

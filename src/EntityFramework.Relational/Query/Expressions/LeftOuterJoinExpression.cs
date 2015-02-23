@@ -12,7 +12,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
     public class LeftOuterJoinExpression : JoinExpressionBase
     {
         public LeftOuterJoinExpression([NotNull] TableExpressionBase tableExpression)
-            : base(Check.NotNull(tableExpression, "tableExpression"))
+            : base(Check.NotNull(tableExpression, nameof(tableExpression)))
         {
         }
 

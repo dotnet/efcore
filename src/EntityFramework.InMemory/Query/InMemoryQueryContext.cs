@@ -15,8 +15,8 @@ namespace Microsoft.Data.Entity.InMemory.Query
             [NotNull] IQueryBuffer queryBuffer,
             [NotNull] InMemoryDatabase database)
             : base(
-                Check.NotNull(logger, "logger"),
-                Check.NotNull(queryBuffer, "queryBuffer"))
+                Check.NotNull(logger, nameof(logger)),
+                Check.NotNull(queryBuffer, nameof(queryBuffer)))
         {
             Database = database;
         }

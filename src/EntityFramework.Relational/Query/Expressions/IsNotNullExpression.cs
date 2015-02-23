@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
         private readonly Expression _operand;
 
         public IsNotNullExpression([NotNull] Expression operand)
-            : base(Check.NotNull(operand, "operand").Type)
+            : base(Check.NotNull(operand, nameof(operand)).Type)
         {
             _operand = operand;
         }

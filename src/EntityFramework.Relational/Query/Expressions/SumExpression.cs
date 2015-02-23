@@ -12,7 +12,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
     public class SumExpression : ColumnAggregateExpression
     {
         public SumExpression([NotNull] ColumnExpression columnExpression)
-            : base(Check.NotNull(columnExpression, "columnExpression"))
+            : base(Check.NotNull(columnExpression, nameof(columnExpression)))
         {
         }
 

@@ -13,14 +13,14 @@ namespace Microsoft.Data.Entity.Query
         : QueryableBase<TResult>, IAsyncEnumerable<TResult>
     {
         public EntityQueryable([NotNull] EntityQueryProvider provider)
-            : base(Check.NotNull(provider, "provider"))
+            : base(Check.NotNull(provider, nameof(provider)))
         {
         }
 
         public EntityQueryable([NotNull] EntityQueryProvider provider, [NotNull] Expression expression)
             : base(
-                Check.NotNull(provider, "provider"),
-                Check.NotNull(expression, "expression"))
+                Check.NotNull(provider, nameof(provider)),
+                Check.NotNull(expression, nameof(expression)))
         {
         }
 

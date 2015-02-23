@@ -18,12 +18,12 @@ namespace Microsoft.Data.Entity.InMemory.Query
             [NotNull] EntityMaterializerSource entityMaterializerSource,
             [NotNull] EntityKeyFactorySource entityKeyFactorySource)
             : base(
-                Check.NotNull(model, "model"),
-                Check.NotNull(logger, "logger"),
+                Check.NotNull(model, nameof(model)),
+                Check.NotNull(logger, nameof(logger)),
                 new LinqOperatorProvider(),
                 new ResultOperatorHandler(),
-                Check.NotNull(entityMaterializerSource, "entityMaterializerSource"),
-                Check.NotNull(entityKeyFactorySource, "entityKeyFactorySource"))
+                Check.NotNull(entityMaterializerSource, nameof(entityMaterializerSource)),
+                Check.NotNull(entityKeyFactorySource, nameof(entityKeyFactorySource)))
         {
             Check.NotNull(entityKeyFactorySource, nameof(entityKeyFactorySource));
         }
