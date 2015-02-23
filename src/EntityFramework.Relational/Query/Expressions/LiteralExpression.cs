@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
     public class LiteralExpression : ExtensionExpression
     {
         public LiteralExpression([NotNull] string literal)
-            : base(Check.NotEmpty(literal, "literal").GetType())
+            : base(Check.NotEmpty(literal, nameof(literal)).GetType())
         {
             Literal = literal;
         }

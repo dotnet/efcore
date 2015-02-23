@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.SqlServer
         private readonly int _commandTimeout;
 
         public SqlServerSimpleCommandExecutor([NotNull] string connectionString)
-            : this(Check.NotEmpty(connectionString, "connectionString"), DefaultCommandTimeout)
+            : this(Check.NotEmpty(connectionString, nameof(connectionString)), DefaultCommandTimeout)
         {
         }
 

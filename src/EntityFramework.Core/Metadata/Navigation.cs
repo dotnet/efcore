@@ -12,7 +12,7 @@ namespace Microsoft.Data.Entity.Metadata
         private bool _pointsToPrincipal;
 
         public Navigation([NotNull] string name, [NotNull] ForeignKey foreignKey, bool pointsToPrincipal)
-            : base(Check.NotEmpty(name, "name"))
+            : base(Check.NotEmpty(name, nameof(name)))
         {
             Check.NotNull(foreignKey, nameof(foreignKey));
 

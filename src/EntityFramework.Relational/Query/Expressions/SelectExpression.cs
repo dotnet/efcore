@@ -37,7 +37,7 @@ namespace Microsoft.Data.Entity.Relational.Query.Expressions
         }
 
         public SelectExpression([NotNull] string alias)
-            : base(null, Check.NotEmpty(alias, "alias"))
+            : base(null, Check.NotEmpty(alias, nameof(alias)))
         {
         }
 
