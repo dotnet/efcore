@@ -3,7 +3,6 @@
 
 using System.Diagnostics;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.ValueGeneration;
 
@@ -11,11 +10,11 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
     public class ValueGenerationManager
     {
-        private readonly DbContextService<ValueGeneratorSelectorContract> _valueGeneratorSelector;
+        private readonly IValueGeneratorSelector _valueGeneratorSelector;
         private readonly KeyPropagator _keyPropagator;
 
         public ValueGenerationManager(
-            [NotNull] DbContextService<ValueGeneratorSelectorContract> valueGeneratorSelector,
+            [NotNull] IValueGeneratorSelector valueGeneratorSelector,
             [NotNull] KeyPropagator keyPropagator)
         {
             _valueGeneratorSelector = valueGeneratorSelector;
@@ -37,7 +36,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                     }
                     else
                     {
-                        var valueGenerator = _valueGeneratorSelector.Service.Select(property);
+                        var valueGenerator = _valueGeneratorSelector.Select(property);
                         Debug.Assert(valueGenerator != null);
 
                         var generatedValue = valueGenerator.Next();
@@ -49,7 +48,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         public virtual bool MayGetTemporaryValue([NotNull] IProperty property)
             => property.GenerateValueOnAdd
-               && _valueGeneratorSelector.Service.Select(property).GeneratesTemporaryValues;
+               && _valueGeneratorSelector.Select(property).GeneratesTemporaryValues;
 
         private static void SetGeneratedValue(InternalEntityEntry entry, IProperty property, object generatedValue, bool isTemporary)
         {

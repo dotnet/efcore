@@ -6,8 +6,8 @@ using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.ValueGeneration
 {
-    public abstract class ValueGeneratorSelectorContract
+    public interface IValueGeneratorSelector
     {
-        public abstract ValueGenerator Select([NotNull] IProperty property);
+        ValueGenerator Select([NotNull] IProperty property);
     }
 }

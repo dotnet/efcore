@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 
@@ -15,7 +14,7 @@ namespace Microsoft.Data.Entity.Relational.Update
     public class BatchExecutor
     {
         private readonly RelationalTypeMapper _typeMapper;
-        private readonly DbContextService<DbContext> _context;
+        private readonly DbContext _context;
         private readonly LazyRef<ILogger> _logger;
 
         /// <summary>
@@ -29,7 +28,7 @@ namespace Microsoft.Data.Entity.Relational.Update
 
         public BatchExecutor(
             [NotNull] RelationalTypeMapper typeMapper,
-            [NotNull] DbContextService<DbContext> context,
+            [NotNull] DbContext context,
             [NotNull] ILoggerFactory loggerFactory)
         {
             Check.NotNull(typeMapper, nameof(typeMapper));
@@ -41,10 +40,7 @@ namespace Microsoft.Data.Entity.Relational.Update
             _logger = new LazyRef<ILogger>(() => (loggerFactory.Create<BatchExecutor>()));
         }
 
-        protected virtual ILogger Logger
-        {
-            get { return _logger.Value; }
-        }
+        protected virtual ILogger Logger => _logger.Value;
 
         public virtual int Execute(
             [NotNull] IEnumerable<ModificationCommandBatch> commandBatches,
@@ -68,21 +64,15 @@ namespace Microsoft.Data.Entity.Relational.Update
                     rowsAffected += commandbatch.Execute(
                         connection.Transaction,
                         _typeMapper,
-                        _context.Service,
+                        _context,
                         Logger);
                 }
 
-                if (startedTransaction != null)
-                {
-                    startedTransaction.Commit();
-                }
+                startedTransaction?.Commit();
             }
             finally
             {
-                if (startedTransaction != null)
-                {
-                    startedTransaction.Dispose();
-                }
+                startedTransaction?.Dispose();
                 connection.Close();
             }
 
@@ -112,22 +102,16 @@ namespace Microsoft.Data.Entity.Relational.Update
                     rowsAffected += await commandbatch.ExecuteAsync(
                         connection.Transaction,
                         _typeMapper,
-                        _context.Service,
+                        _context,
                         Logger, cancellationToken)
                         .WithCurrentCulture();
                 }
 
-                if (startedTransaction != null)
-                {
-                    startedTransaction.Commit();
-                }
+                startedTransaction?.Commit();
             }
             finally
             {
-                if (startedTransaction != null)
-                {
-                    startedTransaction.Dispose();
-                }
+                startedTransaction?.Dispose();
                 connection.Close();
             }
 

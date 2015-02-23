@@ -86,7 +86,6 @@ namespace Microsoft.Data.Entity
         /// </summary>
         /// <param name="serviceProvider">The service provider to be used.</param>
         public DbContext([NotNull] IServiceProvider serviceProvider)
-            : this()
         {
             Check.NotNull(serviceProvider, nameof(serviceProvider));
 
@@ -184,13 +183,13 @@ namespace Microsoft.Data.Entity
             return new DbContextOptions();
         }
 
-        private ILogger CreateLogger() => _contextServices.Value.ScopedServiceProvider.GetRequiredServiceChecked<ILoggerFactory>().Create<DbContext>();
+        private ILogger CreateLogger() => _contextServices.Value.ServiceProvider.GetRequiredServiceChecked<ILoggerFactory>().Create<DbContext>();
 
-        private DbSetInitializer GetSetInitializer() => _contextServices.Value.ScopedServiceProvider.GetRequiredServiceChecked<DbSetInitializer>();
+        private DbSetInitializer GetSetInitializer() => _contextServices.Value.ServiceProvider.GetRequiredServiceChecked<DbSetInitializer>();
 
-        private ChangeDetector GetChangeDetector() => _contextServices.Value.ScopedServiceProvider.GetRequiredServiceChecked<ChangeDetector>();
+        private ChangeDetector GetChangeDetector() => _contextServices.Value.ServiceProvider.GetRequiredServiceChecked<ChangeDetector>();
 
-        private StateManager GetStateManager() => _contextServices.Value.ScopedServiceProvider.GetRequiredServiceChecked<StateManager>();
+        private StateManager GetStateManager() => _contextServices.Value.ServiceProvider.GetRequiredServiceChecked<StateManager>();
 
         private DbContextServices InitializeServices(IServiceProvider serviceProvider, DbContextOptions options)
         {
@@ -244,7 +243,7 @@ namespace Microsoft.Data.Entity
         ///         not directly exposed in the public API surface.
         ///     </para>
         /// </summary>
-        IServiceProvider IAccessor<IServiceProvider>.Service => _contextServices.Value.ScopedServiceProvider;
+        IServiceProvider IAccessor<IServiceProvider>.Service => _contextServices.Value.ServiceProvider;
 
         /// <summary>
         ///     Override this method to configure the data store (and other options) to be used for this context.
@@ -779,20 +778,18 @@ namespace Microsoft.Data.Entity
         /// <summary>
         ///     Provides access to database related information and operations for this context.
         /// </summary>
-        public virtual Database Database
-            => _contextServices.Value.ScopedServiceProvider.GetRequiredServiceChecked<DbContextService<Database>>().Service;
+        public virtual Database Database => _contextServices.Value.ServiceProvider.GetRequiredServiceChecked<Database>();
 
         /// <summary>
         ///     Provides access to information and operations for entity instances this context is tracking.
         /// </summary>
         public virtual ChangeTracker ChangeTracker
-            => _contextServices.Value.ScopedServiceProvider.GetRequiredServiceChecked<ChangeTracker>();
+            => _contextServices.Value.ServiceProvider.GetRequiredServiceChecked<ChangeTracker>();
 
         /// <summary>
         ///     The metadata about the shape of entities and relationships between them.
         /// </summary>
-        public virtual IModel Model
-            => _contextServices.Value.ScopedServiceProvider.GetRequiredServiceChecked<DbContextService<IModel>>().Service;
+        public virtual IModel Model => _contextServices.Value.ServiceProvider.GetRequiredServiceChecked<IModel>();
 
         /// <summary>
         ///     Creates a set to perform operations for a given entity type in the model. LINQ queries against

@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
@@ -17,7 +16,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         private readonly ClrPropertySetterSource _setterSource;
         private readonly ClrPropertyGetterSource _getterSource;
         private readonly ClrCollectionAccessorSource _collectionAccessorSource;
-        private readonly DbContextService<IModel> _model;
+        private readonly IModel _model;
         private bool _inFixup;
 
         /// <summary>
@@ -33,7 +32,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             [NotNull] ClrPropertyGetterSource getterSource,
             [NotNull] ClrPropertySetterSource setterSource,
             [NotNull] ClrCollectionAccessorSource collectionAccessorSource,
-            [NotNull] DbContextService<IModel> model)
+            [NotNull] IModel model)
         {
             _getterSource = getterSource;
             _setterSource = setterSource;
@@ -48,7 +47,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         {
             foreach (var foreignKey in entry.EntityType.ForeignKeys.Where(p => p.Properties.Contains(property)).Distinct())
             {
-                var navigations = _model.Service.GetNavigations(foreignKey).ToList();
+                var navigations = _model.GetNavigations(foreignKey).ToList();
 
                 var oldPrincipalEntry = entry.StateManager.GetPrincipal(entry.RelationshipsSnapshot, foreignKey);
                 if (oldPrincipalEntry != null)
@@ -166,7 +165,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                 return;
             }
 
-            foreach (var foreignKey in _model.Service.EntityTypes.SelectMany(
+            foreach (var foreignKey in _model.EntityTypes.SelectMany(
                 e => e.ForeignKeys.Where(f => f.ReferencedProperties.Contains(property))))
             {
                 var newKeyValues = foreignKey.ReferencedProperties.Select(p => entry[p]).ToList();
@@ -230,7 +229,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             var entries = entry.StateManager.Entries.ToList();
 
             // TODO: Perf on this state manager query
-            foreach (var navigation in _model.Service.EntityTypes
+            foreach (var navigation in _model.EntityTypes
                 .SelectMany(e => e.Navigations)
                 .Where(n => n.GetTargetType() == entityType))
             {
@@ -289,7 +288,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                 }
             }
 
-            foreach (var foreignKey in _model.Service.GetReferencingForeignKeys(entityType))
+            foreach (var foreignKey in _model.GetReferencingForeignKeys(entityType))
             {
                 var dependents = entry.StateManager.GetDependents(entry, foreignKey).ToArray();
 
@@ -320,7 +319,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
 
         private void DoFixup(IForeignKey foreignKey, InternalEntityEntry principalEntry, InternalEntityEntry[] dependentEntries)
-            => DoFixup(_model.Service.GetNavigations(foreignKey).ToList(), principalEntry, dependentEntries);
+            => DoFixup(_model.GetNavigations(foreignKey).ToList(), principalEntry, dependentEntries);
 
         private void DoFixup(IEnumerable<INavigation> navigations, InternalEntityEntry principalEntry, InternalEntityEntry[] dependentEntries)
         {

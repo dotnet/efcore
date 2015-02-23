@@ -11,13 +11,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.FunctionalTests;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.FunctionalTests;
 using Microsoft.Data.Entity.SqlServer.FunctionalTests.TestModels;
-using Microsoft.Data.Entity.SqlServer.Update;
-using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.SqlServer.Query;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.DependencyInjection.Fallback;
 using Microsoft.Framework.Logging;
@@ -63,7 +61,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     .AddEntityFramework()
                     .AddSqlServer();
 
-                serviceCollection.AddScoped<SqlServerDataStore, SqlStoreWithBufferReader>();
+                serviceCollection.AddScoped<SqlServerQueryContextFactory, TestSqlServerQueryContextFactory>();
                 var serviceProvider = serviceCollection.BuildServiceProvider();
 
                 using (var db = new NorthwindContext(serviceProvider))
@@ -83,38 +81,24 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     Assert.Null(results[1].Fax);
                     Assert.Equal("(5) 555-3745", results[2].Fax);
                     Assert.Equal("030-0076545", results[3].Fax);
-
-                    var contextServices = ((IAccessor<IServiceProvider>)db).Service;
-
-                    Assert.IsType<SqlStoreWithBufferReader>(contextServices.GetRequiredService<DbContextService<DataStore>>().Service);
                 }
             }
         }
 
-        private class SqlStoreWithBufferReader : SqlServerDataStore
+        public class TestSqlServerQueryContextFactory : SqlServerQueryContextFactory
         {
-            public SqlStoreWithBufferReader(
+            public TestSqlServerQueryContextFactory(
                 StateManager stateManager,
-                DbContextService<IModel> model,
                 EntityKeyFactorySource entityKeyFactorySource,
-                EntityMaterializerSource entityMaterializerSource,
                 ClrCollectionAccessorSource collectionAccessorSource,
                 ClrPropertySetterSource propertySetterSource,
                 SqlServerConnection connection,
-                SqlServerCommandBatchPreparer batchPreparer,
-                SqlServerBatchExecutor batchExecutor,
-                DbContextService<IDbContextOptions> options,
                 ILoggerFactory loggerFactory)
-                : base(stateManager, model, entityKeyFactorySource, entityMaterializerSource,
-                    collectionAccessorSource, propertySetterSource, connection, batchPreparer,
-                    batchExecutor, options, loggerFactory)
+                : base(stateManager, entityKeyFactorySource, collectionAccessorSource, propertySetterSource, connection, loggerFactory)
             {
             }
 
-            protected override RelationalValueReaderFactory ValueReaderFactory
-            {
-                get { return new RelationalObjectArrayValueReaderFactory(); }
-            }
+            protected override RelationalValueReaderFactory ValueReaderFactory => new RelationalTypedValueReaderFactory();
         }
 
         [Fact]

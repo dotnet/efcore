@@ -3,7 +3,6 @@
 
 using System;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Relational.Update;
 using Microsoft.Framework.Logging;
 
@@ -22,7 +21,7 @@ namespace Microsoft.Data.Entity.SqlServer.Update
 
         public SqlServerBatchExecutor(
             [NotNull] SqlServerTypeMapper typeMapper,
-            [NotNull] DbContextService<DbContext> context,
+            [NotNull] DbContext context,
             [NotNull] ILoggerFactory loggerFactory)
             : base(typeMapper, context, loggerFactory)
         {

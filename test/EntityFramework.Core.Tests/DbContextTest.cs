@@ -1469,7 +1469,7 @@ namespace Microsoft.Data.Entity.Tests
                 .Callback<IEnumerable<InternalEntityEntry>>(passedEntries.AddRange)
                 .Returns(3);
 
-            var valueGenMock = new Mock<ValueGeneratorSelectorContract>();
+            var valueGenMock = new Mock<IValueGeneratorSelector>();
             valueGenMock.Setup(m => m.Select(It.IsAny<IProperty>())).Returns(Mock.Of<ValueGenerator>());
 
             var servicesMock = new Mock<DataStoreServices>();
@@ -1519,7 +1519,7 @@ namespace Microsoft.Data.Entity.Tests
                 .Callback<IEnumerable<InternalEntityEntry>, CancellationToken>((e, c) => passedEntries.AddRange(e))
                 .Returns(Task.FromResult(3));
 
-            var valueGenMock = new Mock<ValueGeneratorSelectorContract>();
+            var valueGenMock = new Mock<IValueGeneratorSelector>();
             valueGenMock.Setup(m => m.Select(It.IsAny<IProperty>())).Returns(Mock.Of<ValueGenerator>());
 
             var servicesMock = new Mock<DataStoreServices>();
@@ -1904,7 +1904,7 @@ namespace Microsoft.Data.Entity.Tests
 
                 Assert.NotNull(serviceProvider.GetRequiredService<FakeService>());
                 Assert.NotSame(serviceProvider, contextServices);
-                Assert.Equal(0, contextServices.GetRequiredService<DbContextService<IDbContextOptions>>().Service.Extensions.Count);
+                Assert.Equal(0, contextServices.GetRequiredService<IDbContextOptions>().Extensions.Count);
             }
         }
 
@@ -1924,7 +1924,7 @@ namespace Microsoft.Data.Entity.Tests
             using (var context = serviceProvider.GetRequiredService<ContextWithDefaults>())
             {
                 var contextServices = ((IAccessor<IServiceProvider>)context).Service;
-                var options = contextServices.GetRequiredService<DbContextService<IDbContextOptions>>().Service;
+                var options = contextServices.GetRequiredService<IDbContextOptions>();
 
                 Assert.NotNull(contextServices.GetRequiredService<FakeService>());
                 Assert.Equal(1, options.Extensions.Count);
@@ -1948,7 +1948,7 @@ namespace Microsoft.Data.Entity.Tests
             using (var context = serviceProvider.GetRequiredService<ContextWithServiceProvider>())
             {
                 var contextServices = ((IAccessor<IServiceProvider>)context).Service;
-                var options = contextServices.GetRequiredService<DbContextService<IDbContextOptions>>().Service;
+                var options = contextServices.GetRequiredService<IDbContextOptions>();
 
                 Assert.NotNull(contextServices.GetRequiredService<FakeService>());
                 Assert.Equal(1, options.Extensions.Count);
@@ -1972,7 +1972,7 @@ namespace Microsoft.Data.Entity.Tests
             using (var context = serviceProvider.GetRequiredService<ContextWithOptions>())
             {
                 var contextServices = ((IAccessor<IServiceProvider>)context).Service;
-                var options = contextServices.GetRequiredService<DbContextService<IDbContextOptions>>().Service;
+                var options = contextServices.GetRequiredService<IDbContextOptions>();
 
                 Assert.NotNull(contextServices.GetRequiredService<FakeService>());
                 Assert.Equal(1, options.Extensions.Count);
@@ -2017,7 +2017,7 @@ namespace Microsoft.Data.Entity.Tests
             using (var context = serviceProvider.GetRequiredService<ContextT>())
             {
                 var contextServices = ((IAccessor<IServiceProvider>)context).Service;
-                var contextOptions = (DbContextOptions<ContextT>)contextServices.GetRequiredService<DbContextService<IDbContextOptions>>().Service;
+                var contextOptions = (DbContextOptions<ContextT>)contextServices.GetRequiredService<IDbContextOptions>();
 
                 Assert.NotNull(contextOptions);
                 var rawOptions = ((IDbContextOptions)contextOptions).RawOptions;
@@ -2049,7 +2049,7 @@ namespace Microsoft.Data.Entity.Tests
             using (var context = serviceProvider.GetRequiredService<ContextWithDefaults>())
             {
                 var contextServices = ((IAccessor<IServiceProvider>)context).Service;
-                var contextOptions = (DbContextOptions<ContextWithDefaults>)contextServices.GetRequiredService<DbContextService<IDbContextOptions>>().Service;
+                var contextOptions = (DbContextOptions<ContextWithDefaults>)contextServices.GetRequiredService<IDbContextOptions>();
 
                 Assert.NotNull(contextOptions);
                 var rawOptions = ((IDbContextOptions)contextOptions).RawOptions;
@@ -2078,7 +2078,7 @@ namespace Microsoft.Data.Entity.Tests
             using (var context = serviceProvider.GetRequiredService<ContextWithDefaults>())
             {
                 var contextServices = ((IAccessor<IServiceProvider>)context).Service;
-                var contextOptions = (DbContextOptions<ContextWithDefaults>)contextServices.GetRequiredService<DbContextService<IDbContextOptions>>().Service;
+                var contextOptions = (DbContextOptions<ContextWithDefaults>)contextServices.GetRequiredService<IDbContextOptions>();
 
                 Assert.NotNull(contextOptions);
                 var rawOptions = ((IDbContextOptions)contextOptions).RawOptions;
@@ -2404,7 +2404,7 @@ namespace Microsoft.Data.Entity.Tests
 
         private class ChangeDetectorProxy : ChangeDetector
         {
-            public ChangeDetectorProxy(DbContextService<IModel> model)
+            public ChangeDetectorProxy(IModel model)
                 : base(model)
             {
             }

@@ -3,14 +3,13 @@
 
 using System;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Internal;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
-using Microsoft.Data.Entity.ValueGeneration;
 using Microsoft.Framework.DependencyInjection;
 
-namespace Microsoft.Data.Entity.Infrastructure
+namespace Microsoft.Data.Entity.Internal
 {
     public class DbContextServices : IDisposable
     {
@@ -20,7 +19,7 @@ namespace Microsoft.Data.Entity.Infrastructure
             Implicit
         }
 
-        private IServiceProvider _scopedProvider;
+        private IServiceProvider _provider;
         private DbContextOptions _contextOptions;
         private DbContext _context;
         private LazyRef<IModel> _modelFromSource;
@@ -38,12 +37,12 @@ namespace Microsoft.Data.Entity.Infrastructure
             Check.NotNull(context, nameof(context));
             Check.IsDefined(serviceProviderSource, nameof(serviceProviderSource));
 
-            _scopedProvider = scopedProvider;
+            _provider = scopedProvider;
             _contextOptions = contextOptions;
             _context = context;
 
             _dataStoreServices = new LazyRef<DataStoreServices>(() =>
-                _scopedProvider.GetRequiredServiceChecked<DataStoreSelector>().SelectDataStore(serviceProviderSource));
+                _provider.GetRequiredServiceChecked<DataStoreSelector>().SelectDataStore(serviceProviderSource));
 
             _modelFromSource = new LazyRef<IModel>(CreateModel);
 
@@ -77,27 +76,15 @@ namespace Microsoft.Data.Entity.Infrastructure
 
         public virtual DataStoreServices DataStoreServices => _dataStoreServices.Value;
 
-        public static Func<IServiceProvider, DbContextService<DbContext>> ContextFactory
-            => p => new DbContextService<DbContext>(() => p.GetRequiredServiceChecked<DbContextServices>().Context);
+        public static Func<IServiceProvider, DbContext> ContextFactory => p => p.GetRequiredServiceChecked<DbContextServices>().Context;
 
-        public static Func<IServiceProvider, DbContextService<IModel>> ModelFactory
-            => p => new DbContextService<IModel>(() => p.GetRequiredServiceChecked<DbContextServices>().Model);
+        public static Func<IServiceProvider, IModel> ModelFactory => p => p.GetRequiredServiceChecked<DbContextServices>().Model;
 
-        public static Func<IServiceProvider, DbContextService<IDbContextOptions>> ContextOptionsFactory
-            => p => new DbContextService<IDbContextOptions>(() => p.GetRequiredServiceChecked<DbContextServices>().ContextOptions);
+        public static Func<IServiceProvider, IDbContextOptions> ContextOptionsFactory
+            => p => p.GetRequiredServiceChecked<DbContextServices>().ContextOptions;
 
-        public virtual IServiceProvider ScopedServiceProvider => _scopedProvider;
+        public virtual IServiceProvider ServiceProvider => _provider;
 
-        public virtual DataStore DataStore => _dataStoreServices.Value.Store;
-
-        public virtual Database Database => _dataStoreServices.Value.Database;
-
-        public virtual DataStoreCreator DataStoreCreator => _dataStoreServices.Value.Creator;
-
-        public virtual ValueGeneratorSelectorContract ValueGeneratorSelector => _dataStoreServices.Value.ValueGeneratorSelector;
-
-        public virtual DataStoreConnection Connection => _dataStoreServices.Value.Connection;
-
-        public virtual void Dispose() => (_scopedProvider as IDisposable)?.Dispose();
+        public virtual void Dispose() => (_provider as IDisposable)?.Dispose();
     }
 }

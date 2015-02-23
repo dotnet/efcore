@@ -34,27 +34,21 @@ namespace Microsoft.Data.Entity.InMemory
         }
 
         public InMemoryDataStore(
-            [NotNull] StateManager stateManager,
-            [NotNull] DbContextService<IModel> model,
+            [NotNull] IModel model,
             [NotNull] EntityKeyFactorySource entityKeyFactorySource,
             [NotNull] EntityMaterializerSource entityMaterializerSource,
-            [NotNull] ClrCollectionAccessorSource collectionAccessorSource,
-            [NotNull] ClrPropertySetterSource propertySetterSource,
             [NotNull] InMemoryDatabase persistentDatabase,
-            [NotNull] DbContextService<IDbContextOptions> options,
+            [NotNull] IDbContextOptions options,
             [NotNull] ILoggerFactory loggerFactory)
             : base(
-                Check.NotNull(stateManager, nameof(stateManager)),
                 Check.NotNull(model, nameof(model)),
                 Check.NotNull(entityKeyFactorySource, nameof(entityKeyFactorySource)),
                 Check.NotNull(entityMaterializerSource, nameof(entityMaterializerSource)),
-                Check.NotNull(collectionAccessorSource, nameof(collectionAccessorSource)),
-                Check.NotNull(propertySetterSource, nameof(propertySetterSource)),
                 Check.NotNull(loggerFactory, nameof(loggerFactory)))
         {
             Check.NotNull(persistentDatabase, nameof(persistentDatabase));
 
-            var storeConfig = options.Service.Extensions
+            var storeConfig = options.Extensions
                 .OfType<InMemoryOptionsExtension>()
                 .FirstOrDefault();
 
@@ -68,8 +62,7 @@ namespace Microsoft.Data.Entity.InMemory
 
         public virtual InMemoryDatabase Database => _database.Value;
 
-        public override int SaveChanges(
-            IReadOnlyList<InternalEntityEntry> entries)
+        public override int SaveChanges(IReadOnlyList<InternalEntityEntry> entries)
         {
             Check.NotNull(entries, nameof(entries));
 
@@ -87,32 +80,30 @@ namespace Microsoft.Data.Entity.InMemory
 
         public override Func<QueryContext, IEnumerable<TResult>> CompileQuery<TResult>(QueryModel queryModel)
         {
-            var queryCompilationContext
-                = new InMemoryQueryCompilationContext(
-                    Model,
-                    Logger,
-                    EntityMaterializerSource,
-                    EntityKeyFactorySource);
+            Check.NotNull(queryModel, nameof(queryModel));
 
-            return queryCompilationContext
+            return new InMemoryQueryCompilationContext(
+                Model,
+                Logger,
+                EntityMaterializerSource,
+                EntityKeyFactorySource)
                 .CreateQueryModelVisitor()
                 .CreateQueryExecutor<TResult>(queryModel);
         }
 
         public override Func<QueryContext, IAsyncEnumerable<TResult>> CompileAsyncQuery<TResult>(QueryModel queryModel)
         {
+            Check.NotNull(queryModel, nameof(queryModel));
+
             var syncQueryExecutor = CompileQuery<TResult>(queryModel);
 
             return qc => syncQueryExecutor(qc).ToAsyncEnumerable();
         }
 
-        public override QueryContext CreateQueryContext()
-        {
-            return new InMemoryQueryContext(Logger, CreateQueryBuffer(), _database.Value);
-        }
-
         public virtual bool EnsureDatabaseCreated([NotNull] IModel model)
         {
+            Check.NotNull(model, nameof(model));
+
             return _database.Value.EnsureCreated(model);
         }
     }

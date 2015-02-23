@@ -3,6 +3,7 @@
 
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Tests;
+using Microsoft.Framework.DependencyInjection;
 
 namespace Microsoft.Data.Entity.Relational.Tests
 {
@@ -14,14 +15,9 @@ namespace Microsoft.Data.Entity.Relational.Tests
 
         public new static RelationalTestHelpers Instance { get; } = new RelationalTestHelpers();
 
-        protected override EntityFrameworkServicesBuilder AddProviderServices(EntityFrameworkServicesBuilder builder)
-        {
-            return builder.AddRelational();
-        }
+        protected override EntityFrameworkServicesBuilder AddProviderServices(EntityFrameworkServicesBuilder builder) 
+            => builder.AddInMemoryStore().AddRelational();
 
-        protected override DbContextOptions UseProviderOptions(DbContextOptions options)
-        {
-            return options;
-        }
+        protected override DbContextOptions UseProviderOptions(DbContextOptions options) => options;
     }
 }

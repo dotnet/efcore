@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 
@@ -20,8 +19,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
             InternalEntityEntrySubscriber subscriber,
             InternalEntityEntryNotifier notifier,
             ValueGenerationManager valueGeneration,
-            DbContextService<IModel> model,
-            DbContextService<DataStore> dataStore)
+            IModel model,
+            DataStore dataStore)
             : base(factory, entityKeyFactorySource, subscriber, notifier, valueGeneration, model, dataStore)
         {
         }

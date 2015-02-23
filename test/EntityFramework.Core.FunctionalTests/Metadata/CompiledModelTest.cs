@@ -83,7 +83,8 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
         [Fact]
         public void Property_values_can_be_read_and_set_using_compiled_metadata_without_reflection()
         {
-            var options = new DbContextOptions().UseModel(new _OneTwoThreeContextModel());
+            var options = new DbContextOptions();
+            options.UseModel(new _OneTwoThreeContextModel()).UseInMemoryStore();
 
             using (var context = new DbContext(options))
             {

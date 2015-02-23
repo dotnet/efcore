@@ -9,7 +9,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.ValueGeneration
 {
-    public abstract class ValueGeneratorSelector : ValueGeneratorSelectorContract
+    public abstract class ValueGeneratorSelector : IValueGeneratorSelector
     {
         private readonly ValueGeneratorFactory<GuidValueGenerator> _guidFactory;
         private readonly TemporaryIntegerValueGeneratorFactory _integerFactory;
@@ -32,6 +32,8 @@ namespace Microsoft.Data.Entity.ValueGeneration
             _stringFactory = stringFactory;
             _binaryFactory = binaryFactory;
         }
+
+        public abstract ValueGenerator Select(IProperty property);
 
         public virtual ValueGenerator Create([NotNull] IProperty property)
         {

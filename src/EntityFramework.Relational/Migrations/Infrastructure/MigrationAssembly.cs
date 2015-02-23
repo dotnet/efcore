@@ -16,16 +16,14 @@ namespace Microsoft.Data.Entity.Relational.Migrations.Infrastructure
         private readonly LazyRef<IReadOnlyList<Migration>> _migrations;
         private readonly LazyRef<ModelSnapshot> _modelSnapshot;
 
-        public MigrationAssembly(
-            [NotNull] DbContextService<DbContext> context,
-            [NotNull] DbContextService<IDbContextOptions> options)
+        public MigrationAssembly([NotNull] DbContext context, [NotNull] IDbContextOptions options)
         {
             Check.NotNull(context, nameof(context));
             Check.NotNull(options, nameof(options));
 
-            var contextType = context.Service.GetType();
+            var contextType = context.GetType();
 
-            var assemblyName = RelationalOptionsExtension.Extract(options.Service)?.MigrationsAssembly;
+            var assemblyName = RelationalOptionsExtension.Extract(options)?.MigrationsAssembly;
             var assembly = assemblyName == null
                 ? contextType.GetTypeInfo().Assembly
                 : Assembly.Load(new AssemblyName(assemblyName));

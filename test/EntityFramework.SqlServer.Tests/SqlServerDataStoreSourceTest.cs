@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
 using Moq;
 using Xunit;
 
@@ -14,7 +15,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         {
             Assert.Equal(
                 typeof(SqlServerDataStore).Name,
-                new SqlServerDataStoreSource(Mock.Of<DbContextServices>(), new DbContextService<IDbContextOptions>(() => null)).Name);
+                new SqlServerDataStoreSource(Mock.Of<DbContextServices>(), new DbContextOptions()).Name);
         }
 
         [Fact]
@@ -26,7 +27,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var configurationMock = new Mock<DbContextServices>();
             configurationMock.Setup(m => m.ContextOptions).Returns(options);
 
-            Assert.True(new SqlServerDataStoreSource(configurationMock.Object, new DbContextService<IDbContextOptions>(options)).IsConfigured);
+            Assert.True(new SqlServerDataStoreSource(configurationMock.Object, options).IsConfigured);
         }
 
         [Fact]
@@ -37,7 +38,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var configurationMock = new Mock<DbContextServices>();
             configurationMock.Setup(m => m.ContextOptions).Returns(options);
 
-            Assert.False(new SqlServerDataStoreSource(configurationMock.Object, new DbContextService<IDbContextOptions>(options)).IsConfigured);
+            Assert.False(new SqlServerDataStoreSource(configurationMock.Object, options).IsConfigured);
         }
 
         [Fact]
@@ -49,7 +50,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var configurationMock = new Mock<DbContextServices>();
             configurationMock.Setup(m => m.ContextOptions).Returns(options);
 
-            Assert.True(new SqlServerDataStoreSource(configurationMock.Object, new DbContextService<IDbContextOptions>(options)).IsAvailable);
+            Assert.True(new SqlServerDataStoreSource(configurationMock.Object, options).IsAvailable);
         }
 
         [Fact]
@@ -60,7 +61,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var configurationMock = new Mock<DbContextServices>();
             configurationMock.Setup(m => m.ContextOptions).Returns(options);
 
-            Assert.False(new SqlServerDataStoreSource(configurationMock.Object, new DbContextService<IDbContextOptions>(options)).IsAvailable);
+            Assert.False(new SqlServerDataStoreSource(configurationMock.Object, options).IsAvailable);
         }
     }
 }

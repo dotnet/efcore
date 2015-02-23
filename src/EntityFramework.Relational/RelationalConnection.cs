@@ -33,12 +33,12 @@ namespace Microsoft.Data.Entity.Relational
         {
         }
 
-        protected RelationalConnection([NotNull] DbContextService<IDbContextOptions> options, [NotNull] ILoggerFactory loggerFactory)
+        protected RelationalConnection([NotNull] IDbContextOptions options, [NotNull] ILoggerFactory loggerFactory)
             : base(loggerFactory)
         {
             Check.NotNull(options, nameof(options));
 
-            var storeConfig = RelationalOptionsExtension.Extract(options.Service);
+            var storeConfig = RelationalOptionsExtension.Extract(options);
 
             LoggerFactory = loggerFactory;
             _commandTimeout = storeConfig.CommandTimeout;
@@ -68,15 +68,9 @@ namespace Microsoft.Data.Entity.Relational
 
         protected abstract DbConnection CreateDbConnection();
 
-        public virtual string ConnectionString
-        {
-            get { return _connectionString ?? _connection.Value.ConnectionString; }
-        }
+        public virtual string ConnectionString => _connectionString ?? _connection.Value.ConnectionString;
 
-        public virtual DbConnection DbConnection
-        {
-            get { return _connection.Value; }
-        }
+        public virtual DbConnection DbConnection => _connection.Value;
 
         public virtual RelationalTransaction Transaction { get; protected set; }
 
@@ -95,27 +89,14 @@ namespace Microsoft.Data.Entity.Relational
             }
         }
 
-        public virtual DbTransaction DbTransaction
-        {
-            get
-            {
-                return Transaction == null
-                    ? null
-                    : Transaction.DbTransaction;
-            }
-        }
+        public virtual DbTransaction DbTransaction => Transaction?.DbTransaction;
 
         [NotNull]
-        public virtual RelationalTransaction BeginTransaction()
-        {
-            return BeginTransaction(IsolationLevel.Unspecified);
-        }
+        public virtual RelationalTransaction BeginTransaction() => BeginTransaction(IsolationLevel.Unspecified);
 
         [NotNull]
         public virtual Task<RelationalTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return BeginTransactionAsync(IsolationLevel.Unspecified, cancellationToken);
-        }
+            => BeginTransactionAsync(IsolationLevel.Unspecified, cancellationToken);
 
         [NotNull]
         public virtual RelationalTransaction BeginTransaction(IsolationLevel isolationLevel)
@@ -213,10 +194,7 @@ namespace Microsoft.Data.Entity.Relational
 
         public virtual void Dispose()
         {
-            if (Transaction != null)
-            {
-                Transaction.Dispose();
-            }
+            Transaction?.Dispose();
 
             if (_connectionOwned && _connection.HasValue)
             {

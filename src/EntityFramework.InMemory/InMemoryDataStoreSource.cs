@@ -3,25 +3,20 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Storage;
 
 namespace Microsoft.Data.Entity.InMemory
 {
     public class InMemoryDataStoreSource : DataStoreSource<InMemoryDataStoreServices, InMemoryOptionsExtension>
     {
-        public InMemoryDataStoreSource([NotNull] DbContextServices services, [NotNull] DbContextService<IDbContextOptions> options)
+        public InMemoryDataStoreSource([NotNull] DbContextServices services, [NotNull] IDbContextOptions options)
             : base(services, options)
         {
         }
 
-        public override bool IsAvailable
-        {
-            get { return true; }
-        }
+        public override bool IsAvailable => true;
 
-        public override string Name
-        {
-            get { return typeof(InMemoryDataStore).Name; }
-        }
+        public override string Name => typeof(InMemoryDataStore).Name;
     }
 }

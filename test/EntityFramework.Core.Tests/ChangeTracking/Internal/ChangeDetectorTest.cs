@@ -8,7 +8,6 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Framework.DependencyInjection;
 using Xunit;
@@ -2128,7 +2127,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             return new InternalClrEntityEntry(
                 contextServices.GetRequiredService<StateManager>(),
-                contextServices.GetRequiredService<DbContextService<IModel>>().Service.GetEntityType(typeof(TEntity)),
+                contextServices.GetRequiredService<IModel>().GetEntityType(typeof(TEntity)),
                 contextServices.GetRequiredService<EntityEntryMetadataServices>(), entity ?? new TEntity());
         }
 

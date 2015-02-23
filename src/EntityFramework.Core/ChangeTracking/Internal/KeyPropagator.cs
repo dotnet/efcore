@@ -5,7 +5,6 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.ValueGeneration;
 
@@ -15,7 +14,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
     {
         private readonly ClrPropertyGetterSource _getterSource;
         private readonly ClrCollectionAccessorSource _collectionAccessorSource;
-        private readonly DbContextService<ValueGeneratorSelectorContract> _valueGeneratorSelector;
+        private readonly IValueGeneratorSelector _valueGeneratorSelector;
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
@@ -29,7 +28,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         public KeyPropagator(
             [NotNull] ClrPropertyGetterSource getterSource,
             [NotNull] ClrCollectionAccessorSource collectionAccessorSource,
-            [NotNull] DbContextService<ValueGeneratorSelectorContract> valueGeneratorSelector)
+            [NotNull] IValueGeneratorSelector valueGeneratorSelector)
         {
             _getterSource = getterSource;
             _collectionAccessorSource = collectionAccessorSource;
@@ -111,7 +110,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
                         if (generationProperty != null)
                         {
-                            return _valueGeneratorSelector.Service.Select(generationProperty);
+                            return _valueGeneratorSelector.Select(generationProperty);
                         }
                     }
                 }

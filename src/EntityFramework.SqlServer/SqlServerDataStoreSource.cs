@@ -3,25 +3,20 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Storage;
 
 namespace Microsoft.Data.Entity.SqlServer
 {
     public class SqlServerDataStoreSource : DataStoreSource<SqlServerDataStoreServices, SqlServerOptionsExtension>
     {
-        public SqlServerDataStoreSource([NotNull] DbContextServices services, [NotNull] DbContextService<IDbContextOptions> options)
+        public SqlServerDataStoreSource([NotNull] DbContextServices services, [NotNull] IDbContextOptions options)
             : base(services, options)
         {
         }
 
-        public override string Name
-        {
-            get { return typeof(SqlServerDataStore).Name; }
-        }
+        public override string Name => typeof(SqlServerDataStore).Name;
 
-        public override void AutoConfigure()
-        {
-            ContextOptions.UseSqlServer();
-        }
+        public override void AutoConfigure() => ContextOptions.UseSqlServer();
     }
 }

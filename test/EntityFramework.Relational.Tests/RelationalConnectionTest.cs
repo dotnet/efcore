@@ -323,7 +323,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
                             }))).Message);
         }
 
-        private static DbContextService<IDbContextOptions> CreateOptions(
+        private static IDbContextOptions CreateOptions(
             Action<FakeOptionsExtension1> configUpdater1,
             Action<FakeOptionsExtension2> configUpdater2 = null)
         {
@@ -339,12 +339,12 @@ namespace Microsoft.Data.Entity.Relational.Tests
                 contextOptions.AddOrUpdateExtension(configUpdater2);
             }
 
-            return new DbContextService<IDbContextOptions>(contextOptions);
+            return contextOptions;
         }
 
         private class FakeConnection : RelationalConnection
         {
-            public FakeConnection(DbContextService<IDbContextOptions> options)
+            public FakeConnection(IDbContextOptions options)
                 : base(options, new LoggerFactory())
             {
             }

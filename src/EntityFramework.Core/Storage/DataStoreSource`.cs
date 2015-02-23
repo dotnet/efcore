@@ -4,6 +4,7 @@
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
 
@@ -14,9 +15,9 @@ namespace Microsoft.Data.Entity.Storage
         where TOptionsExtension : DbContextOptionsExtension
     {
         private readonly DbContextServices _services;
-        private readonly DbContextService<IDbContextOptions> _options;
+        private readonly IDbContextOptions _options;
 
-        protected DataStoreSource([NotNull] DbContextServices services, [NotNull] DbContextService<IDbContextOptions> options)
+        protected DataStoreSource([NotNull] DbContextServices services, [NotNull] IDbContextOptions options)
         {
             Check.NotNull(services, nameof(services));
             Check.NotNull(options, nameof(options));
@@ -31,13 +32,13 @@ namespace Microsoft.Data.Entity.Storage
             {
                 // Using service locator here so that all services for every provider are not always
                 // eagerly loaded during the provider selection process.
-                return _services.ScopedServiceProvider.GetRequiredServiceChecked<TStoreServices>();
+                return _services.ServiceProvider.GetRequiredServiceChecked<TStoreServices>();
             }
         }
 
         public override bool IsConfigured
         {
-            get { return _options.Service.Extensions.OfType<TOptionsExtension>().Any(); }
+            get { return _options.Extensions.OfType<TOptionsExtension>().Any(); }
         }
 
         public override bool IsAvailable

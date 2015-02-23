@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Migrations;
 using Microsoft.Data.Entity.Storage;
@@ -19,22 +18,19 @@ namespace Microsoft.Data.Entity.Relational
         private readonly Migrator _migrator;
 
         protected RelationalDatabase(
-            [NotNull] DbContextService<DbContext> context,
+            [NotNull] DbContext context,
             [NotNull] RelationalDataStoreCreator dataStoreCreator,
             [NotNull] RelationalConnection connection,
             [NotNull] Migrator migrator,
             [NotNull] ILoggerFactory loggerFactory)
             : base(context, dataStoreCreator, connection, loggerFactory)
         {
-            Check.NotNull(migrator, nameof(context));
+            Check.NotNull(migrator, nameof(migrator));
 
             _migrator = migrator;
         }
 
-        public virtual void ApplyMigrations()
-        {
-            _migrator.ApplyMigrations();
-        }
+        public virtual void ApplyMigrations() => _migrator.ApplyMigrations();
 
         Migrator IAccessor<Migrator>.Service => _migrator;
 
@@ -54,45 +50,26 @@ namespace Microsoft.Data.Entity.Relational
             return RelationalDataStoreCreator.CreateAsync(cancellationToken);
         }
 
-        public virtual void CreateTables()
-        {
-            RelationalDataStoreCreator.CreateTables(Model);
-        }
+        public virtual void CreateTables() => RelationalDataStoreCreator.CreateTables(Model);
 
-        public virtual Task CreateTablesAsync(CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return RelationalDataStoreCreator.CreateTablesAsync(Model, cancellationToken);
-        }
+        public virtual Task CreateTablesAsync(CancellationToken cancellationToken = default(CancellationToken)) 
+            => RelationalDataStoreCreator.CreateTablesAsync(Model, cancellationToken);
 
-        public virtual void Delete()
-        {
-            RelationalDataStoreCreator.Delete();
-        }
+        public virtual void Delete() => RelationalDataStoreCreator.Delete();
 
-        public virtual Task DeleteAsync(CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return RelationalDataStoreCreator.DeleteAsync(cancellationToken);
-        }
+        public virtual Task DeleteAsync(CancellationToken cancellationToken = default(CancellationToken)) 
+            => RelationalDataStoreCreator.DeleteAsync(cancellationToken);
 
-        public virtual bool Exists()
-        {
-            return RelationalDataStoreCreator.Exists();
-        }
+        public virtual bool Exists() 
+            => RelationalDataStoreCreator.Exists();
 
-        public virtual Task<bool> ExistsAsync(CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return RelationalDataStoreCreator.ExistsAsync(cancellationToken);
-        }
+        public virtual Task<bool> ExistsAsync(CancellationToken cancellationToken = default(CancellationToken)) 
+            => RelationalDataStoreCreator.ExistsAsync(cancellationToken);
 
-        public virtual bool HasTables()
-        {
-            return RelationalDataStoreCreator.HasTables();
-        }
+        public virtual bool HasTables() => RelationalDataStoreCreator.HasTables();
 
-        public virtual Task<bool> HasTablesAsync(CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return RelationalDataStoreCreator.HasTablesAsync(cancellationToken);
-        }
+        public virtual Task<bool> HasTablesAsync(CancellationToken cancellationToken = default(CancellationToken)) 
+            => RelationalDataStoreCreator.HasTablesAsync(cancellationToken);
 
         private RelationalDataStoreCreator RelationalDataStoreCreator => (RelationalDataStoreCreator)((IAccessor<DataStoreCreator>)this).Service;
 

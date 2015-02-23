@@ -10,7 +10,7 @@ namespace Microsoft.Data.Entity.InMemory
     public class InMemoryDatabaseFacade : Database
     {
         public InMemoryDatabaseFacade(
-            [NotNull] DbContextService<DbContext> context,
+            [NotNull] DbContext context,
             [NotNull] InMemoryDataStoreCreator dataStoreCreator,
             [NotNull] InMemoryConnection connection,
             [NotNull] ILoggerFactory loggerFactory)

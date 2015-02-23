@@ -4,7 +4,6 @@
 using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Relational.Migrations;
 using Microsoft.Data.Entity.Tests;
 using Microsoft.Framework.Logging;
@@ -32,7 +31,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
             dbConnectionMock.SetupGet(m => m.Database).Returns("MyDb");
 
             var database = new ConcreteRelationalDatabase(
-                new DbContextService<DbContext>(context),
+                context,
                 creatorMock.Object,
                 connectionMock.Object,
                 Mock.Of<Migrator>(),
@@ -81,7 +80,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
             dbConnectionMock.SetupGet(m => m.Database).Returns("MyDb");
 
             var database = new ConcreteRelationalDatabase(
-                new DbContextService<DbContext>(context),
+                context,
                 creatorMock.Object,
                 connectionMock.Object,
                 Mock.Of<Migrator>(),
@@ -112,7 +111,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
         private class ConcreteRelationalDatabase : RelationalDatabase
         {
             public ConcreteRelationalDatabase(
-                DbContextService<DbContext> context,
+                DbContext context,
                 RelationalDataStoreCreator dataStoreCreator,
                 RelationalConnection connection,
                 Migrator migrator,

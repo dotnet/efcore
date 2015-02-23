@@ -7,7 +7,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Migrations.History;
 using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
@@ -29,13 +28,13 @@ namespace Microsoft.Data.Entity.Commands.Migrations
         private readonly LazyRef<ILogger> _logger;
 
         public MigrationScaffolder(
-            [NotNull] DbContextService<DbContext> context,
-            [NotNull] DbContextService<IModel> model,
+            [NotNull] DbContext context,
+            [NotNull] IModel model,
             [NotNull] MigrationAssembly migrationAssembly,
-            [NotNull] DbContextService<ModelDiffer> modelDiffer,
+            [NotNull] ModelDiffer modelDiffer,
             [NotNull] MigrationIdGenerator idGenerator,
             [NotNull] MigrationCodeGenerator migrationCodeGenerator,
-            [NotNull] DbContextService<IHistoryRepository> historyRepository,
+            [NotNull] IHistoryRepository historyRepository,
             [NotNull] ILoggerFactory loggerFactory)
         {
             Check.NotNull(context, nameof(context));
@@ -47,14 +46,14 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             Check.NotNull(historyRepository, nameof(historyRepository));
             Check.NotNull(loggerFactory, nameof(loggerFactory));
 
-            _contextType = context.Service.GetType();
-            _model = model.Service;
+            _contextType = context.GetType();
+            _model = model;
             _migrationAssembly = migrationAssembly;
-            _modelDiffer = modelDiffer.Service;
+            _modelDiffer = modelDiffer;
             _idGenerator = idGenerator;
             _migrationCodeGenerator = migrationCodeGenerator;
-            _historyRepository = historyRepository.Service;
-            _logger = new LazyRef<ILogger>(() => loggerFactory.Create<MigrationScaffolder>());
+            _historyRepository = historyRepository;
+            _logger = new LazyRef<ILogger>(loggerFactory.Create<MigrationScaffolder>);
         }
 
         protected virtual string ProductVersion =>

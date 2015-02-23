@@ -3,8 +3,8 @@
 
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Relational.Update;
+using Microsoft.Data.Entity.Tests;
 using Microsoft.Framework.Logging;
 using Moq;
 using Xunit;
@@ -74,7 +74,7 @@ namespace Microsoft.Data.Entity.Relational.Tests.Update
         private class BatchExecutorForTest : BatchExecutor
         {
             public BatchExecutorForTest(RelationalTypeMapper typeMapper)
-                : base(typeMapper, new DbContextService<DbContext>(() => null), new LoggerFactory())
+                : base(typeMapper, TestHelpers.Instance.CreateContext(), new LoggerFactory())
             {
             }
 

@@ -8,7 +8,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
@@ -26,8 +25,8 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         private readonly EntityKeyFactorySource _keyFactorySource;
         private readonly InternalEntityEntryFactory _factory;
         private readonly InternalEntityEntrySubscriber _subscriber;
-        private readonly DbContextService<IModel> _model;
-        private readonly DbContextService<DataStore> _dataStore;
+        private readonly IModel _model;
+        private readonly DataStore _dataStore;
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
@@ -44,8 +43,8 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             [NotNull] InternalEntityEntrySubscriber subscriber,
             [NotNull] InternalEntityEntryNotifier notifier,
             [NotNull] ValueGenerationManager valueGeneration,
-            [NotNull] DbContextService<IModel> model,
-            [NotNull] DbContextService<DataStore> dataStore)
+            [NotNull] IModel model,
+            [NotNull] DataStore dataStore)
         {
             _keyFactorySource = entityKeyFactorySource;
             _factory = factory;
@@ -76,7 +75,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             InternalEntityEntry entry;
             if (!_entityReferenceMap.TryGetValue(entity, out entry))
             {
-                var entityType = _model.Service.GetEntityType(entity.GetType());
+                var entityType = _model.GetEntityType(entity.GetType());
 
                 entry = _subscriber.SnapshotAndSubscribe(_factory.Create(this, entityType, entity));
 
@@ -350,13 +349,11 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
 
         protected virtual int SaveChanges(
-            [NotNull] IReadOnlyList<InternalEntityEntry> entriesToSave) => _dataStore.Service.SaveChanges(entriesToSave);
+            [NotNull] IReadOnlyList<InternalEntityEntry> entriesToSave) => _dataStore.SaveChanges(entriesToSave);
 
         protected virtual async Task<int> SaveChangesAsync(
             [NotNull] IReadOnlyList<InternalEntityEntry> entriesToSave,
             CancellationToken cancellationToken = default(CancellationToken))
-            => await _dataStore.Service
-                .SaveChangesAsync(entriesToSave, cancellationToken)
-                .WithCurrentCulture();
+            => await _dataStore.SaveChangesAsync(entriesToSave, cancellationToken).WithCurrentCulture();
     }
 }

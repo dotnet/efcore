@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.Data.Entity.ValueGeneration;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Relational.Migrations;
@@ -11,6 +10,7 @@ using Microsoft.Data.Entity.Relational.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Relational.Migrations.Sql;
 using Microsoft.Data.Entity.Relational.Update;
 using Microsoft.Data.Entity.SqlServer.Migrations;
+using Microsoft.Data.Entity.SqlServer.Query;
 using Microsoft.Data.Entity.SqlServer.Update;
 using Microsoft.Data.Entity.Tests;
 using Microsoft.Framework.DependencyInjection;
@@ -42,6 +42,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             VerifySingleton<SqlServerModelSource>();
 
             // SQL Server scoped
+            VerifyScoped<SqlServerQueryContextFactory>();
             VerifyScoped<SqlServerValueGeneratorSelector>();
             VerifyScoped<SqlServerBatchExecutor>();
             VerifyScoped<SqlServerDataStoreServices>();
@@ -57,11 +58,11 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             // Migrations
             VerifyScoped<MigrationAssembly>();
-            VerifyScoped<DbContextService<IHistoryRepository>>();
+            VerifyScoped<IHistoryRepository>();
             VerifyScoped<Migrator>();
             VerifySingleton<MigrationIdGenerator>();
-            VerifyScoped<DbContextService<ModelDiffer>>();
-            VerifyScoped<DbContextService<MigrationSqlGenerator>>();
+            VerifyScoped<ModelDiffer>();
+            VerifyScoped<MigrationSqlGenerator>();
         }
 
         protected override IServiceCollection GetServices(IServiceCollection services = null)

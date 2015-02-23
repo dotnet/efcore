@@ -944,7 +944,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
         private class ChangeDetectorProxy : ChangeDetector
         {
-            public ChangeDetectorProxy(DbContextService<IModel> model)
+            public ChangeDetectorProxy(IModel model)
                 : base(model)
             {
             }

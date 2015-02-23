@@ -179,6 +179,7 @@
     <Compile Include="Query\ExpressionTreeVisitors\RelationalOrderingExpressionTreeVisitor.cs" />
     <Compile Include="Query\ExpressionTreeVisitors\RelationalProjectionExpressionTreeVisitor.cs" />
     <Compile Include="Query\ExpressionTreeVisitors\RelationalEntityQueryableExpressionTreeVisitor.cs" />
+    <Compile Include="Query\RelationalQueryContextFactory.cs" />
     <Compile Include="Query\Sql\ISqlExpressionVisitor.cs" />
     <Compile Include="Query\Expressions\ColumnExpression.cs" />
     <Compile Include="Query\RelationalQueryCompilationContext.cs" />

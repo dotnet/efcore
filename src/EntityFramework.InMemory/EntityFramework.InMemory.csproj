@@ -87,6 +87,7 @@
     <Compile Include="Properties\Strings.Designer.cs">
       <DependentUpon>Strings.resx</DependentUpon>
     </Compile>
+    <Compile Include="Query\InMemoryQueryContextFactory.cs" />
     <Compile Include="Query\InMemoryQueryModelVisitor.cs" />
     <Compile Include="..\Shared\Check.cs">
       <Link>Utilities\Check.cs</Link>

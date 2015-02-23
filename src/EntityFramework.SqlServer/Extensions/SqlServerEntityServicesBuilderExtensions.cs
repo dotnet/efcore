@@ -6,6 +6,7 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.SqlServer;
 using Microsoft.Data.Entity.SqlServer.Migrations;
+using Microsoft.Data.Entity.SqlServer.Query;
 using Microsoft.Data.Entity.SqlServer.Update;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
@@ -32,6 +33,7 @@ namespace Microsoft.Framework.DependencyInjection
                     .AddSingleton<SqlServerModificationCommandBatchFactory>()
                     .AddSingleton<SqlServerCommandBatchPreparer>()
                     .AddSingleton<SqlServerModelSource>()
+                    .AddScoped<SqlServerQueryContextFactory>()
                     .AddScoped<SqlServerValueGeneratorSelector>()
                     .AddScoped<SqlServerBatchExecutor>()
                     .AddScoped<SqlServerDataStoreServices>()

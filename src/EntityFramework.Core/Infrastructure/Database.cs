@@ -5,7 +5,6 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
@@ -15,12 +14,12 @@ namespace Microsoft.Data.Entity.Infrastructure
 {
     public abstract class Database : IAccessor<DataStoreCreator>, IAccessor<ILogger>, IAccessor<IModel>, IAccessor<IServiceProvider>
     {
-        private readonly DbContextService<DbContext> _context;
+        private readonly DbContext _context;
         private readonly DataStoreCreator _dataStoreCreator;
         private readonly LazyRef<ILogger> _logger;
 
         protected Database(
-            [NotNull] DbContextService<DbContext> context,
+            [NotNull] DbContext context,
             [NotNull] DataStoreCreator dataStoreCreator,
             [NotNull] DataStoreConnection connection,
             [NotNull] ILoggerFactory loggerFactory)
@@ -39,35 +38,25 @@ namespace Microsoft.Data.Entity.Infrastructure
         public virtual DataStoreConnection Connection { get; }
 
         // TODO: Make sure API docs say that return value indicates whether or not the database or tables were created
-        public virtual bool EnsureCreated()
-        {
-            return _dataStoreCreator.EnsureCreated(_context.Service.Model);
-        }
+        public virtual bool EnsureCreated() => _dataStoreCreator.EnsureCreated(_context.Model);
 
         // TODO: Make sure API docs say that return value indicates whether or not the database or tables were created
         public virtual Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return _dataStoreCreator.EnsureCreatedAsync(_context.Service.Model, cancellationToken);
-        }
+            => _dataStoreCreator.EnsureCreatedAsync(_context.Model, cancellationToken);
 
         // TODO: Make sure API docs say that return value indicates whether or not the database was deleted
-        public virtual bool EnsureDeleted()
-        {
-            return _dataStoreCreator.EnsureDeleted(_context.Service.Model);
-        }
+        public virtual bool EnsureDeleted() => _dataStoreCreator.EnsureDeleted(_context.Model);
 
         // TODO: Make sure API docs say that return value indicates whether or not the database was deleted
         public virtual Task<bool> EnsureDeletedAsync(CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return _dataStoreCreator.EnsureDeletedAsync(_context.Service.Model, cancellationToken);
-        }
+            => _dataStoreCreator.EnsureDeletedAsync(_context.Model, cancellationToken);
 
         DataStoreCreator IAccessor<DataStoreCreator>.Service => _dataStoreCreator;
 
         ILogger IAccessor<ILogger>.Service => _logger.Value;
 
-        IModel IAccessor<IModel>.Service => _context.Service.Model;
+        IModel IAccessor<IModel>.Service => _context.Model;
 
-        IServiceProvider IAccessor<IServiceProvider>.Service => ((IAccessor<IServiceProvider>)_context.Service).Service;
+        IServiceProvider IAccessor<IServiceProvider>.Service => ((IAccessor<IServiceProvider>)_context).Service;
     }
 }

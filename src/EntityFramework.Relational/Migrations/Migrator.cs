@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Migrations.Builders;
 using Microsoft.Data.Entity.Relational.Migrations.History;
@@ -23,13 +22,13 @@ namespace Microsoft.Data.Entity.Relational.Migrations
         private const string InitialDatabase = "0";
 
         private readonly MigrationAssembly _migrationAssembly;
-        private readonly DbContextService<IHistoryRepository> _historyRepository;
-        private readonly LazyRef<RelationalDataStoreCreator> _dataStoreCreator;
-        private readonly DbContextService<MigrationSqlGenerator> _sqlGenerator;
+        private readonly IHistoryRepository _historyRepository;
+        private readonly RelationalDataStoreCreator _dataStoreCreator;
+        private readonly MigrationSqlGenerator _sqlGenerator;
         private readonly SqlStatementExecutor _executor;
-        private readonly LazyRef<RelationalConnection> _connection;
-        private readonly DbContextService<ModelDiffer> _modelDiffer;
-        private readonly DbContextService<IModel> _model;
+        private readonly RelationalConnection _connection;
+        private readonly ModelDiffer _modelDiffer;
+        private readonly IModel _model;
         private readonly MigrationIdGenerator _idGenerator;
 
         /// <summary>
@@ -43,13 +42,13 @@ namespace Microsoft.Data.Entity.Relational.Migrations
 
         public Migrator(
             [NotNull] MigrationAssembly migrationAssembly,
-            [NotNull] DbContextService<IHistoryRepository> historyRepository,
-            [NotNull] DbContextService<DataStoreCreator> dataStoreCreator,
-            [NotNull] DbContextService<MigrationSqlGenerator> sqlGenerator,
+            [NotNull] IHistoryRepository historyRepository,
+            [NotNull] DataStoreCreator dataStoreCreator,
+            [NotNull] MigrationSqlGenerator sqlGenerator,
             [NotNull] SqlStatementExecutor executor,
-            [NotNull] DbContextService<DataStoreConnection> connection,
-            [NotNull] DbContextService<ModelDiffer> modelDiffer,
-            [NotNull] DbContextService<IModel> model,
+            [NotNull] DataStoreConnection connection,
+            [NotNull] ModelDiffer modelDiffer,
+            [NotNull] IModel model,
             [NotNull] MigrationIdGenerator idGenerator)
         {
             Check.NotNull(migrationAssembly, nameof(migrationAssembly));
@@ -64,11 +63,10 @@ namespace Microsoft.Data.Entity.Relational.Migrations
 
             _migrationAssembly = migrationAssembly;
             _historyRepository = historyRepository;
-            _dataStoreCreator = new LazyRef<RelationalDataStoreCreator>(
-                () => (RelationalDataStoreCreator)dataStoreCreator.Service);
+            _dataStoreCreator = (RelationalDataStoreCreator)dataStoreCreator;
             _sqlGenerator = sqlGenerator;
             _executor = executor;
-            _connection = new LazyRef<RelationalConnection>(() => (RelationalConnection)connection.Service);
+            _connection = (RelationalConnection)connection;
             _modelDiffer = modelDiffer;
             _model = model;
             _idGenerator = idGenerator;
@@ -80,7 +78,7 @@ namespace Microsoft.Data.Entity.Relational.Migrations
 
         public virtual IReadOnlyList<Migration> GetUnappliedMigrations()
         {
-            var appliedMigrations = _historyRepository.Service.GetAppliedMigrations();
+            var appliedMigrations = _historyRepository.GetAppliedMigrations();
 
             return _migrationAssembly.Migrations.Where(
                 m => !appliedMigrations.Any(
@@ -89,12 +87,12 @@ namespace Microsoft.Data.Entity.Relational.Migrations
         }
 
         public virtual bool HasPendingModelChanges() =>
-            _modelDiffer.Service.HasDifferences(_migrationAssembly.ModelSnapshot?.Model, _model.Service);
+            _modelDiffer.HasDifferences(_migrationAssembly.ModelSnapshot?.Model, _model);
 
         public virtual void ApplyMigrations([CanBeNull] string targetMigration = null)
         {
             var migrations = _migrationAssembly.Migrations;
-            var appliedMigrationEntries = _historyRepository.Service.GetAppliedMigrations();
+            var appliedMigrationEntries = _historyRepository.GetAppliedMigrations();
 
             var appliedMigrations = new List<Migration>();
             var unappliedMigrations = new List<Migration>();
@@ -179,14 +177,14 @@ namespace Microsoft.Data.Entity.Relational.Migrations
             migration.Up(migrationBuilder);
             var operations = migrationBuilder.Operations.ToList();
 
-            if (first && !_historyRepository.Service.Exists())
+            if (first && !_historyRepository.Exists())
             {
-                operations.Add(_historyRepository.Service.GetCreateOperation());
+                operations.Add(_historyRepository.GetCreateOperation());
             }
 
-            operations.Add(_historyRepository.Service.GetInsertOperation(new HistoryRow(migration.Id, ProductVersion)));
+            operations.Add(_historyRepository.GetInsertOperation(new HistoryRow(migration.Id, ProductVersion)));
 
-            return _sqlGenerator.Service.Generate(operations, migration.Target);
+            return _sqlGenerator.Generate(operations, migration.Target);
         }
 
         protected virtual IReadOnlyList<SqlBatch> RevertMigration([NotNull] Migration migration)
@@ -197,24 +195,24 @@ namespace Microsoft.Data.Entity.Relational.Migrations
             migration.Down(migrationBuilder);
             var operations = migrationBuilder.Operations.ToList();
 
-            operations.Add(_historyRepository.Service.GetDeleteOperation(migration.Id));
+            operations.Add(_historyRepository.GetDeleteOperation(migration.Id));
 
             // TODO: Pass source model?
-            return _sqlGenerator.Service.Generate(operations);
+            return _sqlGenerator.Generate(operations);
         }
 
         protected virtual void Execute([NotNull] IEnumerable<SqlBatch> sqlBatches, bool first = false)
         {
             Check.NotNull(sqlBatches, nameof(sqlBatches));
 
-            if (first && !_dataStoreCreator.Value.Exists())
+            if (first && !_dataStoreCreator.Exists())
             {
-                _dataStoreCreator.Value.Create();
+                _dataStoreCreator.Create();
             }
 
-            using (var transaction = _connection.Value.BeginTransaction())
+            using (var transaction = _connection.BeginTransaction())
             {
-                _executor.ExecuteNonQuery(_connection.Value, transaction.DbTransaction, sqlBatches);
+                _executor.ExecuteNonQuery(_connection, transaction.DbTransaction, sqlBatches);
                 transaction.Commit();
             }
         }

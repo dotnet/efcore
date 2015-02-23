@@ -29,24 +29,18 @@ namespace Microsoft.Data.Entity.SqlServer
         }
 
         public SqlServerDataStore(
-            [NotNull] StateManager stateManager,
-            [NotNull] DbContextService<IModel> model,
+            [NotNull] IModel model,
             [NotNull] EntityKeyFactorySource entityKeyFactorySource,
             [NotNull] EntityMaterializerSource entityMaterializerSource,
-            [NotNull] ClrCollectionAccessorSource collectionAccessorSource,
-            [NotNull] ClrPropertySetterSource propertySetterSource,
             [NotNull] SqlServerConnection connection,
             [NotNull] SqlServerCommandBatchPreparer batchPreparer,
             [NotNull] SqlServerBatchExecutor batchExecutor,
-            [NotNull] DbContextService<IDbContextOptions> options,
+            [NotNull] IDbContextOptions options,
             [NotNull] ILoggerFactory loggerFactory)
             : base(
-                Check.NotNull(stateManager, nameof(stateManager)),
                 Check.NotNull(model, nameof(model)),
                 Check.NotNull(entityKeyFactorySource, nameof(entityKeyFactorySource)),
                 Check.NotNull(entityMaterializerSource, nameof(entityMaterializerSource)),
-                Check.NotNull(collectionAccessorSource, nameof(collectionAccessorSource)),
-                Check.NotNull(propertySetterSource, nameof(propertySetterSource)),
                 Check.NotNull(connection, nameof(connection)),
                 Check.NotNull(batchPreparer, nameof(batchPreparer)),
                 Check.NotNull(batchExecutor, nameof(batchExecutor)),
@@ -54,8 +48,6 @@ namespace Microsoft.Data.Entity.SqlServer
                 Check.NotNull(loggerFactory, nameof(loggerFactory)))
         {
         }
-
-        protected override RelationalValueReaderFactory ValueReaderFactory => new RelationalObjectArrayValueReaderFactory();
 
         protected override RelationalQueryCompilationContext CreateQueryCompilationContext(
             ILinqOperatorProvider linqOperatorProvider,

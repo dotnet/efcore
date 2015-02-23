@@ -8,7 +8,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational;
 using Microsoft.Data.Entity.Storage;
@@ -235,7 +234,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 {
                     var contextServices = ((IAccessor<IServiceProvider>)context).Service;
 
-                    var creator = (RelationalDataStoreCreator)contextServices.GetRequiredService<DbContextService<DataStoreCreator>>().Service;
+                    var creator = (RelationalDataStoreCreator)contextServices.GetRequiredService<DataStoreCreator>();
 
                     if (async)
                     {

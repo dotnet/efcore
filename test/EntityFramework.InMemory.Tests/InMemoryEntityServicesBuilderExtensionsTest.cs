@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.Data.Entity.ValueGeneration;
+using Microsoft.Data.Entity.InMemory.Query;
 using Microsoft.Data.Entity.Tests;
 using Microsoft.Framework.DependencyInjection;
 using Xunit;
@@ -24,6 +24,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             VerifySingleton<InMemoryModelSource>();
 
             // In memory scoped
+            VerifyScoped<InMemoryQueryContextFactory>();
             VerifyScoped<InMemoryValueGeneratorSelector>();
             VerifyScoped<InMemoryDataStoreServices>();
             VerifyScoped<InMemoryDatabaseFacade>();

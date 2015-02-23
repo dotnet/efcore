@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
                 .AddInstance(relationalConnectionMock.Object)
                 .AddInstance(commandBatchPreparerMock.Object)
                 .AddInstance(batchExecutorMock.Object)
-                .AddSingleton<FakeRelationalDataStore>();
+                .AddScoped<FakeRelationalDataStore>();
 
             var contextServices = RelationalTestHelpers.Instance.CreateContextServices(customServices);
 
@@ -54,7 +54,7 @@ namespace Microsoft.Data.Entity.Relational.Tests
                 .AddInstance(relationalConnectionMock.Object)
                 .AddInstance(commandBatchPreparerMock.Object)
                 .AddInstance(batchExecutorMock.Object)
-                .AddSingleton<FakeRelationalDataStore>();
+                .AddScoped<FakeRelationalDataStore>();
 
             var contextServices = RelationalTestHelpers.Instance.CreateContextServices(customServices);
 
@@ -71,20 +71,15 @@ namespace Microsoft.Data.Entity.Relational.Tests
         private class FakeRelationalDataStore : RelationalDataStore
         {
             public FakeRelationalDataStore(
-                StateManager stateManager,
-                DbContextService<IModel> model,
+                IModel model,
                 EntityKeyFactorySource entityKeyFactorySource,
                 EntityMaterializerSource entityMaterializerSource,
-                ClrCollectionAccessorSource collectionAccessorSource,
-                ClrPropertySetterSource propertySetterSource,
                 RelationalConnection connection,
                 CommandBatchPreparer batchPreparer,
                 BatchExecutor batchExecutor,
-                DbContextService<IDbContextOptions> options,
+                IDbContextOptions options,
                 ILoggerFactory loggerFactory)
-                : base(stateManager, model, entityKeyFactorySource, entityMaterializerSource,
-                    collectionAccessorSource, propertySetterSource, connection, batchPreparer, batchExecutor, options,
-                    loggerFactory)
+                : base(model, entityKeyFactorySource, entityMaterializerSource, connection, batchPreparer, batchExecutor, options, loggerFactory)
             {
             }
         }

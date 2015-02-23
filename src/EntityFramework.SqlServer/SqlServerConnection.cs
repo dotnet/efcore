@@ -22,17 +22,14 @@ namespace Microsoft.Data.Entity.SqlServer
         {
         }
 
-        public SqlServerConnection([NotNull] DbContextService<IDbContextOptions> options, [NotNull] ILoggerFactory loggerFactory)
+        public SqlServerConnection([NotNull] IDbContextOptions options, [NotNull] ILoggerFactory loggerFactory)
             : base(options, loggerFactory)
         {
         }
 
-        protected override DbConnection CreateDbConnection()
-        {
-            // TODO: Consider using DbProviderFactory to create connection instance
-            // Issue #774
-            return new SqlConnection(ConnectionString);
-        }
+        // TODO: Consider using DbProviderFactory to create connection instance
+        // Issue #774
+        protected override DbConnection CreateDbConnection() => new SqlConnection(ConnectionString);
 
         public virtual SqlServerConnection CreateMasterConnection()
         {
@@ -43,7 +40,7 @@ namespace Microsoft.Data.Entity.SqlServer
             var options = new DbContextOptions();
             options.UseSqlServer(builder.ConnectionString).CommandTimeout(CommandTimeout);
 
-            return new SqlServerConnection(new DbContextService<IDbContextOptions>(() => options), LoggerFactory);
+            return new SqlServerConnection(options, LoggerFactory);
         }
     }
 }

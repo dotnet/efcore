@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Relational.Migrations.History;
 using Microsoft.Data.Entity.Relational.Migrations.Operations;
 using Microsoft.Data.Entity.Utilities;
@@ -22,7 +21,7 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
         public SqlServerHistoryRepository(
             [NotNull] SqlServerConnection connection,
             [NotNull] SqlServerDataStoreCreator creator,
-            [NotNull] DbContextService<DbContext> context)
+            [NotNull] DbContext context)
         {
             Check.NotNull(connection, nameof(connection));
             Check.NotNull(creator, nameof(creator));
@@ -30,7 +29,7 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
 
             _connection = connection;
             _creator = creator;
-            _contextType = context.Service.GetType();
+            _contextType = context.GetType();
         }
 
         public virtual bool Exists()

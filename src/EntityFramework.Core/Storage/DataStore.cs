@@ -8,7 +8,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Utilities;
@@ -19,10 +18,6 @@ namespace Microsoft.Data.Entity.Storage
 {
     public abstract class DataStore
     {
-        private readonly StateManager _stateManager;
-        private readonly DbContextService<IModel> _model;
-        private readonly ClrCollectionAccessorSource _collectionAccessorSource;
-        private readonly ClrPropertySetterSource _propertySetterSource;
         private readonly LazyRef<ILogger> _logger;
 
         /// <summary>
@@ -35,50 +30,31 @@ namespace Microsoft.Data.Entity.Storage
         }
 
         protected DataStore(
-            [NotNull] StateManager stateManager,
-            [NotNull] DbContextService<IModel> model,
+            [NotNull] IModel model,
             [NotNull] EntityKeyFactorySource entityKeyFactorySource,
             [NotNull] EntityMaterializerSource entityMaterializerSource,
-            [NotNull] ClrCollectionAccessorSource collectionAccessorSource,
-            [NotNull] ClrPropertySetterSource propertySetterSource,
             [NotNull] ILoggerFactory loggerFactory)
         {
-            Check.NotNull(stateManager, nameof(stateManager));
             Check.NotNull(model, nameof(model));
             Check.NotNull(entityKeyFactorySource, nameof(entityKeyFactorySource));
             Check.NotNull(entityMaterializerSource, nameof(entityMaterializerSource));
-            Check.NotNull(collectionAccessorSource, nameof(collectionAccessorSource));
-            Check.NotNull(propertySetterSource, nameof(propertySetterSource));
             Check.NotNull(loggerFactory, nameof(loggerFactory));
 
-            _stateManager = stateManager;
-            _model = model;
+            Model = model;
 
             EntityKeyFactorySource = entityKeyFactorySource;
             EntityMaterializerSource = entityMaterializerSource;
-
-            _collectionAccessorSource = collectionAccessorSource;
-            _propertySetterSource = propertySetterSource;
 
             _logger = new LazyRef<ILogger>(loggerFactory.Create<DataStore>);
         }
 
         public virtual ILogger Logger => _logger.Value;
 
-        public virtual IModel Model => _model.Service;
+        public virtual IModel Model { get; }
 
         public virtual EntityKeyFactorySource EntityKeyFactorySource { get; }
 
         public virtual EntityMaterializerSource EntityMaterializerSource { get; }
-
-        protected virtual IQueryBuffer CreateQueryBuffer()
-        {
-            return new QueryBuffer(
-                _stateManager,
-                EntityKeyFactorySource,
-                _collectionAccessorSource,
-                _propertySetterSource);
-        }
 
         public abstract int SaveChanges(
             [NotNull] IReadOnlyList<InternalEntityEntry> entries);
@@ -99,7 +75,5 @@ namespace Microsoft.Data.Entity.Storage
         {
             throw new NotImplementedException();
         }
-
-        public abstract QueryContext CreateQueryContext();
     }
 }

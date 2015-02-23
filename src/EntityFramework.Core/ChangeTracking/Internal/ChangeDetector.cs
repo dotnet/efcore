@@ -6,7 +6,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
@@ -14,7 +13,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
     public class ChangeDetector : IPropertyListener
     {
-        private readonly DbContextService<IModel> _model;
+        private readonly IModel _model;
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
@@ -25,7 +24,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         {
         }
 
-        public ChangeDetector([NotNull] DbContextService<IModel> model)
+        public ChangeDetector([NotNull] IModel model)
         {
             _model = model;
         }
@@ -162,7 +161,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
             // TODO: Perf: make it fast to check if a property is part of any key
             var isPrimaryKey = property.IsPrimaryKey();
-            var isPrincipalKey = _model.Service.GetReferencingForeignKeys(property).Any();
+            var isPrincipalKey = _model.GetReferencingForeignKeys(property).Any();
             var isForeignKey = property.IsForeignKey();
 
             if (isPrimaryKey

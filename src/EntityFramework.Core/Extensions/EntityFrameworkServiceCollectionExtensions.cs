@@ -7,6 +7,7 @@ using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Storage;
@@ -121,8 +122,8 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddScoped(DbContextServices.ContextFactory)
                 .AddScoped(DbContextServices.ContextOptionsFactory)
                 .AddScoped<DataStoreSelector>()
-                .AddScoped(DataStoreServices.DataStoreServicesFactory)
                 .AddScoped(DataStoreServices.DataStoreFactory)
+                .AddScoped(DataStoreServices.QueryContextFactoryFactory)
                 .AddScoped(DataStoreServices.ConnectionFactory)
                 .AddScoped(DataStoreServices.DatabaseFactory)
                 .AddScoped(DataStoreServices.ValueGeneratorSelectorFactory)

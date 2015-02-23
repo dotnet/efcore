@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         private readonly StateManager _stateManager;
         private readonly ChangeDetector _changeDetector;
         private readonly EntityEntryGraphIterator _graphIterator;
-        private readonly DbContextService<DbContext> _context;
+        private readonly DbContext _context;
 
         /// <summary>
         ///     This constructor is intended only for use when creating test doubles that will override members
@@ -46,7 +46,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             [NotNull] StateManager stateManager,
             [NotNull] ChangeDetector changeDetector,
             [NotNull] EntityEntryGraphIterator graphIterator,
-            [NotNull] DbContextService<DbContext> context)
+            [NotNull] DbContext context)
         {
             Check.NotNull(stateManager, nameof(stateManager));
             Check.NotNull(changeDetector, nameof(changeDetector));
@@ -83,7 +83,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
             TryDetectChanges();
 
-            return _stateManager.Entries.Select(e => new EntityEntry(_context.Service, e));
+            return _stateManager.Entries.Select(e => new EntityEntry(_context, e));
         }
 
         /// <summary>
@@ -98,7 +98,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             return _stateManager.Entries
                 .Where(e => e.Entity is TEntity)
-                .Select(e => new EntityEntry<TEntity>(_context.Service, e));
+                .Select(e => new EntityEntry<TEntity>(_context, e));
         }
 
         private void TryDetectChanges()
@@ -117,7 +117,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         /// <summary>
         ///     Gets the context this change tracker belongs to.
         /// </summary>
-        public virtual DbContext Context => _context.Service;
+        public virtual DbContext Context => _context;
 
         /// <summary>
         ///     Scans the tracked entity instances to detect any changes made to the instance data. <see cref="DetectChanges"/>

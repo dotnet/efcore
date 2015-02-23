@@ -37,24 +37,18 @@ namespace Microsoft.Data.Entity.Relational
         }
 
         protected RelationalDataStore(
-            [NotNull] StateManager stateManager,
-            [NotNull] DbContextService<IModel> model,
+            [NotNull] IModel model,
             [NotNull] EntityKeyFactorySource entityKeyFactorySource,
             [NotNull] EntityMaterializerSource entityMaterializerSource,
-            [NotNull] ClrCollectionAccessorSource collectionAccessorSource,
-            [NotNull] ClrPropertySetterSource propertySetterSource,
             [NotNull] RelationalConnection connection,
             [NotNull] CommandBatchPreparer batchPreparer,
             [NotNull] BatchExecutor batchExecutor,
-            [NotNull] DbContextService<IDbContextOptions> options,
+            [NotNull] IDbContextOptions options,
             [NotNull] ILoggerFactory loggerFactory)
             : base(
-                Check.NotNull(stateManager, nameof(stateManager)),
                 Check.NotNull(model, nameof(model)),
                 Check.NotNull(entityKeyFactorySource, nameof(entityKeyFactorySource)),
                 Check.NotNull(entityMaterializerSource, nameof(entityMaterializerSource)),
-                Check.NotNull(collectionAccessorSource, nameof(collectionAccessorSource)),
-                Check.NotNull(propertySetterSource, nameof(propertySetterSource)),
                 Check.NotNull(loggerFactory, nameof(loggerFactory)))
         {
             Check.NotNull(connection, nameof(connection));
@@ -65,10 +59,8 @@ namespace Microsoft.Data.Entity.Relational
             _batchPreparer = batchPreparer;
             _batchExecutor = batchExecutor;
             _connection = connection;
-            _options = options.Service;
+            _options = options;
         }
-
-        protected virtual RelationalValueReaderFactory ValueReaderFactory => new RelationalTypedValueReaderFactory();
 
         public virtual IDbContextOptions DbContextOptions => _options;
 
@@ -121,11 +113,6 @@ namespace Microsoft.Data.Entity.Relational
             return queryCompilationContext
                 .CreateQueryModelVisitor()
                 .CreateAsyncQueryExecutor<TResult>(queryModel);
-        }
-
-        public override QueryContext CreateQueryContext()
-        {
-            return new RelationalQueryContext(Logger, CreateQueryBuffer(), _connection, ValueReaderFactory);
         }
 
         protected virtual RelationalQueryCompilationContext CreateQueryCompilationContext(

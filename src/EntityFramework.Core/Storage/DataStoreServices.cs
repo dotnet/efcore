@@ -2,10 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Utilities;
+using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.ValueGeneration;
 using Microsoft.Framework.DependencyInjection;
 
@@ -16,37 +16,27 @@ namespace Microsoft.Data.Entity.Storage
         public abstract DataStore Store { get; }
         public abstract DataStoreCreator Creator { get; }
         public abstract DataStoreConnection Connection { get; }
-        public abstract ValueGeneratorSelectorContract ValueGeneratorSelector { get; }
+        public abstract IValueGeneratorSelector ValueGeneratorSelector { get; }
         public abstract Database Database { get; }
         public abstract ModelBuilderFactory ModelBuilderFactory { get; }
         public abstract ModelSource ModelSource { get; }
+        public abstract QueryContextFactory QueryContextFactory { get; }
 
-        public static Func<IServiceProvider, DbContextService<DataStoreServices>> DataStoreServicesFactory 
-            => p => new DbContextService<DataStoreServices>(() => GetStoreServices(p));
+        public static Func<IServiceProvider, DataStore> DataStoreFactory => p => GetStoreServices(p).Store;
 
-        public static Func<IServiceProvider, DbContextService<DataStore>> DataStoreFactory 
-            => p => new DbContextService<DataStore>(() => GetStoreServices(p).Store);
+        public static Func<IServiceProvider, QueryContextFactory> QueryContextFactoryFactory => p => GetStoreServices(p).QueryContextFactory;
 
-        public static Func<IServiceProvider, DbContextService<Database>> DatabaseFactory 
-            => p => new DbContextService<Database>(() => GetStoreServices(p).Database);
+        public static Func<IServiceProvider, Database> DatabaseFactory => p => GetStoreServices(p).Database;
 
-        public static Func<IServiceProvider, DbContextService<DataStoreCreator>> DataStoreCreatorFactory 
-            => p => new DbContextService<DataStoreCreator>(() => GetStoreServices(p).Creator);
+        public static Func<IServiceProvider, DataStoreCreator> DataStoreCreatorFactory => p => GetStoreServices(p).Creator;
 
-        public static Func<IServiceProvider, DbContextService<ValueGeneratorSelectorContract>> ValueGeneratorSelectorFactory 
-            => p => new DbContextService<ValueGeneratorSelectorContract>(() => GetStoreServices(p).ValueGeneratorSelector);
+        public static Func<IServiceProvider, IValueGeneratorSelector> ValueGeneratorSelectorFactory => p => GetStoreServices(p).ValueGeneratorSelector;
 
-        public static Func<IServiceProvider, DbContextService<DataStoreConnection>> ConnectionFactory 
-            => p => new DbContextService<DataStoreConnection>(() => GetStoreServices(p).Connection);
+        public static Func<IServiceProvider, DataStoreConnection> ConnectionFactory => p => GetStoreServices(p).Connection;
 
-        public static Func<IServiceProvider, DbContextService<ModelBuilderFactory>> ModelBuilderFactoryFactory 
-            => p => new DbContextService<ModelBuilderFactory>(() => GetStoreServices(p).ModelBuilderFactory);
+        public static Func<IServiceProvider, ModelBuilderFactory> ModelBuilderFactoryFactory => p => GetStoreServices(p).ModelBuilderFactory;
 
-        protected static DataStoreServices GetStoreServices([NotNull] IServiceProvider serviceProvider)
-        {
-            Check.NotNull(serviceProvider, nameof(serviceProvider));
-
-            return serviceProvider.GetRequiredServiceChecked<DbContextServices>().DataStoreServices;
-        }
+        private static DataStoreServices GetStoreServices(IServiceProvider serviceProvider)
+            => serviceProvider.GetRequiredServiceChecked<DbContextServices>().DataStoreServices;
     }
 }

@@ -31,12 +31,12 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             }
         }
 
-        public static DbContextService<IDbContextOptions> CreateOptions()
+        public static IDbContextOptions CreateOptions()
         {
             var options = new DbContextOptions();
             options.UseSqlServer(@"Server=(localdb)\MSSQLLocalDB;Database=SqlServerConnectionTest;Trusted_Connection=True;");
 
-            return new DbContextService<IDbContextOptions>(() => options);
+            return options;
         }
     }
 }

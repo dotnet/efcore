@@ -125,10 +125,10 @@
     <Compile Include="Infrastructure\EntityFrameworkServicesBuilder.cs" />
     <Compile Include="Infrastructure\ModelValidatorBase.cs" />
     <Compile Include="Infrastructure\IAccessor.cs" />
+    <Compile Include="Internal\DbContextServices.cs" />
     <Compile Include="ModelBuilder.cs" />
     <Compile Include="Query\EntityLoadInfo.cs" />
     <Compile Include="Query\IIncludableQueryable.cs" />
-    <Compile Include="Infrastructure\DbContextService.cs" />
     <Compile Include="Infrastructure\DbContextActivator.cs" />
     <Compile Include="DbContextOptions.cs" />
     <Compile Include="DbContextOptions`.cs" />
@@ -183,6 +183,7 @@
     <Compile Include="Query\QueryAnnotation.cs" />
     <Compile Include="Query\QueryAnnotationExtractor.cs" />
     <Compile Include="Query\CompiledQueryCache.cs" />
+    <Compile Include="Query\QueryContextFactory.cs" />
     <Compile Include="Query\QueryExtensions.cs" />
     <Compile Include="Query\QueryOptimizer.cs" />
     <Compile Include="Query\ExpressionTreeVisitors\QuerySourceTracingExpressionTreeVisitor.cs" />
@@ -220,7 +221,6 @@
     <Compile Include="Extensions\EntityFrameworkServiceCollectionExtensions.cs" />
     <Compile Include="Extensions\EntityFrameworkQueryableExtensions.cs" />
     <Compile Include="Infrastructure\Database.cs" />
-    <Compile Include="Infrastructure\DbContextServices.cs" />
     <Compile Include="Infrastructure\DbSetFinder.cs" />
     <Compile Include="Infrastructure\DbSetInitializer.cs" />
     <Compile Include="Infrastructure\DbSetSource.cs" />
@@ -330,7 +330,7 @@
     <Compile Include="ValueGeneration\TemporaryIntegerValueGenerator.cs" />
     <Compile Include="ValueGeneration\TemporaryStringValueGenerator.cs" />
     <Compile Include="ValueGeneration\ValueGeneratorSelector.cs" />
-    <Compile Include="ValueGeneration\ValueGeneratorSelectorContract.cs" />
+    <Compile Include="ValueGeneration\IValueGeneratorSelector.cs" />
     <Compile Include="ValueGeneration\ValueGenerator`.cs" />
     <EmbeddedResource Include="Properties\Strings.resx">
       <LogicalName>EntityFramework.Core.Strings.resources</LogicalName>

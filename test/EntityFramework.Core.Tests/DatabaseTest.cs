@@ -5,7 +5,6 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Framework.DependencyInjection;
@@ -30,7 +29,7 @@ namespace Microsoft.Data.Entity.Tests
             var connection = Mock.Of<DataStoreConnection>();
 
             var database = new ConcreteDatabase(
-                new DbContextService<DbContext>(() => context),
+                context,
                 creatorMock.Object,
                 connection,
                 new LoggerFactory());
@@ -56,7 +55,7 @@ namespace Microsoft.Data.Entity.Tests
             creatorMock.Setup(m => m.EnsureDeletedAsync(model, cancellationToken)).Returns(Task.FromResult(true));
 
             var database = new ConcreteDatabase(
-                new DbContextService<DbContext>(() => context),
+                context,
                 creatorMock.Object,
                 Mock.Of<DataStoreConnection>(),
                 new LoggerFactory());
@@ -85,7 +84,7 @@ namespace Microsoft.Data.Entity.Tests
             using (var context = TestHelpers.Instance.CreateContext())
             {
                 Assert.Same(
-                    ((IAccessor<IServiceProvider>)context).Service.GetRequiredService<DbContextService<DataStoreCreator>>().Service,
+                    ((IAccessor<IServiceProvider>)context).Service.GetRequiredService<DataStoreCreator>(),
                     ((IAccessor<DataStoreCreator>)context.Database).Service);
             }
         }
@@ -96,7 +95,7 @@ namespace Microsoft.Data.Entity.Tests
             using (var context = TestHelpers.Instance.CreateContext())
             {
                 Assert.Same(
-                    ((IAccessor<IServiceProvider>)context).Service.GetRequiredService<DbContextService<IModel>>().Service,
+                    ((IAccessor<IServiceProvider>)context).Service.GetRequiredService<IModel>(),
                     ((IAccessor<IModel>)context.Database).Service);
             }
         }
@@ -113,7 +112,7 @@ namespace Microsoft.Data.Entity.Tests
         private class ConcreteDatabase : Database
         {
             public ConcreteDatabase(
-                DbContextService<DbContext> context,
+                DbContext context,
                 DataStoreCreator dataStoreCreator,
                 DataStoreConnection connection,
                 ILoggerFactory loggerFactory)
