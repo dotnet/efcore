@@ -28,9 +28,9 @@ namespace Microsoft.Data.Entity.ValueGeneration
             }
         }
 
-        public virtual TValue Next<TValue>([NotNull] Func<long> getNewHighValue)
+        public virtual TValue Next<TValue>([NotNull] Func<long> getNewLowValue)
         {
-            Check.NotNull(getNewHighValue, nameof(getNewHighValue));
+            Check.NotNull(getNewLowValue, nameof(getNewLowValue));
 
             var poolIndexToUse = _poolIndex;
             _poolIndex = (_poolIndex + 1) % _pool.Length;
@@ -48,7 +48,7 @@ namespace Microsoft.Data.Entity.ValueGeneration
                     // case just get a value out of the new block instead of requesting one.
                     if (newValue.High == _pool[poolIndexToUse].High)
                     {
-                        var newCurrent = getNewHighValue();
+                        var newCurrent = getNewLowValue();
                         newValue = new HiLoValue(newCurrent, newCurrent + _blockSize);
                         _pool[poolIndexToUse] = newValue;
                     }

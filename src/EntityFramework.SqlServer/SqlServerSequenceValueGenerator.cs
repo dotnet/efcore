@@ -31,7 +31,7 @@ namespace Microsoft.Data.Entity.SqlServer
             _connection = connection;
         }
 
-        protected override long GetNewHighValue()
+        protected override long GetNewLowValue()
         {
             // TODO: Parameterize query and/or delimit identifier without using SqlServerMigrationOperationSqlGenerator
             var sql = string.Format(CultureInfo.InvariantCulture, "SELECT NEXT VALUE FOR {0}", _sequenceName);

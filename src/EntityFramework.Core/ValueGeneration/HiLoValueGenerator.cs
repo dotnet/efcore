@@ -22,8 +22,8 @@ namespace Microsoft.Data.Entity.ValueGeneration
             _generatorState = generatorState;
         }
 
-        public override TValue Next() => _generatorState.Next<TValue>(GetNewHighValue);
+        public override TValue Next() => _generatorState.Next<TValue>(GetNewLowValue);
 
-        protected abstract long GetNewHighValue();
+        protected abstract long GetNewLowValue();
     }
 }
