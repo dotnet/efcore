@@ -38,23 +38,21 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 
         public virtual ILogger Logger { get; }
 
-        public virtual async Task GenerateAsync(
-            [NotNull] ReverseEngineeringConfiguration configuration,
-            CancellationToken cancellationToken = default(CancellationToken))
+        public virtual void Generate(
+            [NotNull] ReverseEngineeringConfiguration configuration)
         {
             Check.NotNull(configuration, nameof(configuration));
 
             CheckConfiguration(configuration);
 
-            var providerAssembly = configuration.ProviderAssembly;
-            var provider = GetProvider(providerAssembly);
+            var provider = configuration.Provider;
             var metadataModel = GetMetadataModel(provider, configuration);
 
             var dbContextGeneratorModel = new DbContextGeneratorModel
             {
                 ClassName = configuration.ContextClassName,
                 Namespace = configuration.Namespace,
-                ProviderAssembly = configuration.ProviderAssembly.FullName,
+                ProviderTypeName = configuration.Provider.GetType().FullName,
                 ConnectionString = configuration.ConnectionString,
                 MetadataModel = metadataModel
             };
@@ -75,10 +73,9 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             dbContextCodeGenerator.Generate(contextStringBuilder);
 
             // output DbContext .cs file
-            using (var sourceStream = new MemoryStream(Encoding.UTF8.GetBytes(contextStringBuilder.ToString())))
-            {
-                await OutputFile(configuration.OutputPath, dbContextCodeGenerator.ClassName + FileExtension, sourceStream);
-            }
+            OutputFile(configuration.OutputPath,
+                dbContextCodeGenerator.ClassName + FileExtension,
+                contextStringBuilder.ToString());
 
             foreach (var entityType in metadataModel.EntityTypes)
             {
@@ -86,7 +83,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 {
                     EntityType = entityType,
                     Namespace = configuration.Namespace,
-                    ProviderAssembly = configuration.ProviderAssembly.FullName,
+                    ProviderTypeName = configuration.Provider.GetType().FullName,
                     ConnectionString = configuration.ConnectionString,
                 };
 
@@ -106,12 +103,9 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 entityTypeCodeGenerator.Generate(entityTypeStringBuilder);
 
                 // output EntityType poco .cs file
-                using (var sourceStream = new MemoryStream(Encoding.UTF8.GetBytes(entityTypeStringBuilder.ToString())))
-                {
-                    await OutputFile(configuration.OutputPath,
-                        entityType.Name + FileExtension,
-                        sourceStream);
-                }
+                OutputFile(configuration.OutputPath,
+                    entityType.Name + FileExtension,
+                    entityTypeStringBuilder.ToString());
             }
         }
 
@@ -193,22 +187,18 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             }
         }
 
-        private async Task OutputFile(string outputDirectoryName, string outputFileName, Stream sourceStream)
+        public virtual void OutputFile(string outputDirectoryName, string outputFileName, string contents)
         {
             Directory.CreateDirectory(outputDirectoryName);
-
             var fullFileName = Path.Combine(outputDirectoryName, outputFileName);
-            using (var writeStream = new FileStream(fullFileName, FileMode.Create, FileAccess.Write))
-            {
-                await sourceStream.CopyToAsync(writeStream);
-            }
+            File.WriteAllText(fullFileName, contents, Encoding.UTF8);
         }
 
         private static void CheckConfiguration(ReverseEngineeringConfiguration configuration)
         {
-            if (configuration.ProviderAssembly == null)
+            if (configuration.Provider == null)
             {
-                throw new ArgumentException("ProviderAssembly is required to generate code.");
+                throw new ArgumentException("Provider is required to generate code.");
             }
 
             if (string.IsNullOrEmpty(configuration.ConnectionString))
