@@ -67,9 +67,12 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 }
             }
 
+            var hasChanged = navigationToPrincipalName != null &&
+                             Metadata.GetNavigationToPrincipal()?.Name != navigationToPrincipalName;
+
             return dependentEntityType
                 .Navigation(navigationToPrincipalName, Metadata, pointsToPrincipal: true, configurationSource: configurationSource)
-                ? this
+                ? hasChanged ? ReplaceForeignKey(configurationSource) : this
                 : null;
         }
 
@@ -106,9 +109,12 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 }
             }
 
+            var hasChanged = navigationToDependentName != null &&
+                             Metadata.GetNavigationToDependent()?.Name != navigationToDependentName;
+
             return principalEntityType
                 .Navigation(navigationToDependentName, Metadata, pointsToPrincipal: false, configurationSource: configurationSource)
-                ? this
+                ? hasChanged ? ReplaceForeignKey(configurationSource) : this
                 : null;
         }
 

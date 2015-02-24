@@ -82,6 +82,7 @@
   <ItemGroup>
     <Compile Include="CommandConfigurationTests.cs" />
     <Compile Include="ComputedColumnTest.cs" />
+    <Compile Include="NavigationTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="BuiltInDataTypesSqlServerFixture.cs" />
     <Compile Include="BuiltInDataTypesSqlServerTest.cs" />
