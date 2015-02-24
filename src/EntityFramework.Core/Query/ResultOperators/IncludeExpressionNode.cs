@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.Query.ResultOperators
     {
         public static readonly MethodInfo[] SupportedMethods =
             {
-                QueryableExtensions.IncludeMethodInfo
+                EntityFrameworkQueryableExtensions.IncludeMethodInfo
             };
 
         private readonly LambdaExpression _navigationPropertyPathLambda;

@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity.Infrastructure
     /// <summary>
     ///     Provides Entity Framework specific APIs for configuring services in an <see cref="IServiceCollection" />.
     ///     These APIs are usually accessed by calling
-    ///     <see cref="EntityServiceCollectionExtensions.AddEntityFramework(IServiceCollection, IConfiguration)" />
+    ///     <see cref="EntityFrameworkServiceCollectionExtensions.AddEntityFramework(IServiceCollection, IConfiguration)" />
     ///     and then chaining API calls on the returned <see cref="EntityFrameworkServicesBuilder" />.
     /// </summary>
     public class EntityFrameworkServicesBuilder : IAccessor<IServiceCollection>, IAccessor<IConfiguration>

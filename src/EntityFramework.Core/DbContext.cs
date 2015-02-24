@@ -72,7 +72,7 @@ namespace Microsoft.Data.Entity
         ///         The service provider must contain all the services required by Entity Framework (and the data store being
         ///         used).
         ///         The Entity Framework services can be registered using the
-        ///         <see cref="EntityServiceCollectionExtensions.AddEntityFramework" /> method.
+        ///         <see cref="EntityFrameworkServiceCollectionExtensions.AddEntityFramework" /> method.
         ///         Most data stores also provide an extension method on <see cref="IServiceCollection" /> to register the services
         ///         required.
         ///     </para>
@@ -117,7 +117,7 @@ namespace Microsoft.Data.Entity
         ///         The service provider must contain all the services required by Entity Framework (and the data store being
         ///         used).
         ///         The Entity Framework services can be registered using the
-        ///         <see cref="EntityServiceCollectionExtensions.AddEntityFramework" /> method.
+        ///         <see cref="EntityFrameworkServiceCollectionExtensions.AddEntityFramework" /> method.
         ///         Most data stores also provide an extension method on <see cref="IServiceCollection" /> to register the services
         ///         required.
         ///     </para>

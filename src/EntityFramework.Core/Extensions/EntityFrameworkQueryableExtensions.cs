@@ -17,7 +17,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace System.Linq
 {
-    public static class QueryableExtensions
+    public static class EntityFrameworkQueryableExtensions
     {
         #region Any/All
 
@@ -2164,7 +2164,7 @@ namespace System.Linq
         #region Include
 
         internal static readonly MethodInfo IncludeMethodInfo
-            = typeof(QueryableExtensions)
+            = typeof(EntityFrameworkQueryableExtensions)
                 .GetTypeInfo().GetDeclaredMethods("Include")
                 .Single(mi => mi.GetParameters().Any(pi => pi.Name == "navigationPropertyPath"));
 
@@ -2186,7 +2186,7 @@ namespace System.Linq
         }
 
         internal static readonly MethodInfo ThenIncludeMethodInfo
-            = typeof(QueryableExtensions)
+            = typeof(EntityFrameworkQueryableExtensions)
                 .GetTypeInfo().GetDeclaredMethods("ThenInclude")
                 .Single();
 
@@ -2277,7 +2277,7 @@ namespace System.Linq
         #region AsNoTracking
 
         internal static readonly MethodInfo AsNoTrackingMethodInfo
-            = typeof(QueryableExtensions)
+            = typeof(EntityFrameworkQueryableExtensions)
                 .GetTypeInfo().GetDeclaredMethod("AsNoTracking");
 
         /// <summary>

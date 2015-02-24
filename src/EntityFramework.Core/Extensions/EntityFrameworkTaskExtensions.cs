@@ -15,7 +15,7 @@ namespace System.Threading.Tasks
     /// <summary>
     ///     Contains extension methods for the <see cref="Task" /> class.
     /// </summary>
-    public static class TaskExtensions
+    public static class EntityFrameworkTaskExtensions
     {
         /// <summary>
         ///     Configures an awaiter used to await this <see cref="Task{TResult}" /> to avoid

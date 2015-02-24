@@ -133,7 +133,7 @@
     <Compile Include="DbContextOptions`.cs" />
     <Compile Include="DbSet`.cs" />
     <Compile Include="EntityState.cs" />
-    <Compile Include="Extensions\TaskExtensions.cs" />
+    <Compile Include="Extensions\EntityFrameworkTaskExtensions.cs" />
     <Compile Include="Infrastructure\DbContextConfigureOptions.cs" />
     <Compile Include="Infrastructure\DbContextOptionsParser.cs" />
     <Compile Include="Infrastructure\ModelSourceHelpers.cs" />
@@ -216,8 +216,8 @@
     <Compile Include="ChangeTracking\EntityEntry`.cs" />
     <Compile Include="ChangeTracking\PropertyEntry.cs" />
     <Compile Include="ChangeTracking\PropertyEntry`.cs" />
-    <Compile Include="Extensions\EntityServiceCollectionExtensions.cs" />
-    <Compile Include="Extensions\QueryableExtensions.cs" />
+    <Compile Include="Extensions\EntityFrameworkServiceCollectionExtensions.cs" />
+    <Compile Include="Extensions\EntityFrameworkQueryableExtensions.cs" />
     <Compile Include="Infrastructure\Database.cs" />
     <Compile Include="Infrastructure\DbContextServices.cs" />
     <Compile Include="Infrastructure\DbSetFinder.cs" />

@@ -12,7 +12,7 @@ namespace Microsoft.Data.Entity.Query.ResultOperators
 {
     public class AsNoTrackingExpressionNode : ResultOperatorExpressionNodeBase
     {
-        public static readonly MethodInfo[] SupportedMethods = { QueryableExtensions.AsNoTrackingMethodInfo };
+        public static readonly MethodInfo[] SupportedMethods = { EntityFrameworkQueryableExtensions.AsNoTrackingMethodInfo };
 
         public AsNoTrackingExpressionNode(MethodCallExpressionParseInfo parseInfo)
             : base(parseInfo, null, null)

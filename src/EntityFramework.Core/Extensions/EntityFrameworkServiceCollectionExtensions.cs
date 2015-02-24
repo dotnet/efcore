@@ -24,7 +24,7 @@ namespace Microsoft.Framework.DependencyInjection
     /// <summary>
     ///     Extension methods for setting up Entity Framework related services in an <see cref="IServiceCollection" />.
     /// </summary>
-    public static class EntityServiceCollectionExtensions
+    public static class EntityFrameworkServiceCollectionExtensions
     {
         private const int ConfigurationOrder = -1000; // OptionsConstants is internal.
 
