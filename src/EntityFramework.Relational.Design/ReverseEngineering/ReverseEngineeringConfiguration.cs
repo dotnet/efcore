@@ -8,7 +8,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 {
     public class ReverseEngineeringConfiguration
     {
-        public virtual Assembly ProviderAssembly { get; [param:  NotNull] set; }
+        public virtual IDatabaseMetadataModelProvider Provider { get; [param:  NotNull] set; }
         public virtual string ConnectionString { get;[param: NotNull] set; }
         public virtual string OutputPath { get;[param: NotNull] set; }
         public virtual string Namespace { get;[param: NotNull] set; }

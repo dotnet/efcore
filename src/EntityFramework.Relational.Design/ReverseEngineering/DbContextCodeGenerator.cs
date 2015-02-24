@@ -292,7 +292,8 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         {
             Check.NotNull(entityType, nameof(entityType));
 
-            if ("dbo" != entityType.Relational().Schema)
+            if (entityType.Relational().Schema != null
+                && "dbo" != entityType.Relational().Schema)
             {
                 return string.Format(CultureInfo.InvariantCulture, ".Table({0}, {1})",
                     CSharpUtilities.Instance.DelimitString(entityType.Relational().Table),

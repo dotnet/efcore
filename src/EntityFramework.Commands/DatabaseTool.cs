@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Commands.Utilities;
@@ -43,14 +44,31 @@ namespace Microsoft.Data.Entity.Commands
 
             var configuration = new ReverseEngineeringConfiguration()
             {
-                ProviderAssembly = providerAssembly,
+                Provider = GetProvider(providerAssembly),
                 ConnectionString = connectionString,
                 Namespace = rootNamespace,
                 OutputPath = projectDir
             };
 
             var generator = new ReverseEngineeringGenerator(_serviceProvider);
-            generator.GenerateAsync(configuration).Wait();
+            generator.Generate(configuration);
+        }
+
+        public virtual IDatabaseMetadataModelProvider GetProvider([NotNull] Assembly providerAssembly)
+        {
+            Check.NotNull(providerAssembly, nameof(providerAssembly));
+
+            var type = providerAssembly.GetExportedTypes()
+                .FirstOrDefault(t => typeof(IDatabaseMetadataModelProvider).IsAssignableFrom(t));
+            if (type == null)
+            {
+                throw new InvalidOperationException(
+                    "Assembly " + providerAssembly.FullName
+                    + " does not contain a type which extends "
+                    + typeof(IDatabaseMetadataModelProvider).FullName);
+            }
+
+            return (IDatabaseMetadataModelProvider)Activator.CreateInstance(type, _serviceProvider);
         }
     }
 }
