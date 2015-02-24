@@ -9,6 +9,8 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Data.Entity.ChangeTracking.Internal;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Query;
 using Remotion.Linq.Parsing;
 
@@ -54,7 +56,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind
             foreach (var employee in CreateEmployees())
             {
                 context.Set<Employee>().Add(employee);
-                context.Entry(employee).InternalEntry[titleProperty] = employee.Title;
+                ((IAccessor<InternalEntityEntry>)context.Entry(employee)).Service[titleProperty] = employee.Title;
             }
 
             context.Set<Order>().AddRange(CreateOrders());

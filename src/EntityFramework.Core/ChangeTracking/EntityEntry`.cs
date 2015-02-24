@@ -5,6 +5,7 @@ using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.ChangeTracking
@@ -55,7 +56,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             var propertyInfo = propertyExpression.GetPropertyAccess();
 
-            return new PropertyEntry<TEntity, TProperty>(InternalEntry, propertyInfo.Name);
+            return new PropertyEntry<TEntity, TProperty>(((IAccessor<InternalEntityEntry>)this).Service, propertyInfo.Name);
         }
     }
 }

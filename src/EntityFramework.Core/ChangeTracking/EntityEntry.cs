@@ -4,6 +4,7 @@
 using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
@@ -18,9 +19,11 @@ namespace Microsoft.Data.Entity.ChangeTracking
     ///         not designed to be directly constructed in your application code.
     ///     </para>
     /// </summary>
-    [DebuggerDisplay("{InternalEntry,nq}")]
-    public class EntityEntry
+    [DebuggerDisplay("{_internalEntityEntry,nq}")]
+    public class EntityEntry : IAccessor<InternalEntityEntry>
     {
+        private readonly InternalEntityEntry _internalEntityEntry;
+
         /// <summary>
         ///     Initializes a new instance of the <see cref="EntityEntry"/> class. Instances of this class are returned from 
         ///     methods when using the <see cref="ChangeTracker"/> API and it is not designed to be directly constructed in 
@@ -33,14 +36,14 @@ namespace Microsoft.Data.Entity.ChangeTracking
             Check.NotNull(internalEntry, nameof(internalEntry));
             Check.NotNull(context, nameof(context));
 
-            InternalEntry = internalEntry;
+            _internalEntityEntry = internalEntry;
             Context = context;
         }
 
         /// <summary>
         ///     Gets the entity being tracked by this entry.
         /// </summary>
-        public virtual object Entity => InternalEntry.Entity;
+        public virtual object Entity => _internalEntityEntry.Entity;
 
         /// <summary>
         ///     <para>
@@ -55,19 +58,19 @@ namespace Microsoft.Data.Entity.ChangeTracking
         /// </summary>
         public virtual EntityState State
         {
-            get { return InternalEntry.EntityState; }
+            get { return _internalEntityEntry.EntityState; }
             set
             {
                 Check.IsDefined(value, nameof(value));
 
-                InternalEntry.SetEntityState(value);
+                _internalEntityEntry.SetEntityState(value);
             }
         }
 
         /// <summary>
         ///     Gets the internal entry that is tracking information about this entity.
         /// </summary>
-        public virtual InternalEntityEntry InternalEntry { get; }
+        InternalEntityEntry IAccessor<InternalEntityEntry>.Service => _internalEntityEntry;
 
         /// <summary>
         ///     Gets the context that is tracking the entity.
@@ -77,7 +80,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         /// <summary>
         ///     Gets the metadata the context is using to reason about this entity.
         /// </summary>
-        public virtual IEntityType Metadata => InternalEntry.EntityType;
+        public virtual IEntityType Metadata => _internalEntityEntry.EntityType;
 
         /// <summary>
         ///     Provides access to change tracking information and operations for a given
@@ -89,7 +92,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
             Check.NotEmpty(propertyName, nameof(propertyName));
 
-            return new PropertyEntry(InternalEntry, propertyName);
+            return new PropertyEntry(_internalEntityEntry, propertyName);
         }
 
         /// <summary>
@@ -103,6 +106,6 @@ namespace Microsoft.Data.Entity.ChangeTracking
         ///         the property (i.e. null for string, 0 for int, etc.)
         ///     </para>
         /// </summary>
-        public virtual bool IsKeySet => InternalEntry.IsKeySet;
+        public virtual bool IsKeySet => _internalEntityEntry.IsKeySet;
     }
 }

@@ -409,7 +409,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             {
                 if (!entry.IsKeySet)
                 {
-                    entry.InternalEntry[entry.Metadata.GetPrimaryKey().Properties.Single()] = 777;
+                    ((IAccessor<InternalEntityEntry>)entry).Service[entry.Metadata.GetPrimaryKey().Properties.Single()] = 777;
                     return EntityState.Added;
                 }
 

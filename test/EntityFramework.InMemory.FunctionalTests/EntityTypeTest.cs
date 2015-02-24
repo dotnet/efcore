@@ -62,7 +62,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 Assert.Equal(42, entityEntry.Property(idProperty.Name).CurrentValue);
                 Assert.Equal("The", entityEntry.Property(nameProperty.Name).CurrentValue);
 
-                entityEntry.InternalEntry[nameProperty] = "A";
+                ((IAccessor<InternalEntityEntry>)entityEntry).Service[nameProperty] = "A";
 
                 context.Update(entityFromStore);
 

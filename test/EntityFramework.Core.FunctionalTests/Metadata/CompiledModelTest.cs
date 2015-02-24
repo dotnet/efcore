@@ -4,6 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Data.Entity.ChangeTracking.Internal;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Xunit;
 
@@ -88,7 +90,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.Metadata
                 var entity = new KoolEntity15();
                 var property = (_KoolEntity15IdProperty)context.Model.GetEntityType(entity.GetType()).TryGetProperty("Id");
 
-                var entry = context.Entry(entity).InternalEntry;
+                var entry = ((IAccessor<InternalEntityEntry>)context.Entry(entity)).Service;
 
                 Assert.False(property.GetterCalled);
                 Assert.False(property.SetterCalled);

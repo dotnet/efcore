@@ -94,7 +94,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 context.Add(customer);
 
                 // TODO: Better API for shadow state access
-                var customerEntry = context.Entry(customer).InternalEntry;
+                var customerEntry = ((IAccessor<InternalEntityEntry>)context.Entry(customer)).Service;
                 customerEntry[customerType.GetProperty("Name")] = "Daenerys";
 
                 await context.SaveChangesAsync();
@@ -114,7 +114,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
             using (var context = new DbContext(_fixture.ServiceProvider, options))
             {
-                var customerEntry = context.Entry(customer).InternalEntry;
+                var customerEntry = ((IAccessor<InternalEntityEntry>)context.Entry(customer)).Service;
                 customerEntry[customerType.GetProperty("Name")] = "Daenerys Targaryen";
 
                 context.Update(customer);

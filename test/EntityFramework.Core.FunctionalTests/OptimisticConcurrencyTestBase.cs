@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.ConcurrencyModel;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Update;
 using Xunit;
@@ -27,7 +28,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         public static void SetValues(this EntityEntry entityEntry, Dictionary<string, object> values)
         {
-            var entry = entityEntry.InternalEntry;
+            var entry = ((IAccessor<InternalEntityEntry>)entityEntry).Service;
             var entityType = entry.EntityType;
             foreach (var value in values)
             {
@@ -69,12 +70,12 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         public static void Reload(this EntityEntry entityEntry, DbContext context)
         {
-            entityEntry.InternalEntry.Reload(context);
+            ((IAccessor<InternalEntityEntry>)entityEntry).Service.Reload(context);
         }
 
         public static Task ReloadAsync(this EntityEntry entityEntry, DbContext context)
         {
-            return entityEntry.InternalEntry.ReloadAsync(context);
+            return ((IAccessor<InternalEntityEntry>)entityEntry).Service.ReloadAsync(context);
         }
 
         public static Dictionary<IProperty, object> GetDatabaseValues(this InternalEntityEntry internalEntry, DbContext context)

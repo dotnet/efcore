@@ -2,6 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.ChangeTracking.Internal;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.ChangeTracking
@@ -19,7 +21,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
             Check.NotNull(entry, nameof(entry));
 
-            entry.InternalEntry.SetEntityState(DetermineState(entry), acceptChanges: true);
+            ((IAccessor<InternalEntityEntry>)entry).Service.SetEntityState(DetermineState(entry), acceptChanges: true);
         }
 
         public virtual EntityState DetermineState([NotNull] EntityEntry entry)

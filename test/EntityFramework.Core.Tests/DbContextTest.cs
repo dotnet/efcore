@@ -212,8 +212,8 @@ namespace Microsoft.Data.Entity.Tests
 
             using (var context = new DbContext(serviceProvider))
             {
-                Assert.Same(entry, context.Entry(entity).InternalEntry);
-                Assert.Same(entry, context.Entry((object)entity).InternalEntry);
+                Assert.Same(entry, ((IAccessor<InternalEntityEntry>)context.Entry(entity)).Service);
+                Assert.Same(entry, ((IAccessor<InternalEntityEntry>)context.Entry((object)entity)).Service);
             }
         }
 
@@ -306,10 +306,10 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Same(product2, productEntry2.Entity);
                 Assert.Equal(expectedState, productEntry2.State);
 
-                Assert.Same(categoryEntry1.InternalEntry, context.Entry(category1).InternalEntry);
-                Assert.Same(categoryEntry2.InternalEntry, context.Entry(category2).InternalEntry);
-                Assert.Same(productEntry1.InternalEntry, context.Entry(product1).InternalEntry);
-                Assert.Same(productEntry2.InternalEntry, context.Entry(product2).InternalEntry);
+                Assert.Same(((IAccessor<InternalEntityEntry>)categoryEntry1).Service, ((IAccessor<InternalEntityEntry>)context.Entry(category1)).Service);
+                Assert.Same(((IAccessor<InternalEntityEntry>)categoryEntry2).Service, ((IAccessor<InternalEntityEntry>)context.Entry(category2)).Service);
+                Assert.Same(((IAccessor<InternalEntityEntry>)productEntry1).Service, ((IAccessor<InternalEntityEntry>)context.Entry(product1)).Service);
+                Assert.Same(((IAccessor<InternalEntityEntry>)productEntry2).Service, ((IAccessor<InternalEntityEntry>)context.Entry(product2)).Service);
             }
         }
 
@@ -457,10 +457,10 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Same(product2, productEntry2.Entity);
                 Assert.Equal(expectedState, productEntry2.State);
 
-                Assert.Same(categoryEntry1.InternalEntry, context.Entry(category1).InternalEntry);
-                Assert.Same(categoryEntry2.InternalEntry, context.Entry(category2).InternalEntry);
-                Assert.Same(productEntry1.InternalEntry, context.Entry(product1).InternalEntry);
-                Assert.Same(productEntry2.InternalEntry, context.Entry(product2).InternalEntry);
+                Assert.Same(((IAccessor<InternalEntityEntry>)categoryEntry1).Service, ((IAccessor<InternalEntityEntry>)context.Entry(category1)).Service);
+                Assert.Same(((IAccessor<InternalEntityEntry>)categoryEntry2).Service, ((IAccessor<InternalEntityEntry>)context.Entry(category2)).Service);
+                Assert.Same(((IAccessor<InternalEntityEntry>)productEntry1).Service, ((IAccessor<InternalEntityEntry>)context.Entry(product1)).Service);
+                Assert.Same(((IAccessor<InternalEntityEntry>)productEntry2).Service, ((IAccessor<InternalEntityEntry>)context.Entry(product2)).Service);
             }
         }
 

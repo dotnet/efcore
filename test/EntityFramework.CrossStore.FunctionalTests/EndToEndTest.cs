@@ -3,7 +3,9 @@
 
 using System;
 using System.Linq;
+using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.FunctionalTests.TestModels;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.InMemory.FunctionalTests;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.SqlServer.FunctionalTests;
@@ -29,7 +31,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 // TODO: Replace with
                 // context.ChangeTracker.Entry(entity).Property(SimpleEntity.ShadowPropertyName).CurrentValue = "shadow";
                 var property = context.Model.GetEntityType(typeof(SimpleEntity)).GetProperty(SimpleEntity.ShadowPropertyName);
-                context.Entry(second).InternalEntry[property] = "shadow";
+                ((IAccessor<InternalEntityEntry>)context.Entry(second)).Service[property] = "shadow";
                 SetPartitionId(second, context);
 
                 Assert.Equal(1, context.SaveChanges());
@@ -65,7 +67,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         private void SetPartitionId(SimpleEntity entity, CrossStoreContext context)
         {
             var property = context.Model.GetEntityType(entity.GetType()).GetProperty(SimpleEntity.ShadowPartitionIdName);
-            context.Entry(entity).InternalEntry[property] = "Partition";
+            ((IAccessor<InternalEntityEntry>)context.Entry(entity)).Service[property] = "Partition";
         }
 
         protected EndToEndTest(TFixture fixture)
